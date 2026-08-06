@@ -419,5 +419,8 @@
 	"item.powers.imported_food_wisdomfruit": "Food Wisdomfruit",
 	"item.powers.imported_magic_essence_blood_dust": "Magic Essence Blood Dust",
 	"item.powers.imported_magic_essence_sacred_dust": "Magic Essence Sacred Dust",
-	"item.powers.imported_magic_essence_soul_dust": "Magic Essence Soul Dust"
+	"item.powers.imported_magic_essence_soul_dust": "Magic Essence Soul Dust",
+	"grimoire.powers.placeholder": "The %s grimoire is waiting for its lore chapters.",
+	"rune.powers.channelled": "The rune channels 100 energy into you.",
+	"rune.powers.full": "Your energy is already full."
 }

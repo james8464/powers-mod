@@ -1,0 +1,10 @@
+{
+	"type": "minecraft:smelting",
+	"category": "food",
+	"ingredient": "powers:imported_food_slab_mooshroom_raw",
+	"result": {
+		"id": "powers:imported_food_slab_mooshroom_cooked"
+	},
+	"experience": 0.35,
+	"cooking_time": 200
+}

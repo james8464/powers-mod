@@ -21,7 +21,8 @@ public final class EnergyHudRenderer {
 		int width = client.getWindow().getGuiScaledWidth();
 		int height = client.getWindow().getGuiScaledHeight();
 		int x = width / 2 + 91;
-		int y = height - 58;
+		// The imported glyph is 9x27 with its visible icon in the bottom 9px.
+		int y = height - 76;
 		int energy = Math.max(0, Math.min(PowerEnergy.MAX, ClientPowerState.energy()));
 		boolean dampened = client.player.hasEffect(PowersEffects.AMETHYST_POISONING);
 
@@ -29,7 +30,9 @@ public final class EnergyHudRenderer {
 		boolean half = energy % (PowerEnergy.MAX / SEGMENTS) >= (PowerEnergy.MAX / SEGMENTS) / 2;
 		StringBuilder glyphs = new StringBuilder(SEGMENTS);
 		for (int i = 0; i < SEGMENTS; i++) {
-			char glyph = dampened ? '\uE002' : i < full ? '\uE000' : i == full && half ? '\uE001' : '\uE002';
+			int empty = SEGMENTS - full - (half ? 1 : 0);
+			char glyph = dampened ? '\uE002' : i < empty ? '\uE002'
+					: half && i == empty ? '\uE001' : '\uE000';
 			glyphs.append(glyph);
 		}
 		Component bar = Component.literal(glyphs.toString())

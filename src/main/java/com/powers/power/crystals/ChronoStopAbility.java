@@ -30,7 +30,7 @@ import java.util.Set;
  * A power that wins fights outright, never given out by the rainbow.
  */
 public class ChronoStopAbility extends Ability {
-	public static final int DURATION_TICKS = 120;
+	public static final int DURATION_TICKS = 600;
 
 	private static final int COOLDOWN_TICKS = 3600;
 	private static final Map<ServerPlayer, ActiveStop> ACTIVE = new HashMap<>();
@@ -73,6 +73,9 @@ public class ChronoStopAbility extends Ability {
 		ACTIVE.put(player, new ActiveStop(DURATION_TICKS, frozen));
 		ServerLevel level = (ServerLevel) player.level();
 		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x2962FF, 28, 1.2);
+		PowerFx.ring(level, player.position().add(0, 0.1, 0), 3.5, 0x2962FF, 32, 0);
+		PowerFx.ring(level, player.position().add(0, 2.0, 0), 3.5, 0x2962FF, 32, Math.PI);
+		PowerFx.spiral(level, player.position(), 2.5, 2.2, 0x2962FF, 24, 0);
 		PowerFx.burst(level, player.position().add(0, 1, 0),
 				ParticleTypes.TOTEM_OF_UNDYING, 14, 0.9, 0.25);
 		PowerFx.sound(level, player.position(), SoundEvents.EVOKER_CAST_SPELL, 1.0f, 1.5f);
@@ -101,6 +104,12 @@ public class ChronoStopAbility extends Ability {
 				if (entity instanceof ServerPlayer other) {
 					other.connection.teleport(f.pos().x, f.pos().y, f.pos().z, f.yRot(), f.xRot());
 				}
+			}
+			if (stop.ticksLeft() % 5 == 0 && entry.getKey().level() instanceof ServerLevel level) {
+				double phase = stop.ticksLeft() * 0.035;
+				PowerFx.ring(level, entry.getKey().position().add(0, 0.1, 0), 4.5, 0x2962FF, 32, phase);
+				PowerFx.ring(level, entry.getKey().position().add(0, 2.1, 0), 4.5, 0x2962FF, 32, -phase);
+				PowerFx.burst(level, entry.getKey().position().add(0, 1, 0), ParticleTypes.REVERSE_PORTAL, 5, 1.8, 0.01);
 			}
 
 			int left = stop.ticksLeft() - 1;

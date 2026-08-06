@@ -1,6 +1,9 @@
 package com.powers;
 
 import net.minecraft.world.item.Item;
+import net.minecraft.world.food.FoodProperties;
+import com.powers.item.GrimoireItem;
+import com.powers.item.RuneItem;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -20,8 +23,20 @@ public final class ImportedPackItems {
 			String texture = rawTexture.trim();
 			if (texture.isEmpty()) continue;
 			String id = "imported_" + texture.replace('.', '_');
-			ITEMS.put(id, ModItemIds.register(ModItemIds.create(id), Item::new,
-					new Item.Properties().stacksTo(64)));
+			Item.Properties properties = new Item.Properties().stacksTo(64);
+			java.util.function.Function<Item.Properties, Item> factory = Item::new;
+			if (texture.startsWith("food_")) {
+				boolean cooked = texture.contains("cooked") || texture.contains("smoked") || texture.contains("stew");
+				properties.food(new FoodProperties.Builder()
+						.nutrition(cooked ? 6 : 4)
+						.saturationModifier(cooked ? 0.6f : 0.3f)
+						.build());
+			} else if (texture.startsWith("book_grimoire")) {
+				factory = props -> new GrimoireItem(props, texture);
+			} else if (texture.contains("runestone") || texture.contains("rune")) {
+				factory = RuneItem::new;
+			}
+			ITEMS.put(id, ModItemIds.register(ModItemIds.create(id), factory, properties));
 		}
 	}
 }
