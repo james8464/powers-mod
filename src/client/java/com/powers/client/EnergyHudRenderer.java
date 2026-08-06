@@ -5,14 +5,11 @@ import com.powers.PowersMod;
 import com.powers.PowersEffects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.resources.Identifier;
+import net.minecraft.network.chat.Component;
 
 /** A segmented energy meter aligned above the vanilla hunger row. */
 public final class EnergyHudRenderer {
 	private static final int SEGMENTS = 10;
-	private static final Identifier FULL_ICON = PowersMod.id("textures/gui/mana_icon.png");
-	private static final Identifier HALF_ICON = PowersMod.id("textures/gui/mana_icon_half.png");
-	private static final Identifier EMPTY_ICON = PowersMod.id("textures/gui/mana_icon_off.png");
 
 	private EnergyHudRenderer() {
 	}
@@ -24,16 +21,21 @@ public final class EnergyHudRenderer {
 		int width = client.getWindow().getGuiScaledWidth();
 		int height = client.getWindow().getGuiScaledHeight();
 		int x = width / 2 + 91;
-		int y = height - 50;
+		int y = height - 58;
 		int energy = Math.max(0, Math.min(PowerEnergy.MAX, ClientPowerState.energy()));
 		boolean dampened = client.player.hasEffect(PowersEffects.AMETHYST_POISONING);
 
 		int full = energy / (PowerEnergy.MAX / SEGMENTS);
 		boolean half = energy % (PowerEnergy.MAX / SEGMENTS) >= (PowerEnergy.MAX / SEGMENTS) / 2;
+		StringBuilder glyphs = new StringBuilder(SEGMENTS);
 		for (int i = 0; i < SEGMENTS; i++) {
-			Identifier icon = dampened ? EMPTY_ICON : i < full ? FULL_ICON : i == full && half ? HALF_ICON : EMPTY_ICON;
-			graphics.blit(icon, x + i * 10, y, 9, 9, 0, 2.0f / 3.0f, 1, 1);
+			char glyph = dampened ? '\uE002' : i < full ? '\uE000' : i == full && half ? '\uE001' : '\uE002';
+			glyphs.append(glyph);
 		}
+		Component bar = Component.literal(glyphs.toString())
+				.withStyle(style -> style.withFont(new net.minecraft.network.chat.FontDescription.Resource(
+						PowersMod.id("mana"))));
+		graphics.text(client.font, bar, x, y, 0xFFFFFFFF, false);
 		if (dampened) {
 			int purple = 0xCCB36BFF;
 			graphics.fill(0, 0, width, 2, purple);
