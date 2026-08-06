@@ -2,6 +2,7 @@ package com.powers.player;
 
 import com.mojang.serialization.Codec;
 import com.powers.network.PowersPackets;
+import com.powers.player.SkillSystem;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
 import com.powers.power.PassiveEffect;
@@ -105,7 +106,11 @@ public final class PlayerPowers {
 		}
 
 		private boolean usesDarknessEnergy() {
-			return target instanceof ServerPlayer player && player.entityTags().contains("darkness");
+			return target instanceof ServerPlayer player && SkillSystem.hasDarknessTag(player);
+		}
+
+		public boolean isDarknessUser() {
+			return target instanceof ServerPlayer player && SkillSystem.hasDarknessTag(player);
 		}
 
 		private int storedEnergy() {
@@ -116,10 +121,11 @@ public final class PlayerPowers {
 		}
 
 		private void setStoredEnergy(int value) {
+			int clamped = Math.max(0, value);
 			if (usesDarknessEnergy()) {
-				target.setAttached(DARKNESS_ENERGY, value);
+				target.setAttached(DARKNESS_ENERGY, clamped);
 			} else {
-				target.setAttached(ENERGY, value);
+				target.setAttached(ENERGY, clamped);
 			}
 		}
 
@@ -129,11 +135,12 @@ public final class PlayerPowers {
 		}
 
 		public int energyCapacity() {
-			if (target instanceof ServerPlayer player && player.entityTags().contains("darkness")) {
-				return PowerEnergy.darknessMaxCapacity(SkillSystem.effectiveLevel(player));
+			if (target instanceof ServerPlayer player) {
+				int level = SkillSystem.effectiveLevel(player);
+				return usesDarknessEnergy() ? PowerEnergy.darknessMaxCapacity(level)
+					: PowerEnergy.maxCapacity(level);
 			}
-			return PowerEnergy.maxCapacity(target instanceof ServerPlayer player
-					? SkillSystem.effectiveLevel(player) : 0);
+			return PowerEnergy.maxCapacity(0);
 		}
 
 		public int skillLevel() {
