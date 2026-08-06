@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.portal.TeleportTransition;
@@ -44,8 +45,9 @@ public class AstralProjectionAbility extends Ability {
 				level.getServer().getTickCount() + DURATION);
 		ACTIVE.put(player.getUUID(), projection);
 		player.setGameMode(GameType.SPECTATOR);
+		PowerFx.rune(level, player.position(), 1.8, 0x7C4DFF, 28, 0.0);
 		PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.SOUL, 24, 0.8, 0.03);
-		PowerFx.sound(level, player.position(), net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT, 1.0f, 0.8f);
+		PowerFx.sound(level, player.position(), SoundEvents.AMETHYST_BLOCK_CHIME, 1.0f, 1.2f);
 		player.sendSystemMessage(Component.translatable("ability.powers.astral_started"));
 		return true;
 	}
@@ -70,12 +72,16 @@ public class AstralProjectionAbility extends Ability {
 				continue;
 			}
 			if (player.position().distanceToSqr(projection.origin()) > RADIUS * RADIUS) {
+				PowerFx.sound((ServerLevel) player.level(), player.position(), SoundEvents.ENDERMAN_TELEPORT, 0.75f, 0.75f);
+				PowerFx.rune((ServerLevel) player.level(), player.position(), 1.2, 0x7C4DFF, 18, now * 0.125);
 				player.teleport(new TeleportTransition((ServerLevel) player.level(), projection.origin(), Vec3.ZERO,
 						player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 				player.sendSystemMessage(Component.translatable("ability.powers.astral_boundary"));
 			}
 			if (now % 5 == 0) {
-				PowerFx.burst((ServerLevel) player.level(), player.position().add(0, 1, 0),
+				ServerLevel activeLevel = (ServerLevel) player.level();
+				PowerFx.rune(activeLevel, player.position().add(0, 0.5, 0), 1.0, 0x7C4DFF, 16, now * 0.1);
+				PowerFx.burst(activeLevel, player.position().add(0, 1, 0),
 						ParticleTypes.SOUL_FIRE_FLAME, 2, 0.35, 0.01);
 			}
 		}
@@ -86,6 +92,8 @@ public class AstralProjectionAbility extends Ability {
 		if (destination != null) {
 			player.teleport(new TeleportTransition(destination, projection.origin(), Vec3.ZERO,
 					player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+			PowerFx.burst(destination, projection.origin().add(0, 1, 0), ParticleTypes.SOUL, 16, 0.8, 0.02);
+			PowerFx.sound(destination, projection.origin(), SoundEvents.AMETHYST_BLOCK_CHIME, 0.9f, 0.95f);
 		}
 		player.setGameMode(projection.gameMode());
 		player.sendSystemMessage(Component.translatable("ability.powers.astral_ended"));
