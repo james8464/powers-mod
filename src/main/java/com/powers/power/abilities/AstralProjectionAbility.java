@@ -25,7 +25,7 @@ public class AstralProjectionAbility extends Ability {
 	private static final double RADIUS = 150.0;
 	private static final Map<UUID, Projection> ACTIVE = new HashMap<>();
 
-	private record Projection(ResourceKey<Level> dimension, Vec3 origin, GameType gameMode, long endsAt) {}
+	private record Projection(ServerPlayer player, ResourceKey<Level> dimension, Vec3 origin, GameType gameMode, long endsAt) {}
 
 	public AstralProjectionAbility() {
 		super(PowersMod.id("astral_projection"),
@@ -40,7 +40,7 @@ public class AstralProjectionAbility extends Ability {
 		}
 
 		ServerLevel level = (ServerLevel) player.level();
-		Projection projection = new Projection(level.dimension(), player.position(), player.gameMode(),
+		Projection projection = new Projection(player, level.dimension(), player.position(), player.gameMode(),
 				level.getServer().getTickCount() + DURATION);
 		ACTIVE.put(player.getUUID(), projection);
 		player.setGameMode(GameType.SPECTATOR);
@@ -58,8 +58,8 @@ public class AstralProjectionAbility extends Ability {
 		long now = server.getTickCount();
 		for (var it = ACTIVE.entrySet().iterator(); it.hasNext();) {
 			var entry = it.next();
-			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
 			Projection projection = entry.getValue();
+			ServerPlayer player = projection.player();
 			if (player == null || !player.isAlive()) {
 				it.remove();
 				continue;
@@ -92,10 +92,14 @@ public class AstralProjectionAbility extends Ability {
 	}
 
 	public static void clear(UUID player) {
-		ACTIVE.remove(player);
+		Projection projection = ACTIVE.remove(player);
+		if (projection != null && projection.player().isAlive()) end(projection.player(), projection);
 	}
 
 	public static void clearAll() {
+		for (Projection projection : ACTIVE.values()) {
+			if (projection.player().isAlive()) end(projection.player(), projection);
+		}
 		ACTIVE.clear();
 	}
 }

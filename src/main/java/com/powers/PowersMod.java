@@ -190,7 +190,7 @@ public class PowersMod implements ModInitializer {
 			if (tick % 5 == 0) {
 				ForcefieldAbility.tickAll(server);
 				for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-					AmethystDampening.update(player);
+					if (tick % 20 == 0) AmethystDampening.update(player);
 					tickToggles(player);
 					tickAuras(player, tick);
 				}

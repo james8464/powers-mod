@@ -1,5 +1,5 @@
 {
-	"parent": "powers:skill_root",
+	"parent": "powers:skill/level_16",
 	"display": {
 		"icon": {
 			"id": "minecraft:amethyst_shard"

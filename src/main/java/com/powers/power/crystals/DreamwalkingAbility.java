@@ -70,10 +70,16 @@ public class DreamwalkingAbility extends Ability {
 	}
 
 	public static void clearAll() {
+		for (Dream dream : ACTIVE.values()) {
+			if (dream.host().isAlive()) dream.host().setHealth(Math.min(dream.savedHealth(), dream.host().getMaxHealth()));
+		}
 		ACTIVE.clear();
 	}
 
 	public static void clear(UUID player) {
-		ACTIVE.remove(player);
+		Dream dream = ACTIVE.remove(player);
+		if (dream != null && dream.host().isAlive()) {
+			dream.host().setHealth(Math.min(dream.savedHealth(), dream.host().getMaxHealth()));
+		}
 	}
 }

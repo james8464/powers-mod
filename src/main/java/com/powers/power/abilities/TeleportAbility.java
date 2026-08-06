@@ -113,6 +113,8 @@ public class TeleportAbility extends Ability {
 			return false;
 		}
 		if (AmethystDampening.findPoweredWard(targetLevel, BlockPos.containing(x, y, z)).isPresent()) {
+			com.powers.fx.PowerFx.clash((ServerLevel) player.level(), player.position().add(0, 1, 0),
+					new Vec3(x + 0.5, y + 1, z + 0.5), 0xFFD4FF, 0xB36BFF);
 			player.hurtServer((ServerLevel) player.level(), player.damageSources().magic(), 20.0f);
 			player.sendSystemMessage(Component.translatable("amethyst.powers.teleport_repelled"));
 			return false;

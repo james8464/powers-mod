@@ -5,6 +5,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 
@@ -59,6 +60,20 @@ public final class PowerFx {
 	/** Plays a sound to everyone around a point. */
 	public static void sound(ServerLevel level, Vec3 pos, SoundEvent sound, float volume, float pitch) {
 		level.playSound(null, pos.x, pos.y, pos.z, sound, SoundSource.PLAYERS, volume, pitch);
+	}
+
+	public static void cancelled(ServerLevel level, Vec3 pos, int rgb) {
+		burst(level, pos, ParticleTypes.REVERSE_PORTAL, 10, 0.35, 0.02);
+		coloredBurst(level, pos, rgb, 8, 0.25);
+		sound(level, pos, SoundEvents.BEACON_DEACTIVATE, 0.5f, 0.7f);
+	}
+
+	public static void clash(ServerLevel level, Vec3 from, Vec3 to, int attacker, int defender) {
+		Vec3 midpoint = from.add(to).scale(0.5);
+		beam(level, from, midpoint, ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF000000 | attacker), 8);
+		beam(level, to, midpoint, ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF000000 | defender), 8);
+		burst(level, midpoint, ParticleTypes.ELECTRIC_SPARK, 16, 0.4, 0.08);
+		sound(level, midpoint, SoundEvents.BEACON_DEACTIVATE, 0.8f, 1.4f);
 	}
 
 	/** A cycling rainbow RGB color, for Rainbow Steve's effects. */

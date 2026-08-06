@@ -109,6 +109,9 @@ public final class PlayerPowers {
 			int current = energy();
 			if (current < cost) {
 				player.sendSystemMessage(Component.translatable("energy.powers.empty"));
+				if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+					com.powers.fx.PowerFx.cancelled(level, player.position().add(0, 1, 0), 0x40E0D0);
+				}
 				return false;
 			}
 			target.setAttached(ENERGY, current - cost);
