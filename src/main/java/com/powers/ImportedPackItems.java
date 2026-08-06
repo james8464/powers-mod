@@ -2,6 +2,10 @@ package com.powers;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.component.Consumable;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.sounds.SoundEvents;
 import com.powers.item.GrimoireItem;
 import com.powers.item.RuneItem;
 
@@ -27,9 +31,15 @@ public final class ImportedPackItems {
 			java.util.function.Function<Item.Properties, Item> factory = Item::new;
 			if (texture.startsWith("food_")) {
 				boolean cooked = texture.contains("cooked") || texture.contains("smoked") || texture.contains("stew");
-				properties.food(new FoodProperties.Builder()
+				FoodProperties food = new FoodProperties.Builder()
 						.nutrition(cooked ? 6 : 4)
 						.saturationModifier(cooked ? 0.6f : 0.3f)
+						.build();
+				properties.food(food, Consumable.builder()
+						.consumeSeconds(1.6f)
+						.animation(ItemUseAnimation.EAT)
+						.sound(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.CAMEL_EAT))
+						.hasConsumeParticles(true)
 						.build());
 			} else if (texture.startsWith("book_grimoire")) {
 				factory = props -> new GrimoireItem(props, texture);
