@@ -1,0 +1,6 @@
+{
+	"model": {
+		"type": "minecraft:model",
+		"model": "powers:item/imported_book_page_written"
+	}
+}

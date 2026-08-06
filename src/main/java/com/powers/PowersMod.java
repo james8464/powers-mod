@@ -101,6 +101,7 @@ public class PowersMod implements ModInitializer {
 		PowersItems.initialize();
 		PowersWeapons.initialize();
 		PowersBlocks.initialize();
+		ImportedPackItems.initialize();
 		PowersCreativeTab.initialize();
 		CrystalPowerRegistry.initialize();
 		PowersPackets.initialize();
