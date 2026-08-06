@@ -222,7 +222,7 @@ public final class PowersPackets {
 
 			Ability ability = power.ability();
 			if (!data.spendEnergy(player, ability)) return;
-			if (!ability.activateTeleport(subject, data, payload.dimension(), payload.x(), payload.y(), payload.z())) {
+			if (!ability.activateTeleport(player, subject, data, payload.dimension(), payload.x(), payload.y(), payload.z())) {
 				data.refundEnergy(ability);
 			}
 			syncTo(player);

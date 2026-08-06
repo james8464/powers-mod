@@ -2,6 +2,7 @@ package com.powers.power.crystals;
 
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
+import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import net.minecraft.core.particles.ColorParticleOption;
@@ -35,6 +36,7 @@ public class DarkCrystalAbility extends Ability {
 		if (destLevel == null) return false;
 
 		if (caster.isCrouching()) {
+			if (!canTeleportDarkRealm(caster, caster, destLevel)) return false;
 			teleportWithStorms(caster, caster, destLevel);
 			return true;
 		}
@@ -52,6 +54,7 @@ public class DarkCrystalAbility extends Ability {
 			com.powers.fx.PowerFx.beam(level, origin, target.getEyePosition(),
 					ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF1A237E), 16);
 			com.powers.fx.PowerFx.sound(level, origin, SoundEvents.PORTAL_TRAVEL, 1.0f, 0.4f);
+			if (!canTeleportDarkRealm(caster, target, destLevel)) return false;
 			teleportWithStorms(caster, target, destLevel);
 			return true;
 		}
@@ -60,6 +63,21 @@ public class DarkCrystalAbility extends Ability {
 		com.powers.fx.PowerFx.beam(level, origin, end,
 				ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF1A237E), 16);
 		com.powers.fx.PowerFx.sound(level, origin, SoundEvents.PORTAL_TRIGGER, 0.6f, 0.4f);
+		return true;
+	}
+
+	private boolean canTeleportDarkRealm(ServerPlayer caster, net.minecraft.world.entity.Entity subject, ServerLevel dest) {
+		if (!(subject instanceof ServerPlayer player)) {
+			return true;
+		}
+		boolean enteringDarkRealm = SkillSystem.isDarkRealm(dest.dimension());
+		boolean alreadyInDarkRealm = SkillSystem.isDarkRealm(player.level().dimension());
+		if (enteringDarkRealm && !alreadyInDarkRealm) {
+			if (!SkillSystem.canTraverseDarknessDimension(player, caster.entityTags().contains("darkness"))) {
+				caster.sendSystemMessage(Component.translatable("ability.powers.darkness_realm_restricted"));
+				return false;
+			}
+		}
 		return true;
 	}
 

@@ -2,6 +2,7 @@ package com.powers.power.abilities;
 
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
+import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import net.minecraft.core.BlockPos;
@@ -88,7 +89,7 @@ public class TeleportAbility extends Ability {
 	}
 
 	@Override
-	public boolean activateTeleport(ServerPlayer player, PlayerPowers.PlayerPowersData data,
+	public boolean activateTeleport(ServerPlayer caster, ServerPlayer player, PlayerPowers.PlayerPowersData data,
 			ResourceKey<Level> dimension, double x, double y, double z) {
 		if (!Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)) {
 			player.sendSystemMessage(Component.translatable("ability.powers.out_of_bounds"));
@@ -111,6 +112,15 @@ public class TeleportAbility extends Ability {
 		if (targetLevel == null) {
 			player.sendSystemMessage(Component.translatable("ability.powers.bad_dimension"));
 			return false;
+		}
+		boolean enteringDarkRealm = SkillSystem.isDarkRealm(dimension);
+		boolean leavingDarkRealm = SkillSystem.isDarkRealm(player.level().dimension());
+		if (enteringDarkRealm ^ leavingDarkRealm) {
+			boolean assisted = caster.entityTags().contains("darkness");
+			if (!SkillSystem.canTraverseDarknessDimension(player, assisted)) {
+				caster.sendSystemMessage(Component.translatable("ability.powers.darkness_realm_restricted"));
+				return false;
+			}
 		}
 		if (AmethystDampening.findPoweredWard(targetLevel, BlockPos.containing(x, y, z)).isPresent()) {
 			com.powers.fx.PowerFx.clash((ServerLevel) player.level(), player.position().add(0, 1, 0),

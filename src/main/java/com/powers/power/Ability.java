@@ -53,7 +53,7 @@ public abstract class Ability {
 	 * Executes an input-driven ability with the coordinates supplied by the
 	 * client's input screen.
 	 */
-	public boolean activateTeleport(ServerPlayer player, PlayerPowers.PlayerPowersData data,
+	public boolean activateTeleport(ServerPlayer caster, ServerPlayer subject, PlayerPowers.PlayerPowersData data,
 			ResourceKey<Level> dimension, double x, double y, double z) {
 		return false;
 	}
