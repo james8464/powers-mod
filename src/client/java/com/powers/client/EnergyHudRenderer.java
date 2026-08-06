@@ -25,11 +25,12 @@ public final class EnergyHudRenderer {
 		int height = client.getWindow().getGuiScaledHeight();
 		// Vanilla hunger uses x = width / 2 + 91 - 9 - (index * 8), y = height - 48.
 		int y = height - 58;
-		int energy = Math.max(0, Math.min(PowerEnergy.MAX, ClientPowerState.energy()));
+		int capacity = ClientPowerState.energyCapacity();
+		int energy = Math.max(0, Math.min(capacity, ClientPowerState.energy()));
 		boolean dampened = client.player.hasEffect(PowersEffects.AMETHYST_POISONING);
 
-		int full = energy / (PowerEnergy.MAX / SEGMENTS);
-		boolean half = energy % (PowerEnergy.MAX / SEGMENTS) >= (PowerEnergy.MAX / SEGMENTS) / 2;
+		int full = energy * SEGMENTS / capacity;
+		boolean half = energy * SEGMENTS % capacity >= capacity / (SEGMENTS * 2);
 		for (int hungerIndex = 0; hungerIndex < SEGMENTS; hungerIndex++) {
 			int displayIndex = SEGMENTS - 1 - hungerIndex;
 			int empty = SEGMENTS - full - (half ? 1 : 0);

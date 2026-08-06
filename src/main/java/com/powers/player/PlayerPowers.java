@@ -48,17 +48,24 @@ public final class PlayerPowers {
 	private static final AttachmentType<Integer> ENERGY = AttachmentRegistry.create(
 				com.powers.PowersMod.id("energy"),
 				builder -> builder
-						.initializer(() -> PowerEnergy.MAX)
+						.initializer(() -> PowerEnergy.BASE_MAX)
 						.persistent(Codec.INT)
 						.syncWith(net.minecraft.network.codec.ByteBufCodecs.VAR_INT,
 								AttachmentSyncPredicate.targetOnly()));
 
 	private static final AttachmentType<Integer> SKILL_LEVEL = AttachmentRegistry.create(
-				com.powers.PowersMod.id("skill_level"),
-				builder -> builder
-						.initializer(() -> 0)
-						.persistent(Codec.INT)
-						.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.targetOnly()));
+			com.powers.PowersMod.id("skill_level"),
+			builder -> builder
+					.initializer(() -> 0)
+					.persistent(Codec.INT)
+					.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.targetOnly()));
+
+	private static final AttachmentType<Integer> DARKNESS_LEVEL = AttachmentRegistry.create(
+			com.powers.PowersMod.id("darkness_level"),
+			builder -> builder
+					.initializer(() -> 0)
+					.persistent(Codec.INT)
+					.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.targetOnly()));
 
 	private static final AttachmentType<Integer> ELEMENTAL_PHASE = AttachmentRegistry.create(
 			com.powers.PowersMod.id("elemental_phase"),
@@ -91,8 +98,13 @@ public final class PlayerPowers {
 
 		public int energy() {
 			if (target instanceof ServerPlayer player && player.hasEffect(PowersEffects.EXHAUSTION)) return 0;
-			return Math.max(0, Math.min(PowerEnergy.MAX,
-					target.getAttachedOrElse(ENERGY, PowerEnergy.MAX)));
+			return Math.max(0, Math.min(energyCapacity(),
+					target.getAttachedOrElse(ENERGY, PowerEnergy.BASE_MAX)));
+		}
+
+		public int energyCapacity() {
+			return PowerEnergy.maxCapacity(target instanceof ServerPlayer player
+					? SkillSystem.effectiveLevel(player) : 0);
 		}
 
 		public int skillLevel() {
@@ -100,8 +112,17 @@ public final class PlayerPowers {
 				target.getAttachedOrElse(SKILL_LEVEL, 0)));
 		}
 
+		public int darknessLevel() {
+			return Math.max(0, Math.min(SkillSystem.DARKNESS_MAX_LEVEL,
+				target.getAttachedOrElse(DARKNESS_LEVEL, 0)));
+		}
+
 		public void setSkillLevel(ServerPlayer player, int level) {
 			target.setAttached(SKILL_LEVEL, Math.max(0, Math.min(SkillSystem.MAX_LEVEL, level)));
+		}
+
+		public void setDarknessLevel(ServerPlayer player, int level) {
+			target.setAttached(DARKNESS_LEVEL, Math.max(0, Math.min(SkillSystem.DARKNESS_MAX_LEVEL, level)));
 		}
 
 		public boolean spendEnergy(ServerPlayer player, Ability ability) {
@@ -127,7 +148,7 @@ public final class PlayerPowers {
 		}
 
 		public void refundEnergy(int amount) {
-			target.setAttached(ENERGY, Math.min(PowerEnergy.MAX, energy() + amount));
+			target.setAttached(ENERGY, Math.min(energyCapacity(), energy() + amount));
 		}
 
 		public void refundEnergy(Ability ability) {
@@ -137,7 +158,7 @@ public final class PlayerPowers {
 		public boolean regenerateEnergy(int amount) {
 			if (target instanceof ServerPlayer player && player.hasEffect(PowersEffects.EXHAUSTION)) return false;
 			int current = energy();
-			int updated = Math.min(PowerEnergy.MAX, current + Math.max(0, amount));
+			int updated = Math.min(energyCapacity(), current + Math.max(0, amount));
 			if (updated == current) return false;
 			target.setAttached(ENERGY, updated);
 			return true;
@@ -145,7 +166,7 @@ public final class PlayerPowers {
 
 		public void restoreEnergy() {
 			if (target instanceof ServerPlayer player && player.hasEffect(PowersEffects.EXHAUSTION)) return;
-			target.setAttached(ENERGY, PowerEnergy.MAX);
+			target.setAttached(ENERGY, energyCapacity());
 		}
 
 		public void emptyEnergy() {

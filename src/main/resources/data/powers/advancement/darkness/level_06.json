@@ -1,0 +1,32 @@
+{
+ "parent": "powers:darkness_root",
+ "display": {
+  "icon": {
+   "id": "minecraft:fire_charge"
+  },
+  "title": {
+   "translate": "advancement.powers.darkness.06_fire_charge.title"
+  },
+  "description": {
+   "translate": "advancement.powers.darkness.06_fire_charge.description"
+  },
+  "frame": "task",
+  "show_toast": true,
+  "announce_to_chat": false,
+  "hidden": false
+ },
+ "criteria": {
+  "collect": {
+   "trigger": "minecraft:inventory_changed",
+   "conditions": {
+    "items": [
+     {
+      "items": [
+       "minecraft:fire_charge"
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

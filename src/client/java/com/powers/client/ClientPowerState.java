@@ -10,6 +10,7 @@ public final class ClientPowerState {
 	private static List<String> powerIds = List.of();
 	private static List<String> activeToggles = List.of();
 	private static int energy;
+	private static int energyCapacity;
 	private static int skillLevel;
 	public static int markingSlot = -1;
 	public static int markingTicks;
@@ -21,6 +22,7 @@ public final class ClientPowerState {
 		powerIds = payload.powerIds();
 		activeToggles = payload.activeToggles();
 		energy = payload.energy();
+		energyCapacity = payload.energyCapacity();
 		skillLevel = payload.skillLevel();
 	}
 
@@ -28,6 +30,7 @@ public final class ClientPowerState {
 		powerIds = List.of();
 		activeToggles = List.of();
 		energy = 0;
+		energyCapacity = 0;
 		skillLevel = 0;
 		markingSlot = -1;
 		markingTicks = 0;
@@ -48,6 +51,10 @@ public final class ClientPowerState {
 
 	public static int energy() {
 		return energy;
+	}
+
+	public static int energyCapacity() {
+		return energyCapacity > 0 ? energyCapacity : com.powers.power.PowerEnergy.BASE_MAX;
 	}
 
 	public static int skillLevel() {

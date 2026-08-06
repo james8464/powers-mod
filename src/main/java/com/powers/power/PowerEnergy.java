@@ -4,9 +4,13 @@ import net.minecraft.resources.Identifier;
 
 /** Balances the shared energy reserve without coupling abilities to UI code. */
 public final class PowerEnergy {
-	public static final int MAX = 1000;
+	public static final int BASE_MAX = 250;
 
 	private PowerEnergy() {
+	}
+
+	public static int maxCapacity(int level) {
+		return BASE_MAX + Math.max(0, level) * 25;
 	}
 
 	public static int cost(Ability ability) {

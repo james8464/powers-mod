@@ -31,12 +31,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,7 +113,7 @@ public class PowersMod implements ModInitializer {
 		PowersPackets.initialize();
 		PowerCommand.register();
 		ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, player, bound) -> {
-			Component chat = SkillSystem.prefix(PlayerPowers.get(player).skillLevel())
+			Component chat = SkillSystem.prefix(player)
 					.copy().append(player.getName()).append(Component.literal(": "))
 					.append(message.decoratedContent());
 			((ServerLevel) player.level()).getServer().getPlayerList().broadcastSystemMessage(chat, false);
@@ -130,6 +131,7 @@ public class PowersMod implements ModInitializer {
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ServerPlayer player = handler.getPlayer();
 			PlayerPowers.get(player).assignRandom(player, false);
+			updateDarknessAdvancement(player);
 			SkillSystem.refresh(player);
 			PowersPackets.syncTo(player);
 		});
@@ -179,7 +181,10 @@ public class PowersMod implements ModInitializer {
 				boolean sleeping = player.isSleeping();
 				boolean wasSleeping = WAS_SLEEPING.getOrDefault(player.getUUID(), false);
 				WAS_SLEEPING.put(player.getUUID(), sleeping);
-				if (tick % 20 == 0) SkillSystem.refresh(player);
+				if (tick % 20 == 0) {
+					updateDarknessAdvancement(player);
+					SkillSystem.refresh(player);
+				}
 				if (wasSleeping && !sleeping) {
 					data.restoreEnergy();
 					PowersPackets.syncTo(player);
@@ -331,6 +336,22 @@ public class PowersMod implements ModInitializer {
 					(level.getRandom().nextDouble() - 0.5) * 0.8,
 					(level.getRandom().nextDouble() - 0.5) * 0.8);
 			com.powers.fx.PowerFx.coloredBurst(level, pos, rgb, 1, 0.02);
+		}
+	}
+
+	private static void updateDarknessAdvancement(ServerPlayer player) {
+		AdvancementHolder root = ((ServerLevel) player.level()).getServer().getAdvancements()
+				.get(PowersMod.id("darkness_root"));
+		if (root == null) return;
+		boolean hasDarknessTag = player.entityTags().contains("darkness");
+		if (hasDarknessTag) {
+			if (!player.getAdvancements().getOrStartProgress(root).isDone()) {
+				player.getAdvancements().award(root, "unlock");
+			}
+		} else {
+			if (player.getAdvancements().getOrStartProgress(root).isDone()) {
+				player.getAdvancements().revoke(root, "unlock");
+			}
 		}
 	}
 

@@ -1,0 +1,32 @@
+{
+ "parent": "powers:darkness_root",
+ "display": {
+  "icon": {
+   "id": "minecraft:shulker_shell"
+  },
+  "title": {
+   "translate": "advancement.powers.darkness.26_shulker_shell.title"
+  },
+  "description": {
+   "translate": "advancement.powers.darkness.26_shulker_shell.description"
+  },
+  "frame": "task",
+  "show_toast": true,
+  "announce_to_chat": false,
+  "hidden": false
+ },
+ "criteria": {
+  "collect": {
+   "trigger": "minecraft:inventory_changed",
+   "conditions": {
+    "items": [
+     {
+      "items": [
+       "minecraft:shulker_shell"
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

@@ -109,7 +109,8 @@ public final class PowersPackets {
 		}
 	}
 
-	public record PowerStatePayload(List<String> powerIds, List<String> activeToggles, int energy, int skillLevel) implements CustomPacketPayload {
+	public record PowerStatePayload(List<String> powerIds, List<String> activeToggles, int energy, int energyCapacity,
+			int skillLevel) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<PowerStatePayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("power_state"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, PowerStatePayload> STREAM_CODEC =
@@ -120,6 +121,8 @@ public final class PowersPackets {
 						PowerStatePayload::activeToggles,
 						ByteBufCodecs.VAR_INT,
 						PowerStatePayload::energy,
+						ByteBufCodecs.VAR_INT,
+						PowerStatePayload::energyCapacity,
 						ByteBufCodecs.VAR_INT,
 						PowerStatePayload::skillLevel,
 						PowerStatePayload::new);
@@ -263,6 +266,7 @@ public final class PowersPackets {
 				data.getSlotIds(),
 				data.getActiveToggles(),
 				data.energy(),
+				data.energyCapacity(),
 				data.skillLevel()));
 	}
 }
