@@ -25,7 +25,9 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -109,6 +111,13 @@ public class PowersMod implements ModInitializer {
 		CrystalPowerRegistry.initialize();
 		PowersPackets.initialize();
 		PowerCommand.register();
+		ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, player, bound) -> {
+			Component chat = SkillSystem.prefix(PlayerPowers.get(player).skillLevel())
+					.copy().append(player.getName()).append(Component.literal(": "))
+					.append(message.decoratedContent());
+			((ServerLevel) player.level()).getServer().getPlayerList().broadcastSystemMessage(chat, false);
+			return false;
+		});
 
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
 			if (ForcefieldAbility.protects(entity)) return false;
