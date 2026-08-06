@@ -6,6 +6,7 @@ import com.powers.power.Ability;
 import com.powers.power.Power;
 import com.powers.power.PowerEnergy;
 import com.powers.power.AmethystDampening;
+import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.abilities.TeleportAbility;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -150,6 +151,8 @@ public final class PowersPackets {
 				player.sendSystemMessage(Component.translatable("amethyst.powers.suppressed"));
 				return;
 			}
+			if (SpaceTimeAbility.isFrozen(player)) return;
+			if (SpaceTimeAbility.isFrozen(player)) return;
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 			Power power = data.getPower(payload.slot());

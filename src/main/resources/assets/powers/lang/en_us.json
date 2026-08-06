@@ -26,8 +26,6 @@
 	"itemTooltip.powers.light_crystal": "Its purpose is not yet revealed.",
 	"item.powers.dark_crystal": "Dark Crystal",
 	"itemTooltip.powers.dark_crystal": "Its purpose is not yet revealed.",
-	"item.powers.reverse_rainbow_crystal": "Reverse Rainbow Crystal",
-	"itemTooltip.powers.reverse_rainbow_crystal": "Its purpose is not yet revealed.",
 	"item.powers.infected_rainbow_crystal": "Infected Rainbow Crystal",
 	"itemTooltip.powers.infected_rainbow_crystal": "Its purpose is not yet revealed.",
 	"crystal.powers.recharging": "The crystal is still recharging.",
@@ -422,5 +420,15 @@
 	"item.powers.imported_magic_essence_soul_dust": "Magic Essence Soul Dust",
 	"grimoire.powers.placeholder": "The %s grimoire is waiting for its lore chapters.",
 	"rune.powers.channelled": "The rune channels 100 energy into you.",
-	"rune.powers.full": "Your energy is already full."
+	"rune.powers.full": "Your energy is already full.",
+	"power.powers.plant_healing_acceleration": "Plant and Healing Acceleration",
+	"power.powers.plant_healing_acceleration.description": "Accelerate growth at your aim and steadily accelerate your natural healing.",
+	"ability.powers.plant_healing_acceleration": "Plant and Healing Acceleration",
+	"power.powers.double_health": "Double Health",
+	"power.powers.double_health.description": "Temporarily double your maximum health.",
+	"ability.powers.double_health": "Double Health",
+	"ability.powers.creativity_manifestation": "Creativity Manifestation",
+	"ability.powers.space_time": "Space-Time Manipulation",
+	"ability.powers.space_time_mode": "Space-time mode: %s",
+	"ability.powers.dreamwalking": "Dreamwalking"
 }

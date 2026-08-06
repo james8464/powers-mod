@@ -209,6 +209,20 @@ public final class PowerRegistry {
 				0x81D4FA,
 				List.of(passive(MobEffects.WATER_BREATHING, 0)),
 				new IceManipulationAbility()));
+
+		register(new Power(PowersMod.id("plant_healing_acceleration"),
+				Component.translatable("power.powers.plant_healing_acceleration"),
+				Component.translatable("power.powers.plant_healing_acceleration.description"),
+				0x66FF66,
+				List.of(passive(MobEffects.REGENERATION, 0)),
+				new PlantHealingAbility()));
+
+		register(new Power(PowersMod.id("double_health"),
+				Component.translatable("power.powers.double_health"),
+				Component.translatable("power.powers.double_health.description"),
+				0xFF1744,
+				List.of(),
+				new DoubleHealthAbility()));
 	}
 
 	private static PassiveEffect passive(Holder<MobEffect> effect, int amplifier) {

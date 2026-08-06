@@ -36,8 +36,6 @@ public final class PowersItems {
 	public static final Item LIGHT_CRYSTAL = ModItemIds.register(LIGHT_CRYSTAL_KEY, CrystalItem::new, new Item.Properties().stacksTo(1));
 	public static final ResourceKey<Item> DARK_CRYSTAL_KEY = ModItemIds.create("dark_crystal");
 	public static final Item DARK_CRYSTAL = ModItemIds.register(DARK_CRYSTAL_KEY, CrystalItem::new, new Item.Properties().stacksTo(1));
-	public static final ResourceKey<Item> REVERSE_RAINBOW_CRYSTAL_KEY = ModItemIds.create("reverse_rainbow_crystal");
-	public static final Item REVERSE_RAINBOW_CRYSTAL = ModItemIds.register(REVERSE_RAINBOW_CRYSTAL_KEY, CrystalItem::new, new Item.Properties().stacksTo(1));
 	public static final ResourceKey<Item> INFECTED_RAINBOW_CRYSTAL_KEY = ModItemIds.create("infected_rainbow_crystal");
 	public static final Item INFECTED_RAINBOW_CRYSTAL = ModItemIds.register(INFECTED_RAINBOW_CRYSTAL_KEY, CrystalItem::new, new Item.Properties().stacksTo(1));
 
@@ -59,7 +57,6 @@ public final class PowersItems {
 					}
 					creativeTab.accept(LIGHT_CRYSTAL);
 					creativeTab.accept(DARK_CRYSTAL);
-					creativeTab.accept(REVERSE_RAINBOW_CRYSTAL);
 					creativeTab.accept(INFECTED_RAINBOW_CRYSTAL);
 				});
 	}

@@ -25,16 +25,13 @@ public final class CrystalPowerRegistry {
 	}
 
 	public static void initialize() {
-		POWERS.put(PowersItems.RED_CRYSTAL, new InfernoAbility());
-		POWERS.put(PowersItems.ORANGE_CRYSTAL, new CloneSwarmAbility());
-		POWERS.put(PowersItems.YELLOW_CRYSTAL, new SizeShiftAbility());
-		POWERS.put(PowersItems.GREEN_CRYSTAL, new LifeBloomAbility());
-		POWERS.put(PowersItems.BLUE_CRYSTAL, new ChronoStopAbility());
-		POWERS.put(PowersItems.INDIGO_CRYSTAL, new PortalRiftAbility());
-		POWERS.put(PowersItems.VIOLET_CRYSTAL, new SoulLinkAbility());
+		// Red, Yellow, and Violet remain deliberately inert until their lore is defined.
+		POWERS.put(PowersItems.ORANGE_CRYSTAL, new CreativityManifestationAbility());
+		POWERS.put(PowersItems.GREEN_CRYSTAL, new SpaceTimeAbility());
+		POWERS.put(PowersItems.BLUE_CRYSTAL, new DreamwalkingAbility());
+		POWERS.put(PowersItems.INDIGO_CRYSTAL, new MiddleworldAbility());
 		POWERS.put(PowersItems.LIGHT_CRYSTAL, new LightCrystalAbility());
 		POWERS.put(PowersItems.DARK_CRYSTAL, new DarkCrystalAbility());
-		POWERS.put(PowersItems.REVERSE_RAINBOW_CRYSTAL, new MiddleworldAbility());
 		// The Infected Rainbow Crystal is intentionally inert for now.
 	}
 
@@ -57,6 +54,7 @@ public final class CrystalPowerRegistry {
 			player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("amethyst.powers.suppressed"));
 			return false;
 		}
+		if (SpaceTimeAbility.isFrozen(player)) return false;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		if (!data.spendEnergy(player, ability)) return false;
 		boolean activated = ability.activate(player, data);

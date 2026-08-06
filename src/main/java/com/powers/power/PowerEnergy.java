@@ -20,6 +20,7 @@ public final class PowerEnergy {
 			case "starfall", "slow_world", "time_freeze", "dimensional_anchor" -> 45;
 			case "telekinesis", "vessel_possession" -> 24;
 			case "astral_projection" -> 32;
+			case "plant_healing_acceleration", "double_health" -> 24;
 			case "energy_drain" -> 30;
 			case "time_shift" -> 18;
 			default -> 20;

@@ -23,7 +23,6 @@ public final class PowersCreativeTab {
 						PowersItems.COLOR_CRYSTALS.values().forEach(output::accept);
 						output.accept(PowersItems.LIGHT_CRYSTAL);
 						output.accept(PowersItems.DARK_CRYSTAL);
-						output.accept(PowersItems.REVERSE_RAINBOW_CRYSTAL);
 						output.accept(PowersItems.INFECTED_RAINBOW_CRYSTAL);
 						output.accept(PowersBlocks.DARKNESS);
 						output.accept(PowersBlocks.PURE_LIGHT);
