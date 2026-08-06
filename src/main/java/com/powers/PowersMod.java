@@ -192,10 +192,10 @@ public class PowersMod implements ModInitializer {
 					PowersPackets.syncTo(player);
 				} else if (tick % 20 == 0) {
 					int regen = 1;
-					if (player.entityTags().contains("darkness")) {
-						boolean inDarkRealm = player.level().dimension().identifier().getPath().equals("dark_realm");
+					if (SkillSystem.hasDarknessTag(player)) {
+						boolean inDarkRealm = SkillSystem.isDarkRealm(player.level().dimension());
 						long timeOfDay = player.level().getLevelData().getGameTime() % 24000L;
-					boolean night = timeOfDay >= 13000L || timeOfDay < 2300L;
+						boolean night = timeOfDay >= 13000L || timeOfDay < 2300L;
 						regen = PowerEnergy.darknessRegen(inDarkRealm || night);
 					}
 					if (data.regenerateEnergy(regen)) {
@@ -354,7 +354,7 @@ public class PowersMod implements ModInitializer {
 		AdvancementHolder root = ((ServerLevel) player.level()).getServer().getAdvancements()
 				.get(PowersMod.id("darkness_root"));
 		if (root == null) return;
-		boolean hasDarknessTag = player.entityTags().contains("darkness");
+		boolean hasDarknessTag = SkillSystem.hasDarknessTag(player);
 		if (hasDarknessTag) {
 			if (!player.getAdvancements().getOrStartProgress(root).isDone()) {
 				player.getAdvancements().award(root, "unlock");

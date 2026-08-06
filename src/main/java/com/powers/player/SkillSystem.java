@@ -5,13 +5,14 @@ import com.powers.network.PowersPackets;
 import com.powers.power.Ability;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.resources.Identifier;
 
 public final class SkillSystem {
+	public static final String DARKNESS_TAG = "darkness";
 	public static final int MAX_LEVEL = 21;
 	public static final int DARKNESS_MAX_LEVEL = 30;
 
@@ -129,8 +130,12 @@ public final class SkillSystem {
 		return Math.max(1, com.powers.power.PowerEnergy.cost(ability));
 	}
 
+	public static boolean hasDarknessTag(ServerPlayer player) {
+		return player.entityTags().contains(DARKNESS_TAG);
+	}
+
 	public static int effectiveLevel(ServerPlayer player) {
-		return player.entityTags().contains("darkness")
+		return hasDarknessTag(player)
 			? PlayerPowers.get(player).darknessLevel()
 			: PlayerPowers.get(player).skillLevel();
 	}
@@ -140,7 +145,7 @@ public final class SkillSystem {
 	}
 
 	public static boolean canTraverseDarknessDimension(ServerPlayer subject, boolean assisted) {
-		if (subject.entityTags().contains("darkness")) {
+		if (hasDarknessTag(subject)) {
 			return true;
 		}
 		if (assisted) {
