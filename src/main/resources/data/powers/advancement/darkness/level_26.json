@@ -1,5 +1,5 @@
 {
- "parent": "powers:darkness_root",
+ "parent": "powers:darkness/level_25",
  "display": {
   "icon": {
    "id": "minecraft:shulker_shell"

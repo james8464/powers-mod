@@ -1,5 +1,5 @@
 {
- "parent": "powers:darkness_root",
+ "parent": "powers:darkness/level_08",
  "display": {
   "icon": {
    "id": "minecraft:rotten_flesh"

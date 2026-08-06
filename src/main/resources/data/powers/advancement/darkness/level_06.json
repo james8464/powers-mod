@@ -1,5 +1,5 @@
 {
- "parent": "powers:darkness_root",
+ "parent": "powers:darkness/level_05",
  "display": {
   "icon": {
    "id": "minecraft:fire_charge"

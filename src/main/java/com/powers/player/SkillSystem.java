@@ -70,7 +70,7 @@ public final class SkillSystem {
 		}
 
 		int highestDarkness = data.darknessLevel();
-		if (player.entityTags().contains("darkness")) {
+		if (hasDarknessTag(player)) {
 			for (int level = 1; level <= DARKNESS_MAX_LEVEL; level++) {
 				AdvancementHolder holder = ((ServerLevel) player.level()).getServer().getAdvancements()
 					.get(PowersMod.id("darkness/level_" + String.format("%02d", level)));
@@ -151,7 +151,7 @@ public final class SkillSystem {
 		if (assisted) {
 			return true;
 		}
-		return effectiveLevel(subject) < 10;
+		return effectiveLevel(subject) >= 10;
 	}
 
 	private static void applyRank(ServerPlayer player) {
