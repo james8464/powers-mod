@@ -1,6 +1,7 @@
 package com.powers.power.abilities;
 
 import com.powers.PowersMod;
+import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
@@ -10,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -44,6 +46,8 @@ public class TeleportAbility extends Ability {
 				player, player.level().dimension(), player.position(), player.gameMode(),
 				((ServerLevel) player.level()).getServer().getTickCount() + MARK_TIMEOUT_TICKS, slot));
 		player.setGameMode(GameType.SPECTATOR);
+		PowerFx.rune((ServerLevel) target.level(), target.position().add(0, 2, 0), 1.5, 0x88CCFF, 20, 0.6);
+		PowerFx.sound((ServerLevel) target.level(), target.position(), SoundEvents.ENDERMAN_TELEPORT, 0.7f, 1.2f);
 		player.teleport(new TeleportTransition((ServerLevel) target.level(),
 				target.position().add(0, 2, 0), Vec3.ZERO, player.getYRot(), player.getXRot(),
 				TeleportTransition.PLAY_PORTAL_SOUND));
@@ -159,6 +163,10 @@ public class TeleportAbility extends Ability {
 			companions.add(new Companion(entity, entity.position().subtract(origin)));
 		}
 
+		PowerFx.rune(originLevel, origin, 2.0, 0x8AE8FF, 24, 0.0);
+		PowerFx.rune(targetLevel, target, 2.0, 0x8AE8FF, 24, Math.PI * 0.5);
+		PowerFx.sound(originLevel, origin, SoundEvents.ENDERMAN_TELEPORT, 0.9f, 1.0f);
+		PowerFx.sound(targetLevel, target, SoundEvents.ENDERMAN_TELEPORT, 0.9f, 1.15f);
 		PowersMod.startStorm(originLevel, origin, player, STORM_TICKS, TELEPORT_DELAY_TICKS);
 		PowersMod.startStorm(targetLevel, target, null, STORM_TICKS, 0);
 		PowersMod.scheduleDelayed(player.level().getServer(), TELEPORT_DELAY_TICKS, () -> {

@@ -1,12 +1,16 @@
 package com.powers.power.abilities;
 
 import com.powers.PowersMod;
+import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
@@ -52,6 +56,12 @@ public class DimensionalAnchorAbility extends Ability {
 		String dimName = dim.identifier().getPath();
 		long generation = GENERATIONS.merge(targetSP.getUUID(), 1L, Long::sum);
 		ANCHORS.put(targetSP.getUUID(), dim);
+
+		ServerPlayer targetServer = targetSP;
+		PowerFx.rune((ServerLevel) targetServer.level(), targetServer.position().add(0, 1.0, 0), 1.6, 0x8A2BE2, 20, 0.5);
+		PowerFx.burst((ServerLevel) targetServer.level(), targetServer.position().add(0, 1.5, 0),
+				ParticleTypes.END_ROD, 12, 0.75, 0.05);
+		PowerFx.sound((ServerLevel) targetServer.level(), targetServer.position(), SoundEvents.BEACON_ACTIVATE, 0.8f, 1.1f);
 
 		targetSP.sendSystemMessage(Component.translatable("ability.powers.anchored", dimName));
 		player.sendSystemMessage(Component.translatable("ability.powers.anchor_applied",

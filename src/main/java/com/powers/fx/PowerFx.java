@@ -46,6 +46,17 @@ public final class PowerFx {
 		}
 	}
 
+	/** Draws a circle of smaller rune sparks and a faint inner ring. */
+	public static void rune(ServerLevel level, Vec3 center, double radius, int rgb, int points, double phase) {
+		ring(level, center, radius, rgb, points, phase);
+		for (int i = 0; i < points; i++) {
+			double angle = Math.PI * 2.0 * i / points + phase;
+			Vec3 point = center.add(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+			burst(level, point.add(0, 0.15, 0), ParticleTypes.END_ROD, 1, 0.08, 0.02);
+		}
+		spiral(level, center, radius * 0.55, radius * 0.4, rgb, Math.max(6, points / 2), phase + Math.PI / 8);
+	}
+
 	/** Draws a short rising spiral for transformations and charged casts. */
 	public static void spiral(ServerLevel level, Vec3 center, double radius, double height,
 			int rgb, int points, double phase) {
