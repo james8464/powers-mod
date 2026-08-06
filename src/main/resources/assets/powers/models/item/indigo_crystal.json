@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:item/generated",
+	"textures": {
+		"particle": "powers:item/indigo_crystal",
+		"layer0": "powers:item/indigo_crystal"
+	}
+}

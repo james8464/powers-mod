@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "power=0": { "model": "powers:block/amethyst_ward" },
+    "power=1": { "model": "powers:block/amethyst_ward_powered" },
+    "power=2": { "model": "powers:block/amethyst_ward_powered" },
+    "power=3": { "model": "powers:block/amethyst_ward_powered" },
+    "power=4": { "model": "powers:block/amethyst_ward_powered" },
+    "power=5": { "model": "powers:block/amethyst_ward_powered" },
+    "power=6": { "model": "powers:block/amethyst_ward_powered" },
+    "power=7": { "model": "powers:block/amethyst_ward_powered" },
+    "power=8": { "model": "powers:block/amethyst_ward_powered" },
+    "power=9": { "model": "powers:block/amethyst_ward_powered" },
+    "power=10": { "model": "powers:block/amethyst_ward_powered" },
+    "power=11": { "model": "powers:block/amethyst_ward_powered" },
+    "power=12": { "model": "powers:block/amethyst_ward_powered" },
+    "power=13": { "model": "powers:block/amethyst_ward_powered" },
+    "power=14": { "model": "powers:block/amethyst_ward_powered" },
+    "power=15": { "model": "powers:block/amethyst_ward_powered" }
+  }
+}

@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"category": "misc",
+	"ingredients": [
+		"powers:red_crystal",
+		"powers:orange_crystal",
+		"powers:yellow_crystal",
+		"powers:green_crystal",
+		"powers:blue_crystal",
+		"powers:indigo_crystal",
+		"powers:violet_crystal"
+	],
+	"result": {
+		"id": "powers:rainbow_crystal",
+		"count": 1
+	}
+}

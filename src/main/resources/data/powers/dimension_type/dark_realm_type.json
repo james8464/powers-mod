@@ -1,0 +1,62 @@
+{
+  "ambient_light": 0.0,
+  "attributes": {
+    "minecraft:audio/ambient_sounds": {
+      "additions": [
+        {
+          "sound": "minecraft:ambient.soul_sand_valley.additions",
+          "tick_chance": 0.004
+        },
+        {
+          "sound": "minecraft:ambient.crimson_forest.additions",
+          "tick_chance": 0.004
+        },
+        {
+          "sound": "minecraft:ambient.warped_forest.additions",
+          "tick_chance": 0.004
+        },
+        {
+          "sound": "minecraft:ambient.nether_wastes.additions",
+          "tick_chance": 0.003
+        }
+      ],
+      "mood": {
+        "block_search_extent": 8,
+        "offset": 2.0,
+        "sound": "minecraft:ambient.cave",
+        "tick_delay": 6000
+      }
+    },
+    "minecraft:gameplay/bed_rule": {
+      "can_set_spawn": "never",
+      "can_sleep": "never"
+    },
+    "minecraft:gameplay/respawn_anchor_works": false,
+    "minecraft:visual/ambient_light_color": "#000000",
+    "minecraft:visual/block_light_tint": "#000000",
+    "minecraft:visual/cloud_color": "#ff000000",
+    "minecraft:visual/fog_color": "#030308",
+    "minecraft:visual/fog_end_distance": 96.0,
+    "minecraft:visual/fog_start_distance": 10.0,
+    "minecraft:visual/sky_color": "#000000"
+  },
+  "cardinal_light": "nether",
+  "coordinate_scale": 1.0,
+  "default_clock": "minecraft:overworld",
+  "has_ceiling": false,
+  "has_ender_dragon_fight": false,
+  "has_fixed_time": true,
+  "has_skylight": false,
+  "height": 384,
+  "infiniburn": "#minecraft:infiniburn_overworld",
+  "logical_height": 384,
+  "min_y": -64,
+  "monster_spawn_block_light_limit": 0,
+  "monster_spawn_light_level": {
+    "type": "minecraft:uniform",
+    "max_inclusive": 7,
+    "min_inclusive": 0
+  },
+  "skybox": "none",
+  "timelines": "#minecraft:in_overworld"
+}

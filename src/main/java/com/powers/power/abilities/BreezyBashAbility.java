@@ -1,0 +1,48 @@
+package com.powers.power.abilities;
+
+import com.powers.PowersMod;
+import com.powers.player.PlayerPowers;
+import com.powers.power.Ability;
+import com.powers.power.AmethystDampening;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+
+public class BreezyBashAbility extends Ability {
+	public BreezyBashAbility() {
+		super(PowersMod.id("breezy_bash"),
+				Component.translatable("ability.powers.breezy_bash"),
+				400, false);
+	}
+
+	@Override
+	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		ServerLevel level = (ServerLevel) player.level();
+
+		AABB area = AABB.ofSize(player.position(), 16.0, 16.0, 16.0);
+		for (LivingEntity target : level.getEntities(
+				EntityTypeTest.forClass(LivingEntity.class), area,
+				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e))) {
+			target.setDeltaMovement(0, 1.6, 0);
+			target.hurtMarked = true;
+
+			PowersMod.scheduleDelayed(level.getServer(), 18, () -> {
+				if (target.isAlive() && target.level() == level) {
+					target.setDeltaMovement(0, -2.5, 0);
+					target.hurtMarked = true;
+				}
+			});
+		}
+
+		com.powers.fx.PowerFx.burst(level, player.position(),
+				net.minecraft.core.particles.ParticleTypes.GUST_EMITTER_LARGE, 20, 1.5, 0.2);
+		com.powers.fx.PowerFx.sound(level, player.position(),
+				SoundEvents.BREEZE_SHOOT, 1.5f, 0.6f);
+		return true;
+	}
+}

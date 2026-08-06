@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["ABA", "BCB", "ABA"],
+  "key": {
+    "A": "minecraft:amethyst_shard",
+    "B": "minecraft:redstone",
+    "C": "minecraft:amethyst_block"
+  },
+  "result": {
+    "id": "powers:amethyst_ward",
+    "count": 1
+  }
+}

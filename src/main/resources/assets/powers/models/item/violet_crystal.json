@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:item/generated",
+	"textures": {
+		"particle": "powers:item/violet_crystal",
+		"layer0": "powers:item/violet_crystal"
+	}
+}

@@ -1,0 +1,50 @@
+package com.powers.power.abilities;
+
+import com.powers.PowersMod;
+import com.powers.player.PlayerPowers;
+import com.powers.power.Ability;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+
+/**
+ * Lightning Strike: call down lightning where you are looking (up to 64
+ * blocks away).
+ */
+public class LightningStrikeAbility extends Ability {
+	public LightningStrikeAbility() {
+		super(PowersMod.id("lightning_strike"),
+				Component.translatable("ability.powers.lightning_strike"),
+				0, false);
+	}
+
+	@Override
+	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		var level = (net.minecraft.server.level.ServerLevel) player.level();
+		HitResult hit = player.pick(64.0, 0.0f, false);
+		Vec3 target = hit.getLocation();
+		if (hit.getType() == HitResult.Type.MISS) {
+			target = player.getEyePosition().add(player.getLookAngle().scale(64.0));
+		}
+
+		BlockPos pos = BlockPos.containing(target);
+		Vec3 strikePoint = Vec3.atCenterOf(pos);
+		com.powers.fx.PowerFx.ring(level, strikePoint, 1.8, 0x4FC3F7, 20, 0);
+		com.powers.fx.PowerFx.beam(level, strikePoint.add(0, 10, 0), strikePoint,
+				net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK, 12);
+		com.powers.fx.PowerFx.sound(level, strikePoint, net.minecraft.sounds.SoundEvents.BEACON_POWER_SELECT, 0.7f, 1.8f);
+		LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
+		if (bolt == null) {
+			return false;
+		}
+		bolt.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+		bolt.setCause(player);
+		level.addFreshEntity(bolt);
+		return true;
+	}
+}

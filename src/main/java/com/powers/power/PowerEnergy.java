@@ -1,0 +1,36 @@
+package com.powers.power;
+
+import net.minecraft.resources.Identifier;
+
+/** Balances the shared energy reserve without coupling abilities to UI code. */
+public final class PowerEnergy {
+	public static final int MAX = 1000;
+
+	private PowerEnergy() {
+	}
+
+	public static int cost(Ability ability) {
+		Identifier id = ability.id();
+		return switch (id.getPath()) {
+			case "lightning_strike", "fireball" -> 4;
+			case "speed_burst", "shadow_step", "super_speed", "invisibility" -> 10;
+			case "energy_beam", "void_beam", "frost_nova", "ice_manipulation" -> 22;
+			case "elemental_blast", "gravity_displacement", "breezy_bash" -> 28;
+			case "ground_slam", "forcefield", "cozy_campfire" -> 35;
+			case "starfall", "slow_world", "time_freeze", "dimensional_anchor" -> 45;
+			case "telekinesis", "vessel_possession" -> 24;
+			case "astral_projection" -> 32;
+			case "energy_drain" -> 30;
+			case "time_shift" -> 18;
+			default -> 20;
+		};
+	}
+
+	public static int ongoingCost(Ability ability) {
+		return switch (ability.id().getPath()) {
+			case "flight", "invisibility" -> 1;
+			case "time_freeze" -> 3;
+			default -> 0;
+		};
+	}
+}

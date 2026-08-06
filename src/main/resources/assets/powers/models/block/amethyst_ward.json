@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "powers:block/amethyst_ward_side_off",
+    "down": "powers:block/amethyst_ward_side_off",
+    "up": "powers:block/amethyst_ward_up_off",
+    "north": "powers:block/amethyst_ward_side_off",
+    "south": "powers:block/amethyst_ward_side_off",
+    "west": "powers:block/amethyst_ward_side_off",
+    "east": "powers:block/amethyst_ward_side_off"
+  }
+}

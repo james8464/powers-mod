@@ -1,0 +1,15 @@
+{
+  "type": "powers:light_realm_type",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "layers": [
+        {
+          "height": 1,
+          "block": "powers:pure_light"
+        }
+      ],
+      "biome": "powers:light_realm"
+    }
+  }
+}

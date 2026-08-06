@@ -1,0 +1,54 @@
+package com.powers.power.abilities;
+
+import com.powers.PowersMod;
+import com.powers.player.PlayerPowers;
+import com.powers.power.Ability;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+
+/**
+ * Starfall: a shower of celestial lightning rains down on the spot you are
+ * looking at. Inspired by Galaxy Steve, keeper of space and the creator of
+ * Time and Elemental Steve.
+ */
+public class StarfallAbility extends Ability {
+	public StarfallAbility() {
+		super(PowersMod.id("starfall"),
+				Component.translatable("ability.powers.starfall"),
+				300, false);
+	}
+
+	@Override
+	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		ServerLevel level = (ServerLevel) player.level();
+		HitResult hit = player.pick(64.0, 0.0f, false);
+		Vec3 target = hit.getLocation();
+		if (hit.getType() == HitResult.Type.MISS) {
+			target = player.getEyePosition().add(player.getLookAngle().scale(64.0));
+		}
+		com.powers.fx.PowerFx.ring(level, target, 4.0, 0x3949AB, 24, 0);
+		com.powers.fx.PowerFx.burst(level, target.add(0, 12, 0),
+				net.minecraft.core.particles.ParticleTypes.END_ROD, 18, 1.5, 0.04);
+
+		for (int i = 0; i < 3; i++) {
+			double dx = (level.getRandom().nextDouble() - 0.5) * 12.0;
+			double dz = (level.getRandom().nextDouble() - 0.5) * 12.0;
+			LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
+			if (bolt == null) {
+				continue;
+			}
+			BlockPos pos = BlockPos.containing(target.add(dx, 0, dz));
+			bolt.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+			bolt.setCause(player);
+			level.addFreshEntity(bolt);
+		}
+		return true;
+	}
+}
