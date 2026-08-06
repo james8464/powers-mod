@@ -53,6 +53,13 @@ public final class PlayerPowers {
 						.syncWith(net.minecraft.network.codec.ByteBufCodecs.VAR_INT,
 								AttachmentSyncPredicate.targetOnly()));
 
+	private static final AttachmentType<Integer> SKILL_LEVEL = AttachmentRegistry.create(
+				com.powers.PowersMod.id("skill_level"),
+				builder -> builder
+						.initializer(() -> 0)
+						.persistent(Codec.INT)
+						.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.targetOnly()));
+
 	private static final AttachmentType<Integer> ELEMENTAL_PHASE = AttachmentRegistry.create(
 			com.powers.PowersMod.id("elemental_phase"),
 			builder -> builder
@@ -88,8 +95,17 @@ public final class PlayerPowers {
 					target.getAttachedOrElse(ENERGY, PowerEnergy.MAX)));
 		}
 
+		public int skillLevel() {
+			return Math.max(0, Math.min(SkillSystem.MAX_LEVEL,
+				target.getAttachedOrElse(SKILL_LEVEL, 0)));
+		}
+
+		public void setSkillLevel(ServerPlayer player, int level) {
+			target.setAttached(SKILL_LEVEL, Math.max(0, Math.min(SkillSystem.MAX_LEVEL, level)));
+		}
+
 		public boolean spendEnergy(ServerPlayer player, Ability ability) {
-			int cost = PowerEnergy.cost(ability);
+			int cost = SkillSystem.energyCost(ability, skillLevel());
 			int current = energy();
 			if (current < cost) {
 				player.sendSystemMessage(Component.translatable("energy.powers.empty"));
@@ -109,6 +125,10 @@ public final class PlayerPowers {
 
 		public void refundEnergy(int amount) {
 			target.setAttached(ENERGY, Math.min(PowerEnergy.MAX, energy() + amount));
+		}
+
+		public void refundEnergy(Ability ability) {
+			refundEnergy(SkillSystem.energyCost(ability, skillLevel()));
 		}
 
 		public boolean regenerateEnergy(int amount) {

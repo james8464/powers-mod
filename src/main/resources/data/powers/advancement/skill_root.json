@@ -1,0 +1,23 @@
+{
+	"display": {
+		"icon": {
+			"id": "powers:rainbow_crystal"
+		},
+		"title": {
+			"translate": "advancement.powers.skill.root.title"
+		},
+		"description": {
+			"translate": "advancement.powers.skill.root.description"
+		},
+		"background": "minecraft:textures/block/amethyst_block.png",
+		"frame": "task",
+		"show_toast": true,
+		"announce_to_chat": false,
+		"hidden": false
+	},
+	"criteria": {
+		"tick": {
+			"trigger": "minecraft:tick"
+		}
+	}
+}

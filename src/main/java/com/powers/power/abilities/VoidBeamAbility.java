@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.player.SkillSystem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,7 +29,7 @@ public class VoidBeamAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
-		HitResult hit = player.pick(32.0, 0.0f, false);
+		HitResult hit = player.pick(SkillSystem.range(player, 32.0), 0.0f, false);
 		if (hit.getType() != HitResult.Type.ENTITY) {
 			return false;
 		}
@@ -46,7 +47,7 @@ public class VoidBeamAbility extends Ability {
 		com.powers.fx.PowerFx.sound(level, player.position(),
 				net.minecraft.sounds.SoundEvents.BEACON_ACTIVATE, 0.8f, 1.3f);
 
-		target.hurtServer(level, player.damageSources().magic(), 6.0f);
+		target.hurtServer(level, player.damageSources().magic(), SkillSystem.damage(player, 6.0f));
 		target.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 1, true, false));
 		return true;
 	}

@@ -19,6 +19,7 @@ import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.crystals.DreamwalkingAbility;
 import com.powers.power.AmethystDampening;
+import com.powers.player.SkillSystem;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
@@ -120,6 +121,7 @@ public class PowersMod implements ModInitializer {
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ServerPlayer player = handler.getPlayer();
 			PlayerPowers.get(player).assignRandom(player, false);
+			SkillSystem.refresh(player);
 			PowersPackets.syncTo(player);
 		});
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
@@ -168,6 +170,7 @@ public class PowersMod implements ModInitializer {
 				boolean sleeping = player.isSleeping();
 				boolean wasSleeping = WAS_SLEEPING.getOrDefault(player.getUUID(), false);
 				WAS_SLEEPING.put(player.getUUID(), sleeping);
+				if (tick % 20 == 0) SkillSystem.refresh(player);
 				if (wasSleeping && !sleeping) {
 					data.restoreEnergy();
 					PowersPackets.syncTo(player);

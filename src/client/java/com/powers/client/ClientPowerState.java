@@ -10,6 +10,7 @@ public final class ClientPowerState {
 	private static List<String> powerIds = List.of();
 	private static List<String> activeToggles = List.of();
 	private static int energy;
+	private static int skillLevel;
 	public static int markingSlot = -1;
 	public static int markingTicks;
 
@@ -20,12 +21,14 @@ public final class ClientPowerState {
 		powerIds = payload.powerIds();
 		activeToggles = payload.activeToggles();
 		energy = payload.energy();
+		skillLevel = payload.skillLevel();
 	}
 
 	public static void reset() {
 		powerIds = List.of();
 		activeToggles = List.of();
 		energy = 0;
+		skillLevel = 0;
 		markingSlot = -1;
 		markingTicks = 0;
 	}
@@ -45,6 +48,10 @@ public final class ClientPowerState {
 
 	public static int energy() {
 		return energy;
+	}
+
+	public static int skillLevel() {
+		return skillLevel;
 	}
 
 	public static boolean isMarking() {

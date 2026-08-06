@@ -3,6 +3,7 @@ package com.powers.power.abilities;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.player.SkillSystem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,7 +36,7 @@ public class GroundSlamAbility extends Ability {
 		for (LivingEntity target : level.getEntities(
 				EntityTypeTest.forClass(LivingEntity.class), area,
 				e -> e.isAlive() && e != player)) {
-			target.hurtServer(level, source, 6.0f);
+			 target.hurtServer(level, source, SkillSystem.damage(player, 6.0f));
 			Vec3 away = target.position().subtract(player.position()).normalize();
 			target.knockback(1.6, away.x, away.z, source, 1.0f);
 		}

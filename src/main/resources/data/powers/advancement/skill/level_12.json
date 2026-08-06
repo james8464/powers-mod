@@ -1,0 +1,24 @@
+{
+	"parent": "powers:skill_root",
+	"display": {
+		"icon": {
+			"id": "minecraft:amethyst_shard"
+		},
+		"title": {
+			"translate": "advancement.powers.skill.12_slay_zombie.title"
+		},
+		"description": {
+			"translate": "advancement.powers.skill.12_slay_zombie.description"
+		},
+		"frame": "task",
+		"show_toast": true,
+		"announce_to_chat": false,
+		"hidden": false
+	},
+	"criteria": {
+		"complete": {
+			"trigger": "minecraft:player_killed_entity",
+			"conditions": {}
+		}
+	}
+}

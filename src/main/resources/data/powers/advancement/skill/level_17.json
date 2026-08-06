@@ -1,0 +1,32 @@
+{
+	"parent": "powers:skill_root",
+	"display": {
+		"icon": {
+			"id": "minecraft:amethyst_shard"
+		},
+		"title": {
+			"translate": "advancement.powers.skill.17_light_crystal.title"
+		},
+		"description": {
+			"translate": "advancement.powers.skill.17_light_crystal.description"
+		},
+		"frame": "task",
+		"show_toast": true,
+		"announce_to_chat": false,
+		"hidden": false
+	},
+	"criteria": {
+		"complete": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"powers:light_crystal"
+						]
+					}
+				]
+			}
+		}
+	}
+}

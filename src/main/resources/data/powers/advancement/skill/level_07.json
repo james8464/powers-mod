@@ -1,0 +1,26 @@
+{
+	"parent": "powers:skill_root",
+	"display": {
+		"icon": {
+			"id": "minecraft:amethyst_shard"
+		},
+		"title": {
+			"translate": "advancement.powers.skill.07_dark_realm.title"
+		},
+		"description": {
+			"translate": "advancement.powers.skill.07_dark_realm.description"
+		},
+		"frame": "task",
+		"show_toast": true,
+		"announce_to_chat": false,
+		"hidden": false
+	},
+	"criteria": {
+		"complete": {
+			"trigger": "minecraft:location",
+			"conditions": {
+				"dimension": "powers:dark_realm"
+			}
+		}
+	}
+}

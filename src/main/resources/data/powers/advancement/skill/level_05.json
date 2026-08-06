@@ -1,0 +1,32 @@
+{
+	"parent": "powers:skill_root",
+	"display": {
+		"icon": {
+			"id": "minecraft:amethyst_shard"
+		},
+		"title": {
+			"translate": "advancement.powers.skill.05_ward.title"
+		},
+		"description": {
+			"translate": "advancement.powers.skill.05_ward.description"
+		},
+		"frame": "task",
+		"show_toast": true,
+		"announce_to_chat": false,
+		"hidden": false
+	},
+	"criteria": {
+		"complete": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"powers:amethyst_ward"
+						]
+					}
+				]
+			}
+		}
+	}
+}

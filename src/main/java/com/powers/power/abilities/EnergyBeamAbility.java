@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.player.SkillSystem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,17 +27,18 @@ public class EnergyBeamAbility extends Ability {
 		Vec3 origin = player.getEyePosition();
 		Vec3 look = player.getLookAngle().normalize();
 
-		HitResult hit = player.pick(48.0, 0.0f, true);
+		double range = SkillSystem.range(player, 48.0);
+		HitResult hit = player.pick(range, 0.0f, true);
 		Vec3 end;
 		if (hit.getType() != HitResult.Type.MISS) {
 			end = hit.getLocation();
 			if (hit instanceof EntityHitResult entHit && entHit.getEntity() instanceof LivingEntity target) {
 				if (AmethystDampening.isDampened(target)) return false;
-				target.hurtServer(level, player.damageSources().magic(), 10.0f);
+				target.hurtServer(level, player.damageSources().magic(), SkillSystem.damage(player, 10.0f));
 				target.setRemainingFireTicks(60);
 			}
 		} else {
-			end = origin.add(look.scale(48.0));
+			end = origin.add(look.scale(range));
 		}
 
 		com.powers.fx.PowerFx.beam(level, origin, end,

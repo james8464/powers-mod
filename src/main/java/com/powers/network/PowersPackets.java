@@ -109,7 +109,7 @@ public final class PowersPackets {
 		}
 	}
 
-	public record PowerStatePayload(List<String> powerIds, List<String> activeToggles, int energy) implements CustomPacketPayload {
+	public record PowerStatePayload(List<String> powerIds, List<String> activeToggles, int energy, int skillLevel) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<PowerStatePayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("power_state"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, PowerStatePayload> STREAM_CODEC =
@@ -120,6 +120,8 @@ public final class PowersPackets {
 						PowerStatePayload::activeToggles,
 						ByteBufCodecs.VAR_INT,
 						PowerStatePayload::energy,
+						ByteBufCodecs.VAR_INT,
+						PowerStatePayload::skillLevel,
 						PowerStatePayload::new);
 
 		@Override
@@ -152,7 +154,6 @@ public final class PowersPackets {
 				return;
 			}
 			if (SpaceTimeAbility.isFrozen(player)) return;
-			if (SpaceTimeAbility.isFrozen(player)) return;
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 			Power power = data.getPower(payload.slot());
@@ -170,7 +171,7 @@ public final class PowersPackets {
 					if (paid && ability.activateToggleOn(player, data)) {
 						data.setToggleActive(player, powerId, true);
 					} else if (paid) {
-						data.refundEnergy(PowerEnergy.cost(ability));
+						data.refundEnergy(ability);
 					}
 				}
 				return;
@@ -178,7 +179,7 @@ public final class PowersPackets {
 
 			if (!data.spendEnergy(player, ability)) return;
 			if (!ability.activate(player, data)) {
-				data.refundEnergy(PowerEnergy.cost(ability));
+				data.refundEnergy(ability);
 			}
 			syncTo(player);
 		});
@@ -219,7 +220,7 @@ public final class PowersPackets {
 			Ability ability = power.ability();
 			if (!data.spendEnergy(player, ability)) return;
 			if (!ability.activateTeleport(subject, data, payload.dimension(), payload.x(), payload.y(), payload.z())) {
-				data.refundEnergy(PowerEnergy.cost(ability));
+				data.refundEnergy(ability);
 			}
 			syncTo(player);
 		});
@@ -261,6 +262,7 @@ public final class PowersPackets {
 		ServerPlayNetworking.send(player, new PowerStatePayload(
 				data.getSlotIds(),
 				data.getActiveToggles(),
-				data.energy()));
+				data.energy(),
+				data.skillLevel()));
 	}
 }

@@ -59,7 +59,7 @@ public final class CrystalPowerRegistry {
 		if (!data.spendEnergy(player, ability)) return false;
 		boolean activated = ability.activate(player, data);
 		if (!activated) {
-			data.refundEnergy(PowerEnergy.cost(ability));
+			data.refundEnergy(ability);
 		}
 		PowersPackets.syncTo(player);
 		return activated;

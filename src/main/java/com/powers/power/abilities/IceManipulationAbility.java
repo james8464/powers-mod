@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.player.SkillSystem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -33,12 +34,13 @@ public class IceManipulationAbility extends Ability {
 		Vec3 look = player.getLookAngle().normalize();
 		Vec3 end = origin.add(look.scale(32.0));
 
-		HitResult hit = player.pick(32.0, 0.0f, true);
+		double range = SkillSystem.range(player, 32.0);
+		HitResult hit = player.pick(range, 0.0f, true);
 		if (hit.getType() != HitResult.Type.MISS) end = hit.getLocation();
 
 		if (hit instanceof EntityHitResult entHit && entHit.getEntity() instanceof LivingEntity target) {
 			if (AmethystDampening.isDampened(target)) return false;
-			target.hurtServer(level, player.damageSources().freeze(), 8.0f);
+			 target.hurtServer(level, player.damageSources().freeze(), SkillSystem.damage(player, 8.0f));
 			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 120, 4, false, false));
 			target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 100, 1, false, false));
 			target.setTicksFrozen(160);
