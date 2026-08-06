@@ -5,8 +5,10 @@ import com.powers.network.PowersPackets;
 import com.powers.power.Ability;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.minecraft.resources.Identifier;
 
 public final class SkillSystem {
@@ -131,6 +133,20 @@ public final class SkillSystem {
 		return player.entityTags().contains("darkness")
 			? PlayerPowers.get(player).darknessLevel()
 			: PlayerPowers.get(player).skillLevel();
+	}
+
+	public static boolean isDarkRealm(ResourceKey<Level> dimension) {
+		return dimension.identifier().equals(PowersMod.id("dark_realm"));
+	}
+
+	public static boolean canTraverseDarknessDimension(ServerPlayer subject, boolean assisted) {
+		if (subject.entityTags().contains("darkness")) {
+			return true;
+		}
+		if (assisted) {
+			return true;
+		}
+		return effectiveLevel(subject) < 10;
 	}
 
 	private static void applyRank(ServerPlayer player) {

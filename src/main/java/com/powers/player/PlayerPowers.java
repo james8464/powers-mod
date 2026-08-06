@@ -53,6 +53,14 @@ public final class PlayerPowers {
 						.syncWith(net.minecraft.network.codec.ByteBufCodecs.VAR_INT,
 								AttachmentSyncPredicate.targetOnly()));
 
+	private static final AttachmentType<Integer> DARKNESS_ENERGY = AttachmentRegistry.create(
+				com.powers.PowersMod.id("darkness_energy"),
+				builder -> builder
+						.initializer(() -> PowerEnergy.darknessMaxCapacity(0))
+						.persistent(Codec.INT)
+						.syncWith(net.minecraft.network.codec.ByteBufCodecs.VAR_INT,
+								AttachmentSyncPredicate.targetOnly()));
+
 	private static final AttachmentType<Integer> SKILL_LEVEL = AttachmentRegistry.create(
 			com.powers.PowersMod.id("skill_level"),
 			builder -> builder
@@ -96,13 +104,34 @@ public final class PlayerPowers {
 			return List.copyOf(slots);
 		}
 
+		private boolean usesDarknessEnergy() {
+			return target instanceof ServerPlayer player && player.entityTags().contains("darkness");
+		}
+
+		private int storedEnergy() {
+			if (usesDarknessEnergy()) {
+				return target.getAttachedOrElse(DARKNESS_ENERGY, PowerEnergy.darknessMaxCapacity(0));
+			}
+			return target.getAttachedOrElse(ENERGY, PowerEnergy.BASE_MAX);
+		}
+
+		private void setStoredEnergy(int value) {
+			if (usesDarknessEnergy()) {
+				target.setAttached(DARKNESS_ENERGY, value);
+			} else {
+				target.setAttached(ENERGY, value);
+			}
+		}
+
 		public int energy() {
 			if (target instanceof ServerPlayer player && player.hasEffect(PowersEffects.EXHAUSTION)) return 0;
-			return Math.max(0, Math.min(energyCapacity(),
-					target.getAttachedOrElse(ENERGY, PowerEnergy.BASE_MAX)));
+			return Math.max(0, Math.min(energyCapacity(), storedEnergy()));
 		}
 
 		public int energyCapacity() {
+			if (target instanceof ServerPlayer player && player.entityTags().contains("darkness")) {
+				return PowerEnergy.darknessMaxCapacity(SkillSystem.effectiveLevel(player));
+			}
 			return PowerEnergy.maxCapacity(target instanceof ServerPlayer player
 					? SkillSystem.effectiveLevel(player) : 0);
 		}
@@ -135,7 +164,7 @@ public final class PlayerPowers {
 				}
 				return false;
 			}
-			target.setAttached(ENERGY, current - cost);
+			setStoredEnergy(current - cost);
 			return true;
 		}
 
@@ -143,12 +172,12 @@ public final class PlayerPowers {
 			if (amount <= 0) return true;
 			int current = energy();
 			if (current < amount) return false;
-			target.setAttached(ENERGY, current - amount);
+			setStoredEnergy(current - amount);
 			return true;
 		}
 
 		public void refundEnergy(int amount) {
-			target.setAttached(ENERGY, Math.min(energyCapacity(), energy() + amount));
+			setStoredEnergy(Math.min(energyCapacity(), energy() + amount));
 		}
 
 		public void refundEnergy(Ability ability) {
@@ -160,17 +189,17 @@ public final class PlayerPowers {
 			int current = energy();
 			int updated = Math.min(energyCapacity(), current + Math.max(0, amount));
 			if (updated == current) return false;
-			target.setAttached(ENERGY, updated);
+			setStoredEnergy(updated);
 			return true;
 		}
 
 		public void restoreEnergy() {
 			if (target instanceof ServerPlayer player && player.hasEffect(PowersEffects.EXHAUSTION)) return;
-			target.setAttached(ENERGY, energyCapacity());
+			setStoredEnergy(energyCapacity());
 		}
 
 		public void emptyEnergy() {
-			target.setAttached(ENERGY, 0);
+			setStoredEnergy(0);
 		}
 
 		public Power getPower(int slot) {

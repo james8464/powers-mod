@@ -5,12 +5,21 @@ import net.minecraft.resources.Identifier;
 /** Balances the shared energy reserve without coupling abilities to UI code. */
 public final class PowerEnergy {
 	public static final int BASE_MAX = 250;
+	public static final int DARKNESS_BASE_MAX = BASE_MAX * 2;
 
 	private PowerEnergy() {
 	}
 
 	public static int maxCapacity(int level) {
 		return BASE_MAX + Math.max(0, level) * 25;
+	}
+
+	public static int darknessMaxCapacity(int level) {
+		return DARKNESS_BASE_MAX + Math.max(0, level) * 45;
+	}
+
+	public static int darknessRegen(boolean inDarkEnvironment) {
+		return inDarkEnvironment ? 4 : 2;
 	}
 
 	public static int cost(Ability ability) {

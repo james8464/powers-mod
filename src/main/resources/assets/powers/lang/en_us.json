@@ -228,6 +228,7 @@
 	"ability.powers.anchored": "You have been anchored to %s! You cannot leave this dimension.",
 	"ability.powers.anchor_applied": "Anchored %s to %s.",
 	"ability.powers.anchored_teleport_blocked": "You are dimensionally anchored — teleport blocked.",
+	"ability.powers.darkness_realm_restricted": "Only those touched by darkness can cross the dark realm at this stage.",
 	"ability.powers.no_entry": "You cannot enter this dimension.",
 	"power.powers.ice_manipulation": "Ice Manipulation",
 	"power.powers.ice_manipulation.description": "Fire a freezing beam that turns water to ice, lava to obsidian, and encases foes in frost.",

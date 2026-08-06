@@ -6,6 +6,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.PassiveEffect;
 import com.powers.power.Power;
+import com.powers.power.PowerEnergy;
 import com.powers.power.PowerRegistry;
 import com.powers.power.abilities.SlowWorldAbility;
 import com.powers.power.abilities.TeleportAbility;
@@ -37,6 +38,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
@@ -188,8 +190,17 @@ public class PowersMod implements ModInitializer {
 				if (wasSleeping && !sleeping) {
 					data.restoreEnergy();
 					PowersPackets.syncTo(player);
-				} else if (tick % 20 == 0 && data.regenerateEnergy(1)) {
-					PowersPackets.syncTo(player);
+				} else if (tick % 20 == 0) {
+					int regen = 1;
+					if (player.entityTags().contains("darkness")) {
+						boolean inDarkRealm = player.level().dimension().identifier().getPath().equals("dark_realm");
+						long timeOfDay = player.level().getLevelData().getGameTime() % 24000L;
+					boolean night = timeOfDay >= 13000L || timeOfDay < 2300L;
+						regen = PowerEnergy.darknessRegen(inDarkRealm || night);
+					}
+					if (data.regenerateEnergy(regen)) {
+						PowersPackets.syncTo(player);
+					}
 				}
 			}
 			if (tick % 5 == 0) {
