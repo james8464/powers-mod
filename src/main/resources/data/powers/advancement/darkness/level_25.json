@@ -1,8 +1,8 @@
 {
- "parent": "powers:darkness_root",
+ "parent": "powers:darkness/level_24",
  "display": {
   "icon": {
-   "id": "minecraft:poison_tipped_arrow"
+   "id": "minecraft:tipped_arrow"
   },
   "title": {
    "translate": "advancement.powers.darkness.25_poison_tipped_arrow.title"
@@ -22,8 +22,9 @@
     "items": [
      {
       "items": [
-       "minecraft:poison_tipped_arrow"
-      ]
+       "minecraft:tipped_arrow"
+      ],
+      "potion": "minecraft:poison"
      }
     ]
    }

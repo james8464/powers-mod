@@ -1,5 +1,5 @@
 {
- "parent": "powers:darkness_root",
+ "parent": "powers:darkness/level_14",
  "display": {
   "icon": {
    "id": "minecraft:magma_cream"
