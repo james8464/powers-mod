@@ -10,7 +10,9 @@ import net.minecraft.resources.Identifier;
 /** A segmented energy meter aligned above the vanilla hunger row. */
 public final class EnergyHudRenderer {
 	private static final int SEGMENTS = 10;
-	private static final Identifier HUD_BAR_TEXTURE = PowersMod.id("textures/imported/gui/hud_icons_unknown.png");
+	private static final Identifier FULL_ICON = PowersMod.id("textures/gui/mana_icon.png");
+	private static final Identifier HALF_ICON = PowersMod.id("textures/gui/mana_icon_half.png");
+	private static final Identifier EMPTY_ICON = PowersMod.id("textures/gui/mana_icon_off.png");
 
 	private EnergyHudRenderer() {
 	}
@@ -23,17 +25,14 @@ public final class EnergyHudRenderer {
 		int height = client.getWindow().getGuiScaledHeight();
 		int x = width / 2 + 91;
 		int y = height - 50;
-		int segmentWidth = 8;
-		int gap = 1;
-		int totalWidth = SEGMENTS * segmentWidth + (SEGMENTS - 1) * gap;
 		int energy = Math.max(0, Math.min(PowerEnergy.MAX, ClientPowerState.energy()));
 		boolean dampened = client.player.hasEffect(PowersEffects.AMETHYST_POISONING);
 
-		graphics.blit(HUD_BAR_TEXTURE, x - 2, y - 2, totalWidth + 4, 10, 0.5f, 0, 1, 1);
-		int filled = (int) Math.ceil(energy * SEGMENTS / (double) PowerEnergy.MAX);
-		for (int i = filled; i < SEGMENTS; i++) {
-			int sx = x + i * (segmentWidth + gap);
-			graphics.fill(sx, y, sx + segmentWidth, y + 6, dampened ? 0xAA3B174D : 0xAA081317);
+		int full = energy / (PowerEnergy.MAX / SEGMENTS);
+		boolean half = energy % (PowerEnergy.MAX / SEGMENTS) >= (PowerEnergy.MAX / SEGMENTS) / 2;
+		for (int i = 0; i < SEGMENTS; i++) {
+			Identifier icon = dampened ? EMPTY_ICON : i < full ? FULL_ICON : i == full && half ? HALF_ICON : EMPTY_ICON;
+			graphics.blit(icon, x + i * 10, y, 9, 9, 0, 2.0f / 3.0f, 1, 1);
 		}
 		if (dampened) {
 			int purple = 0xCCB36BFF;
