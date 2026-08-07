@@ -212,6 +212,19 @@ Neutral staples are the safest food for a darkness player to travel with; ordina
 
 The niche ingredient items (Food Bryony, Food Dough, Food Pile Rice, Food Butter, Food Hardtack, Food Spices, Food Cornkernels, Food Tomatillos, Food Slice Eggplant) have been **removed from the mod entirely**. The classification lives in `FoodAffinity.java`.
 
+**Where the food comes from** — every food item above drops naturally in the world:
+
+- **Villagers** drop a **Beating Heart** on death, plus one piece of garden produce or humble fare (tomatoes, lettuce, cabbage, onions, garlic, leeks, radishes, spinach, peppers, beets, beans, chickpeas, lentils, mungbean, uradbean, redbeans, sweetpod, big bread, sweetpod stew).
+- **Pigs** drop pork slabs, raw bacon and sausages; **cows** drop beef slabs; **horses** drop cheval slabs; **mooshrooms** drop mooshroom slabs.
+- **Cod** and **salmon** sometimes drop raw fillets; all raw cuts and fillets can be **smelted or smoked** into their cooked variants (recipes included).
+- **Husks** (desert zombies) carry preserved fare: jerky and salted meat slabs.
+- **Small slimes** occasionally dig up muckroot from the swamp.
+- **Foxes** drop a forest berry (billberry, blackberry, blueberries, cranberries, fisherberries, mulberries, prickleberries, raspberries, strawberries or sunberries).
+- **Oak leaves** rarely drop green and wormy apples; **jungle leaves** drop figs, grapes and coconuts; **cherry leaves** drop pantao (peach); **birch leaves** drop silver pears.
+- **Melons** drop cantaloupe, honeydew, horned melon and winter melon slices; **pumpkins** drop squash slices.
+
+Food items that still lack a natural source are listed in [NATURALLY_UNOBTAINABLE_ITEMS.md](NATURALLY_UNOBTAINABLE_ITEMS.md).
+
 ---
 
 ## Amethyst Dampening
