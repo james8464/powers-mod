@@ -14,7 +14,10 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+// Cozy Campfire: plant a warm campfire that heals you and friendly mobs who
+// stand near it for 10 seconds, restoring hunger for players too.
 public class CozyCampfireAbility extends Ability {
+	// 10 seconds of warmth
 	private static final int DURATION = 200;
 
 	public CozyCampfireAbility() {
@@ -27,8 +30,10 @@ public class CozyCampfireAbility extends Ability {
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
 		Vec3 center = player.position();
+		// reach of the cozy aura
 		double radius = 6.0;
 
+		// run the first heal tick immediately, then every 5 ticks after
 		PowersMod.scheduleDelayed(level.getServer(), 0, new HealTask(level, center, radius, DURATION));
 
 		com.powers.fx.PowerFx.burst(level, center,
@@ -56,11 +61,13 @@ public class CozyCampfireAbility extends Ability {
 		@Override
 		public void run() {
 			if (remaining <= 0) return;
+			// only friendly mobs get healed, never enemies
 			AABB area = AABB.ofSize(center, radius * 2, radius * 2, radius * 2);
 			for (LivingEntity e : level.getEntities(EntityTypeTest.forClass(LivingEntity.class), area,
 					e -> e.isAlive() && !(e instanceof net.minecraft.world.entity.monster.Enemy)
 							&& e.position().distanceTo(center) <= radius)) {
 				e.heal(2.0f);
+				// and players also get a little hunger back
 				if (e instanceof net.minecraft.world.entity.player.Player p) {
 					p.getFoodData().eat(1, 0.5f);
 				}
@@ -69,6 +76,7 @@ public class CozyCampfireAbility extends Ability {
 					net.minecraft.core.particles.ParticleTypes.CAMPFIRE_COSY_SMOKE, 2, radius * 0.3, 0.02);
 			remaining--;
 			if (remaining > 0) {
+				// re-schedule the next tick, ticking every 5 ticks
 				PowersMod.scheduleDelayed(level.getServer(), 5, this);
 			}
 		}

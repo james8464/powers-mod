@@ -10,25 +10,25 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Server-side visual and audio helpers shared by every ability. These give
+ * server-side visual and audio helpers shared by every ability. they give
  * each power an identity beyond the raw mechanic: colored bursts, beams,
- * trails and cast sounds.
+ * trails and cast sounds
  */
 public final class PowerFx {
 	private PowerFx() {
 	}
 
-	/** Spawns a cloud of particles around a point. */
+	/** puffs a cloud of particles around a point */
 	public static void burst(ServerLevel level, Vec3 pos, ParticleOptions particle, int count, double spread, double speed) {
 		level.sendParticles(particle, pos.x, pos.y, pos.z, count, spread, spread, spread, speed);
 	}
 
-	/** Spawns a cloud of particles tinted with an RGB color. */
+	/** puffs a cloud of particles tinted with an rgb color */
 	public static void coloredBurst(ServerLevel level, Vec3 pos, int rgb, int count, double spread) {
 		burst(level, pos, ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF000000 | (rgb & 0xFFFFFF)), count, spread, 0.0);
 	}
 
-	/** Spawns a straight line of particles between two points. */
+	/** draws a straight line of particles between two points */
 	public static void beam(ServerLevel level, Vec3 from, Vec3 to, ParticleOptions particle, int steps) {
 		Vec3 delta = to.subtract(from);
 		for (int i = 1; i <= steps; i++) {
@@ -37,7 +37,7 @@ public final class PowerFx {
 		}
 	}
 
-	/** Draws a lightweight animated-looking horizontal magic circle. */
+	/** draws a flat magic circle; the phase makes it look like it slowly rotates */
 	public static void ring(ServerLevel level, Vec3 center, double radius, int rgb, int points, double phase) {
 		for (int i = 0; i < points; i++) {
 			double angle = Math.PI * 2.0 * i / points + phase;
@@ -46,7 +46,7 @@ public final class PowerFx {
 		}
 	}
 
-	/** Draws a circle of smaller rune sparks and a faint inner ring. */
+	/** draws a circle of rune sparks with a faint inner ring */
 	public static void rune(ServerLevel level, Vec3 center, double radius, int rgb, int points, double phase) {
 		ring(level, center, radius, rgb, points, phase);
 		for (int i = 0; i < points; i++) {
@@ -57,7 +57,7 @@ public final class PowerFx {
 		spiral(level, center, radius * 0.55, radius * 0.4, rgb, Math.max(6, points / 2), phase + Math.PI / 8);
 	}
 
-	/** Draws a short rising spiral for transformations and charged casts. */
+	/** draws a short rising spiral for transformations and charged casts */
 	public static void spiral(ServerLevel level, Vec3 center, double radius, double height,
 			int rgb, int points, double phase) {
 		for (int i = 0; i < points; i++) {
@@ -68,17 +68,19 @@ public final class PowerFx {
 		}
 	}
 
-	/** Plays a sound to everyone around a point. */
+	/** plays a sound to everyone around a point */
 	public static void sound(ServerLevel level, Vec3 pos, SoundEvent sound, float volume, float pitch) {
 		level.playSound(null, pos.x, pos.y, pos.z, sound, SoundSource.PLAYERS, volume, pitch);
 	}
 
+	// the small "no" burst for a cancelled or refused cast
 	public static void cancelled(ServerLevel level, Vec3 pos, int rgb) {
 		burst(level, pos, ParticleTypes.REVERSE_PORTAL, 10, 0.35, 0.02);
 		coloredBurst(level, pos, rgb, 8, 0.25);
 		sound(level, pos, SoundEvents.BEACON_DEACTIVATE, 0.5f, 0.7f);
 	}
 
+	// two colored beams meeting mid-air with a spark burst, for powers clashing
 	public static void clash(ServerLevel level, Vec3 from, Vec3 to, int attacker, int defender) {
 		Vec3 midpoint = from.add(to).scale(0.5);
 		beam(level, from, midpoint, ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF000000 | attacker), 8);
@@ -87,7 +89,7 @@ public final class PowerFx {
 		sound(level, midpoint, SoundEvents.BEACON_DEACTIVATE, 0.8f, 1.4f);
 	}
 
-	/** A cycling rainbow RGB color, for Rainbow Steve's effects. */
+	/** a cycling rainbow rgb color, for rainbow steve's effects */
 	public static int rainbow(int tick, int step) {
 		float hue = (float) ((tick * step) % 360) / 60.0f;
 		float x = 1.0f - Math.abs(hue % 2.0f - 1.0f);

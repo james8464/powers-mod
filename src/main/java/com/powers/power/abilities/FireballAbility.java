@@ -13,12 +13,12 @@ import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Fireball: exactly like the Rainbow Quest power - a fireball is summoned
- * hovering in front of the caster and simply floats there. Hitting it (any
- * melee click) sends it flying toward where you are looking, using the same
- * deflection mechanic as a Ghast fireball.
+ * Fireball: a fireball is summoned hovering in front of you and just floats
+ * there; punch it (any melee click) and it shoots off the way you're looking,
+ * the same deflection mechanic as a ghast fireball. Fades if never hit.
  */
 public class FireballAbility extends Ability {
+	// 12 seconds to catch fire
 	private static final int DESPAWN_TICKS = 240;
 
 	public FireballAbility() {
@@ -33,6 +33,8 @@ public class FireballAbility extends Ability {
 		Vec3 eye = player.getEyePosition();
 		Vec3 look = player.getLookAngle().normalize();
 
+		// step outward from 1.5 to 5 blocks until clear air, so the fireball
+		// never spawns inside a wall and suffocates
 		Vec3 pos = null;
 		for (double distance = 1.5; distance <= 5.0; distance += 0.5) {
 			Vec3 candidate = eye.add(look.scale(distance));
@@ -42,6 +44,7 @@ public class FireballAbility extends Ability {
 			}
 		}
 		if (pos == null) {
+			// boxed in, fall back to right in front of the face
 			pos = eye.add(look.scale(1.5));
 		}
 
@@ -49,7 +52,7 @@ public class FireballAbility extends Ability {
 		fireball.setPos(pos);
 		level.addFreshEntity(fireball);
 
-		// The floating fireball fades away after a while if never hit.
+		// the floating fireball fades away after 12 seconds if nobody hits it
 		PowersMod.scheduleDelayed(level.getServer(), DESPAWN_TICKS, () -> {
 			if (!fireball.isRemoved()) {
 				fireball.discard();

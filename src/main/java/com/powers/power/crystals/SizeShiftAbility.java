@@ -29,6 +29,7 @@ public class SizeShiftAbility extends Ability {
 	private static final int DURATION_TICKS = 400;
 	private static final int COOLDOWN_TICKS = 600;
 
+	// shrink -0.62 to 38% of normal size, grow +0.75 to 175%; the giant also gets full knockback resistance
 	private static final AttributeModifier SHRINK_MODIFIER = new AttributeModifier(
 			PowersMod.id("size_shift_shrink"), -0.62, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 	private static final AttributeModifier GROW_MODIFIER = new AttributeModifier(
@@ -36,7 +37,7 @@ public class SizeShiftAbility extends Ability {
 	private static final AttributeModifier ANTI_KNOCKBACK = new AttributeModifier(
 			PowersMod.id("size_shift_knockback"), 1.0, AttributeModifier.Operation.ADD_VALUE);
 
-	/** The last size used (1 = small, 2 = large); each use alternates. */
+	// last size per player, 1 = small, 2 = large, so every use alternates
 	private static final Map<UUID, Integer> LAST_SIZE = new HashMap<>();
 
 	public SizeShiftAbility() {
@@ -53,7 +54,9 @@ public class SizeShiftAbility extends Ability {
 		ServerLevel level = (ServerLevel) player.level();
 		AttributeInstance scale = player.getAttribute(Attributes.SCALE);
 		AttributeInstance knockback = player.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+		// the chosen size lasts 400 ticks = 20 seconds
 		if (next == 1) {
+			// small: a speck with speed, springs and slow falling that slips past every blade
 			if (scale != null) {
 				scale.addOrUpdateTransientModifier(SHRINK_MODIFIER);
 			}
@@ -63,6 +66,7 @@ public class SizeShiftAbility extends Ability {
 			PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x00E5FF, 24, 0.8);
 			PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.POOF, 20, 0.7, 0.2);
 		} else {
+			// large: a tower of strength and iron footing that cannot be shoved
 			if (scale != null) {
 				scale.addOrUpdateTransientModifier(GROW_MODIFIER);
 			}
@@ -77,6 +81,7 @@ public class SizeShiftAbility extends Ability {
 		PowerFx.sound(level, player.position(), SoundEvents.PLAYER_HURT_FREEZE, 1.0f, 0.7f);
 
 		ServerPlayer endPlayer = player;
+		// 20 seconds later, pull off whichever size modifier is active
 		PowersMod.scheduleDelayed(level.getServer(), DURATION_TICKS, () -> {
 			if (endPlayer.getAttribute(Attributes.SCALE) != null) {
 				endPlayer.getAttribute(Attributes.SCALE).removeModifier(SHRINK_MODIFIER);
@@ -91,10 +96,12 @@ public class SizeShiftAbility extends Ability {
 		return true;
 	}
 
+	/** drop one player's stored size when they log off */
 	public static void clear(UUID player) {
 		LAST_SIZE.remove(player);
 	}
 
+	/** wipe every stored size on server stop */
 	public static void clearAll() {
 		LAST_SIZE.clear();
 	}

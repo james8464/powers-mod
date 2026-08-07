@@ -16,9 +16,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Life Bloom: the Green Crystal's power. Life itself answers you: every
- * player within twenty blocks is healed to full health, freed of every
- * ailment, and wreathed in regeneration so potent it outlasts any fight.
+ * Life Bloom: the Green Crystal's power. Life itself answers your call:
+ * every player within twenty blocks is healed to full health, freed of
+ * every ailment, and wreathed in regeneration so potent it outlasts
+ * any fight
  */
 public class LifeBloomAbility extends Ability {
 	private static final int COOLDOWN_TICKS = 2400;
@@ -34,11 +35,13 @@ public class LifeBloomAbility extends Ability {
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
 		Vec3 origin = player.position().add(0, 1, 0);
+		// the box reaches 20 blocks out from the caster in every direction
 		for (LivingEntity ally : level.getEntitiesOfClass(LivingEntity.class,
 				AABB.ofSize(origin, RADIUS * 2, RADIUS * 2, RADIUS * 2), LivingEntity::isAlive)) {
 			if (ally instanceof ServerPlayer orPlayer) {
 				orPlayer.removeAllEffects();
 				orPlayer.heal(orPlayer.getMaxHealth());
+				// 600 ticks = 30 seconds of regen, absorption and saturation, enough to carry anyone through a fight
 				orPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 600, 4, true, false));
 				orPlayer.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 600, 3, true, false));
 				orPlayer.addEffect(new MobEffectInstance(MobEffects.SATURATION, 600, 0, true, false));

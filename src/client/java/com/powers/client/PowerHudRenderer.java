@@ -5,6 +5,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
+/** the three slot boxes in the corner of the screen, each one showing which power its key triggers */
 public final class PowerHudRenderer {
 	private static final int BOX = 40;
 	private static final int GAP = 4;
@@ -22,6 +23,7 @@ public final class PowerHudRenderer {
 		int sw = client.getWindow().getGuiScaledWidth();
 		int sh = client.getWindow().getGuiScaledHeight();
 
+		// sits just above the hotbar in the bottom-right corner
 		int totalW = 3 * BOX + 2 * GAP;
 		int x0 = sw - totalW - MARGIN;
 		int y0 = sh - BOX - 14 - MARGIN;
@@ -38,6 +40,7 @@ public final class PowerHudRenderer {
 			graphics.fill(x + BOX, y, x + BOX + 1, y + BOX + 1, 0x44FFFFFF);
 
 			int fillColor;
+			// toggle powers glow in their color while switched on, empty slots stay dim
 			if (power == null) {
 				fillColor = 0x44FFFFFF;
 			} else if (power.ability() != null && power.ability().isToggle()) {
@@ -79,6 +82,7 @@ public final class PowerHudRenderer {
 		if (font.width(text) <= maxWidth) {
 			return text;
 		}
+		// trim the name until it fits the box width, with ".." as the ellipsis
 		String s = text;
 		while (font.width(s + "..") > maxWidth && s.length() > 1) {
 			s = s.substring(0, s.length() - 1);

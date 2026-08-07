@@ -2,28 +2,32 @@ package com.powers.power;
 
 import net.minecraft.resources.Identifier;
 
-/** Balances the shared energy reserve without coupling abilities to UI code. */
+/** the shared energy pool every power draws from, plus the costs */
 public final class PowerEnergy {
+	// starting energy pool for every player
 	public static final int BASE_MAX = 250;
+	// the shadow variant starts with twice the base pool
 	public static final int DARKNESS_BASE_MAX = BASE_MAX * 2;
 
 	private PowerEnergy() {
 	}
 
-	/** +52 per rank: 250 base, 770 at the rank-10 cap (was 775 at 21 ranks). */
+	/** pool grows 52 per rank: 250 base, 770 at the rank-10 cap */
 	public static int maxCapacity(int level) {
 		return BASE_MAX + Math.max(0, level) * 52;
 	}
 
-	/** +135 per rank: 500 base, 1850 at the rank-10 cap (was 1850 at 30 ranks). */
+	/** shadow pool grows 135 per rank: 500 base, 1850 at the rank-10 cap */
 	public static int darknessMaxCapacity(int level) {
 		return DARKNESS_BASE_MAX + Math.max(0, level) * 135;
 	}
 
+	/** darkness recharges faster in the dark: 4 per tick there, 2 in daylight */
 	public static int darknessRegen(boolean inDarkEnvironment) {
 		return inDarkEnvironment ? 4 : 2;
 	}
 
+	/** one-time energy cost to fire the ability, with a default of 20 for anything unlisted */
 	public static int cost(Ability ability) {
 		Identifier id = ability.id();
 		return switch (id.getPath()) {
@@ -42,6 +46,7 @@ public final class PowerEnergy {
 		};
 	}
 
+	/** per-tick drain while a toggle like flight stays on, zero for everything else */
 	public static int ongoingCost(Ability ability) {
 		return switch (ability.id().getPath()) {
 			case "flight", "invisibility" -> 1;

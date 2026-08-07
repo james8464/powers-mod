@@ -8,8 +8,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
- * INERT. The Rainbow Crystal no longer holds the power re-roll mechanic —
- * it is a reserved artifact waiting for its own dedicated purpose.
+ * inert placeholder artifact. the re-roll mechanic is gone and the crystal
+ * is waiting for its own dedicated purpose
  */
 public class RainbowCrystalItem extends Item {
 	public RainbowCrystalItem(Properties properties) {
@@ -18,7 +18,7 @@ public class RainbowCrystalItem extends Item {
 
 	@Override
 	public InteractionResult use(Level level, Player user, InteractionHand hand) {
-		// No purpose yet — right-clicking does nothing for now.
+		// right click does nothing yet - reserved artifact
 		return InteractionResult.SUCCESS;
 	}
 }

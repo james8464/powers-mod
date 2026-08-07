@@ -13,8 +13,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Lightning Strike: call down lightning where you are looking (up to 64
- * blocks away).
+ * Lightning Strike: smite whatever you're looking at with a bolt from
+ * above, up to 64 blocks away.
  */
 public class LightningStrikeAbility extends Ability {
 	public LightningStrikeAbility() {
@@ -29,6 +29,7 @@ public class LightningStrikeAbility extends Ability {
 		HitResult hit = player.pick(64.0, 0.0f, false);
 		Vec3 target = hit.getLocation();
 		if (hit.getType() == HitResult.Type.MISS) {
+			// looking at the sky, so strike at full range instead
 			target = player.getEyePosition().add(player.getLookAngle().scale(64.0));
 		}
 
@@ -40,6 +41,7 @@ public class LightningStrikeAbility extends Ability {
 		com.powers.fx.PowerFx.sound(level, strikePoint, net.minecraft.sounds.SoundEvents.BEACON_POWER_SELECT, 0.7f, 1.8f);
 		LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
 		if (bolt == null) {
+			// couldn't spawn the bolt, so report failure and let the caller refund energy
 			return false;
 		}
 		bolt.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);

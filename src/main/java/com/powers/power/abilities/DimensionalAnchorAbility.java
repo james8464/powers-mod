@@ -20,9 +20,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+// Dimensional Anchor: bind a player in place by dimension so a later recall
+// power knows exactly where they're meant to be; the anchor fades after 2 min.
 public class DimensionalAnchorAbility extends Ability {
 	public static final Map<UUID, ResourceKey<Level>> ANCHORS = new HashMap<>();
+	// counts how many times each player has been anchored, to tag expiry tasks
 	private static final Map<UUID, Long> GENERATIONS = new HashMap<>();
+	// 2 minutes before the anchor fades
 	private static final int ANCHOR_TICKS = 2400;
 
 	public DimensionalAnchorAbility() {
@@ -53,6 +57,7 @@ public class DimensionalAnchorAbility extends Ability {
 		}
 		ResourceKey<Level> dim = targetSP.level().dimension();
 		String dimName = dim.identifier().getPath();
+		// bump the generation so older expiry tasks can tell they're stale
 		long generation = GENERATIONS.merge(targetSP.getUUID(), 1L, Long::sum);
 		ANCHORS.put(targetSP.getUUID(), dim);
 
@@ -66,9 +71,8 @@ public class DimensionalAnchorAbility extends Ability {
 		PowerMessages.send(player, "ability.powers.anchor_applied", 3,
 				targetSP.getName().getString(), dimName);
 
-		// Every anchor schedules its own expiry so a re-anchor within the
-		// window still gets released; the generation check keeps a stale task
-		// from releasing a newer anchor.
+		// every anchor schedules its own expiry, and the generation check keeps
+		// a stale task from releasing a newer anchor on a re-anchored player
 		PowersMod.scheduleDelayed(player.level().getServer(), ANCHOR_TICKS, () -> {
 			if (GENERATIONS.getOrDefault(targetSP.getUUID(), 0L) == generation) {
 				ANCHORS.remove(targetSP.getUUID());

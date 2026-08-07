@@ -31,9 +31,9 @@ import java.util.Set;
  * /powers assign <player> <power> <slot>
  * /powers reroll [player]
  * /powers darkprefix [true|false]
+ * /powers travel <dimension>
  *
- * <p>The Rainbow Crystal item is the friendly path; the command is for server
- * admins.
+ * the server admin's tool for managing powers by hand
  */
 public final class PowerCommand {
 	private PowerCommand() {
@@ -127,12 +127,14 @@ public final class PowerCommand {
 		String canonicalPowerId = power.id().toString();
 
 		List<String> ids = new java.util.ArrayList<>(PlayerPowers.get(player).getSlotIds());
+		// a player with no saved loadout yet gets random powers first, so assign works on a full set
 		if (ids.size() != PlayerPowers.SLOT_COUNT) {
 			ids = new java.util.ArrayList<>();
 			for (Power p : PowerRegistry.randomDistinct(PlayerPowers.SLOT_COUNT, new java.util.Random())) {
 				ids.add(p.id().toString());
 			}
 		}
+		// the same power can't fill two slots at once
 		if (ids.contains(canonicalPowerId) && !ids.get(slot).equals(canonicalPowerId)) {
 			context.getSource().sendFailure(Component.literal("That power is already assigned to another slot."));
 			return 0;
@@ -161,9 +163,9 @@ public final class PowerCommand {
 	}
 
 	/**
-	 * /powers darkprefix — toggles whether a darkness-tagged player's visible
+	 * /powers darkprefix toggles whether a darkness-tagged player's visible
 	 * prefix is their real darkness title or the equivalent normal-ladder name.
-	 * The flag only matters to darkness users; everyone else is unaffected.
+	 * only matters to darkness users, everyone else is unaffected
 	 */
 	private static int darkPrefixToggle(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();
@@ -183,6 +185,7 @@ public final class PowerCommand {
 	private static int applyDarkPrefix(ServerPlayer player, PlayerPowers.PlayerPowersData data, boolean hidden) {
 		data.setDarknessPrefixHidden(hidden);
 		SkillSystem.refreshPrefix(player);
+		// the choice only does anything for darkness-tagged players, others just get a note
 		if (SkillSystem.hasDarknessTag(player)) {
 			contextMessage(player, hidden);
 		} else {
@@ -201,7 +204,7 @@ public final class PowerCommand {
 		}
 	}
 
-	/** Teleports the executing player to a registered dimension (e.g. powers:dark_realm). */
+	/** teleports the executing player to a registered dimension like powers:dark_realm */
 	private static int travel(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();
 		String dimName = StringArgumentType.getString(context, "dimension");
@@ -215,6 +218,7 @@ public final class PowerCommand {
 			context.getSource().sendFailure(Component.literal("Unknown dimension: " + dimName));
 			return 0;
 		}
+		// land at the realm's fixed entry point near the origin
 		player.teleportTo(target, 8.0, -58.0, 8.0, Set.of(), player.getYRot(), player.getXRot(), false);
 		context.getSource().sendSuccess(() -> Component.literal("Traveled to " + dimName)
 				.withStyle(ChatFormatting.GREEN), false);

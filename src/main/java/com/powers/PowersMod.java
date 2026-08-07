@@ -36,6 +36,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -57,13 +58,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+// mod entry point; wires every POWERS system into the server and drives
+// energy regen, toggles, and passive upkeep each tick
 public class PowersMod implements ModInitializer {
 	public static final String MOD_ID = "powers";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+	// passives are re-applied every 100 ticks (5 seconds) so they never expire
 	private static final int PASSIVE_REFRESH_TICKS = 100;
 
-	/** A storm of visual lightning bolts at a position (optionally following a player). */
+	// a visual lightning storm at a spot, or chasing a player while it lasts
 	private static final class LightningStorm {
 		private final ServerLevel level;
 		private Vec3 position;
@@ -83,10 +87,29 @@ public class PowersMod implements ModInitializer {
 		}
 
 		private void tick() {
+			// the storm chases its target player, but only while followTicks remain
 			if (this.follow != null && this.follow.isAlive() && this.follow.level() == this.level
 					&& this.remaining > this.ticks - this.followTicks) {
 				this.position = this.follow.position();
 			}
+			// a storm inside a realm carries the realm's own weather: the dark
+			// realm chokes on heavy campfire smoke, the light realm glitters
+			// with totem sparks - so travel and banishment to either realm
+			// builds up its signature amid the lightning
+			if (this.level.dimension().identifier().equals(PowersMod.id("dark_realm"))) {
+				this.level.sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,
+						this.position.x, this.position.y + 0.5, this.position.z, 4, 0.7, 0.2, 0.7, 0.02);
+				this.level.sendParticles(ParticleTypes.LARGE_SMOKE,
+						this.position.x, this.position.y + 0.5, this.position.z, 3, 0.6, 0.4, 0.6, 0.03);
+			} else if (this.level.dimension().identifier().equals(PowersMod.id("light_realm"))) {
+				this.level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
+						this.position.x, this.position.y + 0.5, this.position.z, 2, 0.9, 0.6, 0.9, 0.12);
+				this.level.sendParticles(ParticleTypes.FIREWORK,
+						this.position.x, this.position.y + 0.5, this.position.z, 3, 0.7, 0.4, 0.7, 0.1);
+				this.level.sendParticles(ParticleTypes.END_ROD,
+						this.position.x, this.position.y + 0.5, this.position.z, 2, 0.5, 0.4, 0.5, 0.06);
+			}
+			// a bolt every other tick; only the first one thunders so the storm doesn't deafen
 			if (this.remaining % 2 == 0) {
 				LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(this.level, EntitySpawnReason.TRIGGERED);
 				if (bolt != null) {
@@ -101,12 +124,15 @@ public class PowersMod implements ModInitializer {
 		}
 	}
 
+	// a job held back until a future server tick
 	private record DelayedTask(int executeAt, Runnable action) {
 	}
 
 	private static final List<LightningStorm> STORMS = new ArrayList<>();
 	private static final List<DelayedTask> DELAYED = new ArrayList<>();
+	// the gamemode each player had before stepping into a realm dimension
 	private static final Map<UUID, GameType> PREVIOUS_GAMEMODE = new HashMap<>();
+	// whether each player was asleep last tick, so waking up can refund energy
 	private static final Map<UUID, Boolean> WAS_SLEEPING = new HashMap<>();
 
 	@Override
@@ -129,6 +155,8 @@ public class PowersMod implements ModInitializer {
 			return false;
 		});
 
+		// no damage lands in the realm dimensions; forcefields and amethyst
+		// dampening also stop attacks from connecting
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
 			if (ForcefieldAbility.protects(entity)) return false;
 			if (AmethystDampening.isDampened(entity) && source.getEntity() instanceof ServerPlayer) return false;
@@ -136,14 +164,16 @@ public class PowersMod implements ModInitializer {
 			return !dim.equals("powers:dark_realm") && !dim.equals("powers:light_realm");
 		});
 
-		// First login: assign three random powers that persist for good.
+		// first join rolls three random powers that stick with the player for good
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ServerPlayer player = handler.getPlayer();
 			PlayerPowers.get(player).assignRandom(player, false);
 			updateDarknessAdvancement(player);
+			updateSkillAdvancement(player);
 			SkillSystem.refresh(player);
 			PowersPackets.syncTo(player);
 		});
+		// drop every ability's per-player state when someone leaves
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 			ServerPlayer player = handler.getPlayer();
 			PREVIOUS_GAMEMODE.remove(player.getUUID());
@@ -186,9 +216,9 @@ public class PowersMod implements ModInitializer {
 			ActivationCooldowns.clearAll();
 		});
 
-		// Passives are re-applied on a schedule so they never expire; toggle
-		// abilities are re-asserted every few ticks (e.g. flight); time stops,
-		// lightning storms and delayed actions advance every tick.
+		// passives get re-applied on a schedule so they never expire, toggles
+		// re-assert themselves every few ticks (flight, forcefields), and time
+		// stops, storms, and delayed jobs all advance each tick
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			int tick = server.getTickCount();
 			if (tick % PASSIVE_REFRESH_TICKS == 0) {
@@ -205,12 +235,15 @@ public class PowersMod implements ModInitializer {
 				WAS_SLEEPING.put(player.getUUID(), sleeping);
 				if (tick % 20 == 0) {
 					updateDarknessAdvancement(player);
+					updateSkillAdvancement(player);
 					SkillSystem.refresh(player);
 				}
 				if (wasSleeping && !sleeping) {
 					data.restoreEnergy();
 					PowersPackets.syncTo(player);
 				} else if (tick % 20 == 0) {
+					// one point per second by default; darkness users regen
+					// faster at night or inside the dark realm
 					int regen = 1;
 					if (SkillSystem.hasDarknessTag(player)) {
 						boolean inDarkRealm = SkillSystem.isDarkRealm(player.level().dimension());
@@ -252,20 +285,20 @@ public class PowersMod implements ModInitializer {
 		LOGGER.info("POWERS framework initialized with {} power(s)", PowerRegistry.getAll().size());
 	}
 
-	/** Starts a storm of visual lightning lasting {@code ticks} ticks. */
+	/** Starts a visual lightning storm at a spot, lasting {@code ticks} ticks. */
 	public static void startStorm(ServerLevel level, Vec3 position, int ticks) {
 		startStorm(level, position, null, ticks, 0);
 	}
 
 	/**
-	 * Starts a storm that follows the given player while it lasts, or only
-	 * for the first {@code followTicks} ticks of it.
+	 * Starts a storm that chases the given player, or only follows during
+	 * the first {@code followTicks} ticks.
 	 */
 	public static void startStorm(ServerLevel level, Vec3 position, ServerPlayer follow, int ticks, int followTicks) {
 		STORMS.add(new LightningStorm(level, position, follow, ticks, followTicks));
 	}
 
-	/** Runs {@code action} once after {@code ticks} server ticks. */
+	/** Runs {@code action} once, {@code ticks} server ticks from now. */
 	public static void scheduleDelayed(MinecraftServer server, int ticks, Runnable action) {
 		DELAYED.add(new DelayedTask(server.getTickCount() + ticks, action));
 	}
@@ -288,6 +321,7 @@ public class PowersMod implements ModInitializer {
 		}
 	}
 
+	// re-applies each power's passive effects with a long duration so they never lapse
 	private static void refreshPassives(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
@@ -302,6 +336,7 @@ public class PowersMod implements ModInitializer {
 		}
 	}
 
+	// realm dimensions pin players to adventure so the scenery survives; the old gamemode comes back on exit
 	private static void enforceRealmGamemode(ServerPlayer player) {
 		if (TeleportAbility.MARKING.containsKey(player.getUUID())
 				|| AstralProjectionAbility.isActive(player.getUUID())) return;
@@ -323,6 +358,7 @@ public class PowersMod implements ModInitializer {
 		}
 	}
 
+	// steps the per-tick effect of every toggle the player has switched on
 	private static void tickToggles(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
@@ -337,6 +373,7 @@ public class PowersMod implements ModInitializer {
 		}
 	}
 
+	// toggles that can't be paid shut themselves off, and burning out triggers the backlash
 	private static void drainToggleEnergy(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		boolean anyDrainedOut = false;
@@ -357,11 +394,9 @@ public class PowersMod implements ModInitializer {
 		}
 	}
 
-	/**
-	 * Exhaustion drains the pool like hunger at high amplifier: every 5 ticks
-	 * a chunk of energy is stripped away (faster at higher amplifier) instead
-	 * of zeroing it instantly, so the HUD visibly crashes over a few seconds.
-	 */
+	// the exhaustion effect eats the pool like hunger: every 5 ticks a chunk
+	// is stripped away, bigger at higher amplifier, so the HUD visibly crashes
+	// over a few seconds instead of zeroing out instantly
 	private static void drainExhaustionEnergy(ServerPlayer player) {
 		MobEffectInstance exhaustion = player.getEffect(PowersEffects.EXHAUSTION);
 		if (exhaustion == null) return;
@@ -375,13 +410,9 @@ public class PowersMod implements ModInitializer {
 		}
 	}
 
-	/**
-	 * Lets a toggle burn out on an empty pool. The player is heavily punished
-	 * for abandoning a draining power: 70% of their available (max) health in
-	 * magic damage, a full divine-wrath sequence (rune circle, shockwave
-	 * rings, pillar of sparks, thunder) and a lightning storm that chases
-	 * them — as if the gods themselves have taken notice.
-	 */
+	// letting a toggle burn out on an empty pool draws divine punishment:
+	// 70% of max health in magic damage, the full godly wrath sequence, and a
+	// lightning storm that chases the player, as if the gods themselves noticed
 	private static void energyBacklash(ServerPlayer player) {
 		ServerLevel level = (ServerLevel) player.level();
 
@@ -394,7 +425,7 @@ public class PowersMod implements ModInitializer {
 		PowerMessages.send(player, "energy.powers.backlash", 6);
 	}
 
-	/** Drifting colored motes around each player, one hue per assigned power. */
+	// drifting colored motes around the player, one hue per assigned power
 	private static void tickAuras(ServerPlayer player, int tick) {
 		ServerLevel level = (ServerLevel) player.level();
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
@@ -403,6 +434,7 @@ public class PowersMod implements ModInitializer {
 			if (power == null) {
 				continue;
 			}
+			// flight cycles through the rainbow; every other power glows its own color
 			int rgb = power.id().getPath().equals("flight")
 					? com.powers.fx.PowerFx.rainbow(tick, 6)
 					: power.color() & 0xFFFFFF;
@@ -414,6 +446,7 @@ public class PowersMod implements ModInitializer {
 		}
 	}
 
+	// keeps the darkness root advancement in step with the player's tag so the path shows in the UI
 	private static void updateDarknessAdvancement(ServerPlayer player) {
 		AdvancementHolder root = ((ServerLevel) player.level()).getServer().getAdvancements()
 				.get(PowersMod.id("darkness_root"));
@@ -426,6 +459,24 @@ public class PowersMod implements ModInitializer {
 		} else {
 			if (player.getAdvancements().getOrStartProgress(root).isDone()) {
 				player.getAdvancements().revoke(root, "unlock");
+			}
+		}
+	}
+
+	// darkness users are locked out of the light ladder: the skill tab only
+	// shows for players without the tag, so the UI never offers a choice
+	private static void updateSkillAdvancement(ServerPlayer player) {
+		AdvancementHolder root = ((ServerLevel) player.level()).getServer().getAdvancements()
+				.get(PowersMod.id("skill_root"));
+		if (root == null) return;
+		boolean hasDarknessTag = SkillSystem.hasDarknessTag(player);
+		if (!hasDarknessTag) {
+			if (!player.getAdvancements().getOrStartProgress(root).isDone()) {
+				player.getAdvancements().award(root, "tick");
+			}
+		} else {
+			if (player.getAdvancements().getOrStartProgress(root).isDone()) {
+				player.getAdvancements().revoke(root, "tick");
 			}
 		}
 	}

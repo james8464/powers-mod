@@ -21,9 +21,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+// Energy Drain: lock onto a player and siphon their energy for 2 seconds;
+// if you keep the ritual going to the end they're left exhausted for 30s.
 public class EnergyDrainAbility extends Ability {
+	// 30 seconds of exhaustion after a full drain
 	private static final int EXHAUSTION_TICKS = 600;
+	// 2 seconds to drain the whole bar
 	private static final int RITUAL_TICKS = 40;
+	// the link breaks past 48 blocks
 	private static final double MAX_RANGE_SQ = 48.0 * 48.0;
 	private static final Map<UUID, Ritual> RITUALS = new HashMap<>();
 
@@ -46,6 +51,7 @@ public class EnergyDrainAbility extends Ability {
 			return false;
 		}
 
+		// drain the whole bar evenly across the ritual, at least 1 per tick
 		int capacity = PlayerPowers.get(targetSP).energyCapacity();
 		int perTick = Math.max(1, capacity / RITUAL_TICKS);
 		long endsAt = ((ServerLevel) caster.level()).getServer().getTickCount() + RITUAL_TICKS;
@@ -55,13 +61,14 @@ public class EnergyDrainAbility extends Ability {
 		return true;
 	}
 
-	/** Drains the target's energy a fraction per tick while the ritual holds. */
+	/** Runs every server tick; drains a fraction of the target's energy while the ritual holds. */
 	public static void tickAll(MinecraftServer server) {
 		long now = server.getTickCount();
 		for (var it = RITUALS.entrySet().iterator(); it.hasNext();) {
 			Ritual ritual = it.next().getValue();
 			ServerPlayer caster = ritual.caster();
 			ServerPlayer target = ritual.target();
+			// the ritual breaks if either player logs off, dies, or drifts apart
 			boolean casterOnline = server.getPlayerList().getPlayer(caster.getUUID()) == caster;
 			boolean targetOnline = server.getPlayerList().getPlayer(target.getUUID()) == target;
 			if (!casterOnline || !targetOnline || !caster.isAlive() || !target.isAlive()
@@ -80,6 +87,7 @@ public class EnergyDrainAbility extends Ability {
 				PowerFx.burst(level, rune, ParticleTypes.ENCHANT, 2, 0.03, 0.01);
 			}
 			if (now >= ritual.endsAt()) {
+				// full drain landed, hit the target with exhaustion
 				target.addEffect(new MobEffectInstance(PowersEffects.EXHAUSTION, EXHAUSTION_TICKS, 0,
 						false, false, true));
 				PowerMessages.send(caster, "ability.powers.energy_drained", 3,
@@ -89,6 +97,7 @@ public class EnergyDrainAbility extends Ability {
 			}
 			PlayerPowers.PlayerPowersData targetData = PlayerPowers.get(target);
 			if (targetData.energy() > 0) {
+				// clamp to what's left so the last tick never drains below zero
 				targetData.consumeEnergy(Math.min(ritual.perTick(), targetData.energy()));
 			}
 		}

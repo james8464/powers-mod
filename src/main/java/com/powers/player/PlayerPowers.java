@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Per-player power state: three power slots and active toggles, stored
- * as persistent + synced data attachments on the player entity so the
- * assignment survives restarts and never changes between logins.
+ * Per-player power state: three power slots, active toggles, energy, and
+ * skill levels, kept as persistent and synced attachments on the player
+ * so the assignment survives restarts and stays fixed between logins.
  */
 public final class PlayerPowers {
 	public static final int SLOT_COUNT = 3;
@@ -76,7 +76,7 @@ public final class PlayerPowers {
 					.persistent(Codec.INT)
 					.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.targetOnly()));
 
-	/** Darkness users may hide their real title and show the normal-ladder name instead. */
+	// darkness users may hide their real title and show the normal-ladder name instead
 	private static final AttachmentType<Boolean> DARKNESS_PREFIX_HIDDEN = AttachmentRegistry.create(
 			com.powers.PowersMod.id("darkness_prefix_hidden"),
 			builder -> builder
@@ -103,8 +103,8 @@ public final class PlayerPowers {
 			if (slots.size() != SLOT_COUNT) {
 				return List.of();
 			}
-			// Slots referencing powers that no longer exist (e.g. after a
-			// registry update) are treated as unassigned so they re-roll.
+			// slots pointing at powers that no longer exist (say, after a
+			// registry update) count as unassigned so the player re-rolls
 			for (String id : slots) {
 				if (!PowerRegistry.contains(id)) {
 					return List.of();
@@ -113,6 +113,7 @@ public final class PlayerPowers {
 			return List.copyOf(slots);
 		}
 
+		// darkness users draw from their own separate pool
 		private boolean usesDarknessEnergy() {
 			return target instanceof ServerPlayer player && SkillSystem.hasDarknessTag(player);
 		}
@@ -141,6 +142,7 @@ public final class PlayerPowers {
 			return Math.max(0, Math.min(energyCapacity(), storedEnergy()));
 		}
 
+		// capacity grows with the player's skill ladder
 		public int energyCapacity() {
 			if (target instanceof ServerPlayer player) {
 				int level = SkillSystem.effectiveLevel(player);
@@ -180,6 +182,7 @@ public final class PlayerPowers {
 			int cost = PowerEnergy.cost(ability);
 			int current = energy();
 			if (current < cost) {
+				// too broke: tell the player and show a cancelled spark burst
 				PowerMessages.send(player, "energy.powers.empty", 6);
 				if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 					com.powers.fx.PowerFx.cancelled(level, player.position().add(0, 1, 0), 0x40E0D0);
@@ -208,6 +211,7 @@ public final class PlayerPowers {
 			refundEnergy(PowerEnergy.cost(ability));
 		}
 
+		// the exhaustion effect blocks all natural regen
 		public boolean regenerateEnergy(int amount) {
 			if (target instanceof ServerPlayer player && player.hasEffect(PowersEffects.EXHAUSTION)) return false;
 			int current = energy();
@@ -217,6 +221,7 @@ public final class PlayerPowers {
 			return true;
 		}
 
+		// exhausted players can't even refill by sleeping
 		public void restoreEnergy() {
 			if (target instanceof ServerPlayer player && player.hasEffect(PowersEffects.EXHAUSTION)) return;
 			setStoredEnergy(energyCapacity());
@@ -226,7 +231,7 @@ public final class PlayerPowers {
 			setStoredEnergy(0);
 		}
 
-		/** Drains the pool without going below zero. */
+		/** Drains the pool, clamped so it never goes below zero. */
 		public void drainEnergy(int amount) {
 			if (amount <= 0) return;
 			setStoredEnergy(storedEnergy() - amount);
@@ -245,9 +250,9 @@ public final class PlayerPowers {
 		}
 
 		/**
-		 * Assigns three distinct random powers. Called on first join and by
-		 * the re-roll command. Does nothing if the player is already assigned
-		 * unless {@code force} is true.
+		 * Rolls three distinct random powers. Runs on first join and via the
+		 * re-roll command; skips players who already have powers unless
+		 * {@code force} is set.
 		 */
 		public void assignRandom(ServerPlayer player, boolean force) {
 			if (hasAssigned() && !force) {
@@ -261,8 +266,8 @@ public final class PlayerPowers {
 		}
 
 		/**
-		 * Sets the exact slot contents. Toggles belonging to dropped powers
-		 * are turned off so nothing keeps running after a re-roll.
+		 * Sets the exact slot contents. Toggles for dropped powers are turned
+		 * off so nothing keeps draining after a re-roll.
 		 */
 		public void setSlots(ServerPlayer player, List<String> ids) {
 			List<String> newIds = new ArrayList<>(ids);
@@ -295,7 +300,7 @@ public final class PlayerPowers {
 			return getActiveToggles().contains(powerId);
 		}
 
-		/** Adds or removes a power from the active toggle set and syncs it. */
+		/** Adds or removes a power from the active toggle set and syncs the change. */
 		public void setToggleActive(ServerPlayer player, String powerId, boolean active) {
 			List<String> updated = new ArrayList<>(getActiveToggles());
 			if (active && !updated.contains(powerId)) {
@@ -308,14 +313,14 @@ public final class PlayerPowers {
 			PowersPackets.syncTo(player);
 		}
 
-		/** Advances and returns the elemental blast phase (0-3). */
+		/** Advances the elemental blast phase (0-3) and returns the new one. */
 		public int nextPhase() {
 			int next = (getPhase() + 1) % 4;
 			target.setAttached(ELEMENTAL_PHASE, next);
 			return next;
 		}
 
-		/** The current elemental blast phase (0 = fire, 1 = frost, 2 = storm, 3 = earth). */
+		/** The current elemental blast phase: 0 fire, 1 frost, 2 storm, 3 earth. */
 		public int getPhase() {
 			return target.getAttachedOrElse(ELEMENTAL_PHASE, 0);
 		}

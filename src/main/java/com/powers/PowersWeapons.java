@@ -12,8 +12,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * The fantasy weapon set (nongko's Fantasy Weapons textures/models),
- * registered as their own items in the POWERS namespace. No recipes.
+ * The fantasy weapon set (nongko's Fantasy Weapons textures and models),
+ * registered as own items in the POWERS namespace with no recipes.
  */
 public final class PowersWeapons {
 	private static final ResourceKey<CreativeModeTab> COMBAT_TAB =
@@ -27,6 +27,7 @@ public final class PowersWeapons {
 	private record WeaponDef(String id, String displayName, ToolMaterial material, Kind kind, float damage, float speed) {
 	}
 
+	// the whole roster: id, display name, material, kind, damage, swing speed
 	private static final WeaponDef[] DEFS = {
 			new WeaponDef("amethyst_greatblade", "Amethyst Greatblade", ToolMaterial.DIAMOND, Kind.SWORD, 7f, 1.6f),
 			new WeaponDef("amethyst_greatpick", "Amethyst Greatpick", ToolMaterial.DIAMOND, Kind.PICKAXE, 5f, 1.2f),

@@ -13,9 +13,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Telekinesis: psychically seize everything around you, yank it into the air
- * and fling it over your head - the way telekinetic heroes (Scarlet Witch)
- * throw enemies in superhero mods.
+ * telekinesis - psychically seize every living thing around you, yank it
+ * into the air and fling it away, the way scarlet witch throws enemies
+ * around
  */
 public class TelekinesisAbility extends Ability {
 	public TelekinesisAbility() {
@@ -28,17 +28,21 @@ public class TelekinesisAbility extends Ability {
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
 		AABB area = AABB.ofSize(player.position(), 16.0, 12.0, 16.0);
+		// an 8-block reach in all directions, 12 tall, centered on the player
 		Vec3 center = player.position();
 		for (LivingEntity target : level.getEntities(
 				EntityTypeTest.forClass(LivingEntity.class), area,
 				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e))) {
 			Vec3 toward = center.subtract(target.position());
 			double horizontal = toward.horizontalDistance();
+			// right on top of the player the fling direction is undefined, skip them
 			if (horizontal < 0.01) {
 				continue;
 			}
+			// launch the target up and away: 2.2 blocks/s outward, 0.7 upward
 			Vec3 fling = toward.multiply(1, 0, 1).normalize().scale(2.2).add(0, 0.7, 0);
 			target.setDeltaMovement(target.getDeltaMovement().add(fling));
+			// flag the velocity change so the client replays it and the throw looks instant
 			target.hurtMarked = true;
 			com.powers.fx.PowerFx.beam(level, center.add(0, 1.2, 0), target.position().add(0, 1, 0),
 					net.minecraft.core.particles.ParticleTypes.ENCHANT, 8);

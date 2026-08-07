@@ -16,13 +16,15 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Cloning: the Orange Crystal's power of creation turned inward. You tear
- * three living copies of yourself out of the air - loyal beasts that fight
- * alongside you, doubling your claws with every battle.
+ * cloning - the orange crystal's power of creation turned inward: tear three
+ * living wolf copies of yourself out of the air, loyal fighters that double
+ * your claws in every battle
  */
 public class CloneSwarmAbility extends Ability {
+	// 90 seconds between uses
 	private static final int COOLDOWN_TICKS = 1800;
 	private static final int CLONE_COUNT = 3;
+	// clones last 60 seconds (1200 ticks) before poofing away
 	private static final int CLONE_LIFE_TICKS = 1200;
 
 	public CloneSwarmAbility() {
@@ -40,14 +42,18 @@ public class CloneSwarmAbility extends Ability {
 			if (clone == null) {
 				continue;
 			}
+			// spread the clones evenly around the player, 1.5 blocks out
 			double angle = Math.PI * 2 * i / CLONE_COUNT;
 			clone.setPos(player.getX() + Math.cos(angle) * 1.5, player.getY() + 0.2,
 					player.getZ() + Math.sin(angle) * 1.5);
 			clone.tame(player);
+			// standing wolves follow and fight instead of sitting around
 			clone.setOrderedToSit(false);
 			clone.setCustomName(Component.literal(player.getGameProfile().name() + "'s Clone"));
 			clone.setCustomNameVisible(true);
+			// stop them despawning on their own - they go poof on our timer instead
 			clone.setPersistenceRequired();
+			// tough fighters: 80 health, 18 attack damage, brisk speed
 			clone.getAttribute(Attributes.MAX_HEALTH).setBaseValue(80.0);
 			clone.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(18.0);
 			clone.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.42);
@@ -57,6 +63,7 @@ public class CloneSwarmAbility extends Ability {
 			PowerFx.coloredBurst(level, clone.position().add(0, 1, 0), 0xFF6D00, 12, 0.6);
 
 			Wolf endClone = clone;
+			// dismiss each clone with a poof after its 60 seconds are up
 			PowersMod.scheduleDelayed(level.getServer(), CLONE_LIFE_TICKS, () -> {
 				if (endClone.isAlive() && !endClone.isRemoved()) {
 					PowerFx.burst((ServerLevel) endClone.level(), endClone.position().add(0, 1, 0),
@@ -66,6 +73,7 @@ public class CloneSwarmAbility extends Ability {
 			});
 		}
 		if (spawned == 0) {
+			// nothing could be summoned - don't charge the player
 			return false;
 		}
 		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0xFF6D00, 30, 1.5);

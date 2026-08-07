@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 
-/** A reusable rune focus that channels a modest amount of energy back to its bearer. */
+/** a reusable rune focus that right clicking charges a modest amount of energy back to its bearer */
 public class RuneItem extends Item {
 	public RuneItem(Properties properties) {
 		super(properties.stacksTo(16));
@@ -18,6 +18,7 @@ public class RuneItem extends Item {
 
 	@Override
 	public InteractionResult use(Level level, Player user, InteractionHand hand) {
+		// try to refill the bar; the message tells you whether it worked or was already full
 		if (!level.isClientSide() && user instanceof ServerPlayer player) {
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 			if (data.regenerateEnergy(100)) {

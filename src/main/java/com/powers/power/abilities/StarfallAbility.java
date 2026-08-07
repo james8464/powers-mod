@@ -14,9 +14,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Starfall: a shower of celestial lightning rains down on the spot you are
- * looking at. Inspired by Galaxy Steve, keeper of space and the creator of
- * Time and Elemental Steve.
+ * Starfall: a shower of celestial lightning rains down on the spot you're
+ * looking at, striking in a wide ring around it.
  */
 public class StarfallAbility extends Ability {
 	public StarfallAbility() {
@@ -31,12 +30,14 @@ public class StarfallAbility extends Ability {
 		HitResult hit = player.pick(64.0, 0.0f, false);
 		Vec3 target = hit.getLocation();
 		if (hit.getType() == HitResult.Type.MISS) {
+			// looking at the sky, so drop the shower at full range
 			target = player.getEyePosition().add(player.getLookAngle().scale(64.0));
 		}
 		com.powers.fx.PowerFx.ring(level, target, 4.0, 0x3949AB, 24, 0);
 		com.powers.fx.PowerFx.burst(level, target.add(0, 12, 0),
 				net.minecraft.core.particles.ParticleTypes.END_ROD, 18, 1.5, 0.04);
 
+		// three bolts scattered up to 6 blocks from the target point
 		for (int i = 0; i < 3; i++) {
 			double dx = (level.getRandom().nextDouble() - 0.5) * 12.0;
 			double dz = (level.getRandom().nextDouble() - 0.5) * 12.0;

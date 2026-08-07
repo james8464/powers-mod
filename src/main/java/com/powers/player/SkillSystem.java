@@ -11,16 +11,21 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
+// the light skill ladder and the hidden darkness ladder: levels come from
+// advancements, and each rank boosts damage, range, and energy capacity
 public final class SkillSystem {
 	public static final String DARKNESS_TAG = "darkness";
-	/** Ranks in each progression. Fewer, heavier jumps than before: 10. */
+	// ten ranks in each progression; fewer, heavier jumps than before
 	public static final int MAX_LEVEL = 10;
 	public static final int DARKNESS_MAX_LEVEL = 10;
-	/** Unassisted dark-realm crossing now needs half of the darkness ladder. */
+	// the dark realm only opens to the darkness itself: tagged players who
+	// have climbed to darkness rank 5; the dark crystal and riding along with
+	// a teleporting player are the only ways around it
 	public static final int DARKNESS_GATE_LEVEL = 5;
 
 	private record Tier(String name, int color) {}
 
+	// rank name and chat color for each light-ladder level
 	private static final Tier[] TIERS = {
 			new Tier("Unawakened", 0xFF777777), new Tier("Spark", 0xFFFFB74D),
 			new Tier("Awakened", 0xFFFFD54F), new Tier("Adept", 0xFF4FC3F7),
@@ -29,12 +34,13 @@ public final class SkillSystem {
 			new Tier("Ascendant", 0xFF26A69A), new Tier("Origin", 0xFFFF80AB)
 	};
 
+	// the darkness ladder's own names and colors, shown once the path is unlocked
 	private static final Tier[] DARKNESS_TIERS = {
-			new Tier("Acolyte of Gloom", 0xFF4B2E50), new Tier("Shadowpriest", 0xFF5B2C62),
-			new Tier("Voidborn", 0xFF352040), new Tier("Sable Seeker", 0xFF3F1E34),
-			new Tier("Malediction Master", 0xFF4F2A5B), new Tier("Nightmare Binder", 0xFF512E55),
-			new Tier("Soulblight", 0xFF462741), new Tier("Umbral Tyrant", 0xFF342239),
-			new Tier("Abyssal Archon", 0xFF432A40), new Tier("Nightfall Sovereign", 0xFF200E20)
+			new Tier("Murk", 0xFF4B2E50), new Tier("Shade", 0xFF5B2C62),
+			new Tier("Umbra", 0xFF352040), new Tier("Wraith", 0xFF3F1E34),
+			new Tier("Revenant", 0xFF4F2A5B), new Tier("Dread", 0xFF512E55),
+			new Tier("Soulblight", 0xFF462741), new Tier("Abyssal", 0xFF342239),
+			new Tier("Voidwight", 0xFF432A40), new Tier("Nightfall", 0xFF200E20)
 	};
 
 	private SkillSystem() {
@@ -42,6 +48,7 @@ public final class SkillSystem {
 
 	public static void refresh(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		// levels are earned through advancements; find the highest one done
 		int highest = data.skillLevel();
 		for (int level = 1; level <= MAX_LEVEL; level++) {
 			AdvancementHolder holder = ((ServerLevel) player.level()).getServer().getAdvancements()
@@ -95,8 +102,7 @@ public final class SkillSystem {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		if (darkness) {
 			int level = data.darknessLevel();
-			// A darkness user may hide the real title, showing the equivalent
-			// rank name from the normal ladder instead.
+			// hidden title: show the equivalent rank name from the normal ladder instead
 			if (data.isDarknessPrefixHidden()) {
 				return Component.literal("[" + rank(level) + "] ")
 						.withStyle(style -> style.withColor(color(level)));
@@ -110,12 +116,12 @@ public final class SkillSystem {
 	}
 
 	public static float damage(ServerPlayer player, float base) {
-		// Fewer ranks, bigger per-rank steps: +5.25% per rank (same +52.5% cap).
+		// 5.25% more damage per rank, topping out at +52.5% on the last rank
 		return base * (1.0f + effectiveLevel(player) * 0.0525f);
 	}
 
 	public static double range(ServerPlayer player, double base) {
-		// +2.1% per rank (same +21% cap as the old 21-rank ladder).
+		// 2.1% more range per rank, matching the old ladder's +21% cap
 		return base * (1.0 + effectiveLevel(player) * 0.021);
 	}
 
@@ -133,17 +139,12 @@ public final class SkillSystem {
 		return dimension.identifier().equals(PowersMod.id("dark_realm"));
 	}
 
-	public static boolean canTraverseDarknessDimension(ServerPlayer subject, boolean assisted) {
-		if (hasDarknessTag(subject)) {
-			return true;
-		}
-		if (assisted) {
-			return true;
-		}
-		return effectiveLevel(subject) >= DARKNESS_GATE_LEVEL;
+	// worthy of the dark realm: tagged players at darkness rank 5 or higher
+	public static boolean canEnterDarkRealm(ServerPlayer player) {
+		return hasDarknessTag(player) && PlayerPowers.get(player).darknessLevel() >= DARKNESS_GATE_LEVEL;
 	}
 
-	/** Re-applies the visible name prefix (e.g. after toggling the hidden darkness title). */
+	/** Re-applies the visible name prefix, e.g. after hiding the darkness title. */
 	public static void refreshPrefix(ServerPlayer player) {
 		applyRank(player);
 	}

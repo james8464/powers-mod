@@ -23,17 +23,21 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Chrono Stop: the crystal-tier time stop. Freezes every entity in every
- * loaded dimension - no movement, no gravity, no AI - while the caster moves
- * freely. Everything resumes exactly where it was when time flows again.
- * A power that wins fights outright, never given out by the rainbow.
+ * chrono stop - the crystal-tier time stop: freeze every entity in every
+ * loaded dimension for 30 seconds (600 ticks) while you move freely, and
+ * everything resumes exactly where it was when time flows again - a power
+ * that wins fights outright, never given out by the rainbow
  */
 public class ChronoStopAbility extends Ability {
+	// 30 seconds of frozen time
 	public static final int DURATION_TICKS = 600;
 
+	// 3 minutes between stops
 	private static final int COOLDOWN_TICKS = 3600;
+	// one stop per owner uuid, cleaned up on disconnect and server stop so it can't leak
 	private static final Map<UUID, ActiveStop> ACTIVE = new HashMap<>();
 
+	// a full snapshot of each frozen entity so release can put everything back exactly
 	private record FrozenState(Entity entity, Vec3 pos, Vec3 delta, float yRot, float xRot,
 			boolean noGravity, boolean noAi, double fallDistance) {
 	}
@@ -49,8 +53,8 @@ public class ChronoStopAbility extends Ability {
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		// Only one stop at a time: a second freeze while the world is already
-		// frozen would corrupt the restore states of the first.
+		// only one stop at a time - a second freeze while the world is already
+		// frozen would corrupt the restore states of the first
 		if (!ACTIVE.isEmpty()) {
 			PowerMessages.send(player, "crystal.powers.chrono_blocked", 3);
 			return false;
@@ -61,9 +65,11 @@ public class ChronoStopAbility extends Ability {
 		for (ServerLevel level : server.getAllLevels()) {
 			for (Entity entity : level.getEntities(EntityTypeTest.forClass(Entity.class),
 					e -> e.isAlive() && e != player)) {
+				// don't freeze what the caster is riding or carrying - it would break the ride
 				if (entity == player.getVehicle() || player.getPassengers().contains(entity)) {
 					continue;
 				}
+				// snapshot position, motion, rotation, gravity, ai and fall distance
 				frozen.add(new FrozenState(entity, entity.position(), entity.getDeltaMovement(),
 						entity.getYRot(), entity.getXRot(), entity.isNoGravity(),
 						entity instanceof Mob mob && mob.isNoAi(), entity.fallDistance));
@@ -83,13 +89,14 @@ public class ChronoStopAbility extends Ability {
 		return true;
 	}
 
-	/** Called every server tick; freezes everything and counts down. */
+	/** Called every server tick - pins every frozen entity in place and counts down the stop. */
 	public static void tickStops(MinecraftServer server) {
 		var it = ACTIVE.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<UUID, ActiveStop> entry = it.next();
 			ServerPlayer owner = server.getPlayerList().getPlayer(entry.getKey());
 			if (owner == null || !owner.isAlive()) {
+				// the owner left or died - release the frozen entities instead of leaving the world stuck
 				release(null, entry.getValue());
 				it.remove();
 				continue;
@@ -98,20 +105,24 @@ public class ChronoStopAbility extends Ability {
 
 			for (FrozenState f : stop.frozen()) {
 				Entity entity = f.entity();
+				// entities killed or removed during the stop are skipped
 				if (entity.isRemoved()) {
 					continue;
 				}
 				entity.setDeltaMovement(Vec3.ZERO);
 				entity.setNoGravity(true);
+				// keep them pinned at the exact frozen spot
 				entity.setPos(f.pos().x, f.pos().y, f.pos().z);
 				if (entity instanceof Mob mob) {
 					mob.setNoAi(true);
 				}
+				// players are moved through their connection or the client would rubber-band back
 				if (entity instanceof ServerPlayer other) {
 					other.connection.teleport(f.pos().x, f.pos().y, f.pos().z, f.yRot(), f.xRot());
 				}
 			}
 			ServerLevel ownerLevel = (ServerLevel) owner.level();
+			// pulse a ring every 5 ticks while the stop holds
 			if (stop.ticksLeft() % 5 == 0) {
 				double phase = stop.ticksLeft() * 0.035;
 				PowerFx.ring(ownerLevel, owner.position().add(0, 0.1, 0), 4.5, 0x2962FF, 32, phase);
@@ -121,6 +132,7 @@ public class ChronoStopAbility extends Ability {
 
 			int left = stop.ticksLeft() - 1;
 			if (left <= 0) {
+				// time's up - restore everything and let the world move again
 				release(owner, stop);
 				it.remove();
 			} else {
@@ -130,8 +142,10 @@ public class ChronoStopAbility extends Ability {
 	}
 
 	private static void release(ServerPlayer owner, ActiveStop stop) {
+		// give every entity back its saved position, motion, gravity, ai and fall distance
 		for (FrozenState f : stop.frozen()) {
 			Entity entity = f.entity();
+			// entities that died during the stop have nothing to restore
 			if (entity.isRemoved()) {
 				continue;
 			}
@@ -149,6 +163,7 @@ public class ChronoStopAbility extends Ability {
 		}
 	}
 
+	// disconnect - free the frozen entities before the owner leaves
 	public static void clear(UUID player) {
 		ActiveStop stop = ACTIVE.remove(player);
 		if (stop != null) {
@@ -156,6 +171,7 @@ public class ChronoStopAbility extends Ability {
 		}
 	}
 
+	// server stop - never leave entities frozen in a dying world
 	public static void clearAll() {
 		for (ActiveStop stop : ACTIVE.values()) {
 			release(null, stop);

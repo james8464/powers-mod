@@ -16,12 +16,13 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Registry of all powers. Each power is one individual ability (with an
- * optional passive effect carried over from its origin), inspired by the
- * Rainbow Quest universe (FavreMySabre) and classic superpower mods
- * (Superheroes Unlimited, PMT Powers and similar).
+ * Every power in the game, 28 total: an ability each, with passive
+ * effects baked in. Drawing three random entries here is how a player
+ * gets their powers, inspired by Rainbow Quest and classic superpower
+ * mods like Superheroes Unlimited
  */
 public final class PowerRegistry {
+	// LinkedHashMap keeps registration order so the power list is stable
 	private static final Map<Identifier, Power> POWERS = new LinkedHashMap<>();
 
 	private PowerRegistry() {
@@ -237,7 +238,7 @@ public final class PowerRegistry {
 		return new ArrayList<>(POWERS.values());
 	}
 
-	/** Powers that can be drawn during assignment. */
+	/** the powers a player can draw from when the game picks their three */
 	public static List<Power> getAssignable() {
 		return getAll();
 	}
@@ -250,6 +251,7 @@ public final class PowerRegistry {
 		if (idString == null || idString.isBlank()) {
 			return null;
 		}
+		// bare names like "flight" are shorthand for "powers:flight"
 		String normalized = idString.indexOf(':') < 0 ? PowersMod.MOD_ID + ":" + idString : idString;
 		Identifier id = Identifier.tryParse(normalized);
 		return id != null ? get(id) : null;
@@ -259,7 +261,7 @@ public final class PowerRegistry {
 		return get(idString) != null;
 	}
 
-	/** Picks {@code count} distinct random powers. */
+	/** draws count distinct random powers without repeats */
 	public static List<Power> randomDistinct(int count, Random random) {
 		List<Power> pool = new ArrayList<>(getAssignable());
 		Collections.shuffle(pool, random);

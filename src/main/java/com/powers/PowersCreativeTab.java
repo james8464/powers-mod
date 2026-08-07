@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
-/** Dedicated inventory page for every item and block registered by POWERS. */
+/** Its own creative inventory page holding every item and block POWERS adds. */
 public final class PowersCreativeTab {
 	public static final ResourceKey<CreativeModeTab> KEY = ResourceKey.create(
 			BuiltInRegistries.CREATIVE_MODE_TAB.key(), PowersMod.id("powers"));
@@ -36,6 +36,6 @@ public final class PowersCreativeTab {
 	}
 
 	public static void initialize() {
-		// Ensures the tab is registered after all item and block registries exist.
+		// the tab can only list items after they exist, so this runs after every registry
 	}
 }

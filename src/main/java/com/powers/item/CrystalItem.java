@@ -12,10 +12,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
- * A crystal charged with an ultra-powerful, game-changing ability. Right
- * clicking unleashes it. Crystal powers are a tier above regular Steve
- * powers: they are never assigned randomly and can never be rolled with the
- * Rainbow Crystal - they must be crafted and held.
+ * a crystal charged with an ultra-powerful, game-changing ability: right
+ * click unleashes it. crystal powers are a tier above regular steve powers,
+ * never assigned randomly - they must be crafted and held
  */
 public class CrystalItem extends Item {
 	public CrystalItem(Properties properties) {
@@ -24,6 +23,7 @@ public class CrystalItem extends Item {
 
 	@Override
 	public InteractionResult use(Level level, Player user, InteractionHand hand) {
+		// server side only; an unbound crystal stays dormant and says so
 		if (!level.isClientSide() && user instanceof ServerPlayer serverPlayer) {
 			if (CrystalPowerRegistry.get(this) == null) {
 				PowerMessages.send(serverPlayer, "crystal.powers.dormant", 3);

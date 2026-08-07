@@ -13,6 +13,8 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+// Breezy Bash: kick up a gust that hurls everyone nearby skyward, then
+// gravity slams them back down a second later.
 public class BreezyBashAbility extends Ability {
 	public BreezyBashAbility() {
 		super(PowersMod.id("breezy_bash"),
@@ -24,6 +26,7 @@ public class BreezyBashAbility extends Ability {
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
 
+		// 16-block cube around the player, skipping yourself and shielded targets
 		AABB area = AABB.ofSize(player.position(), 16.0, 16.0, 16.0);
 		for (LivingEntity target : level.getEntities(
 				EntityTypeTest.forClass(LivingEntity.class), area,
@@ -31,6 +34,7 @@ public class BreezyBashAbility extends Ability {
 			target.setDeltaMovement(0, 1.6, 0);
 			target.hurtMarked = true;
 
+			// 18 ticks later, on the way down, slam them into the ground
 			PowersMod.scheduleDelayed(level.getServer(), 18, () -> {
 				if (target.isAlive() && target.level() == level) {
 					target.setDeltaMovement(0, -2.5, 0);
