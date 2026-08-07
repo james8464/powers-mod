@@ -1,6 +1,0 @@
-{
-	"parent": "minecraft:item/generated",
-	"textures": {
-		"layer0": "powers:item/imported/food_tomatillos"
-	}
-}
