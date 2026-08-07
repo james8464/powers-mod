@@ -5,6 +5,7 @@ import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -17,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Slow World: Time Steve's mastery over time without the world-freeze of the
@@ -28,7 +30,7 @@ public class SlowWorldAbility extends Ability {
 	private static final int COOLDOWN_TICKS = 1200;
 	private static final int RADIUS = 10;
 
-	private static final Map<ServerPlayer, Integer> ACTIVE = new HashMap<>();
+	private static final Map<UUID, Integer> ACTIVE = new HashMap<>();
 
 	public SlowWorldAbility() {
 		super(PowersMod.id("slow_world"),
@@ -38,10 +40,10 @@ public class SlowWorldAbility extends Ability {
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		if (ACTIVE.containsKey(player)) {
+		if (ACTIVE.containsKey(player.getUUID())) {
 			return false;
 		}
-		ACTIVE.put(player, DURATION_TICKS);
+		ACTIVE.put(player.getUUID(), DURATION_TICKS);
 		player.addEffect(new MobEffectInstance(MobEffects.SPEED, DURATION_TICKS, 2, true, false));
 		player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, DURATION_TICKS, 1, true, false));
 		ServerLevel level = (ServerLevel) player.level();
@@ -51,14 +53,14 @@ public class SlowWorldAbility extends Ability {
 	}
 
 	/** Called every server tick while any slow world is active. */
-	public static void tickAll() {
-		Iterator<Map.Entry<ServerPlayer, Integer>> it = ACTIVE.entrySet().iterator();
+	public static void tickAll(MinecraftServer server) {
+		Iterator<Map.Entry<UUID, Integer>> it = ACTIVE.entrySet().iterator();
 		while (it.hasNext()) {
-			Map.Entry<ServerPlayer, Integer> entry = it.next();
-			ServerPlayer player = entry.getKey();
+			Map.Entry<UUID, Integer> entry = it.next();
+			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
 			int left = entry.getValue();
 
-			if (!player.isAlive()) {
+			if (player == null || !player.isAlive()) {
 				it.remove();
 				continue;
 			}
@@ -81,5 +83,13 @@ public class SlowWorldAbility extends Ability {
 				entry.setValue(left);
 			}
 		}
+	}
+
+	public static void clear(UUID player) {
+		ACTIVE.remove(player);
+	}
+
+	public static void clearAll() {
+		ACTIVE.clear();
 	}
 }

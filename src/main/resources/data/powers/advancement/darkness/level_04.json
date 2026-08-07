@@ -1,32 +1,56 @@
 {
- "parent": "powers:darkness/level_03",
- "display": {
-  "icon": {
-   "id": "minecraft:soul_sand"
-  },
-  "title": {
-   "translate": "advancement.powers.darkness.04_soul_sand.title"
-  },
-  "description": {
-   "translate": "advancement.powers.darkness.04_soul_sand.description"
-  },
-  "frame": "task",
-  "show_toast": true,
-  "announce_to_chat": false,
-  "hidden": false
- },
- "criteria": {
-  "collect": {
-   "trigger": "minecraft:inventory_changed",
-   "conditions": {
-    "items": [
-     {
-      "items": [
-       "minecraft:soul_sand"
-      ]
-     }
-    ]
-   }
-  }
- }
+	"parent": "powers:darkness/level_03",
+	"display": {
+		"icon": {
+			"id": "minecraft:fermented_spider_eye"
+		},
+		"title": {
+			"translate": "advancement.powers.darkness.04_poisons.title"
+		},
+		"description": {
+			"translate": "advancement.powers.darkness.04_poisons.description"
+		},
+		"frame": "task",
+		"show_toast": true,
+		"announce_to_chat": false,
+		"hidden": false
+	},
+	"criteria": {
+		"spider_eye": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:spider_eye"
+						]
+					}
+				]
+			}
+		},
+		"flesh": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:rotten_flesh"
+						]
+					}
+				]
+			}
+		},
+		"fermented": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:fermented_spider_eye"
+						]
+					}
+				]
+			}
+		}
+	}
 }

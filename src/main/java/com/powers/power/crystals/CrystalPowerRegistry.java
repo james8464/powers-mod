@@ -3,9 +3,11 @@ package com.powers.power.crystals;
 import com.powers.PowersItems;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
-import com.powers.power.PowerEnergy;
+import com.powers.power.ActivationCooldowns;
 import com.powers.power.AmethystDampening;
 import com.powers.network.PowersPackets;
+import com.powers.util.PowerMessages;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 
@@ -58,24 +60,32 @@ public final class CrystalPowerRegistry {
 			SpaceTimeAbility.reject(player);
 			return false;
 		}
+		if (!ActivationCooldowns.isReady(player, ability)) {
+			PowerMessages.send(player, "ability.powers.cooldown", 4,
+					seconds(ActivationCooldowns.remainingTicks(player, ability)));
+			return false;
+		}
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		if (!data.spendEnergy(player, ability)) return false;
 		boolean activated = ability.activate(player, data);
 		if (!activated) {
 			data.refundEnergy(ability);
+			PowerMessages.send(player, "crystal.powers.unavailable", 4);
+		} else {
+			ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
 		}
 		PowersPackets.syncTo(player);
 		return activated;
 	}
 
-	/** Advances every ongoing crystal effect; called every server tick. */
-	public static void tick() {
-		ChronoStopAbility.tickStops();
-		InfernoAbility.tickAll();
-		SoulLinkAbility.tickAll();
+	private static String seconds(int ticks) {
+		return String.valueOf((ticks + 19) / 20);
 	}
 
-	public static Map<Item, Ability> getAll() {
-		return new HashMap<>(POWERS);
+	/** Advances every ongoing crystal effect; called every server tick. */
+	public static void tick(MinecraftServer server) {
+		ChronoStopAbility.tickStops(server);
+		InfernoAbility.tickAll(server);
+		SoulLinkAbility.tickAll(server);
 	}
 }

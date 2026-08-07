@@ -56,14 +56,39 @@ public class TeleportAbility extends Ability {
 		PowerMessages.send(player, "ability.powers.marking_mode", 3);
 	}
 
+	/** Completes a marking teleport to the coordinates picked in spectator mode. */
 	public static void completeMarking(ServerPlayer player, int slot, Vec3 pos) {
 		MarkingState state = MARKING.remove(player.getUUID());
-		if (state == null || state.slot() != slot || !Double.isFinite(pos.x())
-				|| !Double.isFinite(pos.y()) || !Double.isFinite(pos.z())) return;
-		player.teleport(new TeleportTransition((ServerLevel) player.level(),
-				pos, Vec3.ZERO, player.getYRot(), player.getXRot(),
-				TeleportTransition.PLAY_PORTAL_SOUND));
+		if (state == null || state.slot() != slot) return;
+		if (!Double.isFinite(pos.x()) || !Double.isFinite(pos.y()) || !Double.isFinite(pos.z())) {
+			player.setGameMode(state.originalMode());
+			return;
+		}
+		ServerLevel level = (ServerLevel) player.level();
+		Vec3 safe = findSafeMarkSpot(level, pos);
+		if (safe == null) {
+			PowerMessages.send(player, "ability.powers.solid_block", 3);
+			player.setGameMode(state.originalMode());
+			return;
+		}
+		player.teleport(new TeleportTransition(level, safe, Vec3.ZERO,
+				player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 		player.setGameMode(state.originalMode());
+	}
+
+	/** Finds an open spot at or above the marked position (spectators can fly into walls). */
+	private static Vec3 findSafeMarkSpot(ServerLevel level, Vec3 pos) {
+		for (int dy = 0; dy <= 3; dy++) {
+			Vec3 candidate = new Vec3(pos.x, pos.y + dy, pos.z);
+			BlockState feet = level.getBlockState(new BlockPos(
+					(int) Math.floor(candidate.x), (int) Math.floor(candidate.y), (int) Math.floor(candidate.z)));
+			BlockState head = level.getBlockState(new BlockPos(
+					(int) Math.floor(candidate.x), (int) Math.floor(candidate.y) + 1, (int) Math.floor(candidate.z)));
+			if (!feet.isSolid() && !head.isSolid()) {
+				return candidate;
+			}
+		}
+		return null;
 	}
 
 	public static void clearMarking(ServerPlayer player) {

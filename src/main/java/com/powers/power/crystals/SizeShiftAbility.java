@@ -18,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Size Shift: the Yellow Crystal's power. You bend the size of your own
@@ -36,7 +37,7 @@ public class SizeShiftAbility extends Ability {
 			PowersMod.id("size_shift_knockback"), 1.0, AttributeModifier.Operation.ADD_VALUE);
 
 	/** The last size used (1 = small, 2 = large); each use alternates. */
-	private static final Map<ServerPlayer, Integer> LAST_SIZE = new HashMap<>();
+	private static final Map<UUID, Integer> LAST_SIZE = new HashMap<>();
 
 	public SizeShiftAbility() {
 		super(PowersMod.id("size_shift"),
@@ -46,8 +47,8 @@ public class SizeShiftAbility extends Ability {
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		int next = LAST_SIZE.getOrDefault(player, 2) == 1 ? 2 : 1;
-		LAST_SIZE.put(player, next);
+		int next = LAST_SIZE.getOrDefault(player.getUUID(), 2) == 1 ? 2 : 1;
+		LAST_SIZE.put(player.getUUID(), next);
 
 		ServerLevel level = (ServerLevel) player.level();
 		AttributeInstance scale = player.getAttribute(Attributes.SCALE);
@@ -88,5 +89,13 @@ public class SizeShiftAbility extends Ability {
 					ParticleTypes.POOF, 16, 0.8, 0.2);
 		});
 		return true;
+	}
+
+	public static void clear(UUID player) {
+		LAST_SIZE.remove(player);
+	}
+
+	public static void clearAll() {
+		LAST_SIZE.clear();
 	}
 }

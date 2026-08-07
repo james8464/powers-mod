@@ -77,6 +77,14 @@ public final class PlayerPowers {
 					.persistent(Codec.INT)
 					.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.targetOnly()));
 
+	/** Darkness users may hide their real title and show the normal-ladder name instead. */
+	private static final AttachmentType<Boolean> DARKNESS_PREFIX_HIDDEN = AttachmentRegistry.create(
+			com.powers.PowersMod.id("darkness_prefix_hidden"),
+			builder -> builder
+					.initializer(() -> Boolean.FALSE)
+					.persistent(Codec.BOOL)
+					.syncWith(ByteBufCodecs.BOOL, AttachmentSyncPredicate.targetOnly()));
+
 	private static final AttachmentType<Integer> ELEMENTAL_PHASE = AttachmentRegistry.create(
 			com.powers.PowersMod.id("elemental_phase"),
 			builder -> builder
@@ -154,6 +162,14 @@ public final class PlayerPowers {
 				target.getAttachedOrElse(DARKNESS_LEVEL, 0)));
 		}
 
+		public boolean isDarknessPrefixHidden() {
+			return target.getAttachedOrElse(DARKNESS_PREFIX_HIDDEN, Boolean.FALSE);
+		}
+
+		public void setDarknessPrefixHidden(boolean hidden) {
+			target.setAttached(DARKNESS_PREFIX_HIDDEN, hidden);
+		}
+
 		public void setSkillLevel(ServerPlayer player, int level) {
 			target.setAttached(SKILL_LEVEL, Math.max(0, Math.min(SkillSystem.MAX_LEVEL, level)));
 		}
@@ -163,7 +179,7 @@ public final class PlayerPowers {
 		}
 
 		public boolean spendEnergy(ServerPlayer player, Ability ability) {
-			int cost = SkillSystem.energyCost(ability, skillLevel());
+			int cost = PowerEnergy.cost(ability);
 			int current = energy();
 			if (current < cost) {
 				PowerMessages.send(player, "energy.powers.empty", 6);
@@ -191,7 +207,7 @@ public final class PlayerPowers {
 		}
 
 		public void refundEnergy(Ability ability) {
-			refundEnergy(SkillSystem.energyCost(ability, skillLevel()));
+			refundEnergy(PowerEnergy.cost(ability));
 		}
 
 		public boolean regenerateEnergy(int amount) {
@@ -241,9 +257,8 @@ public final class PlayerPowers {
 		}
 
 		/**
-		 * Sets the exact slot contents. {@link #validateSlots(List)} must
-		 * have been called first. Toggles belonging to dropped powers are
-		 * turned off so nothing keeps running after a re-roll.
+		 * Sets the exact slot contents. Toggles belonging to dropped powers
+		 * are turned off so nothing keeps running after a re-roll.
 		 */
 		public void setSlots(ServerPlayer player, List<String> ids) {
 			List<String> newIds = new ArrayList<>(ids);
@@ -266,20 +281,6 @@ public final class PlayerPowers {
 			target.setAttached(ACTIVE_TOGGLES, new ArrayList<>());
 			target.setAttached(POWER_SLOTS, newIds);
 			PowersPackets.syncTo(player);
-		}
-
-		public static boolean validateSlots(List<String> ids) {
-			if (ids == null || ids.size() != SLOT_COUNT) {
-				return false;
-			}
-			List<String> seen = new ArrayList<>();
-			for (String id : ids) {
-				if (!PowerRegistry.contains(id) || seen.contains(id)) {
-					return false;
-				}
-				seen.add(id);
-			}
-			return true;
 		}
 
 		public List<String> getActiveToggles() {

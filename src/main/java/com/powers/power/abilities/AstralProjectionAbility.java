@@ -64,6 +64,8 @@ public class AstralProjectionAbility extends Ability {
 			Projection projection = entry.getValue();
 			ServerPlayer player = projection.player();
 			if (player == null || !player.isAlive()) {
+				// Death would otherwise leave the player stuck in spectator.
+				if (player != null) player.setGameMode(projection.gameMode());
 				it.remove();
 				continue;
 			}

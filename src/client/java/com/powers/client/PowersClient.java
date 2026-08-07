@@ -25,7 +25,6 @@ public class PowersClient implements ClientModInitializer {
 	public static KeyMapping slotKey1;
 	public static KeyMapping slotKey2;
 	public static KeyMapping slotKey3;
-	public static KeyMapping powerMenuKey;
 
 	@Override
 	public void onInitializeClient() {
@@ -35,8 +34,6 @@ public class PowersClient implements ClientModInitializer {
 				"key.powers.slot2", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_X, CATEGORY));
 		slotKey3 = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 				"key.powers.slot3", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, CATEGORY));
-		powerMenuKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-				"key.powers.menu", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_P, CATEGORY));
 
 		ClientPlayNetworking.registerGlobalReceiver(PowersPackets.PowerStatePayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientPowerState.update(payload)));
@@ -52,10 +49,6 @@ public class PowersClient implements ClientModInitializer {
 				(graphics, tickCounter) -> EnergyHudRenderer.render(graphics));
 
 		ClientTickEvents.END_CLIENT_TICK.register(PowersClient::tick);
-
-		// TODO(rainbow crystal): re-enable the power selection screen here.
-		// Previously an ItemEvents.USE handler opened PowerSelectionScreen when
-		// right-clicking the Rainbow Crystal; the crystal is temporarily inert.
 	}
 
 	private static void tick(Minecraft client) {
@@ -72,11 +65,6 @@ public class PowersClient implements ClientModInitializer {
 		}
 		while (slotKey3.consumeClick()) {
 			handleSlotKey(client, 2);
-		}
-		while (powerMenuKey.consumeClick()) {
-			// TODO(rainbow crystal): re-open the power selection screen here.
-			// Previously: if (client.gui.screen() == null) client.gui.setScreen(new PowerSelectionScreen());
-			// The re-roll menu is temporarily disabled alongside the Rainbow Crystal.
 		}
 	}
 
@@ -101,9 +89,9 @@ public class PowersClient implements ClientModInitializer {
 		}
 
 		if (ability.requiresInput()) {
-			client.gui.setScreen(new TeleportInputScreen(slot, 0));
+			client.gui.setScreen(new TeleportInputScreen(slot));
 		} else {
-			ClientPlayNetworking.send(new PowersPackets.ActivateAbilityPayload(slot, 0));
+			ClientPlayNetworking.send(new PowersPackets.ActivateAbilityPayload(slot));
 		}
 	}
 

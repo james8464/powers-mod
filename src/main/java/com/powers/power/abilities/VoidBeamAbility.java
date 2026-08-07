@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.PowerTargeting;
 import com.powers.player.SkillSystem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -11,8 +12,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 
 /**
  * Void Beam: a beam of corrupted Darkness along your sight line. Damages the
@@ -29,13 +28,8 @@ public class VoidBeamAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
-		HitResult hit = player.pick(SkillSystem.range(player, 32.0), 0.0f, false);
-		if (hit.getType() != HitResult.Type.ENTITY) {
-			return false;
-		}
-
-		EntityHitResult entityHit = (EntityHitResult) hit;
-		if (!(entityHit.getEntity() instanceof LivingEntity target)) {
+		LivingEntity target = PowerTargeting.findLivingTarget(player, SkillSystem.range(player, 32.0));
+		if (target == null) {
 			return false;
 		}
 		if (AmethystDampening.isDampened(target)) return false;

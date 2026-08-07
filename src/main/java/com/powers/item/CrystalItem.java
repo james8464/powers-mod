@@ -26,12 +26,10 @@ public class CrystalItem extends Item {
 	public InteractionResult use(Level level, Player user, InteractionHand hand) {
 		if (!level.isClientSide() && user instanceof ServerPlayer serverPlayer) {
 			if (CrystalPowerRegistry.get(this) == null) {
+				PowerMessages.send(serverPlayer, "crystal.powers.dormant", 3);
 				return InteractionResult.SUCCESS;
 			}
-			if (CrystalPowerRegistry.tryActivate(serverPlayer, this)) {
-				return InteractionResult.SUCCESS;
-			}
-			PowerMessages.send(serverPlayer, "crystal.powers.unavailable", 4);
+			CrystalPowerRegistry.tryActivate(serverPlayer, this);
 		}
 		return InteractionResult.SUCCESS;
 	}

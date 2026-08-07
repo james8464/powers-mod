@@ -5,10 +5,10 @@
 			"id": "minecraft:amethyst_shard"
 		},
 		"title": {
-			"translate": "advancement.powers.skill.01_amethyst_shard.title"
+			"translate": "advancement.powers.skill.01_shard.title"
 		},
 		"description": {
-			"translate": "advancement.powers.skill.01_amethyst_shard.description"
+			"translate": "advancement.powers.skill.01_shard.description"
 		},
 		"frame": "task",
 		"show_toast": true,
@@ -16,7 +16,7 @@
 		"hidden": false
 	},
 	"criteria": {
-		"complete": {
+		"shard": {
 			"trigger": "minecraft:inventory_changed",
 			"conditions": {
 				"items": [

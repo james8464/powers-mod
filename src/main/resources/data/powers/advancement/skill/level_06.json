@@ -2,13 +2,13 @@
 	"parent": "powers:skill/level_05",
 	"display": {
 		"icon": {
-			"id": "minecraft:amethyst_shard"
+			"id": "minecraft:diamond_sword"
 		},
 		"title": {
-			"translate": "advancement.powers.skill.06_light_realm.title"
+			"translate": "advancement.powers.skill.06_nether_hunts.title"
 		},
 		"description": {
-			"translate": "advancement.powers.skill.06_light_realm.description"
+			"translate": "advancement.powers.skill.06_nether_hunts.description"
 		},
 		"frame": "task",
 		"show_toast": true,
@@ -16,10 +16,38 @@
 		"hidden": false
 	},
 	"criteria": {
-		"complete": {
+		"zombie": {
+			"trigger": "minecraft:player_killed_entity",
+			"conditions": {
+				"entity": [
+					{
+						"condition": "minecraft:entity_properties",
+						"entity": "this",
+						"predicate": {
+							"minecraft:entity_type": "minecraft:zombie"
+						}
+					}
+				]
+			}
+		},
+		"skeleton": {
+			"trigger": "minecraft:player_killed_entity",
+			"conditions": {
+				"entity": [
+					{
+						"condition": "minecraft:entity_properties",
+						"entity": "this",
+						"predicate": {
+							"minecraft:entity_type": "minecraft:skeleton"
+						}
+					}
+				]
+			}
+		},
+		"nether": {
 			"trigger": "minecraft:location",
 			"conditions": {
-				"dimension": "powers:light_realm"
+				"dimension": "minecraft:the_nether"
 			}
 		}
 	}

@@ -28,4 +28,13 @@ public class DoubleHealthAbility extends ToggleAbility {
 		player.removeEffect(MobEffects.HEALTH_BOOST);
 		player.setHealth(Math.min(player.getMaxHealth(), player.getHealth()));
 	}
+
+	@Override
+	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		// Re-assert the boost so a milk bucket or effect clear cannot silently
+		// strip the doubled health while the toggle is still on.
+		if (!player.hasEffect(MobEffects.HEALTH_BOOST)) {
+			player.addEffect(new MobEffectInstance(MobEffects.HEALTH_BOOST, -1, 4, false, false, true));
+		}
+	}
 }

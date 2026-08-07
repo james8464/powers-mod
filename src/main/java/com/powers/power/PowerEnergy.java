@@ -10,12 +10,14 @@ public final class PowerEnergy {
 	private PowerEnergy() {
 	}
 
+	/** +52 per rank: 250 base, 770 at the rank-10 cap (was 775 at 21 ranks). */
 	public static int maxCapacity(int level) {
-		return BASE_MAX + Math.max(0, level) * 25;
+		return BASE_MAX + Math.max(0, level) * 52;
 	}
 
+	/** +135 per rank: 500 base, 1850 at the rank-10 cap (was 1850 at 30 ranks). */
 	public static int darknessMaxCapacity(int level) {
-		return DARKNESS_BASE_MAX + Math.max(0, level) * 45;
+		return DARKNESS_BASE_MAX + Math.max(0, level) * 135;
 	}
 
 	public static int darknessRegen(boolean inDarkEnvironment) {

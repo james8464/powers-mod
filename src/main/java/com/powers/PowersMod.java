@@ -20,7 +20,12 @@ import com.powers.power.abilities.AstralProjectionAbility;
 import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.crystals.DreamwalkingAbility;
+import com.powers.power.crystals.ChronoStopAbility;
+import com.powers.power.crystals.InfernoAbility;
+import com.powers.power.crystals.SoulLinkAbility;
+import com.powers.power.crystals.SizeShiftAbility;
 import com.powers.power.AmethystDampening;
+import com.powers.power.ActivationCooldowns;
 import com.powers.player.SkillSystem;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.util.PowerMessages;
@@ -148,9 +153,16 @@ public class PowersMod implements ModInitializer {
 			TimeFreezeToggleAbility.clear(player.getUUID());
 			DimensionalAnchorAbility.clear(player.getUUID());
 			ForcefieldAbility.clear(player.getUUID());
-			VesselPossessionAbility.clear(player.getUUID());
+			VesselPossessionAbility.clear(player);
 			AstralProjectionAbility.clear(player.getUUID());
-			DreamwalkingAbility.clear(player.getUUID());
+			DreamwalkingAbility.clear(player, server);
+			ChronoStopAbility.clear(player.getUUID());
+			InfernoAbility.clear(player.getUUID());
+			SoulLinkAbility.clear(player.getUUID());
+			SizeShiftAbility.clear(player.getUUID());
+			SlowWorldAbility.clear(player.getUUID());
+			SpaceTimeAbility.clear(player.getUUID());
+			ActivationCooldowns.clear(player.getUUID());
 		});
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			STORMS.clear();
@@ -165,7 +177,13 @@ public class PowersMod implements ModInitializer {
 			AstralProjectionAbility.clearAll();
 			EnergyDrainAbility.clearAll();
 			SpaceTimeAbility.clearAll();
-			DreamwalkingAbility.clearAll();
+			DreamwalkingAbility.clearAll(server);
+			ChronoStopAbility.clearAll();
+			InfernoAbility.clearAll();
+			SoulLinkAbility.clearAll();
+			SizeShiftAbility.clearAll();
+			SlowWorldAbility.clearAll();
+			ActivationCooldowns.clearAll();
 		});
 
 		// Passives are re-applied on a schedule so they never expire; toggle
@@ -218,13 +236,13 @@ public class PowersMod implements ModInitializer {
 					drainToggleEnergy(player);
 				}
 			}
-			SlowWorldAbility.tickAll();
+			SlowWorldAbility.tickAll(server);
 			VesselPossessionAbility.tickAll(server);
 			AstralProjectionAbility.tickAll(server);
 			EnergyDrainAbility.tickAll(server);
 			SpaceTimeAbility.tickAll(server);
 			DreamwalkingAbility.tickAll(server);
-			CrystalPowerRegistry.tick();
+			CrystalPowerRegistry.tick(server);
 			TeleportAbility.tickMarking();
 			tickStorms();
 			tickDelayed(tick);

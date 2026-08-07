@@ -2,13 +2,13 @@
 	"parent": "powers:skill/level_01",
 	"display": {
 		"icon": {
-			"id": "minecraft:amethyst_shard"
+			"id": "powers:rainbow_crystal"
 		},
 		"title": {
-			"translate": "advancement.powers.skill.02_rainbow_crystal.title"
+			"translate": "advancement.powers.skill.02_crystal_bread.title"
 		},
 		"description": {
-			"translate": "advancement.powers.skill.02_rainbow_crystal.description"
+			"translate": "advancement.powers.skill.02_crystal_bread.description"
 		},
 		"frame": "task",
 		"show_toast": true,
@@ -16,7 +16,7 @@
 		"hidden": false
 	},
 	"criteria": {
-		"complete": {
+		"crystal": {
 			"trigger": "minecraft:inventory_changed",
 			"conditions": {
 				"items": [
@@ -26,6 +26,16 @@
 						]
 					}
 				]
+			}
+		},
+		"feast": {
+			"trigger": "minecraft:consume_item",
+			"conditions": {
+				"item": {
+					"items": [
+						"powers:imported_food_bread_big"
+					]
+				}
 			}
 		}
 	}

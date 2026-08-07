@@ -22,8 +22,8 @@ public class RainbowCrystalItem extends Item {
 	@Override
 	public InteractionResult use(Level level, Player user, InteractionHand hand) {
 		// TODO(rainbow crystal): re-enable the power re-roll flow here.
-		// Previously this acknowledged the client opening the power selection
-		// screen with "message.powers.choose_power". For now it does nothing.
+		// Previously this opened the client power selection screen and sent
+		// the re-roll packets. For now it does nothing.
 		return InteractionResult.SUCCESS;
 	}
 }

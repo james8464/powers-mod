@@ -2,13 +2,13 @@
 	"parent": "powers:skill/level_07",
 	"display": {
 		"icon": {
-			"id": "minecraft:amethyst_shard"
+			"id": "powers:dark_crystal"
 		},
 		"title": {
-			"translate": "advancement.powers.skill.08_craft_rainbow.title"
+			"translate": "advancement.powers.skill.08_crystal_travel.title"
 		},
 		"description": {
-			"translate": "advancement.powers.skill.08_craft_rainbow.description"
+			"translate": "advancement.powers.skill.08_crystal_travel.description"
 		},
 		"frame": "task",
 		"show_toast": true,
@@ -16,10 +16,34 @@
 		"hidden": false
 	},
 	"criteria": {
-		"complete": {
-			"trigger": "minecraft:recipe_crafted",
+		"dark": {
+			"trigger": "minecraft:inventory_changed",
 			"conditions": {
-				"recipe_id": "powers:rainbow_crystal"
+				"items": [
+					{
+						"items": [
+							"powers:dark_crystal"
+						]
+					}
+				]
+			}
+		},
+		"light": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"powers:light_crystal"
+						]
+					}
+				]
+			}
+		},
+		"middle": {
+			"trigger": "minecraft:location",
+			"conditions": {
+				"dimension": "powers:middleworld"
 			}
 		}
 	}

@@ -29,12 +29,18 @@ public class ElementalBlastAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		int phase = data.getPhase();
-		data.nextPhase();
-		return ELEMENTS[phase].activate(player, data);
+		boolean success = ELEMENTS[phase].activate(player, data);
+		// Only advance when the element actually fired, so a failed cast
+		// (e.g. lightning with no valid target) is retried, not skipped.
+		if (success) {
+			data.nextPhase();
+		}
+		return success;
 	}
 
 	@Override
 	public int cooldownTicksFor(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		// The phase was already advanced on success; rewind to the one used.
 		int phase = (data.getPhase() + 3) % 4;
 		return ELEMENTS[phase].cooldownTicks();
 	}

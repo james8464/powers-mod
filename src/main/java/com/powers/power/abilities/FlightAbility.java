@@ -38,8 +38,10 @@ public class FlightAbility extends ToggleAbility {
 	@Override
 	public void activateToggleOff(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		boolean[] prior = PRIOR_ABILITIES.remove(player.getUUID());
-		player.getAbilities().mayfly = prior != null ? prior[0] : false;
-		player.getAbilities().flying = prior != null && prior[1];
+		// Creative players keep flight: the game mode owns their mayfly flag.
+		boolean creative = player.gameMode().isCreative();
+		player.getAbilities().mayfly = creative || (prior != null && prior[0]);
+		player.getAbilities().flying = creative || (prior != null && prior[1]);
 		player.onUpdateAbilities();
 		player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 60, 0, true, false));
 		PowerMessages.send(player, "ability.powers.flight_off", 3);

@@ -6,6 +6,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Soul Link: the Violet Crystal's power of empathy turned lethal. You bind
@@ -36,7 +38,7 @@ public class SoulLinkAbility extends Ability {
 	private record ActiveLink(int ticksLeft, List<Link> links) {
 	}
 
-	private static final Map<ServerPlayer, ActiveLink> ACTIVE = new HashMap<>();
+	private static final Map<UUID, ActiveLink> ACTIVE = new HashMap<>();
 
 	public SoulLinkAbility() {
 		super(PowersMod.id("soul_link"),
@@ -46,7 +48,7 @@ public class SoulLinkAbility extends Ability {
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		if (ACTIVE.containsKey(player)) {
+		if (ACTIVE.containsKey(player.getUUID())) {
 			return false;
 		}
 		ServerLevel level = (ServerLevel) player.level();
@@ -63,21 +65,21 @@ public class SoulLinkAbility extends Ability {
 		if (links.isEmpty()) {
 			return false;
 		}
-		ACTIVE.put(player, new ActiveLink(DURATION_TICKS, links));
+		ACTIVE.put(player.getUUID(), new ActiveLink(DURATION_TICKS, links));
 		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x9C27B0, 24, 1.2);
 		PowerFx.sound(level, player.position(), SoundEvents.EVOKER_CAST_SPELL, 1.0f, 0.9f);
 		return true;
 	}
 
 	/** Called every server tick while links are active; mirrors wounds between souls. */
-	public static void tickAll() {
-		Iterator<Map.Entry<ServerPlayer, ActiveLink>> it = ACTIVE.entrySet().iterator();
+	public static void tickAll(MinecraftServer server) {
+		Iterator<Map.Entry<UUID, ActiveLink>> it = ACTIVE.entrySet().iterator();
 		while (it.hasNext()) {
-			Map.Entry<ServerPlayer, ActiveLink> entry = it.next();
-			ServerPlayer caster = entry.getKey();
+			Map.Entry<UUID, ActiveLink> entry = it.next();
+			ServerPlayer caster = server.getPlayerList().getPlayer(entry.getKey());
 			ActiveLink active = entry.getValue();
 
-			if (!caster.isAlive()) {
+			if (caster == null || !caster.isAlive()) {
 				it.remove();
 				continue;
 			}
@@ -115,5 +117,13 @@ public class SoulLinkAbility extends Ability {
 				entry.setValue(new ActiveLink(left, updated));
 			}
 		}
+	}
+
+	public static void clear(UUID player) {
+		ACTIVE.remove(player);
+	}
+
+	public static void clearAll() {
+		ACTIVE.clear();
 	}
 }
