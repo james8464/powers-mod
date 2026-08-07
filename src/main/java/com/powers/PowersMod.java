@@ -318,6 +318,7 @@ public class PowersMod implements ModInitializer {
 
 	private static void drainToggleEnergy(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		boolean anyDrainedOut = false;
 		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
 			Power power = data.getPower(slot);
 			if (power == null || power.ability() == null || !power.ability().isToggle()
@@ -326,8 +327,39 @@ public class PowersMod implements ModInitializer {
 			if (cost > 0 && !data.consumeEnergy(cost)) {
 				power.ability().activateToggleOff(player, data);
 				data.setToggleActive(player, power.id().toString(), false);
+				anyDrainedOut = true;
 			}
 		}
+		if (anyDrainedOut) {
+			energyBacklash(player);
+			PowersPackets.syncTo(player);
+		}
+	}
+
+	/**
+	 * Lets a toggle burn out on an empty pool. The player is heavily punished
+	 * for abandoning a draining power: 70% of their available (max) health in
+	 * magic damage, a lightning storm like the teleport power, and dramatic
+	 * particle/sound effects.
+	 */
+	private static void energyBacklash(ServerPlayer player) {
+		ServerLevel level = (ServerLevel) player.level();
+		Vec3 pos = player.position().add(0, 1, 0);
+
+		float damage = player.getMaxHealth() * 0.7f;
+		if (player.isAlive()) {
+			player.hurtServer(level, player.damageSources().magic(), damage);
+		}
+
+		com.powers.fx.PowerFx.sound(level, pos, net.minecraft.sounds.SoundEvents.BEACON_DEACTIVATE, 1.0f, 0.5f);
+		com.powers.fx.PowerFx.sound(level, pos, net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE.value(), 1.2f, 0.6f);
+		com.powers.fx.PowerFx.burst(level, pos, net.minecraft.core.particles.ParticleTypes.EXPLOSION, 28, 2.5, 0.35);
+		com.powers.fx.PowerFx.coloredBurst(level, pos, 0xFFD700, 48, 1.4);
+		com.powers.fx.PowerFx.ring(level, pos.add(0, -0.5, 0), 5.0, 0xFFFF00, 36, 0.0);
+		com.powers.fx.PowerFx.spiral(level, pos, 1.5, 5.0, 0xFFD700, 26, 0.0);
+		startStorm(level, pos, player, 100, 100);
+
+		player.sendSystemMessage(Component.translatable("energy.powers.backlash"));
 	}
 
 	/** Drifting colored motes around each player, one hue per assigned power. */

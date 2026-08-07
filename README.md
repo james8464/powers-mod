@@ -74,6 +74,7 @@ All abilities draw from a single shared **energy pool** (shown as a 10-segment b
 
 - **Costs never scale with level.** Higher skill/darkness levels never make powers cheaper — they only enlarge the pool, so it is harder to fully run out.
 - Toggle abilities (Flight, Invisibility, Time Freeze) pay their activation cost up front, then drain energy **once per second** while active (1–3 per second). If the pool runs dry the toggle force-disables.
+- **Energy backlash:** letting a draining toggle burn out on an empty pool is punished — the power is torn off but you take **70% of your max health in magic damage**, a lightning storm (like the teleport power) crashes down on you, and particle explosions/rings erupt around you.
 - Failed activations **refund** their energy cost.
 - The **Exhaustion** effect locks your energy at 0 — no regen, no sleep refill.
 
@@ -232,6 +233,7 @@ Crystal powers are a tier above regular powers — they are **never** assigned r
 | Item | Behavior |
 |---|---|
 | **Rainbow Crystal** | **Temporarily inert** — right-clicking does nothing. The re-roll/power-selection flow is disabled (placeholder code kept for restoration). Crafted from all seven color crystals; still collectible/craftable for the skill route. |
+| **All crystals** | **Indestructible when dropped**: they never despawn, never burn in lava/fire, take no damage (lightning, explosions), survive `/kill @e`, can't be picked up by mobs, and are saved from the void. |
 | **Red / Yellow / Violet Crystals** | Currently **inert** — their lore abilities (Inferno, Size Shift, Soul Link) are designed but not yet wired up. |
 | **Infected Rainbow Crystal** | Intentionally inert — "its purpose is not yet revealed." |
 | **Light / Dark Crystals** | See Crystal Powers above. |
