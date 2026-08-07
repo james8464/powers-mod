@@ -9,6 +9,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
+/**
+ * Super Speed: a burst of blinding speed that makes the world blur past.
+ * Grants high speed, extra jump and slow falling for 8 seconds.
+ */
 public class SuperSpeedAbility extends Ability {
 	private static final int DURATION = 160;
 
@@ -21,6 +25,7 @@ public class SuperSpeedAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
+		// 8 seconds of speed 4, jump boost 2 and slow falling
 		player.addEffect(new MobEffectInstance(MobEffects.SPEED, DURATION, 4, false, false));
 		player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, DURATION, 2, false, false));
 		player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, DURATION, 0, false, false));

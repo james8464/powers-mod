@@ -17,15 +17,16 @@ import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 
 /**
- * The blocks of the light and dark realms. Darkness is utterly black;
- * Pure Light blazes with full light. Both are completely unbreakable,
- * exactly like bedrock.
+ * The blocks of the light and dark realms. darkness is pitch black and
+ * pure light blazes at full brightness, and both are completely
+ * unbreakable, exactly like bedrock.
  */
 public final class PowersBlocks {
 	private static final ResourceKey<CreativeModeTab> INGREDIENTS_TAB =
 			ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath("minecraft", "ingredients"));
 
 	public static final ResourceKey<Block> DARKNESS_KEY = key("darkness");
+	// utterly black, unbreakable block of the dark realm
 	public static final Block DARKNESS = register(DARKNESS_KEY, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.COLOR_BLACK)
 			.instrument(NoteBlockInstrument.BASEDRUM)
@@ -34,6 +35,7 @@ public final class PowersBlocks {
 			.sound(SoundType.STONE));
 
 	public static final ResourceKey<Block> PURE_LIGHT_KEY = key("pure_light");
+	// unbreakable block of the light realm that shines at full brightness
 	public static final Block PURE_LIGHT = register(PURE_LIGHT_KEY, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.QUARTZ)
 			.instrument(NoteBlockInstrument.BASEDRUM)
@@ -43,6 +45,7 @@ public final class PowersBlocks {
 			.lightLevel((state) -> 15));
 
 	public static final ResourceKey<Block> AMETHYST_WARD_KEY = key("amethyst_ward");
+	// redstone-powered ward; while powered it dampens powers, and glows brighter to show it's on
 	public static final Block AMETHYST_WARD = register(AMETHYST_WARD_KEY,
 			AmethystWardBlock::new, BlockBehaviour.Properties.of()
 					.mapColor(MapColor.COLOR_PURPLE)

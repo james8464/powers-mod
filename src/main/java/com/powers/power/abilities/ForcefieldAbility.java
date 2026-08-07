@@ -15,7 +15,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+// Forcefield: wrap yourself in a glowing shield for 8 seconds that soaks up
+// hits (10 hearts of absorption), cuts most damage and shrugs off fire.
 public class ForcefieldAbility extends Ability {
+	// 8 seconds of shield
 	private static final int DURATION = 160;
 	private static final Map<UUID, Integer> ACTIVE = new HashMap<>();
 
@@ -28,6 +31,7 @@ public class ForcefieldAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ACTIVE.put(player.getUUID(), DURATION);
+		// amplifier 9 absorption = 10 hearts of shield, resistance 4 = 80% off
 		player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, DURATION, 9, false, false));
 		player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, DURATION, 4, false, false));
 		player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, DURATION, 0, false, false));
@@ -38,6 +42,7 @@ public class ForcefieldAbility extends Ability {
 	}
 
 	public static boolean protects(net.minecraft.world.entity.LivingEntity entity) {
+		// checked by damage code elsewhere to cancel incoming damage
 		return ACTIVE.containsKey(entity.getUUID());
 	}
 
@@ -46,11 +51,14 @@ public class ForcefieldAbility extends Ability {
 			var entry = it.next();
 			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
 			if (player == null || !player.isAlive()) {
+				// gone or dead, the shield dies with them
 				it.remove();
 				continue;
 			}
 			ServerLevel level = (ServerLevel) player.level();
 			if (entry.getValue() % 10 == 0) {
+				// tickAll runs every 5 ticks, so this fires every 50: a full ring
+				// of shield particles as long as the field holds
 				double phase = entry.getValue() * 0.04;
 				com.powers.fx.PowerFx.ring(level, player.position().add(0, 0.15, 0), 1.5, 0x40C4FF, 20, phase);
 				com.powers.fx.PowerFx.ring(level, player.position().add(0, 1.0, 0), 1.25, 0x40C4FF, 20, -phase);

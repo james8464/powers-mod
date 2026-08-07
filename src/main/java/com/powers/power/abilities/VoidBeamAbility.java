@@ -14,9 +14,9 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 
 /**
- * Void Beam: a beam of corrupted Darkness along your sight line. Damages the
- * first target hit and withers it. Inspired by Void Steve, the
- * Darkness-corrupted overlord of Rainbow Quest.
+ * void beam - a beam of corrupted darkness along your sight line that burns
+ * the first living target it hits and withers it, the signature attack of
+ * void steve
  */
 public class VoidBeamAbility extends Ability {
 	public VoidBeamAbility() {
@@ -28,10 +28,13 @@ public class VoidBeamAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
+		// the target search reach, scaled by the player's skills
 		LivingEntity target = PowerTargeting.findLivingTarget(player, SkillSystem.range(player, 32.0));
 		if (target == null) {
+			// nothing in sight - the caller refunds the energy
 			return false;
 		}
+		// amethyst-dampened targets are protected
 		if (AmethystDampening.isDampened(target)) return false;
 
 		com.powers.fx.PowerFx.beam(level, player.getEyePosition(),
@@ -41,6 +44,7 @@ public class VoidBeamAbility extends Ability {
 		com.powers.fx.PowerFx.sound(level, player.position(),
 				net.minecraft.sounds.SoundEvents.BEACON_ACTIVATE, 0.8f, 1.3f);
 
+		// 6 magic damage (scaled), plus a level 2 wither that lasts 5 seconds (100 ticks)
 		target.hurtServer(level, player.damageSources().magic(), SkillSystem.damage(player, 6.0f));
 		target.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 1, true, false));
 		return true;

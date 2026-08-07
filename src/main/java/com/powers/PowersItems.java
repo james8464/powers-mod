@@ -13,17 +13,19 @@ import net.minecraft.world.item.ItemStack;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+// registers every crystal item and drops them into the vanilla ingredients creative tab
 public final class PowersItems {
 	private static final ResourceKey<CreativeModeTab> INGREDIENTS_TAB =
 			ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath("minecraft", "ingredients"));
 
+	// all seven color crystals fuse into the rainbow crystal
 	public static final ResourceKey<Item> RAINBOW_CRYSTAL_KEY = ModItemIds.create("rainbow_crystal");
 	public static final Item RAINBOW_CRYSTAL = ModItemIds.register(
 			RAINBOW_CRYSTAL_KEY,
 			RainbowCrystalItem::new,
 			crystalProperties());
 
-	/** The seven chromatic crystals; all seven fuse into the Rainbow Crystal. */
+	// the seven chromatic crystals, keyed by id; all seven fuse into the rainbow crystal
 	public static final Map<String, Item> COLOR_CRYSTALS = new LinkedHashMap<>();
 	public static final Item RED_CRYSTAL = colorCrystal("red_crystal");
 	public static final Item ORANGE_CRYSTAL = colorCrystal("orange_crystal");
@@ -46,12 +48,12 @@ public final class PowersItems {
 		return item;
 	}
 
-	/** Crystal items are fire-resistant so dropped crystals never burn in lava or fire. */
+	// crystals are fire resistant so a dropped one never burns in lava
 	private static Item.Properties crystalProperties() {
 		return new Item.Properties().stacksTo(1).fireResistant();
 	}
 
-	/** True for any of the mod's crystal items (never despawn, burn, or get mob-picked-up). */
+	/** True for any of the mod's crystals; these never despawn, burn, or get picked up by mobs. */
 	public static boolean isCrystal(ItemStack stack) {
 		Item item = stack.getItem();
 		return item instanceof CrystalItem || item instanceof RainbowCrystalItem;

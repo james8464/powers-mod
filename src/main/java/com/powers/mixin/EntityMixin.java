@@ -10,14 +10,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Keeps dropped crystals alive through {@code /kill}: {@code kill} is declared
- * on {@link Entity}, so it cannot be injected from an {@link ItemEntity} mixin.
+ * keeps dropped crystals alive through /kill. kill is declared on Entity,
+ * so the check has to live in an entity mixin instead of an item entity one
  */
 @Mixin(Entity.class)
 public abstract class EntityMixin {
 	@Inject(method = "kill", at = @At("HEAD"), cancellable = true)
 	private void powers$protectCrystalFromKill(ServerLevel level, CallbackInfo ci) {
 		Entity self = (Entity) (Object) this;
+		// a dropped crystal shrugs off /kill entirely
 		if (self instanceof ItemEntity itemEntity && PowersItems.isCrystal(itemEntity.getItem())) {
 			ci.cancel();
 		}

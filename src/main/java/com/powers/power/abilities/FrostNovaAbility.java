@@ -17,9 +17,8 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 
 /**
- * Frost Nova: an icy blast that freezes every body of water around the
- * caster into solid (frosted) ice - exactly like the freezing powers in
- * superhero mods - while damaging and chilling nearby enemies.
+ * Frost Nova: an icy blast that freezes the area solid. Nearby water turns
+ * to frosted ice on contact while enemies take damage and get chilled.
  */
 public class FrostNovaAbility extends Ability {
 	public FrostNovaAbility() {
@@ -36,8 +35,10 @@ public class FrostNovaAbility extends Ability {
 		for (int dx = -radius; dx <= radius; dx++) {
 			for (int dz = -radius; dz <= radius; dz++) {
 				if (dx * dx + dz * dz > radius * radius) {
+					// circle check so the blast stays round instead of square
 					continue;
 				}
+				// scan a vertical slice from waist height up to eye level
 				for (int dy = -1; dy <= 2; dy++) {
 					BlockPos pos = center.offset(dx, dy, dz);
 					if (level.getFluidState(pos).isSourceOfType(Fluids.WATER)) {
@@ -52,10 +53,12 @@ public class FrostNovaAbility extends Ability {
 		com.powers.fx.PowerFx.sound(level, player.position(),
 				net.minecraft.sounds.SoundEvents.PLAYER_HURT_FREEZE, 1.0f, 1.0f);
 
+		// catch everything within a 6-block radius around the player
 		AABB area = AABB.ofSize(player.position(), 12.0, 8.0, 12.0);
 		for (LivingEntity target : level.getEntities(
 				EntityTypeTest.forClass(LivingEntity.class), area,
 					e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e))) {
+			// 4 damage plus a heavy slow for 6 seconds
 			target.hurtServer(level, player.damageSources().mobAttack(player), 4.0f);
 			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 120, 2, false, false));
 		}

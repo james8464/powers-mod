@@ -14,6 +14,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+// Energy Beam: fire a beam down your aim that scorches the first living thing
+// it hits with magic damage and 3 seconds of fire, or simply fizzles at range.
 public class EnergyBeamAbility extends Ability {
 	public EnergyBeamAbility() {
 		super(PowersMod.id("energy_beam"),
@@ -27,6 +29,7 @@ public class EnergyBeamAbility extends Ability {
 		Vec3 origin = player.getEyePosition();
 		Vec3 look = player.getLookAngle().normalize();
 
+		// skill ranks stretch the beam out beyond the base 48 blocks
 		double range = SkillSystem.range(player, 48.0);
 		HitResult hit = PowerTargeting.raycast(player, range);
 		Vec3 end;
@@ -34,11 +37,14 @@ public class EnergyBeamAbility extends Ability {
 			end = hit.getLocation();
 			if (hit instanceof net.minecraft.world.phys.EntityHitResult entHit
 					&& entHit.getEntity() instanceof LivingEntity target) {
+				// shielded targets block the cast entirely, refunding the energy
 				if (AmethystDampening.isDampened(target)) return false;
 				target.hurtServer(level, player.damageSources().magic(), SkillSystem.damage(player, 10.0f));
+				// 3 seconds of burn
 				target.setRemainingFireTicks(60);
 			}
 		} else {
+			// nothing hit, the beam still travels the full range visually
 			end = origin.add(look.scale(range));
 		}
 

@@ -125,19 +125,21 @@ Progression on the **light path** is driven by the **10-route advancement chain*
 
 The hidden second progression track. **By default it is completely invisible** — the advancement tab and its quests only exist for players carrying the entity tag `darkness` (`/tag <player> add darkness`). Tagged players immediately receive the hidden "Darkness Initiation" root advancement, which reveals the Darkness tab.
 
+**Darkness is not a choice — it is a takeover.** The moment the tag is applied the player switches to the darkness system entirely: the light-path **Skill tab disappears from their advancements screen** (the root advancement is revoked) and comes back only if the tag is removed. There is no way to use both at once.
+
 **What changes for darkness-tagged players:**
 
 - Their energy pool switches to the **darkness pool** (500 base, +135/rank — much harder to drain) and regenerates 2/sec (4/sec in the Dark Realm or at night).
 - Their **effective level** becomes their darkness level instead of their skill level — this drives all damage/range scaling.
 - Their chat/name prefix uses the darkness rank instead of the skill rank.
-- They can traverse the Dark Realm freely (see traversal rules below).
+- They can enter the Dark Realm on their own once they reach **rank 5** (see traversal rules below).
 - **Prefix hiding:** `/powers darkprefix` toggles whether their visible title is the real darkness rank or the **equivalent normal-ladder name** (same rank number, taken from the light-path titles). Great for players who don't want to advertise the darkness on their head.
 
-**Rank titles (10):** Acolyte of Gloom → Shadowpriest → Voidborn → Sable Seeker → Malediction Master → Nightmare Binder → Soulblight → Umbral Tyrant → Abyssal Archon → **Nightfall Sovereign**.
+**Rank titles (10):** Murk → Shade → Umbra → Wraith → Revenant → Dread → Soulblight → Abyssal → Voidwight → **Nightfall**.
 
 **The 10 ranks** are a sequential chain of collection quests, **three items per rank**, escalating from common blocks to Nether relics, Wither trophies, End spoils and finally the Nether Star itself (rank 2 requires rank 1, etc.) — see the [Advancements table](#darkness-ranks-10).
 
-**Dark Realm traversal rules** (applies to Time Shift and Dark/Light Crystal travel across the Dark Realm boundary): allowed if you (a) have the `darkness` tag, (b) are being assisted by a darkness-tagged player, or (c) have effective level **5 or higher**. Otherwise: *"Only those touched by darkness can cross the dark realm at this stage."*
+**Dark Realm traversal rules** — the Dark Realm only appears as a Time Shift destination option for players with the `darkness` tag at **rank 5 or higher**. Unworthy players never see it as an option, but can still reach it two ways: stand close to another player teleporting there (companions ride along), or use the **Dark Crystal** (fused with darkness itself — no gate). Leaving the Dark Realm is always free; nobody who gets in is ever trapped.
 
 ---
 
@@ -224,7 +226,7 @@ Crystal powers are a tier above regular powers — they are **never** assigned r
 | Blue Crystal | **Dreamwalking** | Possess a player within 32 blocks for 2 minutes; the host's max health is halved while you dream. Press again to end. |
 | Indigo Crystal | **Middleworld Gateway** | Teleports you to the Middleworld dimension (2 min cooldown). |
 | Light Crystal | **Light Crystal** | Teleport yourself (sneak-right-click) or a targeted player to the Light Realm (2 min cooldown, 1.5 s storm delay). |
-| Dark Crystal | **Dark Crystal** | Mirror of the Light Crystal — sends you or a target to the **Dark Realm** (enforces the darkness traversal rules). |
+| Dark Crystal | **Dark Crystal** | Mirror of the Light Crystal — sends you or a target to the **Dark Realm** (fused with darkness, so it works for anyone; 2 min cooldown, 1.5 s storm delay). |
 
 ---
 
@@ -244,6 +246,7 @@ Crystal powers are a tier above regular powers — they are **never** assigned r
 
 - **Runestones (28 variants):** right-click to channel **+100 energy** into your pool. Reusable, stack of 16.
 - **Grimoires (13 variants):** lore placeholder items — right-click tells you the book "is waiting for its lore chapters."
+- **Book Grimoire Celestial — the Locator Spell:** right-click while holding **30 XP levels** opens a picker of every online player; choose one and the grimoire casts a celestial ritual (rising rune spiral, expanding rings, a pillar of starlight) before whispering the target's **dimension and coordinates** — to you alone. The 30 levels are spent even when the spell fails. The cast recoils with **20 s of nausea** (and nothing else revealed) when: the caster carries/holds anything amethyst (or stands near amethyst blocks or a powered ward); the target is in the **Light Realm** but the caster isn't a max-rank light-path player (or carries the darkness tag); or the target is in the **Dark Realm** but the caster isn't a max-rank darkness user. On a successful scry the target feels a brief prickle of starlight wherever they are.
 
 ---
 
@@ -320,37 +323,37 @@ All three custom dimensions are **flat, barren single-layer worlds** (no mobs, n
 
 ### Skill Routes (10)
 
-Chain: `skill_root` → `level_01` → … → `level_10`. Each rank requires **all of its challenges** (and, by chaining, everything below). Difficulty climbs steeply: the last ranks demand Warden slays and endgame artifacts.
+Chain: `skill_root` → `level_01` → … → `level_10`. Each rank requires **all of its challenges** (and, by chaining, everything below). Difficulty climbs steeply: the last ranks demand Warden slays and endgame artifacts. The Skill tab only appears for players **without** the `darkness` tag.
 
-| # | Rank | Challenges |
+| # | Rank | Task (in full) |
 |---|---|---|
-| 01 | Unawakened | Collect Amethyst Shard |
-| 02 | Spark | Collect Rainbow Crystal + consume Bread (big) |
-| 03 | Awakened | Collect Amethyst Ward + Grimoire (deep) |
-| 04 | Adept | Collect Frigid Runestone + visit the Light Realm |
-| 05 | Weaver | Visit the Dark Realm + craft the Rainbow Crystal + hurt an entity in combat |
-| 06 | Arcanist | Slay a Zombie + slay a Skeleton + visit the Nether |
-| 07 | Luminary | Visit the End + slay a Blaze + collect Philosopher's Stone |
-| 08 | Voidcaller | Collect Dark Crystal + Light Crystal + visit the Middleworld |
-| 09 | Ascendant | Slay a Warden + collect Nether Star |
-| 10 | Origin | Collect Soul Matrix + End Crystal |
+| 01 | Unawakened | Obtain an **Amethyst Shard** — the first spark of mastery, mined from amethyst geodes. |
+| 02 | Spark | **Hold the Rainbow Crystal** and **eat a Bread Big** (imported food). |
+| 03 | Awakened | **Craft the Amethyst Power Ward** and **open a Grimoire Deep** (right-click it). |
+| 04 | Adept | **Hold the Frigid Runestone** and **visit the Light Realm** (Light Crystal, Time Shift, or `/powers travel`). |
+| 05 | Weaver | **Visit the Dark Realm**, **craft the Rainbow Crystal**, and **hurt an entity in combat**. |
+| 06 | Arcanist | **Slay a Zombie** and a **Skeleton**, then **descend into the Nether**. |
+| 07 | Luminary | **Visit the End**, **slay a Blaze**, and **obtain the Philosopher's Stone**. |
+| 08 | Voidcaller | **Hold the Dark Crystal and the Light Crystal** and **step into the Middleworld**. |
+| 09 | Ascendant | **Slay the Warden** and **collect the Nether Star**. |
+| 10 | Origin | **Complete the Soul Matrix** and **hold an End Crystal**. |
 
 ### Darkness Ranks (10)
 
-Chain: `darkness_root` (hidden until tagged) → `level_01` → … → `level_10`. Tagged players collect **all three items** of a rank to advance; each rank also requires the one before it. Titles carry the rank name (e.g. "Darkness Rank 03: Voidborn").
+Chain: `darkness_root` (hidden until tagged) → `level_01` → … → `level_10`. Tagged players collect **all three items** of a rank to advance; each rank also requires the one before it. Titles carry the rank name (e.g. "Darkness Rank 03: Umbra"). The Darkness tab only appears for players **with** the `darkness` tag — untagged players never see it.
 
 | # | Rank | Collect |
 |---|---|---|
-| 01 | Acolyte of Gloom | Coal Block, Coal, Bone |
-| 02 | Shadowpriest | Obsidian, Nether Bricks, Soul Sand |
-| 03 | Voidborn | Blackstone, Magma Block, Soul Torch |
-| 04 | Sable Seeker | Spider Eye, Rotten Flesh, Fermented Spider Eye |
-| 05 | Malediction Master | Ink Sac, Magma Cream, Fire Charge |
-| 06 | Nightmare Binder | Blaze Rod, Ghast Tear, Lava Bucket |
-| 07 | Soulblight | Wither Skeleton Skull, Soul Campfire, Wither Rose |
-| 08 | Umbral Tyrant | Ender Pearl, Eye of Ender, Crying Obsidian |
-| 09 | Abyssal Archon | Shulker Shell, Tipped Arrow (Poison), End Rod |
-| 10 | Nightfall Sovereign | End Crystal, Nether Star, Dragon's Breath |
+| 01 | Murk | Coal Block, Coal, Bone — a miner's first grave-goods. |
+| 02 | Shade | Obsidian, Nether Bricks, Soul Sand — the foundations of the underworld. |
+| 03 | Umbra | Blackstone, Magma Block, Soul Torch — darkness tempered by fire. |
+| 04 | Wraith | Spider Eye, Rotten Flesh, Fermented Spider Eye — poisons and decay. |
+| 05 | Revenant | Ink Sac, Magma Cream, Fire Charge — the shadow's tools of trade. |
+| 06 | Dread | Blaze Rod, Ghast Tear, Lava Bucket — the fortress's bounty. |
+| 07 | Soulblight | Wither Skeleton Skull, Soul Campfire, Wither Rose — the Wither's court. |
+| 08 | Abyssal | Ender Pearl, Eye of Ender, Crying Obsidian — warding against the void's rivals. |
+| 09 | Voidwight | Shulker Shell, Poison Tipped Arrow, End Rod — spoils of the End cities. |
+| 10 | Nightfall | End Crystal, Nether Star, Dragon's Breath — the final claim over light itself. |
 
 ---
 
@@ -389,6 +392,7 @@ The `darkness` tag is applied with the vanilla command: `/tag <player> add darkn
 - **Power HUD** (bottom-right): three 40×40 boxes showing your keybind, power name, and power color (toggle powers glow only while active).
 - **Energy HUD**: 10-segment bar above the hunger row, depleting left-to-right; renders empty with a purple border while amethyst-dampened.
 - **Teleport Input screen** (Time Shift): coordinate entry, dimension cycle (Overworld / Nether / End / Dark Realm / Light Realm), and "To Player" mode with spectator marking (fly to the spot, press the power key to confirm within 10 s).
+- **Realm storm weather:** lightning storms play during travel to (and banishment within) the realm dimensions — storms in the **Dark Realm** choke on a heavy buildup of campfire smoke, while storms in the **Light Realm** glitter with totem sparks, fireworks and starlight.
 - **Keybinds:** `V` / `X` / `C` for powers — rebindable in the POWERS category.
 
 ---

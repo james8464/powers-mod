@@ -6,9 +6,9 @@ import net.minecraft.resources.Identifier;
 import java.util.List;
 
 /**
- * A single selectable power: one active ability, optionally backed by one or
- * more permanent passive effects. Three powers fill the V/X/C slots; the
- * slot keybind triggers the power's ability.
+ * One superpower a player can be assigned: an active ability, possibly
+ * with permanent passive effects layered on. Three of these fill the
+ * V/X/C slots, and each slot key fires its power
  */
 public record Power(
 		Identifier id,

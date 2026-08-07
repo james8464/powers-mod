@@ -13,6 +13,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 
+/**
+ * Gravity Displacement: everyone around you floats helplessly while you
+ * drift safely. Lifts enemies into the air and gives you slow falling so
+ * you don't come crashing down with them.
+ */
 public class GravityDisplacementAbility extends Ability {
 	private static final double RADIUS = 8.0;
 	private static final int DURATION = 80;
@@ -26,12 +31,14 @@ public class GravityDisplacementAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
+		// everyone in an 8-block radius around the player floats up for 4 seconds
 		AABB area = AABB.ofSize(player.position(), RADIUS * 2, RADIUS * 2, RADIUS * 2);
 		for (LivingEntity target : level.getEntities(EntityTypeTest.forClass(LivingEntity.class), area,
 				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e))) {
 			target.addEffect(new MobEffectInstance(MobEffects.LEVITATION, DURATION, 3, false, false));
 		}
 
+		// lasts a second longer than the enemies' levitation so you drift down safely
 		player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, DURATION + 20, 0, false, false));
 
 		com.powers.fx.PowerFx.burst(level, player.position(),

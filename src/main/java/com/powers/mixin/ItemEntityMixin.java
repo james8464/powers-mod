@@ -11,9 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Makes dropped crystal items indestructible: they never despawn, never burn
- * (the fire resistance already comes from the item property), take no damage
- * (lightning, explosions, fire, /kill via damage) and survive {@code /kill @e}.
+ * makes dropped crystals indestructible: they never despawn, never burn
+ * (the item property handles fire), take no damage and survive /kill
  */
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityMixin {
@@ -23,13 +22,16 @@ public abstract class ItemEntityMixin {
 		if (!PowersItems.isCrystal(self.getItem())) {
 			return;
 		}
+		// crystals never despawn on their own
 		self.setUnlimitedLifetime();
+		// a crystal that falls out of the world is held at the bottom instead of being deleted
 		if (self.getY() < self.level().getMinY() - 64) {
 			self.setPos(self.getX(), self.level().getMinY() + 2, self.getZ());
 		}
 	}
 
 	@Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
+	// crystals ignore all damage: lightning, explosions, fire, you name it
 	private void powers$protectCrystalFromDamage(ServerLevel level, DamageSource source, float amount,
 			CallbackInfoReturnable<Boolean> cir) {
 		if (PowersItems.isCrystal(((ItemEntity) (Object) this).getItem())) {

@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 
-/** A lore-bearing book hook; chapter content can be added without changing registration. */
+/** a lore book placeholder: right clicking shows a chapter message, so chapters can be added without touching registration */
 public class GrimoireItem extends Item {
 	private final String key;
 

@@ -8,9 +8,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 
 /**
- * An active ability. Instant abilities are triggered directly by the keybind;
- * input abilities first open a client-side input screen (e.g. teleport
- * coordinates) whose result is delivered through {@link #activateTeleport}.
+ * An active power the player triggers. Instant abilities fire right on the
+ * key press; input abilities open a client-side screen first (like the
+ * teleport pad) and the chosen coordinates come back through
+ * {@link #activateTeleport}
  */
 public abstract class Ability {
 	private final Identifier id;
@@ -42,43 +43,43 @@ public abstract class Ability {
 	}
 
 	/**
-	 * Executes the ability. Called only when the ability is ready (not on
-	 * cooldown). The cooldown is started by the caller if this returns true.
+	 * Fires the ability when the player hits the key, only when it's ready;
+	 * returning true means it went off, so the caller starts the cooldown
 	 */
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		return false;
 	}
 
 	/**
-	 * Executes an input-driven ability with the coordinates supplied by the
-	 * client's input screen.
+	 * Fires an input ability at the coordinates the player picked in the
+	 * client screen, moving the subject (usually the caster) there
 	 */
 	public boolean activateTeleport(ServerPlayer caster, ServerPlayer subject, PlayerPowers.PlayerPowersData data,
 			ResourceKey<Level> dimension, double x, double y, double z) {
 		return false;
 	}
 
-	/** True for toggle abilities (e.g. flight), which have no cooldown. */
+	/** true for toggle abilities like flight, which have no cooldown */
 	public boolean isToggle() {
 		return false;
 	}
 
-	/** Turns a toggle ability on. Called by the server when the key is pressed. */
+	/** turns the toggle on when the player presses the key */
 	public boolean activateToggleOn(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		return false;
 	}
 
-	/** Turns a toggle ability off. Called by the server when the key is pressed. */
+	/** turns the toggle off when the player presses the key again */
 	public void activateToggleOff(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 	}
 
-	/** Called every few server ticks while a toggle ability is active. */
+	/** runs every few server ticks while the toggle is on, to drain energy or keep the effect going */
 	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 	}
 
 	/**
-	 * Cooldown actually applied after a successful activation. Defaults to
-	 * {@link #cooldownTicks()}; stateful abilities may override it.
+	 * The cooldown that actually applies after a successful activation,
+	 * defaulting to the fixed cooldown unless a stateful ability shortens it
 	 */
 	public int cooldownTicksFor(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		return this.cooldownTicks;

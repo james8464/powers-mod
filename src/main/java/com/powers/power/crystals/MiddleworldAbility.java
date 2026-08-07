@@ -11,6 +11,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * Middleworld: the crystal of the realm between. You open a quiet path
+ * and step into the middle world, landing safely on its surface
+ */
 public class MiddleworldAbility extends Ability {
 	public MiddleworldAbility() {
 		super(PowersMod.id("middleworld"),
@@ -26,6 +30,7 @@ public class MiddleworldAbility extends Ability {
 						PowersMod.id("middleworld")));
 		if (targetLevel == null) return false;
 
+		// head for the fixed landing column at x 8, z 8
 		Vec3 dest = findSafePos(targetLevel, 8, 8, 8);
 		player.teleport(new TeleportTransition(targetLevel, dest, Vec3.ZERO,
 				player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
@@ -33,7 +38,7 @@ public class MiddleworldAbility extends Ability {
 	}
 
 	private Vec3 findSafePos(ServerLevel level, int x, int y, int z) {
-		// Scan top-down so the traveller lands on the surface instead of a cave.
+		// scan top-down for two clear blocks with solid ground below, so the traveller lands on the surface instead of a cave
 		int startY = level.getMaxY() - 2;
 		for (int dy = 0; dy < level.getHeight() - 2; dy++) {
 			int cy = startY - dy;
@@ -45,6 +50,7 @@ public class MiddleworldAbility extends Ability {
 				return new Vec3(x + 0.5, cy, z + 0.5);
 			}
 		}
+		// no open landing spot, so fall back to the top of the world
 		return new Vec3(x + 0.5, level.getMaxY() - 1, z + 0.5);
 	}
 }

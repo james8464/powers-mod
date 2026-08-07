@@ -10,9 +10,9 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Speed Burst: a short, explosive burst of super speed in the direction you
- * are looking, with a brief slow fall to glide. Inspired by speedster
- * heroes (Flash, Quicksilver) from superhero mods.
+ * Speed Burst: a short, explosive dash of super speed in the direction
+ * you're looking, with slow falling so you can glide. A speedster's
+ * signature move.
  */
 public class SpeedBurstAbility extends Ability {
 	public SpeedBurstAbility() {
@@ -26,7 +26,9 @@ public class SpeedBurstAbility extends Ability {
 		var level = (net.minecraft.server.level.ServerLevel) player.level();
 		Vec3 dir = player.getLookAngle().normalize();
 		Vec3 pos = player.position();
+		// a strong forward kick that sends you flying
 		player.setDeltaMovement(player.getDeltaMovement().add(dir.scale(2.2)));
+		// 6 seconds of slow falling so the dash carries you like a glide
 		player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 120, 0, false, false));
 		com.powers.fx.PowerFx.burst(level, pos, net.minecraft.core.particles.ParticleTypes.CLOUD, 12, 0.35, 0.25);
 		com.powers.fx.PowerFx.burst(level, pos.add(dir.scale(2.0)), net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK, 8, 0.45, 0.25);

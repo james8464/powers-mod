@@ -7,13 +7,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 /**
- * Elemental Blast: cycles through the four elements in order - fire, frost,
- * storm, earth. The active element advances on every use and its own cooldown
- * is applied. Inspired by Elemental Steve, fused from Galaxy Steve's
- * elementally-charged essence.
+ * Elemental Blast: cycles fire, frost, storm and earth in order, one element
+ * per press, each cast using that element's own cooldown. Fused from Galaxy
+ * Steve's elementally-charged essence, inspired by Elemental Steve.
  */
 public class ElementalBlastAbility extends Ability {
 	private static final Ability[] ELEMENTS = {
+			// the cycle order: fire, then frost, then storm, then earth
 			new FireballAbility(),
 			new FrostNovaAbility(),
 			new LightningStrikeAbility(),
@@ -30,8 +30,8 @@ public class ElementalBlastAbility extends Ability {
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		int phase = data.getPhase();
 		boolean success = ELEMENTS[phase].activate(player, data);
-		// Only advance when the element actually fired, so a failed cast
-		// (e.g. lightning with no valid target) is retried, not skipped.
+		// only advance when the element actually fired, so a failed cast
+		// (e.g. lightning with no valid target) is retried, not skipped
 		if (success) {
 			data.nextPhase();
 		}
@@ -40,7 +40,8 @@ public class ElementalBlastAbility extends Ability {
 
 	@Override
 	public int cooldownTicksFor(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		// The phase was already advanced on success; rewind to the one used.
+		// the phase already advanced on success, so rewind one to report the
+		// cooldown of the element that was actually cast
 		int phase = (data.getPhase() + 3) % 4;
 		return ELEMENTS[phase].cooldownTicks();
 	}

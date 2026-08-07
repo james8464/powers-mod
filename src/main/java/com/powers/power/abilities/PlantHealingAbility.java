@@ -11,6 +11,11 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * Plant Healing: quickens the growth of the plant you're looking at, like
+ * a burst of bonemeal energy. Does nothing and refunds energy if there's
+ * nothing growable in sight.
+ */
 public class PlantHealingAbility extends Ability {
 	public PlantHealingAbility() {
 		super(PowersMod.id("plant_healing_acceleration"),
@@ -22,8 +27,10 @@ public class PlantHealingAbility extends Ability {
 		ServerLevel level = (ServerLevel) player.level();
 		HitResult hit = player.pick(12.0, 0.0f, false);
 		if (!(hit instanceof BlockHitResult blockHit)) return false;
+		// the block just past the face you hit
 		var pos = blockHit.getBlockPos().relative(blockHit.getDirection());
 		var state = level.getBlockState(pos);
+		// some plants can't be bonemealed (fully grown, for example)
 		if (!(state.getBlock() instanceof BonemealableBlock growable)
 				|| !growable.isValidBonemealTarget(level, pos, state)) return false;
 		growable.performBonemeal(level, level.getRandom(), pos, state);

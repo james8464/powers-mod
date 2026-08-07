@@ -2,6 +2,7 @@ package com.powers.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.powers.PowersMod;
+import com.powers.client.screen.CelestialLocatorScreen;
 import com.powers.client.screen.TeleportInputScreen;
 import com.powers.network.PowersPackets;
 import com.powers.power.Ability;
@@ -19,6 +20,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.lwjgl.glfw.GLFW;
 
+/** client entry point: registers the v/x/c slot keys, wires up the huds and the teleport screen */
 public class PowersClient implements ClientModInitializer {
 	private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(PowersMod.id("powers"));
 
@@ -37,8 +39,14 @@ public class PowersClient implements ClientModInitializer {
 
 		ClientPlayNetworking.registerGlobalReceiver(PowersPackets.PowerStatePayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientPowerState.update(payload)));
+		// the celestial grimoire summons its target picker when the server vouches for the cast
+		ClientPlayNetworking.registerGlobalReceiver(PowersPackets.OpenLocatorScreenPayload.TYPE,
+				(payload, context) -> context.client().execute(() ->
+						Minecraft.getInstance().gui.setScreen(new CelestialLocatorScreen())));
+		// clear the cached state when you leave the server so the hud doesn't carry over old powers
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> ClientPowerState.reset());
 
+		// both huds join the same render pass as vanilla chat so they layer correctly
 		HudElementRegistry.attachElementBefore(
 				VanillaHudElements.CHAT,
 				PowersMod.id("power_hud"),
@@ -52,6 +60,7 @@ public class PowersClient implements ClientModInitializer {
 	}
 
 	private static void tick(Minecraft client) {
+		// the marking window for a player teleport counts down here and closes itself
 		if (ClientPowerState.markingSlot >= 0) {
 			if (--ClientPowerState.markingTicks <= 0) {
 				ClientPowerState.markingSlot = -1;
@@ -69,6 +78,7 @@ public class PowersClient implements ClientModInitializer {
 	}
 
 	private static void handleSlotKey(Minecraft client, int slot) {
+		// pressing the same key again while marking confirms the teleport to the named player
 		if (ClientPowerState.isMarking() && ClientPowerState.markingSlot == slot) {
 			var player = client.player;
 			if (player != null) {
@@ -78,6 +88,7 @@ public class PowersClient implements ClientModInitializer {
 			}
 			return;
 		}
+		// don't trigger powers while another screen is open
 		if (client.gui.screen() != null) return;
 		Power power = ClientPowerState.getPower(slot);
 		if (power == null) {
@@ -88,6 +99,7 @@ public class PowersClient implements ClientModInitializer {
 			return;
 		}
 
+		// powers that need a destination open the input screen, everything else activates directly
 		if (ability.requiresInput()) {
 			client.gui.setScreen(new TeleportInputScreen(slot));
 		} else {

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Stops hostile mobs (zombies, piglins, hoglins, ...) from picking up dropped crystals. */
+/** stops zombies, piglins, hoglins and the like from picking up dropped crystals */
 @Mixin(Mob.class)
 public abstract class MobMixin {
 	@Inject(method = "pickUpItem", at = @At("HEAD"), cancellable = true)

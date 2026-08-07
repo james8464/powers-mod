@@ -12,8 +12,9 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Shadow Step: blink a short distance in the direction you are looking,
- * emerging on top of any solid surface.
+ * Shadow Step: blink a short distance in the direction you're looking,
+ * emerging on top of any solid surface. Fails with a warning if there's
+ * no room to land.
  */
 public class ShadowStepAbility extends Ability {
 	public ShadowStepAbility() {
@@ -34,6 +35,7 @@ public class ShadowStepAbility extends Ability {
 
 		BlockPos feet = findStandingSpot(level, target);
 		if (feet == null) {
+			// no valid landing spot, so warn the player and refund energy
 			PowerMessages.send(player, "ability.powers.no_room", 3);
 			return false;
 		}
@@ -56,11 +58,13 @@ public class ShadowStepAbility extends Ability {
 		if (!level.getBlockState(pos).isAir()) {
 			pos = pos.above();
 		}
+		// walk down looking for a spot with open air and solid ground, up to 8 blocks deep
 		for (int i = 0; i < 8; i++) {
 			if (level.getBlockState(pos).isAir() && level.getBlockState(pos.below()).isSolid()) {
 				return pos;
 			}
 			if (!level.getBlockState(pos).isAir()) {
+				// a solid block overhead means no room to stand, give up
 				return null;
 			}
 			pos = pos.below();

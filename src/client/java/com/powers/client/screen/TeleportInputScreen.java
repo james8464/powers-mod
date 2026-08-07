@@ -16,6 +16,7 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
+/** the input screen for the time shift power: type coordinates or a player name and pick a dimension */
 public class TeleportInputScreen extends Screen {
 	private record DimEntry(String id, String label) {}
 
@@ -27,6 +28,10 @@ public class TeleportInputScreen extends Screen {
 			new DimEntry("powers:light_realm", "Light Realm"));
 
 	private final int slot;
+
+	// the destinations on offer this session; the dark realm is hidden from
+	// players who haven't earned the darkness mark at rank 5+
+	private List<DimEntry> available;
 
 	private EditBox xField, yField, zField, targetNameField;
 	private int dimIndex;
@@ -43,7 +48,12 @@ public class TeleportInputScreen extends Screen {
 		int cx = this.width / 2;
 		int fw = 120;
 
-		List<String> dimNames = DIMENSIONS.stream().map(e -> e.label()).toList();
+		available = ClientPowerState.canSeeDarkRealm()
+				? DIMENSIONS
+				: DIMENSIONS.stream().filter(e -> !e.id().equals("powers:dark_realm")).toList();
+		List<String> dimNames = available.stream().map(e -> e.label()).toList();
+		List<Integer> dimValues = new java.util.ArrayList<>();
+		for (int i = 0; i < available.size(); i++) dimValues.add(i);
 		this.addRenderableWidget(CycleButton.<Integer>builder(
 						idx -> switch (idx) {
 							case 0 -> Component.literal("Self (coords)");
@@ -64,7 +74,7 @@ public class TeleportInputScreen extends Screen {
 
 		this.addRenderableWidget(CycleButton.<Integer>builder(
 						idx -> Component.literal(dimNames.get(idx)), () -> 0)
-				.withValues(List.of(0, 1, 2, 3, 4))
+				.withValues(dimValues)
 				.displayOnlyValue()
 				.create(cx + 4, 86, fw, 20, Component.translatable("screen.powers.teleport.dimension"),
 						(btn, val) -> dimIndex = val));
@@ -84,6 +94,7 @@ public class TeleportInputScreen extends Screen {
 
 			if (mode == 2) {
 				if (target.isEmpty()) { error = Component.literal("Enter a player name"); return; }
+				// remember the slot for 200 ticks; pressing its key again confirms the teleport
 				ClientPowerState.markingSlot = slot;
 				ClientPowerState.markingTicks = 200;
 				ClientPlayNetworking.send(new PowersPackets.TeleportRequestPayload(
@@ -91,10 +102,11 @@ public class TeleportInputScreen extends Screen {
 						ResourceKey.create(Registries.DIMENSION, Identifier.fromNamespaceAndPath("minecraft", "overworld")),
 						target, true));
 			} else {
+				// modes 0 and 1 use the typed coordinates, mode 1 also names the player being moved
 				double x = Double.parseDouble(xField.getValue().trim());
 				double y = Double.parseDouble(yField.getValue().trim());
 				double z = Double.parseDouble(zField.getValue().trim());
-				String dimId = DIMENSIONS.get(dimIndex).id();
+				String dimId = available.get(dimIndex).id();
 				String targetName = (mode == 1) ? target : "";
 				Identifier id = Identifier.tryParse(dimId);
 				ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, id);
@@ -103,6 +115,7 @@ public class TeleportInputScreen extends Screen {
 			}
 			this.onClose();
 		} catch (NumberFormatException e) {
+			// bad numbers just show an error, the screen stays open for a retry
 			this.error = Component.translatable("screen.powers.teleport.invalid");
 		}
 	}

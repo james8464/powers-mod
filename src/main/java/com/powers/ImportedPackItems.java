@@ -6,13 +6,14 @@ import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
+import com.powers.item.CelestialGrimoireItem;
 import com.powers.item.GrimoireItem;
 import com.powers.item.RuneItem;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** Registers the useful item textures imported from unused-textures-master. */
+/** Registers the useful items whose textures came from unused-textures-master. */
 public final class ImportedPackItems {
 	public static final Map<String, Item> ITEMS = new LinkedHashMap<>();
 	private static final String[] TEXTURES = """
@@ -26,10 +27,12 @@ public final class ImportedPackItems {
 		for (String rawTexture : TEXTURES) {
 			String texture = rawTexture.trim();
 			if (texture.isEmpty()) continue;
+			// dots become underscores so every id stays valid
 			String id = "imported_" + texture.replace('.', '_');
 			Item.Properties properties = new Item.Properties().stacksTo(64);
 			java.util.function.Function<Item.Properties, Item> factory = Item::new;
 			if (texture.startsWith("food_")) {
+				// cooked, smoked, and stew foods restore more hunger
 				boolean cooked = texture.contains("cooked") || texture.contains("smoked") || texture.contains("stew");
 				FoodProperties food = new FoodProperties.Builder()
 						.nutrition(cooked ? 6 : 4)
@@ -41,9 +44,14 @@ public final class ImportedPackItems {
 						.sound(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.CAMEL_EAT))
 						.hasConsumeParticles(true)
 						.build());
+			} else if (texture.equals("book_grimoire_celestial")) {
+				// the celestial grimoire holds the locator spell, so it gets its own item class
+				factory = CelestialGrimoireItem::new;
 			} else if (texture.startsWith("book_grimoire")) {
+				// grimoires get their own item class so they can hold spells
 				factory = props -> new GrimoireItem(props, texture);
 			} else if (texture.contains("runestone") || texture.contains("rune")) {
+				// runestones and runes become usable rune items
 				factory = RuneItem::new;
 			}
 			ITEMS.put(id, ModItemIds.register(ModItemIds.create(id), factory, properties));

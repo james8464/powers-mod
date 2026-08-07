@@ -21,9 +21,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/** Lets a player scout as a spectator projection within a strict 150-block radius. */
+/**
+ * Astral Projection: your spirit leaves your body and you scout around as an
+ * untouchable ghost, yanked back if you drift more than 150 blocks from home.
+ */
 public class AstralProjectionAbility extends Ability {
+	// 30 seconds as a ghost
 	private static final int DURATION = 600;
+	// leash radius in blocks
 	private static final double RADIUS = 150.0;
 	private static final Map<UUID, Projection> ACTIVE = new HashMap<>();
 
@@ -37,6 +42,7 @@ public class AstralProjectionAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		if (ACTIVE.containsKey(player.getUUID())) {
+			// activating again while projecting ends it early and returns home
 			end(player, ACTIVE.remove(player.getUUID()));
 			return true;
 		}
@@ -64,17 +70,19 @@ public class AstralProjectionAbility extends Ability {
 			Projection projection = entry.getValue();
 			ServerPlayer player = projection.player();
 			if (player == null || !player.isAlive()) {
-				// Death would otherwise leave the player stuck in spectator.
+				// a dead ghost would otherwise stay stuck in spectator forever
 				if (player != null) player.setGameMode(projection.gameMode());
 				it.remove();
 				continue;
 			}
 			if (now >= projection.endsAt() || player.level().dimension() != projection.dimension()) {
+				// time is up or the ghost switched dimensions, send them home
 				end(player, projection);
 				it.remove();
 				continue;
 			}
 			if (player.position().distanceToSqr(projection.origin()) > RADIUS * RADIUS) {
+				// leash snapped: teleport the ghost back to the origin
 				PowerFx.sound((ServerLevel) player.level(), player.position(), SoundEvents.ENDERMAN_TELEPORT, 0.75f, 0.75f);
 				PowerFx.rune((ServerLevel) player.level(), player.position(), 1.2, 0x7C4DFF, 18, now * 0.125);
 				player.teleport(new TeleportTransition((ServerLevel) player.level(), projection.origin(), Vec3.ZERO,
@@ -82,6 +90,7 @@ public class AstralProjectionAbility extends Ability {
 				PowerMessages.send(player, "ability.powers.astral_boundary", 3);
 			}
 			if (now % 5 == 0) {
+				// every 5 ticks trail soul flames behind the ghost so it's visible
 				ServerLevel activeLevel = (ServerLevel) player.level();
 				PowerFx.rune(activeLevel, player.position().add(0, 0.5, 0), 1.0, 0x7C4DFF, 16, now * 0.1);
 				PowerFx.burst(activeLevel, player.position().add(0, 1, 0),
@@ -91,6 +100,7 @@ public class AstralProjectionAbility extends Ability {
 	}
 
 	private static void end(ServerPlayer player, Projection projection) {
+		// bring the ghost back to the recorded origin, then restore game mode
 		ServerLevel destination = ((ServerLevel) player.level()).getServer().getLevel(projection.dimension());
 		if (destination != null) {
 			player.teleport(new TeleportTransition(destination, projection.origin(), Vec3.ZERO,

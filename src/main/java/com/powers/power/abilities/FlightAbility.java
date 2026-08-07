@@ -14,11 +14,12 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Flight: grants the ability to fly freely, exactly like Rainbow Steve's
- * flight from the lore. Landing cushions you with slow falling so the drop
- * never hurts.
+ * Flight: fly freely through the air, exactly like Rainbow Steve's flight
+ * from the lore. Landing cushions you with slow falling so the drop never
+ * hurts.
  */
 public class FlightAbility extends ToggleAbility {
+	// remembers whether the player could fly before, to restore it on toggle off
 	private static final Map<UUID, boolean[]> PRIOR_ABILITIES = new HashMap<>();
 	public FlightAbility() {
 		super(PowersMod.id("flight"), Component.translatable("ability.powers.flight"));
@@ -26,6 +27,8 @@ public class FlightAbility extends ToggleAbility {
 
 	@Override
 	public boolean activateToggleOn(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		// only the first toggle-on records the prior flags, later ones don't
+		// overwrite the snapshot needed for a clean restore
 		PRIOR_ABILITIES.putIfAbsent(player.getUUID(),
 				new boolean[] {player.getAbilities().mayfly, player.getAbilities().flying});
 		player.getAbilities().mayfly = true;
@@ -38,22 +41,25 @@ public class FlightAbility extends ToggleAbility {
 	@Override
 	public void activateToggleOff(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		boolean[] prior = PRIOR_ABILITIES.remove(player.getUUID());
-		// Creative players keep flight: the game mode owns their mayfly flag.
+		// creative players keep flight, the game mode owns their mayfly flag
 		boolean creative = player.gameMode().isCreative();
 		player.getAbilities().mayfly = creative || (prior != null && prior[0]);
 		player.getAbilities().flying = creative || (prior != null && prior[1]);
 		player.onUpdateAbilities();
+		// 3 seconds of slow falling so the way down is soft
 		player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 60, 0, true, false));
 		PowerMessages.send(player, "ability.powers.flight_off", 3);
 	}
 
 	@Override
 	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		// re-assert flight in case some other mechanic stripped the flag
 		if (!player.getAbilities().mayfly) {
 			player.getAbilities().mayfly = true;
 			player.onUpdateAbilities();
 		}
 		if (player.getAbilities().flying && player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+			// rainbow trail while actually airborne
 			int rgb = com.powers.fx.PowerFx.rainbow(level.getServer().getTickCount(), 4);
 			com.powers.fx.PowerFx.coloredBurst(level, player.position().add(0, 0.3, 0), rgb, 2, 0.12);
 		}

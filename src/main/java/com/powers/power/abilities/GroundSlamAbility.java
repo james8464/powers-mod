@@ -20,8 +20,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Ground Slam: a Hulk-style ground pound. The impact detonates the ground
- * beneath the caster, carving a crater and hurling everything nearby.
+ * Ground Slam: a hulk-style ground pound. The impact detonates the ground
+ * beneath you, carving a crater and hurling everything nearby.
  */
 public class GroundSlamAbility extends Ability {
 	public GroundSlamAbility() {
@@ -40,11 +40,14 @@ public class GroundSlamAbility extends Ability {
 		carveCrater(level, BlockPos.containing(player.getX(), player.getY() - 0.5, player.getZ()));
 
 		DamageSource source = player.damageSources().mobAttack(player);
+		// shockwave hits everything in a 5-block radius around the player
 		AABB area = AABB.ofSize(player.position(), 10.0, 6.0, 10.0);
 		for (LivingEntity target : level.getEntities(
 			EntityTypeTest.forClass(LivingEntity.class), area,
 			e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e))) {
+			// damage scales with the player's skill level
 			target.hurtServer(level, source, SkillSystem.damage(player, 6.0f));
+			// fling them away from the player and send up smoke
 			Vec3 away = target.position().subtract(player.position()).normalize();
 			target.knockback(1.6, away.x, away.z, source, 1.0f);
 			PowerFx.burst(level, target.position().add(0, target.getBbHeight() * 0.5, 0),
@@ -53,16 +56,19 @@ public class GroundSlamAbility extends Ability {
 		return true;
 	}
 
-	/** Carves a bowl-shaped crater from soft ground; the slam's damage is dealt once, by the shockwave. */
+	/** Carves a bowl-shaped crater from soft ground; the damage is dealt once, by the shockwave. */
 	private static void carveCrater(ServerLevel level, BlockPos feet) {
 		for (int dx = -3; dx <= 3; dx++) {
 			for (int dz = -3; dz <= 3; dz++) {
 				if (dx * dx + dz * dz > 9) {
+					// circle check keeps the crater round, radius 3
 					continue;
 				}
+				// dig down up to 2 blocks per column
 				for (int dy = 0; dy >= -2; dy--) {
 					BlockPos pos = feet.offset(dx, dy, dz);
 					BlockState state = level.getBlockState(pos);
+					// skip fluids, bedrock and anything nearly unbreakable
 					if (state.isAir() || state.is(Blocks.BEDROCK) || state.is(Blocks.WATER)
 							|| state.is(Blocks.LAVA) || state.getDestroySpeed(level, pos) > 50.0f) {
 						continue;

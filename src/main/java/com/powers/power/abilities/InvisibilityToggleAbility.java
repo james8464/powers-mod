@@ -6,6 +6,10 @@ import com.powers.power.ToggleAbility;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+/**
+ * Invisibility: a toggle that lets you vanish and reappear. Turning on
+ * hides you in a puff of smoke, turning off brings you back with a flash.
+ */
 public class InvisibilityToggleAbility extends ToggleAbility {
 	public InvisibilityToggleAbility() {
 		super(PowersMod.id("invisibility"),
@@ -16,6 +20,7 @@ public class InvisibilityToggleAbility extends ToggleAbility {
 	public boolean activateToggleOn(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		player.setInvisible(true);
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+			// smoke burst hides the spot where you stood
 			com.powers.fx.PowerFx.burst(level, player.position(), net.minecraft.core.particles.ParticleTypes.SMOKE, 18, 0.5, 0.02);
 			com.powers.fx.PowerFx.sound(level, player.position(), net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT, 0.7f, 1.6f);
 		}
@@ -32,6 +37,7 @@ public class InvisibilityToggleAbility extends ToggleAbility {
 
 	@Override
 	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		// reapply each tick in case something (like milk) removed the invisibility
 		if (!player.isInvisible()) {
 			player.setInvisible(true);
 		}

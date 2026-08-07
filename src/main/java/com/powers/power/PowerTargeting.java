@@ -9,18 +9,17 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Line-of-sight targeting shared by every ability that needs to aim at a
- * creature. {@code Entity.pick} only clips blocks, so entity hits are found
- * with a proper raycast and combined with the block clip to respect walls.
+ * Line-of-sight aiming shared by powers that need a target. Plain block
+ * picking misses creatures, so this casts a real ray as well and takes
+ * whichever hit is closer, keeping walls able to block your aim
  */
 public final class PowerTargeting {
 	private PowerTargeting() {
 	}
 
 	/**
-	 * The nearest hit along the player's look line: either a block clipped by
-	 * {@code Entity.pick} or an entity found by an entity raycast, whichever
-	 * is closer. Returns a miss when nothing is hit.
+	 * The nearest thing on the player's look line: a block, a creature,
+	 * or a miss when nothing is in range
 	 */
 	public static HitResult raycast(ServerPlayer player, double range) {
 		HitResult block = player.pick(range, 0.0F, false);
@@ -38,8 +37,8 @@ public final class PowerTargeting {
 	}
 
 	/**
-	 * The living entity being looked at, or null when the sight line ends at
-	 * a block or nothing. Never returns the caster themselves.
+	 * The living creature the player is aiming at, or null when the line
+	 * stops at a block or empty air. Never the caster themselves
 	 */
 	public static LivingEntity findLivingTarget(ServerPlayer player, double range) {
 		HitResult hit = raycast(player, range);

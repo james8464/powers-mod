@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 
-/** A segmented energy meter aligned above the vanilla hunger row. */
+/** the energy meter above the hunger row: ten segments showing how much power you have stored */
 public final class EnergyHudRenderer {
 	private static final int SEGMENTS = 10;
 	private static final Identifier FULL_ICON = PowersMod.id("custom_icon.png");
@@ -23,15 +23,17 @@ public final class EnergyHudRenderer {
 
 		int width = client.getWindow().getGuiScaledWidth();
 		int height = client.getWindow().getGuiScaledHeight();
-		// Vanilla hunger uses x = width / 2 + 91 - 9 - (index * 8), y = height - 48.
+		// the vanilla hunger bar sits at y = height - 48, so the meter draws just above it
 		int y = height - 58;
 		int capacity = ClientPowerState.energyCapacity();
 		int energy = Math.max(0, Math.min(capacity, ClientPowerState.energy()));
 		boolean dampened = client.player.hasEffect(PowersEffects.AMETHYST_POISONING);
 
 		int full = energy * SEGMENTS / capacity;
+		// a leftover of at least half a segment shows as a half-filled icon
 		boolean half = energy * SEGMENTS % capacity >= capacity / (SEGMENTS * 2);
 		for (int hungerIndex = 0; hungerIndex < SEGMENTS; hungerIndex++) {
+			// fill from the right like vanilla hunger, so the meter empties toward the left
 			int displayIndex = SEGMENTS - 1 - hungerIndex;
 			int empty = SEGMENTS - full - (half ? 1 : 0);
 			Identifier icon = dampened || displayIndex < empty ? EMPTY_ICON
@@ -39,6 +41,7 @@ public final class EnergyHudRenderer {
 			int x = width / 2 + 82 - hungerIndex * 8;
 			graphics.blit(icon, x, y, 9, 9, 0, 2.0f / 3.0f, 1, 1);
 		}
+		// amethyst poisoning drains the meter visually and frames the screen in purple
 		if (dampened) {
 			int purple = 0xCCB36BFF;
 			graphics.fill(0, 0, width, 2, purple);

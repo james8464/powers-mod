@@ -8,20 +8,19 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Dramatic, god-like punishment effects. Where PowerFx provides the everyday
- * ability visuals, these sequences are reserved for moments of judgement:
- * burnt-out toggles, amethyst rejection, and broken travel. They paint a
- * picture of unseen powers looking down on the player.
+ * dramatic god-like punishment effects for moments of judgement: burnt-out
+ * toggles, amethyst rejection, broken travel. they paint a picture of unseen
+ * powers looking down on the player
  */
 public final class GodlyPunishment {
 	private GodlyPunishment() {
 	}
 
 	/**
-	 * The full divine-wrath sequence: a rune circle and shockwave rings on the
+	 * the full divine-wrath sequence: a rune circle and shockwave rings on the
 	 * ground, a rising pillar of sparks, a burst of golden light, thunderous
-	 * sounds, and — optionally — a lightning storm that chases the player.
-	 * A delayed second wave lands shortly after, as if the judgement follows.
+	 * sounds and, optionally, a lightning storm that chases the player.
+	 * a delayed second wave lands shortly after, as if the judgement follows
 	 */
 	public static void strike(ServerLevel level, ServerPlayer player, int rgb, boolean storm) {
 		Vec3 pos = player.position().add(0, 1, 0);
@@ -41,6 +40,7 @@ public final class GodlyPunishment {
 		}
 
 		PowersMod.scheduleDelayed(level.getServer(), 25, () -> {
+			// the follow-up wave lands a moment later; skip it if the player died first
 			if (!player.isAlive()) return;
 			Vec3 follow = player.position().add(0, 1, 0);
 			PowerFx.ring(level, follow.add(0, -0.3, 0), 6.0, rgb, 40, phase + 1.3);
@@ -50,7 +50,7 @@ public final class GodlyPunishment {
 		});
 	}
 
-	/** A cold, dragging rejection — used when the dark realm refuses entry. */
+	/** a cold, dragging rejection, used when the dark realm refuses entry */
 	public static void voidReject(ServerLevel level, ServerPlayer player) {
 		Vec3 pos = player.position().add(0, 1, 0);
 		PowerFx.burst(level, pos, ParticleTypes.REVERSE_PORTAL, 22, 0.9, 0.05);
@@ -59,7 +59,7 @@ public final class GodlyPunishment {
 		PowerFx.sound(level, pos, SoundEvents.WITHER_AMBIENT, 0.9f, 0.5f);
 	}
 
-	/** Crimson chain-flash when a dimensional anchor forbids travel. */
+	/** crimson chain flash when a dimensional anchor forbids travel */
 	public static void chainBlock(ServerLevel level, ServerPlayer player) {
 		Vec3 pos = player.position().add(0, 1, 0);
 		PowerFx.burst(level, pos, ParticleTypes.ELECTRIC_SPARK, 14, 0.5, 0.06);
@@ -68,7 +68,7 @@ public final class GodlyPunishment {
 		PowerFx.sound(level, pos, SoundEvents.BEACON_DEACTIVATE, 0.7f, 0.9f);
 	}
 
-	/** A shimmering wall-flash when a dimension outright refuses entry. */
+	/** a shimmering wall flash when a dimension outright refuses entry */
 	public static void barrier(ServerLevel level, ServerPlayer player, int rgb) {
 		Vec3 pos = player.position().add(0, 1, 0);
 		PowerFx.ring(level, pos.add(0, -0.3, 0), 2.5, rgb, 24, 0.0);

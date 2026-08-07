@@ -1,9 +1,7 @@
 package com.powers.power.crystals;
 
 import com.powers.PowersMod;
-import com.powers.fx.GodlyPunishment;
 import com.powers.player.PlayerPowers;
-import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.util.PowerMessages;
@@ -20,6 +18,11 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * Light Crystal: a door into the light realm. Sneak-right-click to step
+ * through yourself, right-click a player in your sights to take them
+ * along, or aim at empty space and just light the way
+ */
 public class LightCrystalAbility extends Ability {
 	private static final ResourceKey<Level> DESTINATION = ResourceKey.create(
 			net.minecraft.core.registries.Registries.DIMENSION, PowersMod.id("light_realm"));
@@ -38,29 +41,32 @@ public class LightCrystalAbility extends Ability {
 		if (destLevel == null) return false;
 
 		if (caster.isCrouching()) {
-			if (!canLeaveDarkRealm(caster, caster)) return false;
+			// sneak-right-click: travel alone
 			teleportWithStorms(caster, caster, destLevel);
 			return true;
 		}
 
+		// right-click: a player in your sights travels with you
 		ServerLevel level = (ServerLevel) caster.level();
 		Vec3 origin = caster.getEyePosition();
+		// the gaze reaches out 48 blocks to find who comes along
 		HitResult hit = caster.pick(48.0, 0.0f, false);
 
 		if (hit instanceof EntityHitResult entHit) {
 			net.minecraft.world.entity.Entity target = entHit.getEntity();
 			if (target instanceof ServerPlayer targetPlayer && AmethystDampening.isDampened(targetPlayer)) {
+				// amethyst-dampened players are shielded and cannot be dragged
 				PowerMessages.send(caster, "amethyst.powers.target_protected", 4);
 				return false;
 			}
 			com.powers.fx.PowerFx.beam(level, origin, target.getEyePosition(),
 					ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFFFFFFFF), 16);
 			com.powers.fx.PowerFx.sound(level, origin, SoundEvents.PORTAL_TRAVEL, 1.0f, 1.6f);
-			if (!canLeaveDarkRealm(caster, target)) return false;
 			teleportWithStorms(caster, target, destLevel);
 			return true;
 		}
 
+		// aiming at empty space just lights the way, no one crosses
 		Vec3 end = origin.add(caster.getLookAngle().normalize().scale(48.0));
 		com.powers.fx.PowerFx.beam(level, origin, end,
 				ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFFFFFFFF), 16);
@@ -68,29 +74,17 @@ public class LightCrystalAbility extends Ability {
 		return true;
 	}
 
-	private boolean canLeaveDarkRealm(ServerPlayer caster, net.minecraft.world.entity.Entity subject) {
-		if (!(subject instanceof ServerPlayer player)) {
-			return true;
-		}
-		boolean leavingDarkRealm = SkillSystem.isDarkRealm(player.level().dimension());
-		if (leavingDarkRealm) {
-			if (!SkillSystem.canTraverseDarknessDimension(player, caster.entityTags().contains("darkness"))) {
-				GodlyPunishment.voidReject((ServerLevel) caster.level(), caster);
-				PowerMessages.send(caster, "ability.powers.darkness_realm_restricted", 5);
-				return false;
-			}
-		}
-		return true;
-	}
-
 	private void teleportWithStorms(ServerPlayer caster, net.minecraft.world.entity.Entity subject, ServerLevel dest) {
 		ServerLevel srcLevel = (ServerLevel) subject.level();
 		Vec3 srcPos = subject.position();
+		// land in the light realm's spawn clearing at 8.5
 		Vec3 destPos = new Vec3(8.5, dest.getMinY() + 1, 8.5);
 
+		// storms rage for 80 ticks while the traveller is carried across
 		PowersMod.startStorm(srcLevel, srcPos, STORM_TICKS);
 		PowersMod.startStorm(dest, destPos, STORM_TICKS);
 		PowersMod.scheduleDelayed(srcLevel.getServer(), TELEPORT_DELAY, () -> {
+			// target died or logged off during the 30-tick delay, so leave them be
 			if (subject.isRemoved()) return;
 			subject.teleport(new TeleportTransition(dest, destPos, Vec3.ZERO,
 					subject.getYRot(), subject.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));

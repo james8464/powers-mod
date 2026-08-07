@@ -19,6 +19,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * Ice Manipulation: a freezing beam that hurts whatever you hit and coats
+ * the ground in ice. Freezes water into ice, lava into obsidian, and adds
+ * snow on the way past.
+ */
 public class IceManipulationAbility extends Ability {
 	public IceManipulationAbility() {
 		super(PowersMod.id("ice_manipulation"),
@@ -39,14 +44,16 @@ public class IceManipulationAbility extends Ability {
 
 		if (hit instanceof net.minecraft.world.phys.EntityHitResult entHit
 				&& entHit.getEntity() instanceof LivingEntity target) {
+			// looking at a protected entity means the cast fails and energy is refunded
 			if (AmethystDampening.isDampened(target)) return false;
+			// 8 damage that scales with skill, a heavy slow, weakness and a deep freeze
 			target.hurtServer(level, player.damageSources().freeze(), SkillSystem.damage(player, 8.0f));
 			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 120, 4, false, false));
 			target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 100, 1, false, false));
 			target.setTicksFrozen(160);
 		}
 
-		// Freeze blocks along the beam path
+		// walk the beam in half-block steps and freeze blocks along the path
 		Vec3 dir = end.subtract(origin).normalize();
 		double dist = origin.distanceTo(end);
 		for (double d = 0; d < dist; d += 0.5) {
@@ -58,7 +65,7 @@ public class IceManipulationAbility extends Ability {
 			} else if (state.is(Blocks.LAVA)) {
 				level.setBlockAndUpdate(pos, Blocks.OBSIDIAN.defaultBlockState());
 			} else if (!state.isAir() && !state.is(Blocks.BEDROCK) && d < dist - 1.0) {
-				// Coat solid ground with an ice layer; never drop snow mid-air.
+				// coat solid ground with snow near the beam's end, only where the space above is free
 				BlockPos above = pos.above();
 				if (level.getBlockState(above).isAir()) {
 					level.setBlockAndUpdate(above, Blocks.SNOW.defaultBlockState());

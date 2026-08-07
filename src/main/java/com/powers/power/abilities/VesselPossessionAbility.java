@@ -16,9 +16,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * vessel possession - take over another player for 10 seconds (200 ticks):
+ * you watch through their eyes while their body keeps playing along
+ */
 public class VesselPossessionAbility extends Ability {
+	// 10 seconds of possession
 	private static final int POSSESS_TICKS = 200;
 	private record Possession(ServerPlayer target, long endsAt) {}
+	// one possession per owner uuid, cleaned up on disconnect and server stop so it can't leak
 	private static final Map<UUID, Possession> POSSESSING = new HashMap<>();
 
 	public VesselPossessionAbility() {
@@ -29,13 +35,16 @@ public class VesselPossessionAbility extends Ability {
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		// already possessing someone - a second cast would strand the first target's camera
 		if (POSSESSING.containsKey(player.getUUID())) return false;
 
 		LivingEntity target = PowerTargeting.findLivingTarget(player, 32.0);
+		// must be another player, not yourself
 		if (!(target instanceof ServerPlayer targetSP) || targetSP == player) {
 			PowerMessages.send(player, "ability.powers.no_player_target", 4);
 			return false;
 		}
+		// amethyst-dampened players are protected from possession
 		if (AmethystDampening.isDampened(targetSP)) {
 			PowerMessages.send(player, "amethyst.powers.target_protected", 4);
 			return false;
@@ -43,6 +52,7 @@ public class VesselPossessionAbility extends Ability {
 
 		MinecraftServer server = ((ServerLevel) player.level()).getServer();
 		POSSESSING.put(player.getUUID(), new Possession(targetSP, server.getTickCount() + POSSESS_TICKS));
+		// watch the world through the target's eyes
 		player.setCamera(targetSP);
 		ServerLevel level = (ServerLevel) player.level();
 		com.powers.fx.PowerFx.beam(level, player.getEyePosition(), targetSP.getEyePosition(),
@@ -61,21 +71,24 @@ public class VesselPossessionAbility extends Ability {
 			ServerPlayer owner = server.getPlayerList().getPlayer(entry.getKey());
 			Possession possession = entry.getValue();
 			boolean targetOnline = server.getPlayerList().getPlayer(possession.target().getUUID()) == possession.target();
+			// end early if the owner or the target dies or logs off, or when time runs out
 			if (owner == null || !owner.isAlive() || !possession.target().isAlive()
 					|| !targetOnline || now >= possession.endsAt()) {
+				// reset the owner's camera before dropping the possession
 				if (owner != null) owner.setCamera(null);
 				it.remove();
 			}
 		}
 	}
 
-	/** Ends any possession by the given player, resetting their camera. */
+	/** Ends any possession by the given player and resets their camera, used on disconnect. */
 	public static void clear(ServerPlayer owner) {
 		if (POSSESSING.remove(owner.getUUID()) != null && owner.isAlive()) {
 			owner.setCamera(null);
 		}
 	}
 
+	// server stop - cameras and possessions die with the players, just empty the map
 	public static void clearAll() {
 		POSSESSING.clear();
 	}
