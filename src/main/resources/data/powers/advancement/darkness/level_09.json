@@ -1,32 +1,57 @@
 {
- "parent": "powers:darkness/level_08",
- "display": {
-  "icon": {
-   "id": "minecraft:rotten_flesh"
-  },
-  "title": {
-   "translate": "advancement.powers.darkness.09_rotten_flesh.title"
-  },
-  "description": {
-   "translate": "advancement.powers.darkness.09_rotten_flesh.description"
-  },
-  "frame": "task",
-  "show_toast": true,
-  "announce_to_chat": false,
-  "hidden": false
- },
- "criteria": {
-  "collect": {
-   "trigger": "minecraft:inventory_changed",
-   "conditions": {
-    "items": [
-     {
-      "items": [
-       "minecraft:rotten_flesh"
-      ]
-     }
-    ]
-   }
-  }
- }
+	"parent": "powers:darkness/level_08",
+	"display": {
+		"icon": {
+			"id": "minecraft:shulker_shell"
+		},
+		"title": {
+			"translate": "advancement.powers.darkness.09_end_city.title"
+		},
+		"description": {
+			"translate": "advancement.powers.darkness.09_end_city.description"
+		},
+		"frame": "task",
+		"show_toast": true,
+		"announce_to_chat": false,
+		"hidden": false
+	},
+	"criteria": {
+		"shell": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:shulker_shell"
+						]
+					}
+				]
+			}
+		},
+		"arrow": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:tipped_arrow"
+						],
+						"potion": "minecraft:poison"
+					}
+				]
+			}
+		},
+		"rod": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:end_rod"
+						]
+					}
+				]
+			}
+		}
+	}
 }

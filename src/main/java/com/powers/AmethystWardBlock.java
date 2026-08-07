@@ -34,6 +34,8 @@ public class AmethystWardBlock extends Block {
 	@Override
 	protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
 		updatePower(state, level, pos);
+		// A freshly powered ward must start its particle effect loop too.
+		if (isPowered(level.getBlockState(pos))) level.scheduleTick(pos, this, 5);
 		super.onPlace(state, level, pos, oldState, movedByPiston);
 	}
 

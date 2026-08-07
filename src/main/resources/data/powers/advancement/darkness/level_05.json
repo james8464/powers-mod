@@ -1,32 +1,56 @@
 {
- "parent": "powers:darkness/level_04",
- "display": {
-  "icon": {
-   "id": "minecraft:wither_skeleton_skull"
-  },
-  "title": {
-   "translate": "advancement.powers.darkness.05_wither_skeleton_skull.title"
-  },
-  "description": {
-   "translate": "advancement.powers.darkness.05_wither_skeleton_skull.description"
-  },
-  "frame": "task",
-  "show_toast": true,
-  "announce_to_chat": false,
-  "hidden": false
- },
- "criteria": {
-  "collect": {
-   "trigger": "minecraft:inventory_changed",
-   "conditions": {
-    "items": [
-     {
-      "items": [
-       "minecraft:wither_skeleton_skull"
-      ]
-     }
-    ]
-   }
-  }
- }
+	"parent": "powers:darkness/level_04",
+	"display": {
+		"icon": {
+			"id": "minecraft:magma_cream"
+		},
+		"title": {
+			"translate": "advancement.powers.darkness.05_dark_barters.title"
+		},
+		"description": {
+			"translate": "advancement.powers.darkness.05_dark_barters.description"
+		},
+		"frame": "task",
+		"show_toast": true,
+		"announce_to_chat": false,
+		"hidden": false
+	},
+	"criteria": {
+		"ink": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:ink_sac"
+						]
+					}
+				]
+			}
+		},
+		"magma": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:magma_cream"
+						]
+					}
+				]
+			}
+		},
+		"charge": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:fire_charge"
+						]
+					}
+				]
+			}
+		}
+	}
 }

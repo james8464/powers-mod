@@ -15,7 +15,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
-import java.util.Map;
 
 public class TeleportInputScreen extends Screen {
 	private record DimEntry(String id, String label) {}
@@ -27,22 +26,16 @@ public class TeleportInputScreen extends Screen {
 			new DimEntry("powers:dark_realm", "Dark Realm"),
 			new DimEntry("powers:light_realm", "Light Realm"));
 
-	private static final Map<Integer, String> DIM_LOOKUP = Map.of(
-			0, "minecraft:overworld", 1, "minecraft:the_nether",
-			2, "minecraft:the_end", 3, "powers:dark_realm", 4, "powers:light_realm");
-
 	private final int slot;
-	private final int abilityIndex;
 
 	private EditBox xField, yField, zField, targetNameField;
 	private int dimIndex;
 	private int mode;
 	private Component error;
 
-	public TeleportInputScreen(int slot, int abilityIndex) {
+	public TeleportInputScreen(int slot) {
 		super(Component.translatable("screen.powers.teleport"));
 		this.slot = slot;
-		this.abilityIndex = abilityIndex;
 	}
 
 	@Override
@@ -94,19 +87,19 @@ public class TeleportInputScreen extends Screen {
 				ClientPowerState.markingSlot = slot;
 				ClientPowerState.markingTicks = 200;
 				ClientPlayNetworking.send(new PowersPackets.TeleportRequestPayload(
-						slot, abilityIndex, 0, 0, 0,
+						slot, 0, 0, 0,
 						ResourceKey.create(Registries.DIMENSION, Identifier.fromNamespaceAndPath("minecraft", "overworld")),
 						target, true));
 			} else {
 				double x = Double.parseDouble(xField.getValue().trim());
 				double y = Double.parseDouble(yField.getValue().trim());
 				double z = Double.parseDouble(zField.getValue().trim());
-				String dimId = DIM_LOOKUP.getOrDefault(dimIndex, "minecraft:overworld");
+				String dimId = DIMENSIONS.get(dimIndex).id();
 				String targetName = (mode == 1) ? target : "";
 				Identifier id = Identifier.tryParse(dimId);
 				ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, id);
 				ClientPlayNetworking.send(new PowersPackets.TeleportRequestPayload(
-						slot, abilityIndex, x, y, z, key, targetName, false));
+						slot, x, y, z, key, targetName, false));
 			}
 			this.onClose();
 		} catch (NumberFormatException e) {

@@ -1,32 +1,56 @@
 {
- "parent": "powers:darkness/level_06",
- "display": {
-  "icon": {
-   "id": "minecraft:ghast_tear"
-  },
-  "title": {
-   "translate": "advancement.powers.darkness.07_ghast_tear.title"
-  },
-  "description": {
-   "translate": "advancement.powers.darkness.07_ghast_tear.description"
-  },
-  "frame": "task",
-  "show_toast": true,
-  "announce_to_chat": false,
-  "hidden": false
- },
- "criteria": {
-  "collect": {
-   "trigger": "minecraft:inventory_changed",
-   "conditions": {
-    "items": [
-     {
-      "items": [
-       "minecraft:ghast_tear"
-      ]
-     }
-    ]
-   }
-  }
- }
+	"parent": "powers:darkness/level_06",
+	"display": {
+		"icon": {
+			"id": "minecraft:wither_skeleton_skull"
+		},
+		"title": {
+			"translate": "advancement.powers.darkness.07_wither_court.title"
+		},
+		"description": {
+			"translate": "advancement.powers.darkness.07_wither_court.description"
+		},
+		"frame": "task",
+		"show_toast": true,
+		"announce_to_chat": false,
+		"hidden": false
+	},
+	"criteria": {
+		"skull": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:wither_skeleton_skull"
+						]
+					}
+				]
+			}
+		},
+		"campfire": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:soul_campfire"
+						]
+					}
+				]
+			}
+		},
+		"rose": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:wither_rose"
+						]
+					}
+				]
+			}
+		}
+	}
 }

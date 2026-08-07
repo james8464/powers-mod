@@ -22,13 +22,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class SpaceTimeAbility extends Ability {
 	private static final int DURATION = 120;
-	private static final Map<ServerPlayer, ActiveFreeze> FROZEN = new HashMap<>();
-	private static final Map<java.util.UUID, Integer> MODES = new HashMap<>();
+	private static final Map<UUID, ActiveFreeze> FROZEN = new HashMap<>();
+	private static final Map<UUID, Integer> MODES = new HashMap<>();
 
-	private record Frozen(Entity entity, Vec3 position, Vec3 velocity, boolean noGravity, boolean noAi) {}
+	private record Frozen(Entity entity, Vec3 position, Vec3 velocity, boolean noGravity,
+			boolean noAi, double fallDistance) {}
 	private record ActiveFreeze(List<Frozen> states, long endsAt) {}
 
 	public SpaceTimeAbility() {
@@ -56,11 +58,12 @@ public class SpaceTimeAbility extends Ability {
 				for (Entity entity : world.getEntities(EntityTypeTest.forClass(Entity.class),
 						e -> e.isAlive() && e != player)) {
 					frozen.add(new Frozen(entity, entity.position(), entity.getDeltaMovement(), entity.isNoGravity(),
-							entity instanceof Mob mob && mob.isNoAi()));
+							entity instanceof Mob mob && mob.isNoAi(), entity.fallDistance));
 				}
 			}
-			frozen.add(new Frozen(player, player.position(), player.getDeltaMovement(), player.isNoGravity(), false));
-			FROZEN.put(player, new ActiveFreeze(frozen,
+			// The caster is never frozen: they must be able to move and
+			// deactivate the freeze, or the ability would trap them.
+			FROZEN.put(player.getUUID(), new ActiveFreeze(frozen,
 					level.getServer().getTickCount() + DURATION));
 		}
 		com.powers.fx.PowerFx.ring(level, player.position(), 5.0, 0x00BCD4, 32, 0);
@@ -73,11 +76,12 @@ public class SpaceTimeAbility extends Ability {
 	public static void tickAll(MinecraftServer server) {
 		for (var it = FROZEN.entrySet().iterator(); it.hasNext();) {
 			var entry = it.next();
+			UUID ownerId = entry.getKey();
 			ActiveFreeze active = entry.getValue();
 			List<Frozen> states = active.states();
-			ServerPlayer owner = entry.getKey();
-			if (server.getTickCount() >= active.endsAt()) {
-				release(owner, states);
+			ServerPlayer owner = server.getPlayerList().getPlayer(ownerId);
+			if (server.getTickCount() >= active.endsAt() || owner == null || !owner.isAlive()) {
+				release(states);
 				it.remove();
 				continue;
 			}
@@ -89,15 +93,9 @@ public class SpaceTimeAbility extends Ability {
 				entity.setPos(frozen.position().x, frozen.position().y, frozen.position().z);
 				if (entity instanceof Mob mob) mob.setNoAi(true);
 			}
-			if (server.getTickCount() % 5 == 0) {
-				if (owner.level() instanceof ServerLevel level) {
-					com.powers.fx.PowerFx.ring(level, owner.position(), 5.0, 0x00BCD4, 32,
-							server.getTickCount() * 0.04);
-				}
-			}
-			if (server.getPlayerList().getPlayer(owner.getUUID()) == null) {
-				release(owner, states);
-				it.remove();
+			if (server.getTickCount() % 5 == 0 && owner.level() instanceof ServerLevel level) {
+				com.powers.fx.PowerFx.ring(level, owner.position(), 5.0, 0x00BCD4, 32,
+						server.getTickCount() * 0.04);
 			}
 		}
 	}
@@ -121,18 +119,29 @@ public class SpaceTimeAbility extends Ability {
 		PowerMessages.send(player, "ability.powers.frozen", 4);
 	}
 
-	private static void release(ServerPlayer owner, List<Frozen> states) {
+	private static void release(List<Frozen> states) {
 		for (Frozen frozen : states) {
 			Entity entity = frozen.entity();
 			if (entity.isRemoved()) continue;
 			entity.setNoGravity(frozen.noGravity());
 			entity.setDeltaMovement(frozen.velocity());
+			entity.fallDistance = frozen.fallDistance();
 			if (entity instanceof Mob mob) mob.setNoAi(frozen.noAi());
 		}
 	}
 
+	public static void clear(UUID player) {
+		ActiveFreeze active = FROZEN.remove(player);
+		if (active != null) {
+			release(active.states());
+		}
+		MODES.remove(player);
+	}
+
 	public static void clearAll() {
-		for (var entry : FROZEN.entrySet()) release(entry.getKey(), entry.getValue().states());
+		for (ActiveFreeze active : FROZEN.values()) {
+			release(active.states());
+		}
 		FROZEN.clear();
 		MODES.clear();
 	}

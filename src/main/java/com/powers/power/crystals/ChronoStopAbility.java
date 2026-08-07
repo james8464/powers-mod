@@ -14,15 +14,13 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.entity.EntityTypeTest;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 
 /**
  * Chrono Stop: the crystal-tier time stop. Freezes every entity in every
@@ -34,8 +32,7 @@ public class ChronoStopAbility extends Ability {
 	public static final int DURATION_TICKS = 600;
 
 	private static final int COOLDOWN_TICKS = 3600;
-	private static final Map<ServerPlayer, ActiveStop> ACTIVE = new HashMap<>();
-	private static final Set<Entity> FROZEN = new HashSet<>();
+	private static final Map<UUID, ActiveStop> ACTIVE = new HashMap<>();
 
 	private record FrozenState(Entity entity, Vec3 pos, Vec3 delta, float yRot, float xRot,
 			boolean noGravity, boolean noAi, double fallDistance) {
@@ -52,7 +49,10 @@ public class ChronoStopAbility extends Ability {
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		if (ACTIVE.containsKey(player)) {
+		// Only one stop at a time: a second freeze while the world is already
+		// frozen would corrupt the restore states of the first.
+		if (!ACTIVE.isEmpty()) {
+			PowerMessages.send(player, "crystal.powers.chrono_blocked", 3);
 			return false;
 		}
 
@@ -60,18 +60,17 @@ public class ChronoStopAbility extends Ability {
 		MinecraftServer server = player.level().getServer();
 		for (ServerLevel level : server.getAllLevels()) {
 			for (Entity entity : level.getEntities(EntityTypeTest.forClass(Entity.class),
-					e -> e.isAlive() && e != player && !FROZEN.contains(e))) {
+					e -> e.isAlive() && e != player)) {
 				if (entity == player.getVehicle() || player.getPassengers().contains(entity)) {
 					continue;
 				}
-				FROZEN.add(entity);
 				frozen.add(new FrozenState(entity, entity.position(), entity.getDeltaMovement(),
 						entity.getYRot(), entity.getXRot(), entity.isNoGravity(),
 						entity instanceof Mob mob && mob.isNoAi(), entity.fallDistance));
 			}
 		}
 
-		ACTIVE.put(player, new ActiveStop(DURATION_TICKS, frozen));
+		ACTIVE.put(player.getUUID(), new ActiveStop(DURATION_TICKS, frozen));
 		ServerLevel level = (ServerLevel) player.level();
 		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x2962FF, 28, 1.2);
 		PowerFx.ring(level, player.position().add(0, 0.1, 0), 3.5, 0x2962FF, 32, 0);
@@ -85,10 +84,16 @@ public class ChronoStopAbility extends Ability {
 	}
 
 	/** Called every server tick; freezes everything and counts down. */
-	public static void tickStops() {
+	public static void tickStops(MinecraftServer server) {
 		var it = ACTIVE.entrySet().iterator();
 		while (it.hasNext()) {
-			Map.Entry<ServerPlayer, ActiveStop> entry = it.next();
+			Map.Entry<UUID, ActiveStop> entry = it.next();
+			ServerPlayer owner = server.getPlayerList().getPlayer(entry.getKey());
+			if (owner == null || !owner.isAlive()) {
+				release(null, entry.getValue());
+				it.remove();
+				continue;
+			}
 			ActiveStop stop = entry.getValue();
 
 			for (FrozenState f : stop.frozen()) {
@@ -106,16 +111,17 @@ public class ChronoStopAbility extends Ability {
 					other.connection.teleport(f.pos().x, f.pos().y, f.pos().z, f.yRot(), f.xRot());
 				}
 			}
-			if (stop.ticksLeft() % 5 == 0 && entry.getKey().level() instanceof ServerLevel level) {
+			ServerLevel ownerLevel = (ServerLevel) owner.level();
+			if (stop.ticksLeft() % 5 == 0) {
 				double phase = stop.ticksLeft() * 0.035;
-				PowerFx.ring(level, entry.getKey().position().add(0, 0.1, 0), 4.5, 0x2962FF, 32, phase);
-				PowerFx.ring(level, entry.getKey().position().add(0, 2.1, 0), 4.5, 0x2962FF, 32, -phase);
-				PowerFx.burst(level, entry.getKey().position().add(0, 1, 0), ParticleTypes.REVERSE_PORTAL, 5, 1.8, 0.01);
+				PowerFx.ring(ownerLevel, owner.position().add(0, 0.1, 0), 4.5, 0x2962FF, 32, phase);
+				PowerFx.ring(ownerLevel, owner.position().add(0, 2.1, 0), 4.5, 0x2962FF, 32, -phase);
+				PowerFx.burst(ownerLevel, owner.position().add(0, 1, 0), ParticleTypes.REVERSE_PORTAL, 5, 1.8, 0.01);
 			}
 
 			int left = stop.ticksLeft() - 1;
 			if (left <= 0) {
-				release(entry.getKey(), stop);
+				release(owner, stop);
 				it.remove();
 			} else {
 				entry.setValue(new ActiveStop(left, stop.frozen()));
@@ -126,7 +132,6 @@ public class ChronoStopAbility extends Ability {
 	private static void release(ServerPlayer owner, ActiveStop stop) {
 		for (FrozenState f : stop.frozen()) {
 			Entity entity = f.entity();
-			FROZEN.remove(entity);
 			if (entity.isRemoved()) {
 				continue;
 			}
@@ -137,10 +142,24 @@ public class ChronoStopAbility extends Ability {
 				mob.setNoAi(f.noAi());
 			}
 		}
-		if (owner.level() instanceof ServerLevel level) {
+		if (owner != null && owner.level() instanceof ServerLevel level) {
 			PowerFx.coloredBurst(level, owner.position().add(0, 1, 0), 0x2962FF, 16, 0.8);
 			PowerFx.sound(level, owner.position(), SoundEvents.TOTEM_USE, 0.8f, 1.4f);
+			PowerMessages.send(owner, "crystal.powers.chrono_end", 3);
 		}
-		PowerMessages.send(owner, "crystal.powers.chrono_end", 3);
+	}
+
+	public static void clear(UUID player) {
+		ActiveStop stop = ACTIVE.remove(player);
+		if (stop != null) {
+			release(null, stop);
+		}
+	}
+
+	public static void clearAll() {
+		for (ActiveStop stop : ACTIVE.values()) {
+			release(null, stop);
+		}
+		ACTIVE.clear();
 	}
 }

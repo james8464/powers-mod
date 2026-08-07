@@ -1,6 +1,6 @@
 # POWERS
 
-A Rainbow-Quest / Bliss-SMP-inspired Fabric mod for Minecraft 26.2. Every player starts with three randomly assigned superpowers drawn from a pool of 28, charges them with a shared energy pool, and grows from a humble "Unawakened" into a world-shattering "Origin" — or abandons the light and walks the hidden 30-stage path of **The Darkness**.
+A Rainbow-Quest / Bliss-SMP-inspired Fabric mod for Minecraft 26.2. Every player starts with three randomly assigned superpowers drawn from a pool of 28, charges them with a shared energy pool, and grows from a humble "Unawakened" into a world-shattering "Origin" — or abandons the light and walks the hidden 10-rank path of **The Darkness**.
 
 ---
 
@@ -39,7 +39,6 @@ A Rainbow-Quest / Bliss-SMP-inspired Fabric mod for Minecraft 26.2. Every player
 | `V` | Activate power in slot 1 |
 | `X` | Activate power in slot 2 |
 | `C` | Activate power in slot 3 |
-| `P` | Reserved (power menu — currently disabled) |
 
 - **Creative tab**: everything is in the dedicated **POWERS** creative tab; weapons also appear in the vanilla **Combat** tab; crystals, blocks and items also appear in the vanilla **Ingredients** tab.
 
@@ -62,9 +61,9 @@ All abilities draw from a single shared **energy pool** (shown as a 10-segment b
 | Rule | Value |
 |---|---|
 | Base capacity (light path) | **250** |
-| Capacity per skill level | **+25 per level** (max **775** at level 21) |
+| Capacity per skill rank | **+52 per rank** (max **770** at rank 10) |
 | Base capacity (darkness path) | **500** |
-| Darkness capacity per level | **+45 per level** (max **1,850** at level 30) |
+| Darkness capacity per rank | **+135 per rank** (max **1,850** at rank 10) |
 | Regen (light path) | **1 per second** |
 | Regen (darkness path) | **2 per second** (4 per second in the Dark Realm or at night) |
 | Sleep | Fully refills the pool when you stop sleeping |
@@ -106,17 +105,17 @@ All abilities draw from a single shared **energy pool** (shown as a 10-segment b
 
 ## The Skill System (Light Path)
 
-Progression on the **light path** is driven entirely by the **21-route advancement chain** (`powers:skill/level_01` → … → `level_21`). Complete each route's challenge to advance one level; your level updates automatically.
+Progression on the **light path** is driven by the **10-route advancement chain** (`powers:skill/level_01` → … → `level_10`). Each rank demands **multiple challenges at once**, and the chain is cumulative — every rank above 1 also requires everything below it. Ranks get noticeably harder as you climb: early ranks just need a few curios, the middle demands realm travel and monster hunts, and the top requires the Warden's kill and endgame artifacts.
 
-**Rank titles (21):** Unawakened → Spark → Awakened → Channeler → Adept → Weaver → Arcanist → Vanguard → Luminary → Riftwalker → Starforged → Soulbound → Chronarch → Astral → Voidcaller → Paragon → Ascendant → Transcendent → Mythic → Apex → **Origin**.
+**Rank titles (10):** Unawakened → Spark → Awakened → Adept → Weaver → Arcanist → Luminary → Voidcaller → Ascendant → **Origin**.
 
 **What levels do:**
 
 | Effect | Formula |
 |---|---|
-| Ability damage | `base × (1.0 + level × 0.025)` (+2.5%/level, **+52.5% at 21**) |
-| Ability range | `base × (1.0 + level × 0.01)` (+1%/level, **+21% at 21**) |
-| Energy capacity | `250 + level × 25` |
+| Ability damage | `base × (1.0 + level × 0.0525)` (+5.25%/rank, **+52.5% at 10**) |
+| Ability range | `base × (1.0 + level × 0.021)` (+2.1%/rank, **+21% at 10**) |
+| Energy capacity | `250 + level × 52` |
 
 **Presentation:** your chat messages are broadcast as `[Rank] Name: message` in the rank's color, and the rank prefix also appears above your head as a custom name.
 
@@ -128,16 +127,17 @@ The hidden second progression track. **By default it is completely invisible** �
 
 **What changes for darkness-tagged players:**
 
-- Their energy pool switches to the **darkness pool** (500 base, +45/level — much harder to drain) and regenerates 2/sec (4/sec in the Dark Realm or at night).
+- Their energy pool switches to the **darkness pool** (500 base, +135/rank — much harder to drain) and regenerates 2/sec (4/sec in the Dark Realm or at night).
 - Their **effective level** becomes their darkness level instead of their skill level — this drives all damage/range scaling.
 - Their chat/name prefix uses the darkness rank instead of the skill rank.
 - They can traverse the Dark Realm freely (see traversal rules below).
+- **Prefix hiding:** `/powers darkprefix` toggles whether their visible title is the real darkness rank or the **equivalent normal-ladder name** (same rank number, taken from the light-path titles). Great for players who don't want to advertise the darkness on their head.
 
-**Rank titles (30):** Acolyte of Gloom, Shade Initiate, Nightbound, Shadowpriest, Duskwarden, Umbra Cultist, Voidborn, Abyssal Adept, Witch of Wraiths, Sable Seeker, Obsidian Oracle, Coven Herald, Malediction Master, Onyx Savant, Ravenous Shade, Nightmare Binder, Sinister Paragon, Midnight Marshall, Soulblight, Ebon Sovereign, Gravecaller, Umbral Tyrant, Dread Reaver, Cryptic Overlord, Void Emperor, Darkstar Primarch, Nocturne Lord, Abyssal Archon, Eclipsed Herald, **Nightfall Sovereign**.
+**Rank titles (10):** Acolyte of Gloom → Shadowpriest → Voidborn → Sable Seeker → Malediction Master → Nightmare Binder → Soulblight → Umbral Tyrant → Abyssal Archon → **Nightfall Sovereign**.
 
-**The 30 stages** are a sequential chain of evil-themed collection quests (stage 2 requires stage 1, etc.) — see the [Advancements table](#darkness-stages-30).
+**The 10 ranks** are a sequential chain of collection quests, **three items per rank**, escalating from common blocks to Nether relics, Wither trophies, End spoils and finally the Nether Star itself (rank 2 requires rank 1, etc.) — see the [Advancements table](#darkness-ranks-10).
 
-**Dark Realm traversal rules** (applies to Time Shift and Dark/Light Crystal travel across the Dark Realm boundary): allowed if you (a) have the `darkness` tag, (b) are being assisted by a darkness-tagged player, or (c) have effective level **10 or higher**. Otherwise: *"Only those touched by darkness can cross the dark realm at this stage."*
+**Dark Realm traversal rules** (applies to Time Shift and Dark/Light Crystal travel across the Dark Realm boundary): allowed if you (a) have the `darkness` tag, (b) are being assisted by a darkness-tagged player, or (c) have effective level **5 or higher**. Otherwise: *"Only those touched by darkness can cross the dark realm at this stage."*
 
 ---
 
@@ -189,7 +189,7 @@ All costs are activation energy; cooldowns are the declared design values. Passi
 | **Starfall** `powers:starfall` | Health Boost I | 45 / 15 s | 3 lightning bolts within a 6-block radius of your aim (up to 64 blocks). |
 | **Ground Slam** `powers:ground_slam` | Strength I | 35 / 10 s | Hulk ground-pound: block-breaking explosion, then 6 damage + heavy knockback in a 10×6×10 area. |
 | **Elemental Blast** `powers:elemental_blast` | Fire Resistance I | 28 / per-element | One power, four phases — cycles **Fireball → Frost Nova → Lightning Strike → Ground Slam** on every use, each with its own cooldown. |
-| **Energy Drain** `powers:energy_drain` | — | 30 / — | Target player within 32 blocks: **empties their entire energy pool** and applies Exhaustion for 30 s (no regen at all). |
+| **Energy Drain** `powers:energy_drain` | — | 30 / — | Target player within 32 blocks: drains their energy pool over a 2-second ritual, then applies Exhaustion for 30 s (no regen at all). |
 | **Dimensional Anchor** `powers:dimensional_anchor` | Strength I | 45 / 60 s | Anchors a target player to their current dimension for 2 minutes — no teleporting out. |
 
 ### Defense & Support
@@ -197,7 +197,7 @@ All costs are activation energy; cooldowns are the declared design values. Passi
 | Power | Passive | Cost / Cooldown | Mechanic |
 |---|---|---|---|
 | **Forcefield** `powers:forcefield` | Resistance I | 35 / 25 s | 8 s of Absorption X, Resistance V, Fire Resistance — and complete damage immunity while active. |
-| **Cozy Campfire** `powers:cozy_campfire` | Regeneration I | 35 / 30 s | 10 s stationary 6-block aura: heals 2 HP + 1 hunger to everyone inside every 5 ticks. |
+| **Cozy Campfire** `powers:cozy_campfire` | Regeneration I | 35 / 30 s | 10 s stationary 6-block aura: heals 2 HP + 1 hunger to friendly players and mobs inside every 5 ticks (hostiles excluded). |
 | **Plant Healing** `powers:plant_healing_acceleration` | Regeneration I | 24 / none | Bonemeal any growable crop within 12 blocks. |
 | **Double Health** `powers:double_health` | — | 24 / toggle | Toggle: +20 max HP (Health Boost V), heals up to 20 on activation, re-clamps on toggle-off. |
 
@@ -232,7 +232,7 @@ Crystal powers are a tier above regular powers — they are **never** assigned r
 
 | Item | Behavior |
 |---|---|
-| **Rainbow Crystal** | **Temporarily inert** — right-clicking does nothing. The re-roll/power-selection flow is disabled (placeholder code kept for restoration). Crafted from all seven color crystals; still collectible/craftable for the skill route. |
+| **Rainbow Crystal** | **Temporarily inert** — right-clicking does nothing; the re-roll flow and its selection screen were removed. Crafted from all seven color crystals; still collectible/craftable for the skill route. |
 | **All crystals** | **Indestructible when dropped**: they never despawn, never burn in lava/fire, take no damage (lightning, explosions), survive `/kill @e`, can't be picked up by mobs, and are saved from the void. |
 | **Red / Yellow / Violet Crystals** | Currently **inert** — their lore abilities (Inferno, Size Shift, Soul Link) are designed but not yet wired up. |
 | **Infected Rainbow Crystal** | Intentionally inert — "its purpose is not yet revealed." |
@@ -318,45 +318,39 @@ All three custom dimensions are **flat, barren single-layer worlds** (no mobs, n
 
 ## Advancements
 
-### Skill Routes (21)
+### Skill Routes (10)
 
-Chain: `skill_root` → `level_01` → … → `level_21`. Each route completes the challenge to advance one skill level.
+Chain: `skill_root` → `level_01` → … → `level_10`. Each rank requires **all of its challenges** (and, by chaining, everything below). Difficulty climbs steeply: the last ranks demand Warden slays and endgame artifacts.
 
-| # | Challenge | # | Challenge |
-|---|---|---|---|
-| 01 | Collect Amethyst Shard | 12 | Slay a Zombie |
-| 02 | Collect Rainbow Crystal | 13 | Slay a Skeleton |
-| 03 | Collect Bread (big) | 14 | Visit the Nether |
-| 04 | Consume Bread (big) | 15 | Visit the End |
-| 05 | Collect Amethyst Ward | 16 | Collect Dark Crystal |
-| 06 | Visit the Light Realm | 17 | Collect Light Crystal |
-| 07 | Visit the Dark Realm | 18 | Visit the Middleworld |
-| 08 | Craft the Rainbow Crystal | 19 | Collect Philosopher's Stone |
-| 09 | Collect a Grimoire (deep) | 20 | Slay a Warden |
-| 10 | Collect a Frigid Runestone | 21 | Collect Soul Matrix |
-| 11 | Hurt any entity in combat | | |
+| # | Rank | Challenges |
+|---|---|---|
+| 01 | Unawakened | Collect Amethyst Shard |
+| 02 | Spark | Collect Rainbow Crystal + consume Bread (big) |
+| 03 | Awakened | Collect Amethyst Ward + Grimoire (deep) |
+| 04 | Adept | Collect Frigid Runestone + visit the Light Realm |
+| 05 | Weaver | Visit the Dark Realm + craft the Rainbow Crystal + hurt an entity in combat |
+| 06 | Arcanist | Slay a Zombie + slay a Skeleton + visit the Nether |
+| 07 | Luminary | Visit the End + slay a Blaze + collect Philosopher's Stone |
+| 08 | Voidcaller | Collect Dark Crystal + Light Crystal + visit the Middleworld |
+| 09 | Ascendant | Slay a Warden + collect Nether Star |
+| 10 | Origin | Collect Soul Matrix + End Crystal |
 
-### Darkness Stages (30)
+### Darkness Ranks (10)
 
-Chain: `darkness_root` (hidden until tagged) → `level_01` → … → `level_30`. Tagged players collect each item to advance a stage. Titles carry the rank name (e.g. "Darkness Stage 01: Acolyte of Gloom").
+Chain: `darkness_root` (hidden until tagged) → `level_01` → … → `level_10`. Tagged players collect **all three items** of a rank to advance; each rank also requires the one before it. Titles carry the rank name (e.g. "Darkness Rank 03: Voidborn").
 
-| # | Collect | # | Collect |
-|---|---|---|---|
-| 01 | Coal Block | 16 | Fermented Spider Eye |
-| 02 | Obsidian | 17 | Soul Torch |
-| 03 | Nether Bricks | 18 | Blackstone |
-| 04 | Soul Sand | 19 | Lava Bucket |
-| 05 | Wither Skeleton Skull | 20 | Bone |
-| 06 | Fire Charge | 21 | Ink Sac |
-| 07 | Ghast Tear | 22 | Dragon's Breath |
-| 08 | Spider Eye | 23 | End Crystal |
-| 09 | Rotten Flesh | 24 | Nether Star |
-| 10 | Blaze Rod | 25 | Tipped Arrow (Poison) |
-| 11 | Ender Pearl | 26 | Shulker Shell |
-| 12 | Eye of Ender | 27 | Soul Campfire |
-| 13 | Wither Rose | 28 | Magma Block |
-| 14 | Crying Obsidian | 29 | Coal |
-| 15 | Magma Cream | 30 | Soul Sand |
+| # | Rank | Collect |
+|---|---|---|
+| 01 | Acolyte of Gloom | Coal Block, Coal, Bone |
+| 02 | Shadowpriest | Obsidian, Nether Bricks, Soul Sand |
+| 03 | Voidborn | Blackstone, Magma Block, Soul Torch |
+| 04 | Sable Seeker | Spider Eye, Rotten Flesh, Fermented Spider Eye |
+| 05 | Malediction Master | Ink Sac, Magma Cream, Fire Charge |
+| 06 | Nightmare Binder | Blaze Rod, Ghast Tear, Lava Bucket |
+| 07 | Soulblight | Wither Skeleton Skull, Soul Campfire, Wither Rose |
+| 08 | Umbral Tyrant | Ender Pearl, Eye of Ender, Crying Obsidian |
+| 09 | Abyssal Archon | Shulker Shell, Tipped Arrow (Poison), End Rod |
+| 10 | Nightfall Sovereign | End Crystal, Nether Star, Dragon's Breath |
 
 ---
 
@@ -383,6 +377,7 @@ Weapons and imported items deliberately have **no recipes**.
 | `/powers assign <player> <power> <slot>` | op 2 | Assigns a power to a slot (0–2) |
 | `/powers reroll` | anyone | Re-rolls your powers randomly |
 | `/powers reroll <player>` | op 2 | Re-rolls another player |
+| `/powers darkprefix` | anyone | Toggles whether your visible title is your real darkness rank or the equivalent normal-ladder rank name (`/powers darkprefix true` to hide, `false` to reveal) |
 | `/powers travel <dimension>` | op 2 | Teleports you to a dimension (e.g. `powers:dark_realm`) |
 
 The `darkness` tag is applied with the vanilla command: `/tag <player> add darkness`.
@@ -393,15 +388,14 @@ The `darkness` tag is applied with the vanilla command: `/tag <player> add darkn
 
 - **Power HUD** (bottom-right): three 40×40 boxes showing your keybind, power name, and power color (toggle powers glow only while active).
 - **Energy HUD**: 10-segment bar above the hunger row, depleting left-to-right; renders empty with a purple border while amethyst-dampened.
-- **Power Selection screen** (disabled): the re-roll UI behind the Rainbow Crystal is currently inactive — the screen class and its packets remain as placeholders for restoration.
 - **Teleport Input screen** (Time Shift): coordinate entry, dimension cycle (Overworld / Nether / End / Dark Realm / Light Realm), and "To Player" mode with spectator marking (fly to the spot, press the power key to confirm within 10 s).
-- **Keybinds:** `V` / `X` / `C` for powers, `P` reserved for the (disabled) power menu — rebindable in the POWERS category.
+- **Keybinds:** `V` / `X` / `C` for powers — rebindable in the POWERS category.
 
 ---
 
 ## Notes & Caveats
 
-- **Cooldowns** are declared per ability (e.g. "15 s"), but the activation pipeline currently gates on **energy and amethyst dampening only** — cooldown enforcement is not yet wired into the activation path.
+- **Cooldowns** are declared per ability and enforced by the activation pipeline — slot keys and crystals both check the remaining cooldown (broadcast in seconds) before spending energy, and only a successful activation starts one.
 - **Divine punishments** — the mod treats a few occasions as moments of divine judgement with a full godly FX sequence (rune circle, shockwave rings, rising spark pillar, thunderous sounds, and a delayed second wave) in `GodlyPunishment`:
   - **Energy burnout:** 70% max-health magic damage + lightning storm + divine strike (see [Energy & Backlash](#energy--backlash)).
   - **Teleporting into a powered ward:** 20 magic damage + purple divine strike (see [Amethyst Dampening](#amethyst-dampening)).
@@ -411,5 +405,5 @@ The `darkness` tag is applied with the vanilla command: `/tag <player> add darkn
 - **Randomized message variants** — every player-facing message is chosen at random from a group of 3–6 phrasings (`PowerMessages`), so repeated events never read the same twice. Failure, punishment and rejection messages lean into the godly mythos.
 - **Designed-but-unbound crystal abilities** exist in the code (their tick systems run) but are not attached to any item yet: Red=**Inferno** (firestorm), Orange=**Cloning** (wolf swarm), Yellow=**Size Shift**, Green=**Life Bloom**, Blue=**Chrono Stop** (30 s global time stop), Indigo=**Portal Rift**, Violet=**Soul Link** (damage mirroring). The orange/green/blue/indigo crystals are currently bound to their *other* planned powers (see [Crystal Powers](#crystal-powers)).
 - Red, Yellow, Violet and Infected Rainbow crystals are intentionally **inert** pending lore.
-- The **Rainbow Crystal re-roll flow is temporarily disabled** (item, recipe, advancements and screen/packet code all remain as placeholders).
+- The **Rainbow Crystal re-roll flow is disabled** (item, recipe and advancements remain; the selection screen and its packets were removed).
 - Loot tables: none — realm blocks drop nothing and there is no worldgen beyond the flat realms.

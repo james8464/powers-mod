@@ -11,7 +11,6 @@ public final class ClientPowerState {
 	private static List<String> activeToggles = List.of();
 	private static int energy;
 	private static int energyCapacity;
-	private static int skillLevel;
 	public static int markingSlot = -1;
 	public static int markingTicks;
 
@@ -23,7 +22,6 @@ public final class ClientPowerState {
 		activeToggles = payload.activeToggles();
 		energy = payload.energy();
 		energyCapacity = payload.energyCapacity();
-		skillLevel = payload.skillLevel();
 	}
 
 	public static void reset() {
@@ -31,7 +29,6 @@ public final class ClientPowerState {
 		activeToggles = List.of();
 		energy = 0;
 		energyCapacity = 0;
-		skillLevel = 0;
 		markingSlot = -1;
 		markingTicks = 0;
 	}
@@ -39,10 +36,6 @@ public final class ClientPowerState {
 	public static Power getPower(int slot) {
 		if (slot < 0 || slot >= powerIds.size()) return null;
 		return PowerRegistry.get(powerIds.get(slot));
-	}
-
-	public static List<String> getPowerIds() {
-		return powerIds;
 	}
 
 	public static boolean isToggleActive(String powerId) {
@@ -55,10 +48,6 @@ public final class ClientPowerState {
 
 	public static int energyCapacity() {
 		return energyCapacity > 0 ? energyCapacity : com.powers.power.PowerEnergy.BASE_MAX;
-	}
-
-	public static int skillLevel() {
-		return skillLevel;
 	}
 
 	public static boolean isMarking() {

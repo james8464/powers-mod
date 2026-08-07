@@ -2,13 +2,13 @@
 	"parent": "powers:skill/level_04",
 	"display": {
 		"icon": {
-			"id": "minecraft:amethyst_shard"
+			"id": "minecraft:obsidian"
 		},
 		"title": {
-			"translate": "advancement.powers.skill.05_ward.title"
+			"translate": "advancement.powers.skill.05_realms_fight.title"
 		},
 		"description": {
-			"translate": "advancement.powers.skill.05_ward.description"
+			"translate": "advancement.powers.skill.05_realms_fight.description"
 		},
 		"frame": "task",
 		"show_toast": true,
@@ -16,17 +16,21 @@
 		"hidden": false
 	},
 	"criteria": {
-		"complete": {
-			"trigger": "minecraft:inventory_changed",
+		"dark": {
+			"trigger": "minecraft:location",
 			"conditions": {
-				"items": [
-					{
-						"items": [
-							"powers:amethyst_ward"
-						]
-					}
-				]
+				"dimension": "powers:dark_realm"
 			}
+		},
+		"craft": {
+			"trigger": "minecraft:recipe_crafted",
+			"conditions": {
+				"recipe_id": "powers:rainbow_crystal"
+			}
+		},
+		"strike": {
+			"trigger": "minecraft:player_hurt_entity",
+			"conditions": {}
 		}
 	}
 }

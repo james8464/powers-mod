@@ -2,13 +2,13 @@
 	"parent": "powers:skill/level_08",
 	"display": {
 		"icon": {
-			"id": "minecraft:amethyst_shard"
+			"id": "minecraft:nether_star"
 		},
 		"title": {
-			"translate": "advancement.powers.skill.09_grimoire.title"
+			"translate": "advancement.powers.skill.09_deep_dark.title"
 		},
 		"description": {
-			"translate": "advancement.powers.skill.09_grimoire.description"
+			"translate": "advancement.powers.skill.09_deep_dark.description"
 		},
 		"frame": "task",
 		"show_toast": true,
@@ -16,13 +16,27 @@
 		"hidden": false
 	},
 	"criteria": {
-		"complete": {
+		"warden": {
+			"trigger": "minecraft:player_killed_entity",
+			"conditions": {
+				"entity": [
+					{
+						"condition": "minecraft:entity_properties",
+						"entity": "this",
+						"predicate": {
+							"minecraft:entity_type": "minecraft:warden"
+						}
+					}
+				]
+			}
+		},
+		"star": {
 			"trigger": "minecraft:inventory_changed",
 			"conditions": {
 				"items": [
 					{
 						"items": [
-							"powers:imported_book_grimoire_deep"
+							"minecraft:nether_star"
 						]
 					}
 				]

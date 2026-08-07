@@ -33,9 +33,10 @@ public class MiddleworldAbility extends Ability {
 	}
 
 	private Vec3 findSafePos(ServerLevel level, int x, int y, int z) {
-		int startY = level.getMinY() + 1;
+		// Scan top-down so the traveller lands on the surface instead of a cave.
+		int startY = level.getMaxY() - 2;
 		for (int dy = 0; dy < level.getHeight() - 2; dy++) {
-			int cy = startY + dy;
+			int cy = startY - dy;
 			BlockPos feet = new BlockPos(x, cy, z);
 			BlockPos head = new BlockPos(x, cy + 1, z);
 			BlockState fb = level.getBlockState(feet);
@@ -44,6 +45,6 @@ public class MiddleworldAbility extends Ability {
 				return new Vec3(x + 0.5, cy, z + 0.5);
 			}
 		}
-		return new Vec3(x + 0.5, startY, z + 0.5);
+		return new Vec3(x + 0.5, level.getMaxY() - 1, z + 0.5);
 	}
 }

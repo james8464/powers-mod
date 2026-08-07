@@ -4,7 +4,7 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.Power;
-import com.powers.power.PowerEnergy;
+import com.powers.power.ActivationCooldowns;
 import com.powers.power.AmethystDampening;
 import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.abilities.TeleportAbility;
@@ -16,7 +16,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -29,13 +28,12 @@ public final class PowersPackets {
 	private PowersPackets() {
 	}
 
-	public record ActivateAbilityPayload(int slot, int abilityIndex) implements CustomPacketPayload {
+	public record ActivateAbilityPayload(int slot) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<ActivateAbilityPayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("activate_ability"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, ActivateAbilityPayload> STREAM_CODEC =
 				StreamCodec.composite(
 						ByteBufCodecs.VAR_INT, ActivateAbilityPayload::slot,
-						ByteBufCodecs.VAR_INT, ActivateAbilityPayload::abilityIndex,
 						ActivateAbilityPayload::new);
 
 		@Override
@@ -44,14 +42,13 @@ public final class PowersPackets {
 		}
 	}
 
-	public record TeleportRequestPayload(int slot, int abilityIndex, double x, double y, double z,
+	public record TeleportRequestPayload(int slot, double x, double y, double z,
 			ResourceKey<Level> dimension, String targetName, boolean toPlayer) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<TeleportRequestPayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("teleport_request"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, TeleportRequestPayload> STREAM_CODEC =
 				StreamCodec.composite(
 						ByteBufCodecs.VAR_INT, TeleportRequestPayload::slot,
-						ByteBufCodecs.VAR_INT, TeleportRequestPayload::abilityIndex,
 						ByteBufCodecs.DOUBLE, TeleportRequestPayload::x,
 						ByteBufCodecs.DOUBLE, TeleportRequestPayload::y,
 						ByteBufCodecs.DOUBLE, TeleportRequestPayload::z,
@@ -83,35 +80,8 @@ public final class PowersPackets {
 		}
 	}
 
-	public record SetPowerSlotsPayload(List<String> powerIds) implements CustomPacketPayload {
-		public static final CustomPacketPayload.Type<SetPowerSlotsPayload> TYPE =
-				new CustomPacketPayload.Type<>(PowersMod.id("set_power_slots"));
-		public static final StreamCodec<RegistryFriendlyByteBuf, SetPowerSlotsPayload> STREAM_CODEC =
-				StreamCodec.composite(
-						ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.STRING_UTF8),
-						SetPowerSlotsPayload::powerIds,
-						SetPowerSlotsPayload::new);
-
-		@Override
-		public Type<? extends CustomPacketPayload> type() {
-			return TYPE;
-		}
-	}
-
-	public record RerollPowerSlotsPayload(int token) implements CustomPacketPayload {
-		public static final CustomPacketPayload.Type<RerollPowerSlotsPayload> TYPE =
-				new CustomPacketPayload.Type<>(PowersMod.id("reroll_power_slots"));
-		public static final StreamCodec<RegistryFriendlyByteBuf, RerollPowerSlotsPayload> STREAM_CODEC =
-				StreamCodec.composite(ByteBufCodecs.VAR_INT, RerollPowerSlotsPayload::token, RerollPowerSlotsPayload::new);
-
-		@Override
-		public Type<? extends CustomPacketPayload> type() {
-			return TYPE;
-		}
-	}
-
-	public record PowerStatePayload(List<String> powerIds, List<String> activeToggles, int energy, int energyCapacity,
-			int skillLevel) implements CustomPacketPayload {
+	public record PowerStatePayload(List<String> powerIds, List<String> activeToggles, int energy,
+			int energyCapacity) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<PowerStatePayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("power_state"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, PowerStatePayload> STREAM_CODEC =
@@ -124,8 +94,6 @@ public final class PowersPackets {
 						PowerStatePayload::energy,
 						ByteBufCodecs.VAR_INT,
 						PowerStatePayload::energyCapacity,
-						ByteBufCodecs.VAR_INT,
-						PowerStatePayload::skillLevel,
 						PowerStatePayload::new);
 
 		@Override
@@ -138,15 +106,11 @@ public final class PowersPackets {
 		PayloadTypeRegistry.serverboundPlay().register(ActivateAbilityPayload.TYPE, ActivateAbilityPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(TeleportRequestPayload.TYPE, TeleportRequestPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(TeleportMarkPayload.TYPE, TeleportMarkPayload.STREAM_CODEC);
-		PayloadTypeRegistry.serverboundPlay().register(SetPowerSlotsPayload.TYPE, SetPowerSlotsPayload.STREAM_CODEC);
-		PayloadTypeRegistry.serverboundPlay().register(RerollPowerSlotsPayload.TYPE, RerollPowerSlotsPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(PowerStatePayload.TYPE, PowerStatePayload.STREAM_CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(ActivateAbilityPayload.TYPE, PowersPackets::handleActivate);
 		ServerPlayNetworking.registerGlobalReceiver(TeleportRequestPayload.TYPE, PowersPackets::handleTeleport);
 		ServerPlayNetworking.registerGlobalReceiver(TeleportMarkPayload.TYPE, PowersPackets::handleMark);
-		ServerPlayNetworking.registerGlobalReceiver(SetPowerSlotsPayload.TYPE, PowersPackets::handleSetSlots);
-		ServerPlayNetworking.registerGlobalReceiver(RerollPowerSlotsPayload.TYPE, PowersPackets::handleReroll);
 	}
 
 	private static void handleActivate(ActivateAbilityPayload payload, ServerPlayNetworking.Context context) {
@@ -184,9 +148,16 @@ public final class PowersPackets {
 				return;
 			}
 
+			if (!ActivationCooldowns.isReady(player, ability)) {
+				PowerMessages.send(player, "ability.powers.cooldown", 4,
+						seconds(ActivationCooldowns.remainingTicks(player, ability)));
+				return;
+			}
 			if (!data.spendEnergy(player, ability)) return;
 			if (!ability.activate(player, data)) {
 				data.refundEnergy(ability);
+			} else {
+				ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
 			}
 			syncTo(player);
 		});
@@ -201,17 +172,28 @@ public final class PowersPackets {
 				AmethystDampening.punish(player);
 				return;
 			}
+			if (SpaceTimeAbility.isFrozen(player)) {
+				SpaceTimeAbility.reject(player);
+				return;
+			}
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT
 					|| payload.targetName().length() > 16
 					|| !Double.isFinite(payload.x()) || !Double.isFinite(payload.y()) || !Double.isFinite(payload.z())) return;
 			Power power = data.getPower(payload.slot());
 			if (power == null || power.ability() == null || !power.ability().requiresInput()) return;
+			Ability ability = power.ability();
 
 			if (payload.toPlayer()) {
 				ServerPlayer target = findPlayer(player, payload.targetName());
 				if (target == null) return;
-				if (!data.spendEnergy(player, power.ability())) return;
+				if (!ActivationCooldowns.isReady(player, ability)) {
+					PowerMessages.send(player, "ability.powers.cooldown", 4,
+							seconds(ActivationCooldowns.remainingTicks(player, ability)));
+					return;
+				}
+				if (!data.spendEnergy(player, ability)) return;
 				TeleportAbility.startMarking(player, target, payload.slot());
+				ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
 				syncTo(player);
 				return;
 			}
@@ -223,11 +205,16 @@ public final class PowersPackets {
 				PowerMessages.send(player, "amethyst.powers.target_protected", 4);
 				return;
 			}
-
-			Ability ability = power.ability();
+			if (!ActivationCooldowns.isReady(player, ability)) {
+				PowerMessages.send(player, "ability.powers.cooldown", 4,
+						seconds(ActivationCooldowns.remainingTicks(player, ability)));
+				return;
+			}
 			if (!data.spendEnergy(player, ability)) return;
 			if (!ability.activateTeleport(player, subject, data, payload.dimension(), payload.x(), payload.y(), payload.z())) {
 				data.refundEnergy(ability);
+			} else {
+				ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
 			}
 			syncTo(player);
 		});
@@ -237,7 +224,14 @@ public final class PowersPackets {
 		context.server().execute(() -> {
 			ServerPlayer player = context.player();
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;
-			TeleportAbility.completeMarking(player, payload.slot(), player.position());
+			if (!Double.isFinite(payload.x()) || !Double.isFinite(payload.y()) || !Double.isFinite(payload.z())) return;
+			AmethystDampening.update(player);
+			if (AmethystDampening.isDampened(player)) {
+				AmethystDampening.punish(player);
+				return;
+			}
+			TeleportAbility.completeMarking(player, payload.slot(),
+					new Vec3(payload.x(), payload.y(), payload.z()));
 		});
 	}
 
@@ -250,21 +244,9 @@ public final class PowersPackets {
 		PowerMessages.send(caster, "powers.packet.player_not_found", 3, name);
 		return null;
 	}
-	private static void handleSetSlots(SetPowerSlotsPayload payload, ServerPlayNetworking.Context context) {
-		// TODO(rainbow crystal): only reachable from the power selection screen,
-		// which is temporarily disabled. Kept as placeholder for restoration.
-		context.server().execute(() -> {
-			ServerPlayer player = context.player();
-			if (!PlayerPowers.PlayerPowersData.validateSlots(payload.powerIds())) return;
-			PlayerPowers.get(player).setSlots(player, payload.powerIds());
-		});
-	}
 
-	private static void handleReroll(RerollPowerSlotsPayload payload, ServerPlayNetworking.Context context) {
-		// TODO(rainbow crystal): only reachable from the power selection screen,
-		// which is temporarily disabled. Kept as placeholder for restoration.
-		context.server().execute(() ->
-				PlayerPowers.get(context.player()).assignRandom(context.player(), true));
+	private static String seconds(int ticks) {
+		return String.valueOf((ticks + 19) / 20);
 	}
 
 	public static void syncTo(ServerPlayer player) {
@@ -273,7 +255,6 @@ public final class PowersPackets {
 				data.getSlotIds(),
 				data.getActiveToggles(),
 				data.energy(),
-				data.energyCapacity(),
-				data.skillLevel()));
+				data.energyCapacity()));
 	}
 }

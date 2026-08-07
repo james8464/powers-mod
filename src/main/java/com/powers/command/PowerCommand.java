@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.powers.player.PlayerPowers;
+import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
@@ -29,6 +30,7 @@ import java.util.Set;
  * /powers slots [player]
  * /powers assign <player> <power> <slot>
  * /powers reroll [player]
+ * /powers darkprefix [true|false]
  *
  * <p>The Rainbow Crystal item is the friendly path; the command is for server
  * admins.
@@ -62,6 +64,12 @@ public final class PowerCommand {
 						.then(Commands.argument("player", EntityArgument.player())
 								.requires(source -> source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER))
 								.executes(PowerCommand::rerollOther)))
+				.then(Commands.literal("darkprefix")
+						.executes(PowerCommand::darkPrefixToggle)
+						.then(Commands.literal("true")
+								.executes(PowerCommand::darkPrefixShow))
+						.then(Commands.literal("false")
+								.executes(PowerCommand::darkPrefixHide)))
 				.then(Commands.literal("travel")
 						.requires(source -> source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER))
 						.then(Commands.argument("dimension", StringArgumentType.word())
@@ -150,6 +158,47 @@ public final class PowerCommand {
 		source.sendSuccess(() -> Component.literal("Rerolled powers for " + player.getScoreboardName())
 				.withStyle(ChatFormatting.GREEN), false);
 		return 1;
+	}
+
+	/**
+	 * /powers darkprefix — toggles whether a darkness-tagged player's visible
+	 * prefix is their real darkness title or the equivalent normal-ladder name.
+	 * The flag only matters to darkness users; everyone else is unaffected.
+	 */
+	private static int darkPrefixToggle(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerPlayer player = context.getSource().getPlayerOrException();
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		boolean hidden = data.isDarknessPrefixHidden();
+		return applyDarkPrefix(player, data, !hidden);
+	}
+
+	private static int darkPrefixShow(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		return applyDarkPrefix(context.getSource().getPlayerOrException(), PlayerPowers.get(context.getSource().getPlayerOrException()), false);
+	}
+
+	private static int darkPrefixHide(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		return applyDarkPrefix(context.getSource().getPlayerOrException(), PlayerPowers.get(context.getSource().getPlayerOrException()), true);
+	}
+
+	private static int applyDarkPrefix(ServerPlayer player, PlayerPowers.PlayerPowersData data, boolean hidden) {
+		data.setDarknessPrefixHidden(hidden);
+		SkillSystem.refreshPrefix(player);
+		if (SkillSystem.hasDarknessTag(player)) {
+			contextMessage(player, hidden);
+		} else {
+			player.sendSystemMessage(Component.literal("You are not touched by darkness — the prefix choice is idle for you."));
+		}
+		return 1;
+	}
+
+	private static void contextMessage(ServerPlayer player, boolean hidden) {
+		if (hidden) {
+			player.sendSystemMessage(Component.literal("Your darkness title is hidden — others now see the rank of an ordinary power-wielder.")
+					.withStyle(ChatFormatting.GRAY));
+		} else {
+			player.sendSystemMessage(Component.literal("Your true darkness title is revealed.")
+					.withStyle(ChatFormatting.GRAY));
+		}
 	}
 
 	/** Teleports the executing player to a registered dimension (e.g. powers:dark_realm). */

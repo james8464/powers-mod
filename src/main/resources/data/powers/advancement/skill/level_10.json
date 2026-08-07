@@ -2,13 +2,13 @@
 	"parent": "powers:skill/level_09",
 	"display": {
 		"icon": {
-			"id": "minecraft:amethyst_shard"
+			"id": "powers:imported_artifact_soulmatrix"
 		},
 		"title": {
-			"translate": "advancement.powers.skill.10_rune.title"
+			"translate": "advancement.powers.skill.10_capstone.title"
 		},
 		"description": {
-			"translate": "advancement.powers.skill.10_rune.description"
+			"translate": "advancement.powers.skill.10_capstone.description"
 		},
 		"frame": "task",
 		"show_toast": true,
@@ -16,13 +16,25 @@
 		"hidden": false
 	},
 	"criteria": {
-		"complete": {
+		"matrix": {
 			"trigger": "minecraft:inventory_changed",
 			"conditions": {
 				"items": [
 					{
 						"items": [
-							"powers:imported_artifact_runestone_frigid"
+							"powers:imported_artifact_soulmatrix"
+						]
+					}
+				]
+			}
+		},
+		"crystal": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:end_crystal"
 						]
 					}
 				]

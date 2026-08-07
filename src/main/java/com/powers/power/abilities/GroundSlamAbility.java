@@ -5,12 +5,15 @@ import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
+import com.powers.power.AmethystDampening;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
@@ -33,14 +36,14 @@ public class GroundSlamAbility extends Ability {
 		PowerFx.burst(level, player.position().add(0, 0.5, 0), net.minecraft.core.particles.ParticleTypes.EXPLOSION, 28, 1.5, 0.2);
 		PowerFx.ring(level, player.position().add(0, 0.1, 0), 3.5, 0xFF8A00, 28, 0.0);
 		PowerFx.sound(level, player.position(), SoundEvents.GENERIC_EXPLODE.value(), 1.0f, 0.8f);
-		level.explode(player, player.getX(), player.getY() - 0.5, player.getZ(),
-			2.0f, false, Level.ExplosionInteraction.BLOCK);
+
+		carveCrater(level, BlockPos.containing(player.getX(), player.getY() - 0.5, player.getZ()));
 
 		DamageSource source = player.damageSources().mobAttack(player);
 		AABB area = AABB.ofSize(player.position(), 10.0, 6.0, 10.0);
 		for (LivingEntity target : level.getEntities(
 			EntityTypeTest.forClass(LivingEntity.class), area,
-				e -> e.isAlive() && e != player)) {
+			e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e))) {
 			target.hurtServer(level, source, SkillSystem.damage(player, 6.0f));
 			Vec3 away = target.position().subtract(player.position()).normalize();
 			target.knockback(1.6, away.x, away.z, source, 1.0f);
@@ -48,5 +51,26 @@ public class GroundSlamAbility extends Ability {
 					net.minecraft.core.particles.ParticleTypes.CAMPFIRE_COSY_SMOKE, 6, 0.5, 0.02);
 		}
 		return true;
+	}
+
+	/** Carves a bowl-shaped crater from soft ground; the slam's damage is dealt once, by the shockwave. */
+	private static void carveCrater(ServerLevel level, BlockPos feet) {
+		for (int dx = -3; dx <= 3; dx++) {
+			for (int dz = -3; dz <= 3; dz++) {
+				if (dx * dx + dz * dz > 9) {
+					continue;
+				}
+				for (int dy = 0; dy >= -2; dy--) {
+					BlockPos pos = feet.offset(dx, dy, dz);
+					BlockState state = level.getBlockState(pos);
+					if (state.isAir() || state.is(Blocks.BEDROCK) || state.is(Blocks.WATER)
+							|| state.is(Blocks.LAVA) || state.getDestroySpeed(level, pos) > 50.0f) {
+						continue;
+					}
+					level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+					break;
+				}
+			}
+		}
 	}
 }

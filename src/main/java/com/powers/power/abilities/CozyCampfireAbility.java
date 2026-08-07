@@ -58,7 +58,8 @@ public class CozyCampfireAbility extends Ability {
 			if (remaining <= 0) return;
 			AABB area = AABB.ofSize(center, radius * 2, radius * 2, radius * 2);
 			for (LivingEntity e : level.getEntities(EntityTypeTest.forClass(LivingEntity.class), area,
-					e -> e.isAlive() && e.position().distanceTo(center) <= radius)) {
+					e -> e.isAlive() && !(e instanceof net.minecraft.world.entity.monster.Enemy)
+							&& e.position().distanceTo(center) <= radius)) {
 				e.heal(2.0f);
 				if (e instanceof net.minecraft.world.entity.player.Player p) {
 					p.getFoodData().eat(1, 0.5f);

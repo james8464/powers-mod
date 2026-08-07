@@ -1,32 +1,56 @@
 {
- "parent": "powers:darkness/level_05",
- "display": {
-  "icon": {
-   "id": "minecraft:fire_charge"
-  },
-  "title": {
-   "translate": "advancement.powers.darkness.06_fire_charge.title"
-  },
-  "description": {
-   "translate": "advancement.powers.darkness.06_fire_charge.description"
-  },
-  "frame": "task",
-  "show_toast": true,
-  "announce_to_chat": false,
-  "hidden": false
- },
- "criteria": {
-  "collect": {
-   "trigger": "minecraft:inventory_changed",
-   "conditions": {
-    "items": [
-     {
-      "items": [
-       "minecraft:fire_charge"
-      ]
-     }
-    ]
-   }
-  }
- }
+	"parent": "powers:darkness/level_05",
+	"display": {
+		"icon": {
+			"id": "minecraft:blaze_rod"
+		},
+		"title": {
+			"translate": "advancement.powers.darkness.06_fortress.title"
+		},
+		"description": {
+			"translate": "advancement.powers.darkness.06_fortress.description"
+		},
+		"frame": "task",
+		"show_toast": true,
+		"announce_to_chat": false,
+		"hidden": false
+	},
+	"criteria": {
+		"blaze": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:blaze_rod"
+						]
+					}
+				]
+			}
+		},
+		"tear": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:ghast_tear"
+						]
+					}
+				]
+			}
+		},
+		"lava": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"minecraft:lava_bucket"
+						]
+					}
+				]
+			}
+		}
+	}
 }

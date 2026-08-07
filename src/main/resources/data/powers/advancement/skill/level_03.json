@@ -2,13 +2,13 @@
 	"parent": "powers:skill/level_02",
 	"display": {
 		"icon": {
-			"id": "minecraft:amethyst_shard"
+			"id": "powers:amethyst_ward"
 		},
 		"title": {
-			"translate": "advancement.powers.skill.03_food.title"
+			"translate": "advancement.powers.skill.03_ward_grimoire.title"
 		},
 		"description": {
-			"translate": "advancement.powers.skill.03_food.description"
+			"translate": "advancement.powers.skill.03_ward_grimoire.description"
 		},
 		"frame": "task",
 		"show_toast": true,
@@ -16,13 +16,25 @@
 		"hidden": false
 	},
 	"criteria": {
-		"complete": {
+		"ward": {
 			"trigger": "minecraft:inventory_changed",
 			"conditions": {
 				"items": [
 					{
 						"items": [
-							"powers:imported_food_bread_big"
+							"powers:amethyst_ward"
+						]
+					}
+				]
+			}
+		},
+		"grimoire": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": [
+							"powers:imported_book_grimoire_deep"
 						]
 					}
 				]
