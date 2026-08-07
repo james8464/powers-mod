@@ -8,6 +8,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -20,7 +21,7 @@ public final class PowersItems {
 	public static final Item RAINBOW_CRYSTAL = ModItemIds.register(
 			RAINBOW_CRYSTAL_KEY,
 			RainbowCrystalItem::new,
-			new Item.Properties().stacksTo(1));
+			crystalProperties());
 
 	/** The seven chromatic crystals; all seven fuse into the Rainbow Crystal. */
 	public static final Map<String, Item> COLOR_CRYSTALS = new LinkedHashMap<>();
@@ -33,16 +34,27 @@ public final class PowersItems {
 	public static final Item VIOLET_CRYSTAL = colorCrystal("violet_crystal");
 
 	public static final ResourceKey<Item> LIGHT_CRYSTAL_KEY = ModItemIds.create("light_crystal");
-	public static final Item LIGHT_CRYSTAL = ModItemIds.register(LIGHT_CRYSTAL_KEY, CrystalItem::new, new Item.Properties().stacksTo(1));
+	public static final Item LIGHT_CRYSTAL = ModItemIds.register(LIGHT_CRYSTAL_KEY, CrystalItem::new, crystalProperties());
 	public static final ResourceKey<Item> DARK_CRYSTAL_KEY = ModItemIds.create("dark_crystal");
-	public static final Item DARK_CRYSTAL = ModItemIds.register(DARK_CRYSTAL_KEY, CrystalItem::new, new Item.Properties().stacksTo(1));
+	public static final Item DARK_CRYSTAL = ModItemIds.register(DARK_CRYSTAL_KEY, CrystalItem::new, crystalProperties());
 	public static final ResourceKey<Item> INFECTED_RAINBOW_CRYSTAL_KEY = ModItemIds.create("infected_rainbow_crystal");
-	public static final Item INFECTED_RAINBOW_CRYSTAL = ModItemIds.register(INFECTED_RAINBOW_CRYSTAL_KEY, CrystalItem::new, new Item.Properties().stacksTo(1));
+	public static final Item INFECTED_RAINBOW_CRYSTAL = ModItemIds.register(INFECTED_RAINBOW_CRYSTAL_KEY, CrystalItem::new, crystalProperties());
 
 	private static Item colorCrystal(String name) {
-		Item item = ModItemIds.register(ModItemIds.create(name), CrystalItem::new, new Item.Properties().stacksTo(1));
+		Item item = ModItemIds.register(ModItemIds.create(name), CrystalItem::new, crystalProperties());
 		COLOR_CRYSTALS.put(name, item);
 		return item;
+	}
+
+	/** Crystal items are fire-resistant so dropped crystals never burn in lava or fire. */
+	private static Item.Properties crystalProperties() {
+		return new Item.Properties().stacksTo(1).fireResistant();
+	}
+
+	/** True for any of the mod's crystal items (never despawn, burn, or get mob-picked-up). */
+	public static boolean isCrystal(ItemStack stack) {
+		Item item = stack.getItem();
+		return item instanceof CrystalItem || item instanceof RainbowCrystalItem;
 	}
 
 	private PowersItems() {

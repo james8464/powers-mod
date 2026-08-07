@@ -238,6 +238,7 @@
 	"ability.powers.marking_mode": "Spectator mode — fly to your desired spot and press the power key to mark it.",
 	"ability.powers.marking_expired": "Marking timed out — teleport cancelled.",
 	"energy.powers.empty": "Your energy is depleted. Rest or wait for it to recover.",
+	"energy.powers.backlash": "Your energy collapses! The forsaken power tears through you and your body is struck by lightning.",
 	"crystal.powers.unavailable": "That crystal cannot activate right now.",
 	"power.powers.astral_projection": "Astral Projection",
 	"power.powers.astral_projection.description": "Leave your body as a soul-form scout within a 150-block radius.",
