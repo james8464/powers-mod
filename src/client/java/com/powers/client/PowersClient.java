@@ -2,8 +2,6 @@ package com.powers.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.powers.PowersMod;
-import com.powers.PowersItems;
-import com.powers.client.screen.PowerSelectionScreen;
 import com.powers.client.screen.TeleportInputScreen;
 import com.powers.network.PowersPackets;
 import com.powers.power.Ability;
@@ -15,12 +13,10 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
-import net.fabricmc.fabric.api.event.player.ItemEvents;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.world.InteractionResult;
 import org.lwjgl.glfw.GLFW;
 
 public class PowersClient implements ClientModInitializer {
@@ -57,16 +53,9 @@ public class PowersClient implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(PowersClient::tick);
 
-		ItemEvents.USE.register((level, user, hand) -> {
-			if (!level.isClientSide()) {
-				return InteractionResult.PASS;
-			}
-			if (user.getItemInHand(hand).is(PowersItems.RAINBOW_CRYSTAL)) {
-				Minecraft.getInstance().gui.setScreen(new PowerSelectionScreen());
-				return InteractionResult.SUCCESS;
-			}
-			return InteractionResult.PASS;
-		});
+		// TODO(rainbow crystal): re-enable the power selection screen here.
+		// Previously an ItemEvents.USE handler opened PowerSelectionScreen when
+		// right-clicking the Rainbow Crystal; the crystal is temporarily inert.
 	}
 
 	private static void tick(Minecraft client) {
@@ -85,9 +74,9 @@ public class PowersClient implements ClientModInitializer {
 			handleSlotKey(client, 2);
 		}
 		while (powerMenuKey.consumeClick()) {
-			if (client.gui.screen() == null) {
-				client.gui.setScreen(new PowerSelectionScreen());
-			}
+			// TODO(rainbow crystal): re-open the power selection screen here.
+			// Previously: if (client.gui.screen() == null) client.gui.setScreen(new PowerSelectionScreen());
+			// The re-roll menu is temporarily disabled alongside the Rainbow Crystal.
 		}
 	}
 
