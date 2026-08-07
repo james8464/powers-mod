@@ -8,6 +8,7 @@ import com.powers.power.PowerEnergy;
 import com.powers.power.AmethystDampening;
 import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.abilities.TeleportAbility;
+import com.powers.util.PowerMessages;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.registries.Registries;
@@ -153,10 +154,13 @@ public final class PowersPackets {
 			ServerPlayer player = context.player();
 			AmethystDampening.update(player);
 			if (AmethystDampening.isDampened(player)) {
-				player.sendSystemMessage(Component.translatable("amethyst.powers.suppressed"));
+				AmethystDampening.punish(player);
 				return;
 			}
-			if (SpaceTimeAbility.isFrozen(player)) return;
+			if (SpaceTimeAbility.isFrozen(player)) {
+				SpaceTimeAbility.reject(player);
+				return;
+			}
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 			Power power = data.getPower(payload.slot());
@@ -194,7 +198,7 @@ public final class PowersPackets {
 			AmethystDampening.update(player);
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 			if (AmethystDampening.isDampened(player)) {
-				player.sendSystemMessage(Component.translatable("amethyst.powers.suppressed"));
+				AmethystDampening.punish(player);
 				return;
 			}
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT
@@ -216,7 +220,7 @@ public final class PowersPackets {
 					? player : findPlayer(player, payload.targetName());
 			if (subject == null) return;
 			if (AmethystDampening.isDampened(subject)) {
-				player.sendSystemMessage(Component.translatable("amethyst.powers.target_protected"));
+				PowerMessages.send(player, "amethyst.powers.target_protected", 4);
 				return;
 			}
 
@@ -243,10 +247,9 @@ public final class PowersPackets {
 				return p;
 			}
 		}
-		caster.sendSystemMessage(net.minecraft.network.chat.Component.literal("Player not found: " + name));
+		PowerMessages.send(caster, "powers.packet.player_not_found", 3, name);
 		return null;
 	}
-
 	private static void handleSetSlots(SetPowerSlotsPayload payload, ServerPlayNetworking.Context context) {
 		// TODO(rainbow crystal): only reachable from the power selection screen,
 		// which is temporarily disabled. Kept as placeholder for restoration.

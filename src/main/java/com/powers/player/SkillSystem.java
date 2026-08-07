@@ -2,6 +2,7 @@ package com.powers.player;
 
 import com.powers.PowersMod;
 import com.powers.network.PowersPackets;
+import com.powers.util.PowerMessages;
 import com.powers.power.Ability;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.network.chat.Component;
@@ -65,7 +66,7 @@ public final class SkillSystem {
 		}
 		if (highest != data.skillLevel()) {
 			data.setSkillLevel(player, highest);
-			player.sendSystemMessage(Component.translatable("skill.powers.advanced", rank(highest)));
+			PowerMessages.send(player, "skill.powers.advanced", 3, rank(highest));
 			PowersPackets.syncTo(player);
 		}
 
@@ -80,7 +81,7 @@ public final class SkillSystem {
 			}
 			if (highestDarkness != data.darknessLevel()) {
 				data.setDarknessLevel(player, highestDarkness);
-				player.sendSystemMessage(Component.translatable("skill.powers.darkness_advanced", darknessRank(highestDarkness)));
+				PowerMessages.send(player, "skill.powers.darkness_advanced", 3, darknessRank(highestDarkness));
 				PowersPackets.syncTo(player);
 			}
 		}

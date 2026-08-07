@@ -1,6 +1,7 @@
 package com.powers.item;
 
 import com.powers.player.PlayerPowers;
+import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -20,9 +21,9 @@ public class RuneItem extends Item {
 		if (!level.isClientSide() && user instanceof ServerPlayer player) {
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 			if (data.regenerateEnergy(100)) {
-				player.sendSystemMessage(Component.translatable("rune.powers.channelled"));
+				PowerMessages.send(player, "rune.powers.channelled", 4);
 			} else {
-				player.sendSystemMessage(Component.translatable("rune.powers.full"));
+				PowerMessages.send(player, "rune.powers.full", 4);
 			}
 		}
 		return InteractionResult.SUCCESS;

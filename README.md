@@ -74,7 +74,7 @@ All abilities draw from a single shared **energy pool** (shown as a 10-segment b
 
 - **Costs never scale with level.** Higher skill/darkness levels never make powers cheaper — they only enlarge the pool, so it is harder to fully run out.
 - Toggle abilities (Flight, Invisibility, Time Freeze) pay their activation cost up front, then drain energy **once per second** while active (1–3 per second). If the pool runs dry the toggle force-disables.
-- **Energy backlash:** letting a draining toggle burn out on an empty pool is punished — the power is torn off but you take **70% of your max health in magic damage**, a lightning storm (like the teleport power) crashes down on you, and particle explosions/rings erupt around you.
+- **Energy backlash:** letting a draining toggle burn out on an empty pool is punished — the power is torn off but you take **70% of your max health in magic damage**, a divine-wrath sequence erupts (rune circle, shockwave rings, pillar of sparks, thunder) and a lightning storm crashes down on you, with a second wave a heartbeat later. The message itself is drawn randomly from six mythic phrasings.
 - Failed activations **refund** their energy cost.
 - The **Exhaustion** effect locks your energy at 0 — no regen, no sleep refill.
 
@@ -402,6 +402,13 @@ The `darkness` tag is applied with the vanilla command: `/tag <player> add darkn
 ## Notes & Caveats
 
 - **Cooldowns** are declared per ability (e.g. "15 s"), but the activation pipeline currently gates on **energy and amethyst dampening only** — cooldown enforcement is not yet wired into the activation path.
+- **Divine punishments** — the mod treats a few occasions as moments of divine judgement with a full godly FX sequence (rune circle, shockwave rings, rising spark pillar, thunderous sounds, and a delayed second wave) in `GodlyPunishment`:
+  - **Energy burnout:** 70% max-health magic damage + lightning storm + divine strike (see [Energy & Backlash](#energy--backlash)).
+  - **Teleporting into a powered ward:** 20 magic damage + purple divine strike (see [Amethyst Dampening](#amethyst-dampening)).
+  - **Using powers while amethyst-dampened:** the amethyst bites back with 2.5 magic damage, violet sparks and a stinging message — it punishes defiance, so don't mash keys in a ward.
+  - **Trying to act while frozen by Space-Time:** cold chime, frost sparks and a reminder that time itself holds you.
+  - **Blocked travel:** dimensional anchors flash crimson chains; the middleworld shows a shimmering blue barrier; the dark realm drags the unworthy back with a void-swallowing whirl.
+- **Randomized message variants** — every player-facing message is chosen at random from a group of 3–6 phrasings (`PowerMessages`), so repeated events never read the same twice. Failure, punishment and rejection messages lean into the godly mythos.
 - **Designed-but-unbound crystal abilities** exist in the code (their tick systems run) but are not attached to any item yet: Red=**Inferno** (firestorm), Orange=**Cloning** (wolf swarm), Yellow=**Size Shift**, Green=**Life Bloom**, Blue=**Chrono Stop** (30 s global time stop), Indigo=**Portal Rift**, Violet=**Soul Link** (damage mirroring). The orange/green/blue/indigo crystals are currently bound to their *other* planned powers (see [Crystal Powers](#crystal-powers)).
 - Red, Yellow, Violet and Infected Rainbow crystals are intentionally **inert** pending lore.
 - The **Rainbow Crystal re-roll flow is temporarily disabled** (item, recipe, advancements and screen/packet code all remain as placeholders).

@@ -3,6 +3,7 @@ package com.powers.power.crystals;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,7 +35,7 @@ public class DreamwalkingAbility extends Ability {
 		HitResult hit = player.pick(32.0, 0.0f, false);
 		if (!(hit instanceof EntityHitResult entityHit) || !(entityHit.getEntity() instanceof ServerPlayer host)
 				|| host == player) {
-			player.sendSystemMessage(Component.translatable("ability.powers.no_player_target"));
+			PowerMessages.send(player, "ability.powers.no_player_target", 4);
 			return false;
 		}
 		MinecraftServer server = ((net.minecraft.server.level.ServerLevel) player.level()).getServer();

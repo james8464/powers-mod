@@ -51,10 +51,13 @@ public final class CrystalPowerRegistry {
 		}
 		AmethystDampening.update(player);
 		if (AmethystDampening.isDampened(player)) {
-			player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("amethyst.powers.suppressed"));
+			AmethystDampening.punish(player);
 			return false;
 		}
-		if (SpaceTimeAbility.isFrozen(player)) return false;
+		if (SpaceTimeAbility.isFrozen(player)) {
+			SpaceTimeAbility.reject(player);
+			return false;
+		}
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		if (!data.spendEnergy(player, ability)) return false;
 		boolean activated = ability.activate(player, data);

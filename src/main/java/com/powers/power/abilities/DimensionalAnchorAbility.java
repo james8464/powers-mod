@@ -5,6 +5,7 @@ import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -43,13 +44,13 @@ public class DimensionalAnchorAbility extends Ability {
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		HitResult hit = player.pick(32.0, 0.0f, false);
 		if (!(hit instanceof EntityHitResult eHit) || !(eHit.getEntity() instanceof Player target)) {
-			player.sendSystemMessage(Component.translatable("ability.powers.no_player_target"));
+			PowerMessages.send(player, "ability.powers.no_player_target", 4);
 			return false;
 		}
 
 		ServerPlayer targetSP = (ServerPlayer) target;
 		if (AmethystDampening.isDampened(targetSP)) {
-			player.sendSystemMessage(Component.translatable("amethyst.powers.target_protected"));
+			PowerMessages.send(player, "amethyst.powers.target_protected", 4);
 			return false;
 		}
 		ResourceKey<Level> dim = targetSP.level().dimension();
@@ -63,9 +64,9 @@ public class DimensionalAnchorAbility extends Ability {
 				ParticleTypes.END_ROD, 12, 0.75, 0.05);
 		PowerFx.sound((ServerLevel) targetServer.level(), targetServer.position(), SoundEvents.BEACON_ACTIVATE, 0.8f, 1.1f);
 
-		targetSP.sendSystemMessage(Component.translatable("ability.powers.anchored", dimName));
-		player.sendSystemMessage(Component.translatable("ability.powers.anchor_applied",
-				targetSP.getName().getString(), dimName));
+		PowerMessages.send(targetSP, "ability.powers.anchored", 3, dimName);
+		PowerMessages.send(player, "ability.powers.anchor_applied", 3,
+				targetSP.getName().getString(), dimName);
 
 		PowersMod.scheduleDelayed(player.level().getServer(), ANCHOR_TICKS, () -> {
 			if (GENERATIONS.getOrDefault(targetSP.getUUID(), 0L) == generation) {

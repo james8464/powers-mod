@@ -3,13 +3,18 @@ package com.powers.power;
 import com.powers.PowersEffects;
 import com.powers.AmethystWardBlock;
 import com.powers.PowersBlocks;
+import com.powers.fx.PowerFx;
+import com.powers.util.PowerMessages;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 /** Central rule set for amethyst's anti-power field. */
 public final class AmethystDampening {
@@ -42,6 +47,24 @@ public final class AmethystDampening {
 
 	public static boolean isDampened(LivingEntity entity) {
 		return entity instanceof ServerPlayer player && player.hasEffect(PowersEffects.AMETHYST_POISONING);
+	}
+
+	/**
+	 * Punishes a dampened player who still tries to draw on their powers:
+	 * the amethyst bites back with a splintering sting of magic damage and
+	 * violet sparks, as if the crystal itself is enraged by the defiance.
+	 */
+	public static void punish(ServerPlayer player) {
+		ServerLevel level = (ServerLevel) player.level();
+		Vec3 pos = player.position().add(0, 1, 0);
+		if (player.isAlive()) {
+			player.hurtServer(level, player.damageSources().magic(), 2.5f);
+		}
+		PowerFx.burst(level, pos, ParticleTypes.ELECTRIC_SPARK, 16, 0.5, 0.1);
+		PowerFx.coloredBurst(level, pos, 0xB36BFF, 22, 0.7);
+		PowerFx.burst(level, pos, ParticleTypes.END_ROD, 10, 0.4, 0.2);
+		PowerFx.sound(level, pos, SoundEvents.BEACON_DEACTIVATE, 0.8f, 1.1f);
+		PowerMessages.send(player, "amethyst.powers.suppressed", 6);
 	}
 
 	private static boolean hasAmethystItem(ServerPlayer player) {

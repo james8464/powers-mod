@@ -1,6 +1,7 @@
 package com.powers;
 
 import com.powers.command.PowerCommand;
+import com.powers.fx.GodlyPunishment;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -22,6 +23,7 @@ import com.powers.power.crystals.DreamwalkingAbility;
 import com.powers.power.AmethystDampening;
 import com.powers.player.SkillSystem;
 import com.powers.power.crystals.CrystalPowerRegistry;
+import com.powers.util.PowerMessages;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -339,27 +341,20 @@ public class PowersMod implements ModInitializer {
 	/**
 	 * Lets a toggle burn out on an empty pool. The player is heavily punished
 	 * for abandoning a draining power: 70% of their available (max) health in
-	 * magic damage, a lightning storm like the teleport power, and dramatic
-	 * particle/sound effects.
+	 * magic damage, a full divine-wrath sequence (rune circle, shockwave
+	 * rings, pillar of sparks, thunder) and a lightning storm that chases
+	 * them — as if the gods themselves have taken notice.
 	 */
 	private static void energyBacklash(ServerPlayer player) {
 		ServerLevel level = (ServerLevel) player.level();
-		Vec3 pos = player.position().add(0, 1, 0);
 
 		float damage = player.getMaxHealth() * 0.7f;
 		if (player.isAlive()) {
 			player.hurtServer(level, player.damageSources().magic(), damage);
 		}
 
-		com.powers.fx.PowerFx.sound(level, pos, net.minecraft.sounds.SoundEvents.BEACON_DEACTIVATE, 1.0f, 0.5f);
-		com.powers.fx.PowerFx.sound(level, pos, net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE.value(), 1.2f, 0.6f);
-		com.powers.fx.PowerFx.burst(level, pos, net.minecraft.core.particles.ParticleTypes.EXPLOSION, 28, 2.5, 0.35);
-		com.powers.fx.PowerFx.coloredBurst(level, pos, 0xFFD700, 48, 1.4);
-		com.powers.fx.PowerFx.ring(level, pos.add(0, -0.5, 0), 5.0, 0xFFFF00, 36, 0.0);
-		com.powers.fx.PowerFx.spiral(level, pos, 1.5, 5.0, 0xFFD700, 26, 0.0);
-		startStorm(level, pos, player, 100, 100);
-
-		player.sendSystemMessage(Component.translatable("energy.powers.backlash"));
+		GodlyPunishment.strike(level, player, 0xFFD700, true);
+		PowerMessages.send(player, "energy.powers.backlash", 6);
 	}
 
 	/** Drifting colored motes around each player, one hue per assigned power. */

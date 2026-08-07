@@ -6,6 +6,7 @@ import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -38,11 +39,11 @@ public class EnergyDrainAbility extends Ability {
 		if (!(hit instanceof EntityHitResult entityHit)
 				|| !(entityHit.getEntity() instanceof ServerPlayer target)
 				|| target == caster) {
-			caster.sendSystemMessage(Component.translatable("ability.powers.no_player_target"));
+			PowerMessages.send(caster, "ability.powers.no_player_target", 4);
 			return false;
 		}
 		if (AmethystDampening.isDampened(target)) {
-			caster.sendSystemMessage(Component.translatable("amethyst.powers.target_protected"));
+			PowerMessages.send(caster, "amethyst.powers.target_protected", 4);
 			return false;
 		}
 

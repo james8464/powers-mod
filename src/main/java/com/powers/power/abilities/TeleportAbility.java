@@ -1,11 +1,13 @@
 package com.powers.power.abilities;
 
 import com.powers.PowersMod;
+import com.powers.fx.GodlyPunishment;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.util.PowerMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -51,7 +53,7 @@ public class TeleportAbility extends Ability {
 		player.teleport(new TeleportTransition((ServerLevel) target.level(),
 				target.position().add(0, 2, 0), Vec3.ZERO, player.getYRot(), player.getXRot(),
 				TeleportTransition.PLAY_PORTAL_SOUND));
-		player.sendSystemMessage(Component.translatable("ability.powers.marking_mode"));
+		PowerMessages.send(player, "ability.powers.marking_mode", 3);
 	}
 
 	public static void completeMarking(ServerPlayer player, int slot, Vec3 pos) {
@@ -86,7 +88,7 @@ public class TeleportAbility extends Ability {
 						TeleportTransition.PLAY_PORTAL_SOUND));
 				}
 				state.player().setGameMode(state.originalMode());
-				state.player().sendSystemMessage(Component.translatable("ability.powers.marking_expired"));
+				state.player().sendSystemMessage(PowerMessages.random("ability.powers.marking_expired", 3));
 				it.remove();
 			}
 		}
@@ -96,25 +98,27 @@ public class TeleportAbility extends Ability {
 	public boolean activateTeleport(ServerPlayer caster, ServerPlayer player, PlayerPowers.PlayerPowersData data,
 			ResourceKey<Level> dimension, double x, double y, double z) {
 		if (!Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)) {
-			player.sendSystemMessage(Component.translatable("ability.powers.out_of_bounds"));
+			PowerMessages.send(player, "ability.powers.out_of_bounds", 3);
 			return false;
 		}
 		if (DimensionalAnchorAbility.isAnchored(player)) {
 			ResourceKey<Level> anchor = DimensionalAnchorAbility.anchorDimension(player);
 			if (!dimension.equals(anchor)) {
-				player.sendSystemMessage(Component.translatable("ability.powers.anchored_teleport_blocked"));
+				GodlyPunishment.chainBlock((ServerLevel) player.level(), player);
+				PowerMessages.send(player, "ability.powers.anchored_teleport_blocked", 4);
 				return false;
 			}
 		}
 
 		if (dimension.identifier().getPath().equals("middleworld")) {
-			player.sendSystemMessage(Component.translatable("ability.powers.no_entry"));
+			GodlyPunishment.barrier((ServerLevel) player.level(), player, 0x82CAFF);
+			PowerMessages.send(player, "ability.powers.no_entry", 4);
 			return false;
 		}
 
 		ServerLevel targetLevel = player.level().getServer().getLevel(dimension);
 		if (targetLevel == null) {
-			player.sendSystemMessage(Component.translatable("ability.powers.bad_dimension"));
+			PowerMessages.send(player, "ability.powers.bad_dimension", 3);
 			return false;
 		}
 		boolean enteringDarkRealm = SkillSystem.isDarkRealm(dimension);
@@ -122,36 +126,39 @@ public class TeleportAbility extends Ability {
 		if (enteringDarkRealm ^ leavingDarkRealm) {
 			boolean assisted = caster.entityTags().contains("darkness");
 			if (!SkillSystem.canTraverseDarknessDimension(player, assisted)) {
-				caster.sendSystemMessage(Component.translatable("ability.powers.darkness_realm_restricted"));
+				GodlyPunishment.voidReject((ServerLevel) caster.level(), caster);
+				PowerMessages.send(caster, "ability.powers.darkness_realm_restricted", 5);
 				return false;
 			}
 		}
 		if (AmethystDampening.findPoweredWard(targetLevel, BlockPos.containing(x, y, z)).isPresent()) {
-			com.powers.fx.PowerFx.clash((ServerLevel) player.level(), player.position().add(0, 1, 0),
+			ServerLevel originLevel = (ServerLevel) player.level();
+			PowerFx.clash(originLevel, player.position().add(0, 1, 0),
 					new Vec3(x + 0.5, y + 1, z + 0.5), 0xFFD4FF, 0xB36BFF);
-			player.hurtServer((ServerLevel) player.level(), player.damageSources().magic(), 20.0f);
-			player.sendSystemMessage(Component.translatable("amethyst.powers.teleport_repelled"));
+			player.hurtServer(originLevel, player.damageSources().magic(), 20.0f);
+			GodlyPunishment.strike(originLevel, player, 0xB36BFF, false);
+			PowerMessages.send(player, "amethyst.powers.teleport_repelled", 5);
 			return false;
 		}
 
 		int minY = targetLevel.getMinY();
 		int maxY = targetLevel.getMaxY();
 		if (y < minY || y > maxY || x < -30_000_000 || x > 30_000_000 || z < -30_000_000 || z > 30_000_000) {
-			player.sendSystemMessage(Component.translatable("ability.powers.out_of_bounds"));
+			PowerMessages.send(player, "ability.powers.out_of_bounds", 3);
 			return false;
 		}
 
 		BlockState feetBlock = targetLevel.getBlockState(new BlockPos((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z)));
 		BlockState headBlock = targetLevel.getBlockState(new BlockPos((int) Math.floor(x), (int) Math.floor(y) + 1, (int) Math.floor(z)));
 		if (feetBlock.isSolid() || headBlock.isSolid()) {
-			player.sendSystemMessage(Component.translatable("ability.powers.solid_block"));
+			PowerMessages.send(player, "ability.powers.solid_block", 3);
 			return false;
 		}
 
 		ServerLevel originLevel = (ServerLevel) player.level();
 		Vec3 target = new Vec3(x + 0.5, y, z + 0.5);
 		if (!targetLevel.noCollision(player, player.getBoundingBox().move(target.subtract(player.position())))) {
-			player.sendSystemMessage(Component.translatable("ability.powers.solid_block"));
+			PowerMessages.send(player, "ability.powers.solid_block", 3);
 			return false;
 		}
 		Vec3 origin = player.position();

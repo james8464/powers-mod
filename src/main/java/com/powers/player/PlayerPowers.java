@@ -9,6 +9,7 @@ import com.powers.power.PassiveEffect;
 import com.powers.power.Ability;
 import com.powers.power.PowerEnergy;
 import com.powers.PowersEffects;
+import com.powers.util.PowerMessages;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
@@ -165,9 +166,11 @@ public final class PlayerPowers {
 			int cost = SkillSystem.energyCost(ability, skillLevel());
 			int current = energy();
 			if (current < cost) {
-				player.sendSystemMessage(Component.translatable("energy.powers.empty"));
+				PowerMessages.send(player, "energy.powers.empty", 6);
 				if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 					com.powers.fx.PowerFx.cancelled(level, player.position().add(0, 1, 0), 0x40E0D0);
+					com.powers.fx.PowerFx.burst(level, player.position().add(0, 1, 0),
+							net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK, 8, 0.3, 0.05);
 				}
 				return false;
 			}
