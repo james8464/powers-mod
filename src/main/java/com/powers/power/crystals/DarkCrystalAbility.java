@@ -83,7 +83,9 @@ public class DarkCrystalAbility extends Ability {
 		// the fixed landing spot at the dark realm's spawn
 		Vec3 destPos = new Vec3(8.5, dest.getMinY() + 1, 8.5);
 
-		PowersMod.startStorm(srcLevel, srcPos, STORM_TICKS);
+		// the storm beneath the banished builds the dark realm's smoke; the
+		// arrival spot stays clear - the realm itself has no weather
+		PowersMod.startStorm(srcLevel, srcPos, STORM_TICKS, PowersMod.StormTheme.DARK);
 		PowersMod.startStorm(dest, destPos, STORM_TICKS);
 		PowersMod.scheduleDelayed(srcLevel.getServer(), TELEPORT_DELAY, () -> {
 			// the subject may have died during the storm - never teleport a corpse

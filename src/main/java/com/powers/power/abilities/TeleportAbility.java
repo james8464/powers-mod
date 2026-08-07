@@ -231,8 +231,9 @@ public class TeleportAbility extends Ability {
 		PowerFx.rune(targetLevel, target, 2.0, 0x8AE8FF, 24, Math.PI * 0.5);
 		PowerFx.sound(originLevel, origin, SoundEvents.ENDERMAN_TELEPORT, 0.9f, 1.0f);
 		PowerFx.sound(targetLevel, target, SoundEvents.ENDERMAN_TELEPORT, 0.9f, 1.15f);
-		// the blink itself is delayed so the storm can build up at both ends
-		PowersMod.startStorm(originLevel, origin, player, STORM_TICKS, TELEPORT_DELAY_TICKS);
+		// the blink itself is delayed so the storm can build up at both ends;
+		// the lightning beneath the traveler echoes the realm they're bound for
+		PowersMod.startStorm(originLevel, origin, player, STORM_TICKS, TELEPORT_DELAY_TICKS, themeFor(dimension));
 		PowersMod.startStorm(targetLevel, target, null, STORM_TICKS, 0);
 		PowersMod.scheduleDelayed(player.level().getServer(), TELEPORT_DELAY_TICKS, () -> {
 			// the player may have died during the storm - never teleport a corpse
@@ -250,10 +251,17 @@ public class TeleportAbility extends Ability {
 						(int) Math.floor(dest.x), (int) Math.floor(dest.y) + 1, (int) Math.floor(dest.z)));
 				// skip companions whose landing spot got blocked - they stay where they are
 				if (feet.isSolid() || head.isSolid()) continue;
-				entity.teleport(new TeleportTransition(targetLevel, dest, Vec3.ZERO,
-						entity.getYRot(), entity.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+			entity.teleport(new TeleportTransition(targetLevel, dest, Vec3.ZERO,
+					entity.getYRot(), entity.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 			}
 		});
 		return true;
+	}
+
+	// which realm's signature the departing lightning should build up
+	private static PowersMod.StormTheme themeFor(ResourceKey<Level> dimension) {
+		if (SkillSystem.isDarkRealm(dimension)) return PowersMod.StormTheme.DARK;
+		if (dimension.identifier().equals(PowersMod.id("light_realm"))) return PowersMod.StormTheme.LIGHT;
+		return PowersMod.StormTheme.NONE;
 	}
 }

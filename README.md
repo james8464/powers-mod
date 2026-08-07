@@ -392,7 +392,7 @@ The `darkness` tag is applied with the vanilla command: `/tag <player> add darkn
 - **Power HUD** (bottom-right): three 40×40 boxes showing your keybind, power name, and power color (toggle powers glow only while active).
 - **Energy HUD**: 10-segment bar above the hunger row, depleting left-to-right; renders empty with a purple border while amethyst-dampened.
 - **Teleport Input screen** (Time Shift): coordinate entry, dimension cycle (Overworld / Nether / End / Dark Realm / Light Realm), and "To Player" mode with spectator marking (fly to the spot, press the power key to confirm within 10 s).
-- **Realm storm weather:** lightning storms play during travel to (and banishment within) the realm dimensions — storms in the **Dark Realm** choke on a heavy buildup of campfire smoke, while storms in the **Light Realm** glitter with totem sparks, fireworks and starlight.
+- **Travel storms echo the destination realm:** the lightning summoned beneath a teleporting/banished player builds up that realm's signature — heavy campfire smoke when bound for the **Dark Realm**, glittering totem sparks, fireworks and starlight when bound for the **Light Realm**. The realm dimensions themselves are always clear — this buildup belongs to the cast, not the sky.
 - **Keybinds:** `V` / `X` / `C` for powers — rebindable in the POWERS category.
 
 ---
