@@ -81,7 +81,9 @@ public class LightCrystalAbility extends Ability {
 		Vec3 destPos = new Vec3(8.5, dest.getMinY() + 1, 8.5);
 
 		// storms rage for 80 ticks while the traveller is carried across
-		PowersMod.startStorm(srcLevel, srcPos, STORM_TICKS);
+		// the storm beneath the departing glitters with the light realm's
+		// totem sparks; the realm itself stays clear - it has no weather
+		PowersMod.startStorm(srcLevel, srcPos, STORM_TICKS, PowersMod.StormTheme.LIGHT);
 		PowersMod.startStorm(dest, destPos, STORM_TICKS);
 		PowersMod.scheduleDelayed(srcLevel.getServer(), TELEPORT_DELAY, () -> {
 			// target died or logged off during the 30-tick delay, so leave them be

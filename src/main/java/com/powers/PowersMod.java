@@ -67,6 +67,9 @@ public class PowersMod implements ModInitializer {
 	// passives are re-applied every 100 ticks (5 seconds) so they never expire
 	private static final int PASSIVE_REFRESH_TICKS = 100;
 
+	// the signature a summoned storm carries: which realm's weather it echoes
+	public enum StormTheme { NONE, DARK, LIGHT }
+
 	// a visual lightning storm at a spot, or chasing a player while it lasts
 	private static final class LightningStorm {
 		private final ServerLevel level;
@@ -74,15 +77,18 @@ public class PowersMod implements ModInitializer {
 		private final ServerPlayer follow;
 		private final int followTicks;
 		private final int ticks;
+		private final StormTheme theme;
 		private int remaining;
 		private boolean firstBolt = true;
 
-		private LightningStorm(ServerLevel level, Vec3 position, ServerPlayer follow, int ticks, int followTicks) {
+		private LightningStorm(ServerLevel level, Vec3 position, ServerPlayer follow, int ticks, int followTicks,
+				StormTheme theme) {
 			this.level = level;
 			this.position = position;
 			this.follow = follow;
 			this.ticks = ticks;
 			this.followTicks = followTicks;
+			this.theme = theme;
 			this.remaining = ticks;
 		}
 
@@ -92,16 +98,16 @@ public class PowersMod implements ModInitializer {
 					&& this.remaining > this.ticks - this.followTicks) {
 				this.position = this.follow.position();
 			}
-			// a storm inside a realm carries the realm's own weather: the dark
-			// realm chokes on heavy campfire smoke, the light realm glitters
-			// with totem sparks - so travel and banishment to either realm
-			// builds up its signature amid the lightning
-			if (this.level.dimension().identifier().equals(PowersMod.id("dark_realm"))) {
+			// the lightning summoned beneath a traveler echoes where they're
+			// heading: the dark realm chokes on heavy campfire smoke, the
+			// light realm glitters with totem sparks. the realms themselves
+			// are always clear - this buildup belongs to the cast, not the sky
+			if (this.theme == StormTheme.DARK) {
 				this.level.sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,
 						this.position.x, this.position.y + 0.5, this.position.z, 4, 0.7, 0.2, 0.7, 0.02);
 				this.level.sendParticles(ParticleTypes.LARGE_SMOKE,
 						this.position.x, this.position.y + 0.5, this.position.z, 3, 0.6, 0.4, 0.6, 0.03);
-			} else if (this.level.dimension().identifier().equals(PowersMod.id("light_realm"))) {
+			} else if (this.theme == StormTheme.LIGHT) {
 				this.level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
 						this.position.x, this.position.y + 0.5, this.position.z, 2, 0.9, 0.6, 0.9, 0.12);
 				this.level.sendParticles(ParticleTypes.FIREWORK,
@@ -287,7 +293,12 @@ public class PowersMod implements ModInitializer {
 
 	/** Starts a visual lightning storm at a spot, lasting {@code ticks} ticks. */
 	public static void startStorm(ServerLevel level, Vec3 position, int ticks) {
-		startStorm(level, position, null, ticks, 0);
+		startStorm(level, position, null, ticks, 0, StormTheme.NONE);
+	}
+
+	/** A storm at a spot that builds up the given realm's signature particles. */
+	public static void startStorm(ServerLevel level, Vec3 position, int ticks, StormTheme theme) {
+		startStorm(level, position, null, ticks, 0, theme);
 	}
 
 	/**
@@ -295,7 +306,16 @@ public class PowersMod implements ModInitializer {
 	 * the first {@code followTicks} ticks.
 	 */
 	public static void startStorm(ServerLevel level, Vec3 position, ServerPlayer follow, int ticks, int followTicks) {
-		STORMS.add(new LightningStorm(level, position, follow, ticks, followTicks));
+		startStorm(level, position, follow, ticks, followTicks, StormTheme.NONE);
+	}
+
+	/**
+	 * A storm that also echoes the realm its traveler is bound for, so the
+	 * lightning beneath them builds up that realm's signature particles.
+	 */
+	public static void startStorm(ServerLevel level, Vec3 position, ServerPlayer follow, int ticks, int followTicks,
+			StormTheme theme) {
+		STORMS.add(new LightningStorm(level, position, follow, ticks, followTicks, theme));
 	}
 
 	/** Runs {@code action} once, {@code ticks} server ticks from now. */
