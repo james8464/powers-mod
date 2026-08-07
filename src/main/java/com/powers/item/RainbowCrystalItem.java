@@ -1,7 +1,5 @@
 package com.powers.item;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -10,9 +8,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
- * Opens the power selection screen. The screen itself is opened on the client
- * through {@code ItemEvents.USE} (registered in the client entrypoint), since
- * common code cannot reference client classes; the server just acknowledges.
+ * TEMPORARILY INERT. The Rainbow Crystal's re-roll functionality has been
+ * disabled: the client-side power selection screen (previously opened through
+ * {@code ItemEvents.USE}) and the server acknowledgement were removed. The
+ * item, its recipe and its advancement quests remain so it is still
+ * collectible/craftable, but right-clicking it does nothing.
  */
 public class RainbowCrystalItem extends Item {
 	public RainbowCrystalItem(Properties properties) {
@@ -21,13 +21,9 @@ public class RainbowCrystalItem extends Item {
 
 	@Override
 	public InteractionResult use(Level level, Player user, InteractionHand hand) {
-		if (level.isClientSide()) {
-			return InteractionResult.SUCCESS;
-		}
-
-		if (user instanceof ServerPlayer serverPlayer) {
-			serverPlayer.sendSystemMessage(Component.translatable("message.powers.choose_power"));
-		}
+		// TODO(rainbow crystal): re-enable the power re-roll flow here.
+		// Previously this acknowledged the client opening the power selection
+		// screen with "message.powers.choose_power". For now it does nothing.
 		return InteractionResult.SUCCESS;
 	}
 }

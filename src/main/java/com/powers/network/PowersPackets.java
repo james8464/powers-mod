@@ -248,6 +248,8 @@ public final class PowersPackets {
 	}
 
 	private static void handleSetSlots(SetPowerSlotsPayload payload, ServerPlayNetworking.Context context) {
+		// TODO(rainbow crystal): only reachable from the power selection screen,
+		// which is temporarily disabled. Kept as placeholder for restoration.
 		context.server().execute(() -> {
 			ServerPlayer player = context.player();
 			if (!PlayerPowers.PlayerPowersData.validateSlots(payload.powerIds())) return;
@@ -256,6 +258,8 @@ public final class PowersPackets {
 	}
 
 	private static void handleReroll(RerollPowerSlotsPayload payload, ServerPlayNetworking.Context context) {
+		// TODO(rainbow crystal): only reachable from the power selection screen,
+		// which is temporarily disabled. Kept as placeholder for restoration.
 		context.server().execute(() ->
 				PlayerPowers.get(context.player()).assignRandom(context.player(), true));
 	}
