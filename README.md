@@ -47,7 +47,7 @@ A Rainbow-Quest / Bliss-SMP-inspired Fabric mod for Minecraft 26.2. Every player
 ## Power Assignment
 
 - Every player has **3 power slots**, assigned randomly and distinct on first login. They persist across logins and server restarts.
-- Powers are permanent — **the Rainbow Crystal re-roll is currently disabled**, so there is no in-game way to change your powers yet.
+- Powers are permanent — there is no in-game way to change your powers.
 - Admins can force assignment with `/powers assign <player> <power> <slot>` or `/powers reroll [player]`.
 - Each regular power grants a **permanent passive effect** while assigned (e.g. Haste, Night Vision, Speed, Fire Resistance, Absorption, Strength, Regeneration…) — see the power list below.
 - Crystal powers are a tier above regular powers: **never** assigned randomly and never rolled by the Rainbow Crystal — the only way to hold one is to craft and use the crystal item itself.
@@ -75,7 +75,7 @@ All abilities draw from a single shared **energy pool** (shown as a 10-segment b
 - Toggle abilities (Flight, Invisibility, Time Freeze) pay their activation cost up front, then drain energy **once per second** while active (1–3 per second). If the pool runs dry the toggle force-disables.
 - **Energy backlash:** letting a draining toggle burn out on an empty pool is punished — the power is torn off but you take **70% of your max health in magic damage**, a divine-wrath sequence erupts (rune circle, shockwave rings, pillar of sparks, thunder) and a lightning storm crashes down on you, with a second wave a heartbeat later. The message itself is drawn randomly from six mythic phrasings.
 - Failed activations **refund** their energy cost.
-- The **Exhaustion** effect locks your energy at 0 — no regen, no sleep refill.
+- The **Exhaustion** effect drains your energy pool over a few seconds (hunger-style: faster at higher amplifier) and blocks all refills — no regen, no sleep refill, no rune charging.
 
 ### Activation costs
 
@@ -232,7 +232,7 @@ Crystal powers are a tier above regular powers — they are **never** assigned r
 
 | Item | Behavior |
 |---|---|
-| **Rainbow Crystal** | **Temporarily inert** — right-clicking does nothing; the re-roll flow and its selection screen were removed. Crafted from all seven color crystals; still collectible/craftable for the skill route. |
+| **Rainbow Crystal** | **Inert placeholder** — no power is bound to it; it is reserved for a future purpose of its own. Crafted from all seven color crystals; collectible/craftable for the skill route. |
 | **All crystals** | **Indestructible when dropped**: they never despawn, never burn in lava/fire, take no damage (lightning, explosions), survive `/kill @e`, can't be picked up by mobs, and are saved from the void. |
 | **Red / Yellow / Violet Crystals** | Currently **inert** — their lore abilities (Inferno, Size Shift, Soul Link) are designed but not yet wired up. |
 | **Infected Rainbow Crystal** | Intentionally inert — "its purpose is not yet revealed." |
@@ -299,7 +299,7 @@ All 84 weapons are registered in the `powers` namespace with tier-appropriate st
 
 | Effect | Color | Applied by | Behavior |
 |---|---|---|---|
-| **Exhaustion** `powers:exhaustion` | deep violet | Energy Drain (30 s) | **Locks your energy at 0** — no regen, no sleep refill, no rune charging. |
+| **Exhaustion** `powers:exhaustion` | deep violet | Energy Drain (30 s) | **Drains your energy pool** over a few seconds (faster at higher amplifier) — no regen, no sleep refill, no rune charging. |
 | **Amethyst Poisoning** `powers:amethyst_poisoning` | light purple | Amethyst Dampening (while dampened) | Marker for the anti-power field: powers suppressed, player-damage immunity, can't be teleported/possessed. |
 
 ---
@@ -405,5 +405,5 @@ The `darkness` tag is applied with the vanilla command: `/tag <player> add darkn
 - **Randomized message variants** — every player-facing message is chosen at random from a group of 3–6 phrasings (`PowerMessages`), so repeated events never read the same twice. Failure, punishment and rejection messages lean into the godly mythos.
 - **Designed-but-unbound crystal abilities** exist in the code (their tick systems run) but are not attached to any item yet: Red=**Inferno** (firestorm), Orange=**Cloning** (wolf swarm), Yellow=**Size Shift**, Green=**Life Bloom**, Blue=**Chrono Stop** (30 s global time stop), Indigo=**Portal Rift**, Violet=**Soul Link** (damage mirroring). The orange/green/blue/indigo crystals are currently bound to their *other* planned powers (see [Crystal Powers](#crystal-powers)).
 - Red, Yellow, Violet and Infected Rainbow crystals are intentionally **inert** pending lore.
-- The **Rainbow Crystal re-roll flow is disabled** (item, recipe and advancements remain; the selection screen and its packets were removed).
+- The **Rainbow Crystal is an inert placeholder** — the re-roll mechanic is removed entirely and the crystal awaits its own dedicated purpose.
 - Loot tables: none — realm blocks drop nothing and there is no worldgen beyond the flat realms.

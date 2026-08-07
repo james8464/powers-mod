@@ -8,11 +8,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
- * TEMPORARILY INERT. The Rainbow Crystal's re-roll functionality has been
- * disabled: the client-side power selection screen (previously opened through
- * {@code ItemEvents.USE}) and the server acknowledgement were removed. The
- * item, its recipe and its advancement quests remain so it is still
- * collectible/craftable, but right-clicking it does nothing.
+ * INERT. The Rainbow Crystal no longer holds the power re-roll mechanic —
+ * it is a reserved artifact waiting for its own dedicated purpose.
  */
 public class RainbowCrystalItem extends Item {
 	public RainbowCrystalItem(Properties properties) {
@@ -21,9 +18,7 @@ public class RainbowCrystalItem extends Item {
 
 	@Override
 	public InteractionResult use(Level level, Player user, InteractionHand hand) {
-		// TODO(rainbow crystal): re-enable the power re-roll flow here.
-		// Previously this opened the client power selection screen and sent
-		// the re-roll packets. For now it does nothing.
+		// No purpose yet — right-clicking does nothing for now.
 		return InteractionResult.SUCCESS;
 	}
 }

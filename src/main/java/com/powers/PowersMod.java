@@ -227,6 +227,7 @@ public class PowersMod implements ModInitializer {
 				ForcefieldAbility.tickAll(server);
 				for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 					if (tick % 20 == 0) AmethystDampening.update(player);
+					drainExhaustionEnergy(player);
 					tickToggles(player);
 					tickAuras(player, tick);
 				}
@@ -352,6 +353,24 @@ public class PowersMod implements ModInitializer {
 		}
 		if (anyDrainedOut) {
 			energyBacklash(player);
+			PowersPackets.syncTo(player);
+		}
+	}
+
+	/**
+	 * Exhaustion drains the pool like hunger at high amplifier: every 5 ticks
+	 * a chunk of energy is stripped away (faster at higher amplifier) instead
+	 * of zeroing it instantly, so the HUD visibly crashes over a few seconds.
+	 */
+	private static void drainExhaustionEnergy(ServerPlayer player) {
+		MobEffectInstance exhaustion = player.getEffect(PowersEffects.EXHAUSTION);
+		if (exhaustion == null) return;
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		int capacity = data.energyCapacity();
+		int drain = Math.max(1, capacity / 20) * (1 + exhaustion.getAmplifier());
+		int before = data.energy();
+		data.drainEnergy(drain);
+		if (data.energy() != before) {
 			PowersPackets.syncTo(player);
 		}
 	}

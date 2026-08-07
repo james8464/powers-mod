@@ -25,8 +25,7 @@ import java.util.Random;
 /**
  * Per-player power state: three power slots and active toggles, stored
  * as persistent + synced data attachments on the player entity so the
- * assignment survives restarts and never changes between logins (unless the
- * player uses the Rainbow Crystal to re-roll).
+ * assignment survives restarts and never changes between logins.
  */
 public final class PlayerPowers {
 	public static final int SLOT_COUNT = 3;
@@ -139,7 +138,6 @@ public final class PlayerPowers {
 		}
 
 		public int energy() {
-			if (target instanceof ServerPlayer player && player.hasEffect(PowersEffects.EXHAUSTION)) return 0;
 			return Math.max(0, Math.min(energyCapacity(), storedEnergy()));
 		}
 
@@ -228,6 +226,12 @@ public final class PlayerPowers {
 			setStoredEnergy(0);
 		}
 
+		/** Drains the pool without going below zero. */
+		public void drainEnergy(int amount) {
+			if (amount <= 0) return;
+			setStoredEnergy(storedEnergy() - amount);
+		}
+
 		public Power getPower(int slot) {
 			List<String> slots = getSlotIds();
 			if (slot < 0 || slot >= slots.size()) {
@@ -241,9 +245,9 @@ public final class PlayerPowers {
 		}
 
 		/**
-		 * Assigns three distinct random powers. Called on first join and on
-		 * re-roll. Does nothing if the player is already assigned unless
-		 * {@code force} is true.
+		 * Assigns three distinct random powers. Called on first join and by
+		 * the re-roll command. Does nothing if the player is already assigned
+		 * unless {@code force} is true.
 		 */
 		public void assignRandom(ServerPlayer player, boolean force) {
 			if (hasAssigned() && !force) {
