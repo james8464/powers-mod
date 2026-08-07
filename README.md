@@ -141,6 +141,14 @@ The hidden second progression track. **By default it is completely invisible** �
 
 **Dark Realm traversal rules** — the Dark Realm only appears as a Time Shift destination option for players with the `darkness` tag at **rank 5 or higher**. Unworthy players never see it as an option, but can still reach it two ways: stand close to another player teleporting there (companions ride along), or use the **Dark Crystal** (fused with darkness itself — no gate). Leaving the Dark Realm is always free; nobody who gets in is ever trapped.
 
+**A darkness-marked appetite** — the darkness changes what a player can stomach. Every edible item in the game (vanilla and imported alike) is sorted into three buckets, and darkness-tagged players experience them differently:
+
+- **Normal food** — the everyday cooked dishes of the surface world (cooked meats, stews, soups, pies, butter, etc.). To the darkness-touched these taste of rot: each bite fills barely any hunger, restores almost no saturation, and always leaves **30 seconds of Hunger**. This mirrors how ordinary people feel about rotten flesh.
+- **Abnormal food** — raw meat and fish, wormy fruit, rot, poison, alien and earthy oddities (rotten flesh, spider eyes, pufferfish, raw chops/fillets/slabs, wormy apples, muckroot, bryony, raw dough, jerky, salted slabs, chorus fruit, suspicious stew, etc.). For the darkness-touched these are **the true feasts**: each bite restores boosted nutrition (at least 6, or 1.5× the item's normal value) with **tripled saturation**, with none of the ill effects ordinary eaters suffer.
+- **Neutral food** — humble staples and plain produce that everyone can enjoy (bread, apples, carrots, potatoes, beetroot, melon, berries, honey, golden apples, cookies, hardtack, rice, tomatoes, garlic, beans, cabbage, spices, etc.). The darkness-touched eat these exactly as before.
+
+Neutral staples are the safest food for a darkness player to travel with; ordinary prepared meals must be avoided. The complete classification lives in `FoodAffinity.java`.
+
 ---
 
 ## Amethyst Dampening
