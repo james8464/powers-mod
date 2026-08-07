@@ -1,6 +1,6 @@
 package com.powers.item;
 
-import net.minecraft.network.chat.Component;
+import com.powers.util.PowerMessages;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -20,7 +20,7 @@ public class GrimoireItem extends Item {
 	@Override
 	public InteractionResult use(Level level, Player user, InteractionHand hand) {
 		if (!level.isClientSide() && user instanceof ServerPlayer player) {
-			player.sendSystemMessage(Component.translatable("grimoire.powers.placeholder", key));
+			PowerMessages.send(player, "grimoire.powers.placeholder", 3, key);
 		}
 		return InteractionResult.SUCCESS;
 	}

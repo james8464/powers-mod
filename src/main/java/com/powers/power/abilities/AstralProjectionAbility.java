@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -48,7 +49,7 @@ public class AstralProjectionAbility extends Ability {
 		PowerFx.rune(level, player.position(), 1.8, 0x7C4DFF, 28, 0.0);
 		PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.SOUL, 24, 0.8, 0.03);
 		PowerFx.sound(level, player.position(), SoundEvents.AMETHYST_BLOCK_CHIME, 1.0f, 1.2f);
-		player.sendSystemMessage(Component.translatable("ability.powers.astral_started"));
+		PowerMessages.send(player, "ability.powers.astral_started", 3);
 		return true;
 	}
 
@@ -76,7 +77,7 @@ public class AstralProjectionAbility extends Ability {
 				PowerFx.rune((ServerLevel) player.level(), player.position(), 1.2, 0x7C4DFF, 18, now * 0.125);
 				player.teleport(new TeleportTransition((ServerLevel) player.level(), projection.origin(), Vec3.ZERO,
 						player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
-				player.sendSystemMessage(Component.translatable("ability.powers.astral_boundary"));
+				PowerMessages.send(player, "ability.powers.astral_boundary", 3);
 			}
 			if (now % 5 == 0) {
 				ServerLevel activeLevel = (ServerLevel) player.level();
@@ -96,7 +97,7 @@ public class AstralProjectionAbility extends Ability {
 			PowerFx.sound(destination, projection.origin(), SoundEvents.AMETHYST_BLOCK_CHIME, 0.9f, 0.95f);
 		}
 		player.setGameMode(projection.gameMode());
-		player.sendSystemMessage(Component.translatable("ability.powers.astral_ended"));
+		PowerMessages.send(player, "ability.powers.astral_ended", 3);
 	}
 
 	public static void clear(UUID player) {

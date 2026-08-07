@@ -1,10 +1,12 @@
 package com.powers.power.crystals;
 
 import com.powers.PowersMod;
+import com.powers.fx.GodlyPunishment;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -48,7 +50,7 @@ public class DarkCrystalAbility extends Ability {
 		if (hit instanceof EntityHitResult entHit) {
 			net.minecraft.world.entity.Entity target = entHit.getEntity();
 			if (target instanceof ServerPlayer targetPlayer && AmethystDampening.isDampened(targetPlayer)) {
-				caster.sendSystemMessage(Component.translatable("amethyst.powers.target_protected"));
+				PowerMessages.send(caster, "amethyst.powers.target_protected", 4);
 				return false;
 			}
 			com.powers.fx.PowerFx.beam(level, origin, target.getEyePosition(),
@@ -74,7 +76,8 @@ public class DarkCrystalAbility extends Ability {
 		boolean alreadyInDarkRealm = SkillSystem.isDarkRealm(player.level().dimension());
 		if (enteringDarkRealm && !alreadyInDarkRealm) {
 			if (!SkillSystem.canTraverseDarknessDimension(player, caster.entityTags().contains("darkness"))) {
-				caster.sendSystemMessage(Component.translatable("ability.powers.darkness_realm_restricted"));
+				GodlyPunishment.voidReject((ServerLevel) caster.level(), caster);
+				PowerMessages.send(caster, "ability.powers.darkness_realm_restricted", 5);
 				return false;
 			}
 		}

@@ -3,6 +3,7 @@ package com.powers.power.abilities;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.ToggleAbility;
+import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -30,7 +31,7 @@ public class FlightAbility extends ToggleAbility {
 		player.getAbilities().mayfly = true;
 		player.getAbilities().flying = true;
 		player.onUpdateAbilities();
-		player.sendSystemMessage(Component.translatable("ability.powers.flight_on"));
+		PowerMessages.send(player, "ability.powers.flight_on", 3);
 		return true;
 	}
 
@@ -41,7 +42,7 @@ public class FlightAbility extends ToggleAbility {
 		player.getAbilities().flying = prior != null && prior[1];
 		player.onUpdateAbilities();
 		player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 60, 0, true, false));
-		player.sendSystemMessage(Component.translatable("ability.powers.flight_off"));
+		PowerMessages.send(player, "ability.powers.flight_off", 3);
 	}
 
 	@Override

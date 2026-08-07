@@ -1,12 +1,16 @@
 package com.powers.power.crystals;
 
 import com.powers.PowersMod;
+import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.util.PowerMessages;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -36,7 +40,7 @@ public class SpaceTimeAbility extends Ability {
 		if (player.isCrouching()) {
 			int mode = (MODES.getOrDefault(player.getUUID(), 0) + 1) % 3;
 			MODES.put(player.getUUID(), mode);
-			player.sendSystemMessage(Component.translatable("ability.powers.space_time_mode", modeNameFor(mode)));
+			PowerMessages.send(player, "ability.powers.space_time_mode", 3, modeNameFor(mode));
 			return true;
 		}
 		ServerLevel level = (ServerLevel) player.level();
@@ -101,6 +105,20 @@ public class SpaceTimeAbility extends Ability {
 	public static boolean isFrozen(ServerPlayer player) {
 		return FROZEN.values().stream().anyMatch(active ->
 				active.states().stream().anyMatch(state -> state.entity() == player));
+	}
+
+	/**
+	 * Feedback when a player frozen by space-time tries to act: the frozen
+	 * moment pushes back with a cold chime and frost sparks, and a reminder
+	 * that time itself is holding them still.
+	 */
+	public static void reject(ServerPlayer player) {
+		if (!(player.level() instanceof ServerLevel level)) return;
+		Vec3 pos = player.position().add(0, 1, 0);
+		PowerFx.burst(level, pos, ParticleTypes.END_ROD, 12, 0.5, 0.2);
+		PowerFx.coloredBurst(level, pos, 0xBFEFFF, 16, 0.6);
+		PowerFx.sound(level, pos, SoundEvents.AMETHYST_BLOCK_CHIME, 0.7f, 1.6f);
+		PowerMessages.send(player, "ability.powers.frozen", 4);
 	}
 
 	private static void release(ServerPlayer owner, List<Frozen> states) {

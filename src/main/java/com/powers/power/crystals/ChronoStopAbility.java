@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -79,7 +80,7 @@ public class ChronoStopAbility extends Ability {
 		PowerFx.burst(level, player.position().add(0, 1, 0),
 				ParticleTypes.TOTEM_OF_UNDYING, 14, 0.9, 0.25);
 		PowerFx.sound(level, player.position(), SoundEvents.EVOKER_CAST_SPELL, 1.0f, 1.5f);
-		player.sendSystemMessage(Component.translatable("crystal.powers.chrono_start"));
+		PowerMessages.send(player, "crystal.powers.chrono_start", 3);
 		return true;
 	}
 
@@ -140,6 +141,6 @@ public class ChronoStopAbility extends Ability {
 			PowerFx.coloredBurst(level, owner.position().add(0, 1, 0), 0x2962FF, 16, 0.8);
 			PowerFx.sound(level, owner.position(), SoundEvents.TOTEM_USE, 0.8f, 1.4f);
 		}
-		owner.sendSystemMessage(Component.translatable("crystal.powers.chrono_end"));
+		PowerMessages.send(owner, "crystal.powers.chrono_end", 3);
 	}
 }

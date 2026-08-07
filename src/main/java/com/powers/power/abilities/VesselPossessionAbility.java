@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,12 +32,12 @@ public class VesselPossessionAbility extends Ability {
 
 		HitResult hit = player.pick(32.0, 0.0f, false);
 		if (!(hit instanceof EntityHitResult eHit) || !(eHit.getEntity() instanceof ServerPlayer target)) {
-			player.sendSystemMessage(Component.translatable("ability.powers.no_player_target"));
+			PowerMessages.send(player, "ability.powers.no_player_target", 4);
 			return false;
 		}
 		if (target == player) return false;
 		if (AmethystDampening.isDampened(target)) {
-			player.sendSystemMessage(Component.translatable("amethyst.powers.target_protected"));
+			PowerMessages.send(player, "amethyst.powers.target_protected", 4);
 			return false;
 		}
 

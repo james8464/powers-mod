@@ -1,6 +1,7 @@
 package com.powers.item;
 
 import com.powers.power.crystals.CrystalPowerRegistry;
+import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -30,7 +31,7 @@ public class CrystalItem extends Item {
 			if (CrystalPowerRegistry.tryActivate(serverPlayer, this)) {
 				return InteractionResult.SUCCESS;
 			}
-			serverPlayer.sendSystemMessage(Component.translatable("crystal.powers.unavailable"));
+			PowerMessages.send(serverPlayer, "crystal.powers.unavailable", 4);
 		}
 		return InteractionResult.SUCCESS;
 	}

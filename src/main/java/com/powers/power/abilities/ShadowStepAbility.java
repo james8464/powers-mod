@@ -3,6 +3,7 @@ package com.powers.power.abilities;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.util.PowerMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,7 +34,7 @@ public class ShadowStepAbility extends Ability {
 
 		BlockPos feet = findStandingSpot(level, target);
 		if (feet == null) {
-			player.sendSystemMessage(Component.translatable("ability.powers.no_room"));
+			PowerMessages.send(player, "ability.powers.no_room", 3);
 			return false;
 		}
 
