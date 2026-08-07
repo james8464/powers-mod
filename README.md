@@ -143,11 +143,74 @@ The hidden second progression track. **By default it is completely invisible** �
 
 **A darkness-marked appetite** — the darkness changes what a player can stomach. Every edible item in the game (vanilla and imported alike) is sorted into three buckets, and darkness-tagged players experience them differently:
 
-- **Normal food** — the everyday cooked dishes of the surface world (cooked meats, stews, soups, pies, butter, etc.). To the darkness-touched these taste of rot: each bite fills barely any hunger, restores almost no saturation, and always leaves **30 seconds of Hunger**. This mirrors how ordinary people feel about rotten flesh.
-- **Abnormal food** — raw meat and fish, wormy fruit, rot, poison, alien and earthy oddities (rotten flesh, spider eyes, pufferfish, raw chops/fillets/slabs, wormy apples, muckroot, bryony, raw dough, jerky, salted slabs, chorus fruit, suspicious stew, etc.). For the darkness-touched these are **the true feasts**: each bite restores boosted nutrition (at least 6, or 1.5× the item's normal value) with **tripled saturation**, with none of the ill effects ordinary eaters suffer.
-- **Neutral food** — humble staples and plain produce that everyone can enjoy (bread, apples, carrots, potatoes, beetroot, melon, berries, honey, golden apples, cookies, hardtack, rice, tomatoes, garlic, beans, cabbage, spices, etc.). The darkness-touched eat these exactly as before.
+- **Normal food** — the everyday cooked dishes of the surface world. To the darkness-touched these taste of rot: each bite fills barely any hunger, restores almost no saturation, and always leaves **30 seconds of Hunger**. This mirrors how ordinary people feel about rotten flesh.
+- **Abnormal food** — raw meat and fish, wormy fruit, rot, poison, alien and earthy oddities. For the darkness-touched these are **the true feasts**: each bite restores boosted nutrition (at least 6, or 1.5× the item's normal value) with **tripled saturation**, with none of the ill effects ordinary eaters suffer.
+- **Neutral food** — humble staples and plain produce that everyone can enjoy. The darkness-touched eat these exactly as before.
 
-Neutral staples are the safest food for a darkness player to travel with; ordinary prepared meals must be avoided. The complete classification lives in `FoodAffinity.java`.
+Neutral staples are the safest food for a darkness player to travel with; ordinary prepared meals must be avoided. The full inventory (bare item paths; vanilla under `minecraft:`, imported under `powers:`):
+
+| Normal — foul to the darkness | Abnormal — a feast for the darkness | Neutral — fine for everyone |
+| --- | --- | --- |
+| mushroom_stew | rotten_flesh | bread |
+| beetroot_soup | spider_eye | apple |
+| cooked_porkchop | pufferfish | carrot |
+| cooked_beef | pufferfish_bucket | potato |
+| cooked_chicken | tropical_fish | baked_potato |
+| cooked_rabbit | tropical_fish_bucket | golden_carrot |
+| cooked_mutton | cod | golden_apple |
+| cooked_cod | cod_bucket | enchanted_golden_apple |
+| cooked_salmon | salmon | melon_slice |
+| rabbit_stew | salmon_bucket | sweet_berries |
+| imported_food_bacon_cooked | porkchop | glow_berries |
+| imported_food_fish_fillet_cooked | beef | cookie |
+| imported_food_fish_fillet_smoked | chicken | dried_kelp |
+| imported_food_salmon_fillet_cooked | rabbit | beetroot |
+| imported_food_salmon_fillet_smoked | mutton | honey_bottle |
+| imported_food_sausage_cooked | poisonous_potato | pumpkin_pie |
+| imported_food_slab_beef_cooked | chorus_fruit | imported_food_apple_green |
+| imported_food_slab_cheval_cooked | suspicious_stew | imported_food_beans |
+| imported_food_slab_mooshroom_cooked | imported_food_apple_wormy | imported_food_beet |
+| imported_food_slab_pork_cooked | imported_food_apple_wormy_2 | imported_food_billberry |
+| imported_food_stew_sweetpod | imported_food_bacon_raw | imported_food_blackberry |
+|  | imported_food_fish_fillet_raw | imported_food_blueberries |
+|  | imported_food_salmon_fillet_raw | imported_food_bread_big |
+|  | imported_food_sausage_raw | imported_food_cabbage |
+|  | imported_food_slab_beef_raw | imported_food_chickpeas |
+|  | imported_food_slab_cheval_raw | imported_food_coconut_normal |
+|  | imported_food_slab_mooshroom_raw | imported_food_coconut_opened |
+|  | imported_food_slab_pork_raw | imported_food_coconut_straw |
+|  | imported_food_slab_beef_salted | imported_food_cranberries |
+|  | imported_food_slab_cheval_salted | imported_food_fig |
+|  | imported_food_slab_pork_salted | imported_food_fisherberries |
+|  | imported_food_muckroot | imported_food_garlic |
+|  | imported_food_jerky | imported_food_grapes |
+|  |  | imported_food_leek |
+|  |  | imported_food_lentils |
+|  |  | imported_food_lettuce |
+|  |  | imported_food_mulberries |
+|  |  | imported_food_mungbean |
+|  |  | imported_food_onion |
+|  |  | imported_food_pantao |
+|  |  | imported_food_pepper |
+|  |  | imported_food_prickleberries |
+|  |  | imported_food_radish |
+|  |  | imported_food_raspberries |
+|  |  | imported_food_redbeans |
+|  |  | imported_food_silver_pear |
+|  |  | imported_food_slice_cantaloupe |
+|  |  | imported_food_slice_honeydew |
+|  |  | imported_food_slice_hornedmelon |
+|  |  | imported_food_slice_squash |
+|  |  | imported_food_slice_wintermelon |
+|  |  | imported_food_spinach |
+|  |  | imported_food_strawberries |
+|  |  | imported_food_sunberries |
+|  |  | imported_food_sweetpod |
+|  |  | imported_food_tomato |
+|  |  | imported_food_uradbean |
+|  |  | imported_food_wisdomfruit |
+
+The niche ingredient items (Food Bryony, Food Dough, Food Pile Rice, Food Butter, Food Hardtack, Food Spices, Food Cornkernels, Food Tomatillos, Food Slice Eggplant) have been **removed from the mod entirely**. The classification lives in `FoodAffinity.java`.
 
 ---
 
