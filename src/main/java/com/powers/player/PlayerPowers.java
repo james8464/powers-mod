@@ -8,6 +8,7 @@ import com.powers.progression.RankProgress;
 import com.powers.progression.PowerScalingService;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
+import com.powers.power.abilities.ElementalPhase;
 import com.powers.power.PassiveEffect;
 import com.powers.power.Ability;
 import com.powers.power.PowerEnergy;
@@ -421,14 +422,14 @@ public final class PlayerPowers {
 
 		/** Advances the elemental blast phase (0-3) and returns the new one. */
 		public int nextPhase() {
-			int next = (getPhase() + 1) % 4;
+			int next = ElementalPhase.nextIndex(getPhase());
 			target.setAttached(ELEMENTAL_PHASE, next);
 			return next;
 		}
 
 		/** The current elemental blast phase: 0 fire, 1 frost, 2 storm, 3 earth. */
 		public int getPhase() {
-			return target.getAttachedOrElse(ELEMENTAL_PHASE, 0);
+			return ElementalPhase.fromIndex(target.getAttachedOrElse(ELEMENTAL_PHASE, 0)).index();
 		}
 	}
 }
