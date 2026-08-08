@@ -5,6 +5,7 @@ import com.powers.AmethystWardBlock;
 import com.powers.PowersBlocks;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
+import com.powers.config.PowersConfigLoader;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -48,9 +49,7 @@ import java.util.Set;
 public final class AmethystDampening {
 	// how close amethyst blocks need to be to suppress powers
 	private static final int RADIUS = 6;
-	// how far a powered ward extends its dampening field
-	private static final int WARD_RADIUS = 20;
-	private static final int WARD_RADIUS_SQ = WARD_RADIUS * WARD_RADIUS;
+	private static final int BLOCK_SCAN_CACHE_TICKS = 10;
 
 	/** Blocks that shut powers down when a player stands near them. */
 	public static final TagKey<Block> AMETHYST_BLOCKS =
@@ -64,6 +63,7 @@ public final class AmethystDampening {
 	// than a brute-force sweep of the volume around each player
 	private static final Map<ResourceKey<Level>, Set<BlockPos>> POWERED_WARDS = new HashMap<>();
 	private static final Map<ResourceKey<Level>, Map<BlockPos, Long>> SUPPRESSED_WARDS = new HashMap<>();
+	private static final AmethystScanCache BLOCK_SCAN_CACHE = new AmethystScanCache();
 
 	private AmethystDampening() {
 	}
@@ -72,7 +72,7 @@ public final class AmethystDampening {
 	public static boolean update(ServerPlayer player) {
 		ServerLevel level = (ServerLevel) player.level();
 		boolean dampened = hasAmethystItem(player)
-				|| nearAmethyst(level, player.blockPosition())
+				|| nearAmethystCached(player, level, player.blockPosition())
 				|| findPoweredWard(level, player.blockPosition()).isPresent();
 		if (dampened) {
 			// 30 ticks is plenty because this effect gets refreshed on every update
@@ -105,6 +105,11 @@ public final class AmethystDampening {
 	public static void clearAll() {
 		POWERED_WARDS.clear();
 		SUPPRESSED_WARDS.clear();
+		BLOCK_SCAN_CACHE.clear();
+	}
+
+	public static void forget(ServerPlayer player) {
+		BLOCK_SCAN_CACHE.remove(player.getUUID());
 	}
 
 	/** A completed ward-breaking ritual grounds one powered ward temporarily. */
@@ -125,6 +130,8 @@ public final class AmethystDampening {
 			return Optional.empty();
 		}
 		BlockPos found = null;
+		int wardRadius = PowersConfigLoader.get().wardRadius();
+		int wardRadiusSquared = wardRadius * wardRadius;
 		var it = wards.iterator();
 		while (it.hasNext()) {
 			BlockPos pos = it.next();
@@ -141,7 +148,7 @@ public final class AmethystDampening {
 					continue;
 				}
 			}
-			if (found == null && center.distSqr(pos) <= WARD_RADIUS_SQ) {
+			if (found == null && center.distSqr(pos) <= wardRadiusSquared) {
 				found = pos;
 			}
 		}
@@ -207,5 +214,17 @@ public final class AmethystDampening {
 			}
 		}
 		return false;
+	}
+
+	private static boolean nearAmethystCached(ServerPlayer player, ServerLevel level, BlockPos center) {
+		String dimension = level.dimension().identifier().toString();
+		long now = level.getGameTime();
+		Boolean cached = BLOCK_SCAN_CACHE.get(player.getUUID(), dimension,
+				center.getX(), center.getY(), center.getZ(), now);
+		if (cached != null) return cached;
+		boolean result = nearAmethyst(level, center);
+		BLOCK_SCAN_CACHE.put(player.getUUID(), dimension, center.getX(), center.getY(), center.getZ(),
+				now + BLOCK_SCAN_CACHE_TICKS, result);
+		return result;
 	}
 }

@@ -148,7 +148,6 @@
 	"grimoire.celestial.consent_denied.1": "That soul is veiled by its own will.",
 	"death.attack.powers.power_magic": "%1$s was consumed by ancient power",
 	"death.attack.powers.power_magic.player": "%1$s was consumed by %2$s's ancient power",
-	"item.powers.crystal_frostcythe": "Crystal Frostscythe",
 	"item.powers.crystal_frostscythe": "Crystal Frostscythe",
 	"item.powers.demonic_sword": "Demonic Sword",
 	"item.powers.demons_blood_blade": "Demon's Blood Blade",
@@ -559,9 +558,6 @@
 	"amethyst.powers.teleport_repelled.3": "The Amethyst Ward denies you! Its power burns as it casts you out.",
 	"amethyst.powers.teleport_repelled.4": "You strike the ward's barrier — purple lightning rends your teleport apart.",
 	"amethyst.powers.teleport_repelled.5": "The amethyst's fury meets you mid-journey, flinging you back in agony!",
-	"grimoire.powers.placeholder.1": "The %s grimoire is waiting for its lore chapters.",
-	"grimoire.powers.placeholder.2": "The %s grimoire's pages are blank for now.",
-	"grimoire.powers.placeholder.3": "Secrets stir within the %s grimoire — one day they will be written.",
 	"rune.powers.channelled.1": "The rune channels 100 energy into you.",
 	"rune.powers.channelled.2": "Warmth floods you as the rune gives up its stored energy.",
 	"rune.powers.channelled.3": "The rune hums and pours its power into your reserves.",
@@ -630,5 +626,9 @@
 	"realm.powers.dark_memory_5": "Night remembers the sun. It simply chooses not to forgive it.",
 	"realm.powers.dark_memory_6": "The hollow is not empty. It is listening with perfect patience.",
 	"realm.powers.light_complete": "All six radiant memories align. The mindscape recognizes you as a keeper of its unfinished dawn.",
-	"realm.powers.dark_complete": "All six hollow memories awaken. The darkness now knows which name to whisper when you sleep."
+	"realm.powers.dark_complete": "All six hollow memories awaken. The darkness now knows which name to whisper when you sleep.",
+	"tag.item.powers.amethyst": "Amethyst Power Suppressors",
+	"tag.item.powers.food_normal": "Food Rejected by Darkness",
+	"tag.item.powers.food_abnormal": "Food Favoured by Darkness",
+	"tag.item.powers.food_neutral": "Food Unchanged by Darkness"
 }

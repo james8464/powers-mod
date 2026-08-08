@@ -33,7 +33,7 @@ public record PowersConfig(
 	public static PowersConfig defaults() {
 		return new PowersConfig(false, false, false, false,
 				true, true, true, true, true, true, true,
-				6, 512, 8, 32, 64, 30, 2, List.of());
+				20, 512, 8, 32, 64, 30, 2, List.of());
 	}
 
 	public PowersConfig sanitized() {

@@ -167,15 +167,19 @@ public final class BodyProxyManager {
 	}
 
 	public static void tickAll() {
-		for (Active active : new ArrayList<>(BY_OWNER.values())) {
+		if (BY_OWNER.isEmpty()) return;
+		java.util.List<ServerPlayer> stale = null;
+		for (Active active : BY_OWNER.values()) {
 			if (!active.owner().isAlive() || active.owner().isRemoved()) {
-				finish(active.owner());
+				if (stale == null) stale = new ArrayList<>();
+				stale.add(active.owner());
 				continue;
 			}
 			active.body().setDeltaMovement(Vec3.ZERO);
 			active.body().setNoGravity(true);
 			active.body().setPos(active.position().x, active.position().y, active.position().z);
 		}
+		if (stale != null) for (ServerPlayer player : stale) finish(player);
 	}
 
 	public static void returnAll(MinecraftServer server) {

@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 
-/** a lore book placeholder: right clicking shows a chapter message, so chapters can be added without touching registration */
+/** Selectable ritual book; sneak-use turns pages and normal use channels the chosen spell. */
 public class GrimoireItem extends Item {
 	private final String key;
 
