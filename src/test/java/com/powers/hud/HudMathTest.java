@@ -29,4 +29,18 @@ class HudMathTest {
 		assertEquals(4, HudMath.cooldownSegments(50, 100, 8));
 		assertEquals(8, HudMath.cooldownSegments(500, 100, 8));
 	}
+
+	@Test
+	void elementalRunesDistinguishPrimedInactiveAndPulseStates() {
+		assertEquals(0xFFFF5A24, HudMath.elementalRuneColor(0, 0, 0));
+		assertEquals(0xCCFF5A24, HudMath.elementalRuneColor(0, 0, 5));
+		assertEquals(0x5582E9FF, HudMath.elementalRuneColor(0, 1, 0));
+		assertEquals(0x55FFF59D, HudMath.elementalRuneColor(0, 2, 0));
+	}
+
+	@Test
+	void elementalRuneMathNormalizesMalformedPhaseValues() {
+		assertEquals(0xFF8C66FF, HudMath.elementalRuneColor(-1, 3, 0));
+		assertEquals(0xFFFF5A24, HudMath.elementalRuneColor(4, 4, 0));
+	}
 }
