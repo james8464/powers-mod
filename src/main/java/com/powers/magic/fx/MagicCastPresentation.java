@@ -31,8 +31,20 @@ public record MagicCastPresentation(String soundCue, int intensity) {
 
 	/** Resolves a bounded profile from immutable action mechanics. */
 	public static MagicCastPresentation forAction(MagicActionDefinition action) {
+		return forAction(action, 0, Set.of());
+	}
+
+	/** Resolves a profile amplified by authoritative progression state. */
+	public static MagicCastPresentation forAction(MagicActionDefinition action, int legacyLevel,
+			Set<String> unlockedVariants) {
 		Objects.requireNonNull(action, "action");
-		return new MagicCastPresentation(soundCue(action), intensity(action));
+		Objects.requireNonNull(unlockedVariants, "unlockedVariants");
+		int level = Math.clamp(legacyLevel, 0, 10);
+		int masteryBonus = level >= 8 ? 2 : level >= 4 ? 1 : 0;
+		if (unlockedVariants.contains("ancient_mastery")) masteryBonus++;
+		int intensity = Math.clamp(baseIntensity(action) + masteryBonus,
+				1, MagicFxEvent.MAX_INTENSITY);
+		return new MagicCastPresentation(soundCue(action), intensity);
 	}
 
 	private static String soundCue(MagicActionDefinition action) {
@@ -56,7 +68,7 @@ public record MagicCastPresentation(String soundCue, int intensity) {
 		return "rune_hum";
 	}
 
-	private static int intensity(MagicActionDefinition action) {
+	private static int baseIntensity(MagicActionDefinition action) {
 		int value = switch (action.origin()) {
 			case INNATE -> 1;
 			case SPELL -> 2;
