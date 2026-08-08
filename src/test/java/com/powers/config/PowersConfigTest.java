@@ -29,12 +29,16 @@ class PowersConfigTest {
 		assertTrue(config.spaceTimeRadius() > 0);
 		assertTrue(config.chronoStopRadius() > 0);
 		assertTrue(config.rankRespecExperienceLevels() > 0);
+		assertTrue(config.livingForces().spreadingEnabled());
+		assertEquals(48, config.livingForces().clashRadius());
+		assertEquals(2, config.livingForces().witherAmplifier());
 	}
 
 	@Test
 	void sanitizationClampsUnsafeNumericValues() {
 		PowersConfig invalid = new PowersConfig(false, false, false, false, true, true, true,
-				true, true, true, true, -5, 0, 0, 500, 500, 5000, 99, java.util.List.of());
+				true, true, true, true, -5, 0, 0, 500, 500, 5000, 99, java.util.List.of(),
+				new PowersConfig.LivingForces(true, -1, -2, -3, -4, 1000, 1));
 
 		PowersConfig sanitized = invalid.sanitized();
 		assertEquals(1, sanitized.wardRadius());
@@ -44,6 +48,12 @@ class PowersConfigTest {
 		assertEquals(256, sanitized.chronoStopRadius());
 		assertEquals(1000, sanitized.rankRespecExperienceLevels());
 		assertEquals(4, sanitized.adminPermissionLevel());
+		assertEquals(1, sanitized.livingForces().spreadAttempts());
+		assertEquals(1, sanitized.livingForces().auraRadius());
+		assertEquals(0, sanitized.livingForces().witherAmplifier());
+		assertEquals(1, sanitized.livingForces().energyRefillPerSecond());
+		assertEquals(96, sanitized.livingForces().clashRadius());
+		assertEquals(256, sanitized.livingForces().clashChecksPerTick());
 	}
 
 	@Test
@@ -59,5 +69,7 @@ class PowersConfigTest {
 		assertTrue(config.requireTeleportConsent());
 		assertFalse(config.allowTerrainDamage());
 		assertEquals(512, config.maxParticlesPerTick());
+		assertTrue(config.livingForces().spreadingEnabled());
+		assertEquals(4096, config.livingForces().clashChecksPerTick());
 	}
 }
