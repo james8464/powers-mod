@@ -14,7 +14,8 @@
 - Added the interactive Labyrinth of Names screen, synchronized title perks, server-validated awaken/attune actions, and rank ceremonies.
 - Added spreading Darkness and Pure Light, darkness-tag affinity restoration, hostile Wither auras, and a staged power-100-equivalent mutual-annihilation clash.
 - Expanded the canonical magic kernel to 65 actions and all 2,145 possible collisions by adding both living realm forces.
-- Added four-beat client choreography, eight original particle sprites, and 13 original normalized magic sounds with accessibility scaling.
+- Added signature-driven four-beat ceremonies to every successful innate, crystal, and grimoire cast while preserving bespoke impact effects.
+- Gave all 18 magical aspects deliberate geometry families, physically scaled anticipation/impact radii, eight original particle sprites, and 13 original normalized sounds with reduced-motion clamps.
 - Audited every production Java source and all 149 non-item assets; removed three stale, unreferenced HUD strips.
 - Replaced vanilla loot-table overrides with additive loot injection and removed unreleased crystal recipes.
 - Optimized hot-path scans, state syncs, scheduled tasks, particles, freeze ownership, storms, and body proxies.
