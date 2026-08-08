@@ -4,6 +4,10 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.ToggleAbility;
+import com.powers.power.AmethystDampening;
+import com.powers.power.state.EntityFreezeController;
+import com.powers.power.state.FreezeOwner;
+import com.powers.protection.PowerProtection;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -12,10 +16,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -27,10 +30,7 @@ import java.util.UUID;
 public class TimeFreezeToggleAbility extends ToggleAbility {
 	// freeze reach, 48 blocks in every direction
 	private static final double RADIUS = 48.0;
-	// per-owner set of mobs currently frozen, plus each mob's original ai and gravity so they can be restored exactly
-	private static final Map<UUID, Set<Mob>> OWNER_MOBS = new HashMap<>();
-	private static final Map<Mob, Boolean> ORIGINAL_AI = new HashMap<>();
-	private static final Map<Mob, Boolean> ORIGINAL_GRAVITY = new HashMap<>();
+	private static final Map<UUID, Set<UUID>> OWNER_MOBS = new HashMap<>();
 
 	public TimeFreezeToggleAbility() {
 		super(PowersMod.id("time_freeze"),
@@ -70,30 +70,28 @@ public class TimeFreezeToggleAbility extends ToggleAbility {
 	private void freezeNearby(ServerPlayer player) {
 		ServerLevel level = (ServerLevel) player.level();
 		AABB area = AABB.ofSize(player.position(), RADIUS * 2, RADIUS * 2, RADIUS * 2);
-		Set<Mob> current = new HashSet<>();
+		Set<UUID> current = new LinkedHashSet<>();
+		UUID freezeOwner = FreezeOwner.token("time_freeze", player.getUUID());
 		for (Mob mob : level.getEntities(EntityTypeTest.forClass(Mob.class), area,
-				e -> e.isAlive())) {
-			current.add(mob);
-			// remember the original state only once - restoring over a later overwrite would lose it
-			ORIGINAL_AI.putIfAbsent(mob, mob.isNoAi());
-			ORIGINAL_GRAVITY.putIfAbsent(mob, mob.isNoGravity());
-			mob.setNoAi(true);
-			mob.setNoGravity(true);
-			// stop any motion in progress so they hang frozen mid-air
-			mob.setDeltaMovement(Vec3.ZERO);
+				e -> e.isAlive() && e.distanceToSqr(player) <= RADIUS * RADIUS
+						&& !AmethystDampening.isDampened(e)
+						&& !PowerProtection.isSafeZone(level, e.position()))) {
+			current.add(mob.getUUID());
+			EntityFreezeController.claim(mob, freezeOwner);
 		}
-		Set<Mob> previous = OWNER_MOBS.put(player.getUUID(), current);
+		Set<UUID> previous = OWNER_MOBS.put(player.getUUID(), Set.copyOf(current));
 		if (previous != null) {
 			// mobs that left the freeze box are released unless another owner still freezes them
-			previous.removeAll(current);
-			restoreUnowned(previous);
+			Set<UUID> departed = new java.util.HashSet<>(previous);
+			departed.removeAll(current);
+			EntityFreezeController.release(freezeOwner, departed);
 		}
 	}
 
 	private static void releaseOwner(UUID owner) {
-		Set<Mob> mobs = OWNER_MOBS.remove(owner);
+		Set<UUID> mobs = OWNER_MOBS.remove(owner);
 		if (mobs != null) {
-			restoreUnowned(mobs);
+			EntityFreezeController.release(FreezeOwner.token("time_freeze", owner), mobs);
 		}
 	}
 
@@ -104,22 +102,8 @@ public class TimeFreezeToggleAbility extends ToggleAbility {
 
 	// called on server stop so no mob is left frozen forever
 	public static void clearAll() {
-		for (UUID owner : new HashSet<>(OWNER_MOBS.keySet())) {
+		for (UUID owner : new java.util.HashSet<>(OWNER_MOBS.keySet())) {
 			releaseOwner(owner);
-		}
-	}
-
-	private static void restoreUnowned(Set<Mob> mobs) {
-		for (Mob mob : mobs) {
-			boolean owned = OWNER_MOBS.values().stream().anyMatch(set -> set.contains(mob));
-			// only restore a mob when no other owner still has it in their freeze set
-			if (!owned) {
-				Boolean originalAi = ORIGINAL_AI.remove(mob);
-				Boolean originalGravity = ORIGINAL_GRAVITY.remove(mob);
-				// the mob may have been killed while frozen - nothing left to restore
-				if (originalAi != null && !mob.isRemoved()) mob.setNoAi(originalAi);
-				if (originalGravity != null && !mob.isRemoved()) mob.setNoGravity(originalGravity);
-			}
 		}
 	}
 }

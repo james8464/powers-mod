@@ -7,7 +7,8 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AbilityArithmetic;
 import com.powers.power.AmethystDampening;
-import com.powers.power.state.OwnedFreezeIndex;
+import com.powers.power.state.EntityFreezeController;
+import com.powers.power.state.FreezeOwner;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ParticleTypes;
@@ -20,7 +21,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -39,16 +39,10 @@ import java.util.UUID;
 public class SpaceTimeAbility extends Ability {
 	// the freeze holds the world for 120 ticks = 6 seconds
 	private static final int DURATION = 120;
-	// Original state is recorded once. The index prevents one overlapping cast
-	// from restoring an entity while another cast still owns its freeze.
-	private static final Map<UUID, Frozen> SAVED = new HashMap<>();
-	private static final OwnedFreezeIndex OWNERS = new OwnedFreezeIndex();
 	private static final Map<UUID, ActiveFreeze> ACTIVE = new HashMap<>();
 	// per-player mode, 0 slow, 1 accelerate, 2 freeze
 	private static final Map<UUID, Integer> MODES = new HashMap<>();
 
-	private record Frozen(Entity entity, Vec3 position, Vec3 velocity, boolean noGravity,
-			boolean noAi, double fallDistance) {}
 	private record ActiveFreeze(Set<UUID> entities, long endsAt) {}
 
 	public SpaceTimeAbility() {
@@ -80,6 +74,7 @@ public class SpaceTimeAbility extends Ability {
 			player.addEffect(new MobEffectInstance(MobEffects.SPEED, DURATION, 1, false, false));
 		} else {
 			if (ACTIVE.containsKey(player.getUUID())) return false;
+			UUID freezeOwner = FreezeOwner.token("space_time", player.getUUID());
 			double radius = PowersConfigLoader.get().spaceTimeRadius();
 			Set<UUID> frozen = new LinkedHashSet<>();
 			AABB area = AABB.ofSize(player.position().add(0, 1, 0), radius * 2, radius * 2, radius * 2);
@@ -89,10 +84,7 @@ public class SpaceTimeAbility extends Ability {
 						&& !PowerProtection.isSafeZone(level, e.position())
 						&& (!(e instanceof ServerPlayer target) || PowerProtection.mayForceMove(player, target)))) {
 				UUID entityId = entity.getUUID();
-				if (OWNERS.claim(entityId, player.getUUID())) {
-					SAVED.put(entityId, new Frozen(entity, entity.position(), entity.getDeltaMovement(), entity.isNoGravity(),
-							entity instanceof Mob mob && mob.isNoAi(), entity.fallDistance));
-				}
+				EntityFreezeController.claim(entity, freezeOwner);
 				frozen.add(entityId);
 			}
 			if (frozen.isEmpty()) return false;
@@ -114,7 +106,7 @@ public class SpaceTimeAbility extends Ability {
 			ServerPlayer owner = server.getPlayerList().getPlayer(ownerId);
 			// 6 seconds up, or the caster logged off or died: release everyone and drop the state
 			if (owner == null || !owner.isAlive() || owner.level().getGameTime() >= active.endsAt()) {
-				release(ownerId, active.entities());
+				EntityFreezeController.release(FreezeOwner.token("space_time", ownerId), active.entities());
 				it.remove();
 				continue;
 			}
@@ -124,19 +116,12 @@ public class SpaceTimeAbility extends Ability {
 						server.getTickCount() * 0.04);
 			}
 		}
-		for (Frozen frozen : SAVED.values()) {
-			Entity entity = frozen.entity();
-			if (entity.isRemoved()) continue;
-			entity.setDeltaMovement(Vec3.ZERO);
-			entity.setNoGravity(true);
-			entity.setPos(frozen.position().x, frozen.position().y, frozen.position().z);
-			if (entity instanceof Mob mob) mob.setNoAi(true);
-		}
+		EntityFreezeController.holdAll();
 	}
 
 	/** whether this player is currently held by someone's freeze */
 	public static boolean isFrozen(ServerPlayer player) {
-		return OWNERS.isClaimed(player.getUUID());
+		return EntityFreezeController.isFrozen(player);
 	}
 
 	/**
@@ -153,24 +138,11 @@ public class SpaceTimeAbility extends Ability {
 		PowerMessages.send(player, "ability.powers.frozen", 4);
 	}
 
-	private static void release(UUID owner, Set<UUID> entities) {
-		for (UUID entityId : entities) {
-			if (!OWNERS.release(entityId, owner)) continue;
-			Frozen frozen = SAVED.remove(entityId);
-			if (frozen == null || frozen.entity().isRemoved()) continue;
-			Entity entity = frozen.entity();
-			entity.setNoGravity(frozen.noGravity());
-			entity.setDeltaMovement(frozen.velocity());
-			entity.fallDistance = frozen.fallDistance();
-			if (entity instanceof Mob mob) mob.setNoAi(frozen.noAi());
-		}
-	}
-
 	/** undo one caster's freeze on disconnect, releasing their captives */
 	public static void clear(UUID player) {
 		ActiveFreeze active = ACTIVE.remove(player);
 		if (active != null) {
-			release(player, active.entities());
+			EntityFreezeController.release(FreezeOwner.token("space_time", player), active.entities());
 		}
 		MODES.remove(player);
 	}
@@ -178,11 +150,9 @@ public class SpaceTimeAbility extends Ability {
 	/** release every frozen entity and wipe all modes on server stop */
 	public static void clearAll() {
 		for (var entry : ACTIVE.entrySet()) {
-			release(entry.getKey(), entry.getValue().entities());
+			EntityFreezeController.release(FreezeOwner.token("space_time", entry.getKey()), entry.getValue().entities());
 		}
 		ACTIVE.clear();
-		SAVED.clear();
-		OWNERS.clear();
 		MODES.clear();
 	}
 
