@@ -26,6 +26,7 @@ import com.powers.power.crystals.SizeShiftAbility;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.power.state.PowerEntityState;
+import com.powers.power.state.EntityFreezeController;
 import com.powers.player.SkillSystem;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.util.PowerMessages;
@@ -244,6 +245,7 @@ public class PowersMod implements ModInitializer {
 			AstralProjectionAbility.clearAll();
 			EnergyDrainAbility.clearAll();
 			SpaceTimeAbility.clearAll();
+			EntityFreezeController.clearAll();
 			DreamwalkingAbility.clearAll(server);
 			ChronoStopAbility.clearAll();
 			InfernoAbility.clearAll();
