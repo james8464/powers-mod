@@ -29,7 +29,7 @@ Elemental Blast cycles flame, frost, storm, and earth only after a successful re
 
 Every power uses the same energy well. Light progression grows it from 250 to 770; darkness progression grows its separate well from 500 to 1,850. Failed casts refund their activation cost. Toggle powers drain once per second and cause backlash if they exhaust the well. Sleeping and runestones restore energy unless Exhaustion is active.
 
-Darkness and Pure Light are living realm matter. Vanilla random ticks make either block convert adjacent breakable terrain without requiring kills or loading distant chunks. Darkness withers nearby living entities without the `darkness` tag at strength III; tagged players instead receive a rank-scaled 24-energy pulse each second unless amethyst has poisoned their connection. When Pure Light touches Darkness, a catastrophic eclipse blast damages and throws exposed entities, then erases both forces throughout a 48-block sphere over several server-budgeted ticks without destroying unrelated builds.
+Darkness and Pure Light are living realm matter. Vanilla random ticks make either block convert adjacent breakable terrain without requiring kills or loading distant chunks. Darkness withers nearby living entities without the `darkness` tag at strength III; tagged players instead receive a rank-scaled 24-energy pulse each second unless amethyst has poisoned their connection. When Pure Light touches Darkness, a catastrophic eclipse blast damages and throws exposed entities, then radially erases both forces from the epicentre through a 48-block sphere over several server-budgeted ticks without destroying unrelated builds.
 
 ## Mind travel and vulnerable bodies
 
