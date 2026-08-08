@@ -103,6 +103,70 @@ public final class PowerFx {
 		sound(level, midpoint, SoundEvents.BEACON_DEACTIVATE, 0.8f, 1.4f);
 	}
 
+	/** Releases a server-authoritative kinetic dash with a readable direction. */
+	public static void speedBurstRelease(ServerLevel level, Vec3 center, Vec3 movement,
+			boolean followUp) {
+		int primary = followUp ? 0xFFD166 : 0xD7F8FF;
+		int secondary = followUp ? 0xD7F8FF : 0x7DEBFF;
+		burst(level, center, ParticleTypes.ELECTRIC_SPARK, followUp ? 22 : 16, 0.48, 0.24);
+		burst(level, center, ParticleTypes.CLOUD, followUp ? 18 : 12, 0.38, 0.28);
+		burst(level, center, PowersParticles.SPARK, followUp ? 12 : 8, 0.34, 0.16);
+		coloredBurst(level, center, primary, followUp ? 18 : 12, 0.42);
+		Vec3 end = center.add(movement.scale(1.4));
+		beam(level, center, end, ColorParticleOption.create(
+				ParticleTypes.ENTITY_EFFECT, 0xFF000000 | secondary), followUp ? 16 : 12);
+		rune(level, center.add(0.0, -0.42, 0.0), followUp ? 1.35 : 1.05,
+				primary, followUp ? 24 : 18, followUp ? Math.PI : 0.0);
+		sound(level, center, SoundEvents.FIREWORK_ROCKET_SHOOT, followUp ? 1.4F : 1.0F,
+				followUp ? 1.75F : 1.48F);
+		sound(level, center, SoundEvents.BREEZE_SHOOT, followUp ? 1.2F : 0.75F,
+				followUp ? 0.82F : 1.05F);
+	}
+
+	/** Draws one bounded afterimage ribbon between observed server positions. */
+	public static void speedBurstWake(ServerLevel level, Vec3 from, Vec3 to,
+			boolean followUp, int age) {
+		int color = followUp ? 0xFFD166 : 0xA9F4FF;
+		if (from.distanceToSqr(to) > 1.0E-4) {
+			beam(level, from.add(0.0, 0.45, 0.0), to.add(0.0, 0.45, 0.0),
+					PowersParticles.RIBBON, followUp ? 10 : 7);
+		}
+		burst(level, from.add(0.0, 0.35, 0.0), ParticleTypes.CLOUD, 3, 0.18, 0.06);
+		burst(level, to.add(0.0, 0.45, 0.0), PowersParticles.SPARK,
+				followUp ? 4 : 2, 0.22, 0.08);
+		coloredBurst(level, to.add(0.0, 0.45, 0.0), color, followUp ? 4 : 2, 0.2);
+		if ((age & 1) == 0) {
+			ring(level, from.add(0.0, 0.25, 0.0), followUp ? 0.72 : 0.55,
+					color, followUp ? 12 : 8, age * 0.35);
+		}
+	}
+
+	/** Announces the short Motion-rank window for one paid follow-up dash. */
+	public static void secondStepReady(ServerLevel level, Vec3 center) {
+		rune(level, center.add(0.0, -0.42, 0.0), 1.2, 0xD7F8FF, 20, 0.0);
+		rune(level, center.add(0.0, -0.34, 0.0), 0.82, 0xFFD166, 16, Math.PI);
+		burst(level, center, ParticleTypes.ENCHANT, 14, 0.44, 0.08);
+		burst(level, center, PowersParticles.MOTE, 10, 0.36, 0.05);
+		sound(level, center, SoundEvents.AMETHYST_BLOCK_CHIME, 0.85F, 1.72F);
+		sound(level, center, SoundEvents.BEACON_POWER_SELECT, 0.65F, 1.28F);
+	}
+
+	/** Detonates the dash endpoint without creating terrain damage. */
+	public static void speedBurstImpact(ServerLevel level, Vec3 center, boolean followUp) {
+		int primary = followUp ? 0xFFD166 : 0xD7F8FF;
+		burst(level, center, ParticleTypes.EXPLOSION, followUp ? 5 : 3, 0.5, 0.08);
+		burst(level, center, ParticleTypes.ELECTRIC_SPARK, followUp ? 28 : 20, 1.15, 0.28);
+		burst(level, center, PowersParticles.FRACTURE, followUp ? 18 : 12, 1.0, 0.16);
+		coloredBurst(level, center, primary, followUp ? 24 : 16, 1.1);
+		ring(level, center, followUp ? 3.0 : 2.6, primary, followUp ? 36 : 28, 0.0);
+		ring(level, center.add(0.0, 0.12, 0.0), followUp ? 2.35 : 2.0,
+				followUp ? 0xD7F8FF : 0x7DEBFF, followUp ? 30 : 22, Math.PI / 12.0);
+		sound(level, center, SoundEvents.WARDEN_SONIC_BOOM, followUp ? 1.4F : 0.9F,
+				followUp ? 1.35F : 1.62F);
+		sound(level, center, SoundEvents.GENERIC_EXPLODE.value(), followUp ? 1.2F : 0.8F,
+				followUp ? 1.28F : 1.55F);
+	}
+
 	/** Emits the first catastrophic eclipse flash when living light and darkness touch. */
 	public static void forceClashDetonation(ServerLevel level, Vec3 center, int radius) {
 		burst(level, center, ParticleTypes.EXPLOSION_EMITTER, 2, 0.1, 0.0);
