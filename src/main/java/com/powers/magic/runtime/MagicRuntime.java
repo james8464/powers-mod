@@ -123,6 +123,11 @@ public final class MagicRuntime {
 		index.register(presence);
 	}
 
+	/** Removes one explicitly managed field or impact presence before expiry. */
+	public boolean removePresence(MagicPresenceId id) {
+		return index.remove(Objects.requireNonNull(id, "id"));
+	}
+
 	/** Expires old presences and reaction-deduplication keys at the current tick. */
 	public int tick(long gameTime) {
 		emittedCues.removeIf(key -> key.gameTime() < gameTime);

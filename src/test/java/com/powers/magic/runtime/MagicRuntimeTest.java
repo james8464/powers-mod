@@ -131,6 +131,18 @@ class MagicRuntimeTest {
 		assertEquals(0, runtime.pendingCueKeys());
 	}
 
+	@Test
+	void explicitlyRemovedImpactPresenceCannotCollideAgain() {
+		MagicPresence presence = presence("00000000-0000-0000-0000-000000000099", OTHER,
+				"void_beam", 0, 64, 0, 4, 200);
+		runtime.registerPresence(presence);
+
+		assertTrue(runtime.removePresence(presence.id()));
+		assertFalse(runtime.removePresence(presence.id()));
+		assertTrue(runtime.previewCast(cast("starfall", CASTER, 0, 64, 0, 8, 100))
+				.reactions().isEmpty());
+	}
+
 	private MagicCastContext cast(String action, UUID owner, double x, double y, double z,
 			double queryRadius, long gameTime) {
 		return new MagicCastContext(catalogue.definition(new MagicActionId(action)), owner,
