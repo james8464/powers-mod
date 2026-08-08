@@ -11,8 +11,13 @@ public final class HudMath {
 	}
 
 	public static HudEnergyMode mode(int energy, boolean dampened, boolean darkness) {
+		return mode(energy, dampened, darkness, false);
+	}
+
+	public static HudEnergyMode mode(int energy, boolean dampened, boolean darkness, boolean projection) {
 		if (dampened) return HudEnergyMode.DAMPENED;
 		if (energy <= 0) return HudEnergyMode.EMPTY;
+		if (projection) return HudEnergyMode.PROJECTION;
 		return darkness ? HudEnergyMode.DARKNESS : HudEnergyMode.NORMAL;
 	}
 

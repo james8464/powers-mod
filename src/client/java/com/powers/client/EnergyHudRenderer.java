@@ -22,7 +22,7 @@ public final class EnergyHudRenderer {
 		int capacity = ClientPowerState.energyCapacity();
 		int energy = Math.max(0, Math.min(capacity, ClientPowerState.energy()));
 		boolean dampened = client.player.hasEffect(PowersEffects.AMETHYST_POISONING);
-		HudEnergyMode mode = HudMath.mode(energy, dampened, ClientPowerState.darkness());
+		HudEnergyMode mode = HudMath.mode(energy, dampened, ClientPowerState.darkness(), ClientPowerState.projection());
 		int filled = HudMath.filledSegments(energy, capacity, SEGMENTS);
 		int tick = client.player.tickCount;
 
@@ -61,6 +61,7 @@ public final class EnergyHudRenderer {
 		return switch (mode) {
 			case NORMAL -> 0xFF62E6FF;
 			case DARKNESS -> (tick / 8) % 2 == 0 ? 0xFF7650D8 : 0xFFB04BDD;
+			case PROJECTION -> (tick / 6) % 2 == 0 ? 0xFFB8F3FF : 0xFF82B7E8;
 			case EMPTY -> (tick / 6) % 2 == 0 ? 0xFF7A2530 : 0xFFB93B45;
 			case DAMPENED -> 0xFFB36BFF;
 		};

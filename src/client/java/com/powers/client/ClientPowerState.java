@@ -15,6 +15,7 @@ public final class ClientPowerState {
 	private static int energyCapacity;
 	private static boolean canSeeDarkRealm;
 	private static boolean darkness;
+	private static boolean projection;
 	public static int markingSlot = -1;
 	public static int markingTicks;
 
@@ -29,6 +30,7 @@ public final class ClientPowerState {
 		energyCapacity = payload.energyCapacity();
 		canSeeDarkRealm = payload.canSeeDarkRealm();
 		darkness = payload.darkness();
+		projection = payload.projection();
 	}
 
 	// wipe everything on disconnect so the hud shows nothing instead of stale powers
@@ -40,6 +42,7 @@ public final class ClientPowerState {
 		energyCapacity = 0;
 		canSeeDarkRealm = false;
 		darkness = false;
+		projection = false;
 		markingSlot = -1;
 		markingTicks = 0;
 	}
@@ -71,6 +74,10 @@ public final class ClientPowerState {
 
 	public static boolean darkness() {
 		return darkness;
+	}
+
+	public static boolean projection() {
+		return projection;
 	}
 
 	public static int energy() {
