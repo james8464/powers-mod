@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:rotten_flesh", "minecraft:spider_eye", "minecraft:pufferfish",
+    "minecraft:tropical_fish", "minecraft:cod", "minecraft:salmon",
+    "minecraft:poisonous_potato", "minecraft:chorus_fruit", "minecraft:suspicious_stew",
+    "minecraft:porkchop", "minecraft:beef", "minecraft:chicken", "minecraft:rabbit",
+    "minecraft:mutton", "powers:imported_food_apple_wormy", "powers:imported_food_apple_wormy_2",
+    "powers:imported_food_bacon_raw", "powers:imported_food_fish_fillet_raw",
+    "powers:imported_food_salmon_fillet_raw", "powers:imported_food_sausage_raw",
+    "powers:imported_food_slab_beef_raw", "powers:imported_food_slab_cheval_raw",
+    "powers:imported_food_slab_mooshroom_raw", "powers:imported_food_slab_pork_raw",
+    "powers:imported_food_slab_beef_salted", "powers:imported_food_slab_cheval_salted",
+    "powers:imported_food_slab_pork_salted", "powers:imported_food_muckroot",
+    "powers:imported_food_jerky"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:mushroom_stew", "minecraft:cooked_porkchop", "minecraft:cooked_cod",
+    "minecraft:cooked_salmon", "minecraft:cooked_beef", "minecraft:cooked_chicken",
+    "minecraft:cooked_rabbit", "minecraft:rabbit_stew", "minecraft:cooked_mutton",
+    "minecraft:beetroot_soup", "powers:imported_food_bacon_cooked",
+    "powers:imported_food_fish_fillet_cooked", "powers:imported_food_fish_fillet_smoked",
+    "powers:imported_food_salmon_fillet_cooked", "powers:imported_food_salmon_fillet_smoked",
+    "powers:imported_food_sausage_cooked", "powers:imported_food_slab_beef_cooked",
+    "powers:imported_food_slab_cheval_cooked", "powers:imported_food_slab_mooshroom_cooked",
+    "powers:imported_food_slab_pork_cooked", "powers:imported_food_stew_sweetpod"
+  ]
+}

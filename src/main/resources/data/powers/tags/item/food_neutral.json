@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:bread", "minecraft:apple", "minecraft:carrot", "minecraft:potato",
+    "minecraft:baked_potato", "minecraft:golden_carrot", "minecraft:golden_apple",
+    "minecraft:enchanted_golden_apple", "minecraft:melon_slice", "minecraft:sweet_berries",
+    "minecraft:glow_berries", "minecraft:cookie", "minecraft:dried_kelp", "minecraft:beetroot",
+    "minecraft:honey_bottle", "minecraft:pumpkin_pie", "powers:imported_food_apple_green",
+    "powers:imported_food_beans", "powers:imported_food_beet", "powers:imported_food_billberry",
+    "powers:imported_food_blackberry", "powers:imported_food_blueberries", "powers:imported_food_bread_big",
+    "powers:imported_food_cabbage", "powers:imported_food_chickpeas", "powers:imported_food_coconut_normal",
+    "powers:imported_food_coconut_opened", "powers:imported_food_coconut_straw",
+    "powers:imported_food_cranberries", "powers:imported_food_fig", "powers:imported_food_fisherberries",
+    "powers:imported_food_garlic", "powers:imported_food_grapes", "powers:imported_food_leek",
+    "powers:imported_food_lentils", "powers:imported_food_lettuce", "powers:imported_food_mulberries",
+    "powers:imported_food_mungbean", "powers:imported_food_onion", "powers:imported_food_pantao",
+    "powers:imported_food_pepper", "powers:imported_food_prickleberries", "powers:imported_food_radish",
+    "powers:imported_food_raspberries", "powers:imported_food_redbeans", "powers:imported_food_silver_pear",
+    "powers:imported_food_slice_cantaloupe", "powers:imported_food_slice_honeydew",
+    "powers:imported_food_slice_hornedmelon", "powers:imported_food_slice_squash",
+    "powers:imported_food_slice_wintermelon", "powers:imported_food_spinach",
+    "powers:imported_food_strawberries", "powers:imported_food_sunberries", "powers:imported_food_sweetpod",
+    "powers:imported_food_tomato", "powers:imported_food_uradbean", "powers:imported_food_wisdomfruit"
+  ]
+}

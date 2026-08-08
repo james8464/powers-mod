@@ -2,8 +2,13 @@ package com.powers.player;
 
 import java.util.Set;
 
+import com.powers.PowersMod;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
 
 /** classifies every edible item into what the darkness touched can stomach */
 public final class FoodAffinity {
@@ -13,6 +18,9 @@ public final class FoodAffinity {
 	public static final String ABNORMAL = "abnormal";
 	/** simple staples everyone can enjoy */
 	public static final String NEUTRAL = "neutral";
+	public static final TagKey<Item> NORMAL_TAG = TagKey.create(Registries.ITEM, PowersMod.id("food_normal"));
+	public static final TagKey<Item> ABNORMAL_TAG = TagKey.create(Registries.ITEM, PowersMod.id("food_abnormal"));
+	public static final TagKey<Item> NEUTRAL_TAG = TagKey.create(Registries.ITEM, PowersMod.id("food_neutral"));
 
 	private static final Set<String> NORMAL_FOODS = Set.of(
 			// vanilla dishes
@@ -61,13 +69,18 @@ public final class FoodAffinity {
 
 	/** how the darkness touched experiences this item, ordinary food by default */
 	public static String of(ItemStack stack) {
-		String id = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
-		if (NEUTRAL_FOODS.contains(id)) {
-			return NEUTRAL;
-		}
-		if (ABNORMAL_FOODS.contains(id)) {
-			return ABNORMAL;
-		}
+		if (stack.is(NEUTRAL_TAG)) return NEUTRAL;
+		if (stack.is(ABNORMAL_TAG)) return ABNORMAL;
+		if (stack.is(NORMAL_TAG)) return NORMAL;
+		return of(BuiltInRegistries.ITEM.getKey(stack.getItem()));
+	}
+
+	static String of(Identifier id) {
+		String namespace = id.getNamespace();
+		String path = id.getPath();
+		if (!namespace.equals("minecraft") && !namespace.equals(PowersMod.MOD_ID)) return NORMAL;
+		if (NEUTRAL_FOODS.contains(path)) return NEUTRAL;
+		if (ABNORMAL_FOODS.contains(path)) return ABNORMAL;
 		return NORMAL;
 	}
 }

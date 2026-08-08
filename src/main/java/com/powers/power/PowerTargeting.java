@@ -14,6 +14,8 @@ import net.minecraft.world.phys.Vec3;
  * whichever hit is closer, keeping walls able to block your aim
  */
 public final class PowerTargeting {
+	public enum TargetKind { BLOCK, ENTITY, MISS }
+
 	private PowerTargeting() {
 	}
 
@@ -29,11 +31,27 @@ public final class PowerTargeting {
 				player, start, end,
 				player.getBoundingBox().expandTowards(player.getLookAngle().scale(range)).inflate(1.0),
 				e -> e.isAlive() && e.isPickable() && !e.isSpectator() && e != player,
-				range);
-		if (entity == null || block.getType() != HitResult.Type.MISS) {
-			return block;
-		}
-		return entity;
+				maxDistanceSquared(range));
+		double blockDistance = block.getType() == HitResult.Type.MISS
+				? 0.0 : start.distanceToSqr(block.getLocation());
+		double entityDistance = entity == null ? 0.0 : start.distanceToSqr(entity.getLocation());
+		return switch (nearestKind(block.getType() != HitResult.Type.MISS, blockDistance,
+				entity != null, entityDistance)) {
+			case BLOCK -> block;
+			case ENTITY -> entity;
+			case MISS -> block;
+		};
+	}
+
+	static double maxDistanceSquared(double range) {
+		return range * range;
+	}
+
+	static TargetKind nearestKind(boolean hasBlock, double blockDistanceSquared,
+			boolean hasEntity, double entityDistanceSquared) {
+		if (!hasBlock) return hasEntity ? TargetKind.ENTITY : TargetKind.MISS;
+		if (!hasEntity) return TargetKind.BLOCK;
+		return entityDistanceSquared < blockDistanceSquared ? TargetKind.ENTITY : TargetKind.BLOCK;
 	}
 
 	/**
