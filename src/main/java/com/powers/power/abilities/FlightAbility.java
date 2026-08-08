@@ -9,18 +9,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 /**
  * Flight: fly freely through the air, exactly like Rainbow Steve's flight
  * from the lore. Landing cushions you with slow falling so the drop never
  * hurts.
  */
 public class FlightAbility extends ToggleAbility {
-	// remembers whether the player could fly before, to restore it on toggle off
-	private static final Map<UUID, boolean[]> PRIOR_ABILITIES = new HashMap<>();
 	public FlightAbility() {
 		super(PowersMod.id("flight"), Component.translatable("ability.powers.flight"));
 	}
@@ -29,8 +23,12 @@ public class FlightAbility extends ToggleAbility {
 	public boolean activateToggleOn(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		// only the first toggle-on records the prior flags, later ones don't
 		// overwrite the snapshot needed for a clean restore
-		PRIOR_ABILITIES.putIfAbsent(player.getUUID(),
-				new boolean[] {player.getAbilities().mayfly, player.getAbilities().flying});
+		if (data.flightSnapshot() < 0) {
+			int snapshot = (player.getAbilities().mayfly ? 1 : 0)
+					| (player.getAbilities().flying ? 2 : 0)
+					| ((player.gameMode().isCreative() || player.isSpectator()) ? 4 : 0);
+			data.setFlightSnapshot(snapshot);
+		}
 		player.getAbilities().mayfly = true;
 		player.getAbilities().flying = true;
 		player.onUpdateAbilities();
@@ -40,14 +38,17 @@ public class FlightAbility extends ToggleAbility {
 
 	@Override
 	public void activateToggleOff(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		boolean[] prior = PRIOR_ABILITIES.remove(player.getUUID());
-		// creative players keep flight, the game mode owns their mayfly flag
-		boolean creative = player.gameMode().isCreative();
-		player.getAbilities().mayfly = creative || (prior != null && prior[0]);
-		player.getAbilities().flying = creative || (prior != null && prior[1]);
+		int prior = data.flightSnapshot();
+		data.setFlightSnapshot(-1);
+		boolean modeOwnsFlight = player.gameMode().isCreative() || player.isSpectator();
+		boolean oldModeOwnedFlight = (prior & 4) != 0;
+		player.getAbilities().mayfly = modeOwnsFlight || (!oldModeOwnedFlight && (prior & 1) != 0);
+		player.getAbilities().flying = modeOwnsFlight || (!oldModeOwnedFlight && (prior & 2) != 0);
 		player.onUpdateAbilities();
 		// 3 seconds of slow falling so the way down is soft
-		player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 60, 0, true, false));
+		if (!player.hasEffect(MobEffects.SLOW_FALLING)) {
+			player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 60, 0, true, false));
+		}
 		PowerMessages.send(player, "ability.powers.flight_off", 3);
 	}
 
@@ -63,9 +64,5 @@ public class FlightAbility extends ToggleAbility {
 			int rgb = com.powers.fx.PowerFx.rainbow(level.getServer().getTickCount(), 4);
 			com.powers.fx.PowerFx.coloredBurst(level, player.position().add(0, 0.3, 0), rgb, 2, 0.12);
 		}
-	}
-
-	public static void clear(UUID player) {
-		PRIOR_ABILITIES.remove(player);
 	}
 }
