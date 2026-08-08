@@ -134,8 +134,8 @@ public final class PowersPackets {
 			},
 			buf -> new UUID(buf.readLong(), buf.readLong()));
 
-	public record PowerStatePayload(List<String> powerIds, List<String> activeToggles, int energy,
-			int energyCapacity, boolean canSeeDarkRealm) implements CustomPacketPayload {
+	public record PowerStatePayload(List<String> powerIds, List<String> activeToggles, List<Integer> cooldownTicks,
+			int energy, int energyCapacity, boolean canSeeDarkRealm, boolean darkness) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<PowerStatePayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("power_state"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, PowerStatePayload> STREAM_CODEC =
@@ -144,12 +144,16 @@ public final class PowersPackets {
 						PowerStatePayload::powerIds,
 						ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.STRING_UTF8),
 						PowerStatePayload::activeToggles,
+						ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT),
+						PowerStatePayload::cooldownTicks,
 						ByteBufCodecs.VAR_INT,
 						PowerStatePayload::energy,
 						ByteBufCodecs.VAR_INT,
 						PowerStatePayload::energyCapacity,
 						ByteBufCodecs.BOOL,
 						PowerStatePayload::canSeeDarkRealm,
+						ByteBufCodecs.BOOL,
+						PowerStatePayload::darkness,
 						PowerStatePayload::new);
 
 		@Override
@@ -481,11 +485,19 @@ public final class PowersPackets {
 	// sends the player's current power state so the client HUD matches the server
 	public static void syncTo(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		List<Integer> cooldowns = new ArrayList<>();
+		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
+			Power power = data.getPower(slot);
+			cooldowns.add(power == null || power.ability() == null || power.ability().isToggle()
+					? 0 : ActivationCooldowns.remainingTicks(player, power.ability()));
+		}
 		ServerPlayNetworking.send(player, new PowerStatePayload(
 				data.getSlotIds(),
 				data.getActiveToggles(),
+				cooldowns,
 				data.energy(),
 				data.energyCapacity(),
-				SkillSystem.canEnterDarkRealm(player)));
+				SkillSystem.canEnterDarkRealm(player),
+				data.isDarknessUser()));
 	}
 }

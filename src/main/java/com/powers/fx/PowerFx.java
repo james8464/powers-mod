@@ -1,5 +1,6 @@
 package com.powers.fx;
 
+import com.powers.config.PowersConfigLoader;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -15,12 +16,21 @@ import net.minecraft.world.phys.Vec3;
  * trails and cast sounds
  */
 public final class PowerFx {
+	private static final java.util.Map<ServerLevel, ParticleBudget> BUDGETS = new java.util.WeakHashMap<>();
+
 	private PowerFx() {
 	}
 
 	/** puffs a cloud of particles around a point */
 	public static void burst(ServerLevel level, Vec3 pos, ParticleOptions particle, int count, double spread, double speed) {
-		level.sendParticles(particle, pos.x, pos.y, pos.z, count, spread, spread, spread, speed);
+		int limit = PowersConfigLoader.get().maxParticlesPerTick();
+		ParticleBudget budget = BUDGETS.get(level);
+		if (budget == null || budget.limit() != limit) {
+			budget = new ParticleBudget(limit);
+			BUDGETS.put(level, budget);
+		}
+		int granted = budget.claim(level.getGameTime(), count);
+		if (granted > 0) level.sendParticles(particle, pos.x, pos.y, pos.z, granted, spread, spread, spread, speed);
 	}
 
 	/** puffs a cloud of particles tinted with an rgb color */
@@ -122,5 +132,9 @@ public final class PowerFx {
 			b = x;
 		}
 		return ((int) (r * 255.0f) << 16) | ((int) (g * 255.0f) << 8) | (int) (b * 255.0f);
+	}
+
+	public static void clearBudgets() {
+		BUDGETS.clear();
 	}
 }

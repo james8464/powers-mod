@@ -87,8 +87,9 @@ public class AmethystWardBlock extends Block {
 		// four sparks, one per quarter turn, orbiting the block
 		for (int i = 0; i < 4; i++) {
 			double angle = phase + Math.PI * 2.0 * i / 4.0;
-			level.sendParticles(ParticleTypes.END_ROD, pos.getX() + 0.5 + Math.cos(angle) * 0.9,
-					pos.getY() + 0.5, pos.getZ() + 0.5 + Math.sin(angle) * 0.9, 1, 0, 0, 0, 0);
+			com.powers.fx.PowerFx.burst(level, new net.minecraft.world.phys.Vec3(
+					pos.getX() + 0.5 + Math.cos(angle) * 0.9, pos.getY() + 0.5,
+					pos.getZ() + 0.5 + Math.sin(angle) * 0.9), ParticleTypes.END_ROD, 1, 0, 0);
 		}
 		// schedule the next ring in 5 ticks to keep the loop going
 		level.scheduleTick(pos, this, 5);
