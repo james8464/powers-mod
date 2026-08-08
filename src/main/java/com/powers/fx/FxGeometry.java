@@ -30,12 +30,7 @@ public final class FxGeometry {
 
 	/** Uses static, shape-distinct sigils when reduced motion is requested. */
 	public static FxMotif accessibleMotif(FxMotif motif, boolean reducedMotion) {
-		if (!reducedMotion) return motif;
-		return switch (motif) {
-			case SPIRAL, TETHER, FORK -> FxMotif.RING;
-			case FRACTURE, SHARD -> FxMotif.GLYPH;
-			default -> motif;
-		};
+		return motif.accessible(reducedMotion);
 	}
 
 	/** Applies intensity, distance, and accessibility scale to the hard point cap. */
@@ -44,6 +39,15 @@ public final class FxGeometry {
 		double distanceFactor = distance <= 24.0 ? 1.0 : Math.max(0.1, 1.0 - (distance - 24.0) / 112.0);
 		int base = 12 + Math.clamp(intensity, 1, 5) * 16;
 		return Math.clamp((int) Math.round(base * distanceFactor * Math.clamp(effectScale, 0.0, 1.0)), 0, MAX_POINTS);
+	}
+
+	/** Applies a choreography radius to a finite local-space point. */
+	public static Point scale(Point point, double scale) {
+		if (point == null || !point.finite()) throw new IllegalArgumentException("FX point must be finite");
+		if (!Double.isFinite(scale) || scale < 0.0) {
+			throw new IllegalArgumentException("FX geometry scale must be finite and non-negative");
+		}
+		return new Point(point.x() * scale, point.y() * scale, point.z() * scale);
 	}
 
 	private static Point point(FxMotif motif, int index, double progress, double angle, double scale) {

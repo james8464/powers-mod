@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Exhaustive safety and accessibility tests for deterministic client geometry. */
@@ -30,5 +31,21 @@ class FxGeometryTest {
 		assertTrue(FxGeometry.budget(90.0, 1, 1.0) <= 12);
 		assertEquals(0, FxGeometry.budget(200.0, 5, 1.0));
 		assertTrue(FxGeometry.budget(4.0, 5, 1.0) <= 96);
+	}
+
+	@Test
+	void frameScaleChangesPhysicalGeometryRatherThanOnlyParticleCount() {
+		FxGeometry.Point point = new FxGeometry.Point(1.0, -2.0, 3.0);
+
+		assertEquals(new FxGeometry.Point(2.0, -4.0, 6.0), FxGeometry.scale(point, 2.0));
+	}
+
+	@Test
+	void invalidGeometryScaleCannotReachTheRenderer() {
+		FxGeometry.Point point = new FxGeometry.Point(1.0, 2.0, 3.0);
+
+		assertThrows(IllegalArgumentException.class, () -> FxGeometry.scale(point, -1.0));
+		assertThrows(IllegalArgumentException.class,
+				() -> FxGeometry.scale(point, Double.POSITIVE_INFINITY));
 	}
 }

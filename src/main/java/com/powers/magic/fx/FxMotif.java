@@ -27,4 +27,14 @@ public enum FxMotif {
 		if (value.contains("resonance") || value.contains("weave")) return RING;
 		return GLYPH;
 	}
+
+	/** Returns a shape-distinct static substitute when reduced motion is active. */
+	public FxMotif accessible(boolean reducedMotion) {
+		if (!reducedMotion) return this;
+		return switch (this) {
+			case SPIRAL, TETHER, FORK -> RING;
+			case FRACTURE, SHARD -> GLYPH;
+			default -> this;
+		};
+	}
 }
