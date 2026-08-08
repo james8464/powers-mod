@@ -6,6 +6,8 @@ import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
 import com.powers.protection.PowerProtection;
+import com.powers.power.travel.SafeDestinationResolver;
+import com.powers.power.travel.TravelKind;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -43,8 +45,7 @@ public class LightCrystalAbility extends Ability {
 
 		if (caster.isCrouching()) {
 			// sneak-right-click: travel alone
-			teleportWithStorms(caster, caster, destLevel);
-			return true;
+			return teleportWithStorms(caster, caster, destLevel);
 		}
 
 		// right-click: a player in your sights travels with you
@@ -53,12 +54,12 @@ public class LightCrystalAbility extends Ability {
 		// the gaze reaches out 48 blocks to find who comes along
 		LivingEntity target = PowerTargeting.findLivingTarget(caster, 48.0);
 
-		if (target != null) {
-			if (target instanceof ServerPlayer targetPlayer && !PowerProtection.mayForceMove(caster, targetPlayer)) {
+		if (target instanceof ServerPlayer targetPlayer) {
+			if (!PowerProtection.mayForceMove(caster, targetPlayer)) {
 				PowerMessages.send(caster, "powers.packet.consent_denied", 1, targetPlayer.getName().getString());
 				return false;
 			}
-			if (target instanceof ServerPlayer targetPlayer && AmethystDampening.isDampened(targetPlayer)) {
+			if (AmethystDampening.isDampened(targetPlayer)) {
 				// amethyst-dampened players are shielded and cannot be dragged
 				PowerMessages.send(caster, "amethyst.powers.target_protected", 4);
 				return false;
@@ -66,8 +67,7 @@ public class LightCrystalAbility extends Ability {
 			com.powers.fx.PowerFx.beam(level, origin, target.getEyePosition(),
 					ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFFFFFFFF), 16);
 			com.powers.fx.PowerFx.sound(level, origin, SoundEvents.PORTAL_TRAVEL, 1.0f, 1.6f);
-			teleportWithStorms(caster, target, destLevel);
-			return true;
+			return teleportWithStorms(caster, targetPlayer, destLevel);
 		}
 
 		// aiming at empty space just lights the way, no one crosses
@@ -78,11 +78,18 @@ public class LightCrystalAbility extends Ability {
 		return true;
 	}
 
-	private void teleportWithStorms(ServerPlayer caster, net.minecraft.world.entity.Entity subject, ServerLevel dest) {
+	private boolean teleportWithStorms(ServerPlayer caster, ServerPlayer subject, ServerLevel dest) {
 		ServerLevel srcLevel = (ServerLevel) subject.level();
 		Vec3 srcPos = subject.position();
 		// land in the light realm's spawn clearing at 8.5
 		Vec3 destPos = new Vec3(8.5, dest.getMinY() + 1, 8.5);
+		// This is a trusted, fixed realm entry—not a client-selected remote
+		// coordinate—so generating its one spawn chunk is intentional.
+		dest.getChunk(0, 0);
+		if (!SafeDestinationResolver.validate(subject, dest, destPos, TravelKind.CRYSTAL).allowed()) {
+			PowerMessages.send(caster, "ability.powers.no_room", 3);
+			return false;
+		}
 
 		// storms rage for 80 ticks while the traveller is carried across
 		// the storm beneath the departing glitters with the light realm's
@@ -91,9 +98,14 @@ public class LightCrystalAbility extends Ability {
 		PowersMod.startStorm(dest, destPos, STORM_TICKS);
 		PowersMod.scheduleDelayed(srcLevel.getServer(), TELEPORT_DELAY, () -> {
 			// target died or logged off during the 30-tick delay, so leave them be
-			if (subject.isRemoved()) return;
+			if (subject.isRemoved() || caster.isRemoved()
+					|| srcLevel.getServer().getPlayerList().getPlayer(subject.getUUID()) != subject
+					|| !PowerProtection.mayForceMove(caster, subject)
+					|| AmethystDampening.isDampened(subject)
+					|| !SafeDestinationResolver.validate(subject, dest, destPos, TravelKind.CRYSTAL).allowed()) return;
 			subject.teleport(new TeleportTransition(dest, destPos, Vec3.ZERO,
 					subject.getYRot(), subject.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 		});
+		return true;
 	}
 }

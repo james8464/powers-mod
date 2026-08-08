@@ -6,6 +6,8 @@ import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
 import com.powers.protection.PowerProtection;
+import com.powers.power.travel.SafeDestinationResolver;
+import com.powers.power.travel.TravelKind;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -47,8 +49,7 @@ public class DarkCrystalAbility extends Ability {
 
 		// sneaking sends yourself instead of someone else
 		if (caster.isCrouching()) {
-			teleportWithStorms(caster, caster, destLevel);
-			return true;
+			return teleportWithStorms(caster, caster, destLevel);
 		}
 
 		ServerLevel level = (ServerLevel) caster.level();
@@ -56,21 +57,20 @@ public class DarkCrystalAbility extends Ability {
 		// look up to 48 blocks for a target
 		LivingEntity target = PowerTargeting.findLivingTarget(caster, 48.0);
 
-		if (target != null) {
-			if (target instanceof ServerPlayer targetPlayer && !PowerProtection.mayForceMove(caster, targetPlayer)) {
+		if (target instanceof ServerPlayer targetPlayer) {
+			if (!PowerProtection.mayForceMove(caster, targetPlayer)) {
 				PowerMessages.send(caster, "powers.packet.consent_denied", 1, targetPlayer.getName().getString());
 				return false;
 			}
 			// amethyst-dampened players are protected
-			if (target instanceof ServerPlayer targetPlayer && AmethystDampening.isDampened(targetPlayer)) {
+			if (AmethystDampening.isDampened(targetPlayer)) {
 				PowerMessages.send(caster, "amethyst.powers.target_protected", 4);
 				return false;
 			}
 			com.powers.fx.PowerFx.beam(level, origin, target.getEyePosition(),
 					ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF1A237E), 16);
 			com.powers.fx.PowerFx.sound(level, origin, SoundEvents.PORTAL_TRAVEL, 1.0f, 0.4f);
-			teleportWithStorms(caster, target, destLevel);
-			return true;
+			return teleportWithStorms(caster, targetPlayer, destLevel);
 		}
 
 		// no entity hit - just show the beam to where it would reach as a warning
@@ -81,11 +81,16 @@ public class DarkCrystalAbility extends Ability {
 		return true;
 	}
 
-	private void teleportWithStorms(ServerPlayer caster, net.minecraft.world.entity.Entity subject, ServerLevel dest) {
+	private boolean teleportWithStorms(ServerPlayer caster, ServerPlayer subject, ServerLevel dest) {
 		ServerLevel srcLevel = (ServerLevel) subject.level();
 		Vec3 srcPos = subject.position();
 		// the fixed landing spot at the dark realm's spawn
 		Vec3 destPos = new Vec3(8.5, dest.getMinY() + 1, 8.5);
+		dest.getChunk(0, 0);
+		if (!SafeDestinationResolver.validate(subject, dest, destPos, TravelKind.CRYSTAL).allowed()) {
+			PowerMessages.send(caster, "ability.powers.no_room", 3);
+			return false;
+		}
 
 		// the storm beneath the banished builds the dark realm's smoke; the
 		// arrival spot stays clear - the realm itself has no weather
@@ -93,9 +98,14 @@ public class DarkCrystalAbility extends Ability {
 		PowersMod.startStorm(dest, destPos, STORM_TICKS);
 		PowersMod.scheduleDelayed(srcLevel.getServer(), TELEPORT_DELAY, () -> {
 			// the subject may have died during the storm - never teleport a corpse
-			if (subject.isRemoved()) return;
+			if (subject.isRemoved() || caster.isRemoved()
+					|| srcLevel.getServer().getPlayerList().getPlayer(subject.getUUID()) != subject
+					|| !PowerProtection.mayForceMove(caster, subject)
+					|| AmethystDampening.isDampened(subject)
+					|| !SafeDestinationResolver.validate(subject, dest, destPos, TravelKind.CRYSTAL).allowed()) return;
 			subject.teleport(new TeleportTransition(dest, destPos, Vec3.ZERO,
 					subject.getYRot(), subject.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 		});
+		return true;
 	}
 }
