@@ -1,5 +1,6 @@
 package com.powers.protection;
 
+/** Auditable outcome of a magical protection-policy evaluation. */
 public enum ProtectionDecision {
 	ALLOW,
 	DENY_SAFE_ZONE,

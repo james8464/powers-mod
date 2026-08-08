@@ -7,6 +7,10 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Immutable validated directed acyclic graph for one rank maze, including
+ * prerequisite and earned-depth unlock calculations.
+ */
 public final class RankGraph {
 	private final Map<String, RankNode> nodes;
 

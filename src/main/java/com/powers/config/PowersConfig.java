@@ -2,6 +2,10 @@ package com.powers.config;
 
 import java.util.List;
 
+/**
+ * Immutable server policy controlling terrain damage, consent-sensitive
+ * effects, safe zones, summons, and administrator rerolls.
+ */
 public record PowersConfig(
 		boolean allowTerrainDamage,
 		boolean allowBlockEntityDamage,

@@ -9,8 +9,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
-// Double Health: while toggled on your max health is doubled, and you get a
-// free 20-heart top-up so turning it on doesn't leave you at half a bar.
+/** Toggles an owned max-health modifier while preserving unrelated modifiers. */
 public class DoubleHealthAbility extends ToggleAbility {
 	private static final net.minecraft.resources.Identifier MODIFIER_ID = PowersMod.id("double_health");
 	private static final AttributeModifier MODIFIER = new AttributeModifier(

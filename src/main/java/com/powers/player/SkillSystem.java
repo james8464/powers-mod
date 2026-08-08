@@ -22,8 +22,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
-// the light skill ladder and the hidden darkness ladder: levels come from
-// advancements, and each rank boosts damage, range, and energy capacity
+/**
+ * Derives rank progression from advancements and applies player identity,
+ * title, attribute, range, damage, and energy consequences.
+ */
 public final class SkillSystem {
 	public static final String DARKNESS_TAG = "darkness";
 	// ten earnable ranks in each progression, plus the level-0 state a player

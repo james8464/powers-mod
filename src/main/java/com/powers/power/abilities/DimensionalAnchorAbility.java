@@ -18,8 +18,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-// Dimensional Anchor: bind a player in place by dimension so a later recall
-// power knows exactly where they're meant to be; the anchor fades after 2 min.
+/** Applies a temporary dimensional binding used to counter forced travel. */
 public class DimensionalAnchorAbility extends Ability {
 	// 2 minutes before the anchor fades
 	private static final int ANCHOR_TICKS = 2400;

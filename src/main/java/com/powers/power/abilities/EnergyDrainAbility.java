@@ -28,8 +28,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-// Energy Drain: lock onto a player and siphon their energy for 2 seconds;
-// if you keep the ritual going to the end they're left exhausted for 30s.
+/**
+ * Maintains interruptible soul-tethers that transfer energy and leave a fully
+ * drained target exhausted; transient links are cleared at lifecycle edges.
+ */
 public class EnergyDrainAbility extends Ability {
 	// 30 seconds of exhaustion after a full drain
 	private static final int EXHAUSTION_TICKS = 600;

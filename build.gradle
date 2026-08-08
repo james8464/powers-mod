@@ -47,8 +47,15 @@ tasks.register("validatePowerResources", Exec) {
 	commandLine "python3", "scripts/validate_resources.py", "--root", "src/main/resources"
 }
 
+tasks.register("auditJavaSources", Exec) {
+	group = "verification"
+	description = "Verifies the exact-version manifest for every production Java source."
+	commandLine "python3", "scripts/audit_java_sources.py", "--check"
+}
+
 tasks.named("check") {
 	dependsOn("validatePowerResources")
+	dependsOn("auditJavaSources")
 }
 
 tasks.withType(JavaCompile).configureEach {

@@ -14,8 +14,7 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-// Breezy Bash: kick up a gust that hurls everyone nearby skyward, then
-// gravity slams them back down a second later.
+/** Launches nearby valid targets in a gust before a delayed downward slam. */
 public class BreezyBashAbility extends Ability {
 	public BreezyBashAbility() {
 		super(PowersMod.id("breezy_bash"),
