@@ -58,6 +58,19 @@ class PowerScalingServiceTest {
 		assertTrue(values.cooldownTicks() >= Math.ceil(action("fireball").baseCooldownTicks() * 0.75) - 1);
 	}
 
+	@Test
+	void insightAndAbyssBranchesExposeTheirNamedVariants() {
+		RankGraph graph = graph(
+				perkNode("oracle", "insight", RankPerkType.REVEAL, 0.10),
+				perkNode("hunger", "abyss", RankPerkType.ENERGY_REGEN, 0.10));
+		RankProfile profile = new RankProfileService().profile(graph,
+				new RankProgress(Set.of("oracle", "hunger"), "oracle"));
+		Set<String> variants = service.scale(action("soul_compass"), profile, 3).unlockedVariants();
+
+		assertTrue(variants.contains("true_sight"));
+		assertTrue(variants.contains("dark_resurgence"));
+	}
+
 	private MagicActionDefinition action(String id) {
 		return catalogue.definitions().stream().filter(action -> action.id().value().equals(id)).findFirst().orElseThrow();
 	}

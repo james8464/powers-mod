@@ -7,6 +7,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.progression.PowerScalingService;
+import com.powers.progression.RankVariantRules;
 import com.powers.config.PowersConfig;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.PowerFx;
@@ -203,8 +204,18 @@ public final class LivingForceManager {
 				return;
 			}
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-			int refill = PowerScalingService.regeneration(player, policy.energyRefillPerSecond());
-			if (data.regenerateEnergy(refill)) PowersPackets.syncTo(player);
+			int energyBefore = data.energy();
+			int capacity = data.energyCapacity();
+			boolean resurgence = PowerScalingService.hasVariant(player, "dark_resurgence");
+			int rankedRefill = PowerScalingService.regeneration(player, policy.energyRefillPerSecond());
+			int refill = RankVariantRules.darknessRefill(
+					rankedRefill, energyBefore, capacity, resurgence);
+			if (data.regenerateEnergy(refill)) {
+				PowersPackets.syncTo(player);
+				if (resurgence && RankVariantRules.darknessEmergency(energyBefore, capacity)) {
+					PowerFx.darknessResurgence(level, center);
+				}
+			}
 		}
 		PowerFx.darknessAura(level, center, true);
 	}

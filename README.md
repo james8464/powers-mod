@@ -29,7 +29,7 @@ Elemental Blast cycles flame, frost, storm, and earth only after a successful re
 
 Every power uses the same energy well. Light progression grows it from 250 to 770; darkness progression grows its separate well from 500 to 1,850. Failed casts refund their activation cost. Toggle powers drain once per second and cause backlash if they exhaust the well. Sleeping and runestones restore energy unless Exhaustion is active.
 
-Darkness and Pure Light are living realm matter. Vanilla random ticks make either block convert adjacent breakable terrain without requiring kills or loading distant chunks. Darkness withers nearby living entities without the `darkness` tag at strength III; tagged players instead receive a rank-scaled 24-energy pulse each second unless amethyst has poisoned their connection. When Pure Light touches Darkness, a catastrophic eclipse blast damages and throws exposed entities, then radially erases both forces from the epicentre through a 48-block sphere over several server-budgeted ticks without destroying unrelated builds.
+Darkness and Pure Light are living realm matter. Vanilla random ticks make either block convert adjacent breakable terrain without requiring kills or loading distant chunks. Darkness withers nearby living entities without the `darkness` tag at strength III; tagged players instead receive a rank-scaled 24-energy pulse each second unless amethyst has poisoned their connection. Dark Resurgence strengthens that affinity by 50%, doubling it at or below one-quarter energy with a distinct eclipse awakening. When Pure Light touches Darkness, a catastrophic eclipse blast damages and throws exposed entities, then radially erases both forces from the epicentre through a 48-block sphere over several server-budgeted ticks without destroying unrelated builds.
 
 ## Mind travel and vulnerable bodies
 
@@ -48,6 +48,8 @@ Advancements still determine earned rank depth, damage scaling, range scaling, a
 
 The light and darkness graphs each contain 28 nodes, including legacy titles and paths through might, motion, insight, wardcraft, veils, communion, and dominion. Converging paths create hybrid titles such as Runeblade, Riftwalker, Soulwarden, Eclipse Weaver, and their endgame forms.
 
+Named branch variants have mechanical consequences as well as stronger ceremonies: Might empowers selected impacts, Motion grants second steps, Insight grants True Sight, Wardcraft reflects forcefields, Communion strengthens soul transfer, Veil reduces readable residue, Dominion deepens ancient mastery, and the Darkness path awakens Dark Resurgence.
+
 Press `B` (rebindable) to open the synchronized Labyrinth of Names, inspect every connected title and perk, awaken reachable nodes, or attune a previously earned title. The server revalidates every click. The equivalent commands are `/powers path list`, `/powers path unlock <node>`, `/powers path focus <node>`, and `/powers path respec`; respeccing preserves earned depth and costs 30 experience levels by default.
 
 Players with the `darkness` entity tag use the darkness advancement track and energy well. `/powers darkprefix` controls whether the focused darkness title is publicly shown.
@@ -65,7 +67,7 @@ Sneak-use a grimoire to turn its pages; use it normally to cast the selected spe
 | Infernal | Ashen Threshold, Circle of Banishment, Leashed Hellfire |
 | Abyssal | Amethyst Unmaking, Severing Word, Unweaving, Invocation of the Ninth Echo |
 
-Soul Compass uses a server-authenticated target selection flow and honours locator consent. Dimensional Anchor is a Deep Grimoire spell, not a randomly assigned power. Counterspell, dispel, sanctuary, anti-portal fields, kinetic wards, and temporary ward suppression provide direct counterplay.
+Soul Compass uses a server-authenticated target selection flow and honours locator consent. Insight-ranked True Sight can pierce either mindscape's normal path/rank veil during that consented ritual, signalled by a cyan-gold third-eye glyph, but cannot bypass consent or strip concealment. Dimensional Anchor is a Deep Grimoire spell, not a randomly assigned power. Counterspell, dispel, sanctuary, anti-portal fields, kinetic wards, and temporary ward suppression provide direct counterplay.
 
 ## Crystals
 
