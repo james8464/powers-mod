@@ -6,6 +6,9 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
+import com.powers.power.travel.SafeDestinationResolver;
+import com.powers.power.travel.TravelKind;
+import com.powers.protection.PowerProtection;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -20,6 +23,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.Comparator;
 
 /**
  * Portal Rift: the Indigo Crystal's power of portals and lock-on. You tear
@@ -43,7 +47,11 @@ public class PortalRiftAbility extends Ability {
 		// lock onto up to six live enemies within 32 blocks, dampening-protected ones aside
 		List<LivingEntity> targets = level.getEntitiesOfClass(LivingEntity.class,
 				AABB.ofSize(player.position().add(0, 1, 0), RANGE * 2, RANGE * 2, RANGE * 2),
-				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e));
+				e -> e.isAlive() && e != player && !player.isAlliedTo(e)
+						&& e.distanceToSqr(player) <= RANGE * RANGE
+						&& !AmethystDampening.isDampened(e)
+						&& PowerProtection.mayHarm(player, e));
+		targets.sort(Comparator.comparingDouble(player::distanceToSqr));
 		if (targets.size() > MAX_STRIKES) {
 			targets = targets.subList(0, MAX_STRIKES);
 		}
@@ -68,13 +76,18 @@ public class PortalRiftAbility extends Ability {
 
 	private static void strike(ServerPlayer player, LivingEntity target) {
 		// skip the strike if either fighter died or left the dimension mid-chain
-		if (!player.isAlive() || !target.isAlive() || player.level() != target.level()) {
+		if (!player.isAlive() || !target.isAlive() || player.level() != target.level()
+				|| AmethystDampening.isDampened(target) || !PowerProtection.mayHarm(player, target)) {
 			return;
 		}
 		ServerLevel level = (ServerLevel) player.level();
 		Vec3 look = target.getViewVector(1.0F);
 		// land 2.2 blocks out along the target's facing so you never clip into them
 		Vec3 spot = target.position().add(look.x * 2.2, 0.2, look.z * 2.2);
+		if (!SafeDestinationResolver.validate(player, level, spot, TravelKind.CRYSTAL).allowed()) {
+			spot = target.position().subtract(look.x * 2.2, -0.2, look.z * 2.2);
+		}
+		if (!SafeDestinationResolver.validate(player, level, spot, TravelKind.CRYSTAL).allowed()) return;
 		player.teleport(new TeleportTransition(level, spot, Vec3.ZERO,
 				player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 		// the crushing blow: 12 magic damage; if the hit is refused there's no show

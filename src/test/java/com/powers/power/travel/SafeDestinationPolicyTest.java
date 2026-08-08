@@ -28,4 +28,12 @@ class SafeDestinationPolicyTest {
 				SafeDestinationResolver.boundsFailure(10, 64, -10, -64, 320,
 						-1000, 1000, -1000, 1000));
 	}
+
+	@Test
+	void middleworldAcceptsItsCrystalButNotOrdinaryTeleportPowers() {
+		assertEquals(DestinationFailure.REALM_RESTRICTED,
+				SafeDestinationResolver.realmFailure(true, TravelKind.POWER));
+		assertEquals(DestinationFailure.NONE,
+				SafeDestinationResolver.realmFailure(true, TravelKind.CRYSTAL));
+	}
 }

@@ -3,6 +3,7 @@ package com.powers.power.travel;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.abilities.DimensionalAnchorAbility;
+import com.powers.protection.PowerProtection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,9 +27,8 @@ public final class SafeDestinationResolver {
 				border.getMinZ(), border.getMaxZ());
 		if (bounds != DestinationFailure.NONE) return new Result(bounds, requested);
 
-		if (kind != TravelKind.ADMIN && target.dimension().identifier().getPath().equals("middleworld")) {
-			return new Result(DestinationFailure.REALM_RESTRICTED, requested);
-		}
+		DestinationFailure realm = realmFailure(target.dimension().identifier().getPath().equals("middleworld"), kind);
+		if (realm != DestinationFailure.NONE) return new Result(realm, requested);
 		if (DimensionalAnchorAbility.isAnchored(subject)
 				&& !target.dimension().equals(DimensionalAnchorAbility.anchorDimension(subject))) {
 			return new Result(DestinationFailure.ANCHOR, requested);
@@ -44,6 +44,9 @@ public final class SafeDestinationResolver {
 		if (!target.hasChunkAt(feet)) return new Result(DestinationFailure.UNLOADED_CHUNK, requested);
 		if (AmethystDampening.findPoweredWard(target, feet).isPresent()) {
 			return new Result(DestinationFailure.WARD, requested);
+		}
+		if (kind != TravelKind.ADMIN && PowerProtection.isSafeZone(target, requested)) {
+			return new Result(DestinationFailure.SAFE_ZONE, requested);
 		}
 		BlockPos head = feet.above();
 		if (!target.getFluidState(feet).isEmpty() || !target.getFluidState(head).isEmpty()) {
@@ -63,5 +66,10 @@ public final class SafeDestinationResolver {
 			return DestinationFailure.OUT_OF_BOUNDS;
 		}
 		return DestinationFailure.NONE;
+	}
+
+	static DestinationFailure realmFailure(boolean middleworld, TravelKind kind) {
+		return middleworld && kind != TravelKind.CRYSTAL && kind != TravelKind.ADMIN
+				? DestinationFailure.REALM_RESTRICTED : DestinationFailure.NONE;
 	}
 }
