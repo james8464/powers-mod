@@ -27,6 +27,11 @@ public final class ModeCrystalAbility extends Ability {
 		return modes.get(state.current(player.getUUID(), modes.size()));
 	}
 
+	/** Returns the canonical underlying action used for interaction resolution. */
+	public String selectedActionId(ServerPlayer player) {
+		return selected(player).id().getPath();
+	}
+
 	@Override
 	public boolean isSelectionAction(ServerPlayer player) {
 		return selected(player).isSelectionAction(player) || player.isCrouching();

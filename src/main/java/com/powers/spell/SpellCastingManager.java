@@ -7,6 +7,8 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.abilities.EnergyDrainAbility;
+import com.powers.magic.runtime.PreparedMagicCast;
+import com.powers.magic.runtime.ServerMagicCasts;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -27,7 +29,8 @@ public final class SpellCastingManager {
 	private static final Map<UUID, Session> CHANNELS = new HashMap<>();
 	private static final Map<UUID, Long> AMPLIFIED_UNTIL = new HashMap<>();
 
-	private record Session(ChannelState state, SpellDefinition spell, String grimoireKey, int energyCost) {
+	private record Session(ChannelState state, SpellDefinition spell, String grimoireKey, int energyCost,
+			PreparedMagicCast magic) {
 	}
 
 	private SpellCastingManager() {
@@ -56,15 +59,17 @@ public final class SpellCastingManager {
 			failed(player, "spell.powers.no_target");
 			return;
 		}
+		PreparedMagicCast magic = ServerMagicCasts.prepare(player, spell.id());
+		if (!magic.allowed()) return;
 		if (!payAndCool(player, spell)) return;
 		boolean amplified = consumeAmplification(player, spell.effect());
 		if (spell.channelTicks() == 0) {
-			finish(player, spell, amplified);
+			finish(player, spell, amplified, magic);
 			return;
 		}
 		long end = player.level().getGameTime() + spell.channelTicks();
 		ChannelState state = new ChannelState(end, player.getX(), player.getY(), player.getZ(), grimoire.key(), false);
-		CHANNELS.put(player.getUUID(), new Session(state, spell, grimoire.key(), spell.energyCost()));
+		CHANNELS.put(player.getUUID(), new Session(state, spell, grimoire.key(), spell.energyCost(), magic));
 		ServerLevel level = (ServerLevel) player.level();
 		PowerFx.rune(level, player.position().add(0, 0.08, 0), 1.7, 0x7455A8, 20, 0);
 		PowerFx.sound(level, player.position(), SoundEvents.ENCHANTMENT_TABLE_USE, 0.9f, 0.7f);
@@ -76,8 +81,11 @@ public final class SpellCastingManager {
 		GrimoireDefinition grimoire = heldGrimoire(player);
 		if (grimoire == null) return false;
 		SpellDefinition spell = selectedSpell(player, grimoire);
-		return spell.effect() == SpellEffect.SOUL_COMPASS && commonChecks(player, spell, true)
-				&& payAndCool(player, spell);
+		if (spell.effect() != SpellEffect.SOUL_COMPASS || !commonChecks(player, spell, true)) return false;
+		PreparedMagicCast magic = ServerMagicCasts.prepare(player, spell.id());
+		if (!magic.allowed() || !payAndCool(player, spell)) return false;
+		ServerMagicCasts.commit(magic, player);
+		return true;
 	}
 
 	private static boolean commonChecks(ServerPlayer player, SpellDefinition spell, boolean punishDampening) {
@@ -138,7 +146,7 @@ public final class SpellCastingManager {
 				failed(player, "spell.powers.interrupted");
 				continue;
 			}
-			finish(player, session.spell(), amplified);
+			finish(player, session.spell(), amplified, session.magic());
 		}
 		AMPLIFIED_UNTIL.entrySet().removeIf(entry -> entry.getValue() != Long.MAX_VALUE
 				&& entry.getValue() <= server.overworld().getGameTime());
@@ -151,18 +159,21 @@ public final class SpellCastingManager {
 		PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.ENCHANT, 3, 0.45, 0.01);
 	}
 
-	private static void finish(ServerPlayer player, SpellDefinition spell, boolean amplified) {
+	private static void finish(ServerPlayer player, SpellDefinition spell, boolean amplified,
+			PreparedMagicCast magic) {
 		if (!SpellEffects.execute(player, spell, amplified)) {
 			failed(player, "spell.powers.failed");
 			return;
 		}
+		ServerMagicCasts.commit(magic, player);
 		player.sendSystemMessage(Component.translatable("spell.powers.cast", spellName(spell)));
 	}
 
 	public static void markDamaged(LivingEntity entity) {
 		Session session = CHANNELS.get(entity.getUUID());
 		if (session != null) CHANNELS.put(entity.getUUID(), new Session(
-				session.state().withDamaged(true), session.spell(), session.grimoireKey(), session.energyCost()));
+				session.state().withDamaged(true), session.spell(), session.grimoireKey(), session.energyCost(),
+				session.magic()));
 	}
 
 	public static boolean counterspell(ServerPlayer caster, double range) {

@@ -2,6 +2,7 @@ package com.powers;
 
 import com.powers.command.PowerCommand;
 import com.powers.mind.BodyProxyManager;
+import com.powers.magic.runtime.MagicRuntime;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.GodlyPunishment;
 import com.powers.network.PowersPackets;
@@ -199,6 +200,7 @@ public class PowersMod implements ModInitializer {
 		// with it, but the passive effects, name plate and client hud all have
 		// to be rebuilt straight away instead of waiting for the next refresh
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+			MagicRuntime.global().clearOwner(oldPlayer.getUUID());
 			WAS_SLEEPING.remove(newPlayer.getUUID());
 			SkillSystem.clear(newPlayer.getUUID());
 			// dying inside a realm hands the player back to the overworld, so
@@ -216,6 +218,7 @@ public class PowersMod implements ModInitializer {
 		// anchors, and owned flag snapshots deliberately stay on the player.
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 			ServerPlayer player = handler.getPlayer();
+			MagicRuntime.global().clearOwner(player.getUUID());
 			WAS_SLEEPING.remove(player.getUUID());
 			SkillSystem.clear(player.getUUID());
 			TeleportAbility.clearMarking(player);
@@ -239,6 +242,7 @@ public class PowersMod implements ModInitializer {
 		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(BodyProxyManager::returnAll);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+			MagicRuntime.global().clearAll();
 			STORMS.clear();
 			DELAYED.clear();
 			WAS_SLEEPING.clear();
@@ -271,6 +275,7 @@ public class PowersMod implements ModInitializer {
 		// stops, storms, and delayed jobs all advance each tick
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			int tick = server.getTickCount();
+			MagicRuntime.global().tick(tick);
 			if (tick % PASSIVE_REFRESH_TICKS == 0) {
 				for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 					refreshPassives(player);
