@@ -37,6 +37,7 @@ import java.util.UUID;
 // the mod's packets: ability activation, teleport requests and marks from the
 // client, plus the power-state snapshot sent to each player
 public final class PowersPackets {
+	private static final CastNonceTracker LOCATOR_NONCES = new CastNonceTracker(20 * 30);
 	private PowersPackets() {
 	}
 
@@ -93,11 +94,11 @@ public final class PowersPackets {
 	}
 
 	// the server's go-ahead for the celestial grimoire: open the locator screen
-	public record OpenLocatorScreenPayload() implements CustomPacketPayload {
+	public record OpenLocatorScreenPayload(UUID nonce) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<OpenLocatorScreenPayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("open_locator"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, OpenLocatorScreenPayload> STREAM_CODEC =
-				StreamCodec.unit(new OpenLocatorScreenPayload());
+				StreamCodec.composite(UUID_CODEC, OpenLocatorScreenPayload::nonce, OpenLocatorScreenPayload::new);
 
 		@Override
 		public Type<? extends CustomPacketPayload> type() {
@@ -106,18 +107,24 @@ public final class PowersPackets {
 	}
 
 	// the scry choice: the uuid of the online player the grimoire should locate
-	public record LocatePlayerPayload(UUID targetUuid) implements CustomPacketPayload {
+	public record LocatePlayerPayload(UUID targetUuid, UUID nonce) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<LocatePlayerPayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("locate_player"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, LocatePlayerPayload> STREAM_CODEC =
 				StreamCodec.composite(
 						UUID_CODEC, LocatePlayerPayload::targetUuid,
+						UUID_CODEC, LocatePlayerPayload::nonce,
 						LocatePlayerPayload::new);
 
 		@Override
 		public Type<? extends CustomPacketPayload> type() {
 			return TYPE;
 		}
+	}
+
+	public static void openLocator(ServerPlayer player) {
+		UUID nonce = LOCATOR_NONCES.issue(player.getUUID(), player.level().getServer().getTickCount());
+		ServerPlayNetworking.send(player, new OpenLocatorScreenPayload(nonce));
 	}
 
 	private static final StreamCodec<RegistryFriendlyByteBuf, UUID> UUID_CODEC = StreamCodec.of(
@@ -252,7 +259,11 @@ public final class PowersPackets {
 					return;
 				}
 				if (!data.spendEnergy(player, ability)) return;
-				TeleportAbility.startMarking(player, target, payload.slot());
+				if (!TeleportAbility.startMarking(player, target, payload.slot())) {
+					data.refundEnergy(ability);
+					syncTo(player);
+					return;
+				}
 				ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
 				syncTo(player);
 				return;
@@ -294,6 +305,7 @@ public final class PowersPackets {
 			AmethystDampening.update(player);
 			// the same counterplay applies to marking a teleport spot
 			if (AmethystDampening.isDampened(player)) {
+				TeleportAbility.clearMarking(player);
 				AmethystDampening.punish(player);
 				return;
 			}
@@ -315,6 +327,11 @@ public final class PowersPackets {
 	private static void handleLocate(LocatePlayerPayload payload, ServerPlayNetworking.Context context) {
 		context.server().execute(() -> {
 			ServerPlayer player = context.player();
+			long tick = context.server().getTickCount();
+			if (!LOCATOR_NONCES.consume(player.getUUID(), payload.nonce(), tick)) return;
+			boolean holdingGrimoire = player.getMainHandItem().getItem() instanceof com.powers.item.CelestialGrimoireItem
+					|| player.getOffhandItem().getItem() instanceof com.powers.item.CelestialGrimoireItem;
+			if (!holdingGrimoire) return;
 			// frozen time stalls the grimoire too, and the payment never lands
 			if (SpaceTimeAbility.isFrozen(player)) {
 				SpaceTimeAbility.reject(player);

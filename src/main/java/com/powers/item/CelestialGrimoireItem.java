@@ -3,7 +3,6 @@ package com.powers.item;
 import com.powers.network.PowersPackets;
 import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.util.PowerMessages;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -33,7 +32,7 @@ public class CelestialGrimoireItem extends Item {
 				return InteractionResult.SUCCESS;
 			}
 			// the server vouches for the cast; the client then asks for a target
-			ServerPlayNetworking.send(player, new PowersPackets.OpenLocatorScreenPayload());
+			PowersPackets.openLocator(player);
 		}
 		return InteractionResult.SUCCESS;
 	}

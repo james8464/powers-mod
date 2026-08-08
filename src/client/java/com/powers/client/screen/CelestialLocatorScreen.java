@@ -17,9 +17,11 @@ import java.util.UUID;
 /** the celestial grimoire's target picker: choose an online player to scry */
 public class CelestialLocatorScreen extends Screen {
 	private PlayerList playerList;
+	private final UUID nonce;
 
-	public CelestialLocatorScreen() {
+	public CelestialLocatorScreen(UUID nonce) {
 		super(Component.translatable("screen.powers.locator.title"));
+		this.nonce = nonce;
 	}
 
 	@Override
@@ -47,7 +49,7 @@ public class CelestialLocatorScreen extends Screen {
 	}
 
 	private void choose(UUID targetUuid) {
-		ClientPlayNetworking.send(new PowersPackets.LocatePlayerPayload(targetUuid));
+		ClientPlayNetworking.send(new PowersPackets.LocatePlayerPayload(targetUuid, nonce));
 		this.onClose();
 	}
 

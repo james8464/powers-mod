@@ -1,13 +1,16 @@
 package com.powers.power.abilities;
 
 import com.powers.PowersMod;
+import com.powers.config.PowersConfigLoader;
 import com.powers.fx.GodlyPunishment;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
-import com.powers.power.AmethystDampening;
 import com.powers.protection.PowerProtection;
+import com.powers.power.travel.DestinationFailure;
+import com.powers.power.travel.SafeDestinationResolver;
+import com.powers.power.travel.TravelKind;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -45,7 +48,8 @@ public class TeleportAbility extends Ability {
 	public static final Map<UUID, MarkingState> MARKING = new HashMap<>();
 
 	public record MarkingState(ServerPlayer player, ResourceKey<Level> originalDimension,
-			Vec3 originalPos, GameType originalMode, long deadline, int slot) {}
+			Vec3 originalPos, GameType originalMode, ResourceKey<Level> markingDimension,
+			Vec3 markingCenter, long deadline, int slot) {}
 
 	private record Companion(Entity entity, Vec3 offset) {}
 
@@ -55,19 +59,29 @@ public class TeleportAbility extends Ability {
 				400, true);
 	}
 
-	public static void startMarking(ServerPlayer player, ServerPlayer target, int slot) {
+	public static boolean startMarking(ServerPlayer player, ServerPlayer target, int slot) {
+		ServerLevel targetLevel = (ServerLevel) target.level();
+		Vec3 entry = target.position().add(0, 2, 0);
+		SafeDestinationResolver.Result destination = SafeDestinationResolver.validate(
+				player, targetLevel, entry, TravelKind.PROJECTION);
+		if (!destination.allowed()) {
+			reportTravelFailure(player, player, entry, destination.failure());
+			return false;
+		}
 		// remember the original dimension, spot and game mode so the marking can always be undone
 		MARKING.put(player.getUUID(), new MarkingState(
 				player, player.level().dimension(), player.position(), player.gameMode(),
+				targetLevel.dimension(), target.position(),
 				((ServerLevel) player.level()).getServer().getTickCount() + MARK_TIMEOUT_TICKS, slot));
 		// spectator so you can fly to the landing spot without fighting
 		player.setGameMode(GameType.SPECTATOR);
 		PowerFx.rune((ServerLevel) target.level(), target.position().add(0, 2, 0), 1.5, 0x88CCFF, 20, 0.6);
 		PowerFx.sound((ServerLevel) target.level(), target.position(), SoundEvents.ENDERMAN_TELEPORT, 0.7f, 1.2f);
-		player.teleport(new TeleportTransition((ServerLevel) target.level(),
-				target.position().add(0, 2, 0), Vec3.ZERO, player.getYRot(), player.getXRot(),
+		player.teleport(new TeleportTransition(targetLevel,
+				entry, Vec3.ZERO, player.getYRot(), player.getXRot(),
 				TeleportTransition.PLAY_PORTAL_SOUND));
 		PowerMessages.send(player, "ability.powers.marking_mode", 3);
+		return true;
 	}
 
 	/** Completes the marking teleport to the coordinates picked in spectator mode, restoring your game mode. */
@@ -77,15 +91,29 @@ public class TeleportAbility extends Ability {
 		if (state == null || state.slot() != slot) return;
 		// a corrupted packet could carry NaN and break the teleport, bail out and stay in place
 		if (!Double.isFinite(pos.x()) || !Double.isFinite(pos.y()) || !Double.isFinite(pos.z())) {
-			player.setGameMode(state.originalMode());
+			restore(player, state);
 			return;
 		}
 		ServerLevel level = (ServerLevel) player.level();
+		double maximumDistance = PowersConfigLoader.get().teleportMaxChunkDistance() * 16.0;
+		if (!level.dimension().equals(state.markingDimension())
+				|| pos.distanceToSqr(state.markingCenter()) > maximumDistance * maximumDistance) {
+			PowerMessages.send(player, "ability.powers.out_of_bounds", 3);
+			restore(player, state);
+			return;
+		}
 		Vec3 safe = findSafeMarkSpot(level, pos);
 		if (safe == null) {
 			// the marked spot is solid - restore the game mode and tell the player
 			PowerMessages.send(player, "ability.powers.solid_block", 3);
-			player.setGameMode(state.originalMode());
+			restore(player, state);
+			return;
+		}
+		SafeDestinationResolver.Result destination = SafeDestinationResolver.validate(
+				player, level, safe, TravelKind.POWER);
+		if (!destination.allowed()) {
+			reportTravelFailure(player, player, safe, destination.failure());
+			restore(player, state);
 			return;
 		}
 		player.teleport(new TeleportTransition(level, safe, Vec3.ZERO,
@@ -98,10 +126,10 @@ public class TeleportAbility extends Ability {
 		// only check up to 3 blocks up - anything higher than that wasn't really the spot you picked
 		for (int dy = 0; dy <= 3; dy++) {
 			Vec3 candidate = new Vec3(pos.x, pos.y + dy, pos.z);
-			BlockState feet = level.getBlockState(new BlockPos(
-					(int) Math.floor(candidate.x), (int) Math.floor(candidate.y), (int) Math.floor(candidate.z)));
-			BlockState head = level.getBlockState(new BlockPos(
-					(int) Math.floor(candidate.x), (int) Math.floor(candidate.y) + 1, (int) Math.floor(candidate.z)));
+			BlockPos feetPos = BlockPos.containing(candidate);
+			if (!level.hasChunkAt(feetPos)) continue;
+			BlockState feet = level.getBlockState(feetPos);
+			BlockState head = level.getBlockState(feetPos.above());
 			// both the feet and head blocks must be clear so you don't materialize inside a wall
 			if (!feet.isSolid() && !head.isSolid()) {
 				return candidate;
@@ -165,31 +193,6 @@ public class TeleportAbility extends Ability {
 	@Override
 	public boolean activateTeleport(ServerPlayer caster, ServerPlayer player, PlayerPowers.PlayerPowersData data,
 			ResourceKey<Level> dimension, double x, double y, double z) {
-		// every refusal below reports to the caster, who is the one waiting on an
-		// answer. sending it to the subject instead meant that banishing another
-		// player into a wall told them and left the caster staring at silence
-		// refuse out-of-range or NaN coordinates before anything else
-		if (!Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)) {
-			PowerMessages.send(caster, "ability.powers.out_of_bounds", 3);
-			return false;
-		}
-		// a dimensional anchor pins you to its dimension - teleports elsewhere are punished
-		if (DimensionalAnchorAbility.isAnchored(player)) {
-			ResourceKey<Level> anchor = DimensionalAnchorAbility.anchorDimension(player);
-			if (!dimension.equals(anchor)) {
-				GodlyPunishment.chainBlock((ServerLevel) player.level(), player);
-				PowerMessages.send(caster, "ability.powers.anchored_teleport_blocked", 4);
-				return false;
-			}
-		}
-
-		// the middleworld is off-limits to teleporters
-		if (dimension.identifier().getPath().equals("middleworld")) {
-			GodlyPunishment.barrier((ServerLevel) player.level(), player, 0x82CAFF);
-			PowerMessages.send(caster, "ability.powers.no_entry", 4);
-			return false;
-		}
-
 		MinecraftServer server = player.level().getServer();
 		ServerLevel targetLevel = server == null ? null : server.getLevel(dimension);
 		if (targetLevel == null) {
@@ -197,53 +200,12 @@ public class TeleportAbility extends Ability {
 			PowerMessages.send(caster, "ability.powers.bad_dimension", 3);
 			return false;
 		}
-		boolean enteringDarkRealm = SkillSystem.isDarkRealm(dimension);
-		boolean leavingDarkRealm = SkillSystem.isDarkRealm(player.level().dimension());
-		// entering the dark realm needs the darkness mark at rank 5+; the
-		// dark crystal and riding along as a companion are the only bypasses.
-		// leaving is always free - nobody who gets in is ever trapped
-		if (enteringDarkRealm && !leavingDarkRealm) {
-			if (!SkillSystem.canEnterDarkRealm(player)) {
-				GodlyPunishment.voidReject((ServerLevel) caster.level(), caster);
-				PowerMessages.send(caster, "ability.powers.darkness_realm_restricted", 5);
-				return false;
-			}
-		}
-		// an amethyst ward at the landing spot repels the teleport and blasts the caller
-		if (AmethystDampening.findPoweredWard(targetLevel, BlockPos.containing(x, y, z)).isPresent()) {
-			ServerLevel originLevel = (ServerLevel) player.level();
-			PowerFx.clash(originLevel, player.position().add(0, 1, 0),
-					new Vec3(x + 0.5, y + 1, z + 0.5), 0xFFD4FF, 0xB36BFF);
-			// 20 points of magic damage plus a divine strike for touching a ward.
-			// this is the ward biting the traveller, not a power hitting them, so
-			// it carries no attacker and dampening never shields against it
-			player.hurtServer(originLevel, player.damageSources().magic(), 20.0f);
-			GodlyPunishment.strike(originLevel, player, 0xB36BFF, false);
-			PowerMessages.send(caster, "amethyst.powers.teleport_repelled", 5);
-			return false;
-		}
-
-		// keep the destination inside the dimension's build height and the world border
-		int minY = targetLevel.getMinY();
-		int maxY = targetLevel.getMaxY();
-		if (y < minY || y > maxY || x < -30_000_000 || x > 30_000_000 || z < -30_000_000 || z > 30_000_000) {
-			PowerMessages.send(caster, "ability.powers.out_of_bounds", 3);
-			return false;
-		}
-
-		// both the feet and head blocks must be clear or you'd materialize inside a wall
-		BlockState feetBlock = targetLevel.getBlockState(new BlockPos((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z)));
-		BlockState headBlock = targetLevel.getBlockState(new BlockPos((int) Math.floor(x), (int) Math.floor(y) + 1, (int) Math.floor(z)));
-		if (feetBlock.isSolid() || headBlock.isSolid()) {
-			PowerMessages.send(caster, "ability.powers.solid_block", 3);
-			return false;
-		}
-
 		ServerLevel originLevel = (ServerLevel) player.level();
 		Vec3 target = new Vec3(x + 0.5, y, z + 0.5);
-		// also sweep the full hitbox at the landing spot for collisions, not just the feet and head blocks
-		if (!targetLevel.noCollision(player, player.getBoundingBox().move(target.subtract(player.position())))) {
-			PowerMessages.send(caster, "ability.powers.solid_block", 3);
+		SafeDestinationResolver.Result destination = SafeDestinationResolver.validate(
+				player, targetLevel, target, TravelKind.POWER);
+		if (!destination.allowed()) {
+			reportTravelFailure(caster, player, target, destination.failure());
 			return false;
 		}
 		Vec3 origin = player.position();
@@ -269,6 +231,12 @@ public class TeleportAbility extends Ability {
 		PowersMod.scheduleDelayed(server, TELEPORT_DELAY_TICKS, () -> {
 			// the player may have died during the storm - never teleport a corpse
 			if (!player.isAlive()) return;
+			SafeDestinationResolver.Result revalidated = SafeDestinationResolver.validate(
+					player, targetLevel, target, TravelKind.POWER);
+			if (!revalidated.allowed()) {
+				reportTravelFailure(caster, player, target, revalidated.failure());
+				return;
+			}
 			player.teleport(new TeleportTransition(targetLevel, target, Vec3.ZERO,
 					player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 			for (Companion companion : companions) {
@@ -276,6 +244,13 @@ public class TeleportAbility extends Ability {
 				// companions that died or despawned during the storm stay behind
 				if (entity.isRemoved()) continue;
 				Vec3 dest = target.add(companion.offset());
+				BlockPos destPos = BlockPos.containing(dest);
+				if (!targetLevel.hasChunkAt(destPos)) continue;
+				if (entity instanceof ServerPlayer companionPlayer) {
+					SafeDestinationResolver.Result companionDestination = SafeDestinationResolver.validate(
+							companionPlayer, targetLevel, dest, TravelKind.COMPANION);
+					if (!companionDestination.allowed()) continue;
+				}
 				BlockState feet = targetLevel.getBlockState(new BlockPos(
 						(int) Math.floor(dest.x), (int) Math.floor(dest.y), (int) Math.floor(dest.z)));
 				BlockState head = targetLevel.getBlockState(new BlockPos(
@@ -287,6 +262,31 @@ public class TeleportAbility extends Ability {
 			}
 		});
 		return true;
+	}
+
+	private static void reportTravelFailure(ServerPlayer caster, ServerPlayer subject,
+			Vec3 target, DestinationFailure failure) {
+		ServerLevel origin = (ServerLevel) subject.level();
+		switch (failure) {
+			case ANCHOR -> {
+				GodlyPunishment.chainBlock(origin, subject);
+				PowerMessages.send(caster, "ability.powers.anchored_teleport_blocked", 4);
+			}
+			case WARD -> {
+				PowerFx.clash(origin, subject.position().add(0, 1, 0), target.add(0, 1, 0),
+						0xFFD4FF, 0xB36BFF);
+				subject.hurtServer(origin, subject.damageSources().magic(), 20.0f);
+				GodlyPunishment.strike(origin, subject, 0xB36BFF, false);
+				PowerMessages.send(caster, "amethyst.powers.teleport_repelled", 5);
+			}
+			case REALM_RESTRICTED -> {
+				GodlyPunishment.barrier(origin, subject, 0x82CAFF);
+				PowerMessages.send(caster, "ability.powers.no_entry", 4);
+			}
+			case OUT_OF_BOUNDS, UNLOADED_CHUNK -> PowerMessages.send(caster, "ability.powers.out_of_bounds", 3);
+			case COLLISION, HAZARD -> PowerMessages.send(caster, "ability.powers.solid_block", 3);
+			case NONE -> { }
+		}
 	}
 
 	// which realm's signature the departing lightning should build up
