@@ -16,6 +16,11 @@ public final class ActivationCooldowns {
 		return remainingTicks(player, ability) <= 0;
 	}
 
+	/** Active recovery blocks a cast unless its ability owns a legal reactivation. */
+	public static boolean blocks(int remainingTicks, boolean reactivationAllowed) {
+		return remainingTicks > 0 && !reactivationAllowed;
+	}
+
 	/** ticks left before the ability unlocks, or 0 when it's ready */
 	public static int remainingTicks(ServerPlayer player, Ability ability) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);

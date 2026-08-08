@@ -12,6 +12,7 @@ public final class ClientPowerState {
 	private static List<String> activeToggles = List.of();
 	private static List<Integer> cooldownTicks = List.of();
 	private static List<Integer> cooldownMaximums = List.of();
+	private static List<Integer> reactivationTicks = List.of();
 	private static int energy;
 	private static int energyCapacity;
 	private static boolean canSeeDarkRealm;
@@ -32,6 +33,7 @@ public final class ClientPowerState {
 		activeToggles = payload.activeToggles();
 		cooldownTicks = payload.cooldownTicks();
 		cooldownMaximums = payload.cooldownMaximums();
+		reactivationTicks = payload.reactivationTicks();
 		energy = payload.energy();
 		energyCapacity = payload.energyCapacity();
 		canSeeDarkRealm = payload.canSeeDarkRealm();
@@ -49,6 +51,7 @@ public final class ClientPowerState {
 		activeToggles = List.of();
 		cooldownTicks = List.of();
 		cooldownMaximums = List.of();
+		reactivationTicks = List.of();
 		energy = 0;
 		energyCapacity = 0;
 		canSeeDarkRealm = false;
@@ -85,11 +88,22 @@ public final class ClientPowerState {
 		return slot >= 0 && slot < cooldownMaximums.size() ? Math.max(0, cooldownMaximums.get(slot)) : 0;
 	}
 
+	/** Remaining server-authorized follow-up time for a slot, or zero. */
+	public static int reactivationTicks(int slot) {
+		return slot >= 0 && slot < reactivationTicks.size()
+				? Math.max(0, reactivationTicks.get(slot)) : 0;
+	}
+
 	public static void tickCooldowns() {
 		if (cooldownTicks.isEmpty()) return;
 		java.util.ArrayList<Integer> updated = new java.util.ArrayList<>(cooldownTicks.size());
 		for (int ticks : cooldownTicks) updated.add(Math.max(0, ticks - 1));
 		cooldownTicks = List.copyOf(updated);
+		if (!reactivationTicks.isEmpty()) {
+			java.util.ArrayList<Integer> reactivations = new java.util.ArrayList<>(reactivationTicks.size());
+			for (int ticks : reactivationTicks) reactivations.add(Math.max(0, ticks - 1));
+			reactivationTicks = List.copyOf(reactivations);
+		}
 	}
 
 	public static boolean darkness() {
