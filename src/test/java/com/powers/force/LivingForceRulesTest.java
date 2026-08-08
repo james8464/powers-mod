@@ -34,6 +34,9 @@ class LivingForceRulesTest {
 		assertEquals(25.0, LivingForceRules.clashDamage(24.0, 48.0, 100.0), 0.0001);
 		assertEquals(0.0, LivingForceRules.clashDamage(48.0, 48.0, 100.0), 0.0001);
 		assertEquals(0.0, LivingForceRules.clashDamage(60.0, 48.0, 100.0), 0.0001);
+		assertEquals(8.0, LivingForceRules.clashImpulse(0.0, 48.0, 8.0), 0.0001);
+		assertEquals(4.0, LivingForceRules.clashImpulse(24.0, 48.0, 8.0), 0.0001);
+		assertEquals(0.0, LivingForceRules.clashImpulse(48.0, 48.0, 8.0), 0.0001);
 	}
 
 	@Test

@@ -1,5 +1,7 @@
 package com.powers.fx;
 
+import com.powers.PowersParticles;
+import com.powers.PowersSounds;
 import com.powers.config.PowersConfigLoader;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
@@ -99,6 +101,64 @@ public final class PowerFx {
 		beam(level, to, midpoint, ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF000000 | defender), 8);
 		burst(level, midpoint, ParticleTypes.ELECTRIC_SPARK, 16, 0.4, 0.08);
 		sound(level, midpoint, SoundEvents.BEACON_DEACTIVATE, 0.8f, 1.4f);
+	}
+
+	/** Emits the first catastrophic eclipse flash when living light and darkness touch. */
+	public static void forceClashDetonation(ServerLevel level, Vec3 center, int radius) {
+		burst(level, center, ParticleTypes.EXPLOSION_EMITTER, 2, 0.1, 0.0);
+		burst(level, center, ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFFFFF), 12, 1.2, 0.0);
+		burst(level, center, PowersParticles.FRACTURE, 48, 3.5, 0.35);
+		burst(level, center, PowersParticles.ECLIPSE, 40, 2.6, 0.22);
+		rune(level, center, Math.min(8.0, radius * 0.2), 0xFFF4C7, 48, 0.0);
+		rune(level, center.add(0, 0.15, 0), Math.min(6.5, radius * 0.16), 0x2A0C3D, 40, Math.PI / 16.0);
+		sound(level, center, PowersSounds.LIGHT_CHORUS, 8.0F, 0.5F);
+		sound(level, center, PowersSounds.DARK_WHISPER, 8.0F, 0.5F);
+		sound(level, center, PowersSounds.INTERACTION_CLASH, 12.0F, 0.35F);
+		sound(level, center, SoundEvents.GENERIC_EXPLODE.value(), 12.0F, 0.5F);
+		sound(level, center, SoundEvents.END_PORTAL_SPAWN, 6.0F, 0.55F);
+	}
+
+	/** Draws the expanding, alternating corona of an active annihilation wave. */
+	public static void forceClashWave(ServerLevel level, Vec3 center, double radius, int age) {
+		double phase = age * 0.16;
+		int points = Math.max(16, Math.min(64, (int) Math.ceil(radius * 2.0)));
+		ring(level, center, radius, 0xFFF4C7, points, phase);
+		ring(level, center.add(0, 0.12, 0), Math.max(0.5, radius - 0.55), 0x2A0C3D, points, -phase);
+		if (age % 4 == 0) {
+			burst(level, center, ParticleTypes.END_ROD, 8, Math.min(radius, 10.0), 0.05);
+			burst(level, center, ParticleTypes.LARGE_SMOKE, 8, Math.min(radius, 10.0), 0.04);
+		}
+		if (age % 12 == 0) sound(level, center, PowersSounds.INTERACTION_CLASH, 3.0F, 0.65F);
+	}
+
+	/** Seals a completed clash with a final inward fracture and bass impact. */
+	public static void forceClashFinished(ServerLevel level, Vec3 center, int radius) {
+		burst(level, center, PowersParticles.FRACTURE, 32, Math.min(radius, 12.0), 0.12);
+		burst(level, center, ParticleTypes.REVERSE_PORTAL, 40, Math.min(radius, 10.0), 0.16);
+		rune(level, center, Math.min(radius, 12.0), 0xBFA8FF, 56, Math.PI / 8.0);
+		sound(level, center, SoundEvents.RESPAWN_ANCHOR_DEPLETE.value(), 6.0F, 0.45F);
+	}
+
+	/** Shows whether darkness is poisoning or welcoming an entity. */
+	public static void darknessAura(ServerLevel level, Vec3 center, boolean restorative) {
+		burst(level, center, restorative ? PowersParticles.MOTE : PowersParticles.ECLIPSE,
+				restorative ? 9 : 13, 0.65, restorative ? 0.035 : 0.075);
+		coloredBurst(level, center, restorative ? 0x7C36C8 : 0x190522, restorative ? 8 : 12, 0.55);
+		spiral(level, center.add(0, -0.45, 0), 0.55, 1.15,
+				restorative ? 0xA456E8 : 0x2A0C3D, 10, level.getGameTime() * 0.12);
+		if (level.getRandom().nextInt(8) == 0) {
+			sound(level, center, PowersSounds.DARK_WHISPER, 0.45F, restorative ? 1.15F : 0.62F);
+		}
+	}
+
+	/** Visual counter-cue when carried amethyst blocks darkness-fed restoration. */
+	public static void amethystDarknessInterference(ServerLevel level, Vec3 center) {
+		burst(level, center, ParticleTypes.ELECTRIC_SPARK, 10, 0.55, 0.08);
+		burst(level, center, PowersParticles.FRACTURE, 8, 0.45, 0.04);
+		coloredBurst(level, center, 0xB36BFF, 12, 0.5);
+		if (level.getRandom().nextInt(5) == 0) {
+			sound(level, center, PowersSounds.AMETHYST_FRACTURE, 0.5F, 0.85F);
+		}
 	}
 
 	/** a cycling rainbow rgb color, for rainbow steve's effects */

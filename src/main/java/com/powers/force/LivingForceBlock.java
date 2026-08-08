@@ -7,6 +7,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Orientation;
 
 /** Random-ticking realm-matter block whose mutations are delegated to the server manager. */
 public final class LivingForceBlock extends Block {
@@ -24,8 +25,20 @@ public final class LivingForceBlock extends Block {
 
 	@Override
 	protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-		if (level instanceof ServerLevel serverLevel) LivingForceManager.register(serverLevel, pos, kind);
+		if (level instanceof ServerLevel serverLevel) {
+			LivingForceManager.register(serverLevel, pos, kind);
+			LivingForceManager.checkForClash(serverLevel, pos, kind);
+		}
 		super.onPlace(state, level, pos, oldState, movedByPiston);
+	}
+
+	@Override
+	protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block,
+			Orientation orientation, boolean movedByPiston) {
+		if (level instanceof ServerLevel serverLevel) {
+			LivingForceManager.checkForClash(serverLevel, pos, kind);
+		}
+		super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
 	}
 
 	@Override

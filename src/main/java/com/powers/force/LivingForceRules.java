@@ -46,4 +46,11 @@ public final class LivingForceRules {
 		double remaining = 1.0 - Math.max(0.0, distance) / radius;
 		return peakDamage * remaining * remaining;
 	}
+
+	/** Linear outward impulse with the same hard radius boundary as clash damage. */
+	public static double clashImpulse(double distance, double radius, double peakImpulse) {
+		if (!Double.isFinite(distance) || !Double.isFinite(radius) || !Double.isFinite(peakImpulse)
+				|| radius <= 0.0 || peakImpulse <= 0.0 || distance >= radius) return 0.0;
+		return peakImpulse * (1.0 - Math.max(0.0, distance) / radius);
+	}
 }

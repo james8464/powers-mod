@@ -254,6 +254,7 @@ public class PowersMod implements ModInitializer {
 			SpellCastingManager.tick(server);
 			SpellFieldManager.tick(server);
 			RealmMindscapeManager.tick(server);
+			LivingForceManager.tick(server);
 			TeleportAbility.tickMarking();
 			ServerMagicScheduler.tick(tick);
 		});
