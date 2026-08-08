@@ -52,9 +52,21 @@ def walk_models(value):
             yield from walk_models(child)
 
 
+def walk_strings(value):
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for child in value.values():
+            yield from walk_strings(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from walk_strings(child)
+
+
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
     parsed = {}
+    png_dimensions = {}
     for path in sorted(root.rglob("*")):
         if path.name in {".DS_Store", "Thumbs.db"}:
             errors.append(f"forbidden metadata file: {path}")
@@ -71,6 +83,7 @@ def validate(root: Path) -> list[str]:
                 width, height = struct.unpack(">II", data[16:24])
                 if width <= 0 or height <= 0 or width > 16_384 or height > 16_384:
                     raise ValueError(f"invalid dimensions {width}x{height}")
+                png_dimensions[path] = (width, height)
             except Exception as error:
                 errors.append(f"{path}: {error}")
 
@@ -133,6 +146,28 @@ def validate(root: Path) -> list[str]:
                 if target is not None and not target.exists():
                     errors.append(f"{path}: missing texture {target}")
 
+    for path in sorted(assets.rglob("*.png.mcmeta")):
+        texture = path.with_suffix("")
+        dimensions = png_dimensions.get(texture)
+        data = parsed.get(path, {})
+        animation = data.get("animation", {}) if isinstance(data, dict) else {}
+        if not dimensions or not isinstance(animation, dict):
+            continue
+        frame_time = animation.get("frametime", 1)
+        if not isinstance(frame_time, int) or frame_time < 1:
+            errors.append(f"{path}: animation frametime must be a positive integer")
+        width, height = dimensions
+        frames = animation.get("frames")
+        if height > width and height % width == 0 and isinstance(frames, list):
+            frame_count = height // width
+            referenced = {
+                frame.get("index") if isinstance(frame, dict) else frame
+                for frame in frames
+            }
+            unused = sorted(set(range(frame_count)) - {index for index in referenced if isinstance(index, int)})
+            if unused:
+                errors.append(f"{path}: unused animation frames {unused}")
+
     minecraft_loot = root / "data" / "minecraft" / "loot_table"
     if minecraft_loot.exists() and any(minecraft_loot.rglob("*.json")):
         errors.append("vanilla loot-table overrides are forbidden; use additive LootTableEvents")
@@ -168,6 +203,10 @@ def validate(root: Path) -> list[str]:
             errors.append(f"stale translation {stale_key}")
     if any(key.startswith("grimoire.celestial.low_xp.") for key in lang):
         errors.append("stale XP-priced celestial grimoire messages")
+    stale_quartz = "minecraft:block/quartz_pillar"
+    for path, data in parsed.items():
+        if path.suffix == ".json" and stale_quartz in walk_strings(data):
+            errors.append(f"{path}: stale vanilla texture {stale_quartz}; use quartz_pillar_side")
     return errors
 
 

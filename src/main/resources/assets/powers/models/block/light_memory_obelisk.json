@@ -3,7 +3,7 @@
   "textures": {
     "particle": "powers:block/pure_light",
     "light": "powers:block/pure_light",
-    "stone": "minecraft:block/quartz_pillar",
+    "stone": "minecraft:block/quartz_pillar_side",
     "gold": "minecraft:block/gold_block"
   },
   "elements": [
