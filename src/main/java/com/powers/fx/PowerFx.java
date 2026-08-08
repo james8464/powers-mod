@@ -5,6 +5,7 @@ import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -16,7 +17,7 @@ import net.minecraft.world.phys.Vec3;
  * trails and cast sounds
  */
 public final class PowerFx {
-	private static final java.util.Map<ServerLevel, ParticleBudget> BUDGETS = new java.util.WeakHashMap<>();
+	private static final java.util.Map<MinecraftServer, ParticleBudget> BUDGETS = new java.util.WeakHashMap<>();
 
 	private PowerFx() {
 	}
@@ -24,12 +25,13 @@ public final class PowerFx {
 	/** puffs a cloud of particles around a point */
 	public static void burst(ServerLevel level, Vec3 pos, ParticleOptions particle, int count, double spread, double speed) {
 		int limit = PowersConfigLoader.get().maxParticlesPerTick();
-		ParticleBudget budget = BUDGETS.get(level);
+		MinecraftServer server = level.getServer();
+		ParticleBudget budget = BUDGETS.get(server);
 		if (budget == null || budget.limit() != limit) {
 			budget = new ParticleBudget(limit);
-			BUDGETS.put(level, budget);
+			BUDGETS.put(server, budget);
 		}
-		int granted = budget.claim(level.getGameTime(), count);
+		int granted = budget.claim(server.getTickCount(), count);
 		if (granted > 0) level.sendParticles(particle, pos.x, pos.y, pos.z, granted, spread, spread, spread, speed);
 	}
 

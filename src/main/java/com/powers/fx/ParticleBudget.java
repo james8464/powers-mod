@@ -1,6 +1,6 @@
 package com.powers.fx;
 
-/** Small per-world limiter that resets on a new game tick. */
+/** Small per-server limiter that resets on a new game tick. */
 public final class ParticleBudget {
 	private final int limit;
 	private long tick = Long.MIN_VALUE;
