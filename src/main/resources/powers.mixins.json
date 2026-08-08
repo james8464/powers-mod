@@ -6,6 +6,7 @@
 		"EntityMixin",
 		"FoodConsumeMixin",
 		"ItemEntityMixin",
+		"LargeFireballMixin",
 		"MobMixin"
 	],
 	"injectors": {
