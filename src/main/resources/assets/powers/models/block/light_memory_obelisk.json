@@ -1,0 +1,35 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "powers:block/pure_light",
+    "light": "powers:block/pure_light",
+    "stone": "minecraft:block/quartz_pillar",
+    "gold": "minecraft:block/gold_block"
+  },
+  "elements": [
+    {
+      "from": [1, 0, 1], "to": [15, 3, 15],
+      "faces": {
+        "down": {"texture": "#stone"}, "up": {"texture": "#gold"},
+        "north": {"texture": "#stone"}, "south": {"texture": "#stone"},
+        "west": {"texture": "#stone"}, "east": {"texture": "#stone"}
+      }
+    },
+    {
+      "from": [4, 3, 4], "to": [12, 13, 12],
+      "faces": {
+        "down": {"texture": "#gold"}, "up": {"texture": "#light"},
+        "north": {"texture": "#light"}, "south": {"texture": "#light"},
+        "west": {"texture": "#light"}, "east": {"texture": "#light"}
+      }
+    },
+    {
+      "from": [6, 13, 6], "to": [10, 16, 10],
+      "faces": {
+        "down": {"texture": "#gold"}, "up": {"texture": "#light"},
+        "north": {"texture": "#gold"}, "south": {"texture": "#gold"},
+        "west": {"texture": "#gold"}, "east": {"texture": "#gold"}
+      }
+    }
+  ]
+}
