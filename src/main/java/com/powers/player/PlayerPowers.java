@@ -28,6 +28,7 @@ import java.util.Random;
  */
 public final class PlayerPowers {
 	public static final int SLOT_COUNT = 3;
+	public enum ConsentKind { TELEPORT, LOCATOR, COMPANION }
 
 	// every attachment here has to survive death as well as logout. attachments
 	// are dropped when the player entity is rebuilt on respawn unless
@@ -92,6 +93,15 @@ public final class PlayerPowers {
 					.persistent(Codec.INT)
 					.copyOnDeath());
 
+	private static final AttachmentType<Boolean> TELEPORT_CONSENT = consentAttachment("teleport_consent");
+	private static final AttachmentType<Boolean> LOCATOR_CONSENT = consentAttachment("locator_consent");
+	private static final AttachmentType<Boolean> COMPANION_CONSENT = consentAttachment("companion_consent");
+
+	private static AttachmentType<Boolean> consentAttachment(String name) {
+		return AttachmentRegistry.create(com.powers.PowersMod.id(name), builder -> builder
+				.initializer(() -> Boolean.FALSE).persistent(Codec.BOOL).copyOnDeath());
+	}
+
 	// the game mode a player held before stepping into a realm dimension. this
 	// has to persist too: a player who logs out inside a realm would otherwise
 	// have adventure mode recorded as their "previous" mode on rejoin and stay
@@ -110,6 +120,21 @@ public final class PlayerPowers {
 	}
 
 	public record PlayerPowersData(AttachmentTarget target) {
+		public boolean allowsConsent(ConsentKind kind) {
+			return target.getAttachedOrElse(consentType(kind), Boolean.FALSE);
+		}
+
+		public void setConsent(ConsentKind kind, boolean allowed) {
+			target.setAttached(consentType(kind), allowed);
+		}
+
+		private static AttachmentType<Boolean> consentType(ConsentKind kind) {
+			return switch (kind) {
+				case TELEPORT -> TELEPORT_CONSENT;
+				case LOCATOR -> LOCATOR_CONSENT;
+				case COMPANION -> COMPANION_CONSENT;
+			};
+		}
 		public List<String> getSlotIds() {
 			List<String> slots = target.getAttachedOrElse(POWER_SLOTS, List.of());
 			if (slots.size() != SLOT_COUNT) {

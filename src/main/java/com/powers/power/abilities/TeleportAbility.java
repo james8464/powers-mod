@@ -7,6 +7,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -252,6 +253,8 @@ public class TeleportAbility extends Ability {
 		for (Entity entity : originLevel.getEntities(
 				EntityTypeTest.forClass(Entity.class), player.getBoundingBox().inflate(COMPANION_RADIUS),
 				e -> e.isAlive() && e != player)) {
+			if (entity instanceof ServerPlayer companionPlayer
+					&& !PowerProtection.mayBringCompanion(player, companionPlayer)) continue;
 			companions.add(new Companion(entity, entity.position().subtract(origin)));
 		}
 

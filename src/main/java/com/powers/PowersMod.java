@@ -1,6 +1,7 @@
 package com.powers;
 
 import com.powers.command.PowerCommand;
+import com.powers.config.PowersConfigLoader;
 import com.powers.fx.GodlyPunishment;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
@@ -142,6 +143,7 @@ public class PowersMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		PowersConfigLoader.initialize();
 		PowersEffects.initialize();
 		PowerRegistry.initialize();
 		PowersItems.initialize();

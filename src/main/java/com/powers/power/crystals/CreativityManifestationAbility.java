@@ -3,6 +3,7 @@ package com.powers.power.crystals;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.protection.PowerProtection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -42,7 +43,9 @@ public class CreativityManifestationAbility extends Ability {
 				if (Math.abs(dx) == 2 || Math.abs(dz) == 2) {
 					BlockPos pos = center.offset(dx, 0, dz);
 					// only fill air so existing builds are never overwritten
-					if (level.getBlockState(pos).isAir()) level.setBlockAndUpdate(pos, frame);
+					if (level.getBlockState(pos).isAir() && PowerProtection.mayAffectBlock(player, level, pos)) {
+						level.setBlockAndUpdate(pos, frame);
+					}
 				}
 			}
 		}
@@ -50,11 +53,16 @@ public class CreativityManifestationAbility extends Ability {
 		for (int dx = -1; dx <= 1; dx++) {
 			for (int dz = -1; dz <= 1; dz++) {
 				BlockPos pos = center.offset(dx, 1, dz);
-				if (level.getBlockState(pos).isAir()) level.setBlockAndUpdate(pos, glass);
+				if (level.getBlockState(pos).isAir() && PowerProtection.mayAffectBlock(player, level, pos)) {
+					level.setBlockAndUpdate(pos, glass);
+				}
 			}
 		}
 		// glowstone roof to light the chamber
-		level.setBlockAndUpdate(center.above(2), Blocks.GLOWSTONE.defaultBlockState());
+		BlockPos light = center.above(2);
+		if (level.getBlockState(light).isAir() && PowerProtection.mayAffectBlock(player, level, light)) {
+			level.setBlockAndUpdate(light, Blocks.GLOWSTONE.defaultBlockState());
+		}
 		Vec3 centerVec = Vec3.atCenterOf(center);
 		com.powers.fx.PowerFx.ring(level, centerVec, 3.2, 0xFF9800, 28, 0);
 		com.powers.fx.PowerFx.spiral(level, centerVec, 2.2, 2.5, 0xFF9800, 28, 0);

@@ -9,6 +9,7 @@ import com.powers.power.Power;
 import com.powers.power.ActivationCooldowns;
 import com.powers.power.AmethystDampening;
 import com.powers.power.crystals.SpaceTimeAbility;
+import com.powers.protection.PowerProtection;
 import com.powers.power.abilities.TeleportAbility;
 import com.powers.util.PowerMessages;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -260,6 +261,10 @@ public final class PowersPackets {
 			ServerPlayer subject = payload.targetName().isEmpty()
 					? player : findPlayer(player, payload.targetName());
 			if (subject == null) return;
+			if (!PowerProtection.mayForceMove(player, subject)) {
+				PowerMessages.send(player, "powers.packet.consent_denied", 1, subject.getName().getString());
+				return;
+			}
 			// a dampened target is protected from being yanked away
 			if (AmethystDampening.isDampened(subject)) {
 				PowerMessages.send(player, "amethyst.powers.target_protected", 4);
@@ -321,12 +326,14 @@ public final class PowersPackets {
 				PowerMessages.send(player, "grimoire.celestial.low_xp", 3);
 				return;
 			}
-			player.giveExperienceLevels(-com.powers.item.CelestialGrimoireItem.XP_COST);
-
 			ServerPlayer target = findOnlinePlayer(player, payload.targetUuid());
 			if (target == null) {
 				// the chosen soul left the world between the screen and the cast
 				PowerMessages.send(player, "grimoire.celestial.offline", 3);
+				return;
+			}
+			if (!PowerProtection.mayLocate(player, target)) {
+				PowerMessages.send(player, "grimoire.celestial.consent_denied", 1);
 				return;
 			}
 
@@ -357,6 +364,7 @@ public final class PowersPackets {
 				}
 			}
 
+			player.giveExperienceLevels(-com.powers.item.CelestialGrimoireItem.XP_COST);
 			cast(player, level, pos, target);
 		});
 	}

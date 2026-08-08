@@ -5,6 +5,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
+import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -53,6 +54,10 @@ public class LightCrystalAbility extends Ability {
 		LivingEntity target = PowerTargeting.findLivingTarget(caster, 48.0);
 
 		if (target != null) {
+			if (target instanceof ServerPlayer targetPlayer && !PowerProtection.mayForceMove(caster, targetPlayer)) {
+				PowerMessages.send(caster, "powers.packet.consent_denied", 1, targetPlayer.getName().getString());
+				return false;
+			}
 			if (target instanceof ServerPlayer targetPlayer && AmethystDampening.isDampened(targetPlayer)) {
 				// amethyst-dampened players are shielded and cannot be dragged
 				PowerMessages.send(caster, "amethyst.powers.target_protected", 4);
