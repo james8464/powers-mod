@@ -63,6 +63,11 @@ public final class CrystalPowerRegistry {
 			SpaceTimeAbility.reject(player);
 			return false;
 		}
+		// Crouch-use only selects a mode. It does not cast, spend energy, or
+		// start a cooldown, so players can prepare a crystal before a fight.
+		if (ability.isSelectionAction(player)) {
+			return ability.activate(player, PlayerPowers.get(player));
+		}
 		// not ready yet - tell the player how long is left
 		if (!ActivationCooldowns.isReady(player, ability)) {
 			PowerMessages.send(player, "ability.powers.cooldown", 4,

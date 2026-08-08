@@ -38,9 +38,8 @@ public class IceManipulationAbility extends Ability {
 		ServerLevel level = (ServerLevel) player.level();
 		Vec3 origin = player.getEyePosition();
 		Vec3 look = player.getLookAngle().normalize();
-		Vec3 end = origin.add(look.scale(32.0));
-
 		double range = SkillSystem.range(player, 32.0);
+		Vec3 end = origin.add(look.scale(range));
 		HitResult hit = PowerTargeting.raycast(player, range);
 		if (hit.getType() != HitResult.Type.MISS) end = hit.getLocation();
 

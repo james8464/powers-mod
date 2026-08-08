@@ -3,6 +3,7 @@ package com.powers.power.abilities;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.AbilityArithmetic;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -74,7 +75,7 @@ public class CozyCampfireAbility extends Ability {
 			}
 			com.powers.fx.PowerFx.burst(level, center,
 					net.minecraft.core.particles.ParticleTypes.CAMPFIRE_COSY_SMOKE, 2, radius * 0.3, 0.02);
-			remaining--;
+			remaining = AbilityArithmetic.afterPulse(remaining, 5);
 			if (remaining > 0) {
 				// re-schedule the next tick, ticking every 5 ticks
 				PowersMod.scheduleDelayed(level.getServer(), 5, this);

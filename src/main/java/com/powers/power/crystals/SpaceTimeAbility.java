@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.AbilityArithmetic;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -42,14 +43,19 @@ public class SpaceTimeAbility extends Ability {
 	private record ActiveFreeze(List<Frozen> states, long endsAt) {}
 
 	public SpaceTimeAbility() {
-		super(PowersMod.id("space_time"), Component.translatable("ability.powers.space_time"), 0, false);
+		super(PowersMod.id("space_time"), Component.translatable("ability.powers.space_time"), 1200, false);
+	}
+
+	@Override
+	public boolean isSelectionAction(ServerPlayer player) {
+		return player.isCrouching();
 	}
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		if (player.isCrouching()) {
 			// sneak-right-click steps 0 -> 1 -> 2 -> 0 to pick the next mode
-			int mode = (MODES.getOrDefault(player.getUUID(), 0) + 1) % 3;
+			int mode = AbilityArithmetic.nextMode(MODES.getOrDefault(player.getUUID(), 0), 3);
 			MODES.put(player.getUUID(), mode);
 			PowerMessages.send(player, "ability.powers.space_time_mode", 3, modeNameFor(mode));
 			return true;

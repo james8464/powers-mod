@@ -27,8 +27,8 @@ public class PlantHealingAbility extends Ability {
 		ServerLevel level = (ServerLevel) player.level();
 		HitResult hit = player.pick(12.0, 0.0f, false);
 		if (!(hit instanceof BlockHitResult blockHit)) return false;
-		// the block just past the face you hit
-		var pos = blockHit.getBlockPos().relative(blockHit.getDirection());
+		// bonemeal the plant that was actually hit, not the empty block beyond it
+		var pos = blockHit.getBlockPos();
 		var state = level.getBlockState(pos);
 		// some plants can't be bonemealed (fully grown, for example)
 		if (!(state.getBlock() instanceof BonemealableBlock growable)

@@ -3,6 +3,8 @@ package com.powers.power.abilities;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.travel.SafeDestinationResolver;
+import com.powers.power.travel.TravelKind;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -33,7 +35,7 @@ public class ShadowStepAbility extends Ability {
 			target = BlockPos.containing(player.getEyePosition().add(look.scale(12.0)));
 		}
 
-		BlockPos feet = findStandingSpot(level, target);
+		BlockPos feet = findStandingSpot(player, level, target);
 		if (feet == null) {
 			// no valid landing spot, so warn the player and refund energy
 			PowerMessages.send(player, "ability.powers.no_room", 3);
@@ -53,7 +55,7 @@ public class ShadowStepAbility extends Ability {
 		return true;
 	}
 
-	private BlockPos findStandingSpot(Level level, BlockPos start) {
+	private BlockPos findStandingSpot(ServerPlayer player, net.minecraft.server.level.ServerLevel level, BlockPos start) {
 		BlockPos pos = start;
 		if (!level.getBlockState(pos).isAir()) {
 			pos = pos.above();
@@ -61,7 +63,11 @@ public class ShadowStepAbility extends Ability {
 		// walk down looking for a spot with open air and solid ground, up to 8 blocks deep
 		for (int i = 0; i < 8; i++) {
 			if (level.getBlockState(pos).isAir() && level.getBlockState(pos.below()).isSolid()) {
-				return pos;
+				Vec3 destination = new Vec3(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+				if (SafeDestinationResolver.validate(player, level, destination, TravelKind.POWER).allowed()) {
+					return pos;
+				}
+				return null;
 			}
 			if (!level.getBlockState(pos).isAir()) {
 				// a solid block overhead means no room to stand, give up
