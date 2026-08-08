@@ -42,7 +42,7 @@ public class PowersClient implements ClientModInitializer {
 		// the celestial grimoire summons its target picker when the server vouches for the cast
 		ClientPlayNetworking.registerGlobalReceiver(PowersPackets.OpenLocatorScreenPayload.TYPE,
 				(payload, context) -> context.client().execute(() ->
-						Minecraft.getInstance().gui.setScreen(new CelestialLocatorScreen())));
+						Minecraft.getInstance().gui.setScreen(new CelestialLocatorScreen(payload.nonce()))));
 		// clear the cached state when you leave the server so the hud doesn't carry over old powers
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> ClientPowerState.reset());
 
