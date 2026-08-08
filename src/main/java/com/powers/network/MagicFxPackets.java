@@ -2,6 +2,7 @@ package com.powers.network;
 
 import com.powers.PowersMod;
 import com.powers.magic.fx.MagicFxEvent;
+import com.powers.magic.fx.MagicFxService;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -11,8 +12,13 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
 /** Owns the compact clientbound protocol for semantic magic presentation. */
 public final class MagicFxPackets {
+	private static final Map<ServerLevel, MagicFxService> SERVICES = new WeakHashMap<>();
+
 	private MagicFxPackets() {
 	}
 
@@ -53,6 +59,18 @@ public final class MagicFxPackets {
 
 	/** Sends one semantic cue to nearby clients without shipping particle arrays. */
 	public static void broadcast(ServerLevel level, MagicFxEvent event) {
+		MagicFxService service = SERVICES.computeIfAbsent(level,
+				serverLevel -> new MagicFxService(cue -> send(serverLevel, cue)));
+		String key = event.eventId() + "@" + event.motif() + "@" + event.x() + ":" + event.y() + ":" + event.z();
+		service.emit(key, event);
+	}
+
+	/** Clears weak transport state explicitly at the normal server lifecycle edge. */
+	public static void clear() {
+		SERVICES.clear();
+	}
+
+	private static void send(ServerLevel level, MagicFxEvent event) {
 		MagicFxPayload payload = new MagicFxPayload(event);
 		for (ServerPlayer observer : level.players()) {
 			if (observer.position().distanceToSqr(event.x(), event.y(), event.z()) > 128.0 * 128.0) continue;
