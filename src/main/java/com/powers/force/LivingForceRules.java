@@ -33,6 +33,12 @@ public final class LivingForceRules {
 		return (long) x * x + (long) y * y + (long) z * z <= radiusSquared;
 	}
 
+	/** Rejects terrain whose state or ownership makes conversion unsafe. */
+	public static boolean mayReplace(boolean air, boolean fluid, boolean blockEntity,
+			boolean immune, float destroySpeed) {
+		return !air && !fluid && !blockEntity && !immune && destroySpeed >= 0.0F;
+	}
+
 	/** Quadratic blast falloff with a hard zero at and beyond the radius. */
 	public static double clashDamage(double distance, double radius, double peakDamage) {
 		if (!Double.isFinite(distance) || !Double.isFinite(radius) || !Double.isFinite(peakDamage)

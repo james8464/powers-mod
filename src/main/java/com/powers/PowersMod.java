@@ -5,6 +5,7 @@ import com.powers.mind.BodyProxyManager;
 import com.powers.magic.runtime.MagicRuntime;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.GodlyPunishment;
+import com.powers.force.LivingForceManager;
 import com.powers.network.PowersPackets;
 import com.powers.network.MagicFxPackets;
 import com.powers.player.PlayerPowers;
@@ -87,6 +88,7 @@ public class PowersMod implements ModInitializer {
 		PowersItems.initialize();
 		PowersWeapons.initialize();
 		PowersBlocks.initialize();
+		LivingForceManager.initialize();
 		ImportedPackItems.initialize();
 		PowersLoot.initialize();
 		PowersCreativeTab.initialize();
@@ -160,6 +162,7 @@ public class PowersMod implements ModInitializer {
 			WAS_SLEEPING.clear();
 			SkillSystem.clearAll();
 			AmethystDampening.clearAll();
+			LivingForceManager.clearAll();
 			TeleportAbility.clearAllMarking();
 			TimeFreezeToggleAbility.clearAll();
 			ForcefieldAbility.clearAll();
