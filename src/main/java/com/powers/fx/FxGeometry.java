@@ -1,6 +1,7 @@
 package com.powers.fx;
 
 import com.powers.magic.fx.FxMotif;
+import com.powers.magic.fx.FxOrientation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,24 @@ public final class FxGeometry {
 			throw new IllegalArgumentException("FX geometry scale must be finite and non-negative");
 		}
 		return new Point(point.x() * scale, point.y() * scale, point.z() * scale);
+	}
+
+	/** Rotates a finite point into its resolved world-space presentation plane. */
+	public static Point transform(Point point, FxOrientation orientation, double angleRadians) {
+		if (point == null || !point.finite()) throw new IllegalArgumentException("FX point must be finite");
+		if (orientation == null) throw new IllegalArgumentException("FX orientation is required");
+		if (!Double.isFinite(angleRadians)) throw new IllegalArgumentException("FX angle must be finite");
+		return switch (orientation) {
+			case NATIVE -> point;
+			case GROUND -> new Point(point.x(), point.z(), point.y());
+			case BILLBOARD -> {
+				double cosine = Math.cos(angleRadians);
+				double sine = Math.sin(angleRadians);
+				yield new Point(point.x() * cosine - point.z() * sine, point.y(),
+						point.x() * sine + point.z() * cosine);
+			}
+			case AUTO -> throw new IllegalArgumentException("Automatic FX orientation must be resolved first");
+		};
 	}
 
 	private static Point point(FxMotif motif, int index, double progress, double angle, double scale) {
