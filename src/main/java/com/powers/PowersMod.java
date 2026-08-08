@@ -25,6 +25,7 @@ import com.powers.power.crystals.SoulLinkAbility;
 import com.powers.power.crystals.SizeShiftAbility;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
+import com.powers.power.state.PowerEntityState;
 import com.powers.player.SkillSystem;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.util.PowerMessages;
@@ -141,6 +142,7 @@ public class PowersMod implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		PowersConfigLoader.initialize();
+		PowerEntityState.initialize();
 		PowersEffects.initialize();
 		PowerRegistry.initialize();
 		PowersItems.initialize();
