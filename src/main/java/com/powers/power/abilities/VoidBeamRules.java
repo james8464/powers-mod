@@ -65,6 +65,18 @@ public final class VoidBeamRules {
 	 */
 	public static <T> List<RayCandidate<T>> selectPenetrations(
 			Collection<RayCandidate<T>> candidates, double terminalDistance, int requestedLimit) {
+		return selectCandidates(candidates, terminalDistance, requestedLimit, MAX_PENETRATIONS);
+	}
+
+	/** Selects the nearest unique scar occupants without exceeding pulse work. */
+	public static <T> List<RayCandidate<T>> selectScarTargets(
+			Collection<RayCandidate<T>> candidates, double radius) {
+		return selectCandidates(candidates, radius, MAX_SCAR_TARGETS, MAX_SCAR_TARGETS);
+	}
+
+	private static <T> List<RayCandidate<T>> selectCandidates(
+			Collection<RayCandidate<T>> candidates, double terminalDistance,
+			int requestedLimit, int hardLimit) {
 		Objects.requireNonNull(candidates, "candidates");
 		if (!Double.isFinite(terminalDistance) || terminalDistance < 0.0 || requestedLimit <= 0) {
 			return List.of();
@@ -76,7 +88,7 @@ public final class VoidBeamRules {
 						&& candidate.distance() <= terminalDistance)
 				.sorted(Comparator.comparingDouble(RayCandidate::distance))
 				.toList();
-		int limit = Math.min(MAX_PENETRATIONS, requestedLimit);
+		int limit = Math.min(Math.max(0, hardLimit), requestedLimit);
 		List<RayCandidate<T>> result = new ArrayList<>(Math.min(limit, ordered.size()));
 		Set<T> seen = new LinkedHashSet<>();
 		for (RayCandidate<T> candidate : ordered) {
@@ -85,6 +97,24 @@ public final class VoidBeamRules {
 			if (result.size() == limit) break;
 		}
 		return List.copyOf(result);
+	}
+
+	/** Returns whether one more globally bounded runtime scar may be admitted. */
+	public static boolean canCreateScar(int activeScars) {
+		return activeScars >= 0 && activeScars < MAX_ACTIVE_SCARS;
+	}
+
+	/** Applies penetration falloff and rejects non-finite or negative damage. */
+	public static double releaseDamage(double baseDamage, int penetrationIndex) {
+		if (!Double.isFinite(baseDamage) || baseDamage <= 0.0) return 0.0;
+		return Math.min(40.0, baseDamage * damageMultiplier(penetrationIndex));
+	}
+
+	/** Applies Dark Resurgence to scar pulses inside a hard four-damage ceiling. */
+	public static double scarPulseDamage(double baseDamage, boolean darkResurgence) {
+		if (!Double.isFinite(baseDamage) || baseDamage <= 0.0) return 0.0;
+		double scaled = darkResurgence ? baseDamage * 1.25 : baseDamage;
+		return Math.min(4.0, scaled);
 	}
 
 	/**
