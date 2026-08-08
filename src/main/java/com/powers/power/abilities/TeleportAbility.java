@@ -11,6 +11,7 @@ import com.powers.util.PowerMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -108,14 +109,37 @@ public class TeleportAbility extends Ability {
 		return null;
 	}
 
-	// called on disconnect - never leave a stale marking behind for a logged-off player
+	/**
+	 * Called on disconnect. Dropping the state on its own would strand the
+	 * player: marking puts them in spectator at the target's feet, so logging
+	 * out mid-mark used to mean coming back a permanent spectator. Undo the
+	 * marking first, then forget it.
+	 */
 	public static void clearMarking(ServerPlayer player) {
-		MARKING.remove(player.getUUID());
+		MarkingState state = MARKING.remove(player.getUUID());
+		if (state != null) {
+			restore(player, state);
+		}
 	}
 
-	// called on server stop so the map can't leak across restarts
+	// called on server stop - unwind every open marking so nobody is saved out
+	// as a spectator, then clear the map so it can't leak across restarts
 	public static void clearAllMarking() {
+		for (MarkingState state : new ArrayList<>(MARKING.values())) {
+			restore(state.player(), state);
+		}
 		MARKING.clear();
+	}
+
+	// puts a marking player back where they started, in the mode they started in
+	private static void restore(ServerPlayer player, MarkingState state) {
+		MinecraftServer server = player.level().getServer();
+		ServerLevel originalLevel = server == null ? null : server.getLevel(state.originalDimension());
+		if (originalLevel != null) {
+			player.teleportTo(originalLevel, state.originalPos().x, state.originalPos().y, state.originalPos().z,
+					Set.of(), player.getYRot(), player.getXRot(), false);
+		}
+		player.setGameMode(state.originalMode());
 	}
 
 	public static void tickMarking() {
@@ -123,16 +147,14 @@ public class TeleportAbility extends Ability {
 		while (it.hasNext()) {
 			var entry = it.next();
 			MarkingState state = entry.getValue();
-			long now = ((ServerLevel) state.player().level()).getServer().getTickCount();
-			if (now >= state.deadline()) {
+			MinecraftServer server = state.player().level().getServer();
+			if (server == null) {
+				it.remove();
+				continue;
+			}
+			if (server.getTickCount() >= state.deadline()) {
 				// timeout hit - pull the player back to the dimension and spot where they started
-				ServerLevel originalLevel = ((ServerLevel) state.player().level()).getServer().getLevel(state.originalDimension());
-				if (originalLevel != null) {
-					state.player().teleport(new TeleportTransition(originalLevel,
-						state.originalPos(), Vec3.ZERO, state.player().getYRot(), state.player().getXRot(),
-						TeleportTransition.PLAY_PORTAL_SOUND));
-				}
-				state.player().setGameMode(state.originalMode());
+				restore(state.player(), state);
 				state.player().sendSystemMessage(PowerMessages.random("ability.powers.marking_expired", 3));
 				it.remove();
 			}
@@ -142,9 +164,12 @@ public class TeleportAbility extends Ability {
 	@Override
 	public boolean activateTeleport(ServerPlayer caster, ServerPlayer player, PlayerPowers.PlayerPowersData data,
 			ResourceKey<Level> dimension, double x, double y, double z) {
+		// every refusal below reports to the caster, who is the one waiting on an
+		// answer. sending it to the subject instead meant that banishing another
+		// player into a wall told them and left the caster staring at silence
 		// refuse out-of-range or NaN coordinates before anything else
 		if (!Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)) {
-			PowerMessages.send(player, "ability.powers.out_of_bounds", 3);
+			PowerMessages.send(caster, "ability.powers.out_of_bounds", 3);
 			return false;
 		}
 		// a dimensional anchor pins you to its dimension - teleports elsewhere are punished
@@ -152,7 +177,7 @@ public class TeleportAbility extends Ability {
 			ResourceKey<Level> anchor = DimensionalAnchorAbility.anchorDimension(player);
 			if (!dimension.equals(anchor)) {
 				GodlyPunishment.chainBlock((ServerLevel) player.level(), player);
-				PowerMessages.send(player, "ability.powers.anchored_teleport_blocked", 4);
+				PowerMessages.send(caster, "ability.powers.anchored_teleport_blocked", 4);
 				return false;
 			}
 		}
@@ -160,14 +185,15 @@ public class TeleportAbility extends Ability {
 		// the middleworld is off-limits to teleporters
 		if (dimension.identifier().getPath().equals("middleworld")) {
 			GodlyPunishment.barrier((ServerLevel) player.level(), player, 0x82CAFF);
-			PowerMessages.send(player, "ability.powers.no_entry", 4);
+			PowerMessages.send(caster, "ability.powers.no_entry", 4);
 			return false;
 		}
 
-		ServerLevel targetLevel = player.level().getServer().getLevel(dimension);
+		MinecraftServer server = player.level().getServer();
+		ServerLevel targetLevel = server == null ? null : server.getLevel(dimension);
 		if (targetLevel == null) {
 			// the dimension isn't loaded on this server
-			PowerMessages.send(player, "ability.powers.bad_dimension", 3);
+			PowerMessages.send(caster, "ability.powers.bad_dimension", 3);
 			return false;
 		}
 		boolean enteringDarkRealm = SkillSystem.isDarkRealm(dimension);
@@ -187,10 +213,12 @@ public class TeleportAbility extends Ability {
 			ServerLevel originLevel = (ServerLevel) player.level();
 			PowerFx.clash(originLevel, player.position().add(0, 1, 0),
 					new Vec3(x + 0.5, y + 1, z + 0.5), 0xFFD4FF, 0xB36BFF);
-			// 20 points of magic damage plus a divine strike for touching a ward
+			// 20 points of magic damage plus a divine strike for touching a ward.
+			// this is the ward biting the traveller, not a power hitting them, so
+			// it carries no attacker and dampening never shields against it
 			player.hurtServer(originLevel, player.damageSources().magic(), 20.0f);
 			GodlyPunishment.strike(originLevel, player, 0xB36BFF, false);
-			PowerMessages.send(player, "amethyst.powers.teleport_repelled", 5);
+			PowerMessages.send(caster, "amethyst.powers.teleport_repelled", 5);
 			return false;
 		}
 
@@ -198,7 +226,7 @@ public class TeleportAbility extends Ability {
 		int minY = targetLevel.getMinY();
 		int maxY = targetLevel.getMaxY();
 		if (y < minY || y > maxY || x < -30_000_000 || x > 30_000_000 || z < -30_000_000 || z > 30_000_000) {
-			PowerMessages.send(player, "ability.powers.out_of_bounds", 3);
+			PowerMessages.send(caster, "ability.powers.out_of_bounds", 3);
 			return false;
 		}
 
@@ -206,7 +234,7 @@ public class TeleportAbility extends Ability {
 		BlockState feetBlock = targetLevel.getBlockState(new BlockPos((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z)));
 		BlockState headBlock = targetLevel.getBlockState(new BlockPos((int) Math.floor(x), (int) Math.floor(y) + 1, (int) Math.floor(z)));
 		if (feetBlock.isSolid() || headBlock.isSolid()) {
-			PowerMessages.send(player, "ability.powers.solid_block", 3);
+			PowerMessages.send(caster, "ability.powers.solid_block", 3);
 			return false;
 		}
 
@@ -214,7 +242,7 @@ public class TeleportAbility extends Ability {
 		Vec3 target = new Vec3(x + 0.5, y, z + 0.5);
 		// also sweep the full hitbox at the landing spot for collisions, not just the feet and head blocks
 		if (!targetLevel.noCollision(player, player.getBoundingBox().move(target.subtract(player.position())))) {
-			PowerMessages.send(player, "ability.powers.solid_block", 3);
+			PowerMessages.send(caster, "ability.powers.solid_block", 3);
 			return false;
 		}
 		Vec3 origin = player.position();
@@ -235,7 +263,7 @@ public class TeleportAbility extends Ability {
 		// the lightning beneath the traveler echoes the realm they're bound for
 		PowersMod.startStorm(originLevel, origin, player, STORM_TICKS, TELEPORT_DELAY_TICKS, themeFor(dimension));
 		PowersMod.startStorm(targetLevel, target, null, STORM_TICKS, 0);
-		PowersMod.scheduleDelayed(player.level().getServer(), TELEPORT_DELAY_TICKS, () -> {
+		PowersMod.scheduleDelayed(server, TELEPORT_DELAY_TICKS, () -> {
 			// the player may have died during the storm - never teleport a corpse
 			if (!player.isAlive()) return;
 			player.teleport(new TeleportTransition(targetLevel, target, Vec3.ZERO,

@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -77,7 +78,7 @@ public class PortalRiftAbility extends Ability {
 		player.teleport(new TeleportTransition(level, spot, Vec3.ZERO,
 				player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 		// the crushing blow: 12 magic damage; if the hit is refused there's no show
-		if (!target.hurtServer(level, player.damageSources().magic(), 12.0f)) {
+		if (!target.hurtServer(level, PowerDamage.source(player), 12.0f)) {
 			return;
 		}
 		PowerFx.coloredBurst(level, target.position().add(0, 1, 0), 0x651FFF, 16, 0.7);

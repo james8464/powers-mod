@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -113,7 +114,7 @@ public class SoulLinkAbility extends Ability {
 					LivingEntity entity = link.entity();
 					// the wounded soul itself doesn't take its own wound twice
 					if (entity != null && entity != wounded) {
-						entity.hurtServer(level, caster.damageSources().magic(), damage);
+						entity.hurtServer(level, PowerDamage.source(caster), damage);
 						PowerFx.coloredBurst(level, entity.position().add(0, 1, 0), 0x9C27B0, 6, 0.4);
 					}
 				}

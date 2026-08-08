@@ -2,7 +2,7 @@
 # Test launcher for the POWERS mod.
 # Usage: ./test.sh client | server
 set -e
-export JAVA_HOME="${JAVA_HOME:-/opt/homebrew/opt/openjdk@25}"
+export JAVA_HOME="${JAVA_HOME:-/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home}"
 
 case "${1:-client}" in
   client)

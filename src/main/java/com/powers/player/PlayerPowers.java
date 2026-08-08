@@ -11,12 +11,10 @@ import com.powers.power.PowerEnergy;
 import com.powers.PowersEffects;
 import com.powers.util.PowerMessages;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,57 +22,60 @@ import java.util.Random;
 
 /**
  * Per-player power state: three power slots, active toggles, energy, and
- * skill levels, kept as persistent and synced attachments on the player
- * so the assignment survives restarts and stays fixed between logins.
+ * skill levels, kept as persistent copy-on-death attachments on the player
+ * so the assignment survives restarts, relogs and deaths alike, and stays
+ * fixed for the life of the character.
  */
 public final class PlayerPowers {
 	public static final int SLOT_COUNT = 3;
 
+	// every attachment here has to survive death as well as logout. attachments
+	// are dropped when the player entity is rebuilt on respawn unless
+	// copyOnDeath() is set, and losing POWER_SLOTS that way would silently
+	// re-roll a player's permanent loadout the next time they log in.
+	// the client mirror is driven entirely by PowerStatePayload, so none of
+	// these need a sync codec on top of that
 	private static final AttachmentType<List<String>> POWER_SLOTS = AttachmentRegistry.create(
 			com.powers.PowersMod.id("power_slots"),
 			builder -> builder
 					.initializer(ArrayList::new)
 					.persistent(Codec.STRING.listOf())
-					.syncWith(ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.STRING_UTF8),
-							AttachmentSyncPredicate.targetOnly()));
+					.copyOnDeath());
 
 	private static final AttachmentType<List<String>> ACTIVE_TOGGLES = AttachmentRegistry.create(
 			com.powers.PowersMod.id("active_toggles"),
 			builder -> builder
 					.initializer(ArrayList::new)
 					.persistent(Codec.STRING.listOf())
-					.syncWith(ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.STRING_UTF8),
-							AttachmentSyncPredicate.targetOnly()));
+					.copyOnDeath());
 
 	private static final AttachmentType<Integer> ENERGY = AttachmentRegistry.create(
 				com.powers.PowersMod.id("energy"),
 				builder -> builder
 						.initializer(() -> PowerEnergy.BASE_MAX)
 						.persistent(Codec.INT)
-						.syncWith(net.minecraft.network.codec.ByteBufCodecs.VAR_INT,
-								AttachmentSyncPredicate.targetOnly()));
+						.copyOnDeath());
 
 	private static final AttachmentType<Integer> DARKNESS_ENERGY = AttachmentRegistry.create(
 				com.powers.PowersMod.id("darkness_energy"),
 				builder -> builder
 						.initializer(() -> PowerEnergy.darknessMaxCapacity(0))
 						.persistent(Codec.INT)
-						.syncWith(net.minecraft.network.codec.ByteBufCodecs.VAR_INT,
-								AttachmentSyncPredicate.targetOnly()));
+						.copyOnDeath());
 
 	private static final AttachmentType<Integer> SKILL_LEVEL = AttachmentRegistry.create(
 			com.powers.PowersMod.id("skill_level"),
 			builder -> builder
 					.initializer(() -> 0)
 					.persistent(Codec.INT)
-					.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.targetOnly()));
+					.copyOnDeath());
 
 	private static final AttachmentType<Integer> DARKNESS_LEVEL = AttachmentRegistry.create(
 			com.powers.PowersMod.id("darkness_level"),
 			builder -> builder
 					.initializer(() -> 0)
 					.persistent(Codec.INT)
-					.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.targetOnly()));
+					.copyOnDeath());
 
 	// darkness users may hide their real title and show the normal-ladder name instead
 	private static final AttachmentType<Boolean> DARKNESS_PREFIX_HIDDEN = AttachmentRegistry.create(
@@ -82,13 +83,24 @@ public final class PlayerPowers {
 			builder -> builder
 					.initializer(() -> Boolean.FALSE)
 					.persistent(Codec.BOOL)
-					.syncWith(ByteBufCodecs.BOOL, AttachmentSyncPredicate.targetOnly()));
+					.copyOnDeath());
 
 	private static final AttachmentType<Integer> ELEMENTAL_PHASE = AttachmentRegistry.create(
 			com.powers.PowersMod.id("elemental_phase"),
 			builder -> builder
 					.initializer(() -> 0)
-					.persistent(Codec.INT));
+					.persistent(Codec.INT)
+					.copyOnDeath());
+
+	// the game mode a player held before stepping into a realm dimension. this
+	// has to persist too: a player who logs out inside a realm would otherwise
+	// have adventure mode recorded as their "previous" mode on rejoin and stay
+	// stuck in it forever after leaving
+	private static final AttachmentType<String> PREVIOUS_GAMEMODE = AttachmentRegistry.create(
+			com.powers.PowersMod.id("previous_gamemode"),
+			builder -> builder
+					.persistent(Codec.STRING)
+					.copyOnDeath());
 
 	private PlayerPowers() {
 	}
@@ -164,6 +176,29 @@ public final class PlayerPowers {
 
 		public boolean isDarknessPrefixHidden() {
 			return target.getAttachedOrElse(DARKNESS_PREFIX_HIDDEN, Boolean.FALSE);
+		}
+
+		/**
+		 * The game mode this player held before entering a realm dimension, or
+		 * null when they were not in one. Stored by name so an unknown value
+		 * from an older save simply reads back as "no snapshot".
+		 */
+		public GameType previousGameMode() {
+			String name = target.getAttachedOrElse(PREVIOUS_GAMEMODE, "");
+			if (name.isEmpty()) {
+				return null;
+			}
+			for (GameType mode : GameType.values()) {
+				if (mode.getName().equals(name)) {
+					return mode;
+				}
+			}
+			return null;
+		}
+
+		/** Records (or, with null, forgets) the game mode to restore on leaving a realm. */
+		public void setPreviousGameMode(GameType mode) {
+			target.setAttached(PREVIOUS_GAMEMODE, mode == null ? "" : mode.getName());
 		}
 
 		public void setDarknessPrefixHidden(boolean hidden) {

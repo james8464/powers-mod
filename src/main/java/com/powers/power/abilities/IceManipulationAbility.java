@@ -3,6 +3,7 @@ package com.powers.power.abilities;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
 import com.powers.player.SkillSystem;
@@ -47,7 +48,7 @@ public class IceManipulationAbility extends Ability {
 			// looking at a protected entity means the cast fails and energy is refunded
 			if (AmethystDampening.isDampened(target)) return false;
 			// 8 damage that scales with skill, a heavy slow, weakness and a deep freeze
-			target.hurtServer(level, player.damageSources().freeze(), SkillSystem.damage(player, 8.0f));
+			target.hurtServer(level, PowerDamage.source(player), SkillSystem.damage(player, 8.0f));
 			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 120, 4, false, false));
 			target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 100, 1, false, false));
 			target.setTicksFrozen(160);
