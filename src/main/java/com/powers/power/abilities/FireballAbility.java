@@ -3,6 +3,7 @@ package com.powers.power.abilities;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.state.PowerEntityState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -48,8 +49,11 @@ public class FireballAbility extends Ability {
 			pos = eye.add(look.scale(1.5));
 		}
 
-		LargeFireball fireball = new LargeFireball(level, player, Vec3.ZERO, 1);
+		// Explosion power zero prevents terrain grief; entity damage is applied
+		// by the owner-scoped mixin with the dedicated power damage source.
+		LargeFireball fireball = new LargeFireball(level, player, Vec3.ZERO, 0);
 		fireball.setPos(pos);
+		PowerEntityState.markPowerProjectile(fireball);
 		level.addFreshEntity(fireball);
 
 		// the floating fireball fades away after 12 seconds if nobody hits it
