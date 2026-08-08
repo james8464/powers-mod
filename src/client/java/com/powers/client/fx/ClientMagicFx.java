@@ -2,6 +2,8 @@ package com.powers.client.fx;
 
 import com.powers.PowersParticles;
 import com.powers.fx.FxGeometry;
+import com.powers.magic.fx.FxChoreography;
+import com.powers.magic.fx.FxFrame;
 import com.powers.magic.fx.FxMotif;
 import com.powers.network.MagicFxPackets;
 import net.minecraft.client.Minecraft;
@@ -32,7 +34,7 @@ public final class ClientMagicFx {
 		PENDING.add(new PendingFx(payload, 0));
 	}
 
-	/** Advances four readable beats without blocking the render or networking thread. */
+	/** Advances the event-specific readable beats without blocking client threads. */
 	public static void tick() {
 		Minecraft client = Minecraft.getInstance();
 		if (client.level == null || client.player == null) {
@@ -41,32 +43,32 @@ public final class ClientMagicFx {
 		}
 		for (Iterator<PendingFx> iterator = PENDING.iterator(); iterator.hasNext();) {
 			PendingFx pending = iterator.next();
-			if (pending.age() == 0) spawn(client, pending.payload(), 0.24, FxMotif.RING);
-			if (pending.age() == 4) spawn(client, pending.payload(), 0.48, null);
-			if (pending.age() == 8) spawn(client, pending.payload(), 1.0, null);
-			if (pending.age() == 15) spawn(client, pending.payload(), 0.36, FxMotif.SPIRAL);
-			if (pending.age() >= 18) iterator.remove();
+			boolean reducedMotion = FxAccessibility.reducedMotion(client);
+			FxChoreography.frame(pending.payload().kind(), pending.age(), reducedMotion)
+					.ifPresent(frame -> spawn(client, pending.payload(), frame, reducedMotion));
+			if (FxChoreography.finished(pending.payload().kind(), pending.age())) iterator.remove();
 			else pending.advance();
 		}
 	}
 
 	private static void spawn(Minecraft client, MagicFxPackets.MagicFxPayload payload,
-			double beatScale, FxMotif overrideMotif) {
+			FxFrame frame, boolean reducedMotion) {
 		Vec3 origin = new Vec3(payload.x(), payload.y(), payload.z());
 		double distance = client.player.position().distanceTo(origin);
-		double scale = FxAccessibility.effectScale(client) * beatScale;
+		double scale = FxAccessibility.effectScale(client) * frame.budgetScale();
 		int budget = FxGeometry.budget(distance, payload.intensity(), scale);
-		FxMotif requested = overrideMotif == null ? FxMotif.fromCue(payload.motif()) : overrideMotif;
-		FxMotif motif = FxGeometry.accessibleMotif(requested,
-				FxAccessibility.reducedMotion(client));
+		FxMotif requested = frame.motifOverride().orElseGet(() -> FxMotif.fromCue(payload.motif()));
+		FxMotif motif = FxGeometry.accessibleMotif(requested, reducedMotion);
 		var points = FxGeometry.points(motif, payload.glyphSeed(), payload.intensity(), budget);
 		SimpleParticleType sprite = particleFor(motif);
 		for (int index = 0; index < points.size(); index++) {
-			FxGeometry.Point point = points.get(index);
+			FxGeometry.Point point = FxGeometry.scale(points.get(index), frame.geometryScale());
 			double x = origin.x + point.x();
 			double y = origin.y + point.y();
 			double z = origin.z + point.z();
-			client.level.addParticle(sprite, x, y, z, point.x() * 0.006, 0.008, point.z() * 0.006);
+			double velocity = frame.velocityScale();
+			client.level.addParticle(sprite, x, y, z, point.x() * 0.006 * velocity,
+					0.008 * velocity, point.z() * 0.006 * velocity);
 			if (index % 4 == 0) {
 				int color = index % 8 == 0 ? payload.primaryColor() : payload.secondaryColor();
 				ParticleOptions tint = ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT,

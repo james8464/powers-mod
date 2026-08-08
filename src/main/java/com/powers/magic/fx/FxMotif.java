@@ -17,6 +17,19 @@ public enum FxMotif {
 	/** Maps exhaustive interaction names onto a finite renderer vocabulary. */
 	public static FxMotif fromCue(String cue) {
 		String value = cue.toLowerCase(Locale.ROOT);
+		FxMotif aspectMotif = switch (value) {
+			case "flame", "suppression" -> FRACTURE;
+			case "frost" -> SHARD;
+			case "storm" -> FORK;
+			case "force", "protection" -> RING;
+			case "motion", "time" -> SPIRAL;
+			case "gravity", "space", "mind", "soul" -> TETHER;
+			case "life" -> ROOT;
+			case "darkness", "void", "concealment" -> ECLIPSE;
+			case "light", "creation" -> GLYPH;
+			default -> null;
+		};
+		if (aspectMotif != null) return aspectMotif;
 		if (value.contains("eclipse") || value.contains("veil")) return ECLIPSE;
 		if (value.contains("fracture") || value.contains("interference")) return FRACTURE;
 		if (value.contains("rift") || value.contains("anchor") || value.contains("chain")) return TETHER;
