@@ -5,6 +5,7 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
+import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -61,7 +62,7 @@ public final class RealmMindscapeManager {
 		boolean allLoaded = true;
 		for (MemorySite site : RealmLayout.sites(kind)) {
 			BlockPos center = new BlockPos(site.x(), floorY + 1, site.z());
-			if (!level.hasChunkAt(center)) {
+			if (!LoadedChunks.contains(level, center)) {
 				allLoaded = false;
 				continue;
 			}

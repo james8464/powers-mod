@@ -14,6 +14,7 @@ import com.powers.power.travel.DestinationFailure;
 import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelKind;
 import com.powers.util.PowerMessages;
+import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -24,10 +25,10 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 
 import java.util.*;
 
@@ -132,11 +133,10 @@ public class TeleportAbility extends Ability {
 		for (int dy = 0; dy <= 3; dy++) {
 			Vec3 candidate = new Vec3(pos.x, pos.y + dy, pos.z);
 			BlockPos feetPos = BlockPos.containing(candidate);
-			if (!level.hasChunkAt(feetPos)) continue;
-			BlockState feet = level.getBlockState(feetPos);
-			BlockState head = level.getBlockState(feetPos.above());
+			if (!LoadedChunks.contains(level, feetPos)) continue;
 			// both the feet and head blocks must be clear so you don't materialize inside a wall
-			if (!feet.isSolid() && !head.isSolid()) {
+			if (level.getBlockState(feetPos).getCollisionShape(level, feetPos).isEmpty()
+					&& level.getBlockState(feetPos.above()).getCollisionShape(level, feetPos.above()).isEmpty()) {
 				return candidate;
 			}
 		}
@@ -253,18 +253,16 @@ public class TeleportAbility extends Ability {
 				if (entity.isRemoved()) continue;
 				Vec3 dest = target.add(companion.offset());
 				BlockPos destPos = BlockPos.containing(dest);
-				if (!targetLevel.hasChunkAt(destPos)) continue;
+				if (!LoadedChunks.contains(targetLevel, destPos)) continue;
 				if (entity instanceof ServerPlayer companionPlayer) {
 					SafeDestinationResolver.Result companionDestination = SafeDestinationResolver.validate(
 							companionPlayer, targetLevel, dest, TravelKind.COMPANION);
 					if (!companionDestination.allowed()) continue;
 				}
-				BlockState feet = targetLevel.getBlockState(new BlockPos(
-						(int) Math.floor(dest.x), (int) Math.floor(dest.y), (int) Math.floor(dest.z)));
-				BlockState head = targetLevel.getBlockState(new BlockPos(
-						(int) Math.floor(dest.x), (int) Math.floor(dest.y) + 1, (int) Math.floor(dest.z)));
-				// skip companions whose landing spot got blocked - they stay where they are
-				if (feet.isSolid() || head.isSolid()) continue;
+				AABB landingBox = entity.getBoundingBox().move(dest.subtract(entity.position()));
+				// skip companions whose whole collision box got blocked - they stay where they are
+				if (!targetLevel.getWorldBorder().isWithinBounds(landingBox)
+						|| !targetLevel.noBlockCollision(entity, landingBox)) continue;
 			entity.teleport(new TeleportTransition(targetLevel, dest, Vec3.ZERO,
 					entity.getYRot(), entity.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 			}
