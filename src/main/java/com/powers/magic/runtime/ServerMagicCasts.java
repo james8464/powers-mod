@@ -10,6 +10,8 @@ import com.powers.magic.MagicSignature;
 import com.powers.magic.fx.MagicCastPresentation;
 import com.powers.magic.fx.MagicFxEvent;
 import com.powers.network.MagicFxPackets;
+import com.powers.player.SkillSystem;
+import com.powers.progression.PowerScalingService;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -57,7 +59,7 @@ public final class ServerMagicCasts {
 				PresenceAnchor.fixed(player.getX(), player.getY() + 1.0, player.getZ()),
 				player.level().getServer().getTickCount());
 		MagicPresenceId presenceId = MagicRuntime.global().commitCast(completed, prepared.adjustment());
-		emitCast((ServerLevel) player.level(), completed, presenceId);
+		emitCast((ServerLevel) player.level(), completed, presenceId, player);
 		return presenceId;
 	}
 
@@ -67,8 +69,11 @@ public final class ServerMagicCasts {
 		return CastScalingContext.with(prepared.adjustment(), operation);
 	}
 
-	private static void emitCast(ServerLevel level, MagicCastContext cast, MagicPresenceId presenceId) {
-		MagicCastPresentation presentation = MagicCastPresentation.forAction(cast.definition());
+	private static void emitCast(ServerLevel level, MagicCastContext cast, MagicPresenceId presenceId,
+			ServerPlayer player) {
+		var scaled = PowerScalingService.forPlayer(player, cast.definition().id().value());
+		MagicCastPresentation presentation = MagicCastPresentation.forAction(cast.definition(),
+				SkillSystem.effectiveLevel(player), scaled.unlockedVariants());
 		MagicSignature signature = cast.definition().signature();
 		Vec3 origin = new Vec3(cast.anchor().x(), cast.anchor().y(), cast.anchor().z());
 		long eventId = Integer.toUnsignedLong(java.util.Objects.hash(cast.owner(),
