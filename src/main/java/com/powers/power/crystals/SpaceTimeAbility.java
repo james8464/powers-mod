@@ -42,21 +42,27 @@ public class SpaceTimeAbility extends Ability {
 	private static final Map<UUID, ActiveFreeze> ACTIVE = new HashMap<>();
 	// per-player mode, 0 slow, 1 accelerate, 2 freeze
 	private static final Map<UUID, Integer> MODES = new HashMap<>();
+	private final boolean automaticModeCycle;
 
 	private record ActiveFreeze(Set<UUID> entities, long endsAt) {}
 
 	public SpaceTimeAbility() {
+		this(false);
+	}
+
+	public SpaceTimeAbility(boolean automaticModeCycle) {
 		super(PowersMod.id("space_time"), Component.translatable("ability.powers.space_time"), 1200, false);
+		this.automaticModeCycle = automaticModeCycle;
 	}
 
 	@Override
 	public boolean isSelectionAction(ServerPlayer player) {
-		return player.isCrouching();
+		return !automaticModeCycle && player.isCrouching();
 	}
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		if (player.isCrouching()) {
+		if (!automaticModeCycle && player.isCrouching()) {
 			// sneak-right-click steps 0 -> 1 -> 2 -> 0 to pick the next mode
 			int mode = AbilityArithmetic.nextMode(MODES.getOrDefault(player.getUUID(), 0), 3);
 			MODES.put(player.getUUID(), mode);
@@ -95,6 +101,11 @@ public class SpaceTimeAbility extends Ability {
 		com.powers.fx.PowerFx.spiral(level, player.position(), 3.0, 2.5, 0x00BCD4, 28, 0);
 		com.powers.fx.PowerFx.sound(level, player.position(),
 				net.minecraft.sounds.SoundEvents.EVOKER_CAST_SPELL, 1.0f, mode == 2 ? 0.35f : 1.4f);
+		if (automaticModeCycle) {
+			int next = AbilityArithmetic.nextMode(mode, 3);
+			MODES.put(player.getUUID(), next);
+			PowerMessages.send(player, "ability.powers.space_time_mode", 3, modeNameFor(next));
+		}
 		return true;
 	}
 

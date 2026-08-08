@@ -8,6 +8,7 @@
 - Added vulnerable skin-matched bodies for realm travel, astral projection, dreamwalking, possession, and teleport marking.
 - Added persistent 28-node light and darkness title mazes without mutually exclusive player classes.
 - Added 20 original ritual spells across six functional grimoires, including counterspell and Dimensional Anchor.
+- Activated every crystal, including multi-mode chromatic, Rainbow, and Infected Rainbow convergences with swap-proof cooldowns.
 - Built Light and Dark Realm memory sites, lore rewards, custom obelisks, ambient magic, and a distinct Middleworld biome.
 - Replaced the old HUD with compact arcane power glyphs and a state-aware energy arc.
 - Replaced vanilla loot-table overrides with additive loot injection and removed unreleased crystal recipes.
