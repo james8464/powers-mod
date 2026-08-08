@@ -83,6 +83,7 @@ public class SizeShiftAbility extends Ability {
 		ServerPlayer endPlayer = player;
 		// 20 seconds later, pull off whichever size modifier is active
 		PowersMod.scheduleDelayed(level.getServer(), DURATION_TICKS, () -> {
+			if (endPlayer.isRemoved()) return;
 			if (endPlayer.getAttribute(Attributes.SCALE) != null) {
 				endPlayer.getAttribute(Attributes.SCALE).removeModifier(SHRINK_MODIFIER);
 				endPlayer.getAttribute(Attributes.SCALE).removeModifier(GROW_MODIFIER);

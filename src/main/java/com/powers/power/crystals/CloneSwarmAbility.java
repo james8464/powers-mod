@@ -60,7 +60,10 @@ public class CloneSwarmAbility extends Ability {
 			clone.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(18.0);
 			clone.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.42);
 			clone.setHealth(clone.getMaxHealth());
-			level.addFreshEntity(clone);
+			if (!level.noBlockCollision(clone, clone.getBoundingBox()) || !level.addFreshEntity(clone)) {
+				clone.discard();
+				continue;
+			}
 			spawned++;
 			PowerFx.coloredBurst(level, clone.position().add(0, 1, 0), 0xFF6D00, 12, 0.6);
 

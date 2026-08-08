@@ -7,6 +7,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CrystalAbilityCatalogTest {
 	@Test
@@ -33,5 +34,11 @@ class CrystalAbilityCatalogTest {
 		assertEquals(0, state.advance(player, 3));
 		state.clear(player);
 		assertEquals(0, state.current(player, 3));
+	}
+
+	@Test
+	void crystalRadiusChecksAreSphericalAndInclusive() {
+		assertTrue(CrystalTargeting.withinRadius(400.0, 20.0));
+		assertFalse(CrystalTargeting.withinRadius(400.01, 20.0));
 	}
 }
