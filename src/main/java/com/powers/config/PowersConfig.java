@@ -19,6 +19,7 @@ public record PowersConfig(
 		int teleportMaxChunkDistance,
 		int spaceTimeRadius,
 		int chronoStopRadius,
+		int rankRespecExperienceLevels,
 		int adminPermissionLevel,
 		List<SafeZone> safeZones) {
 
@@ -32,7 +33,7 @@ public record PowersConfig(
 	public static PowersConfig defaults() {
 		return new PowersConfig(false, false, false, false,
 				true, true, true, true, true, true, true,
-				6, 512, 8, 32, 64, 2, List.of());
+				6, 512, 8, 32, 64, 30, 2, List.of());
 	}
 
 	public PowersConfig sanitized() {
@@ -47,6 +48,7 @@ public record PowersConfig(
 				Math.max(1, Math.min(128, teleportMaxChunkDistance)),
 				Math.max(4, Math.min(128, spaceTimeRadius)),
 				Math.max(4, Math.min(256, chronoStopRadius)),
+				Math.max(0, Math.min(1000, rankRespecExperienceLevels)),
 				Math.max(0, Math.min(4, adminPermissionLevel)), List.copyOf(zones));
 	}
 }

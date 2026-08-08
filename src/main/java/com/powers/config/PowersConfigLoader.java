@@ -67,6 +67,7 @@ public final class PowersConfigLoader {
 				integer(object, "teleportMaxChunkDistance", defaults.teleportMaxChunkDistance()),
 				integer(object, "spaceTimeRadius", defaults.spaceTimeRadius()),
 				integer(object, "chronoStopRadius", defaults.chronoStopRadius()),
+				integer(object, "rankRespecExperienceLevels", defaults.rankRespecExperienceLevels()),
 				integer(object, "adminPermissionLevel", defaults.adminPermissionLevel()), zones).sanitized();
 	}
 

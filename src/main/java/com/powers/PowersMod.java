@@ -6,6 +6,7 @@ import com.powers.config.PowersConfigLoader;
 import com.powers.fx.GodlyPunishment;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
+import com.powers.progression.RankGraphRegistry;
 import com.powers.power.Ability;
 import com.powers.power.PassiveEffect;
 import com.powers.power.Power;
@@ -145,6 +146,7 @@ public class PowersMod implements ModInitializer {
 	public void onInitialize() {
 		PowersConfigLoader.initialize();
 		PowerEntityState.initialize();
+		RankGraphRegistry.initialize();
 		PowersEffects.initialize();
 		PowerRegistry.initialize();
 		PowersItems.initialize();
