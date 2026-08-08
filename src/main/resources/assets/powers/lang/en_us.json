@@ -580,6 +580,7 @@
 	"ability.powers.frozen.2": "You are locked in a frozen moment. Wait for time to thaw.",
 	"ability.powers.frozen.3": "The world's clock has stopped for you — no power responds.",
 	"ability.powers.frozen.4": "Frozen in time! Your body refuses to obey until time flows again.",
+	"ability.powers.interaction_blocked": "The surrounding magic catches your spell before it can awaken.",
 	"powers.packet.player_not_found.1": "Player not found: %s",
 	"powers.packet.player_not_found.2": "No player named %s walks this world.",
 	"powers.packet.player_not_found.3": "%s is nowhere to be found — check the name.",

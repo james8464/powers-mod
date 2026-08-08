@@ -11,6 +11,8 @@ import com.powers.power.AmethystDampening;
 import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.protection.PowerProtection;
 import com.powers.power.abilities.TeleportAbility;
+import com.powers.magic.runtime.PreparedMagicCast;
+import com.powers.magic.runtime.ServerMagicCasts;
 import com.powers.util.PowerMessages;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -209,9 +211,12 @@ public final class PowersPackets {
 					ability.activateToggleOff(player, data);
 					data.setToggleActive(player, powerId, false);
 				} else {
+					PreparedMagicCast magic = ServerMagicCasts.prepare(player, power.id().getPath());
+					if (!magic.allowed()) return;
 					boolean paid = data.spendEnergy(player, ability);
 					if (paid && ability.activateToggleOn(player, data)) {
 						data.setToggleActive(player, powerId, true);
+						ServerMagicCasts.commit(magic, player);
 					} else if (paid) {
 						data.refundEnergy(ability);
 					}
@@ -225,11 +230,14 @@ public final class PowersPackets {
 						seconds(ActivationCooldowns.remainingTicks(player, ability)));
 				return;
 			}
+			PreparedMagicCast magic = ServerMagicCasts.prepare(player, power.id().getPath());
+			if (!magic.allowed()) return;
 			if (!data.spendEnergy(player, ability)) return;
 			if (!ability.activate(player, data)) {
 				data.refundEnergy(ability);
 			} else {
 				ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
+				ServerMagicCasts.commit(magic, player);
 			}
 			syncTo(player);
 		});
@@ -268,6 +276,8 @@ public final class PowersPackets {
 							seconds(ActivationCooldowns.remainingTicks(player, ability)));
 					return;
 				}
+				PreparedMagicCast magic = ServerMagicCasts.prepare(player, power.id().getPath());
+				if (!magic.allowed()) return;
 				if (!data.spendEnergy(player, ability)) return;
 				if (!TeleportAbility.startMarking(player, target, payload.slot())) {
 					data.refundEnergy(ability);
@@ -275,6 +285,7 @@ public final class PowersPackets {
 					return;
 				}
 				ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
+				ServerMagicCasts.commit(magic, player);
 				syncTo(player);
 				return;
 			}
@@ -296,11 +307,14 @@ public final class PowersPackets {
 						seconds(ActivationCooldowns.remainingTicks(player, ability)));
 				return;
 			}
+			PreparedMagicCast magic = ServerMagicCasts.prepare(player, power.id().getPath());
+			if (!magic.allowed()) return;
 			if (!data.spendEnergy(player, ability)) return;
 			if (!ability.activateTeleport(player, subject, data, payload.dimension(), payload.x(), payload.y(), payload.z())) {
 				data.refundEnergy(ability);
 			} else {
 				ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
+				ServerMagicCasts.commit(magic, player);
 			}
 			syncTo(player);
 		});

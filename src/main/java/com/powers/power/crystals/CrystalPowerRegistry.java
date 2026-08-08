@@ -6,6 +6,8 @@ import com.powers.power.Ability;
 import com.powers.power.ActivationCooldowns;
 import com.powers.power.AmethystDampening;
 import com.powers.network.PowersPackets;
+import com.powers.magic.runtime.PreparedMagicCast;
+import com.powers.magic.runtime.ServerMagicCasts;
 import com.powers.util.PowerMessages;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -120,6 +122,10 @@ public final class CrystalPowerRegistry {
 					seconds(ActivationCooldowns.remainingTicks(player, ability)));
 			return false;
 		}
+		String actionId = ability instanceof ModeCrystalAbility convergence
+				? convergence.selectedActionId(player) : ability.id().getPath();
+		PreparedMagicCast magic = ServerMagicCasts.prepare(player, actionId);
+		if (!magic.allowed()) return false;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		// pay the energy up front, then give it back if the ability itself failed
 		if (!data.spendEnergy(player, ability)) return false;
@@ -129,6 +135,7 @@ public final class CrystalPowerRegistry {
 			PowerMessages.send(player, "crystal.powers.unavailable", 4);
 		} else {
 			ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
+			ServerMagicCasts.commit(magic, player);
 		}
 		// push the updated energy and cooldown to the client
 		PowersPackets.syncTo(player);
