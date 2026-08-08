@@ -33,7 +33,7 @@ public class FrostNovaAbility extends Ability {
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
 		BlockPos center = player.blockPosition();
-		int radius = 4;
+		int radius = Math.max(4, (int) Math.floor(scaledRange(player, 4.0)));
 		for (int dx = -radius; dx <= radius; dx++) {
 			for (int dz = -radius; dz <= radius; dz++) {
 				if (dx * dx + dz * dz > radius * radius) {
@@ -57,14 +57,15 @@ public class FrostNovaAbility extends Ability {
 				net.minecraft.sounds.SoundEvents.PLAYER_HURT_FREEZE, 1.0f, 1.0f);
 
 		// catch everything within a 6-block radius around the player
-		AABB area = AABB.ofSize(player.position(), 12.0, 8.0, 12.0);
+		double entityRadius = scaledRange(player, 6.0);
+		AABB area = AABB.ofSize(player.position(), entityRadius * 2, 8.0, entityRadius * 2);
 		for (LivingEntity target : level.getEntities(
 				EntityTypeTest.forClass(LivingEntity.class), area,
 					e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
 						&& PowerProtection.mayHarm(player, e))) {
 			// 4 damage plus a heavy slow for 6 seconds
-			target.hurtServer(level, PowerDamage.source(player), 4.0f);
-			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 120, 2, false, false));
+			target.hurtServer(level, PowerDamage.source(player), scaledPotency(player, 4.0f));
+			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, scaledDuration(player, 120), 2, false, false));
 		}
 		return true;
 	}

@@ -71,17 +71,18 @@ public class SpaceTimeAbility extends Ability {
 		}
 		ServerLevel level = (ServerLevel) player.level();
 		int mode = MODES.getOrDefault(player.getUUID(), 0);
+		int duration = scaledDuration(player, DURATION);
 		if (mode == 0) {
 			// slow: 120 ticks of slowness, the moment drags around you
-			player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, DURATION, 2, false, false));
+			player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, duration, 2, false, false));
 		} else if (mode == 1) {
 			// accelerate: 120 ticks of speed, hunger the price of outrunning time
-			player.addEffect(new MobEffectInstance(MobEffects.HUNGER, DURATION, 1, false, false));
-			player.addEffect(new MobEffectInstance(MobEffects.SPEED, DURATION, 1, false, false));
+			player.addEffect(new MobEffectInstance(MobEffects.HUNGER, duration, 1, false, false));
+			player.addEffect(new MobEffectInstance(MobEffects.SPEED, duration, 1, false, false));
 		} else {
 			if (ACTIVE.containsKey(player.getUUID())) return false;
 			UUID freezeOwner = FreezeOwner.token("space_time", player.getUUID());
-			double radius = PowersConfigLoader.get().spaceTimeRadius();
+			double radius = scaledRange(player, PowersConfigLoader.get().spaceTimeRadius());
 			Set<UUID> frozen = new LinkedHashSet<>();
 			AABB area = AABB.ofSize(player.position().add(0, 1, 0), radius * 2, radius * 2, radius * 2);
 			for (Entity entity : level.getEntities(EntityTypeTest.forClass(Entity.class), area,
@@ -95,7 +96,7 @@ public class SpaceTimeAbility extends Ability {
 			}
 			if (frozen.isEmpty()) return false;
 			ACTIVE.put(player.getUUID(), new ActiveFreeze(Set.copyOf(frozen),
-					level.getGameTime() + DURATION));
+					level.getGameTime() + duration));
 		}
 		com.powers.fx.PowerFx.ring(level, player.position(), 5.0, 0x00BCD4, 32, 0);
 		com.powers.fx.PowerFx.spiral(level, player.position(), 3.0, 2.5, 0x00BCD4, 28, 0);

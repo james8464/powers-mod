@@ -37,14 +37,16 @@ public class CloneSwarmAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
+		double potency = scaling(player).potencyMultiplier();
+		int cloneCount = Math.min(5, CLONE_COUNT + (int) Math.floor((potency - 1.0) * 5.0));
 		int spawned = 0;
-		for (int i = 0; i < CLONE_COUNT; i++) {
+		for (int i = 0; i < cloneCount; i++) {
 			Wolf clone = EntityTypes.WOLF.create(level, EntitySpawnReason.TRIGGERED);
 			if (clone == null) {
 				continue;
 			}
 			// spread the clones evenly around the player, 1.5 blocks out
-			double angle = Math.PI * 2 * i / CLONE_COUNT;
+			double angle = Math.PI * 2 * i / cloneCount;
 			clone.setPos(player.getX() + Math.cos(angle) * 1.5, player.getY() + 0.2,
 					player.getZ() + Math.sin(angle) * 1.5);
 			clone.tame(player);
@@ -52,12 +54,12 @@ public class CloneSwarmAbility extends Ability {
 			clone.setOrderedToSit(false);
 			clone.setCustomName(Component.literal(player.getGameProfile().name() + "'s Clone"));
 			clone.setCustomNameVisible(true);
-			PowerEntityState.markEphemeral(clone);
+			PowerEntityState.markBanishableSummon(clone);
 			// stop them despawning on their own - they go poof on our timer instead
 			clone.setPersistenceRequired();
 			// tough fighters: 80 health, 18 attack damage, brisk speed
-			clone.getAttribute(Attributes.MAX_HEALTH).setBaseValue(80.0);
-			clone.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(18.0);
+			clone.getAttribute(Attributes.MAX_HEALTH).setBaseValue(80.0 * potency);
+			clone.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(18.0 * potency);
 			clone.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.42);
 			clone.setHealth(clone.getMaxHealth());
 			if (!level.noBlockCollision(clone, clone.getBoundingBox()) || !level.addFreshEntity(clone)) {
@@ -69,7 +71,7 @@ public class CloneSwarmAbility extends Ability {
 
 			Wolf endClone = clone;
 			// dismiss each clone with a poof after its 60 seconds are up
-			PowersMod.scheduleDelayed(level.getServer(), CLONE_LIFE_TICKS, () -> {
+			PowersMod.scheduleDelayed(level.getServer(), scaledDuration(player, CLONE_LIFE_TICKS), () -> {
 				if (endClone.isAlive() && !endClone.isRemoved()) {
 					PowerFx.burst((ServerLevel) endClone.level(), endClone.position().add(0, 1, 0),
 							ParticleTypes.POOF, 14, 0.7, 0.2);

@@ -69,11 +69,12 @@ public class TimeFreezeToggleAbility extends ToggleAbility {
 
 	private void freezeNearby(ServerPlayer player) {
 		ServerLevel level = (ServerLevel) player.level();
-		AABB area = AABB.ofSize(player.position(), RADIUS * 2, RADIUS * 2, RADIUS * 2);
+		double radius = scaledRange(player, RADIUS);
+		AABB area = AABB.ofSize(player.position(), radius * 2, radius * 2, radius * 2);
 		Set<UUID> current = new LinkedHashSet<>();
 		UUID freezeOwner = FreezeOwner.token("time_freeze", player.getUUID());
 		for (Mob mob : level.getEntities(EntityTypeTest.forClass(Mob.class), area,
-				e -> e.isAlive() && e.distanceToSqr(player) <= RADIUS * RADIUS
+				e -> e.isAlive() && e.distanceToSqr(player) <= radius * radius
 						&& !AmethystDampening.isDampened(e)
 						&& !PowerProtection.isSafeZone(level, e.position()))) {
 			current.add(mob.getUUID());

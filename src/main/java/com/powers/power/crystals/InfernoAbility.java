@@ -18,7 +18,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
@@ -36,7 +35,9 @@ public class InfernoAbility extends Ability {
 	private static final int RADIUS = 12;
 
 	// one inferno per owner uuid, cleaned up on disconnect and server stop so it can't leak
-	private static final Map<UUID, Integer> ACTIVE = new HashMap<>();
+	private record InfernoField(int remainingTicks, double radius, float damage, int fireSeconds) {
+	}
+	private static final Map<UUID, InfernoField> ACTIVE = new HashMap<>();
 
 	public InfernoAbility() {
 		super(PowersMod.id("inferno"),
@@ -50,7 +51,9 @@ public class InfernoAbility extends Ability {
 		if (ACTIVE.containsKey(player.getUUID())) {
 			return false;
 		}
-		ACTIVE.put(player.getUUID(), DURATION_TICKS);
+		ACTIVE.put(player.getUUID(), new InfernoField(scaledDuration(player, DURATION_TICKS),
+				scaledRange(player, RADIUS), scaledPotency(player, 2.0f),
+				Math.max(1, scaledDuration(player, 160) / 20)));
 		ServerLevel level = (ServerLevel) player.level();
 		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0xFF3D00, 30, 1.5);
 		PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.FLAME, 40, 1.2, 0.4);
@@ -60,11 +63,12 @@ public class InfernoAbility extends Ability {
 
 	/** Called every server tick while any inferno is active. */
 	public static void tickAll(MinecraftServer server) {
-		Iterator<Map.Entry<UUID, Integer>> it = ACTIVE.entrySet().iterator();
+		var it = ACTIVE.entrySet().iterator();
 		while (it.hasNext()) {
-			Map.Entry<UUID, Integer> entry = it.next();
+			Map.Entry<UUID, InfernoField> entry = it.next();
 			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
-			int left = entry.getValue();
+			InfernoField field = entry.getValue();
+			int left = field.remainingTicks();
 
 			// the owner logged off or died - drop the inferno instead of leaving it burning forever
 			if (player == null || !player.isAlive()) {
@@ -77,19 +81,19 @@ public class InfernoAbility extends Ability {
 			if (left % 8 == 0) {
 				Vec3 origin = player.position().add(0, 1.2, 0);
 				for (int i = 0; i < 6; i++) {
-					Vec3 impact = origin.add((level.getRandom().nextDouble() - 0.5) * 2 * RADIUS,
-							-1.0, (level.getRandom().nextDouble() - 0.5) * 2 * RADIUS);
+					Vec3 impact = origin.add((level.getRandom().nextDouble() - 0.5) * 2 * field.radius(),
+							-1.0, (level.getRandom().nextDouble() - 0.5) * 2 * field.radius());
 					PowerFx.beam(level, impact.add(0, 8, 0), impact, ParticleTypes.FLAME, 10);
 					PowerFx.burst(level, impact, ParticleTypes.LARGE_SMOKE, 4, 0.4, 0.04);
 				}
 				// set everything within 12 blocks alight for 8 seconds
 				for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class,
-						AABB.ofSize(origin, RADIUS * 2, 8, RADIUS * 2),
-						e -> e.isAlive() && e != player && e.distanceToSqr(player) <= RADIUS * RADIUS
+						AABB.ofSize(origin, field.radius() * 2, 8, field.radius() * 2),
+						e -> e.isAlive() && e != player && e.distanceToSqr(player) <= field.radius() * field.radius()
 								&& !AmethystDampening.isDampened(e)
 								&& PowerProtection.mayHarm(player, e))) {
-					target.hurtServer(level, PowerDamage.source(player), 2.0f);
-					target.igniteForSeconds(8);
+					target.hurtServer(level, PowerDamage.source(player), field.damage());
+					target.igniteForSeconds(field.fireSeconds());
 				}
 				PowerFx.burst(level, origin, ParticleTypes.FLAME, 20, 2.5, 0.2);
 			}
@@ -99,7 +103,7 @@ public class InfernoAbility extends Ability {
 				it.remove();
 				PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.SMOKE, 24, 1.2, 0.1);
 			} else {
-				entry.setValue(left);
+				entry.setValue(new InfernoField(left, field.radius(), field.damage(), field.fireSeconds()));
 			}
 		}
 	}

@@ -124,14 +124,16 @@ public final class CrystalPowerRegistry {
 		}
 		String actionId = ability instanceof ModeCrystalAbility convergence
 				? convergence.selectedActionId(player) : ability.id().getPath();
+		Ability energyAbility = ability instanceof ModeCrystalAbility convergence
+				? convergence.selectedAbility(player) : ability;
 		PreparedMagicCast magic = ServerMagicCasts.prepare(player, actionId);
 		if (!magic.allowed()) return false;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		// pay the energy up front, then give it back if the ability itself failed
-		if (!data.spendEnergy(player, ability)) return false;
-		boolean activated = ability.activate(player, data);
+		if (!data.spendEnergy(player, energyAbility)) return false;
+		boolean activated = ServerMagicCasts.execute(magic, () -> ability.activate(player, data));
 		if (!activated) {
-			data.refundEnergy(ability);
+			data.refundEnergy(energyAbility);
 			PowerMessages.send(player, "crystal.powers.unavailable", 4);
 		} else {
 			ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));

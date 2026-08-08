@@ -30,11 +30,12 @@ public class CozyCampfireAbility extends Ability {
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
 		Vec3 center = player.position();
-		// reach of the cozy aura
-		double radius = 6.0;
+		double radius = scaledRange(player, 6.0);
+		int duration = scaledDuration(player, DURATION);
+		float healing = scaledPotency(player, 2.0f);
 
 		// run the first heal tick immediately, then every 5 ticks after
-		PowersMod.scheduleDelayed(level.getServer(), 0, new HealTask(level, center, radius, DURATION));
+		PowersMod.scheduleDelayed(level.getServer(), 0, new HealTask(level, center, radius, duration, healing));
 
 		com.powers.fx.PowerFx.burst(level, center,
 				net.minecraft.core.particles.ParticleTypes.CAMPFIRE_COSY_SMOKE, 16, 1.5, 0.1);
@@ -42,6 +43,7 @@ public class CozyCampfireAbility extends Ability {
 				net.minecraft.core.particles.ParticleTypes.FLAME, 8, 1.0, 0.05);
 		com.powers.fx.PowerFx.sound(level, center,
 				SoundEvents.FIRECHARGE_USE, 0.8f, 0.7f);
+		com.powers.fx.PowerFx.rune(level, center, radius * 0.8, 0xFFB35C, 28, 0.0);
 		return true;
 	}
 
@@ -49,13 +51,15 @@ public class CozyCampfireAbility extends Ability {
 		private final ServerLevel level;
 		private final Vec3 center;
 		private final double radius;
+		private final float healing;
 		private int remaining;
 
-		HealTask(ServerLevel level, Vec3 center, double radius, int ticks) {
+		HealTask(ServerLevel level, Vec3 center, double radius, int ticks, float healing) {
 			this.level = level;
 			this.center = center;
 			this.radius = radius;
 			this.remaining = ticks;
+			this.healing = healing;
 		}
 
 		@Override
@@ -66,7 +70,7 @@ public class CozyCampfireAbility extends Ability {
 			for (LivingEntity e : level.getEntities(EntityTypeTest.forClass(LivingEntity.class), area,
 					e -> e.isAlive() && !(e instanceof net.minecraft.world.entity.monster.Enemy)
 							&& e.position().distanceTo(center) <= radius)) {
-				e.heal(2.0f);
+				e.heal(healing);
 				// and players also get a little hunger back
 				if (e instanceof net.minecraft.world.entity.player.Player p) {
 					p.getFoodData().eat(1, 0.5f);

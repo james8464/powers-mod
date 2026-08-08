@@ -41,7 +41,8 @@ public class EnergyDrainAbility extends Ability {
 	private static final double MAX_RANGE_SQ = 48.0 * 48.0;
 	private static final Map<UUID, Ritual> RITUALS = new HashMap<>();
 
-	private record Ritual(ServerPlayer caster, ServerPlayer target, ChannelState state) {}
+	private record Ritual(ServerPlayer caster, ServerPlayer target, ChannelState state,
+			double maximumRangeSquared, int exhaustionTicks, double transferRatio) {}
 
 	public EnergyDrainAbility() {
 		super(PowersMod.id("energy_drain"),
@@ -50,7 +51,7 @@ public class EnergyDrainAbility extends Ability {
 
 	@Override
 	public boolean activate(ServerPlayer caster, PlayerPowers.PlayerPowersData data) {
-		LivingEntity target = PowerTargeting.findLivingTarget(caster, 32.0);
+		LivingEntity target = PowerTargeting.findLivingTarget(caster, scaledRange(caster, 32.0));
 		if (!(target instanceof ServerPlayer targetSP) || targetSP == caster) {
 			PowerMessages.send(caster, "ability.powers.no_player_target", 4);
 			return false;
@@ -61,9 +62,12 @@ public class EnergyDrainAbility extends Ability {
 		}
 		if (!PowerProtection.mayHarm(caster, targetSP)) return false;
 
-		long endsAt = caster.level().getGameTime() + RITUAL_TICKS;
+		long endsAt = caster.level().getGameTime() + scaledDuration(caster, RITUAL_TICKS);
+		double maximumRange = scaledRange(caster, Math.sqrt(MAX_RANGE_SQ));
+		double transferRatio = scaling(caster).unlockedVariants().contains("soul_echo") ? 0.75 : 0.50;
 		RITUALS.put(caster.getUUID(), new Ritual(caster, targetSP,
-				new ChannelState(endsAt, caster.getX(), caster.getY(), caster.getZ(), "energy_drain", false)));
+				new ChannelState(endsAt, caster.getX(), caster.getY(), caster.getZ(), "energy_drain", false),
+				maximumRange * maximumRange, scaledDuration(caster, EXHAUSTION_TICKS), transferRatio));
 		PowerFx.sound((ServerLevel) caster.level(), targetSP.position(),
 				net.minecraft.sounds.SoundEvents.ENCHANTMENT_TABLE_USE, 1.2f, 0.45f);
 		return true;
@@ -81,7 +85,7 @@ public class EnergyDrainAbility extends Ability {
 			boolean targetOnline = server.getPlayerList().getPlayer(target.getUUID()) == target;
 			if (!casterOnline || !targetOnline || !caster.isAlive() || !target.isAlive()
 					|| caster.level() != target.level()
-					|| caster.distanceToSqr(target) > MAX_RANGE_SQ
+					|| caster.distanceToSqr(target) > ritual.maximumRangeSquared()
 					|| AmethystDampening.isDampened(target)
 					|| !PowerProtection.mayHarm(caster, target)
 					|| SpellFieldManager.isSanctuaryProtected((ServerLevel) target.level(), target)
@@ -104,7 +108,7 @@ public class EnergyDrainAbility extends Ability {
 				// full drain landed, hit the target with exhaustion
 				PlayerPowers.get(target).emptyEnergy();
 				PowersPackets.syncTo(target);
-				target.addEffect(new MobEffectInstance(PowersEffects.EXHAUSTION, EXHAUSTION_TICKS, 0,
+				target.addEffect(new MobEffectInstance(PowersEffects.EXHAUSTION, ritual.exhaustionTicks(), 0,
 						false, false, true));
 				PowerMessages.send(caster, "ability.powers.energy_drained", 3,
 						target.getName().getString());
@@ -114,8 +118,12 @@ public class EnergyDrainAbility extends Ability {
 			PlayerPowers.PlayerPowersData targetData = PlayerPowers.get(target);
 			if (targetData.energy() > 0) {
 				int ticksRemaining = (int) Math.max(1L, ritual.state().finishesAt() - now);
-				targetData.consumeEnergy(AbilityArithmetic.drainStep(targetData.energy(), ticksRemaining));
+				int drained = AbilityArithmetic.drainStep(targetData.energy(), ticksRemaining);
+				targetData.consumeEnergy(drained);
+				PlayerPowers.PlayerPowersData casterData = PlayerPowers.get(caster);
+				casterData.refundEnergy(Math.max(1, (int) Math.floor(drained * ritual.transferRatio())));
 				PowersPackets.syncTo(target);
+				PowersPackets.syncTo(caster);
 			}
 		}
 	}
@@ -132,7 +140,8 @@ public class EnergyDrainAbility extends Ability {
 	public static void markDamaged(LivingEntity entity) {
 		Ritual ritual = RITUALS.get(entity.getUUID());
 		if (ritual != null) RITUALS.put(entity.getUUID(), new Ritual(ritual.caster(), ritual.target(),
-				ritual.state().withDamaged(true)));
+				ritual.state().withDamaged(true), ritual.maximumRangeSquared(), ritual.exhaustionTicks(),
+				ritual.transferRatio()));
 	}
 
 	public static boolean counterNearest(ServerPlayer counter, double range) {

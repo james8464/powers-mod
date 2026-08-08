@@ -5,6 +5,8 @@ import com.powers.magic.MagicActionDefinition;
 import com.powers.magic.MagicActionId;
 import com.powers.magic.MagicAspect;
 import com.powers.magic.MagicIntent;
+import com.powers.magic.runtime.CastAdjustment;
+import com.powers.magic.runtime.CastScalingContext;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import net.minecraft.server.level.ServerPlayer;
@@ -58,7 +60,9 @@ public final class PowerScalingService {
 
 	/** Returns the scaled canonical values for a player and stable action ID. */
 	public static ScaledMagicValues forPlayer(ServerPlayer player, String actionId) {
-		return INSTANCE.scale(requireAction(actionId), profile(player), SkillSystem.effectiveLevel(player));
+		MagicActionDefinition action = requireAction(actionId);
+		ScaledMagicValues ranked = INSTANCE.scale(action, profile(player), SkillSystem.effectiveLevel(player));
+		return applyInteraction(action, ranked, CastScalingContext.current());
 	}
 
 	/** Applies the canonical potency ratio to an implementation-specific base value. */
@@ -169,5 +173,19 @@ public final class PowerScalingService {
 
 	private static int reducedInt(int base, double reduction) {
 		return base <= 0 ? 0 : Math.max(1, (int) Math.ceil(base * (1.0 - Math.max(0, Math.min(0.25, reduction)))));
+	}
+
+	private static ScaledMagicValues applyInteraction(MagicActionDefinition action, ScaledMagicValues ranked,
+			CastAdjustment adjustment) {
+		double potencyMultiplier = Math.min(2.0,
+				ranked.potencyMultiplier() * adjustment.potencyMultiplier());
+		double rangeMultiplier = Math.min(2.0, ranked.rangeMultiplier() * adjustment.rangeMultiplier());
+		double durationMultiplier = Math.min(2.0,
+				ranked.durationMultiplier() * adjustment.durationMultiplier());
+		return new ScaledMagicValues(scaledInt(action.basePotency(), potencyMultiplier),
+				action.baseRange() * rangeMultiplier, scaledInt(action.baseDurationTicks(), durationMultiplier),
+				ranked.energyCost(), ranked.cooldownTicks(), ranked.interactionPriority(),
+				ranked.unlockedVariants(), ranked.backlashMultiplier(), potencyMultiplier,
+				rangeMultiplier, durationMultiplier);
 	}
 }

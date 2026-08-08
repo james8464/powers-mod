@@ -6,6 +6,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
+import com.powers.progression.PowerScalingService;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -51,7 +52,8 @@ public class DimensionalAnchorAbility extends Ability {
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		LivingEntity target = PowerTargeting.findLivingTarget(player, 32.0);
+		LivingEntity target = PowerTargeting.findLivingTarget(player,
+				PowerScalingService.range(player, "dimensional_anchor", 32.0));
 		if (!(target instanceof ServerPlayer targetSP)) {
 			PowerMessages.send(player, "ability.powers.no_player_target", 4);
 			return false;
@@ -69,7 +71,8 @@ public class DimensionalAnchorAbility extends Ability {
 		ResourceKey<Level> dim = targetSP.level().dimension();
 		String dimName = dim.identifier().getPath();
 		PlayerPowers.get(targetSP).setDimensionalAnchor(dim.identifier().toString(),
-				targetSP.level().getGameTime() + ANCHOR_TICKS);
+				targetSP.level().getGameTime()
+						+ PowerScalingService.duration(player, "dimensional_anchor", ANCHOR_TICKS));
 
 		ServerLevel targetLevel = (ServerLevel) targetSP.level();
 		PowerFx.rune(targetLevel, targetSP.position().add(0, 1.0, 0), 1.6, 0x8A2BE2, 20, 0.5);

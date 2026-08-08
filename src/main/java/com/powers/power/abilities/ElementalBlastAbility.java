@@ -34,6 +34,11 @@ public class ElementalBlastAbility extends Ability {
 		// (e.g. lightning with no valid target) is retried, not skipped
 		if (success) {
 			data.nextPhase();
+			if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+				int[] colors = {0xFF5A24, 0x82E9FF, 0xFFF59D, 0x8C66FF};
+				com.powers.fx.PowerFx.rune(level, player.position(),
+						1.0 + scaling(player).potencyMultiplier() * 0.25, colors[phase], 20, phase * Math.PI / 2.0);
+			}
 		}
 		return success;
 	}
@@ -43,6 +48,6 @@ public class ElementalBlastAbility extends Ability {
 		// the phase already advanced on success, so rewind one to report the
 		// cooldown of the element that was actually cast
 		int phase = (data.getPhase() + 3) % 4;
-		return ELEMENTS[phase].cooldownTicks();
+		return ELEMENTS[phase].cooldownTicksFor(player, data);
 	}
 }

@@ -25,7 +25,7 @@ public class PlantHealingAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
-		HitResult hit = player.pick(12.0, 0.0f, false);
+		HitResult hit = player.pick(scaledRange(player, 12.0), 0.0f, false);
 		if (!(hit instanceof BlockHitResult blockHit)) return false;
 		// bonemeal the plant that was actually hit, not the empty block beyond it
 		var pos = blockHit.getBlockPos();
@@ -34,12 +34,20 @@ public class PlantHealingAbility extends Ability {
 		if (!(state.getBlock() instanceof BonemealableBlock growable)
 				|| !growable.isValidBonemealTarget(level, pos, state)) return false;
 		growable.performBonemeal(level, level.getRandom(), pos, state);
+		if (scaledPotency(player, 1.0f) >= 1.25f) {
+			var updated = level.getBlockState(pos);
+			if (updated.getBlock() instanceof BonemealableBlock secondGrowth
+					&& secondGrowth.isValidBonemealTarget(level, pos, updated)) {
+				secondGrowth.performBonemeal(level, level.getRandom(), pos, updated);
+			}
+		}
 		Vec3 center = Vec3.atCenterOf(pos);
 		com.powers.fx.PowerFx.ring(level, center, 1.2, 0x66FF66, 16, 0);
 		com.powers.fx.PowerFx.burst(level, center,
 				net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER, 16, 0.5, 0.08);
 		com.powers.fx.PowerFx.sound(level, center,
 				net.minecraft.sounds.SoundEvents.BONE_MEAL_USE, 0.8f, 1.3f);
+		com.powers.fx.PowerFx.spiral(level, center, 0.7, 1.8, 0x9AF59A, 14, player.tickCount * 0.1);
 		return true;
 	}
 }

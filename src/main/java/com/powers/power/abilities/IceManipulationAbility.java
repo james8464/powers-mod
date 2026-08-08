@@ -50,9 +50,9 @@ public class IceManipulationAbility extends Ability {
 			// 8 damage that scales with skill, a heavy slow, weakness and a deep freeze
 			target.hurtServer(level, PowerDamage.source(player),
 					PowerScalingService.damage(player, "ice_manipulation", 8.0f));
-			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 120, 4, false, false));
-			target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 100, 1, false, false));
-			target.setTicksFrozen(160);
+			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, scaledDuration(player, 120), 4, false, false));
+			target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, scaledDuration(player, 100), 1, false, false));
+			target.setTicksFrozen(scaledDuration(player, 160));
 		}
 
 		// walk the beam in half-block steps and freeze blocks along the path

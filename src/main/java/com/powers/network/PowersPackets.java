@@ -207,7 +207,9 @@ public final class PowersPackets {
 					PreparedMagicCast magic = ServerMagicCasts.prepare(player, power.id().getPath());
 					if (!magic.allowed()) return;
 					boolean paid = data.spendEnergy(player, ability);
-					if (paid && ability.activateToggleOn(player, data)) {
+					boolean activated = paid && ServerMagicCasts.execute(magic,
+							() -> ability.activateToggleOn(player, data));
+					if (activated) {
 						data.setToggleActive(player, powerId, true);
 						ServerMagicCasts.commit(magic, player);
 					} else if (paid) {
@@ -226,7 +228,8 @@ public final class PowersPackets {
 			PreparedMagicCast magic = ServerMagicCasts.prepare(player, power.id().getPath());
 			if (!magic.allowed()) return;
 			if (!data.spendEnergy(player, ability)) return;
-			if (!ability.activate(player, data)) {
+			boolean activated = ServerMagicCasts.execute(magic, () -> ability.activate(player, data));
+			if (!activated) {
 				data.refundEnergy(ability);
 			} else {
 				ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
@@ -272,7 +275,9 @@ public final class PowersPackets {
 				PreparedMagicCast magic = ServerMagicCasts.prepare(player, power.id().getPath());
 				if (!magic.allowed()) return;
 				if (!data.spendEnergy(player, ability)) return;
-				if (!TeleportAbility.startMarking(player, target, payload.slot())) {
+				boolean marked = ServerMagicCasts.execute(magic,
+						() -> TeleportAbility.startMarking(player, target, payload.slot()));
+				if (!marked) {
 					data.refundEnergy(ability);
 					syncTo(player);
 					return;
@@ -303,7 +308,9 @@ public final class PowersPackets {
 			PreparedMagicCast magic = ServerMagicCasts.prepare(player, power.id().getPath());
 			if (!magic.allowed()) return;
 			if (!data.spendEnergy(player, ability)) return;
-			if (!ability.activateTeleport(player, subject, data, payload.dimension(), payload.x(), payload.y(), payload.z())) {
+			boolean activated = ServerMagicCasts.execute(magic, () -> ability.activateTeleport(
+					player, subject, data, payload.dimension(), payload.x(), payload.y(), payload.z()));
+			if (!activated) {
 				data.refundEnergy(ability);
 			} else {
 				ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));

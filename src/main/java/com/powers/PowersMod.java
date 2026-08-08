@@ -28,7 +28,6 @@ import com.powers.power.crystals.InfernoAbility;
 import com.powers.power.crystals.SoulLinkAbility;
 import com.powers.power.crystals.SizeShiftAbility;
 import com.powers.power.AmethystDampening;
-import com.powers.power.PowerDamage;
 import com.powers.power.state.PowerEntityState;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.player.SkillSystem;
@@ -39,7 +38,6 @@ import com.powers.spell.SpellFieldManager;
 import com.powers.realm.RealmMindscapeManager;
 import com.powers.loot.PowersLoot;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -48,7 +46,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
@@ -93,33 +90,10 @@ public class PowersMod implements ModInitializer {
 		CrystalPowerRegistry.initialize();
 		PowersPackets.initialize();
 		PowerCommand.register();
+		PowerCombatEvents.register();
 		// SkillSystem sets the player's visible display name. Vanilla signed chat
 		// therefore carries the rank without cancelling, stripping, or rebuilding
 		// the authenticated message as an unsigned system message.
-
-		// no damage lands in the realm dimensions; forcefields stop attacks
-		// outright, and amethyst dampening turns aside power damage only
-		ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
-			if (BodyProxyManager.isProxy(entity)) return BodyProxyManager.allowsDamage(entity, source);
-			// amethyst is the enemy of powers, not of swords: a shard in the
-			// pocket must never mean blanket immunity in a fistfight
-			if (AmethystDampening.isDampened(entity) && PowerDamage.isPowerDamage(source)) return false;
-			// the realms are peaceful, but /kill and the void must still work
-			// or an admin can never clean up and a fall out of the world
-			// leaves the player stuck in an endless drop
-			if (source.is(DamageTypes.GENERIC_KILL) || source.is(DamageTypes.FELL_OUT_OF_WORLD)) return true;
-			String dim = entity.level().dimension().identifier().toString();
-			return !dim.equals("powers:dark_realm") && !dim.equals("powers:light_realm");
-		});
-		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damageTaken, blocked) -> {
-			BodyProxyManager.afterDamage(entity, source, damageTaken);
-			if (damageTaken > 0) {
-				SpellCastingManager.markDamaged(entity);
-				EnergyDrainAbility.markDamaged(entity);
-			}
-		});
-		ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) ->
-				BodyProxyManager.allowsDeath(entity));
 
 		// first join rolls three random powers that stick with the player for good
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {

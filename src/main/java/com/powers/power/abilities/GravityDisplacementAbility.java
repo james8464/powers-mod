@@ -32,19 +32,22 @@ public class GravityDisplacementAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
+		double radius = scaledRange(player, RADIUS);
+		int duration = scaledDuration(player, DURATION);
 		// everyone in an 8-block radius around the player floats up for 4 seconds
-		AABB area = AABB.ofSize(player.position(), RADIUS * 2, RADIUS * 2, RADIUS * 2);
+		AABB area = AABB.ofSize(player.position(), radius * 2, radius * 2, radius * 2);
 		for (LivingEntity target : level.getEntities(EntityTypeTest.forClass(LivingEntity.class), area,
 				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
 						&& PowerProtection.mayForceMove(player, e))) {
-			target.addEffect(new MobEffectInstance(MobEffects.LEVITATION, DURATION, 3, false, false));
+			target.addEffect(new MobEffectInstance(MobEffects.LEVITATION, duration, 3, false, false));
 		}
 
 		// lasts a second longer than the enemies' levitation so you drift down safely
-		player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, DURATION + 20, 0, false, false));
+		player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, duration + 20, 0, false, false));
 
 		com.powers.fx.PowerFx.burst(level, player.position(),
-				net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL, 30, RADIUS, 0.05);
+				net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL, 30, radius, 0.05);
+		com.powers.fx.PowerFx.rune(level, player.position(), radius * 0.55, 0x8C66FF, 28, 0.0);
 		com.powers.fx.PowerFx.sound(level, player.position(),
 				net.minecraft.sounds.SoundEvents.BEACON_POWER_SELECT, 1.0f, 0.3f);
 		return true;

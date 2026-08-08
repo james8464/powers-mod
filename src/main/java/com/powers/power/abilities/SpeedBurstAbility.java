@@ -26,13 +26,16 @@ public class SpeedBurstAbility extends Ability {
 		var level = (net.minecraft.server.level.ServerLevel) player.level();
 		Vec3 dir = player.getLookAngle().normalize();
 		Vec3 pos = player.position();
-		// a strong forward kick that sends you flying
-		player.setDeltaMovement(player.getDeltaMovement().add(dir.scale(2.2)));
+		double movement = 2.2 * Math.min(1.35, scaling(player).rangeMultiplier());
+		player.setDeltaMovement(player.getDeltaMovement().add(dir.scale(movement)));
 		// 6 seconds of slow falling so the dash carries you like a glide
-		player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 120, 0, false, false));
+		player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, scaledDuration(player, 120), 0, false, false));
 		com.powers.fx.PowerFx.burst(level, pos, net.minecraft.core.particles.ParticleTypes.CLOUD, 12, 0.35, 0.25);
 		com.powers.fx.PowerFx.burst(level, pos.add(dir.scale(2.0)), net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK, 8, 0.45, 0.25);
 		com.powers.fx.PowerFx.sound(level, pos, net.minecraft.sounds.SoundEvents.FIREWORK_ROCKET_SHOOT, 1.0f, 1.5f);
+		if (scaling(player).unlockedVariants().contains("second_step")) {
+			com.powers.fx.PowerFx.rune(level, pos.add(dir.scale(movement)), 0.8, 0xD7F8FF, 14, player.tickCount * 0.2);
+		}
 		return true;
 	}
 }

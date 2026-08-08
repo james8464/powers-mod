@@ -57,7 +57,7 @@ public class FireballAbility extends Ability {
 		level.addFreshEntity(fireball);
 
 		// the floating fireball fades away after 12 seconds if nobody hits it
-		PowersMod.scheduleDelayed(level.getServer(), DESPAWN_TICKS, () -> {
+		PowersMod.scheduleDelayed(level.getServer(), scaledDuration(player, DESPAWN_TICKS), () -> {
 			if (!fireball.isRemoved()) {
 				fireball.discard();
 			}
@@ -65,6 +65,7 @@ public class FireballAbility extends Ability {
 
 		com.powers.fx.PowerFx.burst(level, pos, ParticleTypes.FLAME, 10, 0.2, 0.05);
 		com.powers.fx.PowerFx.burst(level, pos, ParticleTypes.SMOKE, 6, 0.15, 0.03);
+		com.powers.fx.PowerFx.rune(level, pos, 0.9, 0xFF5A24, 18, player.tickCount * 0.1);
 		com.powers.fx.PowerFx.sound(level, pos, SoundEvents.FIRECHARGE_USE, 1.0f, 1.1f);
 		return true;
 	}

@@ -48,5 +48,33 @@ public class InvisibilityToggleAbility extends ToggleAbility {
 		if (!player.isInvisible()) {
 			player.setInvisible(true);
 		}
+		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+			boolean veilFocus = scaling(player).unlockedVariants().contains("afterimage");
+			int interval = veilFocus ? 40 : 20;
+			if (level.getServer().getTickCount() % interval == 0) {
+				// Invisibility leaves a faint, readable magical residue; veil ranks
+				// reduce its frequency but never remove counterplay completely.
+				com.powers.fx.PowerFx.burst(level, player.position().add(0, 1, 0),
+						net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL, 2, 0.25, 0.01);
+			}
+		}
+	}
+
+	/** Breaks power-owned invisibility after the player successfully harms a target. */
+	public static void breakOnAttack(ServerPlayer attacker) {
+		reveal(attacker);
+	}
+
+	/** Reveals only POWERS-owned invisibility, preserving unrelated invisible states. */
+	public static boolean reveal(ServerPlayer player) {
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		String powerId = PowersMod.id("invisibility").toString();
+		if (!data.isToggleActive(powerId)) return false;
+		new InvisibilityToggleAbility().activateToggleOff(player, data);
+		data.setToggleActive(player, powerId, false);
+		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+			com.powers.fx.PowerFx.rune(level, player.position().add(0, 1, 0), 1.1, 0x6E7180, 18, Math.PI);
+		}
+		return true;
 	}
 }

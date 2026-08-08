@@ -44,11 +44,13 @@ public class PortalRiftAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
+		double range = scaledRange(player, RANGE);
+		float damage = scaledPotency(player, 12.0f);
 		// lock onto up to six live enemies within 32 blocks, dampening-protected ones aside
 		List<LivingEntity> targets = level.getEntitiesOfClass(LivingEntity.class,
-				AABB.ofSize(player.position().add(0, 1, 0), RANGE * 2, RANGE * 2, RANGE * 2),
+				AABB.ofSize(player.position().add(0, 1, 0), range * 2, range * 2, range * 2),
 				e -> e.isAlive() && e != player && !player.isAlliedTo(e)
-						&& e.distanceToSqr(player) <= RANGE * RANGE
+						&& e.distanceToSqr(player) <= range * range
 						&& !AmethystDampening.isDampened(e)
 						&& PowerProtection.mayHarm(player, e));
 		targets.sort(Comparator.comparingDouble(player::distanceToSqr));
@@ -62,19 +64,19 @@ public class PortalRiftAbility extends Ability {
 		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x651FFF, 24, 1.2);
 		PowerFx.sound(level, player.position(), SoundEvents.ENDERMAN_TELEPORT, 1.0f, 0.7f);
 		// 12 ticks of resistance per strike lined up, so the chain doesn't leave you exposed
-		player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, targets.size() * 12, 4, true, false));
+		player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, targets.size() * 12, 0, true, false));
 
 		MinecraftServer server = level.getServer();
 		for (int i = 0; i < targets.size(); i++) {
 			LivingEntity target = targets.get(i);
 			// strikes land every 12 ticks, each one opening the next rift
 			int delay = i * 12;
-			PowersMod.scheduleDelayed(server, delay, () -> strike(player, target));
+			PowersMod.scheduleDelayed(server, delay, () -> strike(player, target, damage));
 		}
 		return true;
 	}
 
-	private static void strike(ServerPlayer player, LivingEntity target) {
+	private static void strike(ServerPlayer player, LivingEntity target, float damage) {
 		// skip the strike if either fighter died or left the dimension mid-chain
 		if (!player.isAlive() || player.isRemoved() || !target.isAlive() || target.isRemoved()
 				|| player.level().getServer().getPlayerList().getPlayer(player.getUUID()) != player
@@ -93,7 +95,7 @@ public class PortalRiftAbility extends Ability {
 		player.teleport(new TeleportTransition(level, spot, Vec3.ZERO,
 				player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 		// the crushing blow: 12 magic damage; if the hit is refused there's no show
-		if (!target.hurtServer(level, PowerDamage.source(player), 12.0f)) {
+		if (!target.hurtServer(level, PowerDamage.source(player), damage)) {
 			return;
 		}
 		PowerFx.coloredBurst(level, target.position().add(0, 1, 0), 0x651FFF, 16, 0.7);

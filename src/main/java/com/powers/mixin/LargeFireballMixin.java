@@ -4,6 +4,7 @@ import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.power.state.PowerEntityState;
 import com.powers.protection.PowerProtection;
+import com.powers.progression.PowerScalingService;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -27,7 +28,9 @@ public abstract class LargeFireballMixin {
 				|| !(target.level() instanceof ServerLevel level)
 				|| AmethystDampening.isDampened(target)
 				|| !PowerProtection.mayHarm(caster, target)) return;
-		target.hurtServer(level, PowerDamage.source(caster), 6.0f);
-		target.igniteForSeconds(3);
+		target.hurtServer(level, PowerDamage.source(caster),
+				PowerScalingService.damage(caster, "fireball", 6.0f));
+		target.igniteForSeconds(Math.max(1,
+				PowerScalingService.duration(caster, "fireball", 60) / 20));
 	}
 }

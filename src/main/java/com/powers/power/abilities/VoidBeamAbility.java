@@ -49,7 +49,8 @@ public class VoidBeamAbility extends Ability {
 		// 6 magic damage (scaled), plus a level 2 wither that lasts 5 seconds (100 ticks)
 		target.hurtServer(level, PowerDamage.source(player),
 				PowerScalingService.damage(player, "void_beam", 6.0f));
-		target.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 1, true, false));
+		target.addEffect(new MobEffectInstance(MobEffects.WITHER, scaledDuration(player, 100), 1, true, false));
+		com.powers.fx.PowerFx.rune(level, target.position(), 1.1, 0x241044, 18, Math.PI * 0.5);
 		return true;
 	}
 }

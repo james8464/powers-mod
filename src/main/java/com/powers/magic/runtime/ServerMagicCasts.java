@@ -12,6 +12,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.function.Supplier;
+
 /**
  * Minecraft adapter for the pure {@link MagicRuntime}. It derives identity,
  * dimension, position, and time from server state and translates semantic
@@ -52,6 +54,12 @@ public final class ServerMagicCasts {
 		return MagicRuntime.global().commitCast(completed, prepared.adjustment());
 	}
 
+	/** Executes gameplay while its resolved multipliers are visible to the scaling service. */
+	public static <T> T execute(PreparedMagicCast prepared, Supplier<T> operation) {
+		if (!prepared.allowed()) throw new IllegalStateException("Blocked magic cannot execute");
+		return CastScalingContext.with(prepared.adjustment(), operation);
+	}
+
 	private static void emitReaction(ServerLevel level, MagicReactionEvent event) {
 		Vec3 from = new Vec3(event.cast().anchor().x(), event.cast().anchor().y(), event.cast().anchor().z());
 		Vec3 to = new Vec3(event.existing().anchor().x(), event.existing().anchor().y(),
@@ -64,6 +72,7 @@ public final class ServerMagicCasts {
 				8 + cue.intensity() * 4, Math.floorMod(cue.glyphSeed(), 360) * Math.PI / 180.0);
 		PowerFx.coloredBurst(level, midpoint, cue.secondaryColor(), 4 + cue.intensity() * 3,
 				0.25 + cue.intensity() * 0.08);
+		MagicReactionEffects.apply(level, event, midpoint);
 		if (event.resolution().outcome() == InteractionOutcome.TRANSFORM) {
 			PowerFx.burst(level, midpoint, ParticleTypes.CLOUD, 8 + cue.intensity() * 2, 0.5, 0.04);
 			PowerFx.sound(level, midpoint, SoundEvents.FIRE_EXTINGUISH, 0.9f, 0.75f);

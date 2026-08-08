@@ -32,6 +32,11 @@ public final class ModeCrystalAbility extends Ability {
 		return selected(player).id().getPath();
 	}
 
+	/** Returns the selected ability for energy, cooldown, and rank accounting. */
+	public Ability selectedAbility(ServerPlayer player) {
+		return selected(player);
+	}
+
 	@Override
 	public boolean isSelectionAction(ServerPlayer player) {
 		return selected(player).isSelectionAction(player) || player.isCrouching();
