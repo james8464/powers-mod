@@ -16,6 +16,7 @@ import com.powers.power.PassiveEffect;
 import com.powers.power.Power;
 import com.powers.power.PowerEnergy;
 import com.powers.power.PowerRegistry;
+import com.powers.power.abilities.SpeedBurstAbility;
 import com.powers.power.abilities.SlowWorldAbility;
 import com.powers.power.abilities.TeleportAbility;
 import com.powers.power.abilities.TimeFreezeToggleAbility;
@@ -116,6 +117,7 @@ public class PowersMod implements ModInitializer {
 		// to be rebuilt straight away instead of waiting for the next refresh
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
 			MagicRuntime.global().clearOwner(oldPlayer.getUUID());
+			SpeedBurstAbility.clear(oldPlayer.getUUID());
 			WAS_SLEEPING.remove(newPlayer.getUUID());
 			SkillSystem.clear(newPlayer.getUUID());
 			// dying inside a realm hands the player back to the overworld, so
@@ -147,6 +149,7 @@ public class PowersMod implements ModInitializer {
 			SoulLinkAbility.clear(player.getUUID());
 			SizeShiftAbility.clear(player.getUUID());
 			SlowWorldAbility.clear(player.getUUID());
+			SpeedBurstAbility.clear(player.getUUID());
 			SpaceTimeAbility.clear(player.getUUID());
 			CrystalPowerRegistry.clearSelections(player.getUUID());
 			BodyProxyManager.returnToBody(player);
@@ -178,6 +181,7 @@ public class PowersMod implements ModInitializer {
 			SoulLinkAbility.clearAll();
 			SizeShiftAbility.clearAll();
 			SlowWorldAbility.clearAll();
+			SpeedBurstAbility.clearAll();
 			SpellCastingManager.clearAll();
 			SpellFieldManager.clearAll();
 			RealmMindscapeManager.clearAll();
@@ -247,6 +251,7 @@ public class PowersMod implements ModInitializer {
 			VesselPossessionAbility.tickAll(server);
 			AstralProjectionAbility.tickAll(server);
 			EnergyDrainAbility.tickAll(server);
+			SpeedBurstAbility.tickAll(server);
 			SpaceTimeAbility.tickAll(server);
 			DreamwalkingAbility.tickAll(server);
 			CrystalPowerRegistry.tick(server);

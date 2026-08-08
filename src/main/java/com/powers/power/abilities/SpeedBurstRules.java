@@ -47,6 +47,26 @@ public final class SpeedBurstRules {
 		return (int) Math.min(Integer.MAX_VALUE, remaining);
 	}
 
+	/** Returns a finite horizontal shockwave impulse with restrained upward lift. */
+	public static Vec3 impactImpulse(Vec3 center, Vec3 target, double force) {
+		if (center == null || target == null || !finite(center) || !finite(target)
+				|| !Double.isFinite(force) || force <= 0.0) return Vec3.ZERO;
+		double dx = target.x - center.x;
+		double dz = target.z - center.z;
+		double lengthSquared = dx * dx + dz * dz;
+		if (!Double.isFinite(lengthSquared) || lengthSquared <= MIN_DIRECTION_LENGTH_SQUARED) {
+			return Vec3.ZERO;
+		}
+		double scale = force / Math.sqrt(lengthSquared);
+		return new Vec3(dx * scale, Math.min(0.35, force * 0.25), dz * scale);
+	}
+
+	/** A bounded trace concludes on predicted obstruction, observed collision, or expiry. */
+	public static boolean traceFinished(boolean predictedObstruction,
+			boolean observedCollision, int remainingTicks) {
+		return predictedObstruction || observedCollision || remainingTicks <= 0;
+	}
+
 	private static boolean finite(Vec3 vector) {
 		return Double.isFinite(vector.x) && Double.isFinite(vector.y) && Double.isFinite(vector.z);
 	}

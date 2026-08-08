@@ -65,4 +65,31 @@ class SpeedBurstRulesTest {
 		assertEquals(Integer.MAX_VALUE,
 				SpeedBurstRules.secondStepRemaining(Long.MAX_VALUE, 0L, true));
 	}
+
+	@Test
+	void impactImpulsePointsOutwardWithBoundedLift() {
+		Vec3 impulse = SpeedBurstRules.impactImpulse(
+				Vec3.ZERO, new Vec3(3.0, 12.0, 4.0), 1.0);
+
+		assertEquals(0.6, impulse.x, 0.0001);
+		assertEquals(0.25, impulse.y, 0.0001);
+		assertEquals(0.8, impulse.z, 0.0001);
+		assertEquals(0.35, SpeedBurstRules.impactImpulse(
+				Vec3.ZERO, new Vec3(1.0, 0.0, 0.0), 20.0).y, 0.0001);
+		assertEquals(Vec3.ZERO, SpeedBurstRules.impactImpulse(
+				Vec3.ZERO, Vec3.ZERO, 1.0));
+		assertEquals(Vec3.ZERO, SpeedBurstRules.impactImpulse(
+				null, new Vec3(1.0, 0.0, 0.0), 1.0));
+		assertEquals(Vec3.ZERO, SpeedBurstRules.impactImpulse(
+				Vec3.ZERO, new Vec3(1.0, 0.0, 0.0), Double.NaN));
+	}
+
+	@Test
+	void traceConcludesOnPredictionCollisionOrExhaustedLifetime() {
+		assertTrue(SpeedBurstRules.traceFinished(true, false, 8));
+		assertTrue(SpeedBurstRules.traceFinished(false, true, 8));
+		assertTrue(SpeedBurstRules.traceFinished(false, false, 0));
+		assertTrue(SpeedBurstRules.traceFinished(false, false, -1));
+		assertFalse(SpeedBurstRules.traceFinished(false, false, 1));
+	}
 }
