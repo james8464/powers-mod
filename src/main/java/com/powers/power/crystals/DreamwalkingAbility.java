@@ -1,6 +1,8 @@
 package com.powers.power.crystals;
 
 import com.powers.PowersMod;
+import com.powers.mind.BodyProxyKind;
+import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.PowerTargeting;
@@ -35,6 +37,11 @@ public class DreamwalkingAbility extends Ability {
 	}
 
 	@Override
+	public boolean isSelectionAction(ServerPlayer player) {
+		return ACTIVE.containsKey(player.getUUID());
+	}
+
+	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		// activating again while dreaming ends the current dream early
 		Dream current = ACTIVE.remove(player.getUUID());
@@ -56,9 +63,11 @@ public class DreamwalkingAbility extends Ability {
 			PowerMessages.send(player, "powers.packet.consent_denied", 1, host.getName().getString());
 			return false;
 		}
+		if (!BodyProxyManager.start(player, BodyProxyKind.DREAMWALK)) return false;
 		MinecraftServer server = ((ServerLevel) player.level()).getServer();
 		Dream dream = new Dream(host, server.getTickCount() + DURATION);
 		ACTIVE.put(player.getUUID(), dream);
+		player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
 		player.setCamera(host);
 		ServerLevel level = (ServerLevel) player.level();
 		com.powers.fx.PowerFx.beam(level, player.getEyePosition(), host.getEyePosition(),
@@ -86,6 +95,7 @@ public class DreamwalkingAbility extends Ability {
 
 	private static void end(ServerPlayer dreamer) {
 		dreamer.setCamera(null);
+		BodyProxyManager.returnToBody(dreamer);
 	}
 
 	// server stop - reset every surviving dreamer's camera

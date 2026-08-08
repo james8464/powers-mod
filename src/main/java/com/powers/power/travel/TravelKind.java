@@ -5,5 +5,6 @@ public enum TravelKind {
 	CRYSTAL,
 	PROJECTION,
 	COMPANION,
+	RETURN,
 	ADMIN
 }

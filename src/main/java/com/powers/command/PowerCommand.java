@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.config.PowersConfigLoader;
+import com.powers.mind.BodyProxyManager;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
@@ -75,6 +76,8 @@ public final class PowerCommand {
 				.then(Commands.literal("reload")
 						.requires(PowerCommand::isAdmin)
 						.executes(PowerCommand::reloadConfig))
+				.then(Commands.literal("return")
+						.executes(PowerCommand::returnToBody))
 				.then(Commands.literal("darkprefix")
 						.executes(PowerCommand::darkPrefixToggle)
 						.then(Commands.literal("true")
@@ -85,6 +88,16 @@ public final class PowerCommand {
 						.requires(source -> source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER))
 						.then(Commands.argument("dimension", StringArgumentType.word())
 								.executes(PowerCommand::travel))));
+	}
+
+	private static int returnToBody(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerPlayer player = context.getSource().getPlayerOrException();
+		if (!BodyProxyManager.returnToBody(player)) {
+			context.getSource().sendFailure(Component.literal("You have no reachable mind-body anchor."));
+			return 0;
+		}
+		context.getSource().sendSuccess(() -> Component.literal("Your spirit returned to your body."), false);
+		return 1;
 	}
 
 	private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> consentLiteral(
