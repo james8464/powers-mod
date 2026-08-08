@@ -9,7 +9,7 @@
 		"description": {
 			"translate": "advancement.powers.skill.root.description"
 		},
-		"background": "minecraft:textures/block/amethyst_block.png",
+		"background": "powers:textures/gui/advancements/radiant_path.png",
 		"frame": "task",
 		"show_toast": true,
 		"announce_to_chat": false,

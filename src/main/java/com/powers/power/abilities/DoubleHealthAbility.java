@@ -28,6 +28,8 @@ public class DoubleHealthAbility extends ToggleAbility {
 			com.powers.fx.PowerFx.spiral(level, player.position(), 0.8, 2.0, 0xFF1744, 20, 0);
 			com.powers.fx.PowerFx.rune(level, player.position(), 1.4, 0x78E06B, 22,
 					scaling(player).unlockedVariants().contains("ancient_mastery") ? Math.PI : 0.0);
+			com.powers.fx.PowerFx.sound(level, player.position(),
+					net.minecraft.sounds.SoundEvents.BEACON_POWER_SELECT, 0.9f, 0.72f);
 		}
 		return true;
 	}
@@ -38,6 +40,11 @@ public class DoubleHealthAbility extends ToggleAbility {
 		AttributeInstance maxHealth = player.getAttribute(Attributes.MAX_HEALTH);
 		if (maxHealth != null) maxHealth.removeModifier(MODIFIER_ID);
 		player.setHealth(Math.min(player.getMaxHealth(), Math.max(0.0f, player.getMaxHealth() * ratio)));
+		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+			com.powers.fx.PowerFx.rune(level, player.position(), 1.0, 0x78E06B, 18, Math.PI);
+			com.powers.fx.PowerFx.sound(level, player.position(),
+					net.minecraft.sounds.SoundEvents.BEACON_DEACTIVATE, 0.65f, 1.25f);
+		}
 	}
 
 	@Override

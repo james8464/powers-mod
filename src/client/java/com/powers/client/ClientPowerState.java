@@ -11,11 +11,15 @@ public final class ClientPowerState {
 	private static List<String> powerIds = List.of();
 	private static List<String> activeToggles = List.of();
 	private static List<Integer> cooldownTicks = List.of();
+	private static List<Integer> cooldownMaximums = List.of();
 	private static int energy;
 	private static int energyCapacity;
 	private static boolean canSeeDarkRealm;
 	private static boolean darkness;
 	private static boolean projection;
+	private static List<String> rankNodes = List.of();
+	private static String rankFocus = "";
+	private static int rankDepth;
 	public static int markingSlot = -1;
 	public static int markingTicks;
 
@@ -26,11 +30,15 @@ public final class ClientPowerState {
 		powerIds = payload.powerIds();
 		activeToggles = payload.activeToggles();
 		cooldownTicks = payload.cooldownTicks();
+		cooldownMaximums = payload.cooldownMaximums();
 		energy = payload.energy();
 		energyCapacity = payload.energyCapacity();
 		canSeeDarkRealm = payload.canSeeDarkRealm();
 		darkness = payload.darkness();
 		projection = payload.projection();
+		rankNodes = List.copyOf(payload.rankNodes());
+		rankFocus = payload.rankFocus();
+		rankDepth = payload.rankDepth();
 	}
 
 	// wipe everything on disconnect so the hud shows nothing instead of stale powers
@@ -38,11 +46,15 @@ public final class ClientPowerState {
 		powerIds = List.of();
 		activeToggles = List.of();
 		cooldownTicks = List.of();
+		cooldownMaximums = List.of();
 		energy = 0;
 		energyCapacity = 0;
 		canSeeDarkRealm = false;
 		darkness = false;
 		projection = false;
+		rankNodes = List.of();
+		rankFocus = "";
+		rankDepth = 0;
 		markingSlot = -1;
 		markingTicks = 0;
 	}
@@ -63,6 +75,11 @@ public final class ClientPowerState {
 
 	public static int cooldownTicks(int slot) {
 		return slot >= 0 && slot < cooldownTicks.size() ? Math.max(0, cooldownTicks.get(slot)) : 0;
+	}
+
+	/** Returns the rank-adjusted cooldown that armed the displayed ring. */
+	public static int cooldownMaximum(int slot) {
+		return slot >= 0 && slot < cooldownMaximums.size() ? Math.max(0, cooldownMaximums.get(slot)) : 0;
 	}
 
 	public static void tickCooldowns() {
@@ -91,5 +108,17 @@ public final class ClientPowerState {
 
 	public static boolean isMarking() {
 		return markingSlot >= 0;
+	}
+
+	public static List<String> rankNodes() {
+		return rankNodes;
+	}
+
+	public static String rankFocus() {
+		return rankFocus;
+	}
+
+	public static int rankDepth() {
+		return rankDepth;
 	}
 }

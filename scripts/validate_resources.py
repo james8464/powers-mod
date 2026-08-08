@@ -13,6 +13,31 @@ from pathlib import Path
 IDENTIFIER = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 CURRENT_FILE = ""
+REQUIRED_UI_TEXTURES = {
+    "textures/gui/energy_frame.png": (172, 22),
+    "textures/gui/energy_fill.png": (144, 40),
+    "textures/gui/power_slot.png": (36, 36),
+    "textures/gui/power_slot_active.png": (36, 36),
+    "textures/gui/teleport_panel.png": (256, 192),
+    "textures/gui/locator_panel.png": (240, 224),
+    "textures/gui/advancements/radiant_path.png": (256, 256),
+    "textures/gui/advancements/shadow_path.png": (256, 256),
+    "textures/mob_effect/exhaustion.png": (18, 18),
+    "textures/mob_effect/amethyst_poisoning.png": (18, 18),
+    "textures/particle/mote.png": (16, 16),
+    "textures/particle/shard.png": (16, 16),
+    "textures/particle/glyph.png": (16, 16),
+    "textures/particle/ribbon.png": (16, 16),
+    "textures/particle/spark.png": (16, 16),
+    "textures/particle/eclipse.png": (16, 16),
+    "textures/particle/root.png": (16, 16),
+    "textures/particle/fracture.png": (16, 16),
+}
+REQUIRED_MAGIC_SOUNDS = {
+    "rune_hum", "crystal_resonate", "amethyst_fracture", "time_suspend",
+    "time_release", "rift_open", "rift_close", "soul_tether", "light_chorus",
+    "dark_whisper", "ward_impact", "rank_awaken", "interaction_clash",
+}
 
 
 def unique_object(pairs):
@@ -67,6 +92,7 @@ def validate(root: Path) -> list[str]:
     errors: list[str] = []
     parsed = {}
     png_dimensions = {}
+    png_color_types = {}
     for path in sorted(root.rglob("*")):
         if path.name in {".DS_Store", "Thumbs.db"}:
             errors.append(f"forbidden metadata file: {path}")
@@ -84,12 +110,53 @@ def validate(root: Path) -> list[str]:
                 if width <= 0 or height <= 0 or width > 16_384 or height > 16_384:
                     raise ValueError(f"invalid dimensions {width}x{height}")
                 png_dimensions[path] = (width, height)
+                png_color_types[path] = data[25]
             except Exception as error:
                 errors.append(f"{path}: {error}")
 
     assets = root / "assets" / "powers"
     lang_path = assets / "lang" / "en_us.json"
     lang = parsed.get(lang_path, {})
+
+    for relative, expected_dimensions in REQUIRED_UI_TEXTURES.items():
+        path = assets / relative
+        actual_dimensions = png_dimensions.get(path)
+        if actual_dimensions != expected_dimensions:
+            errors.append(f"{path}: expected {expected_dimensions[0]}x{expected_dimensions[1]} RGBA PNG, "
+                          f"found {actual_dimensions!r}")
+        if path in png_color_types and png_color_types[path] not in {4, 6}:
+            errors.append(f"{path}: custom GUI/effect art must retain an alpha channel")
+    for effect in ("exhaustion", "amethyst_poisoning"):
+        if f"effect.powers.{effect}" not in lang:
+            errors.append(f"missing en_us effect translation: effect.powers.{effect}")
+
+    sounds_path = assets / "sounds.json"
+    sounds = parsed.get(sounds_path, {})
+    if not isinstance(sounds, dict):
+        errors.append(f"{sounds_path}: expected a JSON object")
+        sounds = {}
+    missing_sounds = sorted(REQUIRED_MAGIC_SOUNDS - set(sounds))
+    if missing_sounds:
+        errors.append(f"{sounds_path}: missing semantic sounds {missing_sounds}")
+    for sound_id in sorted(REQUIRED_MAGIC_SOUNDS):
+        ogg = assets / "sounds" / "magic" / f"{sound_id}.ogg"
+        try:
+            data = ogg.read_bytes()
+            marker = data.find(b"\x01vorbis")
+            if data[:4] != b"OggS" or marker < 0:
+                raise ValueError("expected Ogg/Vorbis audio")
+            if marker + 11 >= len(data) or data[marker + 11] != 1:
+                raise ValueError("magic sound must be mono")
+        except Exception as error:
+            errors.append(f"{ogg}: {error}")
+
+    particles = assets / "particles"
+    for particle in ("mote", "shard", "glyph", "ribbon", "spark", "eclipse", "root", "fracture"):
+        definition = parsed.get(particles / f"{particle}.json", {})
+        expected = f"powers:{particle}"
+        textures = definition.get("textures", []) if isinstance(definition, dict) else []
+        if expected not in textures:
+            errors.append(f"{particles / (particle + '.json')}: missing texture {expected}")
     mod_metadata = parsed.get(root / "fabric.mod.json", {})
     contact = mod_metadata.get("contact", {}) if isinstance(mod_metadata, dict) else {}
     for field in ("homepage", "sources", "issues"):
@@ -145,6 +212,14 @@ def validate(root: Path) -> list[str]:
                 target = local_resource(root, texture, "textures", ".png")
                 if target is not None and not target.exists():
                     errors.append(f"{path}: missing texture {target}")
+
+    for path in sorted((root / "data" / "powers" / "advancement").rglob("*.json")):
+        data = parsed.get(path, {})
+        background = data.get("display", {}).get("background") if isinstance(data, dict) else None
+        if isinstance(background, str) and background.startswith("powers:"):
+            target = local_resource(root, background, "textures", "")
+            if target is not None and not target.exists():
+                errors.append(f"{path}: missing advancement background {target}")
 
     for path in sorted(assets.rglob("*.png.mcmeta")):
         texture = path.with_suffix("")

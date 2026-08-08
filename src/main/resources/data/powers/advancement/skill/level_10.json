@@ -10,7 +10,7 @@
 		"description": {
 			"translate": "advancement.powers.skill.10_capstone.description"
 		},
-		"frame": "task",
+		"frame": "challenge",
 		"show_toast": true,
 		"announce_to_chat": false,
 		"hidden": false

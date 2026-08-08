@@ -132,9 +132,11 @@ public final class PowersPackets {
 			},
 			buf -> new UUID(buf.readLong(), buf.readLong()));
 
-	public record PowerStatePayload(List<String> powerIds, List<String> activeToggles, List<Integer> cooldownTicks,
+	public record PowerStatePayload(List<String> powerIds, List<String> activeToggles,
+			List<Integer> cooldownTicks, List<Integer> cooldownMaximums,
 			int energy, int energyCapacity, boolean canSeeDarkRealm, boolean darkness,
-			boolean projection) implements CustomPacketPayload {
+			boolean projection, List<String> rankNodes, String rankFocus,
+			int rankDepth) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<PowerStatePayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("power_state"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, PowerStatePayload> STREAM_CODEC =
@@ -145,6 +147,8 @@ public final class PowersPackets {
 						PowerStatePayload::activeToggles,
 						ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT),
 						PowerStatePayload::cooldownTicks,
+						ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT),
+						PowerStatePayload::cooldownMaximums,
 						ByteBufCodecs.VAR_INT,
 						PowerStatePayload::energy,
 						ByteBufCodecs.VAR_INT,
@@ -155,6 +159,12 @@ public final class PowersPackets {
 						PowerStatePayload::darkness,
 						ByteBufCodecs.BOOL,
 						PowerStatePayload::projection,
+						ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.STRING_UTF8),
+						PowerStatePayload::rankNodes,
+						ByteBufCodecs.STRING_UTF8,
+						PowerStatePayload::rankFocus,
+						ByteBufCodecs.VAR_INT,
+						PowerStatePayload::rankDepth,
 						PowerStatePayload::new);
 
 		@Override
@@ -170,6 +180,8 @@ public final class PowersPackets {
 		PayloadTypeRegistry.serverboundPlay().register(LocatePlayerPayload.TYPE, LocatePlayerPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(PowerStatePayload.TYPE, PowerStatePayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(OpenLocatorScreenPayload.TYPE, OpenLocatorScreenPayload.STREAM_CODEC);
+		RankPackets.initialize();
+		MagicFxPackets.initialize();
 
 		ServerPlayNetworking.registerGlobalReceiver(ActivateAbilityPayload.TYPE, PowersPackets::handleActivate);
 		ServerPlayNetworking.registerGlobalReceiver(TeleportRequestPayload.TYPE, PowersPackets::handleTeleport);
@@ -356,21 +368,31 @@ public final class PowersPackets {
 	// sends the player's current power state so the client HUD matches the server
 	public static void syncTo(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		boolean darkness = data.isDarknessUser();
+		var rankProgress = data.rankProgress(darkness);
 		List<Integer> cooldowns = new ArrayList<>();
+		List<Integer> cooldownMaximums = new ArrayList<>();
 		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
 			Power power = data.getPower(slot);
-			cooldowns.add(power == null || power.ability() == null || power.ability().isToggle()
-					? 0 : ActivationCooldowns.remainingTicks(player, power.ability()));
+			Ability ability = power == null ? null : power.ability();
+			cooldowns.add(ability == null || ability.isToggle()
+					? 0 : ActivationCooldowns.remainingTicks(player, ability));
+			cooldownMaximums.add(ability == null || ability.isToggle()
+					? 0 : ability.cooldownTicksFor(player, data));
 		}
 		PowerStatePayload payload = new PowerStatePayload(
 				data.getSlotIds(),
 				data.getActiveToggles(),
 				cooldowns,
+				cooldownMaximums,
 				data.energy(),
 				data.energyCapacity(),
 				SkillSystem.canEnterDarkRealm(player),
-				data.isDarknessUser(),
-				data.mindBody() != null);
+				darkness,
+				data.mindBody() != null,
+				rankProgress.completed().stream().sorted().toList(),
+				rankProgress.focus(),
+				darkness ? data.darknessLevel() : data.skillLevel());
 		if (payload.equals(LAST_SENT_STATE.get(player.getUUID()))) return;
 		LAST_SENT_STATE.put(player.getUUID(), payload);
 		ServerPlayNetworking.send(player, payload);
