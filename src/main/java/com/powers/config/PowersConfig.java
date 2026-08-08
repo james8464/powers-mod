@@ -15,6 +15,7 @@ public record PowersConfig(
 		int wardRadius,
 		int maxParticlesPerTick,
 		int teleportMaxChunkDistance,
+		int spaceTimeRadius,
 		int adminPermissionLevel,
 		List<SafeZone> safeZones) {
 
@@ -28,7 +29,7 @@ public record PowersConfig(
 	public static PowersConfig defaults() {
 		return new PowersConfig(false, false, false, false,
 				true, true, true, true, true,
-				6, 512, 8, 2, List.of());
+				6, 512, 8, 32, 2, List.of());
 	}
 
 	public PowersConfig sanitized() {
@@ -40,6 +41,7 @@ public record PowersConfig(
 				Math.max(1, Math.min(64, wardRadius)),
 				Math.max(32, Math.min(16_384, maxParticlesPerTick)),
 				Math.max(1, Math.min(128, teleportMaxChunkDistance)),
+				Math.max(4, Math.min(128, spaceTimeRadius)),
 				Math.max(0, Math.min(4, adminPermissionLevel)), List.copyOf(zones));
 	}
 }

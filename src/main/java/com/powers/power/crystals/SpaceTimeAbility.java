@@ -2,9 +2,13 @@ package com.powers.power.crystals;
 
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
+import com.powers.config.PowersConfigLoader;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AbilityArithmetic;
+import com.powers.power.AmethystDampening;
+import com.powers.power.state.OwnedFreezeIndex;
+import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -15,14 +19,16 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -33,14 +39,17 @@ import java.util.UUID;
 public class SpaceTimeAbility extends Ability {
 	// the freeze holds the world for 120 ticks = 6 seconds
 	private static final int DURATION = 120;
-	// every entity's saved state while a freeze is live, per caster
-	private static final Map<UUID, ActiveFreeze> FROZEN = new HashMap<>();
+	// Original state is recorded once. The index prevents one overlapping cast
+	// from restoring an entity while another cast still owns its freeze.
+	private static final Map<UUID, Frozen> SAVED = new HashMap<>();
+	private static final OwnedFreezeIndex OWNERS = new OwnedFreezeIndex();
+	private static final Map<UUID, ActiveFreeze> ACTIVE = new HashMap<>();
 	// per-player mode, 0 slow, 1 accelerate, 2 freeze
 	private static final Map<UUID, Integer> MODES = new HashMap<>();
 
 	private record Frozen(Entity entity, Vec3 position, Vec3 velocity, boolean noGravity,
 			boolean noAi, double fallDistance) {}
-	private record ActiveFreeze(List<Frozen> states, long endsAt) {}
+	private record ActiveFreeze(Set<UUID> entities, long endsAt) {}
 
 	public SpaceTimeAbility() {
 		super(PowersMod.id("space_time"), Component.translatable("ability.powers.space_time"), 1200, false);
@@ -70,18 +79,25 @@ public class SpaceTimeAbility extends Ability {
 			player.addEffect(new MobEffectInstance(MobEffects.HUNGER, DURATION, 1, false, false));
 			player.addEffect(new MobEffectInstance(MobEffects.SPEED, DURATION, 1, false, false));
 		} else {
-			// snapshot position, motion, gravity, ai and fall distance so release can restore it all
-			List<Frozen> frozen = new ArrayList<>();
-			for (ServerLevel world : level.getServer().getAllLevels()) {
-				for (Entity entity : world.getEntities(EntityTypeTest.forClass(Entity.class),
-						e -> e.isAlive() && e != player)) {
-					frozen.add(new Frozen(entity, entity.position(), entity.getDeltaMovement(), entity.isNoGravity(),
+			if (ACTIVE.containsKey(player.getUUID())) return false;
+			double radius = PowersConfigLoader.get().spaceTimeRadius();
+			Set<UUID> frozen = new LinkedHashSet<>();
+			AABB area = AABB.ofSize(player.position().add(0, 1, 0), radius * 2, radius * 2, radius * 2);
+			for (Entity entity : level.getEntities(EntityTypeTest.forClass(Entity.class), area,
+					e -> e.isAlive() && e != player && e.distanceToSqr(player) <= radius * radius
+						&& (!(e instanceof LivingEntity living) || !AmethystDampening.isDampened(living))
+						&& !PowerProtection.isSafeZone(level, e.position())
+						&& (!(e instanceof ServerPlayer target) || PowerProtection.mayForceMove(player, target)))) {
+				UUID entityId = entity.getUUID();
+				if (OWNERS.claim(entityId, player.getUUID())) {
+					SAVED.put(entityId, new Frozen(entity, entity.position(), entity.getDeltaMovement(), entity.isNoGravity(),
 							entity instanceof Mob mob && mob.isNoAi(), entity.fallDistance));
 				}
+				frozen.add(entityId);
 			}
-			// the caster is never frozen, or they couldn't move to end the freeze
-			FROZEN.put(player.getUUID(), new ActiveFreeze(frozen,
-					level.getServer().getTickCount() + DURATION));
+			if (frozen.isEmpty()) return false;
+			ACTIVE.put(player.getUUID(), new ActiveFreeze(Set.copyOf(frozen),
+					level.getGameTime() + DURATION));
 		}
 		com.powers.fx.PowerFx.ring(level, player.position(), 5.0, 0x00BCD4, 32, 0);
 		com.powers.fx.PowerFx.spiral(level, player.position(), 3.0, 2.5, 0x00BCD4, 28, 0);
@@ -91,26 +107,16 @@ public class SpaceTimeAbility extends Ability {
 	}
 
 	public static void tickAll(MinecraftServer server) {
-		for (var it = FROZEN.entrySet().iterator(); it.hasNext();) {
+		for (var it = ACTIVE.entrySet().iterator(); it.hasNext();) {
 			var entry = it.next();
 			UUID ownerId = entry.getKey();
 			ActiveFreeze active = entry.getValue();
-			List<Frozen> states = active.states();
 			ServerPlayer owner = server.getPlayerList().getPlayer(ownerId);
 			// 6 seconds up, or the caster logged off or died: release everyone and drop the state
-			if (server.getTickCount() >= active.endsAt() || owner == null || !owner.isAlive()) {
-				release(states);
+			if (owner == null || !owner.isAlive() || owner.level().getGameTime() >= active.endsAt()) {
+				release(ownerId, active.entities());
 				it.remove();
 				continue;
-			}
-			for (Frozen frozen : states) {
-				Entity entity = frozen.entity();
-				// already gone, nothing left to hold
-				if (entity.isRemoved()) continue;
-				entity.setDeltaMovement(Vec3.ZERO);
-				entity.setNoGravity(true);
-				entity.setPos(frozen.position().x, frozen.position().y, frozen.position().z);
-				if (entity instanceof Mob mob) mob.setNoAi(true);
 			}
 			// pulse the ring every 5 ticks so the freeze looks alive
 			if (server.getTickCount() % 5 == 0 && owner.level() instanceof ServerLevel level) {
@@ -118,12 +124,19 @@ public class SpaceTimeAbility extends Ability {
 						server.getTickCount() * 0.04);
 			}
 		}
+		for (Frozen frozen : SAVED.values()) {
+			Entity entity = frozen.entity();
+			if (entity.isRemoved()) continue;
+			entity.setDeltaMovement(Vec3.ZERO);
+			entity.setNoGravity(true);
+			entity.setPos(frozen.position().x, frozen.position().y, frozen.position().z);
+			if (entity instanceof Mob mob) mob.setNoAi(true);
+		}
 	}
 
 	/** whether this player is currently held by someone's freeze */
 	public static boolean isFrozen(ServerPlayer player) {
-		return FROZEN.values().stream().anyMatch(active ->
-				active.states().stream().anyMatch(state -> state.entity() == player));
+		return OWNERS.isClaimed(player.getUUID());
 	}
 
 	/**
@@ -140,11 +153,12 @@ public class SpaceTimeAbility extends Ability {
 		PowerMessages.send(player, "ability.powers.frozen", 4);
 	}
 
-	private static void release(List<Frozen> states) {
-		// hand everything back the way the freeze found it
-		for (Frozen frozen : states) {
+	private static void release(UUID owner, Set<UUID> entities) {
+		for (UUID entityId : entities) {
+			if (!OWNERS.release(entityId, owner)) continue;
+			Frozen frozen = SAVED.remove(entityId);
+			if (frozen == null || frozen.entity().isRemoved()) continue;
 			Entity entity = frozen.entity();
-			if (entity.isRemoved()) continue;
 			entity.setNoGravity(frozen.noGravity());
 			entity.setDeltaMovement(frozen.velocity());
 			entity.fallDistance = frozen.fallDistance();
@@ -154,19 +168,21 @@ public class SpaceTimeAbility extends Ability {
 
 	/** undo one caster's freeze on disconnect, releasing their captives */
 	public static void clear(UUID player) {
-		ActiveFreeze active = FROZEN.remove(player);
+		ActiveFreeze active = ACTIVE.remove(player);
 		if (active != null) {
-			release(active.states());
+			release(player, active.entities());
 		}
 		MODES.remove(player);
 	}
 
 	/** release every frozen entity and wipe all modes on server stop */
 	public static void clearAll() {
-		for (ActiveFreeze active : FROZEN.values()) {
-			release(active.states());
+		for (var entry : ACTIVE.entrySet()) {
+			release(entry.getKey(), entry.getValue().entities());
 		}
-		FROZEN.clear();
+		ACTIVE.clear();
+		SAVED.clear();
+		OWNERS.clear();
 		MODES.clear();
 	}
 
