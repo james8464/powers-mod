@@ -10,9 +10,11 @@ import java.util.List;
 public final class ClientPowerState {
 	private static List<String> powerIds = List.of();
 	private static List<String> activeToggles = List.of();
+	private static List<Integer> cooldownTicks = List.of();
 	private static int energy;
 	private static int energyCapacity;
 	private static boolean canSeeDarkRealm;
+	private static boolean darkness;
 	public static int markingSlot = -1;
 	public static int markingTicks;
 
@@ -22,18 +24,22 @@ public final class ClientPowerState {
 	public static void update(PowersPackets.PowerStatePayload payload) {
 		powerIds = payload.powerIds();
 		activeToggles = payload.activeToggles();
+		cooldownTicks = payload.cooldownTicks();
 		energy = payload.energy();
 		energyCapacity = payload.energyCapacity();
 		canSeeDarkRealm = payload.canSeeDarkRealm();
+		darkness = payload.darkness();
 	}
 
 	// wipe everything on disconnect so the hud shows nothing instead of stale powers
 	public static void reset() {
 		powerIds = List.of();
 		activeToggles = List.of();
+		cooldownTicks = List.of();
 		energy = 0;
 		energyCapacity = 0;
 		canSeeDarkRealm = false;
+		darkness = false;
 		markingSlot = -1;
 		markingTicks = 0;
 	}
@@ -50,6 +56,21 @@ public final class ClientPowerState {
 
 	public static boolean isToggleActive(String powerId) {
 		return activeToggles.contains(powerId);
+	}
+
+	public static int cooldownTicks(int slot) {
+		return slot >= 0 && slot < cooldownTicks.size() ? Math.max(0, cooldownTicks.get(slot)) : 0;
+	}
+
+	public static void tickCooldowns() {
+		if (cooldownTicks.isEmpty()) return;
+		java.util.ArrayList<Integer> updated = new java.util.ArrayList<>(cooldownTicks.size());
+		for (int ticks : cooldownTicks) updated.add(Math.max(0, ticks - 1));
+		cooldownTicks = List.copyOf(updated);
+	}
+
+	public static boolean darkness() {
+		return darkness;
 	}
 
 	public static int energy() {

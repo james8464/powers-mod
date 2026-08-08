@@ -60,6 +60,7 @@ public class PowersClient implements ClientModInitializer {
 	}
 
 	private static void tick(Minecraft client) {
+		ClientPowerState.tickCooldowns();
 		// the marking window for a player teleport counts down here and closes itself
 		if (ClientPowerState.markingSlot >= 0) {
 			if (--ClientPowerState.markingTicks <= 0) {

@@ -109,17 +109,17 @@ public class PowersMod implements ModInitializer {
 			// light realm glitters with totem sparks. the realms themselves
 			// are always clear - this buildup belongs to the cast, not the sky
 			if (this.theme == StormTheme.DARK) {
-				this.level.sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,
-						this.position.x, this.position.y + 0.5, this.position.z, 4, 0.7, 0.2, 0.7, 0.02);
-				this.level.sendParticles(ParticleTypes.LARGE_SMOKE,
-						this.position.x, this.position.y + 0.5, this.position.z, 3, 0.6, 0.4, 0.6, 0.03);
+				com.powers.fx.PowerFx.burst(this.level, this.position.add(0, 0.5, 0),
+						ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, 4, 0.7, 0.02);
+				com.powers.fx.PowerFx.burst(this.level, this.position.add(0, 0.5, 0),
+						ParticleTypes.LARGE_SMOKE, 3, 0.6, 0.03);
 			} else if (this.theme == StormTheme.LIGHT) {
-				this.level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
-						this.position.x, this.position.y + 0.5, this.position.z, 2, 0.9, 0.6, 0.9, 0.12);
-				this.level.sendParticles(ParticleTypes.FIREWORK,
-						this.position.x, this.position.y + 0.5, this.position.z, 3, 0.7, 0.4, 0.7, 0.1);
-				this.level.sendParticles(ParticleTypes.END_ROD,
-						this.position.x, this.position.y + 0.5, this.position.z, 2, 0.5, 0.4, 0.5, 0.06);
+				com.powers.fx.PowerFx.burst(this.level, this.position.add(0, 0.5, 0),
+						ParticleTypes.TOTEM_OF_UNDYING, 2, 0.9, 0.12);
+				com.powers.fx.PowerFx.burst(this.level, this.position.add(0, 0.5, 0),
+						ParticleTypes.FIREWORK, 3, 0.7, 0.1);
+				com.powers.fx.PowerFx.burst(this.level, this.position.add(0, 0.5, 0),
+						ParticleTypes.END_ROD, 2, 0.5, 0.06);
 			}
 			// a bolt every other tick; only the first one thunders so the storm doesn't deafen
 			if (this.remaining % 2 == 0) {
@@ -273,6 +273,7 @@ public class PowersMod implements ModInitializer {
 			SpellCastingManager.clearAll();
 			SpellFieldManager.clearAll();
 			RealmMindscapeManager.clearAll();
+			com.powers.fx.PowerFx.clearBudgets();
 		});
 
 		// passives get re-applied on a schedule so they never expire, toggles
