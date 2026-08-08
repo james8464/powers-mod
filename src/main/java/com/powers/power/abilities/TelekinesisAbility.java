@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.protection.PowerProtection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,7 +33,8 @@ public class TelekinesisAbility extends Ability {
 		Vec3 center = player.position();
 		for (LivingEntity target : level.getEntities(
 				EntityTypeTest.forClass(LivingEntity.class), area,
-				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e))) {
+				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
+						&& PowerProtection.mayForceMove(player, e))) {
 			Vec3 toward = center.subtract(target.position());
 			double horizontal = toward.horizontalDistance();
 			// right on top of the player the fling direction is undefined, skip them

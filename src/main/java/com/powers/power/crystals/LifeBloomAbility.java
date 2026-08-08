@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
@@ -39,7 +40,13 @@ public class LifeBloomAbility extends Ability {
 		for (LivingEntity ally : level.getEntitiesOfClass(LivingEntity.class,
 				AABB.ofSize(origin, RADIUS * 2, RADIUS * 2, RADIUS * 2), LivingEntity::isAlive)) {
 			if (ally instanceof ServerPlayer orPlayer) {
-				orPlayer.removeAllEffects();
+				// Cleanse ailments without deleting beneficial effects owned by
+				// potions, beacons, other mods, or an active POWERS toggle.
+				for (MobEffectInstance effect : java.util.List.copyOf(orPlayer.getActiveEffects())) {
+					if (effect.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) {
+						orPlayer.removeEffect(effect.getEffect());
+					}
+				}
 				orPlayer.heal(orPlayer.getMaxHealth());
 				// 600 ticks = 30 seconds of regen, absorption and saturation, enough to carry anyone through a fight
 				orPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 600, 4, true, false));

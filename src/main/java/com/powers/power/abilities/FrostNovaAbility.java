@@ -5,6 +5,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
+import com.powers.protection.PowerProtection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -42,7 +43,8 @@ public class FrostNovaAbility extends Ability {
 				// scan a vertical slice from waist height up to eye level
 				for (int dy = -1; dy <= 2; dy++) {
 					BlockPos pos = center.offset(dx, dy, dz);
-					if (level.getFluidState(pos).isSourceOfType(Fluids.WATER)) {
+					if (level.getFluidState(pos).isSourceOfType(Fluids.WATER)
+							&& PowerProtection.mayAffectBlock(player, level, pos)) {
 						level.setBlock(pos, Blocks.FROSTED_ICE.defaultBlockState(), 3);
 					}
 				}
@@ -58,7 +60,8 @@ public class FrostNovaAbility extends Ability {
 		AABB area = AABB.ofSize(player.position(), 12.0, 8.0, 12.0);
 		for (LivingEntity target : level.getEntities(
 				EntityTypeTest.forClass(LivingEntity.class), area,
-					e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e))) {
+					e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
+						&& PowerProtection.mayHarm(player, e))) {
 			// 4 damage plus a heavy slow for 6 seconds
 			target.hurtServer(level, PowerDamage.source(player), 4.0f);
 			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 120, 2, false, false));

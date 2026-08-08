@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.protection.PowerProtection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,7 +35,8 @@ public class GravityDisplacementAbility extends Ability {
 		// everyone in an 8-block radius around the player floats up for 4 seconds
 		AABB area = AABB.ofSize(player.position(), RADIUS * 2, RADIUS * 2, RADIUS * 2);
 		for (LivingEntity target : level.getEntities(EntityTypeTest.forClass(LivingEntity.class), area,
-				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e))) {
+				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
+						&& PowerProtection.mayForceMove(player, e))) {
 			target.addEffect(new MobEffectInstance(MobEffects.LEVITATION, DURATION, 3, false, false));
 		}
 
