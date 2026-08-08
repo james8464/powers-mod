@@ -7,6 +7,7 @@ import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
 import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
+import com.powers.protection.PowerProtection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -38,7 +39,7 @@ public class GroundSlamAbility extends Ability {
 		PowerFx.ring(level, player.position().add(0, 0.1, 0), 3.5, 0xFF8A00, 28, 0.0);
 		PowerFx.sound(level, player.position(), SoundEvents.GENERIC_EXPLODE.value(), 1.0f, 0.8f);
 
-		carveCrater(level, BlockPos.containing(player.getX(), player.getY() - 0.5, player.getZ()));
+		carveCrater(player, level, BlockPos.containing(player.getX(), player.getY() - 0.5, player.getZ()));
 
 		DamageSource source = PowerDamage.source(player);
 		// shockwave hits everything in a 5-block radius around the player
@@ -58,7 +59,7 @@ public class GroundSlamAbility extends Ability {
 	}
 
 	/** Carves a bowl-shaped crater from soft ground; the damage is dealt once, by the shockwave. */
-	private static void carveCrater(ServerLevel level, BlockPos feet) {
+	private static void carveCrater(ServerPlayer player, ServerLevel level, BlockPos feet) {
 		for (int dx = -3; dx <= 3; dx++) {
 			for (int dz = -3; dz <= 3; dz++) {
 				if (dx * dx + dz * dz > 9) {
@@ -74,7 +75,8 @@ public class GroundSlamAbility extends Ability {
 							|| state.is(Blocks.LAVA) || state.getDestroySpeed(level, pos) > 50.0f) {
 						continue;
 					}
-					level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+					if (!PowerProtection.mayAffectBlock(player, level, pos)) continue;
+					level.destroyBlock(pos, true, player);
 					break;
 				}
 			}

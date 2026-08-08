@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
+import com.powers.config.PowersConfigLoader;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
@@ -60,10 +61,18 @@ public final class PowerCommand {
 										.then(Commands.argument("slot", IntegerArgumentType.integer(0, PlayerPowers.SLOT_COUNT - 1))
 												.executes(PowerCommand::assign)))))
 				.then(Commands.literal("reroll")
+						.requires(source -> isAdmin(source) || PowersConfigLoader.get().allowSelfReroll())
 						.executes(PowerCommand::rerollSelf)
 						.then(Commands.argument("player", EntityArgument.player())
 								.requires(source -> source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER))
 								.executes(PowerCommand::rerollOther)))
+				.then(Commands.literal("consent")
+						.then(consentLiteral("teleport", PlayerPowers.ConsentKind.TELEPORT))
+						.then(consentLiteral("locator", PlayerPowers.ConsentKind.LOCATOR))
+						.then(consentLiteral("companion", PlayerPowers.ConsentKind.COMPANION)))
+				.then(Commands.literal("reload")
+						.requires(PowerCommand::isAdmin)
+						.executes(PowerCommand::reloadConfig))
 				.then(Commands.literal("darkprefix")
 						.executes(PowerCommand::darkPrefixToggle)
 						.then(Commands.literal("true")
@@ -74,6 +83,36 @@ public final class PowerCommand {
 						.requires(source -> source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER))
 						.then(Commands.argument("dimension", StringArgumentType.word())
 								.executes(PowerCommand::travel))));
+	}
+
+	private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> consentLiteral(
+			String name, PlayerPowers.ConsentKind kind) {
+		return Commands.literal(name)
+				.then(Commands.literal("allow").executes(context -> setConsent(context, kind, true)))
+				.then(Commands.literal("deny").executes(context -> setConsent(context, kind, false)));
+	}
+
+	private static int setConsent(CommandContext<CommandSourceStack> context,
+			PlayerPowers.ConsentKind kind, boolean allowed) throws CommandSyntaxException {
+		ServerPlayer player = context.getSource().getPlayerOrException();
+		PlayerPowers.get(player).setConsent(kind, allowed);
+		context.getSource().sendSuccess(() -> Component.literal(kind.name().toLowerCase()
+				+ " consent " + (allowed ? "allowed" : "denied")).withStyle(ChatFormatting.AQUA), false);
+		return 1;
+	}
+
+	private static int reloadConfig(CommandContext<CommandSourceStack> context) {
+		boolean loaded = PowersConfigLoader.reload();
+		if (!loaded) {
+			context.getSource().sendFailure(Component.literal("POWERS configuration is invalid; kept the last valid settings."));
+			return 0;
+		}
+		context.getSource().sendSuccess(() -> Component.literal("Reloaded POWERS configuration."), true);
+		return 1;
+	}
+
+	private static boolean isAdmin(CommandSourceStack source) {
+		return source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER);
 	}
 
 	private static int list(CommandContext<CommandSourceStack> context) {

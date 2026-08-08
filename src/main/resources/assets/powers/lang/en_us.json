@@ -138,6 +138,8 @@
 	"item.powers.crescent_greataxe": "Crescent Greataxe",
 	"item.powers.crimson_cleaver": "Crimson Cleaver",
 	"item.powers.crystal_frostblade": "Crystal Frostblade",
+	"powers.packet.consent_denied.1": "%1$s has not consented to forced travel.",
+	"grimoire.celestial.consent_denied.1": "That soul is veiled by its own will.",
 	"death.attack.powers.power_magic": "%1$s was consumed by ancient power",
 	"death.attack.powers.power_magic.player": "%1$s was consumed by %2$s's ancient power",
 	"item.powers.crystal_frostcythe": "Crystal Frostscythe",

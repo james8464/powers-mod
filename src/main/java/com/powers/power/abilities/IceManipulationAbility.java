@@ -7,6 +7,7 @@ import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
 import com.powers.player.SkillSystem;
+import com.powers.protection.PowerProtection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -61,14 +62,14 @@ public class IceManipulationAbility extends Ability {
 			Vec3 point = origin.add(dir.scale(d));
 			BlockPos pos = new BlockPos((int) Math.floor(point.x), (int) Math.floor(point.y), (int) Math.floor(point.z));
 			BlockState state = level.getBlockState(pos);
-			if (state.is(Blocks.WATER)) {
+			if (state.is(Blocks.WATER) && PowerProtection.mayAffectBlock(player, level, pos)) {
 				level.setBlockAndUpdate(pos, Blocks.ICE.defaultBlockState());
-			} else if (state.is(Blocks.LAVA)) {
+			} else if (state.is(Blocks.LAVA) && PowerProtection.mayAffectBlock(player, level, pos)) {
 				level.setBlockAndUpdate(pos, Blocks.OBSIDIAN.defaultBlockState());
 			} else if (!state.isAir() && !state.is(Blocks.BEDROCK) && d < dist - 1.0) {
 				// coat solid ground with snow near the beam's end, only where the space above is free
 				BlockPos above = pos.above();
-				if (level.getBlockState(above).isAir()) {
+				if (level.getBlockState(above).isAir() && PowerProtection.mayAffectBlock(player, level, above)) {
 					level.setBlockAndUpdate(above, Blocks.SNOW.defaultBlockState());
 				}
 			}
