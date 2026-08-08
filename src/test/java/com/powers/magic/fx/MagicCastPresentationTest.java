@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Guards the catalogue-to-presentation boundary used by every successful cast. */
@@ -50,6 +51,41 @@ class MagicCastPresentationTest {
 		int realmForce = profile(catalogue, "darkness_block").intensity();
 		assertTrue(flight < spaceTime);
 		assertTrue(spaceTime < realmForce);
+	}
+
+	@Test
+	void legacyDepthCrossesTwoVisibleMasteryThresholds() {
+		MagicActionDefinition flight = MagicActionCatalogue.defaults()
+				.definition(new MagicActionId("flight"));
+
+		assertEquals(1, MagicCastPresentation.forAction(flight, 3, Set.of()).intensity());
+		assertEquals(2, MagicCastPresentation.forAction(flight, 4, Set.of()).intensity());
+		assertEquals(3, MagicCastPresentation.forAction(flight, 8, Set.of()).intensity());
+	}
+
+	@Test
+	void ancientMasteryAddsAThirdBoundedCeremonyStep() {
+		MagicActionDefinition flight = MagicActionCatalogue.defaults()
+				.definition(new MagicActionId("flight"));
+
+		assertEquals(4, MagicCastPresentation.forAction(
+				flight, 8, Set.of("ancient_mastery")).intensity());
+		assertEquals(1, MagicCastPresentation.forAction(flight, -50, Set.of()).intensity());
+		assertTrue(MagicCastPresentation.forAction(
+				flight, 500, Set.of("ancient_mastery")).intensity() <= 5);
+		assertThrows(NullPointerException.class,
+				() -> MagicCastPresentation.forAction(flight, 4, null));
+	}
+
+	@Test
+	void everyRankedCatalogueProfileRemainsInsideTheClientContract() {
+		for (MagicActionDefinition action : MagicActionCatalogue.defaults().definitions()) {
+			for (int level : new int[] {-1, 0, 4, 8, 10, 100}) {
+				int intensity = MagicCastPresentation.forAction(
+						action, level, Set.of("ancient_mastery")).intensity();
+				assertTrue(intensity >= 1 && intensity <= 5, action.id() + "@" + level);
+			}
+		}
 	}
 
 	private static MagicCastPresentation profile(MagicActionCatalogue catalogue, String id) {
