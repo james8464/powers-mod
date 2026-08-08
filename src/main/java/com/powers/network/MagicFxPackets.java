@@ -2,6 +2,7 @@ package com.powers.network;
 
 import com.powers.PowersMod;
 import com.powers.magic.fx.MagicFxEvent;
+import com.powers.magic.fx.MagicFxKind;
 import com.powers.magic.fx.MagicFxService;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -22,14 +23,16 @@ public final class MagicFxPackets {
 	private MagicFxPackets() {
 	}
 
-	/** Compact interaction cue; clients generate deterministic geometry locally. */
-	public record MagicFxPayload(long eventId, String motif, String sound,
+	/** Compact cast or interaction cue; clients generate deterministic geometry locally. */
+	public record MagicFxPayload(MagicFxKind kind, long eventId, String motif, String sound,
 			double x, double y, double z, int primaryColor, int secondaryColor,
 			int glyphSeed, int intensity) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<MagicFxPayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("magic_fx"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, MagicFxPayload> STREAM_CODEC =
 				StreamCodec.composite(
+						ByteBufCodecs.VAR_INT.map(MagicFxKind::fromNetworkId, MagicFxKind::networkId),
+						MagicFxPayload::kind,
 						ByteBufCodecs.VAR_LONG, MagicFxPayload::eventId,
 						ByteBufCodecs.STRING_UTF8, MagicFxPayload::motif,
 						ByteBufCodecs.STRING_UTF8, MagicFxPayload::sound,
@@ -43,7 +46,7 @@ public final class MagicFxPackets {
 						MagicFxPayload::new);
 
 		public MagicFxPayload(MagicFxEvent event) {
-			this(event.eventId(), event.motif(), event.sound(), event.x(), event.y(), event.z(),
+			this(event.kind(), event.eventId(), event.motif(), event.sound(), event.x(), event.y(), event.z(),
 					event.primaryColor(), event.secondaryColor(), event.glyphSeed(), event.intensity());
 		}
 
@@ -61,7 +64,8 @@ public final class MagicFxPackets {
 	public static void broadcast(ServerLevel level, MagicFxEvent event) {
 		MagicFxService service = SERVICES.computeIfAbsent(level,
 				serverLevel -> new MagicFxService(cue -> send(serverLevel, cue)));
-		String key = event.eventId() + "@" + event.motif() + "@" + event.x() + ":" + event.y() + ":" + event.z();
+		String key = event.kind() + "@" + event.eventId() + "@" + event.motif()
+				+ "@" + event.x() + ":" + event.y() + ":" + event.z();
 		service.emit(key, event);
 	}
 

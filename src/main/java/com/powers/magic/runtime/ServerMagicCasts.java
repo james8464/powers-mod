@@ -1,13 +1,15 @@
 package com.powers.magic.runtime;
 
-import com.powers.fx.PowerFx;
 import com.powers.PowersSounds;
-import com.powers.magic.fx.MagicFxEvent;
-import com.powers.network.MagicFxPackets;
+import com.powers.fx.PowerFx;
 import com.powers.magic.InteractionContext;
 import com.powers.magic.InteractionOutcome;
 import com.powers.magic.MagicActionDefinition;
 import com.powers.magic.MagicActionId;
+import com.powers.magic.MagicSignature;
+import com.powers.magic.fx.MagicCastPresentation;
+import com.powers.magic.fx.MagicFxEvent;
+import com.powers.network.MagicFxPackets;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -48,19 +50,36 @@ public final class ServerMagicCasts {
 		return new PreparedMagicCast(context, adjustment);
 	}
 
-	/** Registers residue after, and only after, successful ability execution. */
+	/** Registers residue and emits the ceremony after successful ability execution. */
 	public static MagicPresenceId commit(PreparedMagicCast prepared, ServerPlayer player) {
 		MagicCastContext completed = prepared.context().rebased(
 				player.level().dimension().identifier().toString(),
 				PresenceAnchor.fixed(player.getX(), player.getY() + 1.0, player.getZ()),
 				player.level().getServer().getTickCount());
-		return MagicRuntime.global().commitCast(completed, prepared.adjustment());
+		MagicPresenceId presenceId = MagicRuntime.global().commitCast(completed, prepared.adjustment());
+		emitCast((ServerLevel) player.level(), completed, presenceId);
+		return presenceId;
 	}
 
 	/** Executes gameplay while its resolved multipliers are visible to the scaling service. */
 	public static <T> T execute(PreparedMagicCast prepared, Supplier<T> operation) {
 		if (!prepared.allowed()) throw new IllegalStateException("Blocked magic cannot execute");
 		return CastScalingContext.with(prepared.adjustment(), operation);
+	}
+
+	private static void emitCast(ServerLevel level, MagicCastContext cast, MagicPresenceId presenceId) {
+		MagicCastPresentation presentation = MagicCastPresentation.forAction(cast.definition());
+		MagicSignature signature = cast.definition().signature();
+		Vec3 origin = new Vec3(cast.anchor().x(), cast.anchor().y(), cast.anchor().z());
+		long eventId = Integer.toUnsignedLong(java.util.Objects.hash(cast.owner(),
+				cast.definition().id(), cast.gameTime(), presenceId.value()));
+		MagicFxPackets.broadcast(level, MagicFxEvent.cast(eventId, signature.motif(),
+				presentation.soundCue(), origin.x, origin.y, origin.z, signature.primaryColor(),
+				signature.secondaryColor(), signature.glyphSeed(), presentation.intensity()));
+		float volume = 0.45F + presentation.intensity() * 0.12F;
+		float pitch = 0.84F + presentation.intensity() * 0.035F
+				+ Math.floorMod(signature.glyphSeed(), 7) * 0.01F;
+		PowerFx.sound(level, origin, PowersSounds.forCue(presentation.soundCue()), volume, pitch);
 	}
 
 	private static void emitReaction(ServerLevel level, MagicReactionEvent event) {

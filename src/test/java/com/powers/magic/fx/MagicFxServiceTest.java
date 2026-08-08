@@ -1,5 +1,6 @@
 package com.powers.magic.fx;
 
+import com.powers.network.MagicFxPackets;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -48,5 +49,15 @@ class MagicFxServiceTest {
 	@Test
 	void unknownNetworkKindCannotMasqueradeAsAValidEffect() {
 		assertThrows(IllegalArgumentException.class, () -> MagicFxKind.fromNetworkId(99));
+	}
+
+	@Test
+	void payloadConversionPreservesCastChoreographyKind() {
+		MagicFxEvent event = MagicFxEvent.cast(17L, "light", "light_chorus",
+				1.0, 2.0, 3.0, 0xFFF2B0, 0xFFFFFF, 13, 4);
+
+		MagicFxPackets.MagicFxPayload payload = new MagicFxPackets.MagicFxPayload(event);
+
+		assertEquals(MagicFxKind.CAST, payload.kind());
 	}
 }
