@@ -3,6 +3,7 @@ package com.powers.power.abilities;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
 import com.powers.player.SkillSystem;
@@ -39,7 +40,7 @@ public class EnergyBeamAbility extends Ability {
 					&& entHit.getEntity() instanceof LivingEntity target) {
 				// shielded targets block the cast entirely, refunding the energy
 				if (AmethystDampening.isDampened(target)) return false;
-				target.hurtServer(level, player.damageSources().magic(), SkillSystem.damage(player, 10.0f));
+				target.hurtServer(level, PowerDamage.source(player), SkillSystem.damage(player, 10.0f));
 				// 3 seconds of burn
 				target.setRemainingFireTicks(60);
 			}

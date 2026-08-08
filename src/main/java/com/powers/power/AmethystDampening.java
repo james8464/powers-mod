@@ -3,29 +3,66 @@ package com.powers.power;
 import com.powers.PowersEffects;
 import com.powers.AmethystWardBlock;
 import com.powers.PowersBlocks;
+import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * The rules for amethyst's anti-power field: what counts as amethyst
  * (items, blocks, powered wards) and the poisoning effect and sting a
- * suppressed player gets
+ * suppressed player gets.
+ *
+ * <p>What counts comes from the {@code #powers:amethyst} block and item tags
+ * rather than a substring match on the registry id, so an unrelated mod's
+ * "amethyst_hoe" no longer silently switches everyone's powers off - and a
+ * server owner can retune the list from a datapack.
+ *
+ * <p>Powered wards are tracked in a per-dimension index maintained by
+ * {@link AmethystWardBlock} instead of being hunted for. Scanning a 20-block
+ * radius meant walking ~69,000 positions per player per second, which dwarfed
+ * everything else the mod did each tick.
  */
 public final class AmethystDampening {
 	// how close amethyst blocks need to be to suppress powers
 	private static final int RADIUS = 6;
 	// how far a powered ward extends its dampening field
 	private static final int WARD_RADIUS = 20;
+	private static final int WARD_RADIUS_SQ = WARD_RADIUS * WARD_RADIUS;
+
+	/** Blocks that shut powers down when a player stands near them. */
+	public static final TagKey<Block> AMETHYST_BLOCKS =
+			TagKey.create(Registries.BLOCK, PowersMod.id("amethyst"));
+	/** Items that shut powers down when a player carries them. */
+	public static final TagKey<Item> AMETHYST_ITEMS =
+			TagKey.create(Registries.ITEM, PowersMod.id("amethyst"));
+
+	// every currently powered ward, per dimension. kept up to date by the block
+	// itself, so the lookup below is a walk over a handful of positions rather
+	// than a brute-force sweep of the volume around each player
+	private static final Map<ResourceKey<Level>, Set<BlockPos>> POWERED_WARDS = new HashMap<>();
 
 	private AmethystDampening() {
 	}
@@ -38,20 +75,63 @@ public final class AmethystDampening {
 				|| findPoweredWard(level, player.blockPosition()).isPresent();
 		if (dampened) {
 			// 30 ticks is plenty because this effect gets refreshed on every update
-			player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+			player.addEffect(new MobEffectInstance(
 					PowersEffects.AMETHYST_POISONING, 30, 0, true, false, true));
-		} else {
+		} else if (player.hasEffect(PowersEffects.AMETHYST_POISONING)) {
 			player.removeEffect(PowersEffects.AMETHYST_POISONING);
 		}
 		return dampened;
 	}
 
-	/** finds a redstone-powered ward within range, if any */
-	public static java.util.Optional<BlockPos> findPoweredWard(ServerLevel level, BlockPos center) {
-		return BlockPos.findClosestMatch(center, WARD_RADIUS, WARD_RADIUS,
-				pos -> level.hasChunkAt(pos)
-						&& level.getBlockState(pos).is(PowersBlocks.AMETHYST_WARD)
-						&& AmethystWardBlock.isPowered(level.getBlockState(pos)));
+	/** Records a ward that has just come under redstone power. */
+	public static void addPoweredWard(ServerLevel level, BlockPos pos) {
+		POWERED_WARDS.computeIfAbsent(level.dimension(), key -> new HashSet<>()).add(pos.immutable());
+	}
+
+	/** Forgets a ward that has lost power, been broken, or been pushed away. */
+	public static void removePoweredWard(ServerLevel level, BlockPos pos) {
+		Set<BlockPos> wards = POWERED_WARDS.get(level.dimension());
+		if (wards == null) {
+			return;
+		}
+		wards.remove(pos);
+		if (wards.isEmpty()) {
+			POWERED_WARDS.remove(level.dimension());
+		}
+	}
+
+	/** Drops the ward index on shutdown; it is rebuilt from block updates on load. */
+	public static void clearAll() {
+		POWERED_WARDS.clear();
+	}
+
+	/**
+	 * Finds a redstone-powered ward within range, if any. Entries are verified
+	 * against the world as they are read, so a ward removed while its chunk was
+	 * unloaded (worldedit, another mod, a datapack) drops out of the index on
+	 * first use instead of projecting a phantom field forever.
+	 */
+	public static Optional<BlockPos> findPoweredWard(ServerLevel level, BlockPos center) {
+		Set<BlockPos> wards = POWERED_WARDS.get(level.dimension());
+		if (wards == null || wards.isEmpty()) {
+			return Optional.empty();
+		}
+		BlockPos found = null;
+		var it = wards.iterator();
+		while (it.hasNext()) {
+			BlockPos pos = it.next();
+			if (level.hasChunkAt(pos)) {
+				BlockState state = level.getBlockState(pos);
+				if (!state.is(PowersBlocks.AMETHYST_WARD) || !AmethystWardBlock.isPowered(state)) {
+					it.remove();
+					continue;
+				}
+			}
+			if (found == null && center.distSqr(pos) <= WARD_RADIUS_SQ) {
+				found = pos;
+			}
+		}
+		return Optional.ofNullable(found);
 	}
 
 	/** whether the entity is currently under the amethyst poisoning effect */
@@ -66,7 +146,9 @@ public final class AmethystDampening {
 	public static void punish(ServerPlayer player) {
 		ServerLevel level = (ServerLevel) player.level();
 		Vec3 pos = player.position().add(0, 1, 0);
-		// don't deal damage to a player who's already down
+		// don't deal damage to a player who's already down. the source carries no
+		// attacker on purpose: this is the amethyst answering back, so the
+		// dampening shield must not cancel it
 		if (player.isAlive()) {
 			player.hurtServer(level, player.damageSources().magic(), 2.5f);
 		}
@@ -90,21 +172,23 @@ public final class AmethystDampening {
 		return false;
 	}
 
-	// matches anything whose item id contains "amethyst"
+	// membership of the #powers:amethyst item tag, so the set is data-driven
 	private static boolean isAmethystItem(ItemStack stack) {
-		return !stack.isEmpty() && BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().contains("amethyst");
+		return !stack.isEmpty() && stack.is(AMETHYST_ITEMS);
 	}
 
-	// brute-forces the 6-block cube around the player for any amethyst block
+	// sweeps the cube around the player for a tagged amethyst block. still a
+	// volume scan, but a 13-cube of tag checks rather than a 41-cube of string
+	// comparisons, and it bails the moment it finds one
 	private static boolean nearAmethyst(ServerLevel level, BlockPos center) {
-		for (int dx = -RADIUS; dx <= RADIUS; dx++) {
-			for (int dy = -RADIUS; dy <= RADIUS; dy++) {
+		BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+		for (int dy = -RADIUS; dy <= RADIUS; dy++) {
+			for (int dx = -RADIUS; dx <= RADIUS; dx++) {
 				for (int dz = -RADIUS; dz <= RADIUS; dz++) {
-					BlockPos pos = center.offset(dx, dy, dz);
+					cursor.set(center.getX() + dx, center.getY() + dy, center.getZ() + dz);
 					// skip unloaded chunks rather than forcing them to load
-					if (!level.hasChunkAt(pos)) continue;
-					String path = BuiltInRegistries.BLOCK.getKey(level.getBlockState(pos).getBlock()).getPath();
-					if (path.contains("amethyst")) return true;
+					if (!level.hasChunkAt(cursor)) continue;
+					if (level.getBlockState(cursor).is(AMETHYST_BLOCKS)) return true;
 				}
 			}
 		}

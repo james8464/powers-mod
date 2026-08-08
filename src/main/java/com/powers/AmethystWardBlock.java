@@ -1,7 +1,7 @@
 package com.powers;
 
+import com.powers.power.AmethystDampening;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -32,16 +32,12 @@ public class AmethystWardBlock extends Block {
 	protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block,
 			net.minecraft.world.level.redstone.Orientation orientation, boolean moving) {
 		updatePower(state, level, pos);
-		// only keep the particle loop running while the ward is powered
-		if (isPowered(level.getBlockState(pos))) level.scheduleTick(pos, this, 5);
 		super.neighborChanged(state, level, pos, block, orientation, moving);
 	}
 
 	@Override
 	protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
 		updatePower(state, level, pos);
-		// a freshly placed ward must start its particle loop too
-		if (isPowered(level.getBlockState(pos))) level.scheduleTick(pos, this, 5);
 		super.onPlace(state, level, pos, oldState, movedByPiston);
 	}
 
@@ -51,11 +47,41 @@ public class AmethystWardBlock extends Block {
 		if (state.getValue(BlockStateProperties.POWER) != power) {
 			level.setBlock(pos, state.setValue(BlockStateProperties.POWER, power), Block.UPDATE_CLIENTS);
 		}
+		// tell the dampening index either way, then keep the heartbeat running
+		// while the ward is live. the tick loop is what re-registers the ward
+		// after a server restart, since the in-memory index starts out empty and
+		// scheduled block ticks are saved with the chunk
+		syncDampeningIndex(level, pos);
+	}
+
+	private void syncDampeningIndex(Level level, BlockPos pos) {
+		if (!(level instanceof ServerLevel serverLevel)) {
+			return;
+		}
+		if (isPowered(serverLevel.getBlockState(pos))) {
+			AmethystDampening.addPoweredWard(serverLevel, pos);
+			serverLevel.scheduleTick(pos, this, 5);
+		} else {
+			AmethystDampening.removePoweredWard(serverLevel, pos);
+		}
+	}
+
+	@Override
+	protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean moving) {
+		// a broken or piston-pushed ward stops projecting immediately
+		AmethystDampening.removePoweredWard(level, pos);
+		super.affectNeighborsAfterRemoval(state, level, pos, moving);
 	}
 
 	@Override
 	protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-		if (!isPowered(state)) return;
+		if (!isPowered(state)) {
+			AmethystDampening.removePoweredWard(level, pos);
+			return;
+		}
+		// re-assert membership on every beat so the index heals itself after a
+		// reload without anyone having to nudge the redstone
+		AmethystDampening.addPoweredWard(level, pos);
 		// 0.08 radians per tick makes the ring spin slowly
 		double phase = level.getServer().getTickCount() * 0.08;
 		// four sparks, one per quarter turn, orbiting the block

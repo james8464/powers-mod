@@ -3,6 +3,7 @@ package com.powers.power.abilities;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -59,7 +60,7 @@ public class FrostNovaAbility extends Ability {
 				EntityTypeTest.forClass(LivingEntity.class), area,
 					e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e))) {
 			// 4 damage plus a heavy slow for 6 seconds
-			target.hurtServer(level, player.damageSources().mobAttack(player), 4.0f);
+			target.hurtServer(level, PowerDamage.source(player), 4.0f);
 			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 120, 2, false, false));
 		}
 		return true;

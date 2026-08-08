@@ -26,6 +26,8 @@ dependencies {
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	testImplementation "org.junit.jupiter:junit-jupiter:6.0.3"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher:6.0.3"
 }
 
 processResources {
@@ -35,6 +37,8 @@ processResources {
 	filesMatching("fabric.mod.json") {
 		expand "version": version
 	}
+
+	exclude "**/.DS_Store"
 }
 
 tasks.register("validatePowerResources") {
@@ -42,7 +46,10 @@ tasks.register("validatePowerResources") {
 	description = "Parses every project JSON resource before packaging."
 	doLast {
 		def parser = new groovy.json.JsonSlurper()
-		fileTree("src/main/resources").matching { include "**/*.json" }.files.each { resource ->
+		fileTree("src/main/resources").matching {
+			include "**/*.json"
+			include "**/*.mcmeta"
+		}.files.each { resource ->
 			parser.parse(resource)
 		}
 	}
@@ -54,6 +61,10 @@ tasks.named("check") {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 25
+}
+
+tasks.withType(Test).configureEach {
+	useJUnitPlatform()
 }
 
 java {

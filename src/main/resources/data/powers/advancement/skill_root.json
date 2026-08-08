@@ -16,8 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"tick": {
-			"trigger": "minecraft:tick"
+		"unlock": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

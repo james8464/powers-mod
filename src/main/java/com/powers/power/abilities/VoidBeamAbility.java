@@ -3,6 +3,7 @@ package com.powers.power.abilities;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
 import com.powers.player.SkillSystem;
@@ -45,7 +46,7 @@ public class VoidBeamAbility extends Ability {
 				net.minecraft.sounds.SoundEvents.BEACON_ACTIVATE, 0.8f, 1.3f);
 
 		// 6 magic damage (scaled), plus a level 2 wither that lasts 5 seconds (100 ticks)
-		target.hurtServer(level, player.damageSources().magic(), SkillSystem.damage(player, 6.0f));
+		target.hurtServer(level, PowerDamage.source(player), SkillSystem.damage(player, 6.0f));
 		target.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 1, true, false));
 		return true;
 	}

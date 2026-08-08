@@ -26,11 +26,13 @@ import com.powers.power.crystals.SoulLinkAbility;
 import com.powers.power.crystals.SizeShiftAbility;
 import com.powers.power.AmethystDampening;
 import com.powers.power.ActivationCooldowns;
+import com.powers.power.PowerDamage;
 import com.powers.player.SkillSystem;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.util.PowerMessages;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
@@ -40,13 +42,12 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
@@ -136,8 +137,6 @@ public class PowersMod implements ModInitializer {
 
 	private static final List<LightningStorm> STORMS = new ArrayList<>();
 	private static final List<DelayedTask> DELAYED = new ArrayList<>();
-	// the gamemode each player had before stepping into a realm dimension
-	private static final Map<UUID, GameType> PREVIOUS_GAMEMODE = new HashMap<>();
 	// whether each player was asleep last tick, so waking up can refund energy
 	private static final Map<UUID, Boolean> WAS_SLEEPING = new HashMap<>();
 
@@ -153,19 +152,38 @@ public class PowersMod implements ModInitializer {
 		CrystalPowerRegistry.initialize();
 		PowersPackets.initialize();
 		PowerCommand.register();
+		// chat carries the speaker's rank. the vanilla pipeline has no hook for
+		// rewriting the sender's name, so the message is vetoed and re-sent by
+		// hand - but it still goes out per recipient and to the console log,
+		// exactly like broadcastChatMessage would have done
 		ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, player, bound) -> {
+			MinecraftServer server = player.level().getServer();
+			if (server == null) {
+				return true;
+			}
 			Component chat = SkillSystem.prefix(player)
 					.copy().append(player.getName()).append(Component.literal(": "))
 					.append(message.decoratedContent());
-			((ServerLevel) player.level()).getServer().getPlayerList().broadcastSystemMessage(chat, false);
+			for (ServerPlayer recipient : server.getPlayerList().getPlayers()) {
+				recipient.sendSystemMessage(chat);
+			}
+			// keep the line in the server log and the console, which a bare
+			// per-player send would otherwise swallow
+			server.sendSystemMessage(chat);
 			return false;
 		});
 
-		// no damage lands in the realm dimensions; forcefields and amethyst
-		// dampening also stop attacks from connecting
+		// no damage lands in the realm dimensions; forcefields stop attacks
+		// outright, and amethyst dampening turns aside power damage only
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
 			if (ForcefieldAbility.protects(entity)) return false;
-			if (AmethystDampening.isDampened(entity) && source.getEntity() instanceof ServerPlayer) return false;
+			// amethyst is the enemy of powers, not of swords: a shard in the
+			// pocket must never mean blanket immunity in a fistfight
+			if (AmethystDampening.isDampened(entity) && PowerDamage.isPowerDamage(source)) return false;
+			// the realms are peaceful, but /kill and the void must still work
+			// or an admin can never clean up and a fall out of the world
+			// leaves the player stuck in an endless drop
+			if (source.is(DamageTypes.GENERIC_KILL) || source.is(DamageTypes.FELL_OUT_OF_WORLD)) return true;
 			String dim = entity.level().dimension().identifier().toString();
 			return !dim.equals("powers:dark_realm") && !dim.equals("powers:light_realm");
 		});
@@ -174,16 +192,31 @@ public class PowersMod implements ModInitializer {
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ServerPlayer player = handler.getPlayer();
 			PlayerPowers.get(player).assignRandom(player, false);
-			updateDarknessAdvancement(player);
-			updateSkillAdvancement(player);
+			SkillSystem.syncPathVisibility(player);
 			SkillSystem.refresh(player);
 			PowersPackets.syncTo(player);
+		});
+		// a respawned player is a brand new entity: the attachments come across
+		// with it, but the passive effects, name plate and client hud all have
+		// to be rebuilt straight away instead of waiting for the next refresh
+		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+			WAS_SLEEPING.remove(newPlayer.getUUID());
+			SkillSystem.clear(newPlayer.getUUID());
+			// dying inside a realm hands the player back to the overworld, so
+			// the pending restore would otherwise fire against the wrong mode
+			if (!alive) {
+				PlayerPowers.get(newPlayer).setPreviousGameMode(null);
+			}
+			refreshPassives(newPlayer);
+			SkillSystem.syncPathVisibility(newPlayer);
+			SkillSystem.refresh(newPlayer);
+			PowersPackets.syncTo(newPlayer);
 		});
 		// drop every ability's per-player state when someone leaves
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 			ServerPlayer player = handler.getPlayer();
-			PREVIOUS_GAMEMODE.remove(player.getUUID());
 			WAS_SLEEPING.remove(player.getUUID());
+			SkillSystem.clear(player.getUUID());
 			TeleportAbility.clearMarking(player);
 			FlightAbility.clear(player.getUUID());
 			TimeFreezeToggleAbility.clear(player.getUUID());
@@ -203,8 +236,9 @@ public class PowersMod implements ModInitializer {
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			STORMS.clear();
 			DELAYED.clear();
-			PREVIOUS_GAMEMODE.clear();
 			WAS_SLEEPING.clear();
+			SkillSystem.clearAll();
+			AmethystDampening.clearAll();
 			TeleportAbility.clearAllMarking();
 			TimeFreezeToggleAbility.clearAll();
 			DimensionalAnchorAbility.clearAll();
@@ -240,8 +274,7 @@ public class PowersMod implements ModInitializer {
 				boolean wasSleeping = WAS_SLEEPING.getOrDefault(player.getUUID(), false);
 				WAS_SLEEPING.put(player.getUUID(), sleeping);
 				if (tick % 20 == 0) {
-					updateDarknessAdvancement(player);
-					updateSkillAdvancement(player);
+					SkillSystem.syncPathVisibility(player);
 					SkillSystem.refresh(player);
 				}
 				if (wasSleeping && !sleeping) {
@@ -253,7 +286,10 @@ public class PowersMod implements ModInitializer {
 					int regen = 1;
 					if (SkillSystem.hasDarknessTag(player)) {
 						boolean inDarkRealm = SkillSystem.isDarkRealm(player.level().dimension());
-						long timeOfDay = player.level().getLevelData().getGameTime() % 24000L;
+						// day time, not game time: game time is the raw tick
+						// counter, so it ignores /time set and drifts away from
+						// the sky the players can actually see
+						long timeOfDay = Math.floorMod(player.level().getDefaultClockTime(), 24000L);
 						boolean night = timeOfDay >= 13000L || timeOfDay < 2300L;
 						regen = PowerEnergy.darknessRegen(inDarkRealm || night);
 					}
@@ -356,24 +392,33 @@ public class PowersMod implements ModInitializer {
 		}
 	}
 
-	// realm dimensions pin players to adventure so the scenery survives; the old gamemode comes back on exit
+	/**
+	 * Realm dimensions pin players to adventure so the scenery survives, and
+	 * the old game mode comes back on the way out. The snapshot lives on the
+	 * player as a persistent attachment rather than in a map: a player who logs
+	 * out inside a realm used to come back, get adventure recorded as their
+	 * "previous" mode, and stay stuck in it for good.
+	 */
 	private static void enforceRealmGamemode(ServerPlayer player) {
 		if (TeleportAbility.MARKING.containsKey(player.getUUID())
 				|| AstralProjectionAbility.isActive(player.getUUID())) return;
 		String dim = player.level().dimension().identifier().getPath();
 		boolean inRealm = dim.equals("dark_realm") || dim.equals("light_realm") || dim.equals("middleworld");
-		UUID id = player.getUUID();
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		GameType previous = data.previousGameMode();
 		if (inRealm) {
-			if (!PREVIOUS_GAMEMODE.containsKey(id)) {
-				PREVIOUS_GAMEMODE.put(id, player.gameMode());
+			// never snapshot adventure itself, or a relog inside the realm would
+			// overwrite the real mode with the one we forced on them
+			if (previous == null && player.gameMode() != GameType.ADVENTURE) {
+				data.setPreviousGameMode(player.gameMode());
 			}
 			if (player.gameMode() != GameType.ADVENTURE) {
 				player.setGameMode(GameType.ADVENTURE);
 			}
-		} else if (PREVIOUS_GAMEMODE.containsKey(id)) {
-			GameType prev = PREVIOUS_GAMEMODE.remove(id);
+		} else if (previous != null) {
+			data.setPreviousGameMode(null);
 			if (player.gameMode() == GameType.ADVENTURE) {
-				player.setGameMode(prev);
+				player.setGameMode(previous);
 			}
 		}
 	}
@@ -463,41 +508,6 @@ public class PowersMod implements ModInitializer {
 					(level.getRandom().nextDouble() - 0.5) * 0.8,
 					(level.getRandom().nextDouble() - 0.5) * 0.8);
 			com.powers.fx.PowerFx.coloredBurst(level, pos, rgb, 1, 0.02);
-		}
-	}
-
-	// keeps the darkness root advancement in step with the player's tag so the path shows in the UI
-	private static void updateDarknessAdvancement(ServerPlayer player) {
-		AdvancementHolder root = ((ServerLevel) player.level()).getServer().getAdvancements()
-				.get(PowersMod.id("darkness_root"));
-		if (root == null) return;
-		boolean hasDarknessTag = SkillSystem.hasDarknessTag(player);
-		if (hasDarknessTag) {
-			if (!player.getAdvancements().getOrStartProgress(root).isDone()) {
-				player.getAdvancements().award(root, "unlock");
-			}
-		} else {
-			if (player.getAdvancements().getOrStartProgress(root).isDone()) {
-				player.getAdvancements().revoke(root, "unlock");
-			}
-		}
-	}
-
-	// darkness users are locked out of the light ladder: the skill tab only
-	// shows for players without the tag, so the UI never offers a choice
-	private static void updateSkillAdvancement(ServerPlayer player) {
-		AdvancementHolder root = ((ServerLevel) player.level()).getServer().getAdvancements()
-				.get(PowersMod.id("skill_root"));
-		if (root == null) return;
-		boolean hasDarknessTag = SkillSystem.hasDarknessTag(player);
-		if (!hasDarknessTag) {
-			if (!player.getAdvancements().getOrStartProgress(root).isDone()) {
-				player.getAdvancements().award(root, "tick");
-			}
-		} else {
-			if (player.getAdvancements().getOrStartProgress(root).isDone()) {
-				player.getAdvancements().revoke(root, "tick");
-			}
 		}
 	}
 

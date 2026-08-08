@@ -5,6 +5,7 @@ import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
+import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -39,7 +40,7 @@ public class GroundSlamAbility extends Ability {
 
 		carveCrater(level, BlockPos.containing(player.getX(), player.getY() - 0.5, player.getZ()));
 
-		DamageSource source = player.damageSources().mobAttack(player);
+		DamageSource source = PowerDamage.source(player);
 		// shockwave hits everything in a 5-block radius around the player
 		AABB area = AABB.ofSize(player.position(), 10.0, 6.0, 10.0);
 		for (LivingEntity target : level.getEntities(
