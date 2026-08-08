@@ -161,6 +161,36 @@ public final class PowerFx {
 		}
 	}
 
+	/** Draws the cyan-and-gold third-eye signature of a True Sight veil piercing. */
+	public static void trueSightPiercing(ServerLevel level, Vec3 center) {
+		for (int point = 0; point < 24; point++) {
+			double angle = Math.PI * 2.0 * point / 24.0;
+			Vec3 eye = center.add(Math.cos(angle) * 1.35, 0.08, Math.sin(angle) * 0.52);
+			coloredBurst(level, eye, 0x8FE9FF, 1, 0.015);
+		}
+		rune(level, center.add(0.0, 0.12, 0.0), 0.36, 0xFFE08A, 12, Math.PI / 4.0);
+		beam(level, center.add(0.0, 0.25, 0.0), center.add(0.0, 5.5, 0.0),
+				ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF8FE9FF), 16);
+		burst(level, center, ParticleTypes.ENCHANT, 14, 0.45, 0.05);
+		sound(level, center, SoundEvents.AMETHYST_BLOCK_CHIME, 1.1F, 1.65F);
+		sound(level, center, SoundEvents.CONDUIT_AMBIENT, 0.7F, 1.35F);
+	}
+
+	/** Marks a low-energy Darkness affinity pulse awakening the Dark Resurgence variant. */
+	public static void darknessResurgence(ServerLevel level, Vec3 center) {
+		burst(level, center, ParticleTypes.SOUL_FIRE_FLAME, 12, 0.58, 0.075);
+		burst(level, center, PowersParticles.ECLIPSE, 10, 0.48, 0.045);
+		coloredBurst(level, center, 0xA456E8, 14, 0.62);
+		rune(level, center.add(0.0, -0.42, 0.0), 0.78, 0x2A0C3D, 16,
+				level.getGameTime() * 0.16);
+		spiral(level, center.add(0.0, -0.55, 0.0), 0.48, 1.65, 0x7C36C8, 14,
+				level.getGameTime() * 0.12);
+		if (level.getRandom().nextInt(4) == 0) {
+			sound(level, center, PowersSounds.DARK_WHISPER, 0.65F, 1.22F);
+			sound(level, center, SoundEvents.SOUL_ESCAPE.value(), 0.45F, 0.72F);
+		}
+	}
+
 	/** a cycling rainbow rgb color, for rainbow steve's effects */
 	public static int rainbow(int tick, int step) {
 		float hue = (float) ((tick * step) % 360) / 60.0f;

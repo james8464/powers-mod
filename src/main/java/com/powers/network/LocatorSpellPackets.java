@@ -7,6 +7,8 @@ import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.crystals.SpaceTimeAbility;
+import com.powers.progression.PowerScalingService;
+import com.powers.progression.RankVariantRules;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.GrimoireDefinition;
 import com.powers.spell.SpellCastingManager;
@@ -75,16 +77,21 @@ final class LocatorSpellPackets {
 			retaliate(player, level, castPosition, "grimoire.celestial.amethyst", 3);
 			return;
 		}
-		if (!mayPierceRealmVeil(player, target)) {
+		boolean ordinaryVeilAccess = hasOrdinaryRealmAccess(player, target);
+		boolean trueSight = PowerScalingService.hasVariant(player, "true_sight");
+		if (!RankVariantRules.mayPierceRealmVeil(ordinaryVeilAccess, trueSight)) {
 			String key = isLightRealm(target.level().dimension())
 					? "grimoire.celestial.light_gate" : "grimoire.celestial.dark_gate";
 			retaliate(player, level, castPosition, key, 3);
 			return;
 		}
+		boolean piercedWithTrueSight = !ordinaryVeilAccess && trueSight;
 
 		// The selection packet names only a target. Payment and the selected
 		// celestial spell are revalidated immediately before the ritual commits.
-		if (SpellCastingManager.commitSoulCompass(player)) cast(player, level, castPosition, target);
+		if (SpellCastingManager.commitSoulCompass(player)) {
+			cast(player, level, castPosition, target, piercedWithTrueSight);
+		}
 	}
 
 	private static boolean holdsCelestialGrimoire(ServerPlayer player) {
@@ -97,7 +104,7 @@ final class LocatorSpellPackets {
 		return definition != null && definition.key().equals("book_grimoire_celestial");
 	}
 
-	private static boolean mayPierceRealmVeil(ServerPlayer player, ServerPlayer target) {
+	private static boolean hasOrdinaryRealmAccess(ServerPlayer player, ServerPlayer target) {
 		ResourceKey<Level> targetDimension = target.level().dimension();
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		if (isLightRealm(targetDimension)) {
@@ -120,16 +127,18 @@ final class LocatorSpellPackets {
 		PowerMessages.send(player, messageKey, messageVariants);
 	}
 
-	private static void cast(ServerPlayer player, ServerLevel level, Vec3 position, ServerPlayer target) {
+	private static void cast(ServerPlayer player, ServerLevel level, Vec3 position, ServerPlayer target,
+			boolean trueSight) {
 		PowerFx.sound(level, position, SoundEvents.EVOKER_CAST_SPELL, 1.0f, 0.9f);
 		PowerFx.rune(level, position, 2.2, CELESTIAL_COLOR, 26, 0.0);
 		PowerFx.spiral(level, position.add(0, 0.1, 0), 0.7, 3.4, CELESTIAL_COLOR, 20, 0.0);
 		PowerFx.burst(level, position, ParticleTypes.END_ROD, 24, 0.6, 0.04);
+		if (trueSight) PowerFx.trueSightPiercing(level, position);
 
 		MinecraftServer server = level.getServer();
 		PowersMod.scheduleDelayed(server, 16, () -> swellRitual(player, level, position));
 		PowersMod.scheduleDelayed(server, 32, () -> openHeavens(player, level, position));
-		PowersMod.scheduleDelayed(server, 48, () -> revealTarget(player, level, position, target));
+		PowersMod.scheduleDelayed(server, 48, () -> revealTarget(player, level, position, target, trueSight));
 	}
 
 	private static void swellRitual(ServerPlayer player, ServerLevel level, Vec3 position) {
@@ -147,7 +156,8 @@ final class LocatorSpellPackets {
 		PowerFx.sound(level, position, SoundEvents.CONDUIT_ACTIVATE, 1.0f, 1.15f);
 	}
 
-	private static void revealTarget(ServerPlayer player, ServerLevel level, Vec3 position, ServerPlayer target) {
+	private static void revealTarget(ServerPlayer player, ServerLevel level, Vec3 position, ServerPlayer target,
+			boolean trueSight) {
 		if (player.isRemoved()) return;
 		PowerFx.rune(level, position, 3.0, GOLD_COLOR, 34, Math.PI);
 		PowerFx.coloredBurst(level, position.add(0, 1.2, 0), GOLD_COLOR, 40, 1.6);
@@ -158,10 +168,12 @@ final class LocatorSpellPackets {
 			ServerLevel targetLevel = (ServerLevel) target.level();
 			PowerFx.coloredBurst(targetLevel, target.position().add(0, 1, 0), 0xFFFFFFFF, 10, 0.6);
 			PowerFx.burst(targetLevel, target.position().add(0, 1, 0), ParticleTypes.END_ROD, 8, 0.4, 0.04);
+			if (trueSight) PowerFx.trueSightPiercing(targetLevel, target.position().add(0, 1, 0));
 		}
 
 		Vec3 targetPosition = target.position();
 		PowerMessages.send(player, "grimoire.celestial.reveal", 3, target.getName().getString());
+		if (trueSight) PowerMessages.send(player, "grimoire.celestial.true_sight", 3);
 		player.sendSystemMessage(Component.literal("Dimension: ")
 				.append(Component.literal(dimensionName(target.level().dimension()))
 						.withStyle(style -> style.withColor(GOLD_COLOR))));

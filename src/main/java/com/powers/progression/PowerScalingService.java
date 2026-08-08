@@ -103,6 +103,11 @@ public final class PowerScalingService {
 		return Math.max(1, scaledInt(baseAmount, 1.0 + profile(player).value(RankPerkType.ENERGY_REGEN)));
 	}
 
+	/** Returns whether the player's active maze profile unlocks a named mechanical variant. */
+	public static boolean hasVariant(ServerPlayer player, String variant) {
+		return variants(profile(player)).contains(variant);
+	}
+
 	private static double actionReduction(ServerPlayer player, String actionId, RankPerkType type) {
 		return INSTANCE.bonus(requireAction(actionId), profile(player), type);
 	}

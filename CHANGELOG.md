@@ -21,6 +21,7 @@
 - Corrected Elemental Blast so every phase uses its real canonical collision, residue, sound, and visual identity and malformed saved phases normalize safely.
 - Added an authoritative Elemental Blast HUD cycle with localized phase labels, phase-coloured slot accents, and a pulsing primed rune.
 - Made living-force annihilation advance in bounded radial shells so terrain removal matches the expanding eclipse corona from epicentre to boundary.
+- Activated True Sight and Dark Resurgence as consent-safe, amethyst-countered rank mechanics with distinct third-eye and eclipse-awakening ceremonies.
 - Audited every production Java source and all 149 non-item assets; removed three stale, unreferenced HUD strips.
 - Replaced vanilla loot-table overrides with additive loot injection and removed unreleased crystal recipes.
 - Optimized hot-path scans, state syncs, scheduled tasks, particles, freeze ownership, storms, and body proxies.
