@@ -3,10 +3,15 @@
 	"id": "powers",
 	"version": "${version}",
 	"name": "POWERS",
-	"description": "A Rainbow-Quest-style Steve powers framework with passive abilities, active powers, crystals, dimensions, keybinds and a HUD.",
+	"description": "A server-first ancient-magic mod with innate powers, branching titles, ritual grimoires, crystals and vulnerable mindscapes.",
 	"authors": [
 		"james"
 	],
+	"contact": {
+		"homepage": "https://github.com/james8464/powers-mod",
+		"sources": "https://github.com/james8464/powers-mod",
+		"issues": "https://github.com/james8464/powers-mod/issues"
+	},
 	"license": "MIT",
 	"icon": "assets/powers/icon.png",
 	"environment": "*",
