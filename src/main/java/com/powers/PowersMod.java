@@ -34,6 +34,7 @@ import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.util.PowerMessages;
 import com.powers.spell.SpellCastingManager;
 import com.powers.spell.SpellFieldManager;
+import com.powers.realm.RealmMindscapeManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -271,6 +272,7 @@ public class PowersMod implements ModInitializer {
 			SlowWorldAbility.clearAll();
 			SpellCastingManager.clearAll();
 			SpellFieldManager.clearAll();
+			RealmMindscapeManager.clearAll();
 		});
 
 		// passives get re-applied on a schedule so they never expire, toggles
@@ -339,6 +341,7 @@ public class PowersMod implements ModInitializer {
 			BodyProxyManager.tickAll();
 			SpellCastingManager.tick(server);
 			SpellFieldManager.tick(server);
+			RealmMindscapeManager.tick(server);
 			TeleportAbility.tickMarking();
 			tickStorms();
 			tickDelayed(tick);

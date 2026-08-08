@@ -93,6 +93,7 @@ public final class PlayerPowers {
 
 	private static final AttachmentType<List<String>> RANK_NODES = persistentStringList("rank_nodes");
 	private static final AttachmentType<List<String>> DARK_RANK_NODES = persistentStringList("dark_rank_nodes");
+	private static final AttachmentType<List<String>> REALM_MEMORIES = persistentStringList("realm_memories");
 	private static final AttachmentType<String> RANK_FOCUS = persistentString("rank_focus");
 	private static final AttachmentType<String> DARK_RANK_FOCUS = persistentString("dark_rank_focus");
 
@@ -182,6 +183,18 @@ public final class PlayerPowers {
 	}
 
 	public record PlayerPowersData(AttachmentTarget target) {
+		public boolean discoverRealmMemory(String memoryId) {
+			List<String> current = target.getAttachedOrElse(REALM_MEMORIES, List.of());
+			if (current.contains(memoryId)) return false;
+			List<String> updated = new ArrayList<>(current);
+			updated.add(memoryId);
+			target.setAttached(REALM_MEMORIES, updated);
+			return true;
+		}
+
+		public List<String> realmMemories() {
+			return List.copyOf(target.getAttachedOrElse(REALM_MEMORIES, List.of()));
+		}
 		public int selectedSpell(String grimoireKey, int spellCount) {
 			if (spellCount <= 0) return 0;
 			int selected = target.getAttachedOrElse(SPELL_SELECTIONS, Map.of()).getOrDefault(grimoireKey, 0);
