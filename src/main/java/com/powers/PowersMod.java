@@ -32,6 +32,8 @@ import com.powers.power.state.EntityFreezeController;
 import com.powers.player.SkillSystem;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.util.PowerMessages;
+import com.powers.spell.SpellCastingManager;
+import com.powers.spell.SpellFieldManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -192,8 +194,10 @@ public class PowersMod implements ModInitializer {
 			String dim = entity.level().dimension().identifier().toString();
 			return !dim.equals("powers:dark_realm") && !dim.equals("powers:light_realm");
 		});
-		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damageTaken, blocked) ->
-				BodyProxyManager.afterDamage(entity, source, damageTaken));
+		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damageTaken, blocked) -> {
+			BodyProxyManager.afterDamage(entity, source, damageTaken);
+			if (damageTaken > 0) SpellCastingManager.markDamaged(entity);
+		});
 		ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) ->
 				BodyProxyManager.allowsDeath(entity));
 
@@ -242,6 +246,7 @@ public class PowersMod implements ModInitializer {
 			SlowWorldAbility.clear(player.getUUID());
 			SpaceTimeAbility.clear(player.getUUID());
 			BodyProxyManager.returnToBody(player);
+			SpellCastingManager.clear(player);
 		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(BodyProxyManager::returnAll);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
@@ -264,6 +269,8 @@ public class PowersMod implements ModInitializer {
 			SoulLinkAbility.clearAll();
 			SizeShiftAbility.clearAll();
 			SlowWorldAbility.clearAll();
+			SpellCastingManager.clearAll();
+			SpellFieldManager.clearAll();
 		});
 
 		// passives get re-applied on a schedule so they never expire, toggles
@@ -330,6 +337,8 @@ public class PowersMod implements ModInitializer {
 			DreamwalkingAbility.tickAll(server);
 			CrystalPowerRegistry.tick(server);
 			BodyProxyManager.tickAll();
+			SpellCastingManager.tick(server);
+			SpellFieldManager.tick(server);
 			TeleportAbility.tickMarking();
 			tickStorms();
 			tickDelayed(tick);

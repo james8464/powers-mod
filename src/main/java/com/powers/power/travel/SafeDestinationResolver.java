@@ -4,6 +4,7 @@ import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -48,6 +49,10 @@ public final class SafeDestinationResolver {
 		}
 		if (kind != TravelKind.RETURN && kind != TravelKind.ADMIN && PowerProtection.isSafeZone(target, requested)) {
 			return new Result(DestinationFailure.SAFE_ZONE, requested);
+		}
+		if (kind != TravelKind.RETURN && kind != TravelKind.ADMIN
+				&& SpellFieldManager.blocksTravel(subject, target, requested)) {
+			return new Result(DestinationFailure.ANTI_PORTAL, requested);
 		}
 		BlockPos head = feet.above();
 		if (!target.getFluidState(feet).isEmpty() || !target.getFluidState(head).isEmpty()) {

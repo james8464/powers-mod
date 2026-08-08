@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Every power in the game, 28 total: an ability each, with passive
+ * Every randomly assigned innate power: an ability each, with passive
  * effects baked in. Drawing three random entries here is how a player
  * gets their powers, inspired by Rainbow Quest and classic superpower
  * mods like Superheroes Unlimited
@@ -196,13 +196,6 @@ public final class PowerRegistry {
 				0x6A1B9A,
 				List.of(),
 				new EnergyDrainAbility()));
-
-		register(new Power(PowersMod.id("dimensional_anchor"),
-				Component.translatable("power.powers.dimensional_anchor"),
-				Component.translatable("power.powers.dimensional_anchor.description"),
-				0xFF1744,
-				List.of(passive(MobEffects.STRENGTH, 0)),
-				new DimensionalAnchorAbility()));
 
 		register(new Power(PowersMod.id("ice_manipulation"),
 				Component.translatable("power.powers.ice_manipulation"),

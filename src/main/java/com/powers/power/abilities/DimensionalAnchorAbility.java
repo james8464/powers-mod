@@ -58,6 +58,11 @@ public class DimensionalAnchorAbility extends Ability {
 			return false;
 		}
 
+		return apply(player, targetSP);
+	}
+
+	/** Shared by the Deep Grimoire; the former random power now delegates here. */
+	public static boolean apply(ServerPlayer player, ServerPlayer targetSP) {
 		if (AmethystDampening.isDampened(targetSP)) {
 			PowerMessages.send(player, "amethyst.powers.target_protected", 4);
 			return false;
