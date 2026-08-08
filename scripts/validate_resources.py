@@ -153,6 +153,16 @@ def validate(root: Path) -> list[str]:
 
     if "item.powers.crystal_frostcythe" in lang:
         errors.append("stale typo translation item.powers.crystal_frostcythe")
+    for stale_key in (
+        "power.powers.feral_roar",
+        "power.powers.feral_roar.description",
+        "power.powers.dimensional_anchor",
+        "power.powers.dimensional_anchor.description",
+    ):
+        if stale_key in lang:
+            errors.append(f"stale translation {stale_key}")
+    if any(key.startswith("grimoire.celestial.low_xp.") for key in lang):
+        errors.append("stale XP-priced celestial grimoire messages")
     return errors
 
 
