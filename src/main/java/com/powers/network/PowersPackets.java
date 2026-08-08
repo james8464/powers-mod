@@ -132,47 +132,6 @@ public final class PowersPackets {
 			},
 			buf -> new UUID(buf.readLong(), buf.readLong()));
 
-	public record PowerStatePayload(List<String> powerIds, List<String> activeToggles,
-			List<Integer> cooldownTicks, List<Integer> cooldownMaximums,
-			int energy, int energyCapacity, boolean canSeeDarkRealm, boolean darkness,
-			boolean projection, List<String> rankNodes, String rankFocus,
-			int rankDepth) implements CustomPacketPayload {
-		public static final CustomPacketPayload.Type<PowerStatePayload> TYPE =
-				new CustomPacketPayload.Type<>(PowersMod.id("power_state"));
-		public static final StreamCodec<RegistryFriendlyByteBuf, PowerStatePayload> STREAM_CODEC =
-				StreamCodec.composite(
-						ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.STRING_UTF8),
-						PowerStatePayload::powerIds,
-						ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.STRING_UTF8),
-						PowerStatePayload::activeToggles,
-						ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT),
-						PowerStatePayload::cooldownTicks,
-						ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT),
-						PowerStatePayload::cooldownMaximums,
-						ByteBufCodecs.VAR_INT,
-						PowerStatePayload::energy,
-						ByteBufCodecs.VAR_INT,
-						PowerStatePayload::energyCapacity,
-						ByteBufCodecs.BOOL,
-						PowerStatePayload::canSeeDarkRealm,
-						ByteBufCodecs.BOOL,
-						PowerStatePayload::darkness,
-						ByteBufCodecs.BOOL,
-						PowerStatePayload::projection,
-						ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.STRING_UTF8),
-						PowerStatePayload::rankNodes,
-						ByteBufCodecs.STRING_UTF8,
-						PowerStatePayload::rankFocus,
-						ByteBufCodecs.VAR_INT,
-						PowerStatePayload::rankDepth,
-						PowerStatePayload::new);
-
-		@Override
-		public Type<? extends CustomPacketPayload> type() {
-			return TYPE;
-		}
-	}
-
 	public static void initialize() {
 		PayloadTypeRegistry.serverboundPlay().register(ActivateAbilityPayload.TYPE, ActivateAbilityPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(TeleportRequestPayload.TYPE, TeleportRequestPayload.STREAM_CODEC);
@@ -394,6 +353,7 @@ public final class PowersPackets {
 				SkillSystem.canEnterDarkRealm(player),
 				darkness,
 				data.mindBody() != null,
+				data.getPhase(),
 				rankProgress.completed().stream().sorted().toList(),
 				rankProgress.focus(),
 				darkness ? data.darknessLevel() : data.skillLevel());

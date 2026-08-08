@@ -8,6 +8,7 @@ import com.powers.client.screen.RankMazeScreen;
 import com.powers.client.fx.ClientMagicFx;
 import com.powers.client.fx.particle.ArcaneParticle;
 import com.powers.PowersParticles;
+import com.powers.network.PowerStatePayload;
 import com.powers.network.PowersPackets;
 import com.powers.network.MagicFxPackets;
 import com.powers.power.Ability;
@@ -46,7 +47,7 @@ public class PowersClient implements ClientModInitializer {
 		rankMazeKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 				"key.powers.rank_maze", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, CATEGORY));
 
-		ClientPlayNetworking.registerGlobalReceiver(PowersPackets.PowerStatePayload.TYPE,
+		ClientPlayNetworking.registerGlobalReceiver(PowerStatePayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientPowerState.update(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.MagicFxPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientMagicFx.handle(payload)));

@@ -1,6 +1,6 @@
 package com.powers.client;
 
-import com.powers.network.PowersPackets;
+import com.powers.network.PowerStatePayload;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
 
@@ -17,6 +17,7 @@ public final class ClientPowerState {
 	private static boolean canSeeDarkRealm;
 	private static boolean darkness;
 	private static boolean projection;
+	private static int elementalPhase;
 	private static List<String> rankNodes = List.of();
 	private static String rankFocus = "";
 	private static int rankDepth;
@@ -26,7 +27,7 @@ public final class ClientPowerState {
 	private ClientPowerState() {
 	}
 
-	public static void update(PowersPackets.PowerStatePayload payload) {
+	public static void update(PowerStatePayload payload) {
 		powerIds = payload.powerIds();
 		activeToggles = payload.activeToggles();
 		cooldownTicks = payload.cooldownTicks();
@@ -36,6 +37,7 @@ public final class ClientPowerState {
 		canSeeDarkRealm = payload.canSeeDarkRealm();
 		darkness = payload.darkness();
 		projection = payload.projection();
+		elementalPhase = payload.elementalPhase();
 		rankNodes = List.copyOf(payload.rankNodes());
 		rankFocus = payload.rankFocus();
 		rankDepth = payload.rankDepth();
@@ -52,6 +54,7 @@ public final class ClientPowerState {
 		canSeeDarkRealm = false;
 		darkness = false;
 		projection = false;
+		elementalPhase = 0;
 		rankNodes = List.of();
 		rankFocus = "";
 		rankDepth = 0;
@@ -95,6 +98,11 @@ public final class ClientPowerState {
 
 	public static boolean projection() {
 		return projection;
+	}
+
+	/** Returns the server-authoritative Elemental Blast phase. */
+	public static int elementalPhase() {
+		return elementalPhase;
 	}
 
 	public static int energy() {

@@ -19,6 +19,7 @@
 - Spatially staged cast rituals at the caster's feet and billboarded vertical sigils per observer without adding packets or particles.
 - Made cast presence visibly intensify at rank depths 4 and 8 and through the Ancient Mastery title while retaining hard FX bounds.
 - Corrected Elemental Blast so every phase uses its real canonical collision, residue, sound, and visual identity and malformed saved phases normalize safely.
+- Added an authoritative Elemental Blast HUD cycle with localized phase labels, phase-coloured slot accents, and a pulsing primed rune.
 - Audited every production Java source and all 149 non-item assets; removed three stale, unreferenced HUD strips.
 - Replaced vanilla loot-table overrides with additive loot injection and removed unreleased crystal recipes.
 - Optimized hot-path scans, state syncs, scheduled tasks, particles, freeze ownership, storms, and body proxies.

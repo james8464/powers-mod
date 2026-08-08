@@ -4,12 +4,15 @@ import com.powers.PowersMod;
 import com.powers.hud.HudMath;
 import com.powers.hud.HudLayout;
 import com.powers.power.Power;
+import com.powers.power.abilities.ElementalPhase;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
+
+import java.util.Locale;
 
 /** Renders three compact rune medallions with readable cooldown rings. */
 public final class PowerHudRenderer {
@@ -36,13 +39,17 @@ public final class PowerHudRenderer {
 	private static void drawSlot(GuiGraphicsExtractor graphics, Font font, int slot,
 			int centerX, int centerY, int tick) {
 		Power power = ClientPowerState.getPower(slot);
-		int color = power == null ? 0xFF626874 : 0xFF000000 | power.color();
+		ElementalPhase elemental = power != null && power.id().getPath().equals("elemental_blast")
+				? ElementalPhase.fromIndex(ClientPowerState.elementalPhase()) : null;
+		int color = power == null ? 0xFF626874
+				: 0xFF000000 | (elemental == null ? power.color() : elemental.color());
 		boolean activeToggle = power != null && power.ability() != null && power.ability().isToggle()
 				&& ClientPowerState.isToggleActive(power.id().toString());
 		Identifier texture = activeToggle && (tick / 5) % 2 == 0 ? ACTIVE_SLOT : SLOT;
 		graphics.blit(RenderPipelines.GUI_TEXTURED, texture, centerX - SIZE / 2, centerY - SIZE / 2,
 				0, 0, SIZE, SIZE, SIZE, SIZE);
 		drawDiamond(graphics, centerX, centerY, 5, activeToggle ? 0xFFF5FDFF : color);
+		if (elemental != null) drawElementalCycle(graphics, centerX, centerY - 10, elemental, tick);
 
 		int remaining = ClientPowerState.cooldownTicks(slot);
 		int maximum = Math.max(1, ClientPowerState.cooldownMaximum(slot));
@@ -58,13 +65,29 @@ public final class PowerHudRenderer {
 		String key = keyLabel(slot);
 		graphics.text(font, key, centerX - font.width(key) / 2, centerY - 4, 0xFFFFFFFF, true);
 		if (power != null) {
-			String label = trim(font, power.name().getString(), 86);
+			String name = power.name().getString();
+			if (elemental != null) {
+				String phase = net.minecraft.network.chat.Component.translatable(
+						"hud.powers.element." + elemental.name().toLowerCase(Locale.ROOT)).getString();
+				name += " · " + phase;
+			}
+			String label = trim(font, name, 86);
 			graphics.text(font, label, centerX - 22 - font.width(label), centerY - 4, color, true);
 		}
 		if (remaining > 0) {
 			String seconds = String.valueOf((remaining + 19) / 20);
 			graphics.text(font, seconds, centerX - font.width(seconds) / 2,
 					centerY + 6, 0xFFE7EBF2, true);
+		}
+	}
+
+	private static void drawElementalCycle(GuiGraphicsExtractor graphics, int centerX, int centerY,
+			ElementalPhase current, int tick) {
+		for (int index = 0; index < ElementalPhase.values().length; index++) {
+			int x = centerX - 9 + index * 6;
+			int radius = index == current.index() ? 2 : 1;
+			drawDiamond(graphics, x, centerY, radius,
+					HudMath.elementalRuneColor(current.index(), index, tick));
 		}
 	}
 
