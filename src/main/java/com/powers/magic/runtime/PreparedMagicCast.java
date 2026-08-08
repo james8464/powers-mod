@@ -10,17 +10,22 @@ import java.util.Objects;
  * reports success.
  *
  * @param context authoritative cast facts
- * @param adjustment resolved collision adjustments
+ * @param preview side-effect-free collision adjustments and pending reactions
  */
-public record PreparedMagicCast(MagicCastContext context, CastAdjustment adjustment) {
+public record PreparedMagicCast(MagicCastContext context, MagicCastPreview preview) {
 	/** Validates the immutable transaction handle. */
 	public PreparedMagicCast {
 		Objects.requireNonNull(context, "context");
-		Objects.requireNonNull(adjustment, "adjustment");
+		Objects.requireNonNull(preview, "preview");
 	}
 
 	/** Returns whether payment and execution may proceed. */
 	public boolean allowed() {
-		return adjustment.allowed();
+		return preview.allowed();
+	}
+
+	/** Returns the resolved multipliers used during successful gameplay execution. */
+	public CastAdjustment adjustment() {
+		return preview.adjustment();
 	}
 }

@@ -1,11 +1,15 @@
 package com.powers.power.abilities;
 
 import com.powers.PowersMod;
+import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.state.PowerEntityState;
 import com.powers.protection.PowerProtection;
+import com.powers.util.PowerMessages;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,24 +39,25 @@ public class TelekinesisAbility extends Ability {
 		AABB area = AABB.ofSize(player.position(), range * 2, range * 1.5, range * 2);
 		// an 8-block reach in all directions, 12 tall, centered on the player
 		Vec3 center = player.position();
+		int moved = 0;
 		for (LivingEntity target : level.getEntities(
 				EntityTypeTest.forClass(LivingEntity.class), area,
 				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
 						&& PowerProtection.mayForceMove(player, e))) {
-			Vec3 toward = center.subtract(target.position());
-			double horizontal = toward.horizontalDistance();
-			// right on top of the player the fling direction is undefined, skip them
-			if (horizontal < 0.01) {
-				continue;
-			}
-			// launch the target up and away: 2.2 blocks/s outward, 0.7 upward
-			Vec3 fling = toward.multiply(1, 0, 1).normalize().scale(2.2 * force).add(0, 0.7 * force, 0);
+			Vec3 fling = TelekinesisRules.outwardFling(
+					center, target.position(), 2.2 * force, 0.7 * force);
+			// Right on top of the player the radial direction is undefined, so the
+			// target remains available for a later cast after either entity moves.
+			if (fling.lengthSqr() == 0.0) continue;
 			target.setDeltaMovement(target.getDeltaMovement().add(fling));
 			// flag the velocity change so the client replays it and the throw looks instant
 			target.hurtMarked = true;
-			com.powers.fx.PowerFx.beam(level, center.add(0, 1.2, 0), target.position().add(0, 1, 0),
-					net.minecraft.core.particles.ParticleTypes.ENCHANT, 8);
-			com.powers.fx.PowerFx.coloredBurst(level, target.position().add(0, 1, 0), 0x9C27B0, 6, 0.4);
+			moved++;
+			Vec3 targetCenter = target.position().add(0, target.getBbHeight() * 0.5, 0);
+			PowerFx.beam(level, center.add(0, 1.2, 0), targetCenter,
+					ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFFC27CFF), 8);
+			PowerFx.rune(level, targetCenter, 0.42, 0x9C27B0, 10, moved * 0.7);
+			PowerFx.burst(level, targetCenter, ParticleTypes.ENCHANT, 5, 0.32, 0.035);
 		}
 		int intercepted = 0;
 		for (Projectile projectile : level.getEntities(EntityTypeTest.forClass(Projectile.class), area,
@@ -63,11 +68,25 @@ public class TelekinesisAbility extends Ability {
 			projectile.setOwner(player);
 			projectile.setDeltaMovement(player.getLookAngle().normalize().scale(1.8 * force));
 			projectile.hurtMarked = true;
-			com.powers.fx.PowerFx.rune(level, projectile.position(), 0.45, 0xC27CFF, 10, intercepted);
+			PowerFx.beam(level, center.add(0, 1.2, 0), projectile.position(),
+					ParticleTypes.ELECTRIC_SPARK, 6);
+			PowerFx.rune(level, projectile.position(), 0.45, 0xC27CFF, 10, intercepted);
+			PowerFx.burst(level, projectile.position(), ParticleTypes.WITCH, 4, 0.2, 0.04);
 		}
-		com.powers.fx.PowerFx.coloredBurst(level, center.add(0, 1.2, 0), 0x9C27B0, 20, 0.8);
-		com.powers.fx.PowerFx.rune(level, center, range * 0.45, 0xC27CFF, 24, player.tickCount * 0.08);
-		com.powers.fx.PowerFx.sound(level, center, net.minecraft.sounds.SoundEvents.EVOKER_CAST_SPELL, 1.0f, 0.9f);
+		if (!TelekinesisRules.resolved(moved, intercepted)) {
+			PowerFx.cancelled(level, center.add(0, 1.0, 0), 0xC27CFF);
+			PowerFx.rune(level, center.add(0, 0.08, 0), 0.55, 0x6E3A8A, 10, Math.PI);
+			PowerMessages.send(player, "ability.powers.telekinesis.empty", 3);
+			return false;
+		}
+		int impactParticles = Math.min(32, 14 + moved * 2 + intercepted);
+		PowerFx.coloredBurst(level, center.add(0, 1.2, 0), 0x9C27B0, impactParticles, 0.8);
+		PowerFx.burst(level, center.add(0, 1.0, 0), ParticleTypes.REVERSE_PORTAL, 10, 0.65, 0.05);
+		PowerFx.rune(level, center, range * 0.45, 0xC27CFF, 24, player.tickCount * 0.08);
+		PowerFx.ring(level, center.add(0, 0.12, 0), range * 0.30, 0x8FE9FF, 20,
+				-player.tickCount * 0.11);
+		float pitch = 0.84F + Math.min(0.22F, (moved + intercepted) * 0.015F);
+		PowerFx.sound(level, center, net.minecraft.sounds.SoundEvents.EVOKER_CAST_SPELL, 1.0F, pitch);
 		return true;
 	}
 }

@@ -38,7 +38,9 @@ class MagicRuntimeTest {
 				"dimensional_anchor", 0, 64, 0, 12, 200));
 		MagicCastContext travel = cast("time_shift", CASTER, 0, 64, 0, 40, 100);
 
-		CastAdjustment adjustment = runtime.beforeCast(travel, cues::add);
+		MagicCastPreview preview = runtime.previewCast(travel);
+		CastAdjustment adjustment = preview.adjustment();
+		runtime.emitReactions(preview, cues::add);
 
 		assertFalse(adjustment.allowed());
 		assertEquals(InteractionOutcome.CANCEL, adjustment.resolutions().getFirst().outcome());
@@ -49,7 +51,7 @@ class MagicRuntimeTest {
 	@Test
 	void successfulCommitRegistersAdjustedResidueOnlyAfterExecution() {
 		MagicCastContext fire = cast("fireball", CASTER, 0, 64, 0, 32, 100);
-		CastAdjustment adjustment = runtime.beforeCast(fire, cues::add);
+		CastAdjustment adjustment = runtime.previewCast(fire).adjustment();
 
 		assertTrue(adjustment.allowed());
 		assertEquals(0, index.size());
@@ -63,7 +65,7 @@ class MagicRuntimeTest {
 	@Test
 	void delayedExecutionRebasesResidueAtTheActualCompletionPlaceAndTick() {
 		MagicCastContext started = cast("controlled_hellfire", CASTER, 0, 64, 0, 32, 100);
-		CastAdjustment adjustment = runtime.beforeCast(started, cues::add);
+		CastAdjustment adjustment = runtime.previewCast(started).adjustment();
 		MagicCastContext completed = started.rebased("overworld", PresenceAnchor.fixed(24, 70, 24), 220);
 
 		runtime.commitCast(completed, adjustment);
@@ -80,11 +82,42 @@ class MagicRuntimeTest {
 				"frost_nova", 1, 64, 1, 12, 200));
 		MagicCastContext fire = cast("fireball", CASTER, 0, 64, 0, 32, 100);
 
-		runtime.beforeCast(fire, cues::add);
-		runtime.beforeCast(fire, cues::add);
+		runtime.emitReactions(runtime.previewCast(fire), cues::add);
+		runtime.emitReactions(runtime.previewCast(fire), cues::add);
 
 		assertEquals(1, cues.size());
 		assertEquals("steam", cues.getFirst().resolution().cue().motif());
+	}
+
+	@Test
+	void allowedPreviewHasNoReactionSideEffectsUntilSuccessfulCommitPathEmitsIt() {
+		index.register(presence("00000000-0000-0000-0000-000000000004", OTHER,
+				"frost_nova", 1, 64, 1, 12, 200));
+		MagicCastContext fire = cast("fireball", CASTER, 0, 64, 0, 32, 100);
+
+		MagicCastPreview preview = runtime.previewCast(fire);
+
+		assertTrue(preview.allowed());
+		assertTrue(cues.isEmpty());
+		assertEquals(0, runtime.pendingCueKeys());
+		runtime.emitReactions(preview, cues::add);
+		assertEquals(1, cues.size());
+		assertEquals(1, runtime.pendingCueKeys());
+	}
+
+	@Test
+	void rejectedPreviewEmitsOnlyTheReactionThatActuallyBlockedTheCast() {
+		index.register(presence("00000000-0000-0000-0000-000000000005", OTHER,
+				"dimensional_anchor", 0, 64, 0, 12, 200));
+		index.register(presence("00000000-0000-0000-0000-000000000006", OTHER,
+				"frost_nova", 1, 64, 1, 12, 200));
+		MagicCastPreview preview = runtime.previewCast(cast("time_shift", CASTER, 0, 64, 0, 40, 100));
+
+		runtime.emitBlockingReactions(preview, cues::add);
+
+		assertFalse(preview.allowed());
+		assertEquals(1, cues.size());
+		assertTrue(cues.getFirst().resolution().blocksFirst());
 	}
 
 	@Test
