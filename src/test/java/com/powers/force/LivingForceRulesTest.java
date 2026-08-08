@@ -43,4 +43,14 @@ class LivingForceRulesTest {
 		assertFalse(LivingForceRules.insideSphere(5, 1, 0, 5));
 		assertFalse(LivingForceRules.insideSphere(4, 4, 4, 5));
 	}
+
+	@Test
+	void spreadingReplacesOnlyBreakableSolidNonContainerTerrain() {
+		assertTrue(LivingForceRules.mayReplace(false, false, false, false, 1.0f));
+		assertFalse(LivingForceRules.mayReplace(true, false, false, false, 1.0f));
+		assertFalse(LivingForceRules.mayReplace(false, true, false, false, 1.0f));
+		assertFalse(LivingForceRules.mayReplace(false, false, true, false, 1.0f));
+		assertFalse(LivingForceRules.mayReplace(false, false, false, true, 1.0f));
+		assertFalse(LivingForceRules.mayReplace(false, false, false, false, -1.0f));
+	}
 }

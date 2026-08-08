@@ -1,6 +1,7 @@
 package com.powers;
 
-import com.powers.PowersMod;
+import com.powers.force.LivingForceBlock;
+import com.powers.force.LivingForceKind;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -27,21 +28,25 @@ public final class PowersBlocks {
 
 	public static final ResourceKey<Block> DARKNESS_KEY = key("darkness");
 	// utterly black, unbreakable block of the dark realm
-	public static final Block DARKNESS = register(DARKNESS_KEY, BlockBehaviour.Properties.of()
+	public static final Block DARKNESS = register(DARKNESS_KEY,
+			properties -> new LivingForceBlock(LivingForceKind.DARKNESS, properties), BlockBehaviour.Properties.of()
 			.mapColor(MapColor.COLOR_BLACK)
 			.instrument(NoteBlockInstrument.BASEDRUM)
 			.strength(-1.0F, 3600000.0F)
 			.noLootTable()
-			.sound(SoundType.STONE));
+			.sound(SoundType.STONE)
+			.randomTicks());
 
 	public static final ResourceKey<Block> PURE_LIGHT_KEY = key("pure_light");
 	// unbreakable block of the light realm that shines at full brightness
-	public static final Block PURE_LIGHT = register(PURE_LIGHT_KEY, BlockBehaviour.Properties.of()
+	public static final Block PURE_LIGHT = register(PURE_LIGHT_KEY,
+			properties -> new LivingForceBlock(LivingForceKind.PURE_LIGHT, properties), BlockBehaviour.Properties.of()
 			.mapColor(MapColor.QUARTZ)
 			.instrument(NoteBlockInstrument.BASEDRUM)
 			.strength(-1.0F, 3600000.0F)
 			.noLootTable()
 			.sound(SoundType.STONE)
+			.randomTicks()
 			.lightLevel((state) -> 15));
 
 	public static final ResourceKey<Block> LIGHT_MEMORY_OBELISK_KEY = key("light_memory_obelisk");
