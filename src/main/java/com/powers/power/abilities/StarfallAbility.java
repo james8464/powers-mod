@@ -2,7 +2,7 @@ package com.powers.power.abilities;
 
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
-import com.powers.player.SkillSystem;
+import com.powers.progression.PowerScalingService;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
@@ -34,7 +34,7 @@ public class StarfallAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
-		double range = SkillSystem.range(player, 64.0);
+		double range = PowerScalingService.range(player, "starfall", 64.0);
 		HitResult hit = PowerTargeting.raycast(player, range);
 		Vec3 target = hit.getLocation();
 		if (hit.getType() == HitResult.Type.MISS) {
@@ -61,7 +61,8 @@ public class StarfallAbility extends Ability {
 			for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class,
 					AABB.ofSize(strike, 4.0, 5.0, 4.0), e -> e.isAlive() && e != player
 							&& !AmethystDampening.isDampened(e) && PowerProtection.mayHarm(player, e))) {
-				victim.hurtServer(level, PowerDamage.source(player), SkillSystem.damage(player, 6.0f));
+				victim.hurtServer(level, PowerDamage.source(player),
+						PowerScalingService.damage(player, "starfall", 6.0f));
 			}
 		}
 		return true;

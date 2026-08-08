@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.powers.network.PowersPackets;
 import com.powers.mind.MindBodyState;
 import com.powers.progression.RankProgress;
+import com.powers.progression.PowerScalingService;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
 import com.powers.power.PassiveEffect;
@@ -215,8 +216,9 @@ public final class PlayerPowers {
 		public int energyCapacity() {
 			if (target instanceof ServerPlayer player) {
 				int level = SkillSystem.effectiveLevel(player);
-				return usesDarknessEnergy() ? PowerEnergy.darknessMaxCapacity(level)
-					: PowerEnergy.maxCapacity(level);
+				int base = usesDarknessEnergy() ? PowerEnergy.darknessMaxCapacity(level)
+						: PowerEnergy.maxCapacity(level);
+				return PowerScalingService.energyCapacity(player, base);
 			}
 			return PowerEnergy.maxCapacity(0);
 		}
@@ -289,7 +291,7 @@ public final class PlayerPowers {
 		}
 
 		public boolean spendEnergy(ServerPlayer player, Ability ability) {
-			int cost = PowerEnergy.cost(ability);
+			int cost = PowerEnergy.cost(player, ability);
 			int current = energy();
 			if (current < cost) {
 				// too broke: tell the player and show a cancelled spark burst
@@ -318,7 +320,9 @@ public final class PlayerPowers {
 		}
 
 		public void refundEnergy(Ability ability) {
-			refundEnergy(PowerEnergy.cost(ability));
+			int amount = target instanceof ServerPlayer player
+					? PowerEnergy.cost(player, ability) : PowerEnergy.cost(ability);
+			refundEnergy(amount);
 		}
 
 		// the exhaustion effect blocks all natural regen

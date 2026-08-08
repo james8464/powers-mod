@@ -6,7 +6,7 @@ import com.powers.power.Ability;
 import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
-import com.powers.player.SkillSystem;
+import com.powers.progression.PowerScalingService;
 import com.powers.protection.PowerProtection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -38,7 +38,7 @@ public class IceManipulationAbility extends Ability {
 		ServerLevel level = (ServerLevel) player.level();
 		Vec3 origin = player.getEyePosition();
 		Vec3 look = player.getLookAngle().normalize();
-		double range = SkillSystem.range(player, 32.0);
+		double range = PowerScalingService.range(player, "ice_manipulation", 32.0);
 		Vec3 end = origin.add(look.scale(range));
 		HitResult hit = PowerTargeting.raycast(player, range);
 		if (hit.getType() != HitResult.Type.MISS) end = hit.getLocation();
@@ -48,7 +48,8 @@ public class IceManipulationAbility extends Ability {
 			// looking at a protected entity means the cast fails and energy is refunded
 			if (AmethystDampening.isDampened(target)) return false;
 			// 8 damage that scales with skill, a heavy slow, weakness and a deep freeze
-			target.hurtServer(level, PowerDamage.source(player), SkillSystem.damage(player, 8.0f));
+			target.hurtServer(level, PowerDamage.source(player),
+					PowerScalingService.damage(player, "ice_manipulation", 8.0f));
 			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 120, 4, false, false));
 			target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 100, 1, false, false));
 			target.setTicksFrozen(160);

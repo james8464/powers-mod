@@ -6,6 +6,8 @@ import com.powers.progression.RankGraph;
 import com.powers.progression.RankGraphRegistry;
 import com.powers.progression.RankNode;
 import com.powers.progression.RankProgress;
+import com.powers.progression.PowerScalingService;
+import com.powers.progression.RankAttributeManager;
 import com.powers.util.PowerMessages;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
@@ -151,16 +153,6 @@ public final class SkillSystem {
 		return node == null ? fallback : node.title();
 	}
 
-	public static float damage(ServerPlayer player, float base) {
-		// 5.25% more damage per rank, topping out at +52.5% on the last rank
-		return base * (1.0f + effectiveLevel(player) * 0.0525f);
-	}
-
-	public static double range(ServerPlayer player, double base) {
-		// 2.1% more range per rank, matching the old ladder's +21% cap
-		return base * (1.0 + effectiveLevel(player) * 0.021);
-	}
-
 	public static boolean hasDarknessTag(ServerPlayer player) {
 		return player.entityTags().contains(DARKNESS_TAG);
 	}
@@ -242,6 +234,7 @@ public final class SkillSystem {
 	}
 
 	private static void applyRank(ServerPlayer player) {
+		RankAttributeManager.reconcile(player, PowerScalingService.profile(player));
 		Component plate = prefix(player).copy().append(player.getName());
 		// setCustomName dirties the entity's tracked data and broadcasts a
 		// metadata packet to everyone watching, so only write it on a change
@@ -256,10 +249,12 @@ public final class SkillSystem {
 	/** Forgets a player's cached name plate when they disconnect. */
 	public static void clear(UUID player) {
 		APPLIED_PREFIX.remove(player);
+		RankAttributeManager.forget(player);
 	}
 
 	/** Drops every cached name plate on shutdown so nothing leaks across restarts. */
 	public static void clearAll() {
 		APPLIED_PREFIX.clear();
+		RankAttributeManager.clearAll();
 	}
 }

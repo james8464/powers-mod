@@ -1,6 +1,8 @@
 package com.powers.power;
 
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import com.powers.progression.PowerScalingService;
 
 /** the shared energy pool every power draws from, plus the costs */
 public final class PowerEnergy {
@@ -46,6 +48,11 @@ public final class PowerEnergy {
 		};
 	}
 
+	/** Applies the player's capped rank efficiency to an ability's base cost. */
+	public static int cost(ServerPlayer player, Ability ability) {
+		return PowerScalingService.energyCost(player, ability.id().getPath(), cost(ability));
+	}
+
 	/** per-tick drain while a toggle like flight stays on, zero for everything else */
 	public static int ongoingCost(Ability ability) {
 		return switch (ability.id().getPath()) {
@@ -53,5 +60,10 @@ public final class PowerEnergy {
 			case "time_freeze" -> 3;
 			default -> 0;
 		};
+	}
+
+	/** Applies rank efficiency to a toggle's recurring server-side drain. */
+	public static int ongoingCost(ServerPlayer player, Ability ability) {
+		return PowerScalingService.energyCost(player, ability.id().getPath(), ongoingCost(ability));
 	}
 }

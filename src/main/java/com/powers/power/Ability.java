@@ -1,6 +1,7 @@
 package com.powers.power;
 
 import com.powers.player.PlayerPowers;
+import com.powers.progression.PowerScalingService;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -87,6 +88,6 @@ public abstract class Ability {
 	 * defaulting to the fixed cooldown unless a stateful ability shortens it
 	 */
 	public int cooldownTicksFor(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		return this.cooldownTicks;
+		return PowerScalingService.cooldown(player, id.getPath(), cooldownTicks);
 	}
 }

@@ -27,10 +27,13 @@ public record RankProfile(Map<RankPerkType, Double> globalValues,
 
 	/** Returns the capped global plus exact action/aspect contribution. */
 	public double value(RankPerkType type, String actionOrAspect) {
-		double scoped = scopedValues.getOrDefault(
-				Objects.requireNonNullElse(actionOrAspect, "").toLowerCase(), Map.of())
+		return Math.min(type.cap(), value(type) + scopedValue(type, actionOrAspect));
+	}
+
+	/** Returns only the exact action/aspect contribution, excluding global perks. */
+	public double scopedValue(RankPerkType type, String actionOrAspect) {
+		return scopedValues.getOrDefault(Objects.requireNonNullElse(actionOrAspect, "").toLowerCase(), Map.of())
 				.getOrDefault(type, 0.0);
-		return Math.min(type.cap(), value(type) + scoped);
 	}
 
 	/** Weighted number of completed nodes in a branch; focused nodes count 1.5. */

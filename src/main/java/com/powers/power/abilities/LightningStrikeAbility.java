@@ -2,7 +2,7 @@ package com.powers.power.abilities;
 
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
-import com.powers.player.SkillSystem;
+import com.powers.progression.PowerScalingService;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
@@ -33,7 +33,7 @@ public class LightningStrikeAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		var level = (net.minecraft.server.level.ServerLevel) player.level();
-		double range = SkillSystem.range(player, 64.0);
+		double range = PowerScalingService.range(player, "lightning_strike", 64.0);
 		HitResult hit = PowerTargeting.raycast(player, range);
 		Vec3 target = hit.getLocation();
 		if (hit.getType() == HitResult.Type.MISS) {
@@ -58,7 +58,8 @@ public class LightningStrikeAbility extends Ability {
 		for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class,
 				AABB.ofSize(strikePoint, 5.0, 6.0, 5.0), e -> e.isAlive() && e != player
 						&& !AmethystDampening.isDampened(e) && PowerProtection.mayHarm(player, e))) {
-			victim.hurtServer(level, PowerDamage.source(player), SkillSystem.damage(player, 8.0f));
+			victim.hurtServer(level, PowerDamage.source(player),
+					PowerScalingService.damage(player, "lightning_strike", 8.0f));
 		}
 		return true;
 	}
