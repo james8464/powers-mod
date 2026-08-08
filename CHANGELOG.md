@@ -16,6 +16,7 @@
 - Expanded the canonical magic kernel to 65 actions and all 2,145 possible collisions by adding both living realm forces.
 - Added signature-driven four-beat ceremonies to every successful innate, crystal, and grimoire cast while preserving bespoke impact effects.
 - Gave all 18 magical aspects deliberate geometry families, physically scaled anticipation/impact radii, eight original particle sprites, and 13 original normalized sounds with reduced-motion clamps.
+- Spatially staged cast rituals at the caster's feet and billboarded vertical sigils per observer without adding packets or particles.
 - Audited every production Java source and all 149 non-item assets; removed three stale, unreferenced HUD strips.
 - Replaced vanilla loot-table overrides with additive loot injection and removed unreleased crystal recipes.
 - Optimized hot-path scans, state syncs, scheduled tasks, particles, freeze ownership, storms, and body proxies.

@@ -59,12 +59,16 @@ public final class ClientMagicFx {
 		int budget = FxGeometry.budget(distance, payload.intensity(), scale);
 		FxMotif requested = frame.motifOverride().orElseGet(() -> FxMotif.fromCue(payload.motif()));
 		FxMotif motif = FxGeometry.accessibleMotif(requested, reducedMotion);
+		var orientation = frame.orientation().resolve(motif);
+		Vec3 viewer = client.player.position();
+		double billboardAngle = Math.atan2(-(viewer.x - origin.x), viewer.z - origin.z);
 		var points = FxGeometry.points(motif, payload.glyphSeed(), payload.intensity(), budget);
 		SimpleParticleType sprite = particleFor(motif);
 		for (int index = 0; index < points.size(); index++) {
-			FxGeometry.Point point = FxGeometry.scale(points.get(index), frame.geometryScale());
+			FxGeometry.Point scaled = FxGeometry.scale(points.get(index), frame.geometryScale());
+			FxGeometry.Point point = FxGeometry.transform(scaled, orientation, billboardAngle);
 			double x = origin.x + point.x();
-			double y = origin.y + point.y();
+			double y = origin.y + frame.verticalOffset() + point.y();
 			double z = origin.z + point.z();
 			double velocity = frame.velocityScale();
 			client.level.addParticle(sprite, x, y, z, point.x() * 0.006 * velocity,
