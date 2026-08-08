@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.PowerTargeting;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -14,8 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.portal.TeleportTransition;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -50,10 +50,9 @@ public class LightCrystalAbility extends Ability {
 		ServerLevel level = (ServerLevel) caster.level();
 		Vec3 origin = caster.getEyePosition();
 		// the gaze reaches out 48 blocks to find who comes along
-		HitResult hit = caster.pick(48.0, 0.0f, false);
+		LivingEntity target = PowerTargeting.findLivingTarget(caster, 48.0);
 
-		if (hit instanceof EntityHitResult entHit) {
-			net.minecraft.world.entity.Entity target = entHit.getEntity();
+		if (target != null) {
 			if (target instanceof ServerPlayer targetPlayer && AmethystDampening.isDampened(targetPlayer)) {
 				// amethyst-dampened players are shielded and cannot be dragged
 				PowerMessages.send(caster, "amethyst.powers.target_protected", 4);
