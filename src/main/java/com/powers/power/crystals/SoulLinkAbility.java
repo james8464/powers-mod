@@ -6,6 +6,8 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
+import com.powers.power.SoulLinkMath;
+import com.powers.protection.PowerProtection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -60,7 +62,10 @@ public class SoulLinkAbility extends Ability {
 		List<Link> links = new ArrayList<>();
 		for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class,
 				AABB.ofSize(player.position().add(0, 1, 0), RADIUS * 2, RADIUS * 2, RADIUS * 2),
-				 e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e))) {
+				 e -> e.isAlive() && e != player && !player.isAlliedTo(e)
+						 && e.distanceToSqr(player) <= RADIUS * RADIUS
+						 && !AmethystDampening.isDampened(e)
+						 && !PowerProtection.isSafeZone(level, e.position()))) {
 			links.add(new Link(target, target.getHealth()));
 			PowerFx.coloredBurst(level, target.position().add(0, 1, 0), 0x9C27B0, 10, 0.5);
 			if (links.size() >= MAX_LINKS) {
@@ -96,11 +101,13 @@ public class SoulLinkAbility extends Ability {
 			for (Link link : active.links()) {
 				LivingEntity entity = link.entity();
 				// skip souls that died, despawned or left the caster's dimension
-				if (!entity.isAlive() || entity.isRemoved() || entity.level() != caster.level()) {
+				if (!entity.isAlive() || entity.isRemoved() || entity.level() != caster.level()
+						|| AmethystDampening.isDampened(entity)
+						|| PowerProtection.isSafeZone((ServerLevel) caster.level(), entity.position())) {
 					continue;
 				}
 				// track the biggest wound suffered this tick
-				float suffered = link.lastHealth() - entity.getHealth();
+				float suffered = SoulLinkMath.wound(link.lastHealth(), entity.getHealth());
 				if (suffered > damage) {
 					damage = suffered;
 					wounded = entity;
@@ -118,6 +125,16 @@ public class SoulLinkAbility extends Ability {
 						PowerFx.coloredBurst(level, entity.position().add(0, 1, 0), 0x9C27B0, 6, 0.4);
 					}
 				}
+				// Mirror damage happened after the first snapshot pass. Refresh every
+				// survivor now so mirrored wounds cannot be mistaken for new wounds
+				// and bounce around the link again on the next server tick.
+				List<Link> postMirror = new ArrayList<>();
+				for (Link link : updated) {
+					if (link.entity().isAlive() && !link.entity().isRemoved()) {
+						postMirror.add(new Link(link.entity(), link.entity().getHealth()));
+					}
+				}
+				updated = postMirror;
 			}
 
 			// the link ends when time runs out or no souls remain
