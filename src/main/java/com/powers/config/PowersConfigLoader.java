@@ -64,6 +64,7 @@ public final class PowersConfigLoader {
 				integer(object, "maxParticlesPerTick", defaults.maxParticlesPerTick()),
 				integer(object, "teleportMaxChunkDistance", defaults.teleportMaxChunkDistance()),
 				integer(object, "spaceTimeRadius", defaults.spaceTimeRadius()),
+				integer(object, "chronoStopRadius", defaults.chronoStopRadius()),
 				integer(object, "adminPermissionLevel", defaults.adminPermissionLevel()), zones).sanitized();
 	}
 
