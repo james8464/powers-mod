@@ -7,6 +7,7 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.config.PowersConfigLoader;
 import com.powers.util.PowerMessages;
+import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
@@ -141,7 +142,7 @@ public final class AmethystDampening {
 				if (expiry > level.getGameTime()) continue;
 				if (expiry != 0L) suppressed.remove(pos);
 			}
-			if (level.hasChunkAt(pos)) {
+			if (LoadedChunks.contains(level, pos)) {
 				BlockState state = level.getBlockState(pos);
 				if (!state.is(PowersBlocks.AMETHYST_WARD) || !AmethystWardBlock.isPowered(state)) {
 					it.remove();
@@ -208,7 +209,7 @@ public final class AmethystDampening {
 				for (int dz = -RADIUS; dz <= RADIUS; dz++) {
 					cursor.set(center.getX() + dx, center.getY() + dy, center.getZ() + dz);
 					// skip unloaded chunks rather than forcing them to load
-					if (!level.hasChunkAt(cursor)) continue;
+					if (!LoadedChunks.contains(level, cursor)) continue;
 					if (level.getBlockState(cursor).is(AMETHYST_BLOCKS)) return true;
 				}
 			}

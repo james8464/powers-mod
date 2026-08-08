@@ -53,6 +53,7 @@ tasks.named("check") {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 25
+	it.options.compilerArgs += ["-Xlint:deprecation", "-Xlint:unchecked", "-Werror"]
 }
 
 tasks.withType(Test).configureEach {

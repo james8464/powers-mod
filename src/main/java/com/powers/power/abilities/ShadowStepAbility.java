@@ -62,7 +62,8 @@ public class ShadowStepAbility extends Ability {
 		}
 		// walk down looking for a spot with open air and solid ground, up to 8 blocks deep
 		for (int i = 0; i < 8; i++) {
-			if (level.getBlockState(pos).isAir() && level.getBlockState(pos.below()).isSolid()) {
+			if (level.getBlockState(pos).isAir()
+					&& level.getBlockState(pos.below()).entityCanStandOn(level, pos.below(), player)) {
 				Vec3 destination = new Vec3(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
 				if (SafeDestinationResolver.validate(player, level, destination, TravelKind.POWER).allowed()) {
 					return pos;

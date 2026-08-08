@@ -4,13 +4,13 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.state.PowerEntityState;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -39,7 +39,7 @@ public class FireballAbility extends Ability {
 		Vec3 pos = null;
 		for (double distance = 1.5; distance <= 5.0; distance += 0.5) {
 			Vec3 candidate = eye.add(look.scale(distance));
-			if (!level.getBlockState(BlockPos.containing(candidate)).isSolid()) {
+			if (level.noBlockCollision(player, AABB.ofSize(candidate, 1.0, 1.0, 1.0))) {
 				pos = candidate;
 				break;
 			}

@@ -5,6 +5,7 @@ import com.powers.power.AmethystDampening;
 import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
+import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,7 +43,7 @@ public final class SafeDestinationResolver {
 		}
 
 		BlockPos feet = BlockPos.containing(requested);
-		if (!target.hasChunkAt(feet)) return new Result(DestinationFailure.UNLOADED_CHUNK, requested);
+		if (!LoadedChunks.contains(target, feet)) return new Result(DestinationFailure.UNLOADED_CHUNK, requested);
 		if (kind != TravelKind.RETURN && kind != TravelKind.ADMIN
 				&& AmethystDampening.findPoweredWard(target, feet).isPresent()) {
 			return new Result(DestinationFailure.WARD, requested);
