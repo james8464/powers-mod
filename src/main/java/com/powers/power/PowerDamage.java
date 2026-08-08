@@ -1,8 +1,12 @@
 package com.powers.power;
 
+import com.powers.PowersMod;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.damagesource.DamageType;
 
 /**
  * The damage every offensive ability deals, and the test that recognises it
@@ -15,6 +19,11 @@ import net.minecraft.world.damagesource.DamageTypes;
  * turned aside.
  */
 public final class PowerDamage {
+	public static final ResourceKey<DamageType> POWER_MAGIC = ResourceKey.create(
+			Registries.DAMAGE_TYPE, PowersMod.id("power_magic"));
+	public static final TagKey<DamageType> POWER_DAMAGE = TagKey.create(
+			Registries.DAMAGE_TYPE, PowersMod.id("power_damage"));
+
 	private PowerDamage() {
 	}
 
@@ -24,7 +33,9 @@ public final class PowerDamage {
 	 * advancements and death messages still credit them.
 	 */
 	public static DamageSource source(ServerPlayer caster) {
-		return caster.damageSources().indirectMagic(caster, caster);
+		var type = caster.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+				.getOrThrow(POWER_MAGIC);
+		return new DamageSource(type, caster, caster);
 	}
 
 	/**
@@ -34,8 +45,10 @@ public final class PowerDamage {
 	 * from every flavour of ability damage but still fights normally.
 	 */
 	public static boolean isPowerDamage(DamageSource source) {
-		return source.is(DamageTypes.INDIRECT_MAGIC)
-				|| source.is(DamageTypes.MAGIC)
-				|| source.is(DamageTypes.FREEZE);
+		return source.is(POWER_DAMAGE);
+	}
+
+	static boolean isPowerDamageKey(ResourceKey<DamageType> key) {
+		return POWER_MAGIC.equals(key);
 	}
 }
