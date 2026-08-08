@@ -132,6 +132,18 @@ def validate(root: Path) -> list[str]:
     if minecraft_loot.exists() and any(minecraft_loot.rglob("*.json")):
         errors.append("vanilla loot-table overrides are forbidden; use additive LootTableEvents")
 
+    dimensions = root / "data" / "powers" / "dimension"
+    biomes = root / "data" / "powers" / "worldgen" / "biome"
+    for path in sorted(dimensions.glob("*.json")):
+        data = parsed.get(path, {})
+        settings = data.get("generator", {}).get("settings", {}) if isinstance(data, dict) else {}
+        biome = settings.get("biome") if isinstance(settings, dict) else None
+        expected = f"powers:{path.stem}"
+        if biome != expected:
+            errors.append(f"{path}: expected a distinct {expected} biome, found {biome!r}")
+        if not (biomes / f"{path.stem}.json").exists():
+            errors.append(f"{path}: missing worldgen biome {biomes / (path.stem + '.json')}")
+
     for path in sorted((root / "data" / "powers" / "recipe").glob("*.json")):
         data = parsed.get(path, {})
         result = data.get("result", {}) if isinstance(data, dict) else {}
