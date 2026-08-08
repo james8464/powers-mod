@@ -2,6 +2,7 @@ package com.powers.power;
 
 import com.powers.player.PlayerPowers;
 import com.powers.progression.PowerScalingService;
+import com.powers.progression.ScaledMagicValues;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -89,5 +90,25 @@ public abstract class Ability {
 	 */
 	public int cooldownTicksFor(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		return PowerScalingService.cooldown(player, id.getPath(), cooldownTicks);
+	}
+
+	/** Returns the single canonical rank profile for this ability's action. */
+	protected final ScaledMagicValues scaling(ServerPlayer player) {
+		return PowerScalingService.forPlayer(player, id.getPath());
+	}
+
+	/** Scales an implementation-specific range through the canonical action. */
+	protected final double scaledRange(ServerPlayer player, double baseRange) {
+		return Math.max(0, baseRange) * scaling(player).rangeMultiplier();
+	}
+
+	/** Scales an implementation-specific duration through the canonical action. */
+	protected final int scaledDuration(ServerPlayer player, int baseTicks) {
+		return baseTicks <= 0 ? 0 : Math.max(1, (int) Math.round(baseTicks * scaling(player).durationMultiplier()));
+	}
+
+	/** Scales damage, healing, or force strength through canonical potency. */
+	protected final float scaledPotency(ServerPlayer player, float baseValue) {
+		return (float) (Math.max(0, baseValue) * scaling(player).potencyMultiplier());
 	}
 }

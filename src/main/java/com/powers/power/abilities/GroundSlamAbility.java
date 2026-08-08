@@ -35,6 +35,7 @@ public class GroundSlamAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
+		double radius = scaledRange(player, 5.0);
 		PowerFx.burst(level, player.position().add(0, 0.5, 0), net.minecraft.core.particles.ParticleTypes.EXPLOSION, 28, 1.5, 0.2);
 		PowerFx.ring(level, player.position().add(0, 0.1, 0), 3.5, 0xFF8A00, 28, 0.0);
 		PowerFx.sound(level, player.position(), SoundEvents.GENERIC_EXPLODE.value(), 1.0f, 0.8f);
@@ -43,7 +44,7 @@ public class GroundSlamAbility extends Ability {
 
 		DamageSource source = PowerDamage.source(player);
 		// shockwave hits everything in a 5-block radius around the player
-		AABB area = AABB.ofSize(player.position(), 10.0, 6.0, 10.0);
+		AABB area = AABB.ofSize(player.position(), radius * 2, 6.0, radius * 2);
 		for (LivingEntity target : level.getEntities(
 			EntityTypeTest.forClass(LivingEntity.class), area,
 			e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
@@ -53,7 +54,8 @@ public class GroundSlamAbility extends Ability {
 			// fling them away from the player and send up smoke
 			Vec3 away = target.position().subtract(player.position()).normalize();
 			if (PowerProtection.mayForceMove(player, target)) {
-				target.knockback(1.6, away.x, away.z, source, 1.0f);
+				target.knockback(Math.min(2.1, 1.6 * scaling(player).potencyMultiplier()),
+						away.x, away.z, source, 1.0f);
 			}
 			PowerFx.burst(level, target.position().add(0, target.getBbHeight() * 0.5, 0),
 					net.minecraft.core.particles.ParticleTypes.CAMPFIRE_COSY_SMOKE, 6, 0.5, 0.02);

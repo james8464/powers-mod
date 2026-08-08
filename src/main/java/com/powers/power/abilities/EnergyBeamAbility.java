@@ -42,7 +42,7 @@ public class EnergyBeamAbility extends Ability {
 				target.hurtServer(level, PowerDamage.source(player),
 						PowerScalingService.damage(player, "energy_beam", 10.0f));
 				// 3 seconds of burn
-				target.setRemainingFireTicks(60);
+				target.setRemainingFireTicks(scaledDuration(player, 60));
 			}
 		} else {
 			// nothing hit, the beam still travels the full range visually

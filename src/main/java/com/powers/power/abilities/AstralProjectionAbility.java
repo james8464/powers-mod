@@ -34,7 +34,8 @@ public class AstralProjectionAbility extends Ability {
 	private static final double RADIUS = 150.0;
 	private static final Map<UUID, Projection> ACTIVE = new HashMap<>();
 
-	private record Projection(ServerPlayer player, ResourceKey<Level> dimension, Vec3 origin, GameType gameMode, long endsAt) {}
+	private record Projection(ServerPlayer player, ResourceKey<Level> dimension, Vec3 origin,
+			GameType gameMode, long endsAt, double radius) {}
 
 	public AstralProjectionAbility() {
 		super(PowersMod.id("astral_projection"),
@@ -52,7 +53,7 @@ public class AstralProjectionAbility extends Ability {
 		ServerLevel level = (ServerLevel) player.level();
 		if (!BodyProxyManager.start(player, BodyProxyKind.ASTRAL)) return false;
 		Projection projection = new Projection(player, level.dimension(), player.position(), player.gameMode(),
-				level.getServer().getTickCount() + DURATION);
+				level.getServer().getTickCount() + scaledDuration(player, DURATION), scaledRange(player, RADIUS));
 		ACTIVE.put(player.getUUID(), projection);
 		player.setGameMode(GameType.SPECTATOR);
 		PowerFx.rune(level, player.position(), 1.8, 0x7C4DFF, 28, 0.0);
@@ -84,7 +85,7 @@ public class AstralProjectionAbility extends Ability {
 				it.remove();
 				continue;
 			}
-			if (player.position().distanceToSqr(projection.origin()) > RADIUS * RADIUS) {
+			if (player.position().distanceToSqr(projection.origin()) > projection.radius() * projection.radius()) {
 				// leash snapped: teleport the ghost back to the origin
 				PowerFx.sound((ServerLevel) player.level(), player.position(), SoundEvents.ENDERMAN_TELEPORT, 0.75f, 0.75f);
 				PowerFx.rune((ServerLevel) player.level(), player.position(), 1.2, 0x7C4DFF, 18, now * 0.125);

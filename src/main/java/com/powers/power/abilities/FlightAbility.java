@@ -32,6 +32,11 @@ public class FlightAbility extends ToggleAbility {
 		player.getAbilities().mayfly = true;
 		player.getAbilities().flying = true;
 		player.onUpdateAbilities();
+		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+			com.powers.fx.PowerFx.rune(level, player.position(), 1.4, 0xFFFFFF, 24, 0.0);
+			com.powers.fx.PowerFx.sound(level, player.position(),
+					net.minecraft.sounds.SoundEvents.ELYTRA_FLYING, 0.6f, 1.4f);
+		}
 		PowerMessages.send(player, "ability.powers.flight_on", 3);
 		return true;
 	}
@@ -47,7 +52,7 @@ public class FlightAbility extends ToggleAbility {
 		player.onUpdateAbilities();
 		// 3 seconds of slow falling so the way down is soft
 		if (!player.hasEffect(MobEffects.SLOW_FALLING)) {
-			player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 60, 0, true, false));
+			player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, scaledDuration(player, 60), 0, true, false));
 		}
 		PowerMessages.send(player, "ability.powers.flight_off", 3);
 	}
@@ -63,6 +68,10 @@ public class FlightAbility extends ToggleAbility {
 			// rainbow trail while actually airborne
 			int rgb = com.powers.fx.PowerFx.rainbow(level.getServer().getTickCount(), 4);
 			com.powers.fx.PowerFx.coloredBurst(level, player.position().add(0, 0.3, 0), rgb, 2, 0.12);
+			if (scaling(player).unlockedVariants().contains("second_step") && level.getServer().getTickCount() % 10 == 0) {
+				com.powers.fx.PowerFx.ring(level, player.position().add(0, 0.1, 0), 0.8, rgb, 12,
+						level.getServer().getTickCount() * 0.1);
+			}
 		}
 	}
 }

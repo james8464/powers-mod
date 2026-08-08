@@ -593,6 +593,7 @@
 	"spell.powers.interrupted": "The circle fractures. Half of the offered energy returns.",
 	"spell.powers.already_channeling": "One ritual already occupies your voice.",
 	"spell.powers.countered": "A foreign word tears your ritual apart.",
+	"spell.powers.rank_required": "The grimoire seals itself. Rank %s is required to trace this word.",
 	"spell.powers.soul_compass": "Soul Compass",
 	"spell.powers.tracking_mark": "Mark of the Far Star",
 	"spell.powers.weather_sigil": "Tempest Sigil",

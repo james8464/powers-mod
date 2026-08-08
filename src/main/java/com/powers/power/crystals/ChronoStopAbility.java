@@ -62,7 +62,7 @@ public class ChronoStopAbility extends Ability {
 		}
 
 		ServerLevel level = (ServerLevel) player.level();
-		double radius = PowersConfigLoader.get().chronoStopRadius();
+		double radius = scaledRange(player, PowersConfigLoader.get().chronoStopRadius());
 		AABB area = AABB.ofSize(player.position().add(0, 1, 0), radius * 2, radius * 2, radius * 2);
 		Set<UUID> frozen = new LinkedHashSet<>();
 		UUID freezeOwner = FreezeOwner.token("chrono_stop", player.getUUID());
@@ -77,7 +77,8 @@ public class ChronoStopAbility extends Ability {
 		}
 		if (frozen.isEmpty()) return false;
 
-		ACTIVE.put(player.getUUID(), new ActiveStop(level.getGameTime() + DURATION_TICKS, Set.copyOf(frozen)));
+		ACTIVE.put(player.getUUID(), new ActiveStop(
+				level.getGameTime() + scaledDuration(player, DURATION_TICKS), Set.copyOf(frozen)));
 		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x2962FF, 28, 1.2);
 		PowerFx.ring(level, player.position().add(0, 0.1, 0), 3.5, 0x2962FF, 32, 0);
 		PowerFx.ring(level, player.position().add(0, 2.0, 0), 3.5, 0x2962FF, 32, Math.PI);

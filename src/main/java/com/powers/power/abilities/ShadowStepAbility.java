@@ -28,11 +28,12 @@ public class ShadowStepAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		var level = (net.minecraft.server.level.ServerLevel) player.level();
-		HitResult hit = player.pick(12.0, 0.0f, false);
+		double range = scaledRange(player, 12.0);
+		HitResult hit = player.pick(range, 0.0f, false);
 		BlockPos target = BlockPos.containing(hit.getLocation());
 		Vec3 look = player.getLookAngle();
 		if (hit.getType() == HitResult.Type.MISS) {
-			target = BlockPos.containing(player.getEyePosition().add(look.scale(12.0)));
+			target = BlockPos.containing(player.getEyePosition().add(look.scale(range)));
 		}
 
 		BlockPos feet = findStandingSpot(player, level, target);
@@ -52,6 +53,12 @@ public class ShadowStepAbility extends Ability {
 		com.powers.fx.PowerFx.burst(level, dest, net.minecraft.core.particles.ParticleTypes.SMOKE, 14, 0.4, 0.06);
 		com.powers.fx.PowerFx.burst(level, dest, net.minecraft.core.particles.ParticleTypes.PORTAL, 10, 0.5, 0.1);
 		com.powers.fx.PowerFx.sound(level, dest, net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT, 1.0f, 1.0f);
+		if (scaling(player).unlockedVariants().contains("second_step")) {
+			player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+					net.minecraft.world.effect.MobEffects.SPEED, 30, 1, false, false));
+			com.powers.fx.PowerFx.rune(level, from, 1.0, 0x55265F, 18, 0.0);
+			com.powers.fx.PowerFx.rune(level, dest, 1.0, 0xD7F8FF, 18, Math.PI);
+		}
 		return true;
 	}
 

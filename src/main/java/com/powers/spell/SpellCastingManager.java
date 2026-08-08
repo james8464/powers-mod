@@ -4,11 +4,14 @@ import com.powers.fx.PowerFx;
 import com.powers.item.GrimoireItem;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
+import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.magic.runtime.PreparedMagicCast;
 import com.powers.magic.runtime.ServerMagicCasts;
+import com.powers.progression.PowerScalingService;
+import com.powers.protection.PowerProtection;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -55,21 +58,24 @@ public final class SpellCastingManager {
 			return;
 		}
 		if (!commonChecks(player, spell, true)) return;
-		if (!SpellEffects.canBegin(player, spell.effect())) {
+		if (!SpellEffects.canBegin(player, spell)) {
 			failed(player, "spell.powers.no_target");
 			return;
 		}
 		PreparedMagicCast magic = ServerMagicCasts.prepare(player, spell.id());
 		if (!magic.allowed()) return;
-		if (!payAndCool(player, spell)) return;
+		int energyCost = scaledEnergyCost(player, spell);
+		if (!payAndCool(player, spell, energyCost)) return;
 		boolean amplified = consumeAmplification(player, spell.effect());
-		if (spell.channelTicks() == 0) {
-			finish(player, spell, amplified, magic);
+		int channelTicks = SpellCastValues.from(PowerScalingService.forPlayer(player, spell.id()), amplified)
+				.channelTicks(spell.channelTicks());
+		if (channelTicks == 0) {
+			finish(player, spell, amplified, magic, energyCost, false);
 			return;
 		}
-		long end = player.level().getGameTime() + spell.channelTicks();
+		long end = player.level().getGameTime() + channelTicks;
 		ChannelState state = new ChannelState(end, player.getX(), player.getY(), player.getZ(), grimoire.key(), false);
-		CHANNELS.put(player.getUUID(), new Session(state, spell, grimoire.key(), spell.energyCost(), magic));
+		CHANNELS.put(player.getUUID(), new Session(state, spell, grimoire.key(), energyCost, magic));
 		ServerLevel level = (ServerLevel) player.level();
 		PowerFx.rune(level, player.position().add(0, 0.08, 0), 1.7, 0x7455A8, 20, 0);
 		PowerFx.sound(level, player.position(), SoundEvents.ENCHANTMENT_TABLE_USE, 0.9f, 0.7f);
@@ -83,8 +89,10 @@ public final class SpellCastingManager {
 		SpellDefinition spell = selectedSpell(player, grimoire);
 		if (spell.effect() != SpellEffect.SOUL_COMPASS || !commonChecks(player, spell, true)) return false;
 		PreparedMagicCast magic = ServerMagicCasts.prepare(player, spell.id());
-		if (!magic.allowed() || !payAndCool(player, spell)) return false;
-		ServerMagicCasts.commit(magic, player);
+		if (!magic.allowed()) return false;
+		int energyCost = scaledEnergyCost(player, spell);
+		if (!payAndCool(player, spell, energyCost)) return false;
+		ServerMagicCasts.execute(magic, () -> ServerMagicCasts.commit(magic, player));
 		return true;
 	}
 
@@ -102,6 +110,10 @@ public final class SpellCastingManager {
 			if (punishDampening) AmethystDampening.punish(player);
 			return false;
 		}
+		if (SkillSystem.effectiveLevel(player) < spell.requiredRank()) {
+			player.sendSystemMessage(Component.translatable("spell.powers.rank_required", spell.requiredRank()));
+			return false;
+		}
 		long remaining = PlayerPowers.get(player).cooldownReadyAt(cooldownId(spell)) - player.level().getGameTime();
 		if (remaining > 0) {
 			player.sendSystemMessage(Component.translatable("spell.powers.cooldown", (remaining + 19) / 20));
@@ -110,18 +122,24 @@ public final class SpellCastingManager {
 		return true;
 	}
 
-	private static boolean payAndCool(ServerPlayer player, SpellDefinition spell) {
+	private static int scaledEnergyCost(ServerPlayer player, SpellDefinition spell) {
+		return PowerScalingService.energyCost(player, spell.id(), spell.energyCost());
+	}
+
+	private static boolean payAndCool(ServerPlayer player, SpellDefinition spell, int energyCost) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		if (!data.consumeEnergy(spell.energyCost())) {
+		if (!data.consumeEnergy(energyCost)) {
 			failed(player, "energy.powers.empty.1");
 			return false;
 		}
-		data.setCooldown(cooldownId(spell), player.level().getGameTime() + spell.cooldownTicks());
+		int cooldown = PowerScalingService.cooldown(player, spell.id(), spell.cooldownTicks());
+		data.setCooldown(cooldownId(spell), player.level().getGameTime() + cooldown);
 		PowersPackets.syncTo(player);
 		return true;
 	}
 
 	public static void tick(MinecraftServer server) {
+		SpellEffects.expireVeils(server.overworld().getGameTime());
 		Iterator<Map.Entry<UUID, Session>> iterator = CHANNELS.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Map.Entry<UUID, Session> entry = iterator.next();
@@ -146,7 +164,7 @@ public final class SpellCastingManager {
 				failed(player, "spell.powers.interrupted");
 				continue;
 			}
-			finish(player, session.spell(), amplified, session.magic());
+			finish(player, session.spell(), amplified, session.magic(), session.energyCost(), true);
 		}
 		AMPLIFIED_UNTIL.entrySet().removeIf(entry -> entry.getValue() != Long.MAX_VALUE
 				&& entry.getValue() <= server.overworld().getGameTime());
@@ -160,8 +178,12 @@ public final class SpellCastingManager {
 	}
 
 	private static void finish(ServerPlayer player, SpellDefinition spell, boolean amplified,
-			PreparedMagicCast magic) {
-		if (!SpellEffects.execute(player, spell, amplified)) {
+			PreparedMagicCast magic, int energyCost, boolean channeled) {
+		if (!ServerMagicCasts.execute(magic, () -> SpellEffects.execute(player, spell, amplified))) {
+			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+			data.refundEnergy(channeled ? energyCost / 2 : energyCost);
+			data.clearCooldown(cooldownId(spell));
+			PowersPackets.syncTo(player);
 			failed(player, "spell.powers.failed");
 			return;
 		}
@@ -176,6 +198,11 @@ public final class SpellCastingManager {
 				session.magic()));
 	}
 
+	/** Breaks a grimoire-owned veil without touching unrelated invisibility. */
+	public static boolean revealConcealment(ServerPlayer player) {
+		return SpellEffects.revealConcealment(player);
+	}
+
 	public static boolean counterspell(ServerPlayer caster, double range) {
 		UUID nearest = null;
 		double best = range * range;
@@ -183,6 +210,8 @@ public final class SpellCastingManager {
 			if (uuid.equals(caster.getUUID())) continue;
 			ServerPlayer target = caster.level().getServer().getPlayerList().getPlayer(uuid);
 			if (target == null || target.level() != caster.level()) continue;
+			if (AmethystDampening.isDampened(target) || !PowerProtection.mayHarm(caster, target)
+					|| SpellFieldManager.isSanctuaryProtected((ServerLevel) target.level(), target)) continue;
 			double distance = target.distanceToSqr(caster);
 			if (distance <= best) {
 				best = distance;
@@ -191,9 +220,13 @@ public final class SpellCastingManager {
 		}
 		if (nearest == null) return EnergyDrainAbility.counterNearest(caster, range);
 		ServerPlayer target = caster.level().getServer().getPlayerList().getPlayer(nearest);
-		CHANNELS.remove(nearest);
+		Session interrupted = CHANNELS.remove(nearest);
 		AMPLIFIED_UNTIL.remove(nearest);
 		if (target != null) {
+			if (interrupted != null) {
+				PlayerPowers.get(target).refundEnergy(interrupted.energyCost() / 2);
+				PowersPackets.syncTo(target);
+			}
 			PowerFx.clash((ServerLevel) caster.level(), caster.getEyePosition(), target.getEyePosition(),
 					0x7455A8, 0xA66CFF);
 			target.sendSystemMessage(Component.translatable("spell.powers.countered"));
@@ -252,10 +285,12 @@ public final class SpellCastingManager {
 	public static void clear(ServerPlayer player) {
 		CHANNELS.remove(player.getUUID());
 		AMPLIFIED_UNTIL.remove(player.getUUID());
+		SpellEffects.clearVeil(player.getUUID());
 	}
 
 	public static void clearAll() {
 		CHANNELS.clear();
 		AMPLIFIED_UNTIL.clear();
+		SpellEffects.clearAllVeils();
 	}
 }

@@ -45,8 +45,8 @@ public class StarfallAbility extends Ability {
 		com.powers.fx.PowerFx.burst(level, target.add(0, 12, 0),
 				net.minecraft.core.particles.ParticleTypes.END_ROD, 18, 1.5, 0.04);
 
-		// three bolts scattered up to 6 blocks from the target point
-		for (int i = 0; i < 3; i++) {
+		int boltCount = scaling(player).unlockedVariants().contains("empowered_impact") ? 4 : 3;
+		for (int i = 0; i < boltCount; i++) {
 			double dx = (level.getRandom().nextDouble() - 0.5) * 12.0;
 			double dz = (level.getRandom().nextDouble() - 0.5) * 12.0;
 			LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);

@@ -19,6 +19,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 /**
  * Lightning Strike: smite whatever you're looking at with a bolt from
  * above, up to 64 blocks away.
@@ -55,12 +59,36 @@ public class LightningStrikeAbility extends Ability {
 		bolt.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
 		bolt.setVisualOnly(true);
 		level.addFreshEntity(bolt);
+		Set<UUID> struck = new HashSet<>();
 		for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class,
 				AABB.ofSize(strikePoint, 5.0, 6.0, 5.0), e -> e.isAlive() && e != player
 						&& !AmethystDampening.isDampened(e) && PowerProtection.mayHarm(player, e))) {
+			struck.add(victim.getUUID());
 			victim.hurtServer(level, PowerDamage.source(player),
 					PowerScalingService.damage(player, "lightning_strike", 8.0f));
+			if (victim.isInWater()) conduct(player, level, victim, struck);
 		}
 		return true;
+	}
+
+	/** Conducts through at most three wet-neighbour links, never revisiting a target. */
+	private static void conduct(ServerPlayer player, net.minecraft.server.level.ServerLevel level,
+			LivingEntity origin, Set<UUID> struck) {
+		LivingEntity current = origin;
+		for (int link = 0; link < 3; link++) {
+			LivingEntity source = current;
+			LivingEntity next = level.getEntitiesOfClass(LivingEntity.class,
+					source.getBoundingBox().inflate(6.0), candidate -> candidate.isAlive() && candidate != player
+							&& !struck.contains(candidate.getUUID()) && candidate.isInWater()
+							&& !AmethystDampening.isDampened(candidate)
+							&& PowerProtection.mayHarm(player, candidate)).stream()
+					.min(java.util.Comparator.comparingDouble(source::distanceToSqr)).orElse(null);
+			if (next == null) return;
+			struck.add(next.getUUID());
+			com.powers.fx.PowerFx.clash(level, current.getEyePosition(), next.getEyePosition(), 0x4FC3F7, 0xFFF59D);
+			next.hurtServer(level, PowerDamage.source(player),
+					PowerScalingService.damage(player, "lightning_strike", 4.0f));
+			current = next;
+		}
 	}
 }

@@ -25,14 +25,16 @@ public class BreezyBashAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
+		double diameter = scaledRange(player, 16.0);
+		double force = Math.min(1.35, scaling(player).potencyMultiplier());
 
 		// 16-block cube around the player, skipping yourself and shielded targets
-		AABB area = AABB.ofSize(player.position(), 16.0, 16.0, 16.0);
+		AABB area = AABB.ofSize(player.position(), diameter, diameter, diameter);
 		for (LivingEntity target : level.getEntities(
 				EntityTypeTest.forClass(LivingEntity.class), area,
 				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
 						&& PowerProtection.mayForceMove(player, e))) {
-			target.setDeltaMovement(0, 1.6, 0);
+			target.setDeltaMovement(0, 1.6 * force, 0);
 			target.hurtMarked = true;
 
 			// 18 ticks later, on the way down, slam them into the ground
@@ -40,7 +42,7 @@ public class BreezyBashAbility extends Ability {
 				if (target.isAlive() && target.level() == level
 						&& PowerProtection.mayForceMove(player, target)
 						&& !AmethystDampening.isDampened(target)) {
-					target.setDeltaMovement(0, -2.5, 0);
+					target.setDeltaMovement(0, -2.5 * force, 0);
 					target.hurtMarked = true;
 				}
 			});
@@ -50,6 +52,7 @@ public class BreezyBashAbility extends Ability {
 				net.minecraft.core.particles.ParticleTypes.GUST_EMITTER_LARGE, 20, 1.5, 0.2);
 		com.powers.fx.PowerFx.sound(level, player.position(),
 				SoundEvents.BREEZE_SHOOT, 1.5f, 0.6f);
+		com.powers.fx.PowerFx.rune(level, player.position(), diameter * 0.3, 0xD7F8FF, 24, 0.0);
 		return true;
 	}
 }

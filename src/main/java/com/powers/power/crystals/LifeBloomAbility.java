@@ -36,10 +36,12 @@ public class LifeBloomAbility extends Ability {
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
 		Vec3 origin = player.position().add(0, 1, 0);
+		double radius = scaledRange(player, RADIUS);
+		int blessingDuration = scaledDuration(player, 600);
 		// the box reaches 20 blocks out from the caster in every direction
 		for (LivingEntity ally : level.getEntitiesOfClass(LivingEntity.class,
-				AABB.ofSize(origin, RADIUS * 2, RADIUS * 2, RADIUS * 2),
-				e -> e.isAlive() && CrystalTargeting.withinRadius(e.distanceToSqr(player), RADIUS))) {
+				AABB.ofSize(origin, radius * 2, radius * 2, radius * 2),
+				e -> e.isAlive() && CrystalTargeting.withinRadius(e.distanceToSqr(player), radius))) {
 			if (ally instanceof ServerPlayer orPlayer) {
 				// Cleanse ailments without deleting beneficial effects owned by
 				// potions, beacons, other mods, or an active POWERS toggle.
@@ -50,14 +52,15 @@ public class LifeBloomAbility extends Ability {
 				}
 				orPlayer.heal(orPlayer.getMaxHealth());
 				// 600 ticks = 30 seconds of regen, absorption and saturation, enough to carry anyone through a fight
-				orPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 600, 4, true, false));
-				orPlayer.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 600, 3, true, false));
-				orPlayer.addEffect(new MobEffectInstance(MobEffects.SATURATION, 600, 0, true, false));
+				orPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, blessingDuration, 4, true, false));
+				orPlayer.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, blessingDuration, 3, true, false));
+				orPlayer.addEffect(new MobEffectInstance(MobEffects.SATURATION, blessingDuration, 0, true, false));
 				PowerFx.coloredBurst(level, orPlayer.position().add(0, 1, 0), 0x00C853, 12, 0.6);
 			}
 		}
 		PowerFx.coloredBurst(level, origin, 0x00C853, 40, 2.0);
 		PowerFx.burst(level, origin, ParticleTypes.HAPPY_VILLAGER, 30, 2.0, 0.2);
+		PowerFx.rune(level, origin, radius * 0.65, 0x78E06B, 36, 0.0);
 		PowerFx.sound(level, player.position(), SoundEvents.TOTEM_USE, 1.0f, 0.8f);
 		return true;
 	}

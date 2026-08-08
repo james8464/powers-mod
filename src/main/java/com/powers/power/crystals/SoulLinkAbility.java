@@ -40,7 +40,7 @@ public class SoulLinkAbility extends Ability {
 	private record Link(LivingEntity entity, float lastHealth) {
 	}
 
-	private record ActiveLink(int ticksLeft, List<Link> links) {
+	private record ActiveLink(int ticksLeft, List<Link> links, double damageMultiplier) {
 	}
 
 	// one active link per caster, keyed by uuid so a logged-off player can be dropped
@@ -59,23 +59,26 @@ public class SoulLinkAbility extends Ability {
 			return false;
 		}
 		ServerLevel level = (ServerLevel) player.level();
+		double radius = scaledRange(player, RADIUS);
+		int maxLinks = Math.min(12, MAX_LINKS + (int) Math.floor((scaling(player).potencyMultiplier() - 1.0) * 10));
 		List<Link> links = new ArrayList<>();
 		for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class,
-				AABB.ofSize(player.position().add(0, 1, 0), RADIUS * 2, RADIUS * 2, RADIUS * 2),
+				AABB.ofSize(player.position().add(0, 1, 0), radius * 2, radius * 2, radius * 2),
 				 e -> e.isAlive() && e != player && !player.isAlliedTo(e)
-						 && e.distanceToSqr(player) <= RADIUS * RADIUS
+						 && e.distanceToSqr(player) <= radius * radius
 						 && !AmethystDampening.isDampened(e)
 						 && !PowerProtection.isSafeZone(level, e.position()))) {
 			links.add(new Link(target, target.getHealth()));
 			PowerFx.coloredBurst(level, target.position().add(0, 1, 0), 0x9C27B0, 10, 0.5);
-			if (links.size() >= MAX_LINKS) {
+			if (links.size() >= maxLinks) {
 				break;
 			}
 		}
 		if (links.isEmpty()) {
 			return false;
 		}
-		ACTIVE.put(player.getUUID(), new ActiveLink(DURATION_TICKS, links));
+		ACTIVE.put(player.getUUID(), new ActiveLink(scaledDuration(player, DURATION_TICKS), links,
+				scaling(player).potencyMultiplier()));
 		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x9C27B0, 24, 1.2);
 		PowerFx.sound(level, player.position(), SoundEvents.EVOKER_CAST_SPELL, 1.0f, 0.9f);
 		return true;
@@ -121,7 +124,8 @@ public class SoulLinkAbility extends Ability {
 					LivingEntity entity = link.entity();
 					// the wounded soul itself doesn't take its own wound twice
 					if (entity != null && entity != wounded) {
-						entity.hurtServer(level, PowerDamage.source(caster), damage);
+						entity.hurtServer(level, PowerDamage.source(caster),
+								(float) (damage * active.damageMultiplier()));
 						PowerFx.coloredBurst(level, entity.position().add(0, 1, 0), 0x9C27B0, 6, 0.4);
 					}
 				}
@@ -142,7 +146,7 @@ public class SoulLinkAbility extends Ability {
 			if (left <= 0 || updated.isEmpty()) {
 				it.remove();
 			} else {
-				entry.setValue(new ActiveLink(left, updated));
+				entry.setValue(new ActiveLink(left, updated, active.damageMultiplier()));
 			}
 		}
 	}
@@ -150,6 +154,13 @@ public class SoulLinkAbility extends Ability {
 	/** drop one caster's link when they log off */
 	public static void clear(UUID player) {
 		ACTIVE.remove(player);
+	}
+
+	/** Unweaves every active link containing the purified soul. */
+	public static void clearLinksTouching(UUID entityId) {
+		ACTIVE.entrySet().removeIf(entry -> entry.getKey().equals(entityId)
+				|| entry.getValue().links().stream()
+						.anyMatch(link -> link.entity().getUUID().equals(entityId)));
 	}
 
 	/** release every link on server stop */

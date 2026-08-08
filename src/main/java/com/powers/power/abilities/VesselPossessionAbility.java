@@ -41,7 +41,7 @@ public class VesselPossessionAbility extends Ability {
 		// already possessing someone - a second cast would strand the first target's camera
 		if (POSSESSING.containsKey(player.getUUID())) return false;
 
-		LivingEntity target = PowerTargeting.findLivingTarget(player, 32.0);
+		LivingEntity target = PowerTargeting.findLivingTarget(player, scaledRange(player, 32.0));
 		// must be another player, not yourself
 		if (!(target instanceof ServerPlayer targetSP) || targetSP == player) {
 			PowerMessages.send(player, "ability.powers.no_player_target", 4);
@@ -59,7 +59,8 @@ public class VesselPossessionAbility extends Ability {
 		if (!BodyProxyManager.start(player, BodyProxyKind.POSSESSION)) return false;
 
 		MinecraftServer server = ((ServerLevel) player.level()).getServer();
-		POSSESSING.put(player.getUUID(), new Possession(player, targetSP, server.getTickCount() + POSSESS_TICKS));
+		POSSESSING.put(player.getUUID(), new Possession(player, targetSP,
+				server.getTickCount() + scaledDuration(player, POSSESS_TICKS)));
 		// watch the world through the target's eyes
 		player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
 		player.setCamera(targetSP);
@@ -70,6 +71,8 @@ public class VesselPossessionAbility extends Ability {
 				net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL, 18, 0.5, 0.01);
 		com.powers.fx.PowerFx.sound(level, targetSP.position(),
 				net.minecraft.sounds.SoundEvents.ENCHANTMENT_TABLE_USE, 0.8f, 0.6f);
+		com.powers.fx.PowerFx.rune(level, player.position(), 1.5, 0xC27CFF, 22, 0.0);
+		com.powers.fx.PowerFx.rune(level, targetSP.position(), 1.5, 0x8FE9FF, 22, Math.PI);
 		return true;
 	}
 
@@ -82,10 +85,15 @@ public class VesselPossessionAbility extends Ability {
 			boolean targetOnline = server.getPlayerList().getPlayer(possession.target().getUUID()) == possession.target();
 			// end early if the owner or the target dies or logs off, or when time runs out
 			if (owner == null || !owner.isAlive() || !possession.target().isAlive()
-					|| !targetOnline || now >= possession.endsAt()) {
+					|| !targetOnline || now >= possession.endsAt()
+					|| AmethystDampening.isDampened(possession.target())
+					|| !PowerProtection.mayPossess(possession.owner(), possession.target())) {
 				// reset the owner's camera before dropping the possession
 				if (owner != null) end(owner);
 				it.remove();
+			} else if (now % 20 == 0 && owner.level() == possession.target().level()) {
+				com.powers.fx.PowerFx.clash((ServerLevel) owner.level(), owner.getEyePosition(),
+						possession.target().getEyePosition(), 0xC27CFF, 0x8FE9FF);
 			}
 		}
 	}

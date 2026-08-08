@@ -8,6 +8,7 @@ import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
+import com.powers.progression.PowerScalingService;
 import com.powers.power.Ability;
 import com.powers.protection.PowerProtection;
 import com.powers.power.travel.DestinationFailure;
@@ -81,7 +82,8 @@ public class TeleportAbility extends Ability {
 		MARKING.put(player.getUUID(), new MarkingState(
 				player, player.level().dimension(), player.position(), player.gameMode(),
 				targetLevel.dimension(), target.position(),
-				((ServerLevel) player.level()).getServer().getTickCount() + MARK_TIMEOUT_TICKS, slot));
+				((ServerLevel) player.level()).getServer().getTickCount()
+						+ PowerScalingService.duration(player, "time_shift", MARK_TIMEOUT_TICKS), slot));
 		// spectator so you can fly to the landing spot without fighting
 		player.setGameMode(GameType.SPECTATOR);
 		PowerFx.rune((ServerLevel) target.level(), target.position().add(0, 2, 0), 1.5, 0x88CCFF, 20, 0.6);
@@ -222,11 +224,15 @@ public class TeleportAbility extends Ability {
 			return false;
 		}
 		Vec3 origin = player.position();
+		double companionRadius = scaledRange(caster, COMPANION_RADIUS);
+		int stormTicks = scaledDuration(caster, STORM_TICKS);
+		int teleportDelay = Math.max(20,
+				(int) Math.round(TELEPORT_DELAY_TICKS / Math.min(1.5, scaling(caster).rangeMultiplier())));
 
 		List<Companion> companions = new ArrayList<>();
 		// bring along everything alive within 1.3 blocks, remembering each one's offset from you
 		for (Entity entity : originLevel.getEntities(
-				EntityTypeTest.forClass(Entity.class), player.getBoundingBox().inflate(COMPANION_RADIUS),
+				EntityTypeTest.forClass(Entity.class), player.getBoundingBox().inflate(companionRadius),
 				e -> e.isAlive() && e != player)) {
 			if (entity instanceof ServerPlayer companionPlayer
 					&& !PowerProtection.mayBringCompanion(player, companionPlayer)) continue;
@@ -239,9 +245,9 @@ public class TeleportAbility extends Ability {
 		PowerFx.sound(targetLevel, target, SoundEvents.ENDERMAN_TELEPORT, 0.9f, 1.15f);
 		// the blink itself is delayed so the storm can build up at both ends;
 		// the lightning beneath the traveler echoes the realm they're bound for
-		PowersMod.startStorm(originLevel, origin, player, STORM_TICKS, TELEPORT_DELAY_TICKS, themeFor(dimension));
-		PowersMod.startStorm(targetLevel, target, null, STORM_TICKS, 0);
-		PowersMod.scheduleDelayed(server, TELEPORT_DELAY_TICKS, () -> {
+		PowersMod.startStorm(originLevel, origin, player, stormTicks, teleportDelay, themeFor(dimension));
+		PowersMod.startStorm(targetLevel, target, null, stormTicks, 0);
+		PowersMod.scheduleDelayed(server, teleportDelay, () -> {
 			// the player may have died during the storm - never teleport a corpse
 			if (!player.isAlive()) return;
 			SafeDestinationResolver.Result revalidated = SafeDestinationResolver.validate(
