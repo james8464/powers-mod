@@ -1,15 +1,24 @@
 package com.powers.client;
 
 import com.powers.PowersEffects;
+import com.powers.PowersMod;
 import com.powers.hud.HudEnergyMode;
 import com.powers.hud.HudMath;
+import com.powers.hud.HudLayout;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
-/** A segmented magical arc around the hotbar, with distinct energy corruption states. */
+/** Renders the texture-backed ancient reliquary used for every energy state. */
 public final class EnergyHudRenderer {
-	private static final int SEGMENTS = 24;
+	private static final Identifier FRAME = PowersMod.id("textures/gui/energy_frame.png");
+	private static final Identifier FILL = PowersMod.id("textures/gui/energy_fill.png");
+	private static final int FRAME_WIDTH = 172;
+	private static final int FRAME_HEIGHT = 22;
+	private static final int FILL_WIDTH = 144;
+	private static final int FILL_HEIGHT = 8;
 
 	private EnergyHudRenderer() {
 	}
@@ -17,44 +26,54 @@ public final class EnergyHudRenderer {
 	public static void render(GuiGraphicsExtractor graphics) {
 		Minecraft client = Minecraft.getInstance();
 		if (client.player == null) return;
-		int width = client.getWindow().getGuiScaledWidth();
-		int height = client.getWindow().getGuiScaledHeight();
 		int capacity = ClientPowerState.energyCapacity();
 		int energy = Math.max(0, Math.min(capacity, ClientPowerState.energy()));
-		boolean dampened = client.player.hasEffect(PowersEffects.AMETHYST_POISONING);
-		HudEnergyMode mode = HudMath.mode(energy, dampened, ClientPowerState.darkness(), ClientPowerState.projection());
-		int filled = HudMath.filledSegments(energy, capacity, SEGMENTS);
-		int tick = client.player.tickCount;
+		HudEnergyMode mode = HudMath.mode(energy,
+				client.player.hasEffect(PowersEffects.AMETHYST_POISONING),
+				ClientPowerState.darkness(), ClientPowerState.projection());
+		HudLayout.Rect bounds = HudLayout.forScreen(client.getWindow().getGuiScaledWidth(),
+				client.getWindow().getGuiScaledHeight()).energy();
+		int x = bounds.x();
+		int y = bounds.y();
+		int row = textureRow(mode);
+		int filled = HudMath.filledSegments(energy, capacity, FILL_WIDTH);
 
-		int centerX = width / 2;
-		int centerY = height - 27;
-		int radius = 36;
-		int active = activeColor(mode, tick);
-		int dormant = mode == HudEnergyMode.DARKNESS ? 0x55391F56 : 0x55253A42;
-		for (int index = 0; index < SEGMENTS; index++) {
-			double angle = Math.PI + Math.PI * (index + 0.5) / SEGMENTS;
-			int x = centerX + (int) Math.round(Math.cos(angle) * radius);
-			int y = centerY + (int) Math.round(Math.sin(angle) * radius * 0.72);
-			boolean lit = index < filled && mode != HudEnergyMode.DAMPENED;
-			int color = lit ? active : dormant;
-			if (mode == HudEnergyMode.DAMPENED && index < filled && (index + tick / 3) % 3 != 0) {
-				color = 0xCCB36BFF;
-			}
-			int segmentHeight = index < 3 || index > SEGMENTS - 4 ? 2 : 3;
-			graphics.fill(x - 1, y - segmentHeight, x + 2, y + 1, color);
-			if (lit && (index + tick) % 11 == 0) graphics.fill(x, y - segmentHeight - 1, x + 1, y, 0xFFFFFFFF);
+		graphics.blit(RenderPipelines.GUI_TEXTURED, FRAME, x, y, 0, 0,
+				FRAME_WIDTH, FRAME_HEIGHT, FRAME_WIDTH, FRAME_HEIGHT);
+		// Empty and dampened are vessel-wide states, so their fracture pattern
+		// remains readable even when no usable energy can be drawn.
+		if (mode == HudEnergyMode.EMPTY || mode == HudEnergyMode.DAMPENED) {
+			graphics.blit(RenderPipelines.GUI_TEXTURED, FILL, x + 14, y + 7, 0, row * FILL_HEIGHT,
+					FILL_WIDTH, FILL_HEIGHT, FILL_WIDTH, FILL_HEIGHT, FILL_WIDTH, 40,
+					mode == HudEnergyMode.EMPTY ? 0xCCFFFFFF : 0xE6FFFFFF);
+		} else if (filled > 0) {
+			graphics.blit(RenderPipelines.GUI_TEXTURED, FILL, x + 14, y + 7, 0, row * FILL_HEIGHT,
+					filled, FILL_HEIGHT, filled, FILL_HEIGHT, FILL_WIDTH, 40);
 		}
 
-		drawDiamond(graphics, centerX, centerY - 2, 7, 0xAA05070A);
-		drawDiamond(graphics, centerX, centerY - 2, 4, active);
-		String amount = String.valueOf(Math.round(energy * 100.0 / Math.max(1, capacity)));
-		int amountWidth = client.font.width(amount);
-		graphics.text(client.font, amount, centerX - amountWidth / 2, centerY - 7, 0xFFFFFFFF, true);
-		Component state = Component.translatable("hud.powers.energy." + mode.name().toLowerCase());
-		int stateWidth = client.font.width(state);
-		graphics.text(client.font, state, centerX - stateWidth / 2, centerY - 17, active, true);
+		int tick = client.player.tickCount;
+		if (filled > 3 && mode != HudEnergyMode.EMPTY && mode != HudEnergyMode.DAMPENED) {
+			int shimmer = Math.floorMod(tick / 2, filled);
+			graphics.fill(x + 14 + shimmer, y + 8, x + 15 + shimmer, y + 14, 0xAAFFFFFF);
+		}
 
-		if (mode == HudEnergyMode.DAMPENED) drawAmethystFracture(graphics, width, height, tick);
+		int percent = (int) Math.round(energy * 100.0 / Math.max(1, capacity));
+		String amount = percent + "%";
+		graphics.text(client.font, amount, x + FRAME_WIDTH - 12 - client.font.width(amount),
+				y - 9, activeColor(mode, tick), true);
+		Component state = Component.translatable("hud.powers.energy." + mode.name().toLowerCase());
+		graphics.text(client.font, state, x + 12, y - 9, activeColor(mode, tick), true);
+		if (mode == HudEnergyMode.DAMPENED) drawAmethystFracture(graphics, x, y, tick);
+	}
+
+	private static int textureRow(HudEnergyMode mode) {
+		return switch (mode) {
+			case NORMAL -> 0;
+			case EMPTY -> 1;
+			case DAMPENED -> 2;
+			case DARKNESS -> 3;
+			case PROJECTION -> 4;
+		};
 	}
 
 	private static int activeColor(HudEnergyMode mode, int tick) {
@@ -62,24 +81,17 @@ public final class EnergyHudRenderer {
 			case NORMAL -> 0xFF62E6FF;
 			case DARKNESS -> (tick / 8) % 2 == 0 ? 0xFF7650D8 : 0xFFB04BDD;
 			case PROJECTION -> (tick / 6) % 2 == 0 ? 0xFFB8F3FF : 0xFF82B7E8;
-			case EMPTY -> (tick / 6) % 2 == 0 ? 0xFF7A2530 : 0xFFB93B45;
-			case DAMPENED -> 0xFFB36BFF;
+			case EMPTY -> (tick / 6) % 2 == 0 ? 0xFFCF433D : 0xFFFF795D;
+			case DAMPENED -> 0xFFD19AFF;
 		};
 	}
 
-	private static void drawDiamond(GuiGraphicsExtractor graphics, int cx, int cy, int radius, int color) {
-		for (int dy = -radius; dy <= radius; dy++) {
-			int half = radius - Math.abs(dy);
-			graphics.fill(cx - half, cy + dy, cx + half + 1, cy + dy + 1, color);
-		}
-	}
-
-	private static void drawAmethystFracture(GuiGraphicsExtractor graphics, int width, int height, int tick) {
-		int pulse = (tick / 5) % 2 == 0 ? 0x88B36BFF : 0x665E2A80;
-		for (int step = 0; step < 5; step++) {
-			int offset = step * 5;
-			graphics.fill(offset, 0, offset + 2, 9 - step, pulse);
-			graphics.fill(width - offset - 2, height - 9 + step, width - offset, height, pulse);
+	private static void drawAmethystFracture(GuiGraphicsExtractor graphics, int x, int y, int tick) {
+		int pulse = (tick / 5) % 2 == 0 ? 0xAAB36BFF : 0x775E2A80;
+		for (int step = 0; step < 4; step++) {
+			graphics.fill(x + 28 + step * 31, y + 4, x + 29 + step * 31, y + 7 + step % 2, pulse);
+			graphics.fill(x + 29 + step * 31, y + 7 + step % 2,
+					x + 31 + step * 31, y + 9 + step % 3, pulse);
 		}
 	}
 }

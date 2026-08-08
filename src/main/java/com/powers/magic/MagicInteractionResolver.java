@@ -257,8 +257,22 @@ public final class MagicInteractionResolver {
 	private static InteractionCue cue(String motif, MagicActionDefinition first,
 			MagicActionDefinition second, int intensity) {
 		int seed = 31 * first.signature().glyphSeed() + second.signature().glyphSeed();
-		return new InteractionCue(motif, "interaction_clash", first.signature().primaryColor(),
+		return new InteractionCue(motif, soundFor(motif), first.signature().primaryColor(),
 				second.signature().primaryColor(), seed, intensity);
+	}
+
+	/** Gives collision families an audible identity instead of one generic cue. */
+	private static String soundFor(String motif) {
+		if (motif.contains("amethyst")) return "amethyst_fracture";
+		if (motif.contains("rift") || motif.contains("anchor") || motif.contains("return")) return "rift_open";
+		if (motif.contains("soul") || motif.contains("severance")) return "soul_tether";
+		if (motif.contains("eclipse") || motif.contains("veil")) return "light_chorus";
+		if (motif.contains("ward")) return "ward_impact";
+		if (motif.contains("resonance") || motif.contains("bloom") || motif.contains("weave")) {
+			return "crystal_resonate";
+		}
+		if (motif.contains("cleansing") || motif.contains("sigil")) return "rune_hum";
+		return "interaction_clash";
 	}
 
 	private static void register(Map<ActionPair, MagicInteractionRule> rules, String first,

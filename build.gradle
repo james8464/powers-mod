@@ -53,6 +53,12 @@ tasks.register("auditJavaSources", Exec) {
 	commandLine "python3", "scripts/audit_java_sources.py", "--check"
 }
 
+tasks.register("auditNonItemAssets", Exec) {
+	group = "verification"
+	description = "Verifies the exact-version manifest for every non-item POWERS asset."
+	commandLine "python3", "scripts/audit_non_item_assets.py", "--check"
+}
+
 tasks.register("generateMagicDocs", JavaExec) {
 	group = "documentation"
 	description = "Regenerates the canonical action and exhaustive interaction documents."
@@ -74,6 +80,7 @@ tasks.register("verifyMagicDocs", JavaExec) {
 tasks.named("check") {
 	dependsOn("validatePowerResources")
 	dependsOn("auditJavaSources")
+	dependsOn("auditNonItemAssets")
 	dependsOn("verifyMagicDocs")
 }
 

@@ -80,6 +80,8 @@ public class PowersMod implements ModInitializer {
 		PowerEntityState.initialize();
 		RankGraphRegistry.initialize();
 		PowersEffects.initialize();
+		PowersSounds.initialize();
+		PowersParticles.initialize();
 		PowerRegistry.initialize();
 		PowersItems.initialize();
 		PowersWeapons.initialize();

@@ -1,6 +1,9 @@
 package com.powers.magic.runtime;
 
 import com.powers.fx.PowerFx;
+import com.powers.PowersSounds;
+import com.powers.magic.fx.MagicFxEvent;
+import com.powers.network.MagicFxPackets;
 import com.powers.magic.InteractionContext;
 import com.powers.magic.InteractionOutcome;
 import com.powers.magic.MagicActionDefinition;
@@ -72,6 +75,13 @@ public final class ServerMagicCasts {
 				8 + cue.intensity() * 4, Math.floorMod(cue.glyphSeed(), 360) * Math.PI / 180.0);
 		PowerFx.coloredBurst(level, midpoint, cue.secondaryColor(), 4 + cue.intensity() * 3,
 				0.25 + cue.intensity() * 0.08);
+		PowerFx.sound(level, midpoint, PowersSounds.forCue(cue.sound()),
+				0.55f + cue.intensity() * 0.13f, 0.88f + cue.intensity() * 0.045f);
+		long eventId = Integer.toUnsignedLong(java.util.Objects.hash(event.cast().owner(),
+				event.cast().definition().id(), event.cast().gameTime(), event.existing().id()));
+		MagicFxPackets.broadcast(level, MagicFxEvent.interaction(eventId, cue.motif(), cue.sound(),
+				midpoint.x, midpoint.y, midpoint.z, cue.primaryColor(), cue.secondaryColor(),
+				cue.glyphSeed(), cue.intensity()));
 		MagicReactionEffects.apply(level, event, midpoint);
 		if (event.resolution().outcome() == InteractionOutcome.TRANSFORM) {
 			PowerFx.burst(level, midpoint, ParticleTypes.CLOUD, 8 + cue.intensity() * 2, 0.5, 0.04);

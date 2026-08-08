@@ -1,0 +1,15 @@
+{
+  "amethyst_fracture": { "sounds": ["powers:magic/amethyst_fracture"] },
+  "crystal_resonate": { "sounds": ["powers:magic/crystal_resonate"] },
+  "dark_whisper": { "sounds": ["powers:magic/dark_whisper"] },
+  "interaction_clash": { "sounds": ["powers:magic/interaction_clash"] },
+  "light_chorus": { "sounds": ["powers:magic/light_chorus"] },
+  "rank_awaken": { "sounds": ["powers:magic/rank_awaken"] },
+  "rift_close": { "sounds": ["powers:magic/rift_close"] },
+  "rift_open": { "sounds": ["powers:magic/rift_open"] },
+  "rune_hum": { "sounds": ["powers:magic/rune_hum"] },
+  "soul_tether": { "sounds": ["powers:magic/soul_tether"] },
+  "time_release": { "sounds": ["powers:magic/time_release"] },
+  "time_suspend": { "sounds": ["powers:magic/time_suspend"] },
+  "ward_impact": { "sounds": ["powers:magic/ward_impact"] }
+}

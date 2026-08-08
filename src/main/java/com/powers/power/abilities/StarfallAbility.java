@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
@@ -41,14 +42,19 @@ public class StarfallAbility extends Ability {
 			// looking at the sky, so drop the shower at full range
 			target = player.getEyePosition().add(player.getLookAngle().scale(range));
 		}
-		com.powers.fx.PowerFx.ring(level, target, 4.0, 0x3949AB, 24, 0);
+		double stormRadius = scaledRange(player, 6.0);
+		double strikeDiameter = scaledRange(player, 4.0);
+		float strikeDamage = scaledPotency(player, 6.0f);
+		com.powers.fx.PowerFx.ring(level, target, stormRadius, 0x3949AB, 30, 0);
+		com.powers.fx.PowerFx.rune(level, target, stormRadius * 0.65, 0xFFF2B0, 28, Math.PI / 6);
 		com.powers.fx.PowerFx.burst(level, target.add(0, 12, 0),
-				net.minecraft.core.particles.ParticleTypes.END_ROD, 18, 1.5, 0.04);
+				net.minecraft.core.particles.ParticleTypes.END_ROD, 26, stormRadius * 0.3, 0.04);
+		com.powers.fx.PowerFx.sound(level, target, SoundEvents.END_PORTAL_SPAWN, 0.8f, 1.55f);
 
 		int boltCount = scaling(player).unlockedVariants().contains("empowered_impact") ? 4 : 3;
 		for (int i = 0; i < boltCount; i++) {
-			double dx = (level.getRandom().nextDouble() - 0.5) * 12.0;
-			double dz = (level.getRandom().nextDouble() - 0.5) * 12.0;
+			double dx = (level.getRandom().nextDouble() - 0.5) * stormRadius * 2.0;
+			double dz = (level.getRandom().nextDouble() - 0.5) * stormRadius * 2.0;
 			LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
 			if (bolt == null) {
 				continue;
@@ -59,11 +65,12 @@ public class StarfallAbility extends Ability {
 			level.addFreshEntity(bolt);
 			Vec3 strike = Vec3.atCenterOf(pos);
 			for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class,
-					AABB.ofSize(strike, 4.0, 5.0, 4.0), e -> e.isAlive() && e != player
+					AABB.ofSize(strike, strikeDiameter, 5.0, strikeDiameter),
+					e -> e.isAlive() && e != player
 							&& !AmethystDampening.isDampened(e) && PowerProtection.mayHarm(player, e))) {
-				victim.hurtServer(level, PowerDamage.source(player),
-						PowerScalingService.damage(player, "starfall", 6.0f));
+				victim.hurtServer(level, PowerDamage.source(player), strikeDamage);
 			}
+			com.powers.fx.PowerFx.spiral(level, strike, 0.7, 4.0, 0xFFF2B0, 18, i * Math.PI / 2.0);
 		}
 		return true;
 	}

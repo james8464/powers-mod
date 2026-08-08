@@ -1,5 +1,6 @@
 package com.powers.client.screen;
 
+import com.powers.PowersMod;
 import com.powers.client.ClientPowerState;
 import com.powers.network.PowersPackets;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -8,6 +9,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -16,25 +18,29 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
-/** the input screen for the time shift power: type coordinates or a player name and pick a dimension */
-public class TeleportInputScreen extends Screen {
-	private record DimEntry(String id, String label) {}
+/** Responsive, texture-backed destination ritual for time-shift travel. */
+public final class TeleportInputScreen extends Screen {
+	private record DimEntry(String id, Component label) {
+	}
 
+	private static final Identifier PANEL = PowersMod.id("textures/gui/teleport_panel.png");
+	private static final int PANEL_WIDTH = 256;
+	private static final int PANEL_HEIGHT = 192;
 	private static final List<DimEntry> DIMENSIONS = List.of(
-			new DimEntry("minecraft:overworld", "The Overworld"),
-			new DimEntry("minecraft:the_nether", "The Nether"),
-			new DimEntry("minecraft:the_end", "The End"),
-			new DimEntry("powers:dark_realm", "Dark Realm"),
-			new DimEntry("powers:light_realm", "Light Realm"));
+			new DimEntry("minecraft:overworld", Component.translatable("dimension.minecraft.overworld")),
+			new DimEntry("minecraft:the_nether", Component.translatable("dimension.minecraft.the_nether")),
+			new DimEntry("minecraft:the_end", Component.translatable("dimension.minecraft.the_end")),
+			new DimEntry("powers:dark_realm", Component.translatable("dimension.powers.dark_realm")),
+			new DimEntry("powers:light_realm", Component.translatable("dimension.powers.light_realm")));
 
 	private final int slot;
-
-	// the destinations on offer this session; the dark realm is hidden from
-	// players who haven't earned the darkness mark at rank 5+
-	private List<DimEntry> available;
-
-	private EditBox xField, yField, zField, targetNameField;
-	private int dimIndex;
+	private List<DimEntry> available = List.of();
+	private EditBox xField;
+	private EditBox yField;
+	private EditBox zField;
+	private EditBox targetNameField;
+	private CycleButton<Integer> dimensionButton;
+	private int dimensionIndex;
 	private int mode;
 	private Component error;
 
@@ -45,96 +51,120 @@ public class TeleportInputScreen extends Screen {
 
 	@Override
 	protected void init() {
-		int cx = this.width / 2;
-		int fw = 120;
-
+		int left = panelX();
+		int top = panelY();
 		available = ClientPowerState.canSeeDarkRealm()
 				? DIMENSIONS
-				: DIMENSIONS.stream().filter(e -> !e.id().equals("powers:dark_realm")).toList();
-		List<String> dimNames = available.stream().map(e -> e.label()).toList();
-		List<Integer> dimValues = new java.util.ArrayList<>();
-		for (int i = 0; i < available.size(); i++) dimValues.add(i);
-		this.addRenderableWidget(CycleButton.<Integer>builder(
-						idx -> switch (idx) {
-							case 0 -> Component.literal("Self (coords)");
-							case 1 -> Component.literal("Other (coords)");
-							default -> Component.literal("To Player");
-						}, () -> 0)
-				.withValues(List.of(0, 1, 2))
-				.displayOnlyValue()
-				.create(cx - 88, 36, 176, 20, Component.literal("Mode"),
-						(btn, val) -> mode = val));
+				: DIMENSIONS.stream().filter(entry -> !entry.id().equals("powers:dark_realm")).toList();
+		List<Integer> dimensionValues = java.util.stream.IntStream.range(0, available.size()).boxed().toList();
 
-		this.xField = addRenderableWidget(new EditBox(this.font, cx - fw - 8, 62, fw, 20,
-				Component.translatable("screen.powers.teleport.x")));
-		this.yField = addRenderableWidget(new EditBox(this.font, cx + 4, 62, fw, 20,
-				Component.translatable("screen.powers.teleport.y")));
-		this.zField = addRenderableWidget(new EditBox(this.font, cx - fw - 8, 86, fw, 20,
-				Component.translatable("screen.powers.teleport.z")));
+		addRenderableWidget(CycleButton.<Integer>builder(this::modeName, () -> 0)
+				.withValues(List.of(0, 1, 2)).displayOnlyValue()
+				.create(left + 20, top + 32, 216, 20,
+						Component.translatable("screen.powers.teleport.mode"), (button, value) -> {
+							mode = value;
+							updateModeWidgets();
+						}));
 
-		this.addRenderableWidget(CycleButton.<Integer>builder(
-						idx -> Component.literal(dimNames.get(idx)), () -> 0)
-				.withValues(dimValues)
-				.displayOnlyValue()
-				.create(cx + 4, 86, fw, 20, Component.translatable("screen.powers.teleport.dimension"),
-						(btn, val) -> dimIndex = val));
+		xField = coordinateField(left + 20, top + 61, "screen.powers.teleport.x", "X");
+		yField = coordinateField(left + 132, top + 61, "screen.powers.teleport.y", "Y");
+		zField = coordinateField(left + 20, top + 88, "screen.powers.teleport.z", "Z");
+		dimensionButton = addRenderableWidget(CycleButton.<Integer>builder(
+				index -> available.get(index).label(), () -> 0)
+				.withValues(dimensionValues).displayOnlyValue()
+				.create(left + 132, top + 88, 104, 20,
+						Component.translatable("screen.powers.teleport.dimension"),
+						(button, value) -> dimensionIndex = value));
 
-		this.targetNameField = addRenderableWidget(new EditBox(this.font,
-				cx - fw / 2, 110, fw, 20, Component.translatable("screen.powers.teleport.target")));
-		this.targetNameField.setHint(Component.literal("Player name"));
+		targetNameField = addRenderableWidget(new EditBox(font, left + 20, top + 116, 216, 20,
+				Component.translatable("screen.powers.teleport.target")));
+		targetNameField.setHint(Component.translatable("screen.powers.teleport.target_hint"));
+		targetNameField.setMaxLength(16);
+		addRenderableWidget(Button.builder(Component.translatable("screen.powers.teleport.go"),
+				button -> confirm()).bounds(left + 68, top + 146, 120, 20).build());
+		updateModeWidgets();
+	}
 
-		this.addRenderableWidget(Button.builder(Component.translatable("screen.powers.teleport.go"),
-				btn -> confirm()).bounds(cx - 60, 138, 120, 20).build());
+	private EditBox coordinateField(int x, int y, String narrationKey, String hint) {
+		EditBox field = addRenderableWidget(new EditBox(font, x, y, 104, 20,
+				Component.translatable(narrationKey)));
+		field.setHint(Component.literal(hint));
+		field.setMaxLength(24);
+		return field;
+	}
+
+	private Component modeName(int value) {
+		return Component.translatable(switch (value) {
+			case 0 -> "screen.powers.teleport.mode_self";
+			case 1 -> "screen.powers.teleport.mode_other";
+			default -> "screen.powers.teleport.mode_player";
+		});
+	}
+
+	private void updateModeWidgets() {
+		if (xField == null) return;
+		boolean coordinates = mode != 2;
+		xField.visible = coordinates;
+		yField.visible = coordinates;
+		zField.visible = coordinates;
+		dimensionButton.visible = coordinates;
+		targetNameField.visible = mode != 0;
+		targetNameField.setY(panelY() + (mode == 2 ? 76 : 116));
 	}
 
 	private void confirm() {
-		this.error = null;
+		error = null;
+		String target = targetNameField.getValue().trim();
+		if (mode != 0 && target.isEmpty()) {
+			error = Component.translatable("screen.powers.teleport.target_required");
+			return;
+		}
 		try {
-			String target = targetNameField != null ? targetNameField.getValue().trim() : "";
-
 			if (mode == 2) {
-				if (target.isEmpty()) { error = Component.literal("Enter a player name"); return; }
-				// remember the slot for 200 ticks; pressing its key again confirms the teleport
 				ClientPowerState.markingSlot = slot;
 				ClientPowerState.markingTicks = 200;
 				ClientPlayNetworking.send(new PowersPackets.TeleportRequestPayload(
 						slot, 0, 0, 0,
-						ResourceKey.create(Registries.DIMENSION, Identifier.fromNamespaceAndPath("minecraft", "overworld")),
-						target, true));
+						ResourceKey.create(Registries.DIMENSION,
+								Identifier.fromNamespaceAndPath("minecraft", "overworld")), target, true));
 			} else {
-				// modes 0 and 1 use the typed coordinates, mode 1 also names the player being moved
 				double x = Double.parseDouble(xField.getValue().trim());
 				double y = Double.parseDouble(yField.getValue().trim());
 				double z = Double.parseDouble(zField.getValue().trim());
-				String dimId = available.get(dimIndex).id();
-				String targetName = (mode == 1) ? target : "";
-				Identifier id = Identifier.tryParse(dimId);
+				if (!Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)) {
+					throw new NumberFormatException("Coordinates must be finite");
+				}
+				Identifier id = Identifier.tryParse(available.get(dimensionIndex).id());
+				if (id == null) throw new IllegalStateException("Registered dimension ID became invalid");
 				ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, id);
 				ClientPlayNetworking.send(new PowersPackets.TeleportRequestPayload(
-						slot, x, y, z, key, targetName, false));
+						slot, x, y, z, key, mode == 1 ? target : "", false));
 			}
-			this.onClose();
-		} catch (NumberFormatException e) {
-			// bad numbers just show an error, the screen stays open for a retry
-			this.error = Component.translatable("screen.powers.teleport.invalid");
+			onClose();
+		} catch (NumberFormatException exception) {
+			error = Component.translatable("screen.powers.teleport.invalid");
 		}
 	}
 
 	@Override
-	public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
-		super.extractRenderState(g, mouseX, mouseY, delta);
-		int cx = this.width / 2;
+	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+		super.extractBackground(graphics, mouseX, mouseY, delta);
+		graphics.blit(RenderPipelines.GUI_TEXTURED, PANEL, panelX(), panelY(), 0, 0,
+				PANEL_WIDTH, PANEL_HEIGHT, PANEL_WIDTH, PANEL_HEIGHT);
+	}
 
-		g.text(this.font, this.title.getString(), (this.width - this.font.width(this.title)) / 2, 18, 0xFFFFFFFF, true);
+	@Override
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+		super.extractRenderState(graphics, mouseX, mouseY, delta);
+		graphics.centeredText(font, title, width / 2, panelY() + 14, 0xFFEAFBFF);
+		if (error != null) graphics.centeredText(font, error, width / 2, panelY() + 174, 0xFFFF7777);
+	}
 
-		boolean coords = mode != 2;
-		String label = mode == 2 ? "Target Player" : (mode == 1 ? "Teleport this player" : "Teleport yourself");
-		int lw = this.font.width(label);
-		g.text(this.font, label, cx - lw / 2, 136, 0xFFCCCCCC, true);
+	private int panelX() {
+		return (width - PANEL_WIDTH) / 2;
+	}
 
-		if (this.error != null) {
-			g.text(this.font, this.error.getString(),
-					(cx - this.font.width(this.error)) / 2, this.height - 24, 0xFFFF5555, true);
-		}
+	private int panelY() {
+		return Math.max(8, (height - PANEL_HEIGHT) / 2);
 	}
 }
