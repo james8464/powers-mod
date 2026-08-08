@@ -1,6 +1,8 @@
 package com.powers.power.crystals;
 
 import com.powers.PowersMod;
+import com.powers.mind.BodyProxyKind;
+import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
@@ -39,7 +41,15 @@ public class LightCrystalAbility extends Ability {
 	}
 
 	@Override
+	public boolean isSelectionAction(ServerPlayer player) {
+		return BodyProxyManager.hasSession(player, BodyProxyKind.REALM);
+	}
+
+	@Override
 	public boolean activate(ServerPlayer caster, PlayerPowers.PlayerPowersData data) {
+		if (BodyProxyManager.hasSession(caster, BodyProxyKind.REALM)) {
+			return BodyProxyManager.returnToBody(caster);
+		}
 		ServerLevel destLevel = ((ServerLevel) caster.level()).getServer().getLevel(DESTINATION);
 		if (destLevel == null) return false;
 
@@ -103,6 +113,7 @@ public class LightCrystalAbility extends Ability {
 					|| !PowerProtection.mayForceMove(caster, subject)
 					|| AmethystDampening.isDampened(subject)
 					|| !SafeDestinationResolver.validate(subject, dest, destPos, TravelKind.CRYSTAL).allowed()) return;
+			if (!BodyProxyManager.start(subject, BodyProxyKind.REALM)) return;
 			subject.teleport(new TeleportTransition(dest, destPos, Vec3.ZERO,
 					subject.getYRot(), subject.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 		});

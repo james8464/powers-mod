@@ -1,6 +1,7 @@
 package com.powers;
 
 import com.powers.command.PowerCommand;
+import com.powers.mind.BodyProxyManager;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.GodlyPunishment;
 import com.powers.network.PowersPackets;
@@ -178,6 +179,7 @@ public class PowersMod implements ModInitializer {
 		// no damage lands in the realm dimensions; forcefields stop attacks
 		// outright, and amethyst dampening turns aside power damage only
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
+			if (BodyProxyManager.isProxy(entity)) return BodyProxyManager.allowsDamage(entity, source);
 			// amethyst is the enemy of powers, not of swords: a shard in the
 			// pocket must never mean blanket immunity in a fistfight
 			if (AmethystDampening.isDampened(entity) && PowerDamage.isPowerDamage(source)) return false;
@@ -188,10 +190,15 @@ public class PowersMod implements ModInitializer {
 			String dim = entity.level().dimension().identifier().toString();
 			return !dim.equals("powers:dark_realm") && !dim.equals("powers:light_realm");
 		});
+		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damageTaken, blocked) ->
+				BodyProxyManager.afterDamage(entity, source, damageTaken));
+		ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) ->
+				BodyProxyManager.allowsDeath(entity));
 
 		// first join rolls three random powers that stick with the player for good
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ServerPlayer player = handler.getPlayer();
+			BodyProxyManager.recoverOnJoin(player);
 			PlayerPowers.get(player).assignRandom(player, false);
 			SkillSystem.syncPathVisibility(player);
 			SkillSystem.refresh(player);
@@ -206,6 +213,7 @@ public class PowersMod implements ModInitializer {
 			// dying inside a realm hands the player back to the overworld, so
 			// the pending restore would otherwise fire against the wrong mode
 			if (!alive) {
+				BodyProxyManager.discardOnDeath(newPlayer);
 				PlayerPowers.get(newPlayer).setPreviousGameMode(null);
 			}
 			refreshPassives(newPlayer);
@@ -231,7 +239,9 @@ public class PowersMod implements ModInitializer {
 			SizeShiftAbility.clear(player.getUUID());
 			SlowWorldAbility.clear(player.getUUID());
 			SpaceTimeAbility.clear(player.getUUID());
+			BodyProxyManager.returnToBody(player);
 		});
+		ServerLifecycleEvents.SERVER_STOPPING.register(BodyProxyManager::returnAll);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			STORMS.clear();
 			DELAYED.clear();
@@ -317,6 +327,7 @@ public class PowersMod implements ModInitializer {
 			SpaceTimeAbility.tickAll(server);
 			DreamwalkingAbility.tickAll(server);
 			CrystalPowerRegistry.tick(server);
+			BodyProxyManager.tickAll();
 			TeleportAbility.tickMarking();
 			tickStorms();
 			tickDelayed(tick);

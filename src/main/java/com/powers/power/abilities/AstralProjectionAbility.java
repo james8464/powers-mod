@@ -2,6 +2,8 @@ package com.powers.power.abilities;
 
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
+import com.powers.mind.BodyProxyKind;
+import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.util.PowerMessages;
@@ -48,6 +50,7 @@ public class AstralProjectionAbility extends Ability {
 		}
 
 		ServerLevel level = (ServerLevel) player.level();
+		if (!BodyProxyManager.start(player, BodyProxyKind.ASTRAL)) return false;
 		Projection projection = new Projection(player, level.dimension(), player.position(), player.gameMode(),
 				level.getServer().getTickCount() + DURATION);
 		ACTIVE.put(player.getUUID(), projection);
@@ -102,19 +105,24 @@ public class AstralProjectionAbility extends Ability {
 	private static void end(ServerPlayer player, Projection projection) {
 		// bring the ghost back to the recorded origin, then restore game mode
 		ServerLevel destination = ((ServerLevel) player.level()).getServer().getLevel(projection.dimension());
-		if (destination != null) {
+		boolean returned = BodyProxyManager.returnToBody(player);
+		if (!returned && destination != null) {
 			player.teleport(new TeleportTransition(destination, projection.origin(), Vec3.ZERO,
 					player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 			PowerFx.burst(destination, projection.origin().add(0, 1, 0), ParticleTypes.SOUL, 16, 0.8, 0.02);
 			PowerFx.sound(destination, projection.origin(), SoundEvents.AMETHYST_BLOCK_CHIME, 0.9f, 0.95f);
 		}
-		player.setGameMode(projection.gameMode());
+		if (!returned) {
+			player.setGameMode(projection.gameMode());
+			BodyProxyManager.finish(player);
+		}
 		PowerMessages.send(player, "ability.powers.astral_ended", 3);
 	}
 
 	public static void clear(UUID player) {
 		Projection projection = ACTIVE.remove(player);
 		if (projection != null && projection.player().isAlive()) end(projection.player(), projection);
+		else if (projection != null) BodyProxyManager.discardOnDeath(projection.player());
 	}
 
 	public static void clearAll() {

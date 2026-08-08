@@ -4,6 +4,8 @@ import com.powers.PowersMod;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.GodlyPunishment;
 import com.powers.fx.PowerFx;
+import com.powers.mind.BodyProxyKind;
+import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
@@ -68,6 +70,7 @@ public class TeleportAbility extends Ability {
 			reportTravelFailure(player, player, entry, destination.failure());
 			return false;
 		}
+		if (!BodyProxyManager.start(player, BodyProxyKind.MARKING)) return false;
 		// remember the original dimension, spot and game mode so the marking can always be undone
 		MARKING.put(player.getUUID(), new MarkingState(
 				player, player.level().dimension(), player.position(), player.gameMode(),
@@ -86,9 +89,10 @@ public class TeleportAbility extends Ability {
 
 	/** Completes the marking teleport to the coordinates picked in spectator mode, restoring your game mode. */
 	public static void completeMarking(ServerPlayer player, int slot, Vec3 pos) {
-		MarkingState state = MARKING.remove(player.getUUID());
+		MarkingState state = MARKING.get(player.getUUID());
 		// no active marking, or the packet came from another slot - ignore it
 		if (state == null || state.slot() != slot) return;
+		MARKING.remove(player.getUUID());
 		// a corrupted packet could carry NaN and break the teleport, bail out and stay in place
 		if (!Double.isFinite(pos.x()) || !Double.isFinite(pos.y()) || !Double.isFinite(pos.z())) {
 			restore(player, state);
@@ -119,6 +123,7 @@ public class TeleportAbility extends Ability {
 		player.teleport(new TeleportTransition(level, safe, Vec3.ZERO,
 				player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 		player.setGameMode(state.originalMode());
+		BodyProxyManager.finish(player);
 	}
 
 	/** Finds the first open spot at or above the marked position, since spectators can fly into walls. */
@@ -162,6 +167,8 @@ public class TeleportAbility extends Ability {
 
 	// puts a marking player back where they started, in the mode they started in
 	private static void restore(ServerPlayer player, MarkingState state) {
+		if (BodyProxyManager.hasSession(player, BodyProxyKind.MARKING)
+				&& BodyProxyManager.returnToBody(player)) return;
 		MinecraftServer server = player.level().getServer();
 		ServerLevel originalLevel = server == null ? null : server.getLevel(state.originalDimension());
 		if (originalLevel != null) {
@@ -169,6 +176,7 @@ public class TeleportAbility extends Ability {
 					Set.of(), player.getYRot(), player.getXRot(), false);
 		}
 		player.setGameMode(state.originalMode());
+		BodyProxyManager.finish(player);
 	}
 
 	public static void tickMarking() {
@@ -284,6 +292,7 @@ public class TeleportAbility extends Ability {
 				PowerMessages.send(caster, "ability.powers.no_entry", 4);
 			}
 			case OUT_OF_BOUNDS, UNLOADED_CHUNK -> PowerMessages.send(caster, "ability.powers.out_of_bounds", 3);
+			case SAFE_ZONE -> PowerMessages.send(caster, "ability.powers.no_entry", 4);
 			case COLLISION, HAZARD -> PowerMessages.send(caster, "ability.powers.solid_block", 3);
 			case NONE -> { }
 		}

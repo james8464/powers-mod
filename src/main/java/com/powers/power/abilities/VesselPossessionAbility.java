@@ -1,6 +1,8 @@
 package com.powers.power.abilities;
 
 import com.powers.PowersMod;
+import com.powers.mind.BodyProxyKind;
+import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
@@ -24,7 +26,7 @@ import java.util.UUID;
 public class VesselPossessionAbility extends Ability {
 	// 10 seconds of possession
 	private static final int POSSESS_TICKS = 200;
-	private record Possession(ServerPlayer target, long endsAt) {}
+	private record Possession(ServerPlayer owner, ServerPlayer target, long endsAt) {}
 	// one possession per owner uuid, cleaned up on disconnect and server stop so it can't leak
 	private static final Map<UUID, Possession> POSSESSING = new HashMap<>();
 
@@ -54,10 +56,12 @@ public class VesselPossessionAbility extends Ability {
 			PowerMessages.send(player, "powers.packet.consent_denied", 1, targetSP.getName().getString());
 			return false;
 		}
+		if (!BodyProxyManager.start(player, BodyProxyKind.POSSESSION)) return false;
 
 		MinecraftServer server = ((ServerLevel) player.level()).getServer();
-		POSSESSING.put(player.getUUID(), new Possession(targetSP, server.getTickCount() + POSSESS_TICKS));
+		POSSESSING.put(player.getUUID(), new Possession(player, targetSP, server.getTickCount() + POSSESS_TICKS));
 		// watch the world through the target's eyes
+		player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
 		player.setCamera(targetSP);
 		ServerLevel level = (ServerLevel) player.level();
 		com.powers.fx.PowerFx.beam(level, player.getEyePosition(), targetSP.getEyePosition(),
@@ -80,7 +84,7 @@ public class VesselPossessionAbility extends Ability {
 			if (owner == null || !owner.isAlive() || !possession.target().isAlive()
 					|| !targetOnline || now >= possession.endsAt()) {
 				// reset the owner's camera before dropping the possession
-				if (owner != null) owner.setCamera(null);
+				if (owner != null) end(owner);
 				it.remove();
 			}
 		}
@@ -88,13 +92,18 @@ public class VesselPossessionAbility extends Ability {
 
 	/** Ends any possession by the given player and resets their camera, used on disconnect. */
 	public static void clear(ServerPlayer owner) {
-		if (POSSESSING.remove(owner.getUUID()) != null && owner.isAlive()) {
-			owner.setCamera(null);
+		if (POSSESSING.remove(owner.getUUID()) != null) {
+			end(owner);
 		}
 	}
 
-	// server stop - cameras and possessions die with the players, just empty the map
+	private static void end(ServerPlayer owner) {
+		owner.setCamera(null);
+		BodyProxyManager.returnToBody(owner);
+	}
+
 	public static void clearAll() {
+		for (Possession possession : POSSESSING.values()) end(possession.owner());
 		POSSESSING.clear();
 	}
 }

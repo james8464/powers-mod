@@ -29,23 +29,24 @@ public final class SafeDestinationResolver {
 
 		DestinationFailure realm = realmFailure(target.dimension().identifier().getPath().equals("middleworld"), kind);
 		if (realm != DestinationFailure.NONE) return new Result(realm, requested);
-		if (DimensionalAnchorAbility.isAnchored(subject)
+		if (kind != TravelKind.RETURN && kind != TravelKind.ADMIN && DimensionalAnchorAbility.isAnchored(subject)
 				&& !target.dimension().equals(DimensionalAnchorAbility.anchorDimension(subject))) {
 			return new Result(DestinationFailure.ANCHOR, requested);
 		}
 		if (SkillSystem.isDarkRealm(target.dimension())
 				&& !SkillSystem.isDarkRealm(subject.level().dimension())
-				&& kind != TravelKind.CRYSTAL && kind != TravelKind.ADMIN
+				&& kind != TravelKind.CRYSTAL && kind != TravelKind.RETURN && kind != TravelKind.ADMIN
 				&& !SkillSystem.canEnterDarkRealm(subject)) {
 			return new Result(DestinationFailure.REALM_RESTRICTED, requested);
 		}
 
 		BlockPos feet = BlockPos.containing(requested);
 		if (!target.hasChunkAt(feet)) return new Result(DestinationFailure.UNLOADED_CHUNK, requested);
-		if (AmethystDampening.findPoweredWard(target, feet).isPresent()) {
+		if (kind != TravelKind.RETURN && kind != TravelKind.ADMIN
+				&& AmethystDampening.findPoweredWard(target, feet).isPresent()) {
 			return new Result(DestinationFailure.WARD, requested);
 		}
-		if (kind != TravelKind.ADMIN && PowerProtection.isSafeZone(target, requested)) {
+		if (kind != TravelKind.RETURN && kind != TravelKind.ADMIN && PowerProtection.isSafeZone(target, requested)) {
 			return new Result(DestinationFailure.SAFE_ZONE, requested);
 		}
 		BlockPos head = feet.above();
@@ -69,7 +70,7 @@ public final class SafeDestinationResolver {
 	}
 
 	static DestinationFailure realmFailure(boolean middleworld, TravelKind kind) {
-		return middleworld && kind != TravelKind.CRYSTAL && kind != TravelKind.ADMIN
+		return middleworld && kind != TravelKind.CRYSTAL && kind != TravelKind.RETURN && kind != TravelKind.ADMIN
 				? DestinationFailure.REALM_RESTRICTED : DestinationFailure.NONE;
 	}
 }

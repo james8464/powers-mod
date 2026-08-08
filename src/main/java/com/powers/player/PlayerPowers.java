@@ -3,6 +3,7 @@ package com.powers.player;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.powers.network.PowersPackets;
+import com.powers.mind.MindBodyState;
 import com.powers.player.SkillSystem;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
@@ -113,6 +114,10 @@ public final class PlayerPowers {
 			com.powers.PowersMod.id("dimensional_anchor"),
 			builder -> builder.persistent(AnchorState.CODEC).copyOnDeath());
 
+	private static final AttachmentType<MindBodyState> MIND_BODY = AttachmentRegistry.create(
+			com.powers.PowersMod.id("mind_body"),
+			builder -> builder.persistent(MindBodyState.CODEC).copyOnDeath());
+
 	// -1 means the power does not own a snapshot. Remaining bits preserve the
 	// flags that existed before the power changed them, even across a relog.
 	private static final AttachmentType<Integer> FLIGHT_SNAPSHOT = persistentInt("flight_snapshot", -1);
@@ -172,6 +177,15 @@ public final class PlayerPowers {
 
 		public AnchorState dimensionalAnchor() {
 			return target.getAttached(DIMENSIONAL_ANCHOR);
+		}
+
+		public MindBodyState mindBody() {
+			return target.getAttached(MIND_BODY);
+		}
+
+		public void setMindBody(MindBodyState state) {
+			if (state == null) target.removeAttached(MIND_BODY);
+			else target.setAttached(MIND_BODY, state);
 		}
 
 		public void setDimensionalAnchor(String dimensionId, long expiresAt) {
