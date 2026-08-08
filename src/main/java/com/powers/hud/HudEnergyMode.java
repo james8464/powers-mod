@@ -4,5 +4,6 @@ public enum HudEnergyMode {
 	NORMAL,
 	EMPTY,
 	DARKNESS,
+	PROJECTION,
 	DAMPENED
 }

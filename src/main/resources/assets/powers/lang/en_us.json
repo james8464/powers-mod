@@ -122,6 +122,7 @@
 	"hud.powers.energy.normal": "ARCANE RESERVE",
 	"hud.powers.energy.empty": "WELL EXHAUSTED",
 	"hud.powers.energy.darkness": "DARKNESS",
+	"hud.powers.energy.projection": "SOUL TETHER",
 	"hud.powers.energy.dampened": "AMETHYST SEALED",
 	"item.powers.amethyst_greatblade": "Amethyst Greatblade",
 	"item.powers.amethyst_greatpick": "Amethyst Greatpick",

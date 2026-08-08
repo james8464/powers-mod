@@ -138,7 +138,8 @@ public final class PowersPackets {
 			buf -> new UUID(buf.readLong(), buf.readLong()));
 
 	public record PowerStatePayload(List<String> powerIds, List<String> activeToggles, List<Integer> cooldownTicks,
-			int energy, int energyCapacity, boolean canSeeDarkRealm, boolean darkness) implements CustomPacketPayload {
+			int energy, int energyCapacity, boolean canSeeDarkRealm, boolean darkness,
+			boolean projection) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<PowerStatePayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("power_state"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, PowerStatePayload> STREAM_CODEC =
@@ -157,6 +158,8 @@ public final class PowersPackets {
 						PowerStatePayload::canSeeDarkRealm,
 						ByteBufCodecs.BOOL,
 						PowerStatePayload::darkness,
+						ByteBufCodecs.BOOL,
+						PowerStatePayload::projection,
 						PowerStatePayload::new);
 
 		@Override
@@ -501,7 +504,8 @@ public final class PowersPackets {
 				data.energy(),
 				data.energyCapacity(),
 				SkillSystem.canEnterDarkRealm(player),
-				data.isDarknessUser());
+				data.isDarknessUser(),
+				data.mindBody() != null);
 		if (payload.equals(LAST_SENT_STATE.get(player.getUUID()))) return;
 		LAST_SENT_STATE.put(player.getUUID(), payload);
 		ServerPlayNetworking.send(player, payload);

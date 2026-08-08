@@ -19,6 +19,8 @@ class HudMathTest {
 		assertEquals(HudEnergyMode.EMPTY, HudMath.mode(0, false, true));
 		assertEquals(HudEnergyMode.DARKNESS, HudMath.mode(50, false, true));
 		assertEquals(HudEnergyMode.NORMAL, HudMath.mode(50, false, false));
+		assertEquals(HudEnergyMode.PROJECTION, HudMath.mode(50, false, false, true));
+		assertEquals(HudEnergyMode.DAMPENED, HudMath.mode(50, true, false, true));
 	}
 
 	@Test
