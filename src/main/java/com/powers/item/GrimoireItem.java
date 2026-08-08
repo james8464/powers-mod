@@ -1,6 +1,6 @@
 package com.powers.item;
 
-import com.powers.util.PowerMessages;
+import com.powers.spell.SpellCastingManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -20,8 +20,12 @@ public class GrimoireItem extends Item {
 	@Override
 	public InteractionResult use(Level level, Player user, InteractionHand hand) {
 		if (!level.isClientSide() && user instanceof ServerPlayer player) {
-			PowerMessages.send(player, "grimoire.powers.placeholder", 3, key);
+			SpellCastingManager.use(player, key);
 		}
 		return InteractionResult.SUCCESS;
+	}
+
+	public String key() {
+		return key;
 	}
 }

@@ -7,6 +7,7 @@ public enum DestinationFailure {
 	COLLISION,
 	HAZARD,
 	WARD,
+	ANTI_PORTAL,
 	SAFE_ZONE,
 	ANCHOR,
 	REALM_RESTRICTED

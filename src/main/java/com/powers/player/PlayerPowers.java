@@ -128,6 +128,13 @@ public final class PlayerPowers {
 					.persistent(Codec.unboundedMap(Codec.STRING, Codec.LONG))
 					.copyOnDeath());
 
+	private static final AttachmentType<Map<String, Integer>> SPELL_SELECTIONS = AttachmentRegistry.create(
+			com.powers.PowersMod.id("spell_selections"),
+			builder -> builder
+					.initializer(HashMap::new)
+					.persistent(Codec.unboundedMap(Codec.STRING, Codec.INT))
+					.copyOnDeath());
+
 	private static final AttachmentType<AnchorState> DIMENSIONAL_ANCHOR = AttachmentRegistry.create(
 			com.powers.PowersMod.id("dimensional_anchor"),
 			builder -> builder.persistent(AnchorState.CODEC).copyOnDeath());
@@ -175,6 +182,20 @@ public final class PlayerPowers {
 	}
 
 	public record PlayerPowersData(AttachmentTarget target) {
+		public int selectedSpell(String grimoireKey, int spellCount) {
+			if (spellCount <= 0) return 0;
+			int selected = target.getAttachedOrElse(SPELL_SELECTIONS, Map.of()).getOrDefault(grimoireKey, 0);
+			return Math.floorMod(selected, spellCount);
+		}
+
+		public int cycleSpell(String grimoireKey, int spellCount) {
+			if (spellCount <= 0) return 0;
+			int selected = (selectedSpell(grimoireKey, spellCount) + 1) % spellCount;
+			Map<String, Integer> updated = new HashMap<>(target.getAttachedOrElse(SPELL_SELECTIONS, Map.of()));
+			updated.put(grimoireKey, selected);
+			target.setAttached(SPELL_SELECTIONS, updated);
+			return selected;
+		}
 		public long cooldownReadyAt(String abilityId) {
 			return target.getAttachedOrElse(COOLDOWNS, Map.of()).getOrDefault(abilityId, 0L);
 		}

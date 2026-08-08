@@ -329,18 +329,16 @@ public final class PowersPackets {
 			ServerPlayer player = context.player();
 			long tick = context.server().getTickCount();
 			if (!LOCATOR_NONCES.consume(player.getUUID(), payload.nonce(), tick)) return;
-			boolean holdingGrimoire = player.getMainHandItem().getItem() instanceof com.powers.item.CelestialGrimoireItem
-					|| player.getOffhandItem().getItem() instanceof com.powers.item.CelestialGrimoireItem;
+			boolean holdingGrimoire = (player.getMainHandItem().getItem() instanceof com.powers.item.GrimoireItem main
+						&& com.powers.spell.SpellCastingManager.registry().forTexture(main.key()) != null
+						&& com.powers.spell.SpellCastingManager.registry().forTexture(main.key()).key().equals("book_grimoire_celestial"))
+					|| (player.getOffhandItem().getItem() instanceof com.powers.item.GrimoireItem off
+						&& com.powers.spell.SpellCastingManager.registry().forTexture(off.key()) != null
+						&& com.powers.spell.SpellCastingManager.registry().forTexture(off.key()).key().equals("book_grimoire_celestial"));
 			if (!holdingGrimoire) return;
 			// frozen time stalls the grimoire too, and the payment never lands
 			if (SpaceTimeAbility.isFrozen(player)) {
 				SpaceTimeAbility.reject(player);
-				return;
-			}
-			// the grimoire takes its price before the search begins; the cost
-			// is spent even when the spell recoils and reveals nothing
-			if (player.experienceLevel < com.powers.item.CelestialGrimoireItem.XP_COST) {
-				PowerMessages.send(player, "grimoire.celestial.low_xp", 3);
 				return;
 			}
 			ServerPlayer target = findOnlinePlayer(player, payload.targetUuid());
@@ -381,7 +379,10 @@ public final class PowersPackets {
 				}
 			}
 
-			player.giveExperienceLevels(-com.powers.item.CelestialGrimoireItem.XP_COST);
+			// The selection packet only names a target. The server revalidates the
+			// held celestial book, selected spell, cooldown and energy immediately
+			// before committing the cast.
+			if (!com.powers.spell.SpellCastingManager.commitSoulCompass(player)) return;
 			cast(player, level, pos, target);
 		});
 	}

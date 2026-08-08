@@ -63,6 +63,7 @@ public final class AmethystDampening {
 	// itself, so the lookup below is a walk over a handful of positions rather
 	// than a brute-force sweep of the volume around each player
 	private static final Map<ResourceKey<Level>, Set<BlockPos>> POWERED_WARDS = new HashMap<>();
+	private static final Map<ResourceKey<Level>, Map<BlockPos, Long>> SUPPRESSED_WARDS = new HashMap<>();
 
 	private AmethystDampening() {
 	}
@@ -103,6 +104,13 @@ public final class AmethystDampening {
 	/** Drops the ward index on shutdown; it is rebuilt from block updates on load. */
 	public static void clearAll() {
 		POWERED_WARDS.clear();
+		SUPPRESSED_WARDS.clear();
+	}
+
+	/** A completed ward-breaking ritual grounds one powered ward temporarily. */
+	public static void suppressWard(ServerLevel level, BlockPos pos, int durationTicks) {
+		SUPPRESSED_WARDS.computeIfAbsent(level.dimension(), key -> new HashMap<>())
+				.put(pos.immutable(), level.getGameTime() + durationTicks);
 	}
 
 	/**
@@ -120,6 +128,12 @@ public final class AmethystDampening {
 		var it = wards.iterator();
 		while (it.hasNext()) {
 			BlockPos pos = it.next();
+			Map<BlockPos, Long> suppressed = SUPPRESSED_WARDS.get(level.dimension());
+			if (suppressed != null) {
+				long expiry = suppressed.getOrDefault(pos, 0L);
+				if (expiry > level.getGameTime()) continue;
+				if (expiry != 0L) suppressed.remove(pos);
+			}
 			if (level.hasChunkAt(pos)) {
 				BlockState state = level.getBlockState(pos);
 				if (!state.is(PowersBlocks.AMETHYST_WARD) || !AmethystWardBlock.isPowered(state)) {
