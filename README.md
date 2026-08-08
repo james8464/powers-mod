@@ -65,18 +65,23 @@ Soul Compass uses a server-authenticated target selection flow and honours locat
 
 ## Crystals
 
-Six crystals currently have bound abilities:
+Every crystal has a bound ability or selectable convergence. Sneak-use turns a multi-mode crystal; normal use releases its selected force.
 
 | Crystal | Ability |
 | --- | --- |
-| Orange | Creativity Manifestation |
-| Green | Space-Time control |
-| Blue | Dreamwalking |
-| Indigo | Middleworld travel and its selectable modes |
+| Red | Inferno |
+| Orange | Cloning / Creativity Manifestation |
+| Yellow | Size Shift |
+| Green | Life Bloom / Space-Time control |
+| Blue | Chrono Stop / Dreamwalking |
+| Indigo | Portal Rift / Middleworld gateway |
+| Violet | Soul Link |
+| Rainbow | Sevenfold convergence of the chromatic forces |
+| Infected Rainbow | Fractured convergence of Inferno, Chrono Stop, Portal Rift, and Soul Link |
 | Light | Light Realm mind travel |
 | Dark | Dark Realm mind travel |
 
-Red, Yellow, Violet, Rainbow, and Infected Rainbow crystals intentionally remain dormant while their lore is unfinished. Crystal crafting recipes are deliberately not included; they are reserved for later progression design. The resource validator prevents accidental crystal recipes from entering a release.
+Convergence cooldowns are shared with their underlying forces, so swapping crystals cannot bypass a rare ability's recharge. Crystal crafting recipes are deliberately not included; they are reserved for later progression design. The resource validator prevents accidental crystal recipes from entering a release.
 
 ## Counterplay and server safety
 

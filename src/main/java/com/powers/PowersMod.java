@@ -230,6 +230,7 @@ public class PowersMod implements ModInitializer {
 			SizeShiftAbility.clear(player.getUUID());
 			SlowWorldAbility.clear(player.getUUID());
 			SpaceTimeAbility.clear(player.getUUID());
+			CrystalPowerRegistry.clearSelections(player.getUUID());
 			BodyProxyManager.returnToBody(player);
 			SpellCastingManager.clear(player);
 			EnergyDrainAbility.clear(player.getUUID());
@@ -250,6 +251,7 @@ public class PowersMod implements ModInitializer {
 			AstralProjectionAbility.clearAll();
 			EnergyDrainAbility.clearAll();
 			SpaceTimeAbility.clearAll();
+			CrystalPowerRegistry.clearAllSelections();
 			EntityFreezeController.clearAll();
 			DreamwalkingAbility.clearAll(server);
 			ChronoStopAbility.clearAll();

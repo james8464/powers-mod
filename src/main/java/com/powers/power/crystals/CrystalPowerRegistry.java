@@ -12,7 +12,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * the crystal tier of powers - a rank above regular steve powers with
@@ -23,19 +26,62 @@ import java.util.Map;
 public final class CrystalPowerRegistry {
 	// crystal item -> the ability bound to it
 	private static final Map<Item, Ability> POWERS = new HashMap<>();
+	private static final List<ModeCrystalAbility> MODE_CRYSTALS = new ArrayList<>();
 
 	private CrystalPowerRegistry() {
 	}
 
 	public static void initialize() {
-		// red, yellow and violet stay deliberately inert until their lore is defined
-		POWERS.put(PowersItems.ORANGE_CRYSTAL, new CreativityManifestationAbility());
-		POWERS.put(PowersItems.GREEN_CRYSTAL, new SpaceTimeAbility());
-		POWERS.put(PowersItems.BLUE_CRYSTAL, new DreamwalkingAbility());
-		POWERS.put(PowersItems.INDIGO_CRYSTAL, new MiddleworldAbility());
-		POWERS.put(PowersItems.LIGHT_CRYSTAL, new LightCrystalAbility());
-		POWERS.put(PowersItems.DARK_CRYSTAL, new DarkCrystalAbility());
-		// the infected rainbow crystal is intentionally inert for now
+		POWERS.clear();
+		MODE_CRYSTALS.clear();
+		for (var entry : CrystalAbilityCatalog.defaults().entrySet()) {
+			List<Ability> abilities = entry.getValue().stream().map(CrystalPowerRegistry::createAbility).toList();
+			Ability binding;
+			if (abilities.size() == 1) {
+				binding = abilities.getFirst();
+			} else {
+				ModeCrystalAbility convergence = new ModeCrystalAbility(entry.getKey(), abilities);
+				MODE_CRYSTALS.add(convergence);
+				binding = convergence;
+			}
+			POWERS.put(item(entry.getKey()), binding);
+		}
+	}
+
+	private static Item item(String crystal) {
+		return switch (crystal) {
+			case "red_crystal" -> PowersItems.RED_CRYSTAL;
+			case "orange_crystal" -> PowersItems.ORANGE_CRYSTAL;
+			case "yellow_crystal" -> PowersItems.YELLOW_CRYSTAL;
+			case "green_crystal" -> PowersItems.GREEN_CRYSTAL;
+			case "blue_crystal" -> PowersItems.BLUE_CRYSTAL;
+			case "indigo_crystal" -> PowersItems.INDIGO_CRYSTAL;
+			case "violet_crystal" -> PowersItems.VIOLET_CRYSTAL;
+			case "rainbow_crystal" -> PowersItems.RAINBOW_CRYSTAL;
+			case "infected_rainbow_crystal" -> PowersItems.INFECTED_RAINBOW_CRYSTAL;
+			case "light_crystal" -> PowersItems.LIGHT_CRYSTAL;
+			case "dark_crystal" -> PowersItems.DARK_CRYSTAL;
+			default -> throw new IllegalArgumentException("Unknown crystal binding: " + crystal);
+		};
+	}
+
+	private static Ability createAbility(String ability) {
+		return switch (ability) {
+			case "inferno" -> new InfernoAbility();
+			case "creativity_manifestation" -> new CreativityManifestationAbility();
+			case "clone_swarm" -> new CloneSwarmAbility();
+			case "size_shift" -> new SizeShiftAbility();
+			case "space_time" -> new SpaceTimeAbility(true);
+			case "life_bloom" -> new LifeBloomAbility();
+			case "dreamwalking" -> new DreamwalkingAbility();
+			case "middleworld" -> new MiddleworldAbility();
+			case "portal_rift" -> new PortalRiftAbility();
+			case "soul_link" -> new SoulLinkAbility();
+			case "chrono_stop" -> new ChronoStopAbility();
+			case "light_crystal" -> new LightCrystalAbility();
+			case "dark_crystal" -> new DarkCrystalAbility();
+			default -> throw new IllegalArgumentException("Unknown crystal ability: " + ability);
+		};
 	}
 
 	/** The ability bound to a crystal item, or null if the crystal is inert. */
@@ -99,5 +145,13 @@ public final class CrystalPowerRegistry {
 		ChronoStopAbility.tickStops(server);
 		InfernoAbility.tickAll(server);
 		SoulLinkAbility.tickAll(server);
+	}
+
+	public static void clearSelections(UUID player) {
+		MODE_CRYSTALS.forEach(crystal -> crystal.clear(player));
+	}
+
+	public static void clearAllSelections() {
+		MODE_CRYSTALS.forEach(ModeCrystalAbility::clearAll);
 	}
 }
