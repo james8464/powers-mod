@@ -6,6 +6,7 @@ import com.powers.player.PlayerPowers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 public final class PowerProtection {
@@ -46,6 +47,18 @@ public final class PowerProtection {
 		if (isSafeZone((ServerLevel) target.level(), target.position())) return false;
 		if (!config.requireTeleportConsent() || config.hostileForcedMovement()) return true;
 		return PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.TELEPORT);
+	}
+
+	/** Entity-safe overload used by knockback, levitation and time powers. */
+	public static boolean mayForceMove(ServerPlayer caster, LivingEntity target) {
+		if (caster == target) return true;
+		if (isSafeZone((ServerLevel) target.level(), target.position())) return false;
+		return !(target instanceof ServerPlayer player) || mayForceMove(caster, player);
+	}
+
+	/** Safe zones prevent offensive power damage regardless of target type. */
+	public static boolean mayHarm(ServerPlayer caster, LivingEntity target) {
+		return caster == target || !isSafeZone((ServerLevel) target.level(), target.position());
 	}
 
 	public static boolean mayLocate(ServerPlayer caster, ServerPlayer target) {

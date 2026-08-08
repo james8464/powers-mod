@@ -2,13 +2,20 @@ package com.powers.power.abilities;
 
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
+import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
+import com.powers.power.AmethystDampening;
+import com.powers.power.PowerDamage;
+import com.powers.power.PowerTargeting;
+import com.powers.protection.PowerProtection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -26,11 +33,12 @@ public class LightningStrikeAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		var level = (net.minecraft.server.level.ServerLevel) player.level();
-		HitResult hit = player.pick(64.0, 0.0f, false);
+		double range = SkillSystem.range(player, 64.0);
+		HitResult hit = PowerTargeting.raycast(player, range);
 		Vec3 target = hit.getLocation();
 		if (hit.getType() == HitResult.Type.MISS) {
 			// looking at the sky, so strike at full range instead
-			target = player.getEyePosition().add(player.getLookAngle().scale(64.0));
+			target = player.getEyePosition().add(player.getLookAngle().scale(range));
 		}
 
 		BlockPos pos = BlockPos.containing(target);
@@ -45,8 +53,13 @@ public class LightningStrikeAbility extends Ability {
 			return false;
 		}
 		bolt.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
-		bolt.setCause(player);
+		bolt.setVisualOnly(true);
 		level.addFreshEntity(bolt);
+		for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class,
+				AABB.ofSize(strikePoint, 5.0, 6.0, 5.0), e -> e.isAlive() && e != player
+						&& !AmethystDampening.isDampened(e) && PowerProtection.mayHarm(player, e))) {
+			victim.hurtServer(level, PowerDamage.source(player), SkillSystem.damage(player, 8.0f));
+		}
 		return true;
 	}
 }

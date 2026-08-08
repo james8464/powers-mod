@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.protection.PowerProtection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -79,7 +80,8 @@ public class SlowWorldAbility extends Ability {
 				// heavy slow for 3 seconds so it lingers between pulses
 				for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class,
 						AABB.ofSize(player.position().add(0, 1, 0), RADIUS * 2, RADIUS * 2, RADIUS * 2),
-						e -> e.isAlive() && e != player && !player.isAlliedTo(e))) {
+						e -> e.isAlive() && e != player && !player.isAlliedTo(e)
+								&& PowerProtection.mayForceMove(player, e))) {
 					target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 4, false, false));
 				}
 			}

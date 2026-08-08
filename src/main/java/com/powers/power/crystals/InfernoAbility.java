@@ -4,16 +4,16 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.AmethystDampening;
+import com.powers.power.PowerDamage;
+import com.powers.protection.PowerProtection;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -77,24 +77,18 @@ public class InfernoAbility extends Ability {
 			if (left % 8 == 0) {
 				Vec3 origin = player.position().add(0, 1.2, 0);
 				for (int i = 0; i < 6; i++) {
-					SmallFireball fireball = EntityTypes.SMALL_FIREBALL.create(level, EntitySpawnReason.TRIGGERED);
-					if (fireball != null) {
-						// spawn each meteor at a random spot inside the radius, up to 6 blocks overhead
-						fireball.setPos(origin.x + (level.getRandom().nextDouble() - 0.5) * 2 * RADIUS,
-								origin.y + level.getRandom().nextDouble() * 6,
-								origin.z + (level.getRandom().nextDouble() - 0.5) * 2 * RADIUS);
-						// all falling, drifting slightly sideways
-						fireball.setDeltaMovement(new Vec3(
-								(level.getRandom().nextDouble() - 0.5) * 0.5,
-								-0.25 - level.getRandom().nextDouble() * 0.3,
-								(level.getRandom().nextDouble() - 0.5) * 0.5));
-						level.addFreshEntity(fireball);
-					}
+					Vec3 impact = origin.add((level.getRandom().nextDouble() - 0.5) * 2 * RADIUS,
+							-1.0, (level.getRandom().nextDouble() - 0.5) * 2 * RADIUS);
+					PowerFx.beam(level, impact.add(0, 8, 0), impact, ParticleTypes.FLAME, 10);
+					PowerFx.burst(level, impact, ParticleTypes.LARGE_SMOKE, 4, 0.4, 0.04);
 				}
 				// set everything within 12 blocks alight for 8 seconds
 				for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class,
 						AABB.ofSize(origin, RADIUS * 2, 8, RADIUS * 2),
-						e -> e.isAlive() && e != player)) {
+						e -> e.isAlive() && e != player && e.distanceToSqr(player) <= RADIUS * RADIUS
+								&& !AmethystDampening.isDampened(e)
+								&& PowerProtection.mayHarm(player, e))) {
+					target.hurtServer(level, PowerDamage.source(player), 2.0f);
 					target.igniteForSeconds(8);
 				}
 				PowerFx.burst(level, origin, ParticleTypes.FLAME, 20, 2.5, 0.2);

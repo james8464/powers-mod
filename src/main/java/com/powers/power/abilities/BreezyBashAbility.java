@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.protection.PowerProtection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,13 +31,16 @@ public class BreezyBashAbility extends Ability {
 		AABB area = AABB.ofSize(player.position(), 16.0, 16.0, 16.0);
 		for (LivingEntity target : level.getEntities(
 				EntityTypeTest.forClass(LivingEntity.class), area,
-				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e))) {
+				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
+						&& PowerProtection.mayForceMove(player, e))) {
 			target.setDeltaMovement(0, 1.6, 0);
 			target.hurtMarked = true;
 
 			// 18 ticks later, on the way down, slam them into the ground
 			PowersMod.scheduleDelayed(level.getServer(), 18, () -> {
-				if (target.isAlive() && target.level() == level) {
+				if (target.isAlive() && target.level() == level
+						&& PowerProtection.mayForceMove(player, target)
+						&& !AmethystDampening.isDampened(target)) {
 					target.setDeltaMovement(0, -2.5, 0);
 					target.hurtMarked = true;
 				}

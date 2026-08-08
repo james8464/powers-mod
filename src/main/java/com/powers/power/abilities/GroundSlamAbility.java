@@ -46,12 +46,15 @@ public class GroundSlamAbility extends Ability {
 		AABB area = AABB.ofSize(player.position(), 10.0, 6.0, 10.0);
 		for (LivingEntity target : level.getEntities(
 			EntityTypeTest.forClass(LivingEntity.class), area,
-			e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e))) {
+			e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
+					&& PowerProtection.mayHarm(player, e))) {
 			// damage scales with the player's skill level
 			target.hurtServer(level, source, SkillSystem.damage(player, 6.0f));
 			// fling them away from the player and send up smoke
 			Vec3 away = target.position().subtract(player.position()).normalize();
-			target.knockback(1.6, away.x, away.z, source, 1.0f);
+			if (PowerProtection.mayForceMove(player, target)) {
+				target.knockback(1.6, away.x, away.z, source, 1.0f);
+			}
 			PowerFx.burst(level, target.position().add(0, target.getBbHeight() * 0.5, 0),
 					net.minecraft.core.particles.ParticleTypes.CAMPFIRE_COSY_SMOKE, 6, 0.5, 0.02);
 		}
