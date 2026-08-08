@@ -38,7 +38,8 @@ public class LifeBloomAbility extends Ability {
 		Vec3 origin = player.position().add(0, 1, 0);
 		// the box reaches 20 blocks out from the caster in every direction
 		for (LivingEntity ally : level.getEntitiesOfClass(LivingEntity.class,
-				AABB.ofSize(origin, RADIUS * 2, RADIUS * 2, RADIUS * 2), LivingEntity::isAlive)) {
+				AABB.ofSize(origin, RADIUS * 2, RADIUS * 2, RADIUS * 2),
+				e -> e.isAlive() && CrystalTargeting.withinRadius(e.distanceToSqr(player), RADIUS))) {
 			if (ally instanceof ServerPlayer orPlayer) {
 				// Cleanse ailments without deleting beneficial effects owned by
 				// potions, beacons, other mods, or an active POWERS toggle.

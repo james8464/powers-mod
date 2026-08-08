@@ -76,7 +76,9 @@ public class PortalRiftAbility extends Ability {
 
 	private static void strike(ServerPlayer player, LivingEntity target) {
 		// skip the strike if either fighter died or left the dimension mid-chain
-		if (!player.isAlive() || !target.isAlive() || player.level() != target.level()
+		if (!player.isAlive() || player.isRemoved() || !target.isAlive() || target.isRemoved()
+				|| player.level().getServer().getPlayerList().getPlayer(player.getUUID()) != player
+				|| player.level() != target.level()
 				|| AmethystDampening.isDampened(target) || !PowerProtection.mayHarm(player, target)) {
 			return;
 		}
