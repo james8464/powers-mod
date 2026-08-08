@@ -70,4 +70,16 @@ public final class PowerProtection {
 		if (caster == target || !PowersConfigLoader.get().requireCompanionConsent()) return true;
 		return PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.COMPANION);
 	}
+
+	public static boolean mayDreamwalk(ServerPlayer caster, ServerPlayer target) {
+		if (caster == target || !PowersConfigLoader.get().requireDreamwalkConsent()) return true;
+		return !isSafeZone((ServerLevel) target.level(), target.position())
+				&& PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.DREAMWALK);
+	}
+
+	public static boolean mayPossess(ServerPlayer caster, ServerPlayer target) {
+		if (caster == target || !PowersConfigLoader.get().requirePossessionConsent()) return true;
+		return !isSafeZone((ServerLevel) target.level(), target.position())
+				&& PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.POSSESSION);
+	}
 }

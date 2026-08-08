@@ -31,7 +31,7 @@ import java.util.Random;
  */
 public final class PlayerPowers {
 	public static final int SLOT_COUNT = 3;
-	public enum ConsentKind { TELEPORT, LOCATOR, COMPANION }
+	public enum ConsentKind { TELEPORT, LOCATOR, COMPANION, DREAMWALK, POSSESSION }
 	public record AnchorState(String dimensionId, long expiresAt) {
 		private static final Codec<AnchorState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.STRING.fieldOf("dimension").forGetter(AnchorState::dimensionId),
@@ -126,6 +126,8 @@ public final class PlayerPowers {
 	private static final AttachmentType<Boolean> TELEPORT_CONSENT = consentAttachment("teleport_consent");
 	private static final AttachmentType<Boolean> LOCATOR_CONSENT = consentAttachment("locator_consent");
 	private static final AttachmentType<Boolean> COMPANION_CONSENT = consentAttachment("companion_consent");
+	private static final AttachmentType<Boolean> DREAMWALK_CONSENT = consentAttachment("dreamwalk_consent");
+	private static final AttachmentType<Boolean> POSSESSION_CONSENT = consentAttachment("possession_consent");
 
 	private static AttachmentType<Boolean> consentAttachment(String name) {
 		return AttachmentRegistry.create(com.powers.PowersMod.id(name), builder -> builder
@@ -209,6 +211,8 @@ public final class PlayerPowers {
 				case TELEPORT -> TELEPORT_CONSENT;
 				case LOCATOR -> LOCATOR_CONSENT;
 				case COMPANION -> COMPANION_CONSENT;
+				case DREAMWALK -> DREAMWALK_CONSENT;
+				case POSSESSION -> POSSESSION_CONSENT;
 			};
 		}
 		public List<String> getSlotIds() {

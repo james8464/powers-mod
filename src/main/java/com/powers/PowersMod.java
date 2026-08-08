@@ -224,7 +224,7 @@ public class PowersMod implements ModInitializer {
 			ForcefieldAbility.clear(player.getUUID());
 			VesselPossessionAbility.clear(player);
 			AstralProjectionAbility.clear(player.getUUID());
-			DreamwalkingAbility.clear(player, server);
+			DreamwalkingAbility.clear(player);
 			ChronoStopAbility.clear(player.getUUID());
 			InfernoAbility.clear(player.getUUID());
 			SoulLinkAbility.clear(player.getUUID());
