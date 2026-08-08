@@ -3,6 +3,7 @@ package com.powers.progression;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/** Immutable completed-node set and currently focused title for a rank maze. */
 public record RankProgress(Set<String> completed, String focus) {
 	public RankProgress {
 		completed = Set.copyOf(completed);

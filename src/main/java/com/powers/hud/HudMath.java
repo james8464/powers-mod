@@ -1,5 +1,6 @@
 package com.powers.hud;
 
+/** Pure clamped arithmetic used by energy HUD renderers and tests. */
 public final class HudMath {
 	private HudMath() {
 	}

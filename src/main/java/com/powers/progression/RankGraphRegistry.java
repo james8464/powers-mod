@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+/** Loads and exposes the light and darkness rank mazes from data resources. */
 public final class RankGraphRegistry {
 	private static final Gson GSON = new Gson();
 	private static RankGraph light;

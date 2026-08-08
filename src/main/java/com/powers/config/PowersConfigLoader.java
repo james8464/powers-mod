@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+/** Loads, validates, and atomically replaces the server's JSON configuration. */
 public final class PowersConfigLoader {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static volatile PowersConfig current = PowersConfig.defaults();

@@ -1,7 +1,6 @@
 package com.powers.network;
 
 import com.powers.PowersMod;
-import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
@@ -16,19 +15,13 @@ import com.powers.magic.runtime.ServerMagicCasts;
 import com.powers.util.PowerMessages;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.core.particles.ColorParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -38,10 +31,11 @@ import java.util.UUID;
 import java.util.HashMap;
 import java.util.Map;
 
-// the mod's packets: ability activation, teleport requests and marks from the
-// client, plus the power-state snapshot sent to each player
+/**
+ * Declares the mod's play payloads and validates server-authoritative power
+ * activation, teleport selection, and client state synchronization.
+ */
 public final class PowersPackets {
-	private static final CastNonceTracker LOCATOR_NONCES = new CastNonceTracker(20 * 30);
 	private static final Map<UUID, PowerStatePayload> LAST_SENT_STATE = new HashMap<>();
 	private PowersPackets() {
 	}
@@ -128,8 +122,7 @@ public final class PowersPackets {
 	}
 
 	public static void openLocator(ServerPlayer player) {
-		UUID nonce = LOCATOR_NONCES.issue(player.getUUID(), player.level().getServer().getTickCount());
-		ServerPlayNetworking.send(player, new OpenLocatorScreenPayload(nonce));
+		LocatorSpellPackets.open(player);
 	}
 
 	private static final StreamCodec<RegistryFriendlyByteBuf, UUID> UUID_CODEC = StreamCodec.of(
@@ -181,7 +174,7 @@ public final class PowersPackets {
 		ServerPlayNetworking.registerGlobalReceiver(ActivateAbilityPayload.TYPE, PowersPackets::handleActivate);
 		ServerPlayNetworking.registerGlobalReceiver(TeleportRequestPayload.TYPE, PowersPackets::handleTeleport);
 		ServerPlayNetworking.registerGlobalReceiver(TeleportMarkPayload.TYPE, PowersPackets::handleMark);
-		ServerPlayNetworking.registerGlobalReceiver(LocatePlayerPayload.TYPE, PowersPackets::handleLocate);
+		ServerPlayNetworking.registerGlobalReceiver(LocatePlayerPayload.TYPE, LocatorSpellPackets::handleLocate);
 	}
 
 	private static void handleActivate(ActivateAbilityPayload payload, ServerPlayNetworking.Context context) {
@@ -346,155 +339,6 @@ public final class PowersPackets {
 		}
 		PowerMessages.send(caster, "powers.packet.player_not_found", 3, name);
 		return null;
-	}
-
-	private static void handleLocate(LocatePlayerPayload payload, ServerPlayNetworking.Context context) {
-		context.server().execute(() -> {
-			ServerPlayer player = context.player();
-			long tick = context.server().getTickCount();
-			if (!LOCATOR_NONCES.consume(player.getUUID(), payload.nonce(), tick)) return;
-			boolean holdingGrimoire = (player.getMainHandItem().getItem() instanceof com.powers.item.GrimoireItem main
-						&& com.powers.spell.SpellCastingManager.registry().forTexture(main.key()) != null
-						&& com.powers.spell.SpellCastingManager.registry().forTexture(main.key()).key().equals("book_grimoire_celestial"))
-					|| (player.getOffhandItem().getItem() instanceof com.powers.item.GrimoireItem off
-						&& com.powers.spell.SpellCastingManager.registry().forTexture(off.key()) != null
-						&& com.powers.spell.SpellCastingManager.registry().forTexture(off.key()).key().equals("book_grimoire_celestial"));
-			if (!holdingGrimoire) return;
-			// frozen time stalls the grimoire too, and the payment never lands
-			if (SpaceTimeAbility.isFrozen(player)) {
-				SpaceTimeAbility.reject(player);
-				return;
-			}
-			ServerPlayer target = findOnlinePlayer(player, payload.targetUuid());
-			if (target == null) {
-				// the chosen soul left the world between the screen and the cast
-				PowerMessages.send(player, "grimoire.celestial.offline", 3);
-				return;
-			}
-			if (!PowerProtection.mayLocate(player, target)) {
-				PowerMessages.send(player, "grimoire.celestial.consent_denied", 1);
-				return;
-			}
-
-			ServerLevel level = (ServerLevel) player.level();
-			Vec3 pos = player.position().add(0, 1, 0);
-
-			// the amethyst curse grounds the celestial words and bites back
-			AmethystDampening.update(player);
-			if (AmethystDampening.isDampened(player)) {
-				retaliate(player, level, pos, "grimoire.celestial.amethyst", 3);
-				return;
-			}
-
-			// realms veil themselves from the unmastered: the light realm only
-			// answers to a maxed light path, the dark realm only to a maxed
-			// darkness user - anyone else gets the backlash
-			ResourceKey<Level> targetDim = target.level().dimension();
-			PlayerPowers.PlayerPowersData casterData = PlayerPowers.get(player);
-			if (isLightRealm(targetDim)) {
-				if (SkillSystem.hasDarknessTag(player) || casterData.skillLevel() < SkillSystem.MAX_LEVEL) {
-					retaliate(player, level, pos, "grimoire.celestial.light_gate", 3);
-					return;
-				}
-			} else if (SkillSystem.isDarkRealm(targetDim)) {
-				if (!SkillSystem.hasDarknessTag(player) || casterData.darknessLevel() < SkillSystem.DARKNESS_MAX_LEVEL) {
-					retaliate(player, level, pos, "grimoire.celestial.dark_gate", 3);
-					return;
-				}
-			}
-
-			// The selection packet only names a target. The server revalidates the
-			// held celestial book, selected spell, cooldown and energy immediately
-			// before committing the cast.
-			if (!com.powers.spell.SpellCastingManager.commitSoulCompass(player)) return;
-			cast(player, level, pos, target);
-		});
-	}
-
-	// a wasted cast stings: nausea for twenty seconds while the power recoils
-	private static void retaliate(ServerPlayer player, ServerLevel level, Vec3 pos, String messageKey, int variants) {
-		PowerFx.cancelled(level, pos, 0xFF8C6FD8);
-		PowerFx.coloredBurst(level, pos, 0xFF4B2E50, 26, 1.0);
-		PowerFx.burst(level, pos, ParticleTypes.REVERSE_PORTAL, 14, 0.5, 0.05);
-		PowerFx.sound(level, pos, SoundEvents.BEACON_DEACTIVATE, 1.0f, 0.8f);
-		player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
-				net.minecraft.world.effect.MobEffects.NAUSEA, 400, 0));
-		PowerMessages.send(player, messageKey, variants);
-	}
-
-	// the locator's cast: a short celestial ritual, then the stars answer or the void laughs
-	private static void cast(ServerPlayer player, ServerLevel level, Vec3 pos, ServerPlayer target) {
-		final int CELESTIAL = 0xFFD9E9FF;
-		final int GOLD = 0xFFFFE08A;
-		PowerFx.sound(level, pos, SoundEvents.EVOKER_CAST_SPELL, 1.0f, 0.9f);
-		PowerFx.rune(level, pos, 2.2, CELESTIAL, 26, 0.0);
-		PowerFx.spiral(level, pos.add(0, 0.1, 0), 0.7, 3.4, CELESTIAL, 20, 0.0);
-		PowerFx.burst(level, pos, ParticleTypes.END_ROD, 24, 0.6, 0.04);
-
-		MinecraftServer server = level.getServer();
-		// mid-cast: the ritual swells with widening rings and a beacon's hum
-		PowersMod.scheduleDelayed(server, 16, () -> {
-			if (player.isRemoved()) return;
-			PowerFx.ring(level, pos, 4.2, CELESTIAL, 34, 0.4);
-			PowerFx.ring(level, pos, 2.8, 0xFFE8F4FF, 26, 1.1);
-			PowerFx.sound(level, pos, SoundEvents.BEACON_ACTIVATE, 0.9f, 1.25f);
-		});
-		// the heavens open: a pillar of starlight climbs from the book
-		PowersMod.scheduleDelayed(server, 32, () -> {
-			if (player.isRemoved()) return;
-			PowerFx.beam(level, pos, pos.add(0, 36, 0),
-					ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFFD9E9FF), 18);
-			PowerFx.burst(level, pos.add(0, 0.2, 0), ParticleTypes.END_ROD, 18, 0.4, 0.05);
-			PowerFx.sound(level, pos, SoundEvents.CONDUIT_ACTIVATE, 1.0f, 1.15f);
-		});
-		// the answer: a golden ring, then the whisper of a place
-		PowersMod.scheduleDelayed(server, 48, () -> {
-			if (player.isRemoved()) return;
-			PowerFx.rune(level, pos, 3.0, GOLD, 34, Math.PI);
-			PowerFx.coloredBurst(level, pos.add(0, 1.2, 0), GOLD, 40, 1.6);
-			PowerFx.burst(level, pos.add(0, 1.2, 0), ParticleTypes.END_ROD, 26, 1.2, 0.06);
-			PowerFx.sound(level, pos, SoundEvents.ENDERMAN_TELEPORT, 1.0f, 1.4f);
-
-			// the scried soul feels a brief prickling of stars, wherever they are
-			if (target.isAlive() && !target.isRemoved()) {
-				ServerLevel targetLevel = (ServerLevel) target.level();
-				PowerFx.coloredBurst(targetLevel, target.position().add(0, 1, 0), 0xFFFFFFFF, 10, 0.6);
-				PowerFx.burst(targetLevel, target.position().add(0, 1, 0), ParticleTypes.END_ROD, 8, 0.4, 0.04);
-			}
-
-			// only the caster hears the answer
-			Vec3 tPos = target.position();
-			PowerMessages.send(player, "grimoire.celestial.reveal", 3, target.getName().getString());
-			player.sendSystemMessage(Component.literal("Dimension: ")
-					.append(Component.literal(dimensionName(target.level().dimension()))
-							.withStyle(style -> style.withColor(0xFFFFE08A))));
-			player.sendSystemMessage(Component.literal("Coordinates: ")
-					.append(Component.literal((int) Math.floor(tPos.x) + " " + (int) Math.floor(tPos.y) + " " + (int) Math.floor(tPos.z))
-							.withStyle(style -> style.withColor(0xFFFFE08A).withBold(true))));
-		});
-	}
-
-	private static ServerPlayer findOnlinePlayer(ServerPlayer caster, UUID uuid) {
-		for (ServerPlayer p : caster.level().getServer().getPlayerList().getPlayers()) {
-			if (p.getUUID().equals(uuid)) return p;
-		}
-		return null;
-	}
-
-	private static boolean isLightRealm(ResourceKey<Level> dimension) {
-		return dimension.identifier().equals(PowersMod.id("light_realm"));
-	}
-
-	private static String dimensionName(ResourceKey<Level> key) {
-		return switch (key.identifier().getPath()) {
-			case "overworld" -> "The Overworld";
-			case "the_nether" -> "The Nether";
-			case "the_end" -> "The End";
-			case "dark_realm" -> "The Dark Realm";
-			case "light_realm" -> "The Light Realm";
-			case "middleworld" -> "The Middleworld";
-			default -> key.identifier().toString();
-		};
 	}
 
 	private static String seconds(int ticks) {

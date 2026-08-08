@@ -15,8 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-// Energy Beam: fire a beam down your aim that scorches the first living thing
-// it hits with magic damage and 3 seconds of fire, or simply fizzles at range.
+/** Raycasts a visible energy beam and scorches its first valid living target. */
 public class EnergyBeamAbility extends Ability {
 	public EnergyBeamAbility() {
 		super(PowersMod.id("energy_beam"),

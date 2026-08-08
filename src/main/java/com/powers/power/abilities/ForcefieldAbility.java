@@ -15,8 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-// Forcefield: wrap yourself in a glowing shield for 8 seconds that soaks up
-// hits (10 hearts of absorption), cuts most damage and shrugs off fire.
+/** Maintains timed personal wards that absorb damage and repel nearby threats. */
 public class ForcefieldAbility extends Ability {
 	// 8 seconds of shield
 	private static final int DURATION = 160;

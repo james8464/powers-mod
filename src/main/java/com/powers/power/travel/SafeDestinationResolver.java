@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+/** Validates bounds, loaded chunks, collision, hazards, wards, and safe zones before travel. */
 public final class SafeDestinationResolver {
 	public record Result(DestinationFailure failure, Vec3 destination) {
 		public boolean allowed() {

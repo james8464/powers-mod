@@ -15,8 +15,7 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-// Cozy Campfire: plant a warm campfire that heals you and friendly mobs who
-// stand near it for 10 seconds, restoring hunger for players too.
+/** Creates a temporary hearth that heals and feeds permitted nearby allies. */
 public class CozyCampfireAbility extends Ability {
 	// 10 seconds of warmth
 	private static final int DURATION = 200;

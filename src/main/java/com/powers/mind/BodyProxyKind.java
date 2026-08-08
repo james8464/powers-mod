@@ -2,6 +2,7 @@ package com.powers.mind;
 
 import java.util.Locale;
 
+/** Reason a vulnerable physical body proxy exists while its mind is elsewhere. */
 public enum BodyProxyKind {
 	REALM,
 	ASTRAL,

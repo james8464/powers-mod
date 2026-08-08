@@ -1,5 +1,6 @@
 package com.powers.spell;
 
+/** Pure rules for completing or interrupting a channeled grimoire spell. */
 public final class ChannelRules {
 	private static final double MAX_MOVEMENT_SQUARED = 0.75 * 0.75;
 

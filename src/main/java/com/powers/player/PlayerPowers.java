@@ -4,10 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.powers.network.PowersPackets;
 import com.powers.mind.MindBodyState;
-import com.powers.progression.RankGraph;
-import com.powers.progression.RankGraphRegistry;
 import com.powers.progression.RankProgress;
-import com.powers.player.SkillSystem;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
 import com.powers.power.PassiveEffect;
@@ -15,7 +12,6 @@ import com.powers.power.Ability;
 import com.powers.power.PowerEnergy;
 import com.powers.PowersEffects;
 import com.powers.util.PowerMessages;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,6 +23,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static com.powers.player.PlayerPowerAttachments.ACTIVE_TOGGLES;
+import static com.powers.player.PlayerPowerAttachments.COMPANION_CONSENT;
+import static com.powers.player.PlayerPowerAttachments.COOLDOWNS;
+import static com.powers.player.PlayerPowerAttachments.DARKNESS_ENERGY;
+import static com.powers.player.PlayerPowerAttachments.DARKNESS_LEVEL;
+import static com.powers.player.PlayerPowerAttachments.DARKNESS_PREFIX_HIDDEN;
+import static com.powers.player.PlayerPowerAttachments.DIMENSIONAL_ANCHOR;
+import static com.powers.player.PlayerPowerAttachments.DREAMWALK_CONSENT;
+import static com.powers.player.PlayerPowerAttachments.ELEMENTAL_PHASE;
+import static com.powers.player.PlayerPowerAttachments.ENERGY;
+import static com.powers.player.PlayerPowerAttachments.FLIGHT_SNAPSHOT;
+import static com.powers.player.PlayerPowerAttachments.INVISIBILITY_SNAPSHOT;
+import static com.powers.player.PlayerPowerAttachments.LOCATOR_CONSENT;
+import static com.powers.player.PlayerPowerAttachments.MIND_BODY;
+import static com.powers.player.PlayerPowerAttachments.POSSESSION_CONSENT;
+import static com.powers.player.PlayerPowerAttachments.POWER_SLOTS;
+import static com.powers.player.PlayerPowerAttachments.PREVIOUS_GAMEMODE;
+import static com.powers.player.PlayerPowerAttachments.REALM_MEMORIES;
+import static com.powers.player.PlayerPowerAttachments.SKILL_LEVEL;
+import static com.powers.player.PlayerPowerAttachments.SPELL_SELECTIONS;
+import static com.powers.player.PlayerPowerAttachments.TELEPORT_CONSENT;
+
 /**
  * Per-player power state: three power slots, active toggles, energy, and
  * skill levels, kept as persistent copy-on-death attachments on the player
@@ -37,143 +55,11 @@ public final class PlayerPowers {
 	public static final int SLOT_COUNT = 3;
 	public enum ConsentKind { TELEPORT, LOCATOR, COMPANION, DREAMWALK, POSSESSION }
 	public record AnchorState(String dimensionId, long expiresAt) {
-		private static final Codec<AnchorState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+		static final Codec<AnchorState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.STRING.fieldOf("dimension").forGetter(AnchorState::dimensionId),
 				Codec.LONG.fieldOf("expires_at").forGetter(AnchorState::expiresAt)
 		).apply(instance, AnchorState::new));
 	}
-
-	// every attachment here has to survive death as well as logout. attachments
-	// are dropped when the player entity is rebuilt on respawn unless
-	// copyOnDeath() is set, and losing POWER_SLOTS that way would silently
-	// re-roll a player's permanent loadout the next time they log in.
-	// the client mirror is driven entirely by PowerStatePayload, so none of
-	// these need a sync codec on top of that
-	private static final AttachmentType<List<String>> POWER_SLOTS = AttachmentRegistry.create(
-			com.powers.PowersMod.id("power_slots"),
-			builder -> builder
-					.initializer(ArrayList::new)
-					.persistent(Codec.STRING.listOf())
-					.copyOnDeath());
-
-	private static final AttachmentType<List<String>> ACTIVE_TOGGLES = AttachmentRegistry.create(
-			com.powers.PowersMod.id("active_toggles"),
-			builder -> builder
-					.initializer(ArrayList::new)
-					.persistent(Codec.STRING.listOf())
-					.copyOnDeath());
-
-	private static final AttachmentType<Integer> ENERGY = AttachmentRegistry.create(
-				com.powers.PowersMod.id("energy"),
-				builder -> builder
-						.initializer(() -> PowerEnergy.BASE_MAX)
-						.persistent(Codec.INT)
-						.copyOnDeath());
-
-	private static final AttachmentType<Integer> DARKNESS_ENERGY = AttachmentRegistry.create(
-				com.powers.PowersMod.id("darkness_energy"),
-				builder -> builder
-						.initializer(() -> PowerEnergy.darknessMaxCapacity(0))
-						.persistent(Codec.INT)
-						.copyOnDeath());
-
-	private static final AttachmentType<Integer> SKILL_LEVEL = AttachmentRegistry.create(
-			com.powers.PowersMod.id("skill_level"),
-			builder -> builder
-					.initializer(() -> 0)
-					.persistent(Codec.INT)
-					.copyOnDeath());
-
-	private static final AttachmentType<Integer> DARKNESS_LEVEL = AttachmentRegistry.create(
-			com.powers.PowersMod.id("darkness_level"),
-			builder -> builder
-					.initializer(() -> 0)
-					.persistent(Codec.INT)
-					.copyOnDeath());
-
-	private static final AttachmentType<List<String>> RANK_NODES = persistentStringList("rank_nodes");
-	private static final AttachmentType<List<String>> DARK_RANK_NODES = persistentStringList("dark_rank_nodes");
-	private static final AttachmentType<List<String>> REALM_MEMORIES = persistentStringList("realm_memories");
-	private static final AttachmentType<String> RANK_FOCUS = persistentString("rank_focus");
-	private static final AttachmentType<String> DARK_RANK_FOCUS = persistentString("dark_rank_focus");
-
-	private static AttachmentType<List<String>> persistentStringList(String name) {
-		return AttachmentRegistry.create(com.powers.PowersMod.id(name), builder -> builder
-				.initializer(ArrayList::new).persistent(Codec.STRING.listOf()).copyOnDeath());
-	}
-
-	private static AttachmentType<String> persistentString(String name) {
-		return AttachmentRegistry.create(com.powers.PowersMod.id(name), builder -> builder
-				.initializer(() -> "").persistent(Codec.STRING).copyOnDeath());
-	}
-
-	// darkness users may hide their real title and show the normal-ladder name instead
-	private static final AttachmentType<Boolean> DARKNESS_PREFIX_HIDDEN = AttachmentRegistry.create(
-			com.powers.PowersMod.id("darkness_prefix_hidden"),
-			builder -> builder
-					.initializer(() -> Boolean.FALSE)
-					.persistent(Codec.BOOL)
-					.copyOnDeath());
-
-	private static final AttachmentType<Integer> ELEMENTAL_PHASE = AttachmentRegistry.create(
-			com.powers.PowersMod.id("elemental_phase"),
-			builder -> builder
-					.initializer(() -> 0)
-					.persistent(Codec.INT)
-					.copyOnDeath());
-
-	private static final AttachmentType<Map<String, Long>> COOLDOWNS = AttachmentRegistry.create(
-			com.powers.PowersMod.id("cooldowns"),
-			builder -> builder
-					.initializer(HashMap::new)
-					.persistent(Codec.unboundedMap(Codec.STRING, Codec.LONG))
-					.copyOnDeath());
-
-	private static final AttachmentType<Map<String, Integer>> SPELL_SELECTIONS = AttachmentRegistry.create(
-			com.powers.PowersMod.id("spell_selections"),
-			builder -> builder
-					.initializer(HashMap::new)
-					.persistent(Codec.unboundedMap(Codec.STRING, Codec.INT))
-					.copyOnDeath());
-
-	private static final AttachmentType<AnchorState> DIMENSIONAL_ANCHOR = AttachmentRegistry.create(
-			com.powers.PowersMod.id("dimensional_anchor"),
-			builder -> builder.persistent(AnchorState.CODEC).copyOnDeath());
-
-	private static final AttachmentType<MindBodyState> MIND_BODY = AttachmentRegistry.create(
-			com.powers.PowersMod.id("mind_body"),
-			builder -> builder.persistent(MindBodyState.CODEC).copyOnDeath());
-
-	// -1 means the power does not own a snapshot. Remaining bits preserve the
-	// flags that existed before the power changed them, even across a relog.
-	private static final AttachmentType<Integer> FLIGHT_SNAPSHOT = persistentInt("flight_snapshot", -1);
-	private static final AttachmentType<Integer> INVISIBILITY_SNAPSHOT = persistentInt("invisibility_snapshot", -1);
-
-	private static AttachmentType<Integer> persistentInt(String name, int initial) {
-		return AttachmentRegistry.create(com.powers.PowersMod.id(name), builder -> builder
-				.initializer(() -> initial).persistent(Codec.INT).copyOnDeath());
-	}
-
-	private static final AttachmentType<Boolean> TELEPORT_CONSENT = consentAttachment("teleport_consent");
-	private static final AttachmentType<Boolean> LOCATOR_CONSENT = consentAttachment("locator_consent");
-	private static final AttachmentType<Boolean> COMPANION_CONSENT = consentAttachment("companion_consent");
-	private static final AttachmentType<Boolean> DREAMWALK_CONSENT = consentAttachment("dreamwalk_consent");
-	private static final AttachmentType<Boolean> POSSESSION_CONSENT = consentAttachment("possession_consent");
-
-	private static AttachmentType<Boolean> consentAttachment(String name) {
-		return AttachmentRegistry.create(com.powers.PowersMod.id(name), builder -> builder
-				.initializer(() -> Boolean.FALSE).persistent(Codec.BOOL).copyOnDeath());
-	}
-
-	// the game mode a player held before stepping into a realm dimension. this
-	// has to persist too: a player who logs out inside a realm would otherwise
-	// have adventure mode recorded as their "previous" mode on rejoin and stay
-	// stuck in it forever after leaving
-	private static final AttachmentType<String> PREVIOUS_GAMEMODE = AttachmentRegistry.create(
-			com.powers.PowersMod.id("previous_gamemode"),
-			builder -> builder
-					.persistent(Codec.STRING)
-					.copyOnDeath());
 
 	private PlayerPowers() {
 	}
@@ -346,46 +232,21 @@ public final class PlayerPowers {
 		}
 
 		public RankProgress rankProgress(boolean darkness) {
-			AttachmentType<List<String>> nodesType = darkness ? DARK_RANK_NODES : RANK_NODES;
-			AttachmentType<String> focusType = darkness ? DARK_RANK_FOCUS : RANK_FOCUS;
-			List<String> completed = target.getAttachedOrElse(nodesType, List.of());
-			RankGraph graph = darkness ? RankGraphRegistry.darkness() : RankGraphRegistry.light();
-			if (completed.isEmpty()) {
-				RankProgress migrated = RankProgress.migrateLegacy(graph,
-						darkness ? darknessLevel() : skillLevel());
-				target.setAttached(nodesType, new ArrayList<>(migrated.completed()));
-				target.setAttached(focusType, migrated.focus());
-				return migrated;
-			}
-			return new RankProgress(new java.util.LinkedHashSet<>(completed),
-					target.getAttachedOrElse(focusType, ""));
+			return PlayerRankState.progress(target, darkness, darkness ? darknessLevel() : skillLevel());
 		}
 
 		public boolean unlockRankNode(boolean darkness, String nodeId) {
-			RankGraph graph = darkness ? RankGraphRegistry.darkness() : RankGraphRegistry.light();
-			RankProgress progress = rankProgress(darkness);
 			int earnedDepth = darkness ? darknessLevel() : skillLevel();
-			if (!graph.unlockable(progress.completed(), earnedDepth).contains(nodeId)) return false;
-			java.util.LinkedHashSet<String> updated = new java.util.LinkedHashSet<>(progress.completed());
-			updated.add(nodeId);
-			target.setAttached(darkness ? DARK_RANK_NODES : RANK_NODES, new ArrayList<>(updated));
-			target.setAttached(darkness ? DARK_RANK_FOCUS : RANK_FOCUS, nodeId);
-			return true;
+			return PlayerRankState.unlock(target, darkness, earnedDepth, nodeId);
 		}
 
 		public boolean setRankFocus(boolean darkness, String nodeId) {
-			RankProgress progress = rankProgress(darkness);
-			if (!progress.completed().contains(nodeId)) return false;
-			target.setAttached(darkness ? DARK_RANK_FOCUS : RANK_FOCUS, nodeId);
-			return true;
+			int legacyLevel = darkness ? darknessLevel() : skillLevel();
+			return PlayerRankState.focus(target, darkness, legacyLevel, nodeId);
 		}
 
 		public void respecRankMaze(boolean darkness) {
-			RankGraph graph = darkness ? RankGraphRegistry.darkness() : RankGraphRegistry.light();
-			RankProgress migrated = RankProgress.migrateLegacy(graph, darkness ? darknessLevel() : skillLevel());
-			target.setAttached(darkness ? DARK_RANK_NODES : RANK_NODES,
-					new ArrayList<>(migrated.completed()));
-			target.setAttached(darkness ? DARK_RANK_FOCUS : RANK_FOCUS, migrated.focus());
+			PlayerRankState.resetToLegacyPath(target, darkness, darkness ? darknessLevel() : skillLevel());
 		}
 
 		public boolean isDarknessPrefixHidden() {

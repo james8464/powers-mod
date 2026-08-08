@@ -6,8 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 
-// the mod's status effects: exhaustion chews through the energy pool, and
-// amethyst poisoning hits players caught in a ward's dampening field
+/** Registers the exhaustion and amethyst-poisoning status effects. */
 public final class PowersEffects {
 	public static final Holder<MobEffect> EXHAUSTION = Registry.registerForHolder(
 			BuiltInRegistries.MOB_EFFECT,

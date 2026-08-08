@@ -7,7 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 
-// small helper: builds powers: ids and registers items under them
+/** Creates stable item resource keys and registers items in the POWERS namespace. */
 public final class ModItemIds {
 	private ModItemIds() {
 	}

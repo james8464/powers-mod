@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-// registers every crystal item and drops them into the vanilla ingredients creative tab
+/** Registers progression crystals and exposes their stable lookup table. */
 public final class PowersItems {
 	private static final ResourceKey<CreativeModeTab> INGREDIENTS_TAB =
 			ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath("minecraft", "ingredients"));

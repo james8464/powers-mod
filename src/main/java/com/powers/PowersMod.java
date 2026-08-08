@@ -37,36 +37,32 @@ import com.powers.spell.SpellCastingManager;
 import com.powers.spell.SpellFieldManager;
 import com.powers.realm.RealmMindscapeManager;
 import com.powers.loot.PowersLoot;
-import com.powers.util.ScheduledTaskQueue;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-// mod entry point; wires every POWERS system into the server and drives
-// energy regen, toggles, and passive upkeep each tick
+/**
+ * Fabric entry point that registers POWERS systems and coordinates their
+ * server lifecycle. Persistent player state belongs to attachments; this
+ * class owns only ephemeral per-session bookkeeping.
+ */
 public class PowersMod implements ModInitializer {
 	public static final String MOD_ID = "powers";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
@@ -77,69 +73,6 @@ public class PowersMod implements ModInitializer {
 	// the signature a summoned storm carries: which realm's weather it echoes
 	public enum StormTheme { NONE, DARK, LIGHT }
 
-	// a visual lightning storm at a spot, or chasing a player while it lasts
-	private static final class LightningStorm {
-		private final ServerLevel level;
-		private Vec3 position;
-		private final ServerPlayer follow;
-		private final int followTicks;
-		private final int ticks;
-		private final StormTheme theme;
-		private int remaining;
-		private boolean firstBolt = true;
-
-		private LightningStorm(ServerLevel level, Vec3 position, ServerPlayer follow, int ticks, int followTicks,
-				StormTheme theme) {
-			this.level = level;
-			this.position = position;
-			this.follow = follow;
-			this.ticks = ticks;
-			this.followTicks = followTicks;
-			this.theme = theme;
-			this.remaining = ticks;
-		}
-
-		private void tick() {
-			// the storm chases its target player, but only while followTicks remain
-			if (this.follow != null && this.follow.isAlive() && this.follow.level() == this.level
-					&& this.remaining > this.ticks - this.followTicks) {
-				this.position = this.follow.position();
-			}
-			// the lightning summoned beneath a traveler echoes where they're
-			// heading: the dark realm chokes on heavy campfire smoke, the
-			// light realm glitters with totem sparks. the realms themselves
-			// are always clear - this buildup belongs to the cast, not the sky
-			if (this.theme == StormTheme.DARK) {
-				com.powers.fx.PowerFx.burst(this.level, this.position.add(0, 0.5, 0),
-						ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, 4, 0.7, 0.02);
-				com.powers.fx.PowerFx.burst(this.level, this.position.add(0, 0.5, 0),
-						ParticleTypes.LARGE_SMOKE, 3, 0.6, 0.03);
-			} else if (this.theme == StormTheme.LIGHT) {
-				com.powers.fx.PowerFx.burst(this.level, this.position.add(0, 0.5, 0),
-						ParticleTypes.TOTEM_OF_UNDYING, 2, 0.9, 0.12);
-				com.powers.fx.PowerFx.burst(this.level, this.position.add(0, 0.5, 0),
-						ParticleTypes.FIREWORK, 3, 0.7, 0.1);
-				com.powers.fx.PowerFx.burst(this.level, this.position.add(0, 0.5, 0),
-						ParticleTypes.END_ROD, 2, 0.5, 0.06);
-			}
-			// a bolt every other tick; only the first one thunders so the storm doesn't deafen
-			if (this.remaining % 2 == 0) {
-				LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(this.level, EntitySpawnReason.TRIGGERED);
-				if (bolt != null) {
-					bolt.setVisualOnly(true);
-					bolt.setSilent(!this.firstBolt);
-					bolt.setPos(this.position.x, this.position.y, this.position.z);
-					this.level.addFreshEntity(bolt);
-					this.firstBolt = false;
-				}
-			}
-			this.remaining--;
-		}
-	}
-
-	// a job held back until a future server tick
-	private static final List<LightningStorm> STORMS = new ArrayList<>();
-	private static final ScheduledTaskQueue DELAYED = new ScheduledTaskQueue();
 	// whether each player was asleep last tick, so waking up can refund energy
 	private static final Map<UUID, Boolean> WAS_SLEEPING = new HashMap<>();
 
@@ -243,8 +176,7 @@ public class PowersMod implements ModInitializer {
 		ServerLifecycleEvents.SERVER_STOPPING.register(BodyProxyManager::returnAll);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			MagicRuntime.global().clearAll();
-			STORMS.clear();
-			DELAYED.clear();
+			ServerMagicScheduler.clear();
 			WAS_SLEEPING.clear();
 			SkillSystem.clearAll();
 			AmethystDampening.clearAll();
@@ -339,8 +271,7 @@ public class PowersMod implements ModInitializer {
 			SpellFieldManager.tick(server);
 			RealmMindscapeManager.tick(server);
 			TeleportAbility.tickMarking();
-			tickStorms();
-			tickDelayed(tick);
+			ServerMagicScheduler.tick(tick);
 		});
 
 		LOGGER.info("POWERS framework initialized with {} power(s)", PowerRegistry.getAll().size());
@@ -370,27 +301,12 @@ public class PowersMod implements ModInitializer {
 	 */
 	public static void startStorm(ServerLevel level, Vec3 position, ServerPlayer follow, int ticks, int followTicks,
 			StormTheme theme) {
-		STORMS.add(new LightningStorm(level, position, follow, ticks, followTicks, theme));
+		ServerMagicScheduler.startStorm(level, position, follow, ticks, followTicks, theme);
 	}
 
 	/** Runs {@code action} once, {@code ticks} server ticks from now. */
 	public static void scheduleDelayed(MinecraftServer server, int ticks, Runnable action) {
-		DELAYED.schedule(server.getTickCount() + Math.max(1, ticks), action);
-	}
-
-	private static void tickStorms() {
-		var iterator = STORMS.iterator();
-		while (iterator.hasNext()) {
-			LightningStorm storm = iterator.next();
-			storm.tick();
-			if (storm.remaining <= 0) {
-				iterator.remove();
-			}
-		}
-	}
-
-	private static void tickDelayed(int tick) {
-		DELAYED.runDue(tick);
+		ServerMagicScheduler.schedule(server, ticks, action);
 	}
 
 	// re-applies each power's passive effects with a long duration so they never lapse
