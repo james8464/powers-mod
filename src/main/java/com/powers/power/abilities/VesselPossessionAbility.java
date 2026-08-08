@@ -5,6 +5,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
+import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -47,6 +48,10 @@ public class VesselPossessionAbility extends Ability {
 		// amethyst-dampened players are protected from possession
 		if (AmethystDampening.isDampened(targetSP)) {
 			PowerMessages.send(player, "amethyst.powers.target_protected", 4);
+			return false;
+		}
+		if (!PowerProtection.mayPossess(player, targetSP)) {
+			PowerMessages.send(player, "powers.packet.consent_denied", 1, targetSP.getName().getString());
 			return false;
 		}
 

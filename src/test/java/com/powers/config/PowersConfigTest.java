@@ -21,6 +21,8 @@ class PowersConfigTest {
 		assertTrue(config.requireTeleportConsent());
 		assertTrue(config.requireLocatorConsent());
 		assertTrue(config.requireCompanionConsent());
+		assertTrue(config.requireDreamwalkConsent());
+		assertTrue(config.requirePossessionConsent());
 		assertTrue(config.projectionBodiesVulnerable());
 		assertTrue(config.persistCooldowns());
 		assertTrue(config.maxParticlesPerTick() > 0);
@@ -31,7 +33,7 @@ class PowersConfigTest {
 	@Test
 	void sanitizationClampsUnsafeNumericValues() {
 		PowersConfig invalid = new PowersConfig(false, false, false, false, true, true, true,
-				true, true, -5, 0, 0, 500, 500, 99, java.util.List.of());
+				true, true, true, true, -5, 0, 0, 500, 500, 99, java.util.List.of());
 
 		PowersConfig sanitized = invalid.sanitized();
 		assertEquals(1, sanitized.wardRadius());

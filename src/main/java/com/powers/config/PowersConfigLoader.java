@@ -58,6 +58,8 @@ public final class PowersConfigLoader {
 				bool(object, "requireTeleportConsent", defaults.requireTeleportConsent()),
 				bool(object, "requireLocatorConsent", defaults.requireLocatorConsent()),
 				bool(object, "requireCompanionConsent", defaults.requireCompanionConsent()),
+				bool(object, "requireDreamwalkConsent", defaults.requireDreamwalkConsent()),
+				bool(object, "requirePossessionConsent", defaults.requirePossessionConsent()),
 				bool(object, "projectionBodiesVulnerable", defaults.projectionBodiesVulnerable()),
 				bool(object, "persistCooldowns", defaults.persistCooldowns()),
 				integer(object, "wardRadius", defaults.wardRadius()),

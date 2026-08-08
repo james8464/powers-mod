@@ -4,6 +4,8 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.PowerTargeting;
+import com.powers.power.AmethystDampening;
+import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -16,9 +18,9 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * dreamwalking - the blue crystal's power: watch through another player's
- * eyes for 2 minutes (2400 ticks) while their health is capped at half, and
- * they get it all back the moment the dream ends
+ * dreamwalking - the blue crystal's power: with consent, watch through
+ * another player's eyes for 2 minutes (2400 ticks) without altering their
+ * health or making their vulnerable body safer.
  */
 public class DreamwalkingAbility extends Ability {
 	// 2 minutes per dream
@@ -26,11 +28,10 @@ public class DreamwalkingAbility extends Ability {
 	// one dream per dreamer uuid, cleaned up on disconnect and server stop so it can't leak
 	private static final Map<UUID, Dream> ACTIVE = new HashMap<>();
 
-	// the host whose eyes we watch, plus their health before the dream so we can give it back
-	private record Dream(ServerPlayer host, float savedHealth, long endsAt) {}
+	private record Dream(ServerPlayer host, long endsAt) {}
 
 	public DreamwalkingAbility() {
-		super(PowersMod.id("dreamwalking"), Component.translatable("ability.powers.dreamwalking"), 0, false);
+		super(PowersMod.id("dreamwalking"), Component.translatable("ability.powers.dreamwalking"), 1200, false);
 	}
 
 	@Override
@@ -38,8 +39,7 @@ public class DreamwalkingAbility extends Ability {
 		// activating again while dreaming ends the current dream early
 		Dream current = ACTIVE.remove(player.getUUID());
 		if (current != null) {
-			ServerLevel level = (ServerLevel) player.level();
-			end(player, current, level.getServer());
+			end(player);
 			return true;
 		}
 		LivingEntity target = PowerTargeting.findLivingTarget(player, 32.0);
@@ -48,11 +48,17 @@ public class DreamwalkingAbility extends Ability {
 			PowerMessages.send(player, "ability.powers.no_player_target", 4);
 			return false;
 		}
+		if (AmethystDampening.isDampened(host)) {
+			PowerMessages.send(player, "amethyst.powers.target_protected", 4);
+			return false;
+		}
+		if (!PowerProtection.mayDreamwalk(player, host)) {
+			PowerMessages.send(player, "powers.packet.consent_denied", 1, host.getName().getString());
+			return false;
+		}
 		MinecraftServer server = ((ServerLevel) player.level()).getServer();
-		Dream dream = new Dream(host, host.getHealth(), server.getTickCount() + DURATION);
+		Dream dream = new Dream(host, server.getTickCount() + DURATION);
 		ACTIVE.put(player.getUUID(), dream);
-		// the host is weakened while their mind is watched - health capped at half
-		host.setHealth(Math.min(host.getHealth(), host.getMaxHealth() / 2.0f));
 		player.setCamera(host);
 		ServerLevel level = (ServerLevel) player.level();
 		com.powers.fx.PowerFx.beam(level, player.getEyePosition(), host.getEyePosition(),
@@ -72,36 +78,28 @@ public class DreamwalkingAbility extends Ability {
 			// end the dream if the dreamer or the host dies or logs off, or when time runs out
 			if (dreamer == null || !dreamer.isAlive() || !hostOnline || !dream.host().isAlive()
 					|| now >= dream.endsAt()) {
-				if (dreamer != null) end(dreamer, dream, server);
+				if (dreamer != null) end(dreamer);
 				it.remove();
 			}
 		}
 	}
 
-	/** Restores the host's health to its saved value via the live host instance. */
-	private static void end(ServerPlayer dreamer, Dream dream, MinecraftServer server) {
+	private static void end(ServerPlayer dreamer) {
 		dreamer.setCamera(null);
-		ServerPlayer host = server.getPlayerList().getPlayer(dream.host().getUUID());
-		// the host may have died during the dream - then there's nothing to restore
-		if (host != null && host.isAlive()) {
-			host.setHealth(Math.min(dream.savedHealth(), host.getMaxHealth()));
-		}
 	}
 
-	// server stop - give every host their health back before the world shuts down
+	// server stop - reset every surviving dreamer's camera
 	public static void clearAll(MinecraftServer server) {
-		for (Dream dream : ACTIVE.values()) {
-			ServerPlayer host = server.getPlayerList().getPlayer(dream.host().getUUID());
-			if (host != null && host.isAlive()) {
-				host.setHealth(Math.min(dream.savedHealth(), host.getMaxHealth()));
-			}
+		for (UUID dreamerId : ACTIVE.keySet()) {
+			ServerPlayer dreamer = server.getPlayerList().getPlayer(dreamerId);
+			if (dreamer != null) dreamer.setCamera(null);
 		}
 		ACTIVE.clear();
 	}
 
-	// disconnect - end the dream and restore the host
-	public static void clear(ServerPlayer dreamer, MinecraftServer server) {
+	// disconnect - end the dream and restore the camera
+	public static void clear(ServerPlayer dreamer) {
 		Dream dream = ACTIVE.remove(dreamer.getUUID());
-		if (dream != null && dreamer.isAlive()) end(dreamer, dream, server);
+		if (dream != null) end(dreamer);
 	}
 }

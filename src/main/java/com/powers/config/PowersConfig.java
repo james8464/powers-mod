@@ -10,6 +10,8 @@ public record PowersConfig(
 		boolean requireTeleportConsent,
 		boolean requireLocatorConsent,
 		boolean requireCompanionConsent,
+		boolean requireDreamwalkConsent,
+		boolean requirePossessionConsent,
 		boolean projectionBodiesVulnerable,
 		boolean persistCooldowns,
 		int wardRadius,
@@ -29,7 +31,7 @@ public record PowersConfig(
 
 	public static PowersConfig defaults() {
 		return new PowersConfig(false, false, false, false,
-				true, true, true, true, true,
+				true, true, true, true, true, true, true,
 				6, 512, 8, 32, 64, 2, List.of());
 	}
 
@@ -38,7 +40,8 @@ public record PowersConfig(
 				: safeZones.stream().filter(java.util.Objects::nonNull).map(SafeZone::sanitized).toList();
 		return new PowersConfig(allowTerrainDamage, allowBlockEntityDamage, allowSelfReroll,
 				hostileForcedMovement, requireTeleportConsent, requireLocatorConsent,
-				requireCompanionConsent, projectionBodiesVulnerable, persistCooldowns,
+				requireCompanionConsent, requireDreamwalkConsent, requirePossessionConsent,
+				projectionBodiesVulnerable, persistCooldowns,
 				Math.max(1, Math.min(64, wardRadius)),
 				Math.max(32, Math.min(16_384, maxParticlesPerTick)),
 				Math.max(1, Math.min(128, teleportMaxChunkDistance)),

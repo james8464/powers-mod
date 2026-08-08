@@ -8,6 +8,7 @@ import com.powers.power.Ability;
 import com.powers.power.AbilityArithmetic;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
+import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import com.powers.network.PowersPackets;
 import net.minecraft.core.particles.ParticleTypes;
@@ -52,6 +53,7 @@ public class EnergyDrainAbility extends Ability {
 			PowerMessages.send(caster, "amethyst.powers.target_protected", 4);
 			return false;
 		}
+		if (!PowerProtection.mayHarm(caster, targetSP)) return false;
 
 		long endsAt = ((ServerLevel) caster.level()).getServer().getTickCount() + RITUAL_TICKS;
 		RITUALS.put(caster.getUUID(), new Ritual(caster, targetSP, endsAt));
