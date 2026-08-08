@@ -3,6 +3,7 @@ package com.powers.power.abilities;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -85,5 +86,28 @@ class VoidBeamRulesTest {
 		assertEquals(20, VoidBeamRules.scarDuration(-1, false));
 		assertEquals(100, VoidBeamRules.scarDuration(80, true));
 		assertEquals(160, VoidBeamRules.scarDuration(999, true));
+	}
+
+	@Test
+	void scarAdmissionAndPulseSelectionStayInsideGlobalWorkCaps() {
+		List<VoidBeamRules.RayCandidate<Integer>> candidates = IntStream.range(0, 20)
+				.mapToObj(index -> new VoidBeamRules.RayCandidate<>(index, 20.0 - index))
+				.toList();
+
+		assertTrue(VoidBeamRules.canCreateScar(127));
+		assertFalse(VoidBeamRules.canCreateScar(128));
+		assertEquals(16, VoidBeamRules.selectScarTargets(candidates, 20.0).size());
+		assertEquals(19, VoidBeamRules.selectScarTargets(candidates, 20.0).getFirst().target());
+	}
+
+	@Test
+	void releaseAndScarDamageRejectMalformedValuesAndStayBounded() {
+		assertEquals(8.0, VoidBeamRules.releaseDamage(8.0, 0), 0.0);
+		assertEquals(5.76, VoidBeamRules.releaseDamage(8.0, 1), 1.0E-6);
+		assertEquals(0.0, VoidBeamRules.releaseDamage(Double.NaN, 0), 0.0);
+		assertEquals(0.0, VoidBeamRules.releaseDamage(-2.0, 0), 0.0);
+		assertEquals(1.5, VoidBeamRules.scarPulseDamage(1.5, false), 0.0);
+		assertEquals(1.875, VoidBeamRules.scarPulseDamage(1.5, true), 0.0);
+		assertEquals(4.0, VoidBeamRules.scarPulseDamage(99.0, true), 0.0);
 	}
 }

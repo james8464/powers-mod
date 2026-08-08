@@ -3,6 +3,7 @@ package com.powers.fx;
 import com.powers.PowersParticles;
 import com.powers.PowersSounds;
 import com.powers.config.PowersConfigLoader;
+import com.powers.power.abilities.VoidBeamRules;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -165,6 +166,106 @@ public final class PowerFx {
 				followUp ? 1.35F : 1.62F);
 		sound(level, center, SoundEvents.GENERIC_EXPLODE.value(), followUp ? 1.2F : 0.8F,
 				followUp ? 1.28F : 1.55F);
+	}
+
+	/** Contracts an eclipse seal around a caster during the server-owned charge. */
+	public static void voidBeamCharge(ServerLevel level, Vec3 center, int remainingTicks,
+			boolean ancientMastery) {
+		int bounded = Math.max(0, Math.min(VoidBeamRules.CHARGE_TICKS, remainingTicks));
+		int elapsed = VoidBeamRules.CHARGE_TICKS - bounded;
+		double radius = 0.38 + bounded * 0.055;
+		double phase = level.getGameTime() * 0.24;
+		rune(level, center, radius, 0x16051F, ancientMastery ? 16 : 12, phase);
+		ring(level, center.add(0.0, 0.08, 0.0), radius * 0.72,
+				0x7846B8, ancientMastery ? 14 : 10, -phase * 1.35);
+		burst(level, center, PowersParticles.ECLIPSE, ancientMastery ? 5 : 3, radius * 0.35, 0.025);
+		if (elapsed == 0 || elapsed == 4 || elapsed == 8 || bounded == 1) {
+			sound(level, center, PowersSounds.DARK_WHISPER, 0.45F + elapsed * 0.035F,
+					0.62F + elapsed * 0.055F);
+			sound(level, center, SoundEvents.RESPAWN_ANCHOR_CHARGE, 0.35F,
+					0.72F + elapsed * 0.045F);
+		}
+	}
+
+	/** Tears one layered, bounded ray between authoritative release endpoints. */
+	public static void voidBeamRelease(ServerLevel level, Vec3 from, Vec3 to,
+			boolean empoweredImpact, boolean ancientMastery) {
+		int steps = ancientMastery ? 38 : empoweredImpact ? 34 : 28;
+		beam(level, from, to, PowersParticles.RIBBON, steps);
+		beam(level, from, to, PowersParticles.ECLIPSE, Math.max(16, steps - 8));
+		beam(level, from, to, ColorParticleOption.create(
+				ParticleTypes.ENTITY_EFFECT, 0xFF6D32A8), Math.max(12, steps - 12));
+		burst(level, from, ParticleTypes.REVERSE_PORTAL, ancientMastery ? 22 : 14, 0.42, 0.12);
+		burst(level, to, PowersParticles.FRACTURE, empoweredImpact ? 26 : 18, 0.7, 0.16);
+		ring(level, to, empoweredImpact ? 1.6 : 1.25, 0x2A0C3D,
+				empoweredImpact ? 28 : 22, level.getGameTime() * 0.18);
+		sound(level, from, PowersSounds.DARK_WHISPER, ancientMastery ? 1.3F : 0.9F,
+				ancientMastery ? 0.48F : 0.62F);
+		sound(level, to, SoundEvents.WARDEN_SONIC_BOOM, empoweredImpact ? 1.3F : 0.9F,
+				empoweredImpact ? 0.58F : 0.72F);
+	}
+
+	/** Marks each permitted body bored through by the finite ray. */
+	public static void voidBeamPenetration(ServerLevel level, Vec3 point, int index,
+			boolean darkResurgence) {
+		int count = Math.max(0, Math.min(VoidBeamRules.MAX_PENETRATIONS - 1, index));
+		burst(level, point, PowersParticles.FRACTURE, 7 + count * 2, 0.34, 0.09);
+		burst(level, point, ParticleTypes.SOUL, darkResurgence ? 8 : 5, 0.28, 0.07);
+		ring(level, point, 0.48 + count * 0.08, darkResurgence ? 0x7C36C8 : 0x2A0C3D,
+				10 + count * 2, count * Math.PI / 5.0);
+	}
+
+	/** Gives each hard counter a different geometry, colour pair, and sound. */
+	public static void voidBeamCountered(ServerLevel level, Vec3 point,
+			VoidBeamRules.Counterplay counterplay) {
+		if (counterplay == null || counterplay == VoidBeamRules.Counterplay.NONE) return;
+		int primary = switch (counterplay) {
+			case LIGHT -> 0xFFF4C7;
+			case AMETHYST -> 0xB36BFF;
+			case SANCTUARY -> 0x8CFF98;
+			case KINETIC_WARD, FORCEFIELD, SAFE_ZONE -> 0x70D6FF;
+			case NONE -> 0x2A0C3D;
+		};
+		int secondary = switch (counterplay) {
+			case LIGHT -> 0xFFFFFF;
+			case AMETHYST -> 0x5E2A84;
+			case SANCTUARY -> 0xFFE8A3;
+			case KINETIC_WARD, FORCEFIELD, SAFE_ZONE -> 0xD6F5FF;
+			case NONE -> 0x7846B8;
+		};
+		rune(level, point, 1.35, primary, 24, level.getGameTime() * 0.12);
+		ring(level, point.add(0.0, 0.12, 0.0), 0.82, secondary, 18,
+				-level.getGameTime() * 0.18);
+		burst(level, point, counterplay == VoidBeamRules.Counterplay.AMETHYST
+				? ParticleTypes.ELECTRIC_SPARK : ParticleTypes.END_ROD, 18, 0.55, 0.11);
+		burst(level, point, PowersParticles.FRACTURE, 14, 0.48, 0.08);
+		sound(level, point, counterplay == VoidBeamRules.Counterplay.LIGHT
+				? PowersSounds.LIGHT_CHORUS
+				: counterplay == VoidBeamRules.Counterplay.AMETHYST
+						? PowersSounds.AMETHYST_FRACTURE : PowersSounds.WARD_IMPACT,
+				1.05F, counterplay == VoidBeamRules.Counterplay.LIGHT ? 1.35F : 0.82F);
+	}
+
+	/** Opens and sustains a terrain-safe abyssal scar on its five-tick beat. */
+	public static void voidScarPulse(ServerLevel level, Vec3 center, double radius,
+			int age, boolean ancientMastery) {
+		double phase = age * 0.17;
+		ring(level, center, radius, 0x16051F, ancientMastery ? 30 : 24, phase);
+		ring(level, center.add(0.0, 0.1, 0.0), radius * 0.68, 0x7846B8,
+				ancientMastery ? 24 : 18, -phase * 1.45);
+		spiral(level, center.add(0.0, -0.55, 0.0), radius * 0.42, 1.1,
+				0x4C1D73, ancientMastery ? 18 : 13, -phase);
+		burst(level, center, PowersParticles.ECLIPSE, ancientMastery ? 9 : 6,
+				radius * 0.35, 0.035);
+		if (age % 20 == 0) sound(level, center, PowersSounds.DARK_WHISPER, 0.55F, 0.52F);
+	}
+
+	/** Collapses an expired or unloaded scar inward without touching terrain. */
+	public static void voidScarCollapse(ServerLevel level, Vec3 center, double radius) {
+		burst(level, center, ParticleTypes.REVERSE_PORTAL, 28, radius * 0.48, 0.18);
+		burst(level, center, PowersParticles.FRACTURE, 18, radius * 0.4, 0.09);
+		rune(level, center, Math.max(0.7, radius * 0.6), 0x7846B8, 20, Math.PI / 8.0);
+		sound(level, center, PowersSounds.RIFT_CLOSE, 0.9F, 0.58F);
 	}
 
 	/** Emits the first catastrophic eclipse flash when living light and darkness touch. */
