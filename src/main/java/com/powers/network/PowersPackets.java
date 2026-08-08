@@ -33,11 +33,14 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
 // the mod's packets: ability activation, teleport requests and marks from the
 // client, plus the power-state snapshot sent to each player
 public final class PowersPackets {
 	private static final CastNonceTracker LOCATOR_NONCES = new CastNonceTracker(20 * 30);
+	private static final Map<UUID, PowerStatePayload> LAST_SENT_STATE = new HashMap<>();
 	private PowersPackets() {
 	}
 
@@ -491,13 +494,24 @@ public final class PowersPackets {
 			cooldowns.add(power == null || power.ability() == null || power.ability().isToggle()
 					? 0 : ActivationCooldowns.remainingTicks(player, power.ability()));
 		}
-		ServerPlayNetworking.send(player, new PowerStatePayload(
+		PowerStatePayload payload = new PowerStatePayload(
 				data.getSlotIds(),
 				data.getActiveToggles(),
 				cooldowns,
 				data.energy(),
 				data.energyCapacity(),
 				SkillSystem.canEnterDarkRealm(player),
-				data.isDarknessUser()));
+				data.isDarknessUser());
+		if (payload.equals(LAST_SENT_STATE.get(player.getUUID()))) return;
+		LAST_SENT_STATE.put(player.getUUID(), payload);
+		ServerPlayNetworking.send(player, payload);
+	}
+
+	public static void forget(ServerPlayer player) {
+		LAST_SENT_STATE.remove(player.getUUID());
+	}
+
+	public static void clearSyncCache() {
+		LAST_SENT_STATE.clear();
 	}
 }

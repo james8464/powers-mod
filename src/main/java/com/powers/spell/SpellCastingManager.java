@@ -6,6 +6,7 @@ import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.crystals.SpaceTimeAbility;
+import com.powers.power.abilities.EnergyDrainAbility;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -177,7 +178,7 @@ public final class SpellCastingManager {
 				nearest = uuid;
 			}
 		}
-		if (nearest == null) return false;
+		if (nearest == null) return EnergyDrainAbility.counterNearest(caster, range);
 		ServerPlayer target = caster.level().getServer().getPlayerList().getPlayer(nearest);
 		CHANNELS.remove(nearest);
 		AMPLIFIED_UNTIL.remove(nearest);

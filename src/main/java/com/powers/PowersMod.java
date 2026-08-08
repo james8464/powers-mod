@@ -35,14 +35,14 @@ import com.powers.util.PowerMessages;
 import com.powers.spell.SpellCastingManager;
 import com.powers.spell.SpellFieldManager;
 import com.powers.realm.RealmMindscapeManager;
+import com.powers.loot.PowersLoot;
+import com.powers.util.ScheduledTaskQueue;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -137,11 +137,8 @@ public class PowersMod implements ModInitializer {
 	}
 
 	// a job held back until a future server tick
-	private record DelayedTask(int executeAt, Runnable action) {
-	}
-
 	private static final List<LightningStorm> STORMS = new ArrayList<>();
-	private static final List<DelayedTask> DELAYED = new ArrayList<>();
+	private static final ScheduledTaskQueue DELAYED = new ScheduledTaskQueue();
 	// whether each player was asleep last tick, so waking up can refund energy
 	private static final Map<UUID, Boolean> WAS_SLEEPING = new HashMap<>();
 
@@ -156,30 +153,14 @@ public class PowersMod implements ModInitializer {
 		PowersWeapons.initialize();
 		PowersBlocks.initialize();
 		ImportedPackItems.initialize();
+		PowersLoot.initialize();
 		PowersCreativeTab.initialize();
 		CrystalPowerRegistry.initialize();
 		PowersPackets.initialize();
 		PowerCommand.register();
-		// chat carries the speaker's rank. the vanilla pipeline has no hook for
-		// rewriting the sender's name, so the message is vetoed and re-sent by
-		// hand - but it still goes out per recipient and to the console log,
-		// exactly like broadcastChatMessage would have done
-		ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, player, bound) -> {
-			MinecraftServer server = player.level().getServer();
-			if (server == null) {
-				return true;
-			}
-			Component chat = SkillSystem.prefix(player)
-					.copy().append(player.getName()).append(Component.literal(": "))
-					.append(message.decoratedContent());
-			for (ServerPlayer recipient : server.getPlayerList().getPlayers()) {
-				recipient.sendSystemMessage(chat);
-			}
-			// keep the line in the server log and the console, which a bare
-			// per-player send would otherwise swallow
-			server.sendSystemMessage(chat);
-			return false;
-		});
+		// SkillSystem sets the player's visible display name. Vanilla signed chat
+		// therefore carries the rank without cancelling, stripping, or rebuilding
+		// the authenticated message as an unsigned system message.
 
 		// no damage lands in the realm dimensions; forcefields stop attacks
 		// outright, and amethyst dampening turns aside power damage only
@@ -197,7 +178,10 @@ public class PowersMod implements ModInitializer {
 		});
 		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damageTaken, blocked) -> {
 			BodyProxyManager.afterDamage(entity, source, damageTaken);
-			if (damageTaken > 0) SpellCastingManager.markDamaged(entity);
+			if (damageTaken > 0) {
+				SpellCastingManager.markDamaged(entity);
+				EnergyDrainAbility.markDamaged(entity);
+			}
 		});
 		ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) ->
 				BodyProxyManager.allowsDeath(entity));
@@ -248,6 +232,9 @@ public class PowersMod implements ModInitializer {
 			SpaceTimeAbility.clear(player.getUUID());
 			BodyProxyManager.returnToBody(player);
 			SpellCastingManager.clear(player);
+			EnergyDrainAbility.clear(player.getUUID());
+			AmethystDampening.forget(player);
+			PowersPackets.forget(player);
 		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(BodyProxyManager::returnAll);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
@@ -274,6 +261,7 @@ public class PowersMod implements ModInitializer {
 			SpellFieldManager.clearAll();
 			RealmMindscapeManager.clearAll();
 			com.powers.fx.PowerFx.clearBudgets();
+			PowersPackets.clearSyncCache();
 		});
 
 		// passives get re-applied on a schedule so they never expire, toggles
@@ -380,25 +368,22 @@ public class PowersMod implements ModInitializer {
 
 	/** Runs {@code action} once, {@code ticks} server ticks from now. */
 	public static void scheduleDelayed(MinecraftServer server, int ticks, Runnable action) {
-		DELAYED.add(new DelayedTask(server.getTickCount() + ticks, action));
+		DELAYED.schedule(server.getTickCount() + Math.max(1, ticks), action);
 	}
 
 	private static void tickStorms() {
-		for (LightningStorm storm : new ArrayList<>(STORMS)) {
+		var iterator = STORMS.iterator();
+		while (iterator.hasNext()) {
+			LightningStorm storm = iterator.next();
 			storm.tick();
 			if (storm.remaining <= 0) {
-				STORMS.remove(storm);
+				iterator.remove();
 			}
 		}
 	}
 
 	private static void tickDelayed(int tick) {
-		for (DelayedTask task : new ArrayList<>(DELAYED)) {
-			if (tick >= task.executeAt()) {
-				DELAYED.remove(task);
-				task.action().run();
-			}
-		}
+		DELAYED.runDue(tick);
 	}
 
 	// re-applies each power's passive effects with a long duration so they never lapse

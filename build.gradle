@@ -41,18 +41,10 @@ processResources {
 	exclude "**/.DS_Store"
 }
 
-tasks.register("validatePowerResources") {
+tasks.register("validatePowerResources", Exec) {
 	group = "verification"
-	description = "Parses every project JSON resource before packaging."
-	doLast {
-		def parser = new groovy.json.JsonSlurper()
-		fileTree("src/main/resources").matching {
-			include "**/*.json"
-			include "**/*.mcmeta"
-		}.files.each { resource ->
-			parser.parse(resource)
-		}
-	}
+	description = "Validates JSON, models, textures, translations, recipes and namespace safety."
+	commandLine "python3", "scripts/validate_resources.py", "--root", "src/main/resources"
 }
 
 tasks.named("check") {
