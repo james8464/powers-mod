@@ -41,6 +41,9 @@ public final class MagicInteractionResolver {
 		register(exact, "clone_swarm", "banishment_circle",
 				(first, second, context) -> cancellation(first, second, "return_seal",
 						"Banishment returns POWERS-owned ephemeral clones."));
+		register(exact, "darkness_block", "pure_light_block",
+				(first, second, context) -> cancellation(first, second, "realm_annihilation",
+						"Opposed realm matter annihilates in a staged power-100-equivalent wave."));
 		return new MagicInteractionResolver(catalogue, exact);
 	}
 
@@ -68,7 +71,7 @@ public final class MagicInteractionResolver {
 						"Independent forces coexist with a restrained harmonic weave."));
 	}
 
-	/** Enumerates all 2,016 unordered pairs in stable ID order. */
+	/** Enumerates all 2,145 unordered pairs in stable ID order. */
 	public List<ResolvedPair> allPairs() {
 		List<MagicActionDefinition> definitions = catalogue.definitions().stream()
 				.sorted(java.util.Comparator.comparing(MagicActionDefinition::id)).toList();

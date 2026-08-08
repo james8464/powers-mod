@@ -5,5 +5,6 @@ public enum MagicOrigin {
 	INNATE,
 	CRYSTAL,
 	SPELL,
-	AMETHYST
+	AMETHYST,
+	REALM
 }

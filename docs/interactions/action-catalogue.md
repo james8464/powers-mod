@@ -1,6 +1,6 @@
 # Canonical magic action catalogue
 
-This is the server-authoritative set of every innate power, crystal action, grimoire spell, and amethyst counterforce that may collide. Rank scaling creates separate values and never mutates these baselines.
+This is the server-authoritative set of every innate power, crystal action, grimoire spell, amethyst counterforce, and persistent realm force that may collide. Rank scaling creates separate values and never mutates these baselines.
 
 | ID | Origin | Aspects | Delivery | Intent | Potency | Range | Duration | Energy | Cooldown | Residue | Priority | Motif | Sound | Colours |
 |---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|---|
@@ -20,6 +20,7 @@ This is the server-authoritative set of every innate power, crystal action, grim
 | `cozy_campfire` | INNATE | FLAME, LIFE, PROTECTION | FIELD | SUPPORT | 7 | 12.000 | 200 | 18 | 200 | 100 | 10 | `flame` | `innate_flame` | `#FF5A24 / #78E06B` |
 | `creativity_manifestation` | CRYSTAL | CREATION, LIGHT | INSTANT | WORLD_INTERACTION | 13 | 16.000 | 20 | 55 | 1200 | 30 | 20 | `creation` | `crystal_creation` | `#FF9D42 / #FFF2B0` |
 | `dark_crystal` | CRYSTAL | DARKNESS, MIND | PROJECTION | MOVEMENT | 13 | 48.000 | 600 | 55 | 1200 | 100 | 20 | `darkness` | `crystal_darkness` | `#55265F / #C27CFF` |
+| `darkness_block` | REALM | DARKNESS | FIELD | WORLD_INTERACTION | 25 | 12.000 | 200 | 0 | 0 | 100 | 30 | `darkness` | `realm_darkness` | `#55265F / #55265F` |
 | `dimensional_anchor` | SPELL | SPACE, SUPPRESSION | CHANNEL | CONTROL | 11 | 20.000 | 80 | 28 | 600 | 60 | 15 | `space` | `spell_space` | `#5267D8 / #B36BFF` |
 | `dispel` | SPELL | LIGHT, SUPPRESSION | INSTANT | SUPPORT | 10 | 16.000 | 20 | 20 | 600 | 30 | 15 | `suppression` | `spell_suppression` | `#B36BFF / #FFF2B0` |
 | `double_health` | INNATE | LIFE, PROTECTION | AURA | DEFENCE | 7 | 8.000 | 200 | 18 | 200 | 100 | 10 | `life` | `innate_life` | `#78E06B / #58C7FF` |
@@ -45,6 +46,7 @@ This is the server-authoritative set of every innate power, crystal action, grim
 | `middleworld` | CRYSTAL | MIND, SPACE | TRAVEL | MOVEMENT | 13 | 48.000 | 40 | 55 | 1200 | 20 | 20 | `space` | `crystal_space` | `#5267D8 / #C27CFF` |
 | `plant_healing_acceleration` | INNATE | LIFE | FIELD | SUPPORT | 7 | 12.000 | 200 | 18 | 200 | 100 | 10 | `life` | `innate_life` | `#78E06B / #78E06B` |
 | `portal_rift` | CRYSTAL | FORCE, SPACE | TRAVEL | HARM | 18 | 48.000 | 40 | 63 | 1200 | 20 | 20 | `space` | `crystal_space` | `#5267D8 / #B9E7FF` |
+| `pure_light_block` | REALM | LIGHT | FIELD | WORLD_INTERACTION | 25 | 12.000 | 200 | 0 | 0 | 100 | 30 | `light` | `realm_light` | `#FFF2B0 / #FFF2B0` |
 | `purification_circle` | SPELL | LIFE, LIGHT, SUPPRESSION | FIELD | SUPPORT | 10 | 12.000 | 200 | 20 | 600 | 100 | 15 | `life` | `spell_life` | `#78E06B / #FFF2B0` |
 | `ritual_amplification` | SPELL | CREATION, SOUL | CHANNEL | SUPPORT | 10 | 20.000 | 80 | 20 | 600 | 60 | 15 | `creation` | `spell_creation` | `#FF9D42 / #8FE9FF` |
 | `root_binding` | SPELL | FORCE, LIFE | FIELD | CONTROL | 11 | 12.000 | 200 | 28 | 600 | 100 | 15 | `life` | `spell_life` | `#78E06B / #B9E7FF` |

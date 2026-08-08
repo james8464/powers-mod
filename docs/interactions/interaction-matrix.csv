@@ -15,6 +15,7 @@ amethyst_block,counterspell,AMETHYST,SPELL,RESONATE,sealed_resonance,crystal_res
 amethyst_block,cozy_campfire,AMETHYST,INNATE,CANCEL,amethyst_grounding,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_block,creativity_manifestation,AMETHYST,CRYSTAL,CANCEL,amethyst_grounding,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_block,dark_crystal,AMETHYST,CRYSTAL,CANCEL,amethyst_grounding,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
+amethyst_block,darkness_block,AMETHYST,REALM,CANCEL,amethyst_grounding,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_block,dimensional_anchor,AMETHYST,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 amethyst_block,dispel,AMETHYST,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 amethyst_block,double_health,AMETHYST,INNATE,CANCEL,amethyst_grounding,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
@@ -40,6 +41,7 @@ amethyst_block,lightning_strike,AMETHYST,INNATE,CANCEL,amethyst_grounding,amethy
 amethyst_block,middleworld,AMETHYST,CRYSTAL,CANCEL,amethyst_grounding,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_block,plant_healing_acceleration,AMETHYST,INNATE,CANCEL,amethyst_grounding,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_block,portal_rift,AMETHYST,CRYSTAL,CANCEL,amethyst_grounding,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
+amethyst_block,pure_light_block,AMETHYST,REALM,CANCEL,amethyst_grounding,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_block,purification_circle,AMETHYST,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 amethyst_block,ritual_amplification,AMETHYST,SPELL,CANCEL,amethyst_grounding,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_block,root_binding,AMETHYST,SPELL,CANCEL,amethyst_grounding,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
@@ -77,6 +79,7 @@ amethyst_item,counterspell,AMETHYST,SPELL,RESONATE,sealed_resonance,crystal_reso
 amethyst_item,cozy_campfire,AMETHYST,INNATE,DAMPEN,amethyst_hum,amethyst_fracture,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Carried amethyst dampens but does not fully erase the force.
 amethyst_item,creativity_manifestation,AMETHYST,CRYSTAL,DAMPEN,amethyst_hum,amethyst_fracture,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Carried amethyst dampens but does not fully erase the force.
 amethyst_item,dark_crystal,AMETHYST,CRYSTAL,DAMPEN,amethyst_hum,amethyst_fracture,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Carried amethyst dampens but does not fully erase the force.
+amethyst_item,darkness_block,AMETHYST,REALM,DAMPEN,amethyst_hum,amethyst_fracture,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Carried amethyst dampens but does not fully erase the force.
 amethyst_item,dimensional_anchor,AMETHYST,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 amethyst_item,dispel,AMETHYST,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 amethyst_item,double_health,AMETHYST,INNATE,DAMPEN,amethyst_hum,amethyst_fracture,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Carried amethyst dampens but does not fully erase the force.
@@ -102,6 +105,7 @@ amethyst_item,lightning_strike,AMETHYST,INNATE,DAMPEN,amethyst_hum,amethyst_frac
 amethyst_item,middleworld,AMETHYST,CRYSTAL,DAMPEN,amethyst_hum,amethyst_fracture,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Carried amethyst dampens but does not fully erase the force.
 amethyst_item,plant_healing_acceleration,AMETHYST,INNATE,DAMPEN,amethyst_hum,amethyst_fracture,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Carried amethyst dampens but does not fully erase the force.
 amethyst_item,portal_rift,AMETHYST,CRYSTAL,DAMPEN,amethyst_hum,amethyst_fracture,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Carried amethyst dampens but does not fully erase the force.
+amethyst_item,pure_light_block,AMETHYST,REALM,DAMPEN,amethyst_hum,amethyst_fracture,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Carried amethyst dampens but does not fully erase the force.
 amethyst_item,purification_circle,AMETHYST,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 amethyst_item,ritual_amplification,AMETHYST,SPELL,DAMPEN,amethyst_hum,amethyst_fracture,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Carried amethyst dampens but does not fully erase the force.
 amethyst_item,root_binding,AMETHYST,SPELL,DAMPEN,amethyst_hum,amethyst_fracture,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Carried amethyst dampens but does not fully erase the force.
@@ -138,6 +142,7 @@ amethyst_ward,counterspell,AMETHYST,SPELL,RESONATE,sealed_resonance,crystal_reso
 amethyst_ward,cozy_campfire,AMETHYST,INNATE,CANCEL,amethyst_fracture,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_ward,creativity_manifestation,AMETHYST,CRYSTAL,CANCEL,amethyst_fracture,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_ward,dark_crystal,AMETHYST,CRYSTAL,CANCEL,amethyst_fracture,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
+amethyst_ward,darkness_block,AMETHYST,REALM,CANCEL,amethyst_fracture,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_ward,dimensional_anchor,AMETHYST,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 amethyst_ward,dispel,AMETHYST,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 amethyst_ward,double_health,AMETHYST,INNATE,CANCEL,amethyst_fracture,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
@@ -163,6 +168,7 @@ amethyst_ward,lightning_strike,AMETHYST,INNATE,CANCEL,amethyst_fracture,amethyst
 amethyst_ward,middleworld,AMETHYST,CRYSTAL,CANCEL,amethyst_fracture,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_ward,plant_healing_acceleration,AMETHYST,INNATE,CANCEL,amethyst_fracture,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_ward,portal_rift,AMETHYST,CRYSTAL,CANCEL,amethyst_fracture,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
+amethyst_ward,pure_light_block,AMETHYST,REALM,CANCEL,amethyst_fracture,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_ward,purification_circle,AMETHYST,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 amethyst_ward,ritual_amplification,AMETHYST,SPELL,CANCEL,amethyst_fracture,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
 amethyst_ward,root_binding,AMETHYST,SPELL,CANCEL,amethyst_fracture,amethyst_fracture,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Anchored amethyst overcomes the incoming magical presence.
@@ -198,6 +204,7 @@ anti_portal_field,counterspell,SPELL,SPELL,RESONATE,sealed_resonance,crystal_res
 anti_portal_field,cozy_campfire,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 anti_portal_field,creativity_manifestation,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 anti_portal_field,dark_crystal,SPELL,CRYSTAL,CANCEL,anchor_chains,rift_open,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Dimensional chains close the attempted route.
+anti_portal_field,darkness_block,SPELL,REALM,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 anti_portal_field,dimensional_anchor,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 anti_portal_field,dispel,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 anti_portal_field,double_health,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
@@ -223,6 +230,7 @@ anti_portal_field,lightning_strike,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2
 anti_portal_field,middleworld,SPELL,CRYSTAL,CANCEL,anchor_chains,rift_open,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Dimensional chains close the attempted route.
 anti_portal_field,plant_healing_acceleration,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 anti_portal_field,portal_rift,SPELL,CRYSTAL,CANCEL,anchor_chains,rift_open,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Dimensional chains close the attempted route.
+anti_portal_field,pure_light_block,SPELL,REALM,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 anti_portal_field,purification_circle,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 anti_portal_field,ritual_amplification,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 anti_portal_field,root_binding,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
@@ -257,6 +265,7 @@ astral_projection,counterspell,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.5
 astral_projection,cozy_campfire,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 astral_projection,creativity_manifestation,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 astral_projection,dark_crystal,INNATE,CRYSTAL,RESONATE,mind_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,MIND,false,false,Shared aspects resonate with bounded potency and duration.
+astral_projection,darkness_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 astral_projection,dimensional_anchor,INNATE,SPELL,CANCEL,anchor_chains,rift_open,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Dimensional chains close the attempted route.
 astral_projection,dispel,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 astral_projection,double_health,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -282,6 +291,7 @@ astral_projection,lightning_strike,INNATE,INNATE,COEXIST,harmonic_weave,crystal_
 astral_projection,middleworld,INNATE,CRYSTAL,RESONATE,mind_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,MIND,false,false,Shared aspects resonate with bounded potency and duration.
 astral_projection,plant_healing_acceleration,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 astral_projection,portal_rift,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+astral_projection,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 astral_projection,purification_circle,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 astral_projection,ritual_amplification,INNATE,SPELL,RESONATE,soul_resonance,soul_tether,3,1.120,1.120,1.100,1.100,1.050,1.050,SOUL,false,false,Shared aspects resonate with bounded potency and duration.
 astral_projection,root_binding,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -315,6 +325,7 @@ banishment_circle,counterspell,SPELL,SPELL,RESONATE,sealed_resonance,crystal_res
 banishment_circle,cozy_campfire,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 banishment_circle,creativity_manifestation,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 banishment_circle,dark_crystal,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+banishment_circle,darkness_block,SPELL,REALM,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 banishment_circle,dimensional_anchor,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 banishment_circle,dispel,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 banishment_circle,double_health,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
@@ -340,6 +351,7 @@ banishment_circle,lightning_strike,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2
 banishment_circle,middleworld,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 banishment_circle,plant_healing_acceleration,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 banishment_circle,portal_rift,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+banishment_circle,pure_light_block,SPELL,REALM,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 banishment_circle,purification_circle,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 banishment_circle,ritual_amplification,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 banishment_circle,root_binding,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
@@ -372,6 +384,7 @@ binding_sigil,counterspell,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonat
 binding_sigil,cozy_campfire,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 binding_sigil,creativity_manifestation,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 binding_sigil,dark_crystal,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+binding_sigil,darkness_block,SPELL,REALM,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 binding_sigil,dimensional_anchor,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 binding_sigil,dispel,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 binding_sigil,double_health,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
@@ -397,6 +410,7 @@ binding_sigil,lightning_strike,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.0
 binding_sigil,middleworld,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 binding_sigil,plant_healing_acceleration,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 binding_sigil,portal_rift,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+binding_sigil,pure_light_block,SPELL,REALM,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 binding_sigil,purification_circle,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 binding_sigil,ritual_amplification,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 binding_sigil,root_binding,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
@@ -428,6 +442,7 @@ breezy_bash,counterspell,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.0
 breezy_bash,cozy_campfire,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 breezy_bash,creativity_manifestation,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 breezy_bash,dark_crystal,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+breezy_bash,darkness_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 breezy_bash,dimensional_anchor,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 breezy_bash,dispel,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 breezy_bash,double_health,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -453,6 +468,7 @@ breezy_bash,lightning_strike,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resona
 breezy_bash,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 breezy_bash,plant_healing_acceleration,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 breezy_bash,portal_rift,INNATE,CRYSTAL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
+breezy_bash,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 breezy_bash,purification_circle,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 breezy_bash,ritual_amplification,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 breezy_bash,root_binding,INNATE,SPELL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -483,6 +499,7 @@ chrono_stop,counterspell,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.
 chrono_stop,cozy_campfire,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 chrono_stop,creativity_manifestation,CRYSTAL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 chrono_stop,dark_crystal,CRYSTAL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+chrono_stop,darkness_block,CRYSTAL,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 chrono_stop,dimensional_anchor,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 chrono_stop,dispel,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 chrono_stop,double_health,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -508,6 +525,7 @@ chrono_stop,lightning_strike,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_reson
 chrono_stop,middleworld,CRYSTAL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 chrono_stop,plant_healing_acceleration,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 chrono_stop,portal_rift,CRYSTAL,CRYSTAL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
+chrono_stop,pure_light_block,CRYSTAL,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 chrono_stop,purification_circle,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 chrono_stop,ritual_amplification,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 chrono_stop,root_binding,CRYSTAL,SPELL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -537,6 +555,7 @@ clone_swarm,counterspell,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.
 clone_swarm,cozy_campfire,CRYSTAL,INNATE,AMPLIFY,concordant_bloom,crystal_resonate,2,1.080,1.080,1.120,1.120,1.000,1.000,,false,false,Compatible support magic gains a capped cooperative resonance.
 clone_swarm,creativity_manifestation,CRYSTAL,CRYSTAL,RESONATE,creation_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,CREATION,false,false,Shared aspects resonate with bounded potency and duration.
 clone_swarm,dark_crystal,CRYSTAL,CRYSTAL,RESONATE,mind_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,MIND,false,false,Shared aspects resonate with bounded potency and duration.
+clone_swarm,darkness_block,CRYSTAL,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 clone_swarm,dimensional_anchor,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 clone_swarm,dispel,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 clone_swarm,double_health,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -562,6 +581,7 @@ clone_swarm,lightning_strike,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_reson
 clone_swarm,middleworld,CRYSTAL,CRYSTAL,RESONATE,mind_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,MIND,false,false,Shared aspects resonate with bounded potency and duration.
 clone_swarm,plant_healing_acceleration,CRYSTAL,INNATE,AMPLIFY,concordant_bloom,crystal_resonate,2,1.080,1.080,1.120,1.120,1.000,1.000,,false,false,Compatible support magic gains a capped cooperative resonance.
 clone_swarm,portal_rift,CRYSTAL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+clone_swarm,pure_light_block,CRYSTAL,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 clone_swarm,purification_circle,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 clone_swarm,ritual_amplification,CRYSTAL,SPELL,RESONATE,creation_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,CREATION,false,false,Shared aspects resonate with bounded potency and duration.
 clone_swarm,root_binding,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -590,6 +610,7 @@ concealment_veil,counterspell,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550
 concealment_veil,cozy_campfire,SPELL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 concealment_veil,creativity_manifestation,SPELL,CRYSTAL,CONTEST,revealed_veil,light_chorus,3,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Concealment and detection contest without leaking hidden information.
 concealment_veil,dark_crystal,SPELL,CRYSTAL,RESONATE,mind_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,MIND,false,false,Shared aspects resonate with bounded potency and duration.
+concealment_veil,darkness_block,SPELL,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 concealment_veil,dimensional_anchor,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 concealment_veil,dispel,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 concealment_veil,double_health,SPELL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -615,6 +636,7 @@ concealment_veil,lightning_strike,SPELL,INNATE,CONTEST,ward_clash,ward_impact,3,
 concealment_veil,middleworld,SPELL,CRYSTAL,RESONATE,mind_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,MIND,false,false,Shared aspects resonate with bounded potency and duration.
 concealment_veil,plant_healing_acceleration,SPELL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 concealment_veil,portal_rift,SPELL,CRYSTAL,CONTEST,ward_clash,ward_impact,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Defensive and harmful magic contest shield integrity and potency.
+concealment_veil,pure_light_block,SPELL,REALM,CONTEST,revealed_veil,light_chorus,3,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Concealment and detection contest without leaking hidden information.
 concealment_veil,purification_circle,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 concealment_veil,ritual_amplification,SPELL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 concealment_veil,root_binding,SPELL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -642,6 +664,7 @@ controlled_hellfire,counterspell,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.
 controlled_hellfire,cozy_campfire,SPELL,INNATE,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
 controlled_hellfire,creativity_manifestation,SPELL,CRYSTAL,CONSUME,eclipse_break,light_chorus,5,0.350,1.150,0.500,1.000,1.000,1.000,,true,false,The higher-priority force breaks the opposed aspect.
 controlled_hellfire,dark_crystal,SPELL,CRYSTAL,RESONATE,darkness_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,DARKNESS,false,false,Shared aspects resonate with bounded potency and duration.
+controlled_hellfire,darkness_block,SPELL,REALM,RESONATE,darkness_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,DARKNESS,false,false,Shared aspects resonate with bounded potency and duration.
 controlled_hellfire,dimensional_anchor,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 controlled_hellfire,dispel,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 controlled_hellfire,double_health,SPELL,INNATE,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
@@ -667,6 +690,7 @@ controlled_hellfire,lightning_strike,SPELL,INNATE,DESTABILIZE,violent_interferen
 controlled_hellfire,middleworld,SPELL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 controlled_hellfire,plant_healing_acceleration,SPELL,INNATE,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
 controlled_hellfire,portal_rift,SPELL,CRYSTAL,DESTABILIZE,violent_interference,interaction_clash,4,1.050,1.050,0.750,0.750,1.000,1.000,,false,false,Colliding hostile forces intensify impact while shortening persistence.
+controlled_hellfire,pure_light_block,SPELL,REALM,CONSUME,eclipse_break,light_chorus,5,0.350,1.150,0.500,1.000,1.000,1.000,,true,false,The higher-priority force breaks the opposed aspect.
 controlled_hellfire,purification_circle,SPELL,SPELL,CANCEL,cleansing_rain,rune_hum,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Purification unweaves the hostile residue.
 controlled_hellfire,ritual_amplification,SPELL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 controlled_hellfire,root_binding,SPELL,SPELL,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
@@ -693,6 +717,7 @@ counterspell,counterspell,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate
 counterspell,cozy_campfire,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 counterspell,creativity_manifestation,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 counterspell,dark_crystal,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+counterspell,darkness_block,SPELL,REALM,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 counterspell,dimensional_anchor,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 counterspell,dispel,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 counterspell,double_health,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
@@ -718,6 +743,7 @@ counterspell,lightning_strike,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.00
 counterspell,middleworld,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 counterspell,plant_healing_acceleration,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 counterspell,portal_rift,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+counterspell,pure_light_block,SPELL,REALM,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 counterspell,purification_circle,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 counterspell,ritual_amplification,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 counterspell,root_binding,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
@@ -743,6 +769,7 @@ counterspell,weather_sigil,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.
 cozy_campfire,cozy_campfire,INNATE,INNATE,RESONATE,flame_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FLAME,false,false,Shared aspects resonate with bounded potency and duration.
 cozy_campfire,creativity_manifestation,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 cozy_campfire,dark_crystal,INNATE,CRYSTAL,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
+cozy_campfire,darkness_block,INNATE,REALM,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
 cozy_campfire,dimensional_anchor,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 cozy_campfire,dispel,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 cozy_campfire,double_health,INNATE,INNATE,RESONATE,life_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIFE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -768,6 +795,7 @@ cozy_campfire,lightning_strike,INNATE,INNATE,COEXIST,harmonic_weave,crystal_reso
 cozy_campfire,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 cozy_campfire,plant_healing_acceleration,INNATE,INNATE,RESONATE,life_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIFE,false,false,Shared aspects resonate with bounded potency and duration.
 cozy_campfire,portal_rift,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+cozy_campfire,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 cozy_campfire,purification_circle,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 cozy_campfire,ritual_amplification,INNATE,SPELL,AMPLIFY,concordant_bloom,crystal_resonate,2,1.080,1.080,1.120,1.120,1.000,1.000,,false,false,Compatible support magic gains a capped cooperative resonance.
 cozy_campfire,root_binding,INNATE,SPELL,RESONATE,life_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIFE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -792,6 +820,7 @@ cozy_campfire,ward_breaking_ritual,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2
 cozy_campfire,weather_sigil,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 creativity_manifestation,creativity_manifestation,CRYSTAL,CRYSTAL,RESONATE,light_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIGHT,false,false,Shared aspects resonate with bounded potency and duration.
 creativity_manifestation,dark_crystal,CRYSTAL,CRYSTAL,CONTEST,eclipse,light_chorus,5,0.700,0.700,0.700,0.700,1.000,1.000,,false,false,Balanced light and darkness become a revealing eclipse.
+creativity_manifestation,darkness_block,CRYSTAL,REALM,CONSUME,eclipse_break,light_chorus,5,0.350,1.150,0.500,1.000,1.000,1.000,,true,false,The higher-priority force breaks the opposed aspect.
 creativity_manifestation,dimensional_anchor,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 creativity_manifestation,dispel,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 creativity_manifestation,double_health,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -817,6 +846,7 @@ creativity_manifestation,lightning_strike,CRYSTAL,INNATE,COEXIST,harmonic_weave,
 creativity_manifestation,middleworld,CRYSTAL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 creativity_manifestation,plant_healing_acceleration,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 creativity_manifestation,portal_rift,CRYSTAL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+creativity_manifestation,pure_light_block,CRYSTAL,REALM,RESONATE,light_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIGHT,false,false,Shared aspects resonate with bounded potency and duration.
 creativity_manifestation,purification_circle,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 creativity_manifestation,ritual_amplification,CRYSTAL,SPELL,RESONATE,creation_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,CREATION,false,false,Shared aspects resonate with bounded potency and duration.
 creativity_manifestation,root_binding,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -840,6 +870,7 @@ creativity_manifestation,void_beam,CRYSTAL,INNATE,CONSUME,eclipse_break,light_ch
 creativity_manifestation,ward_breaking_ritual,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 creativity_manifestation,weather_sigil,CRYSTAL,SPELL,RESONATE,creation_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,CREATION,false,false,Shared aspects resonate with bounded potency and duration.
 dark_crystal,dark_crystal,CRYSTAL,CRYSTAL,RESONATE,mind_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,MIND,false,false,Shared aspects resonate with bounded potency and duration.
+dark_crystal,darkness_block,CRYSTAL,REALM,RESONATE,darkness_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,DARKNESS,false,false,Shared aspects resonate with bounded potency and duration.
 dark_crystal,dimensional_anchor,CRYSTAL,SPELL,CANCEL,anchor_chains,rift_open,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Dimensional chains close the attempted route.
 dark_crystal,dispel,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 dark_crystal,double_health,CRYSTAL,INNATE,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
@@ -865,6 +896,7 @@ dark_crystal,lightning_strike,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_reso
 dark_crystal,middleworld,CRYSTAL,CRYSTAL,RESONATE,mind_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,MIND,false,false,Shared aspects resonate with bounded potency and duration.
 dark_crystal,plant_healing_acceleration,CRYSTAL,INNATE,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
 dark_crystal,portal_rift,CRYSTAL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+dark_crystal,pure_light_block,CRYSTAL,REALM,CONSUME,eclipse_break,light_chorus,5,0.350,1.150,0.500,1.000,1.000,1.000,,true,false,The higher-priority force breaks the opposed aspect.
 dark_crystal,purification_circle,CRYSTAL,SPELL,CANCEL,cleansing_rain,rune_hum,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Purification unweaves the hostile residue.
 dark_crystal,ritual_amplification,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 dark_crystal,root_binding,CRYSTAL,SPELL,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
@@ -887,6 +919,55 @@ dark_crystal,vitality_transfer,CRYSTAL,SPELL,CONTEST,withered_bloom,crystal_reso
 dark_crystal,void_beam,CRYSTAL,INNATE,RESONATE,darkness_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,DARKNESS,false,false,Shared aspects resonate with bounded potency and duration.
 dark_crystal,ward_breaking_ritual,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 dark_crystal,weather_sigil,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,darkness_block,REALM,REALM,RESONATE,darkness_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,DARKNESS,false,false,Shared aspects resonate with bounded potency and duration.
+darkness_block,dimensional_anchor,REALM,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+darkness_block,dispel,REALM,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+darkness_block,double_health,REALM,INNATE,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
+darkness_block,dreamwalking,REALM,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,elemental_blast,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,energy_beam,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,energy_drain,REALM,INNATE,RESONATE,darkness_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,DARKNESS,false,false,Shared aspects resonate with bounded potency and duration.
+darkness_block,fireball,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,flight,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,forcefield,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,frost_nova,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,gravity_displacement,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,ground_slam,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,hex,REALM,SPELL,RESONATE,darkness_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,DARKNESS,false,false,Shared aspects resonate with bounded potency and duration.
+darkness_block,ice_manipulation,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,infernal_seal,REALM,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+darkness_block,inferno,REALM,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,invisibility,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,kinetic_ward,REALM,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,life_bloom,REALM,CRYSTAL,CONSUME,eclipse_break,light_chorus,5,1.150,0.350,1.000,0.500,1.000,1.000,,false,true,The higher-priority force breaks the opposed aspect.
+darkness_block,light_crystal,REALM,CRYSTAL,CONSUME,eclipse_break,light_chorus,5,1.150,0.350,1.000,0.500,1.000,1.000,,false,true,The higher-priority force breaks the opposed aspect.
+darkness_block,lightning_strike,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,middleworld,REALM,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,plant_healing_acceleration,REALM,INNATE,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
+darkness_block,portal_rift,REALM,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,pure_light_block,REALM,REALM,CANCEL,realm_annihilation,interaction_clash,4,0.000,0.000,0.000,0.000,0.000,0.000,,true,true,Opposed realm matter annihilates in a staged power-100-equivalent wave.
+darkness_block,purification_circle,REALM,SPELL,CANCEL,cleansing_rain,rune_hum,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Purification unweaves the hostile residue.
+darkness_block,ritual_amplification,REALM,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,root_binding,REALM,SPELL,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
+darkness_block,sanctuary_growth,REALM,SPELL,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
+darkness_block,shadow_step,REALM,INNATE,RESONATE,darkness_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,DARKNESS,false,false,Shared aspects resonate with bounded potency and duration.
+darkness_block,size_shift,REALM,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,slow_world,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,soul_compass,REALM,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,soul_link,REALM,CRYSTAL,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
+darkness_block,space_time,REALM,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,speed_burst,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,starfall,REALM,INNATE,CONSUME,eclipse_break,light_chorus,5,1.150,0.350,1.000,0.500,1.000,1.000,,false,true,The higher-priority force breaks the opposed aspect.
+darkness_block,super_speed,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,telekinesis,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,time_freeze,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,time_shift,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,tracking_mark,REALM,SPELL,CONSUME,eclipse_break,light_chorus,5,1.150,0.350,1.000,0.500,1.000,1.000,,false,true,The higher-priority force breaks the opposed aspect.
+darkness_block,vessel_possession,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+darkness_block,vitality_transfer,REALM,SPELL,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
+darkness_block,void_beam,REALM,INNATE,RESONATE,darkness_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,DARKNESS,false,false,Shared aspects resonate with bounded potency and duration.
+darkness_block,ward_breaking_ritual,REALM,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+darkness_block,weather_sigil,REALM,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 dimensional_anchor,dimensional_anchor,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 dimensional_anchor,dispel,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 dimensional_anchor,double_health,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
@@ -912,6 +993,7 @@ dimensional_anchor,lightning_strike,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,
 dimensional_anchor,middleworld,SPELL,CRYSTAL,CANCEL,anchor_chains,rift_open,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Dimensional chains close the attempted route.
 dimensional_anchor,plant_healing_acceleration,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 dimensional_anchor,portal_rift,SPELL,CRYSTAL,CANCEL,anchor_chains,rift_open,4,1.000,0.000,1.000,0.000,1.000,0.000,,false,true,Dimensional chains close the attempted route.
+dimensional_anchor,pure_light_block,SPELL,REALM,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 dimensional_anchor,purification_circle,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 dimensional_anchor,ritual_amplification,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 dimensional_anchor,root_binding,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
@@ -958,6 +1040,7 @@ dispel,lightning_strike,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.55
 dispel,middleworld,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 dispel,plant_healing_acceleration,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 dispel,portal_rift,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+dispel,pure_light_block,SPELL,REALM,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 dispel,purification_circle,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 dispel,ritual_amplification,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 dispel,root_binding,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
@@ -1003,6 +1086,7 @@ double_health,lightning_strike,INNATE,INNATE,CONTEST,ward_clash,ward_impact,3,0.
 double_health,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 double_health,plant_healing_acceleration,INNATE,INNATE,RESONATE,life_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIFE,false,false,Shared aspects resonate with bounded potency and duration.
 double_health,portal_rift,INNATE,CRYSTAL,CONTEST,ward_clash,ward_impact,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Defensive and harmful magic contest shield integrity and potency.
+double_health,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 double_health,purification_circle,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 double_health,ritual_amplification,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 double_health,root_binding,INNATE,SPELL,RESONATE,life_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIFE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -1047,6 +1131,7 @@ dreamwalking,lightning_strike,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_reso
 dreamwalking,middleworld,CRYSTAL,CRYSTAL,RESONATE,mind_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,MIND,false,false,Shared aspects resonate with bounded potency and duration.
 dreamwalking,plant_healing_acceleration,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 dreamwalking,portal_rift,CRYSTAL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+dreamwalking,pure_light_block,CRYSTAL,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 dreamwalking,purification_circle,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 dreamwalking,ritual_amplification,CRYSTAL,SPELL,RESONATE,soul_resonance,soul_tether,3,1.120,1.120,1.100,1.100,1.050,1.050,SOUL,false,false,Shared aspects resonate with bounded potency and duration.
 dreamwalking,root_binding,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -1090,6 +1175,7 @@ elemental_blast,lightning_strike,INNATE,INNATE,RESONATE,storm_resonance,crystal_
 elemental_blast,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 elemental_blast,plant_healing_acceleration,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 elemental_blast,portal_rift,INNATE,CRYSTAL,DESTABILIZE,violent_interference,interaction_clash,4,1.050,1.050,0.750,0.750,1.000,1.000,,false,false,Colliding hostile forces intensify impact while shortening persistence.
+elemental_blast,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 elemental_blast,purification_circle,INNATE,SPELL,CANCEL,cleansing_rain,rune_hum,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Purification unweaves the hostile residue.
 elemental_blast,ritual_amplification,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 elemental_blast,root_binding,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -1132,6 +1218,7 @@ energy_beam,lightning_strike,INNATE,INNATE,DESTABILIZE,violent_interference,inte
 energy_beam,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 energy_beam,plant_healing_acceleration,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 energy_beam,portal_rift,INNATE,CRYSTAL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
+energy_beam,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 energy_beam,purification_circle,INNATE,SPELL,CANCEL,cleansing_rain,rune_hum,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Purification unweaves the hostile residue.
 energy_beam,ritual_amplification,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 energy_beam,root_binding,INNATE,SPELL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -1173,6 +1260,7 @@ energy_drain,lightning_strike,INNATE,INNATE,DESTABILIZE,violent_interference,int
 energy_drain,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 energy_drain,plant_healing_acceleration,INNATE,INNATE,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
 energy_drain,portal_rift,INNATE,CRYSTAL,DESTABILIZE,violent_interference,interaction_clash,4,1.050,1.050,0.750,0.750,1.000,1.000,,false,false,Colliding hostile forces intensify impact while shortening persistence.
+energy_drain,pure_light_block,INNATE,REALM,CONSUME,eclipse_break,light_chorus,5,0.350,1.150,0.500,1.000,1.000,1.000,,true,false,The higher-priority force breaks the opposed aspect.
 energy_drain,purification_circle,INNATE,SPELL,CANCEL,cleansing_rain,rune_hum,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Purification unweaves the hostile residue.
 energy_drain,ritual_amplification,INNATE,SPELL,RESONATE,soul_resonance,soul_tether,3,1.120,1.120,1.100,1.100,1.050,1.050,SOUL,false,false,Shared aspects resonate with bounded potency and duration.
 energy_drain,root_binding,INNATE,SPELL,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
@@ -1213,6 +1301,7 @@ fireball,lightning_strike,INNATE,INNATE,DESTABILIZE,violent_interference,interac
 fireball,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 fireball,plant_healing_acceleration,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 fireball,portal_rift,INNATE,CRYSTAL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
+fireball,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 fireball,purification_circle,INNATE,SPELL,CANCEL,cleansing_rain,rune_hum,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Purification unweaves the hostile residue.
 fireball,ritual_amplification,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 fireball,root_binding,INNATE,SPELL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -1252,6 +1341,7 @@ flight,lightning_strike,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,
 flight,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 flight,plant_healing_acceleration,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 flight,portal_rift,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+flight,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 flight,purification_circle,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 flight,ritual_amplification,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 flight,root_binding,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -1290,6 +1380,7 @@ forcefield,lightning_strike,INNATE,INNATE,CONTEST,ward_clash,ward_impact,3,0.800
 forcefield,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 forcefield,plant_healing_acceleration,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 forcefield,portal_rift,INNATE,CRYSTAL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
+forcefield,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 forcefield,purification_circle,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 forcefield,ritual_amplification,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 forcefield,root_binding,INNATE,SPELL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -1327,6 +1418,7 @@ frost_nova,lightning_strike,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonat
 frost_nova,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 frost_nova,plant_healing_acceleration,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 frost_nova,portal_rift,INNATE,CRYSTAL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
+frost_nova,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 frost_nova,purification_circle,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 frost_nova,ritual_amplification,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 frost_nova,root_binding,INNATE,SPELL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -1363,6 +1455,7 @@ gravity_displacement,lightning_strike,INNATE,INNATE,COEXIST,harmonic_weave,cryst
 gravity_displacement,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 gravity_displacement,plant_healing_acceleration,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 gravity_displacement,portal_rift,INNATE,CRYSTAL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
+gravity_displacement,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 gravity_displacement,purification_circle,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 gravity_displacement,ritual_amplification,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 gravity_displacement,root_binding,INNATE,SPELL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -1398,6 +1491,7 @@ ground_slam,lightning_strike,INNATE,INNATE,DESTABILIZE,violent_interference,inte
 ground_slam,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 ground_slam,plant_healing_acceleration,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 ground_slam,portal_rift,INNATE,CRYSTAL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
+ground_slam,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 ground_slam,purification_circle,INNATE,SPELL,CANCEL,cleansing_rain,rune_hum,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Purification unweaves the hostile residue.
 ground_slam,ritual_amplification,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 ground_slam,root_binding,INNATE,SPELL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -1432,6 +1526,7 @@ hex,lightning_strike,SPELL,INNATE,DESTABILIZE,violent_interference,interaction_c
 hex,middleworld,SPELL,CRYSTAL,RESONATE,mind_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,MIND,false,false,Shared aspects resonate with bounded potency and duration.
 hex,plant_healing_acceleration,SPELL,INNATE,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
 hex,portal_rift,SPELL,CRYSTAL,DESTABILIZE,violent_interference,interaction_clash,4,1.050,1.050,0.750,0.750,1.000,1.000,,false,false,Colliding hostile forces intensify impact while shortening persistence.
+hex,pure_light_block,SPELL,REALM,CONSUME,eclipse_break,light_chorus,5,0.350,1.150,0.500,1.000,1.000,1.000,,true,false,The higher-priority force breaks the opposed aspect.
 hex,purification_circle,SPELL,SPELL,CANCEL,cleansing_rain,rune_hum,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Purification unweaves the hostile residue.
 hex,ritual_amplification,SPELL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 hex,root_binding,SPELL,SPELL,CONTEST,withered_bloom,crystal_resonate,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Life and corruption contest without deleting unrelated effects.
@@ -1465,6 +1560,7 @@ ice_manipulation,lightning_strike,INNATE,INNATE,COEXIST,harmonic_weave,crystal_r
 ice_manipulation,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 ice_manipulation,plant_healing_acceleration,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 ice_manipulation,portal_rift,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+ice_manipulation,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 ice_manipulation,purification_circle,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 ice_manipulation,ritual_amplification,INNATE,SPELL,RESONATE,creation_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,CREATION,false,false,Shared aspects resonate with bounded potency and duration.
 ice_manipulation,root_binding,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -1497,6 +1593,7 @@ infernal_seal,lightning_strike,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.0
 infernal_seal,middleworld,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 infernal_seal,plant_healing_acceleration,SPELL,INNATE,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 infernal_seal,portal_rift,SPELL,CRYSTAL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+infernal_seal,pure_light_block,SPELL,REALM,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 infernal_seal,purification_circle,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 infernal_seal,ritual_amplification,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 infernal_seal,root_binding,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
@@ -1528,6 +1625,7 @@ inferno,lightning_strike,CRYSTAL,INNATE,RESONATE,storm_resonance,crystal_resonat
 inferno,middleworld,CRYSTAL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 inferno,plant_healing_acceleration,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 inferno,portal_rift,CRYSTAL,CRYSTAL,DESTABILIZE,violent_interference,interaction_clash,4,1.050,1.050,0.750,0.750,1.000,1.000,,false,false,Colliding hostile forces intensify impact while shortening persistence.
+inferno,pure_light_block,CRYSTAL,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 inferno,purification_circle,CRYSTAL,SPELL,CANCEL,cleansing_rain,rune_hum,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Purification unweaves the hostile residue.
 inferno,ritual_amplification,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 inferno,root_binding,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -1558,6 +1656,7 @@ invisibility,lightning_strike,INNATE,INNATE,CONTEST,ward_clash,ward_impact,3,0.8
 invisibility,middleworld,INNATE,CRYSTAL,RESONATE,mind_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,MIND,false,false,Shared aspects resonate with bounded potency and duration.
 invisibility,plant_healing_acceleration,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 invisibility,portal_rift,INNATE,CRYSTAL,CONTEST,ward_clash,ward_impact,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Defensive and harmful magic contest shield integrity and potency.
+invisibility,pure_light_block,INNATE,REALM,CONTEST,revealed_veil,light_chorus,3,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Concealment and detection contest without leaking hidden information.
 invisibility,purification_circle,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 invisibility,ritual_amplification,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 invisibility,root_binding,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -1587,6 +1686,7 @@ kinetic_ward,lightning_strike,SPELL,INNATE,CONTEST,ward_clash,ward_impact,3,0.80
 kinetic_ward,middleworld,SPELL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 kinetic_ward,plant_healing_acceleration,SPELL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 kinetic_ward,portal_rift,SPELL,CRYSTAL,CONTEST,ward_clash,ward_impact,3,0.800,0.800,0.800,0.800,1.000,1.000,,false,false,Defensive and harmful magic contest shield integrity and potency.
+kinetic_ward,pure_light_block,SPELL,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 kinetic_ward,purification_circle,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 kinetic_ward,ritual_amplification,SPELL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 kinetic_ward,root_binding,SPELL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -1615,6 +1715,7 @@ life_bloom,lightning_strike,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_resona
 life_bloom,middleworld,CRYSTAL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 life_bloom,plant_healing_acceleration,CRYSTAL,INNATE,RESONATE,life_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIFE,false,false,Shared aspects resonate with bounded potency and duration.
 life_bloom,portal_rift,CRYSTAL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+life_bloom,pure_light_block,CRYSTAL,REALM,RESONATE,light_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIGHT,false,false,Shared aspects resonate with bounded potency and duration.
 life_bloom,purification_circle,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 life_bloom,ritual_amplification,CRYSTAL,SPELL,AMPLIFY,concordant_bloom,crystal_resonate,2,1.080,1.080,1.120,1.120,1.000,1.000,,false,false,Compatible support magic gains a capped cooperative resonance.
 life_bloom,root_binding,CRYSTAL,SPELL,RESONATE,life_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIFE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -1642,6 +1743,7 @@ light_crystal,lightning_strike,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_res
 light_crystal,middleworld,CRYSTAL,CRYSTAL,RESONATE,mind_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,MIND,false,false,Shared aspects resonate with bounded potency and duration.
 light_crystal,plant_healing_acceleration,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 light_crystal,portal_rift,CRYSTAL,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+light_crystal,pure_light_block,CRYSTAL,REALM,RESONATE,light_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIGHT,false,false,Shared aspects resonate with bounded potency and duration.
 light_crystal,purification_circle,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 light_crystal,ritual_amplification,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 light_crystal,root_binding,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -1668,6 +1770,7 @@ lightning_strike,lightning_strike,INNATE,INNATE,RESONATE,storm_resonance,crystal
 lightning_strike,middleworld,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 lightning_strike,plant_healing_acceleration,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 lightning_strike,portal_rift,INNATE,CRYSTAL,DESTABILIZE,violent_interference,interaction_clash,4,1.050,1.050,0.750,0.750,1.000,1.000,,false,false,Colliding hostile forces intensify impact while shortening persistence.
+lightning_strike,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 lightning_strike,purification_circle,INNATE,SPELL,CANCEL,cleansing_rain,rune_hum,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Purification unweaves the hostile residue.
 lightning_strike,ritual_amplification,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 lightning_strike,root_binding,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -1693,6 +1796,7 @@ lightning_strike,weather_sigil,INNATE,SPELL,RESONATE,storm_resonance,crystal_res
 middleworld,middleworld,CRYSTAL,CRYSTAL,RESONATE,space_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,SPACE,false,false,Shared aspects resonate with bounded potency and duration.
 middleworld,plant_healing_acceleration,CRYSTAL,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 middleworld,portal_rift,CRYSTAL,CRYSTAL,RESONATE,space_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,SPACE,false,false,Shared aspects resonate with bounded potency and duration.
+middleworld,pure_light_block,CRYSTAL,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 middleworld,purification_circle,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 middleworld,ritual_amplification,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 middleworld,root_binding,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
@@ -1717,6 +1821,7 @@ middleworld,ward_breaking_ritual,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,
 middleworld,weather_sigil,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 plant_healing_acceleration,plant_healing_acceleration,INNATE,INNATE,RESONATE,life_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIFE,false,false,Shared aspects resonate with bounded potency and duration.
 plant_healing_acceleration,portal_rift,INNATE,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+plant_healing_acceleration,pure_light_block,INNATE,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 plant_healing_acceleration,purification_circle,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 plant_healing_acceleration,ritual_amplification,INNATE,SPELL,AMPLIFY,concordant_bloom,crystal_resonate,2,1.080,1.080,1.120,1.120,1.000,1.000,,false,false,Compatible support magic gains a capped cooperative resonance.
 plant_healing_acceleration,root_binding,INNATE,SPELL,RESONATE,life_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIFE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -1740,6 +1845,7 @@ plant_healing_acceleration,void_beam,INNATE,INNATE,CONTEST,withered_bloom,crysta
 plant_healing_acceleration,ward_breaking_ritual,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 plant_healing_acceleration,weather_sigil,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 portal_rift,portal_rift,CRYSTAL,CRYSTAL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
+portal_rift,pure_light_block,CRYSTAL,REALM,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 portal_rift,purification_circle,CRYSTAL,SPELL,CANCEL,cleansing_rain,rune_hum,4,0.000,1.000,0.000,1.000,0.000,1.000,,true,false,Purification unweaves the hostile residue.
 portal_rift,ritual_amplification,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 portal_rift,root_binding,CRYSTAL,SPELL,RESONATE,force_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,FORCE,false,false,Shared aspects resonate with bounded potency and duration.
@@ -1762,6 +1868,29 @@ portal_rift,vitality_transfer,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_reson
 portal_rift,void_beam,CRYSTAL,INNATE,DESTABILIZE,violent_interference,interaction_clash,4,1.050,1.050,0.750,0.750,1.000,1.000,,false,false,Colliding hostile forces intensify impact while shortening persistence.
 portal_rift,ward_breaking_ritual,CRYSTAL,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 portal_rift,weather_sigil,CRYSTAL,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,pure_light_block,REALM,REALM,RESONATE,light_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIGHT,false,false,Shared aspects resonate with bounded potency and duration.
+pure_light_block,purification_circle,REALM,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+pure_light_block,ritual_amplification,REALM,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,root_binding,REALM,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,sanctuary_growth,REALM,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,shadow_step,REALM,INNATE,CONSUME,eclipse_break,light_chorus,5,1.150,0.350,1.000,0.500,1.000,1.000,,false,true,The higher-priority force breaks the opposed aspect.
+pure_light_block,size_shift,REALM,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,slow_world,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,soul_compass,REALM,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,soul_link,REALM,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,space_time,REALM,CRYSTAL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,speed_burst,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,starfall,REALM,INNATE,RESONATE,light_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIGHT,false,false,Shared aspects resonate with bounded potency and duration.
+pure_light_block,super_speed,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,telekinesis,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,time_freeze,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,time_shift,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,tracking_mark,REALM,SPELL,RESONATE,light_resonance,crystal_resonate,3,1.120,1.120,1.100,1.100,1.050,1.050,LIGHT,false,false,Shared aspects resonate with bounded potency and duration.
+pure_light_block,vessel_possession,REALM,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,vitality_transfer,REALM,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
+pure_light_block,void_beam,REALM,INNATE,CONSUME,eclipse_break,light_chorus,5,1.150,0.350,1.000,0.500,1.000,1.000,,false,true,The higher-priority force breaks the opposed aspect.
+pure_light_block,ward_breaking_ritual,REALM,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
+pure_light_block,weather_sigil,REALM,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 purification_circle,purification_circle,SPELL,SPELL,RESONATE,sealed_resonance,crystal_resonate,2,0.850,0.850,0.850,0.850,1.000,1.000,,false,false,Suppression fields reinforce while slightly damping one another.
 purification_circle,ritual_amplification,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 purification_circle,root_binding,SPELL,SPELL,DAMPEN,counter_sigils,rune_hum,2,1.000,0.550,1.000,0.550,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.

@@ -12,7 +12,8 @@
 - Built Light and Dark Realm memory sites, lore rewards, custom obelisks, ambient magic, and a distinct Middleworld biome.
 - Rebuilt the HUD as authored rune medallions and a five-state ancient energy reliquary, with responsive teleport and celestial-locator rituals.
 - Added the interactive Labyrinth of Names screen, synchronized title perks, server-validated awaken/attune actions, and rank ceremonies.
-- Added a canonical 63-action magic kernel covering all 2,016 possible collisions, with bounded mechanics for exceptional combinations.
+- Added spreading Darkness and Pure Light, darkness-tag affinity restoration, hostile Wither auras, and a staged power-100-equivalent mutual-annihilation clash.
+- Expanded the canonical magic kernel to 65 actions and all 2,145 possible collisions by adding both living realm forces.
 - Added four-beat client choreography, eight original particle sprites, and 13 original normalized magic sounds with accessibility scaling.
 - Audited every production Java source and all 149 non-item assets; removed three stale, unreferenced HUD strips.
 - Replaced vanilla loot-table overrides with additive loot injection and removed unreleased crystal recipes.
