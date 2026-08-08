@@ -60,9 +60,39 @@ class FxChoreographyTest {
 	@Test
 	void framesRejectNonFiniteOrNegativeScales() {
 		assertThrows(IllegalArgumentException.class, () -> new FxFrame(FxBeat.IMPACT,
-				Optional.empty(), Double.NaN, 1.0, 1.0));
+				Optional.empty(), Double.NaN, 1.0, 1.0, 0.0, FxOrientation.AUTO));
 		assertThrows(IllegalArgumentException.class, () -> new FxFrame(FxBeat.IMPACT,
-				Optional.empty(), 1.0, -1.0, 1.0));
+				Optional.empty(), 1.0, -1.0, 1.0, 0.0, FxOrientation.AUTO));
+		assertThrows(IllegalArgumentException.class, () -> new FxFrame(FxBeat.IMPACT,
+				Optional.empty(), 1.0, 1.0, 1.0, Double.NaN, FxOrientation.AUTO));
+	}
+
+	@Test
+	void castsStageGroundBodyAndRisingAftermathPlanes() {
+		FxFrame anticipation = frame(CAST, 0, false);
+		FxFrame release = frame(CAST, 3, false);
+		FxFrame impact = frame(CAST, 7, false);
+		FxFrame aftermath = frame(CAST, 13, false);
+
+		assertEquals(FxOrientation.GROUND, anticipation.orientation());
+		assertEquals(-0.92, anticipation.verticalOffset());
+		assertEquals(FxOrientation.AUTO, release.orientation());
+		assertEquals(0.0, release.verticalOffset());
+		assertEquals(FxOrientation.AUTO, impact.orientation());
+		assertEquals(0.0, impact.verticalOffset());
+		assertEquals(FxOrientation.AUTO, aftermath.orientation());
+		assertTrue(aftermath.verticalOffset() > 0.0);
+	}
+
+	@Test
+	void interactionsRemainCentredAndAccessibilityPreservesPlacement() {
+		FxFrame normal = frame(INTERACTION, 8, false);
+		FxFrame reduced = frame(INTERACTION, 8, true);
+
+		assertEquals(0.0, normal.verticalOffset());
+		assertEquals(FxOrientation.AUTO, normal.orientation());
+		assertEquals(normal.verticalOffset(), reduced.verticalOffset());
+		assertEquals(normal.orientation(), reduced.orientation());
 	}
 
 	private static FxFrame frame(MagicFxKind kind, int age, boolean reducedMotion) {
