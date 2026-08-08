@@ -15,7 +15,8 @@ class MagicActionCatalogueTest {
 			MagicOrigin.INNATE, 27,
 			MagicOrigin.CRYSTAL, 13,
 			MagicOrigin.SPELL, 20,
-			MagicOrigin.AMETHYST, 3);
+			MagicOrigin.AMETHYST, 3,
+			MagicOrigin.REALM, 2);
 
 	@Test
 	void defaultsContainEverySupportedActionExactlyOnce() {
@@ -24,8 +25,8 @@ class MagicActionCatalogueTest {
 		catalogue.definitions().forEach(definition ->
 				actualCounts.merge(definition.origin(), 1, Integer::sum));
 
-		assertEquals(63, catalogue.definitions().size());
-		assertEquals(63, catalogue.definitions().stream()
+		assertEquals(65, catalogue.definitions().size());
+		assertEquals(65, catalogue.definitions().stream()
 				.map(MagicActionDefinition::id).distinct().count());
 		assertEquals(EXPECTED_ORIGIN_COUNTS, actualCounts);
 		assertTrue(catalogue.definitions().stream().allMatch(MagicActionDefinition::isComplete));
@@ -53,7 +54,8 @@ class MagicActionCatalogueTest {
 				"hex", "concealment_veil", "purification_circle", "root_binding",
 				"sanctuary_growth", "infernal_seal", "banishment_circle", "controlled_hellfire",
 				"ward_breaking_ritual", "counterspell", "dispel", "ritual_amplification",
-				"amethyst_item", "amethyst_block", "amethyst_ward")));
+				"amethyst_item", "amethyst_block", "amethyst_ward",
+				"darkness_block", "pure_light_block")));
 	}
 
 	@Test

@@ -27,6 +27,8 @@ The assignable powers are:
 
 Every power uses the same energy well. Light progression grows it from 250 to 770; darkness progression grows its separate well from 500 to 1,850. Failed casts refund their activation cost. Toggle powers drain once per second and cause backlash if they exhaust the well. Sleeping and runestones restore energy unless Exhaustion is active.
 
+Darkness and Pure Light are living realm matter. Vanilla random ticks make either block convert adjacent breakable terrain without requiring kills or loading distant chunks. Darkness withers nearby living entities without the `darkness` tag at strength III; tagged players instead receive a rank-scaled 24-energy pulse each second unless amethyst has poisoned their connection. When Pure Light touches Darkness, a catastrophic eclipse blast damages and throws exposed entities, then erases both forces throughout a 48-block sphere over several server-budgeted ticks without destroying unrelated builds.
+
 ## Mind travel and vulnerable bodies
 
 Astral projection, vessel possession, dreamwalking, player-marking during Time Shift, and travel to the Light or Dark Realm leave a skin-matched Minecraft mannequin where the player's physical body remains.
@@ -97,7 +99,7 @@ Convergence cooldowns are shared with their underlying forces, so swapping cryst
 
 ## Magic collisions and presentation
 
-All 27 innate powers, 20 grimoire spells, 13 crystal actions, and three amethyst suppressors participate in one canonical 63-action collision system. Every one of the 2,016 unordered same-or-cross-action pairs has a deterministic outcome, potency/duration/range adjustment, accessible shape cue, and semantic sound cue. Named high-impact combinations add mechanics such as steam pressure, eclipses that reveal concealment, projectile-consuming star rifts, summon banishment, soul-link purification, finite ward fracture, grounded storms, hostile pressure waves, and concordant healing.
+All 27 innate powers, 20 grimoire spells, 13 crystal actions, three amethyst suppressors, and two living realm forces participate in one canonical 65-action collision system. Every one of the 2,145 unordered same-or-cross-action pairs has a deterministic outcome, potency/duration/range adjustment, accessible shape cue, and semantic sound cue. Named high-impact combinations add mechanics such as steam pressure, eclipses that reveal concealment, realm-matter annihilation, projectile-consuming star rifts, summon banishment, soul-link purification, finite ward fracture, grounded storms, hostile pressure waves, and concordant healing.
 
 The complete catalogue is in [`docs/interactions/action-catalogue.md`](docs/interactions/action-catalogue.md), and every possible pair is listed in [`docs/interactions/interaction-matrix.csv`](docs/interactions/interaction-matrix.csv). Client effects use four readable beats, eight authored particle sprites, 13 original mono Vorbis sounds, distance culling, reduced-motion adaptation, and hard client/server particle budgets.
 
@@ -143,6 +145,12 @@ Important defaults:
 | `spaceTimeRadius` | `32` | Green Crystal freeze radius |
 | `chronoStopRadius` | `64` | Indigo Crystal chrono-stop radius |
 | `rankRespecExperienceLevels` | `30` | Rank-maze respec price |
+| `livingForces.spreadingEnabled` | `true` | Enables random-tick Darkness and Pure Light conversion |
+| `livingForces.spreadAttempts` | `2` | Face-adjacent conversion attempts per selected random tick |
+| `livingForces.auraRadius` | `8` | Darkness affinity range around indexed blocks |
+| `livingForces.energyRefillPerSecond` | `24` | Base darkness-tag energy pulse before rank scaling |
+| `livingForces.clashRadius` | `48` | Realm-matter annihilation sphere radius |
+| `livingForces.clashChecksPerTick` | `4096` | Maximum in-sphere clash positions processed per tick |
 | `safeZones` | `[]` | Protected dimension-centred spheres |
 
 A safe-zone entry has `dimension`, `x`, `y`, `z`, and `radius` fields.

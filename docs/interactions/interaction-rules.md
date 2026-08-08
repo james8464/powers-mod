@@ -17,6 +17,7 @@ Every unordered pair—including two copies of the same action—has a determini
 |---|---|---|
 | Flame × Frost | Both forces lose persistence and become an obscuring pressure-wave steam transformation. | Steam billow and interaction clash. |
 | Light × Darkness | Near-equal priorities form a revealing eclipse; a decisive priority consumes the weaker force. | Eclipse disc or breaking corona. |
+| Pure-light block × Darkness block | Contact cancels both forces and starts a deduplicated 48-block annihilation wave that removes only loaded realm matter under a per-tick budget. | Expanding opposed coronas, fracture storm, layered light/dark impact, and visual lightning. |
 | Void × Light | Both forces collapse into a short projectile-consuming spatial star rift. | Star-rift fracture. |
 | Life × Darkness | Healing and corruption contest without deleting unrelated status effects. | Withered bloom. |
 | Grounded storm | Environmental grounding visibly diverts storm power into the earth. | Forks terminating in ground runes. |

@@ -25,7 +25,7 @@ class MagicInteractionResolverTest {
 		var pairs = resolver.allPairs();
 		Set<ActionPair> unique = new HashSet<>();
 
-		assertEquals(2_016, pairs.size());
+		assertEquals(2_145, pairs.size());
 		for (ResolvedPair pair : pairs) {
 			assertTrue(unique.add(pair.pair()), pair.pair().toString());
 			assertNotNull(pair.resolution().outcome(), pair.pair().toString());
@@ -62,6 +62,16 @@ class MagicInteractionResolverTest {
 
 		assertEquals(InteractionOutcome.CONTEST, resolution.outcome());
 		assertEquals("eclipse", resolution.cue().motif());
+	}
+
+	@Test
+	void opposedRealmMatterMutuallyAnnihilates() {
+		InteractionResolution resolution = resolve("darkness_block", "pure_light_block");
+
+		assertEquals(InteractionOutcome.CANCEL, resolution.outcome());
+		assertTrue(resolution.blocksFirst());
+		assertTrue(resolution.blocksSecond());
+		assertEquals("realm_annihilation", resolution.cue().motif());
 	}
 
 	@Test

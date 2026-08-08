@@ -18,12 +18,12 @@ public final class MagicDocumentation {
 	private MagicDocumentation() {
 	}
 
-	/** Renders all 63 definitions with their numerical and audiovisual baseline. */
+	/** Renders all 65 definitions with their numerical and audiovisual baseline. */
 	public static String renderCatalogue() {
 		StringBuilder output = new StringBuilder("""
 				# Canonical magic action catalogue
 
-				This is the server-authoritative set of every innate power, crystal action, grimoire spell, and amethyst counterforce that may collide. Rank scaling creates separate values and never mutates these baselines.
+				This is the server-authoritative set of every innate power, crystal action, grimoire spell, amethyst counterforce, and persistent realm force that may collide. Rank scaling creates separate values and never mutates these baselines.
 
 				| ID | Origin | Aspects | Delivery | Intent | Potency | Range | Duration | Energy | Cooldown | Residue | Priority | Motif | Sound | Colours |
 				|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|---|
@@ -67,6 +67,7 @@ public final class MagicDocumentation {
 				|---|---|---|
 				| Flame × Frost | Both forces lose persistence and become an obscuring pressure-wave steam transformation. | Steam billow and interaction clash. |
 				| Light × Darkness | Near-equal priorities form a revealing eclipse; a decisive priority consumes the weaker force. | Eclipse disc or breaking corona. |
+				| Pure-light block × Darkness block | Contact cancels both forces and starts a deduplicated 48-block annihilation wave that removes only loaded realm matter under a per-tick budget. | Expanding opposed coronas, fracture storm, layered light/dark impact, and visual lightning. |
 				| Void × Light | Both forces collapse into a short projectile-consuming spatial star rift. | Star-rift fracture. |
 				| Life × Darkness | Healing and corruption contest without deleting unrelated status effects. | Withered bloom. |
 				| Grounded storm | Environmental grounding visibly diverts storm power into the earth. | Forks terminating in ground runes. |
@@ -90,7 +91,7 @@ public final class MagicDocumentation {
 				""";
 	}
 
-	/** Renders all 2,016 unordered resolutions as RFC 4180-compatible CSV. */
+	/** Renders all 2,145 unordered resolutions as RFC 4180-compatible CSV. */
 	public static String renderMatrix() {
 		StringBuilder output = new StringBuilder(
 				"first,second,first_origin,second_origin,outcome,motif,sound,intensity,first_potency,second_potency,first_duration,second_duration,first_range,second_range,replacement_aspect,blocks_first,blocks_second,mechanics\n");

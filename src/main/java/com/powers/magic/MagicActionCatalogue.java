@@ -185,6 +185,12 @@ public final class MagicActionCatalogue {
 		add(actions, "amethyst_ward", MagicOrigin.AMETHYST, MagicDelivery.FIELD, MagicIntent.DEFENCE,
 				MagicAspect.SUPPRESSION, MagicAspect.PROTECTION);
 
+		// Persistent realm matter participates even though no player actively casts it.
+		add(actions, "darkness_block", MagicOrigin.REALM, MagicDelivery.FIELD, MagicIntent.WORLD_INTERACTION,
+				MagicAspect.DARKNESS);
+		add(actions, "pure_light_block", MagicOrigin.REALM, MagicDelivery.FIELD, MagicIntent.WORLD_INTERACTION,
+				MagicAspect.LIGHT);
+
 		return new MagicActionCatalogue(actions);
 	}
 
@@ -222,7 +228,13 @@ public final class MagicActionCatalogue {
 			case DEFENCE, SUPPORT -> 7;
 			case MOVEMENT, INFORMATION, WORLD_INTERACTION -> 5;
 		};
-		return intentValue + (origin == MagicOrigin.CRYSTAL ? 8 : origin == MagicOrigin.SPELL ? 3 : 0);
+		int originBonus = switch (origin) {
+			case INNATE, AMETHYST -> 0;
+			case SPELL -> 3;
+			case CRYSTAL -> 8;
+			case REALM -> 20;
+		};
+		return intentValue + originBonus;
 	}
 
 	private static double baseRange(MagicDelivery delivery) {
@@ -247,13 +259,14 @@ public final class MagicActionCatalogue {
 	}
 
 	private static int baseEnergy(MagicOrigin origin, MagicIntent intent) {
-		if (origin == MagicOrigin.AMETHYST) return 0;
+		if (origin == MagicOrigin.AMETHYST || origin == MagicOrigin.REALM) return 0;
 		int base = origin == MagicOrigin.CRYSTAL ? 55 : origin == MagicOrigin.SPELL ? 20 : 18;
 		return base + (intent == MagicIntent.HARM || intent == MagicIntent.CONTROL ? 8 : 0);
 	}
 
 	private static int baseCooldown(MagicOrigin origin, MagicDelivery delivery) {
-		if (origin == MagicOrigin.AMETHYST || delivery == MagicDelivery.TOGGLE) return 0;
+		if (origin == MagicOrigin.AMETHYST || origin == MagicOrigin.REALM
+				|| delivery == MagicDelivery.TOGGLE) return 0;
 		return origin == MagicOrigin.CRYSTAL ? 1200 : origin == MagicOrigin.SPELL ? 600 : 200;
 	}
 
@@ -272,6 +285,7 @@ public final class MagicActionCatalogue {
 			case SPELL -> 15;
 			case CRYSTAL -> 20;
 			case AMETHYST -> 25;
+			case REALM -> 30;
 		};
 	}
 
