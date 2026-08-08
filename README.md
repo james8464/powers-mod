@@ -16,7 +16,7 @@ The tone is heavily inspired by FavreMySabre's *The Rainbow Quest*, with additio
 
 On first join, a player receives three distinct powers from a pool of 27. They persist with the player. The default keys are `V`, `X`, and `C`; they can be rebound in Minecraft's Controls screen.
 
-The HUD shows the three powers as compact rune glyphs with live toggle and cooldown states. The segmented arc above the hotbar changes appearance when the energy well is empty, darkness-aligned, amethyst-sealed, or attached to a projected body.
+The HUD shows the three powers as compact rune medallions with live toggle and rank-adjusted cooldown states. An authored ancient reliquary above the hotbar has separate normal, empty, darkness, amethyst-sealed, and projected-body treatments.
 
 The assignable powers are:
 
@@ -44,7 +44,7 @@ Advancements still determine earned rank depth, damage scaling, range scaling, a
 
 The light and darkness graphs each contain 28 nodes, including legacy titles and paths through might, motion, insight, wardcraft, veils, communion, and dominion. Converging paths create hybrid titles such as Runeblade, Riftwalker, Soulwarden, Eclipse Weaver, and their endgame forms.
 
-Use `/powers path list`, `/powers path unlock <node>`, `/powers path focus <node>`, and `/powers path respec`. Respeccing preserves earned depth and costs 30 experience levels by default.
+Press `B` (rebindable) to open the synchronized Labyrinth of Names, inspect every connected title and perk, awaken reachable nodes, or attune a previously earned title. The server revalidates every click. The equivalent commands are `/powers path list`, `/powers path unlock <node>`, `/powers path focus <node>`, and `/powers path respec`; respeccing preserves earned depth and costs 30 experience levels by default.
 
 Players with the `darkness` entity tag use the darkness advancement track and energy well. `/powers darkprefix` controls whether the focused darkness title is publicly shown.
 
@@ -94,6 +94,12 @@ Convergence cooldowns are shared with their underlying forces, so swapping cryst
 - Time freezes use shared ownership, bounded radii, and safe restoration when effects overlap.
 - Particles use a server-wide per-tick budget; amethyst scanning and state network syncs are cached.
 - Custom food and mob drops are injected additively instead of replacing vanilla loot tables.
+
+## Magic collisions and presentation
+
+All 27 innate powers, 20 grimoire spells, 13 crystal actions, and three amethyst suppressors participate in one canonical 63-action collision system. Every one of the 2,016 unordered same-or-cross-action pairs has a deterministic outcome, potency/duration/range adjustment, accessible shape cue, and semantic sound cue. Named high-impact combinations add mechanics such as steam pressure, eclipses that reveal concealment, projectile-consuming star rifts, summon banishment, soul-link purification, finite ward fracture, grounded storms, hostile pressure waves, and concordant healing.
+
+The complete catalogue is in [`docs/interactions/action-catalogue.md`](docs/interactions/action-catalogue.md), and every possible pair is listed in [`docs/interactions/interaction-matrix.csv`](docs/interactions/interaction-matrix.csv). Client effects use four readable beats, eight authored particle sprites, 13 original mono Vorbis sounds, distance culling, reduced-motion adaptation, and hard client/server particle budgets.
 
 ## Commands
 
@@ -148,7 +154,7 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home
 ./gradlew clean test build
 ```
 
-`check` includes strict validation of JSON, duplicate keys, PNG headers, model and texture references, translations, namespace safety, dimension biomes, and intentionally absent crystal recipes. The release JAR is written to `build/libs/`.
+`check` includes strict validation of JSON, duplicate keys, PNG headers/alpha/dimensions, Ogg/Vorbis streams, particle and sound references, models, translations, namespace safety, dimension biomes, exhaustive interaction-document drift, every production Java source, all non-item assets, and intentionally absent crystal recipes. The release JAR is written to `build/libs/`.
 
 For manual development runs, use `./test.sh client` or `./test.sh server`.
 

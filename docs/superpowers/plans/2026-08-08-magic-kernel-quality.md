@@ -37,7 +37,7 @@
 **Interfaces:**
 - Produces: `MagicActionCatalogue.defaults()`, `definition(MagicActionId)`, `definitions()`, and the 63 stable IDs consumed by every later task.
 
-- [ ] **Step 1: Write the failing catalogue contract test**
+- [x] **Step 1: Write the failing catalogue contract test**
 
 ```java
 @Test
@@ -53,13 +53,13 @@ void defaultsContainEverySupportedActionExactlyOnce() {
 }
 ```
 
-- [ ] **Step 2: Run the test and verify the missing package failure**
+- [x] **Step 2: Run the test and verify the missing package failure**
 
 Run: `./gradlew test --tests com.powers.magic.MagicActionCatalogueTest`
 
 Expected: compilation fails because `com.powers.magic` does not exist.
 
-- [ ] **Step 3: Implement immutable types and the complete catalogue**
+- [x] **Step 3: Implement immutable types and the complete catalogue**
 
 ```java
 public record MagicActionDefinition(
@@ -84,13 +84,13 @@ public record MagicActionDefinition(
 
 Use the current registry IDs verbatim. Crystal action IDs are the distinct values created by `CrystalPowerRegistry`; spell IDs are the twenty `SpellDefinition.id()` values; amethyst IDs are `amethyst_item`, `amethyst_block`, and `amethyst_ward`.
 
-- [ ] **Step 4: Run catalogue and full unit tests**
+- [x] **Step 4: Run catalogue and full unit tests**
 
 Run: `./gradlew test --tests com.powers.magic.MagicActionCatalogueTest && ./gradlew test`
 
 Expected: both commands pass; existing 47 tests remain green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/main/java/com/powers/magic src/test/java/com/powers/magic/MagicActionCatalogueTest.java
@@ -114,7 +114,7 @@ git commit -m "feat: define canonical magic action catalogue"
 - Consumes: `MagicActionDefinition` and `MagicActionCatalogue.defaults()`.
 - Produces: `resolve(MagicActionDefinition first, MagicActionDefinition second, InteractionContext context)` and `allPairs()`.
 
-- [ ] **Step 1: Write failing exhaustive and exceptional-reaction tests**
+- [x] **Step 1: Write failing exhaustive and exceptional-reaction tests**
 
 ```java
 @Test
@@ -133,13 +133,13 @@ void flameAndFrostTransformIntoSteamSymmetrically() {
 }
 ```
 
-- [ ] **Step 2: Run the tests and verify missing resolver types**
+- [x] **Step 2: Run the tests and verify missing resolver types**
 
 Run: `./gradlew test --tests com.powers.magic.MagicInteractionResolverTest`
 
 Expected: compilation fails on `MagicInteractionResolver`.
 
-- [ ] **Step 3: Implement ordered priority and complete outcome data**
+- [x] **Step 3: Implement ordered priority and complete outcome data**
 
 ```java
 public InteractionResolution resolve(MagicActionDefinition a, MagicActionDefinition b,
@@ -157,13 +157,13 @@ public InteractionResolution resolve(MagicActionDefinition a, MagicActionDefinit
 
 Encode the high-impact reaction families from the design as named rules. The fallback cue combines both `MagicSignature` palettes and glyph seeds and uses the `harmonic_weave` motif.
 
-- [ ] **Step 4: Test rule order, same-action collisions, symmetry declarations, and all 2,016 pairs**
+- [x] **Step 4: Test rule order, same-action collisions, symmetry declarations, and all 2,016 pairs**
 
 Run: `./gradlew test --tests com.powers.magic.MagicInteractionResolverTest`
 
 Expected: all resolver tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/main/java/com/powers/magic src/test/java/com/powers/magic/MagicInteractionResolverTest.java
@@ -184,7 +184,7 @@ git commit -m "feat: resolve every magic interaction pair"
 - Consumes: `MagicActionId`.
 - Produces: `register`, `move`, `nearby`, `removeOwner`, `remove`, `expire`, and `clear`.
 
-- [ ] **Step 1: Write failing locality and lifecycle tests**
+- [x] **Step 1: Write failing locality and lifecycle tests**
 
 ```java
 @Test
@@ -205,13 +205,13 @@ void ownerAndServerCleanupCannotLeaveResidues() {
 }
 ```
 
-- [ ] **Step 2: Run and verify missing runtime package**
+- [x] **Step 2: Run and verify missing runtime package**
 
 Run: `./gradlew test --tests com.powers.magic.runtime.ActiveMagicIndexTest`
 
 Expected: compilation fails on `ActiveMagicIndex`.
 
-- [ ] **Step 3: Implement cell membership and reverse ownership indexes**
+- [x] **Step 3: Implement cell membership and reverse ownership indexes**
 
 ```java
 public final class ActiveMagicIndex {
@@ -225,13 +225,13 @@ public final class ActiveMagicIndex {
 
 Reject non-finite positions, negative radius/duration, duplicate IDs, and cross-dimension moves without explicit replacement.
 
-- [ ] **Step 4: Run focused and complete tests**
+- [x] **Step 4: Run focused and complete tests**
 
 Run: `./gradlew test --tests com.powers.magic.runtime.ActiveMagicIndexTest && ./gradlew test`
 
 Expected: all tests pass with no leaked cells.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/main/java/com/powers/magic/runtime src/test/java/com/powers/magic/runtime
@@ -255,7 +255,7 @@ git commit -m "feat: track active magic in bounded spatial cells"
 - Consumes: catalogue, resolver, index, existing cast validation and protection policies.
 - Produces: `MagicRuntime.beforeCast`, `commitCast`, `registerPresence`, `tick`, `clearPlayer`, and `clearServer`.
 
-- [ ] **Step 1: Write failing transaction and deduplication tests**
+- [x] **Step 1: Write failing transaction and deduplication tests**
 
 ```java
 @Test
@@ -274,13 +274,13 @@ void repeatedPairInSameCellAndTickEmitsOneCue() {
 }
 ```
 
-- [ ] **Step 2: Run and verify missing coordinator**
+- [x] **Step 2: Run and verify missing coordinator**
 
 Run: `./gradlew test --tests com.powers.magic.runtime.MagicRuntimeTest`
 
 Expected: compilation fails on `MagicRuntime`.
 
-- [ ] **Step 3: Implement the server-thread transaction boundary**
+- [x] **Step 3: Implement the server-thread transaction boundary**
 
 ```java
 public CastAdjustment beforeCast(MagicCastContext cast) {
@@ -295,17 +295,17 @@ public CastAdjustment beforeCast(MagicCastContext cast) {
 
 `commitCast` registers one residue/presence only after the existing ability reports success. `clearPlayer` and `clearServer` delegate to the reverse ownership indexes.
 
-- [ ] **Step 4: Integrate all four origins without trusting client IDs**
+- [x] **Step 4: Integrate all four origins without trusting client IDs**
 
 Innate casts derive the action from the resolved server slot; crystals derive it from the actual held item and selected server mode; spells derive it from the held grimoire and selected server spell; amethyst definitions are synthesized from server-side scan results. Blocked pre-casts refund reserved resources and do not start cooldowns.
 
-- [ ] **Step 5: Run transaction, packet, crystal, spell, and full tests**
+- [x] **Step 5: Run transaction, packet, crystal, spell, and full tests**
 
 Run: `./gradlew test --tests 'com.powers.magic.runtime.*' --tests 'com.powers.network.*' --tests 'com.powers.power.crystals.*' --tests 'com.powers.spell.*' && ./gradlew test`
 
 Expected: all tests pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/main/java/com/powers/magic/runtime src/main/java/com/powers/network/PowersPackets.java src/main/java/com/powers/power/crystals/CrystalPowerRegistry.java src/main/java/com/powers/spell/SpellCastingManager.java src/main/java/com/powers/power/AmethystDampening.java src/main/java/com/powers/PowersMod.java src/test/java/com/powers/magic/runtime
@@ -331,7 +331,7 @@ git commit -m "feat: coordinate interactions across every cast origin"
 - Consumes: all tracked Java paths.
 - Produces: deterministic Markdown audit and a testable professional-documentation baseline.
 
-- [ ] **Step 1: Write the failing source-quality test**
+- [x] **Step 1: Write the failing source-quality test**
 
 ```java
 @Test
@@ -345,13 +345,13 @@ void everyTrackedJavaFileIsAuditedAndPublicTypesAreDocumented() throws IOExcepti
 }
 ```
 
-- [ ] **Step 2: Run and capture the exact baseline failures**
+- [x] **Step 2: Run and capture the exact baseline failures**
 
 Run: `./gradlew test --tests com.powers.quality.SourceQualityTest`
 
 Expected: failure lists every undocumented public type/package and any source shortcut.
 
-- [ ] **Step 3: Generate `code-audit.md` and document every source contract**
+- [x] **Step 3: Generate `code-audit.md` and document every source contract**
 
 The audit row schema is:
 
@@ -361,17 +361,17 @@ The audit row schema is:
 
 Add package Javadocs and contract comments. Keep standard overrides comment-free where the inherited contract is sufficient.
 
-- [ ] **Step 4: Split the four mixed-responsibility classes along existing boundaries**
+- [x] **Step 4: Split the four mixed-responsibility classes along existing boundaries**
 
 Move tick/lifecycle orchestration out of `PowersMod`, payload-family handlers out of `PowersPackets`, attachment operations behind focused nested/service facades while preserving `PlayerPowers.get`, and marking/storm travel out of `TeleportAbility`. Do not rename persistent attachment identifiers, packet IDs, command IDs, or power IDs.
 
-- [ ] **Step 5: Run source audit, compiler warnings, and all tests**
+- [x] **Step 5: Run source audit, compiler warnings, and all tests**
 
 Run: `python3 scripts/audit_java_sources.py --check && ./gradlew clean test`
 
 Expected: every tracked Java file has one audit row, no policy violations remain, and all tests pass under `-Werror`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add scripts/audit_java_sources.py docs/quality/code-audit.md src/main/java src/client/java src/test/java/com/powers/quality
@@ -393,7 +393,7 @@ git commit -m "refactor: document and separate source responsibilities"
 - Consumes: a deterministic JSON export from `MagicActionCatalogue` and `MagicInteractionResolver`.
 - Produces: three committed documents and Gradle `verifyMagicDocs` drift check.
 
-- [ ] **Step 1: Write the failing documentation drift test**
+- [x] **Step 1: Write the failing documentation drift test**
 
 ```java
 @Test
@@ -405,17 +405,17 @@ void committedMatrixMatchesResolver() throws IOException {
 }
 ```
 
-- [ ] **Step 2: Run and verify the missing documents**
+- [x] **Step 2: Run and verify the missing documents**
 
 Run: `./gradlew test --tests com.powers.magic.MagicDocumentationTest`
 
 Expected: failure because the matrix does not exist.
 
-- [ ] **Step 3: Implement deterministic generation and write all documents**
+- [x] **Step 3: Implement deterministic generation and write all documents**
 
 Sort action IDs lexicographically and pair each index with itself and every later index. Quote CSV mechanics using RFC 4180 escaping. The rules document describes resolver priority and every named exceptional family.
 
-- [ ] **Step 4: Add drift verification to `check` and run it**
+- [x] **Step 4: Add drift verification to `check` and run it**
 
 ```groovy
 tasks.register("verifyMagicDocs", Exec) {
@@ -428,7 +428,7 @@ Run: `python3 scripts/generate_magic_docs.py && ./gradlew check`
 
 Expected: matrix contains one header plus exactly 2,016 data rows and `check` passes.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/main/java/com/powers/magic/MagicDocumentation.java scripts/generate_magic_docs.py docs/interactions build.gradle src/test/java/com/powers/magic/MagicDocumentationTest.java

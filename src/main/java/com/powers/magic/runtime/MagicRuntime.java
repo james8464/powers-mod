@@ -123,6 +123,11 @@ public final class MagicRuntime {
 		return emittedCues.size();
 	}
 
+	/** Returns the exhaustive same-or-cross-action pair count for diagnostics. */
+	public int interactionCount() {
+		return resolver.allPairs().size();
+	}
+
 	private static CueKey cueKey(MagicCastContext cast, MagicPresence presence) {
 		return new CueKey(ActionPair.of(cast.definition().id(), presence.action()), cast.dimension(),
 				floorCell(cast.anchor().x()), floorCell(cast.anchor().y()), floorCell(cast.anchor().z()),

@@ -40,7 +40,7 @@
 - Consumes: `InteractionCue`, cast positions, dimensions, actor/target IDs.
 - Produces: `MagicFxService.emitCast`, `emitInteraction`, and a bounded `MagicFxPayload`.
 
-- [ ] **Step 1: Write failing phase, deduplication, and compactness tests**
+- [x] **Step 1: Write failing phase, deduplication, and compactness tests**
 
 ```java
 @Test void majorSequenceHasAnticipationReleaseImpactAndAftermath() { assertEquals(EnumSet.allOf(FxBeat.class), beats(major)); }
@@ -48,21 +48,21 @@
 @Test void payloadContainsSemanticsNotParticleArrays() { assertTrue(encodedSize(event) < 160); }
 ```
 
-- [ ] **Step 2: Run and verify missing FX protocol**
+- [x] **Step 2: Run and verify missing FX protocol**
 
 Run: `./gradlew test --tests com.powers.magic.fx.MagicFxServiceTest`
 
 Expected: compilation fails on `MagicFxService`.
 
-- [ ] **Step 3: Implement typed sequences and original sounds**
+- [x] **Step 3: Implement typed sequences and original sounds**
 
 Register at least: `rune_hum`, `crystal_resonate`, `amethyst_fracture`, `time_suspend`, `time_release`, `rift_open`, `rift_close`, `soul_tether`, `light_chorus`, `dark_whisper`, `ward_impact`, `rank_awaken`, and `interaction_clash`. Encode mono Vorbis at a modest bitrate and normalize peaks to avoid clipping.
 
-- [ ] **Step 4: Route legacy `PowerFx` calls through semantic helpers where an action definition exists**
+- [x] **Step 4: Route legacy `PowerFx` calls through semantic helpers where an action definition exists**
 
 Keep `PowerFx` as the bounded server fallback for vanilla particles; do not send geometry lists over the network.
 
-- [ ] **Step 5: Validate sounds, run tests, and commit**
+- [x] **Step 5: Validate sounds, run tests, and commit**
 
 Run: `ffprobe` each OGG, `python3 scripts/validate_resources.py --root src/main/resources`, and `./gradlew test`.
 
@@ -88,7 +88,7 @@ git commit -m "feat: add semantic magic effects and original sound bank"
 - Consumes: compact `MagicFxPayload`.
 - Produces: deterministic ring, spiral, tether, fork, shard, glyph, root, eclipse, and fracture point sets.
 
-- [ ] **Step 1: Write failing geometry/accessibility/budget tests**
+- [x] **Step 1: Write failing geometry/accessibility/budget tests**
 
 ```java
 @Test void everyMotifProducesFiniteBoundedPoints() { assertAllMotifsFiniteAndUnder(96); }
@@ -96,23 +96,23 @@ git commit -m "feat: add semantic magic effects and original sound bank"
 @Test void distanceAndIntensityNeverExceedClientBudget() { assertTrue(points(farLowIntensity) <= 12); }
 ```
 
-- [ ] **Step 2: Run and verify missing client geometry**
+- [x] **Step 2: Run and verify missing client geometry**
 
 Run: `./gradlew test --tests com.powers.fx.FxGeometryTest`
 
 Expected: compilation fails on `FxGeometry`.
 
-- [ ] **Step 3: Implement deterministic geometry and original particle sprites**
+- [x] **Step 3: Implement deterministic geometry and original particle sprites**
 
 Use the action/cue glyph seed so the same pair reproduces the same shape. Eight sprites are `mote`, `shard`, `glyph`, `ribbon`, `spark`, `eclipse`, `root`, and `fracture`; use transparent edges and nearest-neighbour pixel treatment.
 
-- [ ] **Step 4: Register client receiver/factories and verify no server class loads client code**
+- [x] **Step 4: Register client receiver/factories and verify no server class loads client code**
 
 Run: `./gradlew test && ./gradlew runServer --args='nogui --port 0'` and stop after `Done`.
 
 Expected: server starts without client-class linkage and effect unit tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/main/java/com/powers/fx/FxGeometry.java src/client/java/com/powers/client/fx src/client/java/com/powers/client/PowersClient.java src/main/resources/assets/powers/particles src/main/resources/assets/powers/textures/particle src/test/java/com/powers/fx
@@ -136,7 +136,7 @@ git commit -m "feat: choreograph bounded client magic effects"
 - Consumes: energy/capacity, cooldowns, toggle, rank focus, interaction cue, GUI dimensions/scale.
 - Produces: texture-backed normal/empty/darkness/amethyst/projection/interaction layouts.
 
-- [ ] **Step 1: Write failing bounds and state-coverage tests**
+- [x] **Step 1: Write failing bounds and state-coverage tests**
 
 ```java
 @ParameterizedTest @MethodSource("commonScreens")
@@ -145,21 +145,21 @@ void hudNeverLeavesSafeBounds(int width, int height, int scale) { assertInside(l
 @Test void cooldownSweepIsMonotonicAndClamped() { assertMonotonicSweep(); }
 ```
 
-- [ ] **Step 2: Run and verify current primitive HUD lacks sprite coverage**
+- [x] **Step 2: Run and verify current primitive HUD lacks sprite coverage**
 
 Run: `./gradlew test --tests 'com.powers.hud.*'`
 
 Expected: new sprite-resolution assertions fail.
 
-- [ ] **Step 3: Create icons/sprites and pure layout model**
+- [x] **Step 3: Create icons/sprites and pure layout model**
 
 The effect icons are distinct at 18×18: Exhaustion uses an inward-draining indigo spiral; Amethyst Poisoning uses a fractured lavender hexagon. HUD sprites provide frames, fill masks, cooldown runes, toggle flare, error fracture, tether, and interaction crest.
 
-- [ ] **Step 4: Replace primitive diamonds/rectangles with GUI sprite rendering**
+- [x] **Step 4: Replace primitive diamonds/rectangles with GUI sprite rendering**
 
 Retain translatable text alternatives and draw only minimal fallback geometry when a resource reload is in progress. Animate through tick-derived sprite/state selection, not per-frame allocation.
 
-- [ ] **Step 5: Run HUD/resource tests and commit**
+- [x] **Step 5: Run HUD/resource tests and commit**
 
 Run: `./gradlew test --tests 'com.powers.hud.*' && python3 scripts/validate_resources.py --root src/main/resources`
 
@@ -189,7 +189,7 @@ git commit -m "feat: replace the HUD with authored arcane sprites"
 - Consumes: synchronized rank graph/profile, consent-obscured locator rows, teleport modes/dimensions.
 - Produces: scalable textured views, keyboard focus, narration, and request-only packets.
 
-- [ ] **Step 1: Write failing graph-layout and input-state tests**
+- [x] **Step 1: Write failing graph-layout and input-state tests**
 
 ```java
 @Test void allTwentyEightNodesFitWithoutOverlapAtMinimumSupportedSize() { assertNoOverlap(layout(320, 240)); }
@@ -198,21 +198,21 @@ git commit -m "feat: replace the HUD with authored arcane sprites"
 @Test void locatorObscuresDeniedTargetsWithoutLeakingCoordinates() { assertObscuredRow(); }
 ```
 
-- [ ] **Step 2: Run and verify missing rank view/theme**
+- [x] **Step 2: Run and verify missing rank view/theme**
 
 Run: `./gradlew test --tests 'com.powers.progression.RankMazeLayoutTest'`
 
 Expected: compilation fails on `RankMazeLayout`.
 
-- [ ] **Step 3: Implement pure maze layout and synchronized rank payload**
+- [x] **Step 3: Implement pure maze layout and synchronized rank payload**
 
 Lay nodes by depth band, deterministic branch lane, and collision relaxation with a fixed iteration bound. Client data contains node IDs/titles/perk summaries/status only; unlock/focus requests are revalidated through the existing command/service authority.
 
-- [ ] **Step 4: Redesign all three screens and advancement backgrounds**
+- [x] **Step 4: Redesign all three screens and advancement backgrounds**
 
 Use shared nine-slice panels, original branch sigils, focus rings, error banners, and dimension runes. Add a rebindable rank-maze key, narration for every node/row/control, tab order, Escape/cancel, and translatable labels.
 
-- [ ] **Step 5: Run screen, networking, resource tests and commit**
+- [x] **Step 5: Run screen, networking, resource tests and commit**
 
 Run: `./gradlew test --tests 'com.powers.progression.*' --tests 'com.powers.network.*' && python3 scripts/validate_resources.py --root src/main/resources`
 
@@ -235,28 +235,28 @@ git commit -m "feat: build textured teleport locator and rank views"
 - Consumes: tracked resources excluding `assets/powers/items`, `models/item`, and `textures/item`.
 - Produces: exhaustive manifest with decode/reference/dimension/alpha/visual-review results.
 
-- [ ] **Step 1: Extend the failing baseline expectations**
+- [x] **Step 1: Extend the failing baseline expectations**
 
 ```java
 @Test void everyTrackedNonItemAssetHasAnAuditRow() { assertEquals(trackedNonItems(), auditedNonItems()); }
 @Test void everyCustomSoundAndImageDecodesAndIsReferenced() { assertTrue(assetAudit().broken().isEmpty()); }
 ```
 
-- [ ] **Step 2: Run audit and capture exact missing/broken/stale assets**
+- [x] **Step 2: Run audit and capture exact missing/broken/stale assets**
 
 Run: `python3 scripts/audit_non_item_assets.py --check`
 
 Expected: failure until the manifest and new asset coverage are complete.
 
-- [ ] **Step 3: Generate contact sheets and inspect every group**
+- [x] **Step 3: Generate contact sheets and inspect every group**
 
 Groups are block textures/models, effect icons, HUD, screens, advancement backgrounds, particles, mod icon, and animations. Record `pass`, `fixed`, or `intentional` with a concrete reason; no row may remain `unreviewed`.
 
-- [ ] **Step 4: Fix every proven asset issue and enforce the manifest in `check`**
+- [x] **Step 4: Fix every proven asset issue and enforce the manifest in `check`**
 
 Validate PNG signatures/dimensions/alpha, JSON references, animation frames/frametime, OGG Vorbis streams, translation coverage, model parents, blockstate variants, particle definitions, and advancement backgrounds.
 
-- [ ] **Step 5: Run audit/resource/build checks and commit**
+- [x] **Step 5: Run audit/resource/build checks and commit**
 
 Run: `python3 scripts/audit_non_item_assets.py --check && python3 scripts/validate_resources.py --root src/main/resources && ./gradlew check`
 
@@ -277,32 +277,32 @@ git commit -m "fix: verify every non-item asset"
 - Consumes: current source/asset audits, generated interaction documents, tests, client/server logs, built JAR.
 - Produces: requirement-by-requirement completion evidence and clean release artifact.
 
-- [ ] **Step 1: Run a fresh clean automated gate**
+- [x] **Step 1: Run a fresh clean automated gate**
 
 Run: `./gradlew clean test build`
 
 Expected: `BUILD SUCCESSFUL`, all tests pass, magic docs and both audits have no drift, and resource validation passes.
 
-- [ ] **Step 2: Run isolated dedicated-server smoke**
+- [x] **Step 2: Run isolated dedicated-server smoke**
 
 Run with a new `mktemp -d` universe and `--port 0`; require the log to show POWERS version, 27 innate powers, 63 actions, 2,016 interactions, both 28-node rank graphs, all custom dimensions, `Done`, clean `stop`, and exit 0.
 
-- [ ] **Step 3: Run client resource/render smoke and inspect POWERS diagnostics**
+- [x] **Step 3: Run client resource/render smoke and inspect POWERS diagnostics**
 
 Require successful resource reload with no missing model/texture/particle/sound, invalid animation, shader linkage, or POWERS rendering exception. Capture representative HUD/screen states when the Java game window is automatable; otherwise record the exact automated geometry/resource evidence without claiming screenshots.
 
-- [ ] **Step 4: Verify artifact, recipes, branch, and worktree**
+- [x] **Step 4: Verify artifact, recipes, branch, and worktree**
 
 Require one local branch named `main`, empty `git status --porcelain`, no crystal recipes, JAR forbidden-entry inspection pass, and record SHA-256/entry count.
 
-- [ ] **Step 5: Update documentation from actual behaviour and commit**
+- [x] **Step 5: Update documentation from actual behaviour and commit**
 
 ```bash
 git add README.md CHANGELOG.md docs
 git commit -m "docs: verify the complete magic quality release"
 ```
 
-- [ ] **Step 6: Recheck the final committed state**
+- [x] **Step 6: Recheck the final committed state**
 
 Run: `git diff --check`, `git status --porcelain`, branch-count assertion, artifact hash assertion, and any check affected by documentation generation.
 

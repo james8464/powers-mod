@@ -6,6 +6,7 @@ import com.powers.magic.runtime.MagicRuntime;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.GodlyPunishment;
 import com.powers.network.PowersPackets;
+import com.powers.network.MagicFxPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.progression.RankGraphRegistry;
 import com.powers.progression.PowerScalingService;
@@ -93,6 +94,8 @@ public class PowersMod implements ModInitializer {
 		PowersPackets.initialize();
 		PowerCommand.register();
 		PowerCombatEvents.register();
+		LOGGER.info("Magic collision kernel loaded: {} actions, {} exhaustive interactions",
+				MagicRuntime.catalogue().definitions().size(), MagicRuntime.global().interactionCount());
 		// SkillSystem sets the player's visible display name. Vanilla signed chat
 		// therefore carries the rank without cancelling, stripping, or rebuilding
 		// the authenticated message as an unsigned system message.
@@ -177,6 +180,7 @@ public class PowersMod implements ModInitializer {
 			RealmMindscapeManager.clearAll();
 			com.powers.fx.PowerFx.clearBudgets();
 			PowersPackets.clearSyncCache();
+			MagicFxPackets.clear();
 		});
 
 		// passives get re-applied on a schedule so they never expire, toggles
