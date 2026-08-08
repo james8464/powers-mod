@@ -12,6 +12,7 @@ import com.powers.power.state.MagicShieldManager;
 import com.powers.progression.ScaledMagicValues;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
+import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -90,6 +91,7 @@ public final class VoidBeamAbility extends Ability {
 		CHARGES.put(player.getUUID(), charge);
 		PowerFx.voidBeamCharge((ServerLevel) player.level(), player.getEyePosition(),
 				VoidBeamRules.CHARGE_TICKS, ancient);
+		PowerMessages.send(player, "ability.powers.void_beam.charge", 3);
 		return true;
 	}
 
