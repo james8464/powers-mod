@@ -8,6 +8,7 @@ import com.powers.fx.GodlyPunishment;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.progression.RankGraphRegistry;
+import com.powers.progression.PowerScalingService;
 import com.powers.power.Ability;
 import com.powers.power.PassiveEffect;
 import com.powers.power.Power;
@@ -240,7 +241,7 @@ public class PowersMod implements ModInitializer {
 						boolean night = timeOfDay >= 13000L || timeOfDay < 2300L;
 						regen = PowerEnergy.darknessRegen(inDarkRealm || night);
 					}
-					if (data.regenerateEnergy(regen)) {
+					if (data.regenerateEnergy(PowerScalingService.regeneration(player, regen))) {
 						PowersPackets.syncTo(player);
 					}
 				}
@@ -378,7 +379,7 @@ public class PowersMod implements ModInitializer {
 			Power power = data.getPower(slot);
 			if (power == null || power.ability() == null || !power.ability().isToggle()
 					|| !data.isToggleActive(power.id().toString())) continue;
-			int cost = com.powers.power.PowerEnergy.ongoingCost(power.ability());
+			int cost = com.powers.power.PowerEnergy.ongoingCost(player, power.ability());
 			if (cost > 0 && !data.consumeEnergy(cost)) {
 				power.ability().activateToggleOff(player, data);
 				data.setToggleActive(player, power.id().toString(), false);

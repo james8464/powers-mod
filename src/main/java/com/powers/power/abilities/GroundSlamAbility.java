@@ -3,7 +3,7 @@ package com.powers.power.abilities;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
-import com.powers.player.SkillSystem;
+import com.powers.progression.PowerScalingService;
 import com.powers.power.Ability;
 import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
@@ -49,7 +49,7 @@ public class GroundSlamAbility extends Ability {
 			e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
 					&& PowerProtection.mayHarm(player, e))) {
 			// damage scales with the player's skill level
-			target.hurtServer(level, source, SkillSystem.damage(player, 6.0f));
+			target.hurtServer(level, source, PowerScalingService.damage(player, "ground_slam", 6.0f));
 			// fling them away from the player and send up smoke
 			Vec3 away = target.position().subtract(player.position()).normalize();
 			if (PowerProtection.mayForceMove(player, target)) {

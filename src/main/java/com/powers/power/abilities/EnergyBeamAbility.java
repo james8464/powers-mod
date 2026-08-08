@@ -6,7 +6,7 @@ import com.powers.power.Ability;
 import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
-import com.powers.player.SkillSystem;
+import com.powers.progression.PowerScalingService;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,7 +30,7 @@ public class EnergyBeamAbility extends Ability {
 		Vec3 look = player.getLookAngle().normalize();
 
 		// skill ranks stretch the beam out beyond the base 48 blocks
-		double range = SkillSystem.range(player, 48.0);
+		double range = PowerScalingService.range(player, "energy_beam", 48.0);
 		HitResult hit = PowerTargeting.raycast(player, range);
 		Vec3 end;
 		if (hit.getType() != HitResult.Type.MISS) {
@@ -39,7 +39,8 @@ public class EnergyBeamAbility extends Ability {
 					&& entHit.getEntity() instanceof LivingEntity target) {
 				// shielded targets block the cast entirely, refunding the energy
 				if (AmethystDampening.isDampened(target)) return false;
-				target.hurtServer(level, PowerDamage.source(player), SkillSystem.damage(player, 10.0f));
+				target.hurtServer(level, PowerDamage.source(player),
+						PowerScalingService.damage(player, "energy_beam", 10.0f));
 				// 3 seconds of burn
 				target.setRemainingFireTicks(60);
 			}

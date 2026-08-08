@@ -6,7 +6,7 @@ import com.powers.power.Ability;
 import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
-import com.powers.player.SkillSystem;
+import com.powers.progression.PowerScalingService;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,7 +30,8 @@ public class VoidBeamAbility extends Ability {
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
 		// the target search reach, scaled by the player's skills
-		LivingEntity target = PowerTargeting.findLivingTarget(player, SkillSystem.range(player, 32.0));
+		LivingEntity target = PowerTargeting.findLivingTarget(player,
+				PowerScalingService.range(player, "void_beam", 32.0));
 		if (target == null) {
 			// nothing in sight - the caller refunds the energy
 			return false;
@@ -46,7 +47,8 @@ public class VoidBeamAbility extends Ability {
 				net.minecraft.sounds.SoundEvents.BEACON_ACTIVATE, 0.8f, 1.3f);
 
 		// 6 magic damage (scaled), plus a level 2 wither that lasts 5 seconds (100 ticks)
-		target.hurtServer(level, PowerDamage.source(player), SkillSystem.damage(player, 6.0f));
+		target.hurtServer(level, PowerDamage.source(player),
+				PowerScalingService.damage(player, "void_beam", 6.0f));
 		target.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 1, true, false));
 		return true;
 	}
