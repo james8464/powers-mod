@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.state.PowerEntityState;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -51,6 +52,7 @@ public class CloneSwarmAbility extends Ability {
 			clone.setOrderedToSit(false);
 			clone.setCustomName(Component.literal(player.getGameProfile().name() + "'s Clone"));
 			clone.setCustomNameVisible(true);
+			PowerEntityState.markEphemeral(clone);
 			// stop them despawning on their own - they go poof on our timer instead
 			clone.setPersistenceRequired();
 			// tough fighters: 80 health, 18 attack damage, brisk speed
