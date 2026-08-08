@@ -25,18 +25,20 @@ class PowersConfigTest {
 		assertTrue(config.persistCooldowns());
 		assertTrue(config.maxParticlesPerTick() > 0);
 		assertTrue(config.spaceTimeRadius() > 0);
+		assertTrue(config.chronoStopRadius() > 0);
 	}
 
 	@Test
 	void sanitizationClampsUnsafeNumericValues() {
 		PowersConfig invalid = new PowersConfig(false, false, false, false, true, true, true,
-				true, true, -5, 0, 0, 500, 99, java.util.List.of());
+				true, true, -5, 0, 0, 500, 500, 99, java.util.List.of());
 
 		PowersConfig sanitized = invalid.sanitized();
 		assertEquals(1, sanitized.wardRadius());
 		assertEquals(32, sanitized.maxParticlesPerTick());
 		assertEquals(1, sanitized.teleportMaxChunkDistance());
 		assertEquals(128, sanitized.spaceTimeRadius());
+		assertEquals(256, sanitized.chronoStopRadius());
 		assertEquals(4, sanitized.adminPermissionLevel());
 	}
 
