@@ -175,7 +175,6 @@ public class PowersMod implements ModInitializer {
 		// no damage lands in the realm dimensions; forcefields stop attacks
 		// outright, and amethyst dampening turns aside power damage only
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
-			if (ForcefieldAbility.protects(entity)) return false;
 			// amethyst is the enemy of powers, not of swords: a shard in the
 			// pocket must never mean blanket immunity in a fistfight
 			if (AmethystDampening.isDampened(entity) && PowerDamage.isPowerDamage(source)) return false;

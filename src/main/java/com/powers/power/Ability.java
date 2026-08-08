@@ -42,6 +42,11 @@ public abstract class Ability {
 		return this.requiresInput;
 	}
 
+	/** True when this interaction only changes an ability mode and must be free. */
+	public boolean isSelectionAction(ServerPlayer player) {
+		return false;
+	}
+
 	/**
 	 * Fires the ability when the player hits the key, only when it's ready;
 	 * returning true means it went off, so the caller starts the cooldown

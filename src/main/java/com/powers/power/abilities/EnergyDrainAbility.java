@@ -5,9 +5,11 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.AbilityArithmetic;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
 import com.powers.util.PowerMessages;
+import com.powers.network.PowersPackets;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -32,7 +34,7 @@ public class EnergyDrainAbility extends Ability {
 	private static final double MAX_RANGE_SQ = 48.0 * 48.0;
 	private static final Map<UUID, Ritual> RITUALS = new HashMap<>();
 
-	private record Ritual(ServerPlayer caster, ServerPlayer target, long endsAt, int perTick) {}
+	private record Ritual(ServerPlayer caster, ServerPlayer target, long endsAt) {}
 
 	public EnergyDrainAbility() {
 		super(PowersMod.id("energy_drain"),
@@ -51,11 +53,8 @@ public class EnergyDrainAbility extends Ability {
 			return false;
 		}
 
-		// drain the whole bar evenly across the ritual, at least 1 per tick
-		int capacity = PlayerPowers.get(targetSP).energyCapacity();
-		int perTick = Math.max(1, capacity / RITUAL_TICKS);
 		long endsAt = ((ServerLevel) caster.level()).getServer().getTickCount() + RITUAL_TICKS;
-		RITUALS.put(caster.getUUID(), new Ritual(caster, targetSP, endsAt, perTick));
+		RITUALS.put(caster.getUUID(), new Ritual(caster, targetSP, endsAt));
 		PowerFx.sound((ServerLevel) caster.level(), targetSP.position(),
 				net.minecraft.sounds.SoundEvents.ENCHANTMENT_TABLE_USE, 1.2f, 0.45f);
 		return true;
@@ -88,6 +87,8 @@ public class EnergyDrainAbility extends Ability {
 			}
 			if (now >= ritual.endsAt()) {
 				// full drain landed, hit the target with exhaustion
+				PlayerPowers.get(target).emptyEnergy();
+				PowersPackets.syncTo(target);
 				target.addEffect(new MobEffectInstance(PowersEffects.EXHAUSTION, EXHAUSTION_TICKS, 0,
 						false, false, true));
 				PowerMessages.send(caster, "ability.powers.energy_drained", 3,
@@ -97,8 +98,9 @@ public class EnergyDrainAbility extends Ability {
 			}
 			PlayerPowers.PlayerPowersData targetData = PlayerPowers.get(target);
 			if (targetData.energy() > 0) {
-				// clamp to what's left so the last tick never drains below zero
-				targetData.consumeEnergy(Math.min(ritual.perTick(), targetData.energy()));
+				int ticksRemaining = (int) Math.max(1L, ritual.endsAt() - now);
+				targetData.consumeEnergy(AbilityArithmetic.drainStep(targetData.energy(), ticksRemaining));
+				PowersPackets.syncTo(target);
 			}
 		}
 	}

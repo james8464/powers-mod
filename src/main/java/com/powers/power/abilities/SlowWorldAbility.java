@@ -79,7 +79,7 @@ public class SlowWorldAbility extends Ability {
 				// heavy slow for 3 seconds so it lingers between pulses
 				for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class,
 						AABB.ofSize(player.position().add(0, 1, 0), RADIUS * 2, RADIUS * 2, RADIUS * 2),
-						e -> e.isAlive() && e != player)) {
+						e -> e.isAlive() && e != player && !player.isAlliedTo(e))) {
 					target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 4, false, false));
 				}
 			}
