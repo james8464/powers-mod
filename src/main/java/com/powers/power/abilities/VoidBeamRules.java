@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /** Pure timing, geometry, penetration, and safety bounds for Void Beam. */
@@ -28,6 +29,10 @@ public final class VoidBeamRules {
 
 	/** One real ray intersection paired with its distance from the origin. */
 	public record RayCandidate<T>(T target, double distance) {
+	}
+
+	/** One semantic spell-field intercept measured along the beam segment. */
+	public record RayIntercept(Counterplay counterplay, double distance) {
 	}
 
 	private VoidBeamRules() {
@@ -113,6 +118,18 @@ public final class VoidBeamRules {
 		double parameter = first >= 0.0 && first <= 1.0 ? first
 				: second >= 0.0 && second <= 1.0 ? second : Double.NaN;
 		return Double.isNaN(parameter) ? Double.NaN : parameter * Math.sqrt(segmentSquared);
+	}
+
+	/** Selects the closest well-formed counter surface before a terminal block. */
+	public static Optional<RayIntercept> nearestIntercept(
+			Collection<RayIntercept> intercepts, double terminalDistance) {
+		Objects.requireNonNull(intercepts, "intercepts");
+		if (!Double.isFinite(terminalDistance) || terminalDistance < 0.0) return Optional.empty();
+		return intercepts.stream().filter(Objects::nonNull)
+				.filter(hit -> hit.counterplay() != null && hit.counterplay() != Counterplay.NONE)
+				.filter(hit -> Double.isFinite(hit.distance()) && hit.distance() >= 0.0
+						&& hit.distance() <= terminalDistance)
+				.min(Comparator.comparingDouble(RayIntercept::distance));
 	}
 
 	/** Draws scars only on positive five-tick beats. */

@@ -1,6 +1,7 @@
 package com.powers.spell;
 
 import com.powers.fx.PowerFx;
+import com.powers.power.abilities.VoidBeamRules;
 import com.powers.power.state.PowerEntityState;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
@@ -19,11 +20,16 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /** Temporary, visible counterplay zones created by ritual spells. */
 public final class SpellFieldManager {
 	private static final List<Field> FIELDS = new ArrayList<>();
+
+	/** First hostile ward surface touched by a finite harmful ray. */
+	public record RayWardHit(Vec3 point, double distance, VoidBeamRules.Counterplay counterplay) {
+	}
 
 	private record Field(SpellFieldKind kind, ResourceKey<Level> dimension, Vec3 center,
 			UUID owner, long expiresAt, double radius, int potencyTier) {
@@ -61,6 +67,37 @@ public final class SpellFieldManager {
 					&& within(field, entity.position())) return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Finds the nearest non-owner Sanctuary or Kinetic Ward crossed by a beam.
+	 * Expired fields are ignored immediately even if the periodic tick has not
+	 * removed them yet, so a boundary can never outlive its authored duration.
+	 */
+	public static Optional<RayWardHit> firstHarmfulRayIntercept(ServerLevel level,
+			UUID caster, Vec3 start, Vec3 end) {
+		if (level == null || caster == null || start == null || end == null) return Optional.empty();
+		double segmentLength = start.distanceTo(end);
+		if (!Double.isFinite(segmentLength) || segmentLength <= 1.0E-6) return Optional.empty();
+		List<VoidBeamRules.RayIntercept> candidates = new ArrayList<>();
+		for (Field field : FIELDS) {
+			if (field.expiresAt() <= level.getGameTime() || field.owner().equals(caster)
+					|| !field.dimension().equals(level.dimension())) continue;
+			VoidBeamRules.Counterplay counterplay = switch (field.kind()) {
+				case KINETIC_WARD -> VoidBeamRules.Counterplay.KINETIC_WARD;
+				case SANCTUARY -> VoidBeamRules.Counterplay.SANCTUARY;
+				case ANTI_PORTAL, INFERNAL_SEAL -> VoidBeamRules.Counterplay.NONE;
+			};
+			if (counterplay == VoidBeamRules.Counterplay.NONE) continue;
+			Vec3 center = field.center().add(0.0, 1.0, 0.0);
+			double distance = VoidBeamRules.segmentSphereEntry(start.x, start.y, start.z,
+					end.x, end.y, end.z, center.x, center.y, center.z, field.radius());
+			candidates.add(new VoidBeamRules.RayIntercept(counterplay, distance));
+		}
+		return VoidBeamRules.nearestIntercept(candidates, segmentLength).map(hit -> {
+			Vec3 point = start.add(end.subtract(start).scale(hit.distance() / segmentLength));
+			return new RayWardHit(point, hit.distance(), hit.counterplay());
+		});
 	}
 
 	public static boolean dispelNearest(ServerPlayer caster, double range) {

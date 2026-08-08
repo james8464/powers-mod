@@ -58,6 +58,22 @@ class VoidBeamRulesTest {
 	}
 
 	@Test
+	void nearestValidWardInterceptWinsBeforeTheTerminalBlock() {
+		var result = VoidBeamRules.nearestIntercept(List.of(
+				new VoidBeamRules.RayIntercept(VoidBeamRules.Counterplay.KINETIC_WARD, 7.0),
+				new VoidBeamRules.RayIntercept(VoidBeamRules.Counterplay.SANCTUARY, 3.0),
+				new VoidBeamRules.RayIntercept(VoidBeamRules.Counterplay.NONE, 1.0),
+				new VoidBeamRules.RayIntercept(VoidBeamRules.Counterplay.AMETHYST, Double.NaN)), 6.0);
+
+		assertTrue(result.isPresent());
+		assertEquals(VoidBeamRules.Counterplay.SANCTUARY, result.orElseThrow().counterplay());
+		assertEquals(3.0, result.orElseThrow().distance(), 0.0);
+		assertTrue(VoidBeamRules.nearestIntercept(List.of(
+				new VoidBeamRules.RayIntercept(VoidBeamRules.Counterplay.KINETIC_WARD, 7.0)), 6.0)
+				.isEmpty());
+	}
+
+	@Test
 	void scarCadenceAndBoundsAreHardCapped() {
 		assertTrue(VoidBeamRules.shouldRenderScar(5));
 		assertFalse(VoidBeamRules.shouldRenderScar(0));
