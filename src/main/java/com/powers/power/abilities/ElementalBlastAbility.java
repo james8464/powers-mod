@@ -27,17 +27,22 @@ public class ElementalBlastAbility extends Ability {
 	}
 
 	@Override
+	public String magicActionId(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		return ElementalPhase.fromIndex(data.getPhase()).actionId();
+	}
+
+	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		int phase = data.getPhase();
-		boolean success = ELEMENTS[phase].activate(player, data);
+		ElementalPhase phase = ElementalPhase.fromIndex(data.getPhase());
+		boolean success = ELEMENTS[phase.index()].activate(player, data);
 		// only advance when the element actually fired, so a failed cast
 		// (e.g. lightning with no valid target) is retried, not skipped
 		if (success) {
 			data.nextPhase();
 			if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
-				int[] colors = {0xFF5A24, 0x82E9FF, 0xFFF59D, 0x8C66FF};
 				com.powers.fx.PowerFx.rune(level, player.position(),
-						1.0 + scaling(player).potencyMultiplier() * 0.25, colors[phase], 20, phase * Math.PI / 2.0);
+						1.0 + scaling(player).potencyMultiplier() * 0.25, phase.color(), 20,
+						phase.index() * Math.PI / 2.0);
 			}
 		}
 		return success;
@@ -47,7 +52,8 @@ public class ElementalBlastAbility extends Ability {
 	public int cooldownTicksFor(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		// the phase already advanced on success, so rewind one to report the
 		// cooldown of the element that was actually cast
-		int phase = (data.getPhase() + 3) % 4;
-		return ELEMENTS[phase].cooldownTicksFor(player, data);
+		ElementalPhase phase = ElementalPhase.fromIndex(
+				ElementalPhase.previousIndex(data.getPhase()));
+		return ELEMENTS[phase.index()].cooldownTicksFor(player, data);
 	}
 }

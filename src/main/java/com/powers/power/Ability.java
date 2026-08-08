@@ -44,6 +44,14 @@ public abstract class Ability {
 		return this.requiresInput;
 	}
 
+	/**
+	 * Returns the server-derived canonical action used for collision resolution.
+	 * Stateful abilities may override this without accepting packet-selected IDs.
+	 */
+	public String magicActionId(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		return id.getPath();
+	}
+
 	/** True when this interaction only changes an ability mode and must be free. */
 	public boolean isSelectionAction(ServerPlayer player) {
 		return false;

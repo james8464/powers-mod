@@ -216,7 +216,8 @@ public final class PowersPackets {
 					ability.activateToggleOff(player, data);
 					data.setToggleActive(player, powerId, false);
 				} else {
-					PreparedMagicCast magic = ServerMagicCasts.prepare(player, power.id().getPath());
+					PreparedMagicCast magic = ServerMagicCasts.prepare(player,
+							ability.magicActionId(player, data));
 					if (!magic.allowed()) return;
 					boolean paid = data.spendEnergy(player, ability);
 					boolean activated = paid && ServerMagicCasts.execute(magic,
@@ -237,7 +238,8 @@ public final class PowersPackets {
 						seconds(ActivationCooldowns.remainingTicks(player, ability)));
 				return;
 			}
-			PreparedMagicCast magic = ServerMagicCasts.prepare(player, power.id().getPath());
+			PreparedMagicCast magic = ServerMagicCasts.prepare(player,
+					ability.magicActionId(player, data));
 			if (!magic.allowed()) return;
 			if (!data.spendEnergy(player, ability)) return;
 			boolean activated = ServerMagicCasts.execute(magic, () -> ability.activate(player, data));
@@ -284,7 +286,8 @@ public final class PowersPackets {
 							seconds(ActivationCooldowns.remainingTicks(player, ability)));
 					return;
 				}
-				PreparedMagicCast magic = ServerMagicCasts.prepare(player, power.id().getPath());
+				PreparedMagicCast magic = ServerMagicCasts.prepare(player,
+						ability.magicActionId(player, data));
 				if (!magic.allowed()) return;
 				if (!data.spendEnergy(player, ability)) return;
 				boolean marked = ServerMagicCasts.execute(magic,
@@ -317,7 +320,8 @@ public final class PowersPackets {
 						seconds(ActivationCooldowns.remainingTicks(player, ability)));
 				return;
 			}
-			PreparedMagicCast magic = ServerMagicCasts.prepare(player, power.id().getPath());
+			PreparedMagicCast magic = ServerMagicCasts.prepare(player,
+					ability.magicActionId(player, data));
 			if (!magic.allowed()) return;
 			if (!data.spendEnergy(player, ability)) return;
 			boolean activated = ServerMagicCasts.execute(magic, () -> ability.activateTeleport(
