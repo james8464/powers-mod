@@ -53,9 +53,28 @@ tasks.register("auditJavaSources", Exec) {
 	commandLine "python3", "scripts/audit_java_sources.py", "--check"
 }
 
+tasks.register("generateMagicDocs", JavaExec) {
+	group = "documentation"
+	description = "Regenerates the canonical action and exhaustive interaction documents."
+	dependsOn("classes")
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = "com.powers.magic.MagicDocumentation"
+	args projectDir.absolutePath
+}
+
+tasks.register("verifyMagicDocs", JavaExec) {
+	group = "verification"
+	description = "Rejects stale canonical magic interaction documents."
+	dependsOn("classes")
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = "com.powers.magic.MagicDocumentation"
+	args projectDir.absolutePath, "--check"
+}
+
 tasks.named("check") {
 	dependsOn("validatePowerResources")
 	dependsOn("auditJavaSources")
+	dependsOn("verifyMagicDocs")
 }
 
 tasks.withType(JavaCompile).configureEach {
