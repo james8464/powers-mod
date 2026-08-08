@@ -4,6 +4,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.powers.network.PowersPackets;
 import com.powers.mind.MindBodyState;
+import com.powers.progression.RankGraph;
+import com.powers.progression.RankGraphRegistry;
+import com.powers.progression.RankProgress;
 import com.powers.player.SkillSystem;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
@@ -87,6 +90,21 @@ public final class PlayerPowers {
 					.initializer(() -> 0)
 					.persistent(Codec.INT)
 					.copyOnDeath());
+
+	private static final AttachmentType<List<String>> RANK_NODES = persistentStringList("rank_nodes");
+	private static final AttachmentType<List<String>> DARK_RANK_NODES = persistentStringList("dark_rank_nodes");
+	private static final AttachmentType<String> RANK_FOCUS = persistentString("rank_focus");
+	private static final AttachmentType<String> DARK_RANK_FOCUS = persistentString("dark_rank_focus");
+
+	private static AttachmentType<List<String>> persistentStringList(String name) {
+		return AttachmentRegistry.create(com.powers.PowersMod.id(name), builder -> builder
+				.initializer(ArrayList::new).persistent(Codec.STRING.listOf()).copyOnDeath());
+	}
+
+	private static AttachmentType<String> persistentString(String name) {
+		return AttachmentRegistry.create(com.powers.PowersMod.id(name), builder -> builder
+				.initializer(() -> "").persistent(Codec.STRING).copyOnDeath());
+	}
 
 	// darkness users may hide their real title and show the normal-ladder name instead
 	private static final AttachmentType<Boolean> DARKNESS_PREFIX_HIDDEN = AttachmentRegistry.create(
@@ -291,6 +309,49 @@ public final class PlayerPowers {
 		public int darknessLevel() {
 			return Math.max(0, Math.min(SkillSystem.DARKNESS_MAX_LEVEL,
 				target.getAttachedOrElse(DARKNESS_LEVEL, 0)));
+		}
+
+		public RankProgress rankProgress(boolean darkness) {
+			AttachmentType<List<String>> nodesType = darkness ? DARK_RANK_NODES : RANK_NODES;
+			AttachmentType<String> focusType = darkness ? DARK_RANK_FOCUS : RANK_FOCUS;
+			List<String> completed = target.getAttachedOrElse(nodesType, List.of());
+			RankGraph graph = darkness ? RankGraphRegistry.darkness() : RankGraphRegistry.light();
+			if (completed.isEmpty()) {
+				RankProgress migrated = RankProgress.migrateLegacy(graph,
+						darkness ? darknessLevel() : skillLevel());
+				target.setAttached(nodesType, new ArrayList<>(migrated.completed()));
+				target.setAttached(focusType, migrated.focus());
+				return migrated;
+			}
+			return new RankProgress(new java.util.LinkedHashSet<>(completed),
+					target.getAttachedOrElse(focusType, ""));
+		}
+
+		public boolean unlockRankNode(boolean darkness, String nodeId) {
+			RankGraph graph = darkness ? RankGraphRegistry.darkness() : RankGraphRegistry.light();
+			RankProgress progress = rankProgress(darkness);
+			int earnedDepth = darkness ? darknessLevel() : skillLevel();
+			if (!graph.unlockable(progress.completed(), earnedDepth).contains(nodeId)) return false;
+			java.util.LinkedHashSet<String> updated = new java.util.LinkedHashSet<>(progress.completed());
+			updated.add(nodeId);
+			target.setAttached(darkness ? DARK_RANK_NODES : RANK_NODES, new ArrayList<>(updated));
+			target.setAttached(darkness ? DARK_RANK_FOCUS : RANK_FOCUS, nodeId);
+			return true;
+		}
+
+		public boolean setRankFocus(boolean darkness, String nodeId) {
+			RankProgress progress = rankProgress(darkness);
+			if (!progress.completed().contains(nodeId)) return false;
+			target.setAttached(darkness ? DARK_RANK_FOCUS : RANK_FOCUS, nodeId);
+			return true;
+		}
+
+		public void respecRankMaze(boolean darkness) {
+			RankGraph graph = darkness ? RankGraphRegistry.darkness() : RankGraphRegistry.light();
+			RankProgress migrated = RankProgress.migrateLegacy(graph, darkness ? darknessLevel() : skillLevel());
+			target.setAttached(darkness ? DARK_RANK_NODES : RANK_NODES,
+					new ArrayList<>(migrated.completed()));
+			target.setAttached(darkness ? DARK_RANK_FOCUS : RANK_FOCUS, migrated.focus());
 		}
 
 		public boolean isDarknessPrefixHidden() {

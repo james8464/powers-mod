@@ -12,6 +12,9 @@ import com.powers.mind.BodyProxyManager;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
+import com.powers.progression.RankGraph;
+import com.powers.progression.RankGraphRegistry;
+import com.powers.progression.RankNode;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -78,6 +81,15 @@ public final class PowerCommand {
 						.executes(PowerCommand::reloadConfig))
 				.then(Commands.literal("return")
 						.executes(PowerCommand::returnToBody))
+				.then(Commands.literal("path")
+						.then(Commands.literal("list").executes(PowerCommand::pathList))
+						.then(Commands.literal("unlock")
+								.then(Commands.argument("node", StringArgumentType.word())
+										.executes(PowerCommand::pathUnlock)))
+						.then(Commands.literal("focus")
+								.then(Commands.argument("node", StringArgumentType.word())
+										.executes(PowerCommand::pathFocus)))
+						.then(Commands.literal("respec").executes(PowerCommand::pathRespec)))
 				.then(Commands.literal("darkprefix")
 						.executes(PowerCommand::darkPrefixToggle)
 						.then(Commands.literal("true")
@@ -97,6 +109,62 @@ public final class PowerCommand {
 			return 0;
 		}
 		context.getSource().sendSuccess(() -> Component.literal("Your spirit returned to your body."), false);
+		return 1;
+	}
+
+	private static int pathList(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerPlayer player = context.getSource().getPlayerOrException();
+		boolean darkness = SkillSystem.hasDarknessTag(player);
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		RankGraph graph = darkness ? RankGraphRegistry.darkness() : RankGraphRegistry.light();
+		var progress = data.rankProgress(darkness);
+		Set<String> choices = graph.unlockable(progress.completed(),
+				darkness ? data.darknessLevel() : data.skillLevel());
+		context.getSource().sendSuccess(() -> Component.literal("Focused title: " + progress.focus()
+				+ " | Unlockable: " + (choices.isEmpty() ? "none" : String.join(", ", choices))), false);
+		return choices.size();
+	}
+
+	private static int pathUnlock(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerPlayer player = context.getSource().getPlayerOrException();
+		boolean darkness = SkillSystem.hasDarknessTag(player);
+		String nodeId = StringArgumentType.getString(context, "node");
+		RankGraph graph = darkness ? RankGraphRegistry.darkness() : RankGraphRegistry.light();
+		RankNode node = graph.node(nodeId);
+		if (node == null || !PlayerPowers.get(player).unlockRankNode(darkness, nodeId)) {
+			context.getSource().sendFailure(Component.literal("That path is not currently reachable."));
+			return 0;
+		}
+		SkillSystem.refreshPrefix(player);
+		context.getSource().sendSuccess(() -> Component.literal("Unlocked and focused: " + node.title())
+				.withStyle(ChatFormatting.LIGHT_PURPLE), false);
+		return 1;
+	}
+
+	private static int pathFocus(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerPlayer player = context.getSource().getPlayerOrException();
+		boolean darkness = SkillSystem.hasDarknessTag(player);
+		String nodeId = StringArgumentType.getString(context, "node");
+		if (!PlayerPowers.get(player).setRankFocus(darkness, nodeId)) {
+			context.getSource().sendFailure(Component.literal("You have not unlocked that title."));
+			return 0;
+		}
+		SkillSystem.refreshPrefix(player);
+		context.getSource().sendSuccess(() -> Component.literal("Focused title: " + nodeId), false);
+		return 1;
+	}
+
+	private static int pathRespec(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerPlayer player = context.getSource().getPlayerOrException();
+		int cost = PowersConfigLoader.get().rankRespecExperienceLevels();
+		if (player.experienceLevel < cost) {
+			context.getSource().sendFailure(Component.literal("The respec ritual requires " + cost + " levels."));
+			return 0;
+		}
+		player.giveExperienceLevels(-cost);
+		PlayerPowers.get(player).respecRankMaze(SkillSystem.hasDarknessTag(player));
+		SkillSystem.refreshPrefix(player);
+		context.getSource().sendSuccess(() -> Component.literal("Branch titles reset; earned rank depth was preserved."), false);
 		return 1;
 	}
 

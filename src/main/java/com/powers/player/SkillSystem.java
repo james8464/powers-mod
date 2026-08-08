@@ -2,6 +2,10 @@ package com.powers.player;
 
 import com.powers.PowersMod;
 import com.powers.network.PowersPackets;
+import com.powers.progression.RankGraph;
+import com.powers.progression.RankGraphRegistry;
+import com.powers.progression.RankNode;
+import com.powers.progression.RankProgress;
 import com.powers.util.PowerMessages;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
@@ -93,6 +97,9 @@ public final class SkillSystem {
 				PowersPackets.syncTo(player);
 			}
 		}
+		// Lazily migrates the old numeric ladder into the persistent maze.
+		data.rankProgress(false);
+		if (hasDarknessTag(player)) data.rankProgress(true);
 		applyRank(player);
 	}
 
@@ -127,12 +134,19 @@ public final class SkillSystem {
 				return Component.literal("[" + rank(level) + "] ")
 						.withStyle(style -> style.withColor(color(level)));
 			}
-			return Component.literal("[" + darknessRank(level) + "] ")
+			return Component.literal("[" + focusedTitle(data, true, darknessRank(level)) + "] ")
 					.withStyle(style -> style.withColor(darknessColor(level)));
 		}
 		int level = data.skillLevel();
-		return Component.literal("[" + rank(level) + "] ")
+		return Component.literal("[" + focusedTitle(data, false, rank(level)) + "] ")
 				.withStyle(style -> style.withColor(color(level)));
+	}
+
+	private static String focusedTitle(PlayerPowers.PlayerPowersData data, boolean darkness, String fallback) {
+		RankProgress progress = data.rankProgress(darkness);
+		RankGraph graph = darkness ? RankGraphRegistry.darkness() : RankGraphRegistry.light();
+		RankNode node = graph.node(progress.focus());
+		return node == null ? fallback : node.title();
 	}
 
 	public static float damage(ServerPlayer player, float base) {
@@ -165,46 +179,31 @@ public final class SkillSystem {
 	}
 
 	/**
-	 * Keeps the two advancement tabs mutually exclusive. Vanilla shows a root's
-	 * tab when the root <em>or any descendant</em> is complete, so hiding a path
-	 * means clearing its whole chain, not just the root. Nothing is lost by
-	 * that: the reached rank lives in the player's saved level, and the chain is
-	 * restored up to that rank whenever the path becomes active again.
+	 * Keeps earned advancement journal entries visible. Switching tags or maze
+	 * focus never revokes history; numeric levels remain the migration floor.
 	 */
 	public static void syncPathVisibility(ServerPlayer player) {
 		boolean darkness = hasDarknessTag(player);
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		setPathActive(player, PowersMod.id("skill_root"), SkillSystem::skillId,
-				MAX_LEVEL, data.skillLevel(), !darkness);
-		setPathActive(player, PowersMod.id("darkness_root"), SkillSystem::darknessId,
-				DARKNESS_MAX_LEVEL, data.darknessLevel(), darkness);
+		awardPath(player, PowersMod.id("skill_root"), SkillSystem::skillId, data.skillLevel());
+		if (darkness) {
+			awardPath(player, PowersMod.id("darkness_root"), SkillSystem::darknessId, data.darknessLevel());
+		}
 	}
 
-	private static void setPathActive(ServerPlayer player, Identifier rootId, IntFunction<Identifier> levelId,
-			int maxLevel, int reachedLevel, boolean active) {
+	private static void awardPath(ServerPlayer player, Identifier rootId, IntFunction<Identifier> levelId,
+			int reachedLevel) {
 		ServerAdvancementManager advancements = player.level().getServer().getAdvancements();
 		AdvancementHolder root = advancements.get(rootId);
 		if (root == null) {
 			return;
 		}
-		if (active) {
-			award(player, root);
-			// put the chain back exactly as far as the player actually climbed
-			for (int level = 1; level <= reachedLevel; level++) {
-				AdvancementHolder holder = advancements.get(levelId.apply(level));
-				if (holder != null) {
-					award(player, holder);
-				}
+		award(player, root);
+		for (int level = 1; level <= reachedLevel; level++) {
+			AdvancementHolder holder = advancements.get(levelId.apply(level));
+			if (holder != null) {
+				award(player, holder);
 			}
-		} else {
-			// clear from the top down so parents are never left dangling
-			for (int level = maxLevel; level >= 1; level--) {
-				AdvancementHolder holder = advancements.get(levelId.apply(level));
-				if (holder != null) {
-					revoke(player, holder);
-				}
-			}
-			revoke(player, root);
 		}
 	}
 
@@ -216,18 +215,6 @@ public final class SkillSystem {
 		}
 		for (String criterion : holder.value().criteria().keySet()) {
 			progressTracker.award(holder, criterion);
-		}
-	}
-
-	// strips every criterion of an advancement, skipping the work when it is already clear
-	private static void revoke(ServerPlayer player, AdvancementHolder holder) {
-		PlayerAdvancements progressTracker = player.getAdvancements();
-		AdvancementProgress progress = progressTracker.getOrStartProgress(holder);
-		if (!progress.hasProgress()) {
-			return;
-		}
-		for (String criterion : holder.value().criteria().keySet()) {
-			progressTracker.revoke(holder, criterion);
 		}
 	}
 
