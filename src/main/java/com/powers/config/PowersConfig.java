@@ -25,7 +25,26 @@ public record PowersConfig(
 		int chronoStopRadius,
 		int rankRespecExperienceLevels,
 		int adminPermissionLevel,
-		List<SafeZone> safeZones) {
+		List<SafeZone> safeZones,
+		LivingForces livingForces) {
+
+	/** Sanitized pacing and safety limits for spreading realm matter. */
+	public record LivingForces(boolean spreadingEnabled, int spreadAttempts, int auraRadius,
+			int witherAmplifier, int energyRefillPerSecond, int clashRadius, int clashChecksPerTick) {
+		public static LivingForces defaults() {
+			return new LivingForces(true, 2, 8, 2, 24, 48, 4096);
+		}
+
+		public LivingForces sanitized() {
+			return new LivingForces(spreadingEnabled,
+					Math.max(1, Math.min(8, spreadAttempts)),
+					Math.max(1, Math.min(32, auraRadius)),
+					Math.max(0, Math.min(4, witherAmplifier)),
+					Math.max(1, Math.min(500, energyRefillPerSecond)),
+					Math.max(8, Math.min(96, clashRadius)),
+					Math.max(256, Math.min(32_768, clashChecksPerTick)));
+		}
+	}
 
 	public record SafeZone(String dimension, double x, double y, double z, double radius) {
 		public SafeZone sanitized() {
@@ -37,7 +56,7 @@ public record PowersConfig(
 	public static PowersConfig defaults() {
 		return new PowersConfig(false, false, false, false,
 				true, true, true, true, true, true, true,
-				20, 512, 8, 32, 64, 30, 2, List.of());
+				20, 512, 8, 32, 64, 30, 2, List.of(), LivingForces.defaults());
 	}
 
 	public PowersConfig sanitized() {
@@ -53,6 +72,7 @@ public record PowersConfig(
 				Math.max(4, Math.min(128, spaceTimeRadius)),
 				Math.max(4, Math.min(256, chronoStopRadius)),
 				Math.max(0, Math.min(1000, rankRespecExperienceLevels)),
-				Math.max(0, Math.min(4, adminPermissionLevel)), List.copyOf(zones));
+				Math.max(0, Math.min(4, adminPermissionLevel)), List.copyOf(zones),
+				(livingForces == null ? LivingForces.defaults() : livingForces).sanitized());
 	}
 }

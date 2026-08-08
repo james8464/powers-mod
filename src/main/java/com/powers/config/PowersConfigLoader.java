@@ -51,6 +51,17 @@ public final class PowersConfigLoader {
 			zones = GSON.fromJson(object.get("safeZones"),
 					new TypeToken<java.util.List<PowersConfig.SafeZone>>() { }.getType());
 		}
+		PowersConfig.LivingForces forceDefaults = defaults.livingForces();
+		JsonObject forceObject = object.has("livingForces") && object.get("livingForces").isJsonObject()
+				? object.getAsJsonObject("livingForces") : new JsonObject();
+		PowersConfig.LivingForces livingForces = new PowersConfig.LivingForces(
+				bool(forceObject, "spreadingEnabled", forceDefaults.spreadingEnabled()),
+				integer(forceObject, "spreadAttempts", forceDefaults.spreadAttempts()),
+				integer(forceObject, "auraRadius", forceDefaults.auraRadius()),
+				integer(forceObject, "witherAmplifier", forceDefaults.witherAmplifier()),
+				integer(forceObject, "energyRefillPerSecond", forceDefaults.energyRefillPerSecond()),
+				integer(forceObject, "clashRadius", forceDefaults.clashRadius()),
+				integer(forceObject, "clashChecksPerTick", forceDefaults.clashChecksPerTick()));
 		return new PowersConfig(
 				bool(object, "allowTerrainDamage", defaults.allowTerrainDamage()),
 				bool(object, "allowBlockEntityDamage", defaults.allowBlockEntityDamage()),
@@ -69,7 +80,8 @@ public final class PowersConfigLoader {
 				integer(object, "spaceTimeRadius", defaults.spaceTimeRadius()),
 				integer(object, "chronoStopRadius", defaults.chronoStopRadius()),
 				integer(object, "rankRespecExperienceLevels", defaults.rankRespecExperienceLevels()),
-				integer(object, "adminPermissionLevel", defaults.adminPermissionLevel()), zones).sanitized();
+				integer(object, "adminPermissionLevel", defaults.adminPermissionLevel()), zones,
+				livingForces).sanitized();
 	}
 
 	private static boolean bool(JsonObject object, String key, boolean fallback) {
