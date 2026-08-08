@@ -1,6 +1,7 @@
 package com.powers.player;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.powers.network.PowersPackets;
 import com.powers.player.SkillSystem;
 import com.powers.power.Power;
@@ -17,7 +18,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -29,6 +32,12 @@ import java.util.Random;
 public final class PlayerPowers {
 	public static final int SLOT_COUNT = 3;
 	public enum ConsentKind { TELEPORT, LOCATOR, COMPANION }
+	public record AnchorState(String dimensionId, long expiresAt) {
+		private static final Codec<AnchorState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.STRING.fieldOf("dimension").forGetter(AnchorState::dimensionId),
+				Codec.LONG.fieldOf("expires_at").forGetter(AnchorState::expiresAt)
+		).apply(instance, AnchorState::new));
+	}
 
 	// every attachment here has to survive death as well as logout. attachments
 	// are dropped when the player entity is rebuilt on respawn unless
@@ -93,6 +102,27 @@ public final class PlayerPowers {
 					.persistent(Codec.INT)
 					.copyOnDeath());
 
+	private static final AttachmentType<Map<String, Long>> COOLDOWNS = AttachmentRegistry.create(
+			com.powers.PowersMod.id("cooldowns"),
+			builder -> builder
+					.initializer(HashMap::new)
+					.persistent(Codec.unboundedMap(Codec.STRING, Codec.LONG))
+					.copyOnDeath());
+
+	private static final AttachmentType<AnchorState> DIMENSIONAL_ANCHOR = AttachmentRegistry.create(
+			com.powers.PowersMod.id("dimensional_anchor"),
+			builder -> builder.persistent(AnchorState.CODEC).copyOnDeath());
+
+	// -1 means the power does not own a snapshot. Remaining bits preserve the
+	// flags that existed before the power changed them, even across a relog.
+	private static final AttachmentType<Integer> FLIGHT_SNAPSHOT = persistentInt("flight_snapshot", -1);
+	private static final AttachmentType<Integer> INVISIBILITY_SNAPSHOT = persistentInt("invisibility_snapshot", -1);
+
+	private static AttachmentType<Integer> persistentInt(String name, int initial) {
+		return AttachmentRegistry.create(com.powers.PowersMod.id(name), builder -> builder
+				.initializer(() -> initial).persistent(Codec.INT).copyOnDeath());
+	}
+
 	private static final AttachmentType<Boolean> TELEPORT_CONSENT = consentAttachment("teleport_consent");
 	private static final AttachmentType<Boolean> LOCATOR_CONSENT = consentAttachment("locator_consent");
 	private static final AttachmentType<Boolean> COMPANION_CONSENT = consentAttachment("companion_consent");
@@ -120,6 +150,52 @@ public final class PlayerPowers {
 	}
 
 	public record PlayerPowersData(AttachmentTarget target) {
+		public long cooldownReadyAt(String abilityId) {
+			return target.getAttachedOrElse(COOLDOWNS, Map.of()).getOrDefault(abilityId, 0L);
+		}
+
+		public void setCooldown(String abilityId, long readyAt) {
+			Map<String, Long> updated = new HashMap<>(target.getAttachedOrElse(COOLDOWNS, Map.of()));
+			updated.put(abilityId, readyAt);
+			target.setAttached(COOLDOWNS, updated);
+		}
+
+		public void clearCooldown(String abilityId) {
+			Map<String, Long> current = target.getAttachedOrElse(COOLDOWNS, Map.of());
+			if (!current.containsKey(abilityId)) return;
+			Map<String, Long> updated = new HashMap<>(current);
+			updated.remove(abilityId);
+			target.setAttached(COOLDOWNS, updated);
+		}
+
+		public AnchorState dimensionalAnchor() {
+			return target.getAttached(DIMENSIONAL_ANCHOR);
+		}
+
+		public void setDimensionalAnchor(String dimensionId, long expiresAt) {
+			target.setAttached(DIMENSIONAL_ANCHOR, new AnchorState(dimensionId, expiresAt));
+		}
+
+		public void clearDimensionalAnchor() {
+			target.removeAttached(DIMENSIONAL_ANCHOR);
+		}
+
+		public int flightSnapshot() {
+			return target.getAttachedOrElse(FLIGHT_SNAPSHOT, -1);
+		}
+
+		public void setFlightSnapshot(int snapshot) {
+			target.setAttached(FLIGHT_SNAPSHOT, snapshot);
+		}
+
+		public int invisibilitySnapshot() {
+			return target.getAttachedOrElse(INVISIBILITY_SNAPSHOT, -1);
+		}
+
+		public void setInvisibilitySnapshot(int snapshot) {
+			target.setAttached(INVISIBILITY_SNAPSHOT, snapshot);
+		}
+
 		public boolean allowsConsent(ConsentKind kind) {
 			return target.getAttachedOrElse(consentType(kind), Boolean.FALSE);
 		}
@@ -331,20 +407,12 @@ public final class PlayerPowers {
 		 */
 		public void setSlots(ServerPlayer player, List<String> ids) {
 			List<String> newIds = new ArrayList<>(ids);
-			for (String oldId : getSlotIds()) {
-				Power oldPower = PowerRegistry.get(oldId);
-				if (oldPower != null) {
-					for (PassiveEffect passive : oldPower.passives()) {
-						player.removeEffect(passive.effect());
-					}
-				}
-			}
+			// A passive may be shared with a potion or another mod. It is allowed
+			// to expire naturally instead of removing the entire effect type.
 			for (String id : new ArrayList<>(getActiveToggles())) {
-				if (!newIds.contains(id)) {
-					Power power = PowerRegistry.get(id);
-					if (power != null && power.ability().isToggle()) {
-						power.ability().activateToggleOff(player, this);
-					}
+				Power power = PowerRegistry.get(id);
+				if (power != null && power.ability().isToggle()) {
+					power.ability().activateToggleOff(player, this);
 				}
 			}
 			target.setAttached(ACTIVE_TOGGLES, new ArrayList<>());

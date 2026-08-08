@@ -18,6 +18,9 @@ public class InvisibilityToggleAbility extends ToggleAbility {
 
 	@Override
 	public boolean activateToggleOn(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		if (data.invisibilitySnapshot() < 0) {
+			data.setInvisibilitySnapshot(player.isInvisible() ? 1 : 0);
+		}
 		player.setInvisible(true);
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 			// smoke burst hides the spot where you stood
@@ -29,7 +32,11 @@ public class InvisibilityToggleAbility extends ToggleAbility {
 
 	@Override
 	public void activateToggleOff(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		player.setInvisible(false);
+		int prior = data.invisibilitySnapshot();
+		data.setInvisibilitySnapshot(-1);
+		if (prior >= 0) {
+			player.setInvisible(prior == 1);
+		}
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 			com.powers.fx.PowerFx.burst(level, player.position(), net.minecraft.core.particles.ParticleTypes.PORTAL, 18, 0.5, 0.02);
 		}

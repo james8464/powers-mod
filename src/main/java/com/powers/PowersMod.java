@@ -12,9 +12,7 @@ import com.powers.power.PowerEnergy;
 import com.powers.power.PowerRegistry;
 import com.powers.power.abilities.SlowWorldAbility;
 import com.powers.power.abilities.TeleportAbility;
-import com.powers.power.abilities.FlightAbility;
 import com.powers.power.abilities.TimeFreezeToggleAbility;
-import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.abilities.VesselPossessionAbility;
 import com.powers.power.abilities.AstralProjectionAbility;
@@ -26,7 +24,6 @@ import com.powers.power.crystals.InfernoAbility;
 import com.powers.power.crystals.SoulLinkAbility;
 import com.powers.power.crystals.SizeShiftAbility;
 import com.powers.power.AmethystDampening;
-import com.powers.power.ActivationCooldowns;
 import com.powers.power.PowerDamage;
 import com.powers.player.SkillSystem;
 import com.powers.power.crystals.CrystalPowerRegistry;
@@ -214,15 +211,14 @@ public class PowersMod implements ModInitializer {
 			SkillSystem.refresh(newPlayer);
 			PowersPackets.syncTo(newPlayer);
 		});
-		// drop every ability's per-player state when someone leaves
+		// Drop ephemeral runtime state when someone leaves. Persistent cooldowns,
+		// anchors, and owned flag snapshots deliberately stay on the player.
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 			ServerPlayer player = handler.getPlayer();
 			WAS_SLEEPING.remove(player.getUUID());
 			SkillSystem.clear(player.getUUID());
 			TeleportAbility.clearMarking(player);
-			FlightAbility.clear(player.getUUID());
 			TimeFreezeToggleAbility.clear(player.getUUID());
-			DimensionalAnchorAbility.clear(player.getUUID());
 			ForcefieldAbility.clear(player.getUUID());
 			VesselPossessionAbility.clear(player);
 			AstralProjectionAbility.clear(player.getUUID());
@@ -233,7 +229,6 @@ public class PowersMod implements ModInitializer {
 			SizeShiftAbility.clear(player.getUUID());
 			SlowWorldAbility.clear(player.getUUID());
 			SpaceTimeAbility.clear(player.getUUID());
-			ActivationCooldowns.clear(player.getUUID());
 		});
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			STORMS.clear();
@@ -243,7 +238,6 @@ public class PowersMod implements ModInitializer {
 			AmethystDampening.clearAll();
 			TeleportAbility.clearAllMarking();
 			TimeFreezeToggleAbility.clearAll();
-			DimensionalAnchorAbility.clearAll();
 			ForcefieldAbility.clearAll();
 			VesselPossessionAbility.clearAll();
 			AstralProjectionAbility.clearAll();
@@ -255,7 +249,6 @@ public class PowersMod implements ModInitializer {
 			SoulLinkAbility.clearAll();
 			SizeShiftAbility.clearAll();
 			SlowWorldAbility.clearAll();
-			ActivationCooldowns.clearAll();
 		});
 
 		// passives get re-applied on a schedule so they never expire, toggles
