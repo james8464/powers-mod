@@ -25,6 +25,8 @@ The assignable powers are:
 - Defence and support: Forcefield, Cozy Campfire, Plant and Healing Acceleration, and Double Health.
 - Time and mind: Slow World, Time Freeze, Invisibility, Vessel Possession, and Astral Projection.
 
+Telekinesis is a true radial release: permitted living targets are thrown away from the caster while up to 16 hostile projectiles are reflected along the caster's aim. If neither can be affected, its collapsed violet rune refunds the offered energy and starts no cooldown or collision residue.
+
 Elemental Blast cycles flame, frost, storm, and earth only after a successful release. Each phase uses the underlying canonical Fireball, Frost Nova, Lightning Strike, or Ground Slam identity for collision counterplay, residue, sound, and ceremony rather than presenting every phase as the same composite force. Its HUD medallion adopts the primed element and shows the authoritative four-rune cycle before energy is spent.
 
 Every power uses the same energy well. Light progression grows it from 250 to 770; darkness progression grows its separate well from 500 to 1,850. Failed casts refund their activation cost. Toggle powers drain once per second and cause backlash if they exhaust the well. Sleeping and runestones restore energy unless Exhaustion is active.

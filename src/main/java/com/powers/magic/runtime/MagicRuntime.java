@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 /**
  * Server-thread transaction coordinator for spatial magic interactions. The
@@ -51,28 +52,49 @@ public final class MagicRuntime {
 	}
 
 	/**
-	 * Resolves all nearby magic before payment/cooldown commit. The sink is a
-	 * presentation-only boundary and is invoked at most once per pair/cell/tick.
+	 * Resolves all nearby magic before payment/cooldown commit without emitting
+	 * presentation or gameplay reactions.
 	 */
-	public CastAdjustment beforeCast(MagicCastContext cast, MagicReactionSink sink) {
+	public MagicCastPreview previewCast(MagicCastContext cast) {
 		Objects.requireNonNull(cast, "cast");
-		Objects.requireNonNull(sink, "sink");
 		if (catalogue.definition(cast.definition().id()) == null) {
 			throw new IllegalArgumentException("Cast action is not registered: " + cast.definition().id());
 		}
 		List<MagicPresence> nearby = index.nearby(cast.dimension(), cast.anchor().x(), cast.anchor().y(),
 				cast.anchor().z(), cast.queryRadius(), cast.gameTime());
 		List<InteractionResolution> resolutions = new ArrayList<>(nearby.size());
+		List<MagicReactionEvent> reactions = new ArrayList<>(nearby.size());
 		for (MagicPresence presence : nearby) {
 			var existingDefinition = catalogue.definition(presence.action());
 			if (existingDefinition == null) continue;
 			InteractionResolution resolution = resolver.resolve(cast.definition(), existingDefinition,
 					cast.interactionContext());
 			resolutions.add(resolution);
-			CueKey key = cueKey(cast, presence);
-			if (emittedCues.add(key)) sink.emit(new MagicReactionEvent(cast, presence, resolution));
+			reactions.add(new MagicReactionEvent(cast, presence, resolution));
 		}
-		return CastAdjustment.combine(resolutions);
+		return new MagicCastPreview(CastAdjustment.combine(resolutions), reactions);
+	}
+
+	/** Emits a preview's reactions at most once per action pair, spatial cell, and tick. */
+	public void emitReactions(MagicCastPreview preview, MagicReactionSink sink) {
+		emitMatchingReactions(preview, sink, ignored -> true);
+	}
+
+	/** Emits only reactions that reject the attempted cast, excluding unrelated nearby fields. */
+	public void emitBlockingReactions(MagicCastPreview preview, MagicReactionSink sink) {
+		emitMatchingReactions(preview, sink, event -> event.resolution().blocksFirst());
+	}
+
+	private void emitMatchingReactions(MagicCastPreview preview, MagicReactionSink sink,
+			Predicate<MagicReactionEvent> filter) {
+		Objects.requireNonNull(preview, "preview");
+		Objects.requireNonNull(sink, "sink");
+		Objects.requireNonNull(filter, "filter");
+		for (MagicReactionEvent event : preview.reactions()) {
+			if (!filter.test(event)) continue;
+			CueKey key = cueKey(event.cast(), event.existing());
+			if (emittedCues.add(key)) sink.emit(event);
+		}
 	}
 
 	/**

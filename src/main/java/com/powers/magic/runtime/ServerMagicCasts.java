@@ -13,7 +13,10 @@ import com.powers.network.MagicFxPackets;
 import com.powers.player.SkillSystem;
 import com.powers.progression.PowerScalingService;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -44,23 +47,40 @@ public final class ServerMagicCasts {
 				PresenceAnchor.fixed(player.getX(), player.getY() + 1.0, player.getZ()),
 				Math.max(4.0, definition.baseRange()), player.level().getServer().getTickCount(),
 				InteractionContext.DEFAULT);
-		CastAdjustment adjustment = MagicRuntime.global().beforeCast(context,
-				event -> emitReaction((ServerLevel) player.level(), event));
-		if (!adjustment.allowed()) {
+		MagicRuntime runtime = MagicRuntime.global();
+		MagicCastPreview preview = runtime.previewCast(context);
+		PreparedMagicCast prepared = new PreparedMagicCast(context, preview);
+		if (!prepared.allowed()) {
+			runtime.emitBlockingReactions(preview,
+					event -> emitReaction((ServerLevel) player.level(), event));
 			player.sendSystemMessage(Component.translatable("ability.powers.interaction_blocked"));
 		}
-		return new PreparedMagicCast(context, adjustment);
+		return prepared;
 	}
 
 	/** Registers residue and emits the ceremony after successful ability execution. */
 	public static MagicPresenceId commit(PreparedMagicCast prepared, ServerPlayer player) {
+		if (!prepared.allowed()) throw new IllegalStateException("Blocked magic cannot commit");
+		MagicRuntime runtime = MagicRuntime.global();
+		ServerLevel reactionLevel = originalLevel(prepared, player);
+		runtime.emitReactions(prepared.preview(), event -> emitReaction(reactionLevel, event));
 		MagicCastContext completed = prepared.context().rebased(
 				player.level().dimension().identifier().toString(),
 				PresenceAnchor.fixed(player.getX(), player.getY() + 1.0, player.getZ()),
 				player.level().getServer().getTickCount());
-		MagicPresenceId presenceId = MagicRuntime.global().commitCast(completed, prepared.adjustment());
+		MagicPresenceId presenceId = runtime.commitCast(completed, prepared.adjustment());
 		emitCast((ServerLevel) player.level(), completed, presenceId, player);
 		return presenceId;
+	}
+
+	private static ServerLevel originalLevel(PreparedMagicCast prepared, ServerPlayer player) {
+		Identifier dimension = Identifier.tryParse(prepared.context().dimension());
+		if (dimension != null) {
+			ServerLevel level = player.level().getServer().getLevel(
+					ResourceKey.create(Registries.DIMENSION, dimension));
+			if (level != null) return level;
+		}
+		return (ServerLevel) player.level();
 	}
 
 	/** Executes gameplay while its resolved multipliers are visible to the scaling service. */
