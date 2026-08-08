@@ -77,6 +77,11 @@ def validate(root: Path) -> list[str]:
     assets = root / "assets" / "powers"
     lang_path = assets / "lang" / "en_us.json"
     lang = parsed.get(lang_path, {})
+    mod_metadata = parsed.get(root / "fabric.mod.json", {})
+    contact = mod_metadata.get("contact", {}) if isinstance(mod_metadata, dict) else {}
+    for field in ("homepage", "sources", "issues"):
+        if not isinstance(contact, dict) or not contact.get(field):
+            errors.append(f"fabric.mod.json: missing contact.{field}")
 
     for path in sorted((assets / "items").glob("*.json")):
         data = parsed.get(path)
