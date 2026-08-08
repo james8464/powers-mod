@@ -163,11 +163,13 @@ git commit -m "feat: intercept abyssal rays with wards"
 **Files:**
 - Replace: `src/main/java/com/powers/power/abilities/VoidBeamAbility.java`
 - Create: `src/main/java/com/powers/power/abilities/VoidScarManager.java`
+- Modify: `src/main/java/com/powers/fx/PowerFx.java`
 - Modify: `src/main/java/com/powers/PowersMod.java`
 
 **Interfaces:**
 - Consumes: Task 1 rules, Task 2 ward query/removal, `PowerScalingService`, `PowerProtection`, `AmethystDampening`, `MagicShieldManager`, and `ServerMagicCasts` lifecycle.
 - Produces: `VoidBeamAbility.tickAll(MinecraftServer)`, `clear(UUID)`, `clearAll()`; `VoidScarManager.create(...)`, `tickAll(MinecraftServer)`, `clear(UUID)`, `clearAll()`.
+- Produces: `PowerFx.voidBeamCharge`, `voidBeamRelease`, `voidBeamPenetration`, `voidBeamCountered`, `voidScarPulse`, and `voidScarCollapse`.
 
 - [ ] **Step 1: Start one snapshotted charge from `activate`**
 
@@ -185,20 +187,24 @@ Use the nearest block hit and `firstHarmfulRayIntercept` to bound the segment. I
 
 Create at most 128 scars. Register an impact-position `void_beam` `MagicPresence`; store its ID, dimension, owner, centre, created/expiry ticks, radius, pulse damage, Wither tier, and rank presentation. Every positive fifth tick emits visuals; every positive tenth tick affects at most the nearest 16 permitted non-owner living entities. Remove the presence on expiry, unload, owner cleanup, or shutdown.
 
-- [ ] **Step 5: Wire every lifecycle edge**
+- [ ] **Step 5: Add all semantic FX methods**
 
-Call charge/scar cleanup after respawn and disconnect, clear all during server stop, and tick both systems from `END_SERVER_TICK`. Keep source imports explicit and maintain the entry point below the Java-audit size ceiling.
+Use existing `ECLIPSE`, `RIBBON`, `FRACTURE`, reverse-portal, soul, coloured rune/ring/spiral helpers, and authored dark/amethyst/light/ward sounds. Scale density only through bounded booleans/charge beats; distinguish counter types by geometry as well as colour.
 
-- [ ] **Step 6: Compile server and client source sets**
+- [ ] **Step 6: Wire every lifecycle edge**
+
+Have the public `VoidBeamAbility` lifecycle methods delegate to the package-private scar manager, then call only that façade after respawn/disconnect, during server stop, and from `END_SERVER_TICK`. Keep source imports explicit and maintain the entry point below the Java-audit size ceiling.
+
+- [ ] **Step 7: Compile server and client source sets**
 
 Run: `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew compileJava compileClientJava`
 
 Expected: both tasks succeed with no dedicated-server client-class references.
 
-- [ ] **Step 7: Commit gameplay runtime**
+- [ ] **Step 8: Commit gameplay runtime**
 
 ```bash
-git add src/main/java/com/powers/power/abilities/VoidBeamAbility.java src/main/java/com/powers/power/abilities/VoidScarManager.java src/main/java/com/powers/PowersMod.java
+git add src/main/java/com/powers/power/abilities/VoidBeamAbility.java src/main/java/com/powers/power/abilities/VoidScarManager.java src/main/java/com/powers/fx/PowerFx.java src/main/java/com/powers/PowersMod.java
 git commit -m "feat: tear open abyssal void scars"
 ```
 
@@ -207,25 +213,17 @@ git commit -m "feat: tear open abyssal void scars"
 ### Task 4: Authored presentation, lore, and release gates
 
 **Files:**
-- Modify: `src/main/java/com/powers/fx/PowerFx.java`
 - Modify: `src/main/resources/assets/powers/lang/en_us.json`
 - Modify: `README.md`
 - Modify: `CHANGELOG.md`
 - Regenerate: `docs/quality/code-audit.md`
 - Regenerate: `docs/quality/non-item-assets.md`
 
-**Interfaces:**
-- Produces: `PowerFx.voidBeamCharge`, `voidBeamRelease`, `voidBeamPenetration`, `voidBeamCountered`, `voidScarPulse`, and `voidScarCollapse`.
-
-- [ ] **Step 1: Add all semantic FX methods**
-
-Use existing `ECLIPSE`, `RIBBON`, `FRACTURE`, reverse-portal, soul, coloured rune/ring/spiral helpers, and authored dark/amethyst/light/ward sounds. Scale density only through bounded booleans/charge beats; distinguish counter types by geometry as well as colour.
-
-- [ ] **Step 2: Update player-facing copy and system documentation**
+- [ ] **Step 1: Update player-facing copy and system documentation**
 
 Change the power description to the charged penetrating/scar behavior, add three concise Void Beam lore lines, document payment/counterplay/penetration/scar/rank behavior in README, and add one changelog bullet. Do not add a recipe.
 
-- [ ] **Step 3: Regenerate and check quality manifests**
+- [ ] **Step 2: Regenerate and check quality manifests**
 
 Run:
 
@@ -236,21 +234,21 @@ python3 scripts/audit_java_sources.py --check
 python3 scripts/audit_non_item_assets.py --check
 ```
 
-- [ ] **Step 4: Run the full clean release build**
+- [ ] **Step 3: Run the full clean release build**
 
 Run: `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew clean check build`
 
 Expected: all tests, JSON/assets, interaction matrix, source audits, and JAR tasks succeed.
 
-- [ ] **Step 5: Run the dedicated-server lifecycle smoke**
+- [ ] **Step 4: Run the dedicated-server lifecycle smoke**
 
 Temporarily set ignored `run/server.properties` `enable-rcon=false`, start `runServer --args='nogui --universe <mktemp-dir> --port 0'`, wait for `Done`, send `stop`, require exit 0 and all dimensions saved, then restore `enable-rcon=true` with `apply_patch`.
 
-- [ ] **Step 6: Review and commit the finished tranche**
+- [ ] **Step 5: Review and commit the finished tranche**
 
 Run `git diff --check`, review every changed file, require a clean focused test/build result, then commit:
 
 ```bash
-git add src/main/java/com/powers/fx/PowerFx.java src/main/resources/assets/powers/lang/en_us.json README.md CHANGELOG.md docs/quality
+git add src/main/resources/assets/powers/lang/en_us.json README.md CHANGELOG.md docs/quality
 git commit -m "feat: unveil the abyssal beam ceremony"
 ```
