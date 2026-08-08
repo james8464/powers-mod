@@ -42,4 +42,12 @@ public final class HudMath {
 		}
 		return alpha | rune.color();
 	}
+
+	/** Alternates cyan and gold runes to show one legal ranked follow-up cast. */
+	public static int secondStepRuneColor(int rune, int tick) {
+		int rgb = (rune & 1) == 0 ? 0xD7F8FF : 0xFFD166;
+		int pulse = Math.floorDiv(Math.max(0, tick), 4);
+		int alpha = ((pulse + rune) & 1) == 0 ? 0xFF000000 : 0xCC000000;
+		return alpha | rgb;
+	}
 }

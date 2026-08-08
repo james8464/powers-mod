@@ -52,14 +52,20 @@ public final class PowerHudRenderer {
 		if (elemental != null) drawElementalCycle(graphics, centerX, centerY - 10, elemental, tick);
 
 		int remaining = ClientPowerState.cooldownTicks(slot);
+		int reactivation = ClientPowerState.reactivationTicks(slot);
 		int maximum = Math.max(1, ClientPowerState.cooldownMaximum(slot));
 		int blockedRunes = HudMath.cooldownSegments(remaining, maximum, COOLDOWN_RUNES);
 		for (int rune = 0; rune < COOLDOWN_RUNES; rune++) {
 			double angle = -Math.PI / 2.0 + rune * Math.PI * 2.0 / COOLDOWN_RUNES;
 			int runeX = centerX + (int) Math.round(Math.cos(angle) * 15.0);
 			int runeY = centerY + (int) Math.round(Math.sin(angle) * 15.0);
-			int runeColor = rune < blockedRunes ? 0xDD424752 : activeToggle ? 0xFFFFFFFF : color;
+			int runeColor = reactivation > 0 ? HudMath.secondStepRuneColor(rune, tick)
+					: rune < blockedRunes ? 0xDD424752 : activeToggle ? 0xFFFFFFFF : color;
 			graphics.fill(runeX - 1, runeY - 1, runeX + 2, runeY + 2, runeColor);
+		}
+		if (reactivation > 0) {
+			drawDiamond(graphics, centerX - 3, centerY, 2, 0xFFD7F8FF);
+			drawDiamond(graphics, centerX + 3, centerY, 2, 0xFFFFD166);
 		}
 
 		String key = keyLabel(slot);
@@ -74,7 +80,12 @@ public final class PowerHudRenderer {
 			String label = trim(font, name, 86);
 			graphics.text(font, label, centerX - 22 - font.width(label), centerY - 4, color, true);
 		}
-		if (remaining > 0) {
+		if (reactivation > 0) {
+			String marker = net.minecraft.network.chat.Component.translatable(
+					"hud.powers.second_step").getString();
+			graphics.text(font, marker, centerX - font.width(marker) / 2,
+					centerY + 6, 0xFFFFE6A3, true);
+		} else if (remaining > 0) {
 			String seconds = String.valueOf((remaining + 19) / 20);
 			graphics.text(font, seconds, centerX - font.width(seconds) / 2,
 					centerY + 6, 0xFFE7EBF2, true);

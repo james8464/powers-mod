@@ -12,7 +12,7 @@ import java.util.Objects;
 
 /** Immutable server-authoritative snapshot used by the power HUD and rank maze. */
 public record PowerStatePayload(List<String> powerIds, List<String> activeToggles,
-		List<Integer> cooldownTicks, List<Integer> cooldownMaximums,
+		List<Integer> cooldownTicks, List<Integer> cooldownMaximums, List<Integer> reactivationTicks,
 		int energy, int energyCapacity, boolean canSeeDarkRealm, boolean darkness,
 		boolean projection, int elementalPhase, RankSnapshot rank) implements CustomPacketPayload {
 	public static final CustomPacketPayload.Type<PowerStatePayload> TYPE =
@@ -27,6 +27,8 @@ public record PowerStatePayload(List<String> powerIds, List<String> activeToggle
 					PowerStatePayload::cooldownTicks,
 					ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT),
 					PowerStatePayload::cooldownMaximums,
+					ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT),
+					PowerStatePayload::reactivationTicks,
 					ByteBufCodecs.VAR_INT,
 					PowerStatePayload::energy,
 					ByteBufCodecs.VAR_INT,
@@ -49,16 +51,27 @@ public record PowerStatePayload(List<String> powerIds, List<String> activeToggle
 		activeToggles = List.copyOf(activeToggles);
 		cooldownTicks = List.copyOf(cooldownTicks);
 		cooldownMaximums = List.copyOf(cooldownMaximums);
+		reactivationTicks = normalizedTimers(reactivationTicks, powerIds.size());
 		rank = Objects.requireNonNull(rank, "rank");
+	}
+
+	private static List<Integer> normalizedTimers(List<Integer> timers, int slots) {
+		Objects.requireNonNull(timers, "timers");
+		List<Integer> normalized = new ArrayList<>(slots);
+		for (int slot = 0; slot < slots; slot++) {
+			Integer value = slot < timers.size() ? timers.get(slot) : null;
+			normalized.add(value == null ? 0 : Math.max(0, value));
+		}
+		return List.copyOf(normalized);
 	}
 
 	/** Convenience constructor keeps state assembly independent of the wire grouping. */
 	public PowerStatePayload(List<String> powerIds, List<String> activeToggles,
-			List<Integer> cooldownTicks, List<Integer> cooldownMaximums,
+			List<Integer> cooldownTicks, List<Integer> cooldownMaximums, List<Integer> reactivationTicks,
 			int energy, int energyCapacity, boolean canSeeDarkRealm, boolean darkness,
 			boolean projection, int elementalPhase, List<String> rankNodes, String rankFocus,
 			int rankDepth) {
-		this(powerIds, activeToggles, cooldownTicks, cooldownMaximums, energy, energyCapacity,
+		this(powerIds, activeToggles, cooldownTicks, cooldownMaximums, reactivationTicks, energy, energyCapacity,
 				canSeeDarkRealm, darkness, projection, elementalPhase,
 				new RankSnapshot(rankNodes, rankFocus, rankDepth));
 	}

@@ -43,4 +43,13 @@ class HudMathTest {
 		assertEquals(0xFF8C66FF, HudMath.elementalRuneColor(-1, 3, 0));
 		assertEquals(0xFFFF5A24, HudMath.elementalRuneColor(4, 4, 0));
 	}
+
+	@Test
+	void secondStepRunesAlternateCyanGoldAndExchangePulse() {
+		assertEquals(0xFFD7F8FF, HudMath.secondStepRuneColor(0, 0));
+		assertEquals(0xCCFFD166, HudMath.secondStepRuneColor(1, 0));
+		assertEquals(0xCCD7F8FF, HudMath.secondStepRuneColor(0, 4));
+		assertEquals(0xFFFFD166, HudMath.secondStepRuneColor(1, 4));
+		assertEquals(0xFFD7F8FF, HudMath.secondStepRuneColor(-2, -4));
+	}
 }

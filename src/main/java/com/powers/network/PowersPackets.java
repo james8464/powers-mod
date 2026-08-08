@@ -192,9 +192,12 @@ public final class PowersPackets {
 			}
 
 			// abilities can't be spammed: the client gets the remaining cooldown in seconds
-			if (!ActivationCooldowns.isReady(player, ability)) {
+			int remainingCooldown = ActivationCooldowns.remainingTicks(player, ability);
+			boolean mayReactivate = ability.mayReactivateDuringCooldown(
+					player, data, remainingCooldown);
+			if (ActivationCooldowns.blocks(remainingCooldown, mayReactivate)) {
 				PowerMessages.send(player, "ability.powers.cooldown", 4,
-						seconds(ActivationCooldowns.remainingTicks(player, ability)));
+						seconds(remainingCooldown));
 				return;
 			}
 			PreparedMagicCast magic = ServerMagicCasts.prepare(player,
@@ -335,6 +338,7 @@ public final class PowersPackets {
 		var rankProgress = data.rankProgress(darkness);
 		List<Integer> cooldowns = new ArrayList<>();
 		List<Integer> cooldownMaximums = new ArrayList<>();
+		List<Integer> reactivations = new ArrayList<>();
 		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
 			Power power = data.getPower(slot);
 			Ability ability = power == null ? null : power.ability();
@@ -342,12 +346,15 @@ public final class PowersPackets {
 					? 0 : ActivationCooldowns.remainingTicks(player, ability));
 			cooldownMaximums.add(ability == null || ability.isToggle()
 					? 0 : ability.cooldownTicksFor(player, data));
+			reactivations.add(ability == null || ability.isToggle()
+					? 0 : Math.max(0, ability.reactivationTicks(player, data)));
 		}
 		PowerStatePayload payload = new PowerStatePayload(
 				data.getSlotIds(),
 				data.getActiveToggles(),
 				cooldowns,
 				cooldownMaximums,
+				reactivations,
 				data.energy(),
 				data.energyCapacity(),
 				SkillSystem.canEnterDarkRealm(player),

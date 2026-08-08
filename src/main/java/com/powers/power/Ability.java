@@ -100,6 +100,20 @@ public abstract class Ability {
 		return PowerScalingService.cooldown(player, id.getPath(), cooldownTicks);
 	}
 
+	/**
+	 * Allows one server-owned ability state to pass an otherwise active cooldown.
+	 * Suppression, payment, execution, and cooldown restart still run normally.
+	 */
+	public boolean mayReactivateDuringCooldown(ServerPlayer player,
+			PlayerPowers.PlayerPowersData data, int remainingTicks) {
+		return false;
+	}
+
+	/** Returns the synchronized legal-reactivation window for this HUD slot. */
+	public int reactivationTicks(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		return 0;
+	}
+
 	/** Returns the single canonical rank profile for this ability's action. */
 	protected final ScaledMagicValues scaling(ServerPlayer player) {
 		return PowerScalingService.forPlayer(player, id.getPath());
