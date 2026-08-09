@@ -1,6 +1,7 @@
 package com.powers.power;
 
 import com.powers.power.abilities.AstralProjectionAbility;
+import com.powers.power.abilities.BreezyBashAbility;
 import com.powers.power.abilities.EnergyBeamAbility;
 import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.power.abilities.ForcefieldAbility;
@@ -32,6 +33,7 @@ public final class PowerAbilityRuntime {
 	/** Clears state that cannot follow a player entity across a respawn replacement. */
 	public static void afterRespawn(MinecraftServer server, UUID oldOwner) {
 		GravityDisplacementAbility.clear(server, oldOwner);
+		BreezyBashAbility.clear(server, oldOwner);
 		SpeedBurstAbility.clear(oldOwner);
 		EnergyBeamAbility.clear(oldOwner);
 		VoidBeamAbility.clear(oldOwner);
@@ -44,6 +46,7 @@ public final class PowerAbilityRuntime {
 		TimeFreezeToggleAbility.clear(owner);
 		ForcefieldAbility.clear(owner);
 		GravityDisplacementAbility.clear(server, owner);
+		BreezyBashAbility.clear(server, owner);
 		VesselPossessionAbility.clear(player);
 		AstralProjectionAbility.clear(owner);
 		DreamwalkingAbility.clear(player);
@@ -65,6 +68,7 @@ public final class PowerAbilityRuntime {
 		TimeFreezeToggleAbility.clearAll();
 		ForcefieldAbility.clearAll();
 		GravityDisplacementAbility.clearAll(server);
+		BreezyBashAbility.clearAll(server);
 		VesselPossessionAbility.clearAll();
 		AstralProjectionAbility.clearAll();
 		EnergyDrainAbility.clearAll();
@@ -92,6 +96,7 @@ public final class PowerAbilityRuntime {
 		EnergyBeamAbility.tickAll(server);
 		VoidBeamAbility.tickAll(server);
 		GravityDisplacementAbility.tickAll(server);
+		BreezyBashAbility.tickAll(server);
 		SpaceTimeAbility.tickAll(server);
 		DreamwalkingAbility.tickAll(server);
 	}
