@@ -27,6 +27,7 @@
 - Reforged Void Beam into a telegraphed penetrating abyssal ray with rank bores, seven semantic counters, impact-position magic residue, and bounded non-griefing void scars.
 - Rebuilt Gravity Displacement as a persistent ancient orrery with collision-safe body orbits, deterministic multi-field resonance, ward/amethyst/time counterplay, ranked collapse impacts, mastered projectile curvature, and complete lifecycle release.
 - Recast Energy Beam as a four-beat live-aim Sunfire channel with escalating scorch, water-to-steam transformation, ten semantic terminals, protected ranked flares, mastered non-chaining forks, and interruption-safe lifecycle ownership.
+- Rebuilt Breezy Bash as an owned two-stage Tempest Rite with bounded spherical capture, collision-safe launch, per-body slam revalidation, multi-gust arbitration, eight visual counters, safe interruption release, empowered pressure, and mastered projectile curvature.
 - Audited every production Java source and all 149 non-item assets; removed three stale, unreferenced HUD strips.
 - Replaced vanilla loot-table overrides with additive loot injection and removed unreleased crystal recipes.
 - Optimized hot-path scans, state syncs, scheduled tasks, particles, freeze ownership, storms, and body proxies.

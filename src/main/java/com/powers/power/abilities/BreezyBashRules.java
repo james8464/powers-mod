@@ -102,8 +102,15 @@ public final class BreezyBashRules {
 	public static boolean riteContinues(boolean ownerPresent, boolean sameDimension,
 			boolean ownerAlive, boolean ownerDampened, boolean ownerFrozen, boolean ownsPower,
 			long currentTick, long resolvesAt) {
-		return ownerPresent && sameDimension && ownerAlive && !ownerDampened && !ownerFrozen
-				&& ownsPower && currentTick < resolvesAt;
+		return ownerValid(ownerPresent, sameDimension, ownerAlive, ownerDampened,
+				ownerFrozen, ownsPower) && currentTick < resolvesAt;
+	}
+
+	/** Validates owner state independently at the exact resolution boundary. */
+	public static boolean ownerValid(boolean ownerPresent, boolean sameDimension,
+			boolean ownerAlive, boolean ownerDampened, boolean ownerFrozen, boolean ownsPower) {
+		return ownerPresent && sameDimension && ownerAlive && !ownerDampened
+				&& !ownerFrozen && ownsPower;
 	}
 
 	private static boolean finite(Vec3 vector) {
