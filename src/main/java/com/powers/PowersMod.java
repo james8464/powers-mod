@@ -14,27 +14,11 @@ import com.powers.progression.PowerScalingService;
 import com.powers.power.Ability;
 import com.powers.power.PassiveEffect;
 import com.powers.power.Power;
+import com.powers.power.PowerAbilityRuntime;
 import com.powers.power.PowerEnergy;
 import com.powers.power.PowerRegistry;
-import com.powers.power.abilities.SpeedBurstAbility;
-import com.powers.power.abilities.VoidBeamAbility;
-import com.powers.power.abilities.SlowWorldAbility;
-import com.powers.power.abilities.TeleportAbility;
-import com.powers.power.abilities.TimeFreezeToggleAbility;
-import com.powers.power.abilities.ForcefieldAbility;
-import com.powers.power.abilities.GravityDisplacementAbility;
-import com.powers.power.abilities.VesselPossessionAbility;
-import com.powers.power.abilities.AstralProjectionAbility;
-import com.powers.power.abilities.EnergyDrainAbility;
-import com.powers.power.crystals.SpaceTimeAbility;
-import com.powers.power.crystals.DreamwalkingAbility;
-import com.powers.power.crystals.ChronoStopAbility;
-import com.powers.power.crystals.InfernoAbility;
-import com.powers.power.crystals.SoulLinkAbility;
-import com.powers.power.crystals.SizeShiftAbility;
 import com.powers.power.AmethystDampening;
 import com.powers.power.state.PowerEntityState;
-import com.powers.power.state.EntityFreezeController;
 import com.powers.player.SkillSystem;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.util.PowerMessages;
@@ -119,9 +103,7 @@ public class PowersMod implements ModInitializer {
 		// to be rebuilt straight away instead of waiting for the next refresh
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
 			MagicRuntime.global().clearOwner(oldPlayer.getUUID());
-			GravityDisplacementAbility.clear(newPlayer.level().getServer(), oldPlayer.getUUID());
-			SpeedBurstAbility.clear(oldPlayer.getUUID());
-			VoidBeamAbility.clear(oldPlayer.getUUID());
+			PowerAbilityRuntime.afterRespawn(newPlayer.level().getServer(), oldPlayer.getUUID());
 			WAS_SLEEPING.remove(newPlayer.getUUID());
 			SkillSystem.clear(newPlayer.getUUID());
 			// dying inside a realm hands the player back to the overworld, so
@@ -142,25 +124,10 @@ public class PowersMod implements ModInitializer {
 			MagicRuntime.global().clearOwner(player.getUUID());
 			WAS_SLEEPING.remove(player.getUUID());
 			SkillSystem.clear(player.getUUID());
-			TeleportAbility.clearMarking(player);
-			TimeFreezeToggleAbility.clear(player.getUUID());
-			ForcefieldAbility.clear(player.getUUID());
-			GravityDisplacementAbility.clear(server, player.getUUID());
-			VesselPossessionAbility.clear(player);
-			AstralProjectionAbility.clear(player.getUUID());
-			DreamwalkingAbility.clear(player);
-			ChronoStopAbility.clear(player.getUUID());
-			InfernoAbility.clear(player.getUUID());
-			SoulLinkAbility.clear(player.getUUID());
-			SizeShiftAbility.clear(player.getUUID());
-			SlowWorldAbility.clear(player.getUUID());
-			SpeedBurstAbility.clear(player.getUUID());
-			VoidBeamAbility.clear(player.getUUID());
-			SpaceTimeAbility.clear(player.getUUID());
+			PowerAbilityRuntime.onDisconnect(server, player);
 			CrystalPowerRegistry.clearSelections(player.getUUID());
 			BodyProxyManager.returnToBody(player);
 			SpellCastingManager.clear(player);
-			EnergyDrainAbility.clear(player.getUUID());
 			AmethystDampening.forget(player);
 			PowersPackets.forget(player);
 		});
@@ -172,24 +139,7 @@ public class PowersMod implements ModInitializer {
 			SkillSystem.clearAll();
 			AmethystDampening.clearAll();
 			LivingForceManager.clearAll();
-			TeleportAbility.clearAllMarking();
-			TimeFreezeToggleAbility.clearAll();
-			ForcefieldAbility.clearAll();
-			GravityDisplacementAbility.clearAll(server);
-			VesselPossessionAbility.clearAll();
-			AstralProjectionAbility.clearAll();
-			EnergyDrainAbility.clearAll();
-			SpaceTimeAbility.clearAll();
-			CrystalPowerRegistry.clearAllSelections();
-			EntityFreezeController.clearAll();
-			DreamwalkingAbility.clearAll(server);
-			ChronoStopAbility.clearAll();
-			InfernoAbility.clearAll();
-			SoulLinkAbility.clearAll();
-			SizeShiftAbility.clearAll();
-			SlowWorldAbility.clearAll();
-			SpeedBurstAbility.clearAll();
-			VoidBeamAbility.clearAll();
+			PowerAbilityRuntime.onServerStopped(server);
 			SpellCastingManager.clearAll();
 			SpellFieldManager.clearAll();
 			RealmMindscapeManager.clearAll();
@@ -242,7 +192,7 @@ public class PowersMod implements ModInitializer {
 				}
 			}
 			if (tick % 5 == 0) {
-				ForcefieldAbility.tickAll(server);
+				PowerAbilityRuntime.tickFrequent(server);
 				for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 					if (tick % 20 == 0) AmethystDampening.update(player);
 					drainExhaustionEnergy(player);
@@ -255,22 +205,14 @@ public class PowersMod implements ModInitializer {
 					drainToggleEnergy(player);
 				}
 			}
-			SlowWorldAbility.tickAll(server);
-			VesselPossessionAbility.tickAll(server);
-			AstralProjectionAbility.tickAll(server);
-			EnergyDrainAbility.tickAll(server);
-			SpeedBurstAbility.tickAll(server);
-			VoidBeamAbility.tickAll(server);
-			GravityDisplacementAbility.tickAll(server);
-			SpaceTimeAbility.tickAll(server);
-			DreamwalkingAbility.tickAll(server);
+			PowerAbilityRuntime.tick(server);
 			CrystalPowerRegistry.tick(server);
 			BodyProxyManager.tickAll();
 			SpellCastingManager.tick(server);
 			SpellFieldManager.tick(server);
 			RealmMindscapeManager.tick(server);
 			LivingForceManager.tick(server);
-			TeleportAbility.tickMarking();
+			PowerAbilityRuntime.tickTeleportMarking();
 			ServerMagicScheduler.tick(tick);
 		});
 
@@ -332,8 +274,7 @@ public class PowersMod implements ModInitializer {
 	 * "previous" mode, and stay stuck in it for good.
 	 */
 	private static void enforceRealmGamemode(ServerPlayer player) {
-		if (TeleportAbility.MARKING.containsKey(player.getUUID())
-				|| AstralProjectionAbility.isActive(player.getUUID())) return;
+		if (PowerAbilityRuntime.usesDetachedBody(player.getUUID())) return;
 		String dim = player.level().dimension().identifier().getPath();
 		boolean inRealm = dim.equals("dark_realm") || dim.equals("light_realm") || dim.equals("middleworld");
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);

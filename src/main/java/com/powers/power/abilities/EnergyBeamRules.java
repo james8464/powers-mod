@@ -34,7 +34,8 @@ public final class EnergyBeamRules {
 		KINETIC_WARD,
 		SANCTUARY,
 		FORCEFIELD,
-		SAFE_ZONE
+		SAFE_ZONE,
+		RESISTED
 	}
 
 	/** A finite candidate terminal measured from the beam origin. */
