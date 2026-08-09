@@ -9,6 +9,7 @@ import com.powers.power.abilities.FireballAbility;
 import com.powers.power.abilities.GravityDisplacementAbility;
 import com.powers.power.abilities.SlowWorldAbility;
 import com.powers.power.abilities.SpeedBurstAbility;
+import com.powers.power.abilities.StarfallAbility;
 import com.powers.power.abilities.SuperSpeedAbility;
 import com.powers.power.abilities.TeleportAbility;
 import com.powers.power.abilities.TimeFreezeToggleAbility;
@@ -37,6 +38,7 @@ public final class PowerAbilityRuntime {
 		GravityDisplacementAbility.clear(server, oldOwner);
 		BreezyBashAbility.clear(server, oldOwner);
 		FireballAbility.clear(server, oldOwner);
+		StarfallAbility.clear(server, oldOwner);
 		SuperSpeedAbility.clear(server, oldOwner);
 		SpeedBurstAbility.clear(oldOwner);
 		EnergyBeamAbility.clear(oldOwner);
@@ -52,6 +54,7 @@ public final class PowerAbilityRuntime {
 		GravityDisplacementAbility.clear(server, owner);
 		BreezyBashAbility.clear(server, owner);
 		FireballAbility.clear(server, owner);
+		StarfallAbility.clear(server, owner);
 		SuperSpeedAbility.clear(server, owner);
 		VesselPossessionAbility.clear(player);
 		AstralProjectionAbility.clear(owner);
@@ -76,6 +79,7 @@ public final class PowerAbilityRuntime {
 		GravityDisplacementAbility.clearAll(server);
 		BreezyBashAbility.clearAll(server);
 		FireballAbility.clearAll(server);
+		StarfallAbility.clearAll(server);
 		SuperSpeedAbility.clearAll(server);
 		VesselPossessionAbility.clearAll();
 		AstralProjectionAbility.clearAll();
@@ -106,6 +110,7 @@ public final class PowerAbilityRuntime {
 		GravityDisplacementAbility.tickAll(server);
 		BreezyBashAbility.tickAll(server);
 		FireballAbility.tickAll(server);
+		StarfallAbility.tickAll(server);
 		SuperSpeedAbility.tickAll(server);
 		SpaceTimeAbility.tickAll(server);
 		DreamwalkingAbility.tickAll(server);
