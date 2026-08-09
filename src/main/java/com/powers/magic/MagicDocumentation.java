@@ -77,6 +77,8 @@ public final class MagicDocumentation {
 				| Purification × hostile/darkness | Hostile residue is unmade while unrelated effects remain owned by their source. | Cleansing rain. |
 				| Soul Link × Purification | The owned soul tether is severed symmetrically. | Purifying severance. |
 				| Clone Swarm × Banishment | Only POWERS-owned ephemeral clones return; natural entities are untouched. | Return seal. |
+				| Gravity orrery × protected body | Consent/safe zones, amethyst, soul-anchored projection bodies, personal forcefields, Sanctuary/Kinetic Ward, and time locks resist capture without consuming or moving the target. | Privacy-blue boundary, amethyst fracture, soul tether, cyan shield, green-gold seal, or pale time fracture. |
+				| Gravity orrery × gravity orrery | Each shared body belongs to the nearer field after a hysteresis margin; ownership hands off once with no competing velocity writes. | Violet-cyan twin tether and resonance fracture. |
 				| Shared aspect | Potency, range, and duration resonate within fixed multipliers. | Aspect-specific harmonic resonance. |
 				| Defence × harm | Ward integrity and hostile potency contest rather than granting invulnerability. | Ward clash. |
 				| Harm × harm | Impacts intensify slightly while duration destabilizes. | Violent interference. |

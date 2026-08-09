@@ -51,6 +51,20 @@ public final class EntityFreezeController {
 		return OWNERS.isClaimed(entity.getUUID());
 	}
 
+	/**
+	 * Replaces a frozen entity's eventual release velocity with rest. This lets a
+	 * movement field relinquish ownership without a time power later restoring
+	 * stale launch momentum captured on the preceding tick.
+	 */
+	public static boolean neutralizeReleaseMotion(Entity entity) {
+		if (entity == null) return false;
+		Frozen frozen = SAVED.get(entity.getUUID());
+		if (frozen == null) return false;
+		SAVED.put(entity.getUUID(), new Frozen(frozen.entity(), frozen.position(), Vec3.ZERO,
+				frozen.noGravity(), frozen.noAi(), 0.0));
+		return true;
+	}
+
 	public static void clearAll() {
 		for (Frozen frozen : SAVED.values()) restore(frozen);
 		SAVED.clear();

@@ -4,6 +4,7 @@ import net.minecraft.world.phys.Vec3;
 import org.junit.jupiter.api.Test;
 
 import static com.powers.power.abilities.GravityDisplacementRules.CaptureDecision.AMETHYST;
+import static com.powers.power.abilities.GravityDisplacementRules.CaptureDecision.BODY_ANCHOR;
 import static com.powers.power.abilities.GravityDisplacementRules.CaptureDecision.CAPTURE;
 import static com.powers.power.abilities.GravityDisplacementRules.CaptureDecision.FORCEFIELD;
 import static com.powers.power.abilities.GravityDisplacementRules.CaptureDecision.PROTECTED;
@@ -19,17 +20,19 @@ class GravityDisplacementRulesTest {
 	@Test
 	void captureCounterplayHasStablePrivacyFirstPriority() {
 		assertEquals(PROTECTED, GravityDisplacementRules.captureDecision(
-				false, true, true, true, true));
+				false, true, true, true, true, true));
 		assertEquals(AMETHYST, GravityDisplacementRules.captureDecision(
-				true, true, true, true, true));
+				true, true, true, true, true, true));
+		assertEquals(BODY_ANCHOR, GravityDisplacementRules.captureDecision(
+				true, false, true, true, true, true));
 		assertEquals(FORCEFIELD, GravityDisplacementRules.captureDecision(
-				true, false, true, true, true));
+				true, false, false, true, true, true));
 		assertEquals(SPELL_WARD, GravityDisplacementRules.captureDecision(
-				true, false, false, true, true));
+				true, false, false, false, true, true));
 		assertEquals(TIME_LOCK, GravityDisplacementRules.captureDecision(
-				true, false, false, false, true));
+				true, false, false, false, false, true));
 		assertEquals(CAPTURE, GravityDisplacementRules.captureDecision(
-				true, false, false, false, false));
+				true, false, false, false, false, false));
 	}
 
 	@Test
@@ -94,6 +97,15 @@ class GravityDisplacementRulesTest {
 		assertNotEquals(new Vec3(0.0, 0.0, 2.0), bent);
 		assertEquals(Vec3.ZERO, GravityDisplacementRules.bendProjectile(
 				Vec3.ZERO, new Vec3(Double.POSITIVE_INFINITY, 0.0, 0.0), Vec3.ZERO, 0.22, 2.0));
+	}
+
+	@Test
+	void nearestOrreryWinsSharedTargetOnlyBeyondHysteresis() {
+		assertTrue(GravityDisplacementRules.claimWinner(8.0, 9.0, 0.25));
+		assertFalse(GravityDisplacementRules.claimWinner(8.8, 9.0, 0.25));
+		assertFalse(GravityDisplacementRules.claimWinner(10.0, 9.0, 0.25));
+		assertFalse(GravityDisplacementRules.claimWinner(Double.NaN, 9.0, 0.25));
+		assertFalse(GravityDisplacementRules.claimWinner(8.0, -1.0, 0.25));
 	}
 
 	@Test

@@ -15,9 +15,11 @@ public final class GravityDisplacementRules {
 		CAPTURE,
 		PROTECTED,
 		AMETHYST,
+		BODY_ANCHOR,
 		FORCEFIELD,
 		SPELL_WARD,
-		TIME_LOCK
+		TIME_LOCK,
+		GRAVITY_RESONANCE
 	}
 
 	private GravityDisplacementRules() {
@@ -25,9 +27,10 @@ public final class GravityDisplacementRules {
 
 	/** Resolves counterplay in privacy-first order before any motion is applied. */
 	public static CaptureDecision captureDecision(boolean movementAllowed, boolean amethystDampened,
-			boolean forcefield, boolean spellWard, boolean frozen) {
+			boolean anchoredBody, boolean forcefield, boolean spellWard, boolean frozen) {
 		if (!movementAllowed) return CaptureDecision.PROTECTED;
 		if (amethystDampened) return CaptureDecision.AMETHYST;
+		if (anchoredBody) return CaptureDecision.BODY_ANCHOR;
 		if (forcefield) return CaptureDecision.FORCEFIELD;
 		if (spellWard) return CaptureDecision.SPELL_WARD;
 		if (frozen) return CaptureDecision.TIME_LOCK;
@@ -45,6 +48,15 @@ public final class GravityDisplacementRules {
 	/** Ancient Mastery alone bends projectiles, under a fixed per-pulse cap. */
 	public static int projectileLimit(boolean ancientMastery) {
 		return ancientMastery ? ANCIENT_PROJECTILE_LIMIT : 0;
+	}
+
+	/** A nearer field may take a shared target only after crossing a hysteresis margin. */
+	public static boolean claimWinner(double candidateDistanceSquared,
+			double currentDistanceSquared, double hysteresisSquared) {
+		return Double.isFinite(candidateDistanceSquared) && candidateDistanceSquared >= 0.0
+				&& Double.isFinite(currentDistanceSquared) && currentDistanceSquared >= 0.0
+				&& Double.isFinite(hysteresisSquared) && hysteresisSquared >= 0.0
+				&& candidateDistanceSquared + hysteresisSquared < currentDistanceSquared;
 	}
 
 	/** Generates a deterministic, rotating orbit point within the authored field. */

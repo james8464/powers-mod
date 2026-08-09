@@ -69,6 +69,18 @@ public final class SpellFieldManager {
 		return false;
 	}
 
+	/** Returns whether another caster's Sanctuary or Kinetic Ward grounds forced movement here. */
+	public static boolean blocksForcedMovement(ServerLevel level, LivingEntity entity, UUID caster) {
+		if (level == null || entity == null || caster == null) return false;
+		for (Field field : FIELDS) {
+			if (field.expiresAt() <= level.getGameTime() || field.owner().equals(caster)
+					|| !field.dimension().equals(level.dimension())) continue;
+			if ((field.kind() == SpellFieldKind.SANCTUARY || field.kind() == SpellFieldKind.KINETIC_WARD)
+					&& within(field, entity.position())) return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Finds the nearest non-owner Sanctuary or Kinetic Ward crossed by a beam.
 	 * Expired fields are ignored immediately even if the periodic tick has not
