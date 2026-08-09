@@ -8,6 +8,7 @@ import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.abilities.GravityDisplacementAbility;
 import com.powers.power.abilities.SlowWorldAbility;
 import com.powers.power.abilities.SpeedBurstAbility;
+import com.powers.power.abilities.SuperSpeedAbility;
 import com.powers.power.abilities.TeleportAbility;
 import com.powers.power.abilities.TimeFreezeToggleAbility;
 import com.powers.power.abilities.VesselPossessionAbility;
@@ -34,6 +35,7 @@ public final class PowerAbilityRuntime {
 	public static void afterRespawn(MinecraftServer server, UUID oldOwner) {
 		GravityDisplacementAbility.clear(server, oldOwner);
 		BreezyBashAbility.clear(server, oldOwner);
+		SuperSpeedAbility.clear(server, oldOwner);
 		SpeedBurstAbility.clear(oldOwner);
 		EnergyBeamAbility.clear(oldOwner);
 		VoidBeamAbility.clear(oldOwner);
@@ -47,6 +49,7 @@ public final class PowerAbilityRuntime {
 		ForcefieldAbility.clear(owner);
 		GravityDisplacementAbility.clear(server, owner);
 		BreezyBashAbility.clear(server, owner);
+		SuperSpeedAbility.clear(server, owner);
 		VesselPossessionAbility.clear(player);
 		AstralProjectionAbility.clear(owner);
 		DreamwalkingAbility.clear(player);
@@ -69,6 +72,7 @@ public final class PowerAbilityRuntime {
 		ForcefieldAbility.clearAll();
 		GravityDisplacementAbility.clearAll(server);
 		BreezyBashAbility.clearAll(server);
+		SuperSpeedAbility.clearAll(server);
 		VesselPossessionAbility.clearAll();
 		AstralProjectionAbility.clearAll();
 		EnergyDrainAbility.clearAll();
@@ -97,6 +101,7 @@ public final class PowerAbilityRuntime {
 		VoidBeamAbility.tickAll(server);
 		GravityDisplacementAbility.tickAll(server);
 		BreezyBashAbility.tickAll(server);
+		SuperSpeedAbility.tickAll(server);
 		SpaceTimeAbility.tickAll(server);
 		DreamwalkingAbility.tickAll(server);
 	}

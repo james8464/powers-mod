@@ -14,6 +14,18 @@ public final class SuperSpeedRules {
 	private SuperSpeedRules() {
 	}
 
+	/** Exhaustive result of an Empowered Impact movement attempt. */
+	public enum PressureDecision {
+		MOVE,
+		PROTECTED,
+		AMETHYST,
+		BODY_ANCHOR,
+		FORCEFIELD,
+		SPELL_WARD,
+		TIME_LOCK,
+		OBSTRUCTED
+	}
+
 	/** Returns an exclusive, overflow-safe number of ticks remaining. */
 	public static int remainingTicks(long startedAt, long expiresAt, long currentTick) {
 		if (expiresAt <= startedAt || currentTick >= expiresAt) return 0;
@@ -64,6 +76,19 @@ public final class SuperSpeedRules {
 		if (horizontal.lengthSqr() <= MIN_LENGTH_SQUARED) return Vec3.ZERO;
 		horizontal = horizontal.normalize().scale(horizontalStrength);
 		return new Vec3(horizontal.x, verticalStrength, horizontal.z);
+	}
+
+	/** Classifies pressure counterplay in a deterministic, player-readable order. */
+	public static PressureDecision pressureDecision(boolean movementAllowed,
+			boolean dampened, boolean bodyAnchor, boolean forcefield,
+			boolean spellWard, boolean timeLocked, boolean clearPath) {
+		if (!movementAllowed) return PressureDecision.PROTECTED;
+		if (dampened) return PressureDecision.AMETHYST;
+		if (bodyAnchor) return PressureDecision.BODY_ANCHOR;
+		if (forcefield) return PressureDecision.FORCEFIELD;
+		if (spellWard) return PressureDecision.SPELL_WARD;
+		if (timeLocked) return PressureDecision.TIME_LOCK;
+		return clearPath ? PressureDecision.MOVE : PressureDecision.OBSTRUCTED;
 	}
 
 	/** Curves one hostile projectile away without reflection or ownership transfer. */

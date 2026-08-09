@@ -7,16 +7,16 @@
 
 ## Task 2: Owned runtime
 
-- [ ] Replace potion-owned speed/jump state with a stable transient movement modifier and server-owned duration.
-- [ ] Add wake tracking, environmental grounding, collision response, rank mechanics, counterplay, and exact cleanup.
-- [ ] Wire respawn, disconnect, stop, and tick ownership through `PowerAbilityRuntime`.
+- [x] Replace potion-owned speed/jump state with a stable transient movement modifier and server-owned duration.
+- [x] Add wake tracking, environmental grounding, collision response, rank mechanics, counterplay, and exact cleanup.
+- [x] Wire respawn, disconnect, stop, and tick ownership through `PowerAbilityRuntime`.
 
 ## Task 3: Presentation and evidence
 
-- [ ] Add dedicated opening, wake, water, collision, rebound, pressure, veil, projectile, interruption, and completion choreography.
-- [ ] Update lore, descriptions, README/changelog, bespoke interactions, and generated audits.
+- [x] Add dedicated opening, wake, water, collision, rebound, pressure, veil, projectile, interruption, and completion choreography.
+- [x] Update lore, descriptions, README/changelog, bespoke interactions, and generated audits.
 
 ## Task 4: Release verification
 
-- [ ] Run focused/full tests, generated checks, Java 25 clean build, and six-dimension dedicated-server smoke.
-- [ ] Review, commit to `main`, and leave the worktree clean.
+- [x] Run focused/full tests, generated checks, Java 25 clean build, and six-dimension dedicated-server smoke.
+- [x] Review, commit to `main`, and leave the worktree clean.

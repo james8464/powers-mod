@@ -61,6 +61,34 @@ class SuperSpeedRulesTest {
 	}
 
 	@Test
+	void pressureCounterplayUsesAStablePriority() {
+		assertEquals(SuperSpeedRules.PressureDecision.MOVE,
+				SuperSpeedRules.pressureDecision(true, false, false,
+						false, false, false, true));
+		assertEquals(SuperSpeedRules.PressureDecision.PROTECTED,
+				SuperSpeedRules.pressureDecision(false, true, true,
+						true, true, true, false));
+		assertEquals(SuperSpeedRules.PressureDecision.AMETHYST,
+				SuperSpeedRules.pressureDecision(true, true, true,
+						true, true, true, false));
+		assertEquals(SuperSpeedRules.PressureDecision.BODY_ANCHOR,
+				SuperSpeedRules.pressureDecision(true, false, true,
+						true, true, true, false));
+		assertEquals(SuperSpeedRules.PressureDecision.FORCEFIELD,
+				SuperSpeedRules.pressureDecision(true, false, false,
+						true, true, true, false));
+		assertEquals(SuperSpeedRules.PressureDecision.SPELL_WARD,
+				SuperSpeedRules.pressureDecision(true, false, false,
+						false, true, true, false));
+		assertEquals(SuperSpeedRules.PressureDecision.TIME_LOCK,
+				SuperSpeedRules.pressureDecision(true, false, false,
+						false, false, true, false));
+		assertEquals(SuperSpeedRules.PressureDecision.OBSTRUCTED,
+				SuperSpeedRules.pressureDecision(true, false, false,
+						false, false, false, false));
+	}
+
+	@Test
 	void rankWorkAndLifecycleHaveHardCaps() {
 		assertEquals(8, SuperSpeedRules.pressureTargetLimit(true));
 		assertEquals(0, SuperSpeedRules.pressureTargetLimit(false));
