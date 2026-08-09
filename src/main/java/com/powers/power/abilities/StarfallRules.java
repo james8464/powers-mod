@@ -33,6 +33,7 @@ public final class StarfallRules {
 		DARKNESS,
 		WATER,
 		PURE_LIGHT,
+		ROOF,
 		FORCEFIELD,
 		TIME_LOCK,
 		BODY_ANCHOR,
@@ -104,7 +105,7 @@ public final class StarfallRules {
 	/** Resolves environment counterplay in stable protection-first order. */
 	public static Counterplay impactDecision(boolean owned, boolean loaded,
 			boolean safeZone, boolean amethyst, boolean sanctuary, boolean kineticWard,
-			boolean darkness, boolean water, boolean pureLight) {
+			boolean darkness, boolean water, boolean pureLight, boolean roof) {
 		if (!owned) return Counterplay.UNOWNED;
 		if (!loaded) return Counterplay.UNLOADED;
 		if (safeZone) return Counterplay.SAFE_ZONE;
@@ -114,6 +115,7 @@ public final class StarfallRules {
 		if (darkness) return Counterplay.DARKNESS;
 		if (water) return Counterplay.WATER;
 		if (pureLight) return Counterplay.PURE_LIGHT;
+		if (roof) return Counterplay.ROOF;
 		return Counterplay.STRIKE;
 	}
 
@@ -140,6 +142,11 @@ public final class StarfallRules {
 		return ancientMastery ? 18 : 12;
 	}
 
+	/** Wardcraft diverts at most sixteen hostile projectiles per storm. */
+	public static int projectileLimit(boolean reflectiveWard) {
+		return reflectiveWard ? 16 : 0;
+	}
+
 	/** Prevents rapid repeats and caps total hits from one convergence. */
 	public static boolean hitAllowed(long now, long lastHit, int priorHits,
 			boolean ancientMastery) {
@@ -150,6 +157,11 @@ public final class StarfallRules {
 	/** Communion mirrors every third regular strike and never the crown. */
 	public static boolean echoAllowed(boolean soulEcho, int regularIndex) {
 		return soulEcho && regularIndex >= 0 && (regularIndex + 1) % 3 == 0;
+	}
+
+	/** Communion echoes retain less than half the authored regular-strike damage. */
+	public static double echoDamageMultiplier() {
+		return 0.45;
 	}
 
 	/** Returns the impact radius after Might, crown, and water transformation. */
@@ -185,6 +197,35 @@ public final class StarfallRules {
 		}
 		horizontal = horizontal.normalize().scale(horizontalStrength);
 		return new Vec3(horizontal.x, verticalStrength, horizontal.z);
+	}
+
+	/** Resolves pressure protection before any entity velocity is changed. */
+	public static Counterplay pressureDecision(boolean movementAllowed, boolean amethyst,
+			boolean bodyAnchor, boolean forcefield, boolean spellWard,
+			boolean frozen, boolean clearPath) {
+		if (!movementAllowed) return Counterplay.SAFE_ZONE;
+		if (amethyst) return Counterplay.AMETHYST;
+		if (bodyAnchor) return Counterplay.BODY_ANCHOR;
+		if (forcefield) return Counterplay.FORCEFIELD;
+		if (spellWard) return Counterplay.KINETIC_WARD;
+		if (frozen) return Counterplay.TIME_LOCK;
+		if (!clearPath) return Counterplay.ROOF;
+		return Counterplay.STRIKE;
+	}
+
+	/** Curves a hostile projectile outward without reflection or ownership transfer. */
+	public static Vec3 divertProjectile(Vec3 position, Vec3 velocity, Vec3 center,
+			double outwardStrength, double maximumSpeed) {
+		if (!finite(position) || !finite(velocity) || !finite(center)
+				|| !Double.isFinite(outwardStrength) || outwardStrength <= 0.0
+				|| !Double.isFinite(maximumSpeed) || maximumSpeed <= 0.0) return Vec3.ZERO;
+		Vec3 radial = new Vec3(position.x - center.x, 0.0, position.z - center.z);
+		if (radial.lengthSqr() <= MIN_LENGTH_SQUARED) return Vec3.ZERO;
+		Vec3 result = velocity.scale(0.78).add(radial.normalize().scale(outwardStrength));
+		double lengthSquared = result.lengthSqr();
+		if (!Double.isFinite(lengthSquared) || lengthSquared <= MIN_LENGTH_SQUARED) return Vec3.ZERO;
+		if (lengthSquared <= maximumSpeed * maximumSpeed) return result;
+		return result.scale(maximumSpeed / Math.sqrt(lengthSquared));
 	}
 
 	/** Keeps a storm live only while every owner, power, and deadline invariant holds. */

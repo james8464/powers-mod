@@ -10,6 +10,7 @@ import static com.powers.power.abilities.StarfallRules.Counterplay.AMETHYST;
 import static com.powers.power.abilities.StarfallRules.Counterplay.DARKNESS;
 import static com.powers.power.abilities.StarfallRules.Counterplay.KINETIC_WARD;
 import static com.powers.power.abilities.StarfallRules.Counterplay.PURE_LIGHT;
+import static com.powers.power.abilities.StarfallRules.Counterplay.ROOF;
 import static com.powers.power.abilities.StarfallRules.Counterplay.SAFE_ZONE;
 import static com.powers.power.abilities.StarfallRules.Counterplay.SANCTUARY;
 import static com.powers.power.abilities.StarfallRules.Counterplay.STRIKE;
@@ -72,16 +73,17 @@ class StarfallRulesTest {
 
 	@Test
 	void impactCounterplayUsesStableProtectionFirstPriority() {
-		assertEquals(UNOWNED, decision(false, false, true, true, true, true, true, true, true));
-		assertEquals(UNLOADED, decision(true, false, true, true, true, true, true, true, true));
-		assertEquals(SAFE_ZONE, decision(true, true, true, true, true, true, true, true, true));
-		assertEquals(AMETHYST, decision(true, true, false, true, true, true, true, true, true));
-		assertEquals(SANCTUARY, decision(true, true, false, false, true, true, true, true, true));
-		assertEquals(KINETIC_WARD, decision(true, true, false, false, false, true, true, true, true));
-		assertEquals(DARKNESS, decision(true, true, false, false, false, false, true, true, true));
-		assertEquals(WATER, decision(true, true, false, false, false, false, false, true, true));
-		assertEquals(PURE_LIGHT, decision(true, true, false, false, false, false, false, false, true));
-		assertEquals(STRIKE, decision(true, true, false, false, false, false, false, false, false));
+		assertEquals(UNOWNED, decision(false, false, true, true, true, true, true, true, true, true));
+		assertEquals(UNLOADED, decision(true, false, true, true, true, true, true, true, true, true));
+		assertEquals(SAFE_ZONE, decision(true, true, true, true, true, true, true, true, true, true));
+		assertEquals(AMETHYST, decision(true, true, false, true, true, true, true, true, true, true));
+		assertEquals(SANCTUARY, decision(true, true, false, false, true, true, true, true, true, true));
+		assertEquals(KINETIC_WARD, decision(true, true, false, false, false, true, true, true, true, true));
+		assertEquals(DARKNESS, decision(true, true, false, false, false, false, true, true, true, true));
+		assertEquals(WATER, decision(true, true, false, false, false, false, false, true, true, true));
+		assertEquals(PURE_LIGHT, decision(true, true, false, false, false, false, false, false, true, true));
+		assertEquals(ROOF, decision(true, true, false, false, false, false, false, false, false, true));
+		assertEquals(STRIKE, decision(true, true, false, false, false, false, false, false, false, false));
 	}
 
 	@Test
@@ -108,6 +110,7 @@ class StarfallRulesTest {
 		assertTrue(StarfallRules.echoAllowed(true, 2));
 		assertFalse(StarfallRules.echoAllowed(true, 1));
 		assertFalse(StarfallRules.echoAllowed(false, 2));
+		assertEquals(0.45, StarfallRules.echoDamageMultiplier(), 0.0001);
 		assertEquals(2.6, StarfallRules.impactRadius(false, false, STRIKE), 0.0001);
 		assertEquals(3.35, StarfallRules.impactRadius(true, false, STRIKE), 0.0001);
 		assertEquals(5.0, StarfallRules.impactRadius(false, true, STRIKE), 0.0001);
@@ -156,10 +159,47 @@ class StarfallRulesTest {
 				true, true, true, false, false, true, 78L, 78L));
 	}
 
+	@Test
+	void shockPressureCountersResolveBeforeAnyVelocityWrite() {
+		assertEquals(SAFE_ZONE, StarfallRules.pressureDecision(
+				false, true, true, true, true, true, false));
+		assertEquals(AMETHYST, StarfallRules.pressureDecision(
+				true, true, true, true, true, true, false));
+		assertEquals(StarfallRules.Counterplay.BODY_ANCHOR, StarfallRules.pressureDecision(
+				true, false, true, true, true, true, false));
+		assertEquals(StarfallRules.Counterplay.FORCEFIELD, StarfallRules.pressureDecision(
+				true, false, false, true, true, true, false));
+		assertEquals(KINETIC_WARD, StarfallRules.pressureDecision(
+				true, false, false, false, true, true, false));
+		assertEquals(StarfallRules.Counterplay.TIME_LOCK, StarfallRules.pressureDecision(
+				true, false, false, false, false, true, false));
+		assertEquals(ROOF, StarfallRules.pressureDecision(
+				true, false, false, false, false, false, false));
+		assertEquals(STRIKE, StarfallRules.pressureDecision(
+				true, false, false, false, false, false, true));
+	}
+
+	@Test
+	void wardcraftDiversionIsFiniteAndDoesNotTransferOwnership() {
+		assertEquals(0, StarfallRules.projectileLimit(false));
+		assertEquals(16, StarfallRules.projectileLimit(true));
+		Vec3 diverted = StarfallRules.divertProjectile(
+				new Vec3(3.0, 1.0, 4.0), new Vec3(-1.0, 0.0, 0.0),
+				Vec3.ZERO, 0.55, 2.0);
+		assertTrue(diverted.x > -1.0);
+		assertTrue(diverted.z > 0.0);
+		assertTrue(diverted.length() <= 2.000001);
+		assertEquals(Vec3.ZERO, StarfallRules.divertProjectile(
+				Vec3.ZERO, Vec3.ZERO, Vec3.ZERO, 0.55, 2.0));
+		assertEquals(Vec3.ZERO, StarfallRules.divertProjectile(
+				Vec3.ZERO, new Vec3(Double.NaN, 0.0, 0.0),
+				Vec3.ZERO, 0.55, 2.0));
+	}
+
 	private static StarfallRules.Counterplay decision(boolean owned, boolean loaded,
 			boolean safeZone, boolean amethyst, boolean sanctuary, boolean kineticWard,
-			boolean darkness, boolean water, boolean pureLight) {
+			boolean darkness, boolean water, boolean pureLight, boolean roof) {
 		return StarfallRules.impactDecision(owned, loaded, safeZone, amethyst,
-				sanctuary, kineticWard, darkness, water, pureLight);
+				sanctuary, kineticWard, darkness, water, pureLight, roof);
 	}
 }
