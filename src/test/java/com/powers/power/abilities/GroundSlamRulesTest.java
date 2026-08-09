@@ -50,6 +50,8 @@ class GroundSlamRulesTest {
 		assertEquals(0, GroundSlamRules.terrainLimit(true, false, true));
 		assertEquals(8, GroundSlamRules.terrainLimit(true, true, false));
 		assertEquals(16, GroundSlamRules.terrainLimit(true, true, true));
+		assertEquals(0, GroundSlamRules.afterimageTargetLimit(false));
+		assertEquals(8, GroundSlamRules.afterimageTargetLimit(true));
 	}
 
 	@Test
@@ -77,6 +79,9 @@ class GroundSlamRulesTest {
 		assertEquals(0.65, GroundSlamRules.damageMultiplier(PRIMARY, false, true, WATER), 0.0001);
 		assertEquals(0.75, GroundSlamRules.damageMultiplier(PRIMARY, false, true, DARKNESS), 0.0001);
 		assertEquals(1.10, GroundSlamRules.damageMultiplier(PRIMARY, false, true, PURE_LIGHT), 0.0001);
+		assertEquals(WATER, GroundSlamRules.targetMedium(IMPACT, true));
+		assertEquals(DARKNESS, GroundSlamRules.targetMedium(DARKNESS, true));
+		assertEquals(IMPACT, GroundSlamRules.targetMedium(IMPACT, false));
 		assertEquals(1.0, GroundSlamRules.falloff(0.0, 5.0), 0.0001);
 		assertEquals(0.475, GroundSlamRules.falloff(2.5, 5.0), 0.0001);
 		assertEquals(0.0, GroundSlamRules.falloff(5.0, 5.0), 0.0001);
@@ -84,6 +89,18 @@ class GroundSlamRulesTest {
 
 	@Test
 	void pressureCountersResolveBeforeVelocityWrites() {
+		assertEquals(SAFE_ZONE, GroundSlamRules.bodyDecision(
+				false, true, true, true, true));
+		assertEquals(AMETHYST, GroundSlamRules.bodyDecision(
+				true, true, true, true, true));
+		assertEquals(GroundSlamRules.Counterplay.SANCTUARY, GroundSlamRules.bodyDecision(
+				true, false, true, true, true));
+		assertEquals(GroundSlamRules.Counterplay.KINETIC_WARD, GroundSlamRules.bodyDecision(
+				true, false, false, true, true));
+		assertEquals(GroundSlamRules.Counterplay.FORCEFIELD, GroundSlamRules.bodyDecision(
+				true, false, false, false, true));
+		assertEquals(IMPACT, GroundSlamRules.bodyDecision(
+				true, false, false, false, false));
 		assertEquals(GroundSlamRules.Counterplay.PROTECTED, GroundSlamRules.pressureDecision(
 				false, true, true, true, true, true, false));
 		assertEquals(AMETHYST, GroundSlamRules.pressureDecision(
@@ -114,6 +131,14 @@ class GroundSlamRulesTest {
 				Vec3.ZERO, new Vec3(3.0, 0.0, 4.0), 1.0, 0.28));
 		assertEquals(Vec3.ZERO, GroundSlamRules.pressureImpulse(
 				Vec3.ZERO, Vec3.ZERO, -1.0, 0.28));
+		assertEquals(new Vec3(2.75, 0.0, 0.0), GroundSlamRules.echoCenter(
+				Vec3.ZERO, new Vec3(8.0, 3.0, 0.0), 5.0));
+		assertEquals(Vec3.ZERO, GroundSlamRules.echoCenter(
+				new Vec3(Double.NaN, 0.0, 0.0), Vec3.ZERO, 5.0));
+		assertEquals(1.2, GroundSlamRules.pressureMultiplier(
+				PRIMARY, true, true, IMPACT), 0.0001);
+		assertEquals(0.5, GroundSlamRules.pressureMultiplier(
+				PRIMARY, false, true, WATER), 0.0001);
 		Set<Vec3> offsets = new HashSet<>();
 		for (int index = 0; index < 16; index++) {
 			Vec3 offset = GroundSlamRules.terrainOffset(index, 16, 5.0);
