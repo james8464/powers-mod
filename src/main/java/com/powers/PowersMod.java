@@ -22,6 +22,7 @@ import com.powers.power.abilities.SlowWorldAbility;
 import com.powers.power.abilities.TeleportAbility;
 import com.powers.power.abilities.TimeFreezeToggleAbility;
 import com.powers.power.abilities.ForcefieldAbility;
+import com.powers.power.abilities.GravityDisplacementAbility;
 import com.powers.power.abilities.VesselPossessionAbility;
 import com.powers.power.abilities.AstralProjectionAbility;
 import com.powers.power.abilities.EnergyDrainAbility;
@@ -118,6 +119,7 @@ public class PowersMod implements ModInitializer {
 		// to be rebuilt straight away instead of waiting for the next refresh
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
 			MagicRuntime.global().clearOwner(oldPlayer.getUUID());
+			GravityDisplacementAbility.clear(newPlayer.level().getServer(), oldPlayer.getUUID());
 			SpeedBurstAbility.clear(oldPlayer.getUUID());
 			VoidBeamAbility.clear(oldPlayer.getUUID());
 			WAS_SLEEPING.remove(newPlayer.getUUID());
@@ -143,6 +145,7 @@ public class PowersMod implements ModInitializer {
 			TeleportAbility.clearMarking(player);
 			TimeFreezeToggleAbility.clear(player.getUUID());
 			ForcefieldAbility.clear(player.getUUID());
+			GravityDisplacementAbility.clear(server, player.getUUID());
 			VesselPossessionAbility.clear(player);
 			AstralProjectionAbility.clear(player.getUUID());
 			DreamwalkingAbility.clear(player);
@@ -172,6 +175,7 @@ public class PowersMod implements ModInitializer {
 			TeleportAbility.clearAllMarking();
 			TimeFreezeToggleAbility.clearAll();
 			ForcefieldAbility.clearAll();
+			GravityDisplacementAbility.clearAll(server);
 			VesselPossessionAbility.clearAll();
 			AstralProjectionAbility.clearAll();
 			EnergyDrainAbility.clearAll();
@@ -257,6 +261,7 @@ public class PowersMod implements ModInitializer {
 			EnergyDrainAbility.tickAll(server);
 			SpeedBurstAbility.tickAll(server);
 			VoidBeamAbility.tickAll(server);
+			GravityDisplacementAbility.tickAll(server);
 			SpaceTimeAbility.tickAll(server);
 			DreamwalkingAbility.tickAll(server);
 			CrystalPowerRegistry.tick(server);

@@ -25,6 +25,7 @@
 - Corrected Telekinesis to fling outward, refund empty releases, and defer nonblocking collision mechanics until gameplay successfully commits.
 - Rebuilt Speed Burst as a synchronized collision-safe kinetic dash with afterimage wakes, consent-aware shockwaves, and a genuine paid Motion-rank Second Step shown directly on the HUD.
 - Reforged Void Beam into a telegraphed penetrating abyssal ray with rank bores, seven semantic counters, impact-position magic residue, and bounded non-griefing void scars.
+- Rebuilt Gravity Displacement as a persistent ancient orrery with collision-safe body orbits, deterministic multi-field resonance, ward/amethyst/time counterplay, ranked collapse impacts, mastered projectile curvature, and complete lifecycle release.
 - Audited every production Java source and all 149 non-item assets; removed three stale, unreferenced HUD strips.
 - Replaced vanilla loot-table overrides with additive loot injection and removed unreleased crystal recipes.
 - Optimized hot-path scans, state syncs, scheduled tasks, particles, freeze ownership, storms, and body proxies.
