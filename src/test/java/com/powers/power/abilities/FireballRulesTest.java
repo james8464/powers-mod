@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import net.minecraft.world.phys.Vec3;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,6 +73,10 @@ class FireballRulesTest {
 		assertFalse(FireballRules.trailAllowed(145.0, 12.0));
 		assertEquals(6, FireballRules.trailSegments(3.0));
 		assertEquals(24, FireballRules.trailSegments(100.0));
+		assertEquals(new Vec3(0.6, 0.2, 0.8), FireballRules.pressureImpulse(
+				Vec3.ZERO, new Vec3(3.0, 4.0, 4.0), 1.0, 0.2));
+		assertEquals(Vec3.ZERO, FireballRules.pressureImpulse(
+				Vec3.ZERO, Vec3.ZERO, 1.0, 0.2));
 	}
 
 	@Test

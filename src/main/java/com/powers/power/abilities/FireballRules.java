@@ -1,5 +1,7 @@
 package com.powers.power.abilities;
 
+import net.minecraft.world.phys.Vec3;
+
 /** Pure finite rules for the server-owned Cinderheart projectile runtime. */
 public final class FireballRules {
 	private static final int BASE_MAXIMUM_TIER = 3;
@@ -123,6 +125,18 @@ public final class FireballRules {
 		return Math.min(MAX_TRAIL_SEGMENTS, (int) Math.ceil(distance * 2.0));
 	}
 
+	/** Produces one finite consent-checkable radial pressure impulse. */
+	public static Vec3 pressureImpulse(Vec3 center, Vec3 target,
+			double horizontalStrength, double verticalStrength) {
+		if (!finite(center) || !finite(target) || !Double.isFinite(horizontalStrength)
+				|| horizontalStrength <= 0.0 || !Double.isFinite(verticalStrength)
+				|| verticalStrength < 0.0) return Vec3.ZERO;
+		Vec3 horizontal = new Vec3(target.x - center.x, 0.0, target.z - center.z);
+		if (horizontal.lengthSqr() <= 1.0E-12) return Vec3.ZERO;
+		horizontal = horizontal.normalize().scale(horizontalStrength);
+		return new Vec3(horizontal.x, verticalStrength, horizontal.z);
+	}
+
 	/** Classifies terminals before any protected damage, ignition, or movement write. */
 	public static ImpactDecision impactDecision(boolean controllerPresent,
 			boolean safeZone, boolean amethyst, boolean sanctuary,
@@ -148,6 +162,11 @@ public final class FireballRules {
 
 	private static int boundedTier(int tier) {
 		return Math.max(1, Math.min(ANCIENT_MAXIMUM_TIER, tier));
+	}
+
+	private static boolean finite(Vec3 vector) {
+		return vector != null && Double.isFinite(vector.x)
+				&& Double.isFinite(vector.y) && Double.isFinite(vector.z);
 	}
 
 	private static long saturatingAdd(long value, long increment) {

@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.entity.Entity;
 
 /**
  * The damage every offensive ability deals, and the test that recognises it
@@ -36,6 +37,18 @@ public final class PowerDamage {
 		var type = caster.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
 				.getOrThrow(POWER_MAGIC);
 		return new DamageSource(type, caster, caster);
+	}
+
+	/**
+	 * Creates indirect power damage whose direct entity is the real projectile.
+	 * This preserves caster attribution while allowing finite wards to inspect
+	 * and reflect only the projectile that actually struck them.
+	 */
+	public static DamageSource projectileSource(ServerPlayer caster, Entity projectile) {
+		if (projectile == null) return source(caster);
+		var type = caster.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+				.getOrThrow(POWER_MAGIC);
+		return new DamageSource(type, projectile, caster);
 	}
 
 	/**
