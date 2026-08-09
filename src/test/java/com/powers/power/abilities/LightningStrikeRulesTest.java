@@ -45,6 +45,9 @@ class LightningStrikeRulesTest {
 		assertEquals(8, LightningStrikeRules.projectileLimit(true));
 		assertEquals(0, LightningStrikeRules.afterimageTargetLimit(false));
 		assertEquals(6, LightningStrikeRules.afterimageTargetLimit(true));
+		assertEquals(64, LightningStrikeRules.directCandidateLimit());
+		assertEquals(32, LightningStrikeRules.chainCandidateLimit());
+		assertEquals(32, LightningStrikeRules.rankCandidateLimit());
 	}
 
 	@Test
@@ -75,6 +78,19 @@ class LightningStrikeRulesTest {
 				false, false, false, false, false));
 		assertTrue(LightningStrikeRules.impactAllowed(ROOF));
 		assertFalse(LightningStrikeRules.impactAllowed(DARKNESS));
+		assertFalse(LightningStrikeRules.impactAllowed(
+				LightningStrikeRules.Counterplay.OBSTRUCTED));
+		assertTrue(LightningStrikeRules.roofCatch(92, 60));
+		assertFalse(LightningStrikeRules.roofCatch(60, 60));
+		assertFalse(LightningStrikeRules.roofCatch(44, 60));
+	}
+
+	@Test
+	void lifecycleRequiresTheExactDirectOrDelegatedSourcePower() {
+		assertTrue(LightningStrikeRules.sourceOwned(false, true, false));
+		assertFalse(LightningStrikeRules.sourceOwned(false, false, true));
+		assertTrue(LightningStrikeRules.sourceOwned(true, false, true));
+		assertFalse(LightningStrikeRules.sourceOwned(true, true, false));
 	}
 
 	@Test
@@ -162,26 +178,32 @@ class LightningStrikeRulesTest {
 						new Vec3(1.0, 0.5, -1.0), 0.5));
 		assertEquals(Vec3.ZERO, LightningStrikeRules.groundedProjectileVelocity(
 				new Vec3(Double.NaN, 0.0, 0.0), 0.5));
+		Vec3 capped = LightningStrikeRules.groundedProjectileVelocity(
+				new Vec3(Double.MAX_VALUE, 1.0, Double.MAX_VALUE), 99.0);
+		assertTrue(capped.horizontalDistance() <= 1.500001);
+		assertEquals(-1.5, capped.y, 0.0001);
 	}
 
 	@Test
 	void lifecycleRequiresEveryOwnerInvariantUntilExclusiveExpiry() {
 		assertTrue(LightningStrikeRules.tribunalContinues(
-				true, true, true, false, false, true, 17L, 18L));
+				true, true, true, false, false, true, true, 17L, 18L));
 		assertFalse(LightningStrikeRules.tribunalContinues(
-				false, true, true, false, false, true, 17L, 18L));
+				false, true, true, false, false, true, true, 17L, 18L));
 		assertFalse(LightningStrikeRules.tribunalContinues(
-				true, false, true, false, false, true, 17L, 18L));
+				true, false, true, false, false, true, true, 17L, 18L));
 		assertFalse(LightningStrikeRules.tribunalContinues(
-				true, true, false, false, false, true, 17L, 18L));
+				true, true, false, false, false, true, true, 17L, 18L));
 		assertFalse(LightningStrikeRules.tribunalContinues(
-				true, true, true, true, false, true, 17L, 18L));
+				true, true, true, true, false, true, true, 17L, 18L));
 		assertFalse(LightningStrikeRules.tribunalContinues(
-				true, true, true, false, true, true, 17L, 18L));
+				true, true, true, false, true, true, true, 17L, 18L));
 		assertFalse(LightningStrikeRules.tribunalContinues(
-				true, true, true, false, false, false, 17L, 18L));
+				true, true, true, false, false, false, true, 17L, 18L));
 		assertFalse(LightningStrikeRules.tribunalContinues(
-				true, true, true, false, false, true, 18L, 18L));
+				true, true, true, false, false, true, false, 17L, 18L));
+		assertFalse(LightningStrikeRules.tribunalContinues(
+				true, true, true, false, false, true, true, 18L, 18L));
 	}
 
 	private static LightningStrikeRules.Counterplay environment(boolean owned,
