@@ -34,7 +34,10 @@ public class ElementalBlastAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ElementalPhase phase = ElementalPhase.fromIndex(data.getPhase());
-		boolean success = ELEMENTS[phase.index()].activate(player, data);
+		Ability selected = ELEMENTS[phase.index()];
+		boolean success = selected instanceof LightningStrikeAbility lightning
+				? lightning.activateFromElemental(player, data)
+				: selected.activate(player, data);
 		// only advance when the element actually fired, so a failed cast
 		// (e.g. lightning with no valid target) is retried, not skipped
 		if (success) {

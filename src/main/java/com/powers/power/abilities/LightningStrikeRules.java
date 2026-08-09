@@ -11,6 +11,7 @@ public final class LightningStrikeRules {
 	private static final int MAX_TARGET_LIMIT = 16;
 	private static final int BASE_CHAIN_LIMIT = 3;
 	private static final int MAX_CHAIN_LIMIT = 5;
+	private static final double MAX_GROUNDED_HORIZONTAL_SPEED = 1.5;
 	private static final double MIN_LENGTH_SQUARED = 1.0E-12;
 
 	/** One authored damaging beat in the tribunal. */
@@ -35,6 +36,7 @@ public final class LightningStrikeRules {
 		WATER,
 		PURE_LIGHT,
 		ROOF,
+		OBSTRUCTED,
 		RESISTED
 	}
 
@@ -84,6 +86,21 @@ public final class LightningStrikeRules {
 		return afterimage ? 6 : 0;
 	}
 
+	/** Caps abortable direct-impact candidate intake before radial sorting. */
+	public static int directCandidateLimit() {
+		return 64;
+	}
+
+	/** Caps each abortable nearest-neighbour intake in the finite wet chain. */
+	public static int chainCandidateLimit() {
+		return 32;
+	}
+
+	/** Caps abortable Wardcraft and Veil candidate intake before filtering. */
+	public static int rankCandidateLimit() {
+		return 32;
+	}
+
 	/** Resolves the strike column in stable ownership- and protection-first order. */
 	public static Counterplay environmentDecision(boolean owned, boolean loaded,
 			boolean safeZone, boolean amethyst, boolean sanctuary,
@@ -126,6 +143,17 @@ public final class LightningStrikeRules {
 	public static boolean impactAllowed(Counterplay counterplay) {
 		return counterplay == Counterplay.STRIKE || counterplay == Counterplay.WATER
 				|| counterplay == Counterplay.PURE_LIGHT || counterplay == Counterplay.ROOF;
+	}
+
+	/** Treats only a highest blocking surface above the requested height as an outer roof. */
+	public static boolean roofCatch(int highestBlockingY, int requestedY) {
+		return highestBlockingY > requestedY;
+	}
+
+	/** Requires the exact direct or delegated source captured when payment committed. */
+	public static boolean sourceOwned(boolean elementalSource,
+			boolean lightningOwned, boolean elementalOwned) {
+		return elementalSource ? elementalOwned : lightningOwned;
 	}
 
 	/** Returns impact radius after beat, Might, and conductive-water expansion. */
@@ -210,15 +238,23 @@ public final class LightningStrikeRules {
 		if (!finite(velocity) || !Double.isFinite(fallSpeed) || fallSpeed <= 0.0) {
 			return Vec3.ZERO;
 		}
-		return new Vec3(velocity.x * 0.35, -fallSpeed, velocity.z * 0.35);
+		double x = velocity.x * 0.35;
+		double z = velocity.z * 0.35;
+		double horizontal = Math.hypot(x, z);
+		if (horizontal > MAX_GROUNDED_HORIZONTAL_SPEED) {
+			double scale = MAX_GROUNDED_HORIZONTAL_SPEED / horizontal;
+			x *= scale;
+			z *= scale;
+		}
+		return new Vec3(x, -Math.min(MAX_GROUNDED_HORIZONTAL_SPEED, fallSpeed), z);
 	}
 
 	/** Keeps a tribunal live only while every owner, power, and deadline invariant holds. */
 	public static boolean tribunalContinues(boolean ownerPresent, boolean sameDimension,
 			boolean ownerAlive, boolean ownerDampened, boolean ownerFrozen,
-			boolean ownsPower, long currentTick, long expiresAt) {
+			boolean ownsPower, boolean siteLoaded, long currentTick, long expiresAt) {
 		return ownerPresent && sameDimension && ownerAlive && !ownerDampened
-				&& !ownerFrozen && ownsPower && currentTick < expiresAt;
+				&& !ownerFrozen && ownsPower && siteLoaded && currentTick < expiresAt;
 	}
 
 	private static boolean finite(Vec3 vector) {
