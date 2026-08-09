@@ -7,6 +7,7 @@ import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.abilities.FireballAbility;
 import com.powers.power.abilities.GravityDisplacementAbility;
+import com.powers.power.abilities.GroundSlamAbility;
 import com.powers.power.abilities.SlowWorldAbility;
 import com.powers.power.abilities.SpeedBurstAbility;
 import com.powers.power.abilities.StarfallAbility;
@@ -38,6 +39,7 @@ public final class PowerAbilityRuntime {
 		GravityDisplacementAbility.clear(server, oldOwner);
 		BreezyBashAbility.clear(server, oldOwner);
 		FireballAbility.clear(server, oldOwner);
+		GroundSlamAbility.clear(server, oldOwner);
 		StarfallAbility.clear(server, oldOwner);
 		SuperSpeedAbility.clear(server, oldOwner);
 		SpeedBurstAbility.clear(oldOwner);
@@ -54,6 +56,7 @@ public final class PowerAbilityRuntime {
 		GravityDisplacementAbility.clear(server, owner);
 		BreezyBashAbility.clear(server, owner);
 		FireballAbility.clear(server, owner);
+		GroundSlamAbility.clear(server, owner);
 		StarfallAbility.clear(server, owner);
 		SuperSpeedAbility.clear(server, owner);
 		VesselPossessionAbility.clear(player);
@@ -79,6 +82,7 @@ public final class PowerAbilityRuntime {
 		GravityDisplacementAbility.clearAll(server);
 		BreezyBashAbility.clearAll(server);
 		FireballAbility.clearAll(server);
+		GroundSlamAbility.clearAll(server);
 		StarfallAbility.clearAll(server);
 		SuperSpeedAbility.clearAll(server);
 		VesselPossessionAbility.clearAll();
@@ -110,6 +114,7 @@ public final class PowerAbilityRuntime {
 		GravityDisplacementAbility.tickAll(server);
 		BreezyBashAbility.tickAll(server);
 		FireballAbility.tickAll(server);
+		GroundSlamAbility.tickAll(server);
 		StarfallAbility.tickAll(server);
 		SuperSpeedAbility.tickAll(server);
 		SpaceTimeAbility.tickAll(server);

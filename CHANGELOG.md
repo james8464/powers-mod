@@ -31,6 +31,7 @@
 - Rebuilt Super Speed as finite Chronal Overdrive with an isolated rank-scaled movement modifier, hydroplane grounding, measured wakes, collision rites, consent-aware pressure, hostile memory slips, mastered projectile curvature, and exact lifecycle cleanup.
 - Rebuilt Fireball as one chargeable server-owned Cinderheart per caster with paid tiers, bounded lifetimes, finite attributed reflections, semantic ward/amethyst/frost/water terminals, controlled splash and pressure, optional capped surface fire, and no vanilla explosion grief.
 - Rebuilt Starfall as a telegraphed server-owned Astral Convergence with deterministic celestial strikes, roof and water grounding, realm-matter reactions, repeat-safe damage, seven distinct rank paths, bounded projectile diversion, and an ancient crown ceremony.
+- Rebuilt Ground Slam as the finite Faultbound Verdict with a visible fault clock, transformed water/Darkness/Pure Light impacts, three authored rank beats, protection-first pressure, caster mantles, bounded optional soft-terrain fracture, and exact lifecycle cleanup.
 - Audited every production Java source and all 149 non-item assets; removed three stale, unreferenced HUD strips.
 - Replaced vanilla loot-table overrides with additive loot injection and removed unreleased crystal recipes.
 - Optimized hot-path scans, state syncs, scheduled tasks, particles, freeze ownership, storms, and body proxies.

@@ -83,6 +83,11 @@ public final class GroundSlamRules {
 		return ancientMastery ? 16 : 8;
 	}
 
+	/** Veil clears at most eight currently visible hostile mob memories once. */
+	public static int afterimageTargetLimit(boolean afterimage) {
+		return afterimage ? 8 : 0;
+	}
+
 	/** Resolves the loaded support medium in stable protection-first order. */
 	public static Counterplay environmentDecision(boolean loaded, boolean safeZone,
 			boolean amethyst, boolean darkness, boolean water,
@@ -135,6 +140,13 @@ public final class GroundSlamRules {
 		if (medium == Counterplay.DARKNESS) result *= 0.75;
 		if (medium == Counterplay.PURE_LIGHT) result *= 1.10;
 		return result;
+	}
+
+	/** Lets wet footing soften an ordinary beat without overriding realm matter. */
+	public static Counterplay targetMedium(Counterplay environment, boolean targetWet) {
+		if (environment == null) return Counterplay.UNSUPPORTED;
+		return targetWet && environment == Counterplay.IMPACT
+				? Counterplay.WATER : environment;
 	}
 
 	/** Returns the beat and medium scale for consent-safe seismic pressure. */
@@ -214,7 +226,8 @@ public final class GroundSlamRules {
 
 	/** Offsets Communion's echo toward the cast-facing edge without exceeding the field. */
 	public static Vec3 echoCenter(Vec3 center, Vec3 lookDirection, double radius) {
-		if (!finite(center) || !finite(lookDirection)
+		if (!finite(center)) return Vec3.ZERO;
+		if (!finite(lookDirection)
 				|| !Double.isFinite(radius) || radius <= 0.0) return center;
 		Vec3 horizontal = new Vec3(lookDirection.x, 0.0, lookDirection.z);
 		if (horizontal.lengthSqr() <= MIN_LENGTH_SQUARED) return center;
