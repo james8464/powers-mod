@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -60,7 +61,16 @@ public final class FirstVesselCombat {
 	/** Unique phase technique: pull every bounded opponent into one collapsing seal. */
 	public static void worldSuture(ServerLevel level, FirstVessel boss) {
 		Vec3 center = boss.position();
+		for (Projectile projectile : BoundedEntityCandidates.ofClass(level, Projectile.class,
+				AABB.ofSize(center, 48.0, 48.0, 48.0), FirstVesselRules.MAX_CANDIDATES,
+				projectile -> projectile.isAlive() && projectile.getOwner() != boss
+						&& !PowerProtection.isSafeZone(level, projectile.position()))) {
+			projectile.discard();
+			PowerFx.burst(level, projectile.position(), ParticleTypes.REVERSE_PORTAL,
+					3, 0.2, 0.03);
+		}
 		for (LivingEntity target : candidates(level, boss, center, 24.0)) {
+			if (!mayControl(level, target)) continue;
 			Vec3 pull = center.subtract(target.position());
 			if (pull.lengthSqr() > 1.0E-6) target.setDeltaMovement(
 					target.getDeltaMovement().scale(0.25).add(pull.normalize().scale(1.15)));
@@ -75,7 +85,8 @@ public final class FirstVesselCombat {
 	public static void lastFirmament(ServerLevel level, FirstVessel boss) {
 		Vec3 center = boss.position();
 		for (LivingEntity target : candidates(level, boss, center, 32.0)) {
-			harm(level, boss, target, Math.min(180.0F, target.getMaxHealth() * 0.32F));
+			if (!harm(level, boss, target, Math.min(180.0F, target.getMaxHealth() * 0.32F))) continue;
+			if (!mayControl(level, target)) continue;
 			Vec3 away = target.position().subtract(center);
 			if (away.lengthSqr() > 1.0E-6) target.setDeltaMovement(away.normalize().scale(2.2).add(0, 1.1, 0));
 		}
@@ -120,7 +131,7 @@ public final class FirstVesselCombat {
 	private static void area(ServerLevel level, FirstVessel boss, Vec3 center,
 			double radius, float damage, boolean vertical) {
 		for (LivingEntity target : candidates(level, boss, center, radius)) {
-			harm(level, boss, target, damage);
+			if (!harm(level, boss, target, damage) || !mayControl(level, target)) continue;
 			Vec3 push = target.position().subtract(center);
 			if (push.lengthSqr() > 1.0E-6) target.setDeltaMovement(push.normalize().scale(1.1)
 					.add(0.0, vertical ? 1.3 : 0.55, 0.0));
@@ -132,7 +143,8 @@ public final class FirstVesselCombat {
 	private static void frost(ServerLevel level, FirstVessel boss, LivingEntity target) {
 		area(level, boss, target.position(), 7.0, 44.0F, false);
 		for (LivingEntity affected : candidates(level, boss, target.position(), 7.0)) {
-			affected.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS, 100, 4, false, true));
+			if (mayControl(level, affected)) affected.addEffect(PowerStatusEffects.hidden(
+					MobEffects.SLOWNESS, 100, 4, false, true));
 		}
 	}
 
@@ -142,6 +154,7 @@ public final class FirstVesselCombat {
 	}
 
 	private static void throwTarget(ServerLevel level, FirstVessel boss, LivingEntity target) {
+		if (!mayControl(level, target)) return;
 		Vec3 away = target.position().subtract(boss.position()).normalize();
 		target.setDeltaMovement(away.scale(2.0).add(0.0, 1.4, 0.0));
 		harm(level, boss, target, 46.0F);
@@ -149,6 +162,7 @@ public final class FirstVesselCombat {
 	}
 
 	private static void crush(ServerLevel level, FirstVessel boss, LivingEntity target) {
+		if (!mayControl(level, target)) return;
 		target.setDeltaMovement(Vec3.ZERO);
 		target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS, 80, 6, false, true));
 		harm(level, boss, target, 68.0F);
@@ -157,6 +171,7 @@ public final class FirstVesselCombat {
 
 	private static void freeze(ServerLevel level, FirstVessel boss, LivingEntity target) {
 		for (LivingEntity affected : candidates(level, boss, target.position(), 10.0)) {
+			if (!mayControl(level, affected)) continue;
 			affected.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS, 80, 8, false, true));
 			affected.addEffect(PowerStatusEffects.hidden(MobEffects.MINING_FATIGUE, 80, 4, false, true));
 		}
@@ -170,8 +185,9 @@ public final class FirstVesselCombat {
 	}
 
 	private static void iceLance(ServerLevel level, FirstVessel boss, LivingEntity target) {
-		harm(level, boss, target, 60.0F);
-		target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS, 120, 3, false, true));
+		if (harm(level, boss, target, 60.0F) && mayControl(level, target)) {
+			target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS, 120, 3, false, true));
+		}
 		PowerFx.beam(level, boss.getEyePosition(), target.getEyePosition(),
 				ParticleTypes.SNOWFLAKE, 26);
 	}
@@ -224,6 +240,12 @@ public final class FirstVesselCombat {
 		float adjusted = AmethystDampening.isDampened(target) ? damage * 0.35F : damage;
 		float capped = Math.min(adjusted, Math.max(24.0F, target.getMaxHealth() * 0.32F));
 		return target.hurtServer(level, PowerDamage.source(boss), capped);
+	}
+
+	private static boolean mayControl(ServerLevel level, LivingEntity target) {
+		return FirstVesselRules.mayControl(PowerProtection.isSafeZone(level, target.position()),
+				SpellFieldManager.isSanctuaryProtected(level, target),
+				AmethystDampening.isDampened(target));
 	}
 
 	private static java.util.List<LivingEntity> candidates(ServerLevel level,

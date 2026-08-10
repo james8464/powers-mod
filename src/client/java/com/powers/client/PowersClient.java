@@ -14,6 +14,7 @@ import com.powers.client.fx.particle.ArcaneParticle;
 import com.powers.PowersParticles;
 import com.powers.PowersEntities;
 import com.powers.PowersMenus;
+import com.powers.entity.PrivateCompanionGhost;
 import com.powers.client.screen.ArcaneCrucibleScreen;
 import com.powers.network.PowerStatePayload;
 import com.powers.network.PowersPackets;
@@ -30,6 +31,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
@@ -37,6 +39,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.world.InteractionResult;
 import org.lwjgl.glfw.GLFW;
 
 /** client entry point: registers the v/x/c slot keys, wires up the huds and the teleport screen */
@@ -63,6 +66,14 @@ public class PowersClient implements ClientModInitializer {
 				"key.powers.rank_maze", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, CATEGORY));
 		companionKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 				"key.powers.companion", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, CATEGORY));
+		UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+			if (level.isClientSide() && player.isCrouching()
+					&& entity instanceof PrivateCompanionGhost) {
+				PrivateCompanionClient.interact();
+				return InteractionResult.SUCCESS;
+			}
+			return InteractionResult.PASS;
+		});
 
 		ClientPlayNetworking.registerGlobalReceiver(PowerStatePayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientPowerState.update(payload)));
@@ -81,7 +92,9 @@ public class PowersClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenMenuPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
 						new ShadowSwordScreen(payload.alignment(), payload.selectedKey(), payload.rank(),
-								payload.elementalPhase(), payload.sizeMorphOption()))));
+								payload.elementalPhase(), payload.sizeMorphOption(), payload.energy(),
+								payload.costs(), payload.cooldowns(), payload.cooldownMaximums(),
+								payload.activeToggles()))));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenTeleportPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
 						TeleportInputScreen.artifact(payload.alignment()))));

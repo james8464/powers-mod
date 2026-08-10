@@ -52,14 +52,16 @@ public final class FirstVesselRitual {
 			return false;
 		}
 
+		FirstVessel boss = PowersEntities.FIRST_VESSEL.create(level, EntitySpawnReason.EVENT);
+		if (boss == null) return false;
+		boss.setPos(altar.getX() + 0.5, altar.getY() + 1.0, altar.getZ() + 0.5);
+		// Commit the boss before consuming the eight expensive anchors. A cancelled
+		// spawn must leave the complete altar intact so the ritual is transactional.
+		if (!level.addFreshEntity(boss)) return false;
 		DARK_OFFSETS.forEach(offset -> level.setBlockAndUpdate(altar.offset(offset),
 				Blocks.AIR.defaultBlockState()));
 		LIGHT_OFFSETS.forEach(offset -> level.setBlockAndUpdate(altar.offset(offset),
 				Blocks.AIR.defaultBlockState()));
-		FirstVessel boss = PowersEntities.FIRST_VESSEL.create(level, EntitySpawnReason.EVENT);
-		if (boss == null) return false;
-		boss.setPos(altar.getX() + 0.5, altar.getY() + 1.0, altar.getZ() + 0.5);
-		level.addFreshEntity(boss);
 		PowerFx.rune(level, center, 12.0, 0xE4D6FF, 64, 0.0);
 		PowerFx.spiral(level, center, 6.0, 16.0, 0x54205F, 56, 0.0);
 		PowerFx.burst(level, center.add(0, 1, 0),

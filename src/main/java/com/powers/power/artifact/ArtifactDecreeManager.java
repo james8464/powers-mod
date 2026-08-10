@@ -6,6 +6,7 @@ import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
+import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
@@ -33,7 +34,8 @@ public final class ArtifactDecreeManager {
 	}
 
 	public static boolean mark(ServerPlayer caster, LivingEntity target, ArtifactAlignment alignment) {
-		if (target == null || target == caster || !target.isAlive() || caster.level() != target.level()) return false;
+		if (target == null || target == caster || !target.isAlive() || caster.level() != target.level()
+				|| !PowerProtection.mayHarm(caster, target)) return false;
 		ACTIVE.put(caster.getUUID(), new Decree(target.getUUID(), target.level().dimension(),
 				alignment, caster.level().getServer().getTickCount() + MARK_TICKS));
 		target.addEffect(PowerStatusEffects.hidden(MobEffects.GLOWING, MARK_TICKS, 0, false, true));
@@ -76,6 +78,8 @@ public final class ArtifactDecreeManager {
 	private static boolean valid(ServerPlayer caster, LivingEntity target, ServerLevel level) {
 		return caster != null && caster.isAlive() && target != null && target.isAlive()
 				&& caster.level() == level && caster.hasLineOfSight(target)
+				&& caster.distanceToSqr(target) <= 96.0 * 96.0
+				&& PowerProtection.mayHarm(caster, target)
 				&& !AmethystDampening.isDampened(caster) && !AmethystDampening.isDampened(target)
 				&& !SpellFieldManager.isSanctuaryProtected(level, target);
 	}

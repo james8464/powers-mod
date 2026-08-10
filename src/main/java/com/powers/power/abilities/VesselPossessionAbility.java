@@ -48,7 +48,7 @@ public class VesselPossessionAbility extends Ability {
 				: target instanceof Mob ? PossessionRules.TargetKind.MOB : PossessionRules.TargetKind.OTHER;
 		if (target == null || !PossessionRules.isSuitable(targetKind, target == player,
 				target.isAlive(), target.isRemoved(), BodyProxyManager.isProxy(target))) {
-			PowerMessages.send(player, "ability.powers.no_player_target", 4);
+			PowerMessages.send(player, "ability.powers.no_living_target", 4);
 			return false;
 		}
 		// Amethyst and consent remain player-only protections; mobs are still

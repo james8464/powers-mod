@@ -57,6 +57,7 @@ public final class ArtifactFieldManager {
 			ServerLevel level = server.getLevel(field.dimension());
 			ServerPlayer owner = server.getPlayerList().getPlayer(entry.getKey());
 			if (level == null || owner == null || !owner.isAlive()
+					|| owner.level() != level
 					|| server.getTickCount() >= field.expiresAt()) {
 				iterator.remove();
 				continue;
@@ -69,7 +70,8 @@ public final class ArtifactFieldManager {
 		AABB bounds = AABB.ofSize(field.center(), RADIUS * 2.0, RADIUS * 2.0, RADIUS * 2.0);
 		for (Projectile projectile : BoundedEntityCandidates.collect(level,
 				EntityTypeTest.forClass(Projectile.class), bounds, 128,
-				projectile -> projectile.distanceToSqr(field.center()) <= RADIUS * RADIUS,
+				projectile -> projectile.distanceToSqr(field.center()) <= RADIUS * RADIUS
+						&& !PowerProtection.isSafeZone(level, projectile.position()),
 				Comparator.comparingDouble(projectile -> projectile.distanceToSqr(field.center())))) {
 			if (field.alignment() == ArtifactAlignment.DARKNESS) projectile.discard();
 			else {
@@ -119,6 +121,15 @@ public final class ArtifactFieldManager {
 
 	public static void forget(UUID ownerId) {
 		FIELDS.remove(ownerId);
+	}
+
+	/** True when one live aligned dominion contains the queried position. */
+	public static boolean contains(ServerLevel level, Vec3 position, ArtifactAlignment alignment) {
+		if (level == null || position == null || alignment == null) return false;
+		long tick = level.getServer().getTickCount();
+		return FIELDS.values().stream().anyMatch(field -> field.expiresAt() > tick
+				&& field.dimension().equals(level.dimension()) && field.alignment() == alignment
+				&& field.center().distanceToSqr(position) <= RADIUS * RADIUS);
 	}
 
 	public static void clear() {

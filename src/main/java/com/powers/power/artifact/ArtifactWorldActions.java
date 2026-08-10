@@ -103,16 +103,12 @@ public final class ArtifactWorldActions {
 		ServerLevel level = (ServerLevel) player.level();
 		boolean ally = player.isAlliedTo(target);
 		if (alignment == ArtifactAlignment.LIGHT && ally) {
+			if (!ArtifactCovenantManager.link(player, target, 600)) return false;
 			target.addEffect(PowerStatusEffects.hidden(MobEffects.REGENERATION, 600, 2, false, true));
 			target.addEffect(PowerStatusEffects.hidden(MobEffects.ABSORPTION, 600, 3, false, true));
-			ArtifactCovenantManager.link(player, target, 600);
 		} else {
 			if (!PowerProtection.mayForceMove(player, target) || !PowerProtection.mayHarm(player, target)) return false;
-			Vec3 pull = player.position().subtract(target.position());
-			if (pull.lengthSqr() > 1.0E-6) target.setDeltaMovement(pull.normalize().scale(1.4));
-			target.hurtMarked = true;
-			target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS, 160, 6, false, true));
-			target.addEffect(PowerStatusEffects.hidden(MobEffects.WEAKNESS, 160, 3, false, true));
+			if (!ArtifactChainManager.bind(player, target, alignment)) return false;
 		}
 		PowerFx.beam(level, player.getEyePosition(), target.getEyePosition(),
 				alignment == ArtifactAlignment.DARKNESS ? ParticleTypes.SOUL_FIRE_FLAME
@@ -151,7 +147,8 @@ public final class ArtifactWorldActions {
 		}
 		List<Projectile> projectiles = BoundedEntityCandidates.collect(level,
 				EntityTypeTest.forClass(Projectile.class), bounds, 128,
-				projectile -> inCone(origin, look, projectile.position()),
+				projectile -> inCone(origin, look, projectile.position())
+						&& !PowerProtection.isSafeZone(level, projectile.position()),
 				Comparator.comparingDouble(player::distanceToSqr));
 		for (Projectile projectile : projectiles) projectile.discard();
 		int color = alignment == ArtifactAlignment.DARKNESS ? 0x3A0B52 : 0xFFFFFF;

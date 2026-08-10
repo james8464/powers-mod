@@ -78,6 +78,12 @@ public final class PowerProtection {
 				&& PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.DREAMWALK);
 	}
 
+	/** Keeps player consent while allowing named or aimed mobs outside safe zones. */
+	public static boolean mayDreamwalk(ServerPlayer caster, LivingEntity target) {
+		if (target instanceof ServerPlayer player) return mayDreamwalk(caster, player);
+		return caster != target && !isSafeZone((ServerLevel) target.level(), target.position());
+	}
+
 	public static boolean mayPossess(ServerPlayer caster, ServerPlayer target) {
 		if (caster == target || !PowersConfigLoader.get().requirePossessionConsent()) return true;
 		return !isSafeZone((ServerLevel) target.level(), target.position())

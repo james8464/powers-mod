@@ -9,6 +9,7 @@ import com.powers.power.Ability;
 import com.powers.power.AbilityArithmetic;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
+import com.powers.power.PowerDamage;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import com.powers.network.PowersPackets;
@@ -17,11 +18,13 @@ import com.powers.spell.ChannelState;
 import com.powers.spell.ChannelStatus;
 import com.powers.spell.SpellFieldManager;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
@@ -41,7 +44,7 @@ public class EnergyDrainAbility extends Ability {
 	private static final double MAX_RANGE_SQ = 48.0 * 48.0;
 	private static final Map<UUID, Ritual> RITUALS = new HashMap<>();
 
-	private record Ritual(ServerPlayer caster, ServerPlayer target, ChannelState state,
+	private record Ritual(UUID casterId, UUID targetId, ResourceKey<Level> dimension, ChannelState state,
 			double maximumRangeSquared, int exhaustionTicks, double transferRatio) {}
 
 	public EnergyDrainAbility() {
@@ -52,23 +55,24 @@ public class EnergyDrainAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer caster, PlayerPowers.PlayerPowersData data) {
 		LivingEntity target = PowerTargeting.findLivingTarget(caster, scaledRange(caster, 32.0));
-		if (!(target instanceof ServerPlayer targetSP) || targetSP == caster) {
-			PowerMessages.send(caster, "ability.powers.no_player_target", 4);
+		if (target == null || target == caster || !target.isAlive()) {
+			PowerMessages.send(caster, "ability.powers.no_living_target", 4);
 			return false;
 		}
-		if (AmethystDampening.isDampened(targetSP)) {
+		if (AmethystDampening.isDampened(target)) {
 			PowerMessages.send(caster, "amethyst.powers.target_protected", 4);
 			return false;
 		}
-		if (!PowerProtection.mayHarm(caster, targetSP)) return false;
+		if (!PowerProtection.mayHarm(caster, target)) return false;
 
 		long endsAt = caster.level().getGameTime() + scaledDuration(caster, RITUAL_TICKS);
 		double maximumRange = scaledRange(caster, Math.sqrt(MAX_RANGE_SQ));
 		double transferRatio = scaling(caster).unlockedVariants().contains("soul_echo") ? 0.75 : 0.50;
-		RITUALS.put(caster.getUUID(), new Ritual(caster, targetSP,
+		RITUALS.put(caster.getUUID(), new Ritual(caster.getUUID(), target.getUUID(),
+				target.level().dimension(),
 				new ChannelState(endsAt, caster.getX(), caster.getY(), caster.getZ(), "energy_drain", false),
 				maximumRange * maximumRange, scaledDuration(caster, EXHAUSTION_TICKS), transferRatio));
-		PowerFx.sound((ServerLevel) caster.level(), targetSP.position(),
+		PowerFx.sound((ServerLevel) caster.level(), target.position(),
 				net.minecraft.sounds.SoundEvents.ENCHANTMENT_TABLE_USE, 1.2f, 0.45f);
 		return true;
 	}
@@ -78,11 +82,13 @@ public class EnergyDrainAbility extends Ability {
 		long now = server.overworld().getGameTime();
 		for (var it = RITUALS.entrySet().iterator(); it.hasNext();) {
 			Ritual ritual = it.next().getValue();
-			ServerPlayer caster = ritual.caster();
-			ServerPlayer target = ritual.target();
-			// the ritual breaks if either player logs off, dies, or drifts apart
-			boolean casterOnline = server.getPlayerList().getPlayer(caster.getUUID()) == caster;
-			boolean targetOnline = server.getPlayerList().getPlayer(target.getUUID()) == target;
+			ServerPlayer caster = server.getPlayerList().getPlayer(ritual.casterId());
+			ServerLevel targetLevel = server.getLevel(ritual.dimension());
+			LivingEntity target = targetLevel == null ? null
+					: targetLevel.getEntity(ritual.targetId()) instanceof LivingEntity living ? living : null;
+			boolean casterOnline = caster != null;
+			boolean targetOnline = target != null && (!(target instanceof ServerPlayer targetPlayer)
+					|| server.getPlayerList().getPlayer(targetPlayer.getUUID()) == targetPlayer);
 			if (!casterOnline || !targetOnline || !caster.isAlive() || !target.isAlive()
 					|| caster.level() != target.level()
 					|| caster.distanceToSqr(target) > ritual.maximumRangeSquared()
@@ -92,7 +98,8 @@ public class EnergyDrainAbility extends Ability {
 					|| ChannelRules.status(ritual.state(), now, caster.getX(), caster.getY(), caster.getZ(),
 							true, AmethystDampening.isDampened(caster)) == ChannelStatus.INTERRUPTED) {
 				it.remove();
-				caster.sendSystemMessage(Component.translatable("spell.powers.interrupted"));
+				if (caster != null) PowerMessages.overlay(caster,
+						net.minecraft.network.chat.Component.translatable("spell.powers.interrupted"));
 				continue;
 			}
 			ServerLevel level = (ServerLevel) caster.level();
@@ -106,23 +113,37 @@ public class EnergyDrainAbility extends Ability {
 			}
 			if (now >= ritual.state().finishesAt()) {
 				// full drain landed, hit the target with exhaustion
-				PlayerPowers.get(target).emptyEnergy();
-				PowersPackets.syncTo(target);
-				target.addEffect(PowerStatusEffects.hidden(PowersEffects.EXHAUSTION,
-						ritual.exhaustionTicks(), 0, false, true));
+				if (target instanceof ServerPlayer targetPlayer) {
+					PlayerPowers.get(targetPlayer).emptyEnergy();
+					PowersPackets.syncTo(targetPlayer);
+					targetPlayer.addEffect(PowerStatusEffects.hidden(PowersEffects.EXHAUSTION,
+							ritual.exhaustionTicks(), 0, false, true));
+				} else {
+					target.hurtServer(level, PowerDamage.source(caster),
+							EnergyDrainRules.mobCompletionDamage(target.getMaxHealth()));
+					target.addEffect(PowerStatusEffects.hidden(net.minecraft.world.effect.MobEffects.WITHER,
+							200, 3, false, true));
+					PlayerPowers.get(caster).refundEnergy(120);
+					PowersPackets.syncTo(caster);
+				}
 				PowerMessages.sendImportant(caster, "ability.powers.energy_drained", 3,
 						target.getName().getString());
 				it.remove();
 				continue;
 			}
-			PlayerPowers.PlayerPowersData targetData = PlayerPowers.get(target);
-			if (targetData.energy() > 0) {
+			if (target instanceof ServerPlayer targetPlayer) {
+				PlayerPowers.PlayerPowersData targetData = PlayerPowers.get(targetPlayer);
+				if (targetData.energy() <= 0) continue;
 				int ticksRemaining = (int) Math.max(1L, ritual.state().finishesAt() - now);
 				int drained = AbilityArithmetic.drainStep(targetData.energy(), ticksRemaining);
 				targetData.consumeEnergy(drained);
 				PlayerPowers.PlayerPowersData casterData = PlayerPowers.get(caster);
 				casterData.refundEnergy(Math.max(1, (int) Math.floor(drained * ritual.transferRatio())));
-				PowersPackets.syncTo(target);
+				PowersPackets.syncTo(targetPlayer);
+				PowersPackets.syncTo(caster);
+			} else if (now % 10 == 0 && target.hurtServer(level, PowerDamage.source(caster),
+					EnergyDrainRules.mobPulseDamage(target.getMaxHealth()))) {
+				PlayerPowers.get(caster).refundEnergy(5);
 				PowersPackets.syncTo(caster);
 			}
 		}
@@ -134,12 +155,13 @@ public class EnergyDrainAbility extends Ability {
 
 	public static void clear(UUID player) {
 		RITUALS.entrySet().removeIf(entry -> entry.getKey().equals(player)
-				|| entry.getValue().target().getUUID().equals(player));
+				|| entry.getValue().targetId().equals(player));
 	}
 
 	public static void markDamaged(LivingEntity entity) {
 		Ritual ritual = RITUALS.get(entity.getUUID());
-		if (ritual != null) RITUALS.put(entity.getUUID(), new Ritual(ritual.caster(), ritual.target(),
+		if (ritual != null) RITUALS.put(entity.getUUID(), new Ritual(ritual.casterId(),
+				ritual.targetId(), ritual.dimension(),
 				ritual.state().withDamaged(true), ritual.maximumRangeSquared(), ritual.exhaustionTicks(),
 				ritual.transferRatio()));
 	}
@@ -148,18 +170,22 @@ public class EnergyDrainAbility extends Ability {
 		UUID nearest = null;
 		double best = range * range;
 		for (Ritual ritual : RITUALS.values()) {
-			if (ritual.caster() == counter || ritual.caster().level() != counter.level()) continue;
-			double distance = ritual.caster().distanceToSqr(counter);
+			ServerPlayer caster = counter.level().getServer().getPlayerList().getPlayer(ritual.casterId());
+			if (caster == null || caster == counter || caster.level() != counter.level()) continue;
+			double distance = caster.distanceToSqr(counter);
 			if (distance <= best) {
 				best = distance;
-				nearest = ritual.caster().getUUID();
+				nearest = caster.getUUID();
 			}
 		}
 		if (nearest == null) return false;
 		Ritual ritual = RITUALS.remove(nearest);
-		PowerFx.clash((ServerLevel) counter.level(), counter.getEyePosition(), ritual.caster().getEyePosition(),
+		ServerPlayer caster = counter.level().getServer().getPlayerList().getPlayer(ritual.casterId());
+		if (caster == null) return false;
+		PowerFx.clash((ServerLevel) counter.level(), counter.getEyePosition(), caster.getEyePosition(),
 				0x7455A8, 0x6A1B9A);
-		ritual.caster().sendSystemMessage(Component.translatable("spell.powers.countered"));
+		PowerMessages.overlay(caster,
+				net.minecraft.network.chat.Component.translatable("spell.powers.countered"));
 		return true;
 	}
 }

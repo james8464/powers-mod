@@ -62,6 +62,19 @@ public final class PowersConfigLoader {
 				integer(forceObject, "energyRefillPerSecond", forceDefaults.energyRefillPerSecond()),
 				integer(forceObject, "clashRadius", forceDefaults.clashRadius()),
 				integer(forceObject, "clashChecksPerTick", forceDefaults.clashChecksPerTick()));
+		PowersConfig.DialogueProvider dialogueDefaults = defaults.dialogueProvider();
+		JsonObject dialogueObject = object.has("dialogueProvider")
+				&& object.get("dialogueProvider").isJsonObject()
+				? object.getAsJsonObject("dialogueProvider") : new JsonObject();
+		PowersConfig.DialogueProvider dialogueProvider = new PowersConfig.DialogueProvider(
+				bool(dialogueObject, "enabled", dialogueDefaults.enabled()),
+				string(dialogueObject, "endpoint", dialogueDefaults.endpoint()),
+				string(dialogueObject, "model", dialogueDefaults.model()),
+				string(dialogueObject, "credentialEnvironmentVariable",
+						dialogueDefaults.credentialEnvironmentVariable()),
+				integer(dialogueObject, "timeoutMillis", dialogueDefaults.timeoutMillis()),
+				integer(dialogueObject, "maxGlobalRequests", dialogueDefaults.maxGlobalRequests()),
+				integer(dialogueObject, "ownerCooldownSeconds", dialogueDefaults.ownerCooldownSeconds()));
 		return new PowersConfig(
 				bool(object, "allowTerrainDamage", defaults.allowTerrainDamage()),
 				bool(object, "allowBlockEntityDamage", defaults.allowBlockEntityDamage()),
@@ -83,7 +96,7 @@ public final class PowersConfigLoader {
 				integer(object, "chronoStopRadius", defaults.chronoStopRadius()),
 				integer(object, "rankRespecExperienceLevels", defaults.rankRespecExperienceLevels()),
 				integer(object, "adminPermissionLevel", defaults.adminPermissionLevel()), zones,
-				livingForces).sanitized();
+				livingForces, dialogueProvider).sanitized();
 	}
 
 	private static boolean bool(JsonObject object, String key, boolean fallback) {
@@ -92,6 +105,11 @@ public final class PowersConfigLoader {
 
 	private static int integer(JsonObject object, String key, int fallback) {
 		return object.has(key) && object.get(key).isJsonPrimitive() ? object.get(key).getAsInt() : fallback;
+	}
+
+	private static String string(JsonObject object, String key, String fallback) {
+		return object.has(key) && object.get(key).isJsonPrimitive()
+				? object.get(key).getAsString() : fallback;
 	}
 
 	private static void write(PowersConfig config) {

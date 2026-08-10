@@ -18,7 +18,8 @@ class MagicDocumentationTest {
 		org.junit.jupiter.api.Assertions.assertTrue(catalogue.contains("| Significance | Generic beats |"));
 		assertEquals(MagicDocumentation.renderRules(), read("docs/interactions/interaction-rules.md"));
 		String matrix = read("docs/interactions/interaction-matrix.csv");
-		assertEquals(2_702, matrix.lines().count());
+		long actionCount = MagicActionCatalogue.defaults().definitions().size();
+		assertEquals(1L + actionCount * (actionCount + 1L) / 2L, matrix.lines().count());
 		assertEquals(MagicDocumentation.renderMatrix(), matrix);
 	}
 

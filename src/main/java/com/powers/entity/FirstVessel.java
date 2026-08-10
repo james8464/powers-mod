@@ -6,8 +6,19 @@ import com.powers.boss.FirstVesselPhase;
 import com.powers.boss.FirstVesselPowerAction;
 import com.powers.boss.FirstVesselPowerCatalogue;
 import com.powers.boss.FirstVesselRules;
+import com.powers.boss.FirstVesselEncounterFacts;
+import com.powers.boss.FirstVesselTacticalPlanner;
+import com.powers.companion.LoreDialogueContext;
+import com.powers.companion.LoreDialogueEngine;
+import com.powers.companion.DialogueProviderRuntime;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
+import com.powers.power.AmethystDampening;
+import com.powers.power.artifact.ArtifactFieldManager;
+import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
+import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -24,12 +35,14 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.world.phys.AABB;
 
 /**
  * Player-shaped tactical raid boss whose 28 adapters mirror every innate power.
@@ -42,9 +55,11 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 			Component.translatable("entity.powers.first_vessel"),
 			BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.NOTCHED_20);
 	private final Map<String, Integer> lastActionAt = new HashMap<>();
+	private final FirstVesselTacticalPlanner planner = new FirstVesselTacticalPlanner();
+	private final LoreDialogueEngine dialogue = new LoreDialogueEngine();
 	private FirstVesselPhase phase = FirstVesselPhase.AWAKENING;
-	private int actionCursor;
 	private int lastCastAt = -1_000;
+	private String previousAction = "none";
 	private int scaledPlayers;
 	private float effectiveMaximumHealth = FirstVesselRules.BASE_HEALTH;
 	private float effectiveHealth = FirstVesselRules.BASE_HEALTH;
@@ -66,14 +81,14 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 		return Monster.createMonsterAttributes()
 				// Vanilla clamps this attribute; the boss layers its 5000+ vitality above it.
 				.add(Attributes.MAX_HEALTH, 1_024.0)
-				.add(Attributes.ARMOR, 24.0)
+				.add(Attributes.ARMOR, 16.0)
 				.add(Attributes.ARMOR_TOUGHNESS, 16.0)
 				.add(Attributes.ATTACK_DAMAGE, 36.0)
 				.add(Attributes.ATTACK_KNOCKBACK, 2.0)
 				.add(Attributes.ATTACK_SPEED, 4.0)
-				.add(Attributes.MOVEMENT_SPEED, 0.34)
+				.add(Attributes.MOVEMENT_SPEED, 0.33)
 				.add(Attributes.FOLLOW_RANGE, 96.0)
-				.add(Attributes.KNOCKBACK_RESISTANCE, 0.85);
+				.add(Attributes.KNOCKBACK_RESISTANCE, 0.8);
 	}
 
 	@Override
@@ -129,7 +144,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 
 	private void updateBossState(ServerLevel level) {
 		bossEvent.setProgress(Math.clamp(effectiveHealthRatio(), 0.0F, 1.0F));
-		if (tickCount % 100 == 0) updatePlayerScaling(level);
+		if (scaledPlayers == 0) updatePlayerScaling(level);
 		FirstVesselPhase nextPhase = FirstVesselRules.phase(
 				effectiveHealthRatio());
 		if (nextPhase != phase) {
@@ -140,6 +155,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 					+ phase.name().toLowerCase(java.util.Locale.ROOT)));
 			announce(level, "boss.powers.first_vessel.phase_"
 					+ phase.name().toLowerCase(java.util.Locale.ROOT));
+			announceLore(level, "phase_" + phase.name().toLowerCase(java.util.Locale.ROOT));
 			sevenfoldStep(level);
 		}
 		if (!hasEffect(net.minecraft.world.effect.MobEffects.RESISTANCE)
@@ -155,8 +171,8 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 			if (player.isAlive() && !player.isSpectator()
 					&& player.distanceToSqr(this) <= 96.0 * 96.0) players++;
 		}
-		players = Math.max(1, players);
-		if (players == scaledPlayers) return;
+		if (players == 0) return;
+		if (scaledPlayers != 0) return;
 		float ratio = effectiveHealthRatio();
 		effectiveMaximumHealth = (float) (FirstVesselRules.BASE_HEALTH
 				* FirstVesselRules.playerScale(players));
@@ -166,18 +182,35 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 
 	private void castFromDeck(ServerLevel level, LivingEntity target) {
 		var deck = FirstVesselPowerCatalogue.deck(phase);
-		for (int checked = 0; checked < deck.size(); checked++) {
-			int index = Math.floorMod(actionCursor + checked, deck.size());
-			FirstVesselPowerAction action = deck.get(index);
-			int readyAt = lastActionAt.getOrDefault(action.powerId(), -1_000)
-					+ action.cooldownTicks();
-			if (tickCount < readyAt) continue;
-			actionCursor = index + 1;
-			lastActionAt.put(action.powerId(), tickCount);
-			lastCastAt = tickCount;
-			FirstVesselCombat.cast(level, this, target, action, phase);
-			return;
+		FirstVesselTacticalPlanner.Decision decision = planner.choose(deck,
+				encounterFacts(level, target), tickCount, lastActionAt);
+		if (decision == null) return;
+		FirstVesselPowerAction action = decision.action();
+		lastActionAt.put(action.powerId(), tickCount);
+		previousAction = action.powerId();
+		lastCastAt = tickCount;
+		FirstVesselCombat.cast(level, this, target, action, phase);
+	}
+
+	private FirstVesselEncounterFacts encounterFacts(ServerLevel level, LivingEntity target) {
+		int cluster = 0;
+		for (ServerPlayer player : level.players()) {
+			if (cluster >= FirstVesselRules.MAX_CANDIDATES) break;
+			if (player.isAlive() && !player.isSpectator()
+					&& player.distanceToSqr(target) <= 10.0 * 10.0) cluster++;
 		}
+		int incoming = BoundedEntityCandidates.ofClass(level, Projectile.class,
+				AABB.ofSize(position(), 24.0, 24.0, 24.0), FirstVesselRules.MAX_CANDIDATES,
+				projectile -> projectile.isAlive() && projectile.getOwner() != this).size();
+		boolean lineOfSight = getSensing().hasLineOfSight(target);
+		boolean warded = PowerProtection.isSafeZone(level, target.position())
+				|| SpellFieldManager.isSanctuaryProtected(level, target)
+				|| AmethystDampening.isDampenedAt(level, target.blockPosition());
+		return new FirstVesselEncounterFacts(target.isAlive(), distanceTo(target),
+				Math.abs(target.getY() - getY()), lineOfSight, cluster, incoming,
+				effectiveHealthRatio(), target.getDeltaMovement().horizontalDistanceSqr() > 0.04,
+				warded, !lineOfSight, previousAction,
+				getUUID().getLeastSignificantBits() ^ tickCount / 10L);
 	}
 
 	private boolean castStolenPower(ServerLevel level, ServerPlayer target) {
@@ -189,6 +222,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 			announce(level, "boss.powers.first_vessel.power_theft");
 			FirstVesselCombat.cast(level, this, target, action, phase);
 			lastActionAt.put(action.powerId(), tickCount);
+			previousAction = action.powerId();
 			lastCastAt = tickCount;
 			return true;
 		}
@@ -218,7 +252,11 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 
 	private void tickReconstitution(ServerLevel level) {
 		setDeltaMovement(0.0, 0.0, 0.0);
-		if (FirstVesselRules.channelInterrupted(reconstitutionDamage, effectiveMaximumHealth)) {
+		boolean suppressed = reconstitutionTicks % 5 == 0
+				&& (AmethystDampening.isDampenedAt(level, blockPosition())
+				|| ArtifactFieldManager.contains(level, position(), ArtifactAlignment.LIGHT));
+		if (suppressed || FirstVesselRules.channelInterrupted(
+				reconstitutionDamage, effectiveMaximumHealth)) {
 			reconstitutionTicks = 0;
 			announce(level, "boss.powers.first_vessel.interrupted");
 			PowerFx.cancelled(level, position().add(0, 1, 0), 0xA878BC);
@@ -301,15 +339,50 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 		}
 	}
 
+	private void announceLore(ServerLevel level, String milestone) {
+		LoreDialogueContext context = new LoreDialogueContext(
+				level.dimension().identifier().getPath(), effectiveHealthRatio() < 0.35,
+				false, phase.ordinal() * 4, "both", previousAction, false,
+				true, milestone);
+		String fallback = dialogue.line(getUUID(), context, true);
+		DialogueProviderRuntime.request(getUUID(), context, true, fallback).thenAccept(line ->
+				level.getServer().execute(() -> sendLoreIfRelevant(level, line)));
+	}
+
+	private void sendLoreIfRelevant(ServerLevel level, String line) {
+		for (ServerPlayer player : level.players()) {
+			if (player.distanceToSqr(this) <= 128.0 * 128.0) {
+				PowerMessages.overlay(player, Component.literal(line));
+			}
+		}
+	}
+
+	@Override
+	public void die(DamageSource source) {
+		if (level() instanceof ServerLevel level) {
+			announceLore(level, "defeated");
+			PowerFx.rune(level, position(), 16.0, 0xE9D7FF, 64, 0.0);
+			PowerFx.spiral(level, position(), 8.0, 20.0, 0x3E104B, 64, 0.0);
+			PowerFx.burst(level, position().add(0, 1, 0), ParticleTypes.END_ROD,
+					32, 3.0, 0.16);
+			PowerFx.sound(level, position(), net.minecraft.sounds.SoundEvents.END_PORTAL_SPAWN,
+					3.0F, 0.55F);
+		}
+		dialogue.forget(getUUID());
+		DialogueProviderRuntime.forget(getUUID());
+		bossEvent.removeAllPlayers();
+		super.die(source);
+	}
+
 	@Override
 	protected void addAdditionalSaveData(ValueOutput output) {
 		super.addAdditionalSaveData(output);
 		output.putInt("PowersFirstVesselPhase", phase.ordinal());
-		output.putInt("PowersFirstVesselCursor", actionCursor);
 		output.putBoolean("PowersFirstVesselReconstitution", reconstitutionUsed);
 		output.putBoolean("PowersFirstVesselFirmament", lastFirmamentUsed);
 		output.putFloat("PowersFirstVesselHealth", effectiveHealth);
 		output.putFloat("PowersFirstVesselMaxHealth", effectiveMaximumHealth);
+		output.putInt("PowersFirstVesselScaledPlayers", scaledPlayers);
 	}
 
 	@Override
@@ -318,12 +391,13 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 		int storedPhase = Math.clamp(input.getIntOr("PowersFirstVesselPhase", 0),
 				0, FirstVesselPhase.values().length - 1);
 		phase = FirstVesselPhase.values()[storedPhase];
-		actionCursor = Math.max(0, input.getIntOr("PowersFirstVesselCursor", 0));
 		reconstitutionUsed = input.getBooleanOr("PowersFirstVesselReconstitution", false);
 		lastFirmamentUsed = input.getBooleanOr("PowersFirstVesselFirmament", false);
 		effectiveMaximumHealth = Math.max(FirstVesselRules.BASE_HEALTH,
 				input.getFloatOr("PowersFirstVesselMaxHealth", FirstVesselRules.BASE_HEALTH));
 		effectiveHealth = Math.clamp(input.getFloatOr("PowersFirstVesselHealth",
 				effectiveMaximumHealth), 1.0F, effectiveMaximumHealth);
+		scaledPlayers = Math.max(0, input.getIntOr("PowersFirstVesselScaledPlayers",
+				effectiveMaximumHealth > FirstVesselRules.BASE_HEALTH ? 1 : 0));
 	}
 }

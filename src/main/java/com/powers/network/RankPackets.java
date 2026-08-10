@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 /** Owns request-only rank-maze actions and their server-side eligibility checks. */
 public final class RankPackets {
 	private static final Pattern NODE_ID = Pattern.compile("[a-z0-9_]{1,48}");
+	private static final StreamCodec<io.netty.buffer.ByteBuf, String> NODE_ID_CODEC =
+			ByteBufCodecs.stringUtf8(48);
 
 	private RankPackets() {
 	}
@@ -33,7 +35,7 @@ public final class RankPackets {
 				new CustomPacketPayload.Type<>(PowersMod.id("rank_action"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, RankActionPayload> STREAM_CODEC =
 				StreamCodec.composite(
-						ByteBufCodecs.STRING_UTF8, RankActionPayload::nodeId,
+						NODE_ID_CODEC, RankActionPayload::nodeId,
 						ByteBufCodecs.BOOL, RankActionPayload::focus,
 						RankActionPayload::new);
 

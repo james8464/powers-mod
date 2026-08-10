@@ -1,6 +1,7 @@
 package com.powers;
 
 import com.powers.mind.BodyProxyManager;
+import com.powers.companion.PrivateCompanionManager;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.power.abilities.EnergyDrainAbility;
@@ -56,6 +57,7 @@ final class PowerCombatEvents {
 					|| !ArtifactDeathWardManager.preventDeath(player, source);
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+			if (entity instanceof ServerPlayer player) PrivateCompanionManager.recordDeath(player);
 			DarknessQuestTracker.recordKill(entity, source);
 			SkillQuestTracker.recordKill(entity, source);
 		});

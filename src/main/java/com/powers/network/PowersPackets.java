@@ -36,6 +36,10 @@ import java.util.Map;
  * activation, teleport selection, and client state synchronization.
  */
 public final class PowersPackets {
+	private static final StreamCodec<io.netty.buffer.ByteBuf, String> PLAYER_NAME_CODEC =
+			ByteBufCodecs.stringUtf8(16);
+	private static final StreamCodec<io.netty.buffer.ByteBuf, String> LOCATOR_NAME_CODEC =
+			ByteBufCodecs.stringUtf8(64);
 	private static final Map<UUID, PowerStatePayload> LAST_SENT_STATE = new HashMap<>();
 	private PowersPackets() {
 	}
@@ -81,7 +85,7 @@ public final class PowersPackets {
 						ByteBufCodecs.DOUBLE, TeleportRequestPayload::y,
 						ByteBufCodecs.DOUBLE, TeleportRequestPayload::z,
 						ResourceKey.streamCodec(Registries.DIMENSION), TeleportRequestPayload::dimension,
-						ByteBufCodecs.STRING_UTF8, TeleportRequestPayload::targetName,
+						PLAYER_NAME_CODEC, TeleportRequestPayload::targetName,
 						ByteBufCodecs.BOOL, TeleportRequestPayload::toPlayer,
 						TeleportRequestPayload::new);
 
@@ -127,7 +131,7 @@ public final class PowersPackets {
 				new CustomPacketPayload.Type<>(PowersMod.id("locate_target"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, LocateTargetPayload> STREAM_CODEC =
 				StreamCodec.composite(
-						ByteBufCodecs.STRING_UTF8, LocateTargetPayload::targetName,
+						LOCATOR_NAME_CODEC, LocateTargetPayload::targetName,
 						UUID_CODEC, LocateTargetPayload::nonce,
 						LocateTargetPayload::new);
 

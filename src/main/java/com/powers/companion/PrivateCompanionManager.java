@@ -4,9 +4,11 @@ import com.powers.PowersBlocks;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.network.CompanionPackets;
+import com.powers.entity.FirstVessel;
 import com.powers.player.ArtifactSelectionState;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
@@ -27,6 +29,9 @@ public final class PrivateCompanionManager {
 	private static final AtomicLong NEXT_SESSION = new AtomicLong(1L);
 	private static final Map<UUID, Integer> ELIGIBILITY = new HashMap<>();
 	private static final Map<UUID, Session> SESSIONS = new HashMap<>();
+	private static final Map<UUID, Integer> LAST_DEATH_AT = new HashMap<>();
+	private static final Map<UUID, Integer> LAST_RANK = new HashMap<>();
+	private static final Map<UUID, Integer> MILESTONE_AT = new HashMap<>();
 	private static final LoreDialogueEngine DIALOGUE = new LoreDialogueEngine();
 
 	private static final class Session {
@@ -48,6 +53,9 @@ public final class PrivateCompanionManager {
 
 	public static void tickPlayer(ServerPlayer player, int serverTick) {
 		UUID owner = player.getUUID();
+		int currentRank = PlayerPowers.get(player).darknessLevel();
+		Integer previousRank = LAST_RANK.put(owner, currentRank);
+		if (previousRank != null && currentRank > previousRank) MILESTONE_AT.put(owner, serverTick);
 		boolean eligible = PrivateCompanionRules.eligible(
 				SkillSystem.hasDarknessTag(player),
 				ArtifactWeaponManager.carries(player, ArtifactAlignment.DARKNESS),
@@ -98,21 +106,44 @@ public final class PrivateCompanionManager {
 				: owner.getLookAngle().dot(eyeToCompanion.normalize());
 		if (!PrivateCompanionRules.mayInteract(suppliedSession, session.id,
 				distanceSquared, viewDot)) return;
-		String line = DIALOGUE.line(owner.getUUID(), context(owner), false);
-		CompanionPackets.sendState(owner, session.id, true, false,
-				session.position.x, session.position.y, session.position.z, session.yaw, line);
+		LoreDialogueContext context = context(owner);
+		String fallback = DIALOGUE.line(owner.getUUID(), context, false);
+		DialogueProviderRuntime.request(owner.getUUID(), context, false, fallback)
+				.thenAccept(line -> owner.level().getServer().execute(() -> sendDialogueIfCurrent(
+						owner, suppliedSession, line)));
+	}
+
+	private static void sendDialogueIfCurrent(ServerPlayer owner, long suppliedSession, String line) {
+		if (owner.connection == null || owner.isRemoved()) return;
+		Session current = SESSIONS.get(owner.getUUID());
+		if (current == null || current.id != suppliedSession
+				|| !current.dimension.equals(dimension(owner))) return;
+		CompanionPackets.sendState(owner, current.id, true, false,
+				current.position.x, current.position.y, current.position.z, current.yaw, line);
 	}
 
 	private static LoreDialogueContext context(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData powers = PlayerPowers.get(player);
+		int tick = player.level().getServer().getTickCount();
 		String realm = player.level().dimension().identifier().getPath();
 		String alignment = nearbyAlignment(player);
 		String action = ArtifactSelectionState.selected(player, ArtifactAlignment.DARKNESS);
+		boolean bossNearby = !BoundedEntityCandidates.ofClass(player.level(), FirstVessel.class,
+				player.getBoundingBox().inflate(64.0), 1, FirstVessel::isAlive).isEmpty();
+		boolean recentDeath = tick - LAST_DEATH_AT.getOrDefault(player.getUUID(), -100_000)
+				<= 20 * 120;
+		boolean milestone = tick - MILESTONE_AT.getOrDefault(player.getUUID(), -100_000)
+				<= 20 * 60;
 		return new LoreDialogueContext(realm,
 				player.getHealth() <= player.getMaxHealth() * 0.35F,
 				powers.energy() <= powers.energyCapacity() / 4,
 				powers.darknessLevel(), alignment, action,
-				false, false, "none");
+				recentDeath, bossNearby, milestone ? "rank_" + powers.darknessLevel() : "none");
+	}
+
+	/** Records only an owner timestamp; no death location or attacker is retained. */
+	public static void recordDeath(ServerPlayer player) {
+		LAST_DEATH_AT.put(player.getUUID(), player.level().getServer().getTickCount());
 	}
 
 	/** Samples a fixed 7-cube instead of searching arbitrary loaded chunks. */
@@ -137,8 +168,12 @@ public final class PrivateCompanionManager {
 
 	public static void forget(ServerPlayer player) {
 		ELIGIBILITY.remove(player.getUUID());
+		LAST_DEATH_AT.remove(player.getUUID());
+		LAST_RANK.remove(player.getUUID());
+		MILESTONE_AT.remove(player.getUUID());
 		despawn(player);
 		DIALOGUE.forget(player.getUUID());
+		DialogueProviderRuntime.forget(player.getUUID());
 	}
 
 	private static void despawn(ServerPlayer player) {
@@ -152,6 +187,10 @@ public final class PrivateCompanionManager {
 	public static void clear() {
 		ELIGIBILITY.clear();
 		SESSIONS.clear();
+		LAST_DEATH_AT.clear();
+		LAST_RANK.clear();
+		MILESTONE_AT.clear();
 		DIALOGUE.clear();
+		DialogueProviderRuntime.clear();
 	}
 }

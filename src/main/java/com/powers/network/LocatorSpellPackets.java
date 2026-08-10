@@ -8,6 +8,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.crystals.SpaceTimeAbility;
+import com.powers.power.crystals.DreamwalkingAbility;
 import com.powers.progression.PowerScalingService;
 import com.powers.progression.RankVariantRules;
 import com.powers.protection.PowerProtection;
@@ -46,6 +47,7 @@ final class LocatorSpellPackets {
 	private static final int CELESTIAL_COLOR = 0xFFD9E9FF;
 	private static final int GOLD_COLOR = 0xFFFFE08A;
 	private static final CastNonceTracker NONCES = new CastNonceTracker(NONCE_LIFETIME_TICKS);
+	private record TargetRef(UUID id, ResourceKey<Level> dimension) { }
 
 	private LocatorSpellPackets() {
 	}
@@ -74,8 +76,11 @@ final class LocatorSpellPackets {
 		NamedTargetRules.Resolution<LivingEntity> resolution = findNamedTarget(
 				player.level().getServer(), payload.targetName());
 		if (resolution.status() == NamedTargetRules.Status.AMBIGUOUS) {
-			player.sendSystemMessage(Component.literal(
-					"Remote viewing refused: more than one loaded target has that name."));
+			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.ambiguous"));
+			return;
+		}
+		if (resolution.status() == NamedTargetRules.Status.SCAN_LIMIT) {
+			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.scan_limit"));
 			return;
 		}
 		LivingEntity target = resolution.target();
@@ -157,7 +162,9 @@ final class LocatorSpellPackets {
 		MinecraftServer server = level.getServer();
 		PowersMod.scheduleDelayed(server, 16, () -> swellRitual(player, level, position));
 		PowersMod.scheduleDelayed(server, 32, () -> openHeavens(player, level, position));
-		PowersMod.scheduleDelayed(server, 48, () -> revealTarget(player, level, position, target, trueSight));
+		TargetRef targetRef = new TargetRef(target.getUUID(), target.level().dimension());
+		PowersMod.scheduleDelayed(server, 48, () -> revealTarget(player, level, position,
+				targetRef, trueSight));
 	}
 
 	private static void swellRitual(ServerPlayer player, ServerLevel level, Vec3 position) {
@@ -175,16 +182,22 @@ final class LocatorSpellPackets {
 		PowerFx.sound(level, position, SoundEvents.CONDUIT_ACTIVATE, 1.0f, 1.15f);
 	}
 
-	private static void revealTarget(ServerPlayer player, ServerLevel level, Vec3 position, LivingEntity target,
+	private static void revealTarget(ServerPlayer player, ServerLevel level, Vec3 position, TargetRef targetRef,
 			boolean trueSight) {
 		if (player.isRemoved()) return;
+		ServerLevel targetLevel = level.getServer().getLevel(targetRef.dimension());
+		LivingEntity target = targetLevel == null ? null
+				: targetLevel.getEntity(targetRef.id()) instanceof LivingEntity living ? living : null;
+		if (target == null || !target.isAlive()) {
+			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.view_lost"));
+			return;
+		}
 		PowerFx.rune(level, position, 3.0, GOLD_COLOR, 34, Math.PI);
 		PowerFx.coloredBurst(level, position.add(0, 1.2, 0), GOLD_COLOR, 40, 1.6);
 		PowerFx.burst(level, position.add(0, 1.2, 0), ParticleTypes.END_ROD, 26, 1.2, 0.06);
 		PowerFx.sound(level, position, SoundEvents.ENDERMAN_TELEPORT, 1.0f, 1.4f);
 
 		if (target.isAlive() && !target.isRemoved()) {
-			ServerLevel targetLevel = (ServerLevel) target.level();
 			PowerFx.coloredBurst(targetLevel, target.position().add(0, 1, 0), 0xFFFFFFFF, 10, 0.6);
 			PowerFx.burst(targetLevel, target.position().add(0, 1, 0), ParticleTypes.END_ROD, 8, 0.4, 0.04);
 			if (trueSight) PowerFx.trueSightPiercing(targetLevel, target.position().add(0, 1, 0));
@@ -201,6 +214,10 @@ final class LocatorSpellPackets {
 				.append(Component.literal((int) Math.floor(targetPosition.x) + " "
 						+ (int) Math.floor(targetPosition.y) + " " + (int) Math.floor(targetPosition.z))
 						.withStyle(style -> style.withColor(GOLD_COLOR).withBold(true))));
+		if (DreamwalkingAbility.beginRemoteView(player, target, 20 * 60)) {
+			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.view_started",
+					target.getName()));
+		}
 	}
 
 	private static NamedTargetRules.Resolution<LivingEntity> findNamedTarget(
@@ -216,7 +233,7 @@ final class LocatorSpellPackets {
 		for (ServerLevel level : server.getAllLevels()) {
 			for (Entity entity : level.getAllEntities()) {
 				if (++inspected > MAX_NAMED_MOB_INSPECTIONS) {
-					return NamedTargetRules.resolve(requestedName, matches);
+					return NamedTargetRules.scanLimit();
 				}
 				if (!(entity instanceof Mob mob) || !mob.hasCustomName()) continue;
 				Component customName = mob.getCustomName();

@@ -5,14 +5,17 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 | Asset | Group | SHA-256 | Review | Evidence |
 |---|---|---|---|---|
 | `blockstates/amethyst_ward.json` | blockstates | `4c823ebbcfa9` | pass | JSON decoded; references are covered by strict resource validation. |
+| `blockstates/arcane_crucible.json` | blockstates | `29dec835b131` | pass | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/dark_memory_obelisk.json` | blockstates | `23f6c99a807e` | pass | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/darkness.json` | blockstates | `9a3e8bb90dd6` | pass | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/light_memory_obelisk.json` | blockstates | `62981c2f148e` | pass | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/pure_light.json` | blockstates | `c4375fe29f91` | pass | JSON decoded; references are covered by strict resource validation. |
 | `icon.png` | icon.png | `00ea24abeb49` | pass | PNG 128×128, alpha; reviewed in contact sheet. |
-| `lang/en_us.json` | lang | `683e0e1a478a` | pass | JSON decoded; references are covered by strict resource validation. |
+| `lang/en_us.json` | lang | `1f4cdf60e2d1` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward.json` | models | `ec18f4c15589` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward_powered.json` | models | `e82316d2c639` | pass | JSON decoded; references are covered by strict resource validation. |
+| `models/block/arcane_crucible.json` | models | `7590e3936646` | pass | JSON decoded; references are covered by strict resource validation. |
+| `models/block/arcane_crucible_active.json` | models | `5474925830ba` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/dark_memory_obelisk.json` | models | `5061ea4c6337` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/darkness.json` | models | `9ac7f87cddf9` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/light_memory_obelisk.json` | models | `8f76171ed38c` | pass | JSON decoded; references are covered by strict resource validation. |
@@ -46,8 +49,17 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 | `textures/block/amethyst_ward_up_on.png` | textures | `b76c898fcf41` | pass | PNG 16×64, alpha; reviewed in contact sheet. |
 | `textures/block/amethyst_ward_up_on.png.mcmeta` | textures | `eace6bdad2fa` | pass | JSON decoded; references are covered by strict resource validation. |
 | `textures/block/darkness.png` | textures | `2e0a9a2d5f28` | pass | PNG 16×16, opaque; reviewed in contact sheet. |
+| `textures/block/device_brooding_forge_2.png` | textures | `311f0c6401b7` | pass | PNG 16×16, alpha; reviewed in contact sheet. |
+| `textures/block/device_brooding_forge_side_off.png` | textures | `27b6fca2856e` | pass | PNG 16×16, alpha; reviewed in contact sheet. |
+| `textures/block/device_brooding_forge_side_on.png` | textures | `c0628c5b5ada` | pass | PNG 16×64, alpha; reviewed in contact sheet. |
+| `textures/block/device_brooding_forge_side_on.png.mcmeta` | textures | `4d3bcabd8318` | pass | JSON decoded; references are covered by strict resource validation. |
+| `textures/block/device_brooding_forge_up_off.png` | textures | `8d70c7ba7502` | pass | PNG 16×16, alpha; reviewed in contact sheet. |
+| `textures/block/device_brooding_forge_up_on.png` | textures | `b76c898fcf41` | pass | PNG 16×64, alpha; reviewed in contact sheet. |
+| `textures/block/device_brooding_forge_up_on.png.mcmeta` | textures | `eace6bdad2fa` | pass | JSON decoded; references are covered by strict resource validation. |
 | `textures/block/pure_light.png` | textures | `430c4a11827d` | pass | PNG 16×16, opaque; reviewed in contact sheet. |
 | `textures/entity/darkness_player.png` | textures | `e0c5949f45e1` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
+| `textures/entity/first_vessel.png` | textures | `b118def663f9` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
+| `textures/entity/radiant_sentinel.png` | textures | `993ebf8b680f` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
 | `textures/entity/test_actor.png` | textures | `a36cd91fd2f8` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
 | `textures/gui/advancements/backgrounds/radiant_path.png` | textures | `7d027877c130` | pass | PNG 256×256, alpha; reviewed in contact sheet. |
 | `textures/gui/advancements/backgrounds/shadow_path.png` | textures | `bdc8a02990ac` | pass | PNG 256×256, alpha; reviewed in contact sheet. |
@@ -56,13 +68,6 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 | `textures/gui/power_slot.png` | textures | `0126f9ebefca` | pass | PNG 30×30, alpha; reviewed in contact sheet. |
 | `textures/gui/power_slot_active.png` | textures | `69c00eb92a5f` | pass | PNG 30×30, alpha; reviewed in contact sheet. |
 | `textures/gui/teleport_panel.png` | textures | `ea40205aceab` | pass | PNG 256×192, alpha; reviewed in contact sheet. |
-| `textures/imported/blocks/device_brooding_forge_2.png` | textures | `311f0c6401b7` | pass | PNG 16×16, alpha; reviewed in contact sheet. |
-| `textures/imported/blocks/device_brooding_forge_side_off.png` | textures | `27b6fca2856e` | pass | PNG 16×16, alpha; reviewed in contact sheet. |
-| `textures/imported/blocks/device_brooding_forge_side_on.png` | textures | `c0628c5b5ada` | pass | PNG 16×64, alpha; reviewed in contact sheet. |
-| `textures/imported/blocks/device_brooding_forge_side_on.png.mcmeta` | textures | `4d3bcabd8318` | pass | JSON decoded; references are covered by strict resource validation. |
-| `textures/imported/blocks/device_brooding_forge_up_off.png` | textures | `8d70c7ba7502` | pass | PNG 16×16, alpha; reviewed in contact sheet. |
-| `textures/imported/blocks/device_brooding_forge_up_on.png` | textures | `b76c898fcf41` | pass | PNG 16×64, alpha; reviewed in contact sheet. |
-| `textures/imported/blocks/device_brooding_forge_up_on.png.mcmeta` | textures | `eace6bdad2fa` | pass | JSON decoded; references are covered by strict resource validation. |
 | `textures/imported/blocks/overlay_blood.png` | textures | `3bd128556e35` | pass | PNG 16×16, alpha; reviewed in contact sheet. |
 | `textures/imported/blocks/overlay_blood_all.png` | textures | `7a533f89614c` | pass | PNG 16×16, alpha; reviewed in contact sheet. |
 | `textures/imported/blocks/overlay_blood_east.png` | textures | `72f879a5824f` | pass | PNG 16×16, alpha; reviewed in contact sheet. |

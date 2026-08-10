@@ -35,8 +35,8 @@ public final class ArtifactGuardianSummons {
 		ServerLevel level = (ServerLevel) caster.level();
 		if (PowerProtection.isSafeZone(level, caster.position())) return 0;
 		Map<UUID, Set<UUID>> index = elite ? ELITE_BY_OWNER : NORMAL_BY_OWNER;
+		purgeAll(level.getServer());
 		Set<UUID> existing = index.computeIfAbsent(caster.getUUID(), ignored -> new HashSet<>());
-		purge(level, existing);
 		int allowed = ArtifactDominionRules.guardiansToSpawn(requested, existing.size(), elite);
 		allowed = Math.min(allowed, Math.max(0, GLOBAL_CAP - indexedCount()));
 		int spawned = 0;
@@ -92,8 +92,20 @@ public final class ArtifactGuardianSummons {
 		return null;
 	}
 
-	private static void purge(ServerLevel level, Set<UUID> ids) {
-		ids.removeIf(id -> !(level.getEntity(id) instanceof AbstractPlayerLikeMob mob) || !mob.isAlive());
+	private static void purge(net.minecraft.server.MinecraftServer server, Set<UUID> ids) {
+		ids.removeIf(id -> {
+			for (ServerLevel level : server.getAllLevels()) {
+				if (level.getEntity(id) instanceof AbstractPlayerLikeMob mob) return !mob.isAlive();
+			}
+			return true;
+		});
+	}
+
+	private static void purgeAll(net.minecraft.server.MinecraftServer server) {
+		for (Map<UUID, Set<UUID>> index : java.util.List.of(NORMAL_BY_OWNER, ELITE_BY_OWNER)) {
+			for (Set<UUID> ids : index.values()) purge(server, ids);
+			index.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+		}
 	}
 
 	private static int indexedCount() {

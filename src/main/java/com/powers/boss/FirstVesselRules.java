@@ -14,9 +14,9 @@ public final class FirstVesselRules {
 		return FirstVesselPhase.LAST_COVENANT;
 	}
 
-	/** 75% per extra nearby player, capped at four times base health. */
+	/** 55% per extra nearby player, capped at four times base health. */
 	public static double playerScale(int nearbyPlayers) {
-		return Math.min(4.0, 1.0 + Math.max(0, nearbyPlayers - 1) * 0.75);
+		return Math.min(4.0, 1.0 + Math.max(0, nearbyPlayers - 1) * 0.55);
 	}
 
 	public static boolean shouldBeginReconstitution(double healthRatio, boolean alreadyUsed) {
@@ -38,5 +38,10 @@ public final class FirstVesselRules {
 			case UNBOUND -> 28;
 			case LAST_COVENANT -> 18;
 		};
+	}
+
+	/** Boss control remains powerful but never crosses a protected counter-field. */
+	public static boolean mayControl(boolean safeZone, boolean sanctuary, boolean amethyst) {
+		return !safeZone && !sanctuary && !amethyst;
 	}
 }

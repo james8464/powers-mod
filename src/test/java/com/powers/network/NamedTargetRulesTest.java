@@ -36,4 +36,12 @@ class NamedTargetRulesTest {
 		assertEquals(NamedTargetRules.Status.NOT_FOUND,
 				NamedTargetRules.<String>resolve(" ", List.of()).status());
 	}
+
+	@Test
+	void anIncompleteWorldScanCanNeverPretendANameIsUnique() {
+		NamedTargetRules.Resolution<String> resolution = NamedTargetRules.scanLimit();
+
+		assertEquals(NamedTargetRules.Status.SCAN_LIMIT, resolution.status());
+		assertNull(resolution.target());
+	}
 }

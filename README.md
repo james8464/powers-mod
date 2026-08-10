@@ -53,7 +53,7 @@ The assignable powers are:
 | Gravity Displacement | Opens a five-second orrery that collision-safely orbits nearby bodies, resolves overlapping claims, and can collapse or curve projectiles at advanced ranks. |
 | Vessel Possession | Moves the mind into a consented player or suitable mob while a vulnerable skin-matched physical body remains at the casting point. |
 | Astral Projection | Leaves a vulnerable physical body and releases a bounded soul-form scout; return is validated and cannot be used as invulnerability. |
-| Energy Drain | Channels against a player, transfers their energy over two seconds, empties the well on completion, and applies particle-free Exhaustion. |
+| Energy Drain | Channels against a player or mob for two seconds. Players lose energy and receive particle-free Exhaustion; mobs take repeated percentage-health damage plus a capped 30% completion strike, while the caster recovers energy. |
 | Ice Manipulation | Fires a freezing ray that harms and freezes targets, converts water to ice and lava to obsidian, and lays snow only where terrain policy permits. |
 | Plant and Healing Acceleration | Grows the aimed bonemealable plant, with stronger growth at higher potency, and supplies the registered regeneration passive. |
 | Double Health | Toggles a mod-owned maximum-health multiplier, preserves unrelated modifiers, and proportionally restores the vanilla heart layout when released. |
@@ -123,7 +123,7 @@ Sneak-use a grimoire to turn its pages; use it normally to cast the selected spe
 
 | Grimoire spell | Cost / cooldown / channel | Complete effect |
 | --- | --- | --- |
-| Celestial: Soul Compass | 14 / 10s / instant | Opens the authenticated locator screen. It accepts an online player or the unique custom name of one loaded mob, rejects ambiguous mob names, and enforces player locator consent. |
+| Celestial: Soul Compass | 14 / 10s / instant | Opens the authenticated locator screen. It accepts an online player or the unique custom name of one loaded mob, rejects ambiguous or incomplete world scans, enforces player locator consent, reveals the result, then begins a one-minute vulnerable-body camera view through that target. |
 | Celestial: Mark of the Far Star | 18 / 25s / 2s | Locks a permitted living target and marks it with particle-free Glowing for 30 seconds. |
 | Celestial: Tempest Sigil | 22 / 60s / 4s | Starts a localized ancient storm centred on the caster. |
 | Celestial: Heavenfall — Celestial Ruin | 100 / 60m / 10s | Locks a ground point, keeps the full area loaded, and starts an irreversible one-minute warning. A pulsing 100-block-diameter sky beam remains even after players leave; countdown and exact ruin-wave cursor survive server restarts. The final 120-block-radius, 2,000-peak-damage wave removes blocks in bounded batches while respecting safe zones and its dedicated catastrophic terrain policy. |
@@ -172,26 +172,98 @@ Convergence cooldowns are shared with their underlying forces, so swapping cryst
 The item whose compatibility identifier remains `powers:lycanbane` is presented everywhere as the **Shadow Sword** in bold dark grey. It is ancient Pure Darkness made solid.
 
 - A non-darkness carrier is struck with particle-free Blindness and Wither, cannot use the sword, and provokes up to four nearby Darkness Creatures through lightning-marked protection summons.
-- A darkness-tagged wielder regenerates 50-250 darkness energy each second according to rank.
-- Right-click casts the selected action. Crouch-right-click opens the complete server-validated menu, including nested Size Morph and Elemental Blast choices.
+- A darkness-tagged wielder regenerates 50-250 darkness energy each second according to rank; level 10 receives a 900-energy apotheosis refill pulse.
+- Right-click casts the selected action. Crouch-right-click opens a grouped, paged, server-validated menu showing live energy cost, rank gate, active toggle, and cooldown state, including nested Size Morph and Elemental Blast choices.
 - Every innate and underlying crystal action is available from rank 1. Existing actions retain their mechanics but receive a black/violet corruption of their own original colour, darker sounds, and evil residue when routed through the sword.
-- `Call the Black Guard` summons four commanded Darkness Creatures, with a 32-creature local cap. `Corrupt the Earth` converts a protected six-block disc beneath the wielder into spreading Darkness even when ordinary terrain damage is disabled; block entities, fluids, unbreakable blocks, safe zones, and living-force immunity remain protected.
-- Rank 3 unlocks **Abyssal Singularity**, a 48-block implosion that consumes projectiles, drags non-dark targets into its centre, applies Wither, and deals up to 300 boss-scaled damage.
-- Rank 5 unlocks **Oblivion Pulse**, a 32-block nullification wave that consumes projectiles, strips beneficial effects, empties player energy, applies particle-free Exhaustion/Wither/Darkness, and deals up to 400 boss-scaled damage.
-- Rank 7 unlocks **Annihilation Beam**, a 128-block, ten-block-wide corridor that consumes projectiles and deals up to 500 boss-scaled damage.
-- Rank 9 unlocks **Soul Requiem**, a visible delayed execution curse dealing up to 750 boss-scaled damage while returning stolen health and darkness energy. Cover, distance, sanctuary, safe zones, and amethyst can still break the verdict before impact.
-- Rank 10 unlocks **Nightfall Dominion**, a toggle granting Strength X, Resistance IV, Regeneration V, Fire Resistance, and Speed IV while a 24-block pressure aura deals 24 damage and Wither IV every second to non-dark living targets.
 - At darkness level 10, every action cast through the sword ignores existing cooldowns and starts no new cooldown. Energy, target validation, amethyst, sanctuary, safe-zone, and bounded-entity protections still apply.
+
+The seven original sword invocations remain intact:
+
+| Invocation | Rank | Effect |
+| --- | ---: | --- |
+| Call the Black Guard | 1 | Summons four commanded Darkness Creatures under owner, local, and global caps. |
+| Corrupt the Earth | 1 | Converts a protected six-block disc into spreading Darkness; fluids, block entities, unbreakable blocks, safe zones, and living-force immunity remain intact. |
+| Abyssal Singularity | 3 | Creates a 48-block implosion that consumes projectiles, drags non-dark targets inward, applies Wither, and deals up to 300 boss-capable damage. |
+| Oblivion Pulse | 5 | Releases a 32-block nullification wave that consumes projectiles, strips beneficial effects, empties player energy, inflicts hidden Exhaustion/Wither/Darkness, and deals up to 400 damage. |
+| Annihilation Beam | 7 | Opens a 128-block, ten-block-wide corridor that consumes projectiles and deals up to 500 damage. |
+| Soul Requiem | 9 | Places a visible delayed execution curse for up to 750 damage and returns stolen health/energy; cover, distance, sanctuary, safe zones, and amethyst can break it. |
+| Nightfall Dominion | 10 | Toggles Strength X, Resistance IV, Regeneration V, Fire Resistance, Speed IV, and a 24-block Wither pressure aura. |
+
+Eleven additional darkness-dominion rites form a second route through the sword:
+
+| Dominion rite | Rank | Effect |
+| --- | ---: | --- |
+| Call the Hollowed | 1 | Summons a bounded squad of darkness guardians. |
+| Blight Ground | 2 | Queues a six-block protected Darkness conversion beneath the wielder. |
+| Umbral Step | 3 | Performs a loaded-chunk, border-, collision-, ward-, and anchor-safe 24-block shadow step. |
+| Night Chain | 4 | Holds one hostile for eight seconds, revalidating range, line of sight, amethyst, Sanctuary, safe zones, damage permission, and movement permission every tick. |
+| Eclipse Wave | 5 | Emits a 32-block damage cone that erases only unprotected projectiles. |
+| Abyss Gate | 6 | Opens one owner-only pair of collision-safe temporary dark gates. |
+| Devour Light | 7 | Queues a protected nine-block opposed-light purge/conversion and restores energy for useful work. |
+| Black Decree | 8 | Marks a target for five seconds, then resolves capped max-health judgement if line of sight and every protection still hold. |
+| Event Horizon | 8 | Opens one eight-second projectile-consuming singularity with bounded pulls and damage pulses. |
+| Deathless Night | 9 | Arms one five-minute death ward; legal lethal damage consumes it once, while void/admin death bypasses it. |
+| Legion of the Eclipse | 10 | Calls two elite guardians, a temporary dominion field, spreading Darkness, and a cosmic eclipse ceremony. |
+
+## Heavenly Partisan
+
+The **Heavenly Partisan** is the unbreakable Pure Light counterpart. Only non-dark players may wield it; a darkness-infected carrier is judged with hidden Glowing/radiant damage and guarded by lightning-arriving Radiant Sentinels. It routes the same 28 innate and 13 crystal actions through a gold-white presentation, while its eleven unique rites emphasize protection and group play. Normal rank 10 reduces Partisan cooldowns by 60%, increases its regeneration aura, and strengthens its support effects; unlike darkness apotheosis, it does not remove cooldowns.
+
+| Partisan rite | Rank | Effect |
+| --- | ---: | --- |
+| Call the Radiant | 1 | Summons a bounded squad of Radiant Sentinels. |
+| Consecrate Ground | 2 | Queues a six-block protected Pure Light conversion. |
+| Dawnstride | 3 | Performs a legal 24-block beam step. |
+| Covenant Chain | 4 | Gives an ally 30 seconds of regeneration/absorption and bounded damage sharing, or binds an opposed hostile. Each owner is capped at eight allies. |
+| Daybreak Wave | 5 | Damages darkness hostiles, purifies removable harmful effects, heals others, and clears unprotected projectiles. |
+| Heaven Gate | 6 | Opens one owner-only pair of temporary radiant gates. |
+| Banish Darkness | 7 | Queues a protected nine-block darkness purge; touching living opposed matter can still trigger its catastrophic clash. |
+| Divine Decree | 8 | Resolves five-second radiant judgement against a hostile or a major heal/absorption blessing on an ally. |
+| Solar Firmament | 8 | Opens an eight-second field that repels hostiles/projectiles and heals light-aligned occupants. |
+| Second Dawn | 9 | Arms one five-minute, single-use radiant death ward. |
+| Host of Heaven | 10 | Calls two elite sentinels, a radiant dominion field, consecrated ground, and a cosmic heaven-beam ceremony. |
 
 ## Runestones
 
 Runestones are reusable energy focuses, stack to 16, show a small actionbar result, and cannot work through Exhaustion. Their authored tier restores between 40 and 600 energy; recharge ranges from three to fifteen seconds. Inert runestones have a natural recipe, and dark tiny/small/medium/large runestones form a craftable upgrade chain restoring 60/125/250/400 energy. Additional inscribed and bound variants restore up to 600. Dungeon, abandoned-mineshaft, and ancient-city chests can supply the natural tiers without replacing vanilla loot.
+
+## Arcane Crucible
+
+The Arcane Crucible is a two-input, server-owned weapon forge. Put one eligible base weapon in the left slot and one catalyst in the right, choose a server-advertised result, and press **Transmute**. Its versioned mutation lock, one atomic commit, hopper rules, break recovery, full-inventory drop fallback, and stale-choice validation prevent duplicated or lost results.
+
+Its three-stage path is:
+
+1. A Darkness or Pure Light block converts a tagged ordinary weapon into one of the registered non-mythic alignment peers while preserving safe components, enchantments, custom name, lore, repair cost, and proportional durability.
+2. An Animated Artifact Star binds zero-cooldown alignment lightning without replacing the weapon. Each right-click still needs a valid aimed target, energy, line of sight, same-tick rate allowance, and every normal protection check.
+3. A runestone infuses a star-bound weapon with 25/75/225/675 XP according to tier. Levels are derived from overflow-safe exponential thresholds and cap at 30; lightning damage grows to a 1,200 non-player cap and a 120 player cap.
+
+Datapacks can add base weapons to `#powers:arcane_crucible_base_weapons`. Java integrations can call `CrucibleEligibility.registerBaseWeapon(Predicate<ItemStack>)` or `registerExclusion(...)`. The Shadow Sword, Heavenly Partisan, stacks with mythic identity, and already converted weapons are hard exclusions even if another pack tags them. Crystals and story artifacts still receive no recipe.
+
+## Owner-private shadow companion
+
+A darkness-tagged player who carries the Shadow Sword continuously for two seconds receives a cheap owner-private apparition. It is client-rendered from a server-authoritative session rather than a tracked world mob: other clients receive no spawn, position, particle, sound, collision, pathfinding, target, or dialogue data. It follows at 5 Hz, privately steps behind the owner if separated by more than 20 blocks, and vanishes on lost eligibility, logout, invalid dimension state, death/projection, or server stop.
+
+Press `G` near and facing the apparition, or sneak-use it, to request a line. The server authenticates the current session, distance, and view cone. The offline lore engine reacts to realm, low health/energy, darkness rank, nearby living forces, selected rite, recent death, a nearby First Vessel, and rank milestones without repeating its last topics.
+
+An optional OpenAI-compatible text endpoint may replace only the wording. It is disabled by default, never receives UUIDs, names, chat, IPs, coordinates, or secrets, and cannot change gameplay. Credentials come only from the configured environment-variable name. Requests are asynchronous, capped at one per owner/four globally, limited to 2.5 seconds and 256 output characters, and always fall back to offline lore.
 
 ## Player-like entities
 
 `Darkness Creature` is a naturally spawning Dark Realm monster with a completely black player model, 100 health, 12 armour, 16 melee damage, and player-like movement. It attacks every living entity without the `darkness` tag and alternates bounded, terrain-safe lightning and custom darkness fireballs at range. Sword guardians use the same creature and disappear naturally rather than accumulating permanent server entities.
 
 `Power Test Actor` is a player-model test opponent with the same boss-capable base attributes. It retaliates when hit and fights hostile mobs, making powers, spells, possession, projectile counters, and particle presentation testable in a single-player world. Spawn eggs for both entities are available in creative/operator testing.
+
+`Radiant Sentinel` is the Partisan's light-aligned player-shaped guardian. Both guardian factions preserve owner and alignment, expire when their owner leaves the dimension, enforce four-normal/two-elite owner caps and a global cap, and cycle bounded melee, lightning, fireball, and alignment-field tactics. Their fields heal allies or punish the opposed faction without crossing safe zones or amethyst counterplay.
+
+## First Vessel boss
+
+The **First Vessel** is an original player-shaped ancient boss that never spawns naturally. It has a 5,000-point virtual vitality layer, 16 armour, 16 toughness, 36 attack damage, 0.33 movement speed, 0.8 knockback resistance, persistent boss-bar state, original skin/sounds, a spawn egg, loot and advancement hooks. When the first eligible players approach, vitality snapshots `1 + 0.55 × (players − 1)` and caps at four times base health; it never shrinks mid-fight.
+
+Its tactical planner evaluates at most 24 candidates per ten-tick decision, with separate action cooldowns and facts for distance, line of sight, verticality, player clusters, projectiles, health, movement, cover, protection, and repetition. Its catalogue is tested directly against all 28 innate powers, and every adapter is entity-safe—no player-only handler is cast onto the boss. At intervals it may also mirror a power observed in the target's current loadout.
+
+The encounter has three named states: **Waking Vessel** (`AWAKENING`, 100–70%), **Broken Constellation** (`UNBOUND`, 70–35%), and **Crownless God** (`LAST_COVENANT`, below 35%). Phase changes perform Sevenfold Step. At half health it attempts one five-second Vessel Reconstitution; eight percent maximum-health damage, amethyst, or a light dominion interrupts it. Later phases gain projectile-consuming World-Suture, and Crownless God releases one terrain-safe Last Firmament below 15%. Safe zones, Sanctuary, amethyst, and bounded candidate limits remain valid boss counterplay.
+
+Operators may use `/powers boss spawn`. The survival ritual requires a darkness-tagged level-10 player to sneak-use the Shadow Sword on an Arcane Crucible surrounded by Darkness at the four cardinal positions three blocks away and Pure Light at the four diagonals two blocks away. A successful invocation consumes the eight anchors and creates one boss; an existing nearby First Vessel blocks another ritual.
 
 ## Counterplay and server safety
 
@@ -208,9 +280,9 @@ Runestones are reusable energy focuses, stack to 16, show a small actionbar resu
 
 ## Magic collisions and presentation
 
-The 28 assignable powers resolve to 27 distinct innate action identities because player Size Morphing and the Yellow Crystal deliberately share the canonical `size_shift` force. Those 27 innate actions, 21 grimoire spells, 13 crystal actions, seven Shadow Sword artifact rites, three amethyst suppressors, and two living realm forces form a 73-action collision system. Every one of the 2,701 unordered same-or-cross-action pairs, including same-action resonance, has a deterministic outcome, potency/duration/range adjustment, accessible shape cue, and semantic sound cue. Named high-impact combinations add mechanics such as steam pressure, eclipses that reveal concealment, realm-matter annihilation, projectile-consuming star rifts, summon banishment, soul-link purification, finite ward fracture, grounded storms, hostile pressure waves, and concordant healing.
+The 28 assignable powers resolve to 27 distinct innate action identities because player Size Morphing and the Yellow Crystal deliberately share the canonical `size_shift` force. Those 27 innate actions, 21 grimoire spells, 13 crystal actions, 31 artifact actions (18 Shadow Sword rites, 11 Partisan rites, and two star-bound lightning alignments), three amethyst suppressors, and two living realm forces form a 97-action collision system. Every one of the 4,753 unordered same-or-cross-action pairs, including same-action resonance, has a deterministic outcome, potency/duration/range adjustment, accessible shape cue, and semantic sound cue. Named high-impact combinations add mechanics such as steam pressure, eclipses that reveal concealment, realm-matter annihilation, projectile-consuming star rifts, summon banishment, soul-link purification, finite ward fracture, grounded storms, hostile pressure waves, and concordant healing.
 
-The complete catalogue is in [`docs/interactions/action-catalogue.md`](docs/interactions/action-catalogue.md), and every possible pair is listed in [`docs/interactions/interaction-matrix.csv`](docs/interactions/interaction-matrix.csv). Every successful innate, crystal, grimoire, and Shadow Sword artifact cast now receives a signature-driven anticipation, release, impact, and aftermath ceremony in addition to its bespoke gameplay effects. Flame fractures, frost shards, storms fork, time spirals, space and soul tether, life roots, and darkness eclipses; the server chooses the matching authored sound and both signature colours. Ritual glyphs form on the ground beneath the caster, while vertical glyph, eclipse, and lightning sigils face each observer locally instead of becoming edge-on. Ceremony radius, density, motion, volume, and pitch intensify at rank depths 4 and 8, with another bounded step for Ancient Mastery. Client effects use eight authored particle sprites, 13 original mono Vorbis sounds, distance culling, reduced-motion geometry and velocity clamps, and hard client/server particle budgets.
+The complete catalogue is in [`docs/interactions/action-catalogue.md`](docs/interactions/action-catalogue.md), and every possible pair is listed in [`docs/interactions/interaction-matrix.csv`](docs/interactions/interaction-matrix.csv). Every successful innate, crystal, grimoire, Shadow Sword, and Heavenly Partisan cast receives a signature-driven anticipation, release, impact, and aftermath ceremony in addition to its bespoke gameplay effects. Flame fractures, frost shards, storms fork, time spirals, space and soul tether, life roots, darkness eclipses, and light forms celestial crowns; the server chooses the matching authored sound and both signature colours. Ritual glyphs form on the ground beneath the caster, while vertical glyph, eclipse, and lightning sigils face each observer locally instead of becoming edge-on. Ceremony radius, density, motion, volume, and pitch intensify at rank depths 4 and 8, with another bounded step for Ancient Mastery. Client effects use eight authored particle sprites, 13 original mono Vorbis sounds, distance culling, reduced-motion geometry and velocity clamps, and hard client/server particle budgets.
 
 ## Commands
 
@@ -232,6 +304,7 @@ Administrative commands:
 - `/powers assign <player> <power> <slot>` where slot is `0`, `1`, or `2`
 - `/powers reroll [player]`
 - `/powers travel <dimension>`
+- `/powers boss spawn`
 - `/powers reload`
 
 ## Configuration
@@ -256,6 +329,7 @@ Important defaults:
 | `spaceTimeRadius` | `32` | Green Crystal freeze radius |
 | `chronoStopRadius` | `64` | Indigo Crystal chrono-stop radius |
 | `rankRespecExperienceLevels` | `30` | Rank-maze respec price |
+| `adminPermissionLevel` | `2` | Permission level required by administrative commands |
 | `livingForces.spreadingEnabled` | `true` | Enables random-tick Darkness and Pure Light conversion |
 | `livingForces.spreadAttempts` | `2` | Face-adjacent conversion attempts per selected random tick |
 | `livingForces.auraRadius` | `8` | Darkness affinity range around indexed blocks |
@@ -263,8 +337,23 @@ Important defaults:
 | `livingForces.clashRadius` | `48` | Realm-matter annihilation sphere radius |
 | `livingForces.clashChecksPerTick` | `4096` | Maximum in-sphere clash positions processed per tick |
 | `safeZones` | `[]` | Protected dimension-centred spheres |
+| `dialogueProvider.enabled` | `false` | Enables optional remote rewriting of companion/boss lore only |
+| `dialogueProvider.endpoint` | `""` | HTTPS or loopback HTTP OpenAI-compatible endpoint |
+| `dialogueProvider.model` | `""` | Provider model identifier |
+| `dialogueProvider.credentialEnvironmentVariable` | `POWERS_DIALOGUE_API_KEY` | Name of the server environment variable containing the credential |
+| `dialogueProvider.timeoutMillis` | `2500` | Bounded provider timeout, clamped to 250-2,500 ms |
+| `dialogueProvider.maxGlobalRequests` | `4` | Global in-flight request cap, clamped to 1-4 |
+| `dialogueProvider.ownerCooldownSeconds` | `30` | Per-owner request cooldown, clamped to 10-3,600 seconds |
 
 A safe-zone entry has `dimension`, `x`, `y`, `z`, and `radius` fields.
+
+## Performance and compatibility
+
+All casts, packets, scans, summons, and persistent world actions are server-authoritative and bounded. Candidate searches sort only capped nearby sets; target-name scans stop safely at 10,000 inspected loaded entities; particle emission uses the configured global budget; ritual block edits and living-force clashes resume through bounded per-tick cursors; temporary chunk tickets have deadlines; guardian, storm, field, gate, companion, and boss planners have per-owner/global caps or fixed tick intervals. No power waits for network I/O on the server thread. Serverbound names and action identifiers have codec length limits in addition to rate lanes and semantic validation.
+
+POWERS treats other mods' living bosses generically, counting any living entity with at least 200 maximum health for progression and using capped percentage or absolute damage where a player-only energy mechanic is unavailable. Datapacks can extend living-force immunity and Arcane Crucible eligibility through the documented tags/API. Safe zones, Fabric events, vanilla damage sources, block hardness, block entities, world borders, dimension identifiers, consent, and claims configured through the POWERS API remain authoritative; a third-party mod that bypasses vanilla/Fabric damage or movement hooks may need a dedicated compatibility adapter.
+
+For troubleshooting, first run `/powers reload` and inspect the server log for a retained-invalid configuration warning. Verify that the same mod version and Fabric API are installed on client and server, that Java 25 is active, and that custom dimensions are included in the server's datapack registry. An under-ranked player inside a mindscape is intentionally unable to escape without another player or operator assistance; this is not a travel failure.
 
 ## Building and verification
 
@@ -274,6 +363,8 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home
 ```
 
 `check` includes strict validation of JSON, duplicate keys, PNG headers/alpha/dimensions, Ogg/Vorbis streams, particle and sound references, models, translations, namespace safety, dimension biomes, exhaustive interaction-document drift, every production Java source, all non-item assets, and intentionally absent crystal recipes. `runGameTest` boots a real Fabric server and exercises live Darkness spreading and tagged Darkness Creature targeting. The release JAR is written to `build/libs/`.
+
+Automated tests validate rules, registries, resources, packet bounds, lifecycle cleanup, and dedicated-server behavior. A final manual playtest is still appropriate before deploying to a valuable multiplayer world, especially for subjective particle density, HUD scale at a player's chosen GUI scale, controls alongside other mods, and catastrophic terrain settings. Back up the world before enabling Celestial Ruin terrain damage or placing opposed living realm matter.
 
 For manual development runs, use `./test.sh client` or `./test.sh server`.
 

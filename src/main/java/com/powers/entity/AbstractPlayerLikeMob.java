@@ -97,12 +97,18 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 		super.customServerAiStep(level);
 		if (guardianLifetime > 0) {
 			guardianLifetime--;
-			boolean ownerPresent = guardianOwner == null
-					|| level.getServer().getPlayerList().getPlayer(guardianOwner) != null;
+			var owner = guardianOwner == null ? null
+					: level.getServer().getPlayerList().getPlayer(guardianOwner);
+			boolean ownerPresent = guardianOwner == null || owner != null && owner.level() == level;
 			if (GuardianFactionRules.shouldExpire(guardianLifetime, ownerPresent)) {
 				discard();
 				return;
 			}
+		}
+		if (guardianOwner != null && GuardianFieldRules.pulseAt(tickCount, eliteGuardian)) {
+			GuardianAlignmentField.pulse(level, this, radiantCombat()
+					? com.powers.item.artifact.ArtifactAlignment.LIGHT
+					: com.powers.item.artifact.ArtifactAlignment.DARKNESS);
 		}
 		LivingEntity target = getTarget();
 		if (!usesSharedRangedCombat()) return;
