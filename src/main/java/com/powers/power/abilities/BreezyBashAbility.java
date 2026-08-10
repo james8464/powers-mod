@@ -81,7 +81,7 @@ public final class BreezyBashAbility extends Ability {
 				BreezyBashRules.targetLimit(empowered, ancient), empowered, ancient,
 				BASE_OUTWARD_STRENGTH * force, BASE_VERTICAL_STRENGTH * force,
 				empowered ? EMPOWERED_SLAM_STRENGTH * force : BASE_SLAM_STRENGTH * force,
-				CombatTerrainImpact.tier(player, CastScalingContext.currentSource()));
+				CombatTerrainImpact.tier(player, CastScalingContext.currentSource(), "breezy_bash"));
 
 		captureInitialTargets(level, player, rite);
 		if (rite.captured.isEmpty()) {

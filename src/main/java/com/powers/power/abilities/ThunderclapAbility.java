@@ -71,7 +71,7 @@ public final class ThunderclapAbility extends Ability {
 			projectile.hurtMarked = true;
 		}
 		CombatTerrainImpact.thunderclap(level, player, origin, horizontal, range,
-				CombatTerrainImpact.tier(player, CastScalingContext.currentSource()));
+				CombatTerrainImpact.tier(player, CastScalingContext.currentSource(), "thunderclap"));
 		ThunderclapFx.release(level, origin.add(horizontal.scale(2.0)), horizontal, range);
 		return true;
 	}

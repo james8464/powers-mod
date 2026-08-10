@@ -7,6 +7,7 @@ import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.magic.runtime.CastSource;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
+import com.powers.progression.InnatePowerLevels;
 import com.powers.power.AmethystDampening;
 import com.powers.protection.PowerProtection;
 import com.powers.util.LoadedChunks;
@@ -23,8 +24,9 @@ public final class CombatTerrainImpact {
 	}
 
 	/** Resolves the authored terrain tier without leaking innate rank into spells or crystals. */
-	public static int tier(ServerPlayer player, CastSource source) {
-		if (source == CastSource.INNATE) return SkillSystem.effectiveLevel(player);
+	public static int tier(ServerPlayer player, CastSource source, String actionId) {
+		if (source == CastSource.INNATE) return InnatePowerLevels.forPower(
+				actionId, SkillSystem.effectiveLevel(player)).destructionTier();
 		if (source != CastSource.ARTIFACT) return 0;
 		if (ArtifactWeaponManager.holds(player, ArtifactAlignment.DARKNESS)
 				&& ArtifactWeaponManager.authorized(player, ArtifactAlignment.DARKNESS)) {
