@@ -298,7 +298,12 @@ public final class PlayerPowers {
 		}
 
 		public void emptyEnergy() {
-			PlayerEnergyStorage.store(target, 0);
+			PlayerEnergyStorage.empty(target);
+		}
+
+		/** Refills even through exhaustion; reserved for explicit operator testing. */
+		public void forceRestoreEnergy() {
+			PlayerEnergyStorage.forceRestore(target);
 		}
 
 		/** Drains the pool, clamped so it never goes below zero. */

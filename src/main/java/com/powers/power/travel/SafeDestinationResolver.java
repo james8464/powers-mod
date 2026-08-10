@@ -11,6 +11,7 @@ import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.block.Blocks;
@@ -26,7 +27,7 @@ public final class SafeDestinationResolver {
 	private SafeDestinationResolver() {
 	}
 
-	public static Result validate(ServerPlayer subject, ServerLevel target, Vec3 requested, TravelKind kind) {
+	public static Result validate(LivingEntity subject, ServerLevel target, Vec3 requested, TravelKind kind) {
 		Result preflight = validatePreload(subject, target, requested, kind);
 		if (!preflight.allowed()) return preflight;
 
@@ -66,18 +67,20 @@ public final class SafeDestinationResolver {
 	}
 
 	/** Runs every policy check that is safe before a remote destination chunk has loaded. */
-	public static Result validatePreload(ServerPlayer subject, ServerLevel target, Vec3 requested, TravelKind kind) {
+	public static Result validatePreload(LivingEntity subject, ServerLevel target, Vec3 requested, TravelKind kind) {
 		var border = target.getWorldBorder();
 		DestinationFailure bounds = boundsFailure(requested.x, requested.y, requested.z,
 				target.getMinY(), target.getMaxY(), border.getMinX(), border.getMaxX(),
 				border.getMinZ(), border.getMaxZ());
 		if (bounds != DestinationFailure.NONE) return new Result(bounds, requested);
 
-		PlayerPowers.PlayerPowersData data = PlayerPowers.get(subject);
-		DestinationFailure realm = realmFailure(
-				subject.level().dimension().identifier().toString(), target.dimension().identifier().toString(), kind,
-				SkillSystem.hasDarknessTag(subject), data.skillLevel(), data.darknessLevel());
-		if (realm != DestinationFailure.NONE) return new Result(realm, requested);
+		if (subject instanceof ServerPlayer player) {
+			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+			DestinationFailure realm = realmFailure(
+					player.level().dimension().identifier().toString(), target.dimension().identifier().toString(), kind,
+					SkillSystem.hasDarknessTag(player), data.skillLevel(), data.darknessLevel());
+			if (realm != DestinationFailure.NONE) return new Result(realm, requested);
+		}
 		if (kind != TravelKind.PLAYER_RETURN && kind != TravelKind.ADMIN_RECOVERY
 				&& DimensionalAnchorAbility.isAnchored(subject)
 				&& !target.dimension().equals(DimensionalAnchorAbility.anchorDimension(subject))) {

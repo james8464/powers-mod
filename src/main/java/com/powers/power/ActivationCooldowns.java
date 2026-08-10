@@ -2,6 +2,7 @@ package com.powers.power;
 
 import com.powers.player.PlayerPowers;
 import net.minecraft.server.level.ServerPlayer;
+import com.powers.testing.TestingOverrides;
 
 /**
  * Per-player cooldowns, one timer per ability id. Every power declares
@@ -25,8 +26,9 @@ public final class ActivationCooldowns {
 	public static int remainingTicks(ServerPlayer player, Ability ability) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		String id = ability.id().toString();
-		int remaining = DeadlineMath.remainingTicks(
-				data.cooldownReadyAt(id), player.level().getGameTime());
+		int remaining = TestingOverrides.cooldownRemaining(DeadlineMath.remainingTicks(
+				data.cooldownReadyAt(id), player.level().getGameTime()),
+				TestingOverrides.cooldownsDisabled(player.getUUID()));
 		if (remaining == 0) {
 			data.clearCooldown(id);
 		}
@@ -36,7 +38,7 @@ public final class ActivationCooldowns {
 	/** arms the cooldown after a successful activation */
 	public static void start(ServerPlayer player, Ability ability, int ticks) {
 		// zero means the ability has no cooldown to wait for
-		if (ticks <= 0) {
+		if (ticks <= 0 || TestingOverrides.cooldownsDisabled(player.getUUID())) {
 			return;
 		}
 		PlayerPowers.get(player).setCooldown(ability.id().toString(),

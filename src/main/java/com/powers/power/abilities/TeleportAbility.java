@@ -33,6 +33,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.portal.TeleportTransition;
@@ -77,7 +78,7 @@ public class TeleportAbility extends Ability {
 				400, true);
 	}
 
-	public static boolean startMarking(ServerPlayer player, ServerPlayer target, int slot) {
+	public static boolean startMarking(ServerPlayer player, LivingEntity target, int slot) {
 		ServerLevel targetLevel = (ServerLevel) target.level();
 		Vec3 entry = target.position().add(0, 2, 0);
 		SafeDestinationResolver.Result destination = SafeDestinationResolver.validate(
@@ -230,7 +231,7 @@ public class TeleportAbility extends Ability {
 	}
 
 	@Override
-	public boolean activateTeleport(ServerPlayer caster, ServerPlayer player, PlayerPowers.PlayerPowersData data,
+	public boolean activateTeleport(ServerPlayer caster, LivingEntity player, PlayerPowers.PlayerPowersData data,
 			ResourceKey<Level> dimension, double x, double y, double z) {
 		MinecraftServer server = player.level().getServer();
 		ServerLevel targetLevel = server == null ? null : server.getLevel(dimension);
@@ -263,11 +264,11 @@ public class TeleportAbility extends Ability {
 				});
 	}
 
-	private void beginTeleport(ServerPlayer caster, ServerPlayer player, ResourceKey<Level> dimension,
+	private void beginTeleport(ServerPlayer caster, LivingEntity player, ResourceKey<Level> dimension,
 			ServerLevel originLevel, ServerLevel targetLevel, Vec3 target, CastSource castSource,
 			double companionRadius, int stormTicks, int teleportDelay,
 			AsyncAbilityTransaction transaction) {
-		if (!MagicUseGate.ongoingAllowed(caster) || !MagicUseGate.ongoingAllowed(player)
+		if (!MagicUseGate.ongoingAllowed(caster) || !subjectMayContinue(player)
 				|| !ServerCastLifecycle.mayContinue(caster, castSource, ownsPower(caster))
 				|| !player.isAlive() || player.level() != originLevel) {
 			transaction.fail();
@@ -288,11 +289,13 @@ public class TeleportAbility extends Ability {
 		PowerFx.sound(targetLevel, target, SoundEvents.ENDERMAN_TELEPORT, 0.9f, 1.15f);
 		// the blink itself is delayed so the storm can build up at both ends;
 		// the lightning beneath the traveler echoes the realm they're bound for
-		PowersMod.startStorm(originLevel, origin, player, stormTicks, teleportDelay, themeFor(dimension));
+		PowersMod.startStorm(originLevel, origin,
+				player instanceof ServerPlayer serverPlayer ? serverPlayer : null,
+				stormTicks, teleportDelay, themeFor(dimension));
 		PowersMod.startStorm(targetLevel, target, null, stormTicks, 0);
 		PowersMod.scheduleDelayed(server, teleportDelay, () -> {
 			ServerPlayer currentCaster = server.getPlayerList().getPlayer(caster.getUUID());
-			AmethystDampening.update(player);
+			if (player instanceof ServerPlayer subjectPlayer) AmethystDampening.update(subjectPlayer);
 			if (currentCaster != null && currentCaster != player) AmethystDampening.update(currentCaster);
 			if (!DelayedTravelRules.travellerMayContinue(currentCaster == caster,
 					caster.isAlive() && !caster.isRemoved(), player.isAlive() && !player.isRemoved(),
@@ -301,7 +304,7 @@ public class TeleportAbility extends Ability {
 				transaction.fail();
 				return;
 			}
-			if (!MagicUseGate.ongoingAllowed(caster) || !MagicUseGate.ongoingAllowed(player)
+			if (!MagicUseGate.ongoingAllowed(caster) || !subjectMayContinue(player)
 					|| !ServerCastLifecycle.mayContinue(caster, castSource, ownsPower(caster))) {
 				transaction.fail();
 				return;
@@ -314,7 +317,7 @@ public class TeleportAbility extends Ability {
 				return;
 			}
 			Vec3 departure = player.position();
-			List<Companion> companions = collectCompanions(originLevel, player,
+			List<Companion> companions = collectCompanions(originLevel, caster, player,
 					departure, companionRadius);
 			player.teleport(new TeleportTransition(targetLevel, target, Vec3.ZERO,
 					player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
@@ -352,36 +355,38 @@ public class TeleportAbility extends Ability {
 	}
 
 	private static List<Companion> collectCompanions(ServerLevel originLevel,
-			ServerPlayer traveller, Vec3 departure, double radius) {
+			ServerPlayer caster, LivingEntity traveller, Vec3 departure, double radius) {
 		List<Companion> companions = new ArrayList<>();
 		for (Entity entity : com.powers.util.BoundedEntityCandidates.collect(originLevel,
 				EntityTypeTest.forClass(Entity.class), traveller.getBoundingBox().inflate(radius), 64,
 				candidate -> candidate.isAlive() && candidate != traveller
 						&& candidate.position().distanceToSqr(departure) <= radius * radius)) {
 			if (entity instanceof ServerPlayer companionPlayer
-					&& !PowerProtection.mayBringCompanion(traveller, companionPlayer)) continue;
+					&& !PowerProtection.mayBringCompanion(caster, companionPlayer)) continue;
 			companions.add(new Companion(entity, entity.position().subtract(departure)));
 		}
 		return List.copyOf(companions);
 	}
 
-	private static void reportTravelFailure(ServerPlayer caster, ServerPlayer subject,
+	private static void reportTravelFailure(ServerPlayer caster, LivingEntity subject,
 			Vec3 target, DestinationFailure failure) {
 		ServerLevel origin = (ServerLevel) subject.level();
 		switch (failure) {
 			case ANCHOR -> {
-				GodlyPunishment.chainBlock(origin, subject);
+				if (subject instanceof ServerPlayer player) GodlyPunishment.chainBlock(origin, player);
+				else PowerFx.rune(origin, subject.position().add(0, 1, 0), 1.8, 0xB36BFF, 24, 0.0);
 				PowerMessages.send(caster, "ability.powers.anchored_teleport_blocked", 4);
 			}
 			case WARD -> {
 				PowerFx.clash(origin, subject.position().add(0, 1, 0), target.add(0, 1, 0),
 						0xFFD4FF, 0xB36BFF);
 				subject.hurtServer(origin, subject.damageSources().magic(), 20.0f);
-				GodlyPunishment.strike(origin, subject, 0xB36BFF, false);
+				if (subject instanceof ServerPlayer player) GodlyPunishment.strike(origin, player, 0xB36BFF, false);
 				PowerMessages.send(caster, "amethyst.powers.teleport_repelled", 5);
 			}
 			case REALM_RESTRICTED -> {
-				GodlyPunishment.barrier(origin, subject, 0x82CAFF);
+				if (subject instanceof ServerPlayer player) GodlyPunishment.barrier(origin, player, 0x82CAFF);
+				else PowerFx.rune(origin, subject.position().add(0, 1, 0), 2.0, 0x82CAFF, 24, 0.0);
 				PowerMessages.send(caster, "ability.powers.no_entry", 4);
 			}
 			case OUT_OF_BOUNDS, UNLOADED_CHUNK -> PowerMessages.send(caster, "ability.powers.out_of_bounds", 3);
@@ -389,6 +394,11 @@ public class TeleportAbility extends Ability {
 			case COLLISION, HAZARD -> PowerMessages.send(caster, "ability.powers.solid_block", 3);
 			case NONE -> { }
 		}
+	}
+
+	private static boolean subjectMayContinue(LivingEntity subject) {
+		return subject.isAlive() && !subject.isRemoved()
+				&& (!(subject instanceof ServerPlayer player) || MagicUseGate.ongoingAllowed(player));
 	}
 
 	// which realm's signature the departing lightning should build up

@@ -235,22 +235,7 @@ final class LocatorSpellPackets {
 
 	private static NamedTargetRules.Resolution<LivingEntity> findNamedTarget(
 			MinecraftServer server, String requestedName) {
-		// Only matching candidates are retained and the scan stops at two: the
-		// second match is enough to refuse ambiguity without building a global list.
-		List<NamedTargetRules.Candidate<LivingEntity>> matches = new ArrayList<>(2);
-		for (ServerPlayer candidate : server.getPlayerList().getPlayers()) {
-			addMatch(matches, requestedName, candidate.getName().getString(), candidate);
-			if (matches.size() == 2) return NamedTargetRules.resolve(requestedName, matches);
-		}
-		NamedLivingTargetIndex.appendMatches(server, requestedName, matches);
-		return NamedTargetRules.resolve(requestedName, matches);
-	}
-
-	private static void addMatch(List<NamedTargetRules.Candidate<LivingEntity>> matches,
-			String requestedName, String candidateName, LivingEntity target) {
-		if (NamedTargetRules.matches(requestedName, candidateName)) {
-			matches.add(new NamedTargetRules.Candidate<>(target, candidateName));
-		}
+		return NamedLivingTargetIndex.resolve(server, requestedName);
 	}
 
 	private static boolean isLightRealm(ResourceKey<Level> dimension) {

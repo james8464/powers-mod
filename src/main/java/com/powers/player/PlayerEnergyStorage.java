@@ -5,6 +5,7 @@ import com.powers.power.PowerEnergy;
 import com.powers.progression.PowerScalingService;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import net.minecraft.server.level.ServerPlayer;
+import com.powers.testing.TestingOverrides;
 
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_ENERGY;
 import static com.powers.player.PlayerPowerAttachments.ENERGY;
@@ -38,6 +39,7 @@ final class PlayerEnergyStorage {
 
 	static boolean consume(AttachmentTarget target, int amount) {
 		if (amount <= 0) return true;
+		if (limitsDisabled(target)) return true;
 		int current = energy(target);
 		if (current < amount) return false;
 		store(target, current - amount);
@@ -64,12 +66,25 @@ final class PlayerEnergyStorage {
 	}
 
 	static void drain(AttachmentTarget target, int amount) {
-		if (amount > 0) store(target, energy(target) - amount);
+		if (amount > 0 && !limitsDisabled(target)) store(target, energy(target) - amount);
+	}
+
+	static void empty(AttachmentTarget target) {
+		if (!limitsDisabled(target)) store(target, 0);
+	}
+
+	static void forceRestore(AttachmentTarget target) {
+		store(target, capacity(target));
 	}
 
 	static void store(AttachmentTarget target, int value) {
 		int clamped = Math.clamp(value, 0, capacity(target));
 		if (usesDarkness(target)) target.setAttached(DARKNESS_ENERGY, clamped);
 		else target.setAttached(ENERGY, clamped);
+	}
+
+	private static boolean limitsDisabled(AttachmentTarget target) {
+		return target instanceof ServerPlayer player
+				&& TestingOverrides.energyDisabled(player.getUUID());
 	}
 }

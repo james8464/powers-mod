@@ -12,6 +12,7 @@ import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import com.powers.protection.PowerProtection;
@@ -85,7 +86,7 @@ public final class AbilityActivationService {
 	}
 
 	/** Shared coordinate-teleport pipeline used by an assigned power and the Shadow Sword. */
-	public static Result activateTeleport(ServerPlayer caster, ServerPlayer subject, Ability ability,
+	public static Result activateTeleport(ServerPlayer caster, LivingEntity subject, Ability ability,
 			ResourceKey<Level> dimension, double x, double y, double z, boolean bypassCooldown) {
 		if (ability == null || !ability.requiresInput() || !Double.isFinite(x)
 				|| !Double.isFinite(y) || !Double.isFinite(z)) return Result.FAILED;
@@ -95,7 +96,7 @@ public final class AbilityActivationService {
 					subject.getName().getString());
 			return Result.FAILED;
 		}
-		AmethystDampening.update(subject);
+		if (subject instanceof ServerPlayer player) AmethystDampening.update(player);
 		if (AmethystDampening.isDampened(subject)) {
 			PowerMessages.send(caster, "amethyst.powers.target_protected", 4);
 			return Result.FAILED;
@@ -108,14 +109,14 @@ public final class AbilityActivationService {
 	}
 
 	/** Completes artifact coordinate input with its alignment cooldown policy. */
-	public static Result activateArtifactTeleport(ServerPlayer caster, ServerPlayer subject, Ability ability,
+	public static Result activateArtifactTeleport(ServerPlayer caster, LivingEntity subject, Ability ability,
 			ResourceKey<Level> dimension, double x, double y, double z, int cooldownTicks) {
 		if (ability == null || !ability.requiresInput() || !Double.isFinite(x)
 				|| !Double.isFinite(y) || !Double.isFinite(z) || !passesCasterChecks(caster)) {
 			return Result.FAILED;
 		}
 		if (!PowerProtection.mayForceMove(caster, subject)) return Result.FAILED;
-		AmethystDampening.update(subject);
+		if (subject instanceof ServerPlayer player) AmethystDampening.update(player);
 		if (AmethystDampening.isDampened(subject)) return Result.FAILED;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(caster);
 		return CastScalingContext.withSource(CastSource.ARTIFACT, () -> cast(caster, data, ability,

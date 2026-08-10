@@ -182,6 +182,7 @@ public class PowersMod implements ModInitializer {
 			CrucibleWeaponRuntime.forget(player.getUUID());
 			PrivateCompanionManager.forget(player);
 			com.powers.knowledge.KnowledgeRemoteProviderRuntime.forget(player.getUUID());
+			com.powers.testing.TestingOverrides.clear(player.getUUID());
 			TravelChunkLoader.cancel(player.getUUID());
 			PowersPackets.forget(player);
 		});
@@ -210,6 +211,7 @@ public class PowersMod implements ModInitializer {
 			com.powers.diagnostics.ServerRuntimeMetrics.clear();
 			com.powers.magic.runtime.PhysicalMagicPresences.clear();
 			com.powers.entity.TestActorPowerState.clearAll();
+			com.powers.testing.TestingOverrides.clearAll();
 		});
 
 		// passives get re-applied on a schedule so they never expire, toggles

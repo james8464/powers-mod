@@ -22,6 +22,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -234,15 +235,15 @@ public final class PowersPackets {
 
 			if (payload.toPlayer()) {
 				// warping to a player drops you next to them in marking mode (spectator) to pick the exact landing spot
-				ServerPlayer target = findPlayer(player, payload.targetName());
+				LivingEntity target = findLivingTarget(player, payload.targetName());
 				if (target == null) return;
 				AbilityActivationService.activateInput(player, ability, false,
 						() -> TeleportAbility.startMarking(player, target, payload.slot()));
 				return;
 			}
 
-			ServerPlayer subject = payload.targetName().isEmpty()
-					? player : findPlayer(player, payload.targetName());
+			LivingEntity subject = payload.targetName().isEmpty()
+					? player : findLivingTarget(player, payload.targetName());
 			if (subject == null) return;
 			AbilityActivationService.activateTeleport(player, subject, ability, payload.dimension(),
 					payload.x(), payload.y(), payload.z(), false);
@@ -269,12 +270,10 @@ public final class PowersPackets {
 		});
 	}
 
-	private static ServerPlayer findPlayer(ServerPlayer caster, String name) {
-		for (ServerPlayer p : ((net.minecraft.server.level.ServerLevel) caster.level()).getServer().getPlayerList().getPlayers()) {
-			if (p.getName().getString().equalsIgnoreCase(name)) {
-				return p;
-			}
-		}
+	private static LivingEntity findLivingTarget(ServerPlayer caster, String name) {
+		NamedTargetRules.Resolution<LivingEntity> resolution = NamedLivingTargetIndex.resolve(
+				caster.level().getServer(), name);
+		if (resolution.status() == NamedTargetRules.Status.FOUND) return resolution.target();
 		PowerMessages.send(caster, "powers.packet.player_not_found", 3, name);
 		return null;
 	}

@@ -16,6 +16,7 @@ import com.powers.magic.runtime.CastSource;
 import com.powers.progression.PowerScalingService;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
+import com.powers.testing.TestingOverrides;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -122,7 +123,9 @@ public final class SpellCastingManager {
 			if (punishDampening) AmethystDampening.punish(player);
 			return false;
 		}
-		long remaining = PlayerPowers.get(player).cooldownReadyAt(cooldownId(spell)) - player.level().getGameTime();
+		long remaining = TestingOverrides.cooldownsDisabled(player.getUUID()) ? 0L
+				: PlayerPowers.get(player).cooldownReadyAt(cooldownId(spell))
+						- player.level().getGameTime();
 		if (remaining > 0) {
 			PowerMessages.overlay(player, Component.translatable(
 					"spell.powers.cooldown", (remaining + 19) / 20));
@@ -141,8 +144,10 @@ public final class SpellCastingManager {
 			failed(player, "energy.powers.empty.1");
 			return false;
 		}
-		int cooldown = spell.cooldownTicks();
-		data.setCooldown(cooldownId(spell), player.level().getGameTime() + cooldown);
+		if (!TestingOverrides.cooldownsDisabled(player.getUUID())) {
+			int cooldown = spell.cooldownTicks();
+			data.setCooldown(cooldownId(spell), player.level().getGameTime() + cooldown);
+		}
 		PowersPackets.syncTo(player);
 		return true;
 	}
