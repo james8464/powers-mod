@@ -20,6 +20,7 @@ import com.powers.network.PowersPackets;
 import com.powers.network.MagicFxPackets;
 import com.powers.network.ShadowSwordPackets;
 import com.powers.network.BodyProxyPackets;
+import com.powers.network.CompanionPackets;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import net.fabricmc.api.ClientModInitializer;
@@ -46,6 +47,7 @@ public class PowersClient implements ClientModInitializer {
 	public static KeyMapping slotKey2;
 	public static KeyMapping slotKey3;
 	public static KeyMapping rankMazeKey;
+	public static KeyMapping companionKey;
 
 	@Override
 	public void onInitializeClient() {
@@ -59,6 +61,8 @@ public class PowersClient implements ClientModInitializer {
 				"key.powers.slot3", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, CATEGORY));
 		rankMazeKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 				"key.powers.rank_maze", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, CATEGORY));
+		companionKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+				"key.powers.companion", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, CATEGORY));
 
 		ClientPlayNetworking.registerGlobalReceiver(PowerStatePayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientPowerState.update(payload)));
@@ -68,6 +72,8 @@ public class PowersClient implements ClientModInitializer {
 				(payload, context) -> context.client().execute(() -> ClientBeamFx.handle(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(BodyProxyPackets.BodySnapshotPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientBodySnapshots.handle(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(CompanionPackets.StatePayload.TYPE,
+				(payload, context) -> context.client().execute(() -> PrivateCompanionClient.handle(payload)));
 		// the celestial grimoire summons its target picker when the server vouches for the cast
 		ClientPlayNetworking.registerGlobalReceiver(PowersPackets.OpenLocatorScreenPayload.TYPE,
 				(payload, context) -> context.client().execute(() ->
@@ -84,6 +90,7 @@ public class PowersClient implements ClientModInitializer {
 			ClientPowerState.reset();
 			ClientMagicFx.reset();
 			ClientBodySnapshots.clear();
+			PrivateCompanionClient.clear();
 		});
 
 		registerParticles();
@@ -93,6 +100,8 @@ public class PowersClient implements ClientModInitializer {
 				context -> new PlayerLikeMobRenderer(context, "test_actor"));
 		EntityRenderers.register(PowersEntities.RADIANT_SENTINEL,
 				context -> new PlayerLikeMobRenderer(context, "radiant_sentinel"));
+		EntityRenderers.register(PowersEntities.PRIVATE_COMPANION_GHOST,
+				context -> new PlayerLikeMobRenderer(context, "darkness_player", 0.0F));
 
 		// Join vanilla's survival-bar layer so extra heart/armour rows are known
 		// before the adaptive energy vessel and icon rail are extracted.
@@ -125,6 +134,7 @@ public class PowersClient implements ClientModInitializer {
 	private static void tick(Minecraft client) {
 		ClientMagicFx.tick();
 		ClientPowerState.tickCooldowns();
+		PrivateCompanionClient.tick();
 		// the marking window for a player teleport counts down here and closes itself
 		if (ClientPowerState.markingSlot >= 0) {
 			if (--ClientPowerState.markingTicks <= 0) {
@@ -143,6 +153,11 @@ public class PowersClient implements ClientModInitializer {
 		while (rankMazeKey.consumeClick()) {
 			if (client.gui.screen() == null && client.player != null) {
 				client.gui.setScreen(new RankMazeScreen());
+			}
+		}
+		while (companionKey.consumeClick()) {
+			if (client.gui.screen() == null && client.player != null) {
+				PrivateCompanionClient.interact();
 			}
 		}
 	}
@@ -191,5 +206,6 @@ public class PowersClient implements ClientModInitializer {
 			return;
 		}
 		PowerHudRenderer.render(graphics, tickCounter);
+		PrivateCompanionClient.renderDialogue(graphics);
 	}
 }

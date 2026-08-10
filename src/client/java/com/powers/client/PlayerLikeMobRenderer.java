@@ -17,7 +17,12 @@ public final class PlayerLikeMobRenderer extends MobRenderer<AbstractPlayerLikeM
 	private final Identifier texture;
 
 	public PlayerLikeMobRenderer(EntityRendererProvider.Context context, String texture) {
-		super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER)), 0.5F);
+		this(context, texture, 0.5F);
+	}
+
+	/** Allows private apparitions to omit the solid-world mob shadow. */
+	public PlayerLikeMobRenderer(EntityRendererProvider.Context context, String texture, float shadowRadius) {
+		super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER)), shadowRadius);
 		this.texture = PowersMod.id("textures/entity/" + texture + ".png");
 		addLayer(new ItemInHandLayer<>(this));
 	}

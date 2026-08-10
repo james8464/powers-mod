@@ -3,6 +3,7 @@ package com.powers;
 import com.powers.entity.AbstractPlayerLikeMob;
 import com.powers.entity.DarknessCreature;
 import com.powers.entity.PowerTestActor;
+import com.powers.entity.PrivateCompanionGhost;
 import com.powers.entity.RadiantSentinel;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
@@ -25,6 +26,9 @@ public final class PowersEntities {
 			"power_test_actor", PowerTestActor::new, MobCategory.CREATURE);
 	public static final EntityType<RadiantSentinel> RADIANT_SENTINEL = register(
 			"radiant_sentinel", RadiantSentinel::new, MobCategory.CREATURE);
+	/** Client-local rendering shell. The server-side class immediately discards itself. */
+	public static final EntityType<PrivateCompanionGhost> PRIVATE_COMPANION_GHOST = register(
+			"private_companion_ghost", PrivateCompanionGhost::new, MobCategory.MISC);
 
 	private PowersEntities() {
 	}
@@ -35,6 +39,8 @@ public final class PowersEntities {
 		FabricDefaultAttributeRegistry.register(POWER_TEST_ACTOR,
 				AbstractPlayerLikeMob.createAttributes());
 		FabricDefaultAttributeRegistry.register(RADIANT_SENTINEL,
+				AbstractPlayerLikeMob.createAttributes());
+		FabricDefaultAttributeRegistry.register(PRIVATE_COMPANION_GHOST,
 				AbstractPlayerLikeMob.createAttributes());
 		SpawnPlacements.register(DARKNESS_CREATURE, SpawnPlacementTypes.ON_GROUND,
 				Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkAnyLightMonsterSpawnRules);
