@@ -25,6 +25,8 @@ class PowersConfigTest {
 		assertTrue(config.requirePossessionConsent());
 		assertTrue(config.projectionBodiesVulnerable());
 		assertTrue(config.persistCooldowns());
+		assertTrue(config.celestialRuinTerrainDamage());
+		assertTrue(config.celestialRuinBlockEntityDamage());
 		assertTrue(config.maxParticlesPerTick() > 0);
 		assertTrue(config.spaceTimeRadius() > 0);
 		assertTrue(config.chronoStopRadius() > 0);
@@ -37,7 +39,7 @@ class PowersConfigTest {
 	@Test
 	void sanitizationClampsUnsafeNumericValues() {
 		PowersConfig invalid = new PowersConfig(false, false, false, false, true, true, true,
-				true, true, true, true, -5, 0, 0, 500, 500, 5000, 99, java.util.List.of(),
+				true, true, true, true, true, true, -5, 0, 0, 500, 500, 5000, 99, java.util.List.of(),
 				new PowersConfig.LivingForces(true, -1, -2, -3, -4, 1000, 1));
 
 		PowersConfig sanitized = invalid.sanitized();
@@ -71,5 +73,7 @@ class PowersConfigTest {
 		assertEquals(512, config.maxParticlesPerTick());
 		assertTrue(config.livingForces().spreadingEnabled());
 		assertEquals(4096, config.livingForces().clashChecksPerTick());
+		assertFalse(PowersConfigLoader.parse("{\"celestialRuinTerrainDamage\":false}")
+				.celestialRuinTerrainDamage());
 	}
 }

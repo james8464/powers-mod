@@ -6,8 +6,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,5 +32,44 @@ class PowerRegistryTest {
 		assertTrue(ids.contains("size_shift"));
 		assertFalse(ids.contains("slow_world"));
 		assertNull(PowerRegistry.get("slow_world"));
+	}
+
+	@Test
+	void affinityRostersExposeOnlyCompatibleInnatePowers() {
+		PowerRegistry.initialize();
+		List<Power> radiant = PowerRegistry.getAssignable(PowerAffinity.RADIANT);
+		List<Power> darkness = PowerRegistry.getAssignable(PowerAffinity.DARKNESS);
+
+		assertTrue(radiant.stream().anyMatch(power -> power.affinity() == PowerAffinity.RADIANT));
+		assertTrue(darkness.stream().anyMatch(power -> power.affinity() == PowerAffinity.DARKNESS));
+		assertFalse(radiant.stream().anyMatch(power -> power.affinity() == PowerAffinity.DARKNESS));
+		assertFalse(darkness.stream().anyMatch(power -> power.affinity() == PowerAffinity.RADIANT));
+	}
+
+	@Test
+	void randomLoadoutsGuaranteeAnAlignmentExclusivePower() {
+		PowerRegistry.initialize();
+		for (int seed = 0; seed < 100; seed++) {
+			for (PowerAffinity affinity : List.of(PowerAffinity.RADIANT, PowerAffinity.DARKNESS)) {
+				List<Power> powers = PowerRegistry.randomDistinct(3, new Random(seed), affinity);
+				assertEquals(3, powers.stream().map(Power::id).distinct().count());
+				assertTrue(powers.stream().allMatch(power -> power.affinity().permits(affinity)));
+				assertTrue(powers.stream().anyMatch(power -> power.affinity() == affinity));
+			}
+		}
+	}
+
+	@Test
+	void allegianceMigrationPreservesCompatiblePowersAndReplacesForbiddenOnes() {
+		PowerRegistry.initialize();
+		List<String> existing = List.of("powers:flight", "powers:starfall", "powers:fireball");
+		List<String> migrated = PowerRegistry.reconcile(existing, PowerAffinity.DARKNESS, new Random(4));
+
+		assertTrue(migrated.contains("powers:flight"));
+		assertTrue(migrated.contains("powers:fireball"));
+		assertFalse(migrated.contains("powers:starfall"));
+		assertEquals(3, migrated.stream().distinct().count());
+		assertTrue(migrated.stream().map(PowerRegistry::get)
+				.anyMatch(power -> power.affinity() == PowerAffinity.DARKNESS));
 	}
 }

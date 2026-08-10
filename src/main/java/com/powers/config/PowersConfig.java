@@ -18,6 +18,8 @@ public record PowersConfig(
 		boolean requirePossessionConsent,
 		boolean projectionBodiesVulnerable,
 		boolean persistCooldowns,
+		boolean celestialRuinTerrainDamage,
+		boolean celestialRuinBlockEntityDamage,
 		int wardRadius,
 		int maxParticlesPerTick,
 		int teleportMaxChunkDistance,
@@ -55,7 +57,7 @@ public record PowersConfig(
 
 	public static PowersConfig defaults() {
 		return new PowersConfig(false, false, false, false,
-				true, true, true, true, true, true, true,
+				true, true, true, true, true, true, true, true, true,
 				20, 512, 8, 32, 64, 30, 2, List.of(), LivingForces.defaults());
 	}
 
@@ -66,6 +68,7 @@ public record PowersConfig(
 				hostileForcedMovement, requireTeleportConsent, requireLocatorConsent,
 				requireCompanionConsent, requireDreamwalkConsent, requirePossessionConsent,
 				projectionBodiesVulnerable, persistCooldowns,
+				celestialRuinTerrainDamage, celestialRuinBlockEntityDamage,
 				Math.max(1, Math.min(64, wardRadius)),
 				Math.max(32, Math.min(16_384, maxParticlesPerTick)),
 				Math.max(1, Math.min(128, teleportMaxChunkDistance)),

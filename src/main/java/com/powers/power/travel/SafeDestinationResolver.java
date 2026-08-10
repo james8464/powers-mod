@@ -5,6 +5,7 @@ import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.protection.PowerProtection;
+import com.powers.realm.RealmConfinementRules;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
@@ -98,11 +99,8 @@ public final class SafeDestinationResolver {
 			return DestinationFailure.NONE;
 		}
 		boolean qualifiedDarkness = darknessTag && darknessLevel >= SkillSystem.DARKNESS_GATE_LEVEL;
-		if (origin.equals("powers:dark_realm") && !qualifiedDarkness) {
-			return DestinationFailure.REALM_RESTRICTED;
-		}
-		if (origin.equals("powers:light_realm")
-				&& Math.max(normalLevel, darknessLevel) < SkillSystem.DARKNESS_GATE_LEVEL) {
+		if (RealmConfinementRules.requiredRespawnRealm(origin, darknessTag,
+				normalLevel, darknessLevel) != null) {
 			return DestinationFailure.REALM_RESTRICTED;
 		}
 		if (target.equals("powers:middleworld") && kind != TravelKind.CRYSTAL) {

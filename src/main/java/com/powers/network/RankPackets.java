@@ -53,6 +53,7 @@ public final class RankPackets {
 	}
 
 	private static void apply(ServerPlayer player, RankActionPayload payload) {
+		if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.RANK)) return;
 		if (!NODE_ID.matcher(payload.nodeId()).matches()) return;
 		boolean darkness = SkillSystem.hasDarknessTag(player);
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);

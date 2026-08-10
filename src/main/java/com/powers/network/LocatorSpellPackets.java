@@ -56,7 +56,11 @@ final class LocatorSpellPackets {
 	}
 
 	static void handleLocate(PowersPackets.LocateTargetPayload payload, ServerPlayNetworking.Context context) {
-		context.server().execute(() -> locate(context.player(), payload, context.server().getTickCount()));
+		context.server().execute(() -> {
+			if (PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.LOCATOR)) {
+				locate(context.player(), payload, context.server().getTickCount());
+			}
+		});
 	}
 
 	private static void locate(ServerPlayer player, PowersPackets.LocateTargetPayload payload, long currentTick) {

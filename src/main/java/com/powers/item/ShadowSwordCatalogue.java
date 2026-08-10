@@ -32,7 +32,9 @@ public final class ShadowSwordCatalogue {
 		result.add(new Definition("command/summon_darkness", "summon_darkness", Source.COMMAND, 1));
 		result.add(new Definition("command/spread_darkness", "spread_darkness", Source.COMMAND, 1));
 		result.add(new Definition("darkness/abyssal_singularity", "abyssal_singularity", Source.DARKNESS, 3));
+		result.add(new Definition("darkness/oblivion_pulse", "oblivion_pulse", Source.DARKNESS, 5));
 		result.add(new Definition("darkness/annihilation_beam", "annihilation_beam", Source.DARKNESS, 7));
+		result.add(new Definition("darkness/soul_requiem", "soul_requiem", Source.DARKNESS, 9));
 		result.add(new Definition("darkness/nightfall_dominion", "nightfall_dominion", Source.DARKNESS, 10));
 		return List.copyOf(result);
 	}

@@ -23,4 +23,10 @@ public final class DarknessCreature extends AbstractPlayerLikeMob {
 						&& PlayerLikeMobRules.mayTarget(
 						true, target.entityTags().contains(SkillSystem.DARKNESS_TAG))));
 	}
+
+	@Override
+	public boolean canAttack(LivingEntity target) {
+		return super.canAttack(target) && PlayerLikeMobRules.mayRetaliate(
+				true, target.entityTags().contains(SkillSystem.DARKNESS_TAG));
+	}
 }

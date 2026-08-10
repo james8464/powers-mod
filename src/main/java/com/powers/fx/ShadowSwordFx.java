@@ -2,6 +2,7 @@ package com.powers.fx;
 
 import com.powers.PowersParticles;
 import com.powers.PowersSounds;
+import com.powers.item.ShadowSwordPalette;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -18,12 +19,43 @@ public final class ShadowSwordFx {
 
 	/** Corrupts an existing power's readable silhouette without obscuring it. */
 	public static void corruptedCast(ServerLevel level, Vec3 origin, long phaseSeed) {
+		corruptedCast(level, origin, phaseSeed, 0x55265F);
+	}
+
+	/** Adds a darkened echo of the invoked power's original colour. */
+	public static void corruptedCast(ServerLevel level, Vec3 origin, long phaseSeed, int originalColor) {
 		double phase = Math.floorMod(phaseSeed, 360) * Math.PI / 180.0;
-		PowerFx.rune(level, origin.add(0.0, 0.08, 0.0), 1.25, VOID_VIOLET, 20, phase);
-		PowerFx.ring(level, origin.add(0.0, 1.05, 0.0), 0.72, DEAD_MAGENTA, 14, -phase);
+		ShadowSwordPalette.Palette palette = ShadowSwordPalette.corrupt(originalColor);
+		PowerFx.rune(level, origin.add(0.0, 0.08, 0.0), 1.25, palette.primary(), 20, phase);
+		PowerFx.ring(level, origin.add(0.0, 1.05, 0.0), 0.72, palette.secondary(), 14, -phase);
 		PowerFx.burst(level, origin.add(0.0, 1.0, 0.0), PowersParticles.ECLIPSE, 8, 0.42, 0.025);
 		PowerFx.burst(level, origin.add(0.0, 1.0, 0.0), ParticleTypes.REVERSE_PORTAL, 6, 0.35, 0.01);
 		PowerFx.sound(level, origin, PowersSounds.DARK_WHISPER, 0.85F, 0.55F);
+	}
+
+	public static void oblivionPulse(ServerLevel level, Vec3 center, boolean consumedProjectiles) {
+		PowerFx.rune(level, center.add(0.0, 0.08, 0.0), 5.5, 0x19051F, 42, 0.0);
+		PowerFx.ring(level, center.add(0.0, 0.35, 0.0), 9.0, VOID_VIOLET, 48, Math.PI / 8.0);
+		PowerFx.ring(level, center.add(0.0, 0.6, 0.0), 16.0, DEAD_MAGENTA, 54, Math.PI / 4.0);
+		PowerFx.burst(level, center.add(0.0, 1.0, 0.0), PowersParticles.ECLIPSE, 22, 2.6, 0.08);
+		if (consumedProjectiles) PowerFx.burst(level, center.add(0.0, 1.0, 0.0),
+				ParticleTypes.POOF, 14, 2.2, 0.12);
+		PowerFx.sound(level, center, SoundEvents.WARDEN_SONIC_BOOM, 2.2F, 0.32F);
+		PowerFx.sound(level, center, PowersSounds.DARK_WHISPER, 1.8F, 0.2F);
+	}
+
+	public static void soulRequiem(ServerLevel level, Vec3 from, Vec3 to, boolean execution) {
+		PowerFx.beam(level, from, to, execution ? PowersParticles.FRACTURE : PowersParticles.ECLIPSE,
+				execution ? 52 : 28);
+		PowerFx.rune(level, to, execution ? 4.5 : 2.0,
+				execution ? 0x110014 : DEAD_MAGENTA, execution ? 44 : 24,
+				level.getGameTime() * 0.12);
+		PowerFx.spiral(level, to.add(0.0, -0.8, 0.0), execution ? 2.8 : 1.2,
+				execution ? 7.0 : 3.0, VOID_VIOLET, execution ? 42 : 22, 0.0);
+		PowerFx.burst(level, to, execution ? ParticleTypes.EXPLOSION : ParticleTypes.SOUL,
+				execution ? 8 : 14, execution ? 1.3 : 0.6, execution ? 0.14 : 0.05);
+		PowerFx.sound(level, to, execution ? SoundEvents.WARDEN_SONIC_BOOM : PowersSounds.DARK_WHISPER,
+				execution ? 2.4F : 1.1F, execution ? 0.25F : 0.4F);
 	}
 
 	public static void guardianArrival(ServerLevel level, Vec3 position) {

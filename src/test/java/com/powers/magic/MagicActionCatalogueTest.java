@@ -14,7 +14,7 @@ class MagicActionCatalogueTest {
 	private static final Map<MagicOrigin, Integer> EXPECTED_ORIGIN_COUNTS = Map.of(
 			MagicOrigin.INNATE, 27,
 			MagicOrigin.CRYSTAL, 13,
-			MagicOrigin.ARTIFACT, 5,
+			MagicOrigin.ARTIFACT, 7,
 			MagicOrigin.SPELL, 21,
 			MagicOrigin.AMETHYST, 3,
 			MagicOrigin.REALM, 2);
@@ -26,8 +26,8 @@ class MagicActionCatalogueTest {
 		catalogue.definitions().forEach(definition ->
 				actualCounts.merge(definition.origin(), 1, Integer::sum));
 
-		assertEquals(71, catalogue.definitions().size());
-		assertEquals(71, catalogue.definitions().stream()
+		assertEquals(73, catalogue.definitions().size());
+		assertEquals(73, catalogue.definitions().stream()
 				.map(MagicActionDefinition::id).distinct().count());
 		assertEquals(EXPECTED_ORIGIN_COUNTS, actualCounts);
 		assertTrue(catalogue.definitions().stream().allMatch(MagicActionDefinition::isComplete));
@@ -51,7 +51,7 @@ class MagicActionCatalogueTest {
 				"space_time", "chrono_stop", "dreamwalking", "portal_rift", "middleworld",
 				"soul_link", "light_crystal", "dark_crystal",
 				"summon_darkness", "spread_darkness", "abyssal_singularity",
-				"annihilation_beam", "nightfall_dominion",
+				"oblivion_pulse", "annihilation_beam", "soul_requiem", "nightfall_dominion",
 				"soul_compass", "tracking_mark", "weather_sigil", "celestial_ruin", "dimensional_anchor",
 				"binding_sigil", "anti_portal_field", "kinetic_ward", "vitality_transfer",
 				"hex", "concealment_veil", "purification_circle", "root_binding",

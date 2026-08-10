@@ -74,6 +74,8 @@ public final class PowersConfigLoader {
 				bool(object, "requirePossessionConsent", defaults.requirePossessionConsent()),
 				bool(object, "projectionBodiesVulnerable", defaults.projectionBodiesVulnerable()),
 				bool(object, "persistCooldowns", defaults.persistCooldowns()),
+				bool(object, "celestialRuinTerrainDamage", defaults.celestialRuinTerrainDamage()),
+				bool(object, "celestialRuinBlockEntityDamage", defaults.celestialRuinBlockEntityDamage()),
 				integer(object, "wardRadius", defaults.wardRadius()),
 				integer(object, "maxParticlesPerTick", defaults.maxParticlesPerTick()),
 				integer(object, "teleportMaxChunkDistance", defaults.teleportMaxChunkDistance()),

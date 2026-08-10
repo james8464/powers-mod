@@ -143,8 +143,12 @@ public final class MagicActionCatalogue {
 				MagicIntent.WORLD_INTERACTION, MagicAspect.DARKNESS, MagicAspect.CREATION);
 		add(actions, "abyssal_singularity", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.CONTROL,
 				MagicAspect.DARKNESS, MagicAspect.GRAVITY, MagicAspect.VOID);
+		add(actions, "oblivion_pulse", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.CONTROL,
+				MagicAspect.DARKNESS, MagicAspect.SUPPRESSION, MagicAspect.VOID);
 		add(actions, "annihilation_beam", MagicOrigin.ARTIFACT, MagicDelivery.BEAM, MagicIntent.HARM,
 				MagicAspect.DARKNESS, MagicAspect.VOID, MagicAspect.FORCE);
+		add(actions, "soul_requiem", MagicOrigin.ARTIFACT, MagicDelivery.CHANNEL, MagicIntent.HARM,
+				MagicAspect.DARKNESS, MagicAspect.SOUL, MagicAspect.VOID);
 		add(actions, "nightfall_dominion", MagicOrigin.ARTIFACT, MagicDelivery.AURA, MagicIntent.DEFENCE,
 				MagicAspect.DARKNESS, MagicAspect.SOUL, MagicAspect.PROTECTION);
 

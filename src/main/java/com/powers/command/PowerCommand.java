@@ -12,6 +12,7 @@ import com.powers.mind.BodyProxyManager;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
+import com.powers.power.PowerAffinity;
 import com.powers.progression.RankGraph;
 import com.powers.progression.RankGraphRegistry;
 import com.powers.progression.RankNode;
@@ -247,12 +248,19 @@ public final class PowerCommand {
 			return 0;
 		}
 		String canonicalPowerId = power.id().toString();
+		PowerAffinity allegiance = SkillSystem.hasDarknessTag(player)
+				? PowerAffinity.DARKNESS : PowerAffinity.RADIANT;
+		if (!power.affinity().permits(allegiance)) {
+			context.getSource().sendFailure(Component.literal("That innate power belongs to the other allegiance."));
+			return 0;
+		}
 
 		List<String> ids = new java.util.ArrayList<>(PlayerPowers.get(player).getSlotIds());
 		// a player with no saved loadout yet gets random powers first, so assign works on a full set
 		if (ids.size() != PlayerPowers.SLOT_COUNT) {
 			ids = new java.util.ArrayList<>();
-			for (Power p : PowerRegistry.randomDistinct(PlayerPowers.SLOT_COUNT, new java.util.Random())) {
+			for (Power p : PowerRegistry.randomDistinct(PlayerPowers.SLOT_COUNT,
+					new java.util.Random(), allegiance)) {
 				ids.add(p.id().toString());
 			}
 		}

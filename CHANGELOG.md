@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.1 - 2026-08-10
+
+- Closed realm-death escape: underqualified deaths in Light/Dark mindscapes now respawn inside the same realm.
+- Revalidated every locked spell target for life, dimension, range, and line of sight at channel completion.
+- Added independent per-player rate limits for every serverbound gameplay packet lane.
+- Added radiant- and darkness-exclusive innate powers with compatible, duplicate-free allegiance migration; artifacts remain exempt.
+- Corrected Darkness Creature revenge AI so darkness-tagged attackers can never provoke friendly fire.
+- Expanded the Shadow Sword to seven artifact rites with Oblivion Pulse and Soul Requiem, and corrupted each reused power through a darkened echo of its original colour.
+- Preserved the darkness-level-10 Shadow Sword apotheosis: artifact casts ignore existing cooldowns and create no new cooldown.
+- Made Celestial Ruin persist its countdown, dimension, caster, detonation phase, and exact destruction cursor through server restarts.
+- Added explicit catastrophic terrain and block-entity policy for Celestial Ruin while always purging Darkness and Pure Light.
+- Added real Fabric GameTests for live Darkness spreading and Darkness Creature faction targeting.
+- Expanded the canonical collision kernel to 73 actions and all 2,701 unordered pairs including same-action resonance.
+- Kept the survival HUD energy well as ten separate vanilla-aligned symbols directly above the hunger bar.
+
 ## 1.0.0 - 2026-08-08
 
 - Stabilized Minecraft 26.2 and Java 25 builds with automated unit and resource validation.

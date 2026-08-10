@@ -3,6 +3,7 @@ package com.powers.spell;
 import com.powers.fx.PowerFx;
 import com.powers.item.GrimoireItem;
 import com.powers.network.PowersPackets;
+import com.powers.network.PacketRateLimiter;
 import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.crystals.SpaceTimeAbility;
@@ -47,6 +48,7 @@ public final class SpellCastingManager {
 	}
 
 	public static void use(ServerPlayer player, String texture) {
+		if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.RITUAL)) return;
 		if (GlobalTimeStopManager.rejectIfStopped(player)) return;
 		GrimoireDefinition grimoire = REGISTRY.forTexture(texture);
 		if (grimoire == null) return;

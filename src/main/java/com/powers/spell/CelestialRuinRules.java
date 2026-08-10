@@ -26,4 +26,10 @@ public final class CelestialRuinRules {
 		double remaining = 1.0 - distance / BLAST_RADIUS;
 		return (float) (PEAK_DAMAGE * remaining * remaining);
 	}
+
+	/** Living-force cleanup is mandatory; other terrain follows its dedicated catastrophic policy. */
+	public static boolean shouldDestroy(boolean livingForce, boolean terrainEnabled,
+			boolean hasBlockEntity, boolean blockEntityDamageEnabled) {
+		return livingForce || terrainEnabled && (!hasBlockEntity || blockEntityDamageEnabled);
+	}
 }

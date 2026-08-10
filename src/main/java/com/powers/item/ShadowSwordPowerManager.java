@@ -12,6 +12,8 @@ import com.powers.power.PowerRegistry;
 import com.powers.power.artifact.AbyssalSingularityAbility;
 import com.powers.power.artifact.AnnihilationBeamAbility;
 import com.powers.power.artifact.NightfallDominionAbility;
+import com.powers.power.artifact.OblivionPulseAbility;
+import com.powers.power.artifact.SoulRequiemAbility;
 import com.powers.power.artifact.SpreadDarknessAbility;
 import com.powers.power.artifact.SummonDarknessAbility;
 import com.powers.power.crystals.CrystalPowerRegistry;
@@ -37,6 +39,7 @@ public final class ShadowSwordPowerManager {
 	private static final Map<String, Ability> ARTIFACT_ABILITIES = List.<Ability>of(
 			new SummonDarknessAbility(), new SpreadDarknessAbility(),
 			new AbyssalSingularityAbility(), new AnnihilationBeamAbility(),
+			new OblivionPulseAbility(), new SoulRequiemAbility(),
 			new NightfallDominionAbility()).stream()
 			.collect(Collectors.toUnmodifiableMap(ability -> ability.id().getPath(), Function.identity()));
 	private static List<Action> cachedActions = List.of();
@@ -76,11 +79,12 @@ public final class ShadowSwordPowerManager {
 
 	/** Selects an action and, when supplied, one of its server-validated nested modes. */
 	public static boolean select(ServerPlayer player, String key, int option) {
+		Action requested = find(key);
+		if (requested == null || !ShadowSwordSelectionRules.validOption(
+				option, requested.ability().selectionOptionCount())) return false;
 		if (!select(player, key)) return false;
-		if (option < 0) return true;
-		Action action = find(key);
-		if (action == null || option >= action.ability().selectionOptionCount()) return false;
-		boolean changed = action.ability().selectOption(player, PlayerPowers.get(player), option);
+		if (option == -1) return true;
+		boolean changed = requested.ability().selectOption(player, PlayerPowers.get(player), option);
 		if (changed) com.powers.network.PowersPackets.syncTo(player);
 		return changed;
 	}
@@ -106,7 +110,7 @@ public final class ShadowSwordPowerManager {
 				player, action.ability(), toggleKey(action), apotheosis);
 		if (result == AbilityActivationService.Result.ACTIVATED) {
 			ShadowSwordFx.corruptedCast((ServerLevel) player.level(), player.position(),
-					action.definition().key().hashCode());
+					action.definition().key().hashCode(), sourceColor(action));
 		}
 	}
 
@@ -173,6 +177,16 @@ public final class ShadowSwordPowerManager {
 				yield ability;
 			}
 		};
+	}
+
+	private static int sourceColor(Action action) {
+		if (action.definition().source() == ShadowSwordCatalogue.Source.INNATE) {
+			Power power = PowerRegistry.get(action.definition().abilityId());
+			if (power != null) return power.color();
+		}
+		if (action.definition().source() == ShadowSwordCatalogue.Source.DARKNESS
+				|| action.definition().source() == ShadowSwordCatalogue.Source.COMMAND) return 0x55265F;
+		return action.definition().abilityId().hashCode() & 0xFFFFFF;
 	}
 
 	private static void refuse(ServerPlayer player) {

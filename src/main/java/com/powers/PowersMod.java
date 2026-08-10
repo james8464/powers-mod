@@ -26,6 +26,7 @@ import com.powers.spell.SpellCastingManager;
 import com.powers.spell.SpellFieldManager;
 import com.powers.spell.CelestialRuinManager;
 import com.powers.realm.RealmMindscapeManager;
+import com.powers.realm.RealmConfinementManager;
 import com.powers.loot.PowersLoot;
 import com.powers.item.ShadowSwordRuntime;
 import com.powers.item.ShadowSwordPowerManager;
@@ -111,11 +112,12 @@ public class PowersMod implements ModInitializer {
 			PowerAbilityRuntime.afterRespawn(newPlayer.level().getServer(), oldPlayer.getUUID());
 			WAS_SLEEPING.remove(newPlayer.getUUID());
 			SkillSystem.clear(newPlayer.getUUID());
-			// dying inside a realm hands the player back to the overworld, so
-			// the pending restore would otherwise fire against the wrong mode
+			// Vanilla respawning begins outside a mindscape. Discard the dead
+			// proxy snapshot, then confinement may return the new body to its realm.
 			if (!alive) {
 				BodyProxyManager.discardOnDeath(newPlayer);
 				PlayerPowers.get(newPlayer).setPreviousGameMode(null);
+				RealmConfinementManager.restoreAfterDeath(oldPlayer, newPlayer);
 			}
 			refreshPassives(newPlayer);
 			SkillSystem.syncPathVisibility(newPlayer);

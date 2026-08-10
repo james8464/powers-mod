@@ -1,0 +1,17 @@
+{
+	"schemaVersion": 1,
+	"id": "powers-gametest",
+	"version": "1.0.0",
+	"name": "POWERS Game Tests",
+	"environment": "server",
+	"entrypoints": {
+		"fabric-gametest": [
+			"com.powers.gametest.PowersGameTests",
+			"com.powers.gametest.LivingForceGameTests"
+		]
+	},
+	"depends": {
+		"powers": "*",
+		"fabric-api": "*"
+	}
+}

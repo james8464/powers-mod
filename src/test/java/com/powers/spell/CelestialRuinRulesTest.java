@@ -23,4 +23,13 @@ class CelestialRuinRulesTest {
 		assertTrue(CelestialRuinRules.insideBlast(120, 0, 0));
 		assertFalse(CelestialRuinRules.insideBlast(121, 0, 0));
 	}
+
+	@Test
+	void livingForceCleanupSurvivesOptionalTerrainSafetyPolicy() {
+		assertTrue(CelestialRuinRules.shouldDestroy(true, true, false, false));
+		assertTrue(CelestialRuinRules.shouldDestroy(true, false, false, false));
+		assertFalse(CelestialRuinRules.shouldDestroy(false, false, false, true));
+		assertFalse(CelestialRuinRules.shouldDestroy(false, true, true, false));
+		assertTrue(CelestialRuinRules.shouldDestroy(false, true, true, true));
+	}
 }
