@@ -56,6 +56,18 @@ Mechanics that require an actual client, inventory, advancement tree, operator p
 - Multiple actors receive distinct default usernames, enabling unambiguous multiplayer-style scenarios.
 - The actor keeps player-scale rendering, equipment slots, movement, health, armour, knockback, and hostile-mob retaliation.
 
+## Operator testing controls
+
+Manual testing receives an operator-only, per-player session mode:
+
+- `/powers testing on|off|status` changes or reports both bypasses;
+- `/powers testing energy on|off` changes only energy payment and ongoing-drain bypass;
+- `/powers testing cooldowns on|off` changes only ability, spell, crystal, artifact, and item recharge bypass;
+- `/powers testing refill` restores the current energy well and clears saved ability/spell cooldowns;
+- `/powers testing actor spawn [username]` creates a test actor at the executor with an optional normalized username.
+
+Testing mode is runtime-only and clears on disconnect and server stop. It never changes advancement/rank, allegiance, permissions, protection, targeting, amethyst, Time Stop, casting validity, damage, or terrain rules. Bypasses are enforced at shared payment and cooldown boundaries rather than within individual abilities, and status changes are reported prominently so an operator cannot unknowingly continue ordinary survival play with testing enabled.
+
 ## Verification
 
 Test-first coverage will prove:
@@ -65,5 +77,7 @@ Test-first coverage will prove:
 - player-oriented target classification includes only connected players and test actors;
 - consent bypass applies only to the test actor and never bypasses safe zones;
 - simulated target energy saturates and cleans up correctly;
+- testing commands require the configured administrator permission;
+- testing energy and cooldown bypasses are independent, central, runtime-only, and clean up on disconnect/server stop;
 - live GameTests cover spawning/name visibility, named resolution, possession or Dreamwalking, Dimensional Anchor, forcefield overkill, energy drain, and teleport relocation;
 - the full unit/GameTest/resource suite and dedicated-server boot remain green before the development client is launched.
