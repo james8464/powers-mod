@@ -17,6 +17,7 @@ public record HudLayout(Rect energy, List<Rect> powerSlots) {
 	private static final int EDGE_MARGIN = 4;
 	private static final int HUNGER_LEFT_OFFSET = 10;
 	private static final int ENERGY_BOTTOM_OFFSET = 49;
+	private static final int CONDITIONAL_ROW_STEP = 10;
 
 	public HudLayout {
 		powerSlots = List.copyOf(powerSlots);
@@ -24,13 +25,23 @@ public record HudLayout(Rect energy, List<Rect> powerSlots) {
 
 	/** Creates a hunger-aligned energy row and right-edge power rail. */
 	public static HudLayout forScreen(int width, int height) {
+		return forScreen(width, height, 0, 0);
+	}
+
+	/**
+	 * Creates the layout while reserving vanilla air and mount-health rows on
+	 * the hunger side. Values are row counts, not raw icon counts.
+	 */
+	public static HudLayout forScreen(int width, int height, int airRows, int mountRows) {
 		int safeWidth = Math.max(1, width);
 		int safeHeight = Math.max(1, height);
 		int energyWidth = Math.min(ENERGY_WIDTH, safeWidth);
 		int energyHeight = Math.min(ENERGY_HEIGHT, safeHeight);
 		int hungerX = safeWidth / 2 + HUNGER_LEFT_OFFSET;
 		int energyX = Math.max(0, Math.min(hungerX, safeWidth - energyWidth));
-		int energyY = Math.max(0, safeHeight - ENERGY_BOTTOM_OFFSET);
+		int conditionalRows = Math.clamp(Math.max(0, airRows) + Math.max(0, mountRows), 0, 4);
+		int energyY = Math.max(0, safeHeight - ENERGY_BOTTOM_OFFSET
+				- conditionalRows * CONDITIONAL_ROW_STEP);
 		Rect energy = new Rect(energyX, energyY,
 				energyWidth, energyHeight);
 
@@ -42,6 +53,12 @@ public record HudLayout(Rect energy, List<Rect> powerSlots) {
 				new Rect(railX, railTop, slotSize, slotSize),
 				new Rect(railX, railTop + slotSize + POWER_SLOT_GAP, slotSize, slotSize),
 				new Rect(railX, railTop + (slotSize + POWER_SLOT_GAP) * 2, slotSize, slotSize)));
+	}
+
+	/** Right-to-left x coordinate for one of the ten vanilla-stride symbols. */
+	public static int energySymbolX(Rect energy, int symbol) {
+		int index = Math.clamp(symbol, 0, 9);
+		return energy.right() - ENERGY_HEIGHT - index * 8;
 	}
 
 	/** Bounds of the vanilla nine-slot bar, useful for deterministic collision tests. */

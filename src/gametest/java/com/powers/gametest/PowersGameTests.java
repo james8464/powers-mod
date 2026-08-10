@@ -18,6 +18,7 @@ import com.powers.boss.FirstVesselPowerCatalogue;
 import com.powers.boss.FirstVesselRitual;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.player.SkillSystem;
+import com.powers.player.PlayerGuide;
 import com.powers.power.artifact.ArtifactDeathWardManager;
 import com.powers.power.PowerDamage;
 import com.powers.item.ArtifactWeaponManager;
@@ -85,6 +86,16 @@ public final class PowersGameTests {
 				== ArtifactAlignment.DARKNESS, "Shadow Sword identity was missing");
 		helper.assertTrue(partisan.get(PowersDataComponents.ARTIFACT_IDENTITY).alignment()
 				== ArtifactAlignment.LIGHT, "Partisan identity was missing");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void firstJoinGuideIsAResolvedVanillaWrittenBook(GameTestHelper helper) {
+		ItemStack guide = PlayerGuide.create();
+		var content = guide.get(DataComponents.WRITTEN_BOOK_CONTENT);
+		helper.assertTrue(guide.is(Items.WRITTEN_BOOK), "Guide did not use the vanilla written book");
+		helper.assertTrue(content != null && content.resolved() && content.pages().size() >= 5,
+				"Guide pages were incomplete or unresolved");
 		helper.succeed();
 	}
 

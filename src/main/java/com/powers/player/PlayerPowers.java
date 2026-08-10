@@ -29,6 +29,7 @@ import static com.powers.player.PlayerPowerAttachments.DARKNESS_LEVEL;
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_PREFIX_HIDDEN;
 import static com.powers.player.PlayerPowerAttachments.DIMENSIONAL_ANCHOR;
 import static com.powers.player.PlayerPowerAttachments.FLIGHT_SNAPSHOT;
+import static com.powers.player.PlayerPowerAttachments.GUIDE_RECEIVED;
 import static com.powers.player.PlayerPowerAttachments.MIND_BODY;
 import static com.powers.player.PlayerPowerAttachments.POWER_SLOTS;
 import static com.powers.player.PlayerPowerAttachments.PREVIOUS_GAMEMODE;
@@ -209,6 +210,16 @@ public final class PlayerPowers {
 
 		public boolean isDarknessPrefixHidden() {
 			return target.getAttachedOrElse(DARKNESS_PREFIX_HIDDEN, Boolean.FALSE);
+		}
+
+		/** Whether this persistent character has already received the authored guide. */
+		public boolean hasReceivedGuide() {
+			return target.getAttachedOrElse(GUIDE_RECEIVED, Boolean.FALSE);
+		}
+
+		/** Permanently records delivery so reconnects and respawns cannot duplicate the book. */
+		public void markGuideReceived() {
+			target.setAttached(GUIDE_RECEIVED, Boolean.TRUE);
 		}
 
 		/**

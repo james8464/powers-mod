@@ -64,12 +64,12 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 | `textures/entity/test_actor.png` | textures | `a36cd91fd2f8` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
 | `textures/gui/advancements/backgrounds/radiant_path.png` | textures | `7d027877c130` | pass | PNG 256×256, alpha; reviewed in contact sheet. |
 | `textures/gui/advancements/backgrounds/shadow_path.png` | textures | `bdc8a02990ac` | pass | PNG 256×256, alpha; reviewed in contact sheet. |
-| `textures/gui/energy_symbols.png` | textures | `f45292ca52e4` | pass | PNG 27×45, alpha; reviewed in contact sheet. |
+| `textures/gui/energy_symbols.png` | textures | `5ed2de41ec5a` | pass | PNG 27×45, alpha; reviewed in contact sheet. |
 | `textures/gui/locator_panel.png` | textures | `3255f1e09f0c` | pass | PNG 240×224, alpha; reviewed in contact sheet. |
 | `textures/gui/power_slot.png` | textures | `0126f9ebefca` | pass | PNG 30×30, alpha; reviewed in contact sheet. |
 | `textures/gui/power_slot_active.png` | textures | `69c00eb92a5f` | pass | PNG 30×30, alpha; reviewed in contact sheet. |
-| `textures/gui/rank_maze/dark_panel.png` | textures | `59ff0b7b9dc1` | pass | PNG 512×256, alpha; reviewed in contact sheet. |
-| `textures/gui/rank_maze/light_panel.png` | textures | `56368b10b014` | pass | PNG 512×256, alpha; reviewed in contact sheet. |
+| `textures/gui/rank_maze/dark_panel.png` | textures | `b12bd1b0e041` | pass | PNG 512×256, alpha; reviewed in contact sheet. |
+| `textures/gui/rank_maze/light_panel.png` | textures | `9ad24a6b8c59` | pass | PNG 512×256, alpha; reviewed in contact sheet. |
 | `textures/gui/teleport_panel.png` | textures | `ea40205aceab` | pass | PNG 256×192, alpha; reviewed in contact sheet. |
 | `textures/imported/blocks/overlay_blood.png` | textures | `3bd128556e35` | pass | PNG 16×16, alpha; reviewed in contact sheet. |
 | `textures/imported/blocks/overlay_blood_all.png` | textures | `7a533f89614c` | pass | PNG 16×16, alpha; reviewed in contact sheet. |

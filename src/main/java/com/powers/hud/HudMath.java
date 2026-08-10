@@ -18,6 +18,14 @@ public final class HudMath {
 		return (int) Math.min(20, (clamped * 20L + capacity - 1L) / capacity);
 	}
 
+	/** Atlas column: 0 empty, 1 left-half-filled, 2 full for a right-to-left symbol. */
+	public static int energyFillColumn(int halfUnits, int symbol) {
+		int threshold = Math.clamp(symbol, 0, 9) * 2;
+		int clamped = Math.clamp(halfUnits, 0, 20);
+		if (clamped >= threshold + 2) return 2;
+		return clamped == threshold + 1 ? 1 : 0;
+	}
+
 	public static HudEnergyMode mode(int energy, boolean dampened, boolean darkness) {
 		return mode(energy, dampened, darkness, false);
 	}
