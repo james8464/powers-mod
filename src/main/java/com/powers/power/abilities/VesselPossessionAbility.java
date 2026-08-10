@@ -74,7 +74,7 @@ public class VesselPossessionAbility extends Ability {
 		player.setCamera(target);
 		ServerLevel level = (ServerLevel) player.level();
 		com.powers.fx.PowerFx.beam(level, player.getEyePosition(), target.getEyePosition(),
-				net.minecraft.core.particles.ParticleTypes.ENCHANT, 14);
+				com.powers.fx.PowerFx.dust(0xBCA7FF, 0.9F), 14);
 		com.powers.fx.PowerFx.burst(level, target.position().add(0, 1, 0),
 				net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL, 18, 0.5, 0.01);
 		com.powers.fx.PowerFx.sound(level, target.position(),

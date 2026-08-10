@@ -145,7 +145,8 @@ public final class ArcaneCrucibleBlockEntity extends BaseContainerBlockEntity
 		double radius = 0.7 + (RITUAL_TICKS - remaining) / 80.0;
 		PowerFx.rune(level, center(), radius, 0xA46DFF, 14,
 				level.getGameTime() * 0.12);
-		PowerFx.beam(level, center().add(0.0, 4.0, 0.0), center(), ParticleTypes.ENCHANT, 10);
+		PowerFx.beam(level, center().add(0.0, 4.0, 0.0), center(),
+				PowerFx.dust(0xA46DFF, 0.9F), 10);
 	}
 
 	private void commit(ServerLevel serverLevel) {

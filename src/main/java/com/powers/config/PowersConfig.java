@@ -7,6 +7,7 @@ import java.util.List;
  * effects, safe zones, summons, and administrator rerolls.
  */
 public record PowersConfig(
+		int schemaVersion,
 		boolean allowTerrainDamage,
 		boolean allowBlockEntityDamage,
 		boolean allowSelfReroll,
@@ -30,6 +31,7 @@ public record PowersConfig(
 		List<SafeZone> safeZones,
 		LivingForces livingForces,
 		DialogueProvider dialogueProvider) {
+	public static final int CURRENT_SCHEMA_VERSION = 2;
 
 	/** Sanitized pacing and safety limits for spreading realm matter. */
 	public record LivingForces(boolean spreadingEnabled, int spreadAttempts, int auraRadius,
@@ -56,7 +58,7 @@ public record PowersConfig(
 		}
 	}
 
-	/** Disabled-by-default, bounded settings for fictional dialogue text only. */
+	/** Disabled-by-default bounded endpoint for lore dialogue and low-confidence book fallback. */
 	public record DialogueProvider(boolean enabled, String endpoint, String model,
 			String credentialEnvironmentVariable, int timeoutMillis,
 			int maxGlobalRequests, int ownerCooldownSeconds) {
@@ -86,7 +88,7 @@ public record PowersConfig(
 	}
 
 	public static PowersConfig defaults() {
-		return new PowersConfig(false, false, false, false,
+		return new PowersConfig(CURRENT_SCHEMA_VERSION, true, false, false, false,
 				true, true, true, true, true, true, true, true, true,
 				20, 512, 8, 32, 64, 30, 2, List.of(), LivingForces.defaults(),
 				DialogueProvider.defaults());
@@ -95,7 +97,8 @@ public record PowersConfig(
 	public PowersConfig sanitized() {
 		List<SafeZone> zones = safeZones == null ? List.of()
 				: safeZones.stream().filter(java.util.Objects::nonNull).map(SafeZone::sanitized).toList();
-		return new PowersConfig(allowTerrainDamage, allowBlockEntityDamage, allowSelfReroll,
+		return new PowersConfig(CURRENT_SCHEMA_VERSION, allowTerrainDamage,
+				allowBlockEntityDamage, allowSelfReroll,
 				hostileForcedMovement, requireTeleportConsent, requireLocatorConsent,
 				requireCompanionConsent, requireDreamwalkConsent, requirePossessionConsent,
 				projectionBodiesVulnerable, persistCooldowns,

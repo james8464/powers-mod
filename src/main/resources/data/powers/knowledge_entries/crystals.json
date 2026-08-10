@@ -1,0 +1,7 @@
+{
+  "title": "The Thirteen Crystals",
+  "keywords": ["crystal recipe", "craft crystal", "rainbow crystal", "dark crystal", "light crystal", "infected crystal"],
+  "answer": "The thirteen crystals contain fixed force-aspects and do not use innate rank scaling. Several crystals intentionally have no crafting recipe yet; the book will not invent one. Light and Dark crystals open vulnerable-body mindscape travel. Their ordinary return routes obey realm departure requirements, while only administrator recovery can bypass a broken destination.",
+  "sources": ["CrystalPowerRegistry", "project acquisition policy", "SafeDestinationResolver"],
+  "reveal_rank": 0
+}

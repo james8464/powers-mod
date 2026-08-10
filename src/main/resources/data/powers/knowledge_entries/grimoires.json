@@ -1,0 +1,7 @@
+{
+  "title": "The Grimoires",
+  "keywords": ["spell book", "grimoire spells", "locator spell", "dimensional anchor", "celestial ruin"],
+  "answer": "Grimoires cast authored spells rather than innate powers. Their effects never inherit player-rank scaling. The spell catalogue includes location and remote-sight rites, dimensional anchors, wards, bindings, concealment, counterspells, ritual amplification and Celestial Ruin. Status effects created by these rites hide ordinary potion particles so their bespoke magical visuals remain readable.",
+  "sources": ["SpellCastingManager", "SpellDefinition", "generated spell reference"],
+  "reveal_rank": 0
+}

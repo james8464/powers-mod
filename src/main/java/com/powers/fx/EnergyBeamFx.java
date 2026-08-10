@@ -3,7 +3,6 @@ package com.powers.fx;
 import com.powers.PowersParticles;
 import com.powers.PowersSounds;
 import com.powers.power.abilities.EnergyBeamRules;
-import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -44,8 +43,8 @@ public final class EnergyBeamFx {
 		double length = from.distanceTo(to);
 		int steps = Math.clamp((int) Math.ceil(length * 0.55), 6, ancientMastery ? 38 : 30);
 		PowerFx.beam(level, from, to, PowersParticles.RIBBON, steps);
-		PowerFx.beam(level, from, to, ColorParticleOption.create(
-				ParticleTypes.ENTITY_EFFECT, 0xFFFFD166), Math.max(5, steps / 2));
+		PowerFx.beam(level, from, to, PowerFx.dust(0xFFD166, ancientMastery ? 1.3F : 0.9F),
+				Math.max(5, steps / 2));
 		if (damageBeat) {
 			PowerFx.beam(level, from, to, ParticleTypes.FLAME, Math.max(6, steps / 2));
 			PowerFx.burst(level, from, PowersParticles.SPARK,
@@ -83,8 +82,7 @@ public final class EnergyBeamFx {
 	public static void split(ServerLevel level, Vec3 from, Vec3 to, int index) {
 		PowerFx.beam(level, from, to, index == 0 ? PowersParticles.SPARK : PowersParticles.RIBBON,
 				10);
-		PowerFx.beam(level, from, to, ColorParticleOption.create(
-				ParticleTypes.ENTITY_EFFECT, index == 0 ? 0xFFFFF4D6 : 0xFFFFB347), 7);
+		PowerFx.beam(level, from, to, PowerFx.dust(index == 0 ? 0xFFF4D6 : 0xFFB347, 1.0F), 7);
 		PowerFx.ring(level, to, 0.5, index == 0 ? SUN_WHITE : SUN_GOLD,
 				12, level.getGameTime() * 0.15);
 		PowerFx.burst(level, to, ParticleTypes.FLAME, 8, 0.3, 0.08);
@@ -97,7 +95,7 @@ public final class EnergyBeamFx {
 				38, level.getGameTime() * 0.12);
 		PowerFx.ring(level, point.add(0.0, 0.7, 0.0), 2.0, SUN_WHITE,
 				32, -level.getGameTime() * 0.16);
-		PowerFx.burst(level, point, ColorParticleOption.create(
+		PowerFx.burst(level, point, net.minecraft.core.particles.ColorParticleOption.create(
 				ParticleTypes.FLASH, 0xFFFFF4D6), 4, 0.34, 0.0);
 		PowerFx.burst(level, point, ParticleTypes.FLAME, 52, 2.1, 0.28);
 		PowerFx.burst(level, point, PowersParticles.FRACTURE, 28, 1.55, 0.20);

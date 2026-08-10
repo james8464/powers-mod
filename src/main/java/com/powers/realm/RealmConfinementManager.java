@@ -39,13 +39,13 @@ public final class RealmConfinementManager {
 			return false;
 		}
 		respawned.setGameMode(GameType.SPECTATOR);
-		requestConfinement(respawned.level().getServer(), respawned.getUUID(), realm.dimension(), id);
+		requestConfinement(respawned.level().getServer(), respawned.getUUID(), realm.dimension(), id, 0);
 		return true;
 	}
 
 	private static void requestConfinement(MinecraftServer server, java.util.UUID playerId,
 			ResourceKey<Level> realmKey,
-			Identifier realmId) {
+			Identifier realmId, int failures) {
 		ServerLevel realm = server.getLevel(realmKey);
 		ServerPlayer player = server.getPlayerList().getPlayer(playerId);
 		if (realm == null || player == null) return;
@@ -59,12 +59,22 @@ public final class RealmConfinementManager {
 			PowerFx.rune(realm, captive.position(), 2.0,
 					realmId.equals(PowersMod.id("dark_realm")) ? 0x2A143D : 0xFFFFFF, 28, Math.PI);
 			PowerMessages.sendImportant(captive, "realm.powers.death_confined", 1);
-		}, () -> scheduleRetry(server, playerId, realmKey, realmId));
+		}, () -> scheduleRetry(server, playerId, realmKey, realmId, failures + 1));
 	}
 
 	private static void scheduleRetry(MinecraftServer server, java.util.UUID playerId,
-			ResourceKey<Level> realmKey, Identifier realmId) {
-		PowersMod.scheduleDelayed(server, 100,
-				() -> requestConfinement(server, playerId, realmKey, realmId));
+			ResourceKey<Level> realmKey, Identifier realmId, int failures) {
+		if (!RealmConfinementRetryPolicy.shouldRetry(failures)) {
+			ServerPlayer captive = server.getPlayerList().getPlayer(playerId);
+			PowersMod.LOGGER.error("Realm confinement entered locked spectator hold after {} failures: player={}, realm={}",
+					failures, playerId, realmId);
+			if (captive != null) {
+				captive.setGameMode(GameType.SPECTATOR);
+				PowerMessages.sendImportant(captive, "realm.powers.confinement_recovery_required", 1);
+			}
+			return;
+		}
+		PowersMod.scheduleDelayed(server, RealmConfinementRetryPolicy.delayTicks(failures),
+				() -> requestConfinement(server, playerId, realmKey, realmId, failures));
 	}
 }

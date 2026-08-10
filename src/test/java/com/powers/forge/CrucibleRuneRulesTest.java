@@ -13,4 +13,13 @@ class CrucibleRuneRulesTest {
 		assertEquals(675, CrucibleRuneRules.xpFor("imported_artifact_runestone_dark_inscribed_large"));
 		assertEquals(0, CrucibleRuneRules.xpFor("diamond"));
 	}
+
+	@Test
+	void archaeologicalAndEssenceRelicsAreUsefulBoundedInfusionCatalysts() {
+		assertEquals(50, CrucibleRuneRules.xpFor("imported_magic_essence_soul_dust"));
+		assertEquals(100, CrucibleRuneRules.xpFor("imported_magic_essence_sacred_dust"));
+		assertEquals(125, CrucibleRuneRules.xpFor("imported_artifact_malignember"));
+		assertEquals(175, CrucibleRuneRules.xpFor("imported_artifact_emperyeanjewel"));
+		assertEquals(35, CrucibleRuneRules.xpFor("imported_artifact_trilobite_fossil"));
+	}
 }

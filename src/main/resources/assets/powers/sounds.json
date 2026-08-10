@@ -11,5 +11,6 @@
   "soul_tether": { "sounds": ["powers:magic/soul_tether"] },
   "time_release": { "sounds": ["powers:magic/time_release"] },
   "time_suspend": { "sounds": ["powers:magic/time_suspend"] },
+  "celestial_ring": { "sounds": ["powers:magic/celestial_ring"] },
   "ward_impact": { "sounds": ["powers:magic/ward_impact"] }
 }

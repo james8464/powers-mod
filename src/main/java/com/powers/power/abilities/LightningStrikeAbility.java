@@ -2,6 +2,11 @@ package com.powers.power.abilities;
 
 import com.powers.PowersMod;
 import com.powers.fx.LightningStrikeFx;
+import com.powers.magic.runtime.MagicPresenceHandle;
+import com.powers.magic.runtime.MagicPresenceId;
+import com.powers.magic.runtime.PhysicalMagicPresences;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
@@ -64,6 +69,15 @@ public final class LightningStrikeAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		return activateFrom(player, data, POWER_ID);
+	}
+
+	@Override
+	public void bindPhysicalPresence(ServerPlayer player, PlayerPowers.PlayerPowersData data,
+			MagicPresenceId presenceId) {
+		StormTribunal tribunal = ACTIVE.get(player.getUUID());
+		if (tribunal == null || !(player.level() instanceof ServerLevel level)) return;
+		PhysicalMagicPresences.bindExistingFixed(presenceId, level, tribunal.center,
+				MagicPresenceHandle.Kind.IMPACT, tribunal.expiresAt);
 	}
 
 	/** Starts Elemental Blast's storm phase while retaining its exact lifecycle owner. */
@@ -139,7 +153,8 @@ public final class LightningStrikeAbility extends Ability {
 				? aimedTarget.getUUID() : null;
 		double radius = Math.max(2.25,
 				Math.min(5.0, BASE_RADIUS * profile.rangeMultiplier()));
-		StormTribunal tribunal = new StormTribunal(player.getUUID(), sourcePower,
+		StormTribunal tribunal = new StormTribunal(player.getUUID(), player.getId(), sourcePower,
+				CastScalingContext.currentSource(),
 				level.dimension(), now,
 				now + LightningStrikeRules.finishAge(ancientMastery),
 				site.point(), tracked, radius,
@@ -159,14 +174,16 @@ public final class LightningStrikeAbility extends Ability {
 		Iterator<Map.Entry<UUID, StormTribunal>> iterator = ACTIVE.entrySet().iterator();
 		while (iterator.hasNext()) {
 			StormTribunal tribunal = iterator.next().getValue();
-			ServerPlayer owner = server.getPlayerList().getPlayer(tribunal.owner);
 			ServerLevel level = server.getLevel(tribunal.dimension);
+			Entity ownerEntity = level == null ? null : level.getEntity(tribunal.ownerEntityId);
+			ServerPlayer owner = ownerEntity instanceof ServerPlayer candidate
+					&& candidate.getUUID().equals(tribunal.owner) ? candidate : null;
 			boolean sameDimension = owner != null
 					&& owner.level().dimension().equals(tribunal.dimension);
 			boolean dampened = owner != null && AmethystDampening.isDampened(owner);
 			boolean frozen = owner != null && EntityFreezeController.isFrozen(owner);
-			boolean ownsPower = owner != null
-					&& ownsSource(owner, tribunal.sourcePower);
+			boolean ownsPower = owner != null && ServerCastLifecycle.mayContinue(
+					owner, tribunal.castSource, ownsSource(owner, tribunal.sourcePower));
 			boolean siteLoaded = level != null && finite(tribunal.center)
 					&& level.getWorldBorder().isWithinBounds(
 							net.minecraft.core.BlockPos.containing(tribunal.center))

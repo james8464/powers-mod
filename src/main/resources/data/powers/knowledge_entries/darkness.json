@@ -1,0 +1,7 @@
+{
+  "title": "Living Darkness",
+  "keywords": ["darkness block", "darkness spread", "darkness infection", "darkness energy", "wither aura"],
+  "answer": "Darkness is a living force, not decorative stone. Outside its mindscape it slowly replaces vulnerable nearby terrain. Unaligned living beings suffer a particle-hidden Wither aura; darkness-infected players instead regenerate darkness energy rapidly. Pure Light touching Darkness triggers a catastrophic opposed-force clash. Amethyst wards and the Celestial Ruin spell are the principal containment tools.",
+  "sources": ["LivingForceManager", "DarknessState", "interaction catalogue"],
+  "reveal_rank": 0
+}

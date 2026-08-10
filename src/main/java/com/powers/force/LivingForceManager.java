@@ -14,12 +14,14 @@ import com.powers.config.PowersConfigLoader;
 import com.powers.fx.PowerFx;
 import com.powers.protection.PowerProtection;
 import com.powers.network.PowersPackets;
+import com.powers.magic.MagicActionId;
+import com.powers.magic.runtime.MagicPresenceHandle;
+import com.powers.magic.runtime.PhysicalMagicPresences;
 import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.LoadedChunks;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
@@ -55,8 +57,11 @@ public final class LivingForceManager {
 	private static final int MAX_ACTIVE_CLASHES_PER_LEVEL = 4;
 	private static final double PEAK_CLASH_DAMAGE = 100.0;
 	private static final double PEAK_CLASH_IMPULSE = 8.0;
-	private static final int MAX_AURA_CANDIDATES_PER_CHUNK = 256;
+	private static final int MAX_AURA_CANDIDATES_PER_PLAYER = 512;
 	private static final int MAX_AURA_CANDIDATES_PER_LEVEL = 4_096;
+	private static final int MAX_AURA_PLAYERS_PER_LEVEL = 128;
+	private static final double ACTIVE_ENTITY_SCAN_RADIUS = 128.0;
+	private static final UUID WORLD_MAGIC_OWNER = new UUID(0L, 0L);
 
 	private LivingForceManager() {
 	}
@@ -112,6 +117,10 @@ public final class LivingForceManager {
 					level.getBlockEntity(target) != null, state.is(FORCE_SPREAD_IMMUNE), destroySpeed)) continue;
 			level.setBlock(target, kind.block().defaultBlockState(), Block.UPDATE_ALL);
 			register(level, target, kind);
+			PhysicalMagicPresences.registerFixed(new MagicActionId(
+					kind == LivingForceKind.DARKNESS ? "darkness_block" : "pure_light_block"),
+					WORLD_MAGIC_OWNER, level, Vec3.atCenterOf(target), 1.5,
+					level.getGameTime() + 200L, MagicPresenceHandle.Kind.FORCE_BLOCK);
 			emitSpreadCue(level, source, target, kind, random);
 		}
 	}
@@ -133,6 +142,18 @@ public final class LivingForceManager {
 		INDEXES.values().forEach(LivingForceIndex::clear);
 		INDEXES.clear();
 		ACTIVE_CLASHES.clear();
+	}
+
+	/** Loaded force-block and active clash counts without scanning world state. */
+	public static Diagnostics diagnostics() {
+		int indexedBlocks = INDEXES.values().stream().mapToInt(LivingForceIndex::size).sum();
+		int clashes = ACTIVE_CLASHES.values().stream().mapToInt(List::size).sum();
+		return new Diagnostics(indexedBlocks, clashes, MAX_AURA_CANDIDATES_PER_LEVEL,
+				MAX_AURA_CANDIDATES_PER_PLAYER);
+	}
+
+	public record Diagnostics(int indexedBlocks, int activeClashes,
+			int auraCandidatesPerLevel, int auraCandidatesPerPlayer) {
 	}
 
 	private static void registerLoaded(ServerLevel level, BlockPos pos, LivingForceKind kind) {
@@ -178,16 +199,23 @@ public final class LivingForceManager {
 			LivingForceIndex index = INDEXES.get(level);
 			if (index == null || index.size() == 0) continue;
 			Set<UUID> visited = new HashSet<>();
-			for (long packedChunk : index.chunksWith(LivingForceKind.DARKNESS)) {
-				if (visited.size() >= MAX_AURA_CANDIDATES_PER_LEVEL) break;
-				int chunkX = (int) packedChunk;
-				int chunkZ = (int) (packedChunk >>> 32);
-				double radius = policy.auraRadius();
-				AABB bounds = new AABB(chunkX * 16.0 - radius, level.getMinY(),
-						chunkZ * 16.0 - radius, chunkX * 16.0 + 16.0 + radius,
-						level.getMaxY(), chunkZ * 16.0 + 16.0 + radius);
-				for (LivingEntity living : BoundedEntityCandidates.living(level, bounds,
-						MAX_AURA_CANDIDATES_PER_CHUNK, Entity::isAlive)) {
+			ForceAuraWorkBudget budget = new ForceAuraWorkBudget(
+					MAX_AURA_CANDIDATES_PER_LEVEL, MAX_AURA_CANDIDATES_PER_PLAYER);
+			List<ServerPlayer> anchors = level.players().stream()
+					.sorted(Comparator.comparing(player -> player.getUUID().toString()))
+					.limit(MAX_AURA_PLAYERS_PER_LEVEL).toList();
+			for (ServerPlayer anchor : anchors) {
+				if (!budget.hasWork()) break;
+				int allowance = budget.allowanceForPlayer();
+				AABB bounds = anchor.getBoundingBox().inflate(ACTIVE_ENTITY_SCAN_RADIUS,
+						Math.max(32.0, level.getMaxY() - level.getMinY()),
+						ACTIVE_ENTITY_SCAN_RADIUS);
+				List<LivingEntity> candidates = BoundedEntityCandidates.living(level, bounds,
+						allowance, Entity::isAlive);
+				// The typed entity query may inspect rejected bodies, so charge its full
+				// allowance instead of only the filtered result size.
+				budget.recordInspections(allowance);
+				for (LivingEntity living : candidates) {
 					if (!visited.add(living.getUUID())) continue;
 					if (isNearValidDarkness(level, index, living, policy.auraRadius())) {
 						applyDarknessAffinity(level, living, policy);
@@ -256,9 +284,7 @@ public final class LivingForceManager {
 		Vec3 origin = Vec3.atCenterOf(source);
 		Vec3 center = Vec3.atCenterOf(target);
 		int color = kind == LivingForceKind.DARKNESS ? 0x2A0C3D : 0xFFF4C7;
-		PowerFx.beam(level, origin, center,
-				ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT,
-						0xFF000000 | color), 6);
+		PowerFx.beam(level, origin, center, PowerFx.dust(color, 1.0F), 6);
 		PowerFx.coloredBurst(level, center, color, 5, 0.32);
 		PowerFx.burst(level, center, kind == LivingForceKind.DARKNESS
 				? PowersParticles.ECLIPSE : PowersParticles.MOTE, 3, 0.24, 0.015);

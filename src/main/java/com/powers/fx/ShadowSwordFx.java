@@ -3,7 +3,6 @@ package com.powers.fx;
 import com.powers.PowersParticles;
 import com.powers.PowersSounds;
 import com.powers.item.ShadowSwordPalette;
-import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -85,8 +84,7 @@ public final class ShadowSwordFx {
 	}
 
 	public static void annihilationBeam(ServerLevel level, Vec3 from, Vec3 to) {
-		PowerFx.beam(level, from, to, ColorParticleOption.create(
-				ParticleTypes.ENTITY_EFFECT, 0xFF120018), 72);
+		PowerFx.beam(level, from, to, PowerFx.dust(0x120018, 1.45F), 72);
 		PowerFx.beam(level, from, to, PowersParticles.FRACTURE, 48);
 		PowerFx.rune(level, from, 1.7, DEAD_MAGENTA, 26, 0.0);
 		PowerFx.rune(level, to, 3.2, VOID_VIOLET, 34, Math.PI);

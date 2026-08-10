@@ -6,6 +6,7 @@ import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.network.PowersPackets;
 import com.powers.magic.runtime.PreparedMagicCast;
 import com.powers.magic.runtime.ServerMagicCasts;
+import com.powers.magic.runtime.CastSource;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
@@ -61,7 +62,8 @@ public final class CrucibleWeaponRuntime {
 				|| SpellFieldManager.isSanctuaryProtected(level, target)) return false;
 		PreparedMagicCast magic = ServerMagicCasts.prepare(player,
 				weapon.alignment() == ArtifactAlignment.DARKNESS
-						? "starbound_dark_lightning" : "starbound_light_lightning");
+						? "starbound_dark_lightning" : "starbound_light_lightning",
+				CastSource.ARTIFACT);
 		if (!magic.allowed()) return false;
 		int energy = CrucibleLightningRules.energyCost(weapon.level());
 		PlayerPowers.PlayerPowersData powers = PlayerPowers.get(player);

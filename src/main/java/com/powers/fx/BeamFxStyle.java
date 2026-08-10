@@ -2,6 +2,7 @@ package com.powers.fx;
 
 import com.powers.PowersParticles;
 import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 
@@ -38,7 +39,7 @@ public enum BeamFxStyle {
 	/** Collapses arbitrary server particle options to a bounded authored style. */
 	public static BeamFxStyle from(ParticleOptions particle) {
 		Objects.requireNonNull(particle, "particle");
-		if (particle instanceof ColorParticleOption) return COLORED;
+		if (particle instanceof ColorParticleOption || particle instanceof DustParticleOptions) return COLORED;
 		if (particle.getType() == ParticleTypes.ELECTRIC_SPARK) return ELECTRIC;
 		if (particle.getType() == ParticleTypes.FLAME) return FLAME;
 		if (particle.getType() == ParticleTypes.SOUL_FIRE_FLAME
@@ -60,10 +61,21 @@ public enum BeamFxStyle {
 
 	/** Extracts a 24-bit tint when the source option carries one. */
 	public static int color(ParticleOptions particle) {
-		if (!(particle instanceof ColorParticleOption color)) return 0xFFFFFF;
-		int red = Math.clamp(Math.round(color.getRed() * 255.0F), 0, 255);
-		int green = Math.clamp(Math.round(color.getGreen() * 255.0F), 0, 255);
-		int blue = Math.clamp(Math.round(color.getBlue() * 255.0F), 0, 255);
+		float redChannel;
+		float greenChannel;
+		float blueChannel;
+		if (particle instanceof ColorParticleOption color) {
+			redChannel = color.getRed();
+			greenChannel = color.getGreen();
+			blueChannel = color.getBlue();
+		} else if (particle instanceof DustParticleOptions dust) {
+			redChannel = dust.getColor().x();
+			greenChannel = dust.getColor().y();
+			blueChannel = dust.getColor().z();
+		} else return 0xFFFFFF;
+		int red = Math.clamp(Math.round(redChannel * 255.0F), 0, 255);
+		int green = Math.clamp(Math.round(greenChannel * 255.0F), 0, 255);
+		int blue = Math.clamp(Math.round(blueChannel * 255.0F), 0, 255);
 		return red << 16 | green << 8 | blue;
 	}
 }

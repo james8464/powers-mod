@@ -27,6 +27,11 @@ public final class DarknessQuestRules {
 	private DarknessQuestRules() {
 	}
 
+	/** True when evaluation advanced beyond the level captured before rewards were applied. */
+	public static boolean progressed(int previousLevel, int completedLevel) {
+		return completedLevel > previousLevel;
+	}
+
 	/** Whether every cumulative threshold for {@code level} has been met. */
 	public static boolean completed(int level, Map<DarknessDeed, Integer> deeds) {
 		if (level < 1 || level > RITES.size()) {

@@ -3,6 +3,9 @@ package com.powers.power.abilities;
 import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.SuperSpeedFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -91,9 +94,11 @@ public final class SuperSpeedAbility extends Ability {
 		double modifier = SuperSpeedRules.speedModifier(potency, inWater);
 		if (duration <= 0 || modifier <= 0.0) return false;
 
-		Overdrive overdrive = new Overdrive(owner, level.dimension(), now, now + duration,
+		Overdrive overdrive = new Overdrive(owner, level.dimension(),
+				CastScalingContext.currentSource(), now, now + duration,
 				potency, secondStep, empoweredImpact, afterimage, ancientMastery,
-				player.position(), inWater);
+				player.position(), inWater,
+				CombatTerrainImpact.tier(player, CastScalingContext.currentSource()));
 		removeOwnedModifier(player);
 		if (!applyOwnedModifier(player, overdrive, inWater)) return false;
 		ACTIVE.put(owner, overdrive);
@@ -121,9 +126,11 @@ public final class SuperSpeedAbility extends Ability {
 					&& owner.level().dimension().equals(overdrive.dimension);
 			boolean dampened = owner != null && AmethystDampening.isDampened(owner);
 			boolean frozen = owner != null && EntityFreezeController.isFrozen(owner);
+			boolean ownsCast = owner != null && ServerCastLifecycle.mayContinue(
+					owner, overdrive.castSource, ownsPower(owner));
 			boolean continues = SuperSpeedRules.overdriveContinues(owner != null,
 					sameDimension, owner != null && owner.isAlive() && !owner.isRemoved(),
-					dampened, frozen, owner != null && ownsPower(owner), now,
+					dampened, frozen, ownsCast, now,
 					overdrive.expiresAt);
 			if (!continues) {
 				finish(server, overdrive, owner, true);
@@ -193,6 +200,7 @@ public final class SuperSpeedAbility extends Ability {
 		if (!newCollision || now - overdrive.lastCollisionAt < COLLISION_CUE_COOLDOWN) return;
 		overdrive.lastCollisionAt = now;
 		Vec3 center = owner.position();
+		CombatTerrainImpact.crater(level, owner, center, overdrive.terrainTier);
 		SuperSpeedFx.collision(level, center.add(0.0, 0.8, 0.0));
 		if (overdrive.secondStep && !overdrive.secondStepSpent) {
 			applySecondStep(level, owner, overdrive, center);
@@ -391,6 +399,7 @@ public final class SuperSpeedAbility extends Ability {
 	private static final class Overdrive {
 		private final UUID owner;
 		private final ResourceKey<Level> dimension;
+		private final CastSource castSource;
 		private final long startedAt;
 		private final long expiresAt;
 		private final double potencyMultiplier;
@@ -398,6 +407,7 @@ public final class SuperSpeedAbility extends Ability {
 		private final boolean empoweredImpact;
 		private final boolean afterimage;
 		private final boolean ancientMastery;
+		private final int terrainTier;
 		private final Set<UUID> curvedProjectiles = new LinkedHashSet<>();
 		private Vec3 lastPosition;
 		private boolean inWater;
@@ -407,12 +417,13 @@ public final class SuperSpeedAbility extends Ability {
 		private long lastCollisionAt = Long.MIN_VALUE / 2L;
 		private double appliedModifier = Double.NaN;
 
-		private Overdrive(UUID owner, ResourceKey<Level> dimension, long startedAt,
+		private Overdrive(UUID owner, ResourceKey<Level> dimension, CastSource castSource, long startedAt,
 				long expiresAt, double potencyMultiplier, boolean secondStep,
 				boolean empoweredImpact, boolean afterimage, boolean ancientMastery,
-				Vec3 lastPosition, boolean inWater) {
+				Vec3 lastPosition, boolean inWater, int terrainTier) {
 			this.owner = owner;
 			this.dimension = dimension;
+			this.castSource = castSource;
 			this.startedAt = startedAt;
 			this.expiresAt = expiresAt;
 			this.potencyMultiplier = potencyMultiplier;
@@ -420,6 +431,7 @@ public final class SuperSpeedAbility extends Ability {
 			this.empoweredImpact = empoweredImpact;
 			this.afterimage = afterimage;
 			this.ancientMastery = ancientMastery;
+			this.terrainTier = terrainTier;
 			this.lastPosition = lastPosition;
 			this.inWater = inWater;
 		}

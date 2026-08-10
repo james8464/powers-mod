@@ -27,10 +27,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * The rules for amethyst's anti-power field: what counts as amethyst
@@ -62,7 +60,7 @@ public final class AmethystDampening {
 	// every currently powered ward, per dimension. kept up to date by the block
 	// itself, so the lookup below is a walk over a handful of positions rather
 	// than a brute-force sweep of the volume around each player
-	private static final Map<ResourceKey<Level>, Set<BlockPos>> POWERED_WARDS = new HashMap<>();
+	private static final Map<ResourceKey<Level>, AmethystWardIndex> POWERED_WARDS = new HashMap<>();
 	private static final Map<ResourceKey<Level>, Map<BlockPos, Long>> SUPPRESSED_WARDS = new HashMap<>();
 	private static final AmethystScanCache BLOCK_SCAN_CACHE = new AmethystScanCache();
 
@@ -87,23 +85,24 @@ public final class AmethystDampening {
 
 	/** Records a ward that has just come under redstone power. */
 	public static void addPoweredWard(ServerLevel level, BlockPos pos) {
-		POWERED_WARDS.computeIfAbsent(level.dimension(), key -> new HashSet<>()).add(pos.immutable());
+		POWERED_WARDS.computeIfAbsent(level.dimension(), key -> new AmethystWardIndex()).add(pos);
 	}
 
 	/** Forgets a ward that has lost power, been broken, or been pushed away. */
 	public static void removePoweredWard(ServerLevel level, BlockPos pos) {
-		Set<BlockPos> wards = POWERED_WARDS.get(level.dimension());
+		AmethystWardIndex wards = POWERED_WARDS.get(level.dimension());
 		if (wards == null) {
 			return;
 		}
 		wards.remove(pos);
-		if (wards.isEmpty()) {
+		if (wards.size() == 0) {
 			POWERED_WARDS.remove(level.dimension());
 		}
 	}
 
 	/** Drops the ward index on shutdown; it is rebuilt from block updates on load. */
 	public static void clearAll() {
+		POWERED_WARDS.values().forEach(AmethystWardIndex::clear);
 		POWERED_WARDS.clear();
 		SUPPRESSED_WARDS.clear();
 		BLOCK_SCAN_CACHE.clear();
@@ -126,16 +125,12 @@ public final class AmethystDampening {
 	 * first use instead of projecting a phantom field forever.
 	 */
 	public static Optional<BlockPos> findPoweredWard(ServerLevel level, BlockPos center) {
-		Set<BlockPos> wards = POWERED_WARDS.get(level.dimension());
-		if (wards == null || wards.isEmpty()) {
+		AmethystWardIndex wards = POWERED_WARDS.get(level.dimension());
+		if (wards == null || wards.size() == 0) {
 			return Optional.empty();
 		}
-		BlockPos found = null;
 		int wardRadius = PowersConfigLoader.get().wardRadius();
-		int wardRadiusSquared = wardRadius * wardRadius;
-		var it = wards.iterator();
-		while (it.hasNext()) {
-			BlockPos pos = it.next();
+		for (BlockPos pos : wards.nearby(center, wardRadius)) {
 			Map<BlockPos, Long> suppressed = SUPPRESSED_WARDS.get(level.dimension());
 			if (suppressed != null) {
 				long expiry = suppressed.getOrDefault(pos, 0L);
@@ -145,15 +140,13 @@ public final class AmethystDampening {
 			if (LoadedChunks.contains(level, pos)) {
 				BlockState state = level.getBlockState(pos);
 				if (!state.is(PowersBlocks.AMETHYST_WARD) || !AmethystWardBlock.isPowered(state)) {
-					it.remove();
+					wards.remove(pos);
 					continue;
 				}
 			}
-			if (found == null && center.distSqr(pos) <= wardRadiusSquared) {
-				found = pos;
-			}
+			return Optional.of(pos);
 		}
-		return Optional.ofNullable(found);
+		return Optional.empty();
 	}
 
 	/** whether the entity is currently under the amethyst poisoning effect */

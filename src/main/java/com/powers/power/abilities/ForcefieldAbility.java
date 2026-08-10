@@ -1,28 +1,23 @@
 package com.powers.power.abilities;
 
-import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.state.MagicShieldManager;
 import com.powers.power.state.PowerEntityState;
-import com.powers.progression.PowerScalingService;
 import com.powers.progression.ScaledMagicValues;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.Vec3;
 import java.util.UUID;
 
-/** Maintains timed personal wards that absorb damage and repel nearby threats. */
+/** Shares integrity-owned wards that fully absorb even the impact that breaks them. */
 public class ForcefieldAbility extends Ability {
-	// 8 seconds of shield
-	private static final int DURATION = 160;
 	private static final float BASE_INTEGRITY = 40.0f;
 
 	public ForcefieldAbility() {
@@ -33,17 +28,19 @@ public class ForcefieldAbility extends Ability {
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		ScaledMagicValues scaled = PowerScalingService.forPlayer(player, "forcefield");
-		int duration = PowerScalingService.duration(player, "forcefield", DURATION);
+		ScaledMagicValues scaled = scaling(player);
 		float integrity = (float) (BASE_INTEGRITY * scaled.potencyMultiplier());
-		long expiry = player.level().getServer().getTickCount() + duration;
-		MagicShieldManager.global().raise(player.getUUID(), integrity, expiry);
-		// Fire resistance is thematic but finite integrity, not Resistance V,
-		// owns normal hit prevention and can be broken by sustained pressure.
-		player.addEffect(PowerStatusEffects.hidden(MobEffects.FIRE_RESISTANCE,
-				duration, 0, false, true));
-
-		com.powers.fx.PowerFx.sound((net.minecraft.server.level.ServerLevel) player.level(),
+		boolean reflective = scaled.unlockedVariants().contains("reflective_ward");
+		ServerLevel level = (ServerLevel) player.level();
+		for (ServerPlayer protectedPlayer : level.players()) {
+			if (!protectedPlayer.isAlive() || protectedPlayer.isSpectator()
+					|| !ForcefieldRules.withinSharingRadius(protectedPlayer.distanceToSqr(player))) continue;
+			MagicShieldManager.global().raise(protectedPlayer.getUUID(), integrity,
+					ForcefieldRules.expiryTick(), reflective);
+			com.powers.fx.PowerFx.rune(level, protectedPlayer.position().add(0.0, 1.0, 0.0),
+					1.45, 0x40C4FF, 22, player.level().getGameTime() * 0.1);
+		}
+		com.powers.fx.PowerFx.sound(level,
 				player.position(), net.minecraft.sounds.SoundEvents.BEACON_ACTIVATE, 0.8f, 0.5f);
 		return true;
 	}
@@ -62,7 +59,7 @@ public class ForcefieldAbility extends Ability {
 		com.powers.fx.PowerFx.sound(level, center, impact.shattered()
 				? net.minecraft.sounds.SoundEvents.GLASS_BREAK : net.minecraft.sounds.SoundEvents.SHIELD_BLOCK.value(),
 				1.0f, impact.shattered() ? 0.65f : 1.2f);
-		if (PowerScalingService.forPlayer(player, "forcefield").unlockedVariants().contains("reflective_ward")) {
+		if (impact.reflective()) {
 			Entity direct = source.getDirectEntity();
 			if (direct instanceof Projectile projectile && PowerEntityState.tryReflect(projectile, 1)) {
 				projectile.setOwner(player);

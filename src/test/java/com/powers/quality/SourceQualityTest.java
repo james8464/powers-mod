@@ -47,4 +47,23 @@ class SourceQualityTest {
 			org.junit.jupiter.api.Assertions.assertFalse(source.contains(".getChunk("), relative);
 		}
 	}
+
+	@Test
+	void powerOwnedEffectsCannotReintroduceVanillaPotionClouds() throws IOException {
+		Path root = Path.of(System.getProperty("user.dir"));
+		try (var sources = Files.walk(root.resolve("src/main/java"))) {
+			for (Path path : sources.filter(file -> file.toString().endsWith(".java")).toList()) {
+				String relative = root.relativize(path).toString();
+				String source = Files.readString(path);
+				if (!relative.endsWith("PowerStatusEffects.java")) {
+					org.junit.jupiter.api.Assertions.assertFalse(
+							source.contains("new MobEffectInstance("), relative);
+				}
+				org.junit.jupiter.api.Assertions.assertFalse(
+						source.contains("ParticleTypes.ENTITY_EFFECT"), relative);
+				org.junit.jupiter.api.Assertions.assertFalse(
+						source.contains("ParticleTypes.AMBIENT_ENTITY_EFFECT"), relative);
+			}
+		}
+	}
 }

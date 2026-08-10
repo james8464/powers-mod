@@ -7,7 +7,7 @@ import com.powers.magic.fx.FxFrame;
 import com.powers.magic.fx.FxMotif;
 import com.powers.network.MagicFxPackets;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -77,8 +77,7 @@ public final class ClientMagicFx {
 					0.008 * velocity, point.z() * 0.006 * velocity);
 			if (index % 4 == 0) {
 				int color = index % 8 == 0 ? payload.primaryColor() : payload.secondaryColor();
-				ParticleOptions tint = ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT,
-						0xD9000000 | (color & 0xFFFFFF));
+				ParticleOptions tint = new DustParticleOptions(color & 0xFFFFFF, 0.85F);
 				client.level.addParticle(tint, x, y, z, 0.0, 0.004, 0.0);
 			}
 		}

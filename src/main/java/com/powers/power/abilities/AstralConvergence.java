@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.magic.runtime.CastSource;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -12,6 +13,7 @@ import java.util.UUID;
 final class AstralConvergence {
 	final UUID owner;
 	final ResourceKey<Level> dimension;
+	final CastSource castSource;
 	final long startedAt;
 	final long expiresAt;
 	final long seed;
@@ -19,6 +21,7 @@ final class AstralConvergence {
 	final UUID trackedTarget;
 	final double stormRadius;
 	final float baseDamage;
+	final int terrainTier;
 	final int strikeCount;
 	final boolean empoweredImpact;
 	final boolean secondStep;
@@ -32,14 +35,15 @@ final class AstralConvergence {
 	int nextStrike;
 	boolean crownResolved;
 
-	AstralConvergence(UUID owner, ResourceKey<Level> dimension,
+	AstralConvergence(UUID owner, ResourceKey<Level> dimension, CastSource castSource,
 			long startedAt, long expiresAt, long seed, Vec3 origin, UUID trackedTarget,
-			double stormRadius, float baseDamage, int strikeCount,
+			double stormRadius, float baseDamage, int terrainTier, int strikeCount,
 			boolean empoweredImpact, boolean secondStep, boolean trueSight,
 			boolean reflectiveWard, boolean soulEcho, boolean afterimage,
 			boolean ancientMastery) {
 		this.owner = owner;
 		this.dimension = dimension;
+		this.castSource = castSource;
 		this.startedAt = startedAt;
 		this.expiresAt = expiresAt;
 		this.seed = seed;
@@ -48,6 +52,7 @@ final class AstralConvergence {
 		this.trackedTarget = trackedTarget;
 		this.stormRadius = stormRadius;
 		this.baseDamage = baseDamage;
+		this.terrainTier = terrainTier;
 		this.strikeCount = strikeCount;
 		this.empoweredImpact = empoweredImpact;
 		this.secondStep = secondStep;

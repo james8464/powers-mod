@@ -30,11 +30,12 @@ public final class DarknessQuestTracker {
 
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(killer);
 		Map<DarknessDeed, Integer> totals = data.addDarknessDeeds(deeds);
-		int completed = DarknessQuestRules.highestContiguousLevel(data.darknessLevel(), totals);
-		for (int level = data.darknessLevel() + 1; level <= completed; level++) {
+		int current = data.darknessLevel();
+		int completed = DarknessQuestRules.highestContiguousLevel(current, totals);
+		for (int level = current + 1; level <= completed; level++) {
 			SkillSystem.awardDarknessRite(killer, level);
 		}
-		if (completed > data.darknessLevel()) {
+		if (DarknessQuestRules.progressed(current, completed)) {
 			SkillSystem.refresh(killer);
 		}
 	}

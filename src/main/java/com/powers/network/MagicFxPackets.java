@@ -5,6 +5,7 @@ import com.powers.magic.fx.MagicFxEvent;
 import com.powers.magic.fx.MagicFxKind;
 import com.powers.magic.fx.MagicFxService;
 import com.powers.fx.BeamFxStyle;
+import com.powers.diagnostics.ServerRuntimeMetrics;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -121,6 +122,8 @@ public final class MagicFxPackets {
 	public static void sendBeam(ServerPlayer observer, BeamFxPayload payload) {
 		if (ServerPlayNetworking.canSend(observer, BeamFxPayload.TYPE)) {
 			ServerPlayNetworking.send(observer, payload);
+			ServerRuntimeMetrics.recordPacket(observer.level().getServer(),
+					observer.level().getServer().getTickCount());
 		}
 	}
 
@@ -142,7 +145,10 @@ public final class MagicFxPackets {
 		MagicFxPayload payload = new MagicFxPayload(event);
 		for (ServerPlayer observer : level.players()) {
 			if (observer.position().distanceToSqr(event.x(), event.y(), event.z()) > 128.0 * 128.0) continue;
-			if (ServerPlayNetworking.canSend(observer, MagicFxPayload.TYPE)) ServerPlayNetworking.send(observer, payload);
+			if (ServerPlayNetworking.canSend(observer, MagicFxPayload.TYPE)) {
+				ServerPlayNetworking.send(observer, payload);
+				ServerRuntimeMetrics.recordPacket(level.getServer(), level.getServer().getTickCount());
+			}
 		}
 	}
 }

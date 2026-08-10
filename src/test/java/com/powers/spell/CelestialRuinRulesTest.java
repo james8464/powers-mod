@@ -14,14 +14,40 @@ class CelestialRuinRulesTest {
 	}
 
 	@Test
+	void chunkTicketsAreDeferredAndGrowOnlyDuringTheFinalFiveSeconds() {
+		assertEquals(-1, CelestialRuinTicketRules.radiusForCountdown(1_200, false, 9));
+		assertEquals(-1, CelestialRuinTicketRules.radiusForCountdown(101, false, 9));
+		assertEquals(1, CelestialRuinTicketRules.radiusForCountdown(100, false, 9));
+		assertEquals(5, CelestialRuinTicketRules.radiusForCountdown(50, false, 9));
+		assertEquals(9, CelestialRuinTicketRules.radiusForCountdown(0, false, 9));
+		assertEquals(9, CelestialRuinTicketRules.radiusForCountdown(900, true, 9));
+	}
+
+	@Test
 	void detonationIsAtLeastTwentyTimesTheLivingForcePeakDamage() {
-		assertTrue(CelestialRuinRules.PEAK_DAMAGE >= 2_000.0f);
+		assertTrue(CelestialRuinRules.PEAK_DAMAGE >= 20_000.0f);
+		assertTrue(CelestialRuinRules.DAMAGE_RADIUS >= 2_048);
+		assertTrue(CelestialRuinRules.damage(0.0) >= 20_000.0f);
+		assertTrue(CelestialRuinRules.damage(1_000.0) >= 100.0f);
+		assertTrue(CelestialRuinRules.damage(2_047.0) > 0.0f);
+		assertEquals(0.0f, CelestialRuinRules.damage(2_048.0), 0.001f);
 	}
 
 	@Test
 	void destructionSphereHasAHardBoundary() {
 		assertTrue(CelestialRuinRules.insideBlast(120, 0, 0));
 		assertFalse(CelestialRuinRules.insideBlast(121, 0, 0));
+	}
+
+	@Test
+	void radialAftershockCreatesThousandsOfBlocksOfBoundedStreaks() {
+		assertTrue(CelestialRuinRules.aftershockTotalSteps() >= 40_000);
+		CelestialRuinRules.AftershockOffset first = CelestialRuinRules.aftershockOffset(0);
+		CelestialRuinRules.AftershockOffset last = CelestialRuinRules.aftershockOffset(
+				CelestialRuinRules.aftershockTotalSteps() - 1);
+		assertTrue(Math.hypot(first.x(), first.z()) <= CelestialRuinRules.DAMAGE_RADIUS);
+		assertTrue(Math.hypot(last.x(), last.z()) <= CelestialRuinRules.DAMAGE_RADIUS + 1.0);
+		assertEquals(first, CelestialRuinRules.aftershockOffset(0));
 	}
 
 	@Test

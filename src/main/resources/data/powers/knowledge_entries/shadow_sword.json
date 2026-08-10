@@ -1,0 +1,7 @@
+{
+  "title": "Shadow Sword",
+  "keywords": ["black litany", "shadow sword powers", "call the hollowed", "blight ground", "nightfall dominion"],
+  "answer": "The Shadow Sword routes every unlocked innate and crystal invocation through a corrupted presentation. It has exactly three rites of its own: Call the Hollowed summons Darkness creatures; Blight Ground infects nearby terrain; Nightfall Dominion is a rank-ten apotheosis. Its eight-slot wheel is persistent. Shift-use opens the wheel, Shift-scroll cycles favourites, and use casts the selected invocation. At Darkness rank ten, sword cooldowns are removed; bounded server work budgets still apply.",
+  "sources": ["ArtifactActionCatalogue", "ArtifactFavouriteRules", "ArtifactWeaponManager"],
+  "reveal_rank": 1
+}

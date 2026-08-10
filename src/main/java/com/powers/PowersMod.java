@@ -37,6 +37,7 @@ import com.powers.forge.CrucibleWeaponRuntime;
 import com.powers.companion.PrivateCompanionManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -75,6 +76,7 @@ public class PowersMod implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		PowersConfigLoader.initialize();
+		com.powers.knowledge.KnowledgeEntryReloadListener.initialize();
 		PowerEntityState.initialize();
 		RankGraphRegistry.initialize();
 		PowersEffects.initialize();
@@ -98,6 +100,13 @@ public class PowersMod implements ModInitializer {
 		PowersPackets.initialize();
 		PowerCommand.register();
 		PowerCombatEvents.register();
+		ServerEntityEvents.ENTITY_LOAD.register((entity, level) ->
+				com.powers.network.NamedLivingTargetIndex.track(entity));
+		ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) ->
+		{
+			com.powers.network.NamedLivingTargetIndex.untrack(entity);
+			com.powers.magic.runtime.PhysicalMagicPresences.unload(entity);
+		});
 		LOGGER.info("Magic collision kernel loaded: {} actions, {} exhaustive interactions",
 				MagicRuntime.catalogue().definitions().size(), MagicRuntime.global().interactionCount());
 		// SkillSystem sets the player's visible display name. Vanilla signed chat
@@ -148,6 +157,7 @@ public class PowersMod implements ModInitializer {
 			ArtifactInventoryRuntime.forget(player);
 			CrucibleWeaponRuntime.forget(player.getUUID());
 			PrivateCompanionManager.forget(player);
+			com.powers.knowledge.KnowledgeRemoteProviderRuntime.forget(player.getUUID());
 			TravelChunkLoader.cancel(player.getUUID());
 			PowersPackets.forget(player);
 		});
@@ -167,10 +177,14 @@ public class PowersMod implements ModInitializer {
 			ArtifactInventoryRuntime.clear();
 			CrucibleWeaponRuntime.clear();
 			PrivateCompanionManager.clear();
+			com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
 			com.powers.fx.PowerFx.clearBudgets();
 			PowersPackets.clearSyncCache();
 			MagicFxPackets.clear();
 			TravelChunkLoader.clear();
+			com.powers.network.NamedLivingTargetIndex.clearAll();
+			com.powers.diagnostics.ServerRuntimeMetrics.clear();
+			com.powers.magic.runtime.PhysicalMagicPresences.clear();
 		});
 
 		// passives get re-applied on a schedule so they never expire, toggles
@@ -179,6 +193,7 @@ public class PowersMod implements ModInitializer {
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			int tick = server.getTickCount();
 			MagicRuntime.global().tick(tick);
+			com.powers.magic.runtime.PhysicalMagicPresences.tick(tick);
 			PlayerTickCoordinator.tick(server, tick);
 			ArtifactInventoryRuntime.tickServer(server);
 			PowerAbilityRuntime.tick(server);
@@ -203,6 +218,7 @@ public class PowersMod implements ModInitializer {
 			PowersPackets.syncTo(player);
 		}
 		ArtifactInventoryRuntime.tickPlayer(player, tick);
+		com.powers.item.ImportedArtifactRuntime.tickPlayer(player, tick);
 		PrivateCompanionManager.tickPlayer(player, tick);
 		enforceRealmGamemode(player);
 		tickToggles(player, tick);

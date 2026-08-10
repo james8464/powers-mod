@@ -1,6 +1,5 @@
 package com.powers.power.abilities;
 
-import com.powers.config.PowersConfigLoader;
 import com.powers.fx.FireballFx;
 import com.powers.mind.BodyProxyManager;
 import com.powers.power.AmethystDampening;
@@ -96,7 +95,10 @@ final class FireballImpactResolver {
 		double radius = FireballRules.impactRadius(heart.tier, heart.empoweredImpact);
 		FireballFx.impact(level, point, radius, heart.tier, affected,
 				heart.empoweredImpact, heart.ancientMastery);
-		if (controller != null) scorchTerrain(level, controller, point, heart);
+		if (controller != null) {
+			CombatTerrainImpact.crater(level, controller, point, heart.terrainTier);
+			scorchTerrain(level, controller, point, heart);
+		}
 		FireballAbility.finishImpact(level, projectile, heart, point);
 	}
 
@@ -202,8 +204,7 @@ final class FireballImpactResolver {
 	/** Places only bounded ordinary fire when server terrain policy explicitly permits it. */
 	private static void scorchTerrain(ServerLevel level, ServerPlayer controller,
 			Vec3 center, Cinderheart heart) {
-		int limit = FireballRules.terrainScorchLimit(
-				heart.tier, PowersConfigLoader.get().allowTerrainDamage());
+		int limit = FireballRules.terrainScorchLimit(heart.tier, true);
 		if (limit <= 0) return;
 		BlockPos origin = BlockPos.containing(center);
 		int placed = 0;
@@ -213,7 +214,7 @@ final class FireballImpactResolver {
 					BlockPos pos = origin.offset(dx, dy, dz);
 					BlockState fire = Blocks.FIRE.defaultBlockState();
 					if (!level.getBlockState(pos).isAir() || !fire.canSurvive(level, pos)
-							|| !PowerProtection.mayAffectBlock(controller, level, pos)) continue;
+							|| PowerProtection.isSafeZone(level, Vec3.atCenterOf(pos))) continue;
 					level.setBlockAndUpdate(pos, fire);
 					FireballFx.terrainScorch(level, Vec3.atCenterOf(pos), placed++);
 				}

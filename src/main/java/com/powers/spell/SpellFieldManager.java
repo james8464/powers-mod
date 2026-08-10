@@ -4,7 +4,12 @@ import com.powers.PowerStatusEffects;
 import com.powers.fx.PowerFx;
 import com.powers.power.abilities.VoidBeamRules;
 import com.powers.power.state.PowerEntityState;
+import com.powers.magic.MagicActionId;
+import com.powers.magic.runtime.MagicPresenceHandle;
+import com.powers.magic.runtime.PhysicalMagicPresences;
 import com.powers.util.BoundedEntityCandidates;
+import com.powers.util.BoundedRoundRobinQueue;
+import com.powers.util.ChunkSpatialIndex;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -19,27 +24,65 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /** Temporary, visible counterplay zones created by ritual spells. */
 public final class SpellFieldManager {
 	private static final int MAX_FIELDS = 256;
-	private static final List<Field> FIELDS = new ArrayList<>();
+	private static final int MAX_FIELD_WORK_PER_TICK = 32;
+	private static final double MAX_FIELD_RADIUS = 128.0;
+	private static final Map<FieldKey, Field> FIELDS = new LinkedHashMap<>();
+	private static final ChunkSpatialIndex<FieldKey, Field> INDEX = new ChunkSpatialIndex<>(16);
+	private static final BoundedRoundRobinQueue<FieldKey> WORK = new BoundedRoundRobinQueue<>();
 
 	/** First hostile ward surface touched by a finite harmful ray. */
 	public record RayWardHit(Vec3 point, double distance, VoidBeamRules.Counterplay counterplay) {
 	}
 
-	private record Field(SpellFieldKind kind, ResourceKey<Level> dimension, Vec3 center,
-			UUID owner, long expiresAt, double radius, int potencyTier) {
-		private Field {
-			if (!Double.isFinite(radius) || radius <= 0 || potencyTier < 0) {
+	private record FieldKey(UUID owner, SpellFieldKind kind) {
+	}
+
+	private static final class Field {
+		private final SpellFieldKind kind;
+		private final ResourceKey<Level> dimension;
+		private final Vec3 center;
+		private final UUID owner;
+		private final long expiresAt;
+		private final double radius;
+		private final int potencyTier;
+		private final MagicPresenceHandle presence;
+		private long nextPulseAt;
+
+		private Field(SpellFieldKind kind, ResourceKey<Level> dimension, Vec3 center,
+				UUID owner, long expiresAt, double radius, int potencyTier, long nextPulseAt,
+				MagicPresenceHandle presence) {
+			if (!Double.isFinite(radius) || radius <= 0.0 || radius > MAX_FIELD_RADIUS || potencyTier < 0) {
 				throw new IllegalArgumentException("Field values must be finite and positive");
 			}
+			this.kind = kind;
+			this.dimension = dimension;
+			this.center = center;
+			this.owner = owner;
+			this.expiresAt = expiresAt;
+			this.radius = radius;
+			this.potencyTier = potencyTier;
+			this.nextPulseAt = nextPulseAt;
+			this.presence = presence;
 		}
+
+		private SpellFieldKind kind() { return kind; }
+		private ResourceKey<Level> dimension() { return dimension; }
+		private Vec3 center() { return center; }
+		private UUID owner() { return owner; }
+		private long expiresAt() { return expiresAt; }
+		private double radius() { return radius; }
+		private int potencyTier() { return potencyTier; }
 	}
 
 	private SpellFieldManager() {
@@ -49,31 +92,32 @@ public final class SpellFieldManager {
 			double radius, int potencyTier) {
 		// A recast replaces the owner's earlier copy instead of accumulating
 		// overlapping fields; the global cap protects large servers and old saves.
-		FIELDS.removeIf(field -> field.owner().equals(owner.getUUID()) && field.kind() == kind);
-		if (FIELDS.size() >= MAX_FIELDS) FIELDS.removeFirst();
-		FIELDS.add(new Field(kind, owner.level().dimension(), owner.position(), owner.getUUID(),
-				owner.level().getGameTime() + durationTicks, radius, potencyTier));
+		FieldKey key = new FieldKey(owner.getUUID(), kind);
+		remove(key);
+		if (FIELDS.size() >= MAX_FIELDS) remove(FIELDS.keySet().iterator().next());
+		double boundedRadius = Math.clamp(radius, 0.25, MAX_FIELD_RADIUS);
+		long gameTime = owner.level().getGameTime();
+		long expiresAt = gameTime + Math.max(1, durationTicks);
+		MagicPresenceHandle presence = PhysicalMagicPresences.registerFixed(
+				new MagicActionId(actionId(kind)), owner.getUUID(), (ServerLevel) owner.level(),
+				owner.position(), boundedRadius, expiresAt, MagicPresenceHandle.Kind.FIELD);
+		Field field = new Field(kind, owner.level().dimension(), owner.position(), owner.getUUID(),
+				expiresAt, boundedRadius, Math.max(0, potencyTier), gameTime, presence);
+		FIELDS.put(key, field);
+		INDEX.put(key, dimensionId(field.dimension()), field.center().x, field.center().z,
+				field.radius(), field);
+		WORK.offer(key);
 	}
 
 	public static boolean blocksTravel(ServerPlayer subject, ServerLevel destinationLevel, Vec3 destination) {
-		for (Field field : FIELDS) {
-			long gameTime = field.dimension().equals(destinationLevel.dimension())
-					? destinationLevel.getGameTime() : subject.level().getGameTime();
-			if (field.expiresAt() <= gameTime) continue;
-			if (field.owner().equals(subject.getUUID())) continue;
-			if (field.kind() != SpellFieldKind.ANTI_PORTAL && field.kind() != SpellFieldKind.INFERNAL_SEAL) continue;
-			if (field.dimension().equals(subject.level().dimension())
-					&& within(field, subject.position())) return true;
-			if (field.dimension().equals(destinationLevel.dimension())
-					&& within(field, destination)) return true;
-		}
-		return false;
+		return blocksTravelAt(subject, (ServerLevel) subject.level(), subject.position())
+				|| blocksTravelAt(subject, destinationLevel, destination);
 	}
 
 	public static boolean isSanctuaryProtected(ServerLevel level, LivingEntity entity) {
-		for (Field field : FIELDS) {
+		for (Field field : nearby(level, entity.position(), 0.0)) {
 			if (field.expiresAt() > level.getGameTime()
-					&& field.kind() == SpellFieldKind.SANCTUARY && field.dimension().equals(level.dimension())
+					&& field.kind() == SpellFieldKind.SANCTUARY
 					&& within(field, entity.position())) return true;
 		}
 		return false;
@@ -82,9 +126,9 @@ public final class SpellFieldManager {
 	/** Returns whether another caster's Sanctuary or Kinetic Ward grounds forced movement here. */
 	public static boolean blocksForcedMovement(ServerLevel level, LivingEntity entity, UUID caster) {
 		if (level == null || entity == null || caster == null) return false;
-		for (Field field : FIELDS) {
+		for (Field field : nearby(level, entity.position(), 0.0)) {
 			if (field.expiresAt() <= level.getGameTime() || field.owner().equals(caster)
-					|| !field.dimension().equals(level.dimension())) continue;
+					) continue;
 			if ((field.kind() == SpellFieldKind.SANCTUARY || field.kind() == SpellFieldKind.KINETIC_WARD)
 					&& within(field, entity.position())) return true;
 		}
@@ -102,9 +146,9 @@ public final class SpellFieldManager {
 		double segmentLength = start.distanceTo(end);
 		if (!Double.isFinite(segmentLength) || segmentLength <= 1.0E-6) return Optional.empty();
 		List<VoidBeamRules.RayIntercept> candidates = new ArrayList<>();
-		for (Field field : FIELDS) {
+		for (Field field : rayCandidates(level, start, end)) {
 			if (field.expiresAt() <= level.getGameTime() || field.owner().equals(caster)
-					|| !field.dimension().equals(level.dimension())) continue;
+					) continue;
 			VoidBeamRules.Counterplay counterplay = switch (field.kind()) {
 				case KINETIC_WARD -> VoidBeamRules.Counterplay.KINETIC_WARD;
 				case SANCTUARY -> VoidBeamRules.Counterplay.SANCTUARY;
@@ -125,9 +169,8 @@ public final class SpellFieldManager {
 	public static boolean dispelNearest(ServerPlayer caster, double range) {
 		Field nearest = null;
 		double distance = range * range;
-		for (Field field : FIELDS) {
-			if (field.expiresAt() <= caster.level().getGameTime()
-					|| !field.dimension().equals(caster.level().dimension())) continue;
+		for (Field field : nearby((ServerLevel) caster.level(), caster.position(), Math.min(range, 256.0))) {
+			if (field.expiresAt() <= caster.level().getGameTime()) continue;
 			double candidate = field.center().distanceToSqr(caster.position());
 			if (candidate <= distance) {
 				distance = candidate;
@@ -135,21 +178,23 @@ public final class SpellFieldManager {
 			}
 		}
 		if (nearest == null) return false;
-		FIELDS.remove(nearest);
+		remove(new FieldKey(nearest.owner(), nearest.kind()));
 		PowerFx.cancelled((ServerLevel) caster.level(), nearest.center().add(0, 0.5, 0), 0x7455A8);
 		return true;
 	}
 
 	public static void tick(MinecraftServer server) {
-		Iterator<Field> iterator = FIELDS.iterator();
-		while (iterator.hasNext()) {
-			Field field = iterator.next();
+		for (FieldKey key : WORK.pollBatch(MAX_FIELD_WORK_PER_TICK)) {
+			Field field = FIELDS.get(key);
+			if (field == null) continue;
 			ServerLevel level = server.getLevel(field.dimension());
 			if (level == null || level.getGameTime() >= field.expiresAt()) {
-				iterator.remove();
+				remove(key);
 				continue;
 			}
-			if (server.getTickCount() % 5 != 0) continue;
+			WORK.offer(key);
+			if (server.getTickCount() < field.nextPulseAt) continue;
+			field.nextPulseAt = server.getTickCount() + 5L;
 			int color = switch (field.kind()) {
 				case ANTI_PORTAL -> 0x3D2B73;
 				case KINETIC_WARD -> 0x70D6FF;
@@ -209,7 +254,67 @@ public final class SpellFieldManager {
 		return field.center().distanceToSqr(position) <= field.radius() * field.radius();
 	}
 
+	private static boolean blocksTravelAt(ServerPlayer subject, ServerLevel level, Vec3 position) {
+		for (Field field : nearby(level, position, 0.0)) {
+			if (field.expiresAt() <= level.getGameTime() || field.owner().equals(subject.getUUID())) continue;
+			if ((field.kind() == SpellFieldKind.ANTI_PORTAL || field.kind() == SpellFieldKind.INFERNAL_SEAL)
+					&& within(field, position)) return true;
+		}
+		return false;
+	}
+
+	private static List<Field> nearby(ServerLevel level, Vec3 center, double queryRadius) {
+		return INDEX.nearby(dimensionId(level.dimension()), center.x, center.z,
+				Math.clamp(queryRadius, 0.0, 256.0));
+	}
+
+	private static List<Field> rayCandidates(ServerLevel level, Vec3 start, Vec3 end) {
+		double horizontalLength = Math.hypot(end.x - start.x, end.z - start.z);
+		int samples = Math.max(1, (int) Math.ceil(horizontalLength / 128.0));
+		Set<Field> result = new LinkedHashSet<>();
+		for (int sample = 0; sample <= samples; sample++) {
+			double progress = sample / (double) samples;
+			Vec3 point = start.add(end.subtract(start).scale(progress));
+			result.addAll(nearby(level, point, Math.min(128.0, horizontalLength / (2.0 * samples)
+					+ MAX_FIELD_RADIUS)));
+		}
+		return List.copyOf(result);
+	}
+
+	private static String dimensionId(ResourceKey<Level> dimension) {
+		return dimension.identifier().toString();
+	}
+
+	private static void remove(FieldKey key) {
+		Field removed = FIELDS.remove(key);
+		if (removed != null) PhysicalMagicPresences.remove(removed.presence);
+		INDEX.remove(key);
+		WORK.remove(key);
+	}
+
+	private static String actionId(SpellFieldKind kind) {
+		return switch (kind) {
+			case ANTI_PORTAL -> "anti_portal_field";
+			case KINETIC_WARD -> "kinetic_ward";
+			case SANCTUARY -> "sanctuary_growth";
+			case INFERNAL_SEAL -> "infernal_seal";
+		};
+	}
+
+	/** Active count exposed to the administrative diagnostics command. */
+	public static int activeFieldCount() {
+		return FIELDS.size();
+	}
+
+	/** Maximum recurring field evaluations performed in one server tick. */
+	public static int maxFieldWorkPerTick() {
+		return MAX_FIELD_WORK_PER_TICK;
+	}
+
 	public static void clearAll() {
+		FIELDS.values().forEach(field -> PhysicalMagicPresences.remove(field.presence));
 		FIELDS.clear();
+		INDEX.clear();
+		WORK.clear();
 	}
 }

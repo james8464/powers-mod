@@ -1,0 +1,7 @@
+{
+  "title": "Heavenly Partisan",
+  "keywords": ["empyrean testament", "partisan powers", "pure light artifact", "radiant sentinels"],
+  "answer": "The Heavenly Partisan is the opposed Light artifact. It routes aligned invocations, rejects Darkness bearers, calls Radiant Sentinels to defend its covenant, and stores a persistent eight-slot invocation wheel. Its casts use explicit artifact rules and never inherit a player's innate rank scaling by accident.",
+  "sources": ["ArtifactActionCatalogue", "ArtifactInventoryRuntime", "ArtifactGuardianSummons"],
+  "reveal_rank": 1
+}

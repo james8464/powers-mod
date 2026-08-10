@@ -1,0 +1,7 @@
+{
+  "title": "The Archivist's Knowledge Book",
+  "keywords": ["knowledge book", "ask question", "book sources", "book confidence", "archivist"],
+  "answer": "This book answers offline from loaded registries, recipe IDs, authored datapack lore, progression and nearby context. It shows confidence and sources and refuses to invent recipes. Questions and answers remain in a bounded session history. A stronghold library may reveal the Archivist's book. Administrators may opt into a bounded remote fallback for low-confidence non-recipe questions; offline truth always remains available.",
+  "sources": ["KnowledgeService", "knowledge_entries datapack"],
+  "reveal_rank": 0
+}

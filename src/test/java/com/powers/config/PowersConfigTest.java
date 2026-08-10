@@ -11,10 +11,11 @@ import com.powers.protection.ProtectionDecision;
 
 class PowersConfigTest {
 	@Test
-	void defaultsProtectPersistentMultiplayerWorlds() {
+	void defaultsEnableCombatScarsButProtectValuableBlocksAndPlayers() {
 		PowersConfig config = PowersConfig.defaults();
 
-		assertFalse(config.allowTerrainDamage());
+		assertEquals(PowersConfig.CURRENT_SCHEMA_VERSION, config.schemaVersion());
+		assertTrue(config.allowTerrainDamage());
 		assertFalse(config.allowBlockEntityDamage());
 		assertFalse(config.allowSelfReroll());
 		assertFalse(config.hostileForcedMovement());
@@ -40,13 +41,14 @@ class PowersConfigTest {
 
 	@Test
 	void sanitizationClampsUnsafeNumericValues() {
-		PowersConfig invalid = new PowersConfig(false, false, false, false, true, true, true,
+		PowersConfig invalid = new PowersConfig(-10, false, false, false, false, true, true, true,
 				true, true, true, true, true, true, -5, 0, 0, 500, 500, 5000, 99, java.util.List.of(),
 				new PowersConfig.LivingForces(true, -1, -2, -3, -4, 1000, 1),
 				new PowersConfig.DialogueProvider(true, " endpoint ", " model ", "bad variable!",
 						99_999, 999, 1));
 
 		PowersConfig sanitized = invalid.sanitized();
+		assertEquals(PowersConfig.CURRENT_SCHEMA_VERSION, sanitized.schemaVersion());
 		assertEquals(1, sanitized.wardRadius());
 		assertEquals(32, sanitized.maxParticlesPerTick());
 		assertEquals(1, sanitized.teleportMaxChunkDistance());
@@ -66,9 +68,12 @@ class PowersConfigTest {
 	}
 
 	@Test
-	void protectedTerrainDefaultsRejectEveryBlockChange() {
-		assertEquals(ProtectionDecision.DENY_TERRAIN,
+	void ordinaryTerrainDefaultsAllowCombatScars() {
+		assertEquals(ProtectionDecision.ALLOW,
 				PowerProtection.blockDecision(PowersConfig.defaults(), false, false));
+		assertEquals(ProtectionDecision.DENY_TERRAIN, PowerProtection.blockDecision(
+				PowersConfigLoader.parse("{\"schemaVersion\":2,\"allowTerrainDamage\":false}"),
+				false, false));
 	}
 
 	@Test
@@ -76,11 +81,20 @@ class PowersConfigTest {
 		PowersConfig config = PowersConfigLoader.parse("{}");
 		assertTrue(config.projectionBodiesVulnerable());
 		assertTrue(config.requireTeleportConsent());
-		assertFalse(config.allowTerrainDamage());
+		assertTrue(config.allowTerrainDamage());
 		assertEquals(512, config.maxParticlesPerTick());
 		assertTrue(config.livingForces().spreadingEnabled());
 		assertEquals(4096, config.livingForces().clashChecksPerTick());
 		assertFalse(PowersConfigLoader.parse("{\"celestialRuinTerrainDamage\":false}")
 				.celestialRuinTerrainDamage());
+	}
+
+	@Test
+	void legacyGeneratedTerrainDefaultMigratesOnceButVersionTwoOptOutRemains() {
+		assertTrue(PowersConfigLoader.parse("{\"allowTerrainDamage\":false}")
+				.allowTerrainDamage());
+		assertFalse(PowersConfigLoader.parse(
+				"{\"schemaVersion\":2,\"allowTerrainDamage\":false}")
+				.allowTerrainDamage());
 	}
 }

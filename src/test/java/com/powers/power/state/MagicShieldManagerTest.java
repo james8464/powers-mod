@@ -35,4 +35,16 @@ class MagicShieldManagerTest {
 		assertFalse(manager.absorb(owner, 1.0f, 6).blocked());
 		assertFalse(manager.absorb(UUID.randomUUID(), 10.0f, 1).blocked());
 	}
+
+	@Test
+	void sharedShieldCarriesTheCastersReflectionVariant() {
+		MagicShieldManager manager = new MagicShieldManager();
+		UUID protectedPlayer = UUID.randomUUID();
+		manager.raise(protectedPlayer, 20.0F, Long.MAX_VALUE, true);
+
+		MagicShieldManager.Impact impact = manager.absorb(protectedPlayer, 3.0F, 20);
+
+		assertTrue(impact.blocked());
+		assertTrue(impact.reflective());
+	}
 }

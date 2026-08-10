@@ -2,6 +2,7 @@ package com.powers.progression;
 
 import com.powers.magic.MagicActionCatalogue;
 import com.powers.magic.MagicActionDefinition;
+import com.powers.magic.runtime.CastSource;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -82,6 +83,25 @@ class PowerScalingServiceTest {
 		assertTrue(crystal.unlockedVariants().isEmpty());
 		assertEquals(1.0, spell.potencyMultiplier(), 0.0001);
 		assertTrue(spell.unlockedVariants().isEmpty());
+	}
+
+	@Test
+	void invocationSourcePreventsEquipmentRoutesFromScalingAnInnateDefinition() {
+		RankGraph graph = graph(perkNode(
+				"might", "might", RankPerkType.POWER_DAMAGE, 0.20));
+		RankProfile profile = new RankProfileService().profile(
+				graph, new RankProgress(Set.of("might"), "might"));
+		MagicActionDefinition fireball = action("fireball");
+
+		assertTrue(service.scaleForSource(
+				fireball, profile, 10, CastSource.INNATE).potencyMultiplier() > 1.0);
+		for (CastSource source : List.of(
+				CastSource.ARTIFACT, CastSource.CRYSTAL, CastSource.SPELL)) {
+			ScaledMagicValues equipment = service.scaleForSource(fireball, profile, 10, source);
+			assertEquals(1.0, equipment.potencyMultiplier(), 0.0001, source.name());
+			assertEquals(1.0, equipment.rangeMultiplier(), 0.0001, source.name());
+			assertTrue(equipment.unlockedVariants().isEmpty(), source.name());
+		}
 	}
 
 	private MagicActionDefinition action(String id) {

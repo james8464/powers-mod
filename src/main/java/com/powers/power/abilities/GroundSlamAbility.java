@@ -3,6 +3,8 @@ package com.powers.power.abilities;
 import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.GroundSlamFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
@@ -89,6 +91,8 @@ public final class GroundSlamAbility extends Ability {
 		int mantleDuration = Math.max(20,
 				(int) Math.round(BASE_MANTLE_TICKS * profile.durationMultiplier()));
 		FaultboundVerdict rite = new FaultboundVerdict(player.getUUID(), level.dimension(),
+				CastScalingContext.currentSource(), CombatTerrainImpact.tier(
+						player, CastScalingContext.currentSource()),
 				now, expiresAt, site.point(), player.getLookAngle(), radius,
 				(float) (BASE_DAMAGE * profile.potencyMultiplier()), mantleDuration,
 				empoweredImpact, secondStep, trueSight, reflectiveWard,
@@ -112,7 +116,8 @@ public final class GroundSlamAbility extends Ability {
 					&& owner.level().dimension().equals(rite.dimension);
 			boolean dampened = owner != null && AmethystDampening.isDampened(owner);
 			boolean frozen = owner != null && EntityFreezeController.isFrozen(owner);
-			boolean ownsPower = owner != null && ownsSource(owner);
+			boolean ownsPower = owner != null && ServerCastLifecycle.mayContinue(
+					owner, rite.castSource, ownsSource(owner));
 			boolean continues = GroundSlamRules.riteContinues(owner != null, sameDimension,
 					owner != null && owner.isAlive() && !owner.isRemoved(), dampened, frozen,
 					ownsPower, now, rite.expiresAt);

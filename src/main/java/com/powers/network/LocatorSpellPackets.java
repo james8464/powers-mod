@@ -16,7 +16,6 @@ import com.powers.spell.GrimoireDefinition;
 import com.powers.spell.SpellCastingManager;
 import com.powers.util.PowerMessages;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -43,7 +42,6 @@ import java.util.UUID;
  */
 final class LocatorSpellPackets {
 	private static final int NONCE_LIFETIME_TICKS = 20 * 30;
-	private static final int MAX_NAMED_MOB_INSPECTIONS = 10_000;
 	private static final int CELESTIAL_COLOR = 0xFFD9E9FF;
 	private static final int GOLD_COLOR = 0xFFFFE08A;
 	private static final CastNonceTracker NONCES = new CastNonceTracker(NONCE_LIFETIME_TICKS);
@@ -177,7 +175,7 @@ final class LocatorSpellPackets {
 	private static void openHeavens(ServerPlayer player, ServerLevel level, Vec3 position) {
 		if (player.isRemoved()) return;
 		PowerFx.beam(level, position, position.add(0, 36, 0),
-				ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, CELESTIAL_COLOR), 18);
+				PowerFx.dust(CELESTIAL_COLOR, 1.25F), 18);
 		PowerFx.burst(level, position.add(0, 0.2, 0), ParticleTypes.END_ROD, 18, 0.4, 0.05);
 		PowerFx.sound(level, position, SoundEvents.CONDUIT_ACTIVATE, 1.0f, 1.15f);
 	}
@@ -229,19 +227,7 @@ final class LocatorSpellPackets {
 			addMatch(matches, requestedName, candidate.getName().getString(), candidate);
 			if (matches.size() == 2) return NamedTargetRules.resolve(requestedName, matches);
 		}
-		int inspected = 0;
-		for (ServerLevel level : server.getAllLevels()) {
-			for (Entity entity : level.getAllEntities()) {
-				if (++inspected > MAX_NAMED_MOB_INSPECTIONS) {
-					return NamedTargetRules.scanLimit();
-				}
-				if (!(entity instanceof Mob mob) || !mob.hasCustomName()) continue;
-				Component customName = mob.getCustomName();
-				if (customName == null) continue;
-				addMatch(matches, requestedName, customName.getString(), mob);
-				if (matches.size() == 2) return NamedTargetRules.resolve(requestedName, matches);
-			}
-		}
+		NamedLivingTargetIndex.appendMatches(server, requestedName, matches);
 		return NamedTargetRules.resolve(requestedName, matches);
 	}
 

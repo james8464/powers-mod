@@ -2,6 +2,8 @@ package com.powers.power.abilities;
 
 import com.powers.PowersMod;
 import com.powers.fx.StarfallFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
@@ -120,8 +122,10 @@ public final class StarfallAbility extends Ability {
 		long seed = player.getUUID().getMostSignificantBits()
 				^ Long.rotateLeft(player.getUUID().getLeastSignificantBits(), 17) ^ now;
 		AstralConvergence storm = new AstralConvergence(player.getUUID(), level.dimension(),
+				CastScalingContext.currentSource(),
 				now, expiry, seed, site.point(), tracked, stormRadius,
-				(float) (BASE_DAMAGE * profile.potencyMultiplier()), strikes,
+				(float) (BASE_DAMAGE * profile.potencyMultiplier()),
+				CombatTerrainImpact.tier(player, CastScalingContext.currentSource()), strikes,
 				empoweredImpact, secondStep, trueSight, reflectiveWard, soulEcho,
 				afterimage, ancientMastery);
 		ACTIVE.put(storm.owner, storm);
@@ -143,13 +147,15 @@ public final class StarfallAbility extends Ability {
 					&& owner.level().dimension().equals(storm.dimension);
 			boolean dampened = owner != null && AmethystDampening.isDampened(owner);
 			boolean frozen = owner != null && EntityFreezeController.isFrozen(owner);
+			boolean ownsCast = owner != null && ServerCastLifecycle.mayContinue(
+					owner, storm.castSource, ownsPower(owner));
 			boolean continues = StarfallRules.stormContinues(owner != null, sameDimension,
 					owner != null && owner.isAlive() && !owner.isRemoved(), dampened, frozen,
-					owner != null && ownsPower(owner), now, storm.expiresAt);
+					ownsCast, now, storm.expiresAt);
 			if (level == null || !continues) {
 				boolean completed = level != null && owner != null && sameDimension
 						&& owner.isAlive() && !dampened && !frozen
-						&& ownsPower(owner) && now >= storm.expiresAt;
+						&& ownsCast && now >= storm.expiresAt;
 				if (level != null) {
 					StarfallFx.collapse(level, storm.center, storm.stormRadius,
 							completed, dampened, frozen);

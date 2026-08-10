@@ -1,5 +1,6 @@
 package com.powers.util;
 
+import com.powers.diagnostics.ServerRuntimeMetrics;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -58,6 +59,8 @@ public final class BoundedEntityCandidates {
 		List<T> candidates = new ArrayList<>(Math.max(0, inspectionLimit));
 		if (inspectionLimit <= 0) return candidates;
 		level.getEntities(type, bounds, ignored -> true, candidates, inspectionLimit);
+		ServerRuntimeMetrics.recordEntityInspections(level.getServer(),
+				level.getServer().getTickCount(), candidates.size());
 		candidates.removeIf(eligibility.negate());
 		return candidates;
 	}

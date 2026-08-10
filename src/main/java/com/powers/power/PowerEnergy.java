@@ -3,9 +3,11 @@ package com.powers.power;
 import com.powers.player.PlayerPowers;
 import com.powers.power.abilities.SizeMorphAbility;
 import com.powers.power.abilities.SizeMorphRules;
+import com.powers.power.abilities.TimeFreezeDrainRules;
 import com.powers.progression.PowerScalingService;
 import com.powers.power.artifact.AlignedArtifactAbility;
 import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.magic.runtime.CastScalingContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -82,7 +84,7 @@ public final class PowerEnergy {
 				&& PlayerPowers.get(player).darknessLevel() >= 10) {
 			return Math.max(1, (int) Math.ceil(cost(ability) * 0.8));
 		}
-		return ability.usesRankScaling()
+		return CastScalingContext.currentSource().appliesPlayerRank(ability.usesRankScaling())
 				? PowerScalingService.energyCost(player, ability.id().getPath(), cost(ability))
 				: cost(ability);
 	}
@@ -99,11 +101,16 @@ public final class PowerEnergy {
 
 	/** Applies rank efficiency to an innate toggle's recurring server-side drain. */
 	public static int ongoingCost(ServerPlayer player, Ability ability) {
+		if (ability.id().getPath().equals("time_freeze")) {
+			// Freezing every dimension is intentionally exceptional: rank efficiency and
+			// artifact routing cannot turn global clock ownership into a cheap toggle.
+			return TimeFreezeDrainRules.energyPerSecond(PlayerPowers.get(player).energyCapacity());
+		}
 		int baseCost = ability instanceof SizeMorphAbility
 				? SizeMorphRules.energyDrainPerSecond(SizeMorphRules.scale(
 						PlayerPowers.get(player).getSizeMorphOption()))
 				: ongoingCost(ability);
-		return ability.usesRankScaling()
+		return CastScalingContext.currentSource().appliesPlayerRank(ability.usesRankScaling())
 				? PowerScalingService.energyCost(player, ability.id().getPath(), baseCost)
 				: baseCost;
 	}

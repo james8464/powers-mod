@@ -71,7 +71,7 @@ def render_manifest(files: list[Path]) -> str:
         rows.append(f"| `{relative}` | {group} | `{digest}` | {status} | {evidence} |")
     header = """# Non-item asset audit
 
-This exhaustive manifest covers every tracked POWERS namespace asset except new-item definitions, models, and textures, which the requested pass explicitly excludes. PNG groups were decoded and inspected through generated contact sheets; JSON/reference, animation, alpha, sound, and translation contracts are enforced by `validate_resources.py`.
+This exhaustive manifest covers every tracked POWERS namespace asset except new-item definitions, models, and textures, which the requested pass explicitly excludes. A digest proves file identity only. PNGs are decoded into contact sheets for visual review; JSON/reference, animation, alpha, sound, and translation contracts are enforced separately by `validate_resources.py`.
 
 | Asset | Group | SHA-256 | Review | Evidence |
 |---|---|---|---|---|

@@ -4,7 +4,7 @@ import com.powers.PowersParticles;
 import com.powers.fx.BeamFxStyle;
 import com.powers.network.MagicFxPackets;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.phys.Vec3;
@@ -43,8 +43,7 @@ public final class ClientBeamFx {
 			case ENCHANT -> ParticleTypes.ENCHANT;
 			case CLOUD -> ParticleTypes.CLOUD;
 			case PORTAL -> ParticleTypes.REVERSE_PORTAL;
-			case COLORED -> ColorParticleOption.create(
-					ParticleTypes.ENTITY_EFFECT, 0xFF000000 | (color & 0xFFFFFF));
+			case COLORED -> new DustParticleOptions(color & 0xFFFFFF, 1.0F);
 		};
 	}
 }

@@ -4,6 +4,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import com.powers.magic.runtime.CastSource;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -15,7 +16,9 @@ import java.util.UUID;
 /** Identifier-only, server-thread state for one finite Storm Tribunal. */
 final class StormTribunal {
 	final UUID owner;
+	final int ownerEntityId;
 	final Identifier sourcePower;
+	final CastSource castSource;
 	final ResourceKey<Level> dimension;
 	final long startedAt;
 	final long expiresAt;
@@ -37,13 +40,16 @@ final class StormTribunal {
 	boolean crownResolved;
 	boolean afterimageSpent;
 
-	StormTribunal(UUID owner, Identifier sourcePower, ResourceKey<Level> dimension,
+	StormTribunal(UUID owner, int ownerEntityId, Identifier sourcePower, CastSource castSource,
+			ResourceKey<Level> dimension,
 			long startedAt, long expiresAt, Vec3 origin, UUID trackedTarget,
 			double baseRadius, float baseDamage, boolean empoweredImpact,
 			boolean secondStep, boolean trueSight, boolean reflectiveWard,
 			boolean soulEcho, boolean afterimage, boolean ancientMastery) {
 		this.owner = owner;
+		this.ownerEntityId = ownerEntityId;
 		this.sourcePower = Objects.requireNonNull(sourcePower, "sourcePower");
+		this.castSource = Objects.requireNonNull(castSource, "castSource");
 		this.dimension = dimension;
 		this.startedAt = startedAt;
 		this.expiresAt = expiresAt;

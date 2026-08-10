@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "powers:power_magic"
+    "powers:power_magic",
+    "powers:celestial_ruin"
   ]
 }

@@ -3,6 +3,9 @@ package com.powers.item;
 import com.powers.PowerStatusEffects;
 import com.powers.fx.PowerFx;
 import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.item.artifact.ArtifactEnergyRules;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.power.PowerEnergy;
@@ -65,9 +68,7 @@ public final class ArtifactInventoryRuntime {
 		if (tick % 20 != 0) return;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		int rank = ArtifactWeaponManager.rank(player, alignment);
-		int regeneration = alignment == ArtifactAlignment.DARKNESS
-				? rank >= 10 ? 900 : 80 + rank * 35
-				: rank >= 10 ? 300 : 40 + rank * 15;
+		int regeneration = ArtifactEnergyRules.regenerationPerSecond(alignment, rank);
 		boolean changed = data.regenerateEnergy(regeneration);
 		changed |= drainToggles(player, alignment, data);
 		if (changed) PowersPackets.syncTo(player);
@@ -97,7 +98,8 @@ public final class ArtifactInventoryRuntime {
 			String key = ArtifactWeaponManager.toggleKey(action);
 			if (action.ability().isToggle() && data.isToggleActive(key)
 					&& tick % Math.max(1, action.ability().activeTickInterval()) == 0) {
-				action.ability().tickActive(player, data);
+				CastScalingContext.withSource(CastSource.ARTIFACT,
+						() -> action.ability().tickActive(player, data));
 			}
 		}
 	}
@@ -108,7 +110,8 @@ public final class ArtifactInventoryRuntime {
 		for (ArtifactWeaponManager.Action action : ArtifactWeaponManager.actions(alignment)) {
 			String key = ArtifactWeaponManager.toggleKey(action);
 			if (!action.ability().isToggle() || !data.isToggleActive(key)) continue;
-			int cost = PowerEnergy.ongoingCost(player, action.ability());
+			int cost = CastScalingContext.withSource(CastSource.ARTIFACT,
+					() -> PowerEnergy.ongoingCost(player, action.ability()));
 			if (cost > 0 && !data.consumeEnergy(cost)) {
 				action.ability().activateToggleOff(player, data);
 				data.setToggleActive(player, key, false);

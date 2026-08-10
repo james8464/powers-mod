@@ -3,8 +3,13 @@ package com.powers.network;
 import com.powers.PowersMod;
 import com.powers.fx.ShadowSwordFx;
 import com.powers.item.ArtifactWeaponManager;
+import com.powers.item.artifact.ArtifactScrollRules;
+import com.powers.item.artifact.ArtifactFavouriteRules;
+import com.powers.item.artifact.ArtifactActionCategory;
+import com.powers.item.artifact.ArtifactActionSnapshot;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.player.PlayerPowers;
+import com.powers.player.ArtifactSelectionState;
 import com.powers.power.AbilityActivationService;
 import com.powers.util.PowerMessages;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -26,15 +31,16 @@ public final class ShadowSwordPackets {
 			ByteBufCodecs.stringUtf8(64);
 	private static final StreamCodec<io.netty.buffer.ByteBuf, String> PLAYER_NAME_CODEC =
 			ByteBufCodecs.stringUtf8(16);
-	private static final StreamCodec<io.netty.buffer.ByteBuf, java.util.List<Integer>> INT_LIST_CODEC =
-			ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list(128));
-	private static final StreamCodec<io.netty.buffer.ByteBuf, java.util.List<Boolean>> BOOL_LIST_CODEC =
-			ByteBufCodecs.BOOL.apply(ByteBufCodecs.list(128));
+	private static final StreamCodec<io.netty.buffer.ByteBuf, java.util.List<String>> ACTION_LIST_CODEC =
+			ACTION_KEY_CODEC.apply(ByteBufCodecs.list(ArtifactFavouriteRules.SLOT_COUNT));
+	private static final StreamCodec<RegistryFriendlyByteBuf, ArtifactActionSnapshot> ACTION_SNAPSHOT_CODEC =
+			StreamCodec.of(ShadowSwordPackets::encodeSnapshot, ShadowSwordPackets::decodeSnapshot);
+	private static final StreamCodec<RegistryFriendlyByteBuf, java.util.List<ArtifactActionSnapshot>>
+			SNAPSHOT_LIST_CODEC = ACTION_SNAPSHOT_CODEC.apply(ByteBufCodecs.list(128));
 
 	public record OpenMenuPayload(String alignment, String selectedKey, int rank, int elementalPhase,
-			int sizeMorphOption, int energy, java.util.List<Integer> costs,
-			java.util.List<Integer> cooldowns, java.util.List<Integer> cooldownMaximums,
-			java.util.List<Boolean> activeToggles) implements CustomPacketPayload {
+			int sizeMorphOption, int energy, java.util.List<String> favourites,
+			java.util.List<ArtifactActionSnapshot> actions) implements CustomPacketPayload {
 		public static final Type<OpenMenuPayload> TYPE = new Type<>(PowersMod.id("open_shadow_sword"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, OpenMenuPayload> STREAM_CODEC =
 				StreamCodec.composite(
@@ -44,10 +50,8 @@ public final class ShadowSwordPackets {
 						ByteBufCodecs.VAR_INT, OpenMenuPayload::elementalPhase,
 						ByteBufCodecs.VAR_INT, OpenMenuPayload::sizeMorphOption,
 						ByteBufCodecs.VAR_INT, OpenMenuPayload::energy,
-						INT_LIST_CODEC, OpenMenuPayload::costs,
-						INT_LIST_CODEC, OpenMenuPayload::cooldowns,
-						INT_LIST_CODEC, OpenMenuPayload::cooldownMaximums,
-						BOOL_LIST_CODEC, OpenMenuPayload::activeToggles,
+						ACTION_LIST_CODEC, OpenMenuPayload::favourites,
+						SNAPSHOT_LIST_CODEC, OpenMenuPayload::actions,
 						OpenMenuPayload::new);
 
 		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
@@ -70,6 +74,33 @@ public final class ShadowSwordPackets {
 						ACTION_KEY_CODEC, SelectPayload::actionKey,
 						ByteBufCodecs.VAR_INT, SelectPayload::option,
 						SelectPayload::new);
+
+		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
+	}
+
+	/** One bounded server-authoritative catalogue step requested by crouch-scroll. */
+	public record CyclePayload(String alignment, int direction) implements CustomPacketPayload {
+		public static final Type<CyclePayload> TYPE = new Type<>(PowersMod.id("cycle_artifact_action"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, CyclePayload> STREAM_CODEC =
+				StreamCodec.composite(
+						ALIGNMENT_CODEC, CyclePayload::alignment,
+						ByteBufCodecs.VAR_INT, CyclePayload::direction,
+						CyclePayload::new);
+
+		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
+	}
+
+	/** Persists one direct library-to-wheel binding after server validation. */
+	public record BindFavouritePayload(String alignment, int slot, String actionKey)
+			implements CustomPacketPayload {
+		public static final Type<BindFavouritePayload> TYPE =
+				new Type<>(PowersMod.id("bind_artifact_favourite"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, BindFavouritePayload> STREAM_CODEC =
+				StreamCodec.composite(
+						ALIGNMENT_CODEC, BindFavouritePayload::alignment,
+						ByteBufCodecs.VAR_INT, BindFavouritePayload::slot,
+						ACTION_KEY_CODEC, BindFavouritePayload::actionKey,
+						BindFavouritePayload::new);
 
 		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
 	}
@@ -97,6 +128,9 @@ public final class ShadowSwordPackets {
 		PayloadTypeRegistry.clientboundPlay().register(OpenMenuPayload.TYPE, OpenMenuPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(OpenTeleportPayload.TYPE, OpenTeleportPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SelectPayload.TYPE, SelectPayload.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(CyclePayload.TYPE, CyclePayload.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(
+				BindFavouritePayload.TYPE, BindFavouritePayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(TeleportPayload.TYPE, TeleportPayload.STREAM_CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(SelectPayload.TYPE, (payload, context) ->
 				context.server().execute(() -> {
@@ -105,6 +139,29 @@ public final class ShadowSwordPackets {
 					if (alignment != null) ArtifactWeaponManager.select(
 							context.player(), alignment, payload.actionKey(), payload.option());
 					}
+				}));
+		ServerPlayNetworking.registerGlobalReceiver(CyclePayload.TYPE, (payload, context) ->
+				context.server().execute(() -> {
+					if (!PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.ARTIFACT)
+							|| !ArtifactScrollRules.validDirection(payload.direction())) return;
+					ArtifactAlignment alignment = parseAlignment(payload.alignment());
+					if (alignment == null || !ArtifactWeaponManager.holds(context.player(), alignment)
+							|| !ArtifactWeaponManager.authorized(context.player(), alignment)) return;
+					ArtifactWeaponManager.Action selected = ArtifactWeaponManager.selected(
+							context.player(), alignment);
+					String next = ArtifactFavouriteRules.cycle(
+							ArtifactSelectionState.favourites(context.player(), alignment),
+							selected == null ? null : selected.definition().key(), payload.direction());
+					if (next != null) ArtifactWeaponManager.select(context.player(), alignment, next, -1);
+				}));
+		ServerPlayNetworking.registerGlobalReceiver(BindFavouritePayload.TYPE, (payload, context) ->
+				context.server().execute(() -> {
+					if (!PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.ARTIFACT)) return;
+					ArtifactAlignment alignment = parseAlignment(payload.alignment());
+					if (alignment == null || !ArtifactWeaponManager.holds(context.player(), alignment)
+							|| !ArtifactWeaponManager.authorized(context.player(), alignment)) return;
+					ArtifactSelectionState.bindFavourite(context.player(), alignment,
+							payload.slot(), payload.actionKey());
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(TeleportPayload.TYPE, (payload, context) ->
 				context.server().execute(() -> {
@@ -117,12 +174,11 @@ public final class ShadowSwordPackets {
 	public static void openMenu(ServerPlayer player, ArtifactAlignment alignment,
 			String selectedKey, int rank,
 			int elementalPhase, int sizeMorphOption, int energy,
-			java.util.List<Integer> costs, java.util.List<Integer> cooldowns,
-			java.util.List<Integer> cooldownMaximums, java.util.List<Boolean> activeToggles) {
+			java.util.List<String> favourites,
+			java.util.List<ArtifactActionSnapshot> actions) {
 		ServerPlayNetworking.send(player, new OpenMenuPayload(
 				alignment.serializedName(), selectedKey, rank, elementalPhase, sizeMorphOption,
-				energy, java.util.List.copyOf(costs), java.util.List.copyOf(cooldowns),
-				java.util.List.copyOf(cooldownMaximums), java.util.List.copyOf(activeToggles)));
+				energy, java.util.List.copyOf(favourites), java.util.List.copyOf(actions)));
 	}
 
 	public static void openTeleport(ServerPlayer player, ArtifactAlignment alignment) {
@@ -136,10 +192,12 @@ public final class ShadowSwordPackets {
 				ArtifactAlignment.DARKNESS);
 		openMenu(player, ArtifactAlignment.DARKNESS, selectedKey, rank, elementalPhase,
 				sizeMorphOption, PlayerPowers.get(player).energy(),
-				actions.stream().map(action -> com.powers.power.PowerEnergy.cost(player, action.ability())).toList(),
-				actions.stream().map(action -> 0).toList(), actions.stream().map(action ->
-						ArtifactWeaponManager.cooldown(player, ArtifactAlignment.DARKNESS, action)).toList(),
-				actions.stream().map(action -> false).toList());
+				ArtifactSelectionState.favourites(player, ArtifactAlignment.DARKNESS),
+				actions.stream().map(action -> new ArtifactActionSnapshot(
+						action.definition().key(), action.definition().category(),
+						com.powers.power.PowerEnergy.cost(player, action.ability()), 0,
+						ArtifactWeaponManager.cooldown(player, ArtifactAlignment.DARKNESS, action),
+						false, rank < action.definition().requiredRank(), -1)).toList());
 	}
 
 	/** Compatibility overload for the original Shadow Sword adapter. */
@@ -179,5 +237,25 @@ public final class ShadowSwordPackets {
 		} catch (IllegalArgumentException ignored) {
 			return null;
 		}
+	}
+
+	private static void encodeSnapshot(RegistryFriendlyByteBuf buffer, ArtifactActionSnapshot snapshot) {
+		ACTION_KEY_CODEC.encode(buffer, snapshot.key());
+		buffer.writeVarInt(snapshot.category().ordinal());
+		buffer.writeVarInt(snapshot.cost());
+		buffer.writeVarInt(snapshot.cooldownTicks());
+		buffer.writeVarInt(snapshot.cooldownMaximumTicks());
+		buffer.writeBoolean(snapshot.active());
+		buffer.writeBoolean(snapshot.locked());
+		buffer.writeVarInt(snapshot.variant());
+	}
+
+	private static ArtifactActionSnapshot decodeSnapshot(RegistryFriendlyByteBuf buffer) {
+		String key = ACTION_KEY_CODEC.decode(buffer);
+		int categoryIndex = buffer.readVarInt();
+		ArtifactActionCategory[] categories = ArtifactActionCategory.values();
+		ArtifactActionCategory category = categories[Math.clamp(categoryIndex, 0, categories.length - 1)];
+		return new ArtifactActionSnapshot(key, category, buffer.readVarInt(), buffer.readVarInt(),
+				buffer.readVarInt(), buffer.readBoolean(), buffer.readBoolean(), buffer.readVarInt());
 	}
 }

@@ -20,6 +20,21 @@ public final class GlobalTimeStopRules {
 	/** Any broken ownership invariant ends the stop before it can orphan a server. */
 	public static boolean shouldRelease(boolean ownerOnline, boolean ownerAlive,
 			boolean toggleActive, boolean dampened, boolean serverFrozen) {
-		return !ownerOnline || !ownerAlive || !toggleActive || dampened || !serverFrozen;
+		return shouldRelease(ownerOnline, ownerAlive, toggleActive, dampened,
+				serverFrozen, false);
+	}
+
+	/** External clock writes invalidate power ownership even when the clock stays frozen. */
+	public static boolean shouldRelease(boolean ownerOnline, boolean ownerAlive,
+			boolean toggleActive, boolean dampened, boolean serverFrozen,
+			boolean externallyMutated) {
+		return !ownerOnline || !ownerAlive || !toggleActive || dampened
+				|| !serverFrozen || externallyMutated;
+	}
+
+	/** Never undo the clock state after an administrator or another system takes ownership. */
+	public static boolean shouldUnfreezeOnRelease(boolean serverFrozen,
+			boolean externallyMutated) {
+		return serverFrozen && !externallyMutated;
 	}
 }

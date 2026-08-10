@@ -106,6 +106,8 @@ final class LightningStrikeImpactResolver {
 			affected += conduct(level, caster, tribunal,
 					direct.chainOrigin(), direct.struck());
 		}
+		CombatTerrainImpact.crater(level, caster, site.point(),
+				CombatTerrainImpact.tier(caster, tribunal.castSource));
 		spawnVisualLightning(level, site.point());
 		LightningStrikeFx.impact(level, site.sky(), site.point(), radius,
 				beat, medium, affected, tribunal.empoweredImpact);

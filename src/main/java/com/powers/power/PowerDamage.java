@@ -22,6 +22,8 @@ import net.minecraft.world.entity.LivingEntity;
 public final class PowerDamage {
 	public static final ResourceKey<DamageType> POWER_MAGIC = ResourceKey.create(
 			Registries.DAMAGE_TYPE, PowersMod.id("power_magic"));
+	public static final ResourceKey<DamageType> CELESTIAL_RUIN = ResourceKey.create(
+			Registries.DAMAGE_TYPE, PowersMod.id("celestial_ruin"));
 	public static final TagKey<DamageType> POWER_DAMAGE = TagKey.create(
 			Registries.DAMAGE_TYPE, PowersMod.id("power_damage"));
 
@@ -51,6 +53,13 @@ public final class PowerDamage {
 		return new DamageSource(type, projectile, caster);
 	}
 
+	/** Unowned apocalyptic damage used by a persisted Heavenfall event after its caster leaves. */
+	public static DamageSource celestialRuin(net.minecraft.server.level.ServerLevel level) {
+		var type = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+				.getOrThrow(CELESTIAL_RUIN);
+		return new DamageSource(type);
+	}
+
 	/**
 	 * Whether this damage came out of a power rather than an ordinary attack.
 	 * Covers the freeze typing Ice Manipulation used to carry and the plain
@@ -62,6 +71,6 @@ public final class PowerDamage {
 	}
 
 	static boolean isPowerDamageKey(ResourceKey<DamageType> key) {
-		return POWER_MAGIC.equals(key);
+		return POWER_MAGIC.equals(key) || CELESTIAL_RUIN.equals(key);
 	}
 }

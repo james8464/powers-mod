@@ -2,7 +2,6 @@ package com.powers.power.abilities;
 
 import com.powers.PowerStatusEffects;
 import com.powers.PowersBlocks;
-import com.powers.config.PowersConfigLoader;
 import com.powers.fx.GroundSlamFx;
 import com.powers.mind.BodyProxyManager;
 import com.powers.power.AmethystDampening;
@@ -19,7 +18,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -242,35 +240,7 @@ final class GroundSlamImpactResolver {
 	/** Removes only deterministic policy-approved soft blocks, without item drops. */
 	private static void fractureTerrain(ServerLevel level, ServerPlayer caster,
 			FaultboundVerdict rite, StrikeSite site, double radius) {
-		int limit = GroundSlamRules.terrainLimit(
-				PowersConfigLoader.get().allowTerrainDamage(), true, rite.ancientMastery);
-		int removed = 0;
-		for (int index = 0; index < limit; index++) {
-			Vec3 offset = GroundSlamRules.terrainOffset(index, limit, radius * 0.72);
-			BlockPos column = BlockPos.containing(site.point().add(offset));
-			BlockPos pos = findSoftSurface(level, column, site.support().getY());
-			if (pos == null) continue;
-			BlockState state = level.getBlockState(pos);
-			if (!PowerProtection.mayAffectBlock(caster, level, pos)
-					|| state.is(AmethystDampening.AMETHYST_BLOCKS)
-					|| state.is(PowersBlocks.DARKNESS) || state.is(PowersBlocks.PURE_LIGHT)
-					|| state.is(Blocks.BEDROCK) || !state.getFluidState().isEmpty()) continue;
-			float hardness = state.getDestroySpeed(level, pos);
-			if (!Float.isFinite(hardness) || hardness < 0.0F || hardness > 3.0F) continue;
-			if (!level.destroyBlock(pos, false, caster)) continue;
-			GroundSlamFx.terrainFracture(level, Vec3.atCenterOf(pos), removed++);
-		}
-	}
-
-	/** Finds one collision-bearing surface near the authored epicentre height. */
-	private static BlockPos findSoftSurface(ServerLevel level, BlockPos column, int supportY) {
-		for (int offset = 1; offset >= -2; offset--) {
-			BlockPos pos = new BlockPos(column.getX(), supportY + offset, column.getZ());
-			if (!LoadedChunks.contains(level, pos)) return null;
-			BlockState state = level.getBlockState(pos);
-			if (!state.getCollisionShape(level, pos).isEmpty()) return pos;
-		}
-		return null;
+		CombatTerrainImpact.crater(level, caster, site.point(), rite.terrainTier);
 	}
 
 	/** Insight reveals only after the body actually accepts damage. */

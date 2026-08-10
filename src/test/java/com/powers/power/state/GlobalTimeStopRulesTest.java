@@ -34,4 +34,13 @@ class GlobalTimeStopRulesTest {
 		assertTrue(GlobalTimeStopRules.shouldRelease(true, true, true, false, false));
 		assertFalse(GlobalTimeStopRules.shouldRelease(true, true, true, false, true));
 	}
+
+	@Test
+	void externalClockMutationEndsPowerOwnershipWithoutUndoingAdministratorState() {
+		assertTrue(GlobalTimeStopRules.shouldRelease(true, true, true,
+				false, true, true));
+		assertFalse(GlobalTimeStopRules.shouldUnfreezeOnRelease(true, true));
+		assertTrue(GlobalTimeStopRules.shouldUnfreezeOnRelease(true, false));
+		assertFalse(GlobalTimeStopRules.shouldUnfreezeOnRelease(false, false));
+	}
 }

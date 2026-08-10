@@ -3,7 +3,6 @@ package com.powers.fx;
 import com.powers.PowersParticles;
 import com.powers.PowersSounds;
 import com.powers.power.abilities.StarfallRules;
-import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -73,8 +72,7 @@ public final class StarfallFx {
 		PowerFx.ring(level, point.add(0.0, 0.09, 0.0), radius * 0.56,
 				DEEP_INDIGO, crown ? 28 : 14, -level.getGameTime() * 0.26);
 		PowerFx.beam(level, point.add(0.0, 12.0, 0.0), point.add(0.0, 0.2, 0.0),
-				ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT,
-						0xFF000000 | color), crown ? 26 : 14);
+				PowerFx.dust(color, crown ? 1.35F : 0.9F), crown ? 26 : 14);
 		PowerFx.burst(level, point.add(0.0, 0.2, 0.0), PowersParticles.GLYPH,
 				crown ? 8 : 3, radius * 0.28, 0.02);
 		if (ticksUntil == 1) {
@@ -198,7 +196,7 @@ public final class StarfallFx {
 		PowerFx.ring(level, point.add(0.0, 0.32, 0.0), radius * 0.42,
 				INDIGO, 34, level.getGameTime() * 0.34);
 		PowerFx.burst(level, point.add(0.0, 0.8, 0.0),
-				ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFFFFF), 3, 0.8, 0.0);
+				net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFFFFF), 3, 0.8, 0.0);
 		PowerFx.burst(level, point.add(0.0, 0.9, 0.0), ParticleTypes.ELECTRIC_SPARK,
 				48 + Math.min(24, affected * 3), radius * 0.46, 0.34);
 		PowerFx.burst(level, point.add(0.0, 0.9, 0.0), PowersParticles.GLYPH,

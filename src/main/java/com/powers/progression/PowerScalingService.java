@@ -7,6 +7,7 @@ import com.powers.magic.MagicAspect;
 import com.powers.magic.MagicIntent;
 import com.powers.magic.runtime.CastAdjustment;
 import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import net.minecraft.server.level.ServerPlayer;
@@ -51,6 +52,14 @@ public final class PowerScalingService {
 				potencyMultiplier, rangeMultiplier, durationMultiplier);
 	}
 
+	/** Scales an action only when the authoritative invocation route is directly innate. */
+	public ScaledMagicValues scaleForSource(MagicActionDefinition action, RankProfile profile,
+			int legacyLevel, CastSource source) {
+		return source.appliesPlayerRank(true)
+				? scale(action, profile, legacyLevel)
+				: scale(action, RankProfile.EMPTY, 0);
+	}
+
 	/** Returns the active light or darkness profile for a server player. */
 	public static RankProfile profile(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
@@ -63,7 +72,10 @@ public final class PowerScalingService {
 	/** Returns the scaled canonical values for a player and stable action ID. */
 	public static ScaledMagicValues forPlayer(ServerPlayer player, String actionId) {
 		MagicActionDefinition action = requireAction(actionId);
-		ScaledMagicValues ranked = INSTANCE.scale(action, profile(player), SkillSystem.effectiveLevel(player));
+		CastSource source = CastScalingContext.currentSource();
+		RankProfile activeProfile = source.appliesPlayerRank(true) ? profile(player) : RankProfile.EMPTY;
+		int activeLevel = source.appliesPlayerRank(true) ? SkillSystem.effectiveLevel(player) : 0;
+		ScaledMagicValues ranked = INSTANCE.scaleForSource(action, activeProfile, activeLevel, source);
 		return applyInteraction(action, ranked, CastScalingContext.current());
 	}
 
@@ -91,6 +103,7 @@ public final class PowerScalingService {
 
 	/** Reduces a bespoke ability cost using its canonical action profile. */
 	public static int energyCost(ServerPlayer player, String actionId, int baseCost) {
+		if (!CastScalingContext.currentSource().appliesPlayerRank(true)) return Math.max(0, baseCost);
 		double ratio = Math.min(0.35, SkillSystem.effectiveLevel(player) * 0.01
 				+ actionReduction(player, actionId, RankPerkType.ENERGY_COST_REDUCTION));
 		return reducedInt(Math.max(0, baseCost), ratio, 0.35);
@@ -98,6 +111,7 @@ public final class PowerScalingService {
 
 	/** Reduces a bespoke ability cooldown using its canonical action profile. */
 	public static int cooldown(ServerPlayer player, String actionId, int baseTicks) {
+		if (!CastScalingContext.currentSource().appliesPlayerRank(true)) return Math.max(0, baseTicks);
 		double ratio = Math.min(0.40, SkillSystem.effectiveLevel(player) * 0.015
 				+ actionReduction(player, actionId, RankPerkType.COOLDOWN_REDUCTION));
 		return reducedInt(Math.max(0, baseTicks), ratio, 0.40);
@@ -116,6 +130,7 @@ public final class PowerScalingService {
 
 	/** Returns whether the player's active maze profile unlocks a named mechanical variant. */
 	public static boolean hasVariant(ServerPlayer player, String variant) {
+		if (!CastScalingContext.currentSource().appliesPlayerRank(true)) return false;
 		return variants(profile(player)).contains(variant);
 	}
 

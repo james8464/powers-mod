@@ -8,6 +8,8 @@ import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.protection.PowerProtection;
 import com.powers.util.BoundedEntityCandidates;
+import com.powers.util.BoundedRoundRobinQueue;
+import com.powers.util.ChunkSpatialIndex;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -30,7 +32,10 @@ import java.util.UUID;
 public final class ArtifactFieldManager {
 	private static final int DURATION_TICKS = 160;
 	private static final double RADIUS = 24.0;
+	private static final int MAX_FIELD_WORK_PER_TICK = 32;
 	private static final Map<UUID, Field> FIELDS = new HashMap<>();
+	private static final ChunkSpatialIndex<UUID, Field> INDEX = new ChunkSpatialIndex<>(16);
+	private static final BoundedRoundRobinQueue<UUID> WORK = new BoundedRoundRobinQueue<>();
 
 	private record Field(ResourceKey<Level> dimension, Vec3 center,
 			ArtifactAlignment alignment, long expiresAt) {
@@ -42,31 +47,38 @@ public final class ArtifactFieldManager {
 	public static boolean start(ServerPlayer owner, Vec3 center, ArtifactAlignment alignment) {
 		boolean replacing = FIELDS.containsKey(owner.getUUID());
 		if (!ArtifactDominionRules.mayStartField(FIELDS.size(), replacing)) return false;
-		FIELDS.put(owner.getUUID(), new Field(owner.level().dimension(), center,
-				alignment, owner.level().getServer().getTickCount() + DURATION_TICKS));
+		UUID ownerId = owner.getUUID();
+		remove(ownerId);
+		Field field = new Field(owner.level().dimension(), center,
+				alignment, owner.level().getServer().getTickCount() + DURATION_TICKS);
+		FIELDS.put(ownerId, field);
+		INDEX.put(ownerId, dimensionId(field.dimension()), center.x, center.z, RADIUS, field);
+		WORK.offer(ownerId);
 		PowerFx.rune((ServerLevel) owner.level(), center, RADIUS,
 				alignment == ArtifactAlignment.DARKNESS ? 0x21002E : 0xFFF2B2, 64, 0.0);
 		return true;
 	}
 
 	public static void tick(MinecraftServer server) {
-		var iterator = FIELDS.entrySet().iterator();
-		while (iterator.hasNext()) {
-			var entry = iterator.next();
-			Field field = entry.getValue();
+		for (UUID ownerId : WORK.pollBatch(MAX_FIELD_WORK_PER_TICK)) {
+			Field field = FIELDS.get(ownerId);
+			if (field == null) continue;
 			ServerLevel level = server.getLevel(field.dimension());
-			ServerPlayer owner = server.getPlayerList().getPlayer(entry.getKey());
+			ServerPlayer owner = server.getPlayerList().getPlayer(ownerId);
 			if (level == null || owner == null || !owner.isAlive()
 					|| owner.level() != level
 					|| server.getTickCount() >= field.expiresAt()) {
-				iterator.remove();
+				remove(ownerId);
 				continue;
 			}
-			pulse(level, owner, field, server.getTickCount());
+			WORK.offer(ownerId);
+			if (ArtifactFieldPulseRules.shouldPulse(server.getTickCount(), ownerId.hashCode())) {
+				pulse(level, owner, field, server.getTickCount(), ownerId.hashCode());
+			}
 		}
 	}
 
-	private static void pulse(ServerLevel level, ServerPlayer owner, Field field, int tick) {
+	private static void pulse(ServerLevel level, ServerPlayer owner, Field field, int tick, int ownerHash) {
 		AABB bounds = AABB.ofSize(field.center(), RADIUS * 2.0, RADIUS * 2.0, RADIUS * 2.0);
 		for (Projectile projectile : BoundedEntityCandidates.collect(level,
 				EntityTypeTest.forClass(Projectile.class), bounds, 128,
@@ -87,7 +99,9 @@ public final class ArtifactFieldManager {
 			boolean targetDark = target.entityTags().contains(SkillSystem.DARKNESS_TAG);
 			boolean hostile = field.alignment() == ArtifactAlignment.DARKNESS ? !targetDark : targetDark;
 			if (!hostile && field.alignment() == ArtifactAlignment.LIGHT) {
-				if (tick % 20 == 0) target.heal(owner.isAlliedTo(target) ? 8.0F : 3.0F);
+				if (ArtifactFieldPulseRules.heavyPulse(tick, ownerHash)) {
+					target.heal(owner.isAlliedTo(target) ? 8.0F : 3.0F);
+				}
 				continue;
 			}
 			if (!hostile || AmethystDampening.isDampened(target)
@@ -99,7 +113,7 @@ public final class ArtifactFieldManager {
 				target.setDeltaMovement(target.getDeltaMovement().scale(0.55).add(force));
 				target.hurtMarked = true;
 			}
-			if (tick % 20 == 0) {
+			if (ArtifactFieldPulseRules.heavyPulse(tick, ownerHash)) {
 				target.hurtServer(level, PowerDamage.source(owner),
 						field.alignment() == ArtifactAlignment.DARKNESS ? 28.0F : 22.0F);
 				target.addEffect(PowerStatusEffects.hidden(field.alignment() == ArtifactAlignment.DARKNESS
@@ -120,19 +134,36 @@ public final class ArtifactFieldManager {
 	}
 
 	public static void forget(UUID ownerId) {
-		FIELDS.remove(ownerId);
+		remove(ownerId);
 	}
 
 	/** True when one live aligned dominion contains the queried position. */
 	public static boolean contains(ServerLevel level, Vec3 position, ArtifactAlignment alignment) {
 		if (level == null || position == null || alignment == null) return false;
 		long tick = level.getServer().getTickCount();
-		return FIELDS.values().stream().anyMatch(field -> field.expiresAt() > tick
-				&& field.dimension().equals(level.dimension()) && field.alignment() == alignment
+		return INDEX.nearby(dimensionId(level.dimension()), position.x, position.z, RADIUS)
+				.stream().anyMatch(field -> field.expiresAt() > tick
+				&& field.alignment() == alignment
 				&& field.center().distanceToSqr(position) <= RADIUS * RADIUS);
 	}
 
 	public static void clear() {
 		FIELDS.clear();
+		INDEX.clear();
+		WORK.clear();
+	}
+
+	public static int activeFieldCount() {
+		return FIELDS.size();
+	}
+
+	private static void remove(UUID ownerId) {
+		FIELDS.remove(ownerId);
+		INDEX.remove(ownerId);
+		WORK.remove(ownerId);
+	}
+
+	private static String dimensionId(ResourceKey<Level> dimension) {
+		return dimension.identifier().toString();
 	}
 }

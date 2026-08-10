@@ -1,0 +1,7 @@
+{
+  "title": "Relics and Archaeology",
+  "keywords": ["artifact ring", "amulet", "soulstone", "soul matrix", "ritual dagger", "philosopher stone", "lodestone relic", "miniportal", "artifact flute", "fossil", "magic essence"],
+  "answer": "Rings and amulets attune energy; soul vessels drain a living target without killing it; the Ritual Dagger amplifies a spell at a health price; hearts heal and sustain vitality; the Philosopher's Stone performs protected transmutation; Lodestone relics bind Miniportal destinations; the Flute commands nearby aligned guardians. Essences, salts, fossils, jewels, pearls, stones and ember fragments infuse star-bound Crucible weapons. Representative relics occur additively in exploration loot.",
+  "sources": ["ImportedArtifactRules", "ImportedArtifactItem", "CrucibleRuneRules", "LootInjectionCatalog"],
+  "reveal_rank": 0
+}

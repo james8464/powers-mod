@@ -3,9 +3,11 @@ package com.powers.fx;
 import com.powers.PowersParticles;
 import com.powers.PowersSounds;
 import com.powers.config.PowersConfigLoader;
+import com.powers.diagnostics.ServerRuntimeMetrics;
 import com.powers.power.abilities.VoidBeamRules;
 import com.powers.network.MagicFxPackets;
 import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -55,6 +57,7 @@ public final class PowerFx {
 					? ParticleBudget.viewerCount(count, distanceSquared) : count;
 			int granted = budget.claim(tick, viewer.getUUID(), requested, distanceSquared);
 			if (granted <= 0) continue;
+			ServerRuntimeMetrics.recordParticles(level.getServer(), tick, granted);
 			level.sendParticles(viewer, particle, false, false,
 					pos.x, pos.y, pos.z, granted, spread, spread, spread, speed);
 		}
@@ -72,9 +75,14 @@ public final class PowerFx {
 		return budget;
 	}
 
-	/** puffs a cloud of particles tinted with an rgb color */
+	/** Creates a colourable magic particle without Minecraft's potion-effect cloud. */
+	public static DustParticleOptions dust(int rgb, float scale) {
+		return new DustParticleOptions(rgb & 0xFFFFFF, Math.clamp(scale, 0.01F, 4.0F));
+	}
+
+	/** Puffs a restrained dust cloud tinted with an RGB colour. */
 	public static void coloredBurst(ServerLevel level, Vec3 pos, int rgb, int count, double spread) {
-		burst(level, pos, ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF000000 | (rgb & 0xFFFFFF)), count, spread, 0.0);
+		burst(level, pos, dust(rgb, 1.0F), count, spread, 0.0);
 	}
 
 	/** draws a straight line of particles between two points */
@@ -92,6 +100,7 @@ public final class PowerFx {
 			int visible = ParticleBudget.viewerCount(requested, distanceSquared);
 			int granted = budget.claim(tick, viewer.getUUID(), visible, distanceSquared);
 			if (granted <= 0) continue;
+			ServerRuntimeMetrics.recordParticles(level.getServer(), tick, granted);
 			MagicFxPackets.sendBeam(viewer, new MagicFxPackets.BeamFxPayload(eventId, style,
 					from.x, from.y, from.z, to.x, to.y, to.z, granted, color));
 		}
@@ -147,8 +156,8 @@ public final class PowerFx {
 	// two colored beams meeting mid-air with a spark burst, for powers clashing
 	public static void clash(ServerLevel level, Vec3 from, Vec3 to, int attacker, int defender) {
 		Vec3 midpoint = from.add(to).scale(0.5);
-		beam(level, from, midpoint, ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF000000 | attacker), 8);
-		beam(level, to, midpoint, ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF000000 | defender), 8);
+		beam(level, from, midpoint, dust(attacker, 0.85F), 8);
+		beam(level, to, midpoint, dust(defender, 0.85F), 8);
 		burst(level, midpoint, ParticleTypes.ELECTRIC_SPARK, 16, 0.4, 0.08);
 		sound(level, midpoint, SoundEvents.BEACON_DEACTIVATE, 0.8f, 1.4f);
 	}
@@ -163,8 +172,7 @@ public final class PowerFx {
 		burst(level, center, PowersParticles.SPARK, followUp ? 12 : 8, 0.34, 0.16);
 		coloredBurst(level, center, primary, followUp ? 18 : 12, 0.42);
 		Vec3 end = center.add(movement.scale(1.4));
-		beam(level, center, end, ColorParticleOption.create(
-				ParticleTypes.ENTITY_EFFECT, 0xFF000000 | secondary), followUp ? 16 : 12);
+		beam(level, center, end, dust(secondary, followUp ? 1.15F : 0.9F), followUp ? 16 : 12);
 		rune(level, center.add(0.0, -0.42, 0.0), followUp ? 1.35 : 1.05,
 				primary, followUp ? 24 : 18, followUp ? Math.PI : 0.0);
 		sound(level, center, SoundEvents.FIREWORK_ROCKET_SHOOT, followUp ? 1.4F : 1.0F,
@@ -195,7 +203,7 @@ public final class PowerFx {
 	public static void secondStepReady(ServerLevel level, Vec3 center) {
 		rune(level, center.add(0.0, -0.42, 0.0), 1.2, 0xD7F8FF, 20, 0.0);
 		rune(level, center.add(0.0, -0.34, 0.0), 0.82, 0xFFD166, 16, Math.PI);
-		burst(level, center, ParticleTypes.ENCHANT, 14, 0.44, 0.08);
+		burst(level, center, dust(0xD7F8FF, 0.85F), 14, 0.44, 0.03);
 		burst(level, center, PowersParticles.MOTE, 10, 0.36, 0.05);
 		sound(level, center, SoundEvents.AMETHYST_BLOCK_CHIME, 0.85F, 1.72F);
 		sound(level, center, SoundEvents.BEACON_POWER_SELECT, 0.65F, 1.28F);
@@ -242,8 +250,8 @@ public final class PowerFx {
 		int steps = ancientMastery ? 38 : empoweredImpact ? 34 : 28;
 		beam(level, from, to, PowersParticles.RIBBON, steps);
 		beam(level, from, to, PowersParticles.ECLIPSE, Math.max(16, steps - 8));
-		beam(level, from, to, ColorParticleOption.create(
-				ParticleTypes.ENTITY_EFFECT, 0xFF6D32A8), Math.max(12, steps - 12));
+		beam(level, from, to, dust(0x6D32A8, ancientMastery ? 1.35F : 1.0F),
+				Math.max(12, steps - 12));
 		burst(level, from, ParticleTypes.REVERSE_PORTAL, ancientMastery ? 22 : 14, 0.42, 0.12);
 		burst(level, to, PowersParticles.FRACTURE, empoweredImpact ? 26 : 18, 0.7, 0.16);
 		ring(level, to, empoweredImpact ? 1.6 : 1.25, 0x2A0C3D,
@@ -384,8 +392,8 @@ public final class PowerFx {
 		}
 		rune(level, center.add(0.0, 0.12, 0.0), 0.36, 0xFFE08A, 12, Math.PI / 4.0);
 		beam(level, center.add(0.0, 0.25, 0.0), center.add(0.0, 5.5, 0.0),
-				ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF8FE9FF), 16);
-		burst(level, center, ParticleTypes.ENCHANT, 14, 0.45, 0.05);
+				dust(0x8FE9FF, 1.0F), 16);
+		burst(level, center, dust(0x8FE9FF, 0.9F), 14, 0.45, 0.02);
 		sound(level, center, SoundEvents.AMETHYST_BLOCK_CHIME, 1.1F, 1.65F);
 		sound(level, center, SoundEvents.CONDUIT_AMBIENT, 0.7F, 1.35F);
 	}

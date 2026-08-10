@@ -36,6 +36,7 @@ public final class PowersConfigLoader {
 	public static boolean reload() {
 		try {
 			current = parse(Files.readString(path()));
+			write(current);
 			return true;
 		} catch (Exception error) {
 			PowersMod.LOGGER.error("Keeping the last valid POWERS configuration: {}", error.getMessage());
@@ -46,6 +47,15 @@ public final class PowersConfigLoader {
 	static PowersConfig parse(String json) {
 		JsonObject object = JsonParser.parseString(json).getAsJsonObject();
 		PowersConfig defaults = PowersConfig.defaults();
+		int schemaVersion = integer(object, "schemaVersion", 0);
+		boolean allowTerrainDamage = bool(object, "allowTerrainDamage",
+				defaults.allowTerrainDamage());
+		if (schemaVersion < PowersConfig.CURRENT_SCHEMA_VERSION) {
+			// Version 1 generated this setting as false even though the authored
+			// combat powers promise terrain scars. Migrate that obsolete default once;
+			// version-2 administrators can still opt out explicitly.
+			allowTerrainDamage = true;
+		}
 		java.util.List<PowersConfig.SafeZone> zones = defaults.safeZones();
 		if (object.has("safeZones") && object.get("safeZones").isJsonArray()) {
 			zones = GSON.fromJson(object.get("safeZones"),
@@ -76,7 +86,8 @@ public final class PowersConfigLoader {
 				integer(dialogueObject, "maxGlobalRequests", dialogueDefaults.maxGlobalRequests()),
 				integer(dialogueObject, "ownerCooldownSeconds", dialogueDefaults.ownerCooldownSeconds()));
 		return new PowersConfig(
-				bool(object, "allowTerrainDamage", defaults.allowTerrainDamage()),
+				PowersConfig.CURRENT_SCHEMA_VERSION,
+				allowTerrainDamage,
 				bool(object, "allowBlockEntityDamage", defaults.allowBlockEntityDamage()),
 				bool(object, "allowSelfReroll", defaults.allowSelfReroll()),
 				bool(object, "hostileForcedMovement", defaults.hostileForcedMovement()),

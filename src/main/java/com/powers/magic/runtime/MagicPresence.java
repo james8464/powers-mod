@@ -38,6 +38,11 @@ public record MagicPresence(MagicPresenceId id, MagicActionId action, UUID owner
 		return new MagicPresence(id, action, owner, newDimension, newAnchor, radius, expiresAt);
 	}
 
+	/** Returns a physical rebind whose lifetime matches the authoritative object. */
+	public MagicPresence rebound(String newDimension, PresenceAnchor newAnchor, long newExpiresAt) {
+		return new MagicPresence(id, action, owner, newDimension, newAnchor, radius, newExpiresAt);
+	}
+
 	/** Returns whether this presence has expired at the supplied server tick. */
 	public boolean expired(long gameTime) {
 		return gameTime >= expiresAt;

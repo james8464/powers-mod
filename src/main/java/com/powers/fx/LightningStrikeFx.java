@@ -3,7 +3,6 @@ package com.powers.fx;
 import com.powers.PowersParticles;
 import com.powers.PowersSounds;
 import com.powers.power.abilities.LightningStrikeRules;
-import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -32,8 +31,7 @@ public final class LightningStrikeFx {
 		PowerFx.ring(level, point.add(0.0, 0.20, 0.0), radius * 0.28,
 				tracking ? WHITE : STORM_BLUE, 16, Math.PI / 8.0);
 		PowerFx.beam(level, sky, point.add(0.0, 0.2, 0.0),
-				ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT,
-						0xFF000000 | DEEP_CYAN), 18);
+				PowerFx.dust(DEEP_CYAN, tracking ? 0.9F : 1.15F), 18);
 		PowerFx.spiral(level, point.add(0.0, 0.15, 0.0),
 				radius * 0.24, 4.0, GOLD, ancientMastery ? 26 : 18, 0.0);
 		PowerFx.clarityBurst(level, point.add(0.0, 0.35, 0.0), PowersParticles.GLYPH,

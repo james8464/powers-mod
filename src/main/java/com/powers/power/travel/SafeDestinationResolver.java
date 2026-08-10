@@ -32,14 +32,15 @@ public final class SafeDestinationResolver {
 
 		BlockPos feet = BlockPos.containing(requested);
 		if (!LoadedChunks.contains(target, feet)) return new Result(DestinationFailure.UNLOADED_CHUNK, requested);
-		if (kind != TravelKind.RETURN && kind != TravelKind.ADMIN
+		if (kind != TravelKind.PLAYER_RETURN && kind != TravelKind.ADMIN_RECOVERY
 				&& AmethystDampening.findPoweredWard(target, feet).isPresent()) {
 			return new Result(DestinationFailure.WARD, requested);
 		}
-		if (kind != TravelKind.RETURN && kind != TravelKind.ADMIN && PowerProtection.isSafeZone(target, requested)) {
+		if (kind != TravelKind.PLAYER_RETURN && kind != TravelKind.ADMIN_RECOVERY
+				&& PowerProtection.isSafeZone(target, requested)) {
 			return new Result(DestinationFailure.SAFE_ZONE, requested);
 		}
-		if (kind != TravelKind.RETURN && kind != TravelKind.ADMIN
+		if (kind != TravelKind.PLAYER_RETURN && kind != TravelKind.ADMIN_RECOVERY
 				&& SpellFieldManager.blocksTravel(subject, target, requested)) {
 			return new Result(DestinationFailure.ANTI_PORTAL, requested);
 		}
@@ -77,7 +78,8 @@ public final class SafeDestinationResolver {
 				subject.level().dimension().identifier().toString(), target.dimension().identifier().toString(), kind,
 				SkillSystem.hasDarknessTag(subject), data.skillLevel(), data.darknessLevel());
 		if (realm != DestinationFailure.NONE) return new Result(realm, requested);
-		if (kind != TravelKind.RETURN && kind != TravelKind.ADMIN && DimensionalAnchorAbility.isAnchored(subject)
+		if (kind != TravelKind.PLAYER_RETURN && kind != TravelKind.ADMIN_RECOVERY
+				&& DimensionalAnchorAbility.isAnchored(subject)
 				&& !target.dimension().equals(DimensionalAnchorAbility.anchorDimension(subject))) {
 			return new Result(DestinationFailure.ANCHOR, requested);
 		}
@@ -95,7 +97,7 @@ public final class SafeDestinationResolver {
 
 	static DestinationFailure realmFailure(String origin, String target, TravelKind kind,
 			boolean darknessTag, int normalLevel, int darknessLevel) {
-		if (kind == TravelKind.RETURN || kind == TravelKind.ADMIN || origin.equals(target)) {
+		if (kind == TravelKind.ADMIN_RECOVERY || origin.equals(target)) {
 			return DestinationFailure.NONE;
 		}
 		boolean qualifiedDarkness = darknessTag && darknessLevel >= SkillSystem.DARKNESS_GATE_LEVEL;

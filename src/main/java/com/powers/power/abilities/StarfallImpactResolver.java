@@ -87,6 +87,7 @@ final class StarfallImpactResolver {
 		if (echo) damageScale *= StarfallRules.echoDamageMultiplier();
 		float damage = (float) (storm.baseDamage * damageScale);
 		int affected = damageTargets(level, caster, storm, site, radius, damage, crown);
+		CombatTerrainImpact.crater(level, caster, site.point(), storm.terrainTier);
 		spawnVisualLightning(level, site.point());
 
 		if (echo) {

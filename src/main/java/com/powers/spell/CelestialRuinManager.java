@@ -5,9 +5,11 @@ import com.powers.config.PowersConfig;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.CelestialRuinFx;
 import com.powers.protection.PowerProtection;
+import com.powers.power.PowerDamage;
 import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.BoundedSphereCursor;
 import com.powers.util.PowerMessages;
+import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -24,6 +26,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -64,15 +67,14 @@ public final class CelestialRuinManager {
 				&& ritual.center.distSqr(center) <= exclusion);
 	}
 
-	/** Starts an irreversible one-minute warning and keeps its whole blast area loaded. */
+	/** Starts an irreversible one-minute warning; chunk loading begins only near impact. */
 	public static boolean begin(ServerPlayer caster, BlockPos center) {
 		ServerLevel level = caster.level();
 		if (!canBegin(level, center) || PowerProtection.isSafeZone(level, Vec3.atCenterOf(center))) {
 			return false;
 		}
-		addTicket(level, center);
 		Ritual ritual = new Ritual(level, center.immutable(), caster.getUUID(),
-				CelestialRuinRules.COUNTDOWN_TICKS, false, null);
+				CelestialRuinRules.COUNTDOWN_TICKS, false, null, 0);
 		ACTIVE.computeIfAbsent(level.getServer(), ignored -> new ArrayList<>()).add(ritual);
 		persist(level.getServer());
 		CelestialRuinFx.begins(level, Vec3.atCenterOf(center), CelestialRuinRules.BEAM_RADIUS);
@@ -85,12 +87,16 @@ public final class CelestialRuinManager {
 		loadPersisted(server);
 		List<Ritual> rituals = ACTIVE.get(server);
 		if (rituals == null) return;
+		boolean completed = false;
 		Iterator<Ritual> iterator = rituals.iterator();
 		while (iterator.hasNext()) {
-			if (iterator.next().tick()) iterator.remove();
+			if (iterator.next().tick()) {
+				iterator.remove();
+				completed = true;
+			}
 		}
 		if (rituals.isEmpty()) ACTIVE.remove(server);
-		persist(server);
+		if (completed || server.getTickCount() % 20 == 0) persist(server);
 	}
 
 	/** Clears only process-local references; SavedData remains authoritative across restarts. */
@@ -99,9 +105,19 @@ public final class CelestialRuinManager {
 		LOADED.clear();
 	}
 
-	private static void addTicket(ServerLevel level, BlockPos center) {
-		level.getChunkSource().addTicketWithRadius(TicketHolder.CELESTIAL_RUIN,
-				ChunkPos.containing(center), TICKET_RADIUS);
+	/** Active persisted countdowns/detonations for administrative diagnostics. */
+	public static int activeRitualCount(MinecraftServer server) {
+		loadPersisted(server);
+		return ACTIVE.getOrDefault(server, List.of()).size();
+	}
+
+	/** Sum of currently held square ticket footprints; zero during the distant countdown. */
+	public static int forcedChunkCount(MinecraftServer server) {
+		loadPersisted(server);
+		return ACTIVE.getOrDefault(server, List.of()).stream()
+				.mapToInt(ritual -> ritual.ticketRadius < 0 ? 0
+						: (ritual.ticketRadius * 2 + 1) * (ritual.ticketRadius * 2 + 1))
+				.sum();
 	}
 
 	private static void loadPersisted(MinecraftServer server) {
@@ -120,12 +136,12 @@ public final class CelestialRuinManager {
 				continue;
 			}
 			BlockPos center = new BlockPos(snapshot.x(), snapshot.y(), snapshot.z());
-			addTicket(level, center);
 			BoundedSphereCursor cursor = snapshot.detonated()
 					? new BoundedSphereCursor(snapshot.cursor()) : null;
 			restored.add(new Ritual(level, center, caster,
 					Math.clamp(snapshot.countdownRemaining(), 0, CelestialRuinRules.COUNTDOWN_TICKS),
-					snapshot.detonated(), cursor));
+					snapshot.detonated(), cursor, Math.clamp(snapshot.aftershockStep(), 0,
+							CelestialRuinRules.aftershockTotalSteps())));
 		}
 		if (!restored.isEmpty()) ACTIVE.put(server, restored);
 		persist(server);
@@ -148,18 +164,22 @@ public final class CelestialRuinManager {
 		private int countdownRemaining;
 		private boolean detonated;
 		private BoundedSphereCursor destruction;
+		private int aftershockStep;
+		private int ticketRadius = -1;
 
 		private Ritual(ServerLevel level, BlockPos center, UUID caster, int countdownRemaining,
-				boolean detonated, BoundedSphereCursor destruction) {
+				boolean detonated, BoundedSphereCursor destruction, int aftershockStep) {
 			this.level = level;
 			this.center = center;
 			this.caster = caster;
 			this.countdownRemaining = countdownRemaining;
 			this.detonated = detonated;
 			this.destruction = destruction;
+			this.aftershockStep = aftershockStep;
 		}
 
 		private boolean tick() {
+			ensureTicket();
 			if (countdownRemaining > 0) {
 				int elapsed = CelestialRuinRules.COUNTDOWN_TICKS - countdownRemaining;
 				if (elapsed % 10 == 0) {
@@ -177,11 +197,31 @@ public final class CelestialRuinManager {
 				detonated = true;
 			}
 			destroyBatch();
-			if (!destruction.finished()) return false;
+			destroyAftershockBatch();
+			if (!destruction.finished()
+					|| aftershockStep < CelestialRuinRules.aftershockTotalSteps()) return false;
 			CelestialRuinFx.finished(level, Vec3.atCenterOf(center), CelestialRuinRules.BLAST_RADIUS);
-			level.getChunkSource().removeTicketWithRadius(TicketHolder.CELESTIAL_RUIN,
-					ChunkPos.containing(center), TICKET_RADIUS);
+			removeTicket();
 			return true;
+		}
+
+		private void ensureTicket() {
+			int requested = CelestialRuinTicketRules.radiusForCountdown(
+					countdownRemaining, detonated, TICKET_RADIUS);
+			if (requested == ticketRadius) return;
+			removeTicket();
+			if (requested >= 0) {
+				level.getChunkSource().addTicketWithRadius(TicketHolder.CELESTIAL_RUIN,
+						ChunkPos.containing(center), requested);
+				ticketRadius = requested;
+			}
+		}
+
+		private void removeTicket() {
+			if (ticketRadius < 0) return;
+			level.getChunkSource().removeTicketWithRadius(TicketHolder.CELESTIAL_RUIN,
+					ChunkPos.containing(center), ticketRadius);
+			ticketRadius = -1;
 		}
 
 		private boolean chunksReady() {
@@ -200,7 +240,7 @@ public final class CelestialRuinManager {
 					: destruction.snapshot();
 			return new CelestialRuinSavedData.Snapshot(level.dimension().identifier().toString(),
 					center.getX(), center.getY(), center.getZ(), caster.toString(), countdownRemaining,
-					detonated, cursor);
+					detonated, cursor, aftershockStep);
 		}
 
 		private void warnCaster(int elapsed) {
@@ -218,8 +258,8 @@ public final class CelestialRuinManager {
 		private void detonate() {
 			Vec3 epicenter = Vec3.atCenterOf(center);
 			CelestialRuinFx.detonates(level, epicenter, CelestialRuinRules.BLAST_RADIUS);
-			AABB bounds = AABB.ofSize(epicenter, CelestialRuinRules.BLAST_RADIUS * 2.0,
-					CelestialRuinRules.BLAST_RADIUS * 2.0, CelestialRuinRules.BLAST_RADIUS * 2.0);
+			AABB bounds = AABB.ofSize(epicenter, CelestialRuinRules.DAMAGE_RADIUS * 2.0,
+					level.getHeight() + 32.0, CelestialRuinRules.DAMAGE_RADIUS * 2.0);
 			List<LivingEntity> entities = BoundedEntityCandidates.living(level, bounds,
 					CelestialRuinRules.ENTITY_LIMIT, Entity::isAlive,
 					Comparator.comparingDouble((LivingEntity entity) -> entity.distanceToSqr(epicenter))
@@ -227,7 +267,7 @@ public final class CelestialRuinManager {
 			for (LivingEntity entity : entities) {
 				if (PowerProtection.isSafeZone(level, entity.position())) continue;
 				float damage = CelestialRuinRules.damage(entity.position().distanceTo(epicenter));
-				if (damage > 0.0f) entity.hurtServer(level, entity.damageSources().magic(), damage);
+				if (damage > 0.0f) entity.hurtServer(level, PowerDamage.celestialRuin(level), damage);
 			}
 		}
 
@@ -245,6 +285,41 @@ public final class CelestialRuinManager {
 						config.celestialRuinTerrainDamage(), hasBlockEntity,
 						config.celestialRuinBlockEntityDamage())) {
 					level.setBlock(target, Blocks.AIR.defaultBlockState(), REMOVAL_FLAGS);
+				}
+			}
+		}
+
+		/** Carves explosion-power-100-style streaks only through already loaded distant chunks. */
+		private void destroyAftershockBatch() {
+			PowersConfig config = PowersConfigLoader.get();
+			int end = Math.min(CelestialRuinRules.aftershockTotalSteps(),
+					aftershockStep + CelestialRuinRules.AFTERSHOCK_WORK_PER_TICK);
+			for (; aftershockStep < end; aftershockStep++) {
+				CelestialRuinRules.AftershockOffset offset =
+						CelestialRuinRules.aftershockOffset(aftershockStep);
+				BlockPos column = new BlockPos(center.getX() + offset.x(), center.getY(),
+						center.getZ() + offset.z());
+				if (!LoadedChunks.contains(level, column)) continue;
+				int surfaceY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+						column.getX(), column.getZ()) - 1;
+				if (surfaceY < level.getMinY() || surfaceY >= level.getMaxY()) continue;
+				int depth = 1 + Math.floorMod(aftershockStep * 31, 3);
+				for (int down = 0; down < depth; down++) {
+					BlockPos target = new BlockPos(column.getX(), surfaceY - down, column.getZ());
+					if (target.getY() < level.getMinY()
+							|| PowerProtection.isSafeZone(level, Vec3.atCenterOf(target))) continue;
+					BlockState state = level.getBlockState(target);
+					if (!state.isAir() && CelestialRuinRules.shouldDestroy(
+							state.is(PowersBlocks.DARKNESS) || state.is(PowersBlocks.PURE_LIGHT),
+							config.celestialRuinTerrainDamage(), level.getBlockEntity(target) != null,
+							config.celestialRuinBlockEntityDamage())) {
+						level.setBlock(target, Blocks.AIR.defaultBlockState(), REMOVAL_FLAGS);
+					}
+				}
+				BlockPos fire = new BlockPos(column.getX(), surfaceY - depth + 1, column.getZ());
+				if (level.getBlockState(fire).isAir()
+						&& Blocks.FIRE.defaultBlockState().canSurvive(level, fire)) {
+					level.setBlock(fire, Blocks.FIRE.defaultBlockState(), Block.UPDATE_CLIENTS);
 				}
 			}
 		}
