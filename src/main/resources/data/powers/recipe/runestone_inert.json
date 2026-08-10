@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["DAD", "ERE", "DAD"],
+  "key": {
+    "D": "minecraft:deepslate",
+    "A": "minecraft:amethyst_shard",
+    "E": "minecraft:echo_shard",
+    "R": "minecraft:redstone"
+  },
+  "result": {"id": "powers:imported_artifact_runestone_inert", "count": 1}
+}

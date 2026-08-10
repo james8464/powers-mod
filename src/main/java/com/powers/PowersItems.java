@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SpawnEggItem;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,6 +18,8 @@ import java.util.Map;
 public final class PowersItems {
 	private static final ResourceKey<CreativeModeTab> INGREDIENTS_TAB =
 			ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath("minecraft", "ingredients"));
+	private static final ResourceKey<CreativeModeTab> SPAWN_EGGS_TAB =
+			ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath("minecraft", "spawn_eggs"));
 
 	// all seven color crystals fuse into the rainbow crystal
 	public static final ResourceKey<Item> RAINBOW_CRYSTAL_KEY = ModItemIds.create("rainbow_crystal");
@@ -41,6 +44,10 @@ public final class PowersItems {
 	public static final Item DARK_CRYSTAL = ModItemIds.register(DARK_CRYSTAL_KEY, CrystalItem::new, crystalProperties());
 	public static final ResourceKey<Item> INFECTED_RAINBOW_CRYSTAL_KEY = ModItemIds.create("infected_rainbow_crystal");
 	public static final Item INFECTED_RAINBOW_CRYSTAL = ModItemIds.register(INFECTED_RAINBOW_CRYSTAL_KEY, CrystalItem::new, crystalProperties());
+	public static final Item DARKNESS_CREATURE_SPAWN_EGG = spawnEgg(
+			"darkness_creature_spawn_egg", PowersEntities.DARKNESS_CREATURE);
+	public static final Item POWER_TEST_ACTOR_SPAWN_EGG = spawnEgg(
+			"power_test_actor_spawn_egg", PowersEntities.POWER_TEST_ACTOR);
 
 	private static Item colorCrystal(String name) {
 		Item item = ModItemIds.register(ModItemIds.create(name), CrystalItem::new, crystalProperties());
@@ -51,6 +58,12 @@ public final class PowersItems {
 	// crystals are fire resistant so a dropped one never burns in lava
 	private static Item.Properties crystalProperties() {
 		return new Item.Properties().stacksTo(1).fireResistant();
+	}
+
+	/** Registers an operator testing egg bound to one exact custom mob type. */
+	private static Item spawnEgg(String name, net.minecraft.world.entity.EntityType<?> entityType) {
+		return ModItemIds.register(ModItemIds.create(name), SpawnEggItem::new,
+				new Item.Properties().spawnEgg(entityType));
 	}
 
 	/** True for any of the mod's crystals; these never despawn, burn, or get picked up by mobs. */
@@ -72,6 +85,11 @@ public final class PowersItems {
 					creativeTab.accept(LIGHT_CRYSTAL);
 					creativeTab.accept(DARK_CRYSTAL);
 					creativeTab.accept(INFECTED_RAINBOW_CRYSTAL);
+				});
+		CreativeModeTabEvents.modifyOutputEvent(SPAWN_EGGS_TAB)
+				.register(output -> {
+					output.accept(DARKNESS_CREATURE_SPAWN_EGG);
+					output.accept(POWER_TEST_ACTOR_SPAWN_EGG);
 				});
 	}
 }

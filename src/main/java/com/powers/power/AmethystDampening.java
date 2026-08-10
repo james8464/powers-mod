@@ -1,5 +1,6 @@
 package com.powers.power;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersEffects;
 import com.powers.AmethystWardBlock;
 import com.powers.PowersBlocks;
@@ -16,7 +17,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
@@ -77,8 +77,8 @@ public final class AmethystDampening {
 				|| findPoweredWard(level, player.blockPosition()).isPresent();
 		if (dampened) {
 			// 30 ticks is plenty because this effect gets refreshed on every update
-			player.addEffect(new MobEffectInstance(
-					PowersEffects.AMETHYST_POISONING, 30, 0, true, false, true));
+			player.addEffect(PowerStatusEffects.hidden(
+					PowersEffects.AMETHYST_POISONING, 30, 0, true, true));
 		} else if (player.hasEffect(PowersEffects.AMETHYST_POISONING)) {
 			player.removeEffect(PowersEffects.AMETHYST_POISONING);
 		}

@@ -5,6 +5,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.ActivationCooldowns;
 import com.powers.power.AmethystDampening;
+import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.network.PowersPackets;
 import com.powers.magic.runtime.PreparedMagicCast;
 import com.powers.magic.runtime.ServerMagicCasts;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.UUID;
 
 /**
@@ -28,6 +30,7 @@ import java.util.UUID;
 public final class CrystalPowerRegistry {
 	// crystal item -> the ability bound to it
 	private static final Map<Item, Ability> POWERS = new HashMap<>();
+	private static final Map<String, Ability> ALL_ABILITIES = new LinkedHashMap<>();
 	private static final List<ModeCrystalAbility> MODE_CRYSTALS = new ArrayList<>();
 
 	private CrystalPowerRegistry() {
@@ -35,9 +38,11 @@ public final class CrystalPowerRegistry {
 
 	public static void initialize() {
 		POWERS.clear();
+		ALL_ABILITIES.clear();
 		MODE_CRYSTALS.clear();
 		for (var entry : CrystalAbilityCatalog.defaults().entrySet()) {
-			List<Ability> abilities = entry.getValue().stream().map(CrystalPowerRegistry::createAbility).toList();
+			List<Ability> abilities = entry.getValue().stream()
+					.map(id -> ALL_ABILITIES.computeIfAbsent(id, CrystalPowerRegistry::createAbility)).toList();
 			Ability binding;
 			if (abilities.size() == 1) {
 				binding = abilities.getFirst();
@@ -91,6 +96,16 @@ public final class CrystalPowerRegistry {
 		return POWERS.get(item);
 	}
 
+	/** Resolves one underlying crystal action for artifacts without exposing a mode wrapper. */
+	public static Ability getAbility(String abilityId) {
+		return ALL_ABILITIES.get(abilityId);
+	}
+
+	/** Immutable view of every unique underlying crystal action. */
+	public static Map<String, Ability> allAbilities() {
+		return Map.copyOf(ALL_ABILITIES);
+	}
+
 	/**
 	 * Activates the crystal's power from its item use on the server; refuses
 	 * the cast and returns false while on cooldown, dampened or time-frozen.
@@ -100,6 +115,7 @@ public final class CrystalPowerRegistry {
 		if (ability == null) {
 			return false;
 		}
+		if (GlobalTimeStopManager.rejectIfStopped(player)) return false;
 		AmethystDampening.update(player);
 		// amethyst dampening blocks crystal powers and punishes the offender
 		if (AmethystDampening.isDampened(player)) {

@@ -16,29 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"ward": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"powers:amethyst_ward"
-						]
-					}
-				]
-			}
-		},
-		"grimoire": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"powers:imported_book_grimoire_deep"
-						]
-					}
-				]
-			}
+		"mastery": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

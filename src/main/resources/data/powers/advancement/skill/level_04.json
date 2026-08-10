@@ -16,23 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"rune": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"powers:imported_artifact_runestone_frigid"
-						]
-					}
-				]
-			}
-		},
-		"light": {
-			"trigger": "minecraft:location",
-			"conditions": {
-				"dimension": "powers:light_realm"
-			}
+		"mastery": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

@@ -2,7 +2,7 @@ package com.powers.power.crystals;
 
 import com.powers.PowersMod;
 import com.powers.config.PowersConfigLoader;
-import com.powers.fx.PowerFx;
+import com.powers.fx.TimeStopFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
@@ -10,12 +10,11 @@ import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.FreezeOwner;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
-import net.minecraft.core.particles.ParticleTypes;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.entity.EntityTypeTest;
@@ -43,13 +42,13 @@ public class ChronoStopAbility extends Ability {
 	// one stop per owner uuid, cleaned up on disconnect and server stop so it can't leak
 	private static final Map<UUID, ActiveStop> ACTIVE = new HashMap<>();
 
-	private record ActiveStop(long endsAt, Set<UUID> frozen) {
+	private record ActiveStop(long endsAt, Set<UUID> frozen, double presentationRadius) {
 	}
 
 	public ChronoStopAbility() {
 		super(PowersMod.id("chrono_stop"),
 				Component.translatable("ability.powers.chrono_stop"),
-				COOLDOWN_TICKS, false);
+				COOLDOWN_TICKS, false, false);
 	}
 
 	@Override
@@ -66,7 +65,8 @@ public class ChronoStopAbility extends Ability {
 		AABB area = AABB.ofSize(player.position().add(0, 1, 0), radius * 2, radius * 2, radius * 2);
 		Set<UUID> frozen = new LinkedHashSet<>();
 		UUID freezeOwner = FreezeOwner.token("chrono_stop", player.getUUID());
-		for (Entity entity : level.getEntities(EntityTypeTest.forClass(Entity.class), area,
+		for (Entity entity : BoundedEntityCandidates.collect(level,
+				EntityTypeTest.forClass(Entity.class), area, 1_024,
 				e -> e.isAlive() && e != player && e.distanceToSqr(player) <= radius * radius
 						&& e != player.getVehicle() && !player.getPassengers().contains(e)
 						&& (!(e instanceof LivingEntity living) || !AmethystDampening.isDampened(living))
@@ -78,15 +78,10 @@ public class ChronoStopAbility extends Ability {
 		if (frozen.isEmpty()) return false;
 
 		ACTIVE.put(player.getUUID(), new ActiveStop(
-				level.getGameTime() + scaledDuration(player, DURATION_TICKS), Set.copyOf(frozen)));
-		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x2962FF, 28, 1.2);
-		PowerFx.ring(level, player.position().add(0, 0.1, 0), 3.5, 0x2962FF, 32, 0);
-		PowerFx.ring(level, player.position().add(0, 2.0, 0), 3.5, 0x2962FF, 32, Math.PI);
-		PowerFx.spiral(level, player.position(), 2.5, 2.2, 0x2962FF, 24, 0);
-		PowerFx.burst(level, player.position().add(0, 1, 0),
-				ParticleTypes.TOTEM_OF_UNDYING, 14, 0.9, 0.25);
-		PowerFx.sound(level, player.position(), SoundEvents.EVOKER_CAST_SPELL, 1.0f, 1.5f);
-		PowerMessages.send(player, "crystal.powers.chrono_start", 3);
+				level.getGameTime() + scaledDuration(player, DURATION_TICKS),
+				Set.copyOf(frozen), radius));
+		TimeStopFx.begin(level, player.position(), radius, true);
+		PowerMessages.sendImportant(player, "crystal.powers.chrono_start", 3);
 		return true;
 	}
 
@@ -105,21 +100,18 @@ public class ChronoStopAbility extends Ability {
 			ActiveStop stop = entry.getValue();
 			ServerLevel ownerLevel = (ServerLevel) owner.level();
 			long left = Math.max(0L, stop.endsAt() - ownerLevel.getGameTime());
-			// pulse a ring every 5 ticks while the stop holds
-			if (left % 5 == 0) {
-				double phase = left * 0.035;
-				PowerFx.ring(ownerLevel, owner.position().add(0, 0.1, 0), 4.5, 0x2962FF, 32, phase);
-				PowerFx.ring(ownerLevel, owner.position().add(0, 2.1, 0), 4.5, 0x2962FF, 32, -phase);
-				PowerFx.burst(ownerLevel, owner.position().add(0, 1, 0), ParticleTypes.REVERSE_PORTAL, 5, 1.8, 0.01);
+			// Ten-tick pulse is legible without filling the owner's first-person view.
+			if (left % 10 == 0) {
+				TimeStopFx.sustain(ownerLevel, owner.position(),
+						stop.presentationRadius(), left, true);
 			}
 
 			if (left <= 0) {
 				// time's up - restore everything and let the world move again
 				EntityFreezeController.release(FreezeOwner.token("chrono_stop", entry.getKey()), stop.frozen());
 				it.remove();
-				PowerFx.coloredBurst(ownerLevel, owner.position().add(0, 1, 0), 0x2962FF, 16, 0.8);
-				PowerFx.sound(ownerLevel, owner.position(), SoundEvents.TOTEM_USE, 0.8f, 1.4f);
-				PowerMessages.send(owner, "crystal.powers.chrono_end", 3);
+				TimeStopFx.release(ownerLevel, owner.position(), stop.presentationRadius(), true);
+				PowerMessages.sendImportant(owner, "crystal.powers.chrono_end", 3);
 			}
 		}
 		EntityFreezeController.holdAll();

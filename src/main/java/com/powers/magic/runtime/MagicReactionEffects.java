@@ -1,5 +1,6 @@
 package com.powers.magic.runtime;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersEffects;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
@@ -10,6 +11,7 @@ import com.powers.power.state.MagicShieldManager;
 import com.powers.power.state.PowerEntityState;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellCastingManager;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -56,7 +58,7 @@ final class MagicReactionEffects {
 		for (LivingEntity entity : living(level, midpoint, radius)) {
 			if (!mayContest(level, entity)) continue;
 			entity.clearFire();
-			entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 30, 0, true, false));
+			entity.addEffect(PowerStatusEffects.hidden(MobEffects.BLINDNESS, 30, 0, true, true));
 		}
 		PowerFx.burst(level, midpoint, ParticleTypes.CLOUD, 42, radius * 0.45, 0.025);
 	}
@@ -64,7 +66,7 @@ final class MagicReactionEffects {
 	private static void reveal(ServerLevel level, Vec3 midpoint, double radius) {
 		for (LivingEntity entity : living(level, midpoint, radius)) {
 			if (!mayContest(level, entity)) continue;
-			entity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 60, 0, true, false));
+			entity.addEffect(PowerStatusEffects.hidden(MobEffects.GLOWING, 60, 0, true, true));
 			if (entity instanceof ServerPlayer player) {
 				InvisibilityToggleAbility.reveal(player);
 				SpellCastingManager.revealConcealment(player);
@@ -75,8 +77,8 @@ final class MagicReactionEffects {
 
 	private static void consumeProjectiles(ServerLevel level, Vec3 midpoint, double radius) {
 		int removed = 0;
-		for (Projectile projectile : level.getEntitiesOfClass(Projectile.class, bounds(midpoint, radius),
-				Projectile::isAlive)) {
+		for (Projectile projectile : BoundedEntityCandidates.ofClass(level, Projectile.class,
+				bounds(midpoint, radius), MAX_AFFECTED_ENTITIES * 4, Projectile::isAlive)) {
 			if (!PowerEntityState.isPowerProjectile(projectile)) continue;
 			PowerFx.burst(level, projectile.position(), ParticleTypes.REVERSE_PORTAL, 8, 0.2, 0.02);
 			projectile.discard();
@@ -88,7 +90,8 @@ final class MagicReactionEffects {
 
 	private static void banishSummons(ServerLevel level, Vec3 midpoint, double radius) {
 		int removed = 0;
-		for (Entity entity : level.getEntitiesOfClass(Entity.class, bounds(midpoint, radius), Entity::isAlive)) {
+		for (Entity entity : BoundedEntityCandidates.ofClass(level, Entity.class,
+				bounds(midpoint, radius), MAX_AFFECTED_ENTITIES * 4, Entity::isAlive)) {
 			if (!PowerEntityState.isBanishableSummon(entity)) continue;
 			PowerFx.burst(level, entity.position().add(0, 0.8, 0), ParticleTypes.POOF, 16, 0.6, 0.12);
 			entity.discard();
@@ -154,10 +157,9 @@ final class MagicReactionEffects {
 	}
 
 	private static List<LivingEntity> living(ServerLevel level, Vec3 midpoint, double radius) {
-		List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, bounds(midpoint, radius),
-				LivingEntity::isAlive);
-		return entities.size() <= MAX_AFFECTED_ENTITIES
-				? entities : entities.subList(0, MAX_AFFECTED_ENTITIES);
+		List<LivingEntity> entities = BoundedEntityCandidates.living(level,
+				bounds(midpoint, radius), MAX_AFFECTED_ENTITIES, LivingEntity::isAlive);
+		return entities;
 	}
 
 	private static AABB bounds(Vec3 midpoint, double radius) {

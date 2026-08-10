@@ -26,7 +26,7 @@ class PowerScalingServiceTest {
 		ScaledMagicValues healing = service.scale(action("plant_healing_acceleration"), profile, 2);
 
 		assertTrue(step.rangeMultiplier() > healing.rangeMultiplier());
-		assertEquals(1.0, healing.rangeMultiplier(), 0.0001);
+		assertEquals(1.04, healing.rangeMultiplier(), 0.0001);
 	}
 
 	@Test
@@ -51,11 +51,11 @@ class PowerScalingServiceTest {
 				new RankProgress(Set.of("cap", "cost", "cooldown"), "cap"));
 		ScaledMagicValues values = service.scale(action("fireball"), profile, 10);
 
-		assertEquals(1.40, values.potencyMultiplier(), 0.0001);
+		assertEquals(1.90, values.potencyMultiplier(), 0.0001);
 		assertTrue(values.energyCost() >= 0);
 		assertTrue(values.cooldownTicks() >= 0);
-		assertTrue(values.energyCost() >= Math.ceil(action("fireball").baseEnergy() * 0.75) - 1);
-		assertTrue(values.cooldownTicks() >= Math.ceil(action("fireball").baseCooldownTicks() * 0.75) - 1);
+		assertTrue(values.energyCost() >= Math.ceil(action("fireball").baseEnergy() * 0.65) - 1);
+		assertTrue(values.cooldownTicks() >= Math.ceil(action("fireball").baseCooldownTicks() * 0.60) - 1);
 	}
 
 	@Test
@@ -69,6 +69,19 @@ class PowerScalingServiceTest {
 
 		assertTrue(variants.contains("true_sight"));
 		assertTrue(variants.contains("dark_resurgence"));
+	}
+
+	@Test
+	void unrankedCrystalAndSpellBaselinesDoNotInheritPlayerProgression() {
+		ScaledMagicValues crystal = PowerScalingService.unranked("inferno");
+		ScaledMagicValues spell = PowerScalingService.unranked("hex");
+
+		assertEquals(1.0, crystal.potencyMultiplier(), 0.0001);
+		assertEquals(1.0, crystal.rangeMultiplier(), 0.0001);
+		assertEquals(1.0, crystal.durationMultiplier(), 0.0001);
+		assertTrue(crystal.unlockedVariants().isEmpty());
+		assertEquals(1.0, spell.potencyMultiplier(), 0.0001);
+		assertTrue(spell.unlockedVariants().isEmpty());
 	}
 
 	private MagicActionDefinition action(String id) {

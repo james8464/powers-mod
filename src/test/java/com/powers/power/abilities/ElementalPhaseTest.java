@@ -41,4 +41,13 @@ class ElementalPhaseTest {
 		assertEquals(ElementalPhase.FROST, ElementalPhase.fromIndex(1_000_001));
 		assertEquals(ElementalPhase.FLAME, ElementalPhase.fromIndex(Integer.MIN_VALUE));
 	}
+
+	@Test
+	void successfulCastsKeepTheExplicitlySelectedElementPrimed() {
+		assertEquals(ElementalPhase.FLAME.index(), ElementalBlastRules.phaseAfterCast(0));
+		assertEquals(ElementalPhase.FROST.index(), ElementalBlastRules.phaseAfterCast(1));
+		assertEquals(ElementalPhase.STORM.index(), ElementalBlastRules.phaseAfterCast(2));
+		assertEquals(ElementalPhase.EARTH.index(), ElementalBlastRules.phaseAfterCast(3));
+		assertEquals(ElementalPhase.EARTH.index(), ElementalBlastRules.phaseAfterCast(-1));
+	}
 }

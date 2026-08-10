@@ -9,6 +9,7 @@ import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.MagicShieldManager;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -131,7 +132,7 @@ final class FireballImpactResolver {
 		if (controller == null) return 0;
 		double radius = FireballRules.impactRadius(heart.tier, heart.empoweredImpact);
 		AABB bounds = AABB.ofSize(center, radius * 2.0, radius * 2.0, radius * 2.0);
-		List<LivingEntity> candidates = level.getEntitiesOfClass(LivingEntity.class, bounds,
+		List<LivingEntity> candidates = BoundedEntityCandidates.living(level, bounds, 192,
 				entity -> entity.isAlive() && entity != controller
 						&& entity.position().distanceToSqr(center) <= radius * radius);
 		candidates.sort(Comparator.comparingDouble((LivingEntity entity) ->

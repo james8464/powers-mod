@@ -8,7 +8,9 @@ import com.powers.progression.RankProgress;
 import com.powers.progression.PowerScalingService;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
+import com.powers.power.PowerToggleLifecycle;
 import com.powers.power.abilities.ElementalPhase;
+import com.powers.power.abilities.SizeMorphRules;
 import com.powers.power.PassiveEffect;
 import com.powers.power.Ability;
 import com.powers.power.PowerEnergy;
@@ -24,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import static com.powers.player.PlayerPowerAttachments.ACTIVE_TOGGLES;
 import static com.powers.player.PlayerPowerAttachments.COMPANION_CONSENT;
@@ -42,16 +45,15 @@ import static com.powers.player.PlayerPowerAttachments.MIND_BODY;
 import static com.powers.player.PlayerPowerAttachments.POSSESSION_CONSENT;
 import static com.powers.player.PlayerPowerAttachments.POWER_SLOTS;
 import static com.powers.player.PlayerPowerAttachments.PREVIOUS_GAMEMODE;
-import static com.powers.player.PlayerPowerAttachments.REALM_MEMORIES;
 import static com.powers.player.PlayerPowerAttachments.SKILL_LEVEL;
+import static com.powers.player.PlayerPowerAttachments.SIZE_MORPH_OPTION;
 import static com.powers.player.PlayerPowerAttachments.SPELL_SELECTIONS;
 import static com.powers.player.PlayerPowerAttachments.TELEPORT_CONSENT;
 
 /**
- * Per-player power state: three power slots, active toggles, energy, and
- * skill levels, kept as persistent copy-on-death attachments on the player
- * so the assignment survives restarts, relogs and deaths alike, and stays
- * fixed for the life of the character.
+ * Persistent per-player power slots, toggles, energy, and skill levels.
+ * Copy-on-death attachments survive restarts, relogs, and deaths while each
+ * character's assigned powers remain fixed.
  */
 public final class PlayerPowers {
 	public static final int SLOT_COUNT = 3;
@@ -71,17 +73,22 @@ public final class PlayerPowers {
 	}
 
 	public record PlayerPowersData(AttachmentTarget target) {
+		/** Returns a typed immutable view of every persistent darkness deed counter. */
+		public Map<DarknessDeed, Integer> darknessDeeds() {
+			return DarknessDeedStore.read(target);
+		}
+
+		/** Increments all categories caused by one kill using one attachment write. */
+		public Map<DarknessDeed, Integer> addDarknessDeeds(Set<DarknessDeed> deeds) {
+			return DarknessDeedStore.increment(target, deeds);
+		}
+
 		public boolean discoverRealmMemory(String memoryId) {
-			List<String> current = target.getAttachedOrElse(REALM_MEMORIES, List.of());
-			if (current.contains(memoryId)) return false;
-			List<String> updated = new ArrayList<>(current);
-			updated.add(memoryId);
-			target.setAttached(REALM_MEMORIES, updated);
-			return true;
+			return RealmMemoryStore.discover(target, memoryId);
 		}
 
 		public List<String> realmMemories() {
-			return List.copyOf(target.getAttachedOrElse(REALM_MEMORIES, List.of()));
+			return RealmMemoryStore.read(target);
 		}
 		public int selectedSpell(String grimoireKey, int spellCount) {
 			if (spellCount <= 0) return 0;
@@ -388,13 +395,9 @@ public final class PlayerPowers {
 			List<String> newIds = new ArrayList<>(ids);
 			// A passive may be shared with a potion or another mod. It is allowed
 			// to expire naturally instead of removing the entire effect type.
-			for (String id : new ArrayList<>(getActiveToggles())) {
-				Power power = PowerRegistry.get(id);
-				if (power != null && power.ability().isToggle()) {
-					power.ability().activateToggleOff(player, this);
-				}
-			}
-			target.setAttached(ACTIVE_TOGGLES, new ArrayList<>());
+			// Artifact toggles are item-owned and survive an unrelated slot reroll.
+			target.setAttached(ACTIVE_TOGGLES, PowerToggleLifecycle.deactivateInnate(
+					player, this, List.copyOf(getActiveToggles())));
 			target.setAttached(POWER_SLOTS, newIds);
 			PowersPackets.syncTo(player);
 		}
@@ -420,16 +423,25 @@ public final class PlayerPowers {
 			PowersPackets.syncTo(player);
 		}
 
-		/** Advances the elemental blast phase (0-3) and returns the new one. */
-		public int nextPhase() {
-			int next = ElementalPhase.nextIndex(getPhase());
-			target.setAttached(ELEMENTAL_PHASE, next);
-			return next;
+		/** Selects one normalized Elemental Blast phase without casting it. */
+		public void setPhase(int phase) {
+			target.setAttached(ELEMENTAL_PHASE, ElementalPhase.fromIndex(phase).index());
 		}
 
 		/** The current elemental blast phase: 0 fire, 1 frost, 2 storm, 3 earth. */
 		public int getPhase() {
 			return ElementalPhase.fromIndex(target.getAttachedOrElse(ELEMENTAL_PHASE, 0)).index();
+		}
+
+		/** Selects one authored Size Morphing scale option. */
+		public void setSizeMorphOption(int option) {
+			target.setAttached(SIZE_MORPH_OPTION, option);
+		}
+
+		/** Returns the persisted Size Morphing option, normalizing corrupt saves to normal size. */
+		public int getSizeMorphOption() {
+			int option = target.getAttachedOrElse(SIZE_MORPH_OPTION, SizeMorphRules.normalOption());
+			return SizeMorphRules.isValidOption(option) ? option : SizeMorphRules.normalOption();
 		}
 	}
 }

@@ -1,5 +1,8 @@
 package com.powers;
 
+import com.powers.item.ShadowSwordItem;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -7,6 +10,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ToolMaterial;
+import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.network.chat.Component;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -75,7 +80,7 @@ public final class PowersWeapons {
 			new WeaponDef("iron_mace", "Iron Mace", ToolMaterial.IRON, Kind.SWORD, 6f, 1.6f),
 			new WeaponDef("iron_polearm", "Iron Polearm", ToolMaterial.IRON, Kind.SWORD, 6f, 1.6f),
 			new WeaponDef("iron_sai", "Iron Sai", ToolMaterial.IRON, Kind.SWORD, 6f, 1.6f),
-			new WeaponDef("lycanbane", "Lycanbane", ToolMaterial.NETHERITE, Kind.SWORD, 8f, 1.6f),
+			new WeaponDef("lycanbane", "Shadow Sword", ToolMaterial.NETHERITE, Kind.SWORD, 8f, 1.6f),
 			new WeaponDef("moonlight", "Moonlight", ToolMaterial.DIAMOND, Kind.SWORD, 7f, 1.6f),
 			new WeaponDef("nature_sword", "Nature Sword", ToolMaterial.DIAMOND, Kind.SWORD, 7f, 1.6f),
 			new WeaponDef("nocturne", "Nocturne", ToolMaterial.NETHERITE, Kind.SWORD, 8f, 1.6f),
@@ -133,6 +138,14 @@ public final class PowersWeapons {
 			case PICKAXE -> props.pickaxe(def.material(), def.damage(), def.speed());
 			case SHOVEL -> props.shovel(def.material(), def.damage(), def.speed());
 		}
-		return ModItemIds.register(ModItemIds.create(def.id()), Item::new, props);
+		if (def.id().equals("lycanbane")) {
+			props.component(DataComponents.LORE, new ItemLore(java.util.List.of(
+					Component.translatable("item.powers.shadow_sword.lore")
+							.withStyle(ChatFormatting.DARK_PURPLE),
+					Component.translatable("item.powers.shadow_sword.controls")
+							.withStyle(ChatFormatting.GRAY))));
+		}
+		return ModItemIds.register(ModItemIds.create(def.id()),
+				def.id().equals("lycanbane") ? ShadowSwordItem::new : Item::new, props);
 	}
 }

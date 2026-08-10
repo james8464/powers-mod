@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.network.PowersPackets;
@@ -11,12 +12,12 @@ import com.powers.power.PowerDamage;
 import com.powers.progression.PowerScalingService;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -76,8 +77,8 @@ public final class SpeedBurstAbility extends Ability {
 		player.setDeltaMovement(movement);
 		player.hurtMarked = true;
 		player.fallDistance = 0.0F;
-		player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,
-				scaledDuration(player, 120), 0, false, false));
+		player.addEffect(PowerStatusEffects.hidden(MobEffects.SLOW_FALLING,
+				scaledDuration(player, 120), 0, false, true));
 
 		DashTrace trace = new DashTrace(level.dimension(), player.position(), TRACE_TICKS,
 				safeFraction < 1.0, followUp, scaledPotency(player, BASE_IMPACT_DAMAGE),
@@ -225,7 +226,7 @@ public final class SpeedBurstAbility extends Ability {
 		PowerFx.speedBurstImpact(level, center.add(0.0, 0.35, 0.0), trace.followUp());
 		AABB area = AABB.ofSize(center, IMPACT_RADIUS * 2.0,
 				IMPACT_RADIUS * 2.0, IMPACT_RADIUS * 2.0);
-		level.getEntities(EntityTypeTest.forClass(LivingEntity.class), area,
+		BoundedEntityCandidates.living(level, area, 64,
 				entity -> validImpactTarget(caster, entity))
 				.stream()
 				.sorted(Comparator.comparingDouble(entity -> entity.distanceToSqr(center)))

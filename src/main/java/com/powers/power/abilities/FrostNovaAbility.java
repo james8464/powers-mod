@@ -1,16 +1,17 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import com.powers.protection.PowerProtection;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.entity.EntityTypeTest;
@@ -59,13 +60,13 @@ public class FrostNovaAbility extends Ability {
 		// catch everything within a 6-block radius around the player
 		double entityRadius = scaledRange(player, 6.0);
 		AABB area = AABB.ofSize(player.position(), entityRadius * 2, 8.0, entityRadius * 2);
-		for (LivingEntity target : level.getEntities(
-				EntityTypeTest.forClass(LivingEntity.class), area,
-					e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
+		for (LivingEntity target : BoundedEntityCandidates.living(level, area, 160,
+				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
 						&& PowerProtection.mayHarm(player, e))) {
 			// 4 damage plus a heavy slow for 6 seconds
 			target.hurtServer(level, PowerDamage.source(player), scaledPotency(player, 4.0f));
-			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, scaledDuration(player, 120), 2, false, false));
+			target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS,
+					scaledDuration(player, 120), 2, false, true));
 		}
 		return true;
 	}

@@ -16,17 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"shard": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:amethyst_shard"
-						]
-					}
-				]
-			}
+		"mastery": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

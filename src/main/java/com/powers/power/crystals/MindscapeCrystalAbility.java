@@ -7,11 +7,14 @@ import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.AsyncAbilityTransaction;
 import com.powers.power.PowerTargeting;
 import com.powers.power.travel.SafeDestinationResolver;
+import com.powers.power.travel.TravelChunkLoader;
 import com.powers.power.travel.TravelKind;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -37,7 +40,8 @@ abstract class MindscapeCrystalAbility extends Ability {
 
 	MindscapeCrystalAbility(String actionId, String realmId, PowersMod.StormTheme departureTheme,
 			int color, float pitch) {
-		super(PowersMod.id(actionId), Component.translatable("ability.powers." + actionId), 2400, false);
+		super(PowersMod.id(actionId), Component.translatable("ability.powers." + actionId),
+				2400, false, false);
 		this.destination = ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,
 				PowersMod.id(realmId));
 		this.departureTheme = departureTheme;
@@ -58,15 +62,19 @@ abstract class MindscapeCrystalAbility extends Ability {
 		ServerLevel destinationLevel = ((ServerLevel) caster.level()).getServer().getLevel(destination);
 		if (destinationLevel == null) return false;
 
-		if (caster.isCrouching()) return beginJourney(caster, caster, destinationLevel);
-
 		ServerLevel level = (ServerLevel) caster.level();
 		Vec3 origin = caster.getEyePosition();
 		double reach = scaledRange(caster, BASE_REACH);
-		LivingEntity target = PowerTargeting.findLivingTarget(caster, reach);
+		LivingEntity target = caster.isCrouching() ? null : PowerTargeting.findLivingTarget(caster, reach);
+		boolean aimedPlayer = target instanceof ServerPlayer;
+		if (CrystalTargeting.journeyTarget(caster.isCrouching(), aimedPlayer)
+				== CrystalTargeting.JourneyTarget.CASTER) {
+			return beginJourney(caster, caster, destinationLevel, data);
+		}
 		if (target instanceof ServerPlayer subject) {
 			if (!PowerProtection.mayForceMove(caster, subject)) {
-				PowerMessages.send(caster, "powers.packet.consent_denied", 1, subject.getName().getString());
+				PowerMessages.sendImportant(caster, "powers.packet.consent_denied", 1,
+						subject.getName().getString());
 				return false;
 			}
 			if (AmethystDampening.isDampened(subject)) {
@@ -76,32 +84,45 @@ abstract class MindscapeCrystalAbility extends Ability {
 			PowerFx.beam(level, origin, subject.getEyePosition(), particle(), 18);
 			PowerFx.rune(level, subject.position(), 1.35, color, 24, 0.0);
 			PowerFx.sound(level, origin, SoundEvents.PORTAL_TRAVEL, 1.0f, pitch);
-			return beginJourney(caster, subject, destinationLevel);
+			return beginJourney(caster, subject, destinationLevel, data);
 		}
 
-		// A miss is a deliberate warning cast and never transports an unseen player.
-		Vec3 end = origin.add(caster.getLookAngle().normalize().scale(reach));
-		PowerFx.beam(level, origin, end, particle(), 18);
-		PowerFx.rune(level, origin.add(caster.getLookAngle().scale(2.0)), 0.7, color, 16, Math.PI / 4);
-		PowerFx.sound(level, origin, SoundEvents.PORTAL_TRIGGER, 0.6f, pitch);
-		return true;
+		return false;
 	}
 
-	private boolean beginJourney(ServerPlayer caster, ServerPlayer subject, ServerLevel destinationLevel) {
+	private boolean beginJourney(ServerPlayer caster, ServerPlayer subject, ServerLevel destinationLevel,
+			PlayerPowers.PlayerPowersData data) {
 		ServerLevel sourceLevel = (ServerLevel) subject.level();
-		Vec3 sourcePosition = subject.position();
 		Vec3 destinationPosition = new Vec3(8.5, destinationLevel.getMinY() + 1, 8.5);
-		// This fixed, trusted realm entrance intentionally loads its single spawn chunk.
-		destinationLevel.getChunk(0, 0);
-		if (!destinationAllowed(subject, destinationLevel, destinationPosition)) {
+		SafeDestinationResolver.Result preflight = SafeDestinationResolver.validatePreload(
+				subject, destinationLevel, destinationPosition, TravelKind.CRYSTAL);
+		if (!preflight.allowed()) {
 			PowerMessages.send(caster, "ability.powers.no_room", 3);
 			return false;
 		}
+		double permittedSeparation = scaledRange(caster, BASE_REACH) + 4.0;
+		AsyncAbilityTransaction transaction = new AsyncAbilityTransaction(caster, data, this);
+		return TravelChunkLoader.request(destinationLevel, BlockPos.containing(destinationPosition),
+				() -> startJourney(caster, subject, sourceLevel, destinationLevel,
+						destinationPosition, permittedSeparation, transaction),
+				() -> {
+					transaction.fail();
+					PowerMessages.send(caster, "ability.powers.no_room", 3);
+				});
+	}
 
+	private void startJourney(ServerPlayer caster, ServerPlayer subject, ServerLevel sourceLevel,
+			ServerLevel destinationLevel, Vec3 destinationPosition, double permittedSeparation,
+			AsyncAbilityTransaction transaction) {
+		if (!stillEligible(caster, subject, sourceLevel, destinationLevel, destinationPosition,
+				permittedSeparation)) {
+			transaction.fail();
+			return;
+		}
+		Vec3 sourcePosition = subject.position();
 		int stormTicks = scaledDuration(caster, BASE_STORM_TICKS);
 		int delay = Math.max(12, (int) Math.round(BASE_TELEPORT_DELAY
 				/ Math.max(1.0, scaling(caster).durationMultiplier())));
-		double permittedSeparation = scaledRange(caster, BASE_REACH) + 4.0;
 		PowersMod.startStorm(sourceLevel, sourcePosition, stormTicks, departureTheme);
 		PowersMod.startStorm(destinationLevel, destinationPosition, stormTicks);
 		PowerFx.rune(sourceLevel, sourcePosition, 2.2, color, 36, 0.0);
@@ -109,14 +130,20 @@ abstract class MindscapeCrystalAbility extends Ability {
 
 		PowersMod.scheduleDelayed(sourceLevel.getServer(), delay, () -> {
 			if (!stillEligible(caster, subject, sourceLevel, destinationLevel, destinationPosition,
-					permittedSeparation)) return;
-			if (!BodyProxyManager.start(subject, BodyProxyKind.REALM)) return;
+					permittedSeparation)) {
+				transaction.fail();
+				return;
+			}
+			if (!BodyProxyManager.start(subject, BodyProxyKind.REALM)) {
+				transaction.fail();
+				return;
+			}
 			subject.teleport(new TeleportTransition(destinationLevel, destinationPosition, Vec3.ZERO,
 					subject.getYRot(), subject.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+			transaction.succeed();
 			PowerFx.rune(destinationLevel, destinationPosition, 2.2, color, 36, Math.PI);
 			PowerFx.spiral(destinationLevel, destinationPosition, 1.6, 2.8, color, 30, Math.PI);
 		});
-		return true;
 	}
 
 	private boolean stillEligible(ServerPlayer caster, ServerPlayer subject, ServerLevel sourceLevel,

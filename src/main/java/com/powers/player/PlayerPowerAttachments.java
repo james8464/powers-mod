@@ -32,10 +32,16 @@ final class PlayerPowerAttachments {
 	static final AttachmentType<String> DARK_RANK_FOCUS = persistentString("dark_rank_focus");
 	static final AttachmentType<Boolean> DARKNESS_PREFIX_HIDDEN = persistentBoolean("darkness_prefix_hidden");
 	static final AttachmentType<Integer> ELEMENTAL_PHASE = persistentInt("elemental_phase", 0);
+	static final AttachmentType<Integer> SIZE_MORPH_OPTION = persistentInt("size_morph_option", 3);
+	static final AttachmentType<String> SHADOW_SWORD_SELECTION = persistentString("shadow_sword_selection");
 	static final AttachmentType<Map<String, Long>> COOLDOWNS = persistentMap(
 			"cooldowns", Codec.unboundedMap(Codec.STRING, Codec.LONG));
 	static final AttachmentType<Map<String, Integer>> SPELL_SELECTIONS = persistentMap(
 			"spell_selections", Codec.unboundedMap(Codec.STRING, Codec.INT));
+	static final AttachmentType<Map<String, Integer>> DARKNESS_DEEDS = persistentMap(
+			"darkness_deeds", Codec.unboundedMap(Codec.STRING, Codec.INT));
+	static final AttachmentType<Map<String, Integer>> SKILL_DEEDS = persistentMap(
+			"skill_deeds", Codec.unboundedMap(Codec.STRING, Codec.INT));
 	static final AttachmentType<PlayerPowers.AnchorState> DIMENSIONAL_ANCHOR = AttachmentRegistry.create(
 			PowersMod.id("dimensional_anchor"),
 			builder -> builder.persistent(PlayerPowers.AnchorState.CODEC).copyOnDeath());

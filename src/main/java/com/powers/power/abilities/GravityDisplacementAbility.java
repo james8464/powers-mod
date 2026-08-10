@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.GravityFx;
 import com.powers.mind.BodyProxyManager;
@@ -12,11 +13,11 @@ import com.powers.power.state.MagicShieldManager;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.PowerMessages;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -83,8 +84,8 @@ public final class GravityDisplacementAbility extends Ability {
 				Math.min(1.5, 1.05 * scaling(player).potencyMultiplier()));
 		ACTIVE.put(owner, field);
 
-		player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,
-				duration + RELEASE_SLOW_FALL_TICKS, 0, true, false));
+		player.addEffect(PowerStatusEffects.hidden(MobEffects.SLOW_FALLING,
+				duration + RELEASE_SLOW_FALL_TICKS, 0, true, true));
 		GravityFx.open(level, field.center, field.radius, ancientMastery);
 		PowerMessages.send(player, "ability.powers.gravity_displacement.cast", 4);
 		refreshTargets(level, player, field, now);
@@ -148,7 +149,8 @@ public final class GravityDisplacementAbility extends Ability {
 			ServerPlayer owner, GravityField field, long now) {
 		AABB bounds = AABB.ofSize(field.center, field.radius * 2.0,
 				field.radius * 2.0, field.radius * 2.0);
-		List<LivingEntity> candidates = level.getEntitiesOfClass(LivingEntity.class, bounds,
+		List<LivingEntity> candidates = BoundedEntityCandidates.living(level, bounds,
+				MAX_SCAN_CANDIDATES,
 				entity -> entity.isAlive() && entity != owner && !entity.isPassenger()
 						&& (!(entity instanceof ServerPlayer player) || !player.isSpectator())
 						&& entity.position().distanceToSqr(field.center) <= field.radius * field.radius);
@@ -251,7 +253,8 @@ public final class GravityDisplacementAbility extends Ability {
 			target.setDeltaMovement(velocity);
 			target.hurtMarked = true;
 			target.fallDistance = 0.0F;
-			target.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 12, 0, true, false));
+			target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOW_FALLING,
+					12, 0, true, true));
 		}
 	}
 
@@ -260,7 +263,8 @@ public final class GravityDisplacementAbility extends Ability {
 		if (limit <= 0) return;
 		AABB bounds = AABB.ofSize(field.center, field.radius * 2.0,
 				field.radius * 2.0, field.radius * 2.0);
-		List<Projectile> projectiles = level.getEntitiesOfClass(Projectile.class, bounds,
+		List<Projectile> projectiles = BoundedEntityCandidates.ofClass(level, Projectile.class,
+				bounds, 128,
 				projectile -> projectile.isAlive()
 						&& projectile.position().distanceToSqr(field.center) <= field.radius * field.radius
 						&& (projectile.getOwner() == null
@@ -329,8 +333,8 @@ public final class GravityDisplacementAbility extends Ability {
 
 	private static void safeRelease(LivingEntity target) {
 		target.fallDistance = 0.0F;
-		target.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,
-				RELEASE_SLOW_FALL_TICKS, 0, true, false));
+		target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOW_FALLING,
+				RELEASE_SLOW_FALL_TICKS, 0, true, true));
 	}
 
 	private static boolean shouldCue(GravityField field, UUID target, long now) {

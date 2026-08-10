@@ -1,10 +1,12 @@
 package com.powers.realm;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersBlocks;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
+import com.powers.player.SkillQuestTracker;
 import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -14,7 +16,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -113,13 +114,16 @@ public final class RealmMindscapeManager {
 			PowerFx.burst(level, center, kind == RealmKind.LIGHT ? ParticleTypes.END_ROD : ParticleTypes.SOUL,
 					24, 1.1, 0.08);
 			PowerFx.sound(level, center, SoundEvents.END_PORTAL_SPAWN, 0.8f, kind == RealmKind.LIGHT ? 1.4f : 0.55f);
-			player.sendSystemMessage(Component.translatable("realm.powers." + site.id()));
-			player.sendSystemMessage(Component.translatable("realm.powers.path_offer", site.offeredPath()));
-			data.refundEnergy(12);
+			player.sendSystemMessage(Component.translatable(site.memoryKey()));
+			player.sendSystemMessage(Component.translatable("realm.powers.path_offer",
+					Component.translatable(site.pathKey()), site.offeredPath()));
+			data.refundEnergy(site.rewardEnergy());
+			if (kind == RealmKind.LIGHT) SkillQuestTracker.recordLightMemory(player);
+			player.sendSystemMessage(Component.translatable("realm.powers.energy_restored", site.rewardEnergy()));
 			PowersPackets.syncTo(player);
 			long found = data.realmMemories().stream().filter(id -> id.startsWith(kind == RealmKind.LIGHT ? "light_" : "dark_")).count();
 			if (found == RealmLayout.sites(kind).size()) {
-				player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 1200, 2, true, false));
+				player.addEffect(PowerStatusEffects.hidden(MobEffects.ABSORPTION, 1200, 2, true, true));
 				player.sendSystemMessage(Component.translatable(kind == RealmKind.LIGHT
 						? "realm.powers.light_complete" : "realm.powers.dark_complete"));
 			}

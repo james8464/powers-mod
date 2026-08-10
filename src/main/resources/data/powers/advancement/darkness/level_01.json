@@ -16,41 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"coal_block": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:coal_block"
-						]
-					}
-				]
-			}
-		},
-		"coal": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:coal"
-						]
-					}
-				]
-			}
-		},
-		"bone": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:bone"
-						]
-					}
-				]
-			}
+		"deed": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

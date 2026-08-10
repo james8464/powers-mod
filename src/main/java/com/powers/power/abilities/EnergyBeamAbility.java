@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.EnergyBeamFx;
 import com.powers.mind.BodyProxyManager;
@@ -18,7 +19,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -108,8 +108,8 @@ public final class EnergyBeamAbility extends Ability {
 			channel.lastVisualPoint = owner.getEyePosition();
 			long age = Math.max(0L, now - channel.startedAt);
 			if ((age & 1L) == 0L) {
-				owner.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,
-						4, 0, true, false, false));
+				owner.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS,
+						4, 0, true, false));
 			}
 			if (EnergyBeamRules.phase(channel.startedAt, now) == EnergyBeamRules.Phase.FOCUS) {
 				if ((age & 1L) == 0L) {

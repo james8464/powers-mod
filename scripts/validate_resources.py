@@ -14,14 +14,13 @@ IDENTIFIER = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 CURRENT_FILE = ""
 REQUIRED_UI_TEXTURES = {
-    "textures/gui/energy_frame.png": (172, 22),
-    "textures/gui/energy_fill.png": (144, 40),
-    "textures/gui/power_slot.png": (36, 36),
-    "textures/gui/power_slot_active.png": (36, 36),
+    "textures/gui/energy_symbols.png": (27, 45),
+    "textures/gui/power_slot.png": (30, 30),
+    "textures/gui/power_slot_active.png": (30, 30),
     "textures/gui/teleport_panel.png": (256, 192),
     "textures/gui/locator_panel.png": (240, 224),
-    "textures/gui/advancements/radiant_path.png": (256, 256),
-    "textures/gui/advancements/shadow_path.png": (256, 256),
+    "textures/gui/advancements/backgrounds/radiant_path.png": (256, 256),
+    "textures/gui/advancements/backgrounds/shadow_path.png": (256, 256),
     "textures/mob_effect/exhaustion.png": (18, 18),
     "textures/mob_effect/amethyst_poisoning.png": (18, 18),
     "textures/particle/mote.png": (16, 16),
@@ -217,7 +216,7 @@ def validate(root: Path) -> list[str]:
         data = parsed.get(path, {})
         background = data.get("display", {}).get("background") if isinstance(data, dict) else None
         if isinstance(background, str) and background.startswith("powers:"):
-            target = local_resource(root, background, "textures", "")
+            target = local_resource(root, background, "textures", ".png")
             if target is not None and not target.exists():
                 errors.append(f"{path}: missing advancement background {target}")
 

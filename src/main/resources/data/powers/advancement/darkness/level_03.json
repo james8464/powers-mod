@@ -2,7 +2,7 @@
 	"parent": "powers:darkness/level_02",
 	"display": {
 		"icon": {
-			"id": "minecraft:blackstone"
+			"id": "minecraft:iron_golem_spawn_egg"
 		},
 		"title": {
 			"translate": "advancement.powers.darkness.03_black_stone.title"
@@ -16,41 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"blackstone": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:blackstone"
-						]
-					}
-				]
-			}
-		},
-		"magma": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:magma_block"
-						]
-					}
-				]
-			}
-		},
-		"torch": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:soul_torch"
-						]
-					}
-				]
-			}
+		"deed": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

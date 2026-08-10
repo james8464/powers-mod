@@ -6,10 +6,12 @@ import com.powers.power.Ability;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.Locale;
+
 /**
- * Elemental Blast: cycles fire, frost, storm and earth in order, one element
- * per press, each cast using that element's own cooldown. Fused from Galaxy
- * Steve's elementally-charged essence, inspired by Elemental Steve.
+ * Elemental Blast: the player explicitly primes fire, frost, storm or earth,
+ * then repeatedly casts that element until selecting another. Each element
+ * retains its own cooldown and canonical action identity.
  */
 public class ElementalBlastAbility extends Ability {
 	private static final Ability[] ELEMENTS = {
@@ -32,16 +34,34 @@ public class ElementalBlastAbility extends Ability {
 	}
 
 	@Override
+	public int selectionOptionCount() {
+		return ElementalPhase.values().length;
+	}
+
+	@Override
+	public Component selectionOptionName(int option) {
+		ElementalPhase phase = ElementalPhase.fromIndex(option);
+		return Component.translatable("hud.powers.element." + phase.name().toLowerCase(Locale.ROOT));
+	}
+
+	@Override
+	public boolean selectOption(ServerPlayer player, PlayerPowers.PlayerPowersData data, int option) {
+		if (option < 0 || option >= ElementalPhase.values().length) return false;
+		data.setPhase(option);
+		return true;
+	}
+
+	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ElementalPhase phase = ElementalPhase.fromIndex(data.getPhase());
 		Ability selected = ELEMENTS[phase.index()];
 		boolean success = selected instanceof LightningStrikeAbility lightning
 				? lightning.activateFromElemental(player, data)
 				: selected.activate(player, data);
-		// only advance when the element actually fired, so a failed cast
-		// (e.g. lightning with no valid target) is retried, not skipped
+		// Successful casts deliberately retain the selected phase; only the
+		// selection packet may change it, so failed casts cannot desync the menu.
 		if (success) {
-			data.nextPhase();
+			data.setPhase(ElementalBlastRules.phaseAfterCast(phase.index()));
 			if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 				com.powers.fx.PowerFx.rune(level, player.position(),
 						1.0 + scaling(player).potencyMultiplier() * 0.25, phase.color(), 20,
@@ -53,10 +73,7 @@ public class ElementalBlastAbility extends Ability {
 
 	@Override
 	public int cooldownTicksFor(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		// the phase already advanced on success, so rewind one to report the
-		// cooldown of the element that was actually cast
-		ElementalPhase phase = ElementalPhase.fromIndex(
-				ElementalPhase.previousIndex(data.getPhase()));
+		ElementalPhase phase = ElementalPhase.fromIndex(data.getPhase());
 		return ELEMENTS[phase.index()].cooldownTicksFor(player, data);
 	}
 }

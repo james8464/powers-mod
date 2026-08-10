@@ -1,5 +1,6 @@
 package com.powers.network;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.item.GrimoireItem;
@@ -22,12 +23,16 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -37,6 +42,7 @@ import java.util.UUID;
  */
 final class LocatorSpellPackets {
 	private static final int NONCE_LIFETIME_TICKS = 20 * 30;
+	private static final int MAX_NAMED_MOB_INSPECTIONS = 10_000;
 	private static final int CELESTIAL_COLOR = 0xFFD9E9FF;
 	private static final int GOLD_COLOR = 0xFFFFE08A;
 	private static final CastNonceTracker NONCES = new CastNonceTracker(NONCE_LIFETIME_TICKS);
@@ -49,24 +55,33 @@ final class LocatorSpellPackets {
 		ServerPlayNetworking.send(player, new PowersPackets.OpenLocatorScreenPayload(nonce));
 	}
 
-	static void handleLocate(PowersPackets.LocatePlayerPayload payload, ServerPlayNetworking.Context context) {
+	static void handleLocate(PowersPackets.LocateTargetPayload payload, ServerPlayNetworking.Context context) {
 		context.server().execute(() -> locate(context.player(), payload, context.server().getTickCount()));
 	}
 
-	private static void locate(ServerPlayer player, PowersPackets.LocatePlayerPayload payload, long currentTick) {
+	private static void locate(ServerPlayer player, PowersPackets.LocateTargetPayload payload, long currentTick) {
 		if (!NONCES.consume(player.getUUID(), payload.nonce(), currentTick) || !holdsCelestialGrimoire(player)) return;
+		if (payload.targetName().isBlank() || payload.targetName().length() > 64) return;
 		if (SpaceTimeAbility.isFrozen(player)) {
 			SpaceTimeAbility.reject(player);
 			return;
 		}
 
-		ServerPlayer target = findOnlinePlayer(player, payload.targetUuid());
+		NamedTargetRules.Resolution<LivingEntity> resolution = findNamedTarget(
+				player.level().getServer(), payload.targetName());
+		if (resolution.status() == NamedTargetRules.Status.AMBIGUOUS) {
+			player.sendSystemMessage(Component.literal(
+					"Remote viewing refused: more than one loaded target has that name."));
+			return;
+		}
+		LivingEntity target = resolution.target();
 		if (target == null) {
 			PowerMessages.send(player, "grimoire.celestial.offline", 3);
 			return;
 		}
-		if (!PowerProtection.mayLocate(player, target)) {
-			PowerMessages.send(player, "grimoire.celestial.consent_denied", 1);
+		if (target instanceof ServerPlayer targetPlayer
+				&& !PowerProtection.mayLocate(player, targetPlayer)) {
+			PowerMessages.sendImportant(player, "grimoire.celestial.consent_denied", 1);
 			return;
 		}
 
@@ -104,7 +119,7 @@ final class LocatorSpellPackets {
 		return definition != null && definition.key().equals("book_grimoire_celestial");
 	}
 
-	private static boolean hasOrdinaryRealmAccess(ServerPlayer player, ServerPlayer target) {
+	private static boolean hasOrdinaryRealmAccess(ServerPlayer player, LivingEntity target) {
 		ResourceKey<Level> targetDimension = target.level().dimension();
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		if (isLightRealm(targetDimension)) {
@@ -123,11 +138,11 @@ final class LocatorSpellPackets {
 		PowerFx.coloredBurst(level, position, 0xFF4B2E50, 26, 1.0);
 		PowerFx.burst(level, position, ParticleTypes.REVERSE_PORTAL, 14, 0.5, 0.05);
 		PowerFx.sound(level, position, SoundEvents.BEACON_DEACTIVATE, 1.0f, 0.8f);
-		player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 400, 0));
+		player.addEffect(PowerStatusEffects.hidden(MobEffects.NAUSEA, 400, 0, false, true));
 		PowerMessages.send(player, messageKey, messageVariants);
 	}
 
-	private static void cast(ServerPlayer player, ServerLevel level, Vec3 position, ServerPlayer target,
+	private static void cast(ServerPlayer player, ServerLevel level, Vec3 position, LivingEntity target,
 			boolean trueSight) {
 		PowerFx.sound(level, position, SoundEvents.EVOKER_CAST_SPELL, 1.0f, 0.9f);
 		PowerFx.rune(level, position, 2.2, CELESTIAL_COLOR, 26, 0.0);
@@ -156,7 +171,7 @@ final class LocatorSpellPackets {
 		PowerFx.sound(level, position, SoundEvents.CONDUIT_ACTIVATE, 1.0f, 1.15f);
 	}
 
-	private static void revealTarget(ServerPlayer player, ServerLevel level, Vec3 position, ServerPlayer target,
+	private static void revealTarget(ServerPlayer player, ServerLevel level, Vec3 position, LivingEntity target,
 			boolean trueSight) {
 		if (player.isRemoved()) return;
 		PowerFx.rune(level, position, 3.0, GOLD_COLOR, 34, Math.PI);
@@ -172,8 +187,9 @@ final class LocatorSpellPackets {
 		}
 
 		Vec3 targetPosition = target.position();
-		PowerMessages.send(player, "grimoire.celestial.reveal", 3, target.getName().getString());
-		if (trueSight) PowerMessages.send(player, "grimoire.celestial.true_sight", 3);
+		PowerMessages.sendImportant(player, "grimoire.celestial.reveal", 3,
+				target.getName().getString());
+		if (trueSight) PowerMessages.sendImportant(player, "grimoire.celestial.true_sight", 3);
 		player.sendSystemMessage(Component.literal("Dimension: ")
 				.append(Component.literal(dimensionName(target.level().dimension()))
 						.withStyle(style -> style.withColor(GOLD_COLOR))));
@@ -183,11 +199,36 @@ final class LocatorSpellPackets {
 						.withStyle(style -> style.withColor(GOLD_COLOR).withBold(true))));
 	}
 
-	private static ServerPlayer findOnlinePlayer(ServerPlayer caster, UUID uuid) {
-		for (ServerPlayer candidate : caster.level().getServer().getPlayerList().getPlayers()) {
-			if (candidate.getUUID().equals(uuid)) return candidate;
+	private static NamedTargetRules.Resolution<LivingEntity> findNamedTarget(
+			MinecraftServer server, String requestedName) {
+		// Only matching candidates are retained and the scan stops at two: the
+		// second match is enough to refuse ambiguity without building a global list.
+		List<NamedTargetRules.Candidate<LivingEntity>> matches = new ArrayList<>(2);
+		for (ServerPlayer candidate : server.getPlayerList().getPlayers()) {
+			addMatch(matches, requestedName, candidate.getName().getString(), candidate);
+			if (matches.size() == 2) return NamedTargetRules.resolve(requestedName, matches);
 		}
-		return null;
+		int inspected = 0;
+		for (ServerLevel level : server.getAllLevels()) {
+			for (Entity entity : level.getAllEntities()) {
+				if (++inspected > MAX_NAMED_MOB_INSPECTIONS) {
+					return NamedTargetRules.resolve(requestedName, matches);
+				}
+				if (!(entity instanceof Mob mob) || !mob.hasCustomName()) continue;
+				Component customName = mob.getCustomName();
+				if (customName == null) continue;
+				addMatch(matches, requestedName, customName.getString(), mob);
+				if (matches.size() == 2) return NamedTargetRules.resolve(requestedName, matches);
+			}
+		}
+		return NamedTargetRules.resolve(requestedName, matches);
+	}
+
+	private static void addMatch(List<NamedTargetRules.Candidate<LivingEntity>> matches,
+			String requestedName, String candidateName, LivingEntity target) {
+		if (NamedTargetRules.matches(requestedName, candidateName)) {
+			matches.add(new NamedTargetRules.Candidate<>(target, candidateName));
+		}
 	}
 
 	private static boolean isLightRealm(ResourceKey<Level> dimension) {

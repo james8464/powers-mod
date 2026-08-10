@@ -73,6 +73,7 @@ public record MagicCastPresentation(String soundCue, int intensity) {
 			case INNATE -> 1;
 			case SPELL -> 2;
 			case CRYSTAL, AMETHYST -> 3;
+			case ARTIFACT -> 4;
 			case REALM -> 5;
 		};
 		if (action.delivery() == MagicDelivery.FIELD || action.delivery() == MagicDelivery.PROJECTION

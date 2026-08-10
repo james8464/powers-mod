@@ -14,20 +14,51 @@ The tone is heavily inspired by FavreMySabre's *The Rainbow Quest*, with additio
 
 ## Playing
 
-On first join, a player receives three distinct powers from a pool of 27. They persist with the player. The default keys are `V`, `X`, and `C`; they can be rebound in Minecraft's Controls screen.
+On first join, a player receives three distinct powers from a pool of 28. They persist with the player. The default keys are `V`, `X`, and `C`; they can be rebound in Minecraft's Controls screen. Crouch while pressing a power key to open that power's option menu when it has selectable modes.
 
-The HUD shows the three powers as compact rune medallions with live toggle and rank-adjusted cooldown states. An authored ancient reliquary above the hotbar has separate normal, empty, darkness, amethyst-sealed, and projected-body treatments.
+The HUD shows the three powers as compact 30-pixel rune medallions at the right edge, with live toggle and rank-adjusted cooldown states. Energy is rendered as ten separate nine-pixel symbols directly above and exactly aligned with the vanilla hunger bar. Full, half, and empty symbols use normal, darkness, amethyst-poisoned, or projected-body colours; the bar is moved with the vanilla survival HUD so extra heart rows never overlap it.
 
 The assignable powers are:
 
-- Movement and control: Flight, Super Speed, Speed Burst, Shadow Step, Time Shift, Telekinesis, Gravity Displacement, and Breezy Bash.
-- Offence: Fireball, Lightning Strike, Energy Beam, Void Beam, Frost Nova, Ice Manipulation, Starfall, Ground Slam, Elemental Blast, and Energy Drain.
+- Movement and control: Size Morphing, Flight, Super Speed, Speed Burst, Shadow Step, Time Shift, Telekinesis, Gravity Displacement, and Breezy Bash.
+- Offence: Fireball, Lightning Strike, Thunderclap, Energy Beam, Void Beam, Frost Nova, Ice Manipulation, Starfall, Ground Slam, Elemental Blast, and Energy Drain.
 - Defence and support: Forcefield, Cozy Campfire, Plant and Healing Acceleration, and Double Health.
-- Time and mind: Slow World, Time Freeze, Invisibility, Vessel Possession, and Astral Projection.
+- Time and mind: Time Freeze, Invisibility, Vessel Possession, and Astral Projection.
+
+| Innate power | What it does |
+| --- | --- |
+| Size Morphing | Toggles between `0.25x`, `0.5x`, `0.75x`, `1x`, `1.25x`, `1.5x`, `1.75x`, and `2x`. Distance from normal size determines the per-second energy drain. |
+| Time Shift | Opens a server-advertised dimension/coordinate menu and asynchronously loads, validates, and enters even currently unloaded destination chunks. It can also mark another player with consent while a vulnerable body remains behind. |
+| Shadow Step | Performs a short, collision-safe line-of-sight blink and leaves a restrained shadow wake. |
+| Flight | Uses server-authoritative survival propulsion, including directional ascent/descent and a much faster sprint-flight mode; it never grants creative-mode flight. |
+| Elemental Blast | Lets the player explicitly select flame, frost, storm, or earth. The choice persists and delegates to the complete underlying power rather than cycling after every cast. |
+| Starfall | Opens a warned, finite celestial strike sequence with rank branches for extra strikes, a moving storm eye, concealment reveal, projectile diversion, echoes, and a dominion crown. |
+| Void Beam | Charges a penetrating live-aim ray, with ranked target penetration and a temporary terrain-safe void scar that interacts with later magic. |
+| Fireball | Summons one chargeable Cinderheart. Recasts add tiers, punching launches it, and bounded reflection/counter rules prevent uncontrolled projectile clouds. |
+| Frost Nova | Freezes and heavily slows permitted nearby targets in a rank-scaled radius. |
+| Lightning Strike | Opens a warned Storm Tribunal at the aimed column. It has no cooldown, while energy, protection, and concurrency checks still prevent invalid spam. |
+| Ground Slam | Opens a warned Faultbound Verdict with rank-scaled seismic beats, safe forced movement, and optional tightly capped terrain damage. |
+| Thunderclap | Creates a wide boss-scale pressure cone, inflicting heavy rank-scaled damage and stun while deflecting incoming projectiles. |
+| Speed Burst | Performs a collision-predicted physical dash and final shockwave. Motion ranks can spend a second step during the brief marked window. |
+| Telekinesis | Throws permitted living targets radially away and reflects a bounded set of hostile projectiles; an empty cast refunds its energy. |
+| Energy Beam | Channels four live-aim Sunfire beats whose damage and burn intensify on one target; water produces steam and advanced ranks unlock a flare or forks. |
+| Super Speed | Runs an eight-second Chronal Overdrive with server-owned motion, restrained afterimages, water grounding, collision rites, memory slips, and mastered projectile curvature. |
+| Breezy Bash | Captures permitted bodies in a two-stage wind rite, raises them through a visible apex, then calls each safely down with rank-scaled force. |
+| Cozy Campfire | Creates a ten-second hearth that repeatedly heals friendly living entities and restores hunger to players. |
+| Invisibility | Toggles true concealment with recurring energy drain and can be exposed by counter-magic or Insight effects. |
+| Time Freeze | Claims Minecraft's global server tick freeze across every loaded dimension, preventing entities, projectiles, attacks, and world ticks while the caster remains able to act. |
+| Forcefield | Toggles an owned, high-capacity defensive field without overwriting unrelated attribute effects. |
+| Gravity Displacement | Opens a five-second orrery that collision-safely orbits nearby bodies, resolves overlapping claims, and can collapse or curve projectiles at advanced ranks. |
+| Vessel Possession | Moves the mind into a consented player or suitable mob while a vulnerable skin-matched physical body remains at the casting point. |
+| Astral Projection | Leaves a vulnerable physical body and releases a bounded soul-form scout; return is validated and cannot be used as invulnerability. |
+| Energy Drain | Channels against a player, transfers their energy over two seconds, empties the well on completion, and applies particle-free Exhaustion. |
+| Ice Manipulation | Fires a freezing ray that harms and freezes targets, converts water to ice and lava to obsidian, and lays snow only where terrain policy permits. |
+| Plant and Healing Acceleration | Grows the aimed bonemealable plant, with stronger growth at higher potency, and supplies the registered regeneration passive. |
+| Double Health | Toggles a mod-owned maximum-health multiplier, preserves unrelated modifiers, and proportionally restores the vanilla heart layout when released. |
 
 Telekinesis is a true radial release: permitted living targets are thrown away from the caster while up to 16 hostile projectiles are reflected along the caster's aim. If neither can be affected, its collapsed violet rune refunds the offered energy and starts no cooldown or collision residue.
 
-Elemental Blast cycles flame, frost, storm, and earth only after a successful release. Each phase uses the underlying canonical Fireball, Frost Nova, Lightning Strike, or Ground Slam identity for collision counterplay, residue, sound, and ceremony rather than presenting every phase as the same composite force. Its HUD medallion adopts the primed element and shows the authoritative four-rune cycle before energy is spent.
+Elemental Blast keeps the player's explicit flame, frost, storm, or earth selection until it is changed. Each phase uses the underlying canonical Fireball, Frost Nova, Lightning Strike, or Ground Slam identity for collision counterplay, residue, sound, and ceremony rather than presenting every phase as the same composite force. Its HUD medallion adopts the selected element before energy is spent.
 
 Speed Burst is a synchronized physical dash, not a teleport. It predicts body-volume collisions, leaves an eight-tick cyan-white afterimage wake, and ends in a rank-scaled kinetic shockwave that respects safe zones, amethyst, and forced-movement consent without damaging terrain. Motion-ranked players can pay for one stronger Second Step during a 2.5-second window while the original persistent cooldown remains armed; alternating cyan-gold runes and an `II` medallion mark that server-authorized follow-up.
 
@@ -49,7 +80,7 @@ Breezy Bash is an eighteen-tick, server-owned Tempest Rite rather than a delayed
 
 Every power uses the same energy well. Light progression grows it from 250 to 770; darkness progression grows its separate well from 500 to 1,850. Failed casts refund their activation cost. Toggle powers drain once per second and cause backlash if they exhaust the well. Sleeping and runestones restore energy unless Exhaustion is active.
 
-Darkness and Pure Light are living realm matter. Vanilla random ticks make either block convert adjacent breakable terrain without requiring kills or loading distant chunks. Darkness withers nearby living entities without the `darkness` tag at strength III; tagged players instead receive a rank-scaled 24-energy pulse each second unless amethyst has poisoned their connection. Dark Resurgence strengthens that affinity by 50%, doubling it at or below one-quarter energy with a distinct eclipse awakening. When Pure Light touches Darkness, a catastrophic eclipse blast damages and throws exposed entities, then radially erases both forces from the epicentre through a 48-block sphere over several server-budgeted ticks without destroying unrelated builds.
+Darkness and Pure Light are living realm matter. Vanilla random ticks make either block convert adjacent breakable terrain without requiring kills or loading distant chunks. Amethyst, unbreakable/server infrastructure, and the authored gold/crying-obsidian mindscape landmarks contain that conversion; datapacks can extend `#powers:living_force_immune`. Darkness withers nearby living entities without the `darkness` tag at strength III; tagged players instead receive a rank-scaled 24-energy pulse each second unless amethyst has poisoned their connection. Dark Resurgence strengthens that affinity by 50%, doubling it at or below one-quarter energy with a distinct eclipse awakening. When Pure Light touches Darkness, a catastrophic eclipse blast damages and throws up to 256 inspected living entities, then radially erases both forces from the epicentre through a 48-block sphere over several server-budgeted ticks without destroying unrelated builds. Even when spreading is disabled, opposed blocks keep retrying their clash check.
 
 ## Mind travel and vulnerable bodies
 
@@ -60,11 +91,13 @@ Astral projection, vessel possession, dreamwalking, player-marking during Time S
 - Death, disconnect, server shutdown, invalid state, or `/powers return` cleans up or restores the session safely.
 - Return placement is collision-, border-, ward-, and safe-zone-validated.
 
-The Light Realm and Dark Realm are mindscapes rather than ordinary destinations. Each contains six persistent memory sites with custom obelisks, lore, rewards, magical effects, and choices that feed the title maze. Middleworld has its own muted dream biome rather than borrowing the Light Realm's appearance.
+The Light Realm and Dark Realm are mindscapes rather than ordinary destinations. Each contains six persistent memory sites with custom obelisks, localized lore, explained rewards, magical effects, and choices that feed the title maze. The Light Realm uses a pure white sky without a sun, moon, stars, weather tint, or black void; the Dark Realm remains an enclosed hostile thoughtscape. Middleworld has its own muted dream biome rather than borrowing the Light Realm's appearance.
+
+Realm departure is intentionally stricter than entry. A player trapped in the Dark Realm cannot leave through gameplay travel until they have the `darkness` tag and darkness level 5; leaving the Light Realm requires level 5 in either progression. `/powers return` is reserved for restoring a valid detached body and operator travel remains an explicit recovery route, so ordinary crystals, portals, teleports, deaths, and dimension menus cannot bypass the lock.
 
 ## Rank maze
 
-Advancements still determine earned rank depth, damage scaling, range scaling, and energy capacity. At each earned depth, players can also unlock and focus different connected titles instead of following one mutually exclusive class.
+Advancements determine earned rank depth, innate-power scaling, and energy capacity. Rank never changes crystal abilities or grimoire spells. Every innate power receives at least the numeric ladder: +5% potency, +2% range, +2.5% duration, -1% energy cost, and -1.5% cooldown per level. Control, support, and defence gain another +1.5% duration per level. Maze perks then specialize those values, with combined caps of +90% potency, +55% range, +65% duration, -35% cost, and -40% cooldown.
 
 The light and darkness graphs each contain 28 nodes, including legacy titles and paths through might, motion, insight, wardcraft, veils, communion, and dominion. Converging paths create hybrid titles such as Runeblade, Riftwalker, Soulwarden, Eclipse Weaver, and their endgame forms.
 
@@ -74,20 +107,41 @@ Press `B` (rebindable) to open the synchronized Labyrinth of Names, inspect ever
 
 Players with the `darkness` entity tag use the darkness advancement track and energy well. `/powers darkprefix` controls whether the focused darkness title is publicly shown.
 
+Only the applicable advancement background and track is visible: radiant players cannot see the darkness rites and darkness-infected players cannot see the radiant mastery track. Focused titles are synchronized into the player's display-name, tab-list, and chat prefix rather than being client-only decoration.
+
+Normal mastery is cumulative and intentionally long-form: levels 1-10 require respectively 100/300/750/1,500/2,500/4,000/6,000/8,500/12,000/18,000 successful innate casts and 10/50/150/300/500/800/1,200/1,800/2,500/4,000 power kills. Levels 4-10 additionally require 1-6 Light Realm memories, while levels 5-10 require 1/2/4/7/12/25 boss kills. Vanilla bosses count, and modded living bosses with at least 200 maximum health count so progression remains compatible with large content mods.
+
+Darkness progression records permanent atrocities rather than trivial inventory checks. Levels 1-2 require 25 and 100 passive kills. From level 3 onward the cumulative demands become increasingly cruel, culminating at level 10 in 500 villagers, 500 wolves, 100 baby villagers, and 50 iron golems. Deeds cannot be undone by dropping items, dying, or switching advancements.
+
 ## Grimoires and rituals
 
-Sneak-use a grimoire to turn its pages; use it normally to cast the selected spell. Channeled rituals break if the caster moves, takes damage, changes books, or becomes amethyst-dampened, and return half of the offered energy.
+Sneak-use a grimoire to turn its pages; use it normally to cast the selected spell. Costs, cooldowns, and channels are fixed equipment values and never inherit player rank. Channeled rituals lock their entity or block target when the channel starts, so looking elsewhere cannot silently retarget the release. They break if the caster moves, takes damage, changes books or dimensions, dies, loses the target, or becomes amethyst-dampened, and return half of the offered energy.
 
-| School | Spells |
-| --- | --- |
-| Celestial | Soul Compass, Mark of the Far Star, Tempest Sigil |
-| Deep | Dimensional Anchor, Deepbinding Sigil, Seal of Closed Ways, Kinetic Ward |
-| Blight | Crimson Transference, Threefold Hex, Veil of Unremembering |
-| Wild | Circle of Cleansing Rain, Old-Root Binding, Sanctuary of the First Grove |
-| Infernal | Ashen Threshold, Circle of Banishment, Leashed Hellfire |
-| Abyssal | Amethyst Unmaking, Severing Word, Unweaving, Invocation of the Ninth Echo |
+| Grimoire spell | Cost / cooldown / channel | Complete effect |
+| --- | --- | --- |
+| Celestial: Soul Compass | 14 / 10s / instant | Opens the authenticated locator screen. It accepts an online player or the unique custom name of one loaded mob, rejects ambiguous mob names, and enforces player locator consent. |
+| Celestial: Mark of the Far Star | 18 / 25s / 2s | Locks a permitted living target and marks it with particle-free Glowing for 30 seconds. |
+| Celestial: Tempest Sigil | 22 / 60s / 4s | Starts a localized ancient storm centred on the caster. |
+| Celestial: Heavenfall — Celestial Ruin | 100 / 60m / 10s | Locks a ground point, keeps the full area loaded, and starts an irreversible one-minute warning. A pulsing 100-block-diameter sky beam remains even after players leave; the final 120-block-radius, 2,000-peak-damage ruin wave removes blocks in bounded batches while respecting configured safe zones. |
+| Deep: Dimensional Anchor | 22 / 60s / 2s | Anchors a consent-valid targeted player against dimensional and teleport movement. |
+| Deep: Deepbinding Sigil | 16 / 20s / 1.5s | Locks a living target under severe Slowness and Weakness for 30 seconds. |
+| Deep: Seal of Closed Ways | 24 / 50s / 3s | Creates a seven-block anti-portal field for 30 seconds. Recasting replaces the caster's earlier field instead of accumulating unbounded wards. |
+| Deep: Kinetic Ward | 18 / 30s / 1s | Creates a seven-block field that resists forced movement and participates in projectile and impact counters. |
+| Blight: Crimson Transference | 18 / 25s / 1.5s | Deals six magic damage to a permitted target and heals the caster by the health actually removed. |
+| Blight: The Threefold Hex | 20 / 40s / 2s | Applies particle-free Weakness, Slowness, and Darkness to a permitted target. |
+| Blight: Veil of Unremembering | 16 / 30s / 1s | Grants a tracked 30-second concealment veil that can be specifically revealed without deleting unrelated invisibility effects. |
+| Wild: Circle of Cleansing Rain | 20 / 30s / 2.5s | Cleans harmful effects except amethyst poisoning, heals allies, clears dimensional anchors, and severs soul links inside an eight-block circle. |
+| Wild: Old-Root Binding | 16 / 20s / 1.5s | Roots a permitted target with stronger Slowness and Weakness than the Deep binding. |
+| Wild: Sanctuary of the First Grove | 24 / 50s / 3s | Creates a seven-block, 30-second sanctuary that rejects hostile power damage and hostile spell targeting. |
+| Infernal: Ashen Threshold | 20 / 40s / 2s | Creates a seven-block infernal seal used by banishment, portal, and collision counterplay. |
+| Infernal: Circle of Banishment | 24 / 50s / 3s | Instantly dismisses ephemeral summons; other permitted targets are hurled away and struck with bounded magic damage. |
+| Infernal: Leashed Hellfire | 18 / 25s / 1s | Deals six terrain-safe magic damage and ignites a permitted target for six seconds. |
+| Abyssal: Amethyst Unmaking | 26 / 60s / 4s | Locks the aimed powered Amethyst Ward and suppresses it for 45 seconds without destroying the structure. |
+| Abyssal: Severing Word | 16 / 15s / instant | Counters the nearest active hostile channel within spell range. |
+| Abyssal: Unweaving | 18 / 25s / 1s | Dispels the nearest field and/or clears non-amethyst effects and a dimensional anchor from the locked permitted target. |
+| Abyssal: Invocation of the Ninth Echo | 22 / 45s / 2.5s | Empowers the caster's next ritual, increasing potency, duration, radius, displacement, and ward suppression while modestly accelerating its channel. |
 
-Soul Compass uses a server-authenticated target selection flow and honours locator consent. Insight-ranked True Sight can pierce either mindscape's normal path/rank veil during that consented ritual, signalled by a cyan-gold third-eye glyph, but cannot bypass consent or strip concealment. Dimensional Anchor is a Deep Grimoire spell, not a randomly assigned power. Counterspell, dispel, sanctuary, anti-portal fields, kinetic wards, and temporary ward suppression provide direct counterplay.
+Insight-ranked True Sight can pierce either mindscape's normal path/rank veil during a consented Soul Compass ritual, signalled by a cyan-gold third-eye glyph, but cannot bypass consent or strip concealment. Dimensional Anchor is exclusively a Deep Grimoire spell. Counterspell, Unweaving, Sanctuary, anti-portal fields, Kinetic Ward, Amethyst Unmaking, and Celestial Ruin's safe-zone boundary provide direct counterplay.
 
 ## Crystals
 
@@ -95,19 +149,43 @@ Every crystal has a bound ability or selectable convergence. Sneak-use turns a m
 
 | Crystal | Ability |
 | --- | --- |
-| Red | Inferno |
-| Orange | Cloning / Creativity Manifestation |
-| Yellow | Size Shift |
-| Green | Life Bloom / Space-Time control |
-| Blue | Chrono Stop / Dreamwalking |
-| Indigo | Portal Rift / Middleworld gateway |
-| Violet | Soul Link |
+| Red | Inferno creates an eight-second, 12-block firestorm that repeatedly damages and ignites permitted targets without a vanilla terrain explosion. |
+| Orange | Clone Swarm creates three 80-health combat clones for 60 seconds; Creativity Manifestation builds a protected obsidian/glass/glowstone redoubt at the aimed point when terrain policy allows. |
+| Yellow | Size Shift alternates a 20-second titan form and miniature form, with appropriate strength, speed, resistance, reach, and knockback changes. This remains separate from the freely selectable innate Size Morphing power. |
+| Green | Life Bloom fully heals and cleanses living allies in a 20-block radius; Space-Time alternates six seconds of extreme personal acceleration and a six-second local entity/projectile freeze. The obsolete self-slow mode has been removed. |
+| Blue | Chrono Stop freezes entities and projectiles in the configured local radius; Dreamwalking watches through a consented player's eyes for up to two minutes while leaving a vulnerable body. |
+| Indigo | Portal Rift repeatedly strikes and repositions an aimed target through short rifts; Middleworld opens vulnerable mind travel to the muted dream dimension. |
+| Violet | Soul Link binds up to eight nearby souls for ten seconds and mirrors a bounded share of later wounds across survivors. |
 | Rainbow | Sevenfold convergence of the chromatic forces |
 | Infected Rainbow | Fractured convergence of Inferno, Chrono Stop, Portal Rift, and Soul Link |
-| Light | Light Realm mind travel |
-| Dark | Dark Realm mind travel |
+| Light | Aims at a consented player or defaults to the wielder, leaves a vulnerable body, asynchronously loads the destination, and enters the Light Realm beneath a white celestial storm. |
+| Dark | Aims at a consented player or defaults to the wielder, leaves a vulnerable body, asynchronously loads the destination, and enters the Dark Realm beneath a corrupted storm. |
 
 Convergence cooldowns are shared with their underlying forces, so swapping crystals cannot bypass a rare ability's recharge. Crystal crafting recipes are deliberately not included; they are reserved for later progression design. The resource validator prevents accidental crystal recipes from entering a release.
+
+## Shadow Sword
+
+The item whose compatibility identifier remains `powers:lycanbane` is presented everywhere as the **Shadow Sword** in bold dark grey. It is ancient Pure Darkness made solid.
+
+- A non-darkness carrier is struck with particle-free Blindness and Wither, cannot use the sword, and provokes up to four nearby Darkness Creatures through lightning-marked protection summons.
+- A darkness-tagged wielder regenerates 50-250 darkness energy each second according to rank.
+- Right-click casts the selected action. Crouch-right-click opens the complete server-validated menu, including nested Size Morph and Elemental Blast choices.
+- Every innate and underlying crystal action is available from rank 1. Existing actions retain their mechanics but receive a black/violet corrupted overlay, darker sounds, and evil residue when routed through the sword.
+- `Call the Black Guard` summons four commanded Darkness Creatures, with a 32-creature local cap. `Corrupt the Earth` converts a protected six-block disc beneath the wielder into spreading Darkness even when ordinary terrain damage is disabled; block entities, fluids, unbreakable blocks, safe zones, and living-force immunity remain protected.
+- Rank 3 unlocks **Abyssal Singularity**, a 48-block implosion that consumes projectiles, drags non-dark targets into its centre, applies Wither, and deals up to 300 boss-scaled damage.
+- Rank 7 unlocks **Annihilation Beam**, a 128-block, ten-block-wide corridor that consumes projectiles and deals up to 500 boss-scaled damage.
+- Rank 10 unlocks **Nightfall Dominion**, a toggle granting Strength X, Resistance IV, Regeneration V, Fire Resistance, and Speed IV while a 24-block pressure aura deals 24 damage and Wither IV every second to non-dark living targets.
+- At darkness level 10, every action cast through the sword ignores existing cooldowns and starts no new cooldown. Energy, target validation, amethyst, sanctuary, safe-zone, and bounded-entity protections still apply.
+
+## Runestones
+
+Runestones are reusable energy focuses, stack to 16, show a small actionbar result, and cannot work through Exhaustion. Their authored tier restores between 40 and 600 energy; recharge ranges from three to fifteen seconds. Inert runestones have a natural recipe, and dark tiny/small/medium/large runestones form a craftable upgrade chain restoring 60/125/250/400 energy. Additional inscribed and bound variants restore up to 600. Dungeon, abandoned-mineshaft, and ancient-city chests can supply the natural tiers without replacing vanilla loot.
+
+## Player-like entities
+
+`Darkness Creature` is a naturally spawning Dark Realm monster with a completely black player model, 100 health, 12 armour, 16 melee damage, and player-like movement. It attacks every living entity without the `darkness` tag and alternates bounded, terrain-safe lightning and custom darkness fireballs at range. Sword guardians use the same creature and disappear naturally rather than accumulating permanent server entities.
+
+`Power Test Actor` is a player-model test opponent with the same boss-capable base attributes. It retaliates when hit and fights hostile mobs, making powers, spells, possession, projectile counters, and particle presentation testable in a single-player world. Spawn eggs for both entities are available in creative/operator testing.
 
 ## Counterplay and server safety
 
@@ -117,15 +195,15 @@ Convergence cooldowns are shared with their underlying forces, so swapping cryst
 - Terrain and block-entity damage are disabled by default.
 - Teleports validate world borders, loaded-distance limits, collisions, floors, wards, anchors, and destination dimensions.
 - Temporary entities are marked ephemeral and excluded from saves.
-- Time freezes use shared ownership, bounded radii, and safe restoration when effects overlap.
+- Global Time Freeze uses shared `/tick freeze` ownership and safe restoration; local crystal freezes retain bounded radii and overlap-safe cleanup.
 - Particles use a server-wide per-tick budget; amethyst scanning and state network syncs are cached.
 - Custom food and mob drops are injected additively instead of replacing vanilla loot tables.
 
 ## Magic collisions and presentation
 
-All 27 innate powers, 20 grimoire spells, 13 crystal actions, three amethyst suppressors, and two living realm forces participate in one canonical 65-action collision system. Every one of the 2,145 unordered same-or-cross-action pairs has a deterministic outcome, potency/duration/range adjustment, accessible shape cue, and semantic sound cue. Named high-impact combinations add mechanics such as steam pressure, eclipses that reveal concealment, realm-matter annihilation, projectile-consuming star rifts, summon banishment, soul-link purification, finite ward fracture, grounded storms, hostile pressure waves, and concordant healing.
+The 28 assignable powers resolve to 27 distinct innate action identities because player Size Morphing and the Yellow Crystal deliberately share the canonical `size_shift` force. Those 27 innate actions, 21 grimoire spells, 13 crystal actions, five Shadow Sword artifact rites, three amethyst suppressors, and two living realm forces form a 71-action collision system. Every one of the 2,556 unordered same-or-cross-action pairs has a deterministic outcome, potency/duration/range adjustment, accessible shape cue, and semantic sound cue. Named high-impact combinations add mechanics such as steam pressure, eclipses that reveal concealment, realm-matter annihilation, projectile-consuming star rifts, summon banishment, soul-link purification, finite ward fracture, grounded storms, hostile pressure waves, and concordant healing.
 
-The complete catalogue is in [`docs/interactions/action-catalogue.md`](docs/interactions/action-catalogue.md), and every possible pair is listed in [`docs/interactions/interaction-matrix.csv`](docs/interactions/interaction-matrix.csv). Every successful innate, crystal, and grimoire cast now receives a signature-driven anticipation, release, impact, and aftermath ceremony in addition to its bespoke gameplay effects. Flame fractures, frost shards, storms fork, time spirals, space and soul tether, life roots, and darkness eclipses; the server chooses the matching authored sound and both signature colours. Ritual glyphs form on the ground beneath the caster, while vertical glyph, eclipse, and lightning sigils face each observer locally instead of becoming edge-on. Ceremony radius, density, motion, volume, and pitch intensify at rank depths 4 and 8, with another bounded step for Ancient Mastery. Client effects use eight authored particle sprites, 13 original mono Vorbis sounds, distance culling, reduced-motion geometry and velocity clamps, and hard client/server particle budgets.
+The complete catalogue is in [`docs/interactions/action-catalogue.md`](docs/interactions/action-catalogue.md), and every possible pair is listed in [`docs/interactions/interaction-matrix.csv`](docs/interactions/interaction-matrix.csv). Every successful innate, crystal, grimoire, and Shadow Sword artifact cast now receives a signature-driven anticipation, release, impact, and aftermath ceremony in addition to its bespoke gameplay effects. Flame fractures, frost shards, storms fork, time spirals, space and soul tether, life roots, and darkness eclipses; the server chooses the matching authored sound and both signature colours. Ritual glyphs form on the ground beneath the caster, while vertical glyph, eclipse, and lightning sigils face each observer locally instead of becoming edge-on. Ceremony radius, density, motion, volume, and pitch intensify at rank depths 4 and 8, with another bounded step for Ancient Mastery. Client effects use eight authored particle sprites, 13 original mono Vorbis sounds, distance culling, reduced-motion geometry and velocity clamps, and hard client/server particle budgets.
 
 ## Commands
 
@@ -165,7 +243,7 @@ Important defaults:
 | `persistCooldowns` | `true` | Saves cooldown deadlines across reconnects |
 | `wardRadius` | `20` | Powered Amethyst Ward range |
 | `maxParticlesPerTick` | `512` | Server-wide effect budget |
-| `teleportMaxChunkDistance` | `8` | Maximum unloaded travel distance |
+| `teleportMaxChunkDistance` | `8` | Maximum radius, in chunks, for the spectator marking phase around its target; coordinate-menu travel itself can asynchronously load any in-border destination |
 | `spaceTimeRadius` | `32` | Green Crystal freeze radius |
 | `chronoStopRadius` | `64` | Indigo Crystal chrono-stop radius |
 | `rankRespecExperienceLevels` | `30` | Rank-maze respec price |

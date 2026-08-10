@@ -26,6 +26,11 @@ public final class LivingForceRules {
 		return Objects.requireNonNull(first, "first") != Objects.requireNonNull(second, "second");
 	}
 
+	/** Caps typed living-entity inspection for one catastrophic clash. */
+	public static int clashEntityInspectionLimit() {
+		return 256;
+	}
+
 	/** Integer sphere membership used by the bounded clash cursor. */
 	public static boolean insideSphere(int x, int y, int z, int radius) {
 		if (radius < 0) return false;

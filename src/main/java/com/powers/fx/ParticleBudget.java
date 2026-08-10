@@ -2,6 +2,7 @@ package com.powers.fx;
 
 /** Small per-server limiter that resets on a new game tick. */
 public final class ParticleBudget {
+	private static final double FIRST_PERSON_CLARITY_RADIUS_SQUARED = 16.0;
 	private final int limit;
 	private long tick = Long.MIN_VALUE;
 	private int used;
@@ -19,6 +20,13 @@ public final class ParticleBudget {
 		int granted = Math.min(requested, Math.max(0, limit - used));
 		used += granted;
 		return granted;
+	}
+
+	/** Keeps remote silhouettes intact while thinning dense scatter around a viewer's camera. */
+	public static int viewerCount(int requested, double distanceSquared) {
+		if (requested <= 0) return 0;
+		if (distanceSquared > FIRST_PERSON_CLARITY_RADIUS_SQUARED) return requested;
+		return Math.max(1, (int) Math.ceil(requested * 0.25));
 	}
 
 	int limit() {

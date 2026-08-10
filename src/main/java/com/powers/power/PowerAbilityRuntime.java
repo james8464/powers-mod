@@ -9,7 +9,6 @@ import com.powers.power.abilities.FireballAbility;
 import com.powers.power.abilities.GravityDisplacementAbility;
 import com.powers.power.abilities.GroundSlamAbility;
 import com.powers.power.abilities.LightningStrikeAbility;
-import com.powers.power.abilities.SlowWorldAbility;
 import com.powers.power.abilities.SpeedBurstAbility;
 import com.powers.power.abilities.StarfallAbility;
 import com.powers.power.abilities.SuperSpeedAbility;
@@ -25,6 +24,7 @@ import com.powers.power.crystals.SizeShiftAbility;
 import com.powers.power.crystals.SoulLinkAbility;
 import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.state.EntityFreezeController;
+import com.powers.power.state.GlobalTimeStopManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -37,6 +37,7 @@ public final class PowerAbilityRuntime {
 
 	/** Clears state that cannot follow a player entity across a respawn replacement. */
 	public static void afterRespawn(MinecraftServer server, UUID oldOwner) {
+		TimeFreezeToggleAbility.clear(server, oldOwner);
 		GravityDisplacementAbility.clear(server, oldOwner);
 		BreezyBashAbility.clear(server, oldOwner);
 		FireballAbility.clear(server, oldOwner);
@@ -53,7 +54,7 @@ public final class PowerAbilityRuntime {
 	public static void onDisconnect(MinecraftServer server, ServerPlayer player) {
 		UUID owner = player.getUUID();
 		TeleportAbility.clearMarking(player);
-		TimeFreezeToggleAbility.clear(owner);
+		TimeFreezeToggleAbility.clear(server, owner);
 		ForcefieldAbility.clear(owner);
 		GravityDisplacementAbility.clear(server, owner);
 		BreezyBashAbility.clear(server, owner);
@@ -69,7 +70,6 @@ public final class PowerAbilityRuntime {
 		InfernoAbility.clear(owner);
 		SoulLinkAbility.clear(owner);
 		SizeShiftAbility.clear(owner);
-		SlowWorldAbility.clear(owner);
 		SpeedBurstAbility.clear(owner);
 		EnergyBeamAbility.clear(owner);
 		VoidBeamAbility.clear(owner);
@@ -80,7 +80,7 @@ public final class PowerAbilityRuntime {
 	/** Releases all server-owned ability state before world references are discarded. */
 	public static void onServerStopped(MinecraftServer server) {
 		TeleportAbility.clearAllMarking();
-		TimeFreezeToggleAbility.clearAll();
+		TimeFreezeToggleAbility.clearAll(server);
 		ForcefieldAbility.clearAll();
 		GravityDisplacementAbility.clearAll(server);
 		BreezyBashAbility.clearAll(server);
@@ -100,7 +100,6 @@ public final class PowerAbilityRuntime {
 		InfernoAbility.clearAll();
 		SoulLinkAbility.clearAll();
 		SizeShiftAbility.clearAll();
-		SlowWorldAbility.clearAll();
 		SpeedBurstAbility.clearAll();
 		EnergyBeamAbility.clearAll();
 		VoidBeamAbility.clearAll();
@@ -108,7 +107,7 @@ public final class PowerAbilityRuntime {
 
 	/** Advances every ability with persistent server-owned state exactly once per tick. */
 	public static void tick(MinecraftServer server) {
-		SlowWorldAbility.tickAll(server);
+		GlobalTimeStopManager.tick(server);
 		VesselPossessionAbility.tickAll(server);
 		AstralProjectionAbility.tickAll(server);
 		EnergyDrainAbility.tickAll(server);

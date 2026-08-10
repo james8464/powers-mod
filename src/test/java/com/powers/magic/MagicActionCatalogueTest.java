@@ -14,7 +14,8 @@ class MagicActionCatalogueTest {
 	private static final Map<MagicOrigin, Integer> EXPECTED_ORIGIN_COUNTS = Map.of(
 			MagicOrigin.INNATE, 27,
 			MagicOrigin.CRYSTAL, 13,
-			MagicOrigin.SPELL, 20,
+			MagicOrigin.ARTIFACT, 5,
+			MagicOrigin.SPELL, 21,
 			MagicOrigin.AMETHYST, 3,
 			MagicOrigin.REALM, 2);
 
@@ -25,8 +26,8 @@ class MagicActionCatalogueTest {
 		catalogue.definitions().forEach(definition ->
 				actualCounts.merge(definition.origin(), 1, Integer::sum));
 
-		assertEquals(65, catalogue.definitions().size());
-		assertEquals(65, catalogue.definitions().stream()
+		assertEquals(71, catalogue.definitions().size());
+		assertEquals(71, catalogue.definitions().stream()
 				.map(MagicActionDefinition::id).distinct().count());
 		assertEquals(EXPECTED_ORIGIN_COUNTS, actualCounts);
 		assertTrue(catalogue.definitions().stream().allMatch(MagicActionDefinition::isComplete));
@@ -40,22 +41,25 @@ class MagicActionCatalogueTest {
 				.collect(Collectors.toUnmodifiableSet());
 
 		assertTrue(actual.containsAll(Set.of(
-				"slow_world", "time_shift", "shadow_step", "flight", "elemental_blast",
+				"time_shift", "shadow_step", "flight", "elemental_blast",
 				"starfall", "void_beam", "fireball", "frost_nova", "lightning_strike",
-				"ground_slam", "speed_burst", "telekinesis", "energy_beam", "super_speed",
+				"ground_slam", "thunderclap", "speed_burst", "telekinesis", "energy_beam", "super_speed",
 				"breezy_bash", "cozy_campfire", "invisibility", "time_freeze", "forcefield",
 				"gravity_displacement", "vessel_possession", "astral_projection", "energy_drain",
 				"ice_manipulation", "plant_healing_acceleration", "double_health",
 				"inferno", "clone_swarm", "creativity_manifestation", "size_shift", "life_bloom",
 				"space_time", "chrono_stop", "dreamwalking", "portal_rift", "middleworld",
 				"soul_link", "light_crystal", "dark_crystal",
-				"soul_compass", "tracking_mark", "weather_sigil", "dimensional_anchor",
+				"summon_darkness", "spread_darkness", "abyssal_singularity",
+				"annihilation_beam", "nightfall_dominion",
+				"soul_compass", "tracking_mark", "weather_sigil", "celestial_ruin", "dimensional_anchor",
 				"binding_sigil", "anti_portal_field", "kinetic_ward", "vitality_transfer",
 				"hex", "concealment_veil", "purification_circle", "root_binding",
 				"sanctuary_growth", "infernal_seal", "banishment_circle", "controlled_hellfire",
 				"ward_breaking_ritual", "counterspell", "dispel", "ritual_amplification",
 				"amethyst_item", "amethyst_block", "amethyst_ward",
 				"darkness_block", "pure_light_block")));
+		assertTrue(catalogue.definition(new MagicActionId("slow_world")) == null);
 	}
 
 	@Test

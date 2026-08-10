@@ -2,7 +2,7 @@
 	"parent": "powers:darkness/level_05",
 	"display": {
 		"icon": {
-			"id": "minecraft:blaze_rod"
+			"id": "minecraft:soul_lantern"
 		},
 		"title": {
 			"translate": "advancement.powers.darkness.06_fortress.title"
@@ -16,41 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"blaze": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:blaze_rod"
-						]
-					}
-				]
-			}
-		},
-		"tear": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:ghast_tear"
-						]
-					}
-				]
-			}
-		},
-		"lava": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:lava_bucket"
-						]
-					}
-				]
-			}
+		"deed": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

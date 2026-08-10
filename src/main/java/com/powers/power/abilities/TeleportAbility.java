@@ -10,9 +10,11 @@ import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.progression.PowerScalingService;
 import com.powers.power.Ability;
+import com.powers.power.AsyncAbilityTransaction;
 import com.powers.protection.PowerProtection;
 import com.powers.power.travel.DestinationFailure;
 import com.powers.power.travel.SafeDestinationResolver;
+import com.powers.power.travel.TravelChunkLoader;
 import com.powers.power.travel.TravelKind;
 import com.powers.util.PowerMessages;
 import com.powers.util.LoadedChunks;
@@ -199,7 +201,8 @@ public class TeleportAbility extends Ability {
 			if (server.getTickCount() >= state.deadline()) {
 				// timeout hit - pull the player back to the dimension and spot where they started
 				restore(state.player(), state);
-				state.player().sendSystemMessage(PowerMessages.random("ability.powers.marking_expired", 3));
+				PowerMessages.overlay(state.player(),
+						PowerMessages.random("ability.powers.marking_expired", 3));
 				it.remove();
 			}
 		}
@@ -217,12 +220,36 @@ public class TeleportAbility extends Ability {
 		}
 		ServerLevel originLevel = (ServerLevel) player.level();
 		Vec3 target = new Vec3(x + 0.5, y, z + 0.5);
-		SafeDestinationResolver.Result destination = SafeDestinationResolver.validate(
+		SafeDestinationResolver.Result destination = SafeDestinationResolver.validatePreload(
 				player, targetLevel, target, TravelKind.POWER);
 		if (!destination.allowed()) {
 			reportTravelFailure(caster, player, target, destination.failure());
 			return false;
 		}
+		AsyncAbilityTransaction transaction = new AsyncAbilityTransaction(caster, data, this);
+		return TravelChunkLoader.request(targetLevel, BlockPos.containing(target),
+				() -> beginTeleport(caster, player, dimension, originLevel, targetLevel, target, transaction),
+				() -> {
+					transaction.fail();
+					reportTravelFailure(caster, player, target, DestinationFailure.UNLOADED_CHUNK);
+				});
+	}
+
+	private void beginTeleport(ServerPlayer caster, ServerPlayer player, ResourceKey<Level> dimension,
+			ServerLevel originLevel, ServerLevel targetLevel, Vec3 target,
+			AsyncAbilityTransaction transaction) {
+		if (!player.isAlive() || player.level() != originLevel) {
+			transaction.fail();
+			return;
+		}
+		SafeDestinationResolver.Result destination = SafeDestinationResolver.validate(
+				player, targetLevel, target, TravelKind.POWER);
+		if (!destination.allowed()) {
+			transaction.fail();
+			reportTravelFailure(caster, player, target, destination.failure());
+			return;
+		}
+		MinecraftServer server = originLevel.getServer();
 		Vec3 origin = player.position();
 		double companionRadius = scaledRange(caster, COMPANION_RADIUS);
 		int stormTicks = scaledDuration(caster, STORM_TICKS);
@@ -231,8 +258,8 @@ public class TeleportAbility extends Ability {
 
 		List<Companion> companions = new ArrayList<>();
 		// bring along everything alive within 1.3 blocks, remembering each one's offset from you
-		for (Entity entity : originLevel.getEntities(
-				EntityTypeTest.forClass(Entity.class), player.getBoundingBox().inflate(companionRadius),
+		for (Entity entity : com.powers.util.BoundedEntityCandidates.collect(originLevel,
+				EntityTypeTest.forClass(Entity.class), player.getBoundingBox().inflate(companionRadius), 64,
 				e -> e.isAlive() && e != player)) {
 			if (entity instanceof ServerPlayer companionPlayer
 					&& !PowerProtection.mayBringCompanion(player, companionPlayer)) continue;
@@ -249,15 +276,20 @@ public class TeleportAbility extends Ability {
 		PowersMod.startStorm(targetLevel, target, null, stormTicks, 0);
 		PowersMod.scheduleDelayed(server, teleportDelay, () -> {
 			// the player may have died during the storm - never teleport a corpse
-			if (!player.isAlive()) return;
+			if (!player.isAlive()) {
+				transaction.fail();
+				return;
+			}
 			SafeDestinationResolver.Result revalidated = SafeDestinationResolver.validate(
 					player, targetLevel, target, TravelKind.POWER);
 			if (!revalidated.allowed()) {
+				transaction.fail();
 				reportTravelFailure(caster, player, target, revalidated.failure());
 				return;
 			}
 			player.teleport(new TeleportTransition(targetLevel, target, Vec3.ZERO,
 					player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+			transaction.succeed();
 			for (Companion companion : companions) {
 				Entity entity = companion.entity();
 				// companions that died or despawned during the storm stay behind
@@ -274,11 +306,10 @@ public class TeleportAbility extends Ability {
 				// skip companions whose whole collision box got blocked - they stay where they are
 				if (!targetLevel.getWorldBorder().isWithinBounds(landingBox)
 						|| !targetLevel.noBlockCollision(entity, landingBox)) continue;
-			entity.teleport(new TeleportTransition(targetLevel, dest, Vec3.ZERO,
-					entity.getYRot(), entity.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+				entity.teleport(new TeleportTransition(targetLevel, dest, Vec3.ZERO,
+						entity.getYRot(), entity.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 			}
 		});
-		return true;
 	}
 
 	private static void reportTravelFailure(ServerPlayer caster, ServerPlayer subject,

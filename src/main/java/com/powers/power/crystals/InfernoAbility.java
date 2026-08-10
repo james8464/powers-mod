@@ -7,6 +7,7 @@ import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.protection.PowerProtection;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -42,7 +43,7 @@ public class InfernoAbility extends Ability {
 	public InfernoAbility() {
 		super(PowersMod.id("inferno"),
 				Component.translatable("ability.powers.inferno"),
-				COOLDOWN_TICKS, false);
+				COOLDOWN_TICKS, false, false);
 	}
 
 	@Override
@@ -87,8 +88,9 @@ public class InfernoAbility extends Ability {
 					PowerFx.burst(level, impact, ParticleTypes.LARGE_SMOKE, 4, 0.4, 0.04);
 				}
 				// set everything within 12 blocks alight for 8 seconds
-				for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class,
+				for (LivingEntity target : BoundedEntityCandidates.living(level,
 						AABB.ofSize(origin, field.radius() * 2, 8, field.radius() * 2),
+						192,
 						e -> e.isAlive() && e != player && e.distanceToSqr(player) <= field.radius() * field.radius()
 								&& !AmethystDampening.isDampened(e)
 								&& PowerProtection.mayHarm(player, e))) {

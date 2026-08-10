@@ -16,31 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"warden": {
-			"trigger": "minecraft:player_killed_entity",
-			"conditions": {
-				"entity": [
-					{
-						"condition": "minecraft:entity_properties",
-						"entity": "this",
-						"predicate": {
-							"minecraft:entity_type": "minecraft:warden"
-						}
-					}
-				]
-			}
-		},
-		"star": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:nether_star"
-						]
-					}
-				]
-			}
+		"mastery": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

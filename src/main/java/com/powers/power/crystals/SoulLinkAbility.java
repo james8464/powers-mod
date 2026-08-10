@@ -8,6 +8,7 @@ import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import com.powers.power.SoulLinkMath;
 import com.powers.protection.PowerProtection;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -49,7 +50,7 @@ public class SoulLinkAbility extends Ability {
 	public SoulLinkAbility() {
 		super(PowersMod.id("soul_link"),
 				Component.translatable("ability.powers.soul_link"),
-				COOLDOWN_TICKS, false);
+				COOLDOWN_TICKS, false, false);
 	}
 
 	@Override
@@ -62,8 +63,9 @@ public class SoulLinkAbility extends Ability {
 		double radius = scaledRange(player, RADIUS);
 		int maxLinks = Math.min(12, MAX_LINKS + (int) Math.floor((scaling(player).potencyMultiplier() - 1.0) * 10));
 		List<Link> links = new ArrayList<>();
-		for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class,
+		for (LivingEntity target : BoundedEntityCandidates.living(level,
 				AABB.ofSize(player.position().add(0, 1, 0), radius * 2, radius * 2, radius * 2),
+				128,
 				 e -> e.isAlive() && e != player && !player.isAlliedTo(e)
 						 && e.distanceToSqr(player) <= radius * radius
 						 && !AmethystDampening.isDampened(e)

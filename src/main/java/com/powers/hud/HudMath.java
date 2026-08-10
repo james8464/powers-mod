@@ -13,6 +13,13 @@ public final class HudMath {
 		return (int) (clamped * segments / capacity);
 	}
 
+	/** Maps energy to the ten full/half symbols used by vanilla resource bars. */
+	public static int energyHalfUnits(int energy, int capacity) {
+		if (capacity <= 0 || energy <= 0) return 0;
+		long clamped = Math.min(capacity, energy);
+		return (int) Math.min(20, (clamped * 20L + capacity - 1L) / capacity);
+	}
+
 	public static HudEnergyMode mode(int energy, boolean dampened, boolean darkness) {
 		return mode(energy, dampened, darkness, false);
 	}

@@ -16,7 +16,7 @@ class MagicDocumentationTest {
 		assertEquals(MagicDocumentation.renderCatalogue(), read("docs/interactions/action-catalogue.md"));
 		assertEquals(MagicDocumentation.renderRules(), read("docs/interactions/interaction-rules.md"));
 		String matrix = read("docs/interactions/interaction-matrix.csv");
-		assertEquals(2_146, matrix.lines().count());
+		assertEquals(2_557, matrix.lines().count());
 		assertEquals(MagicDocumentation.renderMatrix(), matrix);
 	}
 

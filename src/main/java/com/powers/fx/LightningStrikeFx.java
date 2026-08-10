@@ -36,7 +36,7 @@ public final class LightningStrikeFx {
 						0xFF000000 | DEEP_CYAN), 18);
 		PowerFx.spiral(level, point.add(0.0, 0.15, 0.0),
 				radius * 0.24, 4.0, GOLD, ancientMastery ? 26 : 18, 0.0);
-		PowerFx.burst(level, point.add(0.0, 0.35, 0.0), PowersParticles.GLYPH,
+		PowerFx.clarityBurst(level, point.add(0.0, 0.35, 0.0), PowersParticles.GLYPH,
 				ancientMastery ? 16 : 10, radius * 0.24, 0.04);
 		PowerFx.sound(level, point, PowersSounds.RUNE_HUM, 0.72F, 1.24F);
 		PowerFx.sound(level, point, SoundEvents.RESPAWN_ANCHOR_CHARGE, 0.60F, 1.46F);
@@ -55,7 +55,7 @@ public final class LightningStrikeFx {
 		PowerFx.beam(level, sky, point.add(0.0, 0.22, 0.0),
 				afterimage ? PowersParticles.RIBBON : ParticleTypes.ELECTRIC_SPARK,
 				12 + age);
-		PowerFx.burst(level, point.add(0.0, 0.5 + progress * 1.2, 0.0),
+		PowerFx.clarityBurst(level, point.add(0.0, 0.5 + progress * 1.2, 0.0),
 				afterimage ? PowersParticles.RIBBON : PowersParticles.SPARK,
 				3 + (int) (progress * 4), radius * 0.17, 0.05);
 		if (age == 4) PowerFx.sound(level, point, PowersSounds.RUNE_HUM, 0.48F, 1.48F);
@@ -79,7 +79,7 @@ public final class LightningStrikeFx {
 		PowerFx.beam(level, sky, point.add(0.0, 0.2, 0.0),
 				ParticleTypes.ELECTRIC_SPARK,
 				beat == LightningStrikeRules.Beat.CROWN ? 30 : 18);
-		PowerFx.burst(level, point.add(0.0, 0.3, 0.0), PowersParticles.GLYPH,
+		PowerFx.clarityBurst(level, point.add(0.0, 0.3, 0.0), PowersParticles.GLYPH,
 				beat == LightningStrikeRules.Beat.CROWN ? 10 : 5,
 				radius * 0.25, 0.025);
 		if (ticksUntil == 1) {
@@ -113,16 +113,16 @@ public final class LightningStrikeFx {
 				secondary, 28 + extra, -level.getGameTime() * 0.31);
 		PowerFx.ring(level, point.add(0.0, 0.25, 0.0), radius * 0.36,
 				GOLD, 20 + extra, level.getGameTime() * 0.44);
-		PowerFx.burst(level, point.add(0.0, 0.75, 0.0), ParticleTypes.ELECTRIC_SPARK,
+		PowerFx.clarityBurst(level, point.add(0.0, 0.75, 0.0), ParticleTypes.ELECTRIC_SPARK,
 				30 + extra + Math.min(20, affected * 3), radius * 0.42, 0.28);
-		PowerFx.burst(level, point.add(0.0, 0.55, 0.0), PowersParticles.FRACTURE,
+		PowerFx.clarityBurst(level, point.add(0.0, 0.55, 0.0), PowersParticles.FRACTURE,
 				18 + extra + Math.min(12, affected * 2), radius * 0.34, 0.15);
 		if (medium == LightningStrikeRules.Counterplay.WATER) {
-			PowerFx.burst(level, point.add(0.0, 0.35, 0.0), ParticleTypes.SPLASH,
+			PowerFx.clarityBurst(level, point.add(0.0, 0.35, 0.0), ParticleTypes.SPLASH,
 					28, radius * 0.45, 0.18);
 		}
 		if (medium == LightningStrikeRules.Counterplay.PURE_LIGHT) {
-			PowerFx.burst(level, point.add(0.0, 0.8, 0.0), ParticleTypes.END_ROD,
+			PowerFx.clarityBurst(level, point.add(0.0, 0.8, 0.0), ParticleTypes.END_ROD,
 					28, radius * 0.38, 0.16);
 			PowerFx.sound(level, point, PowersSounds.LIGHT_CHORUS, 1.1F, 1.42F);
 		}
@@ -144,7 +144,7 @@ public final class LightningStrikeFx {
 				PowersParticles.RIBBON, soulFork ? 18 : Math.max(10, 17 - link));
 		PowerFx.rune(level, to, soulFork ? 0.78 : Math.max(0.46, 0.72 - link * 0.07),
 				color, soulFork ? 18 : 14, link * Math.PI / 4.0);
-		PowerFx.burst(level, to, soulFork ? PowersParticles.MOTE : ParticleTypes.ELECTRIC_SPARK,
+		PowerFx.clarityBurst(level, to, soulFork ? PowersParticles.MOTE : ParticleTypes.ELECTRIC_SPARK,
 				soulFork ? 16 : 12, 0.42, 0.12);
 		PowerFx.sound(level, to, soulFork ? PowersSounds.SOUL_TETHER
 				: SoundEvents.TRIDENT_THUNDER.value(), 0.58F,
@@ -170,11 +170,11 @@ public final class LightningStrikeFx {
 				level.getGameTime() * 0.19);
 		PowerFx.ring(level, point.add(0.0, 0.12, 0.0), 0.72,
 				WHITE, 18, -level.getGameTime() * 0.27);
-		PowerFx.burst(level, point,
+		PowerFx.clarityBurst(level, point,
 				counterplay == LightningStrikeRules.Counterplay.DARKNESS
 						? PowersParticles.ECLIPSE : PowersParticles.FRACTURE,
 				18, 0.58, 0.10);
-		PowerFx.burst(level, point, ParticleTypes.ELECTRIC_SPARK, 12, 0.48, 0.09);
+		PowerFx.clarityBurst(level, point, ParticleTypes.ELECTRIC_SPARK, 12, 0.48, 0.09);
 		PowerFx.sound(level, point, switch (counterplay) {
 			case AMETHYST -> PowersSounds.AMETHYST_FRACTURE;
 			case DARKNESS -> PowersSounds.DARK_WHISPER;
@@ -202,7 +202,7 @@ public final class LightningStrikeFx {
 				PowersParticles.RIBBON, 8);
 		PowerFx.rune(level, projectile, 0.42, CYAN, 12,
 				index * Math.PI / 5.0);
-		PowerFx.burst(level, projectile, ParticleTypes.ELECTRIC_SPARK,
+		PowerFx.clarityBurst(level, projectile, ParticleTypes.ELECTRIC_SPARK,
 				8, 0.22, 0.08);
 		if (index == 0) PowerFx.sound(level, projectile,
 				PowersSounds.WARD_IMPACT, 0.52F, 1.62F);
@@ -213,8 +213,8 @@ public final class LightningStrikeFx {
 		PowerFx.rune(level, point, 0.94, CYAN, 22, Math.PI / 4.0);
 		PowerFx.ring(level, point.add(0.0, 0.14, 0.0), 0.56,
 				GOLD, 16, -Math.PI / 4.0);
-		PowerFx.burst(level, point, PowersParticles.GLYPH, 14, 0.48, 0.06);
-		PowerFx.burst(level, point, ParticleTypes.END_ROD, 10, 0.38, 0.08);
+		PowerFx.clarityBurst(level, point, PowersParticles.GLYPH, 14, 0.48, 0.06);
+		PowerFx.clarityBurst(level, point, ParticleTypes.END_ROD, 10, 0.38, 0.08);
 		PowerFx.sound(level, point, SoundEvents.AMETHYST_BLOCK_CHIME, 0.84F, 1.78F);
 	}
 
@@ -228,7 +228,7 @@ public final class LightningStrikeFx {
 			PowerFx.rune(level, point, 0.52, STORM_BLUE, 12, -angle);
 			PowerFx.spiral(level, point, 0.28, 1.8, CYAN, 10, angle);
 		}
-		PowerFx.burst(level, center, PowersParticles.RIBBON,
+		PowerFx.clarityBurst(level, center, PowersParticles.RIBBON,
 				14 + Math.min(12, memoriesCleared * 2), 1.2, 0.07);
 		PowerFx.sound(level, center, PowersSounds.RIFT_CLOSE, 0.58F, 1.34F);
 	}
@@ -243,7 +243,7 @@ public final class LightningStrikeFx {
 		PowerFx.ring(level, center.add(0.0, 0.12, 0.0),
 				Math.min(1.9, radius * 0.52), DEEP_CYAN,
 				completed ? 28 : 18, -Math.PI);
-		PowerFx.burst(level, center.add(0.0, 0.45, 0.0),
+		PowerFx.clarityBurst(level, center.add(0.0, 0.45, 0.0),
 				amethyst ? ParticleTypes.ELECTRIC_SPARK : PowersParticles.FRACTURE,
 				completed ? 28 : 18, Math.min(1.5, radius * 0.35), 0.11);
 		PowerFx.sound(level, center, amethyst ? PowersSounds.AMETHYST_FRACTURE

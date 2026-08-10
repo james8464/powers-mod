@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.GroundSlamFx;
 import com.powers.player.PlayerPowers;
@@ -11,12 +12,12 @@ import com.powers.progression.ScaledMagicValues;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.PowerMessages;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.AABB;
@@ -238,8 +239,8 @@ public final class GroundSlamAbility extends Ability {
 	private static void applyRankMantles(ServerLevel level, ServerPlayer owner,
 			FaultboundVerdict rite) {
 		if (rite.reflectiveWard) {
-			owner.addEffect(new MobEffectInstance(MobEffects.ABSORPTION,
-					rite.mantleDuration, 0, true, false, true));
+			owner.addEffect(PowerStatusEffects.hidden(MobEffects.ABSORPTION,
+					rite.mantleDuration, 0, true, true));
 		}
 		slipHostileMemories(level, owner, rite);
 		GroundSlamFx.mantle(level, owner.position(), rite.reflectiveWard, rite.afterimage);
@@ -253,7 +254,7 @@ public final class GroundSlamAbility extends Ability {
 		double radius = Math.min(12.0, rite.baseRadius * 1.6);
 		AABB bounds = AABB.ofSize(owner.position(), radius * 2.0,
 				radius * 1.5, radius * 2.0);
-		List<Mob> mobs = level.getEntitiesOfClass(Mob.class, bounds,
+		List<Mob> mobs = BoundedEntityCandidates.ofClass(level, Mob.class, bounds, 64,
 				mob -> mob.isAlive() && mob.getTarget() == owner && mob.hasLineOfSight(owner)
 						&& !EntityFreezeController.isFrozen(mob)
 						&& !PowerProtection.isSafeZone(level, mob.position())

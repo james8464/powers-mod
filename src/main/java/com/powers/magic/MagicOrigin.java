@@ -4,6 +4,7 @@ package com.powers.magic;
 public enum MagicOrigin {
 	INNATE,
 	CRYSTAL,
+	ARTIFACT,
 	SPELL,
 	AMETHYST,
 	REALM

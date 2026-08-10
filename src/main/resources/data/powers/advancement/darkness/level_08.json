@@ -2,7 +2,7 @@
 	"parent": "powers:darkness/level_07",
 	"display": {
 		"icon": {
-			"id": "minecraft:ender_eye"
+			"id": "minecraft:crying_obsidian"
 		},
 		"title": {
 			"translate": "advancement.powers.darkness.08_end_warding.title"
@@ -16,41 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"pearl": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:ender_pearl"
-						]
-					}
-				]
-			}
-		},
-		"eye": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:ender_eye"
-						]
-					}
-				]
-			}
-		},
-		"crying": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:crying_obsidian"
-						]
-					}
-				]
-			}
+		"deed": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

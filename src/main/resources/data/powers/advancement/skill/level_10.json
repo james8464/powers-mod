@@ -2,7 +2,7 @@
 	"parent": "powers:skill/level_09",
 	"display": {
 		"icon": {
-			"id": "powers:imported_artifact_soulmatrix"
+			"id": "minecraft:dragon_head"
 		},
 		"title": {
 			"translate": "advancement.powers.skill.10_capstone.title"
@@ -16,29 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"matrix": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"powers:imported_artifact_soulmatrix"
-						]
-					}
-				]
-			}
-		},
-		"crystal": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:end_crystal"
-						]
-					}
-				]
-			}
+		"mastery": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

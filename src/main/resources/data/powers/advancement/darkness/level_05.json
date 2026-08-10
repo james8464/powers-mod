@@ -2,7 +2,7 @@
 	"parent": "powers:darkness/level_04",
 	"display": {
 		"icon": {
-			"id": "minecraft:magma_cream"
+			"id": "minecraft:villager_spawn_egg"
 		},
 		"title": {
 			"translate": "advancement.powers.darkness.05_dark_barters.title"
@@ -10,47 +10,14 @@
 		"description": {
 			"translate": "advancement.powers.darkness.05_dark_barters.description"
 		},
-		"frame": "goal",
+		"frame": "task",
 		"show_toast": true,
 		"announce_to_chat": false,
 		"hidden": false
 	},
 	"criteria": {
-		"ink": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:ink_sac"
-						]
-					}
-				]
-			}
-		},
-		"magma": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:magma_cream"
-						]
-					}
-				]
-			}
-		},
-		"charge": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:fire_charge"
-						]
-					}
-				]
-			}
+		"deed": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

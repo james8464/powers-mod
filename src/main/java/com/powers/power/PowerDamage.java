@@ -3,11 +3,11 @@ package com.powers.power;
 import com.powers.PowersMod;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 /**
  * The damage every offensive ability deals, and the test that recognises it
@@ -33,7 +33,7 @@ public final class PowerDamage {
 	 * attached as both the direct and the causing entity so kill attribution,
 	 * advancements and death messages still credit them.
 	 */
-	public static DamageSource source(ServerPlayer caster) {
+	public static DamageSource source(LivingEntity caster) {
 		var type = caster.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
 				.getOrThrow(POWER_MAGIC);
 		return new DamageSource(type, caster, caster);
@@ -44,7 +44,7 @@ public final class PowerDamage {
 	 * This preserves caster attribution while allowing finite wards to inspect
 	 * and reflect only the projectile that actually struck them.
 	 */
-	public static DamageSource projectileSource(ServerPlayer caster, Entity projectile) {
+	public static DamageSource projectileSource(LivingEntity caster, Entity projectile) {
 		if (projectile == null) return source(caster);
 		var type = caster.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
 				.getOrThrow(POWER_MAGIC);

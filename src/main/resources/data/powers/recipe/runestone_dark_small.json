@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["TT", "TT"],
+  "key": {"T": "powers:imported_artifact_runestone_dark_tiny"},
+  "result": {"id": "powers:imported_artifact_runestone_dark_small", "count": 1}
+}

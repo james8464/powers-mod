@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -11,7 +12,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -40,7 +40,8 @@ public class ForcefieldAbility extends Ability {
 		MagicShieldManager.global().raise(player.getUUID(), integrity, expiry);
 		// Fire resistance is thematic but finite integrity, not Resistance V,
 		// owns normal hit prevention and can be broken by sustained pressure.
-		player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, duration, 0, false, false));
+		player.addEffect(PowerStatusEffects.hidden(MobEffects.FIRE_RESISTANCE,
+				duration, 0, false, true));
 
 		com.powers.fx.PowerFx.sound((net.minecraft.server.level.ServerLevel) player.level(),
 				player.position(), net.minecraft.sounds.SoundEvents.BEACON_ACTIVATE, 0.8f, 0.5f);

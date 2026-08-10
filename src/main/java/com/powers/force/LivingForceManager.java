@@ -1,6 +1,7 @@
 package com.powers.force;
 
 import com.powers.PowersMod;
+import com.powers.PowerStatusEffects;
 import com.powers.PowersParticles;
 import com.powers.PowersSounds;
 import com.powers.player.PlayerPowers;
@@ -13,10 +14,13 @@ import com.powers.config.PowersConfigLoader;
 import com.powers.fx.PowerFx;
 import com.powers.protection.PowerProtection;
 import com.powers.network.PowersPackets;
+import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.LoadedChunks;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,7 +29,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,6 +36,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -84,6 +88,8 @@ public final class LivingForceManager {
 	/** Makes a few face-adjacent conversion attempts when vanilla selects a force block for a random tick. */
 	static void spread(ServerLevel level, BlockPos source, LivingForceKind kind, RandomSource random) {
 		register(level, source, kind);
+		// Opposition remains active even when an administrator pauses conversion.
+		checkForClash(level, source, kind);
 		PowersConfig.LivingForces policy = PowersConfigLoader.get().livingForces();
 		if (!policy.spreadingEnabled() || PowerProtection.isSafeZone(level, Vec3.atCenterOf(source))) return;
 		for (int attempt = 0; attempt < policy.spreadAttempts(); attempt++) {
@@ -101,7 +107,7 @@ public final class LivingForceManager {
 					level.getBlockEntity(target) != null, state.is(FORCE_SPREAD_IMMUNE), destroySpeed)) continue;
 			level.setBlock(target, kind.block().defaultBlockState(), Block.UPDATE_ALL);
 			register(level, target, kind);
-			emitSpreadCue(level, target, kind, random);
+			emitSpreadCue(level, source, target, kind, random);
 		}
 	}
 
@@ -143,7 +149,12 @@ public final class LivingForceManager {
 
 	private static void damageClashEntities(ServerLevel level, Vec3 center, int radius) {
 		AABB bounds = AABB.ofSize(center, radius * 2.0, radius * 2.0, radius * 2.0);
-		for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, bounds, Entity::isAlive)) {
+		List<LivingEntity> candidates = BoundedEntityCandidates.living(level, bounds,
+				LivingForceRules.clashEntityInspectionLimit(), Entity::isAlive,
+				Comparator.comparingDouble((LivingEntity entity) ->
+						entity.position().distanceToSqr(center)).thenComparing(
+						entity -> entity.getUUID().toString()));
+		for (LivingEntity entity : candidates) {
 			double distance = entity.position().distanceTo(center);
 			double damage = LivingForceRules.clashDamage(distance, radius, PEAK_CLASH_DAMAGE);
 			if (damage <= 0.0 || PowerProtection.isSafeZone(level, entity.position())) continue;
@@ -192,8 +203,8 @@ public final class LivingForceManager {
 				PowerFx.rune(level, center, 0.7, 0x58C7FF, 8, level.getGameTime() * 0.08);
 				return;
 			}
-			entity.addEffect(new MobEffectInstance(MobEffects.WITHER, 50, policy.witherAmplifier(),
-					true, true, true));
+			entity.addEffect(PowerStatusEffects.hidden(
+					MobEffects.WITHER, 50, policy.witherAmplifier(), true, true));
 			PowerFx.darknessAura(level, center, false);
 			return;
 		}
@@ -224,13 +235,19 @@ public final class LivingForceManager {
 		return INDEXES.computeIfAbsent(level, ignored -> new LivingForceIndex());
 	}
 
-	private static void emitSpreadCue(ServerLevel level, BlockPos target, LivingForceKind kind,
-			RandomSource random) {
+	private static void emitSpreadCue(ServerLevel level, BlockPos source, BlockPos target,
+			LivingForceKind kind, RandomSource random) {
+		Vec3 origin = Vec3.atCenterOf(source);
 		Vec3 center = Vec3.atCenterOf(target);
 		int color = kind == LivingForceKind.DARKNESS ? 0x2A0C3D : 0xFFF4C7;
+		PowerFx.beam(level, origin, center,
+				ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT,
+						0xFF000000 | color), 6);
 		PowerFx.coloredBurst(level, center, color, 5, 0.32);
 		PowerFx.burst(level, center, kind == LivingForceKind.DARKNESS
 				? PowersParticles.ECLIPSE : PowersParticles.MOTE, 3, 0.24, 0.015);
+		PowerFx.rune(level, center.add(0.0, 0.03, 0.0), 0.42, color, 8,
+				random.nextDouble() * Math.PI);
 		if (random.nextInt(4) == 0) {
 			PowerFx.sound(level, center, kind == LivingForceKind.DARKNESS
 					? PowersSounds.DARK_WHISPER : PowersSounds.LIGHT_CHORUS, 0.35F, 0.72F);

@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundEvents;
 import com.powers.item.CelestialGrimoireItem;
 import com.powers.item.GrimoireItem;
 import com.powers.item.RuneItem;
+import com.powers.item.RuneTierRules;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -52,7 +53,8 @@ public final class ImportedPackItems {
 				factory = props -> new GrimoireItem(props, texture);
 			} else if (texture.contains("runestone") || texture.contains("rune")) {
 				// runestones and runes become usable rune items
-				factory = RuneItem::new;
+				int energy = RuneTierRules.energyFor(texture);
+				factory = props -> new RuneItem(props, energy);
 			}
 			ITEMS.put(id, ModItemIds.register(ModItemIds.create(id), factory, properties));
 		}

@@ -31,7 +31,7 @@ public class CloneSwarmAbility extends Ability {
 	public CloneSwarmAbility() {
 		super(PowersMod.id("clone_swarm"),
 				Component.translatable("ability.powers.clone_swarm"),
-				COOLDOWN_TICKS, false);
+				COOLDOWN_TICKS, false, false);
 	}
 
 	@Override

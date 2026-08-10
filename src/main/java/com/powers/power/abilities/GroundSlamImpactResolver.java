@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersBlocks;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.GroundSlamFx;
@@ -11,11 +12,11 @@ import com.powers.power.state.MagicShieldManager;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.LoadedChunks;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.Blocks;
@@ -130,7 +131,7 @@ final class GroundSlamImpactResolver {
 		Vec3 center = site.point();
 		AABB bounds = AABB.ofSize(center.add(0.0, 1.0, 0.0),
 				radius * 2.0, 8.0, radius * 2.0);
-		List<LivingEntity> candidates = level.getEntitiesOfClass(LivingEntity.class, bounds,
+		List<LivingEntity> candidates = BoundedEntityCandidates.living(level, bounds, 192,
 				entity -> entity.isAlive() && entity != caster && !entity.isSpectator()
 						&& Math.abs(entity.getY() - center.y) <= 4.0
 						&& horizontalDistanceSquared(entity.position(), center)
@@ -276,7 +277,7 @@ final class GroundSlamImpactResolver {
 	private static void reveal(ServerLevel level, LivingEntity target) {
 		boolean concealed = target.isInvisible();
 		if (target instanceof ServerPlayer player) concealed |= InvisibilityToggleAbility.reveal(player);
-		target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 80, 0, true, false, true));
+		target.addEffect(PowerStatusEffects.hidden(MobEffects.GLOWING, 80, 0, true, true));
 		if (concealed) GroundSlamFx.revelation(level, bodyCenter(target));
 	}
 

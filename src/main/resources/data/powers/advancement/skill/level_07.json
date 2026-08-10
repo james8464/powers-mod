@@ -2,7 +2,7 @@
 	"parent": "powers:skill/level_06",
 	"display": {
 		"icon": {
-			"id": "minecraft:end_rod"
+			"id": "powers:light_crystal"
 		},
 		"title": {
 			"translate": "advancement.powers.skill.07_end_secrets.title"
@@ -16,37 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"end": {
-			"trigger": "minecraft:location",
-			"conditions": {
-				"dimension": "minecraft:the_end"
-			}
-		},
-		"stone": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"powers:imported_artifact_philosopherstone"
-						]
-					}
-				]
-			}
-		},
-		"blaze": {
-			"trigger": "minecraft:player_killed_entity",
-			"conditions": {
-				"entity": [
-					{
-						"condition": "minecraft:entity_properties",
-						"entity": "this",
-						"predicate": {
-							"minecraft:entity_type": "minecraft:blaze"
-						}
-					}
-				]
-			}
+		"mastery": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

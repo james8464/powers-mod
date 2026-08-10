@@ -14,6 +14,16 @@ class HudMathTest {
 	}
 
 	@Test
+	void tenSymbolEnergyBarUsesTwentyVanillaStyleHalfSteps() {
+		assertEquals(0, HudMath.energyHalfUnits(-1, 100));
+		assertEquals(1, HudMath.energyHalfUnits(1, 100));
+		assertEquals(10, HudMath.energyHalfUnits(50, 100));
+		assertEquals(19, HudMath.energyHalfUnits(95, 100));
+		assertEquals(20, HudMath.energyHalfUnits(100, 100));
+		assertEquals(0, HudMath.energyHalfUnits(50, 0));
+	}
+
+	@Test
 	void visualModeHasUnambiguousPriority() {
 		assertEquals(HudEnergyMode.DAMPENED, HudMath.mode(50, true, true));
 		assertEquals(HudEnergyMode.EMPTY, HudMath.mode(0, false, true));

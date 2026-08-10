@@ -31,9 +31,50 @@ class SafeDestinationPolicyTest {
 
 	@Test
 	void middleworldAcceptsItsCrystalButNotOrdinaryTeleportPowers() {
-		assertEquals(DestinationFailure.REALM_RESTRICTED,
-				SafeDestinationResolver.realmFailure(true, TravelKind.POWER));
-		assertEquals(DestinationFailure.NONE,
-				SafeDestinationResolver.realmFailure(true, TravelKind.CRYSTAL));
+		assertEquals(DestinationFailure.REALM_RESTRICTED, SafeDestinationResolver.realmFailure(
+				"minecraft:overworld", "powers:middleworld", TravelKind.POWER, false, 10, 0));
+		assertEquals(DestinationFailure.NONE, SafeDestinationResolver.realmFailure(
+				"minecraft:overworld", "powers:middleworld", TravelKind.CRYSTAL, false, 10, 0));
+	}
+
+	@Test
+	void darkRealmDepartureRequiresTheDarknessTagAndLevelFiveForEveryModTravelKind() {
+		for (TravelKind kind : new TravelKind[] {
+				TravelKind.POWER, TravelKind.CRYSTAL, TravelKind.PROJECTION, TravelKind.COMPANION}) {
+			assertEquals(DestinationFailure.REALM_RESTRICTED, SafeDestinationResolver.realmFailure(
+					"powers:dark_realm", "minecraft:overworld", kind, false, 10, 10));
+			assertEquals(DestinationFailure.REALM_RESTRICTED, SafeDestinationResolver.realmFailure(
+					"powers:dark_realm", "minecraft:overworld", kind, true, 10, 4));
+			assertEquals(DestinationFailure.NONE, SafeDestinationResolver.realmFailure(
+					"powers:dark_realm", "minecraft:overworld", kind, true, 0, 5));
+		}
+	}
+
+	@Test
+	void lightRealmDepartureAcceptsEitherProgressionAtLevelFive() {
+		assertEquals(DestinationFailure.REALM_RESTRICTED, SafeDestinationResolver.realmFailure(
+				"powers:light_realm", "minecraft:overworld", TravelKind.POWER, false, 4, 4));
+		assertEquals(DestinationFailure.NONE, SafeDestinationResolver.realmFailure(
+				"powers:light_realm", "minecraft:overworld", TravelKind.POWER, false, 5, 0));
+		assertEquals(DestinationFailure.NONE, SafeDestinationResolver.realmFailure(
+				"powers:light_realm", "minecraft:overworld", TravelKind.CRYSTAL, false, 0, 5));
+	}
+
+	@Test
+	void detachedBodyReturnsAndAdminRecoveryCannotBeTrappedByRealmGates() {
+		for (TravelKind kind : new TravelKind[] {TravelKind.RETURN, TravelKind.ADMIN}) {
+			assertEquals(DestinationFailure.NONE, SafeDestinationResolver.realmFailure(
+					"powers:dark_realm", "minecraft:overworld", kind, false, 0, 0));
+			assertEquals(DestinationFailure.NONE, SafeDestinationResolver.realmFailure(
+					"powers:light_realm", "minecraft:overworld", kind, false, 0, 0));
+		}
+	}
+
+	@Test
+	void darkRealmEntryStillAllowsItsCrystalButRejectsUngatedTeleportPowers() {
+		assertEquals(DestinationFailure.REALM_RESTRICTED, SafeDestinationResolver.realmFailure(
+				"minecraft:overworld", "powers:dark_realm", TravelKind.POWER, false, 10, 10));
+		assertEquals(DestinationFailure.NONE, SafeDestinationResolver.realmFailure(
+				"minecraft:overworld", "powers:dark_realm", TravelKind.CRYSTAL, false, 0, 0));
 	}
 }

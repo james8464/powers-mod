@@ -9,6 +9,9 @@ public final class LootInjectionCatalog {
 
 	public static List<LootDropGroup> groups() {
 		return List.of(
+				group("minecraft:chests/simple_dungeon", 0.22f, "imported_artifact_runestone_inert"),
+				group("minecraft:chests/abandoned_mineshaft", 0.14f, "imported_artifact_runestone_dark_tiny"),
+				group("minecraft:chests/ancient_city", 0.10f, "imported_artifact_runestone_frigid"),
 				group("minecraft:blocks/birch_leaves", 0.025f, "imported_food_silver_pear"),
 				group("minecraft:blocks/cherry_leaves", 0.025f, "imported_food_pantao"),
 				group("minecraft:blocks/jungle_leaves", 0.04f, "imported_food_fig", "imported_food_grapes",

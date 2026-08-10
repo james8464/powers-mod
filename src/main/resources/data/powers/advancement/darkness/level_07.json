@@ -2,7 +2,7 @@
 	"parent": "powers:darkness/level_06",
 	"display": {
 		"icon": {
-			"id": "minecraft:wither_skeleton_skull"
+			"id": "minecraft:wither_rose"
 		},
 		"title": {
 			"translate": "advancement.powers.darkness.07_wither_court.title"
@@ -16,41 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"skull": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:wither_skeleton_skull"
-						]
-					}
-				]
-			}
-		},
-		"campfire": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:soul_campfire"
-						]
-					}
-				]
-			}
-		},
-		"rose": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:wither_rose"
-						]
-					}
-				]
-			}
+		"deed": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }
