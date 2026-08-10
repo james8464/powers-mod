@@ -27,13 +27,15 @@ This records the automated checkpoint after the 2026-08-09/10 playtest fixes. It
 
 ## Automated gate
 
-`./gradlew check` completed successfully on 2026-08-10. It ran 475 JUnit tests and 16 live Fabric GameTests, compilation for common/client/GameTest sources, strict resource validation, Java/non-item-asset inventory checks, and generated interaction-document drift checks. The live suite includes Shadow Sword lightning, forcefield overkill sacrifice, First Vessel Celestial Ruin damage, and minimum-rank terrain destruction.
+`./gradlew check` completed successfully on 2026-08-10. It ran 511 JUnit tests and 16 live Fabric GameTests, compilation for common/client/GameTest sources, strict resource validation, Java/non-item-asset inventory checks, and generated interaction-document drift checks. The live suite includes Shadow Sword lightning, forcefield overkill sacrifice, First Vessel Celestial Ruin damage, and minimum-rank terrain destruction.
 
-The final clean release gate is:
+The final clean release gate completed successfully on 2026-08-10:
 
 ```text
-./gradlew clean check build
+./gradlew clean build --no-daemon
 ```
+
+The verified runtime artifact is `build/libs/powers-1.0.0.jar` with SHA-256 `990a38758dfefc489f1f5cd94eff477ed588acf2a36aca7d27d88f5f0bb694b8`.
 
 ## Runtime smoke
 
