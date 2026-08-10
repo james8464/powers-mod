@@ -25,6 +25,7 @@ public class PlantHealingAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
+		if (player.isCrouching()) return healNearbyPlayers(level, player);
 		HitResult hit = player.pick(scaledRange(player, 12.0), 0.0f, false);
 		if (!(hit instanceof BlockHitResult blockHit)) return false;
 		// bonemeal the plant that was actually hit, not the empty block beyond it
@@ -48,6 +49,26 @@ public class PlantHealingAbility extends Ability {
 		com.powers.fx.PowerFx.sound(level, center,
 				net.minecraft.sounds.SoundEvents.BONE_MEAL_USE, 0.8f, 1.3f);
 		com.powers.fx.PowerFx.spiral(level, center, 0.7, 1.8, 0x9AF59A, 14, player.tickCount * 0.1);
+		return true;
+	}
+
+	private boolean healNearbyPlayers(ServerLevel level, ServerPlayer caster) {
+		float amount = scaledPotency(caster, 12.0F);
+		boolean healed = false;
+		for (ServerPlayer target : level.getServer().getPlayerList().getPlayers()) {
+			if (target.level() != level || !target.isAlive() || target.isSpectator()
+					|| !PlantHealingRules.withinAura(target.distanceToSqr(caster))
+					|| target.getHealth() >= target.getMaxHealth()) continue;
+			target.heal(amount);
+			healed = true;
+			com.powers.fx.PowerFx.burst(level, target.position().add(0.0, 1.0, 0.0),
+					com.powers.fx.PowerFx.dust(0x72F58A, 0.9F), 8, 0.35, 0.01);
+		}
+		if (!healed) return false;
+		com.powers.fx.PowerFx.ring(level, caster.position().add(0.0, 0.1, 0.0),
+				2.0, 0x72F58A, 24, caster.tickCount * 0.08);
+		com.powers.fx.PowerFx.sound(level, caster.position(),
+				net.minecraft.sounds.SoundEvents.AMETHYST_BLOCK_CHIME, 1.0F, 1.35F);
 		return true;
 	}
 }

@@ -42,16 +42,16 @@ The assignable powers are:
 | Energy Beam | Channels four live-aim Sunfire beats whose damage and burn intensify on one target; water produces steam and advanced ranks unlock a flare or forks. |
 | Super Speed | Runs an eight-second Chronal Overdrive with server-owned motion, restrained afterimages, water grounding, collision rites, memory slips, and mastered projectile curvature. |
 | Breezy Bash | Captures permitted bodies in a two-stage wind rite, raises them through a visible apex, then calls each safely down with rank-scaled force. |
-| Invisibility | Toggles true concealment with recurring energy drain and can be exposed by counter-magic or Insight effects. |
-| Time Freeze | Claims Minecraft's global server tick freeze across every loaded dimension, preventing entities, projectiles, attacks, and world ticks while the caster remains able to act. |
-| Forcefield | Toggles an owned, high-capacity defensive field without overwriting unrelated attribute effects. |
+| Invisibility | Toggles an infinite, POWERS-owned amplifier-255 concealment effect whose particles and HUD icon are hidden. It drains energy continuously and can be exposed by attacks, counter-magic, or Insight effects without deleting unrelated invisibility. |
+| Time Freeze | Claims Minecraft's global server tick freeze across every loaded dimension, preventing entities, projectiles, attacks, and world ticks while the caster remains able to act. Its upkeep consumes at least 15% of the caster's full energy capacity each second, so an undisturbed full well lasts only about seven seconds. |
+| Forcefield | Toggles an owned, high-capacity defensive field without overwriting unrelated attribute effects. Like every indefinite innate toggle, it drains energy until released or exhausted. |
 | Gravity Displacement | Opens a five-second orrery that collision-safely orbits nearby bodies, resolves overlapping claims, and can collapse or curve projectiles at advanced ranks. |
 | Vessel Possession | Moves the mind into a consented player or suitable mob while a vulnerable skin-matched physical body remains at the casting point. |
 | Astral Projection | Leaves a vulnerable physical body and releases a bounded soul-form scout; return is validated and cannot be used as invulnerability. |
 | Energy Drain | Channels against a player or mob for two seconds. Players lose energy and receive particle-free Exhaustion; mobs take repeated percentage-health damage plus a capped 30% completion strike, while the caster recovers energy. |
 | Ice Manipulation | Fires a freezing ray that harms and freezes targets, converts water to ice and lava to obsidian, and lays snow only where terrain policy permits. |
-| Plant and Healing Acceleration | Grows the aimed bonemealable plant with stronger growth at higher potency. |
-| Double Health | Toggles a mod-owned maximum-health multiplier, preserves unrelated modifiers, and proportionally restores the vanilla heart layout when released. |
+| Plant and Healing Acceleration | Normally grows the aimed bonemealable plant with stronger growth at higher potency. Crouching instead releases a zero-cooldown healing pulse that restores the caster and injured players within an inclusive two-block radius. |
+| Double Health | Toggles a mod-owned maximum-health multiplier, preserves unrelated modifiers, drains energy while active, and proportionally restores the vanilla heart layout when released. |
 
 Telekinesis is a true radial release: permitted living targets are thrown away from the caster while up to 16 hostile projectiles are reflected along the caster's aim. If neither can be affected, its collapsed violet rune refunds the offered energy and starts no cooldown or collision residue.
 

@@ -5,6 +5,9 @@
 - Removed the five retired innate powers (Cozy Campfire, Frost Nova, Elemental Blast, Ground Slam, and Shadow Step), their runtime managers, selectors, protocol state, boss/artifact adapters, translations, and collision entries.
 - Removed every automatically assigned innate passive and the unconditional player aura dust emitter; saved loadouts now migrate deterministically to valid allegiance-safe powers.
 - Reduced the canonical innate roster to 23 and regenerated its exhaustive interaction documentation and audit manifests.
+- Made every indefinite innate toggle continuously consume energy; Time Freeze now drains at least 15% of the caster's capacity each second.
+- Replaced raw invisibility flags with a particle-free, icon-free, amplifier-255 effect owned and safely removed by POWERS.
+- Added the zero-cooldown crouching Plant Healing pulse for injured players inside an inclusive two-block radius while retaining ordinary aimed plant growth.
 
 ## 1.0.1 - 2026-08-10
 

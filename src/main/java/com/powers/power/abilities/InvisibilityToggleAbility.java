@@ -1,11 +1,14 @@
 package com.powers.power.abilities;
 
 import com.powers.PowersMod;
+import com.powers.PowerStatusEffects;
 import com.powers.player.PlayerPowers;
 import com.powers.power.ToggleAbility;
 import com.powers.power.ToggleKeyRules;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 
 /**
  * Invisibility: a toggle that lets you vanish and reappear. Turning on
@@ -19,10 +22,7 @@ public class InvisibilityToggleAbility extends ToggleAbility {
 
 	@Override
 	public boolean activateToggleOn(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		if (data.invisibilitySnapshot() < 0) {
-			data.setInvisibilitySnapshot(player.isInvisible() ? 1 : 0);
-		}
-		player.setInvisible(true);
+		player.addEffect(ownedEffect());
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 			// smoke burst hides the spot where you stood
 			com.powers.fx.PowerFx.burst(level, player.position(), net.minecraft.core.particles.ParticleTypes.SMOKE, 18, 0.5, 0.02);
@@ -33,11 +33,8 @@ public class InvisibilityToggleAbility extends ToggleAbility {
 
 	@Override
 	public void activateToggleOff(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		int prior = data.invisibilitySnapshot();
-		data.setInvisibilitySnapshot(-1);
-		if (prior >= 0) {
-			player.setInvisible(prior == 1);
-		}
+		MobEffectInstance current = player.getEffect(MobEffects.INVISIBILITY);
+		if (isOwnedEffect(current)) player.removeEffect(MobEffects.INVISIBILITY);
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 			com.powers.fx.PowerFx.burst(level, player.position(), net.minecraft.core.particles.ParticleTypes.PORTAL, 18, 0.5, 0.02);
 		}
@@ -45,10 +42,9 @@ public class InvisibilityToggleAbility extends ToggleAbility {
 
 	@Override
 	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		// reapply each tick in case something (like milk) removed the invisibility
-		if (!player.isInvisible()) {
-			player.setInvisible(true);
-		}
+		// Reapply only our unmistakable amplifier-255 effect if milk or a command
+		// removed it while the toggle remains server-owned.
+		if (!isOwnedEffect(player.getEffect(MobEffects.INVISIBILITY))) player.addEffect(ownedEffect());
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 			boolean veilFocus = scaling(player).unlockedVariants().contains("afterimage");
 			int interval = veilFocus ? 40 : 20;
@@ -59,6 +55,16 @@ public class InvisibilityToggleAbility extends ToggleAbility {
 						net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL, 2, 0.25, 0.01);
 			}
 		}
+	}
+
+	static MobEffectInstance ownedEffect() {
+		return PowerStatusEffects.hidden(MobEffects.INVISIBILITY,
+				Integer.MAX_VALUE, 255, false, false);
+	}
+
+	private static boolean isOwnedEffect(MobEffectInstance effect) {
+		return effect != null && effect.getAmplifier() == 255
+				&& !effect.isVisible() && !effect.showIcon();
 	}
 
 	/** Breaks power-owned invisibility after the player successfully harms a target. */

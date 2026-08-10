@@ -29,7 +29,6 @@ import static com.powers.player.PlayerPowerAttachments.DARKNESS_LEVEL;
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_PREFIX_HIDDEN;
 import static com.powers.player.PlayerPowerAttachments.DIMENSIONAL_ANCHOR;
 import static com.powers.player.PlayerPowerAttachments.FLIGHT_SNAPSHOT;
-import static com.powers.player.PlayerPowerAttachments.INVISIBILITY_SNAPSHOT;
 import static com.powers.player.PlayerPowerAttachments.MIND_BODY;
 import static com.powers.player.PlayerPowerAttachments.POWER_SLOTS;
 import static com.powers.player.PlayerPowerAttachments.PREVIOUS_GAMEMODE;
@@ -143,14 +142,6 @@ public final class PlayerPowers {
 
 		public void setFlightSnapshot(int snapshot) {
 			target.setAttached(FLIGHT_SNAPSHOT, snapshot);
-		}
-
-		public int invisibilitySnapshot() {
-			return target.getAttachedOrElse(INVISIBILITY_SNAPSHOT, -1);
-		}
-
-		public void setInvisibilitySnapshot(int snapshot) {
-			target.setAttached(INVISIBILITY_SNAPSHOT, snapshot);
 		}
 
 		public boolean allowsConsent(ConsentKind kind) {

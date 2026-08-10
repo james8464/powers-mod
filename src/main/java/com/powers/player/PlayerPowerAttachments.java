@@ -53,7 +53,6 @@ final class PlayerPowerAttachments {
 	static final AttachmentType<MindBodyState> MIND_BODY = AttachmentRegistry.create(
 			PowersMod.id("mind_body"), builder -> builder.persistent(MindBodyState.CODEC).copyOnDeath());
 	static final AttachmentType<Integer> FLIGHT_SNAPSHOT = persistentInt("flight_snapshot", -1);
-	static final AttachmentType<Integer> INVISIBILITY_SNAPSHOT = persistentInt("invisibility_snapshot", -1);
 	static final AttachmentType<Boolean> TELEPORT_CONSENT = persistentBoolean("teleport_consent");
 	static final AttachmentType<Boolean> LOCATOR_CONSENT = persistentBoolean("locator_consent");
 	static final AttachmentType<Boolean> COMPANION_CONSENT = persistentBoolean("companion_consent");
