@@ -39,6 +39,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.WeakHashMap;
 
 /** Owns loaded-force indexing and bounded server-side terrain spreading. */
@@ -52,6 +55,8 @@ public final class LivingForceManager {
 	private static final int MAX_ACTIVE_CLASHES_PER_LEVEL = 4;
 	private static final double PEAK_CLASH_DAMAGE = 100.0;
 	private static final double PEAK_CLASH_IMPULSE = 8.0;
+	private static final int MAX_AURA_CANDIDATES_PER_CHUNK = 256;
+	private static final int MAX_AURA_CANDIDATES_PER_LEVEL = 4_096;
 
 	private LivingForceManager() {
 	}
@@ -172,10 +177,21 @@ public final class LivingForceManager {
 		for (ServerLevel level : server.getAllLevels()) {
 			LivingForceIndex index = INDEXES.get(level);
 			if (index == null || index.size() == 0) continue;
-			for (Entity entity : level.getAllEntities()) {
-				if (entity instanceof LivingEntity living && living.isAlive()
-						&& isNearValidDarkness(level, index, living, policy.auraRadius())) {
-					applyDarknessAffinity(level, living, policy);
+			Set<UUID> visited = new HashSet<>();
+			for (long packedChunk : index.chunksWith(LivingForceKind.DARKNESS)) {
+				if (visited.size() >= MAX_AURA_CANDIDATES_PER_LEVEL) break;
+				int chunkX = (int) packedChunk;
+				int chunkZ = (int) (packedChunk >>> 32);
+				double radius = policy.auraRadius();
+				AABB bounds = new AABB(chunkX * 16.0 - radius, level.getMinY(),
+						chunkZ * 16.0 - radius, chunkX * 16.0 + 16.0 + radius,
+						level.getMaxY(), chunkZ * 16.0 + 16.0 + radius);
+				for (LivingEntity living : BoundedEntityCandidates.living(level, bounds,
+						MAX_AURA_CANDIDATES_PER_CHUNK, Entity::isAlive)) {
+					if (!visited.add(living.getUUID())) continue;
+					if (isNearValidDarkness(level, index, living, policy.auraRadius())) {
+						applyDarknessAffinity(level, living, policy);
+					}
 				}
 			}
 		}

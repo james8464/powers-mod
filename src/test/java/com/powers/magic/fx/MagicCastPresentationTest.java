@@ -28,6 +28,19 @@ class MagicCastPresentationTest {
 	}
 
 	@Test
+	void significanceControlsGenericCeremonyWithoutDuplicatingBespokeEffects() {
+		MagicActionCatalogue catalogue = MagicActionCatalogue.defaults();
+
+		assertEquals(0, profile(catalogue, "darkness_block").genericBeatCount());
+		assertEquals(0, profile(catalogue, "lightning_strike").genericBeatCount());
+		assertEquals(0, profile(catalogue, "fireball").genericBeatCount());
+		assertEquals(2, profile(catalogue, "telekinesis").genericBeatCount());
+		assertEquals(4, profile(catalogue, "dimensional_anchor").genericBeatCount());
+		assertEquals(6, profile(catalogue, "time_freeze").genericBeatCount());
+		assertEquals(6, profile(catalogue, "celestial_ruin").genericBeatCount());
+	}
+
+	@Test
 	void mechanicalAspectsChooseDistinctSoundLanguages() {
 		MagicActionCatalogue catalogue = MagicActionCatalogue.defaults();
 

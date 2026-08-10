@@ -13,7 +13,7 @@ import java.util.Set;
  * metadata. It prevents catalogue-internal signature names from being treated
  * as registered sound-event identifiers.
  */
-public record MagicCastPresentation(String soundCue, int intensity) {
+public record MagicCastPresentation(String soundCue, int intensity, int genericBeatCount) {
 	private static final Set<String> AUTHORED_CUES = Set.of(
 			"rune_hum", "crystal_resonate", "amethyst_fracture", "time_suspend",
 			"rift_open", "soul_tether", "light_chorus", "dark_whisper", "ward_impact");
@@ -26,6 +26,10 @@ public record MagicCastPresentation(String soundCue, int intensity) {
 		}
 		if (intensity < 1 || intensity > MagicFxEvent.MAX_INTENSITY) {
 			throw new IllegalArgumentException("Cast intensity must be within 1..5");
+		}
+		if (genericBeatCount != 0 && genericBeatCount != 1 && genericBeatCount != 2
+				&& genericBeatCount != 4 && genericBeatCount != 6) {
+			throw new IllegalArgumentException("Unsupported generic ceremony beat count");
 		}
 	}
 
@@ -44,7 +48,8 @@ public record MagicCastPresentation(String soundCue, int intensity) {
 		if (unlockedVariants.contains("ancient_mastery")) masteryBonus++;
 		int intensity = Math.clamp(baseIntensity(action) + masteryBonus,
 				1, MagicFxEvent.MAX_INTENSITY);
-		return new MagicCastPresentation(soundCue(action), intensity);
+		int beats = action.genericCeremony() ? action.significance().genericBeatCount() : 0;
+		return new MagicCastPresentation(soundCue(action), intensity, beats);
 	}
 
 	private static String soundCue(MagicActionDefinition action) {

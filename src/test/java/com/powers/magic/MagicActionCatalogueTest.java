@@ -70,4 +70,26 @@ class MagicActionCatalogueTest {
 		assertTrue(valid.baseCooldownTicks() > 0);
 		assertTrue(valid.residueTicks() > 0);
 	}
+
+	@Test
+	void everyActionDeclaresItsPresentationSignificanceExplicitly() {
+		MagicActionCatalogue catalogue = MagicActionCatalogue.defaults();
+
+		assertTrue(catalogue.definitions().stream()
+				.allMatch(definition -> definition.significance() != null));
+		assertEquals(MagicSignificance.MINIMAL,
+				catalogue.definition(new MagicActionId("lightning_strike")).significance());
+		assertEquals(MagicSignificance.MINIMAL,
+				catalogue.definition(new MagicActionId("fireball")).significance());
+		assertEquals(MagicSignificance.RITUAL,
+				catalogue.definition(new MagicActionId("dimensional_anchor")).significance());
+		assertEquals(MagicSignificance.COSMIC,
+				catalogue.definition(new MagicActionId("time_freeze")).significance());
+		assertEquals(MagicSignificance.COSMIC,
+				catalogue.definition(new MagicActionId("celestial_ruin")).significance());
+		assertEquals(MagicSignificance.NONE,
+				catalogue.definition(new MagicActionId("darkness_block")).significance());
+		assertEquals(MagicSignificance.NONE,
+				catalogue.definition(new MagicActionId("amethyst_item")).significance());
+	}
 }

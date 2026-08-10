@@ -227,7 +227,7 @@ public class TeleportAbility extends Ability {
 			return false;
 		}
 		AsyncAbilityTransaction transaction = new AsyncAbilityTransaction(caster, data, this);
-		return TravelChunkLoader.request(targetLevel, BlockPos.containing(target),
+		return TravelChunkLoader.request(caster.getUUID(), targetLevel, BlockPos.containing(target),
 				() -> beginTeleport(caster, player, dimension, originLevel, targetLevel, target, transaction),
 				() -> {
 					transaction.fail();

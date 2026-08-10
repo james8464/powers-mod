@@ -159,6 +159,7 @@ public final class PowersPackets {
 		PayloadTypeRegistry.clientboundPlay().register(OpenLocatorScreenPayload.TYPE, OpenLocatorScreenPayload.STREAM_CODEC);
 		RankPackets.initialize();
 		MagicFxPackets.initialize();
+		BodyProxyPackets.initialize();
 		ShadowSwordPackets.initialize();
 
 		ServerPlayNetworking.registerGlobalReceiver(ActivateAbilityPayload.TYPE, PowersPackets::handleActivate);

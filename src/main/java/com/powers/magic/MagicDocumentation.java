@@ -25,14 +25,16 @@ public final class MagicDocumentation {
 
 				This is the server-authoritative set of every innate power, crystal action, grimoire spell, amethyst counterforce, and persistent realm force that may collide. Rank scaling creates separate values and never mutates these baselines.
 
-				| ID | Origin | Aspects | Delivery | Intent | Potency | Range | Duration | Energy | Cooldown | Residue | Priority | Motif | Sound | Colours |
-				|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|---|
+				| ID | Origin | Aspects | Delivery | Intent | Significance | Generic beats | Potency | Range | Duration | Energy | Cooldown | Residue | Priority | Motif | Sound | Colours |
+				|---|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---|---|
 				""");
 		for (MagicActionDefinition action : sortedActions()) {
 			String aspects = action.aspects().stream().map(Enum::name).sorted().reduce((a, b) -> a + ", " + b).orElse("");
 			output.append("| `").append(action.id()).append("` | ").append(action.origin())
 					.append(" | ").append(aspects).append(" | ").append(action.delivery())
-					.append(" | ").append(action.intent()).append(" | ").append(action.basePotency())
+					.append(" | ").append(action.intent()).append(" | ").append(action.significance())
+					.append(" | ").append(action.genericCeremony() ? action.significance().genericBeatCount() : 0)
+					.append(" | ").append(action.basePotency())
 					.append(" | ").append(format(action.baseRange())).append(" | ").append(action.baseDurationTicks())
 					.append(" | ").append(action.baseEnergy()).append(" | ").append(action.baseCooldownTicks())
 					.append(" | ").append(action.residueTicks()).append(" | ").append(action.priority())

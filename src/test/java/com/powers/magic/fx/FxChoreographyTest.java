@@ -23,6 +23,20 @@ class FxChoreographyTest {
 	}
 
 	@Test
+	void authoredSignificanceUsesOneTwoFourOrSixActualFrames() {
+		assertEquals(1, frameCount(1));
+		assertEquals(2, frameCount(2));
+		assertEquals(4, frameCount(4));
+		assertEquals(6, frameCount(6));
+		assertTrue(FxChoreography.finished(CAST, 5, 1));
+		assertTrue(FxChoreography.finished(CAST, 11, 2));
+		assertTrue(FxChoreography.finished(CAST, 17, 4));
+		assertTrue(FxChoreography.finished(CAST, 27, 6));
+		assertThrows(IllegalArgumentException.class,
+				() -> FxChoreography.frame(CAST, 0, 3, false));
+	}
+
+	@Test
 	void interactionsRetainTheirLongerCollisionRhythm() {
 		assertEquals(FxBeat.ANTICIPATION, frame(INTERACTION, 0, false).beat());
 		assertEquals(FxBeat.RELEASE, frame(INTERACTION, 4, false).beat());
@@ -97,5 +111,11 @@ class FxChoreographyTest {
 
 	private static FxFrame frame(MagicFxKind kind, int age, boolean reducedMotion) {
 		return FxChoreography.frame(kind, age, reducedMotion).orElseThrow();
+	}
+
+	private static long frameCount(int beatCount) {
+		return java.util.stream.IntStream.range(0, 32)
+				.filter(age -> FxChoreography.frame(CAST, age, beatCount, false).isPresent())
+				.count();
 	}
 }

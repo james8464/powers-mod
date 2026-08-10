@@ -3,22 +3,25 @@ package com.powers.power;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.MinecraftServer;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Rolls back a paid cast when its accepted asynchronous world action later fails. */
 public final class AsyncAbilityTransaction {
-	private final ServerPlayer player;
-	private final PlayerPowers.PlayerPowersData data;
-	private final Ability energyAbility;
+	private final MinecraftServer server;
+	private final java.util.UUID playerId;
+	private final int refundAmount;
+	private final String abilityId;
 	private final long expectedCooldownDeadline;
 	private final AtomicBoolean settled = new AtomicBoolean();
 
 	public AsyncAbilityTransaction(ServerPlayer player, PlayerPowers.PlayerPowersData data,
 			Ability energyAbility) {
-		this.player = player;
-		this.data = data;
-		this.energyAbility = energyAbility;
+		this.server = player.level().getServer();
+		this.playerId = player.getUUID();
+		this.refundAmount = PowerEnergy.cost(player, energyAbility);
+		this.abilityId = energyAbility.id().toString();
 		int cooldown = energyAbility.cooldownTicksFor(player, data);
 		this.expectedCooldownDeadline = cooldown <= 0 ? 0L
 				: player.level().getGameTime() + cooldown;
@@ -32,13 +35,14 @@ public final class AsyncAbilityTransaction {
 	/** Refunds exactly once and clears only the cooldown started by this cast. */
 	public void fail() {
 		if (!settled.compareAndSet(false, true)) return;
-		data.refundEnergy(energyAbility);
+		ServerPlayer player = server.getPlayerList().getPlayer(playerId);
+		if (player == null) return;
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		data.refundEnergy(refundAmount);
 		if (expectedCooldownDeadline > 0L
-				&& data.cooldownReadyAt(energyAbility.id().toString()) == expectedCooldownDeadline) {
-			data.clearCooldown(energyAbility.id().toString());
+				&& data.cooldownReadyAt(abilityId) == expectedCooldownDeadline) {
+			data.clearCooldown(abilityId);
 		}
-		if (player.level().getServer().getPlayerList().getPlayer(player.getUUID()) == player) {
-			PowersPackets.syncTo(player);
-		}
+		PowersPackets.syncTo(player);
 	}
 }

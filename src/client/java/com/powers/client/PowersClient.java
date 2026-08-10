@@ -8,6 +8,8 @@ import com.powers.client.screen.TeleportInputScreen;
 import com.powers.client.screen.RankMazeScreen;
 import com.powers.client.screen.ShadowSwordScreen;
 import com.powers.client.fx.ClientMagicFx;
+import com.powers.client.fx.ClientBeamFx;
+import com.powers.client.body.ClientBodySnapshots;
 import com.powers.client.fx.particle.ArcaneParticle;
 import com.powers.PowersParticles;
 import com.powers.PowersEntities;
@@ -15,6 +17,7 @@ import com.powers.network.PowerStatePayload;
 import com.powers.network.PowersPackets;
 import com.powers.network.MagicFxPackets;
 import com.powers.network.ShadowSwordPackets;
+import com.powers.network.BodyProxyPackets;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import net.fabricmc.api.ClientModInitializer;
@@ -56,6 +59,10 @@ public class PowersClient implements ClientModInitializer {
 				(payload, context) -> context.client().execute(() -> ClientPowerState.update(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.MagicFxPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientMagicFx.handle(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.BeamFxPayload.TYPE,
+				(payload, context) -> context.client().execute(() -> ClientBeamFx.handle(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(BodyProxyPackets.BodySnapshotPayload.TYPE,
+				(payload, context) -> context.client().execute(() -> ClientBodySnapshots.handle(payload)));
 		// the celestial grimoire summons its target picker when the server vouches for the cast
 		ClientPlayNetworking.registerGlobalReceiver(PowersPackets.OpenLocatorScreenPayload.TYPE,
 				(payload, context) -> context.client().execute(() ->
@@ -71,6 +78,7 @@ public class PowersClient implements ClientModInitializer {
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			ClientPowerState.reset();
 			ClientMagicFx.reset();
+			ClientBodySnapshots.clear();
 		});
 
 		registerParticles();

@@ -8,6 +8,11 @@ import com.powers.power.PowerDamage;
 import com.powers.power.state.PowerEntityState;
 import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelKind;
+import com.powers.power.travel.TravelChunkLoader;
+import com.powers.util.LoadedChunks;
+import com.powers.util.PowerMessages;
+import com.powers.network.BodyProxyPackets;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -37,8 +42,8 @@ import java.util.UUID;
 
 /** Owns vulnerable, skin-matched bodies left behind by mind and spirit travel. */
 public final class BodyProxyManager {
-	private record Active(ServerPlayer owner, Mannequin body, Vec3 position,
-			ServerLevel level, ChunkPos chunk) {
+	private record Active(UUID ownerId, Mannequin body, Vec3 position,
+			ServerLevel level, ChunkPos chunk, BodySnapshot snapshot) {
 	}
 	private static final TicketType BODY_TICKET = new TicketType(TicketType.NO_TIMEOUT,
 			TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
@@ -62,8 +67,11 @@ public final class BodyProxyManager {
 
 		body.setPos(player.getX(), player.getY(), player.getZ());
 		body.setYRot(player.getYRot());
+		body.setXRot(player.getXRot());
 		body.setYHeadRot(player.getYHeadRot());
+		body.setYBodyRot(player.yBodyRot);
 		body.setPose(player.getPose());
+		body.setMainArm(player.getMainArm());
 		body.setNoGravity(true);
 		body.setSilent(true);
 		body.setCustomName(player.getName().copy());
@@ -81,9 +89,11 @@ public final class BodyProxyManager {
 		data.setMindBody(state);
 		ChunkPos bodyChunk = ChunkPos.containing(player.blockPosition());
 		level.getChunkSource().addTicketWithRadius(BODY_TICKET, bodyChunk, 1);
-		Active active = new Active(player, body, player.position(), level, bodyChunk);
+		BodySnapshot snapshot = BodySnapshot.capture(player);
+		Active active = new Active(player.getUUID(), body, player.position(), level, bodyChunk, snapshot);
 		BY_OWNER.put(player.getUUID(), active);
 		BY_BODY.put(body.getUUID(), active);
+		BodyProxyPackets.sendToTracking(body, snapshot);
 		PowerFx.rune(level, player.position(), 1.4, 0xBCA7FF, 20, 0.0);
 		return true;
 	}
@@ -97,11 +107,18 @@ public final class BodyProxyManager {
 		return BY_BODY.containsKey(entity.getUUID());
 	}
 
+	/** Returns the immutable render frame for a tracked proxy body UUID. */
+	public static BodySnapshot snapshotFor(UUID bodyId) {
+		Active active = BY_BODY.get(bodyId);
+		return active == null ? null : active.snapshot();
+	}
+
 	public static boolean allowsDamage(LivingEntity entity, DamageSource source) {
 		Active active = BY_BODY.get(entity.getUUID());
 		if (active == null) return true;
 		if (!PowersConfigLoader.get().projectionBodiesVulnerable()) return false;
-		return !(PowerDamage.isPowerDamage(source) && AmethystDampening.isDampened(active.owner()));
+		ServerPlayer owner = active.level().getServer().getPlayerList().getPlayer(active.ownerId());
+		return owner == null || !(PowerDamage.isPowerDamage(source) && AmethystDampening.isDampened(owner));
 	}
 
 	public static boolean allowsDeath(LivingEntity entity) {
@@ -114,7 +131,8 @@ public final class BodyProxyManager {
 	public static void afterDamage(LivingEntity entity, DamageSource source, float damageTaken) {
 		Active active = BY_BODY.get(entity.getUUID());
 		if (active == null || damageTaken <= 0.0f) return;
-		ServerPlayer owner = active.owner();
+		ServerPlayer owner = active.level().getServer().getPlayerList().getPlayer(active.ownerId());
+		if (owner == null) return;
 		if (!owner.isAlive() || owner.isRemoved()) return;
 		float health = owner.getHealth() - damageTaken;
 		owner.setHealth(Math.max(0.0f, health));
@@ -132,10 +150,24 @@ public final class BodyProxyManager {
 		MinecraftServer server = player.level().getServer();
 		ServerLevel target = server.getLevel(ResourceKey.create(Registries.DIMENSION, dimensionId));
 		if (target == null) return false;
-		int chunkX = ((int) Math.floor(state.x())) >> 4;
-		int chunkZ = ((int) Math.floor(state.z())) >> 4;
-		target.getChunk(chunkX, chunkZ);
 		Vec3 requested = new Vec3(state.x(), state.y(), state.z());
+		BlockPos requestedBlock = BlockPos.containing(requested);
+		if (!LoadedChunks.contains(target, requestedBlock)) {
+			UUID ownerId = player.getUUID();
+			return TravelChunkLoader.request(ownerId, target, requestedBlock,
+					() -> completeReturn(server, ownerId, target, state, requested),
+					() -> {
+						ServerPlayer owner = server.getPlayerList().getPlayer(ownerId);
+						if (owner != null) PowerMessages.send(owner, "ability.powers.no_room", 3);
+					});
+		}
+		return completeReturn(server, player.getUUID(), target, state, requested);
+	}
+
+	private static boolean completeReturn(MinecraftServer server, UUID ownerId,
+			ServerLevel target, MindBodyState state, Vec3 requested) {
+		ServerPlayer player = server.getPlayerList().getPlayer(ownerId);
+		if (player == null || !state.equals(PlayerPowers.get(player).mindBody())) return false;
 		Vec3 destination = findReturnSpot(player, target, requested);
 		if (destination == null) return false;
 		player.setCamera(null);
@@ -152,6 +184,7 @@ public final class BodyProxyManager {
 		Active active = BY_OWNER.remove(player.getUUID());
 		if (active != null) {
 			BY_BODY.remove(active.body().getUUID());
+			BodyProxyPackets.remove(active.body());
 			active.body().discard();
 			active.level().getChunkSource().removeTicketWithRadius(BODY_TICKET, active.chunk(), 1);
 		}
@@ -168,24 +201,36 @@ public final class BodyProxyManager {
 
 	public static void tickAll() {
 		if (BY_OWNER.isEmpty()) return;
-		java.util.List<ServerPlayer> stale = null;
+		java.util.List<Active> stale = null;
 		for (Active active : BY_OWNER.values()) {
-			if (!active.owner().isAlive() || active.owner().isRemoved()) {
+			ServerPlayer owner = active.level().getServer().getPlayerList().getPlayer(active.ownerId());
+			if (owner == null || !owner.isAlive() || owner.isRemoved()) {
 				if (stale == null) stale = new ArrayList<>();
-				stale.add(active.owner());
+				stale.add(active);
 				continue;
 			}
 			active.body().setDeltaMovement(Vec3.ZERO);
 			active.body().setNoGravity(true);
 			active.body().setPos(active.position().x, active.position().y, active.position().z);
 		}
-		if (stale != null) for (ServerPlayer player : stale) finish(player);
+		if (stale != null) for (Active active : stale) finishStale(active);
 	}
 
 	public static void returnAll(MinecraftServer server) {
-		for (Active active : new ArrayList<>(BY_OWNER.values())) returnToBody(active.owner());
-		for (Active active : new ArrayList<>(BY_OWNER.values())) finish(active.owner());
+		for (Active active : new ArrayList<>(BY_OWNER.values())) {
+			ServerPlayer owner = server.getPlayerList().getPlayer(active.ownerId());
+			if (owner != null) returnToBody(owner);
+		}
+		for (Active active : new ArrayList<>(BY_OWNER.values())) finishStale(active);
 		BY_BODY.clear();
+	}
+
+	private static void finishStale(Active active) {
+		if (!BY_OWNER.remove(active.ownerId(), active)) return;
+		BY_BODY.remove(active.body().getUUID());
+		BodyProxyPackets.remove(active.body());
+		active.body().discard();
+		active.level().getChunkSource().removeTicketWithRadius(BODY_TICKET, active.chunk(), 1);
 	}
 
 	private static Vec3 findReturnSpot(ServerPlayer player, ServerLevel target, Vec3 requested) {

@@ -21,6 +21,8 @@ import java.util.Set;
  * @param residueTicks post-cast interaction window
  * @param priority unranked interaction priority
  * @param signature audiovisual identity
+ * @param significance authored generic-presentation scale
+ * @param genericCeremony whether the generic presentation is still required
  */
 public record MagicActionDefinition(
 		MagicActionId id,
@@ -35,7 +37,9 @@ public record MagicActionDefinition(
 		int baseCooldownTicks,
 		int residueTicks,
 		int priority,
-		MagicSignature signature) {
+		MagicSignature signature,
+		MagicSignificance significance,
+		boolean genericCeremony) {
 	/** Copies collections and rejects invalid registry data immediately. */
 	public MagicActionDefinition {
 		Objects.requireNonNull(id, "id");
@@ -44,6 +48,7 @@ public record MagicActionDefinition(
 		Objects.requireNonNull(delivery, "delivery");
 		Objects.requireNonNull(intent, "intent");
 		Objects.requireNonNull(signature, "signature");
+		Objects.requireNonNull(significance, "significance");
 		if (aspects.isEmpty()) {
 			throw new IllegalArgumentException("Magic action requires an aspect: " + id);
 		}
@@ -56,6 +61,6 @@ public record MagicActionDefinition(
 
 	/** Returns whether all required mechanical and presentation data is present. */
 	public boolean isComplete() {
-		return !aspects.isEmpty() && signature.isComplete();
+		return !aspects.isEmpty() && signature.isComplete() && significance != null;
 	}
 }

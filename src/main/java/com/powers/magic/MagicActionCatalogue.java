@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Canonical registry of every action that can participate in a magical
@@ -15,6 +16,8 @@ import java.util.Objects;
  * logic.
  */
 public final class MagicActionCatalogue {
+	private static final Map<String, MagicSignificance> SIGNIFICANCE = significanceAssignments();
+	private static final Set<String> BESPOKE_PRESENTATION = Set.of("fireball", "lightning_strike");
 	private static final Map<MagicAspect, Integer> COLORS = Map.ofEntries(
 			Map.entry(MagicAspect.FLAME, 0xFF5A24),
 			Map.entry(MagicAspect.FROST, 0x82E9FF),
@@ -234,10 +237,51 @@ public final class MagicActionCatalogue {
 		int primary = COLORS.get(first);
 		MagicAspect secondaryAspect = remaining.length == 0 ? first : remaining[0];
 		int secondary = COLORS.get(secondaryAspect);
+		MagicSignificance significance = SIGNIFICANCE.get(id);
+		if (significance == null) {
+			throw new IllegalStateException("Magic action lacks explicit significance: " + id);
+		}
 		actions.add(new MagicActionDefinition(new MagicActionId(id), origin, aspects, delivery, intent,
 				basePotency(origin, intent), baseRange(delivery), baseDuration(delivery), baseEnergy(origin, intent),
 				baseCooldown(origin, delivery), residueTicks(delivery), basePriority(origin),
-				new MagicSignature(primary, secondary, id.hashCode(), motif(first), sound(origin, first))));
+				new MagicSignature(primary, secondary, id.hashCode(), motif(first), sound(origin, first)),
+				significance, significance != MagicSignificance.NONE && !BESPOKE_PRESENTATION.contains(id)));
+	}
+
+	private static Map<String, MagicSignificance> significanceAssignments() {
+		Map<String, MagicSignificance> values = new LinkedHashMap<>();
+		assign(values, MagicSignificance.NONE,
+				"amethyst_item", "amethyst_block", "amethyst_ward",
+				"darkness_block", "pure_light_block");
+		assign(values, MagicSignificance.MINIMAL, "fireball", "lightning_strike");
+		assign(values, MagicSignificance.COSMIC,
+				"time_freeze", "chrono_stop", "celestial_ruin", "nightfall_dominion");
+		assign(values, MagicSignificance.RITUAL,
+				"soul_compass", "tracking_mark", "weather_sigil", "dimensional_anchor",
+				"binding_sigil", "anti_portal_field", "kinetic_ward", "vitality_transfer",
+				"hex", "concealment_veil", "purification_circle", "root_binding",
+				"sanctuary_growth", "infernal_seal", "banishment_circle", "controlled_hellfire",
+				"ward_breaking_ritual", "counterspell", "dispel", "ritual_amplification");
+		assign(values, MagicSignificance.STANDARD,
+				"time_shift", "shadow_step", "flight", "elemental_blast", "starfall", "void_beam",
+				"frost_nova", "ground_slam", "thunderclap", "speed_burst", "telekinesis",
+				"energy_beam", "super_speed", "breezy_bash", "cozy_campfire", "invisibility",
+				"forcefield", "gravity_displacement", "vessel_possession", "astral_projection",
+				"energy_drain", "ice_manipulation", "plant_healing_acceleration", "double_health",
+				"inferno", "clone_swarm", "creativity_manifestation", "size_shift", "life_bloom",
+				"space_time", "dreamwalking", "portal_rift", "middleworld", "soul_link",
+				"light_crystal", "dark_crystal", "summon_darkness", "spread_darkness",
+				"abyssal_singularity", "oblivion_pulse", "annihilation_beam", "soul_requiem");
+		return Map.copyOf(values);
+	}
+
+	private static void assign(Map<String, MagicSignificance> values, MagicSignificance significance,
+			String... ids) {
+		for (String id : ids) {
+			if (values.putIfAbsent(id, significance) != null) {
+				throw new IllegalStateException("Duplicate magic significance assignment: " + id);
+			}
+		}
 	}
 
 	private static int basePotency(MagicOrigin origin, MagicIntent intent) {
