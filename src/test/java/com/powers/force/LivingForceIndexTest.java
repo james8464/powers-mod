@@ -51,4 +51,17 @@ class LivingForceIndexTest {
 		index.removeChunk(ChunkPos.pack(1, 0));
 		assertEquals(0, index.size());
 	}
+
+	@Test
+	void auraIterationVisitsOnlyChunkBucketsContainingTheRequestedForce() {
+		LivingForceIndex index = new LivingForceIndex();
+		index.add(BlockPos.asLong(1, 64, 1), DARKNESS);
+		index.add(BlockPos.asLong(2, 64, 2), DARKNESS);
+		index.add(BlockPos.asLong(33, 64, 1), PURE_LIGHT);
+		index.add(BlockPos.asLong(49, 64, 1), DARKNESS);
+
+		assertEquals(List.of(ChunkPos.pack(0, 0), ChunkPos.pack(3, 0)),
+				index.chunksWith(DARKNESS).stream().sorted().toList());
+		assertEquals(List.of(ChunkPos.pack(2, 0)), index.chunksWith(PURE_LIGHT));
+	}
 }

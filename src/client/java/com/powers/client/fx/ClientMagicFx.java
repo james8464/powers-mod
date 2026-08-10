@@ -44,9 +44,11 @@ public final class ClientMagicFx {
 		for (Iterator<PendingFx> iterator = PENDING.iterator(); iterator.hasNext();) {
 			PendingFx pending = iterator.next();
 			boolean reducedMotion = FxAccessibility.reducedMotion(client);
-			FxChoreography.frame(pending.payload().kind(), pending.age(), reducedMotion)
+			FxChoreography.frame(pending.payload().kind(), pending.age(),
+					pending.payload().genericBeatCount(), reducedMotion)
 					.ifPresent(frame -> spawn(client, pending.payload(), frame, reducedMotion));
-			if (FxChoreography.finished(pending.payload().kind(), pending.age())) iterator.remove();
+			if (FxChoreography.finished(pending.payload().kind(), pending.age(),
+					pending.payload().genericBeatCount())) iterator.remove();
 			else pending.advance();
 		}
 	}

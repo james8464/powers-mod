@@ -13,7 +13,9 @@ class MagicDocumentationTest {
 
 	@Test
 	void committedDocumentsExactlyMatchTheCatalogueAndResolver() throws IOException {
-		assertEquals(MagicDocumentation.renderCatalogue(), read("docs/interactions/action-catalogue.md"));
+		String catalogue = read("docs/interactions/action-catalogue.md");
+		assertEquals(MagicDocumentation.renderCatalogue(), catalogue);
+		org.junit.jupiter.api.Assertions.assertTrue(catalogue.contains("| Significance | Generic beats |"));
 		assertEquals(MagicDocumentation.renderRules(), read("docs/interactions/interaction-rules.md"));
 		String matrix = read("docs/interactions/interaction-matrix.csv");
 		assertEquals(2_702, matrix.lines().count());

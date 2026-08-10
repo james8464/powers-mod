@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Files;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -32,5 +34,17 @@ class SourceQualityTest {
 		SourceAudit.Result audit = SourceAudit.scan(Path.of(System.getProperty("user.dir")));
 
 		assertTrue(audit.oversizedFiles().isEmpty(), audit::summary);
+	}
+
+	@Test
+	void playerTravelPathsNeverSynchronouslyLoadOrGenerateDestinationChunks() throws IOException {
+		Path root = Path.of(System.getProperty("user.dir"));
+		for (String relative : List.of(
+				"src/main/java/com/powers/mind/BodyProxyManager.java",
+				"src/main/java/com/powers/realm/RealmConfinementManager.java",
+				"src/main/java/com/powers/power/crystals/MiddleworldAbility.java")) {
+			String source = Files.readString(root.resolve(relative));
+			org.junit.jupiter.api.Assertions.assertFalse(source.contains(".getChunk("), relative);
+		}
 	}
 }

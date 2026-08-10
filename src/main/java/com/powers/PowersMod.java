@@ -9,6 +9,7 @@ import com.powers.force.LivingForceManager;
 import com.powers.network.PowersPackets;
 import com.powers.network.MagicFxPackets;
 import com.powers.player.PlayerPowers;
+import com.powers.player.PlayerTickCadence;
 import com.powers.progression.RankGraphRegistry;
 import com.powers.progression.PowerScalingService;
 import com.powers.power.Ability;
@@ -19,9 +20,11 @@ import com.powers.power.PowerEnergy;
 import com.powers.power.PowerRegistry;
 import com.powers.power.AmethystDampening;
 import com.powers.power.state.PowerEntityState;
+import com.powers.power.travel.TravelChunkLoader;
 import com.powers.player.SkillSystem;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.util.PowerMessages;
+import com.powers.util.ScheduledTaskQueue;
 import com.powers.spell.SpellCastingManager;
 import com.powers.spell.SpellFieldManager;
 import com.powers.spell.CelestialRuinManager;
@@ -137,6 +140,7 @@ public class PowersMod implements ModInitializer {
 			SpellCastingManager.clear(player);
 			AmethystDampening.forget(player);
 			ShadowSwordRuntime.forget(player);
+			TravelChunkLoader.cancel(player.getUUID());
 			PowersPackets.forget(player);
 		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(BodyProxyManager::returnAll);
@@ -156,6 +160,7 @@ public class PowersMod implements ModInitializer {
 			com.powers.fx.PowerFx.clearBudgets();
 			PowersPackets.clearSyncCache();
 			MagicFxPackets.clear();
+			TravelChunkLoader.clear();
 		});
 
 		// passives get re-applied on a schedule so they never expire, toggles
@@ -164,58 +169,7 @@ public class PowersMod implements ModInitializer {
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			int tick = server.getTickCount();
 			MagicRuntime.global().tick(tick);
-			if (tick % PASSIVE_REFRESH_TICKS == 0) {
-				for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-					refreshPassives(player);
-					PowersPackets.syncTo(player);
-				}
-			}
-			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-				ShadowSwordRuntime.tickPlayer(player, tick);
-				enforceRealmGamemode(player);
-				tickToggles(player, tick);
-				PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-				boolean sleeping = player.isSleeping();
-				boolean wasSleeping = WAS_SLEEPING.getOrDefault(player.getUUID(), false);
-				WAS_SLEEPING.put(player.getUUID(), sleeping);
-				if (tick % 20 == 0) {
-					SkillSystem.syncPathVisibility(player);
-					SkillSystem.refresh(player);
-				}
-				if (wasSleeping && !sleeping) {
-					data.restoreEnergy();
-					PowersPackets.syncTo(player);
-				} else if (tick % 20 == 0) {
-					// one point per second by default; darkness users regen
-					// faster at night or inside the dark realm
-					int regen = 1;
-					if (SkillSystem.hasDarknessTag(player)) {
-						boolean inDarkRealm = SkillSystem.isDarkRealm(player.level().dimension());
-						// day time, not game time: game time is the raw tick
-						// counter, so it ignores /time set and drifts away from
-						// the sky the players can actually see
-						long timeOfDay = Math.floorMod(player.level().getDefaultClockTime(), 24000L);
-						boolean night = timeOfDay >= 13000L || timeOfDay < 2300L;
-						regen = PowerEnergy.darknessRegen(inDarkRealm || night);
-					}
-					if (data.regenerateEnergy(PowerScalingService.regeneration(player, regen))) {
-						PowersPackets.syncTo(player);
-					}
-				}
-			}
-			if (tick % 5 == 0) {
-				PowerAbilityRuntime.tickFrequent(server);
-				for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-					if (tick % 20 == 0) AmethystDampening.update(player);
-					drainExhaustionEnergy(player);
-					tickAuras(player, tick);
-				}
-			}
-			if (tick % 20 == 0) {
-				for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-					drainToggleEnergy(player);
-				}
-			}
+			PlayerTickCoordinator.tick(server, tick);
 			PowerAbilityRuntime.tick(server);
 			CrystalPowerRegistry.tick(server);
 			BodyProxyManager.tickAll();
@@ -229,6 +183,46 @@ public class PowersMod implements ModInitializer {
 		});
 
 		LOGGER.info("POWERS framework initialized with {} power(s)", PowerRegistry.getAll().size());
+	}
+
+	/** Performs all work for one player during the coordinator's single pass. */
+	static void tickPlayer(ServerPlayer player, int tick, PlayerTickCadence cadence) {
+		if (cadence.passiveRefresh()) {
+			refreshPassives(player);
+			PowersPackets.syncTo(player);
+		}
+		ShadowSwordRuntime.tickPlayer(player, tick);
+		enforceRealmGamemode(player);
+		tickToggles(player, tick);
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		boolean sleeping = player.isSleeping();
+		boolean wasSleeping = WAS_SLEEPING.getOrDefault(player.getUUID(), false);
+		WAS_SLEEPING.put(player.getUUID(), sleeping);
+		if (cadence.second()) {
+			SkillSystem.syncPathVisibility(player);
+			SkillSystem.refresh(player);
+		}
+		if (wasSleeping && !sleeping) {
+			data.restoreEnergy();
+			PowersPackets.syncTo(player);
+		} else if (cadence.second()) {
+			int regen = 1;
+			if (SkillSystem.hasDarknessTag(player)) {
+				boolean inDarkRealm = SkillSystem.isDarkRealm(player.level().dimension());
+				long timeOfDay = Math.floorMod(player.level().getDefaultClockTime(), 24000L);
+				boolean night = timeOfDay >= 13000L || timeOfDay < 2300L;
+				regen = PowerEnergy.darknessRegen(inDarkRealm || night);
+			}
+			if (data.regenerateEnergy(PowerScalingService.regeneration(player, regen))) {
+				PowersPackets.syncTo(player);
+			}
+		}
+		if (cadence.fiveTick()) {
+			if (cadence.second()) AmethystDampening.update(player);
+			drainExhaustionEnergy(player);
+			tickAuras(player, tick);
+		}
+		if (cadence.second()) drainToggleEnergy(player);
 	}
 
 	/** Starts a visual lightning storm at a spot, lasting {@code ticks} ticks. */
@@ -259,8 +253,9 @@ public class PowersMod implements ModInitializer {
 	}
 
 	/** Runs {@code action} once, {@code ticks} server ticks from now. */
-	public static void scheduleDelayed(MinecraftServer server, int ticks, Runnable action) {
-		ServerMagicScheduler.schedule(server, ticks, action);
+	public static ScheduledTaskQueue.TaskToken scheduleDelayed(
+			MinecraftServer server, int ticks, Runnable action) {
+		return ServerMagicScheduler.schedule(server, ticks, action);
 	}
 
 	// re-applies each power's passive effects with a long duration so they never lapse

@@ -100,13 +100,15 @@ public final class ServerMagicCasts {
 				: PowerScalingService.unranked(cast.definition().id().value());
 		MagicCastPresentation presentation = MagicCastPresentation.forAction(cast.definition(),
 				ranked ? SkillSystem.effectiveLevel(player) : 0, scaled.unlockedVariants());
+		if (presentation.genericBeatCount() == 0) return;
 		MagicSignature signature = cast.definition().signature();
 		Vec3 origin = new Vec3(cast.anchor().x(), cast.anchor().y(), cast.anchor().z());
 		long eventId = Integer.toUnsignedLong(java.util.Objects.hash(cast.owner(),
 				cast.definition().id(), cast.gameTime(), presenceId.value()));
 		MagicFxPackets.broadcast(level, MagicFxEvent.cast(eventId, signature.motif(),
 				presentation.soundCue(), origin.x, origin.y, origin.z, signature.primaryColor(),
-				signature.secondaryColor(), signature.glyphSeed(), presentation.intensity()));
+				signature.secondaryColor(), signature.glyphSeed(), presentation.intensity(),
+				presentation.genericBeatCount()));
 		float volume = 0.45F + presentation.intensity() * 0.12F;
 		float pitch = 0.84F + presentation.intensity() * 0.035F
 				+ Math.floorMod(signature.glyphSeed(), 7) * 0.01F;

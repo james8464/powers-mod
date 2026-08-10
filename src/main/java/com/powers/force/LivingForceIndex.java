@@ -10,26 +10,56 @@ import java.util.Map;
 
 /** Chunk-bucketed in-memory index of loaded darkness and pure-light blocks. */
 final class LivingForceIndex {
-	private final Map<Long, Map<Long, LivingForceKind>> chunks = new HashMap<>();
+	private static final class ChunkBucket {
+		private final Map<Long, LivingForceKind> entries = new HashMap<>();
+		private int darkness;
+		private int pureLight;
+
+		LivingForceKind put(long position, LivingForceKind kind) {
+			LivingForceKind previous = entries.put(position, kind);
+			if (previous != kind) {
+				adjust(previous, -1);
+				adjust(kind, 1);
+			}
+			return previous;
+		}
+
+		LivingForceKind remove(long position) {
+			LivingForceKind removed = entries.remove(position);
+			adjust(removed, -1);
+			return removed;
+		}
+
+		boolean has(LivingForceKind kind) {
+			return kind == LivingForceKind.DARKNESS ? darkness > 0 : pureLight > 0;
+		}
+
+		private void adjust(LivingForceKind kind, int delta) {
+			if (kind == LivingForceKind.DARKNESS) darkness += delta;
+			else if (kind == LivingForceKind.PURE_LIGHT) pureLight += delta;
+		}
+	}
+
+	private final Map<Long, ChunkBucket> chunks = new HashMap<>();
 	private int size;
 
 	void add(long position, LivingForceKind kind) {
 		long chunk = ChunkPos.pack(BlockPos.getX(position) >> 4, BlockPos.getZ(position) >> 4);
-		Map<Long, LivingForceKind> entries = chunks.computeIfAbsent(chunk, ignored -> new HashMap<>());
-		if (entries.put(position, kind) == null) size++;
+		ChunkBucket bucket = chunks.computeIfAbsent(chunk, ignored -> new ChunkBucket());
+		if (bucket.put(position, kind) == null) size++;
 	}
 
 	void remove(long position) {
 		long chunk = ChunkPos.pack(BlockPos.getX(position) >> 4, BlockPos.getZ(position) >> 4);
-		Map<Long, LivingForceKind> entries = chunks.get(chunk);
+		ChunkBucket entries = chunks.get(chunk);
 		if (entries == null || entries.remove(position) == null) return;
 		size--;
-		if (entries.isEmpty()) chunks.remove(chunk);
+		if (entries.entries.isEmpty()) chunks.remove(chunk);
 	}
 
 	void removeChunk(long chunk) {
-		Map<Long, LivingForceKind> removed = chunks.remove(chunk);
-		if (removed != null) size -= removed.size();
+		ChunkBucket removed = chunks.remove(chunk);
+		if (removed != null) size -= removed.entries.size();
 	}
 
 	List<Long> within(double x, double y, double z, double radius, LivingForceKind kind) {
@@ -42,7 +72,8 @@ final class LivingForceIndex {
 		List<Long> result = new ArrayList<>();
 		for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
 			for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-				Map<Long, LivingForceKind> entries = chunks.get(ChunkPos.pack(chunkX, chunkZ));
+				ChunkBucket bucket = chunks.get(ChunkPos.pack(chunkX, chunkZ));
+				Map<Long, LivingForceKind> entries = bucket == null ? null : bucket.entries;
 				if (entries == null) continue;
 				for (Map.Entry<Long, LivingForceKind> entry : entries.entrySet()) {
 					if (entry.getValue() != kind) continue;
@@ -53,6 +84,15 @@ final class LivingForceIndex {
 					if (dx * dx + dy * dy + dz * dz <= radiusSquared) result.add(position);
 				}
 			}
+		}
+		return List.copyOf(result);
+	}
+
+	/** Returns only loaded chunk buckets that contain the requested force. */
+	List<Long> chunksWith(LivingForceKind kind) {
+		List<Long> result = new ArrayList<>();
+		for (Map.Entry<Long, ChunkBucket> entry : chunks.entrySet()) {
+			if (entry.getValue().has(kind)) result.add(entry.getKey());
 		}
 		return List.copyOf(result);
 	}

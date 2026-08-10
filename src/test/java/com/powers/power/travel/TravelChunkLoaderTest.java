@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TravelChunkLoaderTest {
 	@Test
@@ -20,5 +21,18 @@ class TravelChunkLoaderTest {
 		assertThrows(IllegalArgumentException.class, () -> new TravelChunkLoader.Budget(80, 120));
 		assertTrue(TravelChunkLoader.DEFAULT_BUDGET.ticketTicks()
 				>= TravelChunkLoader.DEFAULT_BUDGET.waitTicks() + TravelChunkLoader.MAX_FOLLOWUP_TICKS);
+	}
+
+	@Test
+	void requestStateSettlesExactlyOnceAcrossReadyTimeoutAndReplacement() {
+		TravelChunkLoader.RequestState ready = new TravelChunkLoader.RequestState();
+		assertTrue(ready.resolve(TravelChunkLoader.Resolution.READY));
+		assertFalse(ready.resolve(TravelChunkLoader.Resolution.TIMEOUT));
+		assertEquals(TravelChunkLoader.Resolution.READY, ready.resolution());
+
+		TravelChunkLoader.RequestState replaced = new TravelChunkLoader.RequestState();
+		assertTrue(replaced.resolve(TravelChunkLoader.Resolution.REPLACED));
+		assertFalse(replaced.resolve(TravelChunkLoader.Resolution.READY));
+		assertEquals(TravelChunkLoader.Resolution.REPLACED, replaced.resolution());
 	}
 }

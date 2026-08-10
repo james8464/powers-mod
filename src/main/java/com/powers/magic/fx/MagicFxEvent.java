@@ -8,7 +8,7 @@ import java.util.Objects;
  */
 public record MagicFxEvent(MagicFxKind kind, long eventId, String motif, String sound,
 		double x, double y, double z,
-		int primaryColor, int secondaryColor, int glyphSeed, int intensity) {
+		int primaryColor, int secondaryColor, int glyphSeed, int intensity, int genericBeatCount) {
 	public static final int MAX_INTENSITY = 5;
 
 	public MagicFxEvent {
@@ -23,21 +23,33 @@ public record MagicFxEvent(MagicFxKind kind, long eventId, String motif, String 
 			throw new IllegalArgumentException("FX colours must be 24-bit RGB");
 		}
 		intensity = Math.clamp(intensity, 1, MAX_INTENSITY);
+		if (genericBeatCount != 1 && genericBeatCount != 2
+				&& genericBeatCount != 4 && genericBeatCount != 6) {
+			throw new IllegalArgumentException("Semantic FX require 1, 2, 4, or 6 beats");
+		}
 	}
 
 	public static MagicFxEvent interaction(long eventId, String motif, String sound,
 			double x, double y, double z, int primaryColor, int secondaryColor,
 			int glyphSeed, int intensity) {
 		return new MagicFxEvent(MagicFxKind.INTERACTION, eventId, motif, sound, x, y, z,
-				primaryColor, secondaryColor, glyphSeed, intensity);
+				primaryColor, secondaryColor, glyphSeed, intensity, 4);
 	}
 
 	/** Creates a completed player-cast presentation event. */
 	public static MagicFxEvent cast(long eventId, String motif, String sound,
 			double x, double y, double z, int primaryColor, int secondaryColor,
 			int glyphSeed, int intensity) {
+		return cast(eventId, motif, sound, x, y, z, primaryColor, secondaryColor,
+				glyphSeed, intensity, 4);
+	}
+
+	/** Creates a cast event with its authored significance-driven beat count. */
+	public static MagicFxEvent cast(long eventId, String motif, String sound,
+			double x, double y, double z, int primaryColor, int secondaryColor,
+			int glyphSeed, int intensity, int genericBeatCount) {
 		return new MagicFxEvent(MagicFxKind.CAST, eventId, motif, sound, x, y, z,
-				primaryColor, secondaryColor, glyphSeed, intensity);
+				primaryColor, secondaryColor, glyphSeed, intensity, genericBeatCount);
 	}
 
 	/** Conservative upper estimate used to keep the protocol semantic and compact. */

@@ -59,5 +59,17 @@ class MagicFxServiceTest {
 		MagicFxPackets.MagicFxPayload payload = new MagicFxPackets.MagicFxPayload(event);
 
 		assertEquals(MagicFxKind.CAST, payload.kind());
+		assertEquals(4, payload.genericBeatCount());
+	}
+
+	@Test
+	void cosmicCastRetainsSixBeatClientContract() {
+		MagicFxEvent event = MagicFxEvent.cast(18L, "time", "time_suspend",
+				1.0, 2.0, 3.0, 0x68E0D5, 0xFFFFFF, 14, 5, 6);
+
+		MagicFxPackets.MagicFxPayload payload = new MagicFxPackets.MagicFxPayload(event);
+
+		assertEquals(6, payload.genericBeatCount());
+		assertEquals(6, event.genericBeatCount());
 	}
 }

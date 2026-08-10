@@ -102,7 +102,7 @@ abstract class MindscapeCrystalAbility extends Ability {
 		}
 		double permittedSeparation = scaledRange(caster, BASE_REACH) + 4.0;
 		AsyncAbilityTransaction transaction = new AsyncAbilityTransaction(caster, data, this);
-		return TravelChunkLoader.request(destinationLevel, BlockPos.containing(destinationPosition),
+		return TravelChunkLoader.request(caster.getUUID(), destinationLevel, BlockPos.containing(destinationPosition),
 				() -> startJourney(caster, subject, sourceLevel, destinationLevel,
 						destinationPosition, permittedSeparation, transaction),
 				() -> {

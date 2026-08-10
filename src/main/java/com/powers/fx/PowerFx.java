@@ -4,6 +4,7 @@ import com.powers.PowersParticles;
 import com.powers.PowersSounds;
 import com.powers.config.PowersConfigLoader;
 import com.powers.power.abilities.VoidBeamRules;
+import com.powers.network.MagicFxPackets;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -21,15 +22,17 @@ import net.minecraft.world.phys.Vec3;
  * trails and cast sounds
  */
 public final class PowerFx {
-	private static final java.util.Map<MinecraftServer, ParticleBudget> BUDGETS = new java.util.WeakHashMap<>();
+	private static final int MAX_VIEWER_PARTICLES_PER_TICK = 128;
+	private static final double MAX_PARTICLE_RANGE = 128.0;
+	private static final java.util.Map<MinecraftServer, ViewerParticleBudget> BUDGETS =
+			new java.util.WeakHashMap<>();
 
 	private PowerFx() {
 	}
 
 	/** puffs a cloud of particles around a point */
 	public static void burst(ServerLevel level, Vec3 pos, ParticleOptions particle, int count, double spread, double speed) {
-		int granted = claim(level, count);
-		if (granted > 0) level.sendParticles(particle, pos.x, pos.y, pos.z, granted, spread, spread, spread, speed);
+		sendPerViewer(level, pos, particle, count, spread, speed, false);
 	}
 
 	/**
@@ -38,25 +41,35 @@ public final class PowerFx {
 	 */
 	public static void clarityBurst(ServerLevel level, Vec3 pos, ParticleOptions particle,
 			int count, double spread, double speed) {
-		int granted = claim(level, count);
-		if (granted <= 0) return;
+		sendPerViewer(level, pos, particle, count, spread, speed, true);
+	}
+
+	private static void sendPerViewer(ServerLevel level, Vec3 pos, ParticleOptions particle,
+			int count, double spread, double speed, boolean protectFirstPersonClarity) {
+		if (count <= 0) return;
+		ViewerParticleBudget budget = budget(level);
+		long tick = level.getServer().getTickCount();
 		for (ServerPlayer viewer : level.players()) {
-			int visible = ParticleBudget.viewerCount(granted,
-					viewer.getEyePosition().distanceToSqr(pos));
+			double distanceSquared = viewer.getEyePosition().distanceToSqr(pos);
+			int requested = protectFirstPersonClarity
+					? ParticleBudget.viewerCount(count, distanceSquared) : count;
+			int granted = budget.claim(tick, viewer.getUUID(), requested, distanceSquared);
+			if (granted <= 0) continue;
 			level.sendParticles(viewer, particle, false, false,
-					pos.x, pos.y, pos.z, visible, spread, spread, spread, speed);
+					pos.x, pos.y, pos.z, granted, spread, spread, spread, speed);
 		}
 	}
 
-	private static int claim(ServerLevel level, int count) {
+	private static ViewerParticleBudget budget(ServerLevel level) {
 		int limit = PowersConfigLoader.get().maxParticlesPerTick();
 		MinecraftServer server = level.getServer();
-		ParticleBudget budget = BUDGETS.get(server);
-		if (budget == null || budget.limit() != limit) {
-			budget = new ParticleBudget(limit);
+		int viewerLimit = Math.min(MAX_VIEWER_PARTICLES_PER_TICK, Math.max(1, limit));
+		ViewerParticleBudget budget = BUDGETS.get(server);
+		if (budget == null || budget.serverLimit() != limit || budget.viewerLimit() != viewerLimit) {
+			budget = new ViewerParticleBudget(limit, viewerLimit, MAX_PARTICLE_RANGE);
 			BUDGETS.put(server, budget);
 		}
-		return budget.claim(server.getTickCount(), count);
+		return budget;
 	}
 
 	/** puffs a cloud of particles tinted with an rgb color */
@@ -66,11 +79,26 @@ public final class PowerFx {
 
 	/** draws a straight line of particles between two points */
 	public static void beam(ServerLevel level, Vec3 from, Vec3 to, ParticleOptions particle, int steps) {
-		Vec3 delta = to.subtract(from);
-		for (int i = 1; i <= steps; i++) {
-			Vec3 point = from.add(delta.scale((double) i / steps));
-			burst(level, point, particle, 1, 0.04, 0.0);
+		if (steps <= 0 || !finite(from) || !finite(to)) return;
+		int requested = Math.min(64, steps);
+		Vec3 midpoint = from.add(to).scale(0.5);
+		ViewerParticleBudget budget = budget(level);
+		long tick = level.getServer().getTickCount();
+		BeamFxStyle style = BeamFxStyle.from(particle);
+		int color = BeamFxStyle.color(particle);
+		long eventId = Integer.toUnsignedLong(java.util.Objects.hash(tick, from, to, style, color));
+		for (ServerPlayer viewer : level.players()) {
+			double distanceSquared = viewer.getEyePosition().distanceToSqr(midpoint);
+			int visible = ParticleBudget.viewerCount(requested, distanceSquared);
+			int granted = budget.claim(tick, viewer.getUUID(), visible, distanceSquared);
+			if (granted <= 0) continue;
+			MagicFxPackets.sendBeam(viewer, new MagicFxPackets.BeamFxPayload(eventId, style,
+					from.x, from.y, from.z, to.x, to.y, to.z, granted, color));
 		}
+	}
+
+	private static boolean finite(Vec3 point) {
+		return Double.isFinite(point.x) && Double.isFinite(point.y) && Double.isFinite(point.z);
 	}
 
 	/** draws a flat magic circle; the phase makes it look like it slowly rotates */
@@ -394,37 +422,7 @@ public final class PowerFx {
 
 	/** a cycling rainbow rgb color, for rainbow steve's effects */
 	public static int rainbow(int tick, int step) {
-		float hue = (float) ((tick * step) % 360) / 60.0f;
-		float x = 1.0f - Math.abs(hue % 2.0f - 1.0f);
-		float r;
-		float g;
-		float b;
-		if (hue < 1) {
-			r = 1.0f;
-			g = x;
-			b = 0.0f;
-		} else if (hue < 2) {
-			r = x;
-			g = 1.0f;
-			b = 0.0f;
-		} else if (hue < 3) {
-			r = 0.0f;
-			g = 1.0f;
-			b = x;
-		} else if (hue < 4) {
-			r = 0.0f;
-			g = x;
-			b = 1.0f;
-		} else if (hue < 5) {
-			r = x;
-			g = 0.0f;
-			b = 1.0f;
-		} else {
-			r = 1.0f;
-			g = 0.0f;
-			b = x;
-		}
-		return ((int) (r * 255.0f) << 16) | ((int) (g * 255.0f) << 8) | (int) (b * 255.0f);
+		return FxColorMath.rainbow(tick, step);
 	}
 
 	public static void clearBudgets() {

@@ -5,13 +5,16 @@ import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.util.PowerMessages;
+import com.powers.power.travel.TravelChunkLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.GameType;
 
 import java.util.Set;
 
@@ -35,15 +38,33 @@ public final class RealmConfinementManager {
 			PowersMod.LOGGER.error("Cannot enforce realm confinement: missing dimension {}", id);
 			return false;
 		}
-		BlockPos entry = BlockPos.containing(RealmLayout.ENTRY_X, realm.getMinY() + 1, RealmLayout.ENTRY_Z);
-		// Death is rare and the player must never spend even one playable tick
-		// outside the realm, so load the single entry chunk synchronously here.
-		realm.getChunk(entry.getX() >> 4, entry.getZ() >> 4);
-		respawned.teleportTo(realm, RealmLayout.ENTRY_X, realm.getMinY() + 1,
-				RealmLayout.ENTRY_Z, Set.of(), respawned.getYRot(), respawned.getXRot(), false);
-		PowerFx.rune(realm, respawned.position(), 2.0,
-				id.equals(PowersMod.id("dark_realm")) ? 0x2A143D : 0xFFFFFF, 28, Math.PI);
-		PowerMessages.sendImportant(respawned, "realm.powers.death_confined", 1);
+		respawned.setGameMode(GameType.SPECTATOR);
+		requestConfinement(respawned.level().getServer(), respawned.getUUID(), realm.dimension(), id);
 		return true;
+	}
+
+	private static void requestConfinement(MinecraftServer server, java.util.UUID playerId,
+			ResourceKey<Level> realmKey,
+			Identifier realmId) {
+		ServerLevel realm = server.getLevel(realmKey);
+		ServerPlayer player = server.getPlayerList().getPlayer(playerId);
+		if (realm == null || player == null) return;
+		BlockPos entry = BlockPos.containing(RealmLayout.ENTRY_X, realm.getMinY() + 1, RealmLayout.ENTRY_Z);
+		TravelChunkLoader.request(playerId, realm, entry, () -> {
+			ServerPlayer captive = server.getPlayerList().getPlayer(playerId);
+			if (captive == null) return;
+			captive.teleportTo(realm, RealmLayout.ENTRY_X, realm.getMinY() + 1,
+					RealmLayout.ENTRY_Z, Set.of(), captive.getYRot(), captive.getXRot(), false);
+			captive.setGameMode(GameType.ADVENTURE);
+			PowerFx.rune(realm, captive.position(), 2.0,
+					realmId.equals(PowersMod.id("dark_realm")) ? 0x2A143D : 0xFFFFFF, 28, Math.PI);
+			PowerMessages.sendImportant(captive, "realm.powers.death_confined", 1);
+		}, () -> scheduleRetry(server, playerId, realmKey, realmId));
+	}
+
+	private static void scheduleRetry(MinecraftServer server, java.util.UUID playerId,
+			ResourceKey<Level> realmKey, Identifier realmId) {
+		PowersMod.scheduleDelayed(server, 100,
+				() -> requestConfinement(server, playerId, realmKey, realmId));
 	}
 }
