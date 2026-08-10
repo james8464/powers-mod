@@ -79,7 +79,7 @@ class MagicRuntimeTest {
 	@Test
 	void repeatedPairInOneCellAndTickEmitsOneReactionCue() {
 		index.register(presence("00000000-0000-0000-0000-000000000002", OTHER,
-				"frost_nova", 1, 64, 1, 12, 200));
+				"ice_manipulation", 1, 64, 1, 12, 200));
 		MagicCastContext fire = cast("fireball", CASTER, 0, 64, 0, 32, 100);
 
 		runtime.emitReactions(runtime.previewCast(fire), cues::add);
@@ -92,7 +92,7 @@ class MagicRuntimeTest {
 	@Test
 	void allowedPreviewHasNoReactionSideEffectsUntilSuccessfulCommitPathEmitsIt() {
 		index.register(presence("00000000-0000-0000-0000-000000000004", OTHER,
-				"frost_nova", 1, 64, 1, 12, 200));
+				"ice_manipulation", 1, 64, 1, 12, 200));
 		MagicCastContext fire = cast("fireball", CASTER, 0, 64, 0, 32, 100);
 
 		MagicCastPreview preview = runtime.previewCast(fire);
@@ -110,7 +110,7 @@ class MagicRuntimeTest {
 		index.register(presence("00000000-0000-0000-0000-000000000005", OTHER,
 				"dimensional_anchor", 0, 64, 0, 12, 200));
 		index.register(presence("00000000-0000-0000-0000-000000000006", OTHER,
-				"frost_nova", 1, 64, 1, 12, 200));
+				"ice_manipulation", 1, 64, 1, 12, 200));
 		MagicCastPreview preview = runtime.previewCast(cast("time_shift", CASTER, 0, 64, 0, 40, 100));
 
 		runtime.emitBlockingReactions(preview, cues::add);

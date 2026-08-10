@@ -307,7 +307,6 @@ public final class PowersPackets {
 				SkillSystem.canEnterDarkRealm(player),
 				darkness,
 				data.mindBody() != null,
-				data.getPhase(),
 				data.getSizeMorphOption(),
 				rankProgress.completed().stream().sorted().toList(),
 				rankProgress.focus(),

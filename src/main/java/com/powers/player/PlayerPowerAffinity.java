@@ -6,7 +6,6 @@ import com.powers.power.PowerRegistry;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
-import java.util.Random;
 
 /** Centralizes allegiance mapping and loadout migration for innate player slots. */
 public final class PlayerPowerAffinity {
@@ -21,7 +20,7 @@ public final class PlayerPowerAffinity {
 		return power != null && power.affinity().permits(allegiance(player));
 	}
 
-	public static List<String> reconcile(ServerPlayer player, List<String> current, Random random) {
-		return PowerRegistry.reconcile(current, allegiance(player), random);
+	public static List<String> reconcile(ServerPlayer player, List<String> current) {
+		return PowerRegistry.reconcile(current, allegiance(player));
 	}
 }

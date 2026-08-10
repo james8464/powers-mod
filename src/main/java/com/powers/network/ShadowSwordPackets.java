@@ -37,7 +37,7 @@ public final class ShadowSwordPackets {
 	private static final StreamCodec<RegistryFriendlyByteBuf, java.util.List<ArtifactActionSnapshot>>
 			SNAPSHOT_LIST_CODEC = ACTION_SNAPSHOT_CODEC.apply(ByteBufCodecs.list(128));
 
-	public record OpenMenuPayload(String alignment, String selectedKey, int rank, int elementalPhase,
+	public record OpenMenuPayload(String alignment, String selectedKey, int rank,
 			int sizeMorphOption, int energy, java.util.List<String> favourites,
 			java.util.List<ArtifactActionSnapshot> actions) implements CustomPacketPayload {
 		public static final Type<OpenMenuPayload> TYPE = new Type<>(PowersMod.id("open_shadow_sword"));
@@ -46,7 +46,6 @@ public final class ShadowSwordPackets {
 						ALIGNMENT_CODEC, OpenMenuPayload::alignment,
 						ACTION_KEY_CODEC, OpenMenuPayload::selectedKey,
 						ByteBufCodecs.VAR_INT, OpenMenuPayload::rank,
-						ByteBufCodecs.VAR_INT, OpenMenuPayload::elementalPhase,
 						ByteBufCodecs.VAR_INT, OpenMenuPayload::sizeMorphOption,
 						ByteBufCodecs.VAR_INT, OpenMenuPayload::energy,
 						ACTION_LIST_CODEC, OpenMenuPayload::favourites,
@@ -172,11 +171,11 @@ public final class ShadowSwordPackets {
 
 	public static void openMenu(ServerPlayer player, ArtifactAlignment alignment,
 			String selectedKey, int rank,
-			int elementalPhase, int sizeMorphOption, int energy,
+			int sizeMorphOption, int energy,
 			java.util.List<String> favourites,
 			java.util.List<ArtifactActionSnapshot> actions) {
 		ServerPlayNetworking.send(player, new OpenMenuPayload(
-				alignment.serializedName(), selectedKey, rank, elementalPhase, sizeMorphOption,
+				alignment.serializedName(), selectedKey, rank, sizeMorphOption,
 				energy, java.util.List.copyOf(favourites), java.util.List.copyOf(actions)));
 	}
 

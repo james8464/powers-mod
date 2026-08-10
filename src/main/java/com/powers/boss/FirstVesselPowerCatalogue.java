@@ -10,27 +10,22 @@ import static com.powers.boss.FirstVesselPowerAction.Kind.MOBILITY;
 import static com.powers.boss.FirstVesselPowerAction.Kind.PROJECTILE;
 import static com.powers.boss.FirstVesselPowerAction.Kind.RECOVERY;
 
-/** Complete adapter manifest for all 28 innate powers. */
+/** Complete entity-safe adapter manifest for the current innate roster. */
 public final class FirstVesselPowerCatalogue {
 	private static final List<FirstVesselPowerAction> ACTIONS = List.of(
 			a("size_shift", DEFENSE, 180, 3, 0),
 			a("time_shift", MOBILITY, 100, 5, 0),
-			a("shadow_step", MOBILITY, 80, 6, 0),
 			a("flight", MOBILITY, 120, 3, 0),
-			a("elemental_blast", PROJECTILE, 60, 7, 0),
 			a("starfall", AREA, 180, 4, 1),
 			a("void_beam", BEAM, 100, 6, 1),
 			a("fireball", PROJECTILE, 50, 7, 0),
-			a("frost_nova", AREA, 120, 6, 0),
 			a("lightning_strike", PROJECTILE, 40, 8, 0),
-			a("ground_slam", AREA, 100, 7, 0),
 			a("thunderclap", AREA, 90, 7, 0),
 			a("speed_burst", MOBILITY, 70, 5, 0),
 			a("telekinesis", CONTROL, 80, 7, 0),
 			a("energy_beam", BEAM, 80, 7, 0),
 			a("super_speed", MOBILITY, 80, 5, 0),
 			a("breezy_bash", CONTROL, 80, 6, 0),
-			a("cozy_campfire", RECOVERY, 240, 2, 0),
 			a("invisibility", DEFENSE, 160, 3, 1),
 			a("time_freeze", CONTROL, 240, 2, 2),
 			a("forcefield", DEFENSE, 180, 4, 0),

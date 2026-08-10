@@ -99,7 +99,7 @@ public class PowersClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenMenuPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
 						new ShadowSwordScreen(payload.alignment(), payload.selectedKey(), payload.rank(),
-								payload.elementalPhase(), payload.sizeMorphOption(), payload.energy(),
+								payload.sizeMorphOption(), payload.energy(),
 								payload.favourites(),
 								payload.actions()))));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenTeleportPayload.TYPE,
@@ -222,9 +222,8 @@ public class PowersClient implements ClientModInitializer {
 		// the primed element or toggles the selected body scale.
 		if (ability.selectionOptionCount() > 0 && client.player != null
 				&& client.player.isCrouching()) {
-			int selected = power.id().getPath().equals("elemental_blast")
-					? ClientPowerState.elementalPhase() : ClientPowerState.sizeMorphOption();
-			client.gui.setScreen(new PowerSelectionScreen(slot, ability, selected));
+			client.gui.setScreen(new PowerSelectionScreen(slot, ability,
+					ClientPowerState.sizeMorphOption()));
 			return;
 		}
 

@@ -32,9 +32,8 @@ public final class ArtifactMenuRules {
 	}
 
 	/** Returns the authored selector value for abilities that actually expose one. */
-	public static int selectionVariant(String abilityPath, int elementalPhase, int sizeOption) {
+	public static int selectionVariant(String abilityPath, int sizeOption) {
 		return switch (abilityPath == null ? "" : abilityPath) {
-			case "elemental_blast" -> elementalPhase;
 			case "size_shift" -> sizeOption;
 			default -> -1;
 		};

@@ -15,7 +15,7 @@ class ArtifactFavouriteRulesTest {
 		assertEquals(List.of(
 				"innate/lightning_strike",
 				"innate/fireball",
-				"innate/shadow_step",
+				"innate/time_shift",
 				"innate/forcefield",
 				"innate/flight",
 				"unique/call_hollowed",

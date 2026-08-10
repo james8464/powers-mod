@@ -32,19 +32,16 @@ public final class FirstVesselCombat {
 		if (!target.isAlive()) return;
 		switch (action.powerId()) {
 			case "size_shift" -> ward(level, boss, 1.35F, 100);
-			case "time_shift", "shadow_step", "astral_projection" -> step(level, boss, target, 5.0);
+			case "time_shift", "astral_projection" -> step(level, boss, target, 5.0);
 			case "flight", "speed_burst", "super_speed" -> rush(level, boss, target);
-			case "elemental_blast" -> projectile(level, boss, target, 54.0F, 0xFF7733);
 			case "starfall" -> area(level, boss, target.position(), 10.0, 72.0F, true);
 			case "void_beam" -> beam(level, boss, target, 82.0F, 0x6D32A8);
 			case "fireball" -> projectile(level, boss, target, 62.0F, 0x8A1F14);
-			case "frost_nova" -> frost(level, boss, target);
 			case "lightning_strike" -> lightning(level, boss, target);
-			case "ground_slam" -> area(level, boss, boss.position(), 9.0, 64.0F, false);
 			case "thunderclap" -> thunderclap(level, boss);
 			case "telekinesis", "breezy_bash" -> throwTarget(level, boss, target);
 			case "energy_beam" -> beam(level, boss, target, 76.0F, 0xFF6A20);
-			case "cozy_campfire", "plant_healing_acceleration" -> recover(level, boss, 260.0F);
+			case "plant_healing_acceleration" -> recover(level, boss, 260.0F);
 			case "invisibility" -> veil(level, boss);
 			case "time_freeze" -> freeze(level, boss, target);
 			case "forcefield", "double_health" -> ward(level, boss, 1.0F, 180);
@@ -139,14 +136,6 @@ public final class FirstVesselCombat {
 		}
 		PowerFx.rune(level, center, radius, 0x7C3E92, 44, 0.0);
 		PowerFx.burst(level, center, ParticleTypes.EXPLOSION, 5, 1.5, 0.06);
-	}
-
-	private static void frost(ServerLevel level, FirstVessel boss, LivingEntity target) {
-		area(level, boss, target.position(), 7.0, 44.0F, false);
-		for (LivingEntity affected : candidates(level, boss, target.position(), 7.0)) {
-			if (mayControl(level, affected)) affected.addEffect(PowerStatusEffects.hidden(
-					MobEffects.SLOWNESS, 100, 4, false, true));
-		}
 	}
 
 	private static void thunderclap(ServerLevel level, FirstVessel boss) {

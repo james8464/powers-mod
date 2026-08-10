@@ -87,14 +87,6 @@ class LightningStrikeRulesTest {
 	}
 
 	@Test
-	void lifecycleRequiresTheExactDirectOrDelegatedSourcePower() {
-		assertTrue(LightningStrikeRules.sourceOwned(false, true, false));
-		assertFalse(LightningStrikeRules.sourceOwned(false, false, true));
-		assertTrue(LightningStrikeRules.sourceOwned(true, false, true));
-		assertFalse(LightningStrikeRules.sourceOwned(true, true, false));
-	}
-
-	@Test
 	void everyBodyProtectionPrecedesDamageAndSecondaryEffects() {
 		assertEquals(SAFE_ZONE, body(false, true, true, true, true));
 		assertEquals(AMETHYST, body(true, true, true, true, true));

@@ -41,20 +41,6 @@ class HudMathTest {
 	}
 
 	@Test
-	void elementalRunesDistinguishPrimedInactiveAndPulseStates() {
-		assertEquals(0xFFFF5A24, HudMath.elementalRuneColor(0, 0, 0));
-		assertEquals(0xCCFF5A24, HudMath.elementalRuneColor(0, 0, 5));
-		assertEquals(0x5582E9FF, HudMath.elementalRuneColor(0, 1, 0));
-		assertEquals(0x55FFF59D, HudMath.elementalRuneColor(0, 2, 0));
-	}
-
-	@Test
-	void elementalRuneMathNormalizesMalformedPhaseValues() {
-		assertEquals(0xFF8C66FF, HudMath.elementalRuneColor(-1, 3, 0));
-		assertEquals(0xFFFF5A24, HudMath.elementalRuneColor(4, 4, 0));
-	}
-
-	@Test
 	void secondStepRunesAlternateCyanGoldAndExchangePulse() {
 		assertEquals(0xFFD7F8FF, HudMath.secondStepRuneColor(0, 0));
 		assertEquals(0xCCFFD166, HudMath.secondStepRuneColor(1, 0));

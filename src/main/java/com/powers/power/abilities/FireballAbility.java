@@ -43,7 +43,6 @@ import java.util.UUID;
 /** Owns chargeable Cinderheart fireballs from summon through finite impact. */
 public final class FireballAbility extends Ability {
 	private static final Identifier POWER_ID = PowersMod.id("fireball");
-	private static final Identifier ELEMENTAL_POWER_ID = PowersMod.id("elemental_blast");
 	private static final int BASE_HOVER_TICKS = 240;
 	private static final int MAX_ACTIVE_HEARTS = 64;
 	private static final int HOVER_PULSE_INTERVAL = 10;
@@ -392,13 +391,12 @@ public final class FireballAbility extends Ability {
 		removeState(heart, projectile, true);
 	}
 
-	/** Returns whether either direct Fireball or Elemental Blast still owns this projectile. */
+	/** Returns whether the player's innate Fireball still owns this projectile. */
 	private static boolean ownsFireSource(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
 			Power power = data.getPower(slot);
-			if (power != null && (power.id().equals(POWER_ID)
-					|| power.id().equals(ELEMENTAL_POWER_ID))) return true;
+			if (power != null && power.id().equals(POWER_ID)) return true;
 		}
 		return false;
 	}

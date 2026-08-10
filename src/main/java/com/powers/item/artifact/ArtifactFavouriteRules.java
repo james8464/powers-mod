@@ -9,11 +9,11 @@ import java.util.Set;
 public final class ArtifactFavouriteRules {
 	public static final int SLOT_COUNT = 8;
 	private static final List<String> SHADOW_DEFAULTS = List.of(
-			"innate/lightning_strike", "innate/fireball", "innate/shadow_step",
+			"innate/lightning_strike", "innate/fireball", "innate/time_shift",
 			"innate/forcefield", "innate/flight", "unique/call_hollowed",
 			"unique/blight_ground", "unique/nightfall_dominion");
 	private static final List<String> LIGHT_DEFAULTS = List.of(
-			"innate/lightning_strike", "innate/fireball", "innate/shadow_step",
+			"innate/lightning_strike", "innate/fireball", "innate/time_shift",
 			"innate/forcefield", "innate/flight", "dominion/call_radiant",
 			"dominion/consecrate_ground", "dominion/host_heaven");
 

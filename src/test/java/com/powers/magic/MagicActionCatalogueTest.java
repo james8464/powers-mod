@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MagicActionCatalogueTest {
 	private static final Map<MagicOrigin, Integer> EXPECTED_ORIGIN_COUNTS = Map.of(
-			MagicOrigin.INNATE, 27,
+			MagicOrigin.INNATE, 22,
 			MagicOrigin.CRYSTAL, 13,
 			MagicOrigin.ARTIFACT, 16,
 			MagicOrigin.SPELL, 21,
@@ -26,8 +26,8 @@ class MagicActionCatalogueTest {
 		catalogue.definitions().forEach(definition ->
 				actualCounts.merge(definition.origin(), 1, Integer::sum));
 
-		assertEquals(82, catalogue.definitions().size());
-		assertEquals(82, catalogue.definitions().stream()
+		assertEquals(77, catalogue.definitions().size());
+		assertEquals(77, catalogue.definitions().stream()
 				.map(MagicActionDefinition::id).distinct().count());
 		assertEquals(EXPECTED_ORIGIN_COUNTS, actualCounts);
 		assertTrue(catalogue.definitions().stream().allMatch(MagicActionDefinition::isComplete));
@@ -41,10 +41,9 @@ class MagicActionCatalogueTest {
 				.collect(Collectors.toUnmodifiableSet());
 
 		assertTrue(actual.containsAll(Set.of(
-				"time_shift", "shadow_step", "flight", "elemental_blast",
-				"starfall", "void_beam", "fireball", "frost_nova", "lightning_strike",
-				"ground_slam", "thunderclap", "speed_burst", "telekinesis", "energy_beam", "super_speed",
-				"breezy_bash", "cozy_campfire", "invisibility", "time_freeze", "forcefield",
+				"time_shift", "flight", "starfall", "void_beam", "fireball", "lightning_strike",
+				"thunderclap", "speed_burst", "telekinesis", "energy_beam", "super_speed",
+				"breezy_bash", "invisibility", "time_freeze", "forcefield",
 				"gravity_displacement", "vessel_possession", "astral_projection", "energy_drain",
 				"ice_manipulation", "plant_healing_acceleration", "double_health",
 				"inferno", "clone_swarm", "creativity_manifestation", "size_shift", "life_bloom",
@@ -59,6 +58,10 @@ class MagicActionCatalogueTest {
 				"amethyst_item", "amethyst_block", "amethyst_ward",
 				"darkness_block", "pure_light_block")));
 		assertTrue(catalogue.definition(new MagicActionId("slow_world")) == null);
+		for (String retired : Set.of("cozy_campfire", "frost_nova", "elemental_blast",
+				"ground_slam", "shadow_step")) {
+			assertTrue(catalogue.definition(new MagicActionId(retired)) == null, retired);
+		}
 		assertTrue(catalogue.definition(new MagicActionId("annihilation_beam")) == null);
 		assertTrue(catalogue.definition(new MagicActionId("legion_eclipse")) == null);
 	}

@@ -50,10 +50,10 @@ public final class PowerEnergy {
 	public static int baseCost(String abilityId) {
 		return switch (abilityId) {
 			case "lightning_strike", "fireball" -> 4;
-			case "speed_burst", "shadow_step", "super_speed", "invisibility" -> 10;
-			case "energy_beam", "void_beam", "frost_nova", "ice_manipulation" -> 22;
-			case "elemental_blast", "gravity_displacement", "breezy_bash", "thunderclap" -> 28;
-			case "ground_slam", "forcefield", "cozy_campfire" -> 35;
+			case "speed_burst", "super_speed", "invisibility" -> 10;
+			case "energy_beam", "void_beam", "ice_manipulation" -> 22;
+			case "gravity_displacement", "breezy_bash", "thunderclap" -> 28;
+			case "forcefield" -> 35;
 			case "starfall", "time_freeze", "dimensional_anchor" -> 45;
 			case "telekinesis", "vessel_possession" -> 24;
 			case "astral_projection" -> 32;

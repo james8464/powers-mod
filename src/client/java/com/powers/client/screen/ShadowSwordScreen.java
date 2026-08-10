@@ -22,10 +22,10 @@ public final class ShadowSwordScreen extends Screen {
 	private int hovered = ArtifactWheelRules.NONE;
 
 	public ShadowSwordScreen(String alignment, String initialKey, int rank,
-			int elementalPhase, int sizeMorphOption, int energy,
+			int sizeMorphOption, int energy,
 			List<String> favourites,
 			List<com.powers.item.artifact.ArtifactActionSnapshot> snapshots) {
-		this(ArtifactMenuState.fromPacket(alignment, initialKey, rank, elementalPhase,
+		this(ArtifactMenuState.fromPacket(alignment, initialKey, rank,
 				sizeMorphOption, energy, favourites, snapshots));
 	}
 

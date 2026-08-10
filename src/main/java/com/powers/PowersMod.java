@@ -13,7 +13,6 @@ import com.powers.player.PlayerTickCadence;
 import com.powers.progression.RankGraphRegistry;
 import com.powers.progression.PowerScalingService;
 import com.powers.power.Ability;
-import com.powers.power.PassiveEffect;
 import com.powers.power.Power;
 import com.powers.power.PowerAbilityRuntime;
 import com.powers.power.PowerEnergy;
@@ -63,8 +62,6 @@ public class PowersMod implements ModInitializer {
 	public static final String MOD_ID = "powers";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	// Passives are re-applied every five seconds so they never expire.
-	private static final int PASSIVE_REFRESH_TICKS = 100;
 	// Records which realm's weather a summoned storm echoes.
 	public enum StormTheme { NONE, DARK, LIGHT }
 
@@ -117,9 +114,8 @@ public class PowersMod implements ModInitializer {
 			SkillSystem.refresh(player);
 			PowersPackets.syncTo(player);
 		});
-		// a respawned player is a brand new entity: the attachments come across
-		// with it, but the passive effects, name plate and client hud all have
-		// to be rebuilt straight away instead of waiting for the next refresh
+		// A respawned player is a brand new entity. Rebuild runtime state, name
+		// plate and client HUD without reviving any automatic power effects.
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
 			MagicRuntime.global().clearOwner(oldPlayer.getUUID());
 			PowerAbilityRuntime.afterRespawn(newPlayer.level().getServer(), oldPlayer, newPlayer);
@@ -140,7 +136,6 @@ public class PowersMod implements ModInitializer {
 				PlayerPowers.get(newPlayer).setPreviousGameMode(null);
 				RealmConfinementManager.restoreAfterDeath(oldPlayer, newPlayer);
 			}
-			refreshPassives(newPlayer);
 			SkillSystem.syncPathVisibility(newPlayer);
 			SkillSystem.refresh(newPlayer);
 			PowersPackets.syncTo(newPlayer);
@@ -193,9 +188,8 @@ public class PowersMod implements ModInitializer {
 			com.powers.magic.runtime.PhysicalMagicPresences.clear();
 		});
 
-		// passives get re-applied on a schedule so they never expire, toggles
-		// re-assert themselves every few ticks (flight, forcefields), and time
-		// stops, storms, and delayed jobs all advance each tick
+		// Toggles re-assert themselves every few ticks, while time stops, storms,
+		// fields and delayed jobs advance through bounded lifecycle owners.
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			int tick = server.getTickCount();
 			MagicRuntime.global().tick(tick);
@@ -225,7 +219,6 @@ public class PowersMod implements ModInitializer {
 		// player-owned magic for anyone the active time stop has frozen.
 		if (!com.powers.power.state.GlobalTimeStopManager.mayAct(player)) return;
 		if (cadence.passiveRefresh()) {
-			refreshPassives(player);
 			PowersPackets.syncTo(player);
 		}
 		ArtifactInventoryRuntime.tickPlayer(player, tick);
@@ -258,7 +251,6 @@ public class PowersMod implements ModInitializer {
 		if (cadence.fiveTick()) {
 			if (cadence.second()) AmethystDampening.update(player);
 			drainExhaustionEnergy(player);
-			tickAuras(player, tick);
 		}
 		if (cadence.second()) drainToggleEnergy(player);
 	}
@@ -294,21 +286,6 @@ public class PowersMod implements ModInitializer {
 	public static ScheduledTaskQueue.TaskToken scheduleDelayed(
 			MinecraftServer server, int ticks, Runnable action) {
 		return ServerMagicScheduler.schedule(server, ticks, action);
-	}
-
-	// re-applies each power's passive effects with a long duration so they never lapse
-	private static void refreshPassives(ServerPlayer player) {
-		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
-			Power power = data.getPower(slot);
-			if (power == null) {
-				continue;
-			}
-			for (PassiveEffect passive : power.passives()) {
-				player.addEffect(PowerStatusEffects.hidden(passive.effect(), PASSIVE_REFRESH_TICKS * 3,
-						passive.amplifier(), true, true));
-			}
-		}
 	}
 
 	/**
@@ -407,27 +384,6 @@ public class PowersMod implements ModInitializer {
 
 		GodlyPunishment.strike(level, player, 0xFFD700, true);
 		PowerMessages.sendImportant(player, "energy.powers.backlash", 6);
-	}
-
-	// drifting colored motes around the player, one hue per assigned power
-	private static void tickAuras(ServerPlayer player, int tick) {
-		ServerLevel level = (ServerLevel) player.level();
-		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
-			Power power = data.getPower(slot);
-			if (power == null) {
-				continue;
-			}
-			// flight cycles through the rainbow; every other power glows its own color
-			int rgb = power.id().getPath().equals("flight")
-					? com.powers.fx.PowerFx.rainbow(tick, 6)
-					: power.color() & 0xFFFFFF;
-			Vec3 pos = player.getEyePosition().add(
-					(level.getRandom().nextDouble() - 0.5) * 0.8,
-					(level.getRandom().nextDouble() - 0.5) * 0.8,
-					(level.getRandom().nextDouble() - 0.5) * 0.8);
-			com.powers.fx.PowerFx.coloredBurst(level, pos, rgb, 1, 0.02);
-		}
 	}
 
 	public static Identifier id(String path) {

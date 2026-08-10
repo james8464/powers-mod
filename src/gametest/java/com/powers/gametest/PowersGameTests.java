@@ -310,7 +310,7 @@ public final class PowersGameTests {
 		caster.setXRot(0.0F);
 		caster.addTag(SkillSystem.DARKNESS_TAG);
 		com.powers.player.PlayerPowers.get(caster).setSlots(caster, java.util.List.of(
-				"powers:energy_drain", "powers:shadow_step", "powers:void_beam"));
+				"powers:energy_drain", "powers:flight", "powers:void_beam"));
 		PowerTestActor actor = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 6));
 		actor.setNoAi(true);
 		helper.assertTrue(new EnergyDrainAbility().activate(caster,
@@ -413,7 +413,7 @@ public final class PowersGameTests {
 		actor.setNoAi(true);
 		var data = com.powers.player.PlayerPowers.get(caster);
 		data.setSlots(caster, java.util.List.of(
-				"powers:time_shift", "powers:shadow_step", "powers:forcefield"));
+				"powers:time_shift", "powers:flight", "powers:forcefield"));
 		BlockPos destination = helper.absolutePos(new BlockPos(7, 1, 7));
 		helper.setBlock(new BlockPos(7, 0, 7), Blocks.STONE);
 		TeleportAbility ability = new TeleportAbility();

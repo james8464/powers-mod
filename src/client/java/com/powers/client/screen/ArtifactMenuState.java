@@ -5,7 +5,6 @@ import com.powers.item.artifact.ArtifactActionCategory;
 import com.powers.item.artifact.ArtifactActionDefinition;
 import com.powers.item.artifact.ArtifactActionSnapshot;
 import com.powers.item.artifact.ArtifactAlignment;
-import com.powers.power.abilities.ElementalPhase;
 import com.powers.power.abilities.SizeMorphRules;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -18,7 +17,6 @@ public record ArtifactMenuState(
 		ArtifactAlignment alignment,
 		String selectedKey,
 		int rank,
-		int elementalPhase,
 		int sizeMorphOption,
 		int energy,
 		List<String> favourites,
@@ -30,21 +28,20 @@ public record ArtifactMenuState(
 		favourites = List.copyOf(favourites);
 		actions = List.copyOf(actions);
 		snapshots = List.copyOf(snapshots);
-		elementalPhase = ElementalPhase.fromIndex(elementalPhase).index();
 		sizeMorphOption = SizeMorphRules.isValidOption(sizeMorphOption)
 				? sizeMorphOption : SizeMorphRules.normalOption();
 	}
 
 	public static ArtifactMenuState fromPacket(String alignment, String selectedKey, int rank,
-			int elementalPhase, int sizeMorphOption, int energy, List<String> favourites,
+			int sizeMorphOption, int energy, List<String> favourites,
 			List<ArtifactActionSnapshot> snapshots) {
 		ArtifactAlignment parsed = ArtifactAlignment.fromSerialized(alignment);
-		return new ArtifactMenuState(parsed, selectedKey, rank, elementalPhase, sizeMorphOption,
+		return new ArtifactMenuState(parsed, selectedKey, rank, sizeMorphOption,
 				energy, favourites, ArtifactActionCatalogue.forAlignment(parsed), snapshots);
 	}
 
 	public ArtifactMenuState withFavourites(List<String> updated) {
-		return new ArtifactMenuState(alignment, selectedKey, rank, elementalPhase, sizeMorphOption,
+		return new ArtifactMenuState(alignment, selectedKey, rank, sizeMorphOption,
 				energy, updated, actions, snapshots);
 	}
 
@@ -78,7 +75,6 @@ public record ArtifactMenuState(
 	}
 
 	public int optionFor(ArtifactActionDefinition action) {
-		if (action.abilityId().equals("elemental_blast")) return elementalPhase;
 		if (action.abilityId().equals("size_shift")) return sizeMorphOption;
 		return -1;
 	}
