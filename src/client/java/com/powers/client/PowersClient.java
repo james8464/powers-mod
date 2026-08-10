@@ -69,11 +69,11 @@ public class PowersClient implements ClientModInitializer {
 						Minecraft.getInstance().gui.setScreen(new CelestialLocatorScreen(payload.nonce()))));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenMenuPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
-						new ShadowSwordScreen(payload.selectedKey(), payload.darknessLevel(),
+						new ShadowSwordScreen(payload.alignment(), payload.selectedKey(), payload.rank(),
 								payload.elementalPhase(), payload.sizeMorphOption()))));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenTeleportPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
-						TeleportInputScreen.shadowSword())));
+						TeleportInputScreen.artifact(payload.alignment()))));
 		// clear the cached state when you leave the server so the hud doesn't carry over old powers
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			ClientPowerState.reset();
@@ -86,6 +86,8 @@ public class PowersClient implements ClientModInitializer {
 				context -> new PlayerLikeMobRenderer(context, "darkness_player"));
 		EntityRenderers.register(PowersEntities.POWER_TEST_ACTOR,
 				context -> new PlayerLikeMobRenderer(context, "test_actor"));
+		EntityRenderers.register(PowersEntities.RADIANT_SENTINEL,
+				context -> new PlayerLikeMobRenderer(context, "radiant_sentinel"));
 
 		// Join vanilla's survival-bar layer so extra heart/armour rows are known
 		// before the adaptive energy vessel and icon rail are extracted.

@@ -22,10 +22,18 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.UUID;
 
 /** Shared player-scale movement, attributes, and bounded lightning/fireball attacks. */
 public abstract class AbstractPlayerLikeMob extends Monster {
+	private UUID guardianOwner;
+	private int guardianLifetime = -1;
+	private boolean eliteGuardian;
+
 	protected AbstractPlayerLikeMob(EntityType<? extends Monster> type, Level level) {
 		super(type, level);
 	}
@@ -53,9 +61,44 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 
 	protected abstract void registerTargetGoals();
 
+	/** Configures a bounded owned summon; natural realm creatures remain unowned. */
+	public final void configureGuardian(UUID ownerId, int lifetimeTicks, boolean elite) {
+		guardianOwner = ownerId;
+		guardianLifetime = Math.max(1, lifetimeTicks);
+		eliteGuardian = elite;
+		setPersistenceRequired();
+		if (elite) {
+			getAttribute(Attributes.MAX_HEALTH).setBaseValue(240.0);
+			getAttribute(Attributes.ARMOR).setBaseValue(22.0);
+			getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(34.0);
+			setHealth(getMaxHealth());
+		}
+	}
+
+	public final UUID guardianOwner() {
+		return guardianOwner;
+	}
+
+	public final boolean eliteGuardian() {
+		return eliteGuardian;
+	}
+
+	protected boolean radiantCombat() {
+		return false;
+	}
+
 	@Override
 	protected void customServerAiStep(ServerLevel level) {
 		super.customServerAiStep(level);
+		if (guardianLifetime > 0) {
+			guardianLifetime--;
+			boolean ownerPresent = guardianOwner == null
+					|| level.getServer().getPlayerList().getPlayer(guardianOwner) != null;
+			if (GuardianFactionRules.shouldExpire(guardianLifetime, ownerPresent)) {
+				discard();
+				return;
+			}
+		}
 		LivingEntity target = getTarget();
 		if (target == null || !target.isAlive() || distanceToSqr(target) > 32.0 * 32.0
 				|| !getSensing().hasLineOfSight(target)
@@ -91,10 +134,35 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 
 	private void castFireball(ServerLevel level, LivingEntity target) {
 		Vec3 direction = target.getEyePosition().subtract(getEyePosition()).normalize();
-		DarknessFireballProjectile fireball = new DarknessFireballProjectile(level, this, direction);
+		DarknessFireballProjectile fireball = new DarknessFireballProjectile(
+				level, this, direction, radiantCombat());
 		fireball.setPos(getEyePosition().add(direction.scale(1.2)));
 		level.addFreshEntity(fireball);
-		PowerFx.rune(level, getEyePosition(), 0.65, 0x7B173E, 14, tickCount * 0.1);
-		PowerFx.sound(level, getEyePosition(), PowersSounds.DARK_WHISPER, 1.1F, 0.8F);
+		PowerFx.rune(level, getEyePosition(), 0.65,
+				radiantCombat() ? 0xFFE89B : 0x7B173E, 14, tickCount * 0.1);
+		PowerFx.sound(level, getEyePosition(), radiantCombat()
+				? PowersSounds.LIGHT_CHORUS : PowersSounds.DARK_WHISPER, 1.1F,
+				radiantCombat() ? 1.35F : 0.8F);
+	}
+
+	@Override
+	protected void addAdditionalSaveData(ValueOutput output) {
+		super.addAdditionalSaveData(output);
+		if (guardianOwner != null) output.putString("PowersGuardianOwner", guardianOwner.toString());
+		output.putInt("PowersGuardianLifetime", guardianLifetime);
+		output.putBoolean("PowersEliteGuardian", eliteGuardian);
+	}
+
+	@Override
+	protected void readAdditionalSaveData(ValueInput input) {
+		super.readAdditionalSaveData(input);
+		String owner = input.getStringOr("PowersGuardianOwner", "");
+		try {
+			guardianOwner = owner.isBlank() ? null : UUID.fromString(owner);
+		} catch (IllegalArgumentException ignored) {
+			guardianOwner = null;
+		}
+		guardianLifetime = input.getIntOr("PowersGuardianLifetime", -1);
+		eliteGuardian = input.getBooleanOr("PowersEliteGuardian", false);
 	}
 }

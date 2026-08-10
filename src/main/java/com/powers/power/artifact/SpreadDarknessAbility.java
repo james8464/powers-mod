@@ -1,7 +1,7 @@
 package com.powers.power.artifact;
 
 import com.powers.PowersMod;
-import com.powers.item.ShadowSwordActions;
+import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import net.minecraft.network.chat.Component;
@@ -16,6 +16,7 @@ public final class SpreadDarknessAbility extends Ability {
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		return ShadowSwordActions.spread(player) > 0;
+		return ArtifactGroundWorkQueue.enqueueDisc(
+				player, ArtifactAlignment.DARKNESS, 6, false, false) > 0;
 	}
 }

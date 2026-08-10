@@ -23,9 +23,15 @@ import java.util.Comparator;
 /** Unsaved, terrain-safe fireball used by player-shaped darkness combatants. */
 final class DarknessFireballProjectile extends LargeFireball {
 	private static final double RADIUS = 5.0;
+	private final boolean radiant;
 
 	DarknessFireballProjectile(ServerLevel level, LivingEntity owner, Vec3 direction) {
+		this(level, owner, direction, false);
+	}
+
+	DarknessFireballProjectile(ServerLevel level, LivingEntity owner, Vec3 direction, boolean radiant) {
 		super(level, owner, direction, 0);
+		this.radiant = radiant;
 		PowerEntityState.markEphemeral(this);
 	}
 
@@ -44,7 +50,7 @@ final class DarknessFireballProjectile extends LargeFireball {
 		AABB bounds = AABB.ofSize(center, RADIUS * 2.0, RADIUS * 2.0, RADIUS * 2.0);
 		for (LivingEntity target : BoundedEntityCandidates.living(level, bounds, 48,
 				candidate -> candidate != owner && candidate.isAlive()
-						&& !candidate.entityTags().contains(SkillSystem.DARKNESS_TAG)
+						&& (radiant == candidate.entityTags().contains(SkillSystem.DARKNESS_TAG))
 						&& candidate.distanceToSqr(center) <= RADIUS * RADIUS
 						&& !AmethystDampening.isDampened(candidate)
 						&& !PowerProtection.isSafeZone(level, candidate.position())
@@ -53,12 +59,16 @@ final class DarknessFireballProjectile extends LargeFireball {
 			double falloff = 1.0 - Math.sqrt(target.distanceToSqr(center)) / RADIUS;
 			if (target.hurtServer(level, PowerDamage.projectileSource(owner, this),
 					(float) (18.0 + 22.0 * Math.max(0.0, falloff)))) {
-				target.igniteForSeconds(8.0F);
+				if (radiant) target.setRemainingFireTicks(0);
+				else target.igniteForSeconds(8.0F);
 			}
 		}
-		PowerFx.burst(level, center, ParticleTypes.SOUL_FIRE_FLAME, 28, 1.5, 0.12);
-		PowerFx.rune(level, center, RADIUS, 0x51113F, 28, level.getGameTime() * 0.08);
-		PowerFx.sound(level, center, SoundEvents.GENERIC_EXPLODE.value(), 1.5F, 0.55F);
+		PowerFx.burst(level, center, radiant ? ParticleTypes.END_ROD
+				: ParticleTypes.SOUL_FIRE_FLAME, 28, 1.5, 0.12);
+		PowerFx.rune(level, center, RADIUS, radiant ? 0xFFE89B : 0x51113F,
+				28, level.getGameTime() * 0.08);
+		PowerFx.sound(level, center, SoundEvents.GENERIC_EXPLODE.value(), 1.5F,
+				radiant ? 1.4F : 0.55F);
 		discard();
 	}
 }

@@ -31,8 +31,8 @@ import com.powers.spell.CelestialRuinManager;
 import com.powers.realm.RealmMindscapeManager;
 import com.powers.realm.RealmConfinementManager;
 import com.powers.loot.PowersLoot;
-import com.powers.item.ShadowSwordRuntime;
-import com.powers.item.ShadowSwordPowerManager;
+import com.powers.item.ArtifactInventoryRuntime;
+import com.powers.item.ArtifactWeaponManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -78,6 +78,7 @@ public class PowersMod implements ModInitializer {
 		PowersEffects.initialize();
 		PowersSounds.initialize();
 		PowersParticles.initialize();
+		PowersDataComponents.initialize();
 		PowersEntities.initialize();
 		PowerRegistry.initialize();
 		PowersItems.initialize();
@@ -88,7 +89,7 @@ public class PowersMod implements ModInitializer {
 		PowersLoot.initialize();
 		PowersCreativeTab.initialize();
 		CrystalPowerRegistry.initialize();
-		ShadowSwordPowerManager.initialize();
+		ArtifactWeaponManager.initialize();
 		PowersPackets.initialize();
 		PowerCommand.register();
 		PowerCombatEvents.register();
@@ -139,7 +140,7 @@ public class PowersMod implements ModInitializer {
 			BodyProxyManager.returnToBody(player);
 			SpellCastingManager.clear(player);
 			AmethystDampening.forget(player);
-			ShadowSwordRuntime.forget(player);
+			ArtifactInventoryRuntime.forget(player);
 			TravelChunkLoader.cancel(player.getUUID());
 			PowersPackets.forget(player);
 		});
@@ -156,7 +157,7 @@ public class PowersMod implements ModInitializer {
 			SpellFieldManager.clearAll();
 			CelestialRuinManager.clearAll();
 			RealmMindscapeManager.clearAll();
-			ShadowSwordRuntime.clear();
+			ArtifactInventoryRuntime.clear();
 			com.powers.fx.PowerFx.clearBudgets();
 			PowersPackets.clearSyncCache();
 			MagicFxPackets.clear();
@@ -170,6 +171,7 @@ public class PowersMod implements ModInitializer {
 			int tick = server.getTickCount();
 			MagicRuntime.global().tick(tick);
 			PlayerTickCoordinator.tick(server, tick);
+			ArtifactInventoryRuntime.tickServer(server);
 			PowerAbilityRuntime.tick(server);
 			CrystalPowerRegistry.tick(server);
 			BodyProxyManager.tickAll();
@@ -191,7 +193,7 @@ public class PowersMod implements ModInitializer {
 			refreshPassives(player);
 			PowersPackets.syncTo(player);
 		}
-		ShadowSwordRuntime.tickPlayer(player, tick);
+		ArtifactInventoryRuntime.tickPlayer(player, tick);
 		enforceRealmGamemode(player);
 		tickToggles(player, tick);
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);

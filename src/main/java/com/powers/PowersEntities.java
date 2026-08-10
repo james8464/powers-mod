@@ -3,6 +3,7 @@ package com.powers;
 import com.powers.entity.AbstractPlayerLikeMob;
 import com.powers.entity.DarknessCreature;
 import com.powers.entity.PowerTestActor;
+import com.powers.entity.RadiantSentinel;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,6 +23,8 @@ public final class PowersEntities {
 			"darkness_creature", DarknessCreature::new, MobCategory.MONSTER);
 	public static final EntityType<PowerTestActor> POWER_TEST_ACTOR = register(
 			"power_test_actor", PowerTestActor::new, MobCategory.CREATURE);
+	public static final EntityType<RadiantSentinel> RADIANT_SENTINEL = register(
+			"radiant_sentinel", RadiantSentinel::new, MobCategory.CREATURE);
 
 	private PowersEntities() {
 	}
@@ -30,6 +33,8 @@ public final class PowersEntities {
 		FabricDefaultAttributeRegistry.register(DARKNESS_CREATURE,
 				AbstractPlayerLikeMob.createAttributes());
 		FabricDefaultAttributeRegistry.register(POWER_TEST_ACTOR,
+				AbstractPlayerLikeMob.createAttributes());
+		FabricDefaultAttributeRegistry.register(RADIANT_SENTINEL,
 				AbstractPlayerLikeMob.createAttributes());
 		SpawnPlacements.register(DARKNESS_CREATURE, SpawnPlacementTypes.ON_GROUND,
 				Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkAnyLightMonsterSpawnRules);

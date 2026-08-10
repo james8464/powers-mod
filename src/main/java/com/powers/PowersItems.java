@@ -48,6 +48,8 @@ public final class PowersItems {
 			"darkness_creature_spawn_egg", PowersEntities.DARKNESS_CREATURE);
 	public static final Item POWER_TEST_ACTOR_SPAWN_EGG = spawnEgg(
 			"power_test_actor_spawn_egg", PowersEntities.POWER_TEST_ACTOR);
+	public static final Item RADIANT_SENTINEL_SPAWN_EGG = spawnEgg(
+			"radiant_sentinel_spawn_egg", PowersEntities.RADIANT_SENTINEL);
 
 	private static Item colorCrystal(String name) {
 		Item item = ModItemIds.register(ModItemIds.create(name), CrystalItem::new, crystalProperties());
@@ -90,6 +92,7 @@ public final class PowersItems {
 				.register(output -> {
 					output.accept(DARKNESS_CREATURE_SPAWN_EGG);
 					output.accept(POWER_TEST_ACTOR_SPAWN_EGG);
+					output.accept(RADIANT_SENTINEL_SPAWN_EGG);
 				});
 	}
 }

@@ -1,6 +1,7 @@
 package com.powers.entity;
 
 import com.powers.player.SkillSystem;
+import com.powers.item.artifact.ArtifactAlignment;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
@@ -26,7 +27,8 @@ public final class DarknessCreature extends AbstractPlayerLikeMob {
 
 	@Override
 	public boolean canAttack(LivingEntity target) {
-		return super.canAttack(target) && PlayerLikeMobRules.mayRetaliate(
-				true, target.entityTags().contains(SkillSystem.DARKNESS_TAG));
+		return super.canAttack(target) && GuardianFactionRules.mayTarget(
+				ArtifactAlignment.DARKNESS, guardianOwner(), target.getUUID(),
+				target.entityTags().contains(SkillSystem.DARKNESS_TAG));
 	}
 }

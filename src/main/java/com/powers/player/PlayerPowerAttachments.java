@@ -34,6 +34,8 @@ final class PlayerPowerAttachments {
 	static final AttachmentType<Integer> ELEMENTAL_PHASE = persistentInt("elemental_phase", 0);
 	static final AttachmentType<Integer> SIZE_MORPH_OPTION = persistentInt("size_morph_option", 3);
 	static final AttachmentType<String> SHADOW_SWORD_SELECTION = persistentString("shadow_sword_selection");
+	static final AttachmentType<String> HEAVENLY_PARTISAN_SELECTION =
+			persistentString("heavenly_partisan_selection");
 	static final AttachmentType<Map<String, Long>> COOLDOWNS = persistentMap(
 			"cooldowns", Codec.unboundedMap(Codec.STRING, Codec.LONG));
 	static final AttachmentType<Map<String, Integer>> SPELL_SELECTIONS = persistentMap(

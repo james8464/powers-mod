@@ -22,7 +22,8 @@ public final class AsyncAbilityTransaction {
 		this.playerId = player.getUUID();
 		this.refundAmount = PowerEnergy.cost(player, energyAbility);
 		this.abilityId = energyAbility.id().toString();
-		int cooldown = energyAbility.cooldownTicksFor(player, data);
+		Integer override = AbilityActivationContext.cooldownOverride();
+		int cooldown = override == null ? energyAbility.cooldownTicksFor(player, data) : override;
 		this.expectedCooldownDeadline = cooldown <= 0 ? 0L
 				: player.level().getGameTime() + cooldown;
 	}

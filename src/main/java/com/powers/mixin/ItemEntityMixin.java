@@ -1,6 +1,7 @@
 package com.powers.mixin;
 
 import com.powers.PowersItems;
+import com.powers.item.MythicArtifactItem;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -19,7 +20,7 @@ public abstract class ItemEntityMixin {
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void powers$keepCrystalAlive(CallbackInfo ci) {
 		ItemEntity self = (ItemEntity) (Object) this;
-		if (!PowersItems.isCrystal(self.getItem())) {
+		if (!protectedItem(self)) {
 			return;
 		}
 		// crystals never despawn on their own
@@ -34,8 +35,13 @@ public abstract class ItemEntityMixin {
 	// crystals ignore all damage: lightning, explosions, fire, you name it
 	private void powers$protectCrystalFromDamage(ServerLevel level, DamageSource source, float amount,
 			CallbackInfoReturnable<Boolean> cir) {
-		if (PowersItems.isCrystal(((ItemEntity) (Object) this).getItem())) {
+		if (protectedItem((ItemEntity) (Object) this)) {
 			cir.setReturnValue(false);
 		}
+	}
+
+	private static boolean protectedItem(ItemEntity entity) {
+		return PowersItems.isCrystal(entity.getItem())
+				|| entity.getItem().getItem() instanceof MythicArtifactItem;
 	}
 }
