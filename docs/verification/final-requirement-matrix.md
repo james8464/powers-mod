@@ -4,7 +4,7 @@ This matrix maps the requested finalisation work to implementation and repeatabl
 
 | ID | Requirement | Status | Evidence |
 | --- | --- | --- | --- |
-| R01 | Full production-code audit | Partial | Exact source inventory and structural checks are automated; semantic review continues alongside live playtesting |
+| R01 | Full production-code audit | Partial | Every production/client Java path was inventoried and traced through registration, authority, lifecycle, targeting, persistence, networking, bounded-work, and cleanup passes; exact manifests and structural checks prevent unreviewed drift, while live playtesting remains open proof |
 | R02 | Best practices, lifecycle cleanup, and explanatory comments | Complete | Source audit plus bounded managers, immutable rule objects, package documentation, and shutdown/disconnect cleanup tests |
 | R03 | Non-item asset audit | Complete | `docs/quality/asset-audit.md`; `scripts/audit_non_item_assets.py`; `validateNonItemAssetAudit` |
 | R04 | Intentionally absent crystal recipes | Complete | `validatePowerResources` rejects accidental crystal recipes; README records the deliberate omission |
@@ -45,7 +45,7 @@ This matrix maps the requested finalisation work to implementation and repeatabl
 | R39 | First Vessel boss | Complete | 5,000 vitality, multiplayer snapshot scaling, 28-power tactical catalogue, phases, counterplay, ritual, loot/advancement |
 | R40 | Multiplayer performance and packet abuse resistance | Complete | Bounded candidates/cursors/summons/FX, rate lanes, string codec caps, asynchronous travel/provider and focused tests |
 | R41 | Complete player documentation | Partial | README covers current catalogues and core systems; it must remain synchronized as the open realm/lore expansion lands |
-| R42 | Game tests and release validation harness | Partial | 475 JUnit tests, 16 live Fabric GameTests, resource/code/asset validators and dedicated run tasks pass; the requested every-ability live matrix and automated client screenshots are not yet complete |
+| R42 | Game tests and release validation harness | Partial | 511 JUnit tests, 16 live Fabric GameTests, resource/code/asset validators and dedicated run tasks pass; the requested every-ability live matrix and automated client screenshots are not yet complete |
 
 ## Release interpretation
 
