@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "lit=false": { "model": "powers:block/arcane_crucible" },
+    "lit=true": { "model": "powers:block/arcane_crucible_active" }
+  }
+}

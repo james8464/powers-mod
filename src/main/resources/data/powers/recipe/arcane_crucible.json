@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["CEC", "AEA", "OOO"],
+  "key": {
+    "C": "minecraft:crying_obsidian",
+    "E": "minecraft:echo_shard",
+    "A": "minecraft:amethyst_shard",
+    "O": "minecraft:obsidian"
+  },
+  "result": { "id": "powers:arcane_crucible", "count": 1 }
+}

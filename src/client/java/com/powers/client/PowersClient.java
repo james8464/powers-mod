@@ -13,6 +13,8 @@ import com.powers.client.body.ClientBodySnapshots;
 import com.powers.client.fx.particle.ArcaneParticle;
 import com.powers.PowersParticles;
 import com.powers.PowersEntities;
+import com.powers.PowersMenus;
+import com.powers.client.screen.ArcaneCrucibleScreen;
 import com.powers.network.PowerStatePayload;
 import com.powers.network.PowersPackets;
 import com.powers.network.MagicFxPackets;
@@ -32,6 +34,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import org.lwjgl.glfw.GLFW;
 
@@ -46,6 +49,8 @@ public class PowersClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		MenuScreens.register(PowersMenus.ARCANE_CRUCIBLE, ArcaneCrucibleScreen::new);
+		CrucibleWeaponTooltip.register();
 		slotKey1 = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 				"key.powers.slot1", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, CATEGORY));
 		slotKey2 = KeyMappingHelper.registerKeyMapping(new KeyMapping(

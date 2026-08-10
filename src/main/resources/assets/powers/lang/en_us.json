@@ -847,5 +847,20 @@
 	"screen.powers.rank.unlocked": "Awakened",
 	"screen.powers.rank.available": "Reachable",
 	"screen.powers.rank.locked": "Sealed",
-	"screen.powers.rank.no_perk": "This title carries no mechanical echo."
+	"screen.powers.rank.no_perk": "This title carries no mechanical echo.",
+	"block.powers.arcane_crucible": "Arcane Crucible",
+	"container.powers.arcane_crucible": "Arcane Crucible",
+	"container.powers.arcane_crucible.invalid": "The Crucible rejects the changed offering.",
+	"screen.powers.arcane_crucible.transmute": "Transmute",
+	"screen.powers.arcane_crucible.weaving": "Weaving…",
+	"screen.powers.arcane_crucible.empty": "Place a weapon and catalyst",
+	"screen.powers.arcane_crucible.choice.bind_animated_star": "Bind Animated Star",
+	"screen.powers.arcane_crucible.choice.infuse_runestone": "Infuse Runestone",
+	"tooltip.powers.crucible.alignment": "Crucible Alignment: %s",
+	"tooltip.powers.crucible.darkness": "Darkness",
+	"tooltip.powers.crucible.light": "Pure Light",
+	"tooltip.powers.crucible.level": "Weapon Level %s · %s XP",
+	"tooltip.powers.crucible.lightning": "Right-click Lightning: %s damage · %s energy",
+	"tooltip.powers.crucible.unbound": "Awaiting an Animated Artifact Star",
+	"tag.item.powers.arcane_crucible_base_weapons": "Arcane Crucible Base Weapons"
 }
