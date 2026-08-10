@@ -126,7 +126,7 @@ public final class StarfallAbility extends Ability {
 				CastScalingContext.currentSource(),
 				now, expiry, seed, site.point(), tracked, stormRadius,
 				(float) (BASE_DAMAGE * profile.potencyMultiplier()),
-				CombatTerrainImpact.tier(player, CastScalingContext.currentSource()), strikes,
+				CombatTerrainImpact.tier(player, CastScalingContext.currentSource(), "starfall"), strikes,
 				empoweredImpact, secondStep, trueSight, reflectiveWard, soulEcho,
 				afterimage, ancientMastery);
 		ACTIVE.put(storm.owner, storm);

@@ -3,8 +3,6 @@ package com.powers.progression;
 import com.powers.magic.MagicActionCatalogue;
 import com.powers.magic.MagicActionDefinition;
 import com.powers.magic.MagicActionId;
-import com.powers.magic.MagicAspect;
-import com.powers.magic.MagicIntent;
 import com.powers.magic.runtime.CastAdjustment;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
@@ -28,28 +26,21 @@ public final class PowerScalingService {
 	/** Scales a definition from an already aggregated profile; useful to pure callers and tests. */
 	public ScaledMagicValues scale(MagicActionDefinition action, RankProfile profile, int legacyLevel) {
 		int level = Math.max(0, Math.min(10, legacyLevel));
-		double potencyBonus = Math.min(0.90, level * 0.05 + potencyBonus(action, profile));
-		double rangeBonus = Math.min(0.55, level * 0.02 + rangeBonus(action, profile));
-		double durationBonus = Math.min(0.65, durationBonus(action, profile, level));
-		double costReduction = Math.min(0.35, level * 0.01
-				+ bonus(action, profile, RankPerkType.ENERGY_COST_REDUCTION));
-		double cooldownReduction = Math.min(0.40, level * 0.015
-				+ bonus(action, profile, RankPerkType.COOLDOWN_REDUCTION));
-		double priorityBonus = bonus(action, profile, RankPerkType.INTERACTION_PRIORITY);
-		double backlashReduction = bonus(action, profile, RankPerkType.BACKLASH_REDUCTION);
-
-		double potencyMultiplier = 1.0 + potencyBonus;
-		double rangeMultiplier = 1.0 + rangeBonus;
-		double durationMultiplier = 1.0 + durationBonus;
+		InnatePowerLevel authored = InnatePowerLevels.forPower(action.id().value(), level);
+		double costReduction = Math.min(0.30, level * 0.025);
+		double cooldownReduction = Math.min(0.35, level * 0.03);
+		Set<String> unlocked = new LinkedHashSet<>(authored.variants());
+		unlocked.addAll(variants(profile));
 		return new ScaledMagicValues(
-				scaledInt(action.basePotency(), potencyMultiplier),
-				action.baseRange() * rangeMultiplier,
-				scaledInt(action.baseDurationTicks(), durationMultiplier),
+				scaledInt(action.basePotency(), authored.damageMultiplier()),
+				action.baseRange() * authored.rangeMultiplier(),
+				scaledInt(action.baseDurationTicks(), authored.durationMultiplier()),
 				reducedInt(action.baseEnergy(), costReduction, 0.35),
 				reducedInt(action.baseCooldownTicks(), cooldownReduction, 0.40),
-				Math.max(0, action.priority() + (int) Math.round(priorityBonus * 10.0)),
-				variants(profile), Math.max(0.50, 1.0 - backlashReduction),
-				potencyMultiplier, rangeMultiplier, durationMultiplier);
+				action.priority() + authored.destructionTier() / 3,
+				Set.copyOf(unlocked), Math.max(0.65, 1.0 - level * 0.035),
+				authored.damageMultiplier(), authored.rangeMultiplier(),
+				authored.durationMultiplier());
 	}
 
 	/** Scales an action only when the authoritative invocation route is directly innate. */
@@ -79,6 +70,13 @@ public final class PowerScalingService {
 		return applyInteraction(action, ranked, CastScalingContext.current());
 	}
 
+	/** Returns the authored innate-only profile for ability-specific capacity/destruction rules. */
+	public static InnatePowerLevel innateLevel(ServerPlayer player, String actionId) {
+		return CastScalingContext.currentSource().appliesPlayerRank(true)
+				? InnatePowerLevels.forPower(actionId, SkillSystem.effectiveLevel(player))
+				: InnatePowerLevels.forPower(actionId, 0);
+	}
+
 	/** Returns a canonical crystal/spell baseline with only live collision adjustments. */
 	public static ScaledMagicValues unranked(String actionId) {
 		MagicActionDefinition action = requireAction(actionId);
@@ -104,28 +102,25 @@ public final class PowerScalingService {
 	/** Reduces a bespoke ability cost using its canonical action profile. */
 	public static int energyCost(ServerPlayer player, String actionId, int baseCost) {
 		if (!CastScalingContext.currentSource().appliesPlayerRank(true)) return Math.max(0, baseCost);
-		double ratio = Math.min(0.35, SkillSystem.effectiveLevel(player) * 0.01
-				+ actionReduction(player, actionId, RankPerkType.ENERGY_COST_REDUCTION));
+		double ratio = Math.min(0.30, SkillSystem.effectiveLevel(player) * 0.025);
 		return reducedInt(Math.max(0, baseCost), ratio, 0.35);
 	}
 
 	/** Reduces a bespoke ability cooldown using its canonical action profile. */
 	public static int cooldown(ServerPlayer player, String actionId, int baseTicks) {
 		if (!CastScalingContext.currentSource().appliesPlayerRank(true)) return Math.max(0, baseTicks);
-		double ratio = Math.min(0.40, SkillSystem.effectiveLevel(player) * 0.015
-				+ actionReduction(player, actionId, RankPerkType.COOLDOWN_REDUCTION));
+		double ratio = Math.min(0.35, SkillSystem.effectiveLevel(player) * 0.03);
 		return reducedInt(Math.max(0, baseTicks), ratio, 0.40);
 	}
 
-	/** Applies rank energy-capacity perks after the legacy numeric ladder. */
+	/** Numeric light/dark rank ladders already own capacity; maze paths cannot multiply it again. */
 	public static int energyCapacity(ServerPlayer player, int baseCapacity) {
-		return scaledInt(Math.max(0, baseCapacity), 1.0 + profile(player).value(RankPerkType.ENERGY_CAPACITY));
+		return Math.max(0, baseCapacity);
 	}
 
-	/** Applies capped regeneration perks while preserving a minimum positive pulse. */
+	/** Regeneration is authored by alignment/environment and is not a generic branch percentage. */
 	public static int regeneration(ServerPlayer player, int baseAmount) {
-		if (baseAmount <= 0) return 0;
-		return Math.max(1, scaledInt(baseAmount, 1.0 + profile(player).value(RankPerkType.ENERGY_REGEN)));
+		return Math.max(0, baseAmount);
 	}
 
 	/** Returns whether the player's active maze profile unlocks a named mechanical variant. */
@@ -134,51 +129,10 @@ public final class PowerScalingService {
 		return variants(profile(player)).contains(variant);
 	}
 
-	private static double actionReduction(ServerPlayer player, String actionId, RankPerkType type) {
-		return INSTANCE.bonus(requireAction(actionId), profile(player), type);
-	}
-
 	private static MagicActionDefinition requireAction(String actionId) {
 		MagicActionDefinition definition = CATALOGUE.definition(new MagicActionId(actionId));
 		if (definition == null) throw new IllegalArgumentException("Unknown magic action: " + actionId);
 		return definition;
-	}
-
-	private double potencyBonus(MagicActionDefinition action, RankProfile profile) {
-		RankPerkType type = switch (action.intent()) {
-			case HARM -> RankPerkType.POWER_DAMAGE;
-			case CONTROL, WORLD_INTERACTION -> RankPerkType.CONTROL;
-			case MOVEMENT -> RankPerkType.MOVEMENT;
-			case DEFENCE -> RankPerkType.WARD_INTEGRITY;
-			case SUPPORT -> RankPerkType.HEALING;
-			case INFORMATION -> RankPerkType.REVEAL;
-		};
-		return bonus(action, profile, type);
-	}
-
-	private double rangeBonus(MagicActionDefinition action, RankProfile profile) {
-		double result = bonus(action, profile, RankPerkType.RANGE);
-		if (action.intent() == MagicIntent.MOVEMENT) {
-			result += bonus(action, profile, RankPerkType.MOVEMENT);
-		} else if (action.intent() == MagicIntent.INFORMATION) {
-			result += bonus(action, profile, RankPerkType.REVEAL) * 0.5;
-		}
-		return Math.min(RankPerkType.RANGE.cap(), result);
-	}
-
-	private double durationBonus(MagicActionDefinition action, RankProfile profile, int legacyLevel) {
-		double result = legacyLevel * 0.025 + bonus(action, profile, RankPerkType.DURATION);
-		if (action.intent() == MagicIntent.CONTROL || action.intent() == MagicIntent.SUPPORT
-				|| action.intent() == MagicIntent.DEFENCE) {
-			result += legacyLevel * 0.015;
-		}
-		return Math.min(RankPerkType.DURATION.cap(), result);
-	}
-
-	private double bonus(MagicActionDefinition action, RankProfile profile, RankPerkType type) {
-		double total = profile.value(type) + profile.scopedValue(type, action.id().value());
-		for (MagicAspect aspect : action.aspects()) total += profile.scopedValue(type, aspect.name().toLowerCase());
-		return Math.min(type.cap(), total);
 	}
 
 	private static Set<String> variants(RankProfile profile) {
@@ -207,13 +161,11 @@ public final class PowerScalingService {
 				base * (1.0 - Math.max(0, Math.min(cap, reduction)))));
 	}
 
-	private static ScaledMagicValues applyInteraction(MagicActionDefinition action, ScaledMagicValues ranked,
+	static ScaledMagicValues applyInteraction(MagicActionDefinition action, ScaledMagicValues ranked,
 			CastAdjustment adjustment) {
-		double potencyMultiplier = Math.min(2.0,
-				ranked.potencyMultiplier() * adjustment.potencyMultiplier());
-		double rangeMultiplier = Math.min(2.0, ranked.rangeMultiplier() * adjustment.rangeMultiplier());
-		double durationMultiplier = Math.min(2.0,
-				ranked.durationMultiplier() * adjustment.durationMultiplier());
+		double potencyMultiplier = ranked.potencyMultiplier() * adjustment.potencyMultiplier();
+		double rangeMultiplier = ranked.rangeMultiplier() * adjustment.rangeMultiplier();
+		double durationMultiplier = ranked.durationMultiplier() * adjustment.durationMultiplier();
 		return new ScaledMagicValues(scaledInt(action.basePotency(), potencyMultiplier),
 				action.baseRange() * rangeMultiplier, scaledInt(action.baseDurationTicks(), durationMultiplier),
 				ranked.energyCost(), ranked.cooldownTicks(), ranked.interactionPriority(),

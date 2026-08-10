@@ -93,7 +93,7 @@ public final class FireballAbility extends Ability {
 		int hoverTicks = Math.min(360, scaledDuration(player, BASE_HOVER_TICKS));
 		Cinderheart heart = new Cinderheart(player.getUUID(), projectile.getUUID(),
 				CastScalingContext.currentSource(), CombatTerrainImpact.tier(
-						player, CastScalingContext.currentSource()),
+						player, CastScalingContext.currentSource(), "fireball"),
 				level.dimension(), now, now + hoverTicks, profile.potencyMultiplier(),
 				variants.contains("empowered_impact"), variants.contains("reflective_ward"),
 				variants.contains("afterimage"), variants.contains("true_sight"),

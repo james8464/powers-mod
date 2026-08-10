@@ -3,6 +3,7 @@ package com.powers.progression;
 import com.powers.magic.MagicActionCatalogue;
 import com.powers.magic.MagicActionDefinition;
 import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.CastAdjustment;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -16,7 +17,7 @@ class PowerScalingServiceTest {
 	private final MagicActionCatalogue catalogue = MagicActionCatalogue.defaults();
 
 	@Test
-	void motionFocusImprovesMovementWithoutLeakingIntoHealing() {
+	void branchSelectionChangesVariantsWithoutReintroducingGenericPercentageScaling() {
 		RankGraph graph = graph(
 				perkNode("root", "origin", RankPerkType.ENERGY_CAPACITY, 0.01),
 				perkNode("motion", "motion", RankPerkType.MOVEMENT, 0.20));
@@ -26,21 +27,23 @@ class PowerScalingServiceTest {
 		ScaledMagicValues step = service.scale(action("super_speed"), profile, 2);
 		ScaledMagicValues healing = service.scale(action("plant_healing_acceleration"), profile, 2);
 
-		assertTrue(step.rangeMultiplier() > healing.rangeMultiplier());
-		assertEquals(1.04, healing.rangeMultiplier(), 0.0001);
+		assertEquals(InnatePowerLevels.forPower("super_speed", 2).rangeMultiplier(),
+				step.rangeMultiplier(), 0.0001);
+		assertEquals(InnatePowerLevels.forPower("plant_healing_acceleration", 2).rangeMultiplier(),
+				healing.rangeMultiplier(), 0.0001);
 	}
 
 	@Test
-	void actionAndAspectScopedPerksApplyOnlyToMatchingActions() {
+	void oldScopedPercentagePerksCannotOverrideAuthoredPowerIdentity() {
 		RankGraph graph = graph(
 				scopedNode("fire", RankPerkType.POWER_DAMAGE, 0.20, "flame"),
 				scopedNode("beam", RankPerkType.POWER_DAMAGE, 0.10, "void_beam"));
 		RankProfile profile = new RankProfileService().profile(graph,
 				new RankProgress(Set.of("fire", "beam"), ""));
 
-		assertTrue(service.scale(action("fireball"), profile, 0).potencyMultiplier()
-				> service.scale(action("lightning_strike"), profile, 0).potencyMultiplier());
-		assertTrue(service.scale(action("void_beam"), profile, 0).potencyMultiplier() > 1.0);
+		assertEquals(1.0, service.scale(action("fireball"), profile, 0).potencyMultiplier(), 0.0001);
+		assertEquals(1.0, service.scale(action("lightning_strike"), profile, 0).potencyMultiplier(), 0.0001);
+		assertEquals(1.0, service.scale(action("void_beam"), profile, 0).potencyMultiplier(), 0.0001);
 	}
 
 	@Test
@@ -52,7 +55,8 @@ class PowerScalingServiceTest {
 				new RankProgress(Set.of("cap", "cost", "cooldown"), "cap"));
 		ScaledMagicValues values = service.scale(action("fireball"), profile, 10);
 
-		assertEquals(1.90, values.potencyMultiplier(), 0.0001);
+		assertEquals(InnatePowerLevels.forPower("fireball", 10).damageMultiplier(),
+				values.potencyMultiplier(), 0.0001);
 		assertTrue(values.energyCost() >= 0);
 		assertTrue(values.cooldownTicks() >= 0);
 		assertTrue(values.energyCost() >= Math.ceil(action("fireball").baseEnergy() * 0.65) - 1);
@@ -102,6 +106,17 @@ class PowerScalingServiceTest {
 			assertEquals(1.0, equipment.rangeMultiplier(), 0.0001, source.name());
 			assertTrue(equipment.unlockedVariants().isEmpty(), source.name());
 		}
+	}
+
+	@Test
+	void interactionAdjustmentsPreserveBossScaleAuthoredMultipliers() {
+		MagicActionDefinition fireball = action("fireball");
+		ScaledMagicValues ranked = service.scale(fireball, RankProfile.EMPTY, 10);
+		ScaledMagicValues adjusted = PowerScalingService.applyInteraction(fireball, ranked,
+				new CastAdjustment(true, 1.2, 1.1, 1.1, List.of()));
+
+		assertEquals(8.4, adjusted.potencyMultiplier(), 0.0001);
+		assertTrue(adjusted.rangeMultiplier() > 2.0);
 	}
 
 	private MagicActionDefinition action(String id) {

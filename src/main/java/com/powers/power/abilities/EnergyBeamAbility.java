@@ -65,7 +65,7 @@ public final class EnergyBeamAbility extends Ability {
 				(float) (BASE_DAMAGE * scaled.potencyMultiplier()),
 				Math.max(20, (int) Math.round(BASE_BURN_TICKS * scaled.durationMultiplier())),
 				variants.contains("empowered_impact"), variants.contains("ancient_mastery"),
-				CombatTerrainImpact.tier(player, CastScalingContext.currentSource()),
+				CombatTerrainImpact.tier(player, CastScalingContext.currentSource(), "energy_beam"),
 				player.getEyePosition());
 		ACTIVE.put(owner, channel);
 		EnergyBeamFx.focus((ServerLevel) player.level(), channel.lastVisualPoint,

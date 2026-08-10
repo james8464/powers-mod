@@ -5,7 +5,8 @@ import java.util.List;
 /** Pure selectable-scale and recurring-cost policy for Size Morphing. */
 public final class SizeMorphRules {
 	private static final List<Double> SCALES = List.of(
-			0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0);
+			0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0,
+			0.125, 2.5, 3.0, 4.0);
 	private static final int NORMAL_OPTION = 3;
 	private static final int ENERGY_PER_SCALE_UNIT = 4;
 
@@ -33,6 +34,19 @@ public final class SizeMorphRules {
 			throw new IllegalArgumentException("Unknown size morph option: " + option);
 		}
 		return SCALES.get(option);
+	}
+
+	/** Preserves the original eight save indices and gates only new extreme forms. */
+	public static int minimumRank(int option) {
+		if (!isValidOption(option)) throw new IllegalArgumentException(
+				"Unknown size morph option: " + option);
+		return switch (option) {
+			case 8 -> 6;
+			case 9 -> 4;
+			case 10 -> 7;
+			case 11 -> 10;
+			default -> 0;
+		};
 	}
 
 	/** Charges linearly for absolute deviation from normal size. */

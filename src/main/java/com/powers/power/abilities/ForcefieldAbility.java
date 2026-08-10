@@ -33,7 +33,7 @@ public class ForcefieldAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ScaledMagicValues scaled = scaling(player);
-		float integrity = (float) (BASE_INTEGRITY * scaled.potencyMultiplier());
+		float integrity = (float) (BASE_INTEGRITY * innateLevel(player).capacityMultiplier());
 		boolean reflective = scaled.unlockedVariants().contains("reflective_ward");
 		ServerLevel level = (ServerLevel) player.level();
 		for (LivingEntity protectedTarget : com.powers.util.BoundedEntityCandidates.living(

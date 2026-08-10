@@ -33,7 +33,9 @@ public final class SizeMorphAbility extends ToggleAbility {
 
 	@Override
 	public boolean selectOption(ServerPlayer player, PlayerPowers.PlayerPowersData data, int option) {
-		if (!SizeMorphRules.isValidOption(option)) return false;
+		if (!SizeMorphRules.isValidOption(option)
+				|| com.powers.player.SkillSystem.effectiveLevel(player)
+				< SizeMorphRules.minimumRank(option)) return false;
 		data.setSizeMorphOption(option);
 		if (data.isToggleActive(id().toString())) applySelectedScale(player, data);
 		return true;

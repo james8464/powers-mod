@@ -29,7 +29,7 @@ The assignable powers are:
 
 | Innate power | What it does |
 | --- | --- |
-| Size Morphing | Toggles between `0.25x`, `0.5x`, `0.75x`, `1x`, `1.25x`, `1.5x`, `1.75x`, and `2x`. Distance from normal size determines the per-second energy drain. |
+| Size Morphing | Selects `0.25×`–`2×` from rank 0, then unlocks `2.5×` at rank 4, `0.125×` at rank 6, `3×` at rank 7, and `4×` at rank 10. Distance from normal size determines the per-second energy drain. |
 | Time Shift | Opens a server-advertised dimension/coordinate menu and asynchronously loads, validates, and enters even currently unloaded destination chunks. It can also mark another player with consent while a vulnerable body remains behind. |
 | Flight | Uses server-authoritative survival propulsion, including directional ascent/descent and a much faster sprint-flight mode; it never grants creative-mode flight. |
 | Starfall | Opens a warned, finite celestial strike sequence with rank branches for extra strikes, a moving storm eye, concealment reveal, projectile diversion, echoes, and a dominion crown. |
@@ -92,11 +92,11 @@ Death does not provide a realm escape: an underqualified player respawns at the 
 
 ## Rank maze
 
-Advancements determine earned rank depth, innate-power scaling, and energy capacity. Rank never changes crystal abilities or grimoire spells. Every innate power receives at least the numeric ladder: +5% potency, +2% range, +2.5% duration, -1% energy cost, and -1.5% cooldown per level. Control, support, and defence gain another +1.5% duration per level. Maze perks then specialize those values, with combined caps of +90% potency, +55% range, +65% duration, -35% cost, and -40% cooldown.
+Advancements determine earned rank depth, innate-power scaling, and energy capacity. Rank never changes crystal abilities, grimoire spells, or powers routed through an artifact. Each of the 23 innate powers has its own authored level-0 to level-10 shape for damage/healing, range, duration, destructive work, capacity, and named transformations; there is no generic perk percentage that can accidentally leak into unrelated equipment magic. At level 10, combat powers reach boss-scale multipliers of up to 8×, utility powers favour range/duration/capacity instead, energy cost is reduced by up to 25%, and cooldown is reduced by up to 30%. The exact capstone table is documented in [`docs/gameplay/innate-levels.md`](docs/gameplay/innate-levels.md).
 
 The light and darkness graphs each contain 28 nodes, including legacy titles and paths through might, motion, insight, wardcraft, veils, communion, and dominion. Converging paths create hybrid titles such as Runeblade, Riftwalker, Soulwarden, Eclipse Weaver, and their endgame forms.
 
-Named branch variants have mechanical consequences as well as stronger ceremonies: Might empowers selected impacts, Motion grants second steps, Insight grants True Sight, Wardcraft reflects forcefields, Communion strengthens soul transfer, Veil reduces readable residue, Dominion deepens ancient mastery, and the Darkness path awakens Dark Resurgence.
+Named branch variants still have mechanical consequences as well as stronger ceremonies: Might empowers selected impacts, Motion grants second steps, Insight grants True Sight, Wardcraft reflects forcefields, Communion strengthens soul transfer, Veil reduces readable residue, Dominion deepens ancient mastery, and the Darkness path awakens Dark Resurgence. Authored rank breakpoints also unlock the relevant transformations at levels 3, 6, 9, and 10, so every player becomes materially stronger even before choosing a maze focus.
 
 Press `B` (rebindable) to open the synchronized Labyrinth of Names, inspect every connected title and perk, awaken reachable nodes, or attune a previously earned title. The server revalidates every click. The equivalent commands are `/powers path list`, `/powers path unlock <node>`, `/powers path focus <node>`, and `/powers path respec`; respeccing preserves earned depth and costs 30 experience levels by default.
 

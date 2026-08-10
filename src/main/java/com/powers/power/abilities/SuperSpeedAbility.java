@@ -99,7 +99,7 @@ public final class SuperSpeedAbility extends Ability {
 				CastScalingContext.currentSource(), now, now + duration,
 				potency, secondStep, empoweredImpact, afterimage, ancientMastery,
 				player.position(), inWater,
-				CombatTerrainImpact.tier(player, CastScalingContext.currentSource()));
+				CombatTerrainImpact.tier(player, CastScalingContext.currentSource(), "super_speed"));
 		removeOwnedModifier(player);
 		if (!applyOwnedModifier(player, overdrive, inWater)) return false;
 		ACTIVE.put(owner, overdrive);

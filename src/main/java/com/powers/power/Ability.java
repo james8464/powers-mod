@@ -3,6 +3,7 @@ package com.powers.power;
 import com.powers.player.PlayerPowers;
 import com.powers.progression.PowerScalingService;
 import com.powers.progression.ScaledMagicValues;
+import com.powers.progression.InnatePowerLevel;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.MagicPresenceId;
 import net.minecraft.network.chat.Component;
@@ -165,6 +166,11 @@ public abstract class Ability {
 		return CastScalingContext.currentSource().appliesPlayerRank(rankScaling)
 				? PowerScalingService.forPlayer(player, id.getPath())
 				: PowerScalingService.unranked(id.getPath());
+	}
+
+	/** Returns ability-specific authored capacity, destruction, and transformation data. */
+	protected final InnatePowerLevel innateLevel(ServerPlayer player) {
+		return PowerScalingService.innateLevel(player, id.getPath());
 	}
 
 	/** Scales an implementation-specific range through the canonical action. */

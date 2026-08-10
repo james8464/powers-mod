@@ -95,7 +95,7 @@ public final class VoidBeamAbility extends Ability {
 				(float) VoidBeamRules.scarPulseDamage(
 						BASE_SCAR_DAMAGE * scaled.potencyMultiplier(), resurgence),
 				VoidBeamRules.penetrationLimit(empowered, ancient), empowered, ancient, resurgence,
-				CombatTerrainImpact.tier(player, CastScalingContext.currentSource()));
+				CombatTerrainImpact.tier(player, CastScalingContext.currentSource(), "void_beam"));
 		CHARGES.put(player.getUUID(), charge);
 		PowerFx.voidBeamCharge((ServerLevel) player.level(), player.getEyePosition(),
 				VoidBeamRules.CHARGE_TICKS, ancient);

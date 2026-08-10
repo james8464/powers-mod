@@ -9,6 +9,8 @@
 - Replaced raw invisibility flags with a particle-free, icon-free, amplifier-255 effect owned and safely removed by POWERS.
 - Added the zero-cooldown crouching Plant Healing pulse for injured players inside an inclusive two-block radius while retaining ordinary aimed plant growth.
 - Fixed the rank-3 Cinderheart crash on block impacts by making the direct-target forcefield check null-safe.
+- Replaced generic rank percentages with 253 complete, power-specific authored level profiles and boss-scale capstones while preserving strict innate/spell/crystal/artifact source isolation.
+- Extended player Size Morphing save-safely to rank-gated `0.125×`, `2.5×`, `3×`, and `4×` forms; forcefield integrity and Double Health capacity now use their authored rank profiles.
 
 ## 1.0.1 - 2026-08-10
 

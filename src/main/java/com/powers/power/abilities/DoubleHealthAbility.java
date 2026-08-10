@@ -12,8 +12,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 /** Toggles an owned max-health modifier while preserving unrelated modifiers. */
 public class DoubleHealthAbility extends ToggleAbility {
 	private static final net.minecraft.resources.Identifier MODIFIER_ID = PowersMod.id("double_health");
-	private static final AttributeModifier MODIFIER = new AttributeModifier(
-			MODIFIER_ID, 1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
 	public DoubleHealthAbility() {
 		super(PowersMod.id("double_health"), Component.translatable("ability.powers.double_health"));
@@ -21,7 +19,7 @@ public class DoubleHealthAbility extends ToggleAbility {
 
 	@Override
 	public boolean activateToggleOn(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		applyModifier(player);
+		applyModifier(player, innateLevel(player).capacityMultiplier());
 		// heal up to 20 so the jump in max health actually fills the bar
 		player.setHealth(Math.min(player.getMaxHealth(), player.getHealth() + scaledPotency(player, 20.0f)));
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
@@ -49,13 +47,17 @@ public class DoubleHealthAbility extends ToggleAbility {
 
 	@Override
 	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		applyModifier(player);
+		applyModifier(player, innateLevel(player).capacityMultiplier());
 	}
 
-	private static void applyModifier(ServerPlayer player) {
+	private static void applyModifier(ServerPlayer player, double healthMultiplier) {
 		AttributeInstance maxHealth = player.getAttribute(Attributes.MAX_HEALTH);
-		if (maxHealth != null && !maxHealth.hasModifier(MODIFIER_ID)) {
-			maxHealth.addTransientModifier(MODIFIER);
-		}
+		if (maxHealth == null) return;
+		double amount = Math.max(1.0, healthMultiplier) - 1.0;
+		AttributeModifier current = maxHealth.getModifier(MODIFIER_ID);
+		if (current != null && Math.abs(current.amount() - amount) <= 1.0E-6) return;
+		if (current != null) maxHealth.removeModifier(MODIFIER_ID);
+		maxHealth.addTransientModifier(new AttributeModifier(
+				MODIFIER_ID, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 	}
 }
