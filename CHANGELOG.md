@@ -8,6 +8,7 @@
 - Made every indefinite innate toggle continuously consume energy; Time Freeze now drains at least 15% of the caster's capacity each second.
 - Replaced raw invisibility flags with a particle-free, icon-free, amplifier-255 effect owned and safely removed by POWERS.
 - Added the zero-cooldown crouching Plant Healing pulse for injured players inside an inclusive two-block radius while retaining ordinary aimed plant growth.
+- Fixed the rank-3 Cinderheart crash on block impacts by making the direct-target forcefield check null-safe.
 
 ## 1.0.1 - 2026-08-10
 
