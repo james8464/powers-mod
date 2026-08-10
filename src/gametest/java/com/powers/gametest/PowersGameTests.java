@@ -24,6 +24,11 @@ import com.powers.item.ArtifactWeaponManager;
 import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.power.abilities.EnergyDrainAbility;
+import com.powers.power.abilities.TeleportAbility;
+import com.powers.power.ActivationCooldowns;
+import com.powers.network.NamedLivingTargetIndex;
+import com.powers.network.NamedTargetRules;
+import com.powers.testing.TestingOverrides;
 import com.powers.power.abilities.CombatTerrainImpact;
 import com.powers.power.state.MagicShieldManager;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
@@ -361,6 +366,66 @@ public final class PowersGameTests {
 		}
 		helper.runAfterDelay(13, () -> {
 			helper.assertTrue(observedBolt[0], "Shadow Sword Lightning did not create a visible bolt");
+			helper.succeed();
+		});
+	}
+
+	@GameTest
+	public void namedTestActorResolvesLikeAPlayerUsername(GameTestHelper helper) {
+		PowerTestActor actor = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 2));
+		actor.setTestingUsername("TrainingMage");
+		NamedLivingTargetIndex.track(actor);
+		var resolution = NamedLivingTargetIndex.resolve(helper.getLevel().getServer(), "trainingmage");
+		helper.assertTrue(resolution.status() == NamedTargetRules.Status.FOUND,
+				"A unique actor username did not resolve");
+		helper.assertTrue(resolution.target() == actor,
+				"Actor username resolved to the wrong living target");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void testingOverridesBypassEnergyAndPowerCooldowns(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		var data = com.powers.player.PlayerPowers.get(player);
+		data.emptyEnergy();
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		helper.assertTrue(data.consumeEnergy(Integer.MAX_VALUE),
+				"Testing mode still enforced the energy limit");
+		var ability = new ForcefieldAbility();
+		TestingOverrides.setCooldownsDisabled(player.getUUID(), false);
+		ActivationCooldowns.start(player, ability, 200);
+		TestingOverrides.setCooldownsDisabled(player.getUUID(), true);
+		helper.assertTrue(ActivationCooldowns.remainingTicks(player, ability) == 0,
+				"Testing mode still exposed an active cooldown");
+		TestingOverrides.clear(player.getUUID());
+		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 120)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void timeShiftCanMoveANamedTestActor(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		PowerTestActor actor = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(3, 1, 2));
+		actor.setTestingUsername("WarpTarget");
+		actor.setNoAi(true);
+		var data = com.powers.player.PlayerPowers.get(caster);
+		data.setSlots(caster, java.util.List.of(
+				"powers:time_shift", "powers:shadow_step", "powers:forcefield"));
+		BlockPos destination = helper.absolutePos(new BlockPos(7, 1, 7));
+		helper.setBlock(new BlockPos(7, 0, 7), Blocks.STONE);
+		TeleportAbility ability = new TeleportAbility();
+		helper.assertTrue(com.powers.power.AbilityActivationService.activateTeleport(
+				caster, actor, ability, helper.getLevel().dimension(),
+				destination.getX(), destination.getY(), destination.getZ(), false)
+				== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+				"Time Shift rejected a player-compatible test actor");
+		helper.runAfterDelay(75, () -> {
+			helper.assertTrue(actor.position().distanceToSqr(
+					new Vec3(destination.getX() + 0.5, destination.getY(), destination.getZ() + 0.5)) < 1.0,
+					"Time Shift did not move the test actor to the selected destination");
 			helper.succeed();
 		});
 	}

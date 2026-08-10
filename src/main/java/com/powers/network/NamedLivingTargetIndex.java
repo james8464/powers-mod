@@ -4,6 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -63,6 +64,20 @@ public final class NamedLivingTargetIndex {
 			matches.add(new NamedTargetRules.Candidate<>(mob, name.getString()));
 			if (matches.size() >= 2) return;
 		}
+	}
+
+	/** Resolves a unique online player username or loaded custom mob/test-actor name. */
+	public static NamedTargetRules.Resolution<LivingEntity> resolve(
+			MinecraftServer server, String requestedName) {
+		List<NamedTargetRules.Candidate<LivingEntity>> matches = new java.util.ArrayList<>(2);
+		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+			if (NamedTargetRules.matches(requestedName, player.getName().getString())) {
+				matches.add(new NamedTargetRules.Candidate<>(player, player.getName().getString()));
+				if (matches.size() >= 2) return NamedTargetRules.resolve(requestedName, matches);
+			}
+		}
+		appendMatches(server, requestedName, matches);
+		return NamedTargetRules.resolve(requestedName, matches);
 	}
 
 	public static void clearAll() {

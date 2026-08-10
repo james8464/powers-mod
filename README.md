@@ -250,7 +250,7 @@ An optional OpenAI-compatible text endpoint may replace only the wording. It is 
 
 `Darkness Creature` is a naturally spawning Dark Realm monster with a completely black player model, 100 health, 12 armour, 16 melee damage, and player-like movement. It attacks every living entity without the `darkness` tag and alternates bounded, terrain-safe lightning and custom darkness fireballs at range. Sword guardians use the same creature and disappear naturally rather than accumulating permanent server entities.
 
-`Power Test Actor` is a player-model test opponent with the same boss-capable base attributes. It retaliates when hit and fights hostile mobs, making powers, spells, possession, projectile counters, and particle presentation testable in a single-player world. Spawn eggs for both entities are available in creative/operator testing.
+`Power Test Actor` is a player-model test opponent with the same boss-capable base attributes. Every actor has a persistent, visible username (`Test_<id>` by default); name tags and `/powers testing actor spawn <username>` assign a normalized username. Player-target powers can resolve that unique name for remote viewing and Time Shift, and the actor supplies player-like energy, dimensional-anchor and sacrificial-forcefield state while preserving ordinary safe-zone, amethyst, ward, death and collision rules. This makes possession, drains, forced movement, projectile counters and particle presentation testable in a single-player world. Spawn eggs for both entities are available in creative/operator testing.
 
 `Radiant Sentinel` is the Partisan's light-aligned player-shaped guardian. Both guardian factions preserve owner and alignment, expire when their owner leaves the dimension, enforce four-normal/two-elite owner caps and a global cap, and cycle bounded melee, lightning, fireball, and alignment-field tactics. Their fields heal allies or punish the opposed faction without crossing safe zones or amethyst counterplay.
 
@@ -307,6 +307,13 @@ Administrative commands:
 - `/powers boss spawn`
 - `/powers diagnose`
 - `/powers reload`
+- `/powers testing on|off|status`
+- `/powers testing energy on|off`
+- `/powers testing cooldowns on|off`
+- `/powers testing refill`
+- `/powers testing actor spawn [username]`
+
+Testing mode is operator-only and affects only its executor. `on` temporarily disables both energy limits and gameplay cooldowns; the narrower branches change one limit. It covers innate powers, spells, crystals, artifacts, runes and ongoing energy drains at their shared server-authoritative boundaries. It does not bypass amethyst, protection, permissions, damage, targeting, realm gates or Time Stop. The switches are session-only and clear on disconnect/server stop; run `/powers testing off` before returning to ordinary survival testing.
 
 ## Configuration
 

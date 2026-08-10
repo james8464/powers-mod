@@ -16,6 +16,7 @@ import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellCastingManager;
 import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.PowerMessages;
+import com.powers.testing.TestingOverrides;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -56,7 +57,8 @@ public final class ImportedArtifactItem extends Item {
 		}
 		if (!MagicUseGate.passes(player, true)) return InteractionResult.FAIL;
 		ItemStack stack = player.getItemInHand(hand);
-		if (player.getCooldowns().isOnCooldown(stack)) return InteractionResult.SUCCESS;
+		if (!TestingOverrides.cooldownsDisabled(player.getUUID())
+				&& player.getCooldowns().isOnCooldown(stack)) return InteractionResult.SUCCESS;
 		boolean success = switch (kind) {
 			case ATTUNEMENT -> recharge(player, 24, 0xE6CF7B);
 			case SOUL_VESSEL -> drainSoul(player);
@@ -70,7 +72,9 @@ public final class ImportedArtifactItem extends Item {
 			case TRANSMUTER -> explain(player, "item.powers.relic.target_block");
 			case NONE -> false;
 		};
-		if (success) player.getCooldowns().addCooldown(stack, USE_COOLDOWN_TICKS);
+		if (success && !TestingOverrides.cooldownsDisabled(player.getUUID())) {
+			player.getCooldowns().addCooldown(stack, USE_COOLDOWN_TICKS);
+		}
 		return InteractionResult.SUCCESS;
 	}
 
@@ -80,7 +84,8 @@ public final class ImportedArtifactItem extends Item {
 				|| !(context.getPlayer() instanceof ServerPlayer player)) return InteractionResult.SUCCESS;
 		if (!MagicUseGate.passes(player, true)) return InteractionResult.FAIL;
 		ItemStack stack = context.getItemInHand();
-		if (player.getCooldowns().isOnCooldown(stack)) return InteractionResult.FAIL;
+		if (!TestingOverrides.cooldownsDisabled(player.getUUID())
+				&& player.getCooldowns().isOnCooldown(stack)) return InteractionResult.FAIL;
 		boolean success = switch (kind) {
 			case TRANSMUTER -> transmute(player, context);
 			case TRAVEL_RELIC -> bindAnchor(player, context);
@@ -89,7 +94,9 @@ public final class ImportedArtifactItem extends Item {
 		if (!success) return kind == ImportedArtifactKind.TRANSMUTER
 				|| kind == ImportedArtifactKind.TRAVEL_RELIC
 				? InteractionResult.FAIL : super.useOn(context);
-		player.getCooldowns().addCooldown(stack, USE_COOLDOWN_TICKS);
+		if (!TestingOverrides.cooldownsDisabled(player.getUUID())) {
+			player.getCooldowns().addCooldown(stack, USE_COOLDOWN_TICKS);
+		}
 		return InteractionResult.SUCCESS;
 	}
 

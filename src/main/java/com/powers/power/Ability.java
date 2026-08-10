@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
 /**
@@ -102,7 +103,7 @@ public abstract class Ability {
 	 * Fires an input ability at the coordinates the player picked in the
 	 * client screen, moving the subject (usually the caster) there
 	 */
-	public boolean activateTeleport(ServerPlayer caster, ServerPlayer subject, PlayerPowers.PlayerPowersData data,
+	public boolean activateTeleport(ServerPlayer caster, LivingEntity subject, PlayerPowers.PlayerPowersData data,
 			ResourceKey<Level> dimension, double x, double y, double z) {
 		return false;
 	}

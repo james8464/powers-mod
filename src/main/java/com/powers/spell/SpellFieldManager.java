@@ -112,7 +112,7 @@ public final class SpellFieldManager {
 		WORK.offer(key);
 	}
 
-	public static boolean blocksTravel(ServerPlayer subject, ServerLevel destinationLevel, Vec3 destination) {
+	public static boolean blocksTravel(LivingEntity subject, ServerLevel destinationLevel, Vec3 destination) {
 		return blocksTravelAt(subject, (ServerLevel) subject.level(), subject.position())
 				|| blocksTravelAt(subject, destinationLevel, destination);
 	}
@@ -258,7 +258,7 @@ public final class SpellFieldManager {
 		return field.center().distanceToSqr(position) <= field.radius() * field.radius();
 	}
 
-	private static boolean blocksTravelAt(ServerPlayer subject, ServerLevel level, Vec3 position) {
+	private static boolean blocksTravelAt(LivingEntity subject, ServerLevel level, Vec3 position) {
 		for (Field field : nearby(level, position, 0.0)) {
 			if (field.expiresAt() <= level.getGameTime() || field.owner().equals(subject.getUUID())) continue;
 			if ((field.kind() == SpellFieldKind.ANTI_PORTAL || field.kind() == SpellFieldKind.INFERNAL_SEAL)

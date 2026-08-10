@@ -114,6 +114,7 @@ public final class PowerCommand {
 				.then(Commands.literal("diagnose")
 						.requires(PowerCommand::isAdmin)
 						.executes(PowerCommand::diagnose))
+				.then(TestingCommand.create())
 				.then(Commands.literal("travel")
 						.requires(PowerCommand::isAdmin)
 						.then(Commands.argument("dimension", StringArgumentType.word())
@@ -257,7 +258,7 @@ public final class PowerCommand {
 		return 1;
 	}
 
-	private static boolean isAdmin(CommandSourceStack source) {
+	static boolean isAdmin(CommandSourceStack source) {
 		return switch (CommandPermissionRules.tier(PowersConfigLoader.get().adminPermissionLevel())) {
 			case 0 -> true;
 			case 1 -> source.permissions().hasPermission(
