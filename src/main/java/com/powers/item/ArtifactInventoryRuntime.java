@@ -8,6 +8,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.PowerEnergy;
 import com.powers.power.artifact.ArtifactDeathWardManager;
 import com.powers.power.artifact.ArtifactCovenantManager;
+import com.powers.power.artifact.ArtifactChainManager;
 import com.powers.power.artifact.ArtifactDecreeManager;
 import com.powers.power.artifact.ArtifactFieldManager;
 import com.powers.power.artifact.ArtifactGateManager;
@@ -132,6 +133,8 @@ public final class ArtifactInventoryRuntime {
 		ArtifactFieldManager.tick(server);
 		ArtifactGateManager.tick(server);
 		ArtifactGroundWorkQueue.tick(server);
+		ArtifactCovenantManager.tick(server);
+		ArtifactChainManager.tick(server);
 	}
 
 	public static void forget(ServerPlayer player) {
@@ -144,6 +147,7 @@ public final class ArtifactInventoryRuntime {
 		ArtifactGuardianSummons.forget(playerId);
 		ArtifactDeathWardManager.forget(playerId);
 		ArtifactCovenantManager.forget(playerId);
+		ArtifactChainManager.forget(playerId);
 	}
 
 	public static void clear() {
@@ -155,5 +159,6 @@ public final class ArtifactInventoryRuntime {
 		ArtifactGuardianSummons.clear();
 		ArtifactDeathWardManager.clear();
 		ArtifactCovenantManager.clear();
+		ArtifactChainManager.clear();
 	}
 }

@@ -1,12 +1,12 @@
 package com.powers.network;
 
 import com.powers.PowersMod;
+import com.powers.fx.ShadowSwordFx;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.player.PlayerPowers;
 import com.powers.power.AbilityActivationService;
 import com.powers.util.PowerMessages;
-import com.powers.fx.ShadowSwordFx;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.registries.Registries;
@@ -20,16 +20,34 @@ import net.minecraft.world.level.Level;
 
 /** Dedicated payload surface for the Shadow Sword menu and its input ability. */
 public final class ShadowSwordPackets {
+	private static final StreamCodec<io.netty.buffer.ByteBuf, String> ALIGNMENT_CODEC =
+			ByteBufCodecs.stringUtf8(16);
+	private static final StreamCodec<io.netty.buffer.ByteBuf, String> ACTION_KEY_CODEC =
+			ByteBufCodecs.stringUtf8(64);
+	private static final StreamCodec<io.netty.buffer.ByteBuf, String> PLAYER_NAME_CODEC =
+			ByteBufCodecs.stringUtf8(16);
+	private static final StreamCodec<io.netty.buffer.ByteBuf, java.util.List<Integer>> INT_LIST_CODEC =
+			ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list(128));
+	private static final StreamCodec<io.netty.buffer.ByteBuf, java.util.List<Boolean>> BOOL_LIST_CODEC =
+			ByteBufCodecs.BOOL.apply(ByteBufCodecs.list(128));
+
 	public record OpenMenuPayload(String alignment, String selectedKey, int rank, int elementalPhase,
-			int sizeMorphOption) implements CustomPacketPayload {
+			int sizeMorphOption, int energy, java.util.List<Integer> costs,
+			java.util.List<Integer> cooldowns, java.util.List<Integer> cooldownMaximums,
+			java.util.List<Boolean> activeToggles) implements CustomPacketPayload {
 		public static final Type<OpenMenuPayload> TYPE = new Type<>(PowersMod.id("open_shadow_sword"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, OpenMenuPayload> STREAM_CODEC =
 				StreamCodec.composite(
-						ByteBufCodecs.STRING_UTF8, OpenMenuPayload::alignment,
-						ByteBufCodecs.STRING_UTF8, OpenMenuPayload::selectedKey,
+						ALIGNMENT_CODEC, OpenMenuPayload::alignment,
+						ACTION_KEY_CODEC, OpenMenuPayload::selectedKey,
 						ByteBufCodecs.VAR_INT, OpenMenuPayload::rank,
 						ByteBufCodecs.VAR_INT, OpenMenuPayload::elementalPhase,
 						ByteBufCodecs.VAR_INT, OpenMenuPayload::sizeMorphOption,
+						ByteBufCodecs.VAR_INT, OpenMenuPayload::energy,
+						INT_LIST_CODEC, OpenMenuPayload::costs,
+						INT_LIST_CODEC, OpenMenuPayload::cooldowns,
+						INT_LIST_CODEC, OpenMenuPayload::cooldownMaximums,
+						BOOL_LIST_CODEC, OpenMenuPayload::activeToggles,
 						OpenMenuPayload::new);
 
 		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
@@ -38,7 +56,7 @@ public final class ShadowSwordPackets {
 	public record OpenTeleportPayload(String alignment) implements CustomPacketPayload {
 		public static final Type<OpenTeleportPayload> TYPE = new Type<>(PowersMod.id("open_shadow_teleport"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, OpenTeleportPayload> STREAM_CODEC =
-				StreamCodec.composite(ByteBufCodecs.STRING_UTF8, OpenTeleportPayload::alignment,
+				StreamCodec.composite(ALIGNMENT_CODEC, OpenTeleportPayload::alignment,
 						OpenTeleportPayload::new);
 
 		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
@@ -48,8 +66,8 @@ public final class ShadowSwordPackets {
 		public static final Type<SelectPayload> TYPE = new Type<>(PowersMod.id("select_shadow_sword"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, SelectPayload> STREAM_CODEC =
 				StreamCodec.composite(
-						ByteBufCodecs.STRING_UTF8, SelectPayload::alignment,
-						ByteBufCodecs.STRING_UTF8, SelectPayload::actionKey,
+						ALIGNMENT_CODEC, SelectPayload::alignment,
+						ACTION_KEY_CODEC, SelectPayload::actionKey,
 						ByteBufCodecs.VAR_INT, SelectPayload::option,
 						SelectPayload::new);
 
@@ -61,12 +79,12 @@ public final class ShadowSwordPackets {
 		public static final Type<TeleportPayload> TYPE = new Type<>(PowersMod.id("shadow_sword_teleport"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, TeleportPayload> STREAM_CODEC =
 				StreamCodec.composite(
-						ByteBufCodecs.STRING_UTF8, TeleportPayload::alignment,
+						ALIGNMENT_CODEC, TeleportPayload::alignment,
 						ByteBufCodecs.DOUBLE, TeleportPayload::x,
 						ByteBufCodecs.DOUBLE, TeleportPayload::y,
 						ByteBufCodecs.DOUBLE, TeleportPayload::z,
 						ResourceKey.streamCodec(Registries.DIMENSION), TeleportPayload::dimension,
-						ByteBufCodecs.STRING_UTF8, TeleportPayload::targetName,
+						PLAYER_NAME_CODEC, TeleportPayload::targetName,
 						TeleportPayload::new);
 
 		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
@@ -98,9 +116,13 @@ public final class ShadowSwordPackets {
 
 	public static void openMenu(ServerPlayer player, ArtifactAlignment alignment,
 			String selectedKey, int rank,
-			int elementalPhase, int sizeMorphOption) {
+			int elementalPhase, int sizeMorphOption, int energy,
+			java.util.List<Integer> costs, java.util.List<Integer> cooldowns,
+			java.util.List<Integer> cooldownMaximums, java.util.List<Boolean> activeToggles) {
 		ServerPlayNetworking.send(player, new OpenMenuPayload(
-				alignment.serializedName(), selectedKey, rank, elementalPhase, sizeMorphOption));
+				alignment.serializedName(), selectedKey, rank, elementalPhase, sizeMorphOption,
+				energy, java.util.List.copyOf(costs), java.util.List.copyOf(cooldowns),
+				java.util.List.copyOf(cooldownMaximums), java.util.List.copyOf(activeToggles)));
 	}
 
 	public static void openTeleport(ServerPlayer player, ArtifactAlignment alignment) {
@@ -110,7 +132,14 @@ public final class ShadowSwordPackets {
 	/** Compatibility overload for code paths retained during world migration. */
 	public static void openMenu(ServerPlayer player, String selectedKey, int rank,
 			int elementalPhase, int sizeMorphOption) {
-		openMenu(player, ArtifactAlignment.DARKNESS, selectedKey, rank, elementalPhase, sizeMorphOption);
+		java.util.List<ArtifactWeaponManager.Action> actions = ArtifactWeaponManager.actions(
+				ArtifactAlignment.DARKNESS);
+		openMenu(player, ArtifactAlignment.DARKNESS, selectedKey, rank, elementalPhase,
+				sizeMorphOption, PlayerPowers.get(player).energy(),
+				actions.stream().map(action -> com.powers.power.PowerEnergy.cost(player, action.ability())).toList(),
+				actions.stream().map(action -> 0).toList(), actions.stream().map(action ->
+						ArtifactWeaponManager.cooldown(player, ArtifactAlignment.DARKNESS, action)).toList(),
+				actions.stream().map(action -> false).toList());
 	}
 
 	/** Compatibility overload for the original Shadow Sword adapter. */

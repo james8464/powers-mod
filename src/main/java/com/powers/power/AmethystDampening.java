@@ -161,6 +161,12 @@ public final class AmethystDampening {
 		return entity instanceof ServerPlayer player && player.hasEffect(PowersEffects.AMETHYST_POISONING);
 	}
 
+	/** Location-only suppression used by non-player tactical entities and rituals. */
+	public static boolean isDampenedAt(ServerLevel level, BlockPos position) {
+		return level != null && position != null
+				&& (nearAmethyst(level, position) || findPoweredWard(level, position).isPresent());
+	}
+
 	/**
 	 * The sting for using powers while suppressed: 2.5 magic damage,
 	 * violet spark bursts, and a message that the power was blocked

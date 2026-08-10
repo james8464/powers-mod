@@ -34,13 +34,17 @@ class PowersConfigTest {
 		assertTrue(config.livingForces().spreadingEnabled());
 		assertEquals(48, config.livingForces().clashRadius());
 		assertEquals(2, config.livingForces().witherAmplifier());
+		assertFalse(config.dialogueProvider().enabled());
+		assertEquals(4, config.dialogueProvider().maxGlobalRequests());
 	}
 
 	@Test
 	void sanitizationClampsUnsafeNumericValues() {
 		PowersConfig invalid = new PowersConfig(false, false, false, false, true, true, true,
 				true, true, true, true, true, true, -5, 0, 0, 500, 500, 5000, 99, java.util.List.of(),
-				new PowersConfig.LivingForces(true, -1, -2, -3, -4, 1000, 1));
+				new PowersConfig.LivingForces(true, -1, -2, -3, -4, 1000, 1),
+				new PowersConfig.DialogueProvider(true, " endpoint ", " model ", "bad variable!",
+						99_999, 999, 1));
 
 		PowersConfig sanitized = invalid.sanitized();
 		assertEquals(1, sanitized.wardRadius());
@@ -56,6 +60,9 @@ class PowersConfigTest {
 		assertEquals(1, sanitized.livingForces().energyRefillPerSecond());
 		assertEquals(96, sanitized.livingForces().clashRadius());
 		assertEquals(256, sanitized.livingForces().clashChecksPerTick());
+		assertEquals(2_500, sanitized.dialogueProvider().timeoutMillis());
+		assertEquals(4, sanitized.dialogueProvider().maxGlobalRequests());
+		assertEquals(10, sanitized.dialogueProvider().ownerCooldownSeconds());
 	}
 
 	@Test

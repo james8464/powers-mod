@@ -28,7 +28,8 @@ public record PowersConfig(
 		int rankRespecExperienceLevels,
 		int adminPermissionLevel,
 		List<SafeZone> safeZones,
-		LivingForces livingForces) {
+		LivingForces livingForces,
+		DialogueProvider dialogueProvider) {
 
 	/** Sanitized pacing and safety limits for spreading realm matter. */
 	public record LivingForces(boolean spreadingEnabled, int spreadAttempts, int auraRadius,
@@ -55,10 +56,40 @@ public record PowersConfig(
 		}
 	}
 
+	/** Disabled-by-default, bounded settings for fictional dialogue text only. */
+	public record DialogueProvider(boolean enabled, String endpoint, String model,
+			String credentialEnvironmentVariable, int timeoutMillis,
+			int maxGlobalRequests, int ownerCooldownSeconds) {
+		public static DialogueProvider defaults() {
+			return new DialogueProvider(false, "", "", "POWERS_DIALOGUE_API_KEY",
+					2_500, 4, 30);
+		}
+
+		public DialogueProvider sanitized() {
+			String safeEndpoint = bounded(endpoint, 2_048);
+			String safeModel = bounded(model, 128);
+			String safeVariable = bounded(credentialEnvironmentVariable, 128);
+			if (!safeVariable.matches("[A-Za-z_][A-Za-z0-9_]*")) {
+				safeVariable = "POWERS_DIALOGUE_API_KEY";
+			}
+			return new DialogueProvider(enabled, safeEndpoint, safeModel, safeVariable,
+					Math.clamp(timeoutMillis, 250, 2_500),
+					Math.clamp(maxGlobalRequests, 1, 4),
+					Math.clamp(ownerCooldownSeconds, 10, 3_600));
+		}
+
+		private static String bounded(String value, int maximum) {
+			if (value == null) return "";
+			String cleaned = value.strip();
+			return cleaned.substring(0, Math.min(maximum, cleaned.length()));
+		}
+	}
+
 	public static PowersConfig defaults() {
 		return new PowersConfig(false, false, false, false,
 				true, true, true, true, true, true, true, true, true,
-				20, 512, 8, 32, 64, 30, 2, List.of(), LivingForces.defaults());
+				20, 512, 8, 32, 64, 30, 2, List.of(), LivingForces.defaults(),
+				DialogueProvider.defaults());
 	}
 
 	public PowersConfig sanitized() {
@@ -76,6 +107,7 @@ public record PowersConfig(
 				Math.max(4, Math.min(256, chronoStopRadius)),
 				Math.max(0, Math.min(1000, rankRespecExperienceLevels)),
 				Math.max(0, Math.min(4, adminPermissionLevel)), List.copyOf(zones),
-				(livingForces == null ? LivingForces.defaults() : livingForces).sanitized());
+				(livingForces == null ? LivingForces.defaults() : livingForces).sanitized(),
+				(dialogueProvider == null ? DialogueProvider.defaults() : dialogueProvider).sanitized());
 	}
 }

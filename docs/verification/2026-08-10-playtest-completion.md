@@ -18,14 +18,16 @@ This record closes the issues raised during the 2026-08-09/10 playtest. It suppl
 | Teleportation | Destination chunks are loaded before safe-position validation; server-advertised modded dimensions are shown without truncating their identifiers. | travel chunk-loader, destination-policy, and menu layout tests |
 | Living realm matter | Darkness and Pure Light spread through random ticks with bounded conversion rules. Darkness harms non-faction entities and restores tagged players. Opposed matter triggers bounded catastrophic annihilation. | rules tests plus live random-tick spread GameTest |
 | Progression UI | Only the allegiance-appropriate advancement path is visible; both canvases have backgrounds; title prefixes and both 28-node mazes are data-driven. | advancement, rank-maze, resource, and language validation |
-| Shadow Sword | Non-dark carriers are cursed and guarded against. Tagged wielders may route every innate/crystal action through a darkened echo of its original palette and use seven unique artifact rites. Darkness level 10 ignores existing cooldowns and creates no new cooldown. New rites are Oblivion Pulse (rank 5) and Soul Requiem (rank 9). | `ShadowSwordPowerRulesTest`, palette/catalogue/selection tests, exhaustive magic tests |
-| Security/performance | Serverbound packet lanes are independently rate-limited. Entity, particle, projectile, spread, explosion, and ritual work is capped or tick-budgeted. Target/action identifiers are server validated. | packet limiter tests, source audit, bounded-work tests |
-| Interactions | 73 magic actions produce every unordered same/cross-action combination, each with deterministic mechanics, visual cue, sound cue, and accessibility shape. | 2,701 generated rows; exhaustive resolver and documentation drift tests |
+| Shadow Sword | Non-dark carriers are cursed and guarded against. Tagged wielders route every innate/crystal action through a darkened echo of its original palette and use seven original plus eleven new artifact rites. Darkness level 10 ignores existing cooldowns, starts no new cooldown, and receives the 900-energy apotheosis pulse. | `ShadowSwordPowerRulesTest`, `ShadowSwordPacketsTest`, palette/catalogue/selection tests, exhaustive magic tests |
+| Heavenly Partisan | The opposed unbreakable artifact routes every innate/crystal action through light presentation and adds eleven group-protection/judgement rites, sentinels, fields, gates, covenant links, and death wards. | artifact selection/menu/rules tests, exhaustive magic tests |
+| Crucible, companion, and boss | The Arcane Crucible provides an atomic three-stage compatibility forge; the Shadow Sword unlocks an owner-private bounded companion; the First Vessel supplies a 5,000-vitality, multiplayer-scaled 28-power endgame encounter and ritual. | crucible transaction/resource tests, companion privacy/provider tests, tactical planner/rules tests |
+| Security/performance | Serverbound packet lanes are independently rate-limited and string codecs are length-bounded. Entity, particle, projectile, spread, explosion, summon, field, target scan, dialogue, and ritual work is capped, asynchronous, or tick-budgeted. Target/action identifiers are server validated. | packet bound/limiter tests, source audit, bounded-work tests |
+| Interactions | 97 magic actions produce every unordered same/cross-action combination, each with deterministic mechanics, visual cue, sound cue, and accessibility shape. | 4,753 generated rows; exhaustive resolver and documentation drift tests |
 | Recipes | Crystal and reserved custom-item recipes remain intentionally absent. Natural and upgrade-chain runestone recipes/loot are present. | strict resource validator and README catalogue |
 
 ## Automated gate
 
-`./gradlew check` completed successfully on 2026-08-10. It ran 317 JUnit tests, three live Fabric GameTests (including actual Darkness random-tick spread and runtime Darkness Creature faction targeting), compilation for common/client/GameTest sources, strict resource validation, Java/non-item-asset audits, and generated interaction-document drift checks.
+`./gradlew clean check build` completed successfully on 2026-08-10. It ran 399 JUnit tests and 12 live Fabric GameTests (including actual Darkness random-tick spread and runtime Darkness Creature faction targeting), compilation for common/client/GameTest sources, strict resource validation, Java/non-item-asset audits, generated interaction-document drift checks, and release assembly.
 
 The final clean release gate is:
 
@@ -35,8 +37,8 @@ The final clean release gate is:
 
 ## Runtime smoke
 
-- Dedicated server: reached `Done`, initialized 28 powers, 73 actions and 2,701 interactions, then loaded and saved the Overworld, Nether, End, Light Realm, Dark Realm, and Middleworld without a POWERS error.
-- Development client: initialized OpenGL/OpenAL, loaded POWERS, reloaded all resources, and created the particle, item, block, GUI, celestial, and other atlases without a missing POWERS asset. It was then deliberately stopped with SIGINT; the resulting Gradle exit 130 records that manual stop, not an initialization failure. Development-profile Mojang/Realms authentication and Apple/Metal shader diagnostics were external/vanilla messages.
+- Dedicated server: reached `Done`, initialized 28 powers, 97 actions and 4,753 interactions, then loaded and saved the Overworld, Nether, End, Light Realm, Dark Realm, and Middleworld before accepting `stop` and exiting 0 without a POWERS error.
+- Development client: initialized OpenGL/OpenAL, loaded POWERS, reloaded all resources, and created the particle, item, block, GUI, celestial, and other atlases without a missing POWERS asset. The smoke initially exposed Arcane Crucible textures outside the stitched block atlas; the textures were moved into `textures/block`, a validator regression rule was added, and the clean rerun had no missing-texture warning. The client was then deliberately stopped with SIGINT. Development-profile Mojang/Realms authentication and Apple/Metal shader diagnostics were external/vanilla messages.
 
 ## Remaining experiential work
 

@@ -211,6 +211,10 @@ def validate(root: Path) -> list[str]:
                 target = local_resource(root, texture, "textures", ".png")
                 if target is not None and not target.exists():
                     errors.append(f"{path}: missing texture {target}")
+                if (path.is_relative_to(assets / "models" / "block")
+                        and texture.startswith("powers:")
+                        and not texture.removeprefix("powers:").startswith("block/")):
+                    errors.append(f"{path}: block texture {texture!r} is outside the stitched block atlas")
 
     for path in sorted((root / "data" / "powers" / "advancement").rglob("*.json")):
         data = parsed.get(path, {})

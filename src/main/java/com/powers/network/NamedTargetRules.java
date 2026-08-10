@@ -8,7 +8,8 @@ public final class NamedTargetRules {
 	public enum Status {
 		FOUND,
 		NOT_FOUND,
-		AMBIGUOUS
+		AMBIGUOUS,
+		SCAN_LIMIT
 	}
 
 	/** A resolvable player username or mob custom name. */
@@ -40,5 +41,10 @@ public final class NamedTargetRules {
 		return found == null
 				? new Resolution<>(Status.NOT_FOUND, null)
 				: new Resolution<>(Status.FOUND, found);
+	}
+
+	/** Refuses resolution when a hard world-inspection budget was exhausted. */
+	public static <T> Resolution<T> scanLimit() {
+		return new Resolution<>(Status.SCAN_LIMIT, null);
 	}
 }

@@ -15,7 +15,7 @@ class FirstVesselRulesTest {
 		assertEquals(FirstVesselPhase.LAST_COVENANT, FirstVesselRules.phase(0.35));
 		assertEquals(1.0, FirstVesselRules.playerScale(0));
 		assertEquals(1.0, FirstVesselRules.playerScale(1));
-		assertEquals(2.5, FirstVesselRules.playerScale(3));
+		assertEquals(2.1, FirstVesselRules.playerScale(3));
 		assertEquals(4.0, FirstVesselRules.playerScale(99));
 	}
 
@@ -33,5 +33,13 @@ class FirstVesselRulesTest {
 		assertTrue(FirstVesselRules.planningTick(100));
 		assertFalse(FirstVesselRules.planningTick(101));
 		assertEquals(24, FirstVesselRules.MAX_CANDIDATES);
+	}
+
+	@Test
+	void hostileControlStillYieldsToCounterplay() {
+		assertTrue(FirstVesselRules.mayControl(false, false, false));
+		assertFalse(FirstVesselRules.mayControl(true, false, false));
+		assertFalse(FirstVesselRules.mayControl(false, true, false));
+		assertFalse(FirstVesselRules.mayControl(false, false, true));
 	}
 }

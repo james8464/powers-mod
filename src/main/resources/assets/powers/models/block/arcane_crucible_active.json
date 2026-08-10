@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:block/cube",
   "textures": {
-    "particle": "powers:imported/blocks/device_brooding_forge_side_on",
-    "down": "powers:imported/blocks/device_brooding_forge_2",
-    "up": "powers:imported/blocks/device_brooding_forge_up_on",
-    "north": "powers:imported/blocks/device_brooding_forge_side_on",
-    "south": "powers:imported/blocks/device_brooding_forge_side_on",
-    "west": "powers:imported/blocks/device_brooding_forge_side_on",
-    "east": "powers:imported/blocks/device_brooding_forge_side_on"
+    "particle": "powers:block/device_brooding_forge_side_on",
+    "down": "powers:block/device_brooding_forge_2",
+    "up": "powers:block/device_brooding_forge_up_on",
+    "north": "powers:block/device_brooding_forge_side_on",
+    "south": "powers:block/device_brooding_forge_side_on",
+    "west": "powers:block/device_brooding_forge_side_on",
+    "east": "powers:block/device_brooding_forge_side_on"
   }
 }

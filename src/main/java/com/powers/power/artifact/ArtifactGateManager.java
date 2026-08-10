@@ -51,6 +51,7 @@ public final class ArtifactGateManager {
 			ServerLevel level = server.getLevel(gate.dimension());
 			ServerPlayer owner = server.getPlayerList().getPlayer(entry.getKey());
 			if (level == null || owner == null || !owner.isAlive()
+					|| owner.level() != level
 					|| server.getTickCount() >= gate.expiresAt()) {
 				iterator.remove();
 				continue;

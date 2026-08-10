@@ -16,6 +16,8 @@ import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
 import com.powers.power.AbilityActivationService;
+import com.powers.power.ActivationCooldowns;
+import com.powers.power.PowerEnergy;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
 import com.powers.power.artifact.AbyssalSingularityAbility;
@@ -116,8 +118,20 @@ public final class ArtifactWeaponManager {
 			return;
 		}
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		List<Action> menuActions = actions(alignment);
+		List<Integer> costs = menuActions.stream()
+				.map(action -> PowerEnergy.cost(player, action.ability())).toList();
+		List<Integer> maximums = menuActions.stream().map(action -> action.ability().isToggle()
+				? 0 : cooldown(player, alignment, action)).toList();
+		List<Integer> remaining = java.util.stream.IntStream.range(0, menuActions.size())
+				.mapToObj(index -> maximums.get(index) <= 0 ? 0 : Math.min(maximums.get(index),
+						ActivationCooldowns.remainingTicks(player, menuActions.get(index).ability())))
+				.toList();
+		List<Boolean> active = menuActions.stream().map(action -> action.ability().isToggle()
+				&& data.isToggleActive(toggleKey(action))).toList();
 		ShadowSwordPackets.openMenu(player, alignment, ArtifactSelectionState.selected(player, alignment),
-				rank(player, alignment), data.getPhase(), data.getSizeMorphOption());
+				rank(player, alignment), data.getPhase(), data.getSizeMorphOption(), data.energy(),
+				costs, remaining, maximums, active);
 	}
 
 	public static boolean authorized(ServerPlayer player, ArtifactAlignment alignment) {
