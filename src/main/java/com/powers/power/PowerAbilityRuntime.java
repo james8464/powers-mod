@@ -59,6 +59,7 @@ public final class PowerAbilityRuntime {
 	/** Clears every active ability session owned by a disconnecting player. */
 	public static void onDisconnect(MinecraftServer server, ServerPlayer player) {
 		clearPlayerState(server, player);
+		com.powers.testing.TestingOverrides.clear(player.getUUID());
 	}
 
 	/** One complete lifecycle boundary prevents UUID-keyed casts leaking onto replacement entities. */
@@ -97,6 +98,8 @@ public final class PowerAbilityRuntime {
 
 	/** Releases all server-owned ability state before world references are discarded. */
 	public static void onServerStopped(MinecraftServer server) {
+		com.powers.testing.TestingOverrides.clearAll();
+		com.powers.entity.TestActorPowerState.clearAll();
 		TeleportAbility.clearAllMarking();
 		TimeFreezeToggleAbility.clearAll(server);
 		ForcefieldAbility.clearAll();

@@ -38,7 +38,6 @@ import com.powers.forge.CrucibleWeaponRuntime;
 import com.powers.companion.PrivateCompanionManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -99,24 +98,7 @@ public class PowersMod implements ModInitializer {
 		PowersPackets.initialize();
 		PowerCommand.register();
 		PowerCombatEvents.register();
-		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
-			com.powers.network.NamedLivingTargetIndex.track(entity);
-			if (entity instanceof com.powers.entity.AbstractPlayerLikeMob guardian) {
-				com.powers.power.artifact.ArtifactGuardianSummons.trackLoaded(guardian);
-			}
-		});
-		ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) ->
-		{
-			com.powers.network.NamedLivingTargetIndex.untrack(entity);
-			com.powers.magic.runtime.PhysicalMagicPresences.unload(entity);
-			if (entity instanceof com.powers.entity.PlayerLikeTarget) {
-				com.powers.entity.TestActorPowerState.clear(entity.getUUID());
-				com.powers.power.abilities.ForcefieldAbility.clear(entity.getUUID());
-			}
-			if (entity instanceof com.powers.entity.AbstractPlayerLikeMob guardian) {
-				com.powers.power.artifact.ArtifactGuardianSummons.untrackLoaded(guardian);
-			}
-		});
+		com.powers.entity.EntityRuntimeLifecycle.initialize();
 		LOGGER.info("Magic collision kernel loaded: {} actions, {} exhaustive interactions",
 				MagicRuntime.catalogue().definitions().size(), MagicRuntime.global().interactionCount());
 		// SkillSystem sets the player's visible display name. Vanilla signed chat
@@ -182,7 +164,6 @@ public class PowersMod implements ModInitializer {
 			CrucibleWeaponRuntime.forget(player.getUUID());
 			PrivateCompanionManager.forget(player);
 			com.powers.knowledge.KnowledgeRemoteProviderRuntime.forget(player.getUUID());
-			com.powers.testing.TestingOverrides.clear(player.getUUID());
 			TravelChunkLoader.cancel(player.getUUID());
 			PowersPackets.forget(player);
 		});
@@ -210,8 +191,6 @@ public class PowersMod implements ModInitializer {
 			com.powers.network.NamedLivingTargetIndex.clearAll();
 			com.powers.diagnostics.ServerRuntimeMetrics.clear();
 			com.powers.magic.runtime.PhysicalMagicPresences.clear();
-			com.powers.entity.TestActorPowerState.clearAll();
-			com.powers.testing.TestingOverrides.clearAll();
 		});
 
 		// passives get re-applied on a schedule so they never expire, toggles
