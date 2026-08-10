@@ -232,8 +232,8 @@ final class FireballImpactResolver {
 		};
 	}
 
-	private static boolean hasForcefield(ServerLevel level, LivingEntity target) {
-		return MagicShieldManager.global().active(
+	static boolean hasForcefield(ServerLevel level, LivingEntity target) {
+		return target != null && MagicShieldManager.global().active(
 				target.getUUID(), level.getServer().getTickCount());
 	}
 
