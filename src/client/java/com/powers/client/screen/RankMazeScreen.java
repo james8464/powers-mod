@@ -7,6 +7,7 @@ import com.powers.progression.RankGraph;
 import com.powers.progression.RankGraphRegistry;
 import com.powers.progression.RankMazeLayout;
 import com.powers.progression.RankNode;
+import com.powers.progression.RankPresentation;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -129,18 +130,14 @@ public final class RankMazeScreen extends Screen {
 									: Component.translatable("screen.powers.rank.locked").getString();
 			graphics.centeredText(font, Component.literal(selected.title() + " — " + status),
 					width / 2, panelY() + 180, 0xFFFFFFFF);
-			graphics.centeredText(font, Component.literal(perkSummary(selected)), width / 2,
+			String summary = font.plainSubstrByWidth(perkSummary(selected), PANEL_WIDTH - 18);
+			graphics.centeredText(font, Component.literal(summary), width / 2,
 					panelY() + 191, 0xFFC7C2D2);
 		}
 	}
 
 	private String perkSummary(RankNode node) {
-		if (node.perks().isEmpty()) return Component.translatable("screen.powers.rank.no_perk").getString();
-		return node.perks().stream().map(perk -> {
-			String scope = perk.actionOrAspect().isEmpty() ? "" : " · " + perk.actionOrAspect();
-			return perk.type().name().toLowerCase(java.util.Locale.ROOT).replace('_', ' ')
-					+ " +" + Math.round(perk.amount() * 100.0) + "%" + scope;
-		}).collect(java.util.stream.Collectors.joining(", "));
+		return RankPresentation.summary(node);
 	}
 
 	private int panelX() {

@@ -141,6 +141,13 @@ public final class PowerCommand {
 		for (String line : snapshot.lines()) {
 			context.getSource().sendSuccess(() -> Component.literal(line).withStyle(ChatFormatting.AQUA), false);
 		}
+		if (context.getSource().getEntity() instanceof ServerPlayer player) {
+			var testing = com.powers.testing.TestingOverrides.state(player.getUUID());
+			context.getSource().sendSuccess(() -> Component.literal(
+					"testing: energy=" + (testing.energyDisabled() ? "disabled" : "normal")
+							+ "; cooldowns=" + (testing.cooldownsDisabled() ? "disabled" : "normal"))
+					.withStyle(ChatFormatting.AQUA), false);
+		}
 		return 1;
 	}
 

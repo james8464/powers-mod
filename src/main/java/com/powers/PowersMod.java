@@ -110,6 +110,7 @@ public class PowersMod implements ModInitializer {
 			}
 			BodyProxyManager.recoverOnJoin(player);
 			PlayerPowers.get(player).assignRandom(player, false);
+			com.powers.player.PlayerGuide.giveIfNeeded(player);
 			SkillSystem.syncPathVisibility(player);
 			SkillSystem.refresh(player);
 			PowersPackets.syncTo(player);

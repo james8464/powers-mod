@@ -11,6 +11,9 @@
 - Fixed the rank-3 Cinderheart crash on block impacts by making the direct-target forcefield check null-safe.
 - Replaced generic rank percentages with 253 complete, power-specific authored level profiles and boss-scale capstones while preserving strict innate/spell/crystal/artifact source isolation.
 - Extended player Size Morphing save-safely to rank-gated `0.125×`, `2.5×`, `3×`, and `4×` forms; forcefield integrity and Double Health capacity now use their authored rank profiles.
+- Repainted both Labyrinth panels as alignment-specific carved-stone/blackstone pixel art and replaced misleading percentage tooltips with the transformations the selected title actually unlocks.
+- Rebuilt the energy atlas as five crisp vanilla-scale empty/half/full glyph families and moved the ten-symbol hunger-aligned row above conditional air and mount-health rows.
+- Added a one-time persistent vanilla written-book guide and completed `/powers testing reset` plus testing-state diagnostics.
 
 ## 1.0.1 - 2026-08-10
 

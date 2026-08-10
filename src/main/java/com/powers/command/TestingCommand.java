@@ -28,6 +28,7 @@ final class TestingCommand {
 				.then(Commands.literal("status").executes(TestingCommand::status))
 				.then(Commands.literal("on").executes(context -> setAll(context, true)))
 				.then(Commands.literal("off").executes(context -> setAll(context, false)))
+				.then(Commands.literal("reset").executes(TestingCommand::reset))
 				.then(Commands.literal("energy")
 						.then(Commands.literal("on").executes(context -> setEnergy(context, true)))
 						.then(Commands.literal("off").executes(context -> setEnergy(context, false))))
@@ -41,6 +42,12 @@ final class TestingCommand {
 								.then(Commands.argument("username", StringArgumentType.word())
 										.executes(context -> spawnActor(context,
 												StringArgumentType.getString(context, "username"))))));
+	}
+
+	private static int reset(CommandContext<CommandSourceStack> context)
+			throws CommandSyntaxException {
+		TestingOverrides.clear(context.getSource().getPlayerOrException().getUUID());
+		return status(context);
 	}
 
 	private static int setAll(CommandContext<CommandSourceStack> context, boolean enabled)

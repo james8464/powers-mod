@@ -31,6 +31,26 @@ class HudLayoutTest {
 	}
 
 	@Test
+	void airAndVehicleRowsMoveEnergyUpWithoutChangingHungerAlignment() {
+		HudLayout baseline = HudLayout.forScreen(427, 240, 0, 0);
+		HudLayout air = HudLayout.forScreen(427, 240, 1, 0);
+		HudLayout mount = HudLayout.forScreen(427, 240, 0, 2);
+		HudLayout both = HudLayout.forScreen(427, 240, 1, 2);
+
+		assertTrue(air.energy().y() == baseline.energy().y() - 10);
+		assertTrue(mount.energy().y() == baseline.energy().y() - 20);
+		assertTrue(both.energy().y() == baseline.energy().y() - 30);
+		assertTrue(both.energy().x() == baseline.energy().x());
+	}
+
+	@Test
+	void tenSymbolCoordinatesExactlyMatchTheVanillaHungerStride() {
+		HudLayout.Rect energy = HudLayout.forScreen(427, 240).energy();
+		assertTrue(HudLayout.energySymbolX(energy, 0) == energy.right() - 9);
+		assertTrue(HudLayout.energySymbolX(energy, 9) == energy.x());
+	}
+
+	@Test
 	void verticalPowerRailDoesNotCoverTheHotbarOnNormalScaledWindows() {
 		HudLayout layout = HudLayout.forScreen(427, 240);
 		HudLayout.Rect hotbar = HudLayout.vanillaHotbar(427, 240);

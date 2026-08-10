@@ -20,6 +20,8 @@ Innate loadouts are allegiance-aware. Radiant players can uniquely receive Starf
 
 The HUD shows the three powers as compact 30-pixel rune medallions at the right edge, with live toggle and rank-adjusted cooldown states. Energy is rendered as ten separate nine-pixel symbols directly above and exactly aligned with the vanilla hunger bar. Full, half, and empty symbols use normal, darkness, amethyst-poisoned, or projected-body colours; the bar is moved with the vanilla survival HUD so extra heart rows never overlap it.
 
+On first join, each persistent character receives one vanilla written book, **POWERS: First Awakening**. It explains V/X/C, the B-key Labyrinth, energy, grimoires, crystals, mind-body vulnerability, artifacts, Shadow chat, and the major counter-magic systems. The persistent delivery flag prevents reconnect, respawn, or death duplication; if the inventory is full the book is dropped safely at the player.
+
 The assignable powers are:
 
 - Movement and control: Size Morphing, Flight, Super Speed, Speed Burst, Time Shift, Telekinesis, Gravity Displacement, and Breezy Bash.
@@ -98,7 +100,7 @@ The light and darkness graphs each contain 28 nodes, including legacy titles and
 
 Named branch variants still have mechanical consequences as well as stronger ceremonies: Might empowers selected impacts, Motion grants second steps, Insight grants True Sight, Wardcraft reflects forcefields, Communion strengthens soul transfer, Veil reduces readable residue, Dominion deepens ancient mastery, and the Darkness path awakens Dark Resurgence. Authored rank breakpoints also unlock the relevant transformations at levels 3, 6, 9, and 10, so every player becomes materially stronger even before choosing a maze focus.
 
-Press `B` (rebindable) to open the synchronized Labyrinth of Names, inspect every connected title and perk, awaken reachable nodes, or attune a previously earned title. The server revalidates every click. The equivalent commands are `/powers path list`, `/powers path unlock <node>`, `/powers path focus <node>`, and `/powers path respec`; respeccing preserves earned depth and costs 30 experience levels by default.
+Press `B` (rebindable) to open the synchronized Labyrinth of Names, inspect every connected title and its real transformation, awaken reachable nodes, or attune a previously earned title. Light uses a pale carved-stone/parchment panel with gold-white runes; Darkness uses ancient blackstone, violet tendrils, and worn silver edging. The server revalidates every click. The equivalent commands are `/powers path list`, `/powers path unlock <node>`, `/powers path focus <node>`, and `/powers path respec`; respeccing preserves earned depth and costs 30 experience levels by default.
 
 Players with the `darkness` entity tag use the darkness advancement track and energy well. `/powers darkprefix` controls whether the focused darkness title is publicly shown.
 
@@ -304,7 +306,7 @@ Administrative commands:
 - `/powers testing refill`
 - `/powers testing actor spawn [username]`
 
-Testing mode is operator-only and affects only its executor. `on` temporarily disables both energy limits and gameplay cooldowns; the narrower branches change one limit. It covers innate powers, spells, crystals, artifacts, runes and ongoing energy drains at their shared server-authoritative boundaries. It does not bypass amethyst, protection, permissions, damage, targeting, realm gates or Time Stop. The switches are session-only and clear on disconnect/server stop; run `/powers testing off` before returning to ordinary survival testing.
+Testing mode is operator-only and affects only its executor. `on` temporarily disables both energy limits and gameplay cooldowns; the narrower branches change one limit, `refill` restores energy and clears saved cooldowns, and `reset` returns both overrides to normal. It covers innate powers, spells, crystals, artifacts, runes and ongoing energy drains at their shared server-authoritative boundaries. It does not bypass amethyst, protection, permissions, damage, targeting, realm gates or Time Stop. The switches are session-only and clear on disconnect/server stop; run `/powers testing reset` before returning to ordinary survival testing. `/powers diagnose` includes the executor's current testing flags.
 
 ## Configuration
 

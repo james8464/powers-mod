@@ -31,6 +31,7 @@ final class PlayerPowerAttachments {
 	static final AttachmentType<String> RANK_FOCUS = persistentString("rank_focus");
 	static final AttachmentType<String> DARK_RANK_FOCUS = persistentString("dark_rank_focus");
 	static final AttachmentType<Boolean> DARKNESS_PREFIX_HIDDEN = persistentBoolean("darkness_prefix_hidden");
+	static final AttachmentType<Boolean> GUIDE_RECEIVED = persistentBoolean("guide_received");
 	static final AttachmentType<Integer> SIZE_MORPH_OPTION = persistentInt("size_morph_option", 3);
 	static final AttachmentType<String> SHADOW_SWORD_SELECTION = persistentString("shadow_sword_selection");
 	static final AttachmentType<String> HEAVENLY_PARTISAN_SELECTION =

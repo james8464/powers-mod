@@ -24,6 +24,16 @@ class HudMathTest {
 	}
 
 	@Test
+	void halfEnergySelectsTheLeftFilledSpriteForTheCurrentRightToLeftSymbol() {
+		assertEquals(0, HudMath.energyFillColumn(0, 0));
+		assertEquals(1, HudMath.energyFillColumn(1, 0));
+		assertEquals(2, HudMath.energyFillColumn(2, 0));
+		assertEquals(0, HudMath.energyFillColumn(2, 1));
+		assertEquals(1, HudMath.energyFillColumn(19, 9));
+		assertEquals(2, HudMath.energyFillColumn(20, 9));
+	}
+
+	@Test
 	void visualModeHasUnambiguousPriority() {
 		assertEquals(HudEnergyMode.DAMPENED, HudMath.mode(50, true, true));
 		assertEquals(HudEnergyMode.EMPTY, HudMath.mode(0, false, true));

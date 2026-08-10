@@ -9,12 +9,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.LivingEntity;
 
 /** Renders ten vanilla-scale full/half energy symbols above the hunger row. */
 public final class EnergyHudRenderer {
 	private static final Identifier SYMBOLS = PowersMod.id("textures/gui/energy_symbols.png");
 	private static final int SYMBOL_SIZE = 9;
-	private static final int SYMBOL_STEP = 8;
 	private static final int TEXTURE_WIDTH = 27;
 	private static final int TEXTURE_HEIGHT = 45;
 
@@ -29,15 +29,16 @@ public final class EnergyHudRenderer {
 		HudEnergyMode mode = HudMath.mode(energy,
 				client.player.hasEffect(PowersEffects.AMETHYST_POISONING),
 				ClientPowerState.darkness(), ClientPowerState.projection());
+		int airRows = client.player.getAirSupply() < client.player.getMaxAirSupply() ? 1 : 0;
+		int mountRows = client.player.getVehicle() instanceof LivingEntity mount
+				? Math.clamp((int) Math.ceil(mount.getMaxHealth() / 20.0), 1, 3) : 0;
 		HudLayout.Rect bounds = HudLayout.forScreen(client.getWindow().getGuiScaledWidth(),
-				client.getWindow().getGuiScaledHeight()).energy();
+				client.getWindow().getGuiScaledHeight(), airRows, mountRows).energy();
 		int halfUnits = mode == HudEnergyMode.EMPTY ? 0 : HudMath.energyHalfUnits(energy, capacity);
-		int visibleSymbols = Math.min(10, Math.max(0, (bounds.width() + SYMBOL_STEP - 1) / SYMBOL_STEP));
+		int visibleSymbols = Math.min(10, Math.max(0, (bounds.width() + 7) / 8));
 		for (int symbol = 0; symbol < visibleSymbols; symbol++) {
-			int threshold = symbol * 2;
-			int sourceX = halfUnits >= threshold + 2 ? SYMBOL_SIZE * 2
-					: halfUnits == threshold + 1 ? SYMBOL_SIZE : 0;
-			int x = bounds.x() + bounds.width() - SYMBOL_SIZE - symbol * SYMBOL_STEP;
+			int sourceX = HudMath.energyFillColumn(halfUnits, symbol) * SYMBOL_SIZE;
+			int x = HudLayout.energySymbolX(bounds, symbol);
 			graphics.blit(RenderPipelines.GUI_TEXTURED, SYMBOLS, x, bounds.y(), sourceX,
 					textureRow(mode) * SYMBOL_SIZE, SYMBOL_SIZE, SYMBOL_SIZE,
 					TEXTURE_WIDTH, TEXTURE_HEIGHT);
