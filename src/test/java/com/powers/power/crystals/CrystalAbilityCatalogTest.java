@@ -41,4 +41,14 @@ class CrystalAbilityCatalogTest {
 		assertTrue(CrystalTargeting.withinRadius(400.0, 20.0));
 		assertFalse(CrystalTargeting.withinRadius(400.01, 20.0));
 	}
+
+	@Test
+	void mindscapeCrystalsAlwaysHaveAServerChosenTraveller() {
+		assertEquals(CrystalTargeting.JourneyTarget.CASTER,
+				CrystalTargeting.journeyTarget(false, false));
+		assertEquals(CrystalTargeting.JourneyTarget.CASTER,
+				CrystalTargeting.journeyTarget(true, true));
+		assertEquals(CrystalTargeting.JourneyTarget.AIMED_PLAYER,
+				CrystalTargeting.journeyTarget(false, true));
+	}
 }

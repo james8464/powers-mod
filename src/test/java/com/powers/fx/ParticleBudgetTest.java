@@ -20,4 +20,12 @@ class ParticleBudgetTest {
 		assertEquals(0, budget.claim(1, -3));
 		assertEquals(1, budget.claim(1, 4));
 	}
+
+	@Test
+	void reducesDenseBurstsOnlyForViewersInsideTheFirstPersonClarityRadius() {
+		assertEquals(5, ParticleBudget.viewerCount(20, 4.0));
+		assertEquals(1, ParticleBudget.viewerCount(2, 15.9));
+		assertEquals(20, ParticleBudget.viewerCount(20, 16.01));
+		assertEquals(0, ParticleBudget.viewerCount(0, 0.0));
+	}
 }

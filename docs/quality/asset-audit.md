@@ -10,7 +10,7 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 | `blockstates/light_memory_obelisk.json` | blockstates | `62981c2f148e` | pass | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/pure_light.json` | blockstates | `c4375fe29f91` | pass | JSON decoded; references are covered by strict resource validation. |
 | `icon.png` | icon.png | `00ea24abeb49` | pass | PNG 128×128, alpha; reviewed in contact sheet. |
-| `lang/en_us.json` | lang | `e72cb3031279` | pass | JSON decoded; references are covered by strict resource validation. |
+| `lang/en_us.json` | lang | `4b1e61b42d68` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward.json` | models | `ec18f4c15589` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward_powered.json` | models | `e82316d2c639` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/dark_memory_obelisk.json` | models | `5061ea4c6337` | pass | JSON decoded; references are covered by strict resource validation. |
@@ -47,13 +47,14 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 | `textures/block/amethyst_ward_up_on.png.mcmeta` | textures | `eace6bdad2fa` | pass | JSON decoded; references are covered by strict resource validation. |
 | `textures/block/darkness.png` | textures | `2e0a9a2d5f28` | pass | PNG 16×16, opaque; reviewed in contact sheet. |
 | `textures/block/pure_light.png` | textures | `430c4a11827d` | pass | PNG 16×16, opaque; reviewed in contact sheet. |
-| `textures/gui/advancements/radiant_path.png` | textures | `7d027877c130` | pass | PNG 256×256, alpha; reviewed in contact sheet. |
-| `textures/gui/advancements/shadow_path.png` | textures | `bdc8a02990ac` | pass | PNG 256×256, alpha; reviewed in contact sheet. |
-| `textures/gui/energy_fill.png` | textures | `cd49fe1480b0` | pass | PNG 144×40, alpha; reviewed in contact sheet. |
-| `textures/gui/energy_frame.png` | textures | `29672e043363` | pass | PNG 172×22, alpha; reviewed in contact sheet. |
+| `textures/entity/darkness_player.png` | textures | `e0c5949f45e1` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
+| `textures/entity/test_actor.png` | textures | `a36cd91fd2f8` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
+| `textures/gui/advancements/backgrounds/radiant_path.png` | textures | `7d027877c130` | pass | PNG 256×256, alpha; reviewed in contact sheet. |
+| `textures/gui/advancements/backgrounds/shadow_path.png` | textures | `bdc8a02990ac` | pass | PNG 256×256, alpha; reviewed in contact sheet. |
+| `textures/gui/energy_symbols.png` | textures | `7e8166842264` | pass | PNG 27×45, alpha; reviewed in contact sheet. |
 | `textures/gui/locator_panel.png` | textures | `3255f1e09f0c` | pass | PNG 240×224, alpha; reviewed in contact sheet. |
-| `textures/gui/power_slot.png` | textures | `9b0914946ff7` | pass | PNG 36×36, alpha; reviewed in contact sheet. |
-| `textures/gui/power_slot_active.png` | textures | `58b7483ab567` | pass | PNG 36×36, alpha; reviewed in contact sheet. |
+| `textures/gui/power_slot.png` | textures | `0126f9ebefca` | pass | PNG 30×30, alpha; reviewed in contact sheet. |
+| `textures/gui/power_slot_active.png` | textures | `69c00eb92a5f` | pass | PNG 30×30, alpha; reviewed in contact sheet. |
 | `textures/gui/teleport_panel.png` | textures | `ea40205aceab` | pass | PNG 256×192, alpha; reviewed in contact sheet. |
 | `textures/imported/blocks/device_brooding_forge_2.png` | textures | `311f0c6401b7` | pass | PNG 16×16, alpha; reviewed in contact sheet. |
 | `textures/imported/blocks/device_brooding_forge_side_off.png` | textures | `27b6fca2856e` | pass | PNG 16×16, alpha; reviewed in contact sheet. |

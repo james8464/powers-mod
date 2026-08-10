@@ -8,6 +8,7 @@ import com.powers.power.AmethystDampening;
 import com.powers.power.state.PowerEntityState;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -40,8 +41,7 @@ public class TelekinesisAbility extends Ability {
 		// an 8-block reach in all directions, 12 tall, centered on the player
 		Vec3 center = player.position();
 		int moved = 0;
-		for (LivingEntity target : level.getEntities(
-				EntityTypeTest.forClass(LivingEntity.class), area,
+		for (LivingEntity target : BoundedEntityCandidates.living(level, area, 160,
 				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
 						&& PowerProtection.mayForceMove(player, e))) {
 			Vec3 fling = TelekinesisRules.outwardFling(
@@ -60,7 +60,8 @@ public class TelekinesisAbility extends Ability {
 			PowerFx.burst(level, targetCenter, ParticleTypes.ENCHANT, 5, 0.32, 0.035);
 		}
 		int intercepted = 0;
-		for (Projectile projectile : level.getEntities(EntityTypeTest.forClass(Projectile.class), area,
+		for (Projectile projectile : BoundedEntityCandidates.collect(level,
+				EntityTypeTest.forClass(Projectile.class), area, 64,
 				x -> x.isAlive() && x.getOwner() != player)) {
 			if (intercepted >= 16) break;
 			if (!PowerEntityState.tryReflect(projectile, 1)) continue;

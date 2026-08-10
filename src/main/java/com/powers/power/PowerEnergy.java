@@ -1,8 +1,11 @@
 package com.powers.power;
 
+import com.powers.player.PlayerPowers;
+import com.powers.power.abilities.SizeMorphAbility;
+import com.powers.power.abilities.SizeMorphRules;
+import com.powers.progression.PowerScalingService;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import com.powers.progression.PowerScalingService;
 
 /** the shared energy pool every power draws from, plus the costs */
 public final class PowerEnergy {
@@ -36,9 +39,9 @@ public final class PowerEnergy {
 			case "lightning_strike", "fireball" -> 4;
 			case "speed_burst", "shadow_step", "super_speed", "invisibility" -> 10;
 			case "energy_beam", "void_beam", "frost_nova", "ice_manipulation" -> 22;
-			case "elemental_blast", "gravity_displacement", "breezy_bash" -> 28;
+			case "elemental_blast", "gravity_displacement", "breezy_bash", "thunderclap" -> 28;
 			case "ground_slam", "forcefield", "cozy_campfire" -> 35;
-			case "starfall", "slow_world", "time_freeze", "dimensional_anchor" -> 45;
+			case "starfall", "time_freeze", "dimensional_anchor" -> 45;
 			case "telekinesis", "vessel_possession" -> 24;
 			case "astral_projection" -> 32;
 			case "plant_healing_acceleration", "double_health" -> 24;
@@ -48,9 +51,11 @@ public final class PowerEnergy {
 		};
 	}
 
-	/** Applies the player's capped rank efficiency to an ability's base cost. */
+	/** Applies rank efficiency only to innate player powers, never crystals. */
 	public static int cost(ServerPlayer player, Ability ability) {
-		return PowerScalingService.energyCost(player, ability.id().getPath(), cost(ability));
+		return ability.usesRankScaling()
+				? PowerScalingService.energyCost(player, ability.id().getPath(), cost(ability))
+				: cost(ability);
 	}
 
 	/** per-tick drain while a toggle like flight stays on, zero for everything else */
@@ -58,12 +63,19 @@ public final class PowerEnergy {
 		return switch (ability.id().getPath()) {
 			case "flight", "invisibility" -> 1;
 			case "time_freeze" -> 3;
+			case "nightfall_dominion" -> 12;
 			default -> 0;
 		};
 	}
 
-	/** Applies rank efficiency to a toggle's recurring server-side drain. */
+	/** Applies rank efficiency to an innate toggle's recurring server-side drain. */
 	public static int ongoingCost(ServerPlayer player, Ability ability) {
-		return PowerScalingService.energyCost(player, ability.id().getPath(), ongoingCost(ability));
+		int baseCost = ability instanceof SizeMorphAbility
+				? SizeMorphRules.energyDrainPerSecond(SizeMorphRules.scale(
+						PlayerPowers.get(player).getSizeMorphOption()))
+				: ongoingCost(ability);
+		return ability.usesRankScaling()
+				? PowerScalingService.energyCost(player, ability.id().getPath(), baseCost)
+				: baseCost;
 	}
 }

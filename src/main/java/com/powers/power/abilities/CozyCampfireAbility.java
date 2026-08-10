@@ -4,11 +4,11 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AbilityArithmetic;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.entity.EntityTypeTest;
@@ -67,7 +67,7 @@ public class CozyCampfireAbility extends Ability {
 			if (remaining <= 0) return;
 			// only friendly mobs get healed, never enemies
 			AABB area = AABB.ofSize(center, radius * 2, radius * 2, radius * 2);
-			for (LivingEntity e : level.getEntities(EntityTypeTest.forClass(LivingEntity.class), area,
+			for (LivingEntity e : BoundedEntityCandidates.living(level, area, 256,
 					e -> e.isAlive() && !(e instanceof net.minecraft.world.entity.monster.Enemy)
 							&& e.position().distanceTo(center) <= radius)) {
 				e.heal(healing);

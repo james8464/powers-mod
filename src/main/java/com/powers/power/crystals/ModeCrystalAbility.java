@@ -18,7 +18,8 @@ public final class ModeCrystalAbility extends Ability {
 
 	public ModeCrystalAbility(String crystalPath, List<Ability> modes) {
 		super(PowersMod.id(crystalPath + "_convergence"),
-				Component.translatable("ability.powers." + crystalPath + "_convergence"), 0, false);
+				Component.translatable("ability.powers." + crystalPath + "_convergence"),
+				0, false, false);
 		if (modes.isEmpty()) throw new IllegalArgumentException("A crystal needs at least one ability");
 		this.modes = List.copyOf(modes);
 	}
@@ -50,7 +51,8 @@ public final class ModeCrystalAbility extends Ability {
 		if (selected.isSelectionAction(player)) return selected.activate(player, data);
 		if (player.isCrouching()) {
 			Ability next = modes.get(state.advance(player.getUUID(), modes.size()));
-			player.sendSystemMessage(Component.translatable("crystal.powers.mode_selected", next.name()));
+			PowerMessages.overlay(player,
+					Component.translatable("crystal.powers.mode_selected", next.name()));
 			return true;
 		}
 		// Track the underlying ability as well as this crystal surface so a

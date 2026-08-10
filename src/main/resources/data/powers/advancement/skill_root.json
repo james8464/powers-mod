@@ -9,7 +9,7 @@
 		"description": {
 			"translate": "advancement.powers.skill.root.description"
 		},
-		"background": "powers:textures/gui/advancements/radiant_path.png",
+		"background": "powers:gui/advancements/backgrounds/radiant_path",
 		"frame": "task",
 		"show_toast": true,
 		"announce_to_chat": false,

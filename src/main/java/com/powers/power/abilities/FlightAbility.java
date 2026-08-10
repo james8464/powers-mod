@@ -1,12 +1,11 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.ToggleAbility;
-import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
 /**
@@ -21,50 +20,39 @@ public class FlightAbility extends ToggleAbility {
 
 	@Override
 	public boolean activateToggleOn(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		// only the first toggle-on records the prior flags, later ones don't
-		// overwrite the snapshot needed for a clean restore
-		if (data.flightSnapshot() < 0) {
-			int snapshot = (player.getAbilities().mayfly ? 1 : 0)
-					| (player.getAbilities().flying ? 2 : 0)
-					| ((player.gameMode().isCreative() || player.isSpectator()) ? 4 : 0);
-			data.setFlightSnapshot(snapshot);
-		}
-		player.getAbilities().mayfly = true;
-		player.getAbilities().flying = true;
-		player.onUpdateAbilities();
+		// Propulsion is server velocity, not the creative mayfly flag. Other mods
+		// and game modes therefore keep complete ownership of the vanilla flags.
+		data.setFlightSnapshot(0);
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 			com.powers.fx.PowerFx.rune(level, player.position(), 1.4, 0xFFFFFF, 24, 0.0);
 			com.powers.fx.PowerFx.sound(level, player.position(),
 					net.minecraft.sounds.SoundEvents.ELYTRA_FLYING, 0.6f, 1.4f);
 		}
-		PowerMessages.send(player, "ability.powers.flight_on", 3);
 		return true;
 	}
 
 	@Override
 	public void activateToggleOff(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		int prior = data.flightSnapshot();
 		data.setFlightSnapshot(-1);
-		boolean modeOwnsFlight = player.gameMode().isCreative() || player.isSpectator();
-		boolean oldModeOwnedFlight = (prior & 4) != 0;
-		player.getAbilities().mayfly = modeOwnsFlight || (!oldModeOwnedFlight && (prior & 1) != 0);
-		player.getAbilities().flying = modeOwnsFlight || (!oldModeOwnedFlight && (prior & 2) != 0);
-		player.onUpdateAbilities();
 		// 3 seconds of slow falling so the way down is soft
 		if (!player.hasEffect(MobEffects.SLOW_FALLING)) {
-			player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, scaledDuration(player, 60), 0, true, false));
+			player.addEffect(PowerStatusEffects.hidden(MobEffects.SLOW_FALLING,
+					scaledDuration(player, 60), 0, true, true));
 		}
-		PowerMessages.send(player, "ability.powers.flight_off", 3);
 	}
 
 	@Override
 	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		// re-assert flight in case some other mechanic stripped the flag
-		if (!player.getAbilities().mayfly) {
-			player.getAbilities().mayfly = true;
-			player.onUpdateAbilities();
+		if (!player.gameMode().isCreative() && !player.isSpectator()) {
+			var input = player.getLastClientInput();
+			FlightRules.Motion motion = FlightRules.motion(player.getYRot(), input.forward(), input.backward(),
+					input.left(), input.right(), input.jump(), input.shift(), input.sprint(),
+					com.powers.player.SkillSystem.effectiveLevel(player));
+			player.setDeltaMovement(motion.x(), motion.y(), motion.z());
+			player.hurtMarked = true;
+			player.resetFallDistance();
 		}
-		if (player.getAbilities().flying && player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 			// rainbow trail while actually airborne
 			int rgb = com.powers.fx.PowerFx.rainbow(level.getServer().getTickCount(), 4);
 			com.powers.fx.PowerFx.coloredBurst(level, player.position().add(0, 0.3, 0), rgb, 2, 0.12);
@@ -73,5 +61,10 @@ public class FlightAbility extends ToggleAbility {
 						level.getServer().getTickCount() * 0.1);
 			}
 		}
+	}
+
+	@Override
+	public int activeTickInterval() {
+		return 1;
 	}
 }

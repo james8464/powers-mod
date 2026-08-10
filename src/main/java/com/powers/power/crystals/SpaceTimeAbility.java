@@ -1,23 +1,23 @@
 package com.powers.power.crystals;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.config.PowersConfigLoader;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
-import com.powers.power.AbilityArithmetic;
 import com.powers.power.AmethystDampening;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.FreezeOwner;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -32,15 +32,16 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Space-Time: the crystal that bends the moment. Sneak-right-click cycles
- * between slow, accelerate and freeze modes; a normal right-click applies
- * the chosen mode to the world around you
+ * Space-Time: the crystal that bends the moment. Its useful states alternate
+ * between extreme personal acceleration and a true local entity freeze.
  */
 public class SpaceTimeAbility extends Ability {
 	// the freeze holds the world for 120 ticks = 6 seconds
 	private static final int DURATION = 120;
 	private static final Map<UUID, ActiveFreeze> ACTIVE = new HashMap<>();
-	// per-player mode, 0 slow, 1 accelerate, 2 freeze
+	// Per-player mode: acceleration or local freeze. The obsolete self-slow state
+	// was intentionally removed because spending crystal energy to hinder the
+	// wielder had no useful combat application.
 	private static final Map<UUID, Integer> MODES = new HashMap<>();
 	private final boolean automaticModeCycle;
 
@@ -51,7 +52,8 @@ public class SpaceTimeAbility extends Ability {
 	}
 
 	public SpaceTimeAbility(boolean automaticModeCycle) {
-		super(PowersMod.id("space_time"), Component.translatable("ability.powers.space_time"), 1200, false);
+		super(PowersMod.id("space_time"), Component.translatable("ability.powers.space_time"),
+				1200, false, false);
 		this.automaticModeCycle = automaticModeCycle;
 	}
 
@@ -63,29 +65,31 @@ public class SpaceTimeAbility extends Ability {
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		if (!automaticModeCycle && player.isCrouching()) {
-			// sneak-right-click steps 0 -> 1 -> 2 -> 0 to pick the next mode
-			int mode = AbilityArithmetic.nextMode(MODES.getOrDefault(player.getUUID(), 0), 3);
+			int mode = SpaceTimeModeRules.next(MODES.getOrDefault(player.getUUID(), 0));
 			MODES.put(player.getUUID(), mode);
 			PowerMessages.send(player, "ability.powers.space_time_mode", 3, modeNameFor(mode));
 			return true;
 		}
 		ServerLevel level = (ServerLevel) player.level();
-		int mode = MODES.getOrDefault(player.getUUID(), 0);
+		int mode = Math.floorMod(MODES.getOrDefault(player.getUUID(), 0), SpaceTimeModeRules.count());
 		int duration = scaledDuration(player, DURATION);
-		if (mode == 0) {
-			// slow: 120 ticks of slowness, the moment drags around you
-			player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, duration, 2, false, false));
-		} else if (mode == 1) {
-			// accelerate: 120 ticks of speed, hunger the price of outrunning time
-			player.addEffect(new MobEffectInstance(MobEffects.HUNGER, duration, 1, false, false));
-			player.addEffect(new MobEffectInstance(MobEffects.SPEED, duration, 1, false, false));
+		if (SpaceTimeModeRules.mode(mode) == SpaceTimeModeRules.Mode.ACCELERATE) {
+			player.addEffect(PowerStatusEffects.hidden(MobEffects.SPEED,
+					duration, 3, false, true));
+			player.addEffect(PowerStatusEffects.hidden(MobEffects.HASTE,
+					duration, 2, false, true));
+			player.addEffect(PowerStatusEffects.hidden(MobEffects.JUMP_BOOST,
+					duration, 2, false, true));
+			player.addEffect(PowerStatusEffects.hidden(MobEffects.RESISTANCE,
+					duration, 1, false, true));
 		} else {
 			if (ACTIVE.containsKey(player.getUUID())) return false;
 			UUID freezeOwner = FreezeOwner.token("space_time", player.getUUID());
 			double radius = scaledRange(player, PowersConfigLoader.get().spaceTimeRadius());
 			Set<UUID> frozen = new LinkedHashSet<>();
 			AABB area = AABB.ofSize(player.position().add(0, 1, 0), radius * 2, radius * 2, radius * 2);
-			for (Entity entity : level.getEntities(EntityTypeTest.forClass(Entity.class), area,
+			for (Entity entity : BoundedEntityCandidates.collect(level,
+					EntityTypeTest.forClass(Entity.class), area, 1_024,
 					e -> e.isAlive() && e != player && e.distanceToSqr(player) <= radius * radius
 						&& (!(e instanceof LivingEntity living) || !AmethystDampening.isDampened(living))
 						&& !PowerProtection.isSafeZone(level, e.position())
@@ -103,7 +107,7 @@ public class SpaceTimeAbility extends Ability {
 		com.powers.fx.PowerFx.sound(level, player.position(),
 				net.minecraft.sounds.SoundEvents.EVOKER_CAST_SPELL, 1.0f, mode == 2 ? 0.35f : 1.4f);
 		if (automaticModeCycle) {
-			int next = AbilityArithmetic.nextMode(mode, 3);
+			int next = SpaceTimeModeRules.next(mode);
 			MODES.put(player.getUUID(), next);
 			PowerMessages.send(player, "ability.powers.space_time_mode", 3, modeNameFor(next));
 		}
@@ -169,10 +173,9 @@ public class SpaceTimeAbility extends Ability {
 	}
 
 	private static String modeNameFor(int mode) {
-		return switch (mode) {
-			case 0 -> "Slow";
-			case 1 -> "Accelerate";
-			default -> "Freeze";
+		return switch (SpaceTimeModeRules.mode(mode)) {
+			case ACCELERATE -> "Accelerate";
+			case FREEZE -> "Freeze";
 		};
 	}
 }

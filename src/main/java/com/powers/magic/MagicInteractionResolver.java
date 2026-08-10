@@ -71,7 +71,7 @@ public final class MagicInteractionResolver {
 						"Independent forces coexist with a restrained harmonic weave."));
 	}
 
-	/** Enumerates all 2,145 unordered pairs in stable ID order. */
+	/** Enumerates every unordered pair in stable ID order. */
 	public List<ResolvedPair> allPairs() {
 		List<MagicActionDefinition> definitions = catalogue.definitions().stream()
 				.sorted(java.util.Comparator.comparing(MagicActionDefinition::id)).toList();

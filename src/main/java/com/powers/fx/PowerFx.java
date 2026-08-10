@@ -8,6 +8,7 @@ import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -27,6 +28,27 @@ public final class PowerFx {
 
 	/** puffs a cloud of particles around a point */
 	public static void burst(ServerLevel level, Vec3 pos, ParticleOptions particle, int count, double spread, double speed) {
+		int granted = claim(level, count);
+		if (granted > 0) level.sendParticles(particle, pos.x, pos.y, pos.z, granted, spread, spread, spread, speed);
+	}
+
+	/**
+	 * Sends dense scatter per viewer so a nearby first-person camera receives a
+	 * quarter-density core while observers outside four blocks retain the full silhouette.
+	 */
+	public static void clarityBurst(ServerLevel level, Vec3 pos, ParticleOptions particle,
+			int count, double spread, double speed) {
+		int granted = claim(level, count);
+		if (granted <= 0) return;
+		for (ServerPlayer viewer : level.players()) {
+			int visible = ParticleBudget.viewerCount(granted,
+					viewer.getEyePosition().distanceToSqr(pos));
+			level.sendParticles(viewer, particle, false, false,
+					pos.x, pos.y, pos.z, visible, spread, spread, spread, speed);
+		}
+	}
+
+	private static int claim(ServerLevel level, int count) {
 		int limit = PowersConfigLoader.get().maxParticlesPerTick();
 		MinecraftServer server = level.getServer();
 		ParticleBudget budget = BUDGETS.get(server);
@@ -34,8 +56,7 @@ public final class PowerFx {
 			budget = new ParticleBudget(limit);
 			BUDGETS.put(server, budget);
 		}
-		int granted = budget.claim(server.getTickCount(), count);
-		if (granted > 0) level.sendParticles(particle, pos.x, pos.y, pos.z, granted, spread, spread, spread, speed);
+		return budget.claim(server.getTickCount(), count);
 	}
 
 	/** puffs a cloud of particles tinted with an rgb color */
@@ -354,6 +375,21 @@ public final class PowerFx {
 			sound(level, center, PowersSounds.DARK_WHISPER, 0.65F, 1.22F);
 			sound(level, center, SoundEvents.SOUL_ESCAPE.value(), 0.45F, 0.72F);
 		}
+	}
+
+	/** Announces a rare rank completion with a layered, allegiance-coloured rite. */
+	public static void rankAwakening(ServerPlayer player, boolean darkness, int level) {
+		ServerLevel world = player.level();
+		Vec3 feet = player.position().add(0.0, 0.08, 0.0);
+		int primary = darkness ? 0x4A174F : 0xFFF0A6;
+		int secondary = darkness ? 0xA04FC7 : 0x77E8FF;
+		double radius = 1.5 + Math.min(level, 10) * 0.08;
+		rune(world, feet, radius, primary, 28, level * 0.17);
+		rune(world, feet.add(0.0, 1.0, 0.0), radius * 0.68, secondary, 20, -level * 0.13);
+		spiral(world, feet, radius * 0.7, 2.5, secondary, 36, level * 0.2);
+		burst(world, player.getEyePosition(), darkness ? ParticleTypes.SOUL_FIRE_FLAME
+				: ParticleTypes.END_ROD, 18, 0.65, 0.06);
+		sound(world, feet, PowersSounds.RANK_AWAKEN, 1.5F, darkness ? 0.72F : 1.18F);
 	}
 
 	/** a cycling rainbow rgb color, for rainbow steve's effects */

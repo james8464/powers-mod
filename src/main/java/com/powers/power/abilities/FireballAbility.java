@@ -247,7 +247,6 @@ public final class FireballAbility extends Ability {
 		ScaledMagicValues profile = scaling(player);
 		Set<String> variants = profile.unlockedVariants();
 		heart.empoweredImpact |= variants.contains("empowered_impact");
-		heart.reflectiveWard |= variants.contains("reflective_ward");
 		heart.afterimage |= variants.contains("afterimage");
 		heart.trueSight |= variants.contains("true_sight");
 		heart.ancientMastery |= variants.contains("ancient_mastery");

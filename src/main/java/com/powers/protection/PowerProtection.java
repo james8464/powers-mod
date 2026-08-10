@@ -83,4 +83,12 @@ public final class PowerProtection {
 		return !isSafeZone((ServerLevel) target.level(), target.position())
 				&& PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.POSSESSION);
 	}
+
+	/** Keeps player consent intact while allowing suitable mobs outside safe zones. */
+	public static boolean mayPossess(ServerPlayer caster, LivingEntity target) {
+		if (target instanceof ServerPlayer player) return mayPossess(caster, player);
+		if (caster == target) return false;
+		if (isSafeZone((ServerLevel) target.level(), target.position())) return false;
+		return true;
+	}
 }

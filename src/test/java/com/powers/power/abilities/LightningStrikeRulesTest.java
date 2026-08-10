@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LightningStrikeRulesTest {
 	@Test
 	void authoredScheduleWarnsBeforeEitherFiniteVerdict() {
+		assertEquals(0, new LightningStrikeAbility().cooldownTicks());
 		assertEquals(8, LightningStrikeRules.beatAge(PRIMARY));
 		assertEquals(12, LightningStrikeRules.beatAge(CROWN));
 		assertEquals(0, LightningStrikeRules.beatsDue(7, true));

@@ -3,6 +3,7 @@ package com.powers.power.abilities;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.ToggleAbility;
+import com.powers.power.ToggleKeyRules;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -68,10 +69,12 @@ public class InvisibilityToggleAbility extends ToggleAbility {
 	/** Reveals only POWERS-owned invisibility, preserving unrelated invisible states. */
 	public static boolean reveal(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		String powerId = PowersMod.id("invisibility").toString();
-		if (!data.isToggleActive(powerId)) return false;
+		var abilityId = PowersMod.id("invisibility");
+		var ownedKeys = data.getActiveToggles().stream()
+				.filter(key -> ToggleKeyRules.ownsAbility(key, abilityId)).toList();
+		if (ownedKeys.isEmpty()) return false;
 		new InvisibilityToggleAbility().activateToggleOff(player, data);
-		data.setToggleActive(player, powerId, false);
+		ownedKeys.forEach(key -> data.setToggleActive(player, key, false));
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 			com.powers.fx.PowerFx.rune(level, player.position().add(0, 1, 0), 1.1, 0x6E7180, 18, Math.PI);
 		}

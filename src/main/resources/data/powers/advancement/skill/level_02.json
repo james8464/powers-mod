@@ -16,27 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"crystal": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"powers:rainbow_crystal"
-						]
-					}
-				]
-			}
-		},
-		"feast": {
-			"trigger": "minecraft:consume_item",
-			"conditions": {
-				"item": {
-					"items": [
-						"powers:imported_food_bread_big"
-					]
-				}
-			}
+		"mastery": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

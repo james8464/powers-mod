@@ -52,8 +52,6 @@ public final class MagicActionCatalogue {
 		List<MagicActionDefinition> actions = new java.util.ArrayList<>();
 
 		// Innate powers: the identifiers match PowerRegistry and player attachments.
-		add(actions, "slow_world", MagicOrigin.INNATE, MagicDelivery.FIELD, MagicIntent.CONTROL,
-				MagicAspect.TIME, MagicAspect.MOTION);
 		add(actions, "time_shift", MagicOrigin.INNATE, MagicDelivery.TRAVEL, MagicIntent.MOVEMENT,
 				MagicAspect.SPACE, MagicAspect.TIME);
 		add(actions, "shadow_step", MagicOrigin.INNATE, MagicDelivery.TRAVEL, MagicIntent.MOVEMENT,
@@ -74,6 +72,8 @@ public final class MagicActionCatalogue {
 				MagicAspect.STORM);
 		add(actions, "ground_slam", MagicOrigin.INNATE, MagicDelivery.FIELD, MagicIntent.HARM,
 				MagicAspect.FORCE, MagicAspect.GRAVITY);
+		add(actions, "thunderclap", MagicOrigin.INNATE, MagicDelivery.FIELD, MagicIntent.HARM,
+				MagicAspect.FORCE, MagicAspect.MOTION, MagicAspect.STORM);
 		add(actions, "speed_burst", MagicOrigin.INNATE, MagicDelivery.INSTANT, MagicIntent.MOVEMENT,
 				MagicAspect.MOTION, MagicAspect.FORCE);
 		add(actions, "telekinesis", MagicOrigin.INNATE, MagicDelivery.CHANNEL, MagicIntent.CONTROL,
@@ -135,6 +135,19 @@ public final class MagicActionCatalogue {
 		add(actions, "dark_crystal", MagicOrigin.CRYSTAL, MagicDelivery.PROJECTION, MagicIntent.MOVEMENT,
 				MagicAspect.DARKNESS, MagicAspect.MIND);
 
+		// The Shadow Sword's own rites remain artifacts even when its menu invokes
+		// an innate or crystal action from the authoritative registries above.
+		add(actions, "summon_darkness", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.SUPPORT,
+				MagicAspect.DARKNESS, MagicAspect.CREATION);
+		add(actions, "spread_darkness", MagicOrigin.ARTIFACT, MagicDelivery.FIELD,
+				MagicIntent.WORLD_INTERACTION, MagicAspect.DARKNESS, MagicAspect.CREATION);
+		add(actions, "abyssal_singularity", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.CONTROL,
+				MagicAspect.DARKNESS, MagicAspect.GRAVITY, MagicAspect.VOID);
+		add(actions, "annihilation_beam", MagicOrigin.ARTIFACT, MagicDelivery.BEAM, MagicIntent.HARM,
+				MagicAspect.DARKNESS, MagicAspect.VOID, MagicAspect.FORCE);
+		add(actions, "nightfall_dominion", MagicOrigin.ARTIFACT, MagicDelivery.AURA, MagicIntent.DEFENCE,
+				MagicAspect.DARKNESS, MagicAspect.SOUL, MagicAspect.PROTECTION);
+
 		// Grimoire spells: identifiers match SpellRegistry selections and cooldowns.
 		add(actions, "soul_compass", MagicOrigin.SPELL, MagicDelivery.INSTANT, MagicIntent.INFORMATION,
 				MagicAspect.SOUL, MagicAspect.MIND);
@@ -142,6 +155,8 @@ public final class MagicActionCatalogue {
 				MagicAspect.LIGHT, MagicAspect.SOUL);
 		add(actions, "weather_sigil", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.CONTROL,
 				MagicAspect.STORM, MagicAspect.CREATION);
+		add(actions, "celestial_ruin", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.WORLD_INTERACTION,
+				MagicAspect.LIGHT, MagicAspect.CREATION, MagicAspect.FORCE);
 		add(actions, "dimensional_anchor", MagicOrigin.SPELL, MagicDelivery.CHANNEL, MagicIntent.CONTROL,
 				MagicAspect.SPACE, MagicAspect.SUPPRESSION);
 		add(actions, "binding_sigil", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.CONTROL,
@@ -232,6 +247,7 @@ public final class MagicActionCatalogue {
 			case INNATE, AMETHYST -> 0;
 			case SPELL -> 3;
 			case CRYSTAL -> 8;
+			case ARTIFACT -> 14;
 			case REALM -> 20;
 		};
 		return intentValue + originBonus;
@@ -260,14 +276,16 @@ public final class MagicActionCatalogue {
 
 	private static int baseEnergy(MagicOrigin origin, MagicIntent intent) {
 		if (origin == MagicOrigin.AMETHYST || origin == MagicOrigin.REALM) return 0;
-		int base = origin == MagicOrigin.CRYSTAL ? 55 : origin == MagicOrigin.SPELL ? 20 : 18;
+		int base = origin == MagicOrigin.CRYSTAL ? 55
+				: origin == MagicOrigin.ARTIFACT ? 40 : origin == MagicOrigin.SPELL ? 20 : 18;
 		return base + (intent == MagicIntent.HARM || intent == MagicIntent.CONTROL ? 8 : 0);
 	}
 
 	private static int baseCooldown(MagicOrigin origin, MagicDelivery delivery) {
 		if (origin == MagicOrigin.AMETHYST || origin == MagicOrigin.REALM
 				|| delivery == MagicDelivery.TOGGLE) return 0;
-		return origin == MagicOrigin.CRYSTAL ? 1200 : origin == MagicOrigin.SPELL ? 600 : 200;
+		return origin == MagicOrigin.CRYSTAL ? 1200
+				: origin == MagicOrigin.ARTIFACT ? 800 : origin == MagicOrigin.SPELL ? 600 : 200;
 	}
 
 	private static int residueTicks(MagicDelivery delivery) {
@@ -284,6 +302,7 @@ public final class MagicActionCatalogue {
 			case INNATE -> 10;
 			case SPELL -> 15;
 			case CRYSTAL -> 20;
+			case ARTIFACT -> 22;
 			case AMETHYST -> 25;
 			case REALM -> 30;
 		};

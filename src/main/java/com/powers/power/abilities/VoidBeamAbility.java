@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersBlocks;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
@@ -12,6 +13,7 @@ import com.powers.power.state.MagicShieldManager;
 import com.powers.progression.ScaledMagicValues;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
+import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -19,7 +21,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -186,8 +187,8 @@ public final class VoidBeamAbility extends Ability {
 				counterplay = VoidBeamRules.Counterplay.FORCEFIELD;
 				break;
 			}
-			target.addEffect(new MobEffectInstance(MobEffects.WITHER, charge.witherTicks(),
-					charge.witherAmplifier(), true, false, true));
+			target.addEffect(PowerStatusEffects.hidden(MobEffects.WITHER, charge.witherTicks(),
+					charge.witherAmplifier(), true, true));
 			PowerFx.voidBeamPenetration(level, impact, index, charge.darkResurgence());
 			successfulHits++;
 			if (successfulHits == charge.penetrations()) {
@@ -215,7 +216,7 @@ public final class VoidBeamAbility extends Ability {
 		Vec3 end = origin.add(direction.scale(terminalDistance));
 		AABB envelope = caster.getBoundingBox().expandTowards(direction.scale(terminalDistance)).inflate(1.0);
 		List<VoidBeamRules.RayCandidate<LivingEntity>> result = new ArrayList<>();
-		for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, envelope,
+		for (LivingEntity target : BoundedEntityCandidates.living(level, envelope, 160,
 				entity -> entity.isAlive() && entity != caster && !entity.isSpectator())) {
 			target.getBoundingBox().inflate(0.3).clip(origin, end).ifPresent(point ->
 					result.add(new VoidBeamRules.RayCandidate<>(target, origin.distanceTo(point))));

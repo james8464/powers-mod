@@ -1,0 +1,6 @@
+{
+	"model": {
+		"type": "minecraft:model",
+		"model": "powers:item/darkness_creature_spawn_egg"
+	}
+}

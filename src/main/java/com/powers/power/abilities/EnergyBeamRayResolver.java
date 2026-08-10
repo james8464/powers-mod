@@ -7,6 +7,7 @@ import com.powers.power.state.MagicShieldManager;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.LoadedChunks;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -72,11 +73,12 @@ final class EnergyBeamRayResolver {
 	static List<LivingEntity> nearbyTargets(ServerLevel level, ServerPlayer caster,
 			Vec3 center, double radius, int scanLimit, LivingEntity excluded) {
 		AABB bounds = AABB.ofSize(center, radius * 2.0, radius * 2.0, radius * 2.0);
-		List<LivingEntity> targets = level.getEntitiesOfClass(LivingEntity.class, bounds,
+		List<LivingEntity> targets = BoundedEntityCandidates.living(level, bounds,
+				Math.max(32, Math.max(0, scanLimit) * 8),
 				entity -> entity.isAlive() && entity != caster && entity != excluded
 						&& !entity.isSpectator() && caster.hasLineOfSight(entity)
-						&& entity.position().distanceToSqr(center) <= radius * radius);
-		targets.sort(Comparator.comparingDouble((LivingEntity entity) ->
+						&& entity.position().distanceToSqr(center) <= radius * radius,
+				Comparator.comparingDouble((LivingEntity entity) ->
 				entity.position().distanceToSqr(center)).thenComparing(
 				entity -> entity.getUUID().toString()));
 		return targets.subList(0, Math.min(Math.max(0, scanLimit), targets.size()));

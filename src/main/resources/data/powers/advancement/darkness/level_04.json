@@ -2,7 +2,7 @@
 	"parent": "powers:darkness/level_03",
 	"display": {
 		"icon": {
-			"id": "minecraft:fermented_spider_eye"
+			"id": "minecraft:wolf_spawn_egg"
 		},
 		"title": {
 			"translate": "advancement.powers.darkness.04_poisons.title"
@@ -16,41 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"spider_eye": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:spider_eye"
-						]
-					}
-				]
-			}
-		},
-		"flesh": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:rotten_flesh"
-						]
-					}
-				]
-			}
-		},
-		"fermented": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"minecraft:fermented_spider_eye"
-						]
-					}
-				]
-			}
+		"deed": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

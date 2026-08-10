@@ -7,11 +7,13 @@ import com.powers.magic.InteractionOutcome;
 import com.powers.magic.MagicActionDefinition;
 import com.powers.magic.MagicActionId;
 import com.powers.magic.MagicSignature;
+import com.powers.magic.MagicOrigin;
 import com.powers.magic.fx.MagicCastPresentation;
 import com.powers.magic.fx.MagicFxEvent;
 import com.powers.network.MagicFxPackets;
 import com.powers.player.SkillSystem;
 import com.powers.progression.PowerScalingService;
+import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -53,7 +55,8 @@ public final class ServerMagicCasts {
 		if (!prepared.allowed()) {
 			runtime.emitBlockingReactions(preview,
 					event -> emitReaction((ServerLevel) player.level(), event));
-			player.sendSystemMessage(Component.translatable("ability.powers.interaction_blocked"));
+			PowerMessages.overlay(player,
+					Component.translatable("ability.powers.interaction_blocked"));
 		}
 		return prepared;
 	}
@@ -91,9 +94,12 @@ public final class ServerMagicCasts {
 
 	private static void emitCast(ServerLevel level, MagicCastContext cast, MagicPresenceId presenceId,
 			ServerPlayer player) {
-		var scaled = PowerScalingService.forPlayer(player, cast.definition().id().value());
+		boolean ranked = cast.definition().origin() == MagicOrigin.INNATE;
+		var scaled = ranked
+				? PowerScalingService.forPlayer(player, cast.definition().id().value())
+				: PowerScalingService.unranked(cast.definition().id().value());
 		MagicCastPresentation presentation = MagicCastPresentation.forAction(cast.definition(),
-				SkillSystem.effectiveLevel(player), scaled.unlockedVariants());
+				ranked ? SkillSystem.effectiveLevel(player) : 0, scaled.unlockedVariants());
 		MagicSignature signature = cast.definition().signature();
 		Vec3 origin = new Vec3(cast.anchor().x(), cast.anchor().y(), cast.anchor().z());
 		long eventId = Integer.toUnsignedLong(java.util.Objects.hash(cast.owner(),

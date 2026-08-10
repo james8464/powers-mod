@@ -14,6 +14,7 @@ import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.LoadedChunks;
 import com.powers.util.PowerMessages;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -276,7 +277,8 @@ public final class StarfallAbility extends Ability {
 		if (limit <= 0 || PowerProtection.isSafeZone(level, storm.center)) return;
 		AABB bounds = AABB.ofSize(storm.center.add(0.0, 2.0, 0.0),
 				storm.stormRadius * 2.0, 8.0, storm.stormRadius * 2.0);
-		List<Projectile> projectiles = level.getEntitiesOfClass(Projectile.class, bounds,
+		List<Projectile> projectiles = BoundedEntityCandidates.ofClass(level, Projectile.class,
+				bounds, 128,
 				projectile -> projectile.isAlive()
 						&& (projectile.getOwner() == null
 								|| !projectile.getOwner().getUUID().equals(storm.owner))

@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -13,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.Blocks;
@@ -50,8 +50,10 @@ public class IceManipulationAbility extends Ability {
 			// 8 damage that scales with skill, a heavy slow, weakness and a deep freeze
 			target.hurtServer(level, PowerDamage.source(player),
 					PowerScalingService.damage(player, "ice_manipulation", 8.0f));
-			target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, scaledDuration(player, 120), 4, false, false));
-			target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, scaledDuration(player, 100), 1, false, false));
+			target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS,
+					scaledDuration(player, 120), 4, false, true));
+			target.addEffect(PowerStatusEffects.hidden(MobEffects.WEAKNESS,
+					scaledDuration(player, 100), 1, false, true));
 			target.setTicksFrozen(scaledDuration(player, 160));
 		}
 

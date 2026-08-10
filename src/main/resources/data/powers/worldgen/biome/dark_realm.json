@@ -29,7 +29,14 @@
     "axolotls": [],
     "creature": [],
     "misc": [],
-    "monster": [],
+    "monster": [
+      {
+        "type": "powers:darkness_creature",
+        "maxCount": 3,
+        "minCount": 1,
+        "weight": 80
+      }
+    ],
     "underground_water_creature": [],
     "water_ambient": [],
     "water_creature": []

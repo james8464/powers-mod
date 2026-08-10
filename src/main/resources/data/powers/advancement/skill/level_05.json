@@ -2,7 +2,7 @@
 	"parent": "powers:skill/level_04",
 	"display": {
 		"icon": {
-			"id": "minecraft:obsidian"
+			"id": "minecraft:netherite_sword"
 		},
 		"title": {
 			"translate": "advancement.powers.skill.05_realms_fight.title"
@@ -10,27 +10,14 @@
 		"description": {
 			"translate": "advancement.powers.skill.05_realms_fight.description"
 		},
-		"frame": "goal",
+		"frame": "task",
 		"show_toast": true,
 		"announce_to_chat": false,
 		"hidden": false
 	},
 	"criteria": {
-		"dark": {
-			"trigger": "minecraft:location",
-			"conditions": {
-				"dimension": "powers:dark_realm"
-			}
-		},
-		"craft": {
-			"trigger": "minecraft:recipe_crafted",
-			"conditions": {
-				"recipe_id": "powers:rainbow_crystal"
-			}
-		},
-		"strike": {
-			"trigger": "minecraft:player_hurt_entity",
-			"conditions": {}
+		"mastery": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

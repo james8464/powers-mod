@@ -4,14 +4,17 @@ This is the server-authoritative set of every innate power, crystal action, grim
 
 | ID | Origin | Aspects | Delivery | Intent | Potency | Range | Duration | Energy | Cooldown | Residue | Priority | Motif | Sound | Colours |
 |---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|---|
+| `abyssal_singularity` | ARTIFACT | DARKNESS, GRAVITY, VOID | FIELD | CONTROL | 22 | 12.000 | 200 | 48 | 800 | 100 | 22 | `darkness` | `artifact_darkness` | `#55265F / #8C66FF` |
 | `amethyst_block` | AMETHYST | PROTECTION, SUPPRESSION | FIELD | DEFENCE | 7 | 12.000 | 200 | 0 | 0 | 100 | 25 | `suppression` | `amethyst_suppression` | `#B36BFF / #58C7FF` |
 | `amethyst_item` | AMETHYST | PROTECTION, SUPPRESSION | AURA | DEFENCE | 7 | 8.000 | 200 | 0 | 0 | 100 | 25 | `suppression` | `amethyst_suppression` | `#B36BFF / #58C7FF` |
 | `amethyst_ward` | AMETHYST | PROTECTION, SUPPRESSION | FIELD | DEFENCE | 7 | 12.000 | 200 | 0 | 0 | 100 | 25 | `suppression` | `amethyst_suppression` | `#B36BFF / #58C7FF` |
+| `annihilation_beam` | ARTIFACT | DARKNESS, FORCE, VOID | BEAM | HARM | 24 | 32.000 | 20 | 48 | 800 | 30 | 22 | `darkness` | `artifact_darkness` | `#55265F / #241044` |
 | `anti_portal_field` | SPELL | SPACE, SUPPRESSION | FIELD | DEFENCE | 10 | 12.000 | 200 | 20 | 600 | 100 | 15 | `space` | `spell_space` | `#5267D8 / #B36BFF` |
 | `astral_projection` | INNATE | MIND, SOUL | PROJECTION | INFORMATION | 5 | 48.000 | 600 | 18 | 200 | 100 | 10 | `soul` | `innate_soul` | `#8FE9FF / #C27CFF` |
 | `banishment_circle` | SPELL | SPACE, SUPPRESSION | FIELD | CONTROL | 11 | 12.000 | 200 | 28 | 600 | 100 | 15 | `space` | `spell_space` | `#5267D8 / #B36BFF` |
 | `binding_sigil` | SPELL | FORCE, SUPPRESSION | FIELD | CONTROL | 11 | 12.000 | 200 | 28 | 600 | 100 | 15 | `force` | `spell_force` | `#B9E7FF / #B36BFF` |
 | `breezy_bash` | INNATE | FORCE, MOTION | FIELD | CONTROL | 8 | 12.000 | 200 | 26 | 200 | 100 | 10 | `motion` | `innate_motion` | `#D7F8FF / #B9E7FF` |
+| `celestial_ruin` | SPELL | CREATION, FORCE, LIGHT | FIELD | WORLD_INTERACTION | 8 | 12.000 | 200 | 20 | 600 | 100 | 15 | `light` | `spell_light` | `#FFF2B0 / #FF9D42` |
 | `chrono_stop` | CRYSTAL | FORCE, TIME | FIELD | CONTROL | 16 | 12.000 | 200 | 63 | 1200 | 100 | 20 | `time` | `crystal_time` | `#68E0D5 / #B9E7FF` |
 | `clone_swarm` | CRYSTAL | CREATION, MIND | FIELD | SUPPORT | 15 | 12.000 | 200 | 55 | 1200 | 100 | 20 | `creation` | `crystal_creation` | `#FF9D42 / #C27CFF` |
 | `concealment_veil` | SPELL | CONCEALMENT, MIND | FIELD | DEFENCE | 10 | 12.000 | 200 | 20 | 600 | 100 | 15 | `concealment` | `spell_concealment` | `#6E7180 / #C27CFF` |
@@ -44,6 +47,7 @@ This is the server-authoritative set of every innate power, crystal action, grim
 | `light_crystal` | CRYSTAL | LIGHT, MIND | PROJECTION | MOVEMENT | 13 | 48.000 | 600 | 55 | 1200 | 100 | 20 | `light` | `crystal_light` | `#FFF2B0 / #C27CFF` |
 | `lightning_strike` | INNATE | STORM | INSTANT | HARM | 10 | 16.000 | 20 | 26 | 200 | 30 | 10 | `storm` | `innate_storm` | `#FFF59D / #FFF59D` |
 | `middleworld` | CRYSTAL | MIND, SPACE | TRAVEL | MOVEMENT | 13 | 48.000 | 40 | 55 | 1200 | 20 | 20 | `space` | `crystal_space` | `#5267D8 / #C27CFF` |
+| `nightfall_dominion` | ARTIFACT | DARKNESS, PROTECTION, SOUL | AURA | DEFENCE | 21 | 8.000 | 200 | 40 | 800 | 100 | 22 | `darkness` | `artifact_darkness` | `#55265F / #8FE9FF` |
 | `plant_healing_acceleration` | INNATE | LIFE | FIELD | SUPPORT | 7 | 12.000 | 200 | 18 | 200 | 100 | 10 | `life` | `innate_life` | `#78E06B / #78E06B` |
 | `portal_rift` | CRYSTAL | FORCE, SPACE | TRAVEL | HARM | 18 | 48.000 | 40 | 63 | 1200 | 20 | 20 | `space` | `crystal_space` | `#5267D8 / #B9E7FF` |
 | `pure_light_block` | REALM | LIGHT | FIELD | WORLD_INTERACTION | 25 | 12.000 | 200 | 0 | 0 | 100 | 30 | `light` | `realm_light` | `#FFF2B0 / #FFF2B0` |
@@ -53,14 +57,16 @@ This is the server-authoritative set of every innate power, crystal action, grim
 | `sanctuary_growth` | SPELL | LIFE, PROTECTION | FIELD | DEFENCE | 10 | 12.000 | 200 | 20 | 600 | 100 | 15 | `life` | `spell_life` | `#78E06B / #58C7FF` |
 | `shadow_step` | INNATE | DARKNESS, MOTION | TRAVEL | MOVEMENT | 5 | 48.000 | 40 | 18 | 200 | 20 | 10 | `darkness` | `innate_darkness` | `#55265F / #D7F8FF` |
 | `size_shift` | CRYSTAL | CREATION, GRAVITY | AURA | CONTROL | 16 | 8.000 | 200 | 63 | 1200 | 100 | 20 | `creation` | `crystal_creation` | `#FF9D42 / #8C66FF` |
-| `slow_world` | INNATE | MOTION, TIME | FIELD | CONTROL | 8 | 12.000 | 200 | 26 | 200 | 100 | 10 | `time` | `innate_time` | `#68E0D5 / #D7F8FF` |
 | `soul_compass` | SPELL | MIND, SOUL | INSTANT | INFORMATION | 8 | 16.000 | 20 | 20 | 600 | 30 | 15 | `soul` | `spell_soul` | `#8FE9FF / #C27CFF` |
 | `soul_link` | CRYSTAL | LIFE, SOUL | CHANNEL | CONTROL | 16 | 20.000 | 80 | 63 | 1200 | 60 | 20 | `soul` | `crystal_soul` | `#8FE9FF / #78E06B` |
 | `space_time` | CRYSTAL | SPACE, TIME | FIELD | CONTROL | 16 | 12.000 | 200 | 63 | 1200 | 100 | 20 | `space` | `crystal_space` | `#5267D8 / #68E0D5` |
 | `speed_burst` | INNATE | FORCE, MOTION | INSTANT | MOVEMENT | 5 | 16.000 | 20 | 18 | 200 | 30 | 10 | `motion` | `innate_motion` | `#D7F8FF / #B9E7FF` |
+| `spread_darkness` | ARTIFACT | CREATION, DARKNESS | FIELD | WORLD_INTERACTION | 19 | 12.000 | 200 | 40 | 800 | 100 | 22 | `darkness` | `artifact_darkness` | `#55265F / #FF9D42` |
 | `starfall` | INNATE | FORCE, LIGHT, STORM | FIELD | HARM | 10 | 12.000 | 200 | 26 | 200 | 100 | 10 | `storm` | `innate_storm` | `#FFF59D / #FFF2B0` |
+| `summon_darkness` | ARTIFACT | CREATION, DARKNESS | FIELD | SUPPORT | 21 | 12.000 | 200 | 40 | 800 | 100 | 22 | `darkness` | `artifact_darkness` | `#55265F / #FF9D42` |
 | `super_speed` | INNATE | MOTION, TIME | INSTANT | MOVEMENT | 5 | 16.000 | 20 | 18 | 200 | 30 | 10 | `motion` | `innate_motion` | `#D7F8FF / #68E0D5` |
 | `telekinesis` | INNATE | FORCE, MIND | CHANNEL | CONTROL | 8 | 20.000 | 80 | 26 | 200 | 60 | 10 | `force` | `innate_force` | `#B9E7FF / #C27CFF` |
+| `thunderclap` | INNATE | FORCE, MOTION, STORM | FIELD | HARM | 10 | 12.000 | 200 | 26 | 200 | 100 | 10 | `force` | `innate_force` | `#B9E7FF / #D7F8FF` |
 | `time_freeze` | INNATE | TIME | TOGGLE | CONTROL | 8 | 8.000 | 600 | 26 | 0 | 100 | 10 | `time` | `innate_time` | `#68E0D5 / #68E0D5` |
 | `time_shift` | INNATE | SPACE, TIME | TRAVEL | MOVEMENT | 5 | 48.000 | 40 | 18 | 200 | 20 | 10 | `space` | `innate_space` | `#5267D8 / #68E0D5` |
 | `tracking_mark` | SPELL | LIGHT, SOUL | CHANNEL | INFORMATION | 8 | 20.000 | 80 | 20 | 600 | 60 | 15 | `light` | `spell_light` | `#FFF2B0 / #8FE9FF` |

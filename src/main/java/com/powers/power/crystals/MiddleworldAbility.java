@@ -22,7 +22,7 @@ public class MiddleworldAbility extends Ability {
 	public MiddleworldAbility() {
 		super(PowersMod.id("middleworld"),
 				Component.translatable("ability.powers.middleworld"),
-				2400, false);
+				2400, false, false);
 	}
 
 	@Override

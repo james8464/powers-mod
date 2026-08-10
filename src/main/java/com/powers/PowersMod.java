@@ -24,8 +24,11 @@ import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.util.PowerMessages;
 import com.powers.spell.SpellCastingManager;
 import com.powers.spell.SpellFieldManager;
+import com.powers.spell.CelestialRuinManager;
 import com.powers.realm.RealmMindscapeManager;
 import com.powers.loot.PowersLoot;
+import com.powers.item.ShadowSwordRuntime;
+import com.powers.item.ShadowSwordPowerManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -71,6 +74,7 @@ public class PowersMod implements ModInitializer {
 		PowersEffects.initialize();
 		PowersSounds.initialize();
 		PowersParticles.initialize();
+		PowersEntities.initialize();
 		PowerRegistry.initialize();
 		PowersItems.initialize();
 		PowersWeapons.initialize();
@@ -80,6 +84,7 @@ public class PowersMod implements ModInitializer {
 		PowersLoot.initialize();
 		PowersCreativeTab.initialize();
 		CrystalPowerRegistry.initialize();
+		ShadowSwordPowerManager.initialize();
 		PowersPackets.initialize();
 		PowerCommand.register();
 		PowerCombatEvents.register();
@@ -129,6 +134,7 @@ public class PowersMod implements ModInitializer {
 			BodyProxyManager.returnToBody(player);
 			SpellCastingManager.clear(player);
 			AmethystDampening.forget(player);
+			ShadowSwordRuntime.forget(player);
 			PowersPackets.forget(player);
 		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(BodyProxyManager::returnAll);
@@ -142,7 +148,9 @@ public class PowersMod implements ModInitializer {
 			PowerAbilityRuntime.onServerStopped(server);
 			SpellCastingManager.clearAll();
 			SpellFieldManager.clearAll();
+			CelestialRuinManager.clearAll();
 			RealmMindscapeManager.clearAll();
+			ShadowSwordRuntime.clear();
 			com.powers.fx.PowerFx.clearBudgets();
 			PowersPackets.clearSyncCache();
 			MagicFxPackets.clear();
@@ -161,7 +169,9 @@ public class PowersMod implements ModInitializer {
 				}
 			}
 			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+				ShadowSwordRuntime.tickPlayer(player, tick);
 				enforceRealmGamemode(player);
+				tickToggles(player, tick);
 				PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 				boolean sleeping = player.isSleeping();
 				boolean wasSleeping = WAS_SLEEPING.getOrDefault(player.getUUID(), false);
@@ -196,7 +206,6 @@ public class PowersMod implements ModInitializer {
 				for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 					if (tick % 20 == 0) AmethystDampening.update(player);
 					drainExhaustionEnergy(player);
-					tickToggles(player);
 					tickAuras(player, tick);
 				}
 			}
@@ -210,6 +219,7 @@ public class PowersMod implements ModInitializer {
 			BodyProxyManager.tickAll();
 			SpellCastingManager.tick(server);
 			SpellFieldManager.tick(server);
+			CelestialRuinManager.tick(server);
 			RealmMindscapeManager.tick(server);
 			LivingForceManager.tick(server);
 			PowerAbilityRuntime.tickTeleportMarking();
@@ -260,8 +270,8 @@ public class PowersMod implements ModInitializer {
 				continue;
 			}
 			for (PassiveEffect passive : power.passives()) {
-				player.addEffect(new MobEffectInstance(passive.effect(), PASSIVE_REFRESH_TICKS * 3,
-						passive.amplifier(), true, false));
+				player.addEffect(PowerStatusEffects.hidden(passive.effect(), PASSIVE_REFRESH_TICKS * 3,
+						passive.amplifier(), true, true));
 			}
 		}
 	}
@@ -297,7 +307,7 @@ public class PowersMod implements ModInitializer {
 	}
 
 	// steps the per-tick effect of every toggle the player has switched on
-	private static void tickToggles(ServerPlayer player) {
+	private static void tickToggles(ServerPlayer player, int serverTick) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
 			Power power = data.getPower(slot);
@@ -305,7 +315,8 @@ public class PowersMod implements ModInitializer {
 				continue;
 			}
 			Ability ability = power.ability();
-			if (ability != null && ability.isToggle() && data.isToggleActive(power.id().toString())) {
+			if (ability != null && ability.isToggle() && data.isToggleActive(power.id().toString())
+					&& serverTick % Math.max(1, ability.activeTickInterval()) == 0) {
 				ability.tickActive(player, data);
 			}
 		}
@@ -360,7 +371,7 @@ public class PowersMod implements ModInitializer {
 		}
 
 		GodlyPunishment.strike(level, player, 0xFFD700, true);
-		PowerMessages.send(player, "energy.powers.backlash", 6);
+		PowerMessages.sendImportant(player, "energy.powers.backlash", 6);
 	}
 
 	// drifting colored motes around the player, one hue per assigned power

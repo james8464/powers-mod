@@ -34,7 +34,8 @@ public class DreamwalkingAbility extends Ability {
 	private record Dream(UUID hostId, long endsAt) {}
 
 	public DreamwalkingAbility() {
-		super(PowersMod.id("dreamwalking"), Component.translatable("ability.powers.dreamwalking"), 1200, false);
+		super(PowersMod.id("dreamwalking"), Component.translatable("ability.powers.dreamwalking"),
+				1200, false, false);
 	}
 
 	@Override
@@ -60,7 +61,8 @@ public class DreamwalkingAbility extends Ability {
 			return false;
 		}
 		if (!PowerProtection.mayDreamwalk(player, host)) {
-			PowerMessages.send(player, "powers.packet.consent_denied", 1, host.getName().getString());
+			PowerMessages.sendImportant(player, "powers.packet.consent_denied", 1,
+					host.getName().getString());
 			return false;
 		}
 		if (!BodyProxyManager.start(player, BodyProxyKind.DREAMWALK)) return false;

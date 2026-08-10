@@ -4,19 +4,19 @@ import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
+import com.powers.power.AbilityActivationService;
 import com.powers.power.Power;
 import com.powers.power.ActivationCooldowns;
 import com.powers.power.AmethystDampening;
 import com.powers.power.crystals.SpaceTimeAbility;
-import com.powers.protection.PowerProtection;
+import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.power.abilities.TeleportAbility;
-import com.powers.magic.runtime.PreparedMagicCast;
-import com.powers.magic.runtime.ServerMagicCasts;
 import com.powers.util.PowerMessages;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -47,6 +47,22 @@ public final class PowersPackets {
 				StreamCodec.composite(
 						ByteBufCodecs.VAR_INT, ActivateAbilityPayload::slot,
 						ActivateAbilityPayload::new);
+
+		@Override
+		public Type<? extends CustomPacketPayload> type() {
+			return TYPE;
+		}
+	}
+
+	/** Server-validated free selection for a power with authored menu options. */
+	public record SelectAbilityOptionPayload(int slot, int option) implements CustomPacketPayload {
+		public static final CustomPacketPayload.Type<SelectAbilityOptionPayload> TYPE =
+				new CustomPacketPayload.Type<>(PowersMod.id("select_ability_option"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, SelectAbilityOptionPayload> STREAM_CODEC =
+				StreamCodec.composite(
+						ByteBufCodecs.VAR_INT, SelectAbilityOptionPayload::slot,
+						ByteBufCodecs.VAR_INT, SelectAbilityOptionPayload::option,
+						SelectAbilityOptionPayload::new);
 
 		@Override
 		public Type<? extends CustomPacketPayload> type() {
@@ -105,15 +121,15 @@ public final class PowersPackets {
 		}
 	}
 
-	// the scry choice: the uuid of the online player the grimoire should locate
-	public record LocatePlayerPayload(UUID targetUuid, UUID nonce) implements CustomPacketPayload {
-		public static final CustomPacketPayload.Type<LocatePlayerPayload> TYPE =
-				new CustomPacketPayload.Type<>(PowersMod.id("locate_player"));
-		public static final StreamCodec<RegistryFriendlyByteBuf, LocatePlayerPayload> STREAM_CODEC =
+	/** Names an online player or uniquely custom-named loaded mob for remote viewing. */
+	public record LocateTargetPayload(String targetName, UUID nonce) implements CustomPacketPayload {
+		public static final CustomPacketPayload.Type<LocateTargetPayload> TYPE =
+				new CustomPacketPayload.Type<>(PowersMod.id("locate_target"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, LocateTargetPayload> STREAM_CODEC =
 				StreamCodec.composite(
-						UUID_CODEC, LocatePlayerPayload::targetUuid,
-						UUID_CODEC, LocatePlayerPayload::nonce,
-						LocatePlayerPayload::new);
+						ByteBufCodecs.STRING_UTF8, LocateTargetPayload::targetName,
+						UUID_CODEC, LocateTargetPayload::nonce,
+						LocateTargetPayload::new);
 
 		@Override
 		public Type<? extends CustomPacketPayload> type() {
@@ -134,24 +150,44 @@ public final class PowersPackets {
 
 	public static void initialize() {
 		PayloadTypeRegistry.serverboundPlay().register(ActivateAbilityPayload.TYPE, ActivateAbilityPayload.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(
+				SelectAbilityOptionPayload.TYPE, SelectAbilityOptionPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(TeleportRequestPayload.TYPE, TeleportRequestPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(TeleportMarkPayload.TYPE, TeleportMarkPayload.STREAM_CODEC);
-		PayloadTypeRegistry.serverboundPlay().register(LocatePlayerPayload.TYPE, LocatePlayerPayload.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(LocateTargetPayload.TYPE, LocateTargetPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(PowerStatePayload.TYPE, PowerStatePayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(OpenLocatorScreenPayload.TYPE, OpenLocatorScreenPayload.STREAM_CODEC);
 		RankPackets.initialize();
 		MagicFxPackets.initialize();
+		ShadowSwordPackets.initialize();
 
 		ServerPlayNetworking.registerGlobalReceiver(ActivateAbilityPayload.TYPE, PowersPackets::handleActivate);
+		ServerPlayNetworking.registerGlobalReceiver(
+				SelectAbilityOptionPayload.TYPE, PowersPackets::handleSelection);
 		ServerPlayNetworking.registerGlobalReceiver(TeleportRequestPayload.TYPE, PowersPackets::handleTeleport);
 		ServerPlayNetworking.registerGlobalReceiver(TeleportMarkPayload.TYPE, PowersPackets::handleMark);
-		ServerPlayNetworking.registerGlobalReceiver(LocatePlayerPayload.TYPE, LocatorSpellPackets::handleLocate);
+		ServerPlayNetworking.registerGlobalReceiver(LocateTargetPayload.TYPE, LocatorSpellPackets::handleLocate);
 	}
 
 	private static void handleActivate(ActivateAbilityPayload payload, ServerPlayNetworking.Context context) {
 		context.server().execute(() -> {
 			ServerPlayer player = context.player();
-			// dampened or time-frozen players can't use powers; trying gets punished
+			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;
+			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+			Power power = data.getPower(payload.slot());
+			if (power == null) return;
+			Ability ability = power.ability();
+			if (ability != null && !ability.requiresInput()) {
+				AbilityActivationService.activate(player, ability, power.id().toString());
+			}
+		});
+	}
+
+	private static void handleSelection(SelectAbilityOptionPayload payload,
+			ServerPlayNetworking.Context context) {
+		context.server().execute(() -> {
+			ServerPlayer player = context.player();
+			if (GlobalTimeStopManager.rejectIfStopped(player)) return;
 			AmethystDampening.update(player);
 			if (AmethystDampening.isDampened(player)) {
 				AmethystDampening.punish(player);
@@ -164,71 +200,17 @@ public final class PowersPackets {
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 			Power power = data.getPower(payload.slot());
-			if (power == null) return;
-			Ability ability = power.ability();
-			if (ability == null || ability.requiresInput()) return;
-			String powerId = power.id().toString();
-
-			if (ability.isToggle()) {
-				// toggling pays energy up front; if activation fails the cost is refunded
-				if (data.isToggleActive(powerId)) {
-					ability.activateToggleOff(player, data);
-					data.setToggleActive(player, powerId, false);
-				} else {
-					PreparedMagicCast magic = ServerMagicCasts.prepare(player,
-							ability.magicActionId(player, data));
-					if (!magic.allowed()) return;
-					boolean paid = data.spendEnergy(player, ability);
-					boolean activated = paid && ServerMagicCasts.execute(magic,
-							() -> ability.activateToggleOn(player, data));
-					if (activated) {
-						data.setToggleActive(player, powerId, true);
-						ServerMagicCasts.commit(magic, player);
-					} else if (paid) {
-						data.refundEnergy(ability);
-					}
-				}
-				return;
-			}
-
-			// abilities can't be spammed: the client gets the remaining cooldown in seconds
-			int remainingCooldown = ActivationCooldowns.remainingTicks(player, ability);
-			boolean mayReactivate = ability.mayReactivateDuringCooldown(
-					player, data, remainingCooldown);
-			if (ActivationCooldowns.blocks(remainingCooldown, mayReactivate)) {
-				PowerMessages.send(player, "ability.powers.cooldown", 4,
-						seconds(remainingCooldown));
-				return;
-			}
-			PreparedMagicCast magic = ServerMagicCasts.prepare(player,
-					ability.magicActionId(player, data));
-			if (!magic.allowed()) return;
-			if (!data.spendEnergy(player, ability)) return;
-			boolean activated = ServerMagicCasts.execute(magic, () -> ability.activate(player, data));
-			if (!activated) {
-				data.refundEnergy(ability);
-			} else {
-				ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
-				ServerMagicCasts.commit(magic, player);
-			}
-			syncTo(player);
+			Ability ability = power == null ? null : power.ability();
+			if (ability == null || payload.option() < 0
+					|| payload.option() >= ability.selectionOptionCount()) return;
+			if (ability.selectOption(player, data, payload.option())) syncTo(player);
 		});
 	}
 
 	private static void handleTeleport(TeleportRequestPayload payload, ServerPlayNetworking.Context context) {
 		context.server().execute(() -> {
 			ServerPlayer player = context.player();
-			// dampened or frozen players can't teleport either
-			AmethystDampening.update(player);
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-			if (AmethystDampening.isDampened(player)) {
-				AmethystDampening.punish(player);
-				return;
-			}
-			if (SpaceTimeAbility.isFrozen(player)) {
-				SpaceTimeAbility.reject(player);
-				return;
-			}
 			// guards against malformed packets: names cap at 16 chars and
 			// NaN coordinates must never reach the teleport code
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT
@@ -243,64 +225,23 @@ public final class PowersPackets {
 				// warping to a player drops you next to them in marking mode (spectator) to pick the exact landing spot
 				ServerPlayer target = findPlayer(player, payload.targetName());
 				if (target == null) return;
-				if (!ActivationCooldowns.isReady(player, ability)) {
-					PowerMessages.send(player, "ability.powers.cooldown", 4,
-							seconds(ActivationCooldowns.remainingTicks(player, ability)));
-					return;
-				}
-				PreparedMagicCast magic = ServerMagicCasts.prepare(player,
-						ability.magicActionId(player, data));
-				if (!magic.allowed()) return;
-				if (!data.spendEnergy(player, ability)) return;
-				boolean marked = ServerMagicCasts.execute(magic,
+				AbilityActivationService.activateInput(player, ability, false,
 						() -> TeleportAbility.startMarking(player, target, payload.slot()));
-				if (!marked) {
-					data.refundEnergy(ability);
-					syncTo(player);
-					return;
-				}
-				ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
-				ServerMagicCasts.commit(magic, player);
-				syncTo(player);
 				return;
 			}
 
 			ServerPlayer subject = payload.targetName().isEmpty()
 					? player : findPlayer(player, payload.targetName());
 			if (subject == null) return;
-			if (!PowerProtection.mayForceMove(player, subject)) {
-				PowerMessages.send(player, "powers.packet.consent_denied", 1, subject.getName().getString());
-				return;
-			}
-			// a dampened target is protected from being yanked away
-			if (AmethystDampening.isDampened(subject)) {
-				PowerMessages.send(player, "amethyst.powers.target_protected", 4);
-				return;
-			}
-			if (!ActivationCooldowns.isReady(player, ability)) {
-				PowerMessages.send(player, "ability.powers.cooldown", 4,
-						seconds(ActivationCooldowns.remainingTicks(player, ability)));
-				return;
-			}
-			PreparedMagicCast magic = ServerMagicCasts.prepare(player,
-					ability.magicActionId(player, data));
-			if (!magic.allowed()) return;
-			if (!data.spendEnergy(player, ability)) return;
-			boolean activated = ServerMagicCasts.execute(magic, () -> ability.activateTeleport(
-					player, subject, data, payload.dimension(), payload.x(), payload.y(), payload.z()));
-			if (!activated) {
-				data.refundEnergy(ability);
-			} else {
-				ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
-				ServerMagicCasts.commit(magic, player);
-			}
-			syncTo(player);
+			AbilityActivationService.activateTeleport(player, subject, ability, payload.dimension(),
+					payload.x(), payload.y(), payload.z(), false);
 		});
 	}
 
 	private static void handleMark(TeleportMarkPayload payload, ServerPlayNetworking.Context context) {
 		context.server().execute(() -> {
 			ServerPlayer player = context.player();
+			if (GlobalTimeStopManager.rejectIfStopped(player)) return;
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;
 			// reject garbage: NaN coordinates would corrupt the stored mark
 			if (!Double.isFinite(payload.x()) || !Double.isFinite(payload.y()) || !Double.isFinite(payload.z())) return;
@@ -324,11 +265,6 @@ public final class PowersPackets {
 		}
 		PowerMessages.send(caster, "powers.packet.player_not_found", 3, name);
 		return null;
-	}
-
-	private static String seconds(int ticks) {
-		// rounds up so the cooldown message never reads zero too early
-		return String.valueOf((ticks + 19) / 20);
 	}
 
 	// sends the player's current power state so the client HUD matches the server
@@ -361,6 +297,7 @@ public final class PowersPackets {
 				darkness,
 				data.mindBody() != null,
 				data.getPhase(),
+				data.getSizeMorphOption(),
 				rankProgress.completed().stream().sorted().toList(),
 				rankProgress.focus(),
 				darkness ? data.darknessLevel() : data.skillLevel());

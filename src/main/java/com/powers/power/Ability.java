@@ -20,12 +20,23 @@ public abstract class Ability {
 	private final Component name;
 	private final int cooldownTicks;
 	private final boolean requiresInput;
+	private final boolean rankScaling;
 
 	protected Ability(Identifier id, Component name, int cooldownTicks, boolean requiresInput) {
+		this(id, name, cooldownTicks, requiresInput, true);
+	}
+
+	/**
+	 * Creates an ability with an explicit progression policy. Crystal abilities
+	 * pass {@code false}; innate player powers keep the default ranked policy.
+	 */
+	protected Ability(Identifier id, Component name, int cooldownTicks, boolean requiresInput,
+			boolean rankScaling) {
 		this.id = id;
 		this.name = name;
 		this.cooldownTicks = cooldownTicks;
 		this.requiresInput = requiresInput;
+		this.rankScaling = rankScaling;
 	}
 
 	public Identifier id() {
@@ -42,6 +53,26 @@ public abstract class Ability {
 
 	public boolean requiresInput() {
 		return this.requiresInput;
+	}
+
+	/** True only for innate player powers affected by the rank maze. */
+	public final boolean usesRankScaling() {
+		return rankScaling;
+	}
+
+	/** Number of explicit options exposed by the crouch-key selection menu. */
+	public int selectionOptionCount() {
+		return 0;
+	}
+
+	/** Localized label for one validated explicit selection option. */
+	public Component selectionOptionName(int option) {
+		return Component.empty();
+	}
+
+	/** Applies one server-validated option without spending energy or starting cooldown. */
+	public boolean selectOption(ServerPlayer player, PlayerPowers.PlayerPowersData data, int option) {
+		return false;
 	}
 
 	/**
@@ -92,12 +123,18 @@ public abstract class Ability {
 	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 	}
 
+	/** Server tick cadence for active toggles; propulsion flight requires every tick. */
+	public int activeTickInterval() {
+		return 5;
+	}
+
 	/**
 	 * The cooldown that actually applies after a successful activation,
 	 * defaulting to the fixed cooldown unless a stateful ability shortens it
 	 */
 	public int cooldownTicksFor(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		return PowerScalingService.cooldown(player, id.getPath(), cooldownTicks);
+		return rankScaling ? PowerScalingService.cooldown(player, id.getPath(), cooldownTicks)
+				: cooldownTicks;
 	}
 
 	/**
@@ -116,7 +153,8 @@ public abstract class Ability {
 
 	/** Returns the single canonical rank profile for this ability's action. */
 	protected final ScaledMagicValues scaling(ServerPlayer player) {
-		return PowerScalingService.forPlayer(player, id.getPath());
+		return rankScaling ? PowerScalingService.forPlayer(player, id.getPath())
+				: PowerScalingService.unranked(id.getPath());
 	}
 
 	/** Scales an implementation-specific range through the canonical action. */

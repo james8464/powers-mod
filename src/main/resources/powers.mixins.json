@@ -8,7 +8,12 @@
 		"ItemEntityMixin",
 		"LargeFireballMixin",
 		"MobMixin",
-		"ProjectileDeflectionMixin"
+		"PlayerRankDisplayMixin",
+		"ProjectileDeflectionMixin",
+		"ServerPlayerRankDisplayMixin"
+	],
+	"client": [
+		"LightRealmSkyMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

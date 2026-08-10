@@ -27,7 +27,7 @@ public class CreativityManifestationAbility extends Ability {
 
 	public CreativityManifestationAbility() {
 		super(PowersMod.id("creativity_manifestation"),
-				Component.translatable("ability.powers.creativity_manifestation"), COOLDOWN_TICKS, false);
+				Component.translatable("ability.powers.creativity_manifestation"), COOLDOWN_TICKS, false, false);
 	}
 
 	@Override

@@ -43,6 +43,7 @@ class SpellRegistryTest {
 				assertTrue(spell.channelTicks() >= 0, spell.id());
 			}
 		}
-		assertEquals(20, count);
+		assertEquals(21, count);
+		assertTrue(ids.contains("celestial_ruin"));
 	}
 }

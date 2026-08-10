@@ -14,7 +14,7 @@ import java.util.Objects;
 public record PowerStatePayload(List<String> powerIds, List<String> activeToggles,
 		List<Integer> cooldownTicks, List<Integer> cooldownMaximums, List<Integer> reactivationTicks,
 		int energy, int energyCapacity, boolean canSeeDarkRealm, boolean darkness,
-		boolean projection, int elementalPhase, RankSnapshot rank) implements CustomPacketPayload {
+		boolean projection, SelectionSnapshot selections, RankSnapshot rank) implements CustomPacketPayload {
 	public static final CustomPacketPayload.Type<PowerStatePayload> TYPE =
 			new CustomPacketPayload.Type<>(PowersMod.id("power_state"));
 	public static final StreamCodec<RegistryFriendlyByteBuf, PowerStatePayload> STREAM_CODEC =
@@ -39,8 +39,8 @@ public record PowerStatePayload(List<String> powerIds, List<String> activeToggle
 					PowerStatePayload::darkness,
 					ByteBufCodecs.BOOL,
 					PowerStatePayload::projection,
-					ByteBufCodecs.VAR_INT,
-					PowerStatePayload::elementalPhase,
+					SelectionSnapshot.STREAM_CODEC,
+					PowerStatePayload::selections,
 					RankSnapshot.STREAM_CODEC,
 					PowerStatePayload::rank,
 					PowerStatePayload::new);
@@ -53,6 +53,7 @@ public record PowerStatePayload(List<String> powerIds, List<String> activeToggle
 		cooldownMaximums = List.copyOf(cooldownMaximums);
 		reactivationTicks = normalizedTimers(reactivationTicks, powerIds.size());
 		rank = Objects.requireNonNull(rank, "rank");
+		selections = Objects.requireNonNull(selections, "selections");
 	}
 
 	private static List<Integer> normalizedTimers(List<Integer> timers, int slots) {
@@ -69,11 +70,21 @@ public record PowerStatePayload(List<String> powerIds, List<String> activeToggle
 	public PowerStatePayload(List<String> powerIds, List<String> activeToggles,
 			List<Integer> cooldownTicks, List<Integer> cooldownMaximums, List<Integer> reactivationTicks,
 			int energy, int energyCapacity, boolean canSeeDarkRealm, boolean darkness,
-			boolean projection, int elementalPhase, List<String> rankNodes, String rankFocus,
+			boolean projection, int elementalPhase, int sizeMorphOption,
+			List<String> rankNodes, String rankFocus,
 			int rankDepth) {
 		this(powerIds, activeToggles, cooldownTicks, cooldownMaximums, reactivationTicks, energy, energyCapacity,
-				canSeeDarkRealm, darkness, projection, elementalPhase,
+				canSeeDarkRealm, darkness, projection,
+				new SelectionSnapshot(elementalPhase, sizeMorphOption),
 				new RankSnapshot(rankNodes, rankFocus, rankDepth));
+	}
+
+	public int elementalPhase() {
+		return selections.elementalPhase();
+	}
+
+	public int sizeMorphOption() {
+		return selections.sizeMorphOption();
 	}
 
 	public List<String> rankNodes() {
@@ -109,5 +120,16 @@ public record PowerStatePayload(List<String> powerIds, List<String> activeToggle
 			nodes = List.copyOf(nodes);
 			focus = Objects.requireNonNull(focus, "focus");
 		}
+	}
+
+	/** Groups persisted ability selections so the outer codec remains within its arity limit. */
+	public record SelectionSnapshot(int elementalPhase, int sizeMorphOption) {
+		private static final StreamCodec<RegistryFriendlyByteBuf, SelectionSnapshot> STREAM_CODEC =
+				StreamCodec.composite(
+						ByteBufCodecs.VAR_INT,
+						SelectionSnapshot::elementalPhase,
+						ByteBufCodecs.VAR_INT,
+						SelectionSnapshot::sizeMorphOption,
+						SelectionSnapshot::new);
 	}
 }

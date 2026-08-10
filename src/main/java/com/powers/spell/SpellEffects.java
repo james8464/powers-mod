@@ -1,5 +1,6 @@
 package com.powers.spell;
 
+import com.powers.PowerStatusEffects;
 import com.powers.AmethystWardBlock;
 import com.powers.PowersEffects;
 import com.powers.PowersMod;
@@ -13,6 +14,7 @@ import com.powers.power.crystals.SoulLinkAbility;
 import com.powers.power.state.PowerEntityState;
 import com.powers.protection.PowerProtection;
 import com.powers.progression.PowerScalingService;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -42,26 +44,33 @@ final class SpellEffects {
 	private SpellEffects() {
 	}
 
-	static boolean canBegin(ServerPlayer caster, SpellDefinition spell) {
-		double range = SpellCastValues.from(PowerScalingService.forPlayer(caster, spell.id()), false)
+	static SpellTarget acquireTarget(ServerPlayer caster, SpellDefinition spell) {
+		double range = SpellCastValues.from(PowerScalingService.unranked(spell.id()), false)
 				.targetRange();
 		return switch (spell.effect()) {
+			case CELESTIAL_RUIN -> SpellTarget.block(celestialTarget(caster, range));
 			case TRACKING_MARK, DIMENSIONAL_ANCHOR, BINDING_SIGIL, VITALITY_TRANSFER, HEX,
 					ROOT_BINDING, BANISHMENT_CIRCLE, CONTROLLED_HELLFIRE ->
-					PowerTargeting.findLivingTarget(caster, range) != null;
-			case WARD_BREAKING_RITUAL -> wardTarget(caster, range) != null;
-			default -> true;
+					SpellTarget.entity(PowerTargeting.findLivingTarget(caster, range));
+			case WARD_BREAKING_RITUAL -> SpellTarget.block(wardTarget(caster, range));
+			case DISPEL -> {
+				LivingEntity optional = PowerTargeting.findLivingTarget(caster, range);
+				yield optional == null ? SpellTarget.none() : SpellTarget.entity(optional);
+			}
+			default -> SpellTarget.none();
 		};
 	}
 
-	static boolean execute(ServerPlayer caster, SpellDefinition spell, boolean amplified) {
+	static boolean execute(ServerPlayer caster, SpellDefinition spell, boolean amplified,
+			SpellTarget lockedTarget) {
 		ServerLevel level = (ServerLevel) caster.level();
 		SpellCastValues values = SpellCastValues.from(
-				PowerScalingService.forPlayer(caster, spell.id()), amplified);
-		LivingEntity target = PowerTargeting.findLivingTarget(caster, values.targetRange());
+				PowerScalingService.unranked(spell.id()), amplified);
+		LivingEntity target = resolveEntity(caster, lockedTarget);
 		boolean success = switch (spell.effect()) {
 			case TRACKING_MARK -> trackingMark(caster, target, values.durationTicks());
 			case WEATHER_SIGIL -> weatherSigil(caster, values);
+			case CELESTIAL_RUIN -> celestialRuin(caster, lockedTarget.blockPos());
 			case DIMENSIONAL_ANCHOR -> target instanceof ServerPlayer player
 					&& PowerProtection.mayForceMove(caster, player)
 					&& DimensionalAnchorAbility.apply(caster, player);
@@ -77,7 +86,7 @@ final class SpellEffects {
 			case INFERNAL_SEAL -> field(caster, SpellFieldKind.INFERNAL_SEAL, values);
 			case BANISHMENT_CIRCLE -> banish(caster, target, values);
 			case CONTROLLED_HELLFIRE -> hellfire(caster, target, values);
-			case WARD_BREAKING_RITUAL -> breakWard(caster, values);
+			case WARD_BREAKING_RITUAL -> breakWard(caster, values, lockedTarget.blockPos());
 			case DISPEL -> dispel(caster, target, values.targetRange());
 			case RITUAL_AMPLIFICATION -> {
 				SpellCastingManager.amplify(caster, values.durationTicks());
@@ -98,10 +107,17 @@ final class SpellEffects {
 		return success;
 	}
 
+	private static LivingEntity resolveEntity(ServerPlayer caster, SpellTarget target) {
+		if (target == null || target.entityId() == null) return null;
+		var entity = ((ServerLevel) caster.level()).getEntityInAnyDimension(target.entityId());
+		return entity instanceof LivingEntity living && living.isAlive()
+				&& living.level() == caster.level() ? living : null;
+	}
+
 	private static boolean trackingMark(ServerPlayer caster, LivingEntity target, int duration) {
 		if (target == null || AmethystDampening.isDampened(target)) return false;
 		if (target instanceof ServerPlayer player && !PowerProtection.mayLocate(caster, player)) return false;
-		target.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0, true, false));
+		target.addEffect(PowerStatusEffects.hidden(MobEffects.GLOWING, duration, 0, true, true));
 		PowerFx.beam((ServerLevel) caster.level(), caster.getEyePosition(), target.position().add(0, 1, 0),
 				ParticleTypes.END_ROD, 18);
 		return true;
@@ -113,13 +129,26 @@ final class SpellEffects {
 		return true;
 	}
 
+	private static boolean celestialRuin(ServerPlayer caster, BlockPos target) {
+		return target != null && CelestialRuinManager.begin(caster, target);
+	}
+
+	private static BlockPos celestialTarget(ServerPlayer caster, double range) {
+		HitResult hit = caster.pick(range, 0.0F, false);
+		if (!(hit instanceof BlockHitResult blockHit)) {
+			return null;
+		}
+		BlockPos target = blockHit.getBlockPos();
+		return CelestialRuinManager.canBegin(caster.level(), target) ? target : null;
+	}
+
 	private static boolean bind(ServerPlayer caster, LivingEntity target, SpellCastValues values, boolean roots) {
 		if (!offensiveAllowed(caster, target) || !PowerProtection.mayForceMove(caster, target)) return false;
 		int tier = values.potencyTier();
-		target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, values.durationTicks(),
-				Math.min(6, (roots ? 4 : 2) + tier), true, false));
-		target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, values.durationTicks(),
-				Math.min(3, (roots ? 1 : 0) + tier / 2), true, false));
+		target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS, values.durationTicks(),
+				Math.min(6, (roots ? 4 : 2) + tier), true, true));
+		target.addEffect(PowerStatusEffects.hidden(MobEffects.WEAKNESS, values.durationTicks(),
+				Math.min(3, (roots ? 1 : 0) + tier / 2), true, true));
 		PowerFx.ring((ServerLevel) caster.level(), target.position().add(0, 0.1, 0),
 				1.2 + tier * 0.15, roots ? 0x477A3C : 0x513B78, 18, 0);
 		return true;
@@ -143,17 +172,17 @@ final class SpellEffects {
 	private static boolean hex(ServerPlayer caster, LivingEntity target, SpellCastValues values) {
 		if (!offensiveAllowed(caster, target)) return false;
 		int tier = values.potencyTier();
-		target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, values.durationTicks(), 1 + tier, true, false));
-		target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, values.durationTicks(), 1 + tier / 2, true, false));
-		target.addEffect(new MobEffectInstance(MobEffects.DARKNESS,
-				Math.min(values.durationTicks(), 240 + tier * 80), 0, true, false));
+		target.addEffect(PowerStatusEffects.hidden(MobEffects.WEAKNESS, values.durationTicks(), 1 + tier, true, true));
+		target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS, values.durationTicks(), 1 + tier / 2, true, true));
+		target.addEffect(PowerStatusEffects.hidden(MobEffects.DARKNESS,
+				Math.min(values.durationTicks(), 240 + tier * 80), 0, true, true));
 		PowerFx.spiral((ServerLevel) caster.level(), target.position(), 0.8, 2.2,
 				0x67405B, 20, Math.PI / 4);
 		return true;
 	}
 
 	private static boolean veil(ServerPlayer caster, int duration) {
-		caster.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, true, false));
+		caster.addEffect(PowerStatusEffects.hidden(MobEffects.INVISIBILITY, duration, 0, true, true));
 		ACTIVE_VEILS.put(caster.getUUID(), new Veil(caster.level().getGameTime() + duration));
 		return true;
 	}
@@ -187,8 +216,9 @@ final class SpellEffects {
 
 	private static boolean purification(ServerPlayer caster, double radius, int potencyTier) {
 		ServerLevel level = (ServerLevel) caster.level();
-		for (LivingEntity ally : level.getEntitiesOfClass(LivingEntity.class,
-				AABB.ofSize(caster.position(), radius * 2, radius * 2, radius * 2), LivingEntity::isAlive)) {
+		for (LivingEntity ally : BoundedEntityCandidates.living(level,
+				AABB.ofSize(caster.position(), radius * 2, radius * 2, radius * 2),
+				256, LivingEntity::isAlive)) {
 			if (!caster.isAlliedTo(ally) && ally != caster && ally instanceof ServerPlayer) continue;
 			for (MobEffectInstance instance : List.copyOf(ally.getActiveEffects())) {
 				if (instance.getEffect().equals(PowersEffects.AMETHYST_POISONING)) continue;
@@ -229,9 +259,9 @@ final class SpellEffects {
 		return true;
 	}
 
-	private static boolean breakWard(ServerPlayer caster, SpellCastValues values) {
-		BlockPos ward = wardTarget(caster, values.targetRange());
-		if (ward == null) return false;
+	private static boolean breakWard(ServerPlayer caster, SpellCastValues values, BlockPos ward) {
+		if (ward == null || !caster.level().getBlockState(ward).is(com.powers.PowersBlocks.AMETHYST_WARD)
+				|| !AmethystWardBlock.isPowered(caster.level().getBlockState(ward))) return false;
 		ServerLevel level = (ServerLevel) caster.level();
 		AmethystDampening.suppressWard(level, ward, values.wardSuppressionTicks());
 		PowerFx.cancelled(level, Vec3.atCenterOf(ward), 0xA66CFF);
@@ -267,7 +297,7 @@ final class SpellEffects {
 
 	private static int color(SpellEffect effect) {
 		return switch (effect) {
-			case SOUL_COMPASS, TRACKING_MARK, WEATHER_SIGIL -> 0xD9E9FF;
+			case SOUL_COMPASS, TRACKING_MARK, WEATHER_SIGIL, CELESTIAL_RUIN -> 0xD9E9FF;
 			case DIMENSIONAL_ANCHOR, BINDING_SIGIL, ANTI_PORTAL_FIELD, KINETIC_WARD -> 0x665C99;
 			case VITALITY_TRANSFER, HEX, CONCEALMENT_VEIL -> 0x67405B;
 			case PURIFICATION_CIRCLE, ROOT_BINDING, SANCTUARY_GROWTH -> 0x65A765;

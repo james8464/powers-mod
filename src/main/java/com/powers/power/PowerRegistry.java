@@ -19,12 +19,13 @@ import com.powers.power.abilities.InvisibilityToggleAbility;
 import com.powers.power.abilities.LightningStrikeAbility;
 import com.powers.power.abilities.PlantHealingAbility;
 import com.powers.power.abilities.ShadowStepAbility;
-import com.powers.power.abilities.SlowWorldAbility;
+import com.powers.power.abilities.SizeMorphAbility;
 import com.powers.power.abilities.SpeedBurstAbility;
 import com.powers.power.abilities.StarfallAbility;
 import com.powers.power.abilities.SuperSpeedAbility;
 import com.powers.power.abilities.TelekinesisAbility;
 import com.powers.power.abilities.TeleportAbility;
+import com.powers.power.abilities.ThunderclapAbility;
 import com.powers.power.abilities.TimeFreezeToggleAbility;
 import com.powers.power.abilities.VesselPossessionAbility;
 import com.powers.power.abilities.VoidBeamAbility;
@@ -55,12 +56,12 @@ public final class PowerRegistry {
 	}
 
 	public static void initialize() {
-		register(new Power(PowersMod.id("slow_world"),
-				Component.translatable("power.powers.slow_world"),
-				Component.translatable("power.powers.slow_world.description"),
-				0xFFD700,
-				List.of(passive(MobEffects.HASTE, 0)),
-				new SlowWorldAbility()));
+		register(new Power(PowersMod.id("size_shift"),
+				Component.translatable("ability.powers.size_shift"),
+				Component.translatable("itemTooltip.powers.yellow_crystal"),
+				0xFFD600,
+				List.of(passive(MobEffects.SLOW_FALLING, 0)),
+				new SizeMorphAbility()));
 
 		register(new Power(PowersMod.id("time_shift"),
 				Component.translatable("power.powers.time_shift"),
@@ -131,6 +132,13 @@ public final class PowerRegistry {
 				0x4CAF50,
 				List.of(passive(MobEffects.STRENGTH, 0)),
 				new GroundSlamAbility()));
+
+		register(new Power(PowersMod.id("thunderclap"),
+				Component.translatable("power.powers.thunderclap"),
+				Component.translatable("power.powers.thunderclap.description"),
+				0xD7F8FF,
+				List.of(passive(MobEffects.STRENGTH, 0)),
+				new ThunderclapAbility()));
 
 		register(new Power(PowersMod.id("speed_burst"),
 				Component.translatable("power.powers.speed_burst"),

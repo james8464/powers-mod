@@ -11,7 +11,7 @@ class LootInjectionCatalogTest {
 	@Test
 	void augmentsEveryFormerOverrideWithoutReplacingVanillaTables() {
 		var groups = LootInjectionCatalog.groups();
-		assertEquals(16, groups.size());
+		assertEquals(19, groups.size());
 		var tables = new HashSet<String>();
 		for (LootDropGroup group : groups) {
 			assertTrue(tables.add(group.tableId()), group.tableId());

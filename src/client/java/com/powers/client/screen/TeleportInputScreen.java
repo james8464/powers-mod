@@ -3,11 +3,15 @@ package com.powers.client.screen;
 import com.powers.PowersMod;
 import com.powers.client.ClientPowerState;
 import com.powers.network.PowersPackets;
+import com.powers.network.ShadowSwordPackets;
+import com.powers.power.travel.TeleportDimensionMenu;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.registries.Registries;
@@ -26,14 +30,12 @@ public final class TeleportInputScreen extends Screen {
 	private static final Identifier PANEL = PowersMod.id("textures/gui/teleport_panel.png");
 	private static final int PANEL_WIDTH = 256;
 	private static final int PANEL_HEIGHT = 192;
-	private static final List<DimEntry> DIMENSIONS = List.of(
-			new DimEntry("minecraft:overworld", Component.translatable("dimension.minecraft.overworld")),
-			new DimEntry("minecraft:the_nether", Component.translatable("dimension.minecraft.the_nether")),
-			new DimEntry("minecraft:the_end", Component.translatable("dimension.minecraft.the_end")),
-			new DimEntry("powers:dark_realm", Component.translatable("dimension.powers.dark_realm")),
-			new DimEntry("powers:light_realm", Component.translatable("dimension.powers.light_realm")));
+	private static final List<String> FALLBACK_DIMENSIONS = List.of(
+			"minecraft:overworld", "minecraft:the_nether", "minecraft:the_end",
+			"powers:dark_realm", "powers:light_realm", "powers:middleworld");
 
 	private final int slot;
+	private final boolean shadowSword;
 	private List<DimEntry> available = List.of();
 	private EditBox xField;
 	private EditBox yField;
@@ -45,36 +47,48 @@ public final class TeleportInputScreen extends Screen {
 	private Component error;
 
 	public TeleportInputScreen(int slot) {
+		this(slot, false);
+	}
+
+	private TeleportInputScreen(int slot, boolean shadowSword) {
 		super(Component.translatable("screen.powers.teleport"));
 		this.slot = slot;
+		this.shadowSword = shadowSword;
+	}
+
+	public static TeleportInputScreen shadowSword() {
+		return new TeleportInputScreen(-1, true);
 	}
 
 	@Override
 	protected void init() {
 		int left = panelX();
 		int top = panelY();
-		available = ClientPowerState.canSeeDarkRealm()
-				? DIMENSIONS
-				: DIMENSIONS.stream().filter(entry -> !entry.id().equals("powers:dark_realm")).toList();
+		available = TeleportDimensionMenu.visibleIds(serverDimensionIds(), ClientPowerState.canSeeDarkRealm())
+				.stream().map(this::dimensionEntry).toList();
 		List<Integer> dimensionValues = java.util.stream.IntStream.range(0, available.size()).boxed().toList();
 
 		addRenderableWidget(CycleButton.<Integer>builder(this::modeName, () -> 0)
-				.withValues(List.of(0, 1, 2)).displayOnlyValue()
+				.withValues(shadowSword ? List.of(0, 1) : List.of(0, 1, 2)).displayOnlyValue()
 				.create(left + 20, top + 32, 216, 20,
 						Component.translatable("screen.powers.teleport.mode"), (button, value) -> {
 							mode = value;
 							updateModeWidgets();
 						}));
 
-		xField = coordinateField(left + 20, top + 61, "screen.powers.teleport.x", "X");
-		yField = coordinateField(left + 132, top + 61, "screen.powers.teleport.y", "Y");
-		zField = coordinateField(left + 20, top + 88, "screen.powers.teleport.z", "Z");
+		xField = coordinateField(left + 20, top + 61, "screen.powers.teleport.x", "X", 68);
+		yField = coordinateField(left + 94, top + 61, "screen.powers.teleport.y", "Y", 68);
+		zField = coordinateField(left + 168, top + 61, "screen.powers.teleport.z", "Z", 68);
 		dimensionButton = addRenderableWidget(CycleButton.<Integer>builder(
 				index -> available.get(index).label(), () -> 0)
 				.withValues(dimensionValues).displayOnlyValue()
-				.create(left + 132, top + 88, 104, 20,
+				.create(left + 20, top + 88, 216, 20,
 						Component.translatable("screen.powers.teleport.dimension"),
-						(button, value) -> dimensionIndex = value));
+						(button, value) -> {
+							dimensionIndex = value;
+							button.setTooltip(Tooltip.create(Component.literal(available.get(value).id())));
+						}));
+		dimensionButton.setTooltip(Tooltip.create(Component.literal(available.getFirst().id())));
 
 		targetNameField = addRenderableWidget(new EditBox(font, left + 20, top + 116, 216, 20,
 				Component.translatable("screen.powers.teleport.target")));
@@ -85,12 +99,25 @@ public final class TeleportInputScreen extends Screen {
 		updateModeWidgets();
 	}
 
-	private EditBox coordinateField(int x, int y, String narrationKey, String hint) {
-		EditBox field = addRenderableWidget(new EditBox(font, x, y, 104, 20,
+	private EditBox coordinateField(int x, int y, String narrationKey, String hint, int width) {
+		EditBox field = addRenderableWidget(new EditBox(font, x, y, width, 20,
 				Component.translatable(narrationKey)));
 		field.setHint(Component.literal(hint));
 		field.setMaxLength(24);
 		return field;
+	}
+
+	private List<String> serverDimensionIds() {
+		var connection = Minecraft.getInstance().getConnection();
+		return connection == null || connection.levels().isEmpty() ? FALLBACK_DIMENSIONS
+				: connection.levels().stream().map(key -> key.identifier().toString()).toList();
+	}
+
+	private DimEntry dimensionEntry(String id) {
+		Identifier parsed = Identifier.tryParse(id);
+		if (parsed == null) return new DimEntry(id, Component.literal(id));
+		String key = "dimension." + parsed.getNamespace() + "." + parsed.getPath();
+		return new DimEntry(id, Component.translatableWithFallback(key, id));
 	}
 
 	private Component modeName(int value) {
@@ -137,8 +164,13 @@ public final class TeleportInputScreen extends Screen {
 				Identifier id = Identifier.tryParse(available.get(dimensionIndex).id());
 				if (id == null) throw new IllegalStateException("Registered dimension ID became invalid");
 				ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, id);
-				ClientPlayNetworking.send(new PowersPackets.TeleportRequestPayload(
-						slot, x, y, z, key, mode == 1 ? target : "", false));
+				if (shadowSword) {
+					ClientPlayNetworking.send(new ShadowSwordPackets.TeleportPayload(
+							x, y, z, key, mode == 1 ? target : ""));
+				} else {
+					ClientPlayNetworking.send(new PowersPackets.TeleportRequestPayload(
+							slot, x, y, z, key, mode == 1 ? target : "", false));
+				}
 			}
 			onClose();
 		} catch (NumberFormatException exception) {

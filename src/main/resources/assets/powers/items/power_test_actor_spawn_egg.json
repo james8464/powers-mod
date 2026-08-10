@@ -1,0 +1,6 @@
+{
+	"model": {
+		"type": "minecraft:model",
+		"model": "powers:item/power_test_actor_spawn_egg"
+	}
+}

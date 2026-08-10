@@ -3,14 +3,18 @@ package com.powers.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.powers.PowersMod;
 import com.powers.client.screen.CelestialLocatorScreen;
+import com.powers.client.screen.PowerSelectionScreen;
 import com.powers.client.screen.TeleportInputScreen;
 import com.powers.client.screen.RankMazeScreen;
+import com.powers.client.screen.ShadowSwordScreen;
 import com.powers.client.fx.ClientMagicFx;
 import com.powers.client.fx.particle.ArcaneParticle;
 import com.powers.PowersParticles;
+import com.powers.PowersEntities;
 import com.powers.network.PowerStatePayload;
 import com.powers.network.PowersPackets;
 import com.powers.network.MagicFxPackets;
+import com.powers.network.ShadowSwordPackets;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import net.fabricmc.api.ClientModInitializer;
@@ -25,6 +29,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import org.lwjgl.glfw.GLFW;
 
 /** client entry point: registers the v/x/c slot keys, wires up the huds and the teleport screen */
@@ -55,6 +60,13 @@ public class PowersClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(PowersPackets.OpenLocatorScreenPayload.TYPE,
 				(payload, context) -> context.client().execute(() ->
 						Minecraft.getInstance().gui.setScreen(new CelestialLocatorScreen(payload.nonce()))));
+		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenMenuPayload.TYPE,
+				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
+						new ShadowSwordScreen(payload.selectedKey(), payload.darknessLevel(),
+								payload.elementalPhase(), payload.sizeMorphOption()))));
+		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenTeleportPayload.TYPE,
+				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
+						TeleportInputScreen.shadowSword())));
 		// clear the cached state when you leave the server so the hud doesn't carry over old powers
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			ClientPowerState.reset();
@@ -62,16 +74,22 @@ public class PowersClient implements ClientModInitializer {
 		});
 
 		registerParticles();
+		EntityRenderers.register(PowersEntities.DARKNESS_CREATURE,
+				context -> new PlayerLikeMobRenderer(context, "darkness_player"));
+		EntityRenderers.register(PowersEntities.POWER_TEST_ACTOR,
+				context -> new PlayerLikeMobRenderer(context, "test_actor"));
 
-		// both huds join the same render pass as vanilla chat so they layer correctly
-		HudElementRegistry.attachElementBefore(
-				VanillaHudElements.CHAT,
+		// Join vanilla's survival-bar layer so extra heart/armour rows are known
+		// before the adaptive energy vessel and icon rail are extracted.
+		var energyHud = PowersMod.id("energy_hud");
+		HudElementRegistry.attachElementAfter(
+				VanillaHudElements.AIR_BAR,
+				energyHud,
+				(graphics, tickCounter) -> EnergyHudRenderer.render(graphics));
+		HudElementRegistry.attachElementAfter(
+				energyHud,
 				PowersMod.id("power_hud"),
 				PowersClient::renderHud);
-		HudElementRegistry.attachElementBefore(
-				VanillaHudElements.CHAT,
-				PowersMod.id("energy_hud"),
-				(graphics, tickCounter) -> EnergyHudRenderer.render(graphics));
 
 		ClientTickEvents.END_CLIENT_TICK.register(PowersClient::tick);
 	}
@@ -133,6 +151,15 @@ public class PowersClient implements ClientModInitializer {
 		}
 		Ability ability = power.ability();
 		if (ability == null) {
+			return;
+		}
+		// Crouch-key opens an explicit selector; an ordinary press still casts
+		// the primed element or toggles the selected body scale.
+		if (ability.selectionOptionCount() > 0 && client.player != null
+				&& client.player.isCrouching()) {
+			int selected = power.id().getPath().equals("elemental_blast")
+					? ClientPowerState.elementalPhase() : ClientPowerState.sizeMorphOption();
+			client.gui.setScreen(new PowerSelectionScreen(slot, ability, selected));
 			return;
 		}
 

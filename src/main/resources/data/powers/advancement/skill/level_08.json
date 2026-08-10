@@ -2,7 +2,7 @@
 	"parent": "powers:skill/level_07",
 	"display": {
 		"icon": {
-			"id": "powers:dark_crystal"
+			"id": "minecraft:ender_eye"
 		},
 		"title": {
 			"translate": "advancement.powers.skill.08_crystal_travel.title"
@@ -16,35 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"dark": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"powers:dark_crystal"
-						]
-					}
-				]
-			}
-		},
-		"light": {
-			"trigger": "minecraft:inventory_changed",
-			"conditions": {
-				"items": [
-					{
-						"items": [
-							"powers:light_crystal"
-						]
-					}
-				]
-			}
-		},
-		"middle": {
-			"trigger": "minecraft:location",
-			"conditions": {
-				"dimension": "powers:middleworld"
-			}
+		"mastery": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

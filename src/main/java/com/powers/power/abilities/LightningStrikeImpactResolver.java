@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersBlocks;
 import com.powers.fx.LightningStrikeFx;
 import com.powers.mind.BodyProxyManager;
@@ -11,11 +12,11 @@ import com.powers.power.state.PowerEntityState;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.LoadedChunks;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
@@ -377,8 +378,8 @@ final class LightningStrikeImpactResolver {
 		if (target instanceof ServerPlayer player) {
 			concealed |= InvisibilityToggleAbility.reveal(player);
 		}
-		target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 80,
-				0, true, false, true));
+		target.addEffect(PowerStatusEffects.hidden(MobEffects.GLOWING, 80,
+				0, true, true));
 		if (concealed) LightningStrikeFx.revelation(level, bodyCenter(target));
 	}
 

@@ -24,6 +24,5 @@
   "min_y": -64,
   "monster_spawn_block_light_limit": 15,
   "monster_spawn_light_level": 15,
-  "skybox": "none",
-  "timelines": "#minecraft:in_overworld"
+  "skybox": "overworld"
 }

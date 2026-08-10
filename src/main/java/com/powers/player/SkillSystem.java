@@ -9,6 +9,7 @@ import com.powers.progression.RankProgress;
 import com.powers.progression.PowerScalingService;
 import com.powers.progression.RankAttributeManager;
 import com.powers.util.PowerMessages;
+import com.powers.fx.PowerFx;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.network.chat.Component;
@@ -84,7 +85,7 @@ public final class SkillSystem {
 		}
 		if (highest != data.skillLevel()) {
 			data.setSkillLevel(player, highest);
-			PowerMessages.send(player, "skill.powers.advanced", 3, rank(highest));
+			PowerMessages.sendImportant(player, "skill.powers.advanced", 3, rank(highest));
 			PowersPackets.syncTo(player);
 		}
 
@@ -97,7 +98,9 @@ public final class SkillSystem {
 			}
 			if (highestDarkness != data.darknessLevel()) {
 				data.setDarknessLevel(player, highestDarkness);
-				PowerMessages.send(player, "skill.powers.darkness_advanced", 3, darknessRank(highestDarkness));
+				PowerMessages.sendImportant(player, "skill.powers.darkness_advanced", 3,
+						darknessRank(highestDarkness));
+				PowerFx.rankAwakening(player, true, highestDarkness);
 				PowersPackets.syncTo(player);
 			}
 		}
@@ -173,15 +176,29 @@ public final class SkillSystem {
 	}
 
 	/**
-	 * Keeps earned advancement journal entries visible. Switching tags or maze
-	 * focus never revokes history; numeric levels remain the migration floor.
+	 * Shows exactly one advancement tree. Revoking the inactive journal entries
+	 * is presentation-only: the numeric levels remain the authoritative floor,
+	 * so an allegiance change never destroys earned progression.
 	 */
 	public static void syncPathVisibility(ServerPlayer player) {
-		boolean darkness = hasDarknessTag(player);
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		awardPath(player, PowersMod.id("skill_root"), SkillSystem::skillId, data.skillLevel());
-		if (darkness) {
-			awardPath(player, PowersMod.id("darkness_root"), SkillSystem::darknessId, data.darknessLevel());
+		AdvancementPathRules.Selection selection = AdvancementPathRules.select(
+				hasDarknessTag(player), data.skillLevel(), data.darknessLevel());
+		if ("darkness_root".equals(selection.hiddenRoot())) {
+			revokePath(player, PowersMod.id("darkness_root"), SkillSystem::darknessId, DARKNESS_MAX_LEVEL);
+			awardPath(player, PowersMod.id("skill_root"), SkillSystem::skillId, selection.reachedLevel());
+		} else {
+			revokePath(player, PowersMod.id("skill_root"), SkillSystem::skillId, MAX_LEVEL);
+			awardPath(player, PowersMod.id("darkness_root"), SkillSystem::darknessId, selection.reachedLevel());
+		}
+	}
+
+	private static void revokePath(ServerPlayer player, Identifier rootId,
+			IntFunction<Identifier> levelId, int maximumLevel) {
+		ServerAdvancementManager advancements = player.level().getServer().getAdvancements();
+		revoke(player, advancements.get(rootId));
+		for (int level = 1; level <= maximumLevel; level++) {
+			revoke(player, advancements.get(levelId.apply(level)));
 		}
 	}
 
@@ -212,9 +229,49 @@ public final class SkillSystem {
 		}
 	}
 
+	/** Removes every awarded criterion so the whole inactive tree disappears. */
+	private static void revoke(ServerPlayer player, AdvancementHolder holder) {
+		if (holder == null) {
+			return;
+		}
+		PlayerAdvancements progressTracker = player.getAdvancements();
+		AdvancementProgress progress = progressTracker.getOrStartProgress(holder);
+		for (String criterion : holder.value().criteria().keySet()) {
+			if (progress.getCriterion(criterion) != null && progress.getCriterion(criterion).isDone()) {
+				progressTracker.revoke(holder, criterion);
+			}
+		}
+	}
+
 	private static boolean isDone(ServerPlayer player, ServerAdvancementManager advancements, Identifier id) {
 		AdvancementHolder holder = advancements.get(id);
 		return holder != null && player.getAdvancements().getOrStartProgress(holder).isDone();
+	}
+
+	/** Grants one deed-controlled darkness advancement after its counters pass. */
+	public static void awardDarknessRite(ServerPlayer player, int level) {
+		if (!hasDarknessTag(player) || level < 1 || level > DARKNESS_MAX_LEVEL) {
+			return;
+		}
+		ServerAdvancementManager advancements = player.level().getServer().getAdvancements();
+		AdvancementHolder root = advancements.get(PowersMod.id("darkness_root"));
+		AdvancementHolder rite = advancements.get(darknessId(level));
+		if (root != null) {
+			award(player, root);
+		}
+		if (rite != null) {
+			award(player, rite);
+		}
+	}
+
+	/** Grants one tracker-controlled normal advancement after its mastery counters pass. */
+	public static void awardSkillRite(ServerPlayer player, int level) {
+		if (hasDarknessTag(player) || level < 1 || level > MAX_LEVEL) return;
+		ServerAdvancementManager advancements = player.level().getServer().getAdvancements();
+		AdvancementHolder root = advancements.get(PowersMod.id("skill_root"));
+		AdvancementHolder rite = advancements.get(skillId(level));
+		if (root != null) award(player, root);
+		if (rite != null) award(player, rite);
 	}
 
 	private static Identifier skillId(int level) {
@@ -235,15 +292,14 @@ public final class SkillSystem {
 
 	private static void applyRank(ServerPlayer player) {
 		RankAttributeManager.reconcile(player, PowerScalingService.profile(player));
-		Component plate = prefix(player).copy().append(player.getName());
-		// setCustomName dirties the entity's tracked data and broadcasts a
-		// metadata packet to everyone watching, so only write it on a change
-		if (plate.equals(APPLIED_PREFIX.get(player.getUUID()))) {
+		Component rankPrefix = prefix(player);
+		// Tracked entity data reaches every observing client. Only dirty it when
+		// the title changes; this avoids redundant metadata packets on refresh.
+		if (rankPrefix.equals(APPLIED_PREFIX.get(player.getUUID()))) {
 			return;
 		}
-		APPLIED_PREFIX.put(player.getUUID(), plate);
-		player.setCustomName(plate);
-		player.setCustomNameVisible(true);
+		APPLIED_PREFIX.put(player.getUUID(), rankPrefix);
+		((RankDisplayData) player).powers$setRankPrefix(rankPrefix);
 	}
 
 	/** Forgets a player's cached name plate when they disconnect. */

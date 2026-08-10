@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.SuperSpeedFx;
 import com.powers.mind.BodyProxyManager;
@@ -13,13 +14,13 @@ import com.powers.progression.ScaledMagicValues;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.PowerMessages;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -224,7 +225,8 @@ public final class SuperSpeedAbility extends Ability {
 		int limit = SuperSpeedRules.pressureTargetLimit(true);
 		AABB area = AABB.ofSize(center, PRESSURE_RADIUS * 2.0,
 				PRESSURE_RADIUS * 2.0, PRESSURE_RADIUS * 2.0);
-		List<LivingEntity> candidates = level.getEntitiesOfClass(LivingEntity.class, area,
+		List<LivingEntity> candidates = BoundedEntityCandidates.living(level, area,
+				MAX_PRESSURE_SCAN,
 				entity -> entity != owner && entity.isAlive() && !entity.isSpectator()
 						&& !entity.isPassenger()
 						&& entity.position().distanceToSqr(center)
@@ -272,7 +274,7 @@ public final class SuperSpeedAbility extends Ability {
 		if (limit <= 0) return;
 		AABB area = AABB.ofSize(owner.position(), AFTERIMAGE_RADIUS * 2.0,
 				AFTERIMAGE_RADIUS * 2.0, AFTERIMAGE_RADIUS * 2.0);
-		List<Mob> mobs = level.getEntitiesOfClass(Mob.class, area,
+		List<Mob> mobs = BoundedEntityCandidates.ofClass(level, Mob.class, area, 64,
 				mob -> mob.isAlive() && mob.getTarget() == owner && mob.hasLineOfSight(owner)
 						&& !EntityFreezeController.isFrozen(mob)
 						&& !PowerProtection.isSafeZone(level, mob.position())
@@ -294,7 +296,8 @@ public final class SuperSpeedAbility extends Ability {
 		Vec3 center = owner.position().add(0.0, 0.8, 0.0);
 		AABB area = AABB.ofSize(center, PROJECTILE_RADIUS * 2.0,
 				PROJECTILE_RADIUS * 2.0, PROJECTILE_RADIUS * 2.0);
-		List<Projectile> projectiles = level.getEntitiesOfClass(Projectile.class, area,
+		List<Projectile> projectiles = BoundedEntityCandidates.ofClass(level, Projectile.class,
+				area, 128,
 				projectile -> projectile.isAlive()
 						&& !overdrive.curvedProjectiles.contains(projectile.getUUID())
 						&& (projectile.getOwner() == null
@@ -352,8 +355,8 @@ public final class SuperSpeedAbility extends Ability {
 			removeOwnedModifier(player);
 			player.fallDistance = 0.0F;
 			if (player.isAlive()) {
-				player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,
-						60, 0, true, false, true));
+				player.addEffect(PowerStatusEffects.hidden(MobEffects.SLOW_FALLING,
+						60, 0, true, true));
 			}
 		}
 		if (server == null) return;

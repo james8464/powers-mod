@@ -1,5 +1,6 @@
 package com.powers.power.travel;
 
+import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.abilities.DimensionalAnchorAbility;
@@ -11,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.block.Blocks;
 
 /** Validates bounds, loaded chunks, collision, hazards, wards, and safe zones before travel. */
 public final class SafeDestinationResolver {
@@ -24,24 +26,8 @@ public final class SafeDestinationResolver {
 	}
 
 	public static Result validate(ServerPlayer subject, ServerLevel target, Vec3 requested, TravelKind kind) {
-		var border = target.getWorldBorder();
-		DestinationFailure bounds = boundsFailure(requested.x, requested.y, requested.z,
-				target.getMinY(), target.getMaxY(), border.getMinX(), border.getMaxX(),
-				border.getMinZ(), border.getMaxZ());
-		if (bounds != DestinationFailure.NONE) return new Result(bounds, requested);
-
-		DestinationFailure realm = realmFailure(target.dimension().identifier().getPath().equals("middleworld"), kind);
-		if (realm != DestinationFailure.NONE) return new Result(realm, requested);
-		if (kind != TravelKind.RETURN && kind != TravelKind.ADMIN && DimensionalAnchorAbility.isAnchored(subject)
-				&& !target.dimension().equals(DimensionalAnchorAbility.anchorDimension(subject))) {
-			return new Result(DestinationFailure.ANCHOR, requested);
-		}
-		if (SkillSystem.isDarkRealm(target.dimension())
-				&& !SkillSystem.isDarkRealm(subject.level().dimension())
-				&& kind != TravelKind.CRYSTAL && kind != TravelKind.RETURN && kind != TravelKind.ADMIN
-				&& !SkillSystem.canEnterDarkRealm(subject)) {
-			return new Result(DestinationFailure.REALM_RESTRICTED, requested);
-		}
+		Result preflight = validatePreload(subject, target, requested, kind);
+		if (!preflight.allowed()) return preflight;
 
 		BlockPos feet = BlockPos.containing(requested);
 		if (!LoadedChunks.contains(target, feet)) return new Result(DestinationFailure.UNLOADED_CHUNK, requested);
@@ -60,9 +46,39 @@ public final class SafeDestinationResolver {
 		if (!target.getFluidState(feet).isEmpty() || !target.getFluidState(head).isEmpty()) {
 			return new Result(DestinationFailure.HAZARD, requested);
 		}
+		if (kind == TravelKind.POWER || kind == TravelKind.CRYSTAL || kind == TravelKind.COMPANION) {
+			BlockPos floor = feet.below();
+			var support = target.getBlockState(floor);
+			if (!support.entityCanStandOn(target, floor, subject)
+					|| support.is(Blocks.MAGMA_BLOCK) || support.is(Blocks.CACTUS)
+					|| support.is(Blocks.CAMPFIRE) || support.is(Blocks.SOUL_CAMPFIRE)
+					|| support.is(Blocks.WITHER_ROSE) || support.is(Blocks.POWDER_SNOW)) {
+				return new Result(DestinationFailure.HAZARD, requested);
+			}
+		}
 		AABB moved = subject.getBoundingBox().move(requested.subtract(subject.position()));
-		if (!border.isWithinBounds(moved) || !target.noCollision(subject, moved)) {
+		if (!target.getWorldBorder().isWithinBounds(moved) || !target.noCollision(subject, moved)) {
 			return new Result(DestinationFailure.COLLISION, requested);
+		}
+		return new Result(DestinationFailure.NONE, requested);
+	}
+
+	/** Runs every policy check that is safe before a remote destination chunk has loaded. */
+	public static Result validatePreload(ServerPlayer subject, ServerLevel target, Vec3 requested, TravelKind kind) {
+		var border = target.getWorldBorder();
+		DestinationFailure bounds = boundsFailure(requested.x, requested.y, requested.z,
+				target.getMinY(), target.getMaxY(), border.getMinX(), border.getMaxX(),
+				border.getMinZ(), border.getMaxZ());
+		if (bounds != DestinationFailure.NONE) return new Result(bounds, requested);
+
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(subject);
+		DestinationFailure realm = realmFailure(
+				subject.level().dimension().identifier().toString(), target.dimension().identifier().toString(), kind,
+				SkillSystem.hasDarknessTag(subject), data.skillLevel(), data.darknessLevel());
+		if (realm != DestinationFailure.NONE) return new Result(realm, requested);
+		if (kind != TravelKind.RETURN && kind != TravelKind.ADMIN && DimensionalAnchorAbility.isAnchored(subject)
+				&& !target.dimension().equals(DimensionalAnchorAbility.anchorDimension(subject))) {
+			return new Result(DestinationFailure.ANCHOR, requested);
 		}
 		return new Result(DestinationFailure.NONE, requested);
 	}
@@ -76,8 +92,25 @@ public final class SafeDestinationResolver {
 		return DestinationFailure.NONE;
 	}
 
-	static DestinationFailure realmFailure(boolean middleworld, TravelKind kind) {
-		return middleworld && kind != TravelKind.CRYSTAL && kind != TravelKind.RETURN && kind != TravelKind.ADMIN
-				? DestinationFailure.REALM_RESTRICTED : DestinationFailure.NONE;
+	static DestinationFailure realmFailure(String origin, String target, TravelKind kind,
+			boolean darknessTag, int normalLevel, int darknessLevel) {
+		if (kind == TravelKind.RETURN || kind == TravelKind.ADMIN || origin.equals(target)) {
+			return DestinationFailure.NONE;
+		}
+		boolean qualifiedDarkness = darknessTag && darknessLevel >= SkillSystem.DARKNESS_GATE_LEVEL;
+		if (origin.equals("powers:dark_realm") && !qualifiedDarkness) {
+			return DestinationFailure.REALM_RESTRICTED;
+		}
+		if (origin.equals("powers:light_realm")
+				&& Math.max(normalLevel, darknessLevel) < SkillSystem.DARKNESS_GATE_LEVEL) {
+			return DestinationFailure.REALM_RESTRICTED;
+		}
+		if (target.equals("powers:middleworld") && kind != TravelKind.CRYSTAL) {
+			return DestinationFailure.REALM_RESTRICTED;
+		}
+		if (target.equals("powers:dark_realm") && kind != TravelKind.CRYSTAL && !qualifiedDarkness) {
+			return DestinationFailure.REALM_RESTRICTED;
+		}
+		return DestinationFailure.NONE;
 	}
 }

@@ -1,5 +1,6 @@
 package com.powers.power.crystals;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
@@ -10,7 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -46,7 +46,7 @@ public class SizeShiftAbility extends Ability {
 	public SizeShiftAbility() {
 		super(PowersMod.id("size_shift"),
 				Component.translatable("ability.powers.size_shift"),
-				COOLDOWN_TICKS, false);
+				COOLDOWN_TICKS, false, false);
 	}
 
 	@Override
@@ -65,9 +65,12 @@ public class SizeShiftAbility extends Ability {
 			if (scale != null) {
 				scale.addOrUpdateTransientModifier(SHRINK_MODIFIER);
 			}
-			player.addEffect(new MobEffectInstance(MobEffects.SPEED, duration, 3 + potencyTier, true, false));
-			player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, duration, 4 + potencyTier, true, false));
-			player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, duration, 0, true, false));
+			player.addEffect(PowerStatusEffects.hidden(MobEffects.SPEED,
+					duration, 3 + potencyTier, true, true));
+			player.addEffect(PowerStatusEffects.hidden(MobEffects.JUMP_BOOST,
+					duration, 4 + potencyTier, true, true));
+			player.addEffect(PowerStatusEffects.hidden(MobEffects.SLOW_FALLING,
+					duration, 0, true, true));
 			PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x00E5FF, 24, 0.8);
 			PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.POOF, 20, 0.7, 0.2);
 		} else {
@@ -77,8 +80,10 @@ public class SizeShiftAbility extends Ability {
 			if (knockback != null) {
 				knockback.addOrUpdateTransientModifier(ANTI_KNOCKBACK);
 			}
-			player.addEffect(new MobEffectInstance(MobEffects.STRENGTH, duration, 3 + potencyTier, true, false));
-			player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, duration, 1, true, false));
+			player.addEffect(PowerStatusEffects.hidden(MobEffects.STRENGTH,
+					duration, 3 + potencyTier, true, true));
+			player.addEffect(PowerStatusEffects.hidden(MobEffects.RESISTANCE,
+					duration, 1, true, true));
 			PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0xFFD600, 30, 1.6);
 			PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.POOF, 30, 1.0, 0.3);
 		}

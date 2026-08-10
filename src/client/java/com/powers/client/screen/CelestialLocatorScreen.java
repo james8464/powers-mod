@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -25,6 +26,7 @@ public final class CelestialLocatorScreen extends Screen {
 
 	private final UUID nonce;
 	private PlayerList playerList;
+	private EditBox targetNameField;
 	private boolean empty;
 
 	public CelestialLocatorScreen(UUID nonce) {
@@ -44,18 +46,30 @@ public final class CelestialLocatorScreen extends Screen {
 						.sorted(java.util.Comparator.comparing(info -> info.getProfile().name()))
 						.toList();
 		empty = players.isEmpty();
-		playerList = new PlayerList(Minecraft.getInstance(), 200, 134, top + 38, 24);
+		targetNameField = addRenderableWidget(new EditBox(font, left + 20, top + 36, 148, 20,
+				Component.literal("Player or custom mob name")));
+		targetNameField.setHint(Component.literal("Player or named mob"));
+		targetNameField.setMaxLength(64);
+		addRenderableWidget(Button.builder(Component.literal("View"), button -> chooseTyped())
+				.bounds(left + 172, top + 36, 48, 20).build());
+		playerList = new PlayerList(Minecraft.getInstance(), 200, 104, top + 68, 24);
 		playerList.setX(left + 20);
 		for (PlayerInfo info : players) {
-			playerList.add(new PlayerEntry(info.getProfile().id(), info.getProfile().name()));
+			playerList.add(new PlayerEntry(info.getProfile().name()));
 		}
 		addRenderableWidget(playerList);
 		addRenderableWidget(Button.builder(Component.translatable("screen.powers.locator.cancel"),
 				button -> onClose()).bounds(left + 60, top + 184, 120, 20).build());
 	}
 
-	private void choose(UUID targetUuid) {
-		ClientPlayNetworking.send(new PowersPackets.LocatePlayerPayload(targetUuid, nonce));
+	private void chooseTyped() {
+		choose(targetNameField.getValue());
+	}
+
+	private void choose(String targetName) {
+		String normalized = targetName.trim();
+		if (normalized.isEmpty()) return;
+		ClientPlayNetworking.send(new PowersPackets.LocateTargetPayload(normalized, nonce));
 		onClose();
 	}
 
@@ -71,7 +85,7 @@ public final class CelestialLocatorScreen extends Screen {
 		super.extractRenderState(graphics, mouseX, mouseY, delta);
 		graphics.centeredText(font, title, width / 2, panelY() + 15, 0xFFF1E8FF);
 		if (empty) graphics.centeredText(font, Component.translatable("screen.powers.locator.empty"),
-				width / 2, panelY() + 98, 0xFF9C91AF);
+				width / 2, panelY() + 118, 0xFF9C91AF);
 	}
 
 	private int panelX() {
@@ -100,11 +114,9 @@ public final class CelestialLocatorScreen extends Screen {
 	}
 
 	private final class PlayerEntry extends ObjectSelectionList.Entry<PlayerEntry> {
-		private final UUID id;
 		private final String name;
 
-		private PlayerEntry(UUID id, String name) {
-			this.id = id;
+		private PlayerEntry(String name) {
 			this.name = name;
 		}
 
@@ -121,7 +133,7 @@ public final class CelestialLocatorScreen extends Screen {
 		@Override
 		public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 			if (event.button() == 0 && isMouseOver(event.x(), event.y())) {
-				choose(id);
+				choose(name);
 				return true;
 			}
 			return false;

@@ -30,8 +30,8 @@ public final class FireballFx {
 				-level.getGameTime() * 0.18);
 		PowerFx.spiral(level, point.subtract(0.0, 0.55, 0.0), 0.32 + tier * 0.05,
 				1.1 + tier * 0.25, EMBER, 14 + tier * 3, 0.0);
-		PowerFx.burst(level, point, ParticleTypes.FLAME, 14 + tier * 4, 0.34, 0.09);
-		PowerFx.burst(level, point, PowersParticles.GLYPH, 6 + tier * 2, 0.28, 0.035);
+		PowerFx.clarityBurst(level, point, ParticleTypes.FLAME, 14 + tier * 4, 0.34, 0.09);
+		PowerFx.clarityBurst(level, point, PowersParticles.GLYPH, 6 + tier * 2, 0.28, 0.035);
 		PowerFx.sound(level, point, SoundEvents.FIRECHARGE_USE, 0.82F + tier * 0.08F,
 				1.18F - tier * 0.07F);
 		PowerFx.sound(level, point, PowersSounds.RUNE_HUM, 0.45F, 0.82F + tier * 0.08F);
@@ -48,8 +48,8 @@ public final class FireballFx {
 				-level.getGameTime() * 0.27);
 		PowerFx.spiral(level, point.subtract(0.0, 0.75, 0.0), 0.42,
 				1.5 + tier * 0.34, tier >= 4 ? GOLD : EMBER, 20 + tier * 4, tier);
-		PowerFx.burst(level, point, ParticleTypes.FLAME, 18 + tier * 7, 0.48, 0.16);
-		PowerFx.burst(level, point, ParticleTypes.ELECTRIC_SPARK,
+		PowerFx.clarityBurst(level, point, ParticleTypes.FLAME, 18 + tier * 7, 0.48, 0.16);
+		PowerFx.clarityBurst(level, point, ParticleTypes.ELECTRIC_SPARK,
 				ancientMastery ? 18 : 10, 0.38, 0.10);
 		PowerFx.sound(level, point, PowersSounds.RANK_AWAKEN, 0.75F + tier * 0.08F,
 				0.76F + tier * 0.12F);
@@ -64,7 +64,7 @@ public final class FireballFx {
 				16 + tier * 2, Math.PI);
 		PowerFx.ring(level, point.add(0.0, 0.10, 0.0), 0.48 + tier * 0.07,
 				launched ? 0x8A8F96 : EMBER, 12 + tier * 2, -Math.PI / 4.0);
-		PowerFx.burst(level, point, PowersParticles.FRACTURE, 10 + tier * 2, 0.34, 0.06);
+		PowerFx.clarityBurst(level, point, PowersParticles.FRACTURE, 10 + tier * 2, 0.34, 0.06);
 		PowerFx.sound(level, point, SoundEvents.BEACON_DEACTIVATE, 0.52F,
 				launched ? 1.18F : 0.72F);
 	}
@@ -78,10 +78,10 @@ public final class FireballFx {
 				10 + tier * 2, phase);
 		PowerFx.ring(level, point.add(0.0, 0.10, 0.0), radius * 0.64,
 				GOLD, 8 + tier * 2, -phase * 1.4);
-		PowerFx.burst(level, point, afterimage ? PowersParticles.RIBBON : ParticleTypes.FLAME,
+		PowerFx.clarityBurst(level, point, afterimage ? PowersParticles.RIBBON : ParticleTypes.FLAME,
 				2 + tier, 0.18 + tier * 0.03, 0.025);
 		if (trueSight) {
-			PowerFx.burst(level, point.add(0.0, 0.25, 0.0), PowersParticles.GLYPH,
+			PowerFx.clarityBurst(level, point.add(0.0, 0.25, 0.0), PowersParticles.GLYPH,
 					2, 0.12, 0.015);
 		}
 		if (ancientMastery && age % 40 == 0) {
@@ -97,8 +97,8 @@ public final class FireballFx {
 				22 + tier * 4, Math.PI);
 		PowerFx.beam(level, point.subtract(direction.scale(1.2)),
 				point.add(direction.scale(1.8)), PowersParticles.RIBBON, 16 + tier * 2);
-		PowerFx.burst(level, point, ParticleTypes.FLAME, 20 + tier * 6, 0.48, 0.25);
-		PowerFx.burst(level, point, ParticleTypes.CLOUD, 8 + tier * 3, 0.36, 0.18);
+		PowerFx.clarityBurst(level, point, ParticleTypes.FLAME, 20 + tier * 6, 0.48, 0.25);
+		PowerFx.clarityBurst(level, point, ParticleTypes.CLOUD, 8 + tier * 3, 0.36, 0.18);
 		PowerFx.sound(level, point, SoundEvents.FIREWORK_ROCKET_SHOOT,
 				0.9F + tier * 0.12F, ancientMastery ? 0.72F : 0.88F);
 		PowerFx.sound(level, point, PowersSounds.INTERACTION_CLASH, 0.55F, 1.32F);
@@ -111,7 +111,7 @@ public final class FireballFx {
 		PowerFx.beam(level, from, to, PowersParticles.RIBBON, segments);
 		PowerFx.beam(level, from.add(0.0, 0.12, 0.0), to.add(0.0, 0.12, 0.0),
 				ParticleTypes.FLAME, Math.max(2, segments / 2));
-		PowerFx.burst(level, to, tier >= 3 ? PowersParticles.SPARK : ParticleTypes.SMOKE,
+		PowerFx.clarityBurst(level, to, tier >= 3 ? PowersParticles.SPARK : ParticleTypes.SMOKE,
 				2 + tier, 0.18 + tier * 0.035, 0.055);
 		if (afterimage && age % 4 == 0) {
 			PowerFx.ring(level, from, 0.34 + tier * 0.08, COAL, 8 + tier * 2, age * 0.4);
@@ -131,7 +131,7 @@ public final class FireballFx {
 				GOLD, 14 + reflection * 3, -reflection);
 		PowerFx.beam(level, point.subtract(direction.scale(0.9)),
 				point.add(direction.scale(1.2)), PowersParticles.FRACTURE, 12);
-		PowerFx.burst(level, point, ParticleTypes.ELECTRIC_SPARK,
+		PowerFx.clarityBurst(level, point, ParticleTypes.ELECTRIC_SPARK,
 				12 + reflection * 3, 0.42, 0.13);
 		PowerFx.sound(level, point, PowersSounds.INTERACTION_CLASH, 0.75F,
 				1.48F - Math.min(0.42F, reflection * 0.11F));
@@ -143,7 +143,7 @@ public final class FireballFx {
 		PowerFx.rune(level, point, 0.94, COAL, 20, reflections * Math.PI / 4.0);
 		PowerFx.ring(level, point.add(0.0, 0.12, 0.0), 0.62, EMBER,
 				16, -level.getGameTime() * 0.2);
-		PowerFx.burst(level, point, PowersParticles.FRACTURE, 18, 0.48, 0.10);
+		PowerFx.clarityBurst(level, point, PowersParticles.FRACTURE, 18, 0.48, 0.10);
 		PowerFx.sound(level, point, SoundEvents.BEACON_DEACTIVATE, 0.72F, 0.62F);
 	}
 
@@ -165,7 +165,7 @@ public final class FireballFx {
 				18 + tier * 3, level.getGameTime() * 0.15);
 		PowerFx.ring(level, point.add(0.0, 0.12, 0.0), 0.58 + tier * 0.08,
 				WHITE, 14 + tier * 2, -level.getGameTime() * 0.22);
-		PowerFx.burst(level, point,
+		PowerFx.clarityBurst(level, point,
 				decision == FireballRules.ImpactDecision.AMETHYST
 						? ParticleTypes.ELECTRIC_SPARK : PowersParticles.FRACTURE,
 				14 + tier * 2, 0.46, 0.09);
@@ -184,9 +184,9 @@ public final class FireballFx {
 				28 + tier * 4, level.getGameTime() * 0.16);
 		PowerFx.ring(level, point.add(0.0, 0.12, 0.0), Math.min(3.8, radius * 0.72),
 				WHITE, 22 + tier * 3, -level.getGameTime() * 0.22);
-		PowerFx.burst(level, point.add(0.0, 0.5, 0.0), ParticleTypes.CLOUD,
+		PowerFx.clarityBurst(level, point.add(0.0, 0.5, 0.0), ParticleTypes.CLOUD,
 				28 + tier * 8, Math.min(2.2, radius * 0.48), 0.16);
-		PowerFx.burst(level, point.add(0.0, 0.5, 0.0), ParticleTypes.GUST,
+		PowerFx.clarityBurst(level, point.add(0.0, 0.5, 0.0), ParticleTypes.GUST,
 				8 + tier * 2, Math.min(1.5, radius * 0.32), 0.13);
 		PowerFx.sound(level, point, SoundEvents.FIRE_EXTINGUISH, 1.15F, frost ? 0.72F : 0.88F);
 		PowerFx.sound(level, point, PowersSounds.INTERACTION_CLASH, 0.82F, 1.28F);
@@ -203,14 +203,14 @@ public final class FireballFx {
 				-level.getGameTime() * 0.24);
 		PowerFx.ring(level, point.add(0.0, 0.28, 0.0), outer * 0.42,
 				COAL, 20 + tier * 3, level.getGameTime() * 0.32);
-		PowerFx.burst(level, point.add(0.0, 0.6, 0.0), ParticleTypes.EXPLOSION,
+		PowerFx.clarityBurst(level, point.add(0.0, 0.6, 0.0), ParticleTypes.EXPLOSION,
 				2 + tier, 0.55 + tier * 0.12, 0.08);
-		PowerFx.burst(level, point.add(0.0, 0.7, 0.0), ParticleTypes.FLAME,
+		PowerFx.clarityBurst(level, point.add(0.0, 0.7, 0.0), ParticleTypes.FLAME,
 				26 + tier * 10, Math.min(2.4, radius * 0.48), 0.24);
-		PowerFx.burst(level, point.add(0.0, 0.7, 0.0), PowersParticles.FRACTURE,
+		PowerFx.clarityBurst(level, point.add(0.0, 0.7, 0.0), PowersParticles.FRACTURE,
 				18 + tier * 6, Math.min(2.0, radius * 0.42), 0.17);
 		if (ancientMastery) {
-			PowerFx.burst(level, point.add(0.0, 0.8, 0.0), PowersParticles.GLYPH,
+			PowerFx.clarityBurst(level, point.add(0.0, 0.8, 0.0), PowersParticles.GLYPH,
 					12 + Math.min(16, affectedTargets), 1.1, 0.10);
 		}
 		PowerFx.sound(level, point, SoundEvents.GENERIC_EXPLODE.value(),
@@ -233,9 +233,9 @@ public final class FireballFx {
 	public static void terrainScorch(ServerLevel level, Vec3 point, int index) {
 		PowerFx.ring(level, point.add(0.0, 0.04, 0.0), 0.28 + index * 0.018,
 				EMBER, 8, index * 0.48);
-		PowerFx.burst(level, point.add(0.0, 0.18, 0.0), ParticleTypes.FLAME,
+		PowerFx.clarityBurst(level, point.add(0.0, 0.18, 0.0), ParticleTypes.FLAME,
 				3, 0.12, 0.035);
-		PowerFx.burst(level, point.add(0.0, 0.14, 0.0), PowersParticles.SPARK,
+		PowerFx.clarityBurst(level, point.add(0.0, 0.14, 0.0), PowersParticles.SPARK,
 				2, 0.10, 0.025);
 	}
 
@@ -245,7 +245,7 @@ public final class FireballFx {
 		int color = amethyst ? 0xB36BFF : frozen ? 0xE8FFFF : expired ? COAL : 0x8A8F96;
 		PowerFx.rune(level, point, 0.72 + tier * 0.12, color,
 				16 + tier * 3, Math.PI);
-		PowerFx.burst(level, point, amethyst ? ParticleTypes.ELECTRIC_SPARK
+		PowerFx.clarityBurst(level, point, amethyst ? ParticleTypes.ELECTRIC_SPARK
 				: expired ? ParticleTypes.SMOKE : PowersParticles.FRACTURE,
 				12 + tier * 3, 0.42, 0.065);
 		PowerFx.sound(level, point, amethyst ? PowersSounds.AMETHYST_FRACTURE
@@ -256,8 +256,8 @@ public final class FireballFx {
 	/** Refuses a cast whose complete one-block orb volume has no valid spawn cell. */
 	public static void blocked(ServerLevel level, Vec3 point) {
 		PowerFx.rune(level, point, 0.68, COAL, 14, Math.PI);
-		PowerFx.burst(level, point, ParticleTypes.SMOKE, 12, 0.34, 0.04);
-		PowerFx.burst(level, point, PowersParticles.FRACTURE, 8, 0.28, 0.035);
+		PowerFx.clarityBurst(level, point, ParticleTypes.SMOKE, 12, 0.34, 0.04);
+		PowerFx.clarityBurst(level, point, PowersParticles.FRACTURE, 8, 0.28, 0.035);
 		PowerFx.sound(level, point, SoundEvents.BEACON_DEACTIVATE, 0.52F, 0.76F);
 	}
 }

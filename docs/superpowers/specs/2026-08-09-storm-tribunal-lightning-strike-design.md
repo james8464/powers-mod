@@ -6,7 +6,7 @@ Replace Lightning Strike's same-tick, zero-cooldown fan-out with a finite, serve
 
 ## Contract
 
-- One tribunal per caster opens an eight-tick cyan-gold storm compass over one exact loaded column. A sixty-tick base cooldown prevents energy-cheap invulnerability-frame spam. Recasting while active is refused without replacing state.
+- One tribunal per caster opens an eight-tick cyan-gold storm compass over one exact loaded column. There is no cooldown: energy payment and the one-active-tribunal invariant are the only cadence controls. Recasting while active is refused without replacing state.
 - The initial endpoint is finite, within the world border, loaded, and resolved against the column's outermost motion-blocking surface. A roof above the requested height catches the strike at its upper face instead of allowing damage through it. Every warning beat revalidates the live column before Wardcraft or any other effect, so newly created wards, amethyst, protection, or unloaded terrain immediately interrupt it.
 - Safe zones, tagged amethyst or powered wards, hostile Sanctuary/Kinetic Ward boundaries, and Darkness stop the column. Water conducts a wider but attenuated verdict; Pure Light amplifies it without mutating either realm force.
 - Impact bodies are radial, nearest-first, deterministic, and capped. Safe zones, body amethyst, Sanctuary, and personal forcefields resolve before damage. Vulnerable projection bodies still accept mirrored damage, while projection anchors and time locks prevent them from relaying secondary conduction. Failed damage never grants secondary effects or creates a chain source.

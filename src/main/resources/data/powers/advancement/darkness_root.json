@@ -9,7 +9,7 @@
   "description": {
    "translate": "advancement.powers.darkness.root.description"
   },
-  "background": "powers:textures/gui/advancements/shadow_path.png",
+  "background": "powers:gui/advancements/backgrounds/shadow_path",
   "frame": "task",
   "show_toast": true,
   "announce_to_chat": false,

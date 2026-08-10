@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersEffects;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
@@ -20,7 +21,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
@@ -108,9 +108,9 @@ public class EnergyDrainAbility extends Ability {
 				// full drain landed, hit the target with exhaustion
 				PlayerPowers.get(target).emptyEnergy();
 				PowersPackets.syncTo(target);
-				target.addEffect(new MobEffectInstance(PowersEffects.EXHAUSTION, ritual.exhaustionTicks(), 0,
-						false, false, true));
-				PowerMessages.send(caster, "ability.powers.energy_drained", 3,
+				target.addEffect(PowerStatusEffects.hidden(PowersEffects.EXHAUSTION,
+						ritual.exhaustionTicks(), 0, false, true));
+				PowerMessages.sendImportant(caster, "ability.powers.energy_drained", 3,
 						target.getName().getString());
 				it.remove();
 				continue;

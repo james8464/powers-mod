@@ -1,5 +1,6 @@
 package com.powers.power.crystals;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
@@ -9,13 +10,13 @@ import com.powers.power.AmethystDampening;
 import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelKind;
 import com.powers.protection.PowerProtection;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.portal.TeleportTransition;
@@ -38,7 +39,7 @@ public class PortalRiftAbility extends Ability {
 	public PortalRiftAbility() {
 		super(PowersMod.id("portal_rift"),
 				Component.translatable("ability.powers.portal_rift"),
-				COOLDOWN_TICKS, false);
+				COOLDOWN_TICKS, false, false);
 	}
 
 	@Override
@@ -47,13 +48,14 @@ public class PortalRiftAbility extends Ability {
 		double range = scaledRange(player, RANGE);
 		float damage = scaledPotency(player, 12.0f);
 		// lock onto up to six live enemies within 32 blocks, dampening-protected ones aside
-		List<LivingEntity> targets = level.getEntitiesOfClass(LivingEntity.class,
+		List<LivingEntity> targets = BoundedEntityCandidates.living(level,
 				AABB.ofSize(player.position().add(0, 1, 0), range * 2, range * 2, range * 2),
+				128,
 				e -> e.isAlive() && e != player && !player.isAlliedTo(e)
 						&& e.distanceToSqr(player) <= range * range
 						&& !AmethystDampening.isDampened(e)
-						&& PowerProtection.mayHarm(player, e));
-		targets.sort(Comparator.comparingDouble(player::distanceToSqr));
+						&& PowerProtection.mayHarm(player, e),
+				Comparator.comparingDouble(player::distanceToSqr));
 		if (targets.size() > MAX_STRIKES) {
 			targets = targets.subList(0, MAX_STRIKES);
 		}
@@ -64,7 +66,8 @@ public class PortalRiftAbility extends Ability {
 		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x651FFF, 24, 1.2);
 		PowerFx.sound(level, player.position(), SoundEvents.ENDERMAN_TELEPORT, 1.0f, 0.7f);
 		// 12 ticks of resistance per strike lined up, so the chain doesn't leave you exposed
-		player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, targets.size() * 12, 0, true, false));
+		player.addEffect(PowerStatusEffects.hidden(MobEffects.RESISTANCE,
+				targets.size() * 12, 0, true, true));
 
 		MinecraftServer server = level.getServer();
 		for (int i = 0; i < targets.size(); i++) {

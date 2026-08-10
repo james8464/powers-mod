@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -54,8 +55,8 @@ public class ShadowStepAbility extends Ability {
 		com.powers.fx.PowerFx.burst(level, dest, net.minecraft.core.particles.ParticleTypes.PORTAL, 10, 0.5, 0.1);
 		com.powers.fx.PowerFx.sound(level, dest, net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT, 1.0f, 1.0f);
 		if (scaling(player).unlockedVariants().contains("second_step")) {
-			player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
-					net.minecraft.world.effect.MobEffects.SPEED, 30, 1, false, false));
+			player.addEffect(PowerStatusEffects.hidden(
+					net.minecraft.world.effect.MobEffects.SPEED, 30, 1, false, true));
 			com.powers.fx.PowerFx.rune(level, from, 1.0, 0x55265F, 18, 0.0);
 			com.powers.fx.PowerFx.rune(level, dest, 1.0, 0xD7F8FF, 18, Math.PI);
 		}

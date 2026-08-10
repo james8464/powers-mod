@@ -1,15 +1,16 @@
 package com.powers.spell;
 
+import com.powers.PowerStatusEffects;
 import com.powers.fx.PowerFx;
 import com.powers.power.abilities.VoidBeamRules;
 import com.powers.power.state.PowerEntityState;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -25,6 +26,7 @@ import java.util.UUID;
 
 /** Temporary, visible counterplay zones created by ritual spells. */
 public final class SpellFieldManager {
+	private static final int MAX_FIELDS = 256;
 	private static final List<Field> FIELDS = new ArrayList<>();
 
 	/** First hostile ward surface touched by a finite harmful ray. */
@@ -45,12 +47,19 @@ public final class SpellFieldManager {
 
 	public static void add(SpellFieldKind kind, ServerPlayer owner, int durationTicks,
 			double radius, int potencyTier) {
+		// A recast replaces the owner's earlier copy instead of accumulating
+		// overlapping fields; the global cap protects large servers and old saves.
+		FIELDS.removeIf(field -> field.owner().equals(owner.getUUID()) && field.kind() == kind);
+		if (FIELDS.size() >= MAX_FIELDS) FIELDS.removeFirst();
 		FIELDS.add(new Field(kind, owner.level().dimension(), owner.position(), owner.getUUID(),
 				owner.level().getGameTime() + durationTicks, radius, potencyTier));
 	}
 
 	public static boolean blocksTravel(ServerPlayer subject, ServerLevel destinationLevel, Vec3 destination) {
 		for (Field field : FIELDS) {
+			long gameTime = field.dimension().equals(destinationLevel.dimension())
+					? destinationLevel.getGameTime() : subject.level().getGameTime();
+			if (field.expiresAt() <= gameTime) continue;
 			if (field.owner().equals(subject.getUUID())) continue;
 			if (field.kind() != SpellFieldKind.ANTI_PORTAL && field.kind() != SpellFieldKind.INFERNAL_SEAL) continue;
 			if (field.dimension().equals(subject.level().dimension())
@@ -63,7 +72,8 @@ public final class SpellFieldManager {
 
 	public static boolean isSanctuaryProtected(ServerLevel level, LivingEntity entity) {
 		for (Field field : FIELDS) {
-			if (field.kind() == SpellFieldKind.SANCTUARY && field.dimension().equals(level.dimension())
+			if (field.expiresAt() > level.getGameTime()
+					&& field.kind() == SpellFieldKind.SANCTUARY && field.dimension().equals(level.dimension())
 					&& within(field, entity.position())) return true;
 		}
 		return false;
@@ -116,7 +126,8 @@ public final class SpellFieldManager {
 		Field nearest = null;
 		double distance = range * range;
 		for (Field field : FIELDS) {
-			if (!field.dimension().equals(caster.level().dimension())) continue;
+			if (field.expiresAt() <= caster.level().getGameTime()
+					|| !field.dimension().equals(caster.level().dimension())) continue;
 			double candidate = field.center().distanceToSqr(caster.position());
 			if (candidate <= distance) {
 				distance = candidate;
@@ -160,7 +171,8 @@ public final class SpellFieldManager {
 	private static void applyField(ServerLevel level, Field field) {
 		AABB area = AABB.ofSize(field.center(), field.radius() * 2, 5, field.radius() * 2);
 		if (field.kind() == SpellFieldKind.KINETIC_WARD) {
-			for (Projectile projectile : level.getEntitiesOfClass(Projectile.class, area, Projectile::isAlive)) {
+			for (Projectile projectile : BoundedEntityCandidates.ofClass(level, Projectile.class,
+					area, 128, Projectile::isAlive)) {
 				if (projectile.getOwner() != null && projectile.getOwner().getUUID().equals(field.owner())) continue;
 				// One projectile may cross several ticks of the ring, but may only
 				// reverse once; this prevents jitter and reflection ping-pong.
@@ -171,20 +183,21 @@ public final class SpellFieldManager {
 				PowerFx.burst(level, projectile.position(), ParticleTypes.ELECTRIC_SPARK, 2, 0.1, 0.03);
 			}
 		}
-		for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, area, LivingEntity::isAlive)) {
+		for (LivingEntity entity : BoundedEntityCandidates.living(level, area, 128,
+				LivingEntity::isAlive)) {
 			if (!within(field, entity.position())) continue;
 			switch (field.kind()) {
 				case SANCTUARY -> {
 					entity.clearFire();
-					entity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 30,
-							Math.min(2, field.potencyTier()), true, false));
+					entity.addEffect(PowerStatusEffects.hidden(MobEffects.REGENERATION, 30,
+							Math.min(2, field.potencyTier()), true, true));
 				}
-				case KINETIC_WARD -> entity.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 30,
-						Math.min(1, field.potencyTier()), true, false));
+				case KINETIC_WARD -> entity.addEffect(PowerStatusEffects.hidden(MobEffects.RESISTANCE, 30,
+						Math.min(1, field.potencyTier()), true, true));
 				case INFERNAL_SEAL -> {
 					if (!entity.getUUID().equals(field.owner())) {
-						entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 30,
-								Math.min(3, 1 + field.potencyTier()), true, false));
+						entity.addEffect(PowerStatusEffects.hidden(MobEffects.WEAKNESS, 30,
+								Math.min(3, 1 + field.potencyTier()), true, true));
 					}
 				}
 				case ANTI_PORTAL -> { }

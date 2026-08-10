@@ -26,6 +26,7 @@ class LivingForceRulesTest {
 		assertTrue(LivingForceRules.opposes(PURE_LIGHT, DARKNESS));
 		assertFalse(LivingForceRules.opposes(DARKNESS, DARKNESS));
 		assertFalse(LivingForceRules.opposes(PURE_LIGHT, PURE_LIGHT));
+		assertEquals(256, LivingForceRules.clashEntityInspectionLimit());
 	}
 
 	@Test

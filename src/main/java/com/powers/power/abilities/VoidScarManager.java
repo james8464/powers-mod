@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.fx.PowerFx;
 import com.powers.magic.MagicActionId;
 import com.powers.magic.runtime.MagicPresence;
@@ -11,12 +12,12 @@ import com.powers.power.PowerDamage;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.LoadedChunks;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -103,7 +104,7 @@ final class VoidScarManager {
 		AABB bounds = AABB.ofSize(scar.center(), scar.radius() * 2.0,
 				scar.radius() * 2.0, scar.radius() * 2.0);
 		List<VoidBeamRules.RayCandidate<LivingEntity>> candidates = new ArrayList<>();
-		for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, bounds,
+		for (LivingEntity target : BoundedEntityCandidates.living(level, bounds, 128,
 				LivingEntity::isAlive)) {
 			if (target == owner) continue;
 			candidates.add(new VoidBeamRules.RayCandidate<>(target,
@@ -116,8 +117,8 @@ final class VoidScarManager {
 					|| !PowerProtection.mayHarm(owner, target)
 					|| SpellFieldManager.isSanctuaryProtected(level, target)) continue;
 			if (target.hurtServer(level, PowerDamage.source(owner), scar.pulseDamage())) {
-				target.addEffect(new MobEffectInstance(MobEffects.WITHER, scar.witherTicks(),
-						scar.witherAmplifier(), true, false, true));
+				target.addEffect(PowerStatusEffects.hidden(MobEffects.WITHER, scar.witherTicks(),
+						scar.witherAmplifier(), true, true));
 			}
 		}
 	}

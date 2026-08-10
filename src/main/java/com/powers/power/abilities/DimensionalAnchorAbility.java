@@ -80,8 +80,8 @@ public class DimensionalAnchorAbility extends Ability {
 				ParticleTypes.END_ROD, 12, 0.75, 0.05);
 		PowerFx.sound(targetLevel, targetSP.position(), SoundEvents.BEACON_ACTIVATE, 0.8f, 1.1f);
 
-		PowerMessages.send(targetSP, "ability.powers.anchored", 3, dimName);
-		PowerMessages.send(player, "ability.powers.anchor_applied", 3,
+		PowerMessages.sendImportant(targetSP, "ability.powers.anchored", 3, dimName);
+		PowerMessages.sendImportant(player, "ability.powers.anchor_applied", 3,
 				targetSP.getName().getString(), dimName);
 
 		return true;

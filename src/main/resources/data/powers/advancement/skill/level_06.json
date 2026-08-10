@@ -16,39 +16,8 @@
 		"hidden": false
 	},
 	"criteria": {
-		"zombie": {
-			"trigger": "minecraft:player_killed_entity",
-			"conditions": {
-				"entity": [
-					{
-						"condition": "minecraft:entity_properties",
-						"entity": "this",
-						"predicate": {
-							"minecraft:entity_type": "minecraft:zombie"
-						}
-					}
-				]
-			}
-		},
-		"skeleton": {
-			"trigger": "minecraft:player_killed_entity",
-			"conditions": {
-				"entity": [
-					{
-						"condition": "minecraft:entity_properties",
-						"entity": "this",
-						"predicate": {
-							"minecraft:entity_type": "minecraft:skeleton"
-						}
-					}
-				]
-			}
-		},
-		"nether": {
-			"trigger": "minecraft:location",
-			"conditions": {
-				"dimension": "minecraft:the_nether"
-			}
+		"mastery": {
+			"trigger": "minecraft:impossible"
 		}
 	}
 }

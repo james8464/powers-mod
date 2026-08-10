@@ -1,5 +1,6 @@
 package com.powers.power.abilities;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.BreezyBashFx;
 import com.powers.mind.BodyProxyManager;
@@ -12,12 +13,12 @@ import com.powers.power.state.MagicShieldManager;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.PowerMessages;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -144,7 +145,8 @@ public final class BreezyBashAbility extends Ability {
 			ServerPlayer owner, TempestRite rite) {
 		AABB bounds = AABB.ofSize(rite.center, rite.radius * 2.0,
 				rite.radius * 2.0, rite.radius * 2.0);
-		List<LivingEntity> candidates = level.getEntitiesOfClass(LivingEntity.class, bounds,
+		List<LivingEntity> candidates = BoundedEntityCandidates.living(level, bounds,
+				MAX_SCAN_CANDIDATES,
 				entity -> entity.isAlive() && entity != owner && !entity.isSpectator()
 						&& !entity.isPassenger()
 						&& entity.position().distanceToSqr(rite.center) <= rite.radius * rite.radius);
@@ -254,7 +256,8 @@ public final class BreezyBashAbility extends Ability {
 		if (limit <= 0 || rite.curvedProjectiles.size() >= limit) return;
 		AABB bounds = AABB.ofSize(rite.center, rite.radius * 2.0,
 				rite.radius * 2.0, rite.radius * 2.0);
-		List<Projectile> projectiles = level.getEntitiesOfClass(Projectile.class, bounds,
+		List<Projectile> projectiles = BoundedEntityCandidates.ofClass(level, Projectile.class,
+				bounds, 128,
 				projectile -> projectile.isAlive()
 						&& !rite.curvedProjectiles.contains(projectile.getUUID())
 						&& (projectile.getOwner() == null
@@ -337,8 +340,8 @@ public final class BreezyBashAbility extends Ability {
 
 	private static void safeRelease(LivingEntity target) {
 		target.fallDistance = 0.0F;
-		target.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,
-				60, 0, true, false, true));
+		target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOW_FALLING,
+				60, 0, true, true));
 		if (target.level() instanceof ServerLevel level) {
 			BreezyBashFx.released(level, bodyCenter(target));
 		}
