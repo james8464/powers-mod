@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.powers.player.PlayerPowers;
+import com.powers.PowersEntities;
 import com.powers.player.SkillSystem;
 import com.powers.config.PowersConfigLoader;
 import com.powers.mind.BodyProxyManager;
@@ -97,10 +98,30 @@ public final class PowerCommand {
 								.executes(PowerCommand::darkPrefixShow))
 						.then(Commands.literal("false")
 								.executes(PowerCommand::darkPrefixHide)))
+				.then(Commands.literal("boss")
+						.requires(PowerCommand::isAdmin)
+						.then(Commands.literal("spawn")
+								.executes(PowerCommand::spawnFirstVessel)))
 				.then(Commands.literal("travel")
 						.requires(source -> source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER))
 						.then(Commands.argument("dimension", StringArgumentType.word())
 								.executes(PowerCommand::travel))));
+	}
+
+	private static int spawnFirstVessel(CommandContext<CommandSourceStack> context) {
+		CommandSourceStack source = context.getSource();
+		var boss = PowersEntities.FIRST_VESSEL.create(source.getLevel(),
+				net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+		if (boss == null) {
+			source.sendFailure(Component.literal("The First Vessel could not manifest."));
+			return 0;
+		}
+		var position = source.getPosition();
+		boss.setPos(position.x, position.y, position.z);
+		source.getLevel().addFreshEntity(boss);
+		source.sendSuccess(() -> Component.literal("The First Vessel has awakened.")
+				.withStyle(ChatFormatting.DARK_PURPLE), true);
+		return 1;
 	}
 
 	private static int returnToBody(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {

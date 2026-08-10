@@ -24,6 +24,10 @@ public final class PowersCreativeTab {
 						output.accept(PowersItems.LIGHT_CRYSTAL);
 						output.accept(PowersItems.DARK_CRYSTAL);
 						output.accept(PowersItems.INFECTED_RAINBOW_CRYSTAL);
+						output.accept(PowersItems.DARKNESS_CREATURE_SPAWN_EGG);
+						output.accept(PowersItems.POWER_TEST_ACTOR_SPAWN_EGG);
+						output.accept(PowersItems.RADIANT_SENTINEL_SPAWN_EGG);
+						output.accept(PowersItems.FIRST_VESSEL_SPAWN_EGG);
 						output.accept(PowersBlocks.DARKNESS);
 						output.accept(PowersBlocks.PURE_LIGHT);
 						output.accept(PowersBlocks.AMETHYST_WARD);

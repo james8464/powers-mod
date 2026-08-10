@@ -11,6 +11,9 @@ import com.powers.forge.CrucibleTransactionResult;
 import com.powers.forge.CrucibleWeaponData;
 import com.powers.entity.DarknessCreature;
 import com.powers.entity.RadiantSentinel;
+import com.powers.entity.FirstVessel;
+import com.powers.boss.FirstVesselPowerCatalogue;
+import com.powers.boss.FirstVesselRitual;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.player.SkillSystem;
 import com.powers.power.artifact.ArtifactDeathWardManager;
@@ -170,6 +173,48 @@ public final class PowersGameTests {
 			helper.assertItemEntityPresent(Items.IRON_SWORD, pos, 4.0);
 			helper.succeed();
 		});
+	}
+
+	@GameTest
+	public void firstVesselSpawnsAsPersistentCompletePowerBoss(GameTestHelper helper) {
+		FirstVessel boss = helper.spawn(PowersEntities.FIRST_VESSEL, new BlockPos(2, 1, 2));
+		Player target = helper.makeMockPlayer(GameType.SURVIVAL);
+		helper.assertTrue(boss.isPersistenceRequired(), "First Vessel was allowed to despawn");
+		helper.assertTrue(boss.effectiveMaximumHealth() == 5_000.0F,
+				"First Vessel effective health was not 5000");
+		float vitality = boss.effectiveHealth();
+		helper.assertTrue(boss.hurtServer(helper.getLevel(), boss.damageSources().generic(), 100.0F),
+				"First Vessel rejected ordinary damage");
+		helper.assertTrue(boss.effectiveHealth() < vitality && boss.isAlive(),
+				"First Vessel vitality layer did not absorb damage");
+		helper.assertTrue(FirstVesselPowerCatalogue.actions().size() == 28,
+				"First Vessel did not adapt every innate power");
+		helper.assertTrue(boss.canAttack(target), "First Vessel could not target a survival player");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void completedFirstVesselAltarConsumesAnchorsAndSpawnsBoss(GameTestHelper helper) {
+		BlockPos altar = new BlockPos(5, 1, 5);
+		helper.setBlock(altar, PowersBlocks.ARCANE_CRUCIBLE);
+		for (BlockPos offset : java.util.List.of(new BlockPos(3, 0, 0), new BlockPos(-3, 0, 0),
+				new BlockPos(0, 0, 3), new BlockPos(0, 0, -3))) {
+			helper.setBlock(altar.offset(offset), PowersBlocks.DARKNESS);
+		}
+		for (BlockPos offset : java.util.List.of(new BlockPos(2, 0, 2), new BlockPos(-2, 0, 2),
+				new BlockPos(2, 0, -2), new BlockPos(-2, 0, -2))) {
+			helper.setBlock(altar.offset(offset), PowersBlocks.PURE_LIGHT);
+		}
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		player.addTag(SkillSystem.DARKNESS_TAG);
+		com.powers.player.PlayerPowers.get(player).setDarknessLevel(player, 10);
+		helper.assertTrue(FirstVesselRitual.invoke(player, helper.absolutePos(altar)),
+				"Completed First Vessel ritual was rejected");
+		helper.assertEntityPresent(PowersEntities.FIRST_VESSEL, altar.above(), 3.0);
+		helper.assertBlockPresent(net.minecraft.world.level.block.Blocks.AIR,
+				altar.offset(3, 0, 0));
+		helper.succeed();
 	}
 
 }
