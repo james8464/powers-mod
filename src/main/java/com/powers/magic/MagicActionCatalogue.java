@@ -154,6 +154,50 @@ public final class MagicActionCatalogue {
 				MagicAspect.DARKNESS, MagicAspect.SOUL, MagicAspect.VOID);
 		add(actions, "nightfall_dominion", MagicOrigin.ARTIFACT, MagicDelivery.AURA, MagicIntent.DEFENCE,
 				MagicAspect.DARKNESS, MagicAspect.SOUL, MagicAspect.PROTECTION);
+		add(actions, "call_hollowed", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.SUPPORT,
+				MagicAspect.DARKNESS, MagicAspect.CREATION);
+		add(actions, "blight_ground", MagicOrigin.ARTIFACT, MagicDelivery.FIELD,
+				MagicIntent.WORLD_INTERACTION, MagicAspect.DARKNESS, MagicAspect.CREATION);
+		add(actions, "umbral_step", MagicOrigin.ARTIFACT, MagicDelivery.TRAVEL, MagicIntent.MOVEMENT,
+				MagicAspect.DARKNESS, MagicAspect.MOTION);
+		add(actions, "night_chain", MagicOrigin.ARTIFACT, MagicDelivery.CHANNEL, MagicIntent.CONTROL,
+				MagicAspect.DARKNESS, MagicAspect.FORCE);
+		add(actions, "eclipse_wave", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.HARM,
+				MagicAspect.DARKNESS, MagicAspect.VOID, MagicAspect.FORCE);
+		add(actions, "abyss_gate", MagicOrigin.ARTIFACT, MagicDelivery.TRAVEL, MagicIntent.MOVEMENT,
+				MagicAspect.DARKNESS, MagicAspect.SPACE);
+		add(actions, "devour_light", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.CONTROL,
+				MagicAspect.DARKNESS, MagicAspect.SUPPRESSION);
+		add(actions, "black_decree", MagicOrigin.ARTIFACT, MagicDelivery.CHANNEL, MagicIntent.HARM,
+				MagicAspect.DARKNESS, MagicAspect.SOUL);
+		add(actions, "event_horizon", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.CONTROL,
+				MagicAspect.DARKNESS, MagicAspect.GRAVITY, MagicAspect.VOID);
+		add(actions, "deathless_night", MagicOrigin.ARTIFACT, MagicDelivery.AURA, MagicIntent.DEFENCE,
+				MagicAspect.DARKNESS, MagicAspect.SOUL, MagicAspect.PROTECTION);
+		add(actions, "legion_eclipse", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.SUPPORT,
+				MagicAspect.DARKNESS, MagicAspect.CREATION, MagicAspect.SOUL);
+		add(actions, "call_radiant", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.SUPPORT,
+				MagicAspect.LIGHT, MagicAspect.CREATION);
+		add(actions, "consecrate_ground", MagicOrigin.ARTIFACT, MagicDelivery.FIELD,
+				MagicIntent.WORLD_INTERACTION, MagicAspect.LIGHT, MagicAspect.CREATION);
+		add(actions, "dawnstride", MagicOrigin.ARTIFACT, MagicDelivery.TRAVEL, MagicIntent.MOVEMENT,
+				MagicAspect.LIGHT, MagicAspect.MOTION);
+		add(actions, "covenant_chain", MagicOrigin.ARTIFACT, MagicDelivery.CHANNEL, MagicIntent.SUPPORT,
+				MagicAspect.LIGHT, MagicAspect.LIFE, MagicAspect.PROTECTION);
+		add(actions, "daybreak_wave", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.SUPPORT,
+				MagicAspect.LIGHT, MagicAspect.LIFE, MagicAspect.FORCE);
+		add(actions, "heaven_gate", MagicOrigin.ARTIFACT, MagicDelivery.TRAVEL, MagicIntent.MOVEMENT,
+				MagicAspect.LIGHT, MagicAspect.SPACE);
+		add(actions, "banish_darkness", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.CONTROL,
+				MagicAspect.LIGHT, MagicAspect.SUPPRESSION);
+		add(actions, "divine_decree", MagicOrigin.ARTIFACT, MagicDelivery.CHANNEL, MagicIntent.HARM,
+				MagicAspect.LIGHT, MagicAspect.SOUL);
+		add(actions, "solar_firmament", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.DEFENCE,
+				MagicAspect.LIGHT, MagicAspect.FORCE, MagicAspect.PROTECTION);
+		add(actions, "second_dawn", MagicOrigin.ARTIFACT, MagicDelivery.AURA, MagicIntent.DEFENCE,
+				MagicAspect.LIGHT, MagicAspect.LIFE, MagicAspect.PROTECTION);
+		add(actions, "host_heaven", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.SUPPORT,
+				MagicAspect.LIGHT, MagicAspect.CREATION, MagicAspect.SOUL);
 
 		// Grimoire spells: identifiers match SpellRegistry selections and cooldowns.
 		add(actions, "soul_compass", MagicOrigin.SPELL, MagicDelivery.INSTANT, MagicIntent.INFORMATION,
@@ -253,15 +297,19 @@ public final class MagicActionCatalogue {
 		assign(values, MagicSignificance.NONE,
 				"amethyst_item", "amethyst_block", "amethyst_ward",
 				"darkness_block", "pure_light_block");
-		assign(values, MagicSignificance.MINIMAL, "fireball", "lightning_strike");
+		assign(values, MagicSignificance.MINIMAL,
+				"fireball", "lightning_strike", "umbral_step", "dawnstride");
 		assign(values, MagicSignificance.COSMIC,
-				"time_freeze", "chrono_stop", "celestial_ruin", "nightfall_dominion");
+				"time_freeze", "chrono_stop", "celestial_ruin", "nightfall_dominion",
+				"event_horizon", "solar_firmament", "legion_eclipse", "host_heaven");
 		assign(values, MagicSignificance.RITUAL,
 				"soul_compass", "tracking_mark", "weather_sigil", "dimensional_anchor",
 				"binding_sigil", "anti_portal_field", "kinetic_ward", "vitality_transfer",
 				"hex", "concealment_veil", "purification_circle", "root_binding",
 				"sanctuary_growth", "infernal_seal", "banishment_circle", "controlled_hellfire",
-				"ward_breaking_ritual", "counterspell", "dispel", "ritual_amplification");
+				"ward_breaking_ritual", "counterspell", "dispel", "ritual_amplification",
+				"eclipse_wave", "abyss_gate", "devour_light", "black_decree", "deathless_night",
+				"daybreak_wave", "heaven_gate", "banish_darkness", "divine_decree", "second_dawn");
 		assign(values, MagicSignificance.STANDARD,
 				"time_shift", "shadow_step", "flight", "elemental_blast", "starfall", "void_beam",
 				"frost_nova", "ground_slam", "thunderclap", "speed_burst", "telekinesis",
@@ -271,7 +319,9 @@ public final class MagicActionCatalogue {
 				"inferno", "clone_swarm", "creativity_manifestation", "size_shift", "life_bloom",
 				"space_time", "dreamwalking", "portal_rift", "middleworld", "soul_link",
 				"light_crystal", "dark_crystal", "summon_darkness", "spread_darkness",
-				"abyssal_singularity", "oblivion_pulse", "annihilation_beam", "soul_requiem");
+				"abyssal_singularity", "oblivion_pulse", "annihilation_beam", "soul_requiem",
+				"call_hollowed", "blight_ground", "night_chain",
+				"call_radiant", "consecrate_ground", "covenant_chain");
 		return Map.copyOf(values);
 	}
 

@@ -1,6 +1,9 @@
 package com.powers.client.screen;
 
-import com.powers.item.ShadowSwordCatalogue;
+import com.powers.item.artifact.ArtifactActionCatalogue;
+import com.powers.item.artifact.ArtifactActionCategory;
+import com.powers.item.artifact.ArtifactActionDefinition;
+import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.network.ShadowSwordPackets;
 import com.powers.power.abilities.ElementalPhase;
 import com.powers.power.abilities.SizeMorphRules;
@@ -18,20 +21,24 @@ import java.util.stream.IntStream;
 
 /** Vanilla-styled selector for the sword's large, rank-gated action catalogue. */
 public final class ShadowSwordScreen extends Screen {
+	private final ArtifactAlignment alignment;
 	private final String initialKey;
-	private final int darknessLevel;
+	private final int rank;
 	private int elementalPhase;
 	private int sizeMorphOption;
-	private final List<ShadowSwordCatalogue.Definition> actions = ShadowSwordCatalogue.definitions();
-	private ShadowSwordCatalogue.Definition selected;
-	private CycleButton<ShadowSwordCatalogue.Definition> actionButton;
+	private final List<ArtifactActionDefinition> actions;
+	private ArtifactActionDefinition selected;
+	private CycleButton<ArtifactActionDefinition> actionButton;
 	private CycleButton<Integer> elementalButton;
 	private CycleButton<Integer> sizeButton;
 
-	public ShadowSwordScreen(String initialKey, int darknessLevel, int elementalPhase, int sizeMorphOption) {
-		super(Component.translatable("screen.powers.shadow_sword"));
+	public ShadowSwordScreen(String alignment, String initialKey, int rank,
+			int elementalPhase, int sizeMorphOption) {
+		super(Component.translatable("screen.powers.artifact." + alignment));
+		this.alignment = ArtifactAlignment.fromSerialized(alignment);
 		this.initialKey = initialKey;
-		this.darknessLevel = darknessLevel;
+		this.rank = rank;
+		this.actions = ArtifactActionCatalogue.forAlignment(this.alignment);
 		this.elementalPhase = ElementalPhase.fromIndex(elementalPhase).index();
 		this.sizeMorphOption = SizeMorphRules.isValidOption(sizeMorphOption)
 				? sizeMorphOption : SizeMorphRules.normalOption();
@@ -41,7 +48,7 @@ public final class ShadowSwordScreen extends Screen {
 	protected void init() {
 		selected = actions.stream().filter(action -> action.key().equals(initialKey))
 				.findFirst().orElse(actions.getFirst());
-		actionButton = addRenderableWidget(CycleButton.<ShadowSwordCatalogue.Definition>builder(
+		actionButton = addRenderableWidget(CycleButton.<ArtifactActionDefinition>builder(
 				this::label, () -> selected).withValues(actions).displayOnlyValue()
 				.create(width / 2 - 130, height / 2 - 20, 260, 20,
 						Component.translatable("screen.powers.shadow_sword.power"),
@@ -78,36 +85,38 @@ public final class ShadowSwordScreen extends Screen {
 		sizeButton.active = sizeButton.visible;
 	}
 
-	private Component label(ShadowSwordCatalogue.Definition action) {
-		String key = action.source() == ShadowSwordCatalogue.Source.INNATE
+	private Component label(ArtifactActionDefinition action) {
+		String key = action.category() == ArtifactActionCategory.ROUTED_POWER
 				? "power.powers." + action.abilityId() : "ability.powers." + action.abilityId();
 		Component name = Component.translatableWithFallback(key, humanize(action.abilityId()));
-		if (darknessLevel < action.requiredDarknessRank()) {
+		if (rank < action.requiredRank()) {
 			return Component.translatable("screen.powers.shadow_sword.locked_label",
-					action.requiredDarknessRank(), name).withStyle(ChatFormatting.DARK_GRAY);
+					action.requiredRank(), name).withStyle(ChatFormatting.DARK_GRAY);
 		}
-		return name.copy().withStyle(action.source() == ShadowSwordCatalogue.Source.DARKNESS
-				? ChatFormatting.DARK_PURPLE : ChatFormatting.GRAY);
+		return name.copy().withStyle(action.category() == ArtifactActionCategory.DOMINION
+				? alignment == ArtifactAlignment.DARKNESS ? ChatFormatting.DARK_PURPLE : ChatFormatting.GOLD
+				: ChatFormatting.GRAY);
 	}
 
 	private void updateTooltip() {
 		if (actionButton == null || selected == null) return;
 		actionButton.setTooltip(Tooltip.create(Component.translatable(
-				"screen.powers.shadow_sword.tooltip", sourceName(selected.source()),
-				selected.requiredDarknessRank())));
+				"screen.powers.artifact.tooltip", sourceName(selected.category()),
+				selected.energyCost(), selected.requiredRank(), selected.baseCooldownTicks() / 20.0)));
 	}
 
 	private void choose() {
-		if (selected != null && darknessLevel >= selected.requiredDarknessRank()) {
+		if (selected != null && rank >= selected.requiredRank()) {
 			int option = selected.abilityId().equals("elemental_blast") ? elementalPhase
 					: selected.abilityId().equals("size_shift") ? sizeMorphOption : -1;
-			ClientPlayNetworking.send(new ShadowSwordPackets.SelectPayload(selected.key(), option));
+			ClientPlayNetworking.send(new ShadowSwordPackets.SelectPayload(
+					alignment.serializedName(), selected.key(), option));
 			onClose();
 		}
 	}
 
-	private static Component sourceName(ShadowSwordCatalogue.Source source) {
-		return Component.translatable("screen.powers.shadow_sword.source."
+	private static Component sourceName(ArtifactActionCategory source) {
+		return Component.translatable("screen.powers.artifact.source."
 				+ source.name().toLowerCase(java.util.Locale.ROOT));
 	}
 
@@ -124,8 +133,9 @@ public final class ShadowSwordScreen extends Screen {
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		super.extractRenderState(graphics, mouseX, mouseY, delta);
-		graphics.centeredText(font, title, width / 2, height / 2 - 58, 0xFF4A3B50);
-		graphics.centeredText(font, Component.translatable("screen.powers.shadow_sword.rank", darknessLevel),
-				width / 2, height / 2 - 43, 0xFF777777);
+		graphics.centeredText(font, title, width / 2, height / 2 - 58,
+				alignment == ArtifactAlignment.DARKNESS ? 0xFF4A3B50 : 0xFFFFD76A);
+		graphics.centeredText(font, Component.translatable("screen.powers.artifact.rank", rank),
+				width / 2, height / 2 - 43, 0xFF999999);
 	}
 }

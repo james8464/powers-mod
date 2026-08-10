@@ -25,7 +25,8 @@ class MagicInteractionResolverTest {
 		var pairs = resolver.allPairs();
 		Set<ActionPair> unique = new HashSet<>();
 
-		assertEquals(2_701, pairs.size());
+		int actions = catalogue.definitions().size();
+		assertEquals(actions * (actions + 1) / 2, pairs.size());
 		for (ResolvedPair pair : pairs) {
 			assertTrue(unique.add(pair.pair()), pair.pair().toString());
 			assertNotNull(pair.resolution().outcome(), pair.pair().toString());

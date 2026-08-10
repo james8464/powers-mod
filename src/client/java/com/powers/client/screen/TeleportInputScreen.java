@@ -35,7 +35,7 @@ public final class TeleportInputScreen extends Screen {
 			"powers:dark_realm", "powers:light_realm", "powers:middleworld");
 
 	private final int slot;
-	private final boolean shadowSword;
+	private final String artifactAlignment;
 	private List<DimEntry> available = List.of();
 	private EditBox xField;
 	private EditBox yField;
@@ -47,17 +47,21 @@ public final class TeleportInputScreen extends Screen {
 	private Component error;
 
 	public TeleportInputScreen(int slot) {
-		this(slot, false);
+		this(slot, null);
 	}
 
-	private TeleportInputScreen(int slot, boolean shadowSword) {
+	private TeleportInputScreen(int slot, String artifactAlignment) {
 		super(Component.translatable("screen.powers.teleport"));
 		this.slot = slot;
-		this.shadowSword = shadowSword;
+		this.artifactAlignment = artifactAlignment;
 	}
 
 	public static TeleportInputScreen shadowSword() {
-		return new TeleportInputScreen(-1, true);
+		return artifact("darkness");
+	}
+
+	public static TeleportInputScreen artifact(String alignment) {
+		return new TeleportInputScreen(-1, alignment);
 	}
 
 	@Override
@@ -69,7 +73,7 @@ public final class TeleportInputScreen extends Screen {
 		List<Integer> dimensionValues = java.util.stream.IntStream.range(0, available.size()).boxed().toList();
 
 		addRenderableWidget(CycleButton.<Integer>builder(this::modeName, () -> 0)
-				.withValues(shadowSword ? List.of(0, 1) : List.of(0, 1, 2)).displayOnlyValue()
+				.withValues(artifactAlignment != null ? List.of(0, 1) : List.of(0, 1, 2)).displayOnlyValue()
 				.create(left + 20, top + 32, 216, 20,
 						Component.translatable("screen.powers.teleport.mode"), (button, value) -> {
 							mode = value;
@@ -164,9 +168,9 @@ public final class TeleportInputScreen extends Screen {
 				Identifier id = Identifier.tryParse(available.get(dimensionIndex).id());
 				if (id == null) throw new IllegalStateException("Registered dimension ID became invalid");
 				ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, id);
-				if (shadowSword) {
+				if (artifactAlignment != null) {
 					ClientPlayNetworking.send(new ShadowSwordPackets.TeleportPayload(
-							x, y, z, key, mode == 1 ? target : ""));
+							artifactAlignment, x, y, z, key, mode == 1 ? target : ""));
 				} else {
 					ClientPlayNetworking.send(new PowersPackets.TeleportRequestPayload(
 							slot, x, y, z, key, mode == 1 ? target : "", false));

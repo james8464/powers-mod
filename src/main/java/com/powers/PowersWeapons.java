@@ -1,6 +1,9 @@
 package com.powers;
 
 import com.powers.item.ShadowSwordItem;
+import com.powers.item.HeavenlyPartisanItem;
+import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.item.artifact.ArtifactIdentity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
@@ -12,6 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Unit;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -138,14 +142,26 @@ public final class PowersWeapons {
 			case PICKAXE -> props.pickaxe(def.material(), def.damage(), def.speed());
 			case SHOVEL -> props.shovel(def.material(), def.damage(), def.speed());
 		}
-		if (def.id().equals("lycanbane")) {
+		if (def.id().equals("lycanbane") || def.id().equals("heavenly_partisan")) {
+			ArtifactAlignment alignment = def.id().equals("lycanbane")
+					? ArtifactAlignment.DARKNESS : ArtifactAlignment.LIGHT;
+			String identity = def.id().equals("lycanbane") ? "shadow_sword" : "heavenly_partisan";
+			props.fireResistant()
+					.component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
+					.component(PowersDataComponents.ARTIFACT_IDENTITY,
+							new ArtifactIdentity(identity, alignment));
 			props.component(DataComponents.LORE, new ItemLore(java.util.List.of(
-					Component.translatable("item.powers.shadow_sword.lore")
-							.withStyle(ChatFormatting.DARK_PURPLE),
-					Component.translatable("item.powers.shadow_sword.controls")
+					Component.translatable(def.id().equals("lycanbane")
+							? "item.powers.shadow_sword.lore" : "item.powers.heavenly_partisan.lore")
+							.withStyle(def.id().equals("lycanbane")
+									? ChatFormatting.DARK_PURPLE : ChatFormatting.GOLD),
+					Component.translatable("item.powers.artifact.controls")
 							.withStyle(ChatFormatting.GRAY))));
 		}
-		return ModItemIds.register(ModItemIds.create(def.id()),
-				def.id().equals("lycanbane") ? ShadowSwordItem::new : Item::new, props);
+		return ModItemIds.register(ModItemIds.create(def.id()), switch (def.id()) {
+			case "lycanbane" -> ShadowSwordItem::new;
+			case "heavenly_partisan" -> HeavenlyPartisanItem::new;
+			default -> Item::new;
+		}, props);
 	}
 }

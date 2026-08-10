@@ -35,6 +35,12 @@ public final class AbilityActivationService {
 	/** Activates an artifact cast; apotheosis artifacts may explicitly bypass cooldown bookkeeping. */
 	public static Result activate(ServerPlayer player, Ability ability, String toggleKey,
 			boolean bypassCooldown) {
+		return activateWithCooldown(player, ability, toggleKey, bypassCooldown ? 0 : null);
+	}
+
+	/** Activates an artifact with a server-derived explicit recovery time. */
+	public static Result activateWithCooldown(ServerPlayer player, Ability ability, String toggleKey,
+			Integer cooldownOverride) {
 		if (ability == null) return Result.FAILED;
 		if (!passesCasterChecks(player)) return Result.FAILED;
 		if (ability.requiresInput()) return Result.REQUIRES_INPUT;
@@ -49,7 +55,7 @@ public final class AbilityActivationService {
 			return toggle(player, data, ability, toggleKey);
 		}
 
-		return cast(player, data, ability, bypassCooldown, () -> ability.activate(player, data));
+		return cast(player, data, ability, cooldownOverride, () -> ability.activate(player, data));
 	}
 
 	/** Completes a server-owned input flow such as picking a Time Shift landing point. */
@@ -57,7 +63,7 @@ public final class AbilityActivationService {
 			Supplier<Boolean> operation) {
 		if (ability == null || !ability.requiresInput() || operation == null
 				|| !passesCasterChecks(player)) return Result.FAILED;
-		return cast(player, PlayerPowers.get(player), ability, bypassCooldown, operation);
+		return cast(player, PlayerPowers.get(player), ability, bypassCooldown ? 0 : null, operation);
 	}
 
 	/** Shared coordinate-teleport pipeline used by an assigned power and the Shadow Sword. */
@@ -78,13 +84,29 @@ public final class AbilityActivationService {
 		}
 
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(caster);
-		return cast(caster, data, ability, bypassCooldown, () -> ability.activateTeleport(
+		return cast(caster, data, ability, bypassCooldown ? 0 : null, () -> ability.activateTeleport(
+				caster, subject, data, dimension, x, y, z));
+	}
+
+	/** Completes artifact coordinate input with its alignment cooldown policy. */
+	public static Result activateArtifactTeleport(ServerPlayer caster, ServerPlayer subject, Ability ability,
+			ResourceKey<Level> dimension, double x, double y, double z, int cooldownTicks) {
+		if (ability == null || !ability.requiresInput() || !Double.isFinite(x)
+				|| !Double.isFinite(y) || !Double.isFinite(z) || !passesCasterChecks(caster)) {
+			return Result.FAILED;
+		}
+		if (!PowerProtection.mayForceMove(caster, subject)) return Result.FAILED;
+		AmethystDampening.update(subject);
+		if (AmethystDampening.isDampened(subject)) return Result.FAILED;
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(caster);
+		return cast(caster, data, ability, Math.max(0, cooldownTicks), () -> ability.activateTeleport(
 				caster, subject, data, dimension, x, y, z));
 	}
 
 	private static Result cast(ServerPlayer player, PlayerPowers.PlayerPowersData data, Ability ability,
-			boolean bypassCooldown, Supplier<Boolean> operation) {
-		int remaining = bypassCooldown ? 0 : ActivationCooldowns.remainingTicks(player, ability);
+			Integer cooldownOverride, Supplier<Boolean> operation) {
+		int remaining = cooldownOverride != null && cooldownOverride == 0
+				? 0 : ActivationCooldowns.remainingTicks(player, ability);
 		if (ActivationCooldowns.blocks(remaining,
 				ability.mayReactivateDuringCooldown(player, data, remaining))) {
 			PowerMessages.send(player, "ability.powers.cooldown", 4, seconds(remaining));
@@ -92,13 +114,14 @@ public final class AbilityActivationService {
 		}
 		PreparedMagicCast magic = ServerMagicCasts.prepare(player, ability.magicActionId(player, data));
 		if (!magic.allowed() || !data.spendEnergy(player, ability)) return Result.FAILED;
-		boolean activated = ServerMagicCasts.execute(magic, operation);
+		int cooldown = cooldownOverride == null
+				? ability.cooldownTicksFor(player, data) : cooldownOverride;
+		boolean activated = ServerMagicCasts.execute(magic,
+				() -> AbilityActivationContext.withCooldown(cooldownOverride, operation));
 		if (!activated) {
 			data.refundEnergy(ability);
 		} else {
-			if (!bypassCooldown) {
-				ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
-			}
+			ActivationCooldowns.start(player, ability, cooldown);
 			ServerMagicCasts.commit(magic, player);
 			SkillQuestTracker.recordPowerUse(player, ability);
 		}

@@ -7,6 +7,8 @@ import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.abilities.InvisibilityToggleAbility;
 import com.powers.power.state.GlobalTimeStopManager;
+import com.powers.power.artifact.ArtifactDeathWardManager;
+import com.powers.power.artifact.ArtifactCovenantManager;
 import com.powers.player.DarknessQuestTracker;
 import com.powers.player.SkillQuestTracker;
 import com.powers.spell.SpellCastingManager;
@@ -40,6 +42,7 @@ final class PowerCombatEvents {
 		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damageTaken, blocked) -> {
 			BodyProxyManager.afterDamage(entity, source, damageTaken);
 			if (damageTaken <= 0) return;
+			ArtifactCovenantManager.shareDamage(entity, source, damageTaken);
 			SpellCastingManager.markDamaged(entity);
 			EnergyDrainAbility.markDamaged(entity);
 			if (source.getEntity() instanceof ServerPlayer attacker) {
@@ -47,8 +50,11 @@ final class PowerCombatEvents {
 				SpellCastingManager.revealConcealment(attacker);
 			}
 		});
-		ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) ->
-				BodyProxyManager.allowsDeath(entity));
+		ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
+			if (!BodyProxyManager.allowsDeath(entity)) return false;
+			return !(entity instanceof ServerPlayer player)
+					|| !ArtifactDeathWardManager.preventDeath(player, source);
+		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
 			DarknessQuestTracker.recordKill(entity, source);
 			SkillQuestTracker.recordKill(entity, source);
