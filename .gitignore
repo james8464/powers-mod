@@ -1,6 +1,7 @@
 /build/
 /run/
 /.gradle/
+/.worktrees/
 /dist/
 /logs/
 .DS_Store
