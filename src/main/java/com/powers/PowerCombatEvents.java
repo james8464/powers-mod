@@ -13,6 +13,8 @@ import com.powers.power.artifact.ArtifactCovenantManager;
 import com.powers.player.DarknessQuestTracker;
 import com.powers.player.SkillQuestTracker;
 import com.powers.spell.SpellCastingManager;
+import com.powers.entity.PlayerLikeTarget;
+import com.powers.entity.TestActorPowerState;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
@@ -31,8 +33,7 @@ final class PowerCombatEvents {
 						|| !GlobalTimeStopManager.mayAct(actor)) return false;
 			}
 			if (BodyProxyManager.isProxy(entity)) return BodyProxyManager.allowsDamage(entity, source);
-			if (entity instanceof ServerPlayer player
-					&& ForcefieldAbility.absorbDamage(player, source, amount)) return false;
+			if (ForcefieldAbility.absorbDamage(entity, source, amount)) return false;
 			// Amethyst blocks power damage, not ordinary weapons or environmental harm.
 			if (AmethystDampening.isDampened(entity) && PowerDamage.isPowerDamage(source)) return false;
 			// Mindscape avatars keep their ordinary health while their proxy body is
@@ -57,6 +58,10 @@ final class PowerCombatEvents {
 					|| !ArtifactDeathWardManager.preventDeath(player, source);
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+			if (entity instanceof PlayerLikeTarget) {
+				TestActorPowerState.clear(entity.getUUID());
+				ForcefieldAbility.clear(entity.getUUID());
+			}
 			if (entity instanceof ServerPlayer player) PrivateCompanionManager.recordDeath(player);
 			DarknessQuestTracker.recordKill(entity, source);
 			SkillQuestTracker.recordKill(entity, source);

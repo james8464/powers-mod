@@ -12,6 +12,8 @@ import com.powers.forge.CrucibleWeaponData;
 import com.powers.entity.DarknessCreature;
 import com.powers.entity.RadiantSentinel;
 import com.powers.entity.FirstVessel;
+import com.powers.entity.PowerTestActor;
+import com.powers.entity.TestActorPowerState;
 import com.powers.boss.FirstVesselPowerCatalogue;
 import com.powers.boss.FirstVesselRitual;
 import com.powers.item.artifact.ArtifactAlignment;
@@ -20,6 +22,8 @@ import com.powers.power.artifact.ArtifactDeathWardManager;
 import com.powers.power.PowerDamage;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.power.abilities.ForcefieldAbility;
+import com.powers.power.abilities.DimensionalAnchorAbility;
+import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.power.abilities.CombatTerrainImpact;
 import com.powers.power.state.MagicShieldManager;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
@@ -260,6 +264,58 @@ public final class PowersGameTests {
 				"Broken shield retained integrity after sacrificing itself");
 		MagicShieldManager.global().clear();
 		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void testActorAcceptsPlayerTargetStateAndSharedShield(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		var origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		PowerTestActor actor = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(3, 1, 2));
+		actor.setNoAi(true);
+
+		helper.assertTrue(DimensionalAnchorAbility.apply(caster, actor),
+				"Player-compatible actor rejected Dimensional Anchor");
+		helper.assertTrue(DimensionalAnchorAbility.isAnchored(actor),
+				"Actor did not retain its dimensional anchor");
+		TestActorPowerState.drain(actor.getUUID(), 375);
+		helper.assertTrue(TestActorPowerState.energy(actor.getUUID()) == 625,
+				"Actor simulated energy did not drain like a player well");
+		helper.assertTrue(new ForcefieldAbility().activate(caster,
+				com.powers.player.PlayerPowers.get(caster)), "Forcefield activation failed");
+		long tick = helper.getLevel().getServer().getTickCount();
+		helper.assertTrue(MagicShieldManager.global().active(actor.getUUID(), tick),
+				"Nearby actor did not receive shared forcefield integrity");
+		helper.assertTrue(ForcefieldAbility.absorbDamage(actor,
+				actor.damageSources().generic(), 50_000.0F),
+				"Actor shield failed to sacrifice itself against overkill");
+		MagicShieldManager.global().clear();
+		TestActorPowerState.clear(actor.getUUID());
+		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 80)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void energyDrainUsesTheTestActorsPlayerEnergyWell(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		var origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		caster.setYRot(0.0F);
+		caster.setXRot(0.0F);
+		caster.addTag(SkillSystem.DARKNESS_TAG);
+		com.powers.player.PlayerPowers.get(caster).setSlots(caster, java.util.List.of(
+				"powers:energy_drain", "powers:shadow_step", "powers:void_beam"));
+		PowerTestActor actor = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 6));
+		actor.setNoAi(true);
+		helper.assertTrue(new EnergyDrainAbility().activate(caster,
+				com.powers.player.PlayerPowers.get(caster)), "Energy Drain did not acquire the actor");
+		helper.runAfterDelay(45, () -> {
+			helper.assertTrue(TestActorPowerState.energy(actor.getUUID()) == 0,
+					"Energy Drain used the ordinary-mob damage branch for a player-compatible actor");
+			TestActorPowerState.clear(actor.getUUID());
+			helper.succeed();
+		});
 	}
 
 	@GameTest

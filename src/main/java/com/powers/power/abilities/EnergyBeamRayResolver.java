@@ -95,8 +95,8 @@ final class EnergyBeamRayResolver {
 		Optional<SpellFieldManager.RayWardHit> ward = SpellFieldManager.firstHarmfulRayIntercept(
 				level, caster.getUUID(), rayOrigin, bodyCenter(target));
 		if (ward.isPresent()) return wardCounter(ward.get().counterplay());
-		if (target instanceof ServerPlayer player && MagicShieldManager.global()
-				.active(player.getUUID(), level.getServer().getTickCount())) {
+		if (MagicShieldManager.global().active(
+				target.getUUID(), level.getServer().getTickCount())) {
 			return EnergyBeamRules.Counterplay.FORCEFIELD;
 		}
 		return null;

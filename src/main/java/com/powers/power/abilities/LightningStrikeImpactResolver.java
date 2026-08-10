@@ -368,8 +368,8 @@ final class LightningStrikeImpactResolver {
 				|| ward != null && ward.counterplay() == VoidBeamRules.Counterplay.SANCTUARY;
 		boolean kineticWard = ward != null
 				&& ward.counterplay() == VoidBeamRules.Counterplay.KINETIC_WARD;
-		boolean forcefield = includeForcefield && target instanceof ServerPlayer player
-				&& MagicShieldManager.global().active(player.getUUID(), now);
+		boolean forcefield = includeForcefield
+				&& MagicShieldManager.global().active(target.getUUID(), now);
 		return LightningStrikeRules.bodyDecision(PowerProtection.mayHarm(caster, target),
 				bodyAmethyst(level, target), sanctuary, kineticWard, forcefield);
 	}

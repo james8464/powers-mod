@@ -254,9 +254,8 @@ public final class SuperSpeedAbility extends Ability {
 			Vec3 velocity = target.getDeltaMovement().scale(0.35).add(impulse);
 			boolean clearPath = !impulse.equals(Vec3.ZERO)
 					&& level.noBlockCollision(target, target.getBoundingBox().move(velocity));
-			boolean forcefield = target instanceof ServerPlayer player
-					&& MagicShieldManager.global().active(
-							player.getUUID(), level.getServer().getTickCount());
+			boolean forcefield = MagicShieldManager.global().active(
+					target.getUUID(), level.getServer().getTickCount());
 			SuperSpeedRules.PressureDecision decision = SuperSpeedRules.pressureDecision(
 					PowerProtection.mayForceMove(owner, target),
 					AmethystDampening.isDampened(target), BodyProxyManager.isProxy(target),

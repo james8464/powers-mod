@@ -1,6 +1,7 @@
 package com.powers.power.abilities;
 
 import com.powers.PowersMod;
+import com.powers.entity.PlayerLikeTarget;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.state.MagicShieldManager;
@@ -14,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.Vec3;
 import java.util.UUID;
@@ -34,12 +36,14 @@ public class ForcefieldAbility extends Ability {
 		float integrity = (float) (BASE_INTEGRITY * scaled.potencyMultiplier());
 		boolean reflective = scaled.unlockedVariants().contains("reflective_ward");
 		ServerLevel level = (ServerLevel) player.level();
-		for (ServerPlayer protectedPlayer : level.players()) {
-			if (!protectedPlayer.isAlive() || protectedPlayer.isSpectator()
-					|| !ForcefieldRules.withinSharingRadius(protectedPlayer.distanceToSqr(player))) continue;
-			MagicShieldManager.global().raise(protectedPlayer.getUUID(), integrity,
+		for (LivingEntity protectedTarget : com.powers.util.BoundedEntityCandidates.living(
+				level, player.getBoundingBox().inflate(2.0), 16,
+				target -> target.isAlive() && !target.isSpectator()
+						&& PlayerLikeTarget.isCompatible(target)
+						&& ForcefieldRules.withinSharingRadius(target.distanceToSqr(player)))) {
+			MagicShieldManager.global().raise(protectedTarget.getUUID(), integrity,
 					ForcefieldRules.expiryTick(), reflective);
-			com.powers.fx.PowerFx.rune(level, protectedPlayer.position().add(0.0, 1.0, 0.0),
+			com.powers.fx.PowerFx.rune(level, protectedTarget.position().add(0.0, 1.0, 0.0),
 					1.45, 0x40C4FF, 22, player.level().getGameTime() * 0.1);
 		}
 		com.powers.fx.PowerFx.sound(level,
@@ -47,12 +51,12 @@ public class ForcefieldAbility extends Ability {
 		return true;
 	}
 
-	public static boolean absorbDamage(ServerPlayer player, DamageSource source, float amount) {
-		long tick = player.level().getServer().getTickCount();
-		MagicShieldManager.Impact impact = MagicShieldManager.global().absorb(player.getUUID(), amount, tick);
+	public static boolean absorbDamage(LivingEntity target, DamageSource source, float amount) {
+		long tick = target.level().getServer().getTickCount();
+		MagicShieldManager.Impact impact = MagicShieldManager.global().absorb(target.getUUID(), amount, tick);
 		if (!impact.blocked()) return false;
-		ServerLevel level = (ServerLevel) player.level();
-		Vec3 center = player.position().add(0, 1, 0);
+		ServerLevel level = (ServerLevel) target.level();
+		Vec3 center = target.position().add(0, 1, 0);
 		int color = impact.shattered() ? 0xE8F8FF : impact.fractureStage() == 0 ? 0x40C4FF : 0x8ADCF7;
 		com.powers.fx.PowerFx.rune(level, center, impact.shattered() ? 2.0 : 1.4,
 				color, impact.shattered() ? 30 : 18, tick * 0.1);
@@ -64,12 +68,13 @@ public class ForcefieldAbility extends Ability {
 		if (impact.reflective()) {
 			Entity direct = source.getDirectEntity();
 			if (direct instanceof Projectile projectile && PowerEntityState.tryReflect(projectile, 1)) {
-				projectile.setOwner(player);
+				projectile.setOwner(target);
 				projectile.setDeltaMovement(projectile.getDeltaMovement().scale(-1.15));
 				projectile.hurtMarked = true;
 			}
 			Entity attacker = source.getEntity();
-			if (attacker instanceof net.minecraft.world.entity.LivingEntity living && attacker != player
+			if (target instanceof ServerPlayer player
+					&& attacker instanceof net.minecraft.world.entity.LivingEntity living && attacker != player
 					&& PowerProtection.mayForceMove(player, living)
 					&& !SpellFieldManager.blocksForcedMovement(level, living, player.getUUID())) {
 				Vec3 away = attacker.position().subtract(player.position()).normalize().scale(0.65);
