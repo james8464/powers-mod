@@ -22,6 +22,7 @@ import com.powers.power.artifact.ArtifactDeathWardManager;
 import com.powers.power.PowerDamage;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.power.abilities.ForcefieldAbility;
+import com.powers.power.abilities.PlantHealingAbility;
 import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.power.abilities.TeleportAbility;
@@ -268,6 +269,26 @@ public final class PowersGameTests {
 		helper.assertFalse(MagicShieldManager.global().active(ally.getUUID(), tick),
 				"Broken shield retained integrity after sacrificing itself");
 		MagicShieldManager.global().clear();
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void crouchingPlantHealingRestoresPlayersInsideTwoBlocksOnly(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		ServerPlayer ally = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		ally.setPos(origin.getX() + 2.5, origin.getY(), origin.getZ() + 0.5);
+		caster.setHealth(1.0F);
+		ally.setHealth(1.0F);
+		caster.setShiftKeyDown(true);
+
+		helper.assertTrue(new PlantHealingAbility().activate(caster,
+				com.powers.player.PlayerPowers.get(caster)),
+				"Crouching Plant Healing did not activate for injured nearby players");
+		helper.assertTrue(caster.getHealth() > 1.0F, "Plant Healing did not heal its caster");
+		helper.assertTrue(ally.getHealth() > 1.0F, "Plant Healing excluded the inclusive two-block boundary");
 		helper.succeed();
 	}
 

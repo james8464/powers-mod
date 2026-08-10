@@ -91,7 +91,8 @@ public final class PowerEnergy {
 	/** per-tick drain while a toggle like flight stays on, zero for everything else */
 	public static int ongoingCost(Ability ability) {
 		return switch (ability.id().getPath()) {
-			case "flight", "invisibility" -> 1;
+			case "size_shift", "flight", "invisibility" -> 1;
+			case "forcefield", "double_health" -> 2;
 			case "time_freeze" -> 3;
 			case "nightfall_dominion" -> 12;
 			default -> 0;
