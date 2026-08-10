@@ -7,6 +7,7 @@ import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.Power;
 import com.powers.power.PowerTargeting;
 import com.powers.power.state.EntityFreezeController;
@@ -146,7 +147,7 @@ public final class StarfallAbility extends Ability {
 			boolean sameDimension = owner != null
 					&& owner.level().dimension().equals(storm.dimension);
 			boolean dampened = owner != null && AmethystDampening.isDampened(owner);
-			boolean frozen = owner != null && EntityFreezeController.isFrozen(owner);
+			boolean frozen = MagicUseGate.timeLocked(owner);
 			boolean ownsCast = owner != null && ServerCastLifecycle.mayContinue(
 					owner, storm.castSource, ownsPower(owner));
 			boolean continues = StarfallRules.stormContinues(owner != null, sameDimension,

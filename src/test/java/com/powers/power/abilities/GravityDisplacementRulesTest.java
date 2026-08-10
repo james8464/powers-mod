@@ -110,11 +110,21 @@ class GravityDisplacementRulesTest {
 
 	@Test
 	void fieldRequiresLiveUnsuppressedOwnerBeforeExclusiveExpiry() {
-		assertTrue(GravityDisplacementRules.fieldContinues(true, true, true, false, 99L, 100L));
-		assertFalse(GravityDisplacementRules.fieldContinues(false, true, true, false, 99L, 100L));
-		assertFalse(GravityDisplacementRules.fieldContinues(true, false, true, false, 99L, 100L));
-		assertFalse(GravityDisplacementRules.fieldContinues(true, true, false, false, 99L, 100L));
-		assertFalse(GravityDisplacementRules.fieldContinues(true, true, true, true, 99L, 100L));
-		assertFalse(GravityDisplacementRules.fieldContinues(true, true, true, false, 100L, 100L));
+		assertTrue(GravityDisplacementRules.fieldContinues(
+				true, true, true, false, false, true, 99L, 100L));
+		assertFalse(GravityDisplacementRules.fieldContinues(
+				false, true, true, false, false, true, 99L, 100L));
+		assertFalse(GravityDisplacementRules.fieldContinues(
+				true, false, true, false, false, true, 99L, 100L));
+		assertFalse(GravityDisplacementRules.fieldContinues(
+				true, true, false, false, false, true, 99L, 100L));
+		assertFalse(GravityDisplacementRules.fieldContinues(
+				true, true, true, true, false, true, 99L, 100L));
+		assertFalse(GravityDisplacementRules.fieldContinues(
+				true, true, true, false, true, true, 99L, 100L));
+		assertFalse(GravityDisplacementRules.fieldContinues(
+				true, true, true, false, false, false, 99L, 100L));
+		assertFalse(GravityDisplacementRules.fieldContinues(
+				true, true, true, false, false, true, 100L, 100L));
 	}
 }

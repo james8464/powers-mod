@@ -3,10 +3,15 @@ package com.powers.power.abilities;
 import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.GravityFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
+import com.powers.power.Power;
 import com.powers.power.PowerDamage;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.MagicShieldManager;
@@ -42,6 +47,8 @@ import java.util.UUID;
  * bends mastered projectiles, and releases every body safely on all exits.
  */
 public final class GravityDisplacementAbility extends Ability {
+	private static final net.minecraft.resources.Identifier POWER_ID =
+			PowersMod.id("gravity_displacement");
 	private static final int BASE_DURATION_TICKS = 100;
 	private static final double BASE_RADIUS = 8.0;
 	private static final int SCAN_INTERVAL_TICKS = 2;
@@ -77,7 +84,8 @@ public final class GravityDisplacementAbility extends Ability {
 		boolean ancientMastery = variants.contains("ancient_mastery");
 		double radius = scaledRange(player, BASE_RADIUS);
 		int duration = scaledDuration(player, BASE_DURATION_TICKS);
-		GravityField field = new GravityField(owner, level.dimension(), player.position(), now,
+		GravityField field = new GravityField(owner, level.dimension(),
+				CastScalingContext.currentSource(), player.position(), now,
 				now + duration, radius,
 				GravityDisplacementRules.targetLimit(empoweredImpact, ancientMastery),
 				empoweredImpact, ancientMastery, scaledPotency(player, 4.0F),
@@ -103,10 +111,14 @@ public final class GravityDisplacementAbility extends Ability {
 			ServerLevel level = server.getLevel(field.dimension);
 			boolean sameDimension = owner != null && owner.level().dimension().equals(field.dimension);
 			boolean dampened = owner != null && AmethystDampening.isDampened(owner);
+			boolean frozen = MagicUseGate.timeLocked(owner);
+			boolean ownsCast = owner != null && ServerCastLifecycle.mayContinue(
+					owner, field.castSource, ownsPower(owner));
 			if (level == null || !GravityDisplacementRules.fieldContinues(owner != null,
-					sameDimension, owner != null && owner.isAlive(), dampened, now, field.expiresAt)) {
+					sameDimension, owner != null && owner.isAlive(), dampened, frozen,
+					ownsCast, now, field.expiresAt)) {
 				boolean naturalExpiry = level != null && owner != null && sameDimension && owner.isAlive()
-						&& !dampened && now >= field.expiresAt;
+						&& !dampened && !frozen && ownsCast && now >= field.expiresAt;
 				if (level != null) collapse(level, owner, field, naturalExpiry, !naturalExpiry);
 				iterator.remove();
 				continue;
@@ -371,10 +383,20 @@ public final class GravityDisplacementAbility extends Ability {
 		TARGET_OWNERS.remove(target, field.owner);
 	}
 
+	private static boolean ownsPower(ServerPlayer player) {
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
+			Power power = data.getPower(slot);
+			if (power != null && POWER_ID.equals(power.id())) return true;
+		}
+		return false;
+	}
+
 	/** Mutable state is deliberately private and owned by the server tick thread. */
 	private static final class GravityField {
 		private final UUID owner;
 		private final ResourceKey<Level> dimension;
+		private final CastSource castSource;
 		private final Vec3 center;
 		private final long openedAt;
 		private final long expiresAt;
@@ -387,12 +409,13 @@ public final class GravityDisplacementAbility extends Ability {
 		private final Set<UUID> captured = new LinkedHashSet<>();
 		private final Map<UUID, Long> resistanceCues = new HashMap<>();
 
-		private GravityField(UUID owner, ResourceKey<Level> dimension, Vec3 center,
+		private GravityField(UUID owner, ResourceKey<Level> dimension, CastSource castSource, Vec3 center,
 				long openedAt, long expiresAt, double radius, int targetLimit,
 				boolean empoweredImpact, boolean ancientMastery, float impactDamage,
 				double collapseForce) {
 			this.owner = owner;
 			this.dimension = dimension;
+			this.castSource = castSource;
 			this.center = center;
 			this.openedAt = openedAt;
 			this.expiresAt = expiresAt;

@@ -23,9 +23,9 @@ import java.util.UUID;
 public final class ArtifactGuardianSummons {
 	private static final int NORMAL_LIFETIME = 20 * 60 * 3;
 	private static final int ELITE_LIFETIME = 20 * 60;
-	private static final int GLOBAL_CAP = 64;
 	private static final Map<UUID, Set<UUID>> NORMAL_BY_OWNER = new HashMap<>();
 	private static final Map<UUID, Set<UUID>> ELITE_BY_OWNER = new HashMap<>();
+	private static final Set<UUID> LOADED = new HashSet<>();
 
 	private ArtifactGuardianSummons() {
 	}
@@ -35,10 +35,10 @@ public final class ArtifactGuardianSummons {
 		ServerLevel level = (ServerLevel) caster.level();
 		if (PowerProtection.isSafeZone(level, caster.position())) return 0;
 		Map<UUID, Set<UUID>> index = elite ? ELITE_BY_OWNER : NORMAL_BY_OWNER;
-		purgeAll(level.getServer());
 		Set<UUID> existing = index.computeIfAbsent(caster.getUUID(), ignored -> new HashSet<>());
 		int allowed = ArtifactDominionRules.guardiansToSpawn(requested, existing.size(), elite);
-		allowed = Math.min(allowed, Math.max(0, GLOBAL_CAP - indexedCount()));
+		allowed = Math.min(allowed, Math.max(0,
+				ArtifactDominionRules.MAX_LOADED_GUARDIANS - LOADED.size()));
 		int spawned = 0;
 		for (int attempt = 0; attempt < allowed * 4 && spawned < allowed; attempt++) {
 			BlockPos spawnPos = radialSpawn(level, caster, attempt, allowed);
@@ -53,7 +53,7 @@ public final class ArtifactGuardianSummons {
 			guardian.configureGuardian(owned ? caster.getUUID() : null,
 					elite ? ELITE_LIFETIME : NORMAL_LIFETIME, elite);
 			if (forcedTarget != null) guardian.setTarget(forcedTarget);
-			if (!level.addFreshEntity(guardian)) continue;
+			if (!level.addFreshEntity(guardian) || guardian.isRemoved()) continue;
 			existing.add(guardian.getUUID());
 			var lightning = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
 			if (lightning != null) {
@@ -92,38 +92,40 @@ public final class ArtifactGuardianSummons {
 		return null;
 	}
 
-	private static void purge(net.minecraft.server.MinecraftServer server, Set<UUID> ids) {
-		ids.removeIf(id -> {
-			for (ServerLevel level : server.getAllLevels()) {
-				if (level.getEntity(id) instanceof AbstractPlayerLikeMob mob) return !mob.isAlive();
-			}
-			return true;
-		});
+	/** Rebuilds loaded-session caps after chunk loads and server restarts. */
+	public static void trackLoaded(AbstractPlayerLikeMob guardian) {
+		if (!guardian.temporaryGuardian() || LOADED.contains(guardian.getUUID())) return;
+		UUID owner = guardian.guardianOwner();
+		Map<UUID, Set<UUID>> index = guardian.eliteGuardian() ? ELITE_BY_OWNER : NORMAL_BY_OWNER;
+		Set<UUID> owned = owner == null ? null : index.computeIfAbsent(owner, ignored -> new HashSet<>());
+		int ownedCount = owned == null ? 0 : owned.size();
+		if (!ArtifactDominionRules.guardianCanLoad(LOADED.size(), ownedCount,
+				guardian.eliteGuardian())) {
+			if (owned != null && owned.isEmpty()) index.remove(owner);
+			guardian.discard();
+			return;
+		}
+		LOADED.add(guardian.getUUID());
+		if (owned != null) owned.add(guardian.getUUID());
 	}
 
-	private static void purgeAll(net.minecraft.server.MinecraftServer server) {
+	/** Chunk unloads release active-work capacity; a later load is revalidated. */
+	public static void untrackLoaded(AbstractPlayerLikeMob guardian) {
+		UUID id = guardian.getUUID();
+		if (!LOADED.remove(id)) return;
 		for (Map<UUID, Set<UUID>> index : java.util.List.of(NORMAL_BY_OWNER, ELITE_BY_OWNER)) {
-			for (Set<UUID> ids : index.values()) purge(server, ids);
+			index.values().forEach(ids -> ids.remove(id));
 			index.entrySet().removeIf(entry -> entry.getValue().isEmpty());
 		}
-	}
-
-	private static int indexedCount() {
-		return NORMAL_BY_OWNER.values().stream().mapToInt(Set::size).sum()
-				+ ELITE_BY_OWNER.values().stream().mapToInt(Set::size).sum();
-	}
-
-	public static void forget(UUID ownerId) {
-		NORMAL_BY_OWNER.remove(ownerId);
-		ELITE_BY_OWNER.remove(ownerId);
 	}
 
 	public static void clear() {
 		NORMAL_BY_OWNER.clear();
 		ELITE_BY_OWNER.clear();
+		LOADED.clear();
 	}
 
 	public static int indexedGuardianCount() {
-		return indexedCount();
+		return LOADED.size();
 	}
 }

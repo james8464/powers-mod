@@ -2,11 +2,16 @@ package com.powers.power.crystals;
 
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.PowerDamage;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -36,7 +41,8 @@ public class InfernoAbility extends Ability {
 	private static final int RADIUS = 12;
 
 	// one inferno per owner uuid, cleaned up on disconnect and server stop so it can't leak
-	private record InfernoField(int remainingTicks, double radius, float damage, int fireSeconds) {
+	private record InfernoField(CastSource castSource, int remainingTicks,
+			double radius, float damage, int fireSeconds) {
 	}
 	private static final Map<UUID, InfernoField> ACTIVE = new HashMap<>();
 
@@ -52,7 +58,8 @@ public class InfernoAbility extends Ability {
 		if (ACTIVE.containsKey(player.getUUID())) {
 			return false;
 		}
-		ACTIVE.put(player.getUUID(), new InfernoField(scaledDuration(player, DURATION_TICKS),
+		ACTIVE.put(player.getUUID(), new InfernoField(CastScalingContext.currentSource(),
+				scaledDuration(player, DURATION_TICKS),
 				scaledRange(player, RADIUS), scaledPotency(player, 2.0f),
 				Math.max(1, scaledDuration(player, 160) / 20)));
 		ServerLevel level = (ServerLevel) player.level();
@@ -72,7 +79,8 @@ public class InfernoAbility extends Ability {
 			int left = field.remainingTicks();
 
 			// the owner logged off or died - drop the inferno instead of leaving it burning forever
-			if (player == null || !player.isAlive()) {
+			if (!MagicUseGate.ongoingAllowed(player) || !ServerCastLifecycle.mayContinue(
+					player, field.castSource(), false)) {
 				it.remove();
 				continue;
 			}
@@ -93,7 +101,8 @@ public class InfernoAbility extends Ability {
 						192,
 						e -> e.isAlive() && e != player && e.distanceToSqr(player) <= field.radius() * field.radius()
 								&& !AmethystDampening.isDampened(e)
-								&& PowerProtection.mayHarm(player, e))) {
+								&& PowerProtection.mayHarm(player, e)
+								&& !SpellFieldManager.isSanctuaryProtected(level, e))) {
 					target.hurtServer(level, PowerDamage.source(player), field.damage());
 					target.igniteForSeconds(field.fireSeconds());
 				}
@@ -105,7 +114,8 @@ public class InfernoAbility extends Ability {
 				it.remove();
 				PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.SMOKE, 24, 1.2, 0.1);
 			} else {
-				entry.setValue(new InfernoField(left, field.radius(), field.damage(), field.fireSeconds()));
+				entry.setValue(new InfernoField(field.castSource(), left,
+						field.radius(), field.damage(), field.fireSeconds()));
 			}
 		}
 	}

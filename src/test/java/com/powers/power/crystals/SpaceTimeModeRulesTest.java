@@ -14,4 +14,12 @@ class SpaceTimeModeRulesTest {
 		assertEquals(1, SpaceTimeModeRules.next(0));
 		assertEquals(0, SpaceTimeModeRules.next(1));
 	}
+
+	@Test
+	void freezeHasTheLowOminousPitchInsteadOfTheAccelerationPitch() {
+		assertEquals(1.4F, SpaceTimeModeRules.soundPitch(
+				SpaceTimeModeRules.Mode.ACCELERATE));
+		assertEquals(0.35F, SpaceTimeModeRules.soundPitch(
+				SpaceTimeModeRules.Mode.FREEZE));
+	}
 }

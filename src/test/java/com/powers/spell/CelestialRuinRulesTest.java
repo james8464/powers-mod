@@ -1,5 +1,7 @@
 package com.powers.spell;
 
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,6 +13,12 @@ class CelestialRuinRulesTest {
 	void ritualCountsDownForExactlyOneMinute() {
 		assertEquals(1_200, CelestialRuinRules.COUNTDOWN_TICKS);
 		assertEquals(50, CelestialRuinRules.BEAM_RADIUS);
+	}
+
+	@Test
+	void globalTimeStopPausesCountdownAndDetonationWork() {
+		assertFalse(CelestialRuinRules.mayAdvance(true));
+		assertTrue(CelestialRuinRules.mayAdvance(false));
 	}
 
 	@Test
@@ -31,6 +39,15 @@ class CelestialRuinRulesTest {
 		assertTrue(CelestialRuinRules.damage(1_000.0) >= 100.0f);
 		assertTrue(CelestialRuinRules.damage(2_047.0) > 0.0f);
 		assertEquals(0.0f, CelestialRuinRules.damage(2_048.0), 0.001f);
+	}
+
+	@Test
+	void damageQueryCoversTheDimensionsEntireBuildHeight() {
+		AABB bounds = CelestialRuinRules.damageBounds(new Vec3(12.5, 64.0, -8.5), -64, 320);
+		assertEquals(-64.0, bounds.minY, 0.001);
+		assertEquals(320.0, bounds.maxY, 0.001);
+		assertEquals(12.5 - CelestialRuinRules.DAMAGE_RADIUS, bounds.minX, 0.001);
+		assertEquals(-8.5 + CelestialRuinRules.DAMAGE_RADIUS, bounds.maxZ, 0.001);
 	}
 
 	@Test
@@ -57,5 +74,12 @@ class CelestialRuinRulesTest {
 		assertFalse(CelestialRuinRules.shouldDestroy(false, false, false, true));
 		assertFalse(CelestialRuinRules.shouldDestroy(false, true, true, false));
 		assertTrue(CelestialRuinRules.shouldDestroy(false, true, true, true));
+	}
+
+	@Test
+	void aftershockFireObeysTerrainAndSafeZoneProtection() {
+		assertTrue(CelestialRuinRules.shouldIgnite(true, false));
+		assertFalse(CelestialRuinRules.shouldIgnite(false, false));
+		assertFalse(CelestialRuinRules.shouldIgnite(true, true));
 	}
 }

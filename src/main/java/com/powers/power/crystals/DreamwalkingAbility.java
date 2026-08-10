@@ -4,10 +4,14 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.PowerTargeting;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
@@ -36,7 +40,8 @@ public class DreamwalkingAbility extends Ability {
 	private static final int DURATION = 2400;
 	private static final Map<UUID, Dream> ACTIVE = new HashMap<>();
 
-	private record Dream(UUID hostId, ResourceKey<Level> dimension, long endsAt) {}
+	private record Dream(UUID hostId, ResourceKey<Level> dimension,
+			CastSource castSource, long endsAt) {}
 
 	public DreamwalkingAbility() {
 		super(PowersMod.id("dreamwalking"), Component.translatable("ability.powers.dreamwalking"),
@@ -72,12 +77,21 @@ public class DreamwalkingAbility extends Ability {
 					"powers.packet.consent_denied", 1, host.getName().getString());
 			return false;
 		}
-		return beginRemoteView(player, target, scaledDuration(player, DURATION));
+		return beginRemoteView(player, target, scaledDuration(player, DURATION),
+				CastScalingContext.currentSource());
 	}
 
 	/** Starts a named or aimed camera after all caller-specific payment and consent checks. */
 	public static boolean beginRemoteView(ServerPlayer player, LivingEntity host, int durationTicks) {
+		return beginRemoteView(player, host, durationTicks, CastSource.CRYSTAL);
+	}
+
+	/** Starts a camera while retaining the route that authorized the delayed view. */
+	public static boolean beginRemoteView(ServerPlayer player, LivingEntity host,
+			int durationTicks, CastSource castSource) {
 		if (player == null || host == null || player == host || !host.isAlive()
+				|| castSource == null
+				|| !MagicUseGate.ongoingAllowed(player)
 				|| player.level().getServer() != host.level().getServer()
 				|| ACTIVE.containsKey(player.getUUID()) || AmethystDampening.isDampened(host)
 				|| !PowerProtection.mayDreamwalk(player, host)
@@ -86,7 +100,7 @@ public class DreamwalkingAbility extends Ability {
 		ServerLevel sourceLevel = (ServerLevel) player.level();
 		ServerLevel hostLevel = (ServerLevel) host.level();
 		Vec3 bodyPosition = player.position();
-		Dream dream = new Dream(host.getUUID(), host.level().dimension(),
+		Dream dream = new Dream(host.getUUID(), host.level().dimension(), castSource,
 				server.getTickCount() + Math.clamp(durationTicks, 20, DURATION));
 		player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
 		boolean crossDimension = DreamwalkingRules.mustTravel(
@@ -122,7 +136,9 @@ public class DreamwalkingAbility extends Ability {
 			ServerLevel hostLevel = server.getLevel(dream.dimension());
 			LivingEntity host = hostLevel == null ? null
 					: hostLevel.getEntity(dream.hostId()) instanceof LivingEntity living ? living : null;
-			boolean invalid = dreamer == null || !dreamer.isAlive() || host == null || !host.isAlive()
+			boolean invalid = !MagicUseGate.ongoingAllowed(dreamer)
+					|| !ServerCastLifecycle.mayContinue(dreamer, dream.castSource(), false)
+					|| host == null || !host.isAlive()
 					|| dreamer.level() != hostLevel
 					|| now >= dream.endsAt();
 			// Consent and amethyst are live counterplay, not one-time entry checks.

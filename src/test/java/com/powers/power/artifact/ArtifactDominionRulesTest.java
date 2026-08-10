@@ -28,6 +28,10 @@ class ArtifactDominionRulesTest {
 		assertEquals(4, ArtifactDominionRules.guardiansToSpawn(12, 0, false));
 		assertEquals(2, ArtifactDominionRules.guardiansToSpawn(12, 0, true));
 		assertEquals(0, ArtifactDominionRules.guardiansToSpawn(12, 4, false));
+		assertTrue(ArtifactDominionRules.guardianCanLoad(63, 3, false));
+		assertFalse(ArtifactDominionRules.guardianCanLoad(64, 0, false));
+		assertFalse(ArtifactDominionRules.guardianCanLoad(10, 4, false));
+		assertFalse(ArtifactDominionRules.guardianCanLoad(10, 2, true));
 	}
 
 	@Test
@@ -36,5 +40,19 @@ class ArtifactDominionRulesTest {
 				ArtifactAlignment.DARKNESS, 100.0F));
 		assertEquals(45.0F, ArtifactDominionRules.restoredHealth(
 				ArtifactAlignment.LIGHT, 100.0F));
+	}
+
+	@Test
+	void deathWardExpiresAtItsExactDeadline() {
+		assertTrue(ArtifactDominionRules.wardActive(99L, 100L));
+		assertFalse(ArtifactDominionRules.wardActive(100L, 100L));
+		assertFalse(ArtifactDominionRules.wardActive(101L, 100L));
+	}
+
+	@Test
+	void failedGuardianSummonsStillRespectTheRetryInterval() {
+		assertFalse(ArtifactDominionRules.guardianAttemptReady(1_199L, 1_000L, 200));
+		assertTrue(ArtifactDominionRules.guardianAttemptReady(1_200L, 1_000L, 200));
+		assertFalse(ArtifactDominionRules.guardianAttemptReady(999L, 1_000L, 200));
 	}
 }

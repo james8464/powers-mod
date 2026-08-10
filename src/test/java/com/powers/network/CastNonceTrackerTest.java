@@ -1,6 +1,7 @@
 package com.powers.network;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
@@ -25,5 +26,18 @@ class CastNonceTrackerTest {
 		UUID owner = UUID.randomUUID();
 		UUID nonce = tracker.issue(owner, 5);
 		assertFalse(tracker.consume(owner, nonce, 26));
+		assertEquals(0, tracker.size());
+	}
+
+	@Test
+	void lifecycleCleanupForgetsEveryOutstandingNonce() {
+		CastNonceTracker tracker = new CastNonceTracker(100);
+		tracker.issue(UUID.randomUUID(), 5);
+		tracker.issue(UUID.randomUUID(), 5);
+		assertEquals(2, tracker.size());
+
+		tracker.clearAll();
+
+		assertEquals(0, tracker.size());
 	}
 }

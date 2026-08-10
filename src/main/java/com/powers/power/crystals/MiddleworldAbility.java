@@ -2,12 +2,16 @@ package com.powers.power.crystals;
 
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelKind;
 import com.powers.power.travel.TravelChunkLoader;
 import com.powers.power.AsyncAbilityTransaction;
+import com.powers.power.MagicUseGate;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -47,9 +51,12 @@ public class MiddleworldAbility extends Ability {
 		PowerFx.sound(sourceLevel, sourcePosition, SoundEvents.END_PORTAL_SPAWN, 0.8f, 1.35f);
 		AsyncAbilityTransaction transaction = new AsyncAbilityTransaction(player, data, this);
 		java.util.UUID playerId = player.getUUID();
+		CastSource castSource = CastScalingContext.currentSource();
 		return TravelChunkLoader.request(playerId, targetLevel, BlockPos.containing(dest), () -> {
 			ServerPlayer traveler = targetLevel.getServer().getPlayerList().getPlayer(playerId);
 			if (traveler == null || !traveler.isAlive()
+					|| traveler.level() != sourceLevel || !MagicUseGate.ongoingAllowed(traveler)
+					|| !ServerCastLifecycle.mayContinue(traveler, castSource, false)
 					|| !SafeDestinationResolver.validate(
 							traveler, targetLevel, dest, TravelKind.CRYSTAL).allowed()) {
 				transaction.fail();
@@ -57,6 +64,10 @@ public class MiddleworldAbility extends Ability {
 			}
 			traveler.teleport(new TeleportTransition(targetLevel, dest, Vec3.ZERO,
 					traveler.getYRot(), traveler.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+			if (traveler.level() != targetLevel) {
+				transaction.fail();
+				return;
+			}
 			transaction.succeed();
 			PowerFx.rune(targetLevel, dest, runeRadius, 0x80CBC4, 30, Math.PI);
 			PowerFx.burst(targetLevel, dest.add(0, 1, 0), ParticleTypes.REVERSE_PORTAL, 24, 0.7, 0.04);

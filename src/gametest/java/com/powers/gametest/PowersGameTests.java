@@ -67,8 +67,8 @@ public final class PowersGameTests {
 
 	@GameTest
 	public void mythicArtifactsCarryUnbreakableRegisteredIdentity(GameTestHelper helper) {
-		var shadow = PowersWeapons.WEAPONS.get("lycanbane").getDefaultInstance();
-		var partisan = PowersWeapons.WEAPONS.get("heavenly_partisan").getDefaultInstance();
+		var shadow = PowersWeapons.weapon("lycanbane").getDefaultInstance();
+		var partisan = PowersWeapons.weapon("heavenly_partisan").getDefaultInstance();
 		helper.assertTrue(shadow.has(DataComponents.UNBREAKABLE), "Shadow Sword was damageable");
 		helper.assertTrue(partisan.has(DataComponents.UNBREAKABLE), "Heavenly Partisan was damageable");
 		helper.assertTrue(shadow.get(PowersDataComponents.ARTIFACT_IDENTITY).alignment()
@@ -126,7 +126,7 @@ public final class PowersGameTests {
 		CrucibleTransactionResult conversion = CrucibleTransactionEngine.prepare(
 				base, darkness, conversionChoice);
 		helper.assertTrue(conversion.success(), "Valid conversion plan failed");
-		ItemStack star = new ItemStack(com.powers.ImportedPackItems.ITEMS.get(
+		ItemStack star = new ItemStack(com.powers.ImportedPackItems.item(
 				"imported_artifact_star_animated"));
 		var bindingChoice = com.powers.forge.CrucibleTransformationCatalogue
 				.choices(conversion.result(), star).getFirst();
@@ -135,7 +135,7 @@ public final class PowersGameTests {
 		helper.assertTrue(binding.success(), "Animated-star binding failed");
 		CrucibleWeaponData bound = binding.result().get(PowersDataComponents.CRUCIBLE_WEAPON);
 		helper.assertTrue(bound != null && bound.starBound(), "Binding data was not persisted");
-		ItemStack rune = new ItemStack(com.powers.ImportedPackItems.ITEMS.get(
+		ItemStack rune = new ItemStack(com.powers.ImportedPackItems.item(
 				"imported_artifact_runestone_dark_inscribed_large"));
 		var infusionChoice = com.powers.forge.CrucibleTransformationCatalogue
 				.choices(binding.result(), rune).getFirst();
@@ -152,10 +152,10 @@ public final class PowersGameTests {
 	@GameTest
 	public void mythicArtifactsAreHardExcludedFromTheCrucible(GameTestHelper helper) {
 		helper.assertFalse(CrucibleEligibility.isBaseWeapon(
-				PowersWeapons.WEAPONS.get("lycanbane").getDefaultInstance()),
+				PowersWeapons.weapon("lycanbane").getDefaultInstance()),
 				"Shadow Sword entered the Crucible");
 		helper.assertFalse(CrucibleEligibility.isBaseWeapon(
-				PowersWeapons.WEAPONS.get("heavenly_partisan").getDefaultInstance()),
+				PowersWeapons.weapon("heavenly_partisan").getDefaultInstance()),
 				"Heavenly Partisan entered the Crucible");
 		helper.succeed();
 	}
@@ -290,7 +290,7 @@ public final class PowersGameTests {
 		caster.addTag(SkillSystem.DARKNESS_TAG);
 		com.powers.player.PlayerPowers.get(caster).setDarknessLevel(caster, 10);
 		caster.setItemInHand(InteractionHand.MAIN_HAND,
-				PowersWeapons.WEAPONS.get("lycanbane").getDefaultInstance());
+				PowersWeapons.weapon("lycanbane").getDefaultInstance());
 		var target = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 6));
 		target.setNoAi(true);
 		helper.assertTrue(ArtifactWeaponManager.select(caster, ArtifactAlignment.DARKNESS,

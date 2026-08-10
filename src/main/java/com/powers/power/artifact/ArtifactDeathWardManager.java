@@ -30,7 +30,7 @@ public final class ArtifactDeathWardManager {
 	/** Arms or refreshes one player's single ward. */
 	public static boolean arm(ServerPlayer player, ArtifactAlignment alignment) {
 		WARDS.put(player.getUUID(), new Ward(alignment,
-				player.level().getGameTime() + DURATION_TICKS));
+				player.level().getServer().getTickCount() + DURATION_TICKS));
 		ServerLevel level = (ServerLevel) player.level();
 		PowerFx.rune(level, player.position(), 2.2,
 				alignment == ArtifactAlignment.DARKNESS ? 0x3A0B52 : 0xFFE89B, 32, 0.0);
@@ -41,7 +41,8 @@ public final class ArtifactDeathWardManager {
 	public static boolean preventDeath(ServerPlayer player, DamageSource source) {
 		if (source.is(DamageTypes.GENERIC_KILL) || source.is(DamageTypes.FELL_OUT_OF_WORLD)) return false;
 		Ward ward = WARDS.get(player.getUUID());
-		if (ward == null || player.level().getGameTime() > ward.expiresAt()
+		if (ward == null || !ArtifactDominionRules.wardActive(
+				player.level().getServer().getTickCount(), ward.expiresAt())
 				|| !WARDS.remove(player.getUUID(), ward)) return false;
 		player.setHealth(ArtifactDominionRules.restoredHealth(ward.alignment(), player.getMaxHealth()));
 		player.invulnerableTime = 40;

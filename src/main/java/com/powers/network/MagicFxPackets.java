@@ -5,6 +5,7 @@ import com.powers.magic.fx.MagicFxEvent;
 import com.powers.magic.fx.MagicFxKind;
 import com.powers.magic.fx.MagicFxService;
 import com.powers.fx.BeamFxStyle;
+import com.powers.fx.ShapeFxKind;
 import com.powers.diagnostics.ServerRuntimeMetrics;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -113,14 +114,73 @@ public final class MagicFxPackets {
 		}
 	}
 
+	/** One budgeted circle, rune, or spiral; every point is expanded by its recipient. */
+	public record ShapeFxPayload(long eventId, ShapeFxKind kind,
+			double x, double y, double z, double radius, double height,
+			int count, int color, double phase) implements CustomPacketPayload {
+		public static final CustomPacketPayload.Type<ShapeFxPayload> TYPE =
+				new CustomPacketPayload.Type<>(PowersMod.id("shape_fx"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, ShapeFxPayload> STREAM_CODEC =
+				StreamCodec.of(ShapeFxPayload::encode, ShapeFxPayload::decode);
+
+		public ShapeFxPayload {
+			java.util.Objects.requireNonNull(kind, "kind");
+			if (!Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)
+					|| !Double.isFinite(radius) || !Double.isFinite(height)
+					|| !Double.isFinite(phase)) {
+				throw new IllegalArgumentException("Shape geometry must be finite");
+			}
+			radius = Math.clamp(radius, 0.0, 256.0);
+			height = Math.clamp(height, -256.0, 256.0);
+			count = Math.clamp(count, 1, 640);
+			color &= 0xFFFFFF;
+		}
+
+		private static void encode(RegistryFriendlyByteBuf buffer, ShapeFxPayload payload) {
+			buffer.writeVarLong(payload.eventId);
+			buffer.writeVarInt(payload.kind.networkId());
+			buffer.writeDouble(payload.x);
+			buffer.writeDouble(payload.y);
+			buffer.writeDouble(payload.z);
+			buffer.writeDouble(payload.radius);
+			buffer.writeDouble(payload.height);
+			buffer.writeVarInt(payload.count);
+			buffer.writeInt(payload.color);
+			buffer.writeDouble(payload.phase);
+		}
+
+		private static ShapeFxPayload decode(RegistryFriendlyByteBuf buffer) {
+			return new ShapeFxPayload(buffer.readVarLong(),
+					ShapeFxKind.fromNetworkId(buffer.readVarInt()),
+					buffer.readDouble(), buffer.readDouble(), buffer.readDouble(),
+					buffer.readDouble(), buffer.readDouble(), buffer.readVarInt(),
+					buffer.readInt(), buffer.readDouble());
+		}
+
+		@Override
+		public Type<? extends CustomPacketPayload> type() {
+			return TYPE;
+		}
+	}
+
 	public static void initialize() {
 		PayloadTypeRegistry.clientboundPlay().register(MagicFxPayload.TYPE, MagicFxPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(BeamFxPayload.TYPE, BeamFxPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(ShapeFxPayload.TYPE, ShapeFxPayload.STREAM_CODEC);
 	}
 
 	/** Sends an already budgeted beam only to its intended observer. */
 	public static void sendBeam(ServerPlayer observer, BeamFxPayload payload) {
 		if (ServerPlayNetworking.canSend(observer, BeamFxPayload.TYPE)) {
+			ServerPlayNetworking.send(observer, payload);
+			ServerRuntimeMetrics.recordPacket(observer.level().getServer(),
+					observer.level().getServer().getTickCount());
+		}
+	}
+
+	/** Sends an already budgeted semantic shape only to its intended observer. */
+	public static void sendShape(ServerPlayer observer, ShapeFxPayload payload) {
+		if (ServerPlayNetworking.canSend(observer, ShapeFxPayload.TYPE)) {
 			ServerPlayNetworking.send(observer, payload);
 			ServerRuntimeMetrics.recordPacket(observer.level().getServer(),
 					observer.level().getServer().getTickCount());

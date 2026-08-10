@@ -97,4 +97,35 @@ class PowersConfigTest {
 				"{\"schemaVersion\":2,\"allowTerrainDamage\":false}")
 				.allowTerrainDamage());
 	}
+
+	@Test
+	void malformedOrExcessiveSafeZonesBecomeFiniteAndBounded() {
+		java.util.List<PowersConfig.SafeZone> zones = new java.util.ArrayList<>();
+		zones.add(new PowersConfig.SafeZone(" invalid realm ", Double.NaN,
+				Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NaN));
+		for (int index = 0; index < 300; index++) {
+			zones.add(new PowersConfig.SafeZone("minecraft:overworld", index, 64, index, 10));
+		}
+		PowersConfig defaults = PowersConfig.defaults();
+		PowersConfig sanitized = new PowersConfig(defaults.schemaVersion(),
+				defaults.allowTerrainDamage(), defaults.allowBlockEntityDamage(),
+				defaults.allowSelfReroll(), defaults.hostileForcedMovement(),
+				defaults.requireTeleportConsent(), defaults.requireLocatorConsent(),
+				defaults.requireCompanionConsent(), defaults.requireDreamwalkConsent(),
+				defaults.requirePossessionConsent(), defaults.projectionBodiesVulnerable(),
+				defaults.persistCooldowns(), defaults.celestialRuinTerrainDamage(),
+				defaults.celestialRuinBlockEntityDamage(), defaults.wardRadius(),
+				defaults.maxParticlesPerTick(), defaults.teleportMaxChunkDistance(),
+				defaults.spaceTimeRadius(), defaults.chronoStopRadius(),
+				defaults.rankRespecExperienceLevels(), defaults.adminPermissionLevel(), zones,
+				defaults.livingForces(), defaults.dialogueProvider()).sanitized();
+
+		assertEquals(256, sanitized.safeZones().size());
+		PowersConfig.SafeZone first = sanitized.safeZones().getFirst();
+		assertEquals("minecraft:overworld", first.dimension());
+		assertEquals(0.0, first.x());
+		assertEquals(0.0, first.y());
+		assertEquals(0.0, first.z());
+		assertEquals(1.0, first.radius());
+	}
 }

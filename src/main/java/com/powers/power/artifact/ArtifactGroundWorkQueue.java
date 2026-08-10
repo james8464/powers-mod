@@ -4,6 +4,7 @@ import com.powers.PowersBlocks;
 import com.powers.force.LivingForceManager;
 import com.powers.force.LivingForceRules;
 import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.item.ArtifactWeaponManager;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.protection.PowerProtection;
@@ -57,6 +58,7 @@ public final class ArtifactGroundWorkQueue {
 			ServerPlayer owner = server.getPlayerList().getPlayer(work.ownerId());
 			ServerLevel level = server.getLevel(work.dimension());
 			if (owner == null || level == null || owner.level() != level
+					|| !ArtifactWeaponManager.maySustain(owner, work.alignment())
 					|| !PowerProtection.mayAffectBlock(owner, level, work.position())) continue;
 			BlockState state = level.getBlockState(work.position());
 			boolean opposed = work.alignment() == ArtifactAlignment.DARKNESS

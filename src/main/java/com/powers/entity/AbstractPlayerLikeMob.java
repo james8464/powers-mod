@@ -64,7 +64,7 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 	/** Configures a bounded owned summon; natural realm creatures remain unowned. */
 	public final void configureGuardian(UUID ownerId, int lifetimeTicks, boolean elite) {
 		guardianOwner = ownerId;
-		guardianLifetime = Math.max(1, lifetimeTicks);
+		guardianLifetime = GuardianFactionRules.normalizeLifetime(Math.max(1, lifetimeTicks));
 		eliteGuardian = elite;
 		setPersistenceRequired();
 		if (elite) {
@@ -81,6 +81,11 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 
 	public final boolean eliteGuardian() {
 		return eliteGuardian;
+	}
+
+	/** True for finite artifact summons; natural realm creatures are not globally capped. */
+	public final boolean temporaryGuardian() {
+		return guardianLifetime > 0;
 	}
 
 	protected boolean radiantCombat() {
@@ -174,7 +179,8 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 		} catch (IllegalArgumentException ignored) {
 			guardianOwner = null;
 		}
-		guardianLifetime = input.getIntOr("PowersGuardianLifetime", -1);
+		guardianLifetime = GuardianFactionRules.normalizeLifetime(
+				input.getIntOr("PowersGuardianLifetime", -1));
 		eliteGuardian = input.getBooleanOr("PowersEliteGuardian", false);
 	}
 }

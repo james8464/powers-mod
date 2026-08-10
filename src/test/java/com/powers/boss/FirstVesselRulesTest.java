@@ -42,4 +42,15 @@ class FirstVesselRulesTest {
 		assertFalse(FirstVesselRules.mayControl(false, true, false));
 		assertFalse(FirstVesselRules.mayControl(false, false, true));
 	}
+
+	@Test
+	void corruptedSavedVitalityFallsBackToFiniteBossBounds() {
+		assertEquals(FirstVesselRules.BASE_HEALTH,
+				FirstVesselRules.sanitizeMaximum(Float.NaN));
+		assertEquals(FirstVesselRules.BASE_HEALTH * 4.0F,
+				FirstVesselRules.sanitizeMaximum(Float.POSITIVE_INFINITY));
+		assertEquals(20_000.0F, FirstVesselRules.sanitizeMaximum(90_000.0F));
+		assertEquals(5_000.0F, FirstVesselRules.sanitizeHealth(Float.NaN, 5_000.0F));
+		assertEquals(1.0F, FirstVesselRules.sanitizeHealth(-100.0F, 5_000.0F));
+	}
 }

@@ -6,6 +6,7 @@ import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.PowerTargeting;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
@@ -90,13 +91,16 @@ public class VesselPossessionAbility extends Ability {
 			var entry = it.next();
 			ServerPlayer owner = server.getPlayerList().getPlayer(entry.getKey());
 			Possession possession = entry.getValue();
+			boolean ownerIsCurrent = owner != null && owner == possession.owner();
 			boolean targetAvailable = !possession.target().isRemoved()
 					&& (!(possession.target() instanceof ServerPlayer targetPlayer)
 					|| server.getPlayerList().getPlayer(targetPlayer.getUUID()) == targetPlayer);
+			boolean sameDimension = owner != null && owner.level() == possession.target().level();
 			// End early if either participant becomes invalid, protection changes,
 			// or a mob unloads while its camera session is active.
-			if (owner == null || !owner.isAlive() || !possession.target().isAlive()
+			if (!MagicUseGate.ongoingAllowed(owner) || !possession.target().isAlive()
 					|| !targetAvailable || now >= possession.endsAt()
+					|| !PossessionRules.sessionLocationValid(ownerIsCurrent, sameDimension)
 					|| AmethystDampening.isDampened(possession.target())
 					|| !mayPossess(possession.owner(), possession.target())) {
 				// reset the owner's camera before dropping the possession

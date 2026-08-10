@@ -42,14 +42,14 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * /powers list
- * /powers slots [player]
- * /powers assign <player> <power> <slot>
- * /powers reroll [player]
- * /powers darkprefix [true|false]
- * /powers travel <dimension>
+ * Registers the administrator's power-management commands:
+ * {@code /powers list}, {@code /powers slots [player]},
+ * {@code /powers assign <player> <power> <slot>},
+ * {@code /powers reroll [player]}, {@code /powers darkprefix [true|false]},
+ * and {@code /powers travel <dimension>}.
  *
- * the server admin's tool for managing powers by hand
+ * <p>Mutating branches enforce the configured operator permission on the
+ * server; player-facing branches expose only the caller's permitted state.</p>
  */
 public final class PowerCommand {
 	private PowerCommand() {
@@ -67,10 +67,10 @@ public final class PowerCommand {
 				.then(Commands.literal("slots")
 						.executes(PowerCommand::slotsSelf)
 						.then(Commands.argument("player", EntityArgument.player())
-								.requires(source -> source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER))
+								.requires(PowerCommand::isAdmin)
 								.executes(PowerCommand::slotsOther)))
 				.then(Commands.literal("assign")
-						.requires(source -> source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER))
+						.requires(PowerCommand::isAdmin)
 						.then(Commands.argument("player", EntityArgument.player())
 								.then(Commands.argument("power", StringArgumentType.word())
 										.then(Commands.argument("slot", IntegerArgumentType.integer(0, PlayerPowers.SLOT_COUNT - 1))
@@ -79,7 +79,7 @@ public final class PowerCommand {
 						.requires(source -> isAdmin(source) || PowersConfigLoader.get().allowSelfReroll())
 						.executes(PowerCommand::rerollSelf)
 						.then(Commands.argument("player", EntityArgument.player())
-								.requires(source -> source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER))
+								.requires(PowerCommand::isAdmin)
 								.executes(PowerCommand::rerollOther)))
 				.then(Commands.literal("consent")
 						.then(consentLiteral("teleport", PlayerPowers.ConsentKind.TELEPORT))
@@ -115,7 +115,7 @@ public final class PowerCommand {
 						.requires(PowerCommand::isAdmin)
 						.executes(PowerCommand::diagnose))
 				.then(Commands.literal("travel")
-						.requires(source -> source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER))
+						.requires(PowerCommand::isAdmin)
 						.then(Commands.argument("dimension", StringArgumentType.word())
 								.executes(PowerCommand::travel))));
 	}
@@ -247,12 +247,28 @@ public final class PowerCommand {
 			context.getSource().sendFailure(Component.literal("POWERS configuration is invalid; kept the last valid settings."));
 			return 0;
 		}
+		if (!PowersConfigLoader.get().persistCooldowns()) {
+			for (ServerPlayer player : context.getSource().getServer().getPlayerList().getPlayers()) {
+				PlayerPowers.get(player).clearCooldowns();
+				com.powers.network.PowersPackets.syncTo(player);
+			}
+		}
 		context.getSource().sendSuccess(() -> Component.literal("Reloaded POWERS configuration."), true);
 		return 1;
 	}
 
 	private static boolean isAdmin(CommandSourceStack source) {
-		return source.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER);
+		return switch (CommandPermissionRules.tier(PowersConfigLoader.get().adminPermissionLevel())) {
+			case 0 -> true;
+			case 1 -> source.permissions().hasPermission(
+					net.minecraft.server.permissions.Permissions.COMMANDS_MODERATOR);
+			case 2 -> source.permissions().hasPermission(
+					net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER);
+			case 3 -> source.permissions().hasPermission(
+					net.minecraft.server.permissions.Permissions.COMMANDS_ADMIN);
+			default -> source.permissions().hasPermission(
+					net.minecraft.server.permissions.Permissions.COMMANDS_OWNER);
+		};
 	}
 
 	private static int list(CommandContext<CommandSourceStack> context) {

@@ -18,4 +18,8 @@ public final class SpaceTimeModeRules {
 	public static int next(int index) {
 		return Math.floorMod(index + 1, count());
 	}
+
+	public static float soundPitch(Mode mode) {
+		return mode == Mode.FREEZE ? 0.35F : 1.4F;
+	}
 }

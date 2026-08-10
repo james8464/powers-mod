@@ -10,6 +10,7 @@ import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.Power;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.MagicShieldManager;
@@ -125,7 +126,7 @@ public final class SuperSpeedAbility extends Ability {
 			boolean sameDimension = owner != null
 					&& owner.level().dimension().equals(overdrive.dimension);
 			boolean dampened = owner != null && AmethystDampening.isDampened(owner);
-			boolean frozen = owner != null && EntityFreezeController.isFrozen(owner);
+			boolean frozen = MagicUseGate.timeLocked(owner);
 			boolean ownsCast = owner != null && ServerCastLifecycle.mayContinue(
 					owner, overdrive.castSource, ownsPower(owner));
 			boolean continues = SuperSpeedRules.overdriveContinues(owner != null,
@@ -375,7 +376,7 @@ public final class SuperSpeedAbility extends Ability {
 		Vec3 point = player != null && player.level() == level
 				? player.position() : overdrive.lastPosition;
 		boolean amethyst = player != null && AmethystDampening.isDampened(player);
-		boolean frozen = player != null && EntityFreezeController.isFrozen(player);
+		boolean frozen = MagicUseGate.timeLocked(player);
 		SuperSpeedFx.finish(level, point, interrupted, amethyst, frozen,
 				overdrive.ancientMastery);
 	}

@@ -21,6 +21,7 @@ import com.powers.power.Ability;
 import com.powers.power.AbilityActivationService;
 import com.powers.power.ActivationCooldowns;
 import com.powers.power.PowerEnergy;
+import com.powers.power.MagicUseGate;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
 import com.powers.power.artifact.AlignedArtifactAbility;
@@ -129,8 +130,8 @@ public final class ArtifactWeaponManager {
 			boolean active = action.ability().isToggle() && data.isToggleActive(toggleKey(action));
 			boolean locked = !ArtifactSelectionRules.maySelect(action.definition(), alignment,
 					rank(player, alignment));
-			int variant = action.ability().id().equals("elemental_blast") ? data.getPhase()
-					: action.ability().id().equals("size_shift") ? data.getSizeMorphOption() : -1;
+			int variant = com.powers.item.artifact.ArtifactMenuRules.selectionVariant(
+					action.ability().id().getPath(), data.getPhase(), data.getSizeMorphOption());
 			return new ArtifactActionSnapshot(action.definition().key(), action.definition().category(),
 					cost, remaining, maximum, active, locked, variant);
 		}).toList();
@@ -150,6 +151,12 @@ public final class ArtifactWeaponManager {
 
 	public static boolean carries(ServerPlayer player, ArtifactAlignment alignment) {
 		return player.getInventory().contains(stack -> isAlignment(stack, alignment));
+	}
+
+	/** Revalidates a multi-tick artifact invocation without emitting per-tick feedback. */
+	public static boolean maySustain(ServerPlayer player, ArtifactAlignment alignment) {
+		return player != null && ArtifactAuthorizationRules.maySustain(
+				MagicUseGate.ongoingAllowed(player), holds(player, alignment), authorized(player, alignment));
 	}
 
 	public static ArtifactAlignment alignment(ItemStack stack) {

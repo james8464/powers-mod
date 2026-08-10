@@ -136,13 +136,22 @@ public final class ArtifactWorldActions {
 						target.removeEffect(effect.getEffect());
 					}
 				}
-			} else if (hostile && !AmethystDampening.isDampened(target)
-					&& PowerProtection.mayHarm(player, target)) {
-				target.hurtServer(level, PowerDamage.source(player),
-						alignment == ArtifactAlignment.DARKNESS ? 85.0F : 70.0F);
-				target.setDeltaMovement(target.getDeltaMovement().add(
-						look.x * 3.5, 0.5, look.z * 3.5));
-				target.hurtMarked = true;
+			} else {
+				ArtifactImpactRules.Decision decision = ArtifactImpactRules.decide(hostile,
+						AmethystDampening.isDampened(target),
+						PowerProtection.mayHarm(player, target)
+								&& !SpellFieldManager.isSanctuaryProtected(level, target),
+						PowerProtection.mayForceMove(player, target),
+						SpellFieldManager.blocksForcedMovement(level, target, player.getUUID()));
+				if (decision.damage()) {
+					target.hurtServer(level, PowerDamage.source(player),
+							alignment == ArtifactAlignment.DARKNESS ? 85.0F : 70.0F);
+				}
+				if (decision.move()) {
+					target.setDeltaMovement(target.getDeltaMovement().add(
+							look.x * 3.5, 0.5, look.z * 3.5));
+					target.hurtMarked = true;
+				}
 			}
 		}
 		List<Projectile> projectiles = BoundedEntityCandidates.collect(level,

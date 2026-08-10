@@ -10,6 +10,7 @@ import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.Power;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.MagicShieldManager;
@@ -306,7 +307,7 @@ public final class BreezyBashAbility extends Ability {
 		boolean sameDimension = owner != null && owner.level().dimension().equals(rite.dimension);
 		return BreezyBashRules.ownerValid(owner != null, sameDimension,
 				owner != null && owner.isAlive(), owner != null && AmethystDampening.isDampened(owner),
-				owner != null && EntityFreezeController.isFrozen(owner),
+				MagicUseGate.timeLocked(owner),
 				owner != null && ServerCastLifecycle.mayContinue(
 						owner, rite.castSource, ownsPower(owner)));
 	}

@@ -3,14 +3,23 @@ package com.powers.power.abilities;
 import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.ActivationCooldowns;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
+import com.powers.power.Power;
 import com.powers.power.PowerDamage;
 import com.powers.progression.PowerScalingService;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
+import com.powers.mind.BodyProxyManager;
+import com.powers.power.state.EntityFreezeController;
+import com.powers.power.state.MagicShieldManager;
 import com.powers.util.PowerMessages;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.network.chat.Component;
@@ -33,6 +42,7 @@ import java.util.UUID;
 
 /** Server-synchronized kinetic dash with a bounded wake, impact, and ranked follow-up. */
 public final class SpeedBurstAbility extends Ability {
+	private static final net.minecraft.resources.Identifier POWER_ID = PowersMod.id("speed_burst");
 	private static final double BASE_STRENGTH = 2.2;
 	private static final double SECOND_STEP_MULTIPLIER = 1.15;
 	private static final double MINIMUM_VERTICAL = -0.35;
@@ -50,14 +60,15 @@ public final class SpeedBurstAbility extends Ability {
 	private static final Map<UUID, SecondStepWindow> SECOND_STEPS = new HashMap<>();
 
 	public SpeedBurstAbility() {
-		super(PowersMod.id("speed_burst"),
+		super(POWER_ID,
 				Component.translatable("ability.powers.speed_burst"), 140, false);
 	}
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		ServerLevel level = (ServerLevel) player.level();
-		long now = level.getGameTime();
+		long now = level.getServer().getTickCount();
+		CastSource castSource = CastScalingContext.currentSource();
 		boolean mastered = hasSecondStep(player);
 		boolean followUp = availableSecondStep(player, now, mastered);
 		double strength = BASE_STRENGTH * Math.min(1.35, scaling(player).rangeMultiplier())
@@ -80,7 +91,7 @@ public final class SpeedBurstAbility extends Ability {
 		player.addEffect(PowerStatusEffects.hidden(MobEffects.SLOW_FALLING,
 				scaledDuration(player, 120), 0, false, true));
 
-		DashTrace trace = new DashTrace(level.dimension(), player.position(), TRACE_TICKS,
+		DashTrace trace = new DashTrace(level.dimension(), castSource, player.position(), TRACE_TICKS,
 				safeFraction < 1.0, followUp, scaledPotency(player, BASE_IMPACT_DAMAGE),
 				scaledPotency(player, BASE_IMPACT_FORCE));
 		DASHES.put(player.getUUID(), trace);
@@ -88,7 +99,7 @@ public final class SpeedBurstAbility extends Ability {
 
 		if (!followUp && mastered) {
 			SECOND_STEPS.put(player.getUUID(), new SecondStepWindow(
-					level.dimension(), now + SECOND_STEP_DELAY, now + SECOND_STEP_WINDOW));
+					level.dimension(), castSource, now + SECOND_STEP_DELAY, now + SECOND_STEP_WINDOW));
 			PowerFx.secondStepReady(level, player.position().add(0.0, 0.45, 0.0));
 			PowerMessages.send(player, "ability.powers.speed_burst.second_step", 3);
 		} else if (!mastered) {
@@ -103,14 +114,14 @@ public final class SpeedBurstAbility extends Ability {
 		if (remainingTicks <= 0) return false;
 		SecondStepWindow window = validWindow(player);
 		return window != null && SpeedBurstRules.secondStepAvailable(
-				window.opensAt(), window.expiresAt(), player.level().getGameTime(), true);
+				window.opensAt(), window.expiresAt(), player.level().getServer().getTickCount(), true);
 	}
 
 	@Override
 	public int reactivationTicks(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		SecondStepWindow window = validWindow(player);
 		if (window == null || ActivationCooldowns.remainingTicks(player, this) <= 0) return 0;
-		long now = player.level().getGameTime();
+		long now = player.level().getServer().getTickCount();
 		if (!SpeedBurstRules.secondStepAvailable(
 				window.opensAt(), window.expiresAt(), now, true)) return 0;
 		return SpeedBurstRules.secondStepRemaining(
@@ -125,7 +136,9 @@ public final class SpeedBurstAbility extends Ability {
 			Map.Entry<UUID, DashTrace> entry = traces.next();
 			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
 			DashTrace trace = entry.getValue();
-			if (player == null || !player.isAlive() || !trace.dimension().equals(player.level().dimension())) {
+			if (player == null || !player.isAlive() || !trace.dimension().equals(player.level().dimension())
+					|| !MagicUseGate.ongoingAllowed(player)
+					|| !ServerCastLifecycle.mayContinue(player, trace.castSource(), ownsPower(player))) {
 				traces.remove();
 				continue;
 			}
@@ -158,6 +171,7 @@ public final class SpeedBurstAbility extends Ability {
 
 	/** Evicts invalid windows and publishes their exact open/closed HUD transitions. */
 	private static void tickWindows(MinecraftServer server) {
+		long now = server.getTickCount();
 		Iterator<Map.Entry<UUID, SecondStepWindow>> windows = SECOND_STEPS.entrySet().iterator();
 		while (windows.hasNext()) {
 			Map.Entry<UUID, SecondStepWindow> entry = windows.next();
@@ -166,11 +180,13 @@ public final class SpeedBurstAbility extends Ability {
 			boolean invalid = player == null || !player.isAlive()
 					|| !window.dimension().equals(player.level().dimension())
 					|| !PowerScalingService.hasVariant(player, "second_step")
-					|| player.level().getGameTime() >= window.expiresAt();
+					|| !MagicUseGate.ongoingAllowed(player)
+					|| !ServerCastLifecycle.mayContinue(player, window.castSource(), ownsPower(player))
+					|| now >= window.expiresAt();
 			if (invalid) {
 				windows.remove();
 				if (player != null) PowersPackets.syncTo(player);
-			} else if (player.level().getGameTime() == window.opensAt()) {
+			} else if (now == window.opensAt()) {
 				PowersPackets.syncTo(player);
 			}
 		}
@@ -180,9 +196,12 @@ public final class SpeedBurstAbility extends Ability {
 	private SecondStepWindow validWindow(ServerPlayer player) {
 		SecondStepWindow window = SECOND_STEPS.get(player.getUUID());
 		if (window == null) return null;
-		long now = player.level().getGameTime();
+		long now = player.level().getServer().getTickCount();
 		if (!player.isAlive() || !hasSecondStep(player)
-				|| !window.dimension().equals(player.level().dimension()) || now >= window.expiresAt()) {
+				|| !window.dimension().equals(player.level().dimension())
+				|| !MagicUseGate.ongoingAllowed(player)
+				|| !ServerCastLifecycle.mayContinue(player, window.castSource(), ownsPower(player))
+				|| now >= window.expiresAt()) {
 			SECOND_STEPS.remove(player.getUUID());
 			return null;
 		}
@@ -194,6 +213,8 @@ public final class SpeedBurstAbility extends Ability {
 		SecondStepWindow window = SECOND_STEPS.get(player.getUUID());
 		boolean cooldownArmed = ActivationCooldowns.remainingTicks(player, this) > 0;
 		if (window != null && window.dimension().equals(player.level().dimension()) && cooldownArmed
+				&& MagicUseGate.ongoingAllowed(player)
+				&& ServerCastLifecycle.mayContinue(player, window.castSource(), ownsPower(player))
 				&& SpeedBurstRules.secondStepAvailable(
 						window.opensAt(), window.expiresAt(), now, mastered)) {
 			return true;
@@ -207,6 +228,15 @@ public final class SpeedBurstAbility extends Ability {
 
 	private boolean hasSecondStep(ServerPlayer player) {
 		return scaling(player).unlockedVariants().contains("second_step");
+	}
+
+	private static boolean ownsPower(ServerPlayer player) {
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
+			Power power = data.getPower(slot);
+			if (power != null && POWER_ID.equals(power.id())) return true;
+		}
+		return false;
 	}
 
 	/** Samples the moved body in order and never accepts clear space beyond the first obstruction. */
@@ -238,32 +268,47 @@ public final class SpeedBurstAbility extends Ability {
 	private static boolean validImpactTarget(ServerPlayer caster, LivingEntity target) {
 		return target != caster && target.isAlive() && !AmethystDampening.isDampened(target)
 				&& caster.hasLineOfSight(target)
-				&& (PowerProtection.mayHarm(caster, target)
-				|| PowerProtection.mayForceMove(caster, target));
+				&& (mayDamage((ServerLevel) caster.level(), caster, target)
+				|| mayMove((ServerLevel) caster.level(), caster, target));
 	}
 
 	/** Keeps damage and forced movement as independent protection-policy decisions. */
 	private static void applyImpact(ServerLevel level, ServerPlayer caster, LivingEntity target,
 			Vec3 center, DashTrace trace) {
-		if (PowerProtection.mayHarm(caster, target)) {
+		if (mayDamage(level, caster, target)) {
 			target.hurtServer(level, PowerDamage.source(caster), trace.damage());
 		}
-		if (!PowerProtection.mayForceMove(caster, target)) return;
+		if (!mayMove(level, caster, target)) return;
 		Vec3 impulse = SpeedBurstRules.impactImpulse(center, target.position(), trace.force());
 		if (impulse.lengthSqr() == 0.0) return;
 		target.push(impulse.x, impulse.y, impulse.z);
 		target.hurtMarked = true;
 	}
 
+	private static boolean mayDamage(ServerLevel level, ServerPlayer caster, LivingEntity target) {
+		return PowerProtection.mayHarm(caster, target)
+				&& !SpellFieldManager.isSanctuaryProtected(level, target);
+	}
+
+	private static boolean mayMove(ServerLevel level, ServerPlayer caster, LivingEntity target) {
+		return !BodyProxyManager.isProxy(target) && !EntityFreezeController.isFrozen(target)
+				&& PowerProtection.mayForceMove(caster, target)
+				&& !SpellFieldManager.blocksForcedMovement(level, target, caster.getUUID())
+				&& (!(target instanceof ServerPlayer player) || !MagicShieldManager.global().active(
+						player.getUUID(), level.getServer().getTickCount()));
+	}
+
 	/** Immutable wake state snapshots potency while the prepared cast adjustment is active. */
-	private record DashTrace(ResourceKey<Level> dimension, Vec3 lastPosition, int remainingTicks,
+	private record DashTrace(ResourceKey<Level> dimension, CastSource castSource,
+			Vec3 lastPosition, int remainingTicks,
 			boolean predictedObstruction, boolean followUp, float damage, float force) {
 		DashTrace advance(Vec3 position, int ticks) {
-			return new DashTrace(dimension, position, ticks, false, followUp, damage, force);
+			return new DashTrace(dimension, castSource, position, ticks, false, followUp, damage, force);
 		}
 	}
 
 	/** Runtime-only cooldown bypass bounded to one owner and dimension. */
-	private record SecondStepWindow(ResourceKey<Level> dimension, long opensAt, long expiresAt) {
+	private record SecondStepWindow(ResourceKey<Level> dimension, CastSource castSource,
+			long opensAt, long expiresAt) {
 	}
 }

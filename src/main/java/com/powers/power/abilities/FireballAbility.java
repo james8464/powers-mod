@@ -10,6 +10,7 @@ import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.Power;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.PowerEntityState;
@@ -128,7 +129,7 @@ public final class FireballAbility extends Ability {
 			boolean sameDimension = originalOwner != null
 					&& originalOwner.level().dimension().equals(heart.dimension);
 			boolean dampened = originalOwner != null && AmethystDampening.isDampened(originalOwner);
-			boolean frozen = originalOwner != null && EntityFreezeController.isFrozen(originalOwner);
+			boolean frozen = MagicUseGate.timeLocked(originalOwner);
 			boolean continues = FireballRules.continues(originalOwner != null, sameDimension,
 					originalOwner != null && originalOwner.isAlive() && !originalOwner.isRemoved(),
 					dampened, frozen, originalOwner != null && ServerCastLifecycle.mayContinue(

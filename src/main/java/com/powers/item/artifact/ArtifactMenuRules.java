@@ -30,4 +30,13 @@ public final class ArtifactMenuRules {
 	public static <T> T valueAt(List<T> values, int index, T fallback) {
 		return values != null && index >= 0 && index < values.size() ? values.get(index) : fallback;
 	}
+
+	/** Returns the authored selector value for abilities that actually expose one. */
+	public static int selectionVariant(String abilityPath, int elementalPhase, int sizeOption) {
+		return switch (abilityPath == null ? "" : abilityPath) {
+			case "elemental_blast" -> elementalPhase;
+			case "size_shift" -> sizeOption;
+			default -> -1;
+		};
+	}
 }

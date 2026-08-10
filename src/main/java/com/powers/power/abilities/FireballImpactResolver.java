@@ -214,7 +214,7 @@ final class FireballImpactResolver {
 					BlockPos pos = origin.offset(dx, dy, dz);
 					BlockState fire = Blocks.FIRE.defaultBlockState();
 					if (!level.getBlockState(pos).isAir() || !fire.canSurvive(level, pos)
-							|| PowerProtection.isSafeZone(level, Vec3.atCenterOf(pos))) continue;
+							|| !PowerProtection.mayAffectBlock(controller, level, pos)) continue;
 					level.setBlockAndUpdate(pos, fire);
 					FireballFx.terrainScorch(level, Vec3.atCenterOf(pos), placed++);
 				}

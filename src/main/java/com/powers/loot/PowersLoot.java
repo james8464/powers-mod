@@ -38,7 +38,7 @@ public final class PowersLoot {
 	}
 
 	private static Item resolveItem(String id) {
-		if (!id.contains(":")) return ImportedPackItems.ITEMS.get(id);
+		if (!id.contains(":")) return ImportedPackItems.item(id);
 		Identifier identifier = Identifier.tryParse(id);
 		return identifier == null ? null : BuiltInRegistries.ITEM.getValue(identifier);
 	}

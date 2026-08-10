@@ -3,12 +3,17 @@ package com.powers.power.crystals;
 import com.powers.PowersMod;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.TimeStopFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.FreezeOwner;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
 import com.powers.util.PowerMessages;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.network.chat.Component;
@@ -42,7 +47,8 @@ public class ChronoStopAbility extends Ability {
 	// one stop per owner uuid, cleaned up on disconnect and server stop so it can't leak
 	private static final Map<UUID, ActiveStop> ACTIVE = new HashMap<>();
 
-	private record ActiveStop(long endsAt, Set<UUID> frozen, double presentationRadius) {
+	private record ActiveStop(CastSource castSource, long endsAt,
+			Set<UUID> frozen, double presentationRadius) {
 	}
 
 	public ChronoStopAbility() {
@@ -71,14 +77,15 @@ public class ChronoStopAbility extends Ability {
 						&& e != player.getVehicle() && !player.getPassengers().contains(e)
 						&& (!(e instanceof LivingEntity living) || !AmethystDampening.isDampened(living))
 						&& !PowerProtection.isSafeZone(level, e.position())
-						&& (!(e instanceof ServerPlayer target) || PowerProtection.mayForceMove(player, target)))) {
+						&& (!(e instanceof LivingEntity living) || (PowerProtection.mayForceMove(player, living)
+								&& !SpellFieldManager.blocksForcedMovement(level, living, player.getUUID()))))) {
 			EntityFreezeController.claim(entity, freezeOwner);
 			frozen.add(entity.getUUID());
 		}
 		if (frozen.isEmpty()) return false;
 
-		ACTIVE.put(player.getUUID(), new ActiveStop(
-				level.getGameTime() + scaledDuration(player, DURATION_TICKS),
+		ACTIVE.put(player.getUUID(), new ActiveStop(CastScalingContext.currentSource(),
+				level.getServer().getTickCount() + scaledDuration(player, DURATION_TICKS),
 				Set.copyOf(frozen), radius));
 		TimeStopFx.begin(level, player.position(), radius, true);
 		PowerMessages.sendImportant(player, "crystal.powers.chrono_start", 3);
@@ -91,7 +98,8 @@ public class ChronoStopAbility extends Ability {
 		while (it.hasNext()) {
 			Map.Entry<UUID, ActiveStop> entry = it.next();
 			ServerPlayer owner = server.getPlayerList().getPlayer(entry.getKey());
-			if (owner == null || !owner.isAlive()) {
+			if (!MagicUseGate.ongoingAllowed(owner) || !ServerCastLifecycle.mayContinue(
+					owner, entry.getValue().castSource(), false)) {
 				EntityFreezeController.release(FreezeOwner.token("chrono_stop", entry.getKey()),
 						entry.getValue().frozen());
 				it.remove();
@@ -99,7 +107,7 @@ public class ChronoStopAbility extends Ability {
 			}
 			ActiveStop stop = entry.getValue();
 			ServerLevel ownerLevel = (ServerLevel) owner.level();
-			long left = Math.max(0L, stop.endsAt() - ownerLevel.getGameTime());
+			long left = Math.max(0L, stop.endsAt() - server.getTickCount());
 			// Ten-tick pulse is legible without filling the owner's first-person view.
 			if (left % 10 == 0) {
 				TimeStopFx.sustain(ownerLevel, owner.position(),

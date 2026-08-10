@@ -10,6 +10,7 @@ import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.Power;
 import com.powers.power.PowerDamage;
 import com.powers.power.state.MagicShieldManager;
@@ -135,7 +136,7 @@ public final class VoidBeamAbility extends Ability {
 	/** Revalidates every fact that may legitimately interrupt a paid charge. */
 	private static boolean validOwner(ServerPlayer player, Charge charge) {
 		if (player == null || !player.isAlive() || !player.level().dimension().equals(charge.dimension())
-				|| AmethystDampening.isDampened(player)) return false;
+				|| !MagicUseGate.ongoingAllowed(player)) return false;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		boolean innateOwned = false;
 		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {

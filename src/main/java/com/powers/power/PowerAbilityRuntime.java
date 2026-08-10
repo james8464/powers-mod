@@ -25,6 +25,7 @@ import com.powers.power.crystals.SoulLinkAbility;
 import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.GlobalTimeStopManager;
+import com.powers.player.PlayerPowers;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -36,25 +37,36 @@ public final class PowerAbilityRuntime {
 	}
 
 	/** Clears state that cannot follow a player entity across a respawn replacement. */
-	public static void afterRespawn(MinecraftServer server, UUID oldOwner) {
-		TimeFreezeToggleAbility.clear(server, oldOwner);
-		GravityDisplacementAbility.clear(server, oldOwner);
-		BreezyBashAbility.clear(server, oldOwner);
-		FireballAbility.clear(server, oldOwner);
-		GroundSlamAbility.clear(server, oldOwner);
-		LightningStrikeAbility.clear(server, oldOwner);
-		StarfallAbility.clear(server, oldOwner);
-		SuperSpeedAbility.clear(server, oldOwner);
-		SpeedBurstAbility.clear(oldOwner);
-		EnergyBeamAbility.clear(oldOwner);
-		VoidBeamAbility.clear(oldOwner);
+	public static void afterRespawn(MinecraftServer server, ServerPlayer oldPlayer,
+			ServerPlayer newPlayer) {
+		clearPlayerState(server, oldPlayer);
+		clearRuntimeOnlyToggles(newPlayer);
+	}
+
+	/** Death ends every innate toggle so a replacement body cannot silently reactivate it. */
+	public static void deactivateToggles(ServerPlayer player) {
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
+			Power power = data.getPower(slot);
+			if (power == null || power.ability() == null || !power.ability().isToggle()) continue;
+			String key = power.id().toString();
+			if (!data.isToggleActive(key)) continue;
+			power.ability().activateToggleOff(player, data);
+			data.setToggleActive(player, key, false);
+		}
 	}
 
 	/** Clears every active ability session owned by a disconnecting player. */
 	public static void onDisconnect(MinecraftServer server, ServerPlayer player) {
+		clearPlayerState(server, player);
+	}
+
+	/** One complete lifecycle boundary prevents UUID-keyed casts leaking onto replacement entities. */
+	private static void clearPlayerState(MinecraftServer server, ServerPlayer player) {
 		UUID owner = player.getUUID();
 		TeleportAbility.clearMarking(player);
 		TimeFreezeToggleAbility.clear(server, owner);
+		clearRuntimeOnlyToggles(player);
 		ForcefieldAbility.clear(owner);
 		GravityDisplacementAbility.clear(server, owner);
 		BreezyBashAbility.clear(server, owner);
@@ -69,12 +81,18 @@ public final class PowerAbilityRuntime {
 		ChronoStopAbility.clear(owner);
 		InfernoAbility.clear(owner);
 		SoulLinkAbility.clear(owner);
-		SizeShiftAbility.clear(owner);
+		SizeShiftAbility.clear(player);
 		SpeedBurstAbility.clear(owner);
 		EnergyBeamAbility.clear(owner);
 		VoidBeamAbility.clear(owner);
 		SpaceTimeAbility.clear(owner);
 		EnergyDrainAbility.clear(owner);
+	}
+
+	/** Global clock ownership cannot survive a player-entity or connection replacement. */
+	private static void clearRuntimeOnlyToggles(ServerPlayer player) {
+		PlayerPowers.get(player).clearToggleOwnership(player,
+				com.powers.PowersMod.id("time_freeze"));
 	}
 
 	/** Releases all server-owned ability state before world references are discarded. */
@@ -123,6 +141,7 @@ public final class PowerAbilityRuntime {
 		SuperSpeedAbility.tickAll(server);
 		SpaceTimeAbility.tickAll(server);
 		DreamwalkingAbility.tickAll(server);
+		SizeShiftAbility.tickAll(server);
 	}
 
 	/** Refreshes defensive auras on the shared five-tick cadence. */
@@ -137,6 +156,6 @@ public final class PowerAbilityRuntime {
 
 	/** Returns whether the player is currently operating away from their physical body. */
 	public static boolean usesDetachedBody(UUID owner) {
-		return TeleportAbility.MARKING.containsKey(owner) || AstralProjectionAbility.isActive(owner);
+		return TeleportAbility.isMarking(owner) || AstralProjectionAbility.isActive(owner);
 	}
 }

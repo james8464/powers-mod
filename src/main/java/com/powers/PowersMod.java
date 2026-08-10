@@ -30,6 +30,7 @@ import com.powers.spell.SpellFieldManager;
 import com.powers.spell.CelestialRuinManager;
 import com.powers.realm.RealmMindscapeManager;
 import com.powers.realm.RealmConfinementManager;
+import com.powers.realm.RealmDimensionRules;
 import com.powers.loot.PowersLoot;
 import com.powers.item.ArtifactInventoryRuntime;
 import com.powers.item.ArtifactWeaponManager;
@@ -56,18 +57,16 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Fabric entry point that registers POWERS systems and coordinates their
- * server lifecycle. Persistent player state belongs to attachments; this
- * class owns only ephemeral per-session bookkeeping.
+ * Registers POWERS and coordinates its server lifecycle. Persistent player
+ * state belongs to attachments; this class owns only per-session bookkeeping.
  */
 public class PowersMod implements ModInitializer {
 	public static final String MOD_ID = "powers";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	// passives are re-applied every 100 ticks (5 seconds) so they never expire
+	// Passives are re-applied every five seconds so they never expire.
 	private static final int PASSIVE_REFRESH_TICKS = 100;
-
-	// the signature a summoned storm carries: which realm's weather it echoes
+	// Records which realm's weather a summoned storm echoes.
 	public enum StormTheme { NONE, DARK, LIGHT }
 
 	// whether each player was asleep last tick, so waking up can refund energy
@@ -100,12 +99,19 @@ public class PowersMod implements ModInitializer {
 		PowersPackets.initialize();
 		PowerCommand.register();
 		PowerCombatEvents.register();
-		ServerEntityEvents.ENTITY_LOAD.register((entity, level) ->
-				com.powers.network.NamedLivingTargetIndex.track(entity));
+		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+			com.powers.network.NamedLivingTargetIndex.track(entity);
+			if (entity instanceof com.powers.entity.AbstractPlayerLikeMob guardian) {
+				com.powers.power.artifact.ArtifactGuardianSummons.trackLoaded(guardian);
+			}
+		});
 		ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) ->
 		{
 			com.powers.network.NamedLivingTargetIndex.untrack(entity);
 			com.powers.magic.runtime.PhysicalMagicPresences.unload(entity);
+			if (entity instanceof com.powers.entity.AbstractPlayerLikeMob guardian) {
+				com.powers.power.artifact.ArtifactGuardianSummons.untrackLoaded(guardian);
+			}
 		});
 		LOGGER.info("Magic collision kernel loaded: {} actions, {} exhaustive interactions",
 				MagicRuntime.catalogue().definitions().size(), MagicRuntime.global().interactionCount());
@@ -116,6 +122,9 @@ public class PowersMod implements ModInitializer {
 		// first join rolls three random powers that stick with the player for good
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ServerPlayer player = handler.getPlayer();
+			if (!PowersConfigLoader.get().persistCooldowns()) {
+				PlayerPowers.get(player).clearCooldowns();
+			}
 			BodyProxyManager.recoverOnJoin(player);
 			PlayerPowers.get(player).assignRandom(player, false);
 			SkillSystem.syncPathVisibility(player);
@@ -127,13 +136,21 @@ public class PowersMod implements ModInitializer {
 		// to be rebuilt straight away instead of waiting for the next refresh
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
 			MagicRuntime.global().clearOwner(oldPlayer.getUUID());
-			PowerAbilityRuntime.afterRespawn(newPlayer.level().getServer(), oldPlayer.getUUID());
+			PowerAbilityRuntime.afterRespawn(newPlayer.level().getServer(), oldPlayer, newPlayer);
 			WAS_SLEEPING.remove(newPlayer.getUUID());
 			SkillSystem.clear(newPlayer.getUUID());
-			// Vanilla respawning begins outside a mindscape. Discard the dead
-			// proxy snapshot, then confinement may return the new body to its realm.
+			SpellCastingManager.clear(oldPlayer);
+			ArtifactInventoryRuntime.forget(oldPlayer);
+			CrucibleWeaponRuntime.forget(oldPlayer.getUUID());
+			TravelChunkLoader.cancel(oldPlayer.getUUID());
+			PowersPackets.forget(oldPlayer);
+			// Every respawn replaces the player entity, including a living End
+			// return. End the copied detached-body session on the replacement so
+			// it cannot block future projection, possession, or realm travel.
+			BodyProxyManager.discardOnDeath(newPlayer);
 			if (!alive) {
-				BodyProxyManager.discardOnDeath(newPlayer);
+				PowerAbilityRuntime.deactivateToggles(newPlayer);
+				ArtifactInventoryRuntime.stopAllToggles(newPlayer);
 				PlayerPowers.get(newPlayer).setPreviousGameMode(null);
 				RealmConfinementManager.restoreAfterDeath(oldPlayer, newPlayer);
 			}
@@ -146,6 +163,9 @@ public class PowersMod implements ModInitializer {
 		// anchors, and owned flag snapshots deliberately stay on the player.
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 			ServerPlayer player = handler.getPlayer();
+			if (!PowersConfigLoader.get().persistCooldowns()) {
+				PlayerPowers.get(player).clearCooldowns();
+			}
 			MagicRuntime.global().clearOwner(player.getUUID());
 			WAS_SLEEPING.remove(player.getUUID());
 			SkillSystem.clear(player.getUUID());
@@ -213,6 +233,11 @@ public class PowersMod implements ModInitializer {
 
 	/** Performs all work for one player during the coordinator's single pass. */
 	static void tickPlayer(ServerPlayer player, int tick, PlayerTickCadence cadence) {
+		enforceRealmGamemode(player);
+		// Minecraft's global tick freeze does not prevent Fabric's server-end
+		// callback from running. Do not advance passives, artifacts, energy, or
+		// player-owned magic for anyone the active time stop has frozen.
+		if (!com.powers.power.state.GlobalTimeStopManager.mayAct(player)) return;
 		if (cadence.passiveRefresh()) {
 			refreshPassives(player);
 			PowersPackets.syncTo(player);
@@ -220,7 +245,6 @@ public class PowersMod implements ModInitializer {
 		ArtifactInventoryRuntime.tickPlayer(player, tick);
 		com.powers.item.ImportedArtifactRuntime.tickPlayer(player, tick);
 		PrivateCompanionManager.tickPlayer(player, tick);
-		enforceRealmGamemode(player);
 		tickToggles(player, tick);
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		boolean sleeping = player.isSleeping();
@@ -310,8 +334,8 @@ public class PowersMod implements ModInitializer {
 	 */
 	private static void enforceRealmGamemode(ServerPlayer player) {
 		if (PowerAbilityRuntime.usesDetachedBody(player.getUUID())) return;
-		String dim = player.level().dimension().identifier().getPath();
-		boolean inRealm = dim.equals("dark_realm") || dim.equals("light_realm") || dim.equals("middleworld");
+		boolean inRealm = RealmDimensionRules.isMindscape(
+				player.level().dimension().identifier().toString());
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		GameType previous = data.previousGameMode();
 		if (inRealm) {

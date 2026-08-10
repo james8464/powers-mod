@@ -14,6 +14,11 @@ public final class LivingForceRules {
 	private LivingForceRules() {
 	}
 
+	/** Server-owned auras and clash cursors obey the global world clock. */
+	public static boolean mayAdvance(boolean globallyStopped) {
+		return !globallyStopped;
+	}
+
 	/** Resolves darkness-tag affinity; pure light currently has no passive aura. */
 	public static Affinity affinity(boolean darknessTagged, LivingForceKind force) {
 		Objects.requireNonNull(force, "force");

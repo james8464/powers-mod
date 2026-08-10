@@ -10,6 +10,7 @@ import com.powers.magic.runtime.CastSource;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.PowerDamage;
 import com.powers.power.PowerTargeting;
 import com.powers.protection.PowerProtection;
@@ -50,11 +51,7 @@ public final class CrucibleWeaponRuntime {
 	public static boolean cast(ServerPlayer player, CrucibleWeaponData weapon) {
 		int tick = player.level().getServer().getTickCount();
 		if (!RATE_LIMITER.allow(player.getUUID(), tick)) return false;
-		AmethystDampening.update(player);
-		if (AmethystDampening.isDampened(player)) {
-			AmethystDampening.punish(player);
-			return false;
-		}
+		if (!MagicUseGate.passes(player, true)) return false;
 		LivingEntity target = PowerTargeting.findLivingTarget(player, 96.0);
 		if (target == null || !PowerProtection.mayHarm(player, target)) return false;
 		ServerLevel level = (ServerLevel) player.level();

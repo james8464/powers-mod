@@ -7,6 +7,7 @@ import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -37,7 +38,8 @@ public final class GuardianAlignmentField {
 				continue;
 			}
 			if (PowerProtection.isSafeZone(level, target.position())
-					|| AmethystDampening.isDampened(target)) continue;
+					|| AmethystDampening.isDampened(target)
+					|| SpellFieldManager.isSanctuaryProtected(level, target)) continue;
 			target.hurtServer(level, PowerDamage.source(guardian), guardian.eliteGuardian() ? 26.0F : 14.0F);
 			target.addEffect(PowerStatusEffects.hidden(alignment == ArtifactAlignment.DARKNESS
 					? MobEffects.WITHER : MobEffects.WEAKNESS, 80,

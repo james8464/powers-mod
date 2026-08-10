@@ -14,6 +14,14 @@ import java.util.function.Predicate;
 
 /** Inspects a hard-capped typed-entity prefix, then filters and orders it. */
 public final class BoundedEntityCandidates {
+	/** Filtered candidates plus the actual typed bodies inspected by Minecraft. */
+	public record Batch<T>(List<T> candidates, int inspected) {
+		public Batch {
+			candidates = List.copyOf(candidates);
+			inspected = Math.max(0, inspected);
+		}
+	}
+
 	private static final EntityTypeTest<Entity, LivingEntity> LIVING_TYPE =
 			EntityTypeTest.forClass(LivingEntity.class);
 
@@ -56,12 +64,21 @@ public final class BoundedEntityCandidates {
 	public static <T extends Entity> List<T> collect(ServerLevel level,
 			EntityTypeTest<Entity, T> type, AABB bounds, int inspectionLimit,
 			Predicate<? super T> eligibility) {
+		return new ArrayList<>(collectBatch(
+				level, type, bounds, inspectionLimit, eligibility).candidates());
+	}
+
+	/** Exposes actual inspection cost for callers that share a larger work budget. */
+	public static <T extends Entity> Batch<T> collectBatch(ServerLevel level,
+			EntityTypeTest<Entity, T> type, AABB bounds, int inspectionLimit,
+			Predicate<? super T> eligibility) {
 		List<T> candidates = new ArrayList<>(Math.max(0, inspectionLimit));
-		if (inspectionLimit <= 0) return candidates;
+		if (inspectionLimit <= 0) return new Batch<>(candidates, 0);
 		level.getEntities(type, bounds, ignored -> true, candidates, inspectionLimit);
+		int inspected = candidates.size();
 		ServerRuntimeMetrics.recordEntityInspections(level.getServer(),
-				level.getServer().getTickCount(), candidates.size());
+				level.getServer().getTickCount(), inspected);
 		candidates.removeIf(eligibility.negate());
-		return candidates;
+		return new Batch<>(candidates, inspected);
 	}
 }

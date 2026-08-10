@@ -32,6 +32,7 @@ class MagicShieldManagerTest {
 		manager.raise(owner, 4.0f, 5);
 
 		assertFalse(manager.absorb(owner, Float.NaN, 1).blocked());
+		assertFalse(manager.active(owner, 5));
 		assertFalse(manager.absorb(owner, 1.0f, 6).blocked());
 		assertFalse(manager.absorb(UUID.randomUUID(), 10.0f, 1).blocked());
 	}

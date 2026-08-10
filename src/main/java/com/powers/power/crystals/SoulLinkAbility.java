@@ -2,12 +2,17 @@ package com.powers.power.crystals;
 
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.SoulLinkMath;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -41,7 +46,8 @@ public class SoulLinkAbility extends Ability {
 	private record Link(LivingEntity entity, float lastHealth) {
 	}
 
-	private record ActiveLink(int ticksLeft, List<Link> links, double damageMultiplier) {
+	private record ActiveLink(CastSource castSource, int ticksLeft,
+			List<Link> links, double damageMultiplier) {
 	}
 
 	// one active link per caster, keyed by uuid so a logged-off player can be dropped
@@ -69,7 +75,8 @@ public class SoulLinkAbility extends Ability {
 				 e -> e.isAlive() && e != player && !player.isAlliedTo(e)
 						 && e.distanceToSqr(player) <= radius * radius
 						 && !AmethystDampening.isDampened(e)
-						 && !PowerProtection.isSafeZone(level, e.position()))) {
+						 && PowerProtection.mayHarm(player, e)
+						 && !SpellFieldManager.isSanctuaryProtected(level, e))) {
 			links.add(new Link(target, target.getHealth()));
 			PowerFx.coloredBurst(level, target.position().add(0, 1, 0), 0x9C27B0, 10, 0.5);
 			if (links.size() >= maxLinks) {
@@ -79,7 +86,8 @@ public class SoulLinkAbility extends Ability {
 		if (links.isEmpty()) {
 			return false;
 		}
-		ACTIVE.put(player.getUUID(), new ActiveLink(scaledDuration(player, DURATION_TICKS), links,
+		ACTIVE.put(player.getUUID(), new ActiveLink(CastScalingContext.currentSource(),
+				scaledDuration(player, DURATION_TICKS), links,
 				scaling(player).potencyMultiplier()));
 		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x9C27B0, 24, 1.2);
 		PowerFx.sound(level, player.position(), SoundEvents.EVOKER_CAST_SPELL, 1.0f, 0.9f);
@@ -95,7 +103,8 @@ public class SoulLinkAbility extends Ability {
 			ActiveLink active = entry.getValue();
 
 			// caster logged off or died, so the link dies with them
-			if (caster == null || !caster.isAlive()) {
+			if (!MagicUseGate.ongoingAllowed(caster) || !ServerCastLifecycle.mayContinue(
+					caster, active.castSource(), false)) {
 				it.remove();
 				continue;
 			}
@@ -108,7 +117,8 @@ public class SoulLinkAbility extends Ability {
 				// skip souls that died, despawned or left the caster's dimension
 				if (!entity.isAlive() || entity.isRemoved() || entity.level() != caster.level()
 						|| AmethystDampening.isDampened(entity)
-						|| PowerProtection.isSafeZone((ServerLevel) caster.level(), entity.position())) {
+						|| !PowerProtection.mayHarm(caster, entity)
+						|| SpellFieldManager.isSanctuaryProtected((ServerLevel) caster.level(), entity)) {
 					continue;
 				}
 				// track the biggest wound suffered this tick
@@ -148,7 +158,8 @@ public class SoulLinkAbility extends Ability {
 			if (left <= 0 || updated.isEmpty()) {
 				it.remove();
 			} else {
-				entry.setValue(new ActiveLink(left, updated, active.damageMultiplier()));
+				entry.setValue(new ActiveLink(active.castSource(), left,
+						updated, active.damageMultiplier()));
 			}
 		}
 	}

@@ -9,6 +9,7 @@ import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
 import com.powers.progression.PowerScalingService;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -46,7 +47,9 @@ public class IceManipulationAbility extends Ability {
 		if (hit instanceof net.minecraft.world.phys.EntityHitResult entHit
 				&& entHit.getEntity() instanceof LivingEntity target) {
 			// looking at a protected entity means the cast fails and energy is refunded
-			if (AmethystDampening.isDampened(target)) return false;
+			if (AmethystDampening.isDampened(target)
+					|| !PowerProtection.mayHarm(player, target)
+					|| SpellFieldManager.isSanctuaryProtected(level, target)) return false;
 			// 8 damage that scales with skill, a heavy slow, weakness and a deep freeze
 			target.hurtServer(level, PowerDamage.source(player),
 					PowerScalingService.damage(player, "ice_manipulation", 8.0f));

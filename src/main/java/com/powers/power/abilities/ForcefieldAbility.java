@@ -6,6 +6,8 @@ import com.powers.power.Ability;
 import com.powers.power.state.MagicShieldManager;
 import com.powers.power.state.PowerEntityState;
 import com.powers.progression.ScaledMagicValues;
+import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
@@ -67,7 +69,9 @@ public class ForcefieldAbility extends Ability {
 				projectile.hurtMarked = true;
 			}
 			Entity attacker = source.getEntity();
-			if (attacker != null && attacker != player) {
+			if (attacker instanceof net.minecraft.world.entity.LivingEntity living && attacker != player
+					&& PowerProtection.mayForceMove(player, living)
+					&& !SpellFieldManager.blocksForcedMovement(level, living, player.getUUID())) {
 				Vec3 away = attacker.position().subtract(player.position()).normalize().scale(0.65);
 				attacker.push(away.x, 0.25, away.z);
 				com.powers.fx.PowerFx.clash(level, center, attacker.position().add(0, 1, 0), 0x40C4FF, 0xFFFFFF);

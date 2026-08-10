@@ -49,6 +49,8 @@ public final class AmethystDampening {
 	// how close amethyst blocks need to be to suppress powers
 	private static final int RADIUS = 6;
 	private static final int BLOCK_SCAN_CACHE_TICKS = 10;
+	private static final int MAX_SUPPRESSED_WARDS_PER_DIMENSION = 4_096;
+	private static final int MAX_SUPPRESSION_TICKS = 72_000;
 
 	/** Blocks that shut powers down when a player stands near them. */
 	public static final TagKey<Block> AMETHYST_BLOCKS =
@@ -114,8 +116,14 @@ public final class AmethystDampening {
 
 	/** A completed ward-breaking ritual grounds one powered ward temporarily. */
 	public static void suppressWard(ServerLevel level, BlockPos pos, int durationTicks) {
-		SUPPRESSED_WARDS.computeIfAbsent(level.dimension(), key -> new HashMap<>())
-				.put(pos.immutable(), level.getGameTime() + durationTicks);
+		long now = level.getGameTime();
+		Map<BlockPos, Long> suppressed = SUPPRESSED_WARDS.computeIfAbsent(
+				level.dimension(), key -> new java.util.LinkedHashMap<>());
+		suppressed.entrySet().removeIf(entry -> entry.getValue() <= now);
+		if (!suppressed.containsKey(pos) && suppressed.size() >= MAX_SUPPRESSED_WARDS_PER_DIMENSION) {
+			suppressed.remove(suppressed.keySet().iterator().next());
+		}
+		suppressed.put(pos.immutable(), now + Math.clamp(durationTicks, 1, MAX_SUPPRESSION_TICKS));
 	}
 
 	/**
@@ -135,7 +143,10 @@ public final class AmethystDampening {
 			if (suppressed != null) {
 				long expiry = suppressed.getOrDefault(pos, 0L);
 				if (expiry > level.getGameTime()) continue;
-				if (expiry != 0L) suppressed.remove(pos);
+				if (expiry != 0L) {
+					suppressed.remove(pos);
+					if (suppressed.isEmpty()) SUPPRESSED_WARDS.remove(level.dimension());
+				}
 			}
 			if (LoadedChunks.contains(level, pos)) {
 				BlockState state = level.getBlockState(pos);
