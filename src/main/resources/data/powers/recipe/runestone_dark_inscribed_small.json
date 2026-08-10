@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "powers:imported_artifact_runestone_dark_large",
+    "minecraft:experience_bottle",
+    "minecraft:glowstone_dust"
+  ],
+  "result": { "id": "powers:imported_artifact_runestone_dark_inscribed_small", "count": 1 }
+}

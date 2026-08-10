@@ -14,7 +14,7 @@ class MagicActionCatalogueTest {
 	private static final Map<MagicOrigin, Integer> EXPECTED_ORIGIN_COUNTS = Map.of(
 			MagicOrigin.INNATE, 27,
 			MagicOrigin.CRYSTAL, 13,
-			MagicOrigin.ARTIFACT, 29,
+			MagicOrigin.ARTIFACT, 31,
 			MagicOrigin.SPELL, 21,
 			MagicOrigin.AMETHYST, 3,
 			MagicOrigin.REALM, 2);
@@ -26,8 +26,8 @@ class MagicActionCatalogueTest {
 		catalogue.definitions().forEach(definition ->
 				actualCounts.merge(definition.origin(), 1, Integer::sum));
 
-		assertEquals(95, catalogue.definitions().size());
-		assertEquals(95, catalogue.definitions().stream()
+		assertEquals(97, catalogue.definitions().size());
+		assertEquals(97, catalogue.definitions().stream()
 				.map(MagicActionDefinition::id).distinct().count());
 		assertEquals(EXPECTED_ORIGIN_COUNTS, actualCounts);
 		assertTrue(catalogue.definitions().stream().allMatch(MagicActionDefinition::isComplete));

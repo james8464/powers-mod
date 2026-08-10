@@ -4,6 +4,7 @@ import com.powers.item.ShadowSwordItem;
 import com.powers.item.HeavenlyPartisanItem;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.artifact.ArtifactIdentity;
+import com.powers.forge.CrucibleEligibility;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
@@ -131,6 +132,8 @@ public final class PowersWeapons {
 		for (WeaponDef def : DEFS) {
 			WEAPONS.put(def.id(), register(def));
 		}
+		CrucibleEligibility.registerBaseWeapon(stack -> WEAPONS.containsValue(stack.getItem())
+				&& !stack.has(PowersDataComponents.ARTIFACT_IDENTITY));
 		CreativeModeTabEvents.modifyOutputEvent(COMBAT_TAB)
 				.register(creativeTab -> WEAPONS.values().forEach(creativeTab::accept));
 	}

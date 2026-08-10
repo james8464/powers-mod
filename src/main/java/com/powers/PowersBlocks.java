@@ -2,6 +2,7 @@ package com.powers;
 
 import com.powers.force.LivingForceBlock;
 import com.powers.force.LivingForceKind;
+import com.powers.forge.ArcaneCrucibleBlock;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -79,6 +80,14 @@ public final class PowersBlocks {
 					.sound(SoundType.AMETHYST)
 					.lightLevel(state -> AmethystWardBlock.isPowered(state) ? 10 : 2));
 
+	public static final ResourceKey<Block> ARCANE_CRUCIBLE_KEY = key("arcane_crucible");
+	public static final Block ARCANE_CRUCIBLE = register(ARCANE_CRUCIBLE_KEY,
+			ArcaneCrucibleBlock::new, BlockBehaviour.Properties.of()
+					.mapColor(MapColor.COLOR_PURPLE)
+					.strength(6.0F, 1200.0F)
+					.sound(SoundType.DEEPSLATE)
+					.lightLevel(state -> state.getValue(ArcaneCrucibleBlock.LIT) ? 9 : 0));
+
 	private PowersBlocks() {
 	}
 
@@ -108,6 +117,7 @@ public final class PowersBlocks {
 					creativeTab.accept(AMETHYST_WARD);
 					creativeTab.accept(LIGHT_MEMORY_OBELISK);
 					creativeTab.accept(DARK_MEMORY_OBELISK);
+					creativeTab.accept(ARCANE_CRUCIBLE);
 				});
 	}
 }

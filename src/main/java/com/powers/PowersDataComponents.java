@@ -1,6 +1,7 @@
 package com.powers;
 
 import com.powers.item.artifact.ArtifactIdentity;
+import com.powers.forge.CrucibleWeaponData;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -12,6 +13,10 @@ public final class PowersDataComponents {
 			BuiltInRegistries.DATA_COMPONENT_TYPE, PowersMod.id("artifact_identity"),
 			DataComponentType.<ArtifactIdentity>builder().persistent(ArtifactIdentity.CODEC)
 					.networkSynchronized(ByteBufCodecs.fromCodecWithRegistries(ArtifactIdentity.CODEC)).build());
+	public static final DataComponentType<CrucibleWeaponData> CRUCIBLE_WEAPON = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE, PowersMod.id("crucible_weapon"),
+			DataComponentType.<CrucibleWeaponData>builder().persistent(CrucibleWeaponData.CODEC)
+					.networkSynchronized(ByteBufCodecs.fromCodecWithRegistries(CrucibleWeaponData.CODEC)).build());
 
 	private PowersDataComponents() {
 	}

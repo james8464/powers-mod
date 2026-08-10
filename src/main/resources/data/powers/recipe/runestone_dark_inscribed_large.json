@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["MM", "MM"],
+  "key": { "M": "powers:imported_artifact_runestone_dark_inscribed_medium" },
+  "result": { "id": "powers:imported_artifact_runestone_dark_inscribed_large", "count": 1 }
+}

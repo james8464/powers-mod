@@ -17,7 +17,8 @@ import java.util.Set;
  */
 public final class MagicActionCatalogue {
 	private static final Map<String, MagicSignificance> SIGNIFICANCE = significanceAssignments();
-	private static final Set<String> BESPOKE_PRESENTATION = Set.of("fireball", "lightning_strike");
+	private static final Set<String> BESPOKE_PRESENTATION = Set.of(
+			"fireball", "lightning_strike", "starbound_dark_lightning", "starbound_light_lightning");
 	private static final Map<MagicAspect, Integer> COLORS = Map.ofEntries(
 			Map.entry(MagicAspect.FLAME, 0xFF5A24),
 			Map.entry(MagicAspect.FROST, 0x82E9FF),
@@ -198,6 +199,10 @@ public final class MagicActionCatalogue {
 				MagicAspect.LIGHT, MagicAspect.LIFE, MagicAspect.PROTECTION);
 		add(actions, "host_heaven", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.SUPPORT,
 				MagicAspect.LIGHT, MagicAspect.CREATION, MagicAspect.SOUL);
+		add(actions, "starbound_dark_lightning", MagicOrigin.ARTIFACT, MagicDelivery.INSTANT,
+				MagicIntent.HARM, MagicAspect.STORM, MagicAspect.DARKNESS);
+		add(actions, "starbound_light_lightning", MagicOrigin.ARTIFACT, MagicDelivery.INSTANT,
+				MagicIntent.HARM, MagicAspect.STORM, MagicAspect.LIGHT);
 
 		// Grimoire spells: identifiers match SpellRegistry selections and cooldowns.
 		add(actions, "soul_compass", MagicOrigin.SPELL, MagicDelivery.INSTANT, MagicIntent.INFORMATION,
@@ -298,7 +303,8 @@ public final class MagicActionCatalogue {
 				"amethyst_item", "amethyst_block", "amethyst_ward",
 				"darkness_block", "pure_light_block");
 		assign(values, MagicSignificance.MINIMAL,
-				"fireball", "lightning_strike", "umbral_step", "dawnstride");
+				"fireball", "lightning_strike", "umbral_step", "dawnstride",
+				"starbound_dark_lightning", "starbound_light_lightning");
 		assign(values, MagicSignificance.COSMIC,
 				"time_freeze", "chrono_stop", "celestial_ruin", "nightfall_dominion",
 				"event_horizon", "solar_firmament", "legion_eclipse", "host_heaven");
