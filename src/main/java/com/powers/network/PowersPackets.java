@@ -161,6 +161,7 @@ public final class PowersPackets {
 		MagicFxPackets.initialize();
 		BodyProxyPackets.initialize();
 		ShadowSwordPackets.initialize();
+		CompanionPackets.initialize();
 
 		ServerPlayNetworking.registerGlobalReceiver(ActivateAbilityPayload.TYPE, PowersPackets::handleActivate);
 		ServerPlayNetworking.registerGlobalReceiver(

@@ -13,7 +13,8 @@ public final class PacketRateLimiter {
 
 	/** Independent limits prevent cheap menu traffic from starving combat input. */
 	public enum Lane {
-		ACTIVATION(20), SELECTION(12), TRAVEL(4), RANK(8), ARTIFACT(20), LOCATOR(2), RITUAL(8);
+		ACTIVATION(20), SELECTION(12), TRAVEL(4), RANK(8), ARTIFACT(20), LOCATOR(2), RITUAL(8),
+		COMPANION(4);
 
 		private final int limit;
 

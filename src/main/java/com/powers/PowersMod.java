@@ -34,6 +34,7 @@ import com.powers.loot.PowersLoot;
 import com.powers.item.ArtifactInventoryRuntime;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.forge.CrucibleWeaponRuntime;
+import com.powers.companion.PrivateCompanionManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -146,6 +147,7 @@ public class PowersMod implements ModInitializer {
 			AmethystDampening.forget(player);
 			ArtifactInventoryRuntime.forget(player);
 			CrucibleWeaponRuntime.forget(player.getUUID());
+			PrivateCompanionManager.forget(player);
 			TravelChunkLoader.cancel(player.getUUID());
 			PowersPackets.forget(player);
 		});
@@ -164,6 +166,7 @@ public class PowersMod implements ModInitializer {
 			RealmMindscapeManager.clearAll();
 			ArtifactInventoryRuntime.clear();
 			CrucibleWeaponRuntime.clear();
+			PrivateCompanionManager.clear();
 			com.powers.fx.PowerFx.clearBudgets();
 			PowersPackets.clearSyncCache();
 			MagicFxPackets.clear();
@@ -200,6 +203,7 @@ public class PowersMod implements ModInitializer {
 			PowersPackets.syncTo(player);
 		}
 		ArtifactInventoryRuntime.tickPlayer(player, tick);
+		PrivateCompanionManager.tickPlayer(player, tick);
 		enforceRealmGamemode(player);
 		tickToggles(player, tick);
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
