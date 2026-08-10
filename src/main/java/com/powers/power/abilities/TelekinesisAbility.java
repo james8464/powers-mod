@@ -98,7 +98,7 @@ public class TelekinesisAbility extends Ability {
 				&& !BodyProxyManager.isProxy(target) && !EntityFreezeController.isFrozen(target)
 				&& PowerProtection.mayForceMove(caster, target)
 				&& !SpellFieldManager.blocksForcedMovement(level, target, caster.getUUID())
-				&& (!(target instanceof ServerPlayer player) || !MagicShieldManager.global().active(
-						player.getUUID(), level.getServer().getTickCount()));
+				&& !MagicShieldManager.global().active(
+						target.getUUID(), level.getServer().getTickCount());
 	}
 }

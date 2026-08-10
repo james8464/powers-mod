@@ -3,6 +3,8 @@ package com.powers.power.abilities;
 import com.powers.PowerStatusEffects;
 import com.powers.PowersEffects;
 import com.powers.PowersMod;
+import com.powers.entity.PlayerLikeTarget;
+import com.powers.entity.TestActorPowerState;
 import com.powers.fx.PowerFx;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
@@ -122,10 +124,14 @@ public class EnergyDrainAbility extends Ability {
 			}
 			if (now >= ritual.state().finishesAt()) {
 				// full drain landed, hit the target with exhaustion
-				if (target instanceof ServerPlayer targetPlayer) {
-					PlayerPowers.get(targetPlayer).emptyEnergy();
-					PowersPackets.syncTo(targetPlayer);
-					targetPlayer.addEffect(PowerStatusEffects.hidden(PowersEffects.EXHAUSTION,
+				if (PlayerLikeTarget.isCompatible(target)) {
+					if (target instanceof ServerPlayer targetPlayer) {
+						PlayerPowers.get(targetPlayer).emptyEnergy();
+						PowersPackets.syncTo(targetPlayer);
+					} else {
+						TestActorPowerState.empty(target.getUUID());
+					}
+					target.addEffect(PowerStatusEffects.hidden(PowersEffects.EXHAUSTION,
 							ritual.exhaustionTicks(), 0, false, true));
 				} else {
 					target.hurtServer(level, PowerDamage.source(caster),
@@ -140,15 +146,23 @@ public class EnergyDrainAbility extends Ability {
 				it.remove();
 				continue;
 			}
-			if (target instanceof ServerPlayer targetPlayer) {
-				PlayerPowers.PlayerPowersData targetData = PlayerPowers.get(targetPlayer);
-				if (targetData.energy() <= 0) continue;
+			if (PlayerLikeTarget.isCompatible(target)) {
+				int targetEnergy = target instanceof ServerPlayer targetPlayer
+						? PlayerPowers.get(targetPlayer).energy()
+						: TestActorPowerState.energy(target.getUUID());
+				if (targetEnergy <= 0) continue;
 				int ticksRemaining = (int) Math.max(1L, ritual.state().finishesAt() - now);
-				int drained = AbilityArithmetic.drainStep(targetData.energy(), ticksRemaining);
-				targetData.consumeEnergy(drained);
+				int requested = AbilityArithmetic.drainStep(targetEnergy, ticksRemaining);
+				int drained;
+				if (target instanceof ServerPlayer targetPlayer) {
+					PlayerPowers.get(targetPlayer).consumeEnergy(requested);
+					drained = requested;
+					PowersPackets.syncTo(targetPlayer);
+				} else {
+					drained = TestActorPowerState.drain(target.getUUID(), requested);
+				}
 				PlayerPowers.PlayerPowersData casterData = PlayerPowers.get(caster);
 				casterData.refundEnergy(Math.max(1, (int) Math.floor(drained * ritual.transferRatio())));
-				PowersPackets.syncTo(targetPlayer);
 				PowersPackets.syncTo(caster);
 			} else if (now % 10 == 0 && target.hurtServer(level, PowerDamage.source(caster),
 					EnergyDrainRules.mobPulseDamage(target.getMaxHealth()))) {

@@ -202,8 +202,7 @@ final class GroundSlamImpactResolver {
 				|| ward != null && ward.counterplay() == VoidBeamRules.Counterplay.SANCTUARY;
 		boolean kineticWard = ward != null
 				&& ward.counterplay() == VoidBeamRules.Counterplay.KINETIC_WARD;
-		boolean forcefield = target instanceof ServerPlayer player
-				&& MagicShieldManager.global().active(player.getUUID(), now);
+		boolean forcefield = MagicShieldManager.global().active(target.getUUID(), now);
 		return GroundSlamRules.bodyDecision(PowerProtection.mayHarm(caster, target),
 				bodyAmethyst(level, target), sanctuary, kineticWard, forcefield);
 	}
@@ -220,9 +219,8 @@ final class GroundSlamImpactResolver {
 		Vec3 velocity = target.getDeltaMovement().scale(0.28).add(impulse);
 		boolean clearPath = !impulse.equals(Vec3.ZERO)
 				&& level.noBlockCollision(target, target.getBoundingBox().move(velocity));
-		boolean forcefield = target instanceof ServerPlayer player
-				&& MagicShieldManager.global().active(player.getUUID(),
-						level.getServer().getTickCount());
+		boolean forcefield = MagicShieldManager.global().active(
+				target.getUUID(), level.getServer().getTickCount());
 		GroundSlamRules.Counterplay decision = GroundSlamRules.pressureDecision(
 				PowerProtection.mayForceMove(caster, target),
 				bodyAmethyst(level, target), BodyProxyManager.isProxy(target),

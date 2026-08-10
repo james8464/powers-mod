@@ -221,8 +221,7 @@ public final class GravityDisplacementAbility extends Ability {
 		boolean movementAllowed = PowerProtection.mayForceMove(owner, target);
 		boolean dampened = AmethystDampening.isDampened(target);
 		boolean anchoredBody = BodyProxyManager.isProxy(target);
-		boolean forcefield = target instanceof ServerPlayer player
-				&& MagicShieldManager.global().active(player.getUUID(), now);
+		boolean forcefield = MagicShieldManager.global().active(target.getUUID(), now);
 		boolean spellWard = SpellFieldManager.blocksForcedMovement(
 				level, target, owner.getUUID());
 		boolean frozen = EntityFreezeController.isFrozen(target);
@@ -332,8 +331,8 @@ public final class GravityDisplacementAbility extends Ability {
 				target.hurtMarked = true;
 			}
 			if (empowered && PowerProtection.mayHarm(owner, target)
-					&& !(target instanceof ServerPlayer player
-							&& MagicShieldManager.global().active(player.getUUID(), level.getServer().getTickCount()))) {
+					&& !MagicShieldManager.global().active(
+							target.getUUID(), level.getServer().getTickCount())) {
 				target.hurtServer(level, PowerDamage.source(owner), field.impactDamage);
 			}
 		}

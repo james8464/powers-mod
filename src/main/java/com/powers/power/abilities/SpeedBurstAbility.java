@@ -294,8 +294,8 @@ public final class SpeedBurstAbility extends Ability {
 		return !BodyProxyManager.isProxy(target) && !EntityFreezeController.isFrozen(target)
 				&& PowerProtection.mayForceMove(caster, target)
 				&& !SpellFieldManager.blocksForcedMovement(level, target, caster.getUUID())
-				&& (!(target instanceof ServerPlayer player) || !MagicShieldManager.global().active(
-						player.getUUID(), level.getServer().getTickCount()));
+				&& !MagicShieldManager.global().active(
+						target.getUUID(), level.getServer().getTickCount());
 	}
 
 	/** Immutable wake state snapshots potency while the prepared cast adjustment is active. */

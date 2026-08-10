@@ -292,9 +292,8 @@ public final class BreezyBashAbility extends Ability {
 
 	private static BreezyBashRules.CaptureDecision captureDecision(
 			ServerLevel level, ServerPlayer owner, LivingEntity target, boolean clearPath) {
-		boolean forcefield = target instanceof ServerPlayer player
-				&& MagicShieldManager.global().active(
-						player.getUUID(), level.getServer().getTickCount());
+		boolean forcefield = MagicShieldManager.global().active(
+				target.getUUID(), level.getServer().getTickCount());
 		return BreezyBashRules.captureDecision(
 				PowerProtection.mayForceMove(owner, target),
 				AmethystDampening.isDampened(target), BodyProxyManager.isProxy(target),

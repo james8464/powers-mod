@@ -242,8 +242,8 @@ public final class VoidBeamAbility extends Ability {
 		if (SpellFieldManager.isSanctuaryProtected(level, target)) {
 			return VoidBeamRules.Counterplay.SANCTUARY;
 		}
-		if (target instanceof ServerPlayer player && MagicShieldManager.global()
-				.active(player.getUUID(), level.getServer().getTickCount())) {
+		if (MagicShieldManager.global().active(
+				target.getUUID(), level.getServer().getTickCount())) {
 			return VoidBeamRules.Counterplay.FORCEFIELD;
 		}
 		return VoidBeamRules.Counterplay.NONE;

@@ -233,9 +233,8 @@ final class FireballImpactResolver {
 	}
 
 	private static boolean hasForcefield(ServerLevel level, LivingEntity target) {
-		return target instanceof ServerPlayer player
-				&& MagicShieldManager.global().active(
-						player.getUUID(), level.getServer().getTickCount());
+		return MagicShieldManager.global().active(
+				target.getUUID(), level.getServer().getTickCount());
 	}
 
 	private static float impactDamage(Cinderheart heart) {

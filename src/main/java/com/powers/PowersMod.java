@@ -109,6 +109,10 @@ public class PowersMod implements ModInitializer {
 		{
 			com.powers.network.NamedLivingTargetIndex.untrack(entity);
 			com.powers.magic.runtime.PhysicalMagicPresences.unload(entity);
+			if (entity instanceof com.powers.entity.PlayerLikeTarget) {
+				com.powers.entity.TestActorPowerState.clear(entity.getUUID());
+				com.powers.power.abilities.ForcefieldAbility.clear(entity.getUUID());
+			}
 			if (entity instanceof com.powers.entity.AbstractPlayerLikeMob guardian) {
 				com.powers.power.artifact.ArtifactGuardianSummons.untrackLoaded(guardian);
 			}
@@ -205,6 +209,7 @@ public class PowersMod implements ModInitializer {
 			com.powers.network.NamedLivingTargetIndex.clearAll();
 			com.powers.diagnostics.ServerRuntimeMetrics.clear();
 			com.powers.magic.runtime.PhysicalMagicPresences.clear();
+			com.powers.entity.TestActorPowerState.clearAll();
 		});
 
 		// passives get re-applied on a schedule so they never expire, toggles

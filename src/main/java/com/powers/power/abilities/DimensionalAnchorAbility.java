@@ -1,6 +1,8 @@
 package com.powers.power.abilities;
 
 import com.powers.PowersMod;
+import com.powers.entity.PlayerLikeTarget;
+import com.powers.entity.TestActorPowerState;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -30,59 +32,74 @@ public class DimensionalAnchorAbility extends Ability {
 				1200, false);
 	}
 
-	public static boolean isAnchored(ServerPlayer player) {
-		return anchorDimension(player) != null;
+	public static boolean isAnchored(LivingEntity target) {
+		return anchorDimension(target) != null;
 	}
 
-	public static ResourceKey<Level> anchorDimension(ServerPlayer player) {
-		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		PlayerPowers.AnchorState anchor = data.dimensionalAnchor();
-		if (anchor == null) return null;
-		if (anchor.expiresAt() <= player.level().getGameTime()) {
-			data.clearDimensionalAnchor();
+	public static ResourceKey<Level> anchorDimension(LivingEntity target) {
+		String dimensionId;
+		if (target instanceof ServerPlayer player) {
+			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+			PlayerPowers.AnchorState anchor = data.dimensionalAnchor();
+			if (anchor == null) return null;
+			if (anchor.expiresAt() <= player.level().getGameTime()) {
+				data.clearDimensionalAnchor();
+				return null;
+			}
+			dimensionId = anchor.dimensionId();
+		} else if (target instanceof PlayerLikeTarget) {
+			dimensionId = TestActorPowerState.anchorDimensionId(
+					target.getUUID(), target.level().getGameTime());
+			if (dimensionId == null) return null;
+		} else {
 			return null;
 		}
-		Identifier id = Identifier.tryParse(anchor.dimensionId());
-		if (id == null) {
-			data.clearDimensionalAnchor();
-			return null;
-		}
-		return ResourceKey.create(Registries.DIMENSION, id);
+		Identifier id = Identifier.tryParse(dimensionId);
+		if (id != null) return ResourceKey.create(Registries.DIMENSION, id);
+		if (target instanceof ServerPlayer player) PlayerPowers.get(player).clearDimensionalAnchor();
+		else TestActorPowerState.clearAnchor(target.getUUID());
+		return null;
 	}
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		LivingEntity target = PowerTargeting.findLivingTarget(player,
 				PowerScalingService.range(player, "dimensional_anchor", 32.0));
-		if (!(target instanceof ServerPlayer targetSP)) {
+		if (!PlayerLikeTarget.isCompatible(target)) {
 			PowerMessages.send(player, "ability.powers.no_player_target", 4);
 			return false;
 		}
 
-		return apply(player, targetSP);
+		return apply(player, target);
 	}
 
 	/** Shared by the Deep Grimoire; the former random power now delegates here. */
-	public static boolean apply(ServerPlayer player, ServerPlayer targetSP) {
-		if (AmethystDampening.isDampened(targetSP)) {
+	public static boolean apply(ServerPlayer player, LivingEntity target) {
+		if (!PlayerLikeTarget.isCompatible(target) || AmethystDampening.isDampened(target)) {
 			PowerMessages.send(player, "amethyst.powers.target_protected", 4);
 			return false;
 		}
-		ResourceKey<Level> dim = targetSP.level().dimension();
+		ResourceKey<Level> dim = target.level().dimension();
 		String dimName = dim.identifier().getPath();
-		PlayerPowers.get(targetSP).setDimensionalAnchor(dim.identifier().toString(),
-				targetSP.level().getGameTime()
-						+ PowerScalingService.duration(player, "dimensional_anchor", ANCHOR_TICKS));
+		long expiresAt = target.level().getGameTime()
+				+ PowerScalingService.duration(player, "dimensional_anchor", ANCHOR_TICKS);
+		if (target instanceof ServerPlayer targetPlayer) {
+			PlayerPowers.get(targetPlayer).setDimensionalAnchor(dim.identifier().toString(), expiresAt);
+		} else {
+			TestActorPowerState.anchor(target.getUUID(), dim.identifier().toString(), expiresAt);
+		}
 
-		ServerLevel targetLevel = (ServerLevel) targetSP.level();
-		PowerFx.rune(targetLevel, targetSP.position().add(0, 1.0, 0), 1.6, 0x8A2BE2, 20, 0.5);
-		PowerFx.burst(targetLevel, targetSP.position().add(0, 1.5, 0),
+		ServerLevel targetLevel = (ServerLevel) target.level();
+		PowerFx.rune(targetLevel, target.position().add(0, 1.0, 0), 1.6, 0x8A2BE2, 20, 0.5);
+		PowerFx.burst(targetLevel, target.position().add(0, 1.5, 0),
 				ParticleTypes.END_ROD, 12, 0.75, 0.05);
-		PowerFx.sound(targetLevel, targetSP.position(), SoundEvents.BEACON_ACTIVATE, 0.8f, 1.1f);
+		PowerFx.sound(targetLevel, target.position(), SoundEvents.BEACON_ACTIVATE, 0.8f, 1.1f);
 
-		PowerMessages.sendImportant(targetSP, "ability.powers.anchored", 3, dimName);
+		if (target instanceof ServerPlayer targetPlayer) {
+			PowerMessages.sendImportant(targetPlayer, "ability.powers.anchored", 3, dimName);
+		}
 		PowerMessages.sendImportant(player, "ability.powers.anchor_applied", 3,
-				targetSP.getName().getString(), dimName);
+				PlayerLikeTarget.username(target), dimName);
 
 		return true;
 	}
