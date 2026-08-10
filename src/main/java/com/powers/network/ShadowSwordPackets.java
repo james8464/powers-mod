@@ -77,10 +77,17 @@ public final class ShadowSwordPackets {
 		PayloadTypeRegistry.serverboundPlay().register(SelectPayload.TYPE, SelectPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(TeleportPayload.TYPE, TeleportPayload.STREAM_CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(SelectPayload.TYPE, (payload, context) ->
-				context.server().execute(() -> ShadowSwordPowerManager.select(
-						context.player(), payload.actionKey(), payload.option())));
+				context.server().execute(() -> {
+					if (PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.ARTIFACT)) {
+						ShadowSwordPowerManager.select(context.player(), payload.actionKey(), payload.option());
+					}
+				}));
 		ServerPlayNetworking.registerGlobalReceiver(TeleportPayload.TYPE, (payload, context) ->
-				context.server().execute(() -> handleTeleport(context.player(), payload)));
+				context.server().execute(() -> {
+					if (PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.TRAVEL)) {
+						handleTeleport(context.player(), payload);
+					}
+				}));
 	}
 
 	public static void openMenu(ServerPlayer player, String selectedKey, int darknessLevel,
@@ -113,7 +120,7 @@ public final class ShadowSwordPackets {
 				payload.x(), payload.y(), payload.z(), apotheosis)
 				== AbilityActivationService.Result.ACTIVATED) {
 			ShadowSwordFx.corruptedCast((net.minecraft.server.level.ServerLevel) caster.level(),
-					caster.position(), action.definition().key().hashCode());
+					caster.position(), action.definition().key().hashCode(), 0x45205A);
 		}
 	}
 }

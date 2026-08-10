@@ -48,6 +48,7 @@ This is the server-authoritative set of every innate power, crystal action, grim
 | `lightning_strike` | INNATE | STORM | INSTANT | HARM | 10 | 16.000 | 20 | 26 | 200 | 30 | 10 | `storm` | `innate_storm` | `#FFF59D / #FFF59D` |
 | `middleworld` | CRYSTAL | MIND, SPACE | TRAVEL | MOVEMENT | 13 | 48.000 | 40 | 55 | 1200 | 20 | 20 | `space` | `crystal_space` | `#5267D8 / #C27CFF` |
 | `nightfall_dominion` | ARTIFACT | DARKNESS, PROTECTION, SOUL | AURA | DEFENCE | 21 | 8.000 | 200 | 40 | 800 | 100 | 22 | `darkness` | `artifact_darkness` | `#55265F / #8FE9FF` |
+| `oblivion_pulse` | ARTIFACT | DARKNESS, SUPPRESSION, VOID | FIELD | CONTROL | 22 | 12.000 | 200 | 48 | 800 | 100 | 22 | `darkness` | `artifact_darkness` | `#55265F / #B36BFF` |
 | `plant_healing_acceleration` | INNATE | LIFE | FIELD | SUPPORT | 7 | 12.000 | 200 | 18 | 200 | 100 | 10 | `life` | `innate_life` | `#78E06B / #78E06B` |
 | `portal_rift` | CRYSTAL | FORCE, SPACE | TRAVEL | HARM | 18 | 48.000 | 40 | 63 | 1200 | 20 | 20 | `space` | `crystal_space` | `#5267D8 / #B9E7FF` |
 | `pure_light_block` | REALM | LIGHT | FIELD | WORLD_INTERACTION | 25 | 12.000 | 200 | 0 | 0 | 100 | 30 | `light` | `realm_light` | `#FFF2B0 / #FFF2B0` |
@@ -59,6 +60,7 @@ This is the server-authoritative set of every innate power, crystal action, grim
 | `size_shift` | CRYSTAL | CREATION, GRAVITY | AURA | CONTROL | 16 | 8.000 | 200 | 63 | 1200 | 100 | 20 | `creation` | `crystal_creation` | `#FF9D42 / #8C66FF` |
 | `soul_compass` | SPELL | MIND, SOUL | INSTANT | INFORMATION | 8 | 16.000 | 20 | 20 | 600 | 30 | 15 | `soul` | `spell_soul` | `#8FE9FF / #C27CFF` |
 | `soul_link` | CRYSTAL | LIFE, SOUL | CHANNEL | CONTROL | 16 | 20.000 | 80 | 63 | 1200 | 60 | 20 | `soul` | `crystal_soul` | `#8FE9FF / #78E06B` |
+| `soul_requiem` | ARTIFACT | DARKNESS, SOUL, VOID | CHANNEL | HARM | 24 | 20.000 | 80 | 48 | 800 | 60 | 22 | `darkness` | `artifact_darkness` | `#55265F / #8FE9FF` |
 | `space_time` | CRYSTAL | SPACE, TIME | FIELD | CONTROL | 16 | 12.000 | 200 | 63 | 1200 | 100 | 20 | `space` | `crystal_space` | `#5267D8 / #68E0D5` |
 | `speed_burst` | INNATE | FORCE, MOTION | INSTANT | MOVEMENT | 5 | 16.000 | 20 | 18 | 200 | 30 | 10 | `motion` | `innate_motion` | `#D7F8FF / #B9E7FF` |
 | `spread_darkness` | ARTIFACT | CREATION, DARKNESS | FIELD | WORLD_INTERACTION | 19 | 12.000 | 200 | 40 | 800 | 100 | 22 | `darkness` | `artifact_darkness` | `#55265F / #FF9D42` |

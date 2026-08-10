@@ -16,7 +16,14 @@ public record Power(
 		Component description,
 		int color,
 		List<PassiveEffect> passives,
-		Ability ability) {
+		Ability ability,
+		PowerAffinity affinity) {
+
+	/** Most powers are universal; only explicitly authored powers are allegiance-locked. */
+	public Power(Identifier id, Component name, Component description, int color,
+			List<PassiveEffect> passives, Ability ability) {
+		this(id, name, description, color, passives, ability, PowerAffinity.UNIVERSAL);
+	}
 
 	public String key() {
 		return "power." + id.getNamespace() + "." + id.getPath();

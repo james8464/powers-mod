@@ -8,6 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PlayerLikeMobRulesTest {
 	@Test
+	void darknessCreaturesNeverRetaliateAgainstTheirOwnAffinity() {
+		assertFalse(PlayerLikeMobRules.mayRetaliate(true, true));
+		assertTrue(PlayerLikeMobRules.mayRetaliate(true, false));
+		assertFalse(PlayerLikeMobRules.mayRetaliate(false, true));
+	}
+	@Test
 	void darknessCreaturesIgnoreTheirOwnFaction() {
 		assertTrue(PlayerLikeMobRules.mayTarget(true, false));
 		assertFalse(PlayerLikeMobRules.mayTarget(true, true));

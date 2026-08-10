@@ -172,6 +172,7 @@ public final class PowersPackets {
 	private static void handleActivate(ActivateAbilityPayload payload, ServerPlayNetworking.Context context) {
 		context.server().execute(() -> {
 			ServerPlayer player = context.player();
+			if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ACTIVATION)) return;
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 			Power power = data.getPower(payload.slot());
@@ -187,6 +188,7 @@ public final class PowersPackets {
 			ServerPlayNetworking.Context context) {
 		context.server().execute(() -> {
 			ServerPlayer player = context.player();
+			if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.SELECTION)) return;
 			if (GlobalTimeStopManager.rejectIfStopped(player)) return;
 			AmethystDampening.update(player);
 			if (AmethystDampening.isDampened(player)) {
@@ -210,6 +212,7 @@ public final class PowersPackets {
 	private static void handleTeleport(TeleportRequestPayload payload, ServerPlayNetworking.Context context) {
 		context.server().execute(() -> {
 			ServerPlayer player = context.player();
+			if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.TRAVEL)) return;
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 			// guards against malformed packets: names cap at 16 chars and
 			// NaN coordinates must never reach the teleport code
@@ -241,6 +244,7 @@ public final class PowersPackets {
 	private static void handleMark(TeleportMarkPayload payload, ServerPlayNetworking.Context context) {
 		context.server().execute(() -> {
 			ServerPlayer player = context.player();
+			if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.TRAVEL)) return;
 			if (GlobalTimeStopManager.rejectIfStopped(player)) return;
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;
 			// reject garbage: NaN coordinates would corrupt the stored mark
@@ -308,9 +312,11 @@ public final class PowersPackets {
 
 	public static void forget(ServerPlayer player) {
 		LAST_SENT_STATE.remove(player.getUUID());
+		PacketRateLimiter.forgetPlayer(player.getUUID());
 	}
 
 	public static void clearSyncCache() {
 		LAST_SENT_STATE.clear();
+		PacketRateLimiter.clearGlobal();
 	}
 }

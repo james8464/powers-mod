@@ -75,7 +75,7 @@ public final class PowerRegistry {
 				Component.translatable("power.powers.shadow_step.description"),
 				0x5E35B1,
 				List.of(passive(MobEffects.NIGHT_VISION, 0)),
-				new ShadowStepAbility()));
+				new ShadowStepAbility(), PowerAffinity.DARKNESS));
 
 		register(new Power(PowersMod.id("flight"),
 				Component.translatable("power.powers.flight"),
@@ -96,14 +96,14 @@ public final class PowerRegistry {
 				Component.translatable("power.powers.starfall.description"),
 				0x3949AB,
 				List.of(passive(MobEffects.HEALTH_BOOST, 0)),
-				new StarfallAbility()));
+				new StarfallAbility(), PowerAffinity.RADIANT));
 
 		register(new Power(PowersMod.id("void_beam"),
 				Component.translatable("power.powers.void_beam"),
 				Component.translatable("power.powers.void_beam.description"),
 				0x1A237E,
 				List.of(passive(MobEffects.ABSORPTION, 0)),
-				new VoidBeamAbility()));
+				new VoidBeamAbility(), PowerAffinity.DARKNESS));
 
 		register(new Power(PowersMod.id("fireball"),
 				Component.translatable("power.powers.fireball"),
@@ -180,7 +180,7 @@ public final class PowerRegistry {
 				Component.translatable("power.powers.cozy_campfire.description"),
 				0xFFAB40,
 				List.of(passive(MobEffects.REGENERATION, 0)),
-				new CozyCampfireAbility()));
+				new CozyCampfireAbility(), PowerAffinity.RADIANT));
 
 		register(new Power(PowersMod.id("invisibility"),
 				Component.translatable("power.powers.invisibility"),
@@ -229,7 +229,7 @@ public final class PowerRegistry {
 				Component.translatable("power.powers.energy_drain.description"),
 				0x6A1B9A,
 				List.of(),
-				new EnergyDrainAbility()));
+				new EnergyDrainAbility(), PowerAffinity.DARKNESS));
 
 		register(new Power(PowersMod.id("ice_manipulation"),
 				Component.translatable("power.powers.ice_manipulation"),
@@ -243,7 +243,7 @@ public final class PowerRegistry {
 				Component.translatable("power.powers.plant_healing_acceleration.description"),
 				0x66FF66,
 				List.of(passive(MobEffects.REGENERATION, 0)),
-				new PlantHealingAbility()));
+				new PlantHealingAbility(), PowerAffinity.RADIANT));
 
 		register(new Power(PowersMod.id("double_health"),
 				Component.translatable("power.powers.double_health"),
@@ -270,6 +270,13 @@ public final class PowerRegistry {
 		return getAll();
 	}
 
+	/** Returns only powers that may occupy an innate slot for this allegiance. */
+	public static List<Power> getAssignable(PowerAffinity allegiance) {
+		return POWERS.values().stream()
+				.filter(power -> power.affinity().permits(allegiance))
+				.toList();
+	}
+
 	public static Power get(Identifier id) {
 		return POWERS.get(id);
 	}
@@ -293,5 +300,58 @@ public final class PowerRegistry {
 		List<Power> pool = new ArrayList<>(getAssignable());
 		Collections.shuffle(pool, random);
 		return pool.subList(0, Math.min(count, pool.size()));
+	}
+
+	/**
+	 * Draws a compatible loadout and guarantees one allegiance-exclusive power
+	 * whenever the requested count is non-zero.
+	 */
+	public static List<Power> randomDistinct(int count, Random random, PowerAffinity allegiance) {
+		if (count <= 0) return List.of();
+		List<Power> exclusive = getAssignable(allegiance).stream()
+				.filter(power -> power.affinity() == allegiance)
+				.collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+		List<Power> pool = new ArrayList<>(getAssignable(allegiance));
+		Collections.shuffle(exclusive, random);
+		Collections.shuffle(pool, random);
+		List<Power> result = new ArrayList<>();
+		if (!exclusive.isEmpty()) result.add(exclusive.getFirst());
+		for (Power power : pool) {
+			if (result.size() >= count) break;
+			if (!result.contains(power)) result.add(power);
+		}
+		return List.copyOf(result);
+	}
+
+	/**
+	 * Migrates an existing loadout after an allegiance change. Compatible,
+	 * distinct slots are preserved; forbidden or missing slots are replaced.
+	 */
+	public static List<String> reconcile(List<String> existing, PowerAffinity allegiance, Random random) {
+		List<Power> result = new ArrayList<>();
+		for (String id : existing) {
+			Power power = get(id);
+			if (power != null && power.affinity().permits(allegiance) && !result.contains(power)) {
+				result.add(power);
+			}
+			if (result.size() == existing.size()) break;
+		}
+		boolean hasExclusive = result.stream().anyMatch(power -> power.affinity() == allegiance);
+		if (!hasExclusive && !existing.isEmpty()) {
+			List<Power> exclusive = getAssignable(allegiance).stream()
+					.filter(power -> power.affinity() == allegiance).toList();
+			if (!exclusive.isEmpty()) {
+				Power selected = exclusive.get(random.nextInt(exclusive.size()));
+				if (result.size() >= existing.size()) result.set(0, selected);
+				else result.add(selected);
+			}
+		}
+		List<Power> pool = new ArrayList<>(getAssignable(allegiance));
+		Collections.shuffle(pool, random);
+		for (Power power : pool) {
+			if (result.size() >= existing.size()) break;
+			if (!result.contains(power)) result.add(power);
+		}
+		return result.stream().map(power -> power.id().toString()).toList();
 	}
 }

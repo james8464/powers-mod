@@ -16,7 +16,6 @@ import com.powers.power.Ability;
 import com.powers.power.PowerEnergy;
 import com.powers.PowersEffects;
 import com.powers.util.PowerMessages;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
@@ -29,26 +28,21 @@ import java.util.Random;
 import java.util.Set;
 
 import static com.powers.player.PlayerPowerAttachments.ACTIVE_TOGGLES;
-import static com.powers.player.PlayerPowerAttachments.COMPANION_CONSENT;
 import static com.powers.player.PlayerPowerAttachments.COOLDOWNS;
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_ENERGY;
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_LEVEL;
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_PREFIX_HIDDEN;
 import static com.powers.player.PlayerPowerAttachments.DIMENSIONAL_ANCHOR;
-import static com.powers.player.PlayerPowerAttachments.DREAMWALK_CONSENT;
 import static com.powers.player.PlayerPowerAttachments.ELEMENTAL_PHASE;
 import static com.powers.player.PlayerPowerAttachments.ENERGY;
 import static com.powers.player.PlayerPowerAttachments.FLIGHT_SNAPSHOT;
 import static com.powers.player.PlayerPowerAttachments.INVISIBILITY_SNAPSHOT;
-import static com.powers.player.PlayerPowerAttachments.LOCATOR_CONSENT;
 import static com.powers.player.PlayerPowerAttachments.MIND_BODY;
-import static com.powers.player.PlayerPowerAttachments.POSSESSION_CONSENT;
 import static com.powers.player.PlayerPowerAttachments.POWER_SLOTS;
 import static com.powers.player.PlayerPowerAttachments.PREVIOUS_GAMEMODE;
 import static com.powers.player.PlayerPowerAttachments.SKILL_LEVEL;
 import static com.powers.player.PlayerPowerAttachments.SIZE_MORPH_OPTION;
 import static com.powers.player.PlayerPowerAttachments.SPELL_SELECTIONS;
-import static com.powers.player.PlayerPowerAttachments.TELEPORT_CONSENT;
 
 /**
  * Persistent per-player power slots, toggles, energy, and skill levels.
@@ -160,21 +154,11 @@ public final class PlayerPowers {
 		}
 
 		public boolean allowsConsent(ConsentKind kind) {
-			return target.getAttachedOrElse(consentType(kind), Boolean.FALSE);
+			return target.getAttachedOrElse(PlayerConsentAttachments.type(kind), Boolean.FALSE);
 		}
 
 		public void setConsent(ConsentKind kind, boolean allowed) {
-			target.setAttached(consentType(kind), allowed);
-		}
-
-		private static AttachmentType<Boolean> consentType(ConsentKind kind) {
-			return switch (kind) {
-				case TELEPORT -> TELEPORT_CONSENT;
-				case LOCATOR -> LOCATOR_CONSENT;
-				case COMPANION -> COMPANION_CONSENT;
-				case DREAMWALK -> DREAMWALK_CONSENT;
-				case POSSESSION -> POSSESSION_CONSENT;
-			};
+			target.setAttached(PlayerConsentAttachments.type(kind), allowed);
 		}
 		public List<String> getSlotIds() {
 			List<String> slots = target.getAttachedOrElse(POWER_SLOTS, List.of());
@@ -364,7 +348,9 @@ public final class PlayerPowers {
 			if (slot < 0 || slot >= slots.size()) {
 				return null;
 			}
-			return PowerRegistry.get(slots.get(slot));
+			Power power = PowerRegistry.get(slots.get(slot));
+			return target instanceof ServerPlayer player && !PlayerPowerAffinity.permits(player, power)
+					? null : power;
 		}
 
 		public boolean hasAssigned() {
@@ -378,13 +364,23 @@ public final class PlayerPowers {
 		 */
 		public void assignRandom(ServerPlayer player, boolean force) {
 			if (hasAssigned() && !force) {
+				reconcileAffinity(player);
 				return;
 			}
 			List<String> ids = new ArrayList<>();
-			for (Power power : PowerRegistry.randomDistinct(SLOT_COUNT, new Random())) {
+			for (Power power : PowerRegistry.randomDistinct(SLOT_COUNT, new Random(),
+					PlayerPowerAffinity.allegiance(player))) {
 				ids.add(power.id().toString());
 			}
 			setSlots(player, ids);
+		}
+
+		/** Replaces only slots made illegal by an allegiance change. */
+		public void reconcileAffinity(ServerPlayer player) {
+			List<String> current = getSlotIds();
+			if (current.size() != SLOT_COUNT) return;
+			List<String> reconciled = PlayerPowerAffinity.reconcile(player, current, new Random());
+			if (!current.equals(reconciled)) setSlots(player, reconciled);
 		}
 
 		/**

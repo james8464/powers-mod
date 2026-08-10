@@ -26,6 +26,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -66,11 +67,11 @@ final class SpellEffects {
 		ServerLevel level = (ServerLevel) caster.level();
 		SpellCastValues values = SpellCastValues.from(
 				PowerScalingService.unranked(spell.id()), amplified);
-		LivingEntity target = resolveEntity(caster, lockedTarget);
+		LivingEntity target = resolveEntity(caster, lockedTarget, values.targetRange());
 		boolean success = switch (spell.effect()) {
 			case TRACKING_MARK -> trackingMark(caster, target, values.durationTicks());
 			case WEATHER_SIGIL -> weatherSigil(caster, values);
-			case CELESTIAL_RUIN -> celestialRuin(caster, lockedTarget.blockPos());
+			case CELESTIAL_RUIN -> celestialRuin(caster, lockedTarget.blockPos(), values.targetRange());
 			case DIMENSIONAL_ANCHOR -> target instanceof ServerPlayer player
 					&& PowerProtection.mayForceMove(caster, player)
 					&& DimensionalAnchorAbility.apply(caster, player);
@@ -107,11 +108,13 @@ final class SpellEffects {
 		return success;
 	}
 
-	private static LivingEntity resolveEntity(ServerPlayer caster, SpellTarget target) {
+	private static LivingEntity resolveEntity(ServerPlayer caster, SpellTarget target, double range) {
 		if (target == null || target.entityId() == null) return null;
 		var entity = ((ServerLevel) caster.level()).getEntityInAnyDimension(target.entityId());
-		return entity instanceof LivingEntity living && living.isAlive()
-				&& living.level() == caster.level() ? living : null;
+		if (!(entity instanceof LivingEntity living)) return null;
+		boolean valid = SpellTargetRules.remainsValid(living.isAlive(), living.level() == caster.level(),
+				caster.hasLineOfSight(living), caster.distanceToSqr(living), range);
+		return valid ? living : null;
 	}
 
 	private static boolean trackingMark(ServerPlayer caster, LivingEntity target, int duration) {
@@ -129,8 +132,8 @@ final class SpellEffects {
 		return true;
 	}
 
-	private static boolean celestialRuin(ServerPlayer caster, BlockPos target) {
-		return target != null && CelestialRuinManager.begin(caster, target);
+	private static boolean celestialRuin(ServerPlayer caster, BlockPos target, double range) {
+		return blockTargetValid(caster, target, range) && CelestialRuinManager.begin(caster, target);
 	}
 
 	private static BlockPos celestialTarget(ServerPlayer caster, double range) {
@@ -260,7 +263,8 @@ final class SpellEffects {
 	}
 
 	private static boolean breakWard(ServerPlayer caster, SpellCastValues values, BlockPos ward) {
-		if (ward == null || !caster.level().getBlockState(ward).is(com.powers.PowersBlocks.AMETHYST_WARD)
+		if (!blockTargetValid(caster, ward, values.targetRange())
+				|| !caster.level().getBlockState(ward).is(com.powers.PowersBlocks.AMETHYST_WARD)
 				|| !AmethystWardBlock.isPowered(caster.level().getBlockState(ward))) return false;
 		ServerLevel level = (ServerLevel) caster.level();
 		AmethystDampening.suppressWard(level, ward, values.wardSuppressionTicks());
@@ -274,6 +278,17 @@ final class SpellEffects {
 		BlockPos pos = blockHit.getBlockPos();
 		return caster.level().getBlockState(pos).is(com.powers.PowersBlocks.AMETHYST_WARD)
 				&& AmethystWardBlock.isPowered(caster.level().getBlockState(pos)) ? pos : null;
+	}
+
+	private static boolean blockTargetValid(ServerPlayer caster, BlockPos target, double range) {
+		if (target == null) return false;
+		Vec3 start = caster.getEyePosition();
+		Vec3 end = Vec3.atCenterOf(target);
+		HitResult obstruction = caster.level().clip(new ClipContext(start, end,
+				ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, caster));
+		boolean visible = obstruction.getType() == HitResult.Type.MISS
+				|| obstruction instanceof BlockHitResult block && block.getBlockPos().equals(target);
+		return SpellTargetRules.remainsValid(true, true, visible, start.distanceToSqr(end), range);
 	}
 
 	private static boolean dispel(ServerPlayer caster, LivingEntity target, double range) {

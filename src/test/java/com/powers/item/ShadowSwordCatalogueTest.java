@@ -25,7 +25,9 @@ class ShadowSwordCatalogueTest {
 						.map(ShadowSwordCatalogue.Definition::abilityId).collect(java.util.stream.Collectors.toSet()));
 		assertTrue(keys.contains("command/summon_darkness"));
 		assertTrue(keys.contains("command/spread_darkness"));
-		assertEquals(Set.of(3, 7, 10), actions.stream()
+		assertEquals(5, actions.stream()
+				.filter(action -> action.source() == ShadowSwordCatalogue.Source.DARKNESS).count());
+		assertEquals(Set.of(3, 5, 7, 9, 10), actions.stream()
 				.filter(action -> action.source() == ShadowSwordCatalogue.Source.DARKNESS)
 				.map(ShadowSwordCatalogue.Definition::requiredDarknessRank)
 				.collect(java.util.stream.Collectors.toSet()));

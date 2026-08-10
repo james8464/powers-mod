@@ -13,6 +13,11 @@ public final class PlayerLikeMobRules {
 		return hostile && !darknessTagged;
 	}
 
+	/** Applies the same faction immunity to revenge targeting as proactive targeting. */
+	public static boolean mayRetaliate(boolean hostile, boolean darknessTagged) {
+		return mayTarget(hostile, darknessTagged);
+	}
+
 	/** Alternates two readable attacks without evaluating a cast every AI tick. */
 	public static Cast castAt(int tick) {
 		int phase = Math.floorMod(tick, CAST_INTERVAL * 2);

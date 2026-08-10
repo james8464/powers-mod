@@ -73,6 +73,7 @@ public final class SkillSystem {
 
 	public static void refresh(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		data.reconcileAffinity(player);
 		ServerAdvancementManager advancements = player.level().getServer().getAdvancements();
 		// levels are earned through advancements; find the highest one done.
 		// the stored level is the floor, so temporarily revoking the tree
