@@ -8,6 +8,7 @@ import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.Power;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.progression.ScaledMagicValues;
@@ -115,7 +116,7 @@ public final class GroundSlamAbility extends Ability {
 			boolean sameDimension = owner != null
 					&& owner.level().dimension().equals(rite.dimension);
 			boolean dampened = owner != null && AmethystDampening.isDampened(owner);
-			boolean frozen = owner != null && EntityFreezeController.isFrozen(owner);
+			boolean frozen = MagicUseGate.timeLocked(owner);
 			boolean ownsPower = owner != null && ServerCastLifecycle.mayContinue(
 					owner, rite.castSource, ownsSource(owner));
 			boolean continues = GroundSlamRules.riteContinues(owner != null, sameDimension,

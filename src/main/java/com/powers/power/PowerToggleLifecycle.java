@@ -19,7 +19,7 @@ public final class PowerToggleLifecycle {
 			Power power = PowerRegistry.get(key);
 			if (power != null && power.ability().isToggle()) {
 				power.ability().activateToggleOff(player, data);
-			} else if (power == null) {
+			} else if (power == null && ToggleKeyRules.isArtifactOwned(key)) {
 				retainedArtifactToggles.add(key);
 			}
 		}

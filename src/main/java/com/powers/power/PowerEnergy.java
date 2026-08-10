@@ -23,12 +23,17 @@ public final class PowerEnergy {
 
 	/** pool grows 52 per rank: 250 base, 770 at the rank-10 cap */
 	public static int maxCapacity(int level) {
-		return BASE_MAX + Math.max(0, level) * 52;
+		return growingCapacity(BASE_MAX, level, 52);
 	}
 
 	/** shadow pool grows 135 per rank: 500 base, 1850 at the rank-10 cap */
 	public static int darknessMaxCapacity(int level) {
-		return DARKNESS_BASE_MAX + Math.max(0, level) * 135;
+		return growingCapacity(DARKNESS_BASE_MAX, level, 135);
+	}
+
+	private static int growingCapacity(int base, int level, int perLevel) {
+		long result = base + Math.max(0L, (long) level) * perLevel;
+		return (int) Math.min(Integer.MAX_VALUE, result);
 	}
 
 	/** darkness recharges faster in the dark: 4 per tick there, 2 in daylight */
@@ -66,12 +71,6 @@ public final class PowerEnergy {
 			case "event_horizon", "solar_firmament" -> 60;
 			case "deathless_night", "second_dawn" -> 80;
 			case "legion_eclipse", "host_heaven" -> 100;
-			case "summon_darkness" -> 18;
-			case "spread_darkness" -> 20;
-			case "abyssal_singularity" -> 45;
-			case "oblivion_pulse" -> 50;
-			case "annihilation_beam" -> 65;
-			case "soul_requiem" -> 80;
 			case "nightfall_dominion" -> 100;
 			default -> 20;
 		};

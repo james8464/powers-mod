@@ -33,4 +33,11 @@ class PossessionRulesTest {
 		assertTrue(PossessionRules.requiresPlayerConsent(PossessionRules.TargetKind.PLAYER));
 		assertFalse(PossessionRules.requiresPlayerConsent(PossessionRules.TargetKind.MOB));
 	}
+
+	@Test
+	void aCameraSessionCannotSurviveEitherParticipantChangingDimension() {
+		assertTrue(PossessionRules.sessionLocationValid(true, true));
+		assertFalse(PossessionRules.sessionLocationValid(false, true));
+		assertFalse(PossessionRules.sessionLocationValid(true, false));
+	}
 }

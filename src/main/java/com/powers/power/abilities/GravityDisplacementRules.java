@@ -111,8 +111,10 @@ public final class GravityDisplacementRules {
 
 	/** A field remains live only while every owner and expiry invariant holds. */
 	public static boolean fieldContinues(boolean ownerPresent, boolean sameDimension,
-			boolean ownerAlive, boolean ownerDampened, long currentTick, long expiresAt) {
-		return ownerPresent && sameDimension && ownerAlive && !ownerDampened && currentTick < expiresAt;
+			boolean ownerAlive, boolean ownerDampened, boolean ownerFrozen,
+			boolean ownsCast, long currentTick, long expiresAt) {
+		return ownerPresent && sameDimension && ownerAlive && !ownerDampened
+				&& !ownerFrozen && ownsCast && currentTick < expiresAt;
 	}
 
 	private static Vec3 capped(Vec3 vector, double maximumSpeed) {

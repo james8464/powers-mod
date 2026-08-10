@@ -6,9 +6,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 
 /**
@@ -21,6 +24,7 @@ public final class PhysicalMagicPresences {
 
 	private static final Map<MagicPresenceId, Bound> BOUND = new HashMap<>();
 	private static final Map<UUID, MagicPresenceId> BY_ENTITY = new HashMap<>();
+	private static final TreeMap<Long, Set<MagicPresenceId>> BY_EXPIRY = new TreeMap<>();
 
 	private PhysicalMagicPresences() {
 	}
@@ -83,7 +87,8 @@ public final class PhysicalMagicPresences {
 	public static void unload(Entity entity) {
 		MagicPresenceId id = BY_ENTITY.remove(entity.getUUID());
 		if (id == null) return;
-		BOUND.remove(id);
+		Bound removed = BOUND.remove(id);
+		if (removed != null) unscheduleExpiry(id, removed.expiresAt());
 		MagicRuntime.global().removePresence(id);
 	}
 
@@ -93,18 +98,20 @@ public final class PhysicalMagicPresences {
 		if (removed != null && removed.handle().boundEntity() != null) {
 			BY_ENTITY.remove(removed.handle().boundEntity(), handle.presenceId());
 		}
+		if (removed != null) unscheduleExpiry(handle.presenceId(), removed.expiresAt());
 		MagicRuntime.global().removePresence(handle.presenceId());
 	}
 
-	/** Prunes handle metadata after the runtime's matching expiry pass. */
+	/** Prunes only handle buckets whose authoritative world-time expiry has elapsed. */
 	public static void tick(long gameTime) {
-		Iterator<Map.Entry<MagicPresenceId, Bound>> iterator = BOUND.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Map.Entry<MagicPresenceId, Bound> entry = iterator.next();
-			if (entry.getValue().expiresAt() > gameTime) continue;
-			UUID entityId = entry.getValue().handle().boundEntity();
-			if (entityId != null) BY_ENTITY.remove(entityId, entry.getKey());
-			iterator.remove();
+		if (gameTime < 0L) throw new IllegalArgumentException("Game time cannot be negative");
+		for (MagicPresenceId id : BY_EXPIRY.headMap(gameTime, true).values().stream()
+				.flatMap(Collection::stream).toList()) {
+			Bound removed = BOUND.remove(id);
+			if (removed == null) continue;
+			UUID entityId = removed.handle().boundEntity();
+			if (entityId != null) BY_ENTITY.remove(entityId, id);
+			unscheduleExpiry(id, removed.expiresAt());
 		}
 	}
 
@@ -115,6 +122,7 @@ public final class PhysicalMagicPresences {
 	public static void clear() {
 		BOUND.clear();
 		BY_ENTITY.clear();
+		BY_EXPIRY.clear();
 	}
 
 	private static void put(MagicPresenceHandle handle, long expiresAt) {
@@ -122,7 +130,16 @@ public final class PhysicalMagicPresences {
 		if (previous != null && previous.handle().boundEntity() != null) {
 			BY_ENTITY.remove(previous.handle().boundEntity(), handle.presenceId());
 		}
+		if (previous != null) unscheduleExpiry(handle.presenceId(), previous.expiresAt());
 		if (handle.boundEntity() != null) BY_ENTITY.put(handle.boundEntity(), handle.presenceId());
+		BY_EXPIRY.computeIfAbsent(expiresAt, ignored -> new LinkedHashSet<>()).add(handle.presenceId());
+	}
+
+	private static void unscheduleExpiry(MagicPresenceId id, long expiresAt) {
+		Set<MagicPresenceId> bucket = BY_EXPIRY.get(expiresAt);
+		if (bucket == null) return;
+		bucket.remove(id);
+		if (bucket.isEmpty()) BY_EXPIRY.remove(expiresAt);
 	}
 
 	private static PresenceAnchor anchor(MagicPresenceHandle.Kind kind, Entity entity) {

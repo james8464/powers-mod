@@ -146,7 +146,9 @@ final class SpellEffects {
 	}
 
 	private static boolean bind(ServerPlayer caster, LivingEntity target, SpellCastValues values, boolean roots) {
-		if (!offensiveAllowed(caster, target) || !PowerProtection.mayForceMove(caster, target)) return false;
+		if (!offensiveAllowed(caster, target) || !PowerProtection.mayForceMove(caster, target)
+				|| SpellFieldManager.blocksForcedMovement((ServerLevel) caster.level(), target,
+						caster.getUUID())) return false;
 		int tier = values.potencyTier();
 		target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS, values.durationTicks(),
 				Math.min(6, (roots ? 4 : 2) + tier), true, true));
@@ -241,7 +243,9 @@ final class SpellEffects {
 	}
 
 	private static boolean banish(ServerPlayer caster, LivingEntity target, SpellCastValues values) {
-		if (!offensiveAllowed(caster, target) || !PowerProtection.mayForceMove(caster, target)) return false;
+		if (!offensiveAllowed(caster, target) || !PowerProtection.mayForceMove(caster, target)
+				|| SpellFieldManager.blocksForcedMovement((ServerLevel) caster.level(), target,
+						caster.getUUID())) return false;
 		if (PowerEntityState.isEphemeral(target)) {
 			PowerFx.cancelled((ServerLevel) caster.level(), target.position().add(0, 1, 0), 0xC63C32);
 			target.discard();

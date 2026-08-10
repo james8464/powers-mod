@@ -22,12 +22,25 @@ final class CastNonceTracker {
 
 	boolean consume(UUID owner, UUID nonce, long currentTick) {
 		Session session = sessions.get(owner);
-		if (session == null || currentTick > session.expiresAt() || !session.nonce().equals(nonce)) return false;
+		if (session == null) return false;
+		if (currentTick > session.expiresAt()) {
+			sessions.remove(owner);
+			return false;
+		}
+		if (!session.nonce().equals(nonce)) return false;
 		sessions.remove(owner);
 		return true;
 	}
 
 	void clear(UUID owner) {
 		sessions.remove(owner);
+	}
+
+	void clearAll() {
+		sessions.clear();
+	}
+
+	int size() {
+		return sessions.size();
 	}
 }

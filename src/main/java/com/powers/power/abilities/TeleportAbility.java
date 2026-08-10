@@ -4,6 +4,9 @@ import com.powers.PowersMod;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.GodlyPunishment;
 import com.powers.fx.PowerFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
@@ -11,6 +14,9 @@ import com.powers.player.SkillSystem;
 import com.powers.progression.PowerScalingService;
 import com.powers.power.Ability;
 import com.powers.power.AsyncAbilityTransaction;
+import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
+import com.powers.power.Power;
 import com.powers.protection.PowerProtection;
 import com.powers.power.travel.DestinationFailure;
 import com.powers.power.travel.SafeDestinationResolver;
@@ -46,6 +52,7 @@ import java.util.UUID;
  * spectator mode so you can scout the landing zone
  */
 public class TeleportAbility extends Ability {
+	private static final net.minecraft.resources.Identifier POWER_ID = PowersMod.id("time_shift");
 	// how long the storm visuals play out at both ends
 	private static final int STORM_TICKS = 100;
 	// the pause between activating and the actual blink, so the storm can build
@@ -56,16 +63,16 @@ public class TeleportAbility extends Ability {
 	private static final int MARK_TIMEOUT_TICKS = 200;
 
 	// per-player marking state keyed by uuid; cleared on disconnect and server stop so it can't leak
-	public static final Map<UUID, MarkingState> MARKING = new HashMap<>();
+	private static final Map<UUID, MarkingState> MARKING = new HashMap<>();
 
 	public record MarkingState(ServerPlayer player, ResourceKey<Level> originalDimension,
 			Vec3 originalPos, GameType originalMode, ResourceKey<Level> markingDimension,
-			Vec3 markingCenter, long deadline, int slot) {}
+			Vec3 markingCenter, CastSource castSource, long deadline, int slot) {}
 
 	private record Companion(Entity entity, Vec3 offset) {}
 
 	public TeleportAbility() {
-		super(PowersMod.id("time_shift"),
+		super(POWER_ID,
 				Component.translatable("ability.powers.time_shift"),
 				400, true);
 	}
@@ -83,7 +90,7 @@ public class TeleportAbility extends Ability {
 		// remember the original dimension, spot and game mode so the marking can always be undone
 		MARKING.put(player.getUUID(), new MarkingState(
 				player, player.level().dimension(), player.position(), player.gameMode(),
-				targetLevel.dimension(), target.position(),
+				targetLevel.dimension(), target.position(), CastScalingContext.currentSource(),
 				((ServerLevel) player.level()).getServer().getTickCount()
 						+ PowerScalingService.duration(player, "time_shift", MARK_TIMEOUT_TICKS), slot));
 		// spectator so you can fly to the landing spot without fighting
@@ -103,6 +110,11 @@ public class TeleportAbility extends Ability {
 		// no active marking, or the packet came from another slot - ignore it
 		if (state == null || state.slot() != slot) return;
 		MARKING.remove(player.getUUID());
+		if (!MagicUseGate.ongoingAllowed(player) || !ServerCastLifecycle.mayContinue(
+				player, state.castSource(), ownsPower(player))) {
+			restore(player, state);
+			return;
+		}
 		// a corrupted packet could carry NaN and break the teleport, bail out and stay in place
 		if (!Double.isFinite(pos.x()) || !Double.isFinite(pos.y()) || !Double.isFinite(pos.z())) {
 			restore(player, state);
@@ -174,6 +186,10 @@ public class TeleportAbility extends Ability {
 		MARKING.clear();
 	}
 
+	public static boolean isMarking(UUID owner) {
+		return MARKING.containsKey(owner);
+	}
+
 	// puts a marking player back where they started, in the mode they started in
 	private static void restore(ServerPlayer player, MarkingState state) {
 		if (BodyProxyManager.hasSession(player, BodyProxyKind.MARKING)
@@ -198,11 +214,16 @@ public class TeleportAbility extends Ability {
 				it.remove();
 				continue;
 			}
-			if (server.getTickCount() >= state.deadline()) {
+			boolean expired = server.getTickCount() >= state.deadline();
+			boolean interrupted = !MagicUseGate.ongoingAllowed(state.player())
+					|| !ServerCastLifecycle.mayContinue(
+							state.player(), state.castSource(), ownsPower(state.player()));
+			if (expired || interrupted) {
 				// timeout hit - pull the player back to the dimension and spot where they started
 				restore(state.player(), state);
-				PowerMessages.overlay(state.player(),
-						PowerMessages.random("ability.powers.marking_expired", 3));
+				PowerMessages.overlay(state.player(), expired
+						? PowerMessages.random("ability.powers.marking_expired", 3)
+						: Component.translatable("spell.powers.interrupted"));
 				it.remove();
 			}
 		}
@@ -227,8 +248,15 @@ public class TeleportAbility extends Ability {
 			return false;
 		}
 		AsyncAbilityTransaction transaction = new AsyncAbilityTransaction(caster, data, this);
+		CastSource castSource = CastScalingContext.currentSource();
+		double companionRadius = scaledRange(caster, COMPANION_RADIUS);
+		int stormTicks = scaledDuration(caster, STORM_TICKS);
+		int teleportDelay = Math.max(20,
+				(int) Math.round(TELEPORT_DELAY_TICKS
+						/ Math.min(1.5, scaling(caster).rangeMultiplier())));
 		return TravelChunkLoader.request(caster.getUUID(), targetLevel, BlockPos.containing(target),
-				() -> beginTeleport(caster, player, dimension, originLevel, targetLevel, target, transaction),
+				() -> beginTeleport(caster, player, dimension, originLevel, targetLevel, target,
+						castSource, companionRadius, stormTicks, teleportDelay, transaction),
 				() -> {
 					transaction.fail();
 					reportTravelFailure(caster, player, target, DestinationFailure.UNLOADED_CHUNK);
@@ -236,9 +264,12 @@ public class TeleportAbility extends Ability {
 	}
 
 	private void beginTeleport(ServerPlayer caster, ServerPlayer player, ResourceKey<Level> dimension,
-			ServerLevel originLevel, ServerLevel targetLevel, Vec3 target,
+			ServerLevel originLevel, ServerLevel targetLevel, Vec3 target, CastSource castSource,
+			double companionRadius, int stormTicks, int teleportDelay,
 			AsyncAbilityTransaction transaction) {
-		if (!player.isAlive() || player.level() != originLevel) {
+		if (!MagicUseGate.ongoingAllowed(caster) || !MagicUseGate.ongoingAllowed(player)
+				|| !ServerCastLifecycle.mayContinue(caster, castSource, ownsPower(caster))
+				|| !player.isAlive() || player.level() != originLevel) {
 			transaction.fail();
 			return;
 		}
@@ -251,21 +282,6 @@ public class TeleportAbility extends Ability {
 		}
 		MinecraftServer server = originLevel.getServer();
 		Vec3 origin = player.position();
-		double companionRadius = scaledRange(caster, COMPANION_RADIUS);
-		int stormTicks = scaledDuration(caster, STORM_TICKS);
-		int teleportDelay = Math.max(20,
-				(int) Math.round(TELEPORT_DELAY_TICKS / Math.min(1.5, scaling(caster).rangeMultiplier())));
-
-		List<Companion> companions = new ArrayList<>();
-		// bring along everything alive within 1.3 blocks, remembering each one's offset from you
-		for (Entity entity : com.powers.util.BoundedEntityCandidates.collect(originLevel,
-				EntityTypeTest.forClass(Entity.class), player.getBoundingBox().inflate(companionRadius), 64,
-				e -> e.isAlive() && e != player)) {
-			if (entity instanceof ServerPlayer companionPlayer
-					&& !PowerProtection.mayBringCompanion(player, companionPlayer)) continue;
-			companions.add(new Companion(entity, entity.position().subtract(origin)));
-		}
-
 		PowerFx.rune(originLevel, origin, 2.0, 0x8AE8FF, 24, 0.0);
 		PowerFx.rune(targetLevel, target, 2.0, 0x8AE8FF, 24, Math.PI * 0.5);
 		PowerFx.sound(originLevel, origin, SoundEvents.ENDERMAN_TELEPORT, 0.9f, 1.0f);
@@ -275,8 +291,18 @@ public class TeleportAbility extends Ability {
 		PowersMod.startStorm(originLevel, origin, player, stormTicks, teleportDelay, themeFor(dimension));
 		PowersMod.startStorm(targetLevel, target, null, stormTicks, 0);
 		PowersMod.scheduleDelayed(server, teleportDelay, () -> {
-			// the player may have died during the storm - never teleport a corpse
-			if (!player.isAlive()) {
+			ServerPlayer currentCaster = server.getPlayerList().getPlayer(caster.getUUID());
+			AmethystDampening.update(player);
+			if (currentCaster != null && currentCaster != player) AmethystDampening.update(currentCaster);
+			if (!DelayedTravelRules.travellerMayContinue(currentCaster == caster,
+					caster.isAlive() && !caster.isRemoved(), player.isAlive() && !player.isRemoved(),
+					caster.level() == originLevel, player.level() == originLevel,
+					AmethystDampening.isDampened(caster), AmethystDampening.isDampened(player))) {
+				transaction.fail();
+				return;
+			}
+			if (!MagicUseGate.ongoingAllowed(caster) || !MagicUseGate.ongoingAllowed(player)
+					|| !ServerCastLifecycle.mayContinue(caster, castSource, ownsPower(caster))) {
 				transaction.fail();
 				return;
 			}
@@ -287,13 +313,17 @@ public class TeleportAbility extends Ability {
 				reportTravelFailure(caster, player, target, revalidated.failure());
 				return;
 			}
+			Vec3 departure = player.position();
+			List<Companion> companions = collectCompanions(originLevel, player,
+					departure, companionRadius);
 			player.teleport(new TeleportTransition(targetLevel, target, Vec3.ZERO,
 					player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 			transaction.succeed();
 			for (Companion companion : companions) {
 				Entity entity = companion.entity();
-				// companions that died or despawned during the storm stay behind
-				if (entity.isRemoved()) continue;
+				if (!DelayedTravelRules.companionMayTravel(!entity.isRemoved() && entity.isAlive(),
+						entity.level() == originLevel, entity.position().distanceToSqr(departure),
+						companionRadius)) continue;
 				Vec3 dest = target.add(companion.offset());
 				BlockPos destPos = BlockPos.containing(dest);
 				if (!LoadedChunks.contains(targetLevel, destPos)) continue;
@@ -310,6 +340,29 @@ public class TeleportAbility extends Ability {
 						entity.getYRot(), entity.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 			}
 		});
+	}
+
+	private static boolean ownsPower(ServerPlayer player) {
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
+			Power power = data.getPower(slot);
+			if (power != null && POWER_ID.equals(power.id())) return true;
+		}
+		return false;
+	}
+
+	private static List<Companion> collectCompanions(ServerLevel originLevel,
+			ServerPlayer traveller, Vec3 departure, double radius) {
+		List<Companion> companions = new ArrayList<>();
+		for (Entity entity : com.powers.util.BoundedEntityCandidates.collect(originLevel,
+				EntityTypeTest.forClass(Entity.class), traveller.getBoundingBox().inflate(radius), 64,
+				candidate -> candidate.isAlive() && candidate != traveller
+						&& candidate.position().distanceToSqr(departure) <= radius * radius)) {
+			if (entity instanceof ServerPlayer companionPlayer
+					&& !PowerProtection.mayBringCompanion(traveller, companionPlayer)) continue;
+			companions.add(new Companion(entity, entity.position().subtract(departure)));
+		}
+		return List.copyOf(companions);
 	}
 
 	private static void reportTravelFailure(ServerPlayer caster, ServerPlayer subject,

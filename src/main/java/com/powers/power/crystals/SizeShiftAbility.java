@@ -3,8 +3,12 @@ package com.powers.power.crystals;
 import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.MagicUseGate;
 import com.powers.progression.ScaledMagicValues;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -40,8 +44,8 @@ public class SizeShiftAbility extends Ability {
 
 	// Selection and cleanup tokens are runtime-only and are cleared at lifecycle edges.
 	private static final Map<UUID, Integer> LAST_SIZE = new HashMap<>();
-	private static final Map<UUID, Long> ACTIVE_CASTS = new HashMap<>();
-	private static long nextCastToken;
+	private static final Map<UUID, ActiveCast> ACTIVE_CASTS = new HashMap<>();
+	private record ActiveCast(CastSource castSource, long expiresAt) { }
 
 	public SizeShiftAbility() {
 		super(PowersMod.id("size_shift"),
@@ -91,16 +95,27 @@ public class SizeShiftAbility extends Ability {
 				next == 1 ? 0x00E5FF : 0xFFD600, 28, next == 1 ? 0.0 : Math.PI);
 		PowerFx.sound(level, player.position(), SoundEvents.PLAYER_HURT_FREEZE, 1.0f, 0.7f);
 
-		long token = ++nextCastToken;
-		ACTIVE_CASTS.put(player.getUUID(), token);
-		PowersMod.scheduleDelayed(level.getServer(), duration, () -> {
-			// An older timer must never remove a newer transformation.
-			if (player.isRemoved() || !ACTIVE_CASTS.remove(player.getUUID(), token)) return;
+		ACTIVE_CASTS.put(player.getUUID(), new ActiveCast(CastScalingContext.currentSource(),
+				level.getServer().getTickCount() + duration));
+		return true;
+	}
+
+	/** Ends transformations at their deadline or as soon as routed artifact authority is lost. */
+	public static void tickAll(net.minecraft.server.MinecraftServer server) {
+		long now = server.getTickCount();
+		for (var iterator = ACTIVE_CASTS.entrySet().iterator(); iterator.hasNext();) {
+			var entry = iterator.next();
+			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
+			ActiveCast active = entry.getValue();
+			if (player != null && now < active.expiresAt()
+					&& MagicUseGate.ongoingAllowed(player)
+					&& ServerCastLifecycle.mayContinue(player, active.castSource(), false)) continue;
+			iterator.remove();
+			if (player == null || player.isRemoved()) continue;
 			removeOwnedModifiers(player);
 			PowerFx.burst((ServerLevel) player.level(), player.position().add(0, 1, 0),
 					ParticleTypes.POOF, 16, 0.8, 0.2);
-		});
-		return true;
+		}
 	}
 
 	private static void removeOwnedModifiers(ServerPlayer player) {
@@ -117,6 +132,13 @@ public class SizeShiftAbility extends Ability {
 	public static void clear(UUID player) {
 		LAST_SIZE.remove(player);
 		ACTIVE_CASTS.remove(player);
+	}
+
+	/** Removes both UUID state and the exact transient modifiers from a departing entity. */
+	public static void clear(ServerPlayer player) {
+		if (player == null) return;
+		clear(player.getUUID());
+		removeOwnedModifiers(player);
 	}
 
 	/** Drops all transient selection state during server shutdown. */

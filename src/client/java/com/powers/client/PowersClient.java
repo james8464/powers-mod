@@ -9,6 +9,7 @@ import com.powers.client.screen.RankMazeScreen;
 import com.powers.client.screen.ShadowSwordScreen;
 import com.powers.client.screen.KnowledgeBookScreen;
 import com.powers.client.fx.ClientMagicFx;
+import com.powers.client.fx.ClientShapeFx;
 import com.powers.client.fx.ClientBeamFx;
 import com.powers.client.fx.ClientCelestialRuinFx;
 import com.powers.client.body.ClientBodySnapshots;
@@ -85,6 +86,8 @@ public class PowersClient implements ClientModInitializer {
 				(payload, context) -> context.client().execute(() -> ClientMagicFx.handle(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.BeamFxPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientBeamFx.handle(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.ShapeFxPayload.TYPE,
+				(payload, context) -> context.client().execute(() -> ClientShapeFx.handle(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(BodyProxyPackets.BodySnapshotPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientBodySnapshots.handle(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(CompanionPackets.StatePayload.TYPE,

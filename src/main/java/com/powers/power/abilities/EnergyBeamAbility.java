@@ -10,6 +10,7 @@ import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.Power;
 import com.powers.power.PowerDamage;
 import com.powers.power.state.EntityFreezeController;
@@ -94,7 +95,7 @@ public final class EnergyBeamAbility extends Ability {
 			boolean sameDimension = owner != null
 					&& owner.level().dimension().equals(channel.dimension);
 			boolean dampened = owner != null && AmethystDampening.isDampened(owner);
-			boolean frozen = owner != null && EntityFreezeController.isFrozen(owner);
+			boolean frozen = MagicUseGate.timeLocked(owner);
 			boolean ownsPower = owner != null && ServerCastLifecycle.mayContinue(
 					owner, channel.castSource, ownsPower(owner));
 			if (!EnergyBeamRules.channelContinues(owner != null, sameDimension,

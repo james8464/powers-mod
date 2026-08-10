@@ -10,6 +10,7 @@ import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.Power;
 import com.powers.power.PowerTargeting;
 import com.powers.power.state.EntityFreezeController;
@@ -42,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
 /** Owns a fast Storm Tribunal from its warning compass through Dominion's crown. */
 public final class LightningStrikeAbility extends Ability {
 	private static final Identifier POWER_ID = PowersMod.id("lightning_strike");
@@ -181,7 +181,7 @@ public final class LightningStrikeAbility extends Ability {
 			boolean sameDimension = owner != null
 					&& owner.level().dimension().equals(tribunal.dimension);
 			boolean dampened = owner != null && AmethystDampening.isDampened(owner);
-			boolean frozen = owner != null && EntityFreezeController.isFrozen(owner);
+			boolean frozen = MagicUseGate.timeLocked(owner);
 			boolean ownsPower = owner != null && ServerCastLifecycle.mayContinue(
 					owner, tribunal.castSource, ownsSource(owner, tribunal.sourcePower));
 			boolean siteLoaded = level != null && finite(tribunal.center)

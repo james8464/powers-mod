@@ -1,9 +1,14 @@
 package com.powers.power.abilities;
 
 import com.powers.PowersMod;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AbilityArithmetic;
+import com.powers.power.MagicUseGate;
+import com.powers.power.Power;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -17,11 +22,12 @@ import net.minecraft.world.phys.Vec3;
 
 /** Creates a temporary hearth that heals and feeds permitted nearby allies. */
 public class CozyCampfireAbility extends Ability {
+	private static final net.minecraft.resources.Identifier POWER_ID = PowersMod.id("cozy_campfire");
 	// 10 seconds of warmth
 	private static final int DURATION = 200;
 
 	public CozyCampfireAbility() {
-		super(PowersMod.id("cozy_campfire"),
+		super(POWER_ID,
 				Component.translatable("ability.powers.cozy_campfire"),
 				600, false);
 	}
@@ -35,7 +41,8 @@ public class CozyCampfireAbility extends Ability {
 		float healing = scaledPotency(player, 2.0f);
 
 		// run the first heal tick immediately, then every 5 ticks after
-		PowersMod.scheduleDelayed(level.getServer(), 0, new HealTask(level, center, radius, duration, healing));
+		PowersMod.scheduleDelayed(level.getServer(), 0, new HealTask(player.getUUID(),
+				CastScalingContext.currentSource(), level, center, radius, duration, healing));
 
 		com.powers.fx.PowerFx.burst(level, center,
 				net.minecraft.core.particles.ParticleTypes.CAMPFIRE_COSY_SMOKE, 16, 1.5, 0.1);
@@ -48,13 +55,18 @@ public class CozyCampfireAbility extends Ability {
 	}
 
 	private static class HealTask implements Runnable {
+		private final java.util.UUID ownerId;
+		private final CastSource castSource;
 		private final ServerLevel level;
 		private final Vec3 center;
 		private final double radius;
 		private final float healing;
 		private int remaining;
 
-		HealTask(ServerLevel level, Vec3 center, double radius, int ticks, float healing) {
+		HealTask(java.util.UUID ownerId, CastSource castSource, ServerLevel level,
+				Vec3 center, double radius, int ticks, float healing) {
+			this.ownerId = ownerId;
+			this.castSource = castSource;
 			this.level = level;
 			this.center = center;
 			this.radius = radius;
@@ -65,6 +77,9 @@ public class CozyCampfireAbility extends Ability {
 		@Override
 		public void run() {
 			if (remaining <= 0) return;
+			ServerPlayer owner = level.getServer().getPlayerList().getPlayer(ownerId);
+			if (owner == null || owner.level() != level || !MagicUseGate.ongoingAllowed(owner)
+					|| !ServerCastLifecycle.mayContinue(owner, castSource, ownsPower(owner))) return;
 			// only friendly mobs get healed, never enemies
 			AABB area = AABB.ofSize(center, radius * 2, radius * 2, radius * 2);
 			for (LivingEntity e : BoundedEntityCandidates.living(level, area, 256,
@@ -84,5 +99,14 @@ public class CozyCampfireAbility extends Ability {
 				PowersMod.scheduleDelayed(level.getServer(), 5, this);
 			}
 		}
+	}
+
+	private static boolean ownsPower(ServerPlayer player) {
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
+			Power power = data.getPower(slot);
+			if (power != null && POWER_ID.equals(power.id())) return true;
+		}
+		return false;
 	}
 }

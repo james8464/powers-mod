@@ -3,6 +3,7 @@ package com.powers.power.artifact;
 import com.powers.PowerStatusEffects;
 import com.powers.fx.PowerFx;
 import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.item.ArtifactWeaponManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
@@ -58,7 +59,7 @@ public final class ArtifactDecreeManager {
 			ServerLevel level = server.getLevel(decree.dimension());
 			LivingEntity target = level == null ? null : level.getEntity(decree.targetId()) instanceof LivingEntity living
 					? living : null;
-			if (!valid(caster, target, level)) {
+			if (!valid(caster, target, level, decree.alignment())) {
 				iterator.remove();
 				continue;
 			}
@@ -75,8 +76,10 @@ public final class ArtifactDecreeManager {
 		}
 	}
 
-	private static boolean valid(ServerPlayer caster, LivingEntity target, ServerLevel level) {
+	private static boolean valid(ServerPlayer caster, LivingEntity target, ServerLevel level,
+			ArtifactAlignment alignment) {
 		return caster != null && caster.isAlive() && target != null && target.isAlive()
+				&& ArtifactWeaponManager.maySustain(caster, alignment)
 				&& caster.level() == level && caster.hasLineOfSight(target)
 				&& caster.distanceToSqr(target) <= 96.0 * 96.0
 				&& PowerProtection.mayHarm(caster, target)

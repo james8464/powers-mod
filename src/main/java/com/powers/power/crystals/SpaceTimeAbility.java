@@ -4,12 +4,17 @@ import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.config.PowersConfigLoader;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.FreezeOwner;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
 import com.powers.util.PowerMessages;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.particles.ParticleTypes;
@@ -45,7 +50,7 @@ public class SpaceTimeAbility extends Ability {
 	private static final Map<UUID, Integer> MODES = new HashMap<>();
 	private final boolean automaticModeCycle;
 
-	private record ActiveFreeze(Set<UUID> entities, long endsAt) {}
+	private record ActiveFreeze(CastSource castSource, Set<UUID> entities, long endsAt) {}
 
 	public SpaceTimeAbility() {
 		this(false);
@@ -93,19 +98,22 @@ public class SpaceTimeAbility extends Ability {
 					e -> e.isAlive() && e != player && e.distanceToSqr(player) <= radius * radius
 						&& (!(e instanceof LivingEntity living) || !AmethystDampening.isDampened(living))
 						&& !PowerProtection.isSafeZone(level, e.position())
-						&& (!(e instanceof ServerPlayer target) || PowerProtection.mayForceMove(player, target)))) {
+						&& (!(e instanceof LivingEntity living) || (PowerProtection.mayForceMove(player, living)
+								&& !SpellFieldManager.blocksForcedMovement(level, living, player.getUUID()))))) {
 				UUID entityId = entity.getUUID();
 				EntityFreezeController.claim(entity, freezeOwner);
 				frozen.add(entityId);
 			}
 			if (frozen.isEmpty()) return false;
-			ACTIVE.put(player.getUUID(), new ActiveFreeze(Set.copyOf(frozen),
-					level.getGameTime() + duration));
+			ACTIVE.put(player.getUUID(), new ActiveFreeze(CastScalingContext.currentSource(),
+					Set.copyOf(frozen),
+					level.getServer().getTickCount() + duration));
 		}
 		com.powers.fx.PowerFx.ring(level, player.position(), 5.0, 0x00BCD4, 32, 0);
 		com.powers.fx.PowerFx.spiral(level, player.position(), 3.0, 2.5, 0x00BCD4, 28, 0);
 		com.powers.fx.PowerFx.sound(level, player.position(),
-				net.minecraft.sounds.SoundEvents.EVOKER_CAST_SPELL, 1.0f, mode == 2 ? 0.35f : 1.4f);
+				net.minecraft.sounds.SoundEvents.EVOKER_CAST_SPELL, 1.0f,
+				SpaceTimeModeRules.soundPitch(SpaceTimeModeRules.mode(mode)));
 		if (automaticModeCycle) {
 			int next = SpaceTimeModeRules.next(mode);
 			MODES.put(player.getUUID(), next);
@@ -121,7 +129,8 @@ public class SpaceTimeAbility extends Ability {
 			ActiveFreeze active = entry.getValue();
 			ServerPlayer owner = server.getPlayerList().getPlayer(ownerId);
 			// 6 seconds up, or the caster logged off or died: release everyone and drop the state
-			if (owner == null || !owner.isAlive() || owner.level().getGameTime() >= active.endsAt()) {
+			if (!MagicUseGate.ongoingAllowed(owner) || !ServerCastLifecycle.mayContinue(
+					owner, active.castSource(), false) || server.getTickCount() >= active.endsAt()) {
 				EntityFreezeController.release(FreezeOwner.token("space_time", ownerId), active.entities());
 				it.remove();
 				continue;

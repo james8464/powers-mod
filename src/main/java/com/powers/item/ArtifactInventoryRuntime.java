@@ -10,6 +10,7 @@ import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.power.PowerEnergy;
 import com.powers.power.artifact.ArtifactDeathWardManager;
+import com.powers.power.artifact.ArtifactDominionRules;
 import com.powers.power.artifact.ArtifactCovenantManager;
 import com.powers.power.artifact.ArtifactChainManager;
 import com.powers.power.artifact.ArtifactDecreeManager;
@@ -86,10 +87,11 @@ public final class ArtifactInventoryRuntime {
 		}
 		Map<UUID, Long> summons = LAST_GUARDIAN.get(alignment);
 		long last = summons.getOrDefault(player.getUUID(), -1_000L);
-		if (tick - last < 200) return;
-		if (ArtifactGuardianSummons.summon(player, alignment, 2, false, player, false) > 0) {
-			summons.put(player.getUUID(), (long) tick);
-		}
+		if (!ArtifactDominionRules.guardianAttemptReady(tick, last, 200)) return;
+		// Record the attempt even when the global guardian budget is full. A
+		// refused spawn must not turn into an expensive retry on every server tick.
+		summons.put(player.getUUID(), (long) tick);
+		ArtifactGuardianSummons.summon(player, alignment, 2, false, player, false);
 	}
 
 	private static void tickToggles(ServerPlayer player, ArtifactAlignment alignment, int tick) {
@@ -131,6 +133,11 @@ public final class ArtifactInventoryRuntime {
 		}
 	}
 
+	/** Death ends both artifacts' routed toggles while ordinary reconnects remain persistent. */
+	public static void stopAllToggles(ServerPlayer player) {
+		for (ArtifactAlignment alignment : ArtifactAlignment.values()) stopToggles(player, alignment);
+	}
+
 	public static void tickServer(MinecraftServer server) {
 		ArtifactDecreeManager.tick(server);
 		ArtifactFieldManager.tick(server);
@@ -147,7 +154,8 @@ public final class ArtifactInventoryRuntime {
 		ArtifactFieldManager.forget(playerId);
 		ArtifactGateManager.forget(playerId);
 		ArtifactGroundWorkQueue.forget(playerId);
-		ArtifactGuardianSummons.forget(playerId);
+		// Guardian UUIDs stay indexed until their entities expire so death or
+		// reconnect cannot bypass the global summon cap.
 		ArtifactDeathWardManager.forget(playerId);
 		ArtifactCovenantManager.forget(playerId);
 		ArtifactChainManager.forget(playerId);

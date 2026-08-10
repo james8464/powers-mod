@@ -4,15 +4,20 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.AsyncAbilityTransaction;
+import com.powers.power.MagicUseGate;
 import com.powers.power.PowerTargeting;
 import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelChunkLoader;
 import com.powers.power.travel.TravelKind;
 import com.powers.protection.PowerProtection;
+import com.powers.network.PowersPackets;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -73,7 +78,8 @@ abstract class MindscapeCrystalAbility extends Ability {
 		boolean aimedPlayer = target instanceof ServerPlayer;
 		if (CrystalTargeting.journeyTarget(caster.isCrouching(), aimedPlayer)
 				== CrystalTargeting.JourneyTarget.CASTER) {
-			return beginJourney(caster, caster, destinationLevel, data);
+			return beginJourney(caster, caster, destinationLevel, data,
+					CastScalingContext.currentSource());
 		}
 		if (target instanceof ServerPlayer subject) {
 			if (!PowerProtection.mayForceMove(caster, subject)) {
@@ -88,14 +94,15 @@ abstract class MindscapeCrystalAbility extends Ability {
 			PowerFx.beam(level, origin, subject.getEyePosition(), particle(), 18);
 			PowerFx.rune(level, subject.position(), 1.35, color, 24, 0.0);
 			PowerFx.sound(level, origin, SoundEvents.PORTAL_TRAVEL, 1.0f, pitch);
-			return beginJourney(caster, subject, destinationLevel, data);
+			return beginJourney(caster, subject, destinationLevel, data,
+					CastScalingContext.currentSource());
 		}
 
 		return false;
 	}
 
 	private boolean beginJourney(ServerPlayer caster, ServerPlayer subject, ServerLevel destinationLevel,
-			PlayerPowers.PlayerPowersData data) {
+			PlayerPowers.PlayerPowersData data, CastSource castSource) {
 		ServerLevel sourceLevel = (ServerLevel) subject.level();
 		Vec3 destinationPosition = new Vec3(8.5, destinationLevel.getMinY() + 1, 8.5);
 		SafeDestinationResolver.Result preflight = SafeDestinationResolver.validatePreload(
@@ -107,12 +114,16 @@ abstract class MindscapeCrystalAbility extends Ability {
 			return false;
 		}
 		double permittedSeparation = scaledRange(caster, BASE_REACH) + 4.0;
+		int stormTicks = scaledDuration(caster, BASE_STORM_TICKS);
+		int delay = Math.max(12, (int) Math.round(BASE_TELEPORT_DELAY
+				/ Math.max(1.0, scaling(caster).durationMultiplier())));
 		AsyncAbilityTransaction transaction = new AsyncAbilityTransaction(caster, data, this);
 		PowerMessages.overlay(caster, Component.translatable("ability.powers.realm_focusing",
 				destination.identifier().toString()));
 		return TravelChunkLoader.request(caster.getUUID(), destinationLevel, BlockPos.containing(destinationPosition),
 				() -> startJourney(caster, subject, sourceLevel, destinationLevel,
-						destinationPosition, permittedSeparation, transaction),
+						destinationPosition, permittedSeparation, castSource,
+						stormTicks, delay, transaction),
 				() -> {
 					transaction.fail();
 					PowerMessages.overlay(caster, Component.translatable(
@@ -122,6 +133,7 @@ abstract class MindscapeCrystalAbility extends Ability {
 
 	private void startJourney(ServerPlayer caster, ServerPlayer subject, ServerLevel sourceLevel,
 			ServerLevel destinationLevel, Vec3 requestedPosition, double permittedSeparation,
+			CastSource castSource, int stormTicks, int delay,
 			AsyncAbilityTransaction transaction) {
 		Vec3 destinationPosition = findArrival(subject, destinationLevel, requestedPosition);
 		if (destinationPosition == null) {
@@ -130,16 +142,13 @@ abstract class MindscapeCrystalAbility extends Ability {
 			return;
 		}
 		if (!stillEligible(caster, subject, sourceLevel, destinationLevel, destinationPosition,
-				permittedSeparation)) {
+				permittedSeparation, castSource)) {
 			transaction.fail();
 			PowerMessages.overlay(caster, Component.translatable(
 					"ability.powers.realm_journey_interrupted"));
 			return;
 		}
 		Vec3 sourcePosition = subject.position();
-		int stormTicks = scaledDuration(caster, BASE_STORM_TICKS);
-		int delay = Math.max(12, (int) Math.round(BASE_TELEPORT_DELAY
-				/ Math.max(1.0, scaling(caster).durationMultiplier())));
 		PowersMod.startStorm(sourceLevel, sourcePosition, stormTicks, departureTheme);
 		PowersMod.startStorm(destinationLevel, destinationPosition, stormTicks);
 		PowerFx.rune(sourceLevel, sourcePosition, 2.2, color, 36, 0.0);
@@ -147,7 +156,7 @@ abstract class MindscapeCrystalAbility extends Ability {
 
 		PowersMod.scheduleDelayed(sourceLevel.getServer(), delay, () -> {
 			if (!stillEligible(caster, subject, sourceLevel, destinationLevel, destinationPosition,
-					permittedSeparation)) {
+					permittedSeparation, castSource)) {
 				transaction.fail();
 				PowerMessages.overlay(caster, Component.translatable(
 						"ability.powers.realm_journey_interrupted"));
@@ -161,15 +170,26 @@ abstract class MindscapeCrystalAbility extends Ability {
 			}
 			subject.teleport(new TeleportTransition(destinationLevel, destinationPosition, Vec3.ZERO,
 					subject.getYRot(), subject.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+			if (subject.level() != destinationLevel) {
+				BodyProxyManager.finish(subject);
+				transaction.fail();
+				PowerMessages.overlay(caster, Component.translatable(
+						"ability.powers.realm_journey_interrupted"));
+				return;
+			}
 			transaction.succeed();
+			PowersPackets.syncTo(subject);
 			PowerFx.rune(destinationLevel, destinationPosition, 2.2, color, 36, Math.PI);
 			PowerFx.spiral(destinationLevel, destinationPosition, 1.6, 2.8, color, 30, Math.PI);
 		});
 	}
 
 	private boolean stillEligible(ServerPlayer caster, ServerPlayer subject, ServerLevel sourceLevel,
-			ServerLevel destinationLevel, Vec3 destinationPosition, double permittedSeparation) {
+			ServerLevel destinationLevel, Vec3 destinationPosition, double permittedSeparation,
+			CastSource castSource) {
 		if (subject.isRemoved() || caster.isRemoved() || !subject.isAlive() || !caster.isAlive()
+				|| !MagicUseGate.ongoingAllowed(caster) || !MagicUseGate.ongoingAllowed(subject)
+				|| !ServerCastLifecycle.mayContinue(caster, castSource, false)
 				|| subject.level() != sourceLevel || caster.level() != sourceLevel
 				|| sourceLevel.getServer().getPlayerList().getPlayer(subject.getUUID()) != subject
 				|| AmethystDampening.isDampened(caster) || AmethystDampening.isDampened(subject)

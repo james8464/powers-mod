@@ -41,7 +41,7 @@ public final class GodlyPunishment {
 
 		PowersMod.scheduleDelayed(level.getServer(), 25, () -> {
 			// the follow-up wave lands a moment later; skip it if the player died first
-			if (!player.isAlive()) return;
+			if (!player.isAlive() || player.isRemoved() || player.level() != level) return;
 			Vec3 follow = player.position().add(0, 1, 0);
 			PowerFx.ring(level, follow.add(0, -0.3, 0), 6.0, rgb, 40, phase + 1.3);
 			PowerFx.coloredBurst(level, follow, rgb, 32, 1.2);

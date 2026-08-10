@@ -6,6 +6,7 @@ import com.powers.network.PowersPackets;
 import com.powers.network.PacketRateLimiter;
 import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.power.abilities.EnergyDrainAbility;
@@ -157,7 +158,8 @@ public final class SpellCastingManager {
 				iterator.remove();
 				continue;
 			}
-			ChannelStatus status = player.level().dimension().equals(session.dimension())
+			ChannelStatus status = MagicUseGate.ongoingAllowed(player)
+					&& player.level().dimension().equals(session.dimension())
 					? ChannelRules.status(session.state(), player.level().getGameTime(),
 					player.getX(), player.getY(), player.getZ(), holding(player, session.grimoireKey()),
 					AmethystDampening.isDampened(player)) : ChannelStatus.INTERRUPTED;

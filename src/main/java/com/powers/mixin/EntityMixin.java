@@ -1,10 +1,9 @@
 package com.powers.mixin;
 
-import com.powers.PowersItems;
+import com.powers.item.ProtectedMagicDropRules;
 import com.powers.power.state.PowerEntityState;
 import com.powers.power.state.SummonPolicy;
 import com.powers.network.NamedLivingTargetIndex;
-import com.powers.magic.runtime.PhysicalMagicPresences;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -26,11 +25,6 @@ public abstract class EntityMixin {
 		NamedLivingTargetIndex.track((Entity) (Object) this);
 	}
 
-	@Inject(method = "tick", at = @At("TAIL"))
-	private void powers$movePhysicalMagicPresence(CallbackInfo callback) {
-		PhysicalMagicPresences.move((Entity) (Object) this);
-	}
-
 	@Inject(method = "shouldBeSaved", at = @At("HEAD"), cancellable = true)
 	private void powers$skipEphemeralSummonSave(CallbackInfoReturnable<Boolean> cir) {
 		Entity self = (Entity) (Object) this;
@@ -42,8 +36,8 @@ public abstract class EntityMixin {
 	@Inject(method = "kill", at = @At("HEAD"), cancellable = true)
 	private void powers$protectCrystalFromKill(ServerLevel level, CallbackInfo ci) {
 		Entity self = (Entity) (Object) this;
-		// a dropped crystal shrugs off /kill entirely
-		if (self instanceof ItemEntity itemEntity && PowersItems.isCrystal(itemEntity.getItem())) {
+		if (self instanceof ItemEntity itemEntity
+				&& ProtectedMagicDropRules.isProtected(itemEntity.getItem())) {
 			ci.cancel();
 		}
 	}

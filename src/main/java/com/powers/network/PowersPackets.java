@@ -321,10 +321,12 @@ public final class PowersPackets {
 	public static void forget(ServerPlayer player) {
 		LAST_SENT_STATE.remove(player.getUUID());
 		PacketRateLimiter.forgetPlayer(player.getUUID());
+		LocatorSpellPackets.forget(player.getUUID());
 	}
 
 	public static void clearSyncCache() {
 		LAST_SENT_STATE.clear();
 		PacketRateLimiter.clearGlobal();
+		LocatorSpellPackets.clearAll();
 	}
 }

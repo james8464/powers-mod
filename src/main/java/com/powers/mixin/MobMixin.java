@@ -1,6 +1,6 @@
 package com.powers.mixin;
 
-import com.powers.PowersItems;
+import com.powers.item.ProtectedMagicDropRules;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MobMixin {
 	@Inject(method = "pickUpItem", at = @At("HEAD"), cancellable = true)
 	private void powers$preventCrystalPickup(ServerLevel level, ItemEntity itemEntity, CallbackInfo ci) {
-		if (PowersItems.isCrystal(itemEntity.getItem())) {
+		if (ProtectedMagicDropRules.isProtected(itemEntity.getItem())) {
 			ci.cancel();
 		}
 	}

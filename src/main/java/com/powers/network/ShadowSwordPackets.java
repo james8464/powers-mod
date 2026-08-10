@@ -8,7 +8,6 @@ import com.powers.item.artifact.ArtifactFavouriteRules;
 import com.powers.item.artifact.ArtifactActionCategory;
 import com.powers.item.artifact.ArtifactActionSnapshot;
 import com.powers.item.artifact.ArtifactAlignment;
-import com.powers.player.PlayerPowers;
 import com.powers.player.ArtifactSelectionState;
 import com.powers.power.AbilityActivationService;
 import com.powers.util.PowerMessages;
@@ -183,26 +182,6 @@ public final class ShadowSwordPackets {
 
 	public static void openTeleport(ServerPlayer player, ArtifactAlignment alignment) {
 		ServerPlayNetworking.send(player, new OpenTeleportPayload(alignment.serializedName()));
-	}
-
-	/** Compatibility overload for code paths retained during world migration. */
-	public static void openMenu(ServerPlayer player, String selectedKey, int rank,
-			int elementalPhase, int sizeMorphOption) {
-		java.util.List<ArtifactWeaponManager.Action> actions = ArtifactWeaponManager.actions(
-				ArtifactAlignment.DARKNESS);
-		openMenu(player, ArtifactAlignment.DARKNESS, selectedKey, rank, elementalPhase,
-				sizeMorphOption, PlayerPowers.get(player).energy(),
-				ArtifactSelectionState.favourites(player, ArtifactAlignment.DARKNESS),
-				actions.stream().map(action -> new ArtifactActionSnapshot(
-						action.definition().key(), action.definition().category(),
-						com.powers.power.PowerEnergy.cost(player, action.ability()), 0,
-						ArtifactWeaponManager.cooldown(player, ArtifactAlignment.DARKNESS, action),
-						false, rank < action.definition().requiredRank(), -1)).toList());
-	}
-
-	/** Compatibility overload for the original Shadow Sword adapter. */
-	public static void openTeleport(ServerPlayer player) {
-		openTeleport(player, ArtifactAlignment.DARKNESS);
 	}
 
 	private static void handleTeleport(ServerPlayer caster, TeleportPayload payload) {

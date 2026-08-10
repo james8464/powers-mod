@@ -29,7 +29,7 @@ public final class PowersItems {
 			crystalProperties());
 
 	// the seven chromatic crystals, keyed by id; all seven fuse into the rainbow crystal
-	public static final Map<String, Item> COLOR_CRYSTALS = new LinkedHashMap<>();
+	private static final Map<String, Item> COLOR_CRYSTALS = new LinkedHashMap<>();
 	public static final Item RED_CRYSTAL = colorCrystal("red_crystal");
 	public static final Item ORANGE_CRYSTAL = colorCrystal("orange_crystal");
 	public static final Item YELLOW_CRYSTAL = colorCrystal("yellow_crystal");
@@ -74,6 +74,10 @@ public final class PowersItems {
 	public static boolean isCrystal(ItemStack stack) {
 		Item item = stack.getItem();
 		return item instanceof CrystalItem || item instanceof RainbowCrystalItem;
+	}
+
+	public static Map<String, Item> colorCrystals() {
+		return Map.copyOf(COLOR_CRYSTALS);
 	}
 
 	private PowersItems() {

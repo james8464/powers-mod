@@ -2,17 +2,13 @@ package com.powers.fx;
 
 import com.powers.PowersParticles;
 import com.powers.PowersSounds;
-import com.powers.config.PowersConfigLoader;
-import com.powers.diagnostics.ServerRuntimeMetrics;
 import com.powers.power.abilities.VoidBeamRules;
-import com.powers.network.MagicFxPackets;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -24,11 +20,6 @@ import net.minecraft.world.phys.Vec3;
  * trails and cast sounds
  */
 public final class PowerFx {
-	private static final int MAX_VIEWER_PARTICLES_PER_TICK = 128;
-	private static final double MAX_PARTICLE_RANGE = 128.0;
-	private static final java.util.Map<MinecraftServer, ViewerParticleBudget> BUDGETS =
-			new java.util.WeakHashMap<>();
-
 	private PowerFx() {
 	}
 
@@ -48,31 +39,8 @@ public final class PowerFx {
 
 	private static void sendPerViewer(ServerLevel level, Vec3 pos, ParticleOptions particle,
 			int count, double spread, double speed, boolean protectFirstPersonClarity) {
-		if (count <= 0) return;
-		ViewerParticleBudget budget = budget(level);
-		long tick = level.getServer().getTickCount();
-		for (ServerPlayer viewer : level.players()) {
-			double distanceSquared = viewer.getEyePosition().distanceToSqr(pos);
-			int requested = protectFirstPersonClarity
-					? ParticleBudget.viewerCount(count, distanceSquared) : count;
-			int granted = budget.claim(tick, viewer.getUUID(), requested, distanceSquared);
-			if (granted <= 0) continue;
-			ServerRuntimeMetrics.recordParticles(level.getServer(), tick, granted);
-			level.sendParticles(viewer, particle, false, false,
-					pos.x, pos.y, pos.z, granted, spread, spread, spread, speed);
-		}
-	}
-
-	private static ViewerParticleBudget budget(ServerLevel level) {
-		int limit = PowersConfigLoader.get().maxParticlesPerTick();
-		MinecraftServer server = level.getServer();
-		int viewerLimit = Math.min(MAX_VIEWER_PARTICLES_PER_TICK, Math.max(1, limit));
-		ViewerParticleBudget budget = BUDGETS.get(server);
-		if (budget == null || budget.serverLimit() != limit || budget.viewerLimit() != viewerLimit) {
-			budget = new ViewerParticleBudget(limit, viewerLimit, MAX_PARTICLE_RANGE);
-			BUDGETS.put(server, budget);
-		}
-		return budget;
+		ServerFxTransport.burst(level, pos, particle, count, spread, speed,
+				protectFirstPersonClarity);
 	}
 
 	/** Creates a colourable magic particle without Minecraft's potion-effect cloud. */
@@ -87,58 +55,28 @@ public final class PowerFx {
 
 	/** draws a straight line of particles between two points */
 	public static void beam(ServerLevel level, Vec3 from, Vec3 to, ParticleOptions particle, int steps) {
-		if (steps <= 0 || !finite(from) || !finite(to)) return;
-		int requested = Math.min(64, steps);
-		Vec3 midpoint = from.add(to).scale(0.5);
-		ViewerParticleBudget budget = budget(level);
-		long tick = level.getServer().getTickCount();
-		BeamFxStyle style = BeamFxStyle.from(particle);
-		int color = BeamFxStyle.color(particle);
-		long eventId = Integer.toUnsignedLong(java.util.Objects.hash(tick, from, to, style, color));
-		for (ServerPlayer viewer : level.players()) {
-			double distanceSquared = viewer.getEyePosition().distanceToSqr(midpoint);
-			int visible = ParticleBudget.viewerCount(requested, distanceSquared);
-			int granted = budget.claim(tick, viewer.getUUID(), visible, distanceSquared);
-			if (granted <= 0) continue;
-			ServerRuntimeMetrics.recordParticles(level.getServer(), tick, granted);
-			MagicFxPackets.sendBeam(viewer, new MagicFxPackets.BeamFxPayload(eventId, style,
-					from.x, from.y, from.z, to.x, to.y, to.z, granted, color));
-		}
-	}
-
-	private static boolean finite(Vec3 point) {
-		return Double.isFinite(point.x) && Double.isFinite(point.y) && Double.isFinite(point.z);
+		ServerFxTransport.beam(level, from, to, particle, steps);
 	}
 
 	/** draws a flat magic circle; the phase makes it look like it slowly rotates */
 	public static void ring(ServerLevel level, Vec3 center, double radius, int rgb, int points, double phase) {
-		for (int i = 0; i < points; i++) {
-			double angle = Math.PI * 2.0 * i / points + phase;
-			Vec3 point = center.add(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-			coloredBurst(level, point, rgb, 1, 0.015);
-		}
+		sendShape(level, center, radius, 0.0, rgb, points, phase, ShapeFxKind.RING);
 	}
 
 	/** draws a circle of rune sparks with a faint inner ring */
 	public static void rune(ServerLevel level, Vec3 center, double radius, int rgb, int points, double phase) {
-		ring(level, center, radius, rgb, points, phase);
-		for (int i = 0; i < points; i++) {
-			double angle = Math.PI * 2.0 * i / points + phase;
-			Vec3 point = center.add(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-			burst(level, point.add(0, 0.15, 0), ParticleTypes.END_ROD, 1, 0.08, 0.02);
-		}
-		spiral(level, center, radius * 0.55, radius * 0.4, rgb, Math.max(6, points / 2), phase + Math.PI / 8);
+		sendShape(level, center, radius, radius * 0.4, rgb, points, phase, ShapeFxKind.RUNE);
 	}
 
 	/** draws a short rising spiral for transformations and charged casts */
 	public static void spiral(ServerLevel level, Vec3 center, double radius, double height,
 			int rgb, int points, double phase) {
-		for (int i = 0; i < points; i++) {
-			double progress = i / (double) Math.max(1, points - 1);
-			double angle = phase + progress * Math.PI * 4.0;
-			Vec3 point = center.add(Math.cos(angle) * radius, progress * height, Math.sin(angle) * radius);
-			coloredBurst(level, point, rgb, 1, 0.015);
-		}
+		sendShape(level, center, radius, height, rgb, points, phase, ShapeFxKind.SPIRAL);
+	}
+
+	private static void sendShape(ServerLevel level, Vec3 center, double radius, double height,
+			int rgb, int points, double phase, ShapeFxKind kind) {
+		ServerFxTransport.shape(level, center, radius, height, rgb, points, phase, kind);
 	}
 
 	/** plays a sound to everyone around a point */
@@ -385,11 +323,7 @@ public final class PowerFx {
 
 	/** Draws the cyan-and-gold third-eye signature of a True Sight veil piercing. */
 	public static void trueSightPiercing(ServerLevel level, Vec3 center) {
-		for (int point = 0; point < 24; point++) {
-			double angle = Math.PI * 2.0 * point / 24.0;
-			Vec3 eye = center.add(Math.cos(angle) * 1.35, 0.08, Math.sin(angle) * 0.52);
-			coloredBurst(level, eye, 0x8FE9FF, 1, 0.015);
-		}
+		ring(level, center.add(0.0, 0.08, 0.0), 1.0, 0x8FE9FF, 24, 0.0);
 		rune(level, center.add(0.0, 0.12, 0.0), 0.36, 0xFFE08A, 12, Math.PI / 4.0);
 		beam(level, center.add(0.0, 0.25, 0.0), center.add(0.0, 5.5, 0.0),
 				dust(0x8FE9FF, 1.0F), 16);
@@ -434,6 +368,6 @@ public final class PowerFx {
 	}
 
 	public static void clearBudgets() {
-		BUDGETS.clear();
+		ServerFxTransport.clear();
 	}
 }

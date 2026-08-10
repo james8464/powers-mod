@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 
 /**
@@ -25,6 +26,7 @@ public final class ActiveMagicIndex {
 	private final Map<MagicPresenceId, MagicPresence> presences = new HashMap<>();
 	private final Map<MagicPresenceId, Set<CellKey>> memberships = new HashMap<>();
 	private final Map<UUID, Set<MagicPresenceId>> byOwner = new HashMap<>();
+	private final TreeMap<Long, Set<MagicPresenceId>> byExpiry = new TreeMap<>();
 
 	/**
 	 * Creates an index whose cells have the supplied horizontal block size.
@@ -49,6 +51,7 @@ public final class ActiveMagicIndex {
 			cells.computeIfAbsent(cell, ignored -> new LinkedHashSet<>()).add(presence.id());
 		}
 		byOwner.computeIfAbsent(presence.owner(), ignored -> new LinkedHashSet<>()).add(presence.id());
+		scheduleExpiry(presence.id(), presence.expiresAt());
 	}
 
 	/**
@@ -72,13 +75,17 @@ public final class ActiveMagicIndex {
 
 	private boolean replace(MagicPresence moved) {
 		MagicPresenceId id = moved.id();
+		MagicPresence previous = presences.get(id);
+		if (previous == null) return false;
 		removeCellMembership(id);
+		unscheduleExpiry(id, previous.expiresAt());
 		presences.put(id, moved);
 		Set<CellKey> occupied = cellsFor(moved.dimension(), moved.anchor(), moved.radius());
 		memberships.put(id, occupied);
 		for (CellKey cell : occupied) {
 			cells.computeIfAbsent(cell, ignored -> new LinkedHashSet<>()).add(id);
 		}
+		scheduleExpiry(id, moved.expiresAt());
 		return true;
 	}
 
@@ -116,6 +123,7 @@ public final class ActiveMagicIndex {
 		MagicPresence removed = presences.remove(Objects.requireNonNull(id, "id"));
 		if (removed == null) return false;
 		removeCellMembership(id);
+		unscheduleExpiry(id, removed.expiresAt());
 		Set<MagicPresenceId> ownerEntries = byOwner.get(removed.owner());
 		if (ownerEntries != null) {
 			ownerEntries.remove(id);
@@ -136,8 +144,8 @@ public final class ActiveMagicIndex {
 	/** Removes every presence whose expiry tick has been reached. */
 	public int expire(long gameTime) {
 		if (gameTime < 0L) throw new IllegalArgumentException("Game time cannot be negative");
-		List<MagicPresenceId> expired = presences.values().stream()
-				.filter(presence -> presence.expired(gameTime)).map(MagicPresence::id).toList();
+		List<MagicPresenceId> expired = byExpiry.headMap(gameTime, true).values().stream()
+				.flatMap(Collection::stream).toList();
 		expired.forEach(this::remove);
 		return expired.size();
 	}
@@ -148,6 +156,7 @@ public final class ActiveMagicIndex {
 		presences.clear();
 		memberships.clear();
 		byOwner.clear();
+		byExpiry.clear();
 	}
 
 	/** Returns active presence count for diagnostics and invariant tests. */
@@ -187,5 +196,16 @@ public final class ActiveMagicIndex {
 			entries.remove(id);
 			if (entries.isEmpty()) cells.remove(cell);
 		}
+	}
+
+	private void scheduleExpiry(MagicPresenceId id, long expiresAt) {
+		byExpiry.computeIfAbsent(expiresAt, ignored -> new LinkedHashSet<>()).add(id);
+	}
+
+	private void unscheduleExpiry(MagicPresenceId id, long expiresAt) {
+		Set<MagicPresenceId> bucket = byExpiry.get(expiresAt);
+		if (bucket == null) return;
+		bucket.remove(id);
+		if (bucket.isEmpty()) byExpiry.remove(expiresAt);
 	}
 }

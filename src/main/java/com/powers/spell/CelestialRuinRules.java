@@ -1,5 +1,8 @@
 package com.powers.spell;
 
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+
 /** Pure dimensions and work bounds for the Heavenfall cleanup ritual. */
 public final class CelestialRuinRules {
 	public static final int COUNTDOWN_TICKS = 1_200;
@@ -19,6 +22,11 @@ public final class CelestialRuinRules {
 	private CelestialRuinRules() {
 	}
 
+	/** A server-wide Time Stop pauses both warning and destruction work. */
+	public static boolean mayAdvance(boolean globallyStopped) {
+		return !globallyStopped;
+	}
+
 	/** Exact integer-sphere boundary used by tests and the destructive cursor. */
 	public static boolean insideBlast(int x, int y, int z) {
 		return (long) x * x + (long) y * y + (long) z * z
@@ -32,6 +40,13 @@ public final class CelestialRuinRules {
 		}
 		double remaining = 1.0 - distance / DAMAGE_RADIUS;
 		return (float) (PEAK_DAMAGE * remaining * remaining);
+	}
+
+	/** Bounds the shockwave horizontally while covering the complete build height. */
+	public static AABB damageBounds(Vec3 epicenter, int minimumY, int maximumY) {
+		return new AABB(epicenter.x - DAMAGE_RADIUS, minimumY,
+				epicenter.z - DAMAGE_RADIUS, epicenter.x + DAMAGE_RADIUS,
+				maximumY, epicenter.z + DAMAGE_RADIUS);
 	}
 
 	public static int aftershockTotalSteps() {
@@ -54,5 +69,9 @@ public final class CelestialRuinRules {
 	public static boolean shouldDestroy(boolean livingForce, boolean terrainEnabled,
 			boolean hasBlockEntity, boolean blockEntityDamageEnabled) {
 		return livingForce || terrainEnabled && (!hasBlockEntity || blockEntityDamageEnabled);
+	}
+
+	public static boolean shouldIgnite(boolean terrainEnabled, boolean safeZone) {
+		return terrainEnabled && !safeZone;
 	}
 }

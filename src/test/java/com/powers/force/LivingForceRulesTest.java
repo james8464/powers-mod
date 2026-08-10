@@ -57,4 +57,10 @@ class LivingForceRulesTest {
 		assertFalse(LivingForceRules.mayReplace(false, false, false, true, 1.0f));
 		assertFalse(LivingForceRules.mayReplace(false, false, false, false, -1.0f));
 	}
+
+	@Test
+	void globalTimeStopPausesAurasAndClashDestruction() {
+		assertFalse(LivingForceRules.mayAdvance(true));
+		assertTrue(LivingForceRules.mayAdvance(false));
+	}
 }

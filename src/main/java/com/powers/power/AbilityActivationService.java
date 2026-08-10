@@ -152,17 +152,7 @@ public final class AbilityActivationService {
 	}
 
 	private static boolean passesCasterChecks(ServerPlayer player) {
-		if (GlobalTimeStopManager.rejectIfStopped(player)) return false;
-		AmethystDampening.update(player);
-		if (AmethystDampening.isDampened(player)) {
-			AmethystDampening.punish(player);
-			return false;
-		}
-		if (SpaceTimeAbility.isFrozen(player)) {
-			SpaceTimeAbility.reject(player);
-			return false;
-		}
-		return true;
+		return MagicUseGate.passes(player, true);
 	}
 
 	private static Result toggle(ServerPlayer player, PlayerPowers.PlayerPowersData data,

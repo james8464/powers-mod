@@ -6,7 +6,11 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.state.PowerEntityState;
+import com.powers.power.state.EntityFreezeController;
+import com.powers.power.state.MagicShieldManager;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
+import com.powers.mind.BodyProxyManager;
 import com.powers.util.PowerMessages;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.particles.ParticleTypes;
@@ -41,8 +45,7 @@ public class TelekinesisAbility extends Ability {
 		Vec3 center = player.position();
 		int moved = 0;
 		for (LivingEntity target : BoundedEntityCandidates.living(level, area, 160,
-				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
-						&& PowerProtection.mayForceMove(player, e))) {
+				e -> mayMove(level, player, e))) {
 			Vec3 fling = TelekinesisRules.outwardFling(
 					center, target.position(), 2.2 * force, 0.7 * force);
 			// Right on top of the player the radial direction is undefined, so the
@@ -88,5 +91,14 @@ public class TelekinesisAbility extends Ability {
 		float pitch = 0.84F + Math.min(0.22F, (moved + intercepted) * 0.015F);
 		PowerFx.sound(level, center, net.minecraft.sounds.SoundEvents.EVOKER_CAST_SPELL, 1.0F, pitch);
 		return true;
+	}
+
+	private static boolean mayMove(ServerLevel level, ServerPlayer caster, LivingEntity target) {
+		return target.isAlive() && target != caster && !AmethystDampening.isDampened(target)
+				&& !BodyProxyManager.isProxy(target) && !EntityFreezeController.isFrozen(target)
+				&& PowerProtection.mayForceMove(caster, target)
+				&& !SpellFieldManager.blocksForcedMovement(level, target, caster.getUUID())
+				&& (!(target instanceof ServerPlayer player) || !MagicShieldManager.global().active(
+						player.getUUID(), level.getServer().getTickCount()));
 	}
 }

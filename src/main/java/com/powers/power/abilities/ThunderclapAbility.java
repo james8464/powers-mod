@@ -9,6 +9,7 @@ import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -36,21 +37,30 @@ public final class ThunderclapAbility extends Ability {
 		ServerLevel level = (ServerLevel) player.level();
 		Vec3 origin = player.getEyePosition();
 		Vec3 look = player.getLookAngle();
-		Vec3 horizontal = new Vec3(look.x, 0.0, look.z).normalize();
+		ThunderclapRules.HorizontalDirection forward = ThunderclapRules.horizontalDirection(
+				look.x, look.z, player.getYRot());
+		Vec3 horizontal = new Vec3(forward.x(), 0.0, forward.z());
 		double range = scaledRange(player, BASE_RANGE);
 		AABB bounds = AABB.ofSize(origin, range * 2.0, range, range * 2.0);
 		for (LivingEntity target : BoundedEntityCandidates.living(level, bounds, 160,
 				candidate -> eligible(player, candidate, range, horizontal),
 				Comparator.comparingDouble(player::distanceToSqr))) {
-			target.hurtServer(level, PowerDamage.source(player), scaledPotency(player, 50.0F));
-			Vec3 push = target.position().subtract(player.position()).normalize()
-					.scale(2.2 * scaling(player).potencyMultiplier());
-			target.setDeltaMovement(push.x, Math.max(0.45, push.y + 0.35), push.z);
-			target.hurtMarked = true;
-			target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS,
-					scaledDuration(player, 80), 3, false, true));
-			target.addEffect(PowerStatusEffects.hidden(MobEffects.WEAKNESS,
-					scaledDuration(player, 80), 2, false, true));
+			boolean mayHarm = PowerProtection.mayHarm(player, target)
+					&& !SpellFieldManager.isSanctuaryProtected(level, target);
+			if (mayHarm) {
+				target.hurtServer(level, PowerDamage.source(player), scaledPotency(player, 50.0F));
+				target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS,
+						scaledDuration(player, 80), 3, false, true));
+				target.addEffect(PowerStatusEffects.hidden(MobEffects.WEAKNESS,
+						scaledDuration(player, 80), 2, false, true));
+			}
+			if (PowerProtection.mayForceMove(player, target)
+					&& !SpellFieldManager.blocksForcedMovement(level, target, player.getUUID())) {
+				Vec3 push = target.position().subtract(player.position()).normalize()
+						.scale(2.2 * scaling(player).potencyMultiplier());
+				target.setDeltaMovement(push.x, Math.max(0.45, push.y + 0.35), push.z);
+				target.hurtMarked = true;
+			}
 		}
 		for (Projectile projectile : BoundedEntityCandidates.collect(level,
 				EntityTypeTest.forClass(Projectile.class), bounds, 160,
@@ -71,8 +81,8 @@ public final class ThunderclapAbility extends Ability {
 		return target != caster && target.isAlive() && !caster.isAlliedTo(target)
 				&& inCone(caster, target.position(), range, horizontal)
 				&& !AmethystDampening.isDampened(target)
-				&& PowerProtection.mayHarm(caster, target)
-				&& PowerProtection.mayForceMove(caster, target);
+				&& (PowerProtection.mayHarm(caster, target)
+				|| PowerProtection.mayForceMove(caster, target));
 	}
 
 	private static boolean inCone(ServerPlayer caster, Vec3 target, double range, Vec3 horizontal) {

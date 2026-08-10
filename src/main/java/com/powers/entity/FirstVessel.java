@@ -393,11 +393,12 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 		phase = FirstVesselPhase.values()[storedPhase];
 		reconstitutionUsed = input.getBooleanOr("PowersFirstVesselReconstitution", false);
 		lastFirmamentUsed = input.getBooleanOr("PowersFirstVesselFirmament", false);
-		effectiveMaximumHealth = Math.max(FirstVesselRules.BASE_HEALTH,
+		effectiveMaximumHealth = FirstVesselRules.sanitizeMaximum(
 				input.getFloatOr("PowersFirstVesselMaxHealth", FirstVesselRules.BASE_HEALTH));
-		effectiveHealth = Math.clamp(input.getFloatOr("PowersFirstVesselHealth",
-				effectiveMaximumHealth), 1.0F, effectiveMaximumHealth);
-		scaledPlayers = Math.max(0, input.getIntOr("PowersFirstVesselScaledPlayers",
-				effectiveMaximumHealth > FirstVesselRules.BASE_HEALTH ? 1 : 0));
+		effectiveHealth = FirstVesselRules.sanitizeHealth(input.getFloatOr(
+				"PowersFirstVesselHealth", effectiveMaximumHealth), effectiveMaximumHealth);
+		scaledPlayers = Math.clamp(input.getIntOr("PowersFirstVesselScaledPlayers",
+				effectiveMaximumHealth > FirstVesselRules.BASE_HEALTH ? 1 : 0),
+				0, FirstVesselRules.MAX_CANDIDATES);
 	}
 }

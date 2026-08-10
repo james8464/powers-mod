@@ -6,6 +6,9 @@ import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.PowerDamage;
 import com.powers.power.PowerTargeting;
+import com.powers.power.MagicUseGate;
+import com.powers.power.AmethystDampening;
+import com.powers.power.abilities.DelayedTravelRules;
 import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelChunkLoader;
 import com.powers.power.travel.TravelKind;
@@ -51,6 +54,7 @@ public final class ImportedArtifactItem extends Item {
 		if (level.isClientSide() || !(user instanceof ServerPlayer player)) {
 			return InteractionResult.SUCCESS;
 		}
+		if (!MagicUseGate.passes(player, true)) return InteractionResult.FAIL;
 		ItemStack stack = player.getItemInHand(hand);
 		if (player.getCooldowns().isOnCooldown(stack)) return InteractionResult.SUCCESS;
 		boolean success = switch (kind) {
@@ -74,13 +78,19 @@ public final class ImportedArtifactItem extends Item {
 	public InteractionResult useOn(UseOnContext context) {
 		if (context.getLevel().isClientSide()
 				|| !(context.getPlayer() instanceof ServerPlayer player)) return InteractionResult.SUCCESS;
-		return switch (kind) {
-			case TRANSMUTER -> transmute(player, context)
-					? InteractionResult.SUCCESS : InteractionResult.FAIL;
-			case TRAVEL_RELIC -> bindAnchor(player, context)
-					? InteractionResult.SUCCESS : InteractionResult.FAIL;
-			default -> super.useOn(context);
+		if (!MagicUseGate.passes(player, true)) return InteractionResult.FAIL;
+		ItemStack stack = context.getItemInHand();
+		if (player.getCooldowns().isOnCooldown(stack)) return InteractionResult.FAIL;
+		boolean success = switch (kind) {
+			case TRANSMUTER -> transmute(player, context);
+			case TRAVEL_RELIC -> bindAnchor(player, context);
+			default -> false;
 		};
+		if (!success) return kind == ImportedArtifactKind.TRANSMUTER
+				|| kind == ImportedArtifactKind.TRAVEL_RELIC
+				? InteractionResult.FAIL : super.useOn(context);
+		player.getCooldowns().addCooldown(stack, USE_COOLDOWN_TICKS);
+		return InteractionResult.SUCCESS;
 	}
 
 	public String texture() {
@@ -179,22 +189,35 @@ public final class ImportedArtifactItem extends Item {
 		if (destination == null) return false;
 		BlockPos requested = anchor.position();
 		Vec3 position = Vec3.atBottomCenterOf(requested);
+		ServerLevel origin = (ServerLevel) player.level();
+		var server = origin.getServer();
 		if (!SafeDestinationResolver.validatePreload(player, destination, position,
 				TravelKind.POWER).allowed()) return false;
 		return TravelChunkLoader.request(player.getUUID(), destination, requested, () -> {
-			if (!SafeDestinationResolver.validate(player, destination, position,
-					TravelKind.POWER).allowed()) return;
+			ServerPlayer current = server.getPlayerList().getPlayer(player.getUUID());
+			if (current != null) AmethystDampening.update(current);
+			if (!DelayedTravelRules.travellerMayContinue(current == player,
+					player.isAlive() && !player.isRemoved(), player.isAlive() && !player.isRemoved(),
+					player.level() == origin, player.level() == origin,
+					AmethystDampening.isDampened(player), AmethystDampening.isDampened(player))
+					|| !SafeDestinationResolver.validate(player, destination, position,
+							TravelKind.POWER).allowed()) {
+				if (current == player) explain(player, "item.powers.relic.anchor_unreachable");
+				return;
+			}
 			player.teleport(new TeleportTransition(destination, position, Vec3.ZERO,
 					player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 			PowerFx.spiral(destination, position, 1.0, 3.0, 0xC99C58, 24, 0.0);
-		}, () -> explain(player, "item.powers.relic.anchor_unreachable"));
+		}, () -> {
+			ServerPlayer current = server.getPlayerList().getPlayer(player.getUUID());
+			if (current == player) explain(player, "item.powers.relic.anchor_unreachable");
+		});
 	}
 
 	private static boolean transmute(ServerPlayer player, UseOnContext context) {
 		ServerLevel level = (ServerLevel) context.getLevel();
 		BlockPos pos = context.getClickedPos();
-		if (PowerProtection.isSafeZone(level, Vec3.atCenterOf(pos))
-				|| level.getBlockEntity(pos) != null) return false;
+		if (!PowerProtection.mayAffectBlock(player, level, pos)) return false;
 		BlockState state = level.getBlockState(pos);
 		BlockState replacement = state.is(Blocks.STONE) || state.is(Blocks.COBBLESTONE)
 				? Blocks.IRON_ORE.defaultBlockState()

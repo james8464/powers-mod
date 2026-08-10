@@ -7,6 +7,7 @@ import com.powers.fx.PowerFx;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillQuestTracker;
+import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -33,6 +34,7 @@ public final class RealmMindscapeManager {
 	public static void tick(MinecraftServer server) {
 		if (server.getTickCount() % 5 != 0) return;
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+			if (!GlobalTimeStopManager.mayAct(player)) continue;
 			RealmKind kind = kind(player);
 			if (kind == null) continue;
 			ServerLevel level = (ServerLevel) player.level();

@@ -27,4 +27,14 @@ class RealmConfinementRulesTest {
 		assertNull(RealmConfinementRules.requiredRespawnRealm(
 				"minecraft:overworld", false, 0, 0));
 	}
+
+	@Test
+	void missingRequiredRealmFailsClosedIntoARecoveryHold() {
+		assertEquals(RealmConfinementRules.Enforcement.ALLOW,
+				RealmConfinementRules.enforcement(null, false));
+		assertEquals(RealmConfinementRules.Enforcement.TRANSFER,
+				RealmConfinementRules.enforcement("powers:dark_realm", true));
+		assertEquals(RealmConfinementRules.Enforcement.LOCKED_HOLD,
+				RealmConfinementRules.enforcement("powers:dark_realm", false));
+	}
 }

@@ -18,6 +18,8 @@ import net.minecraft.core.particles.ParticleTypes;
  * off players' powers within range
  */
 public class AmethystWardBlock extends Block {
+	private static final int INDEX_HEARTBEAT_TICKS = 200;
+
 	public AmethystWardBlock(BlockBehaviour.Properties properties) {
 		super(properties);
 		registerDefaultState(stateDefinition.any().setValue(BlockStateProperties.POWER, 0));
@@ -82,17 +84,21 @@ public class AmethystWardBlock extends Block {
 		// re-assert membership on every beat so the index heals itself after a
 		// reload without anyone having to nudge the redstone
 		AmethystDampening.addPoweredWard(level, pos);
-		// 0.08 radians per tick makes the ring spin slowly
-		double phase = level.getServer().getTickCount() * 0.08;
-		// four sparks, one per quarter turn, orbiting the block
-		for (int i = 0; i < 4; i++) {
-			double angle = phase + Math.PI * 2.0 * i / 4.0;
-			com.powers.fx.PowerFx.burst(level, new net.minecraft.world.phys.Vec3(
-					pos.getX() + 0.5 + Math.cos(angle) * 0.9, pos.getY() + 0.5,
-					pos.getZ() + 0.5 + Math.sin(angle) * 0.9), ParticleTypes.END_ROD, 1, 0, 0);
-		}
-		// schedule the next ring in 5 ticks to keep the loop going
-		level.scheduleTick(pos, this, 5);
+		// This slow heartbeat only repairs the transient index after reloads.
+		// Visible particles are expanded locally in animateTick below.
+		level.scheduleTick(pos, this, INDEX_HEARTBEAT_TICKS);
+	}
+
+	@Override
+	public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+		if (!isPowered(state)) return;
+		double angle = (level.getGameTime() + random.nextDouble() * 8.0) * 0.08;
+		double radius = 0.78 + random.nextDouble() * 0.16;
+		level.addParticle(ParticleTypes.END_ROD,
+				pos.getX() + 0.5 + Math.cos(angle) * radius,
+				pos.getY() + 0.35 + random.nextDouble() * 0.3,
+				pos.getZ() + 0.5 + Math.sin(angle) * radius,
+				0.0, 0.01, 0.0);
 	}
 
 	/** whether the ward is currently receiving redstone power */

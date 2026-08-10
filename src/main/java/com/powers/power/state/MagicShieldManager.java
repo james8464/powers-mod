@@ -65,7 +65,7 @@ public final class MagicShieldManager {
 	/** Expires stale shields and returns the number removed. */
 	public int expire(long currentTick) {
 		int before = shields.size();
-		shields.entrySet().removeIf(entry -> currentTick > entry.getValue().expiresAt());
+		shields.entrySet().removeIf(entry -> currentTick >= entry.getValue().expiresAt());
 		return before - shields.size();
 	}
 
@@ -76,7 +76,7 @@ public final class MagicShieldManager {
 
 	private ShieldState live(UUID owner, long currentTick) {
 		ShieldState state = shields.get(owner);
-		if (state != null && currentTick > state.expiresAt()) {
+		if (state != null && currentTick >= state.expiresAt()) {
 			shields.remove(owner);
 			return null;
 		}

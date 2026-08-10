@@ -5,6 +5,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.ActivationCooldowns;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.network.PowersPackets;
 import com.powers.magic.runtime.PreparedMagicCast;
@@ -116,18 +117,7 @@ public final class CrystalPowerRegistry {
 		if (ability == null) {
 			return false;
 		}
-		if (GlobalTimeStopManager.rejectIfStopped(player)) return false;
-		AmethystDampening.update(player);
-		// amethyst dampening blocks crystal powers and punishes the offender
-		if (AmethystDampening.isDampened(player)) {
-			AmethystDampening.punish(player);
-			return false;
-		}
-		// frozen by space time you can't use crystal powers at all
-		if (SpaceTimeAbility.isFrozen(player)) {
-			SpaceTimeAbility.reject(player);
-			return false;
-		}
+		if (!MagicUseGate.passes(player, true)) return false;
 		// Crouch-use only selects a mode. It does not cast, spend energy, or
 		// start a cooldown, so players can prepare a crystal before a fight.
 		if (ability.isSelectionAction(player)) {

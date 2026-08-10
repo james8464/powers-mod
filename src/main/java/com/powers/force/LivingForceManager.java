@@ -7,12 +7,14 @@ import com.powers.PowersSounds;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
+import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.progression.PowerScalingService;
 import com.powers.progression.RankVariantRules;
 import com.powers.config.PowersConfig;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.PowerFx;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
 import com.powers.network.PowersPackets;
 import com.powers.magic.MagicActionId;
 import com.powers.magic.runtime.MagicPresenceHandle;
@@ -120,13 +122,14 @@ public final class LivingForceManager {
 			PhysicalMagicPresences.registerFixed(new MagicActionId(
 					kind == LivingForceKind.DARKNESS ? "darkness_block" : "pure_light_block"),
 					WORLD_MAGIC_OWNER, level, Vec3.atCenterOf(target), 1.5,
-					level.getGameTime() + 200L, MagicPresenceHandle.Kind.FORCE_BLOCK);
+					level.getServer().getTickCount() + 200L, MagicPresenceHandle.Kind.FORCE_BLOCK);
 			emitSpreadCue(level, source, target, kind, random);
 		}
 	}
 
 	/** Advances affinity auras and every active, work-budgeted clash wave. */
 	public static void tick(MinecraftServer server) {
+		if (!LivingForceRules.mayAdvance(GlobalTimeStopManager.isStopped(server))) return;
 		if (server.getTickCount() % 20 == 0) tickAuras(server);
 		PowersConfig.LivingForces policy = PowersConfigLoader.get().livingForces();
 		for (ServerLevel level : server.getAllLevels()) {
@@ -210,12 +213,12 @@ public final class LivingForceManager {
 				AABB bounds = anchor.getBoundingBox().inflate(ACTIVE_ENTITY_SCAN_RADIUS,
 						Math.max(32.0, level.getMaxY() - level.getMinY()),
 						ACTIVE_ENTITY_SCAN_RADIUS);
-				List<LivingEntity> candidates = BoundedEntityCandidates.living(level, bounds,
-						allowance, Entity::isAlive);
-				// The typed entity query may inspect rejected bodies, so charge its full
-				// allowance instead of only the filtered result size.
-				budget.recordInspections(allowance);
-				for (LivingEntity living : candidates) {
+				BoundedEntityCandidates.Batch<LivingEntity> batch =
+						BoundedEntityCandidates.collectBatch(level,
+						net.minecraft.world.level.entity.EntityTypeTest.forClass(LivingEntity.class),
+						bounds, allowance, Entity::isAlive);
+				budget.recordInspections(batch.inspected());
+				for (LivingEntity living : batch.candidates()) {
 					if (!visited.add(living.getUUID())) continue;
 					if (isNearValidDarkness(level, index, living, policy.auraRadius())) {
 						applyDarknessAffinity(level, living, policy);
@@ -243,7 +246,8 @@ public final class LivingForceManager {
 		LivingForceRules.Affinity affinity = LivingForceRules.affinity(darknessTagged, LivingForceKind.DARKNESS);
 		Vec3 center = entity.position().add(0.0, entity.getBbHeight() * 0.55, 0.0);
 		if (affinity == LivingForceRules.Affinity.WITHER) {
-			if (PowerProtection.isSafeZone(level, entity.position())) {
+			if (PowerProtection.isSafeZone(level, entity.position())
+					|| SpellFieldManager.isSanctuaryProtected(level, entity)) {
 				PowerFx.rune(level, center, 0.7, 0x58C7FF, 8, level.getGameTime() * 0.08);
 				return;
 			}

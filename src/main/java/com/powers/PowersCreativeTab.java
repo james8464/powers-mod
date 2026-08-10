@@ -20,7 +20,7 @@ public final class PowersCreativeTab {
 					.icon(() -> new ItemStack(PowersItems.RAINBOW_CRYSTAL))
 					.displayItems((parameters, output) -> {
 						output.accept(PowersItems.RAINBOW_CRYSTAL);
-						PowersItems.COLOR_CRYSTALS.values().forEach(output::accept);
+						PowersItems.colorCrystals().values().forEach(output::accept);
 						output.accept(PowersItems.LIGHT_CRYSTAL);
 						output.accept(PowersItems.DARK_CRYSTAL);
 						output.accept(PowersItems.INFECTED_RAINBOW_CRYSTAL);
@@ -31,8 +31,8 @@ public final class PowersCreativeTab {
 						output.accept(PowersBlocks.DARKNESS);
 						output.accept(PowersBlocks.PURE_LIGHT);
 						output.accept(PowersBlocks.AMETHYST_WARD);
-						PowersWeapons.WEAPONS.values().forEach(output::accept);
-						ImportedPackItems.ITEMS.entrySet().stream()
+						PowersWeapons.weapons().values().forEach(output::accept);
+						ImportedPackItems.items().entrySet().stream()
 								.filter(entry -> !ImportedItemRules.isLegacyAssetLayer(entry.getKey()))
 								.map(java.util.Map.Entry::getValue).forEach(output::accept);
 					})

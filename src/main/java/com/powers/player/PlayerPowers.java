@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.powers.network.PowersPackets;
 import com.powers.mind.MindBodyState;
 import com.powers.progression.RankProgress;
-import com.powers.progression.PowerScalingService;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
 import com.powers.power.PowerToggleLifecycle;
@@ -14,7 +13,6 @@ import com.powers.power.abilities.SizeMorphRules;
 import com.powers.power.PassiveEffect;
 import com.powers.power.Ability;
 import com.powers.power.PowerEnergy;
-import com.powers.PowersEffects;
 import com.powers.util.PowerMessages;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,12 +27,10 @@ import java.util.Set;
 
 import static com.powers.player.PlayerPowerAttachments.ACTIVE_TOGGLES;
 import static com.powers.player.PlayerPowerAttachments.COOLDOWNS;
-import static com.powers.player.PlayerPowerAttachments.DARKNESS_ENERGY;
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_LEVEL;
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_PREFIX_HIDDEN;
 import static com.powers.player.PlayerPowerAttachments.DIMENSIONAL_ANCHOR;
 import static com.powers.player.PlayerPowerAttachments.ELEMENTAL_PHASE;
-import static com.powers.player.PlayerPowerAttachments.ENERGY;
 import static com.powers.player.PlayerPowerAttachments.FLIGHT_SNAPSHOT;
 import static com.powers.player.PlayerPowerAttachments.INVISIBILITY_SNAPSHOT;
 import static com.powers.player.PlayerPowerAttachments.MIND_BODY;
@@ -116,6 +112,13 @@ public final class PlayerPowers {
 			target.setAttached(COOLDOWNS, updated);
 		}
 
+		/** Drops every saved recovery deadline when persistence is disabled by server policy. */
+		public void clearCooldowns() {
+			if (!target.getAttachedOrElse(COOLDOWNS, Map.of()).isEmpty()) {
+				target.setAttached(COOLDOWNS, Map.of());
+			}
+		}
+
 		public AnchorState dimensionalAnchor() {
 			return target.getAttached(DIMENSIONAL_ANCHOR);
 		}
@@ -175,44 +178,17 @@ public final class PlayerPowers {
 			return List.copyOf(slots);
 		}
 
-		// darkness users draw from their own separate pool
-		private boolean usesDarknessEnergy() {
-			return target instanceof ServerPlayer player && SkillSystem.hasDarknessTag(player);
-		}
-
 		public boolean isDarknessUser() {
-			return target instanceof ServerPlayer player && SkillSystem.hasDarknessTag(player);
-		}
-
-		private int storedEnergy() {
-			if (usesDarknessEnergy()) {
-				return target.getAttachedOrElse(DARKNESS_ENERGY, PowerEnergy.darknessMaxCapacity(0));
-			}
-			return target.getAttachedOrElse(ENERGY, PowerEnergy.BASE_MAX);
-		}
-
-		private void setStoredEnergy(int value) {
-			int clamped = Math.max(0, value);
-			if (usesDarknessEnergy()) {
-				target.setAttached(DARKNESS_ENERGY, clamped);
-			} else {
-				target.setAttached(ENERGY, clamped);
-			}
+			return PlayerEnergyStorage.usesDarkness(target);
 		}
 
 		public int energy() {
-			return Math.max(0, Math.min(energyCapacity(), storedEnergy()));
+			return PlayerEnergyStorage.energy(target);
 		}
 
 		// capacity grows with the player's skill ladder
 		public int energyCapacity() {
-			if (target instanceof ServerPlayer player) {
-				int level = SkillSystem.effectiveLevel(player);
-				int base = usesDarknessEnergy() ? PowerEnergy.darknessMaxCapacity(level)
-						: PowerEnergy.maxCapacity(level);
-				return PowerScalingService.energyCapacity(player, base);
-			}
-			return PowerEnergy.maxCapacity(0);
+			return PlayerEnergyStorage.capacity(target);
 		}
 
 		public int skillLevel() {
@@ -284,8 +260,7 @@ public final class PlayerPowers {
 
 		public boolean spendEnergy(ServerPlayer player, Ability ability) {
 			int cost = PowerEnergy.cost(player, ability);
-			int current = energy();
-			if (current < cost) {
+			if (!PlayerEnergyStorage.consume(target, cost)) {
 				// too broke: tell the player and show a cancelled spark burst
 				PowerMessages.send(player, "energy.powers.empty", 6);
 				if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
@@ -295,20 +270,15 @@ public final class PlayerPowers {
 				}
 				return false;
 			}
-			setStoredEnergy(current - cost);
 			return true;
 		}
 
 		public boolean consumeEnergy(int amount) {
-			if (amount <= 0) return true;
-			int current = energy();
-			if (current < amount) return false;
-			setStoredEnergy(current - amount);
-			return true;
+			return PlayerEnergyStorage.consume(target, amount);
 		}
 
 		public void refundEnergy(int amount) {
-			setStoredEnergy(Math.min(energyCapacity(), energy() + amount));
+			PlayerEnergyStorage.refund(target, amount);
 		}
 
 		public void refundEnergy(Ability ability) {
@@ -319,28 +289,21 @@ public final class PlayerPowers {
 
 		// the exhaustion effect blocks all natural regen
 		public boolean regenerateEnergy(int amount) {
-			if (target instanceof ServerPlayer player && player.hasEffect(PowersEffects.EXHAUSTION)) return false;
-			int current = energy();
-			int updated = Math.min(energyCapacity(), current + Math.max(0, amount));
-			if (updated == current) return false;
-			setStoredEnergy(updated);
-			return true;
+			return PlayerEnergyStorage.regenerate(target, amount);
 		}
 
 		// exhausted players can't even refill by sleeping
 		public void restoreEnergy() {
-			if (target instanceof ServerPlayer player && player.hasEffect(PowersEffects.EXHAUSTION)) return;
-			setStoredEnergy(energyCapacity());
+			PlayerEnergyStorage.restore(target);
 		}
 
 		public void emptyEnergy() {
-			setStoredEnergy(0);
+			PlayerEnergyStorage.store(target, 0);
 		}
 
 		/** Drains the pool, clamped so it never goes below zero. */
 		public void drainEnergy(int amount) {
-			if (amount <= 0) return;
-			setStoredEnergy(storedEnergy() - amount);
+			PlayerEnergyStorage.drain(target, amount);
 		}
 
 		public Power getPower(int slot) {
@@ -417,6 +380,17 @@ public final class PlayerPowers {
 			}
 			target.setAttached(ACTIVE_TOGGLES, updated);
 			PowersPackets.syncTo(player);
+		}
+
+		/** Clears every route that owns one runtime-only toggle with a single attachment write. */
+		public boolean clearToggleOwnership(ServerPlayer player,
+				net.minecraft.resources.Identifier abilityId) {
+			List<String> current = getActiveToggles();
+			List<String> retained = com.powers.power.ToggleKeyRules.withoutAbility(current, abilityId);
+			if (retained.equals(current)) return false;
+			target.setAttached(ACTIVE_TOGGLES, retained);
+			PowersPackets.syncTo(player);
+			return true;
 		}
 
 		/** Selects one normalized Elemental Blast phase without casting it. */

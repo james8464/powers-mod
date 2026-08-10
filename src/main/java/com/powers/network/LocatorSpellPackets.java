@@ -7,8 +7,10 @@ import com.powers.item.GrimoireItem;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
 import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.crystals.DreamwalkingAbility;
+import com.powers.magic.runtime.CastSource;
 import com.powers.progression.PowerScalingService;
 import com.powers.progression.RankVariantRules;
 import com.powers.protection.PowerProtection;
@@ -53,6 +55,14 @@ final class LocatorSpellPackets {
 	static void open(ServerPlayer player) {
 		UUID nonce = NONCES.issue(player.getUUID(), player.level().getServer().getTickCount());
 		ServerPlayNetworking.send(player, new PowersPackets.OpenLocatorScreenPayload(nonce));
+	}
+
+	static void forget(UUID owner) {
+		NONCES.clear(owner);
+	}
+
+	static void clearAll() {
+		NONCES.clearAll();
 	}
 
 	static void handleLocate(PowersPackets.LocateTargetPayload payload, ServerPlayNetworking.Context context) {
@@ -166,14 +176,14 @@ final class LocatorSpellPackets {
 	}
 
 	private static void swellRitual(ServerPlayer player, ServerLevel level, Vec3 position) {
-		if (player.isRemoved()) return;
+		if (!ritualOwnerValid(player, level)) return;
 		PowerFx.ring(level, position, 4.2, CELESTIAL_COLOR, 34, 0.4);
 		PowerFx.ring(level, position, 2.8, 0xFFE8F4FF, 26, 1.1);
 		PowerFx.sound(level, position, SoundEvents.BEACON_ACTIVATE, 0.9f, 1.25f);
 	}
 
 	private static void openHeavens(ServerPlayer player, ServerLevel level, Vec3 position) {
-		if (player.isRemoved()) return;
+		if (!ritualOwnerValid(player, level)) return;
 		PowerFx.beam(level, position, position.add(0, 36, 0),
 				PowerFx.dust(CELESTIAL_COLOR, 1.25F), 18);
 		PowerFx.burst(level, position.add(0, 0.2, 0), ParticleTypes.END_ROD, 18, 0.4, 0.05);
@@ -182,7 +192,7 @@ final class LocatorSpellPackets {
 
 	private static void revealTarget(ServerPlayer player, ServerLevel level, Vec3 position, TargetRef targetRef,
 			boolean trueSight) {
-		if (player.isRemoved()) return;
+		if (!ritualOwnerValid(player, level)) return;
 		ServerLevel targetLevel = level.getServer().getLevel(targetRef.dimension());
 		LivingEntity target = targetLevel == null ? null
 				: targetLevel.getEntity(targetRef.id()) instanceof LivingEntity living ? living : null;
@@ -212,10 +222,15 @@ final class LocatorSpellPackets {
 				.append(Component.literal((int) Math.floor(targetPosition.x) + " "
 						+ (int) Math.floor(targetPosition.y) + " " + (int) Math.floor(targetPosition.z))
 						.withStyle(style -> style.withColor(GOLD_COLOR).withBold(true))));
-		if (DreamwalkingAbility.beginRemoteView(player, target, 20 * 60)) {
+		if (DreamwalkingAbility.beginRemoteView(player, target, 20 * 60, CastSource.SPELL)) {
 			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.view_started",
 					target.getName()));
 		}
+	}
+
+	private static boolean ritualOwnerValid(ServerPlayer player, ServerLevel level) {
+		return player != null && player.isAlive() && !player.isRemoved()
+				&& player.level() == level && MagicUseGate.ongoingAllowed(player);
 	}
 
 	private static NamedTargetRules.Resolution<LivingEntity> findNamedTarget(

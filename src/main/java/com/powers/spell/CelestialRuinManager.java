@@ -6,6 +6,7 @@ import com.powers.config.PowersConfigLoader;
 import com.powers.fx.CelestialRuinFx;
 import com.powers.protection.PowerProtection;
 import com.powers.power.PowerDamage;
+import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.BoundedSphereCursor;
 import com.powers.util.PowerMessages;
@@ -84,6 +85,7 @@ public final class CelestialRuinManager {
 
 	/** Advances countdowns independently of players and persists every state transition. */
 	public static void tick(MinecraftServer server) {
+		if (!CelestialRuinRules.mayAdvance(GlobalTimeStopManager.isStopped(server))) return;
 		loadPersisted(server);
 		List<Ritual> rituals = ACTIVE.get(server);
 		if (rituals == null) return;
@@ -258,8 +260,8 @@ public final class CelestialRuinManager {
 		private void detonate() {
 			Vec3 epicenter = Vec3.atCenterOf(center);
 			CelestialRuinFx.detonates(level, epicenter, CelestialRuinRules.BLAST_RADIUS);
-			AABB bounds = AABB.ofSize(epicenter, CelestialRuinRules.DAMAGE_RADIUS * 2.0,
-					level.getHeight() + 32.0, CelestialRuinRules.DAMAGE_RADIUS * 2.0);
+			AABB bounds = CelestialRuinRules.damageBounds(
+					epicenter, level.getMinY(), level.getMaxY());
 			List<LivingEntity> entities = BoundedEntityCandidates.living(level, bounds,
 					CelestialRuinRules.ENTITY_LIMIT, Entity::isAlive,
 					Comparator.comparingDouble((LivingEntity entity) -> entity.distanceToSqr(epicenter))
@@ -317,7 +319,9 @@ public final class CelestialRuinManager {
 					}
 				}
 				BlockPos fire = new BlockPos(column.getX(), surfaceY - depth + 1, column.getZ());
-				if (level.getBlockState(fire).isAir()
+				if (CelestialRuinRules.shouldIgnite(config.celestialRuinTerrainDamage(),
+						PowerProtection.isSafeZone(level, Vec3.atCenterOf(fire)))
+						&& level.getBlockState(fire).isAir()
 						&& Blocks.FIRE.defaultBlockState().canSurvive(level, fire)) {
 					level.setBlock(fire, Blocks.FIRE.defaultBlockState(), Block.UPDATE_CLIENTS);
 				}

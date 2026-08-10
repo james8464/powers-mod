@@ -6,6 +6,7 @@ import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.power.MagicUseGate;
 import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -73,13 +74,14 @@ public class AstralProjectionAbility extends Ability {
 			var entry = it.next();
 			Projection projection = entry.getValue();
 			ServerPlayer player = projection.player();
-			if (player == null || !player.isAlive()) {
+			if (!MagicUseGate.ongoingAllowed(player)) {
 				// a dead ghost would otherwise stay stuck in spectator forever
 				if (player != null) player.setGameMode(projection.gameMode());
 				it.remove();
 				continue;
 			}
-			if (now >= projection.endsAt() || player.level().dimension() != projection.dimension()) {
+			if (now >= projection.endsAt()
+					|| !player.level().dimension().equals(projection.dimension())) {
 				// time is up or the ghost switched dimensions, send them home
 				end(player, projection);
 				it.remove();

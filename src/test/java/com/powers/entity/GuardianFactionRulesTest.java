@@ -26,4 +26,11 @@ class GuardianFactionRulesTest {
 		assertFalse(GuardianFactionRules.shouldExpire(-1, true));
 		assertTrue(GuardianFactionRules.shouldExpire(50, false));
 	}
+
+	@Test
+	void corruptedGuardianLifetimeIsBoundedWithoutChangingNaturalMobs() {
+		assertTrue(GuardianFactionRules.normalizeLifetime(Integer.MAX_VALUE) <= 72_000);
+		assertTrue(GuardianFactionRules.normalizeLifetime(Integer.MIN_VALUE) == -1);
+		assertTrue(GuardianFactionRules.normalizeLifetime(-1) == -1);
+	}
 }

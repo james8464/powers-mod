@@ -32,6 +32,7 @@ public record PowersConfig(
 		LivingForces livingForces,
 		DialogueProvider dialogueProvider) {
 	public static final int CURRENT_SCHEMA_VERSION = 2;
+	private static final int MAX_SAFE_ZONES = 256;
 
 	/** Sanitized pacing and safety limits for spreading realm matter. */
 	public record LivingForces(boolean spreadingEnabled, int spreadAttempts, int auraRadius,
@@ -53,8 +54,16 @@ public record PowersConfig(
 
 	public record SafeZone(String dimension, double x, double y, double z, double radius) {
 		public SafeZone sanitized() {
-			return new SafeZone(dimension == null ? "minecraft:overworld" : dimension,
-					x, y, z, Math.max(1.0, Math.min(100_000.0, radius)));
+			String safeDimension = dimension == null ? "" : dimension.strip();
+			if (!safeDimension.matches("[a-z0-9_.-]+:[a-z0-9_./-]+")) {
+				safeDimension = "minecraft:overworld";
+			}
+			return new SafeZone(safeDimension, finiteOrZero(x), finiteOrZero(y), finiteOrZero(z),
+					Double.isFinite(radius) ? Math.clamp(radius, 1.0, 100_000.0) : 1.0);
+		}
+
+		private static double finiteOrZero(double value) {
+			return Double.isFinite(value) ? value : 0.0;
 		}
 	}
 
@@ -96,7 +105,8 @@ public record PowersConfig(
 
 	public PowersConfig sanitized() {
 		List<SafeZone> zones = safeZones == null ? List.of()
-				: safeZones.stream().filter(java.util.Objects::nonNull).map(SafeZone::sanitized).toList();
+				: safeZones.stream().filter(java.util.Objects::nonNull).limit(MAX_SAFE_ZONES)
+						.map(SafeZone::sanitized).toList();
 		return new PowersConfig(CURRENT_SCHEMA_VERSION, allowTerrainDamage,
 				allowBlockEntityDamage, allowSelfReroll,
 				hostileForcedMovement, requireTeleportConsent, requireLocatorConsent,

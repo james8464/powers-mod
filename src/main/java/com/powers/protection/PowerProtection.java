@@ -73,9 +73,10 @@ public final class PowerProtection {
 	}
 
 	public static boolean mayDreamwalk(ServerPlayer caster, ServerPlayer target) {
-		if (caster == target || !PowersConfigLoader.get().requireDreamwalkConsent()) return true;
-		return !isSafeZone((ServerLevel) target.level(), target.position())
-				&& PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.DREAMWALK);
+		return ConsentProtectionRules.mayTarget(caster == target,
+				isSafeZone((ServerLevel) target.level(), target.position()),
+				PowersConfigLoader.get().requireDreamwalkConsent(),
+				PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.DREAMWALK));
 	}
 
 	/** Keeps player consent while allowing named or aimed mobs outside safe zones. */
@@ -85,9 +86,10 @@ public final class PowerProtection {
 	}
 
 	public static boolean mayPossess(ServerPlayer caster, ServerPlayer target) {
-		if (caster == target || !PowersConfigLoader.get().requirePossessionConsent()) return true;
-		return !isSafeZone((ServerLevel) target.level(), target.position())
-				&& PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.POSSESSION);
+		return ConsentProtectionRules.mayTarget(caster == target,
+				isSafeZone((ServerLevel) target.level(), target.position()),
+				PowersConfigLoader.get().requirePossessionConsent(),
+				PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.POSSESSION));
 	}
 
 	/** Keeps player consent intact while allowing suitable mobs outside safe zones. */

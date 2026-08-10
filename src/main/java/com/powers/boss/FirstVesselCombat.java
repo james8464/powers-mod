@@ -6,6 +6,7 @@ import com.powers.boss.FirstVesselPowerAction.Kind;
 import com.powers.entity.FirstVessel;
 import com.powers.fx.PowerFx;
 import com.powers.power.AmethystDampening;
+import com.powers.power.abilities.ThunderclapRules;
 import com.powers.power.PowerDamage;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
@@ -217,9 +218,11 @@ public final class FirstVesselCombat {
 	}
 
 	private static void step(ServerLevel level, FirstVessel boss, LivingEntity target, double radius) {
-		Vec3 forward = target.getLookAngle();
-		Vec3 destination = target.position().subtract(new Vec3(forward.x, 0, forward.z)
-				.normalize().scale(radius));
+		Vec3 look = target.getLookAngle();
+		ThunderclapRules.HorizontalDirection forward = ThunderclapRules.horizontalDirection(
+				look.x, look.z, target.getYRot());
+		Vec3 destination = target.position().subtract(
+				new Vec3(forward.x(), 0.0, forward.z()).scale(radius));
 		if (boss.randomTeleport(destination.x, destination.y, destination.z, true)) {
 			PowerFx.spiral(level, destination, 1.2, 3.5, 0x54206B, 22, 0.0);
 		}

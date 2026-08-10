@@ -30,8 +30,10 @@ public final class ClientMagicFx {
 	}
 
 	public static void handle(MagicFxPackets.MagicFxPayload payload) {
-		if (!remember(payload.eventId()) || PENDING.size() >= MAX_PENDING_EVENTS) return;
-		PENDING.add(new PendingFx(payload, 0));
+		Minecraft client = Minecraft.getInstance();
+		if (client.level == null || !remember(payload.eventId())
+				|| PENDING.size() >= MAX_PENDING_EVENTS) return;
+		PENDING.add(new PendingFx(payload, client.level.dimension(), 0));
 	}
 
 	/** Advances the event-specific readable beats without blocking client threads. */
@@ -43,6 +45,10 @@ public final class ClientMagicFx {
 		}
 		for (Iterator<PendingFx> iterator = PENDING.iterator(); iterator.hasNext();) {
 			PendingFx pending = iterator.next();
+			if (!pending.dimension().equals(client.level.dimension())) {
+				iterator.remove();
+				continue;
+			}
 			boolean reducedMotion = FxAccessibility.reducedMotion(client);
 			FxChoreography.frame(pending.payload().kind(), pending.age(),
 					pending.payload().genericBeatCount(), reducedMotion)
@@ -113,14 +119,20 @@ public final class ClientMagicFx {
 	/** Mutable age is isolated inside the client-only pending queue. */
 	private static final class PendingFx {
 		private final MagicFxPackets.MagicFxPayload payload;
+		private final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension;
 		private int age;
 
-		private PendingFx(MagicFxPackets.MagicFxPayload payload, int age) {
+		private PendingFx(MagicFxPackets.MagicFxPayload payload,
+				net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension, int age) {
 			this.payload = payload;
+			this.dimension = dimension;
 			this.age = age;
 		}
 
 		private MagicFxPackets.MagicFxPayload payload() { return payload; }
+		private net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension() {
+			return dimension;
+		}
 		private int age() { return age; }
 		private void advance() { age++; }
 	}

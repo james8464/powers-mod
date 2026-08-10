@@ -1,6 +1,8 @@
 package com.powers.power.artifact;
 
 import com.powers.fx.PowerFx;
+import com.powers.item.ArtifactWeaponManager;
+import com.powers.item.artifact.ArtifactAlignment;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,7 +38,7 @@ public final class ArtifactCovenantManager {
 				.filter(link -> link.ownerId().equals(owner.getUUID())).count();
 		if (!ArtifactCovenantRules.mayAddLink((int) ownerLinks, replacing)) return false;
 		LINKS.put(ally.getUUID(), new Link(owner.getUUID(), ally.level().dimension(),
-				owner.level().getGameTime() + Math.max(1, durationTicks)));
+				owner.level().getServer().getTickCount() + Math.max(1, durationTicks)));
 		return true;
 	}
 
@@ -50,7 +52,8 @@ public final class ArtifactCovenantManager {
 					: level.getEntity(entry.getKey()) instanceof LivingEntity living ? living : null;
 			return owner == null || ally == null || !owner.isAlive() || !ally.isAlive()
 					|| owner.level() != level
-					|| ArtifactCovenantRules.expired(level.getGameTime(), link.expiresAt());
+					|| !ArtifactWeaponManager.maySustain(owner, ArtifactAlignment.LIGHT)
+					|| ArtifactCovenantRules.expired(server.getTickCount(), link.expiresAt());
 		});
 	}
 
@@ -58,12 +61,16 @@ public final class ArtifactCovenantManager {
 	public static void shareDamage(LivingEntity ally, DamageSource source, float damageTaken) {
 		Link link = LINKS.get(ally.getUUID());
 		if (link == null || TRANSFERRING.contains(ally.getUUID())) return;
-		if (ArtifactCovenantRules.expired(ally.level().getGameTime(), link.expiresAt())) {
+		if (ArtifactCovenantRules.expired(ally.level().getServer().getTickCount(), link.expiresAt())) {
 			LINKS.remove(ally.getUUID());
 			return;
 		}
 		ServerPlayer owner = ally.level().getServer().getPlayerList().getPlayer(link.ownerId());
 		if (owner == null || !owner.isAlive() || owner.level() != ally.level()) {
+			LINKS.remove(ally.getUUID());
+			return;
+		}
+		if (!ArtifactWeaponManager.maySustain(owner, ArtifactAlignment.LIGHT)) {
 			LINKS.remove(ally.getUUID());
 			return;
 		}

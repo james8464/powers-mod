@@ -3,13 +3,19 @@ package com.powers.power.crystals;
 import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
+import com.powers.power.MagicUseGate;
+import com.powers.power.abilities.ThunderclapRules;
 import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelKind;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -51,10 +57,11 @@ public class PortalRiftAbility extends Ability {
 		List<LivingEntity> targets = BoundedEntityCandidates.living(level,
 				AABB.ofSize(player.position().add(0, 1, 0), range * 2, range * 2, range * 2),
 				128,
-				e -> e.isAlive() && e != player && !player.isAlliedTo(e)
+					e -> e.isAlive() && e != player && !player.isAlliedTo(e)
 						&& e.distanceToSqr(player) <= range * range
 						&& !AmethystDampening.isDampened(e)
-						&& PowerProtection.mayHarm(player, e),
+						&& PowerProtection.mayHarm(player, e)
+						&& !SpellFieldManager.isSanctuaryProtected(level, e),
 				Comparator.comparingDouble(player::distanceToSqr));
 		if (targets.size() > MAX_STRIKES) {
 			targets = targets.subList(0, MAX_STRIKES);
@@ -70,25 +77,32 @@ public class PortalRiftAbility extends Ability {
 				targets.size() * 12, 0, true, true));
 
 		MinecraftServer server = level.getServer();
+		CastSource castSource = CastScalingContext.currentSource();
 		for (int i = 0; i < targets.size(); i++) {
 			LivingEntity target = targets.get(i);
 			// strikes land every 12 ticks, each one opening the next rift
 			int delay = i * 12;
-			PowersMod.scheduleDelayed(server, delay, () -> strike(player, target, damage));
+			PowersMod.scheduleDelayed(server, delay, () -> strike(player, target, damage, castSource));
 		}
 		return true;
 	}
 
-	private static void strike(ServerPlayer player, LivingEntity target, float damage) {
+	private static void strike(ServerPlayer player, LivingEntity target, float damage, CastSource castSource) {
 		// skip the strike if either fighter died or left the dimension mid-chain
-		if (!player.isAlive() || player.isRemoved() || !target.isAlive() || target.isRemoved()
+		if (!MagicUseGate.ongoingAllowed(player)
+				|| !ServerCastLifecycle.mayContinue(player, castSource, false)
+				|| !target.isAlive() || target.isRemoved()
 				|| player.level().getServer().getPlayerList().getPlayer(player.getUUID()) != player
 				|| player.level() != target.level()
-				|| AmethystDampening.isDampened(target) || !PowerProtection.mayHarm(player, target)) {
+				|| AmethystDampening.isDampened(target) || !PowerProtection.mayHarm(player, target)
+				|| SpellFieldManager.isSanctuaryProtected((ServerLevel) player.level(), target)) {
 			return;
 		}
 		ServerLevel level = (ServerLevel) player.level();
-		Vec3 look = target.getViewVector(1.0F);
+		Vec3 view = target.getViewVector(1.0F);
+		ThunderclapRules.HorizontalDirection facing = ThunderclapRules.horizontalDirection(
+				view.x, view.z, target.getYRot());
+		Vec3 look = new Vec3(facing.x(), 0.0, facing.z());
 		// land 2.2 blocks out along the target's facing so you never clip into them
 		Vec3 spot = target.position().add(look.x * 2.2, 0.2, look.z * 2.2);
 		if (!SafeDestinationResolver.validate(player, level, spot, TravelKind.CRYSTAL).allowed()) {

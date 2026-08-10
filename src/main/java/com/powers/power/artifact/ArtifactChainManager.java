@@ -3,6 +3,7 @@ package com.powers.power.artifact;
 import com.powers.PowerStatusEffects;
 import com.powers.fx.PowerFx;
 import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.item.ArtifactWeaponManager;
 import com.powers.power.AmethystDampening;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
@@ -39,6 +40,7 @@ public final class ArtifactChainManager {
 				|| AmethystDampening.isDampened(owner) || AmethystDampening.isDampened(target)
 				|| !(owner.level() instanceof ServerLevel level)
 				|| SpellFieldManager.isSanctuaryProtected(level, target)
+				|| SpellFieldManager.blocksForcedMovement(level, target, owner.getUUID())
 				|| !PowerProtection.mayHarm(owner, target)
 				|| !PowerProtection.mayForceMove(owner, target)) return false;
 		CHAINS.put(owner.getUUID(), new Chain(target.getUUID(), target.level().dimension(),
@@ -56,13 +58,15 @@ public final class ArtifactChainManager {
 			LivingEntity target = level == null ? null
 					: level.getEntity(chain.targetId()) instanceof LivingEntity living ? living : null;
 			boolean valid = owner != null && target != null && owner.level() == level
+					&& ArtifactWeaponManager.maySustain(owner, chain.alignment())
 					&& ArtifactChainRules.active(server.getTickCount(), chain.expiresAt(),
 					owner.isAlive(), target.isAlive(), owner.distanceToSqr(target),
 					owner.hasLineOfSight(target), AmethystDampening.isDampened(owner)
 							|| AmethystDampening.isDampened(target),
 					SpellFieldManager.isSanctuaryProtected(level, target),
 					!PowerProtection.mayHarm(owner, target)
-							|| !PowerProtection.mayForceMove(owner, target));
+							|| !PowerProtection.mayForceMove(owner, target)
+							|| SpellFieldManager.blocksForcedMovement(level, target, owner.getUUID()));
 			if (!valid) {
 				iterator.remove();
 				continue;

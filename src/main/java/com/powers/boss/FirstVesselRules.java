@@ -44,4 +44,17 @@ public final class FirstVesselRules {
 	public static boolean mayControl(boolean safeZone, boolean sanctuary, boolean amethyst) {
 		return !safeZone && !sanctuary && !amethyst;
 	}
+
+	/** Keeps corrupted or hand-edited entity data inside the encounter's authored range. */
+	public static float sanitizeMaximum(float stored) {
+		if (Float.isNaN(stored) || stored == Float.NEGATIVE_INFINITY) return BASE_HEALTH;
+		if (stored == Float.POSITIVE_INFINITY) return BASE_HEALTH * 4.0F;
+		return Math.clamp(stored, BASE_HEALTH, BASE_HEALTH * 4.0F);
+	}
+
+	/** Restores a live finite health layer for the sanitized maximum. */
+	public static float sanitizeHealth(float stored, float maximum) {
+		float safeMaximum = sanitizeMaximum(maximum);
+		return Float.isFinite(stored) ? Math.clamp(stored, 1.0F, safeMaximum) : safeMaximum;
+	}
 }

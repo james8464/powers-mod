@@ -30,7 +30,7 @@ public final class PowersWeapons {
 			ResourceKey.create(Registries.CREATIVE_MODE_TAB,
 					Identifier.fromNamespaceAndPath("minecraft", "combat"));
 
-	public static final Map<String, Item> WEAPONS = new LinkedHashMap<>();
+	private static final Map<String, Item> WEAPONS = new LinkedHashMap<>();
 
 	private enum Kind { SWORD, PICKAXE, SHOVEL }
 
@@ -126,6 +126,14 @@ public final class PowersWeapons {
 	};
 
 	private PowersWeapons() {
+	}
+
+	public static Item weapon(String id) {
+		return WEAPONS.get(id);
+	}
+
+	public static Map<String, Item> weapons() {
+		return Map.copyOf(WEAPONS);
 	}
 
 	public static void initialize() {

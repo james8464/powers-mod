@@ -31,16 +31,27 @@ public final class RealmConfinementManager {
 				SkillSystem.hasDarknessTag(respawned), data.skillLevel(), data.darknessLevel());
 		if (required == null) return false;
 		Identifier id = Identifier.tryParse(required);
-		if (id == null) return false;
+		if (id == null) {
+			lockForRecovery(respawned, required);
+			return true;
+		}
 		ServerLevel realm = respawned.level().getServer().getLevel(
 				ResourceKey.create(Registries.DIMENSION, id));
-		if (realm == null) {
-			PowersMod.LOGGER.error("Cannot enforce realm confinement: missing dimension {}", id);
-			return false;
+		if (RealmConfinementRules.enforcement(required, realm != null)
+				== RealmConfinementRules.Enforcement.LOCKED_HOLD) {
+			lockForRecovery(respawned, id.toString());
+			return true;
 		}
 		respawned.setGameMode(GameType.SPECTATOR);
 		requestConfinement(respawned.level().getServer(), respawned.getUUID(), realm.dimension(), id, 0);
 		return true;
+	}
+
+	private static void lockForRecovery(ServerPlayer player, String realmId) {
+		player.setGameMode(GameType.SPECTATOR);
+		PowersMod.LOGGER.error("Realm confinement entered locked spectator hold: player={}, missing realm={}",
+				player.getUUID(), realmId);
+		PowerMessages.sendImportant(player, "realm.powers.confinement_recovery_required", 1);
 	}
 
 	private static void requestConfinement(MinecraftServer server, java.util.UUID playerId,

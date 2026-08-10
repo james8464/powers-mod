@@ -7,6 +7,7 @@ import com.powers.power.Ability;
 import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -62,7 +63,8 @@ public class FrostNovaAbility extends Ability {
 		AABB area = AABB.ofSize(player.position(), entityRadius * 2, 8.0, entityRadius * 2);
 		for (LivingEntity target : BoundedEntityCandidates.living(level, area, 160,
 				e -> e.isAlive() && e != player && !AmethystDampening.isDampened(e)
-						&& PowerProtection.mayHarm(player, e))) {
+						&& PowerProtection.mayHarm(player, e)
+						&& !SpellFieldManager.isSanctuaryProtected(level, e))) {
 			// 4 damage plus a heavy slow for 6 seconds
 			target.hurtServer(level, PowerDamage.source(player), scaledPotency(player, 4.0f));
 			target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS,

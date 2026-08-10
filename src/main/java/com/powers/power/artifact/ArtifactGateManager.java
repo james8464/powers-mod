@@ -2,6 +2,7 @@ package com.powers.power.artifact;
 
 import com.powers.fx.PowerFx;
 import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.item.ArtifactWeaponManager;
 import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelKind;
 import com.powers.util.LoadedChunks;
@@ -52,8 +53,10 @@ public final class ArtifactGateManager {
 			ServerPlayer owner = server.getPlayerList().getPlayer(entry.getKey());
 			if (level == null || owner == null || !owner.isAlive()
 					|| owner.level() != level
+					|| !ArtifactWeaponManager.maySustain(owner, gate.alignment())
 					|| server.getTickCount() >= gate.expiresAt()) {
 				iterator.remove();
+				RECENT_TRAVEL.remove(entry.getKey());
 				continue;
 			}
 			if (server.getTickCount() % 10 == 0) {

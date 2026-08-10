@@ -4,6 +4,7 @@ import com.powers.PowerStatusEffects;
 import com.powers.fx.PowerFx;
 import com.powers.power.abilities.VoidBeamRules;
 import com.powers.power.state.PowerEntityState;
+import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.magic.MagicActionId;
 import com.powers.magic.runtime.MagicPresenceHandle;
 import com.powers.magic.runtime.PhysicalMagicPresences;
@@ -97,12 +98,14 @@ public final class SpellFieldManager {
 		if (FIELDS.size() >= MAX_FIELDS) remove(FIELDS.keySet().iterator().next());
 		double boundedRadius = Math.clamp(radius, 0.25, MAX_FIELD_RADIUS);
 		long gameTime = owner.level().getGameTime();
+		long serverTick = owner.level().getServer().getTickCount();
 		long expiresAt = gameTime + Math.max(1, durationTicks);
+		long presenceExpiresAt = serverTick + Math.max(1, durationTicks);
 		MagicPresenceHandle presence = PhysicalMagicPresences.registerFixed(
 				new MagicActionId(actionId(kind)), owner.getUUID(), (ServerLevel) owner.level(),
-				owner.position(), boundedRadius, expiresAt, MagicPresenceHandle.Kind.FIELD);
+				owner.position(), boundedRadius, presenceExpiresAt, MagicPresenceHandle.Kind.FIELD);
 		Field field = new Field(kind, owner.level().dimension(), owner.position(), owner.getUUID(),
-				expiresAt, boundedRadius, Math.max(0, potencyTier), gameTime, presence);
+				expiresAt, boundedRadius, Math.max(0, potencyTier), serverTick, presence);
 		FIELDS.put(key, field);
 		INDEX.put(key, dimensionId(field.dimension()), field.center().x, field.center().z,
 				field.radius(), field);
@@ -184,6 +187,7 @@ public final class SpellFieldManager {
 	}
 
 	public static void tick(MinecraftServer server) {
+		if (!SpellFieldTiming.mayAdvance(GlobalTimeStopManager.isStopped(server))) return;
 		for (FieldKey key : WORK.pollBatch(MAX_FIELD_WORK_PER_TICK)) {
 			Field field = FIELDS.get(key);
 			if (field == null) continue;
@@ -193,8 +197,8 @@ public final class SpellFieldManager {
 				continue;
 			}
 			WORK.offer(key);
-			if (server.getTickCount() < field.nextPulseAt) continue;
-			field.nextPulseAt = server.getTickCount() + 5L;
+			if (!SpellFieldTiming.ready(server.getTickCount(), field.nextPulseAt)) continue;
+			field.nextPulseAt = SpellFieldTiming.nextPulseAt(server.getTickCount());
 			int color = switch (field.kind()) {
 				case ANTI_PORTAL -> 0x3D2B73;
 				case KINETIC_WARD -> 0x70D6FF;

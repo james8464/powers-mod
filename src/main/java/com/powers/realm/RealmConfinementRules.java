@@ -4,6 +4,8 @@ import com.powers.player.SkillSystem;
 
 /** Pure departure policy shared by travel validation and death respawning. */
 public final class RealmConfinementRules {
+	public enum Enforcement { ALLOW, TRANSFER, LOCKED_HOLD }
+
 	private RealmConfinementRules() {
 	}
 
@@ -23,5 +25,11 @@ public final class RealmConfinementRules {
 			return origin;
 		}
 		return null;
+	}
+
+	/** Missing required dimensions must fail closed until an administrator repairs the world. */
+	public static Enforcement enforcement(String requiredRealm, boolean destinationAvailable) {
+		if (requiredRealm == null) return Enforcement.ALLOW;
+		return destinationAvailable ? Enforcement.TRANSFER : Enforcement.LOCKED_HOLD;
 	}
 }

@@ -22,4 +22,9 @@ public final class PossessionRules {
 	public static boolean requiresPlayerConsent(TargetKind kind) {
 		return kind == TargetKind.PLAYER;
 	}
+
+	/** Cameras cannot track an entity across a world transition safely. */
+	public static boolean sessionLocationValid(boolean ownerIsCurrent, boolean sameDimension) {
+		return ownerIsCurrent && sameDimension;
+	}
 }

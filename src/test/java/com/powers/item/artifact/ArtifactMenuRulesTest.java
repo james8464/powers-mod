@@ -27,4 +27,11 @@ class ArtifactMenuRulesTest {
 		assertEquals(9, ArtifactMenuRules.valueAt(List.of(4), 3, 9));
 		assertEquals(false, ArtifactMenuRules.valueAt(List.of(true), 4, false));
 	}
+
+	@Test
+	void selectionVariantsUseAbilityPathsRatherThanIdentifierStringEquality() {
+		assertEquals(2, ArtifactMenuRules.selectionVariant("elemental_blast", 2, 6));
+		assertEquals(6, ArtifactMenuRules.selectionVariant("size_shift", 2, 6));
+		assertEquals(-1, ArtifactMenuRules.selectionVariant("flight", 2, 6));
+	}
 }

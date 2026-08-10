@@ -17,40 +17,49 @@ import java.util.Map;
 public final class ClientCelestialRuinFx {
 	private static final Map<Long, Column> COLUMNS = new HashMap<>();
 	private static int flashTicks;
+	private static net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> flashDimension;
 	private static int clientTick;
 
 	private ClientCelestialRuinFx() {
 	}
 
 	public static void handle(CelestialRuinPackets.Payload payload) {
-		long key = key(payload.x(), payload.y(), payload.z());
+		Minecraft client = Minecraft.getInstance();
+		if (client.level == null) return;
+		var dimension = client.level.dimension();
+		long key = key(dimension.identifier().hashCode(), payload.x(), payload.y(), payload.z());
 		if (payload.phase() == CelestialRuinPackets.Phase.END) {
 			COLUMNS.remove(key);
 			return;
 		}
 		if (payload.phase() == CelestialRuinPackets.Phase.DETONATE) {
 			flashTicks = CelestialRuinPresentation.FLASH_TICKS;
-			Minecraft client = Minecraft.getInstance();
+			flashDimension = dimension;
 			if (client.player != null) {
 				client.player.playSound(PowersSounds.CELESTIAL_RING, 1.0F, 1.0F);
 			}
 			return;
 		}
 		COLUMNS.put(key, new Column(new Vec3(payload.x(), payload.y(), payload.z()),
-				CelestialRuinPresentation.BEAM_LEASE_TICKS, payload.age()));
+				CelestialRuinPresentation.BEAM_LEASE_TICKS, payload.age(), dimension));
 	}
 
 	public static void tick() {
 		clientTick++;
-		if (flashTicks > 0) flashTicks--;
 		Minecraft client = Minecraft.getInstance();
 		if (client.level == null || client.player == null) {
 			COLUMNS.clear();
+			flashTicks = 0;
+			flashDimension = null;
 			return;
 		}
+		if (flashDimension != null && !flashDimension.equals(client.level.dimension())) {
+			flashTicks = 0;
+			flashDimension = null;
+		} else if (flashTicks > 0) flashTicks--;
 		for (Iterator<Column> iterator = COLUMNS.values().iterator(); iterator.hasNext();) {
 			Column column = iterator.next();
-			if (--column.lease <= 0) {
+			if (!column.dimension.equals(client.level.dimension()) || --column.lease <= 0) {
 				iterator.remove();
 				continue;
 			}
@@ -86,22 +95,26 @@ public final class ClientCelestialRuinFx {
 	public static void reset() {
 		COLUMNS.clear();
 		flashTicks = 0;
+		flashDimension = null;
 		clientTick = 0;
 	}
 
-	private static long key(double x, double y, double z) {
-		return java.util.Objects.hash(Math.floor(x), Math.floor(y), Math.floor(z));
+	private static long key(int dimension, double x, double y, double z) {
+		return java.util.Objects.hash(dimension, Math.floor(x), Math.floor(y), Math.floor(z));
 	}
 
 	private static final class Column {
 		private final Vec3 center;
 		private final int age;
+		private final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension;
 		private int lease;
 
-		private Column(Vec3 center, int lease, int age) {
+		private Column(Vec3 center, int lease, int age,
+				net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension) {
 			this.center = center;
 			this.lease = lease;
 			this.age = age;
+			this.dimension = dimension;
 		}
 	}
 }

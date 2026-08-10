@@ -3,10 +3,12 @@ package com.powers.power.artifact;
 import com.powers.PowerStatusEffects;
 import com.powers.fx.PowerFx;
 import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.item.ArtifactWeaponManager;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.protection.PowerProtection;
+import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.BoundedRoundRobinQueue;
 import com.powers.util.ChunkSpatialIndex;
@@ -67,6 +69,7 @@ public final class ArtifactFieldManager {
 			ServerPlayer owner = server.getPlayerList().getPlayer(ownerId);
 			if (level == null || owner == null || !owner.isAlive()
 					|| owner.level() != level
+					|| !ArtifactWeaponManager.maySustain(owner, field.alignment())
 					|| server.getTickCount() >= field.expiresAt()) {
 				remove(ownerId);
 				continue;
@@ -104,16 +107,21 @@ public final class ArtifactFieldManager {
 				}
 				continue;
 			}
-			if (!hostile || AmethystDampening.isDampened(target)
-					|| !PowerProtection.mayHarm(owner, target)) continue;
+			ArtifactImpactRules.Decision decision = ArtifactImpactRules.decide(hostile,
+					AmethystDampening.isDampened(target),
+					PowerProtection.mayHarm(owner, target)
+							&& !SpellFieldManager.isSanctuaryProtected(level, target),
+					PowerProtection.mayForceMove(owner, target),
+					SpellFieldManager.blocksForcedMovement(level, target, owner.getUUID()));
+			if (!decision.damage() && !decision.move()) continue;
 			Vec3 direction = field.alignment() == ArtifactAlignment.DARKNESS
 					? field.center().subtract(target.position()) : target.position().subtract(field.center());
-			if (direction.lengthSqr() > 1.0E-6) {
+			if (decision.move() && direction.lengthSqr() > 1.0E-6) {
 				Vec3 force = direction.normalize().scale(0.55);
 				target.setDeltaMovement(target.getDeltaMovement().scale(0.55).add(force));
 				target.hurtMarked = true;
 			}
-			if (ArtifactFieldPulseRules.heavyPulse(tick, ownerHash)) {
+			if (decision.damage() && ArtifactFieldPulseRules.heavyPulse(tick, ownerHash)) {
 				target.hurtServer(level, PowerDamage.source(owner),
 						field.alignment() == ArtifactAlignment.DARKNESS ? 28.0F : 22.0F);
 				target.addEffect(PowerStatusEffects.hidden(field.alignment() == ArtifactAlignment.DARKNESS
