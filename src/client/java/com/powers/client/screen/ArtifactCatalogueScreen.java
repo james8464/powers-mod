@@ -7,7 +7,6 @@ import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.artifact.ArtifactCatalogueRules;
 import com.powers.item.artifact.ArtifactFavouriteRules;
 import com.powers.network.ShadowSwordPackets;
-import com.powers.power.abilities.ElementalPhase;
 import com.powers.power.abilities.SizeMorphRules;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -19,7 +18,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.IntStream;
 
 /** Responsive searchable catalogue and eight-slot quick-wheel editor. */
@@ -32,13 +30,11 @@ public final class ArtifactCatalogueScreen extends Screen {
 	private EditBox searchBox;
 	private String query = "";
 	private int page;
-	private int elementalPhase;
 	private int sizeMorphOption;
 
 	ArtifactCatalogueScreen(ArtifactMenuState state) {
 		super(Component.translatable("screen.powers.artifact.catalogue.title"));
 		this.state = state;
-		this.elementalPhase = state.elementalPhase();
 		this.sizeMorphOption = state.sizeMorphOption();
 		this.favourites = state.favourites();
 	}
@@ -139,15 +135,7 @@ public final class ArtifactCatalogueScreen extends Screen {
 
 	private void addSelectionControls(int left, int y) {
 		int panelWidth = layout.panelWidth();
-		if (selected != null && selected.abilityId().equals("elemental_blast")) {
-			addRenderableWidget(CycleButton.<Integer>builder(option -> Component.translatable(
-					"hud.powers.element." + ElementalPhase.fromIndex(option).name()
-							.toLowerCase(Locale.ROOT)), () -> elementalPhase)
-					.withValues(IntStream.range(0, ElementalPhase.values().length).boxed().toList())
-					.displayOnlyValue().create(left + 8, y, panelWidth / 2 - 12, 18,
-							Component.translatable("screen.powers.shadow_sword.variant"),
-							(button, option) -> elementalPhase = option));
-		} else if (selected != null && selected.abilityId().equals("size_shift")) {
+		if (selected != null && selected.abilityId().equals("size_shift")) {
 			addRenderableWidget(CycleButton.<Integer>builder(
 					option -> Component.literal(SizeMorphRules.scale(option) + "×"), () -> sizeMorphOption)
 					.withValues(IntStream.range(0, SizeMorphRules.scales().size()).boxed().toList())
@@ -181,8 +169,7 @@ public final class ArtifactCatalogueScreen extends Screen {
 
 	private void choose() {
 		if (selected == null || state.locked(selected)) return;
-		int option = selected.abilityId().equals("elemental_blast") ? elementalPhase
-				: selected.abilityId().equals("size_shift") ? sizeMorphOption : -1;
+		int option = selected.abilityId().equals("size_shift") ? sizeMorphOption : -1;
 		ClientPlayNetworking.send(new ShadowSwordPackets.SelectPayload(
 				state.alignment().serializedName(), selected.key(), option));
 		minecraft.gui.setScreen(null);

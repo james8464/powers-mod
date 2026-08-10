@@ -46,7 +46,6 @@ import java.util.UUID;
 /** Owns a fast Storm Tribunal from its warning compass through Dominion's crown. */
 public final class LightningStrikeAbility extends Ability {
 	private static final Identifier POWER_ID = PowersMod.id("lightning_strike");
-	private static final Identifier ELEMENTAL_POWER_ID = PowersMod.id("elemental_blast");
 	private static final double BASE_RANGE = 64.0;
 	private static final double BASE_RADIUS = 2.75;
 	private static final float BASE_DAMAGE = 8.0F;
@@ -80,13 +79,7 @@ public final class LightningStrikeAbility extends Ability {
 				MagicPresenceHandle.Kind.IMPACT, tribunal.expiresAt);
 	}
 
-	/** Starts Elemental Blast's storm phase while retaining its exact lifecycle owner. */
-	boolean activateFromElemental(ServerPlayer player,
-			PlayerPowers.PlayerPowersData data) {
-		return activateFrom(player, data, ELEMENTAL_POWER_ID);
-	}
-
-	/** Validates and captures one direct or delegated paid source. */
+	/** Validates and captures the paid Lightning source. */
 	private boolean activateFrom(ServerPlayer player,
 			PlayerPowers.PlayerPowersData data, Identifier sourcePower) {
 		if (!player.isAlive()) return false;
@@ -418,19 +411,15 @@ public final class LightningStrikeAbility extends Ability {
 		LightningStrikeFx.afterimage(level, point, cleared);
 	}
 
-	/** Requires the exact direct or delegated power captured when payment committed. */
+	/** Requires the exact Lightning power captured when payment committed. */
 	private static boolean ownsSource(ServerPlayer player, Identifier sourcePower) {
+		if (!POWER_ID.equals(sourcePower)) return false;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		boolean lightningOwned = false;
-		boolean elementalOwned = false;
 		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
 			Power power = data.getPower(slot);
-			if (power == null) continue;
-			lightningOwned |= power.id().equals(POWER_ID);
-			elementalOwned |= power.id().equals(ELEMENTAL_POWER_ID);
+			if (power != null && power.id().equals(POWER_ID)) return true;
 		}
-		return LightningStrikeRules.sourceOwned(sourcePower.equals(ELEMENTAL_POWER_ID),
-				lightningOwned, elementalOwned);
+		return false;
 	}
 
 	private static double horizontalDistanceSquared(Vec3 first, Vec3 second) {

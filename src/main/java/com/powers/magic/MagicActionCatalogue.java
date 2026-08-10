@@ -58,24 +58,16 @@ public final class MagicActionCatalogue {
 		// Innate powers: the identifiers match PowerRegistry and player attachments.
 		add(actions, "time_shift", MagicOrigin.INNATE, MagicDelivery.TRAVEL, MagicIntent.MOVEMENT,
 				MagicAspect.SPACE, MagicAspect.TIME);
-		add(actions, "shadow_step", MagicOrigin.INNATE, MagicDelivery.TRAVEL, MagicIntent.MOVEMENT,
-				MagicAspect.DARKNESS, MagicAspect.MOTION);
 		add(actions, "flight", MagicOrigin.INNATE, MagicDelivery.TOGGLE, MagicIntent.MOVEMENT,
 				MagicAspect.MOTION);
-		add(actions, "elemental_blast", MagicOrigin.INNATE, MagicDelivery.PROJECTILE, MagicIntent.HARM,
-				MagicAspect.FLAME, MagicAspect.FROST, MagicAspect.STORM, MagicAspect.GRAVITY);
 		add(actions, "starfall", MagicOrigin.INNATE, MagicDelivery.FIELD, MagicIntent.HARM,
 				MagicAspect.STORM, MagicAspect.LIGHT, MagicAspect.FORCE);
 		add(actions, "void_beam", MagicOrigin.INNATE, MagicDelivery.BEAM, MagicIntent.HARM,
 				MagicAspect.VOID, MagicAspect.DARKNESS);
 		add(actions, "fireball", MagicOrigin.INNATE, MagicDelivery.PROJECTILE, MagicIntent.HARM,
 				MagicAspect.FLAME, MagicAspect.FORCE);
-		add(actions, "frost_nova", MagicOrigin.INNATE, MagicDelivery.FIELD, MagicIntent.CONTROL,
-				MagicAspect.FROST, MagicAspect.FORCE);
 		add(actions, "lightning_strike", MagicOrigin.INNATE, MagicDelivery.INSTANT, MagicIntent.HARM,
 				MagicAspect.STORM);
-		add(actions, "ground_slam", MagicOrigin.INNATE, MagicDelivery.FIELD, MagicIntent.HARM,
-				MagicAspect.FORCE, MagicAspect.GRAVITY);
 		add(actions, "thunderclap", MagicOrigin.INNATE, MagicDelivery.FIELD, MagicIntent.HARM,
 				MagicAspect.FORCE, MagicAspect.MOTION, MagicAspect.STORM);
 		add(actions, "speed_burst", MagicOrigin.INNATE, MagicDelivery.INSTANT, MagicIntent.MOVEMENT,
@@ -88,8 +80,6 @@ public final class MagicActionCatalogue {
 				MagicAspect.MOTION, MagicAspect.TIME);
 		add(actions, "breezy_bash", MagicOrigin.INNATE, MagicDelivery.FIELD, MagicIntent.CONTROL,
 				MagicAspect.MOTION, MagicAspect.FORCE);
-		add(actions, "cozy_campfire", MagicOrigin.INNATE, MagicDelivery.FIELD, MagicIntent.SUPPORT,
-				MagicAspect.FLAME, MagicAspect.LIFE, MagicAspect.PROTECTION);
 		add(actions, "invisibility", MagicOrigin.INNATE, MagicDelivery.TOGGLE, MagicIntent.DEFENCE,
 				MagicAspect.CONCEALMENT, MagicAspect.MIND);
 		add(actions, "time_freeze", MagicOrigin.INNATE, MagicDelivery.TOGGLE, MagicIntent.CONTROL,
@@ -286,9 +276,8 @@ public final class MagicActionCatalogue {
 				"ward_breaking_ritual", "counterspell", "dispel", "ritual_amplification",
 				"daybreak_wave", "heaven_gate", "banish_darkness", "divine_decree", "second_dawn");
 		assign(values, MagicSignificance.STANDARD,
-				"time_shift", "shadow_step", "flight", "elemental_blast", "starfall", "void_beam",
-				"frost_nova", "ground_slam", "thunderclap", "speed_burst", "telekinesis",
-				"energy_beam", "super_speed", "breezy_bash", "cozy_campfire", "invisibility",
+				"time_shift", "flight", "starfall", "void_beam", "thunderclap", "speed_burst", "telekinesis",
+				"energy_beam", "super_speed", "breezy_bash", "invisibility",
 				"forcefield", "gravity_displacement", "vessel_possession", "astral_projection",
 				"energy_drain", "ice_manipulation", "plant_healing_acceleration", "double_health",
 				"inferno", "clone_swarm", "creativity_manifestation", "size_shift", "life_bloom",

@@ -131,12 +131,12 @@ public final class ArtifactWeaponManager {
 			boolean locked = !ArtifactSelectionRules.maySelect(action.definition(), alignment,
 					rank(player, alignment));
 			int variant = com.powers.item.artifact.ArtifactMenuRules.selectionVariant(
-					action.ability().id().getPath(), data.getPhase(), data.getSizeMorphOption());
+					action.ability().id().getPath(), data.getSizeMorphOption());
 			return new ArtifactActionSnapshot(action.definition().key(), action.definition().category(),
 					cost, remaining, maximum, active, locked, variant);
 		}).toList();
 		ShadowSwordPackets.openMenu(player, alignment, ArtifactSelectionState.selected(player, alignment),
-				rank(player, alignment), data.getPhase(), data.getSizeMorphOption(), data.energy(),
+				rank(player, alignment), data.getSizeMorphOption(), data.energy(),
 				ArtifactSelectionState.favourites(player, alignment), snapshots);
 	}
 

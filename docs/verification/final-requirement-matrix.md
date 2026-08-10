@@ -34,7 +34,7 @@ This matrix maps the requested finalisation work to implementation and repeatabl
 | R28 | Natural tiered runestones | Complete | Craftable upgrade chain, additive loot injection, 40-600 restoration tiers and cooldowns |
 | R29 | Darkness Creature | Complete | Black player model, Dark Realm spawn, player-like combat, lightning/fireball, tag targeting, summon caps |
 | R30 | Shadow Sword carrier curse and protection | Complete | Dark-grey identity, hidden Blindness/Wither, lightning guardian response, authorization and cap tests |
-| R31 | Shadow Sword complete power access | Complete | All 28 innate and 13 crystal routes plus grouped authenticated menu and corruption presentation |
+| R31 | Shadow Sword complete power access | Complete | All 23 current innate and 13 crystal routes plus grouped authenticated menu and corruption presentation |
 | R32 | Shadow Sword apotheosis and custom powers | Complete | Exactly three unique rites; rank-10 cooldown bypass and 900-energy refill tests |
 | R33 | Heavenly Partisan counterpart | Complete | Eleven unique light rites, all innate/crystal routes, sentinel protection and rank-10 support scaling |
 | R34 | Living Darkness and Pure Light spread | Complete | Random-tick protected conversion, indexed auras, rank energy refill, Wither, immunity tag and GameTests |

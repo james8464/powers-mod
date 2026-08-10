@@ -23,7 +23,7 @@ class PowerScalingServiceTest {
 		RankProfile profile = new RankProfileService().profile(graph,
 				new RankProgress(Set.of("root", "motion"), "motion"));
 
-		ScaledMagicValues step = service.scale(action("shadow_step"), profile, 2);
+		ScaledMagicValues step = service.scale(action("super_speed"), profile, 2);
 		ScaledMagicValues healing = service.scale(action("plant_healing_acceleration"), profile, 2);
 
 		assertTrue(step.rangeMultiplier() > healing.rangeMultiplier());

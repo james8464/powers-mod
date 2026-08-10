@@ -38,8 +38,8 @@ class MagicInteractionResolverTest {
 
 	@Test
 	void flameAndFrostTransformIntoSteamInEitherOrder() {
-		InteractionResolution forward = resolve("fireball", "frost_nova");
-		InteractionResolution reverse = resolve("frost_nova", "fireball");
+		InteractionResolution forward = resolve("fireball", "ice_manipulation");
+		InteractionResolution reverse = resolve("ice_manipulation", "fireball");
 
 		assertEquals(InteractionOutcome.TRANSFORM, forward.outcome());
 		assertEquals("steam", forward.cue().motif());

@@ -16,8 +16,10 @@ class ArtifactActionCatalogueTest {
 		for (ArtifactAlignment alignment : ArtifactAlignment.values()) {
 			var actions = ArtifactActionCatalogue.forAlignment(alignment);
 			assertEquals(actions.size(), actions.stream().map(ArtifactActionDefinition::key).distinct().count());
-			assertEquals(28, actions.stream().filter(action -> action.category()
+			assertEquals(23, actions.stream().filter(action -> action.category()
 					== ArtifactActionCategory.ROUTED_POWER).count());
+			assertTrue(actions.stream().noneMatch(action -> Set.of("cozy_campfire", "frost_nova",
+					"elemental_blast", "ground_slam", "shadow_step").contains(action.abilityId())));
 			assertEquals(crystalIds, actions.stream().filter(action -> action.category()
 					== ArtifactActionCategory.ROUTED_CRYSTAL).map(ArtifactActionDefinition::abilityId)
 					.collect(java.util.stream.Collectors.toSet()));

@@ -4,7 +4,6 @@ import com.powers.PowersMod;
 import com.powers.hud.HudMath;
 import com.powers.hud.HudLayout;
 import com.powers.power.Power;
-import com.powers.power.abilities.ElementalPhase;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -37,10 +36,7 @@ public final class PowerHudRenderer {
 	private static void drawSlot(GuiGraphicsExtractor graphics, Font font, int slot,
 			int centerX, int centerY, int tick) {
 		Power power = ClientPowerState.getPower(slot);
-		ElementalPhase elemental = power != null && power.id().getPath().equals("elemental_blast")
-				? ElementalPhase.fromIndex(ClientPowerState.elementalPhase()) : null;
-		int color = power == null ? 0xFF626874
-				: 0xFF000000 | (elemental == null ? power.color() : elemental.color());
+		int color = power == null ? 0xFF626874 : 0xFF000000 | power.color();
 		boolean activeToggle = power != null && power.ability() != null && power.ability().isToggle()
 				&& ClientPowerState.isToggleActive(power.id().toString());
 		Identifier texture = activeToggle && (tick / 5) % 2 == 0 ? ACTIVE_SLOT : SLOT;
@@ -48,7 +44,6 @@ public final class PowerHudRenderer {
 				0, 0, SIZE, SIZE, SIZE, SIZE);
 		AbilityGlyphRenderer.draw(graphics, power == null ? null : power.id().getPath(), centerX, centerY,
 				activeToggle ? 0xFFF5FDFF : color);
-		if (elemental != null) drawElementalCycle(graphics, centerX, centerY - 9, elemental, tick);
 
 		int remaining = ClientPowerState.cooldownTicks(slot);
 		int reactivation = ClientPowerState.reactivationTicks(slot);
@@ -79,16 +74,6 @@ public final class PowerHudRenderer {
 			String seconds = String.valueOf((remaining + 19) / 20);
 			graphics.text(font, seconds, centerX - font.width(seconds) / 2,
 					centerY + 6, 0xFFE7EBF2, true);
-		}
-	}
-
-	private static void drawElementalCycle(GuiGraphicsExtractor graphics, int centerX, int centerY,
-			ElementalPhase current, int tick) {
-		for (int index = 0; index < ElementalPhase.values().length; index++) {
-			int x = centerX - 9 + index * 6;
-			int radius = index == current.index() ? 2 : 1;
-			AbilityGlyphRenderer.diamond(graphics, x, centerY, radius,
-					HudMath.elementalRuneColor(current.index(), index, tick));
 		}
 	}
 

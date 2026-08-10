@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2 - 2026-08-11
+
+- Removed the five retired innate powers (Cozy Campfire, Frost Nova, Elemental Blast, Ground Slam, and Shadow Step), their runtime managers, selectors, protocol state, boss/artifact adapters, translations, and collision entries.
+- Removed every automatically assigned innate passive and the unconditional player aura dust emitter; saved loadouts now migrate deterministically to valid allegiance-safe powers.
+- Reduced the canonical innate roster to 23 and regenerated its exhaustive interaction documentation and audit manifests.
+
 ## 1.0.1 - 2026-08-10
 
 - Closed realm-death escape: underqualified deaths in Light/Dark mindscapes now respawn inside the same realm.

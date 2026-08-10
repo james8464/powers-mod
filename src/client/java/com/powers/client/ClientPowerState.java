@@ -18,7 +18,6 @@ public final class ClientPowerState {
 	private static boolean canSeeDarkRealm;
 	private static boolean darkness;
 	private static boolean projection;
-	private static int elementalPhase;
 	private static int sizeMorphOption = com.powers.power.abilities.SizeMorphRules.normalOption();
 	private static List<String> rankNodes = List.of();
 	private static String rankFocus = "";
@@ -40,7 +39,6 @@ public final class ClientPowerState {
 		canSeeDarkRealm = payload.canSeeDarkRealm();
 		darkness = payload.darkness();
 		projection = payload.projection();
-		elementalPhase = payload.elementalPhase();
 		sizeMorphOption = payload.sizeMorphOption();
 		rankNodes = List.copyOf(payload.rankNodes());
 		rankFocus = payload.rankFocus();
@@ -59,7 +57,6 @@ public final class ClientPowerState {
 		canSeeDarkRealm = false;
 		darkness = false;
 		projection = false;
-		elementalPhase = 0;
 		sizeMorphOption = com.powers.power.abilities.SizeMorphRules.normalOption();
 		rankNodes = List.of();
 		rankFocus = "";
@@ -115,11 +112,6 @@ public final class ClientPowerState {
 
 	public static boolean projection() {
 		return projection;
-	}
-
-	/** Returns the server-authoritative Elemental Blast phase. */
-	public static int elementalPhase() {
-		return elementalPhase;
 	}
 
 	/** Returns the server-authoritative Size Morphing scale option. */

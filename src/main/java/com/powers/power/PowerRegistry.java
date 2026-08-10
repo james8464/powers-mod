@@ -3,22 +3,17 @@ package com.powers.power;
 import com.powers.PowersMod;
 import com.powers.power.abilities.AstralProjectionAbility;
 import com.powers.power.abilities.BreezyBashAbility;
-import com.powers.power.abilities.CozyCampfireAbility;
 import com.powers.power.abilities.DoubleHealthAbility;
-import com.powers.power.abilities.ElementalBlastAbility;
 import com.powers.power.abilities.EnergyBeamAbility;
 import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.power.abilities.FireballAbility;
 import com.powers.power.abilities.FlightAbility;
 import com.powers.power.abilities.ForcefieldAbility;
-import com.powers.power.abilities.FrostNovaAbility;
 import com.powers.power.abilities.GravityDisplacementAbility;
-import com.powers.power.abilities.GroundSlamAbility;
 import com.powers.power.abilities.IceManipulationAbility;
 import com.powers.power.abilities.InvisibilityToggleAbility;
 import com.powers.power.abilities.LightningStrikeAbility;
 import com.powers.power.abilities.PlantHealingAbility;
-import com.powers.power.abilities.ShadowStepAbility;
 import com.powers.power.abilities.SizeMorphAbility;
 import com.powers.power.abilities.SpeedBurstAbility;
 import com.powers.power.abilities.StarfallAbility;
@@ -29,11 +24,8 @@ import com.powers.power.abilities.ThunderclapAbility;
 import com.powers.power.abilities.TimeFreezeToggleAbility;
 import com.powers.power.abilities.VesselPossessionAbility;
 import com.powers.power.abilities.VoidBeamAbility;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffects;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,10 +35,8 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Every randomly assigned innate power: an ability each, with passive
- * effects baked in. Drawing three random entries here is how a player
- * gets their powers, inspired by Rainbow Quest and classic superpower
- * mods like Superheroes Unlimited
+ * Every randomly assigned innate power. Automatic passive effects are
+ * deliberately excluded: a power changes gameplay only while explicitly used.
  */
 public final class PowerRegistry {
 	// LinkedHashMap keeps registration order so the power list is stable
@@ -56,205 +46,40 @@ public final class PowerRegistry {
 	}
 
 	public static void initialize() {
-		register(new Power(PowersMod.id("size_shift"),
-				Component.translatable("ability.powers.size_shift"),
-				Component.translatable("itemTooltip.powers.yellow_crystal"),
-				0xFFD600,
-				List.of(passive(MobEffects.SLOW_FALLING, 0)),
-				new SizeMorphAbility()));
-
-		register(new Power(PowersMod.id("time_shift"),
-				Component.translatable("power.powers.time_shift"),
-				Component.translatable("power.powers.time_shift.description"),
-				0xFFD700,
-				List.of(passive(MobEffects.HASTE, 0)),
-				new TeleportAbility()));
-
-		register(new Power(PowersMod.id("shadow_step"),
-				Component.translatable("power.powers.shadow_step"),
-				Component.translatable("power.powers.shadow_step.description"),
-				0x5E35B1,
-				List.of(passive(MobEffects.NIGHT_VISION, 0)),
-				new ShadowStepAbility(), PowerAffinity.DARKNESS));
-
-		register(new Power(PowersMod.id("flight"),
-				Component.translatable("power.powers.flight"),
-				Component.translatable("power.powers.flight.description"),
-				0xFFFFFF,
-				List.of(passive(MobEffects.SPEED, 0)),
-				new FlightAbility()));
-
-		register(new Power(PowersMod.id("elemental_blast"),
-				Component.translatable("power.powers.elemental_blast"),
-				Component.translatable("power.powers.elemental_blast.description"),
-				0x00BCD4,
-				List.of(passive(MobEffects.FIRE_RESISTANCE, 0)),
-				new ElementalBlastAbility()));
-
-		register(new Power(PowersMod.id("starfall"),
-				Component.translatable("power.powers.starfall"),
-				Component.translatable("power.powers.starfall.description"),
-				0x3949AB,
-				List.of(passive(MobEffects.HEALTH_BOOST, 0)),
-				new StarfallAbility(), PowerAffinity.RADIANT));
-
-		register(new Power(PowersMod.id("void_beam"),
-				Component.translatable("power.powers.void_beam"),
-				Component.translatable("power.powers.void_beam.description"),
-				0x1A237E,
-				List.of(passive(MobEffects.ABSORPTION, 0)),
-				new VoidBeamAbility(), PowerAffinity.DARKNESS));
-
-		register(new Power(PowersMod.id("fireball"),
-				Component.translatable("power.powers.fireball"),
-				Component.translatable("power.powers.fireball.description"),
-				0xFF4500,
-				List.of(passive(MobEffects.FIRE_RESISTANCE, 0)),
-				new FireballAbility()));
-
-		register(new Power(PowersMod.id("frost_nova"),
-				Component.translatable("power.powers.frost_nova"),
-				Component.translatable("power.powers.frost_nova.description"),
-				0x81D4FA,
-				List.of(passive(MobEffects.WATER_BREATHING, 0)),
-				new FrostNovaAbility()));
-
-		register(new Power(PowersMod.id("lightning_strike"),
-				Component.translatable("power.powers.lightning_strike"),
-				Component.translatable("power.powers.lightning_strike.description"),
-				0x4FC3F7,
-				List.of(passive(MobEffects.RESISTANCE, 0)),
-				new LightningStrikeAbility()));
-
-		register(new Power(PowersMod.id("ground_slam"),
-				Component.translatable("power.powers.ground_slam"),
-				Component.translatable("power.powers.ground_slam.description"),
-				0x4CAF50,
-				List.of(passive(MobEffects.STRENGTH, 0)),
-				new GroundSlamAbility()));
-
-		register(new Power(PowersMod.id("thunderclap"),
-				Component.translatable("power.powers.thunderclap"),
-				Component.translatable("power.powers.thunderclap.description"),
-				0xD7F8FF,
-				List.of(passive(MobEffects.STRENGTH, 0)),
-				new ThunderclapAbility()));
-
-		register(new Power(PowersMod.id("speed_burst"),
-				Component.translatable("power.powers.speed_burst"),
-				Component.translatable("power.powers.speed_burst.description"),
-				0xFFEB3B,
-				List.of(passive(MobEffects.JUMP_BOOST, 1)),
-				new SpeedBurstAbility()));
-
-		register(new Power(PowersMod.id("telekinesis"),
-				Component.translatable("power.powers.telekinesis"),
-				Component.translatable("power.powers.telekinesis.description"),
-				0x9C27B0,
-				List.of(passive(MobEffects.SLOW_FALLING, 0)),
-				new TelekinesisAbility()));
-
-		register(new Power(PowersMod.id("energy_beam"),
-				Component.translatable("power.powers.energy_beam"),
-				Component.translatable("power.powers.energy_beam.description"),
-				0xFF4500,
-				List.of(passive(MobEffects.STRENGTH, 0)),
-				new EnergyBeamAbility()));
-
-		register(new Power(PowersMod.id("super_speed"),
-				Component.translatable("power.powers.super_speed"),
-				Component.translatable("power.powers.super_speed.description"),
-				0x00E5FF,
-				List.of(passive(MobEffects.SPEED, 1)),
-				new SuperSpeedAbility()));
-
-		register(new Power(PowersMod.id("breezy_bash"),
-				Component.translatable("power.powers.breezy_bash"),
-				Component.translatable("power.powers.breezy_bash.description"),
-				0xB0BEC5,
-				List.of(passive(MobEffects.SLOW_FALLING, 0)),
-				new BreezyBashAbility()));
-
-		register(new Power(PowersMod.id("cozy_campfire"),
-				Component.translatable("power.powers.cozy_campfire"),
-				Component.translatable("power.powers.cozy_campfire.description"),
-				0xFFAB40,
-				List.of(passive(MobEffects.REGENERATION, 0)),
-				new CozyCampfireAbility(), PowerAffinity.RADIANT));
-
-		register(new Power(PowersMod.id("invisibility"),
-				Component.translatable("power.powers.invisibility"),
-				Component.translatable("power.powers.invisibility.description"),
-				0xAAAAAA,
-				List.of(),
-				new InvisibilityToggleAbility()));
-
-		register(new Power(PowersMod.id("time_freeze"),
-				Component.translatable("power.powers.time_freeze"),
-				Component.translatable("power.powers.time_freeze.description"),
-				0x80DEEA,
-				List.of(passive(MobEffects.SPEED, 0)),
-				new TimeFreezeToggleAbility()));
-
-		register(new Power(PowersMod.id("forcefield"),
-				Component.translatable("power.powers.forcefield"),
-				Component.translatable("power.powers.forcefield.description"),
-				0x40C4FF,
-				List.of(passive(MobEffects.RESISTANCE, 0)),
-				new ForcefieldAbility()));
-
-		register(new Power(PowersMod.id("gravity_displacement"),
-				Component.translatable("power.powers.gravity_displacement"),
-				Component.translatable("power.powers.gravity_displacement.description"),
-				0x7C4DFF,
-				List.of(passive(MobEffects.SLOW_FALLING, 0)),
-				new GravityDisplacementAbility()));
-
-		register(new Power(PowersMod.id("vessel_possession"),
-				Component.translatable("power.powers.vessel_possession"),
-				Component.translatable("power.powers.vessel_possession.description"),
-				0xE040FB,
-				List.of(passive(MobEffects.NIGHT_VISION, 0)),
-				new VesselPossessionAbility()));
-
-		register(new Power(PowersMod.id("astral_projection"),
-				Component.translatable("power.powers.astral_projection"),
-				Component.translatable("power.powers.astral_projection.description"),
-				0x7E57C2,
-				List.of(passive(MobEffects.NIGHT_VISION, 0)),
-				new AstralProjectionAbility()));
-
-		register(new Power(PowersMod.id("energy_drain"),
-				Component.translatable("power.powers.energy_drain"),
-				Component.translatable("power.powers.energy_drain.description"),
-				0x6A1B9A,
-				List.of(),
-				new EnergyDrainAbility(), PowerAffinity.DARKNESS));
-
-		register(new Power(PowersMod.id("ice_manipulation"),
-				Component.translatable("power.powers.ice_manipulation"),
-				Component.translatable("power.powers.ice_manipulation.description"),
-				0x81D4FA,
-				List.of(passive(MobEffects.WATER_BREATHING, 0)),
-				new IceManipulationAbility()));
-
-		register(new Power(PowersMod.id("plant_healing_acceleration"),
-				Component.translatable("power.powers.plant_healing_acceleration"),
-				Component.translatable("power.powers.plant_healing_acceleration.description"),
-				0x66FF66,
-				List.of(passive(MobEffects.REGENERATION, 0)),
-				new PlantHealingAbility(), PowerAffinity.RADIANT));
-
-		register(new Power(PowersMod.id("double_health"),
-				Component.translatable("power.powers.double_health"),
-				Component.translatable("power.powers.double_health.description"),
-				0xFF1744,
-				List.of(),
-				new DoubleHealthAbility()));
+		POWERS.clear();
+		register("size_shift", 0xFFD600, new SizeMorphAbility());
+		register("time_shift", 0xFFD700, new TeleportAbility());
+		register("flight", 0xFFFFFF, new FlightAbility());
+		register("starfall", 0x3949AB, new StarfallAbility(), PowerAffinity.RADIANT);
+		register("void_beam", 0x1A237E, new VoidBeamAbility(), PowerAffinity.DARKNESS);
+		register("fireball", 0xFF4500, new FireballAbility());
+		register("lightning_strike", 0x4FC3F7, new LightningStrikeAbility());
+		register("thunderclap", 0xD7F8FF, new ThunderclapAbility());
+		register("speed_burst", 0xFFEB3B, new SpeedBurstAbility());
+		register("telekinesis", 0x9C27B0, new TelekinesisAbility());
+		register("energy_beam", 0xFF4500, new EnergyBeamAbility());
+		register("super_speed", 0x00E5FF, new SuperSpeedAbility());
+		register("breezy_bash", 0xB0BEC5, new BreezyBashAbility());
+		register("invisibility", 0xAAAAAA, new InvisibilityToggleAbility());
+		register("time_freeze", 0x80DEEA, new TimeFreezeToggleAbility());
+		register("forcefield", 0x40C4FF, new ForcefieldAbility());
+		register("gravity_displacement", 0x7C4DFF, new GravityDisplacementAbility());
+		register("vessel_possession", 0xE040FB, new VesselPossessionAbility());
+		register("astral_projection", 0x7E57C2, new AstralProjectionAbility());
+		register("energy_drain", 0x6A1B9A, new EnergyDrainAbility(), PowerAffinity.DARKNESS);
+		register("ice_manipulation", 0x81D4FA, new IceManipulationAbility());
+		register("plant_healing_acceleration", 0x66FF66, new PlantHealingAbility(), PowerAffinity.RADIANT);
+		register("double_health", 0xFF1744, new DoubleHealthAbility());
 	}
 
-	private static PassiveEffect passive(Holder<MobEffect> effect, int amplifier) {
-		return new PassiveEffect(effect, amplifier);
+	private static void register(String path, int color, Ability ability) {
+		register(path, color, ability, PowerAffinity.UNIVERSAL);
+	}
+
+	private static void register(String path, int color, Ability ability, PowerAffinity affinity) {
+		register(new Power(PowersMod.id(path), Component.translatable("power.powers." + path),
+				Component.translatable("power.powers." + path + ".description"), color,
+				ability, affinity));
 	}
 
 	private static void register(Power power) {
@@ -327,31 +152,35 @@ public final class PowerRegistry {
 	 * Migrates an existing loadout after an allegiance change. Compatible,
 	 * distinct slots are preserved; forbidden or missing slots are replaced.
 	 */
-	public static List<String> reconcile(List<String> existing, PowerAffinity allegiance, Random random) {
+	public static List<String> reconcile(List<String> existing, PowerAffinity allegiance) {
+		int targetSize = Math.min(existing.size(), getAssignable(allegiance).size());
 		List<Power> result = new ArrayList<>();
 		for (String id : existing) {
 			Power power = get(id);
 			if (power != null && power.affinity().permits(allegiance) && !result.contains(power)) {
 				result.add(power);
 			}
-			if (result.size() == existing.size()) break;
+			if (result.size() == targetSize) break;
 		}
-		boolean hasExclusive = result.stream().anyMatch(power -> power.affinity() == allegiance);
-		if (!hasExclusive && !existing.isEmpty()) {
-			List<Power> exclusive = getAssignable(allegiance).stream()
-					.filter(power -> power.affinity() == allegiance).toList();
-			if (!exclusive.isEmpty()) {
-				Power selected = exclusive.get(random.nextInt(exclusive.size()));
-				if (result.size() >= existing.size()) result.set(0, selected);
-				else result.add(selected);
+
+		String exclusiveId = allegiance == PowerAffinity.DARKNESS ? "energy_drain" : "starfall";
+		for (String fallbackId : List.of("flight", "forcefield", exclusiveId)) {
+			Power fallback = get(fallbackId);
+			if (result.size() < targetSize && fallback != null && !result.contains(fallback)) {
+				result.add(fallback);
 			}
 		}
-		List<Power> pool = new ArrayList<>(getAssignable(allegiance));
-		Collections.shuffle(pool, random);
-		for (Power power : pool) {
-			if (result.size() >= existing.size()) break;
-			if (!result.contains(power)) result.add(power);
+		for (Power fallback : getAssignable(allegiance)) {
+			if (result.size() >= targetSize) break;
+			if (!result.contains(fallback)) result.add(fallback);
+		}
+
+		boolean hasExclusive = result.stream().anyMatch(power -> power.affinity() == allegiance);
+		if (!hasExclusive && !result.isEmpty()) {
+			Power exclusive = get(exclusiveId);
+			if (exclusive != null) result.set(result.size() - 1, exclusive);
 		}
 		return result.stream().map(power -> power.id().toString()).toList();
 	}
+
 }

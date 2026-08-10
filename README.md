@@ -14,39 +14,34 @@ The tone is heavily inspired by FavreMySabre's *The Rainbow Quest*, with additio
 
 ## Playing
 
-On first join, a player receives three distinct powers from a pool of 28. They persist with the player. The default keys are `V`, `X`, and `C`; they can be rebound in Minecraft's Controls screen. Crouch while pressing a power key to open that power's option menu when it has selectable modes.
+On first join, a player receives three distinct powers from a pool of 23. They persist with the player. The default keys are `V`, `X`, and `C`; they can be rebound in Minecraft's Controls screen. Crouch while pressing a power key to open that power's option menu when it has selectable modes.
 
-Innate loadouts are allegiance-aware. Radiant players can uniquely receive Starfall, Cozy Campfire, and Plant and Healing Acceleration; darkness-infected players can uniquely receive Shadow Step, Void Beam, and Energy Drain. Every random loadout guarantees at least one matching exclusive power. If allegiance changes, compatible powers remain in place while forbidden slots are migrated without duplicates. Crystal, grimoire, and Shadow Sword access is unaffected; the sword deliberately bypasses innate allegiance locks.
+Innate loadouts are allegiance-aware. Radiant players can uniquely receive Starfall and Plant and Healing Acceleration; darkness-infected players can uniquely receive Void Beam and Energy Drain. Every random loadout guarantees at least one matching exclusive power. If allegiance changes, compatible powers remain in place while forbidden or retired slots migrate deterministically without duplicates. Crystal, grimoire, and Shadow Sword access is unaffected; the sword deliberately bypasses innate allegiance locks. Merely owning an innate power applies no passive effects or ambient particles.
 
 The HUD shows the three powers as compact 30-pixel rune medallions at the right edge, with live toggle and rank-adjusted cooldown states. Energy is rendered as ten separate nine-pixel symbols directly above and exactly aligned with the vanilla hunger bar. Full, half, and empty symbols use normal, darkness, amethyst-poisoned, or projected-body colours; the bar is moved with the vanilla survival HUD so extra heart rows never overlap it.
 
 The assignable powers are:
 
-- Movement and control: Size Morphing, Flight, Super Speed, Speed Burst, Shadow Step, Time Shift, Telekinesis, Gravity Displacement, and Breezy Bash.
-- Offence: Fireball, Lightning Strike, Thunderclap, Energy Beam, Void Beam, Frost Nova, Ice Manipulation, Starfall, Ground Slam, Elemental Blast, and Energy Drain.
-- Defence and support: Forcefield, Cozy Campfire, Plant and Healing Acceleration, and Double Health.
+- Movement and control: Size Morphing, Flight, Super Speed, Speed Burst, Time Shift, Telekinesis, Gravity Displacement, and Breezy Bash.
+- Offence: Fireball, Lightning Strike, Thunderclap, Energy Beam, Void Beam, Ice Manipulation, Starfall, and Energy Drain.
+- Defence and support: Forcefield, Plant and Healing Acceleration, and Double Health.
 - Time and mind: Time Freeze, Invisibility, Vessel Possession, and Astral Projection.
 
 | Innate power | What it does |
 | --- | --- |
 | Size Morphing | Toggles between `0.25x`, `0.5x`, `0.75x`, `1x`, `1.25x`, `1.5x`, `1.75x`, and `2x`. Distance from normal size determines the per-second energy drain. |
 | Time Shift | Opens a server-advertised dimension/coordinate menu and asynchronously loads, validates, and enters even currently unloaded destination chunks. It can also mark another player with consent while a vulnerable body remains behind. |
-| Shadow Step | Performs a short, collision-safe line-of-sight blink and leaves a restrained shadow wake. |
 | Flight | Uses server-authoritative survival propulsion, including directional ascent/descent and a much faster sprint-flight mode; it never grants creative-mode flight. |
-| Elemental Blast | Lets the player explicitly select flame, frost, storm, or earth. The choice persists and delegates to the complete underlying power rather than cycling after every cast. |
 | Starfall | Opens a warned, finite celestial strike sequence with rank branches for extra strikes, a moving storm eye, concealment reveal, projectile diversion, echoes, and a dominion crown. |
 | Void Beam | Charges a penetrating live-aim ray, with ranked target penetration and a temporary terrain-safe void scar that interacts with later magic. |
 | Fireball | Summons one chargeable Cinderheart. Recasts add tiers, punching launches it, and bounded reflection/counter rules prevent uncontrolled projectile clouds. |
-| Frost Nova | Freezes and heavily slows permitted nearby targets in a rank-scaled radius. |
 | Lightning Strike | Opens a warned Storm Tribunal at the aimed column. It has no cooldown, while energy, protection, and concurrency checks still prevent invalid spam. |
-| Ground Slam | Opens a warned Faultbound Verdict with rank-scaled seismic beats, safe forced movement, and an always-present, tightly capped rank-scaled crater. |
 | Thunderclap | Creates a wide boss-scale pressure cone, inflicting heavy rank-scaled damage and stun while deflecting incoming projectiles. |
 | Speed Burst | Performs a collision-predicted physical dash and final shockwave. Motion ranks can spend a second step during the brief marked window. |
 | Telekinesis | Throws permitted living targets radially away and reflects a bounded set of hostile projectiles; an empty cast refunds its energy. |
 | Energy Beam | Channels four live-aim Sunfire beats whose damage and burn intensify on one target; water produces steam and advanced ranks unlock a flare or forks. |
 | Super Speed | Runs an eight-second Chronal Overdrive with server-owned motion, restrained afterimages, water grounding, collision rites, memory slips, and mastered projectile curvature. |
 | Breezy Bash | Captures permitted bodies in a two-stage wind rite, raises them through a visible apex, then calls each safely down with rank-scaled force. |
-| Cozy Campfire | Creates a ten-second hearth that repeatedly heals friendly living entities and restores hunger to players. |
 | Invisibility | Toggles true concealment with recurring energy drain and can be exposed by counter-magic or Insight effects. |
 | Time Freeze | Claims Minecraft's global server tick freeze across every loaded dimension, preventing entities, projectiles, attacks, and world ticks while the caster remains able to act. |
 | Forcefield | Toggles an owned, high-capacity defensive field without overwriting unrelated attribute effects. |
@@ -55,12 +50,10 @@ The assignable powers are:
 | Astral Projection | Leaves a vulnerable physical body and releases a bounded soul-form scout; return is validated and cannot be used as invulnerability. |
 | Energy Drain | Channels against a player or mob for two seconds. Players lose energy and receive particle-free Exhaustion; mobs take repeated percentage-health damage plus a capped 30% completion strike, while the caster recovers energy. |
 | Ice Manipulation | Fires a freezing ray that harms and freezes targets, converts water to ice and lava to obsidian, and lays snow only where terrain policy permits. |
-| Plant and Healing Acceleration | Grows the aimed bonemealable plant, with stronger growth at higher potency, and supplies the registered regeneration passive. |
+| Plant and Healing Acceleration | Grows the aimed bonemealable plant with stronger growth at higher potency. |
 | Double Health | Toggles a mod-owned maximum-health multiplier, preserves unrelated modifiers, and proportionally restores the vanilla heart layout when released. |
 
 Telekinesis is a true radial release: permitted living targets are thrown away from the caster while up to 16 hostile projectiles are reflected along the caster's aim. If neither can be affected, its collapsed violet rune refunds the offered energy and starts no cooldown or collision residue.
-
-Elemental Blast keeps the player's explicit flame, frost, storm, or earth selection until it is changed. Each phase uses the underlying canonical Fireball, Frost Nova, Lightning Strike, or Ground Slam identity for collision counterplay, residue, sound, and ceremony rather than presenting every phase as the same composite force. Its HUD medallion adopts the selected element before energy is spent.
 
 Speed Burst is a synchronized physical dash, not a teleport. It predicts body-volume collisions, leaves an eight-tick cyan-white afterimage wake, and ends in a rank-scaled kinetic shockwave that respects safe zones, amethyst, and forced-movement consent without damaging terrain. Motion-ranked players can pay for one stronger Second Step during a 2.5-second window while the original persistent cooldown remains armed; alternating cyan-gold runes and an `II` medallion mark that server-authorized follow-up.
 
@@ -69,8 +62,6 @@ Super Speed is an eight-second server-owned Chronal Overdrive rather than a bund
 Fireball now summons one server-owned Cinderheart per caster instead of allowing an uncapped cloud of delayed-task projectiles. Recasting while it hovers pays for tiers two and three; Ancient Mastery unlocks a fourth seal. Punching the heart begins a six-second measured flight, after which only two reflections are permitted, plus one each from Reflective Ward and Ancient Mastery. Current player control is tracked independently from the original caster so reflected kills, consent, safe zones, and lifecycle cleanup remain correct. Tagged amethyst, Sanctuary, Kinetic Ward, personal forcefields, water, ice, snow, missing controllers, and protected targets all have distinct terminals; water and frost become a reduced no-ignition steam pressure wave. Might adds a consent-safe impact corona. Vanilla explosion grief is never used: the impact carves a bounded rank-scaled scar directly, never removes protected infrastructure, and adds only capped surface fire when the configured terrain policy permits it.
 
 Starfall is now a finite Astral Convergence rather than three simultaneous random bolts. A one-second astrolabe omen reveals the complete field before eight deterministic golden-angle strikes descend six ticks apart. Might adds strikes, damage, radius and consent-safe pressure; Motion leashes the storm eye to the initially aimed body; Insight reveals successfully struck veils; Wardcraft diverts at most 16 hostile projectiles without stealing them; Communion mirrors every third strike at reduced power; and Dominion adds two strikes plus a central crown. Roofs catch the sky path, water conducts a wider reduced pulse, Pure Light amplifies it, Darkness consumes it, and amethyst, safe zones, Sanctuary, Kinetic Ward, forcefields, time locks and projection bodies retain distinct protections or counter-cues. Every body has repeat and total-hit caps, every search is nearest-first and bounded, and each impact leaves a bounded rank-scaled scar without using harmful vanilla lightning.
-
-Ground Slam now opens a twelve-tick Faultbound Verdict instead of destroying a crater and moving every nearby body in the same tick. Its loaded support surface is named before impact: water softens the quake, Darkness hollows it, Pure Light refracts it, and unsupported air, safe zones, tagged amethyst, or powered wards close the fault. Bodies are nearest-first and capped; shields, Sanctuary, Kinetic Ward, projection anchors, time locks, movement consent, blocked volumes, and airborne footing each retain distinct behavior. Might expands the primary fault, Motion carries its warning clock, Insight reveals struck veils, Wardcraft grants a short absorption mantle, Communion releases a reduced offset echo, Veil's dust shroud clears at most eight visible hostile mob memories, and Dominion adds a deeper central crown. Terrain never changes by default; an opted-in server can remove only 8 soft deterministic samples, or 16 with Dominion, without drops, block-force damage, fluid loss, or vanilla explosions. The delegated Elemental Blast earth phase owns the same finite lifecycle correctly.
 
 Void Beam now opens through a visible 0.6-second server-owned charge, then follows the caster's live aim through up to three ordered bodies. Later penetrations fall to 72% and 52% damage; Empowered Impact and Ancient Mastery each bore through one additional target, while Dark Resurgence deepens the Wither and aftermath pulse. Pure Light, tagged amethyst, powered wards, Sanctuary, Kinetic Ward, safe zones, and personal forcefields stop the ray with distinct inversion or fracture ceremonies. An unopposed release leaves a rank-scaled, terrain-safe void scar for up to eight seconds, pulsing against at most 16 nearby permitted targets and carrying collision residue at the real impact point so later light magic can tear it into an eclipsing star rift.
 
@@ -173,7 +164,7 @@ The item whose compatibility identifier remains `powers:lycanbane` is presented 
 
 - A non-darkness carrier is struck with particle-free Blindness and Wither, cannot use the sword, and provokes up to four nearby Darkness Creatures through lightning-marked protection summons.
 - A darkness-tagged wielder regenerates 50-250 darkness energy each second according to rank; level 10 receives a 900-energy apotheosis refill pulse.
-- Right-click casts the selected action. Crouch-right-click opens a non-pausing eight-segment combat wheel. Hover and release crouch, click, or press `1`–`8` to bind a favourite; crouch-scroll cycles the same persistent loadout without opening a screen. The centre opens a searchable icon library with Favourites, Innate, Crystals, and Sword tabs, live energy/cooldown/toggle/lock state, and contextual Size Morph or Element controls.
+- Right-click casts the selected action. Crouch-right-click opens a non-pausing eight-segment combat wheel. Hover and release crouch, click, or press `1`–`8` to bind a favourite; crouch-scroll cycles the same persistent loadout without opening a screen. The centre opens a searchable icon library with Favourites, Innate, Crystals, and Sword tabs, live energy/cooldown/toggle/lock state, and a contextual Size Morph control.
 - Every innate and underlying crystal action is available from rank 1. Existing actions retain their mechanics but receive a black/violet corruption of their own original colour, darker sounds, and evil residue when routed through the sword.
 - At darkness level 10, every action cast through the sword ignores existing cooldowns and starts no new cooldown. Energy, target validation, amethyst, sanctuary, safe-zone, and bounded-entity protections still apply.
 
@@ -187,7 +178,7 @@ Exactly three actions are unique to the Shadow Sword. Retired saved selections m
 
 ## Heavenly Partisan
 
-The **Heavenly Partisan** is the unbreakable Pure Light counterpart. Only non-dark players may wield it; a darkness-infected carrier is judged with hidden Glowing/radiant damage and guarded by lightning-arriving Radiant Sentinels. It routes the same 28 innate and 13 crystal actions through a gold-white presentation, while its eleven unique rites emphasize protection and group play. Normal rank 10 reduces Partisan cooldowns by 60%, increases its regeneration aura, and strengthens its support effects; unlike darkness apotheosis, it does not remove cooldowns.
+The **Heavenly Partisan** is the unbreakable Pure Light counterpart. Only non-dark players may wield it; a darkness-infected carrier is judged with hidden Glowing/radiant damage and guarded by lightning-arriving Radiant Sentinels. It currently routes the same 23 innate and 13 crystal actions through a gold-white presentation, while its authored rites emphasize protection and group play. Normal rank 10 reduces Partisan cooldowns by 60%, increases its regeneration aura, and strengthens its support effects; unlike darkness apotheosis, it does not remove cooldowns.
 
 | Partisan rite | Rank | Effect |
 | --- | ---: | --- |
@@ -258,7 +249,7 @@ An optional OpenAI-compatible text endpoint may replace only the wording. It is 
 
 The **First Vessel** is an original player-shaped ancient boss that never spawns naturally. It has a 5,000-point virtual vitality layer, 16 armour, 16 toughness, 36 attack damage, 0.33 movement speed, 0.8 knockback resistance, persistent boss-bar state, original skin/sounds, a spawn egg, loot and advancement hooks. When the first eligible players approach, vitality snapshots `1 + 0.55 × (players − 1)` and caps at four times base health; it never shrinks mid-fight.
 
-Its tactical planner evaluates at most 24 candidates per ten-tick decision, with separate action cooldowns and facts for distance, line of sight, verticality, player clusters, projectiles, health, movement, cover, protection, and repetition. Its catalogue is tested directly against all 28 innate powers, and every adapter is entity-safe—no player-only handler is cast onto the boss. At intervals it may also mirror a power observed in the target's current loadout.
+Its tactical planner evaluates at most 24 candidates per ten-tick decision, with separate action cooldowns and facts for distance, line of sight, verticality, player clusters, projectiles, health, movement, cover, protection, and repetition. Its catalogue is tested directly against all 23 innate powers, and every adapter is entity-safe—no player-only handler is cast onto the boss. At intervals it may also mirror a power observed in the target's current loadout.
 
 The encounter has three named states: **Waking Vessel** (`AWAKENING`, 100–70%), **Broken Constellation** (`UNBOUND`, 70–35%), and **Crownless God** (`LAST_COVENANT`, below 35%). Phase changes perform Sevenfold Step. At half health it attempts one five-second Vessel Reconstitution; eight percent maximum-health damage, amethyst, or a light dominion interrupts it. Later phases gain projectile-consuming World-Suture, and Crownless God releases one terrain-safe Last Firmament below 15%. Safe zones, Sanctuary, amethyst, and bounded candidate limits remain valid boss counterplay.
 

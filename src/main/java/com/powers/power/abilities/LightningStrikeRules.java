@@ -150,12 +150,6 @@ public final class LightningStrikeRules {
 		return highestBlockingY > requestedY;
 	}
 
-	/** Requires the exact direct or delegated source captured when payment committed. */
-	public static boolean sourceOwned(boolean elementalSource,
-			boolean lightningOwned, boolean elementalOwned) {
-		return elementalSource ? elementalOwned : lightningOwned;
-	}
-
 	/** Returns impact radius after beat, Might, and conductive-water expansion. */
 	public static double impactRadius(double baseRadius, Beat beat,
 			boolean empoweredImpact, Counterplay medium) {

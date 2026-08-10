@@ -35,6 +35,33 @@ class PowerRegistryTest {
 	}
 
 	@Test
+	void retiredPowersAreAbsentFromTheInnateRoster() {
+		PowerRegistry.initialize();
+		Set<String> ids = PowerRegistry.getAssignable().stream()
+				.map(power -> power.id().getPath())
+				.collect(Collectors.toSet());
+
+		assertEquals(23, ids.size());
+		assertFalse(ids.contains("cozy_campfire"));
+		assertFalse(ids.contains("frost_nova"));
+		assertFalse(ids.contains("elemental_blast"));
+		assertFalse(ids.contains("ground_slam"));
+		assertFalse(ids.contains("shadow_step"));
+	}
+
+	@Test
+	void retiredSelectionsMigrateToStableSafeDefaults() {
+		PowerRegistry.initialize();
+		List<String> retired = List.of(
+				"powers:cozy_campfire", "powers:ground_slam", "powers:shadow_step");
+
+		assertEquals(List.of("powers:flight", "powers:forcefield", "powers:starfall"),
+				PowerRegistry.reconcile(retired, PowerAffinity.RADIANT));
+		assertEquals(List.of("powers:flight", "powers:forcefield", "powers:energy_drain"),
+				PowerRegistry.reconcile(retired, PowerAffinity.DARKNESS));
+	}
+
+	@Test
 	void affinityRostersExposeOnlyCompatibleInnatePowers() {
 		PowerRegistry.initialize();
 		List<Power> radiant = PowerRegistry.getAssignable(PowerAffinity.RADIANT);
@@ -63,7 +90,7 @@ class PowerRegistryTest {
 	void allegianceMigrationPreservesCompatiblePowersAndReplacesForbiddenOnes() {
 		PowerRegistry.initialize();
 		List<String> existing = List.of("powers:flight", "powers:starfall", "powers:fireball");
-		List<String> migrated = PowerRegistry.reconcile(existing, PowerAffinity.DARKNESS, new Random(4));
+		List<String> migrated = PowerRegistry.reconcile(existing, PowerAffinity.DARKNESS);
 
 		assertTrue(migrated.contains("powers:flight"));
 		assertTrue(migrated.contains("powers:fireball"));

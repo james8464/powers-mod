@@ -12,10 +12,9 @@ import java.util.Map;
 /** Complete deterministic action roster for both opposed mythic artifacts. */
 public final class ArtifactActionCatalogue {
 	private static final List<String> INNATE_IDS = List.of(
-			"size_shift", "time_shift", "shadow_step", "flight", "elemental_blast",
-			"starfall", "void_beam", "fireball", "frost_nova", "lightning_strike",
-			"ground_slam", "thunderclap", "speed_burst", "telekinesis", "energy_beam",
-			"super_speed", "breezy_bash", "cozy_campfire", "invisibility", "time_freeze",
+			"size_shift", "time_shift", "flight", "starfall", "void_beam", "fireball",
+			"lightning_strike", "thunderclap", "speed_burst", "telekinesis", "energy_beam",
+			"super_speed", "breezy_bash", "invisibility", "time_freeze",
 			"forcefield", "gravity_displacement", "vessel_possession", "astral_projection",
 			"energy_drain", "ice_manipulation", "plant_healing_acceleration", "double_health");
 	private static final Map<ArtifactAlignment, List<ArtifactActionDefinition>> BY_ALIGNMENT = build();

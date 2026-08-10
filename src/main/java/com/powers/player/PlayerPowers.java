@@ -8,9 +8,7 @@ import com.powers.progression.RankProgress;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
 import com.powers.power.PowerToggleLifecycle;
-import com.powers.power.abilities.ElementalPhase;
 import com.powers.power.abilities.SizeMorphRules;
-import com.powers.power.PassiveEffect;
 import com.powers.power.Ability;
 import com.powers.power.PowerEnergy;
 import com.powers.util.PowerMessages;
@@ -30,7 +28,6 @@ import static com.powers.player.PlayerPowerAttachments.COOLDOWNS;
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_LEVEL;
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_PREFIX_HIDDEN;
 import static com.powers.player.PlayerPowerAttachments.DIMENSIONAL_ANCHOR;
-import static com.powers.player.PlayerPowerAttachments.ELEMENTAL_PHASE;
 import static com.powers.player.PlayerPowerAttachments.FLIGHT_SNAPSHOT;
 import static com.powers.player.PlayerPowerAttachments.INVISIBILITY_SNAPSHOT;
 import static com.powers.player.PlayerPowerAttachments.MIND_BODY;
@@ -347,7 +344,7 @@ public final class PlayerPowers {
 		public void reconcileAffinity(ServerPlayer player) {
 			List<String> current = getSlotIds();
 			if (current.size() != SLOT_COUNT) return;
-			List<String> reconciled = PlayerPowerAffinity.reconcile(player, current, new Random());
+			List<String> reconciled = PlayerPowerAffinity.reconcile(player, current);
 			if (!current.equals(reconciled)) setSlots(player, reconciled);
 		}
 
@@ -396,16 +393,6 @@ public final class PlayerPowers {
 			target.setAttached(ACTIVE_TOGGLES, retained);
 			PowersPackets.syncTo(player);
 			return true;
-		}
-
-		/** Selects one normalized Elemental Blast phase without casting it. */
-		public void setPhase(int phase) {
-			target.setAttached(ELEMENTAL_PHASE, ElementalPhase.fromIndex(phase).index());
-		}
-
-		/** The current elemental blast phase: 0 fire, 1 frost, 2 storm, 3 earth. */
-		public int getPhase() {
-			return ElementalPhase.fromIndex(target.getAttachedOrElse(ELEMENTAL_PHASE, 0)).index();
 		}
 
 		/** Selects one authored Size Morphing scale option. */
