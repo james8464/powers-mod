@@ -3,6 +3,9 @@ package com.powers.power.abilities;
 import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.EnergyBeamFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -55,12 +58,13 @@ public final class EnergyBeamAbility extends Ability {
 		ScaledMagicValues scaled = scaling(player);
 		Set<String> variants = scaled.unlockedVariants();
 		long now = player.level().getServer().getTickCount();
-		Channel channel = new Channel(player.level().dimension(), now,
+		Channel channel = new Channel(player.level().dimension(), CastScalingContext.currentSource(), now,
 				now + EnergyBeamRules.TOTAL_TICKS,
 				Math.min(96.0, BASE_RANGE * scaled.rangeMultiplier()),
 				(float) (BASE_DAMAGE * scaled.potencyMultiplier()),
 				Math.max(20, (int) Math.round(BASE_BURN_TICKS * scaled.durationMultiplier())),
 				variants.contains("empowered_impact"), variants.contains("ancient_mastery"),
+				CombatTerrainImpact.tier(player, CastScalingContext.currentSource()),
 				player.getEyePosition());
 		ACTIVE.put(owner, channel);
 		EnergyBeamFx.focus((ServerLevel) player.level(), channel.lastVisualPoint,
@@ -91,7 +95,8 @@ public final class EnergyBeamAbility extends Ability {
 					&& owner.level().dimension().equals(channel.dimension);
 			boolean dampened = owner != null && AmethystDampening.isDampened(owner);
 			boolean frozen = owner != null && EntityFreezeController.isFrozen(owner);
-			boolean ownsPower = owner != null && ownsPower(owner);
+			boolean ownsPower = owner != null && ServerCastLifecycle.mayContinue(
+					owner, channel.castSource, ownsPower(owner));
 			if (!EnergyBeamRules.channelContinues(owner != null, sameDimension,
 					owner != null && owner.isAlive(), dampened, frozen, ownsPower,
 					now, channel.expiresAt)) {
@@ -145,6 +150,13 @@ public final class EnergyBeamAbility extends Ability {
 		if (ray.counterplay() == EnergyBeamRules.Counterplay.WATER) {
 			resetStreak(channel);
 			steamPulse(level, caster, channel, ray.endpoint());
+			return;
+		}
+		if (ray.counterplay() == EnergyBeamRules.Counterplay.SURFACE) {
+			resetStreak(channel);
+			CombatTerrainImpact.rayScar(level, caster, caster.getEyePosition(),
+					ray.endpoint(), channel.terrainTier, 0xFFD166);
+			EnergyBeamFx.impact(level, ray.endpoint(), 1);
 			return;
 		}
 		if (ray.counterplay() != null) {
@@ -296,6 +308,7 @@ public final class EnergyBeamAbility extends Ability {
 	/** Mutable channel state is private and accessed only from the server tick thread. */
 	private static final class Channel {
 		private final ResourceKey<Level> dimension;
+		private final CastSource castSource;
 		private final long startedAt;
 		private final long expiresAt;
 		private final double range;
@@ -303,15 +316,18 @@ public final class EnergyBeamAbility extends Ability {
 		private final int baseBurnTicks;
 		private final boolean empoweredImpact;
 		private final boolean ancientMastery;
+		private final int terrainTier;
 		private Vec3 lastVisualPoint;
 		private UUID lastTarget;
 		private int streak;
 		private boolean flared;
 
-		private Channel(ResourceKey<Level> dimension, long startedAt, long expiresAt,
+		private Channel(ResourceKey<Level> dimension, CastSource castSource,
+				long startedAt, long expiresAt,
 				double range, float baseDamage, int baseBurnTicks, boolean empoweredImpact,
-				boolean ancientMastery, Vec3 lastVisualPoint) {
+				boolean ancientMastery, int terrainTier, Vec3 lastVisualPoint) {
 			this.dimension = dimension;
+			this.castSource = castSource;
 			this.startedAt = startedAt;
 			this.expiresAt = expiresAt;
 			this.range = range;
@@ -319,6 +335,7 @@ public final class EnergyBeamAbility extends Ability {
 			this.baseBurnTicks = baseBurnTicks;
 			this.empoweredImpact = empoweredImpact;
 			this.ancientMastery = ancientMastery;
+			this.terrainTier = Math.clamp(terrainTier, 0, 10);
 			this.lastVisualPoint = lastVisualPoint;
 		}
 	}

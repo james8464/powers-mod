@@ -85,7 +85,7 @@ public final class ArcaneCrucibleBlock extends BaseEntityBlock {
 	@Override
 	public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
 		if (!state.getValue(LIT) || random.nextInt(3) != 0) return;
-		level.addParticle(ParticleTypes.ENCHANT,
+		level.addParticle(com.powers.fx.PowerFx.dust(0xA46DFF, 0.8F),
 				pos.getX() + 0.5, pos.getY() + 1.05, pos.getZ() + 0.5,
 				(random.nextDouble() - 0.5) * 0.25, 0.04, (random.nextDouble() - 0.5) * 0.25);
 	}

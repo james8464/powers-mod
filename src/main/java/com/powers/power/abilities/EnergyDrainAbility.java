@@ -109,7 +109,7 @@ public class EnergyDrainAbility extends Ability {
 			for (int i = 0; i < 8; i++) {
 				double angle = Math.PI * 2.0 * i / 8.0 + now * 0.08;
 				Vec3 rune = target.position().add(Math.cos(angle) * 1.4, 0.15, Math.sin(angle) * 1.4);
-				PowerFx.burst(level, rune, ParticleTypes.ENCHANT, 2, 0.03, 0.01);
+				PowerFx.burst(level, rune, PowerFx.dust(0x7A22A8, 0.8F), 2, 0.03, 0.0);
 			}
 			if (now >= ritual.state().finishesAt()) {
 				// full drain landed, hit the target with exhaustion

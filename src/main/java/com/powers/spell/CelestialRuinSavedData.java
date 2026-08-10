@@ -22,7 +22,12 @@ public final class CelestialRuinSavedData extends SavedData {
 			).apply(instance, BoundedSphereCursor.Snapshot::new));
 
 	public record Snapshot(String dimension, int x, int y, int z, String caster,
-			int countdownRemaining, boolean detonated, BoundedSphereCursor.Snapshot cursor) {
+			int countdownRemaining, boolean detonated, BoundedSphereCursor.Snapshot cursor,
+			int aftershockStep) {
+		public Snapshot(String dimension, int x, int y, int z, String caster,
+				int countdownRemaining, boolean detonated, BoundedSphereCursor.Snapshot cursor) {
+			this(dimension, x, y, z, caster, countdownRemaining, detonated, cursor, 0);
+		}
 	}
 
 	private static final Codec<Snapshot> SNAPSHOT_CODEC = RecordCodecBuilder.create(instance ->
@@ -34,7 +39,8 @@ public final class CelestialRuinSavedData extends SavedData {
 						Codec.STRING.fieldOf("caster").forGetter(Snapshot::caster),
 						Codec.INT.fieldOf("countdown_remaining").forGetter(Snapshot::countdownRemaining),
 						Codec.BOOL.fieldOf("detonated").forGetter(Snapshot::detonated),
-						CURSOR_CODEC.fieldOf("cursor").forGetter(Snapshot::cursor)
+						CURSOR_CODEC.fieldOf("cursor").forGetter(Snapshot::cursor),
+						Codec.INT.optionalFieldOf("aftershock_step", 0).forGetter(Snapshot::aftershockStep)
 				).apply(instance, Snapshot::new));
 
 	public static final Codec<CelestialRuinSavedData> CODEC = SNAPSHOT_CODEC.listOf()

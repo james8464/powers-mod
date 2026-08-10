@@ -128,6 +128,20 @@ public final class MagicRuntime {
 		return index.remove(Objects.requireNonNull(id, "id"));
 	}
 
+	/** Rebinds a committed residue to its physical object and authoritative lifetime. */
+	public boolean rebindPresence(MagicPresenceId id, String dimension,
+			PresenceAnchor anchor, long expiresAt) {
+		return index.rebind(Objects.requireNonNull(id, "id"),
+				Objects.requireNonNull(dimension, "dimension"),
+				Objects.requireNonNull(anchor, "anchor"), expiresAt);
+	}
+
+	/** Moves an already-bound entity or projectile without changing its lifetime. */
+	public boolean movePresence(MagicPresenceId id, String dimension, PresenceAnchor anchor) {
+		return index.move(Objects.requireNonNull(id, "id"),
+				Objects.requireNonNull(dimension, "dimension"), Objects.requireNonNull(anchor, "anchor"));
+	}
+
 	/** Expires old presences and reaction-deduplication keys at the current tick. */
 	public int tick(long gameTime) {
 		emittedCues.removeIf(key -> key.gameTime() < gameTime);
@@ -153,6 +167,16 @@ public final class MagicRuntime {
 	/** Returns the exhaustive same-or-cross-action pair count for diagnostics. */
 	public int interactionCount() {
 		return resolver.allPairs().size();
+	}
+
+	/** Active physical/residue presence count for live server diagnostics. */
+	public int activePresenceCount() {
+		return index.size();
+	}
+
+	/** Allocated chunk-sized cells in the active-magic spatial index. */
+	public int activePresenceCellCount() {
+		return index.cellCount();
 	}
 
 	private static CueKey cueKey(MagicCastContext cast, MagicPresence presence) {

@@ -61,26 +61,12 @@ public final class ArtifactActionCatalogue {
 	}
 
 	private static void addDarkness(List<ArtifactActionDefinition> actions) {
-		// Preserve every pre-expansion invocation alongside the eleven dominion rites.
-		add(actions, ArtifactAlignment.DARKNESS, "legacy/summon_darkness", "summon_darkness", 1, 18, 400, MagicSignificance.STANDARD);
-		add(actions, ArtifactAlignment.DARKNESS, "legacy/spread_darkness", "spread_darkness", 1, 20, 200, MagicSignificance.STANDARD);
-		add(actions, ArtifactAlignment.DARKNESS, "legacy/abyssal_singularity", "abyssal_singularity", 3, 45, 900, MagicSignificance.RITUAL);
-		add(actions, ArtifactAlignment.DARKNESS, "legacy/oblivion_pulse", "oblivion_pulse", 5, 50, 800, MagicSignificance.RITUAL);
-		add(actions, ArtifactAlignment.DARKNESS, "legacy/annihilation_beam", "annihilation_beam", 7, 65, 1200, MagicSignificance.RITUAL);
-		add(actions, ArtifactAlignment.DARKNESS, "legacy/soul_requiem", "soul_requiem", 9, 80, 1200, MagicSignificance.RITUAL);
-		add(actions, ArtifactAlignment.DARKNESS, "legacy/nightfall_dominion", "nightfall_dominion", 10, 100, 0, MagicSignificance.COSMIC);
-		addDominionSet(actions, ArtifactAlignment.DARKNESS, List.of(
-				new Dominion("call_hollowed", 1, 18, 400, MagicSignificance.STANDARD),
-				new Dominion("blight_ground", 2, 20, 240, MagicSignificance.STANDARD),
-				new Dominion("umbral_step", 3, 12, 100, MagicSignificance.MINIMAL),
-				new Dominion("night_chain", 4, 25, 360, MagicSignificance.STANDARD),
-				new Dominion("eclipse_wave", 5, 32, 500, MagicSignificance.RITUAL),
-				new Dominion("abyss_gate", 6, 40, 900, MagicSignificance.RITUAL),
-				new Dominion("devour_light", 7, 35, 600, MagicSignificance.RITUAL),
-				new Dominion("black_decree", 8, 55, 1000, MagicSignificance.RITUAL),
-				new Dominion("event_horizon", 8, 60, 1200, MagicSignificance.COSMIC),
-				new Dominion("deathless_night", 9, 80, 2400, MagicSignificance.RITUAL),
-				new Dominion("legion_eclipse", 10, 100, 3600, MagicSignificance.COSMIC)));
+		add(actions, ArtifactAlignment.DARKNESS, "unique/call_hollowed", "call_hollowed",
+				1, 18, 400, MagicSignificance.STANDARD);
+		add(actions, ArtifactAlignment.DARKNESS, "unique/blight_ground", "blight_ground",
+				2, 20, 240, MagicSignificance.STANDARD);
+		add(actions, ArtifactAlignment.DARKNESS, "unique/nightfall_dominion", "nightfall_dominion",
+				10, 100, 0, MagicSignificance.COSMIC);
 	}
 
 	private static void addLight(List<ArtifactActionDefinition> actions) {

@@ -78,8 +78,7 @@ public class IceManipulationAbility extends Ability {
 		}
 
 		com.powers.fx.PowerFx.beam(level, origin, end,
-				net.minecraft.core.particles.ColorParticleOption.create(
-						net.minecraft.core.particles.ParticleTypes.ENTITY_EFFECT, 0xFF81D4FA), 28);
+				com.powers.fx.PowerFx.dust(0x81D4FA, 1.05F), 28);
 		com.powers.fx.PowerFx.sound(level, origin, SoundEvents.PLAYER_HURT_FREEZE, 1.2f, 0.9f);
 		return true;
 	}

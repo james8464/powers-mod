@@ -23,13 +23,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
-import java.util.HashSet;
 import java.util.Set;
 
 /** Builds and animates the explorable memories inside both mental realms. */
 public final class RealmMindscapeManager {
-	private static final Set<ResourceKey<Level>> BUILT = new HashSet<>();
-
 	private RealmMindscapeManager() {
 	}
 
@@ -54,19 +51,21 @@ public final class RealmMindscapeManager {
 	}
 
 	private static void ensureLandmarks(ServerLevel level, RealmKind kind) {
-		if (BUILT.contains(level.dimension())) return;
+		RealmLandmarkSavedData data = level.getServer().overworld().getDataStorage()
+				.computeIfAbsent(RealmLandmarkSavedData.TYPE);
+		String dimension = level.dimension().identifier().toString();
+		Set<String> missing = Set.copyOf(data.missing(dimension,
+				RealmLayout.sites(kind).stream().map(MemorySite::id).toList()));
+		if (missing.isEmpty()) return;
 		int floorY = level.getMinY();
 		Block floor = kind == RealmKind.LIGHT ? PowersBlocks.PURE_LIGHT : PowersBlocks.DARKNESS;
 		Block obelisk = kind == RealmKind.LIGHT
 				? PowersBlocks.LIGHT_MEMORY_OBELISK : PowersBlocks.DARK_MEMORY_OBELISK;
 		Block accent = kind == RealmKind.LIGHT ? Blocks.GOLD_BLOCK : Blocks.CRYING_OBSIDIAN;
-		boolean allLoaded = true;
 		for (MemorySite site : RealmLayout.sites(kind)) {
+			if (!missing.contains(site.id())) continue;
 			BlockPos center = new BlockPos(site.x(), floorY + 1, site.z());
-			if (!LoadedChunks.contains(level, center)) {
-				allLoaded = false;
-				continue;
-			}
+			if (!LoadedChunks.contains(level, center)) continue;
 			for (int dx = -3; dx <= 3; dx++) {
 				for (int dz = -3; dz <= 3; dz++) {
 					int distance = dx * dx + dz * dz;
@@ -86,8 +85,8 @@ public final class RealmMindscapeManager {
 				Block markerBlock = kind == RealmKind.LIGHT ? Blocks.END_ROD : Blocks.SOUL_LANTERN;
 				if (level.getBlockState(marker).isAir()) level.setBlockAndUpdate(marker, markerBlock.defaultBlockState());
 			}
+			data.complete(dimension, site.id());
 		}
-		if (allLoaded) BUILT.add(level.dimension());
 	}
 
 	private static void enforceTether(ServerPlayer player, ServerLevel level, RealmKind kind) {
@@ -148,6 +147,6 @@ public final class RealmMindscapeManager {
 	}
 
 	public static void clearAll() {
-		BUILT.clear();
+		// SavedData owns landmark completion; no process-local construction cache remains.
 	}
 }

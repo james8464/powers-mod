@@ -5,10 +5,13 @@ import com.powers.fx.ShadowSwordFx;
 import com.powers.item.artifact.ArtifactActionCatalogue;
 import com.powers.item.artifact.ArtifactActionCategory;
 import com.powers.item.artifact.ArtifactActionDefinition;
+import com.powers.item.artifact.ArtifactActionSnapshot;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.artifact.ArtifactAuthorizationRules;
 import com.powers.item.artifact.ArtifactCooldownRules;
 import com.powers.item.artifact.ArtifactSelectionRules;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
 import com.powers.network.ShadowSwordPackets;
 import com.powers.network.PowersPackets;
 import com.powers.player.ArtifactSelectionState;
@@ -20,14 +23,8 @@ import com.powers.power.ActivationCooldowns;
 import com.powers.power.PowerEnergy;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
-import com.powers.power.artifact.AbyssalSingularityAbility;
 import com.powers.power.artifact.AlignedArtifactAbility;
-import com.powers.power.artifact.AnnihilationBeamAbility;
 import com.powers.power.artifact.NightfallDominionAbility;
-import com.powers.power.artifact.OblivionPulseAbility;
-import com.powers.power.artifact.SoulRequiemAbility;
-import com.powers.power.artifact.SpreadDarknessAbility;
-import com.powers.power.artifact.SummonDarknessAbility;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ParticleTypes;
@@ -92,24 +89,28 @@ public final class ArtifactWeaponManager {
 		return selected;
 	}
 
-	public static void activateSelected(ServerPlayer player, ArtifactAlignment alignment) {
+	public static AbilityActivationService.Result activateSelected(ServerPlayer player,
+			ArtifactAlignment alignment) {
 		if (!holds(player, alignment) || !authorized(player, alignment)) {
 			refuse(player, alignment);
-			return;
+			return AbilityActivationService.Result.FAILED;
 		}
 		Action action = selected(player, alignment);
 		if (action == null || !ArtifactSelectionRules.maySelect(
-				action.definition(), alignment, rank(player, alignment))) return;
+				action.definition(), alignment, rank(player, alignment))) {
+			return AbilityActivationService.Result.FAILED;
+		}
 		if (action.ability().requiresInput()) {
 			ShadowSwordPackets.openTeleport(player, alignment);
-			return;
+			return AbilityActivationService.Result.REQUIRES_INPUT;
 		}
-		int cooldown = ArtifactCooldownRules.cooldownTicks(alignment, rank(player, alignment),
-				action.ability().cooldownTicksFor(player, PlayerPowers.get(player)));
-		if (AbilityActivationService.activateWithCooldown(player, action.ability(),
-				toggleKey(action), cooldown) == AbilityActivationService.Result.ACTIVATED) {
+		int cooldown = cooldown(player, alignment, action);
+		AbilityActivationService.Result result = AbilityActivationService.activateWithCooldown(
+				player, action.ability(), toggleKey(action), cooldown, CastSource.ARTIFACT);
+		if (result == AbilityActivationService.Result.ACTIVATED) {
 			castFx(player, alignment, action);
 		}
+		return result;
 	}
 
 	public static void openMenu(ServerPlayer player, ArtifactAlignment alignment) {
@@ -119,19 +120,23 @@ public final class ArtifactWeaponManager {
 		}
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		List<Action> menuActions = actions(alignment);
-		List<Integer> costs = menuActions.stream()
-				.map(action -> PowerEnergy.cost(player, action.ability())).toList();
-		List<Integer> maximums = menuActions.stream().map(action -> action.ability().isToggle()
-				? 0 : cooldown(player, alignment, action)).toList();
-		List<Integer> remaining = java.util.stream.IntStream.range(0, menuActions.size())
-				.mapToObj(index -> maximums.get(index) <= 0 ? 0 : Math.min(maximums.get(index),
-						ActivationCooldowns.remainingTicks(player, menuActions.get(index).ability())))
-				.toList();
-		List<Boolean> active = menuActions.stream().map(action -> action.ability().isToggle()
-				&& data.isToggleActive(toggleKey(action))).toList();
+		List<ArtifactActionSnapshot> snapshots = menuActions.stream().map(action -> {
+			int cost = CastScalingContext.withSource(CastSource.ARTIFACT,
+					() -> PowerEnergy.cost(player, action.ability()));
+			int maximum = action.ability().isToggle() ? 0 : cooldown(player, alignment, action);
+			int remaining = maximum <= 0 ? 0 : Math.min(maximum,
+					ActivationCooldowns.remainingTicks(player, action.ability()));
+			boolean active = action.ability().isToggle() && data.isToggleActive(toggleKey(action));
+			boolean locked = !ArtifactSelectionRules.maySelect(action.definition(), alignment,
+					rank(player, alignment));
+			int variant = action.ability().id().equals("elemental_blast") ? data.getPhase()
+					: action.ability().id().equals("size_shift") ? data.getSizeMorphOption() : -1;
+			return new ArtifactActionSnapshot(action.definition().key(), action.definition().category(),
+					cost, remaining, maximum, active, locked, variant);
+		}).toList();
 		ShadowSwordPackets.openMenu(player, alignment, ArtifactSelectionState.selected(player, alignment),
 				rank(player, alignment), data.getPhase(), data.getSizeMorphOption(), data.energy(),
-				costs, remaining, maximums, active);
+				ArtifactSelectionState.favourites(player, alignment), snapshots);
 	}
 
 	public static boolean authorized(ServerPlayer player, ArtifactAlignment alignment) {
@@ -162,8 +167,9 @@ public final class ArtifactWeaponManager {
 	}
 
 	public static int cooldown(ServerPlayer player, ArtifactAlignment alignment, Action action) {
-		return ArtifactCooldownRules.cooldownTicks(alignment, rank(player, alignment),
-				action.ability().cooldownTicksFor(player, PlayerPowers.get(player)));
+		return CastScalingContext.withSource(CastSource.ARTIFACT,
+				() -> ArtifactCooldownRules.cooldownTicks(alignment, rank(player, alignment),
+						action.ability().cooldownTicksFor(player, PlayerPowers.get(player))));
 	}
 
 	public static void castFx(ServerPlayer player, ArtifactAlignment alignment, Action action) {
@@ -201,12 +207,6 @@ public final class ArtifactWeaponManager {
 			return ability;
 		}
 		return switch (definition.abilityId()) {
-			case "summon_darkness" -> new SummonDarknessAbility();
-			case "spread_darkness" -> new SpreadDarknessAbility();
-			case "abyssal_singularity" -> new AbyssalSingularityAbility();
-			case "oblivion_pulse" -> new OblivionPulseAbility();
-			case "annihilation_beam" -> new AnnihilationBeamAbility();
-			case "soul_requiem" -> new SoulRequiemAbility();
 			case "nightfall_dominion" -> new NightfallDominionAbility();
 			default -> new AlignedArtifactAbility(definition);
 		};

@@ -9,6 +9,7 @@ import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.network.PowersPackets;
 import com.powers.magic.runtime.PreparedMagicCast;
 import com.powers.magic.runtime.ServerMagicCasts;
+import com.powers.magic.runtime.CastSource;
 import com.powers.util.PowerMessages;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -142,7 +143,7 @@ public final class CrystalPowerRegistry {
 				? convergence.selectedActionId(player) : ability.id().getPath();
 		Ability energyAbility = ability instanceof ModeCrystalAbility convergence
 				? convergence.selectedAbility(player) : ability;
-		PreparedMagicCast magic = ServerMagicCasts.prepare(player, actionId);
+		PreparedMagicCast magic = ServerMagicCasts.prepare(player, actionId, CastSource.CRYSTAL);
 		if (!magic.allowed()) return false;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		// pay the energy up front, then give it back if the ability itself failed

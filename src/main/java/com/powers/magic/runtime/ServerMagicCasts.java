@@ -39,7 +39,7 @@ public final class ServerMagicCasts {
 	 * Resolves nearby interactions before callers spend energy or start a
 	 * cooldown. The supplied ID must come from a server registry, never a packet.
 	 */
-	public static PreparedMagicCast prepare(ServerPlayer player, String actionId) {
+	public static PreparedMagicCast prepare(ServerPlayer player, String actionId, CastSource source) {
 		MagicActionDefinition definition = MagicRuntime.catalogue().definition(new MagicActionId(actionId));
 		if (definition == null) {
 			throw new IllegalArgumentException("Unregistered server magic action: " + actionId);
@@ -51,7 +51,7 @@ public final class ServerMagicCasts {
 				InteractionContext.DEFAULT);
 		MagicRuntime runtime = MagicRuntime.global();
 		MagicCastPreview preview = runtime.previewCast(context);
-		PreparedMagicCast prepared = new PreparedMagicCast(context, preview);
+		PreparedMagicCast prepared = new PreparedMagicCast(context, preview, source);
 		if (!prepared.allowed()) {
 			runtime.emitBlockingReactions(preview,
 					event -> emitReaction((ServerLevel) player.level(), event));
@@ -72,7 +72,7 @@ public final class ServerMagicCasts {
 				PresenceAnchor.fixed(player.getX(), player.getY() + 1.0, player.getZ()),
 				player.level().getServer().getTickCount());
 		MagicPresenceId presenceId = runtime.commitCast(completed, prepared.adjustment());
-		emitCast((ServerLevel) player.level(), completed, presenceId, player);
+		emitCast((ServerLevel) player.level(), completed, presenceId, player, prepared.source());
 		return presenceId;
 	}
 
@@ -89,12 +89,14 @@ public final class ServerMagicCasts {
 	/** Executes gameplay while its resolved multipliers are visible to the scaling service. */
 	public static <T> T execute(PreparedMagicCast prepared, Supplier<T> operation) {
 		if (!prepared.allowed()) throw new IllegalStateException("Blocked magic cannot execute");
-		return CastScalingContext.with(prepared.adjustment(), operation);
+		return CastScalingContext.withSource(prepared.source(),
+				() -> CastScalingContext.with(prepared.adjustment(), operation));
 	}
 
 	private static void emitCast(ServerLevel level, MagicCastContext cast, MagicPresenceId presenceId,
-			ServerPlayer player) {
-		boolean ranked = cast.definition().origin() == MagicOrigin.INNATE;
+			ServerPlayer player, CastSource source) {
+		boolean ranked = cast.definition().origin() == MagicOrigin.INNATE
+				&& source.appliesPlayerRank(true);
 		var scaled = ranked
 				? PowerScalingService.forPlayer(player, cast.definition().id().value())
 				: PowerScalingService.unranked(cast.definition().id().value());

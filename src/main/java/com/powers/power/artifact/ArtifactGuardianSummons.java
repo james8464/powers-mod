@@ -122,4 +122,8 @@ public final class ArtifactGuardianSummons {
 		NORMAL_BY_OWNER.clear();
 		ELITE_BY_OWNER.clear();
 	}
+
+	public static int indexedGuardianCount() {
+		return indexedCount();
+	}
 }

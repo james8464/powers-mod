@@ -234,7 +234,8 @@ final class SpellEffects {
 				PlayerPowers.get(player).clearDimensionalAnchor();
 				SoulLinkAbility.clearLinksTouching(player.getUUID());
 			}
-			PowerFx.burst(level, ally.position().add(0, 1, 0), ParticleTypes.HAPPY_VILLAGER, 6, 0.4, 0.03);
+			PowerFx.burst(level, ally.position().add(0, 1, 0),
+					PowerFx.dust(0xD8FFF1, 0.9F), 6, 0.4, 0.0);
 		}
 		return true;
 	}

@@ -12,7 +12,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.IdentityHashMap;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -26,6 +28,8 @@ import java.util.UUID;
 public final class GlobalTimeStopManager {
 	private static final net.minecraft.resources.Identifier POWER_ID = PowersMod.id("time_freeze");
 	private static final Map<MinecraftServer, Stop> ACTIVE = new IdentityHashMap<>();
+	private static final Set<MinecraftServer> INTERNAL_CLOCK_WRITES =
+			Collections.newSetFromMap(new IdentityHashMap<>());
 
 	private GlobalTimeStopManager() {
 	}
@@ -40,7 +44,7 @@ public final class GlobalTimeStopManager {
 			return false;
 		}
 		ACTIVE.put(server, new Stop(owner.getUUID()));
-		server.tickRateManager().setFrozen(true);
+		setFrozenOwned(server, true);
 		for (ServerPlayer observer : server.getPlayerList().getPlayers()) {
 			PowerMessages.overlay(observer, Component.translatable(
 					"ability.powers.time_freeze.global_begin", owner.getDisplayName()));
@@ -65,7 +69,7 @@ public final class GlobalTimeStopManager {
 				PlayerPowers.get(owner).getActiveToggles(), POWER_ID);
 		boolean dampened = online && AmethystDampening.isDampened(owner);
 		if (GlobalTimeStopRules.shouldRelease(online, alive, toggleActive, dampened,
-				server.tickRateManager().isFrozen())) {
+				server.tickRateManager().isFrozen(), stop.externallyMutated)) {
 			release(server, stop.owner(), true);
 			return;
 		}
@@ -107,11 +111,22 @@ public final class GlobalTimeStopManager {
 		if (stop != null) release(server, stop.owner(), false);
 	}
 
+	/** Called by the tick-manager mixin whenever code outside this manager writes freeze state. */
+	public static void observeClockWrite(MinecraftServer server) {
+		Stop stop = ACTIVE.get(server);
+		if (stop != null && !INTERNAL_CLOCK_WRITES.contains(server)) {
+			stop.externallyMutated = true;
+		}
+	}
+
 	private static void release(MinecraftServer server, UUID expectedOwner, boolean announce) {
 		Stop stop = ACTIVE.get(server);
 		if (stop == null || !stop.owner().equals(expectedOwner)) return;
 		ACTIVE.remove(server);
-		if (server.tickRateManager().isFrozen()) server.tickRateManager().setFrozen(false);
+		if (GlobalTimeStopRules.shouldUnfreezeOnRelease(
+				server.tickRateManager().isFrozen(), stop.externallyMutated)) {
+			setFrozenOwned(server, false);
+		}
 		ServerPlayer owner = server.getPlayerList().getPlayer(expectedOwner);
 		if (owner != null) {
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(owner);
@@ -129,6 +144,25 @@ public final class GlobalTimeStopManager {
 		}
 	}
 
-	private record Stop(UUID owner) {
+	private static void setFrozenOwned(MinecraftServer server, boolean frozen) {
+		INTERNAL_CLOCK_WRITES.add(server);
+		try {
+			server.tickRateManager().setFrozen(frozen);
+		} finally {
+			INTERNAL_CLOCK_WRITES.remove(server);
+		}
+	}
+
+	private static final class Stop {
+		private final UUID owner;
+		private boolean externallyMutated;
+
+		private Stop(UUID owner) {
+			this.owner = owner;
+		}
+
+		private UUID owner() {
+			return owner;
+		}
 	}
 }

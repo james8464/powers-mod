@@ -19,6 +19,8 @@ REQUIRED_UI_TEXTURES = {
     "textures/gui/power_slot_active.png": (30, 30),
     "textures/gui/teleport_panel.png": (256, 192),
     "textures/gui/locator_panel.png": (240, 224),
+    "textures/gui/rank_maze/light_panel.png": (512, 256),
+    "textures/gui/rank_maze/dark_panel.png": (512, 256),
     "textures/gui/advancements/backgrounds/radiant_path.png": (256, 256),
     "textures/gui/advancements/backgrounds/shadow_path.png": (256, 256),
     "textures/mob_effect/exhaustion.png": (18, 18),

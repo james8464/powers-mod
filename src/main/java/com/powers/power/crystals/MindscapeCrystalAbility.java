@@ -15,8 +15,7 @@ import com.powers.power.travel.TravelKind;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ColorParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -24,6 +23,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 
@@ -60,7 +60,11 @@ abstract class MindscapeCrystalAbility extends Ability {
 			return BodyProxyManager.returnToBody(caster);
 		}
 		ServerLevel destinationLevel = ((ServerLevel) caster.level()).getServer().getLevel(destination);
-		if (destinationLevel == null) return false;
+		if (destinationLevel == null) {
+			PowerMessages.sendImportant(caster, "ability.powers.realm_unavailable", 3,
+					destination.identifier().toString());
+			return false;
+		}
 
 		ServerLevel level = (ServerLevel) caster.level();
 		Vec3 origin = caster.getEyePosition();
@@ -97,26 +101,39 @@ abstract class MindscapeCrystalAbility extends Ability {
 		SafeDestinationResolver.Result preflight = SafeDestinationResolver.validatePreload(
 				subject, destinationLevel, destinationPosition, TravelKind.CRYSTAL);
 		if (!preflight.allowed()) {
-			PowerMessages.send(caster, "ability.powers.no_room", 3);
+			PowerMessages.overlay(caster, Component.translatable(
+					"ability.powers.realm_route_blocked",
+					preflight.failure().name().toLowerCase(java.util.Locale.ROOT)));
 			return false;
 		}
 		double permittedSeparation = scaledRange(caster, BASE_REACH) + 4.0;
 		AsyncAbilityTransaction transaction = new AsyncAbilityTransaction(caster, data, this);
+		PowerMessages.overlay(caster, Component.translatable("ability.powers.realm_focusing",
+				destination.identifier().toString()));
 		return TravelChunkLoader.request(caster.getUUID(), destinationLevel, BlockPos.containing(destinationPosition),
 				() -> startJourney(caster, subject, sourceLevel, destinationLevel,
 						destinationPosition, permittedSeparation, transaction),
 				() -> {
 					transaction.fail();
-					PowerMessages.send(caster, "ability.powers.no_room", 3);
+					PowerMessages.overlay(caster, Component.translatable(
+							"ability.powers.realm_load_timeout"));
 				});
 	}
 
 	private void startJourney(ServerPlayer caster, ServerPlayer subject, ServerLevel sourceLevel,
-			ServerLevel destinationLevel, Vec3 destinationPosition, double permittedSeparation,
+			ServerLevel destinationLevel, Vec3 requestedPosition, double permittedSeparation,
 			AsyncAbilityTransaction transaction) {
+		Vec3 destinationPosition = findArrival(subject, destinationLevel, requestedPosition);
+		if (destinationPosition == null) {
+			transaction.fail();
+			PowerMessages.send(caster, "ability.powers.no_room", 3);
+			return;
+		}
 		if (!stillEligible(caster, subject, sourceLevel, destinationLevel, destinationPosition,
 				permittedSeparation)) {
 			transaction.fail();
+			PowerMessages.overlay(caster, Component.translatable(
+					"ability.powers.realm_journey_interrupted"));
 			return;
 		}
 		Vec3 sourcePosition = subject.position();
@@ -132,10 +149,14 @@ abstract class MindscapeCrystalAbility extends Ability {
 			if (!stillEligible(caster, subject, sourceLevel, destinationLevel, destinationPosition,
 					permittedSeparation)) {
 				transaction.fail();
+				PowerMessages.overlay(caster, Component.translatable(
+						"ability.powers.realm_journey_interrupted"));
 				return;
 			}
 			if (!BodyProxyManager.start(subject, BodyProxyKind.REALM)) {
 				transaction.fail();
+				PowerMessages.overlay(caster, Component.translatable(
+						"ability.powers.realm_body_occupied"));
 				return;
 			}
 			subject.teleport(new TeleportTransition(destinationLevel, destinationPosition, Vec3.ZERO,
@@ -163,7 +184,21 @@ abstract class MindscapeCrystalAbility extends Ability {
 		return SafeDestinationResolver.validate(subject, level, position, TravelKind.CRYSTAL).allowed();
 	}
 
-	private ColorParticleOption particle() {
-		return ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFF000000 | color);
+	private static Vec3 findArrival(ServerPlayer subject, ServerLevel level, Vec3 requested) {
+		BlockPos origin = BlockPos.containing(requested);
+		for (MindscapeArrivalRules.Offset offset : MindscapeArrivalRules.horizontalOffsets()) {
+			int x = origin.getX() + offset.x();
+			int z = origin.getZ() + offset.z();
+			int surface = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+			for (int dy = 0; dy <= 3; dy++) {
+				Vec3 candidate = Vec3.atBottomCenterOf(new BlockPos(x, surface + dy, z));
+				if (destinationAllowed(subject, level, candidate)) return candidate;
+			}
+		}
+		return null;
+	}
+
+	private DustParticleOptions particle() {
+		return PowerFx.dust(color, 1.2F);
 	}
 }

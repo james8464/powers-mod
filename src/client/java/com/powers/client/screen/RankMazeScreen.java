@@ -27,10 +27,10 @@ public final class RankMazeScreen extends Screen {
 	private static final int PANEL_HEIGHT = 232;
 	private static final int GRAPH_WIDTH = 280;
 	private static final int GRAPH_HEIGHT = 166;
-	private static final Identifier LIGHT_BACKGROUND =
-			PowersMod.id("textures/gui/advancements/radiant_path.png");
-	private static final Identifier DARK_BACKGROUND =
-			PowersMod.id("textures/gui/advancements/shadow_path.png");
+	private static final Identifier LIGHT_PANEL =
+			PowersMod.id("textures/gui/rank_maze/light_panel.png");
+	private static final Identifier DARK_PANEL =
+			PowersMod.id("textures/gui/rank_maze/dark_panel.png");
 
 	private RankGraph graph;
 	private RankMazeLayout layout;
@@ -93,18 +93,11 @@ public final class RankMazeScreen extends Screen {
 
 	@Override
 	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-		super.extractBackground(graphics, mouseX, mouseY, delta);
 		int left = panelX();
 		int top = panelY();
-		Identifier background = ClientPowerState.darkness() ? DARK_BACKGROUND : LIGHT_BACKGROUND;
-		graphics.blit(RenderPipelines.GUI_TEXTURED, background, left, top, 0, 0,
-				256, PANEL_HEIGHT, 256, 256);
-		graphics.blit(RenderPipelines.GUI_TEXTURED, background, left + 256, top, 0, 0,
-				PANEL_WIDTH - 256, PANEL_HEIGHT, PANEL_WIDTH - 256, PANEL_HEIGHT, 256, 256);
-		graphics.fill(left, top, left + PANEL_WIDTH, top + PANEL_HEIGHT,
-				ClientPowerState.darkness() ? 0xA30B0712 : 0x9A111723);
-		graphics.outline(left, top, PANEL_WIDTH, PANEL_HEIGHT,
-				ClientPowerState.darkness() ? 0xFF9854D6 : 0xFFFFD879);
+		Identifier panel = ClientPowerState.darkness() ? DARK_PANEL : LIGHT_PANEL;
+		graphics.blit(RenderPipelines.GUI_TEXTURED, panel, left, top, 0, 0,
+				PANEL_WIDTH, PANEL_HEIGHT, 512, 256, 512, 256);
 		drawEdges(graphics, left + 12, top + 26);
 	}
 

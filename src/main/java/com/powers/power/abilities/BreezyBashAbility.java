@@ -3,6 +3,9 @@ package com.powers.power.abilities;
 import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.BreezyBashFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -71,11 +74,13 @@ public final class BreezyBashAbility extends Ability {
 		double radius = Math.min(16.0, scaledRange(player, BASE_RADIUS));
 		double force = Math.min(1.4, scaling(player).potencyMultiplier());
 		Vec3 center = player.position();
-		TempestRite rite = new TempestRite(owner, level.dimension(), center, now,
+		TempestRite rite = new TempestRite(owner, level.dimension(),
+				CastScalingContext.currentSource(), center, now,
 				now + RESOLUTION_DELAY_TICKS, radius,
 				BreezyBashRules.targetLimit(empowered, ancient), empowered, ancient,
 				BASE_OUTWARD_STRENGTH * force, BASE_VERTICAL_STRENGTH * force,
-				empowered ? EMPOWERED_SLAM_STRENGTH * force : BASE_SLAM_STRENGTH * force);
+				empowered ? EMPOWERED_SLAM_STRENGTH * force : BASE_SLAM_STRENGTH * force,
+				CombatTerrainImpact.tier(player, CastScalingContext.currentSource()));
 
 		captureInitialTargets(level, player, rite);
 		if (rite.captured.isEmpty()) {
@@ -246,6 +251,7 @@ public final class BreezyBashAbility extends Ability {
 			releaseClaim(rite, targetId);
 		}
 		rite.captured.clear();
+		CombatTerrainImpact.crater(level, owner, rite.center, rite.terrainTier);
 		if (rite.empoweredImpact) BreezyBashFx.pressure(level, rite.center, rite.radius);
 		BreezyBashFx.close(level, rite.center, rite.radius, false);
 	}
@@ -301,7 +307,8 @@ public final class BreezyBashAbility extends Ability {
 		return BreezyBashRules.ownerValid(owner != null, sameDimension,
 				owner != null && owner.isAlive(), owner != null && AmethystDampening.isDampened(owner),
 				owner != null && EntityFreezeController.isFrozen(owner),
-				owner != null && ownsPower(owner));
+				owner != null && ServerCastLifecycle.mayContinue(
+						owner, rite.castSource, ownsPower(owner)));
 	}
 
 	private static boolean ownsPower(ServerPlayer player) {
@@ -370,6 +377,7 @@ public final class BreezyBashAbility extends Ability {
 	private static final class TempestRite {
 		private final UUID owner;
 		private final ResourceKey<Level> dimension;
+		private final CastSource castSource;
 		private final Vec3 center;
 		private final long startedAt;
 		private final long resolvesAt;
@@ -380,15 +388,17 @@ public final class BreezyBashAbility extends Ability {
 		private final double outwardStrength;
 		private final double verticalStrength;
 		private final double slamStrength;
+		private final int terrainTier;
 		private final Set<UUID> captured = new LinkedHashSet<>();
 		private final Set<UUID> curvedProjectiles = new LinkedHashSet<>();
 
-		private TempestRite(UUID owner, ResourceKey<Level> dimension, Vec3 center,
+		private TempestRite(UUID owner, ResourceKey<Level> dimension, CastSource castSource, Vec3 center,
 				long startedAt, long resolvesAt, double radius, int targetLimit,
 				boolean empoweredImpact, boolean ancientMastery, double outwardStrength,
-				double verticalStrength, double slamStrength) {
+				double verticalStrength, double slamStrength, int terrainTier) {
 			this.owner = owner;
 			this.dimension = dimension;
+			this.castSource = castSource;
 			this.center = center;
 			this.startedAt = startedAt;
 			this.resolvesAt = resolvesAt;
@@ -399,6 +409,7 @@ public final class BreezyBashAbility extends Ability {
 			this.outwardStrength = outwardStrength;
 			this.verticalStrength = verticalStrength;
 			this.slamStrength = slamStrength;
+			this.terrainTier = terrainTier;
 		}
 	}
 }

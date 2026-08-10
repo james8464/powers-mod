@@ -59,7 +59,19 @@ public final class ActiveMagicIndex {
 		Objects.requireNonNull(id, "id");
 		MagicPresence current = presences.get(id);
 		if (current == null) return false;
-		MagicPresence moved = current.moved(dimension, anchor);
+		return replace(current.moved(dimension, anchor));
+	}
+
+	/** Reanchors a residue to a physical object and adopts its authoritative expiry. */
+	public boolean rebind(MagicPresenceId id, String dimension, PresenceAnchor anchor, long expiresAt) {
+		Objects.requireNonNull(id, "id");
+		MagicPresence current = presences.get(id);
+		if (current == null) return false;
+		return replace(current.rebound(dimension, anchor, expiresAt));
+	}
+
+	private boolean replace(MagicPresence moved) {
+		MagicPresenceId id = moved.id();
 		removeCellMembership(id);
 		presences.put(id, moved);
 		Set<CellKey> occupied = cellsFor(moved.dimension(), moved.anchor(), moved.radius());

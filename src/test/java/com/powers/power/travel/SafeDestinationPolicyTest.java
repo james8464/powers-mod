@@ -61,13 +61,19 @@ class SafeDestinationPolicyTest {
 	}
 
 	@Test
-	void detachedBodyReturnsAndAdminRecoveryCannotBeTrappedByRealmGates() {
-		for (TravelKind kind : new TravelKind[] {TravelKind.RETURN, TravelKind.ADMIN}) {
-			assertEquals(DestinationFailure.NONE, SafeDestinationResolver.realmFailure(
-					"powers:dark_realm", "minecraft:overworld", kind, false, 0, 0));
-			assertEquals(DestinationFailure.NONE, SafeDestinationResolver.realmFailure(
-					"powers:light_realm", "minecraft:overworld", kind, false, 0, 0));
-		}
+	void playerReturnObeysRealmGatesButAdministrativeRecoveryCannotBeTrapped() {
+		assertEquals(DestinationFailure.REALM_RESTRICTED, SafeDestinationResolver.realmFailure(
+				"powers:dark_realm", "minecraft:overworld", TravelKind.PLAYER_RETURN,
+				false, 0, 0));
+		assertEquals(DestinationFailure.REALM_RESTRICTED, SafeDestinationResolver.realmFailure(
+				"powers:light_realm", "minecraft:overworld", TravelKind.PLAYER_RETURN,
+				false, 0, 0));
+		assertEquals(DestinationFailure.NONE, SafeDestinationResolver.realmFailure(
+				"powers:dark_realm", "minecraft:overworld", TravelKind.ADMIN_RECOVERY,
+				false, 0, 0));
+		assertEquals(DestinationFailure.NONE, SafeDestinationResolver.realmFailure(
+				"powers:light_realm", "minecraft:overworld", TravelKind.ADMIN_RECOVERY,
+				false, 0, 0));
 	}
 
 	@Test

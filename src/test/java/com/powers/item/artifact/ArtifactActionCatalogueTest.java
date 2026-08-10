@@ -25,15 +25,13 @@ class ArtifactActionCatalogueTest {
 	}
 
 	@Test
-	void darknessPreservesLegacyInvocationsAndAddsElevenAuthoredDominionPowers() {
-		Set<String> ids = ArtifactActionCatalogue.forAlignment(ArtifactAlignment.DARKNESS).stream()
+	void darknessExposesOnlyTheThreeCanonicalOriginals() {
+		Set<String> keys = ArtifactActionCatalogue.forAlignment(ArtifactAlignment.DARKNESS).stream()
 				.filter(action -> action.category() == ArtifactActionCategory.DOMINION)
-				.map(ArtifactActionDefinition::abilityId).collect(java.util.stream.Collectors.toSet());
-		assertTrue(ids.containsAll(Set.of("abyssal_singularity", "oblivion_pulse",
-				"annihilation_beam", "soul_requiem", "nightfall_dominion")));
-		assertTrue(ids.containsAll(Set.of("call_hollowed", "blight_ground", "umbral_step",
-				"night_chain", "eclipse_wave", "abyss_gate", "devour_light", "black_decree",
-				"event_horizon", "deathless_night", "legion_eclipse")));
+				.map(ArtifactActionDefinition::key).collect(java.util.stream.Collectors.toSet());
+
+		assertEquals(Set.of("unique/call_hollowed", "unique/blight_ground",
+				"unique/nightfall_dominion"), keys);
 	}
 
 	@Test

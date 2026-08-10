@@ -35,4 +35,10 @@ class DarknessQuestRulesTest {
 
 		assertEquals(2, DarknessQuestRules.highestContiguousLevel(0, deeds));
 	}
+
+	@Test
+	void completionRefreshUsesTheLevelCapturedBeforeAwardsMutatePlayerState() {
+		assertTrue(DarknessQuestRules.progressed(4, 5));
+		assertFalse(DarknessQuestRules.progressed(5, 5));
+	}
 }

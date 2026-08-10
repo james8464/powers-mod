@@ -1,0 +1,7 @@
+{
+  "title": "Magical Energy",
+  "keywords": ["energy bar", "energy symbols", "darkness energy", "amethyst poisoned", "runes"],
+  "answer": "Energy is shown as ten vanilla-style vessels directly above the hunger bar. Empty, Darkness-aligned and amethyst-poisoned states use distinct readable fills. Innate powers spend normal energy; Darkness artifacts can draw from darkness energy. Runes restore different fixed amounts, while alignment sources and equipped artifacts can alter regeneration without hiding the actual cost.",
+  "sources": ["EnergyHudRenderer", "PowerEnergy", "ArtifactEnergyRules"],
+  "reveal_rank": 0
+}

@@ -7,8 +7,10 @@ import com.powers.client.screen.PowerSelectionScreen;
 import com.powers.client.screen.TeleportInputScreen;
 import com.powers.client.screen.RankMazeScreen;
 import com.powers.client.screen.ShadowSwordScreen;
+import com.powers.client.screen.KnowledgeBookScreen;
 import com.powers.client.fx.ClientMagicFx;
 import com.powers.client.fx.ClientBeamFx;
+import com.powers.client.fx.ClientCelestialRuinFx;
 import com.powers.client.body.ClientBodySnapshots;
 import com.powers.client.fx.particle.ArcaneParticle;
 import com.powers.PowersParticles;
@@ -19,6 +21,8 @@ import com.powers.client.screen.ArcaneCrucibleScreen;
 import com.powers.network.PowerStatePayload;
 import com.powers.network.PowersPackets;
 import com.powers.network.MagicFxPackets;
+import com.powers.network.KnowledgePackets;
+import com.powers.network.CelestialRuinPackets;
 import com.powers.network.ShadowSwordPackets;
 import com.powers.network.BodyProxyPackets;
 import com.powers.network.CompanionPackets;
@@ -93,17 +97,26 @@ public class PowersClient implements ClientModInitializer {
 				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
 						new ShadowSwordScreen(payload.alignment(), payload.selectedKey(), payload.rank(),
 								payload.elementalPhase(), payload.sizeMorphOption(), payload.energy(),
-								payload.costs(), payload.cooldowns(), payload.cooldownMaximums(),
-								payload.activeToggles()))));
+								payload.favourites(),
+								payload.actions()))));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenTeleportPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
 						TeleportInputScreen.artifact(payload.alignment()))));
+		ClientPlayNetworking.registerGlobalReceiver(KnowledgePackets.OpenPayload.TYPE,
+				(payload, context) -> context.client().execute(() ->
+						Minecraft.getInstance().gui.setScreen(new KnowledgeBookScreen())));
+		ClientPlayNetworking.registerGlobalReceiver(KnowledgePackets.AnswerPayload.TYPE,
+				(payload, context) -> context.client().execute(() -> KnowledgeBookScreen.accept(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(CelestialRuinPackets.Payload.TYPE,
+				(payload, context) -> context.client().execute(() -> ClientCelestialRuinFx.handle(payload)));
 		// clear the cached state when you leave the server so the hud doesn't carry over old powers
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			ClientPowerState.reset();
 			ClientMagicFx.reset();
 			ClientBodySnapshots.clear();
 			PrivateCompanionClient.clear();
+			KnowledgeBookScreen.reset();
+			ClientCelestialRuinFx.reset();
 		});
 
 		registerParticles();
@@ -129,6 +142,9 @@ public class PowersClient implements ClientModInitializer {
 				energyHud,
 				PowersMod.id("power_hud"),
 				PowersClient::renderHud);
+		HudElementRegistry.attachElementAfter(
+				PowersMod.id("power_hud"), PowersMod.id("celestial_ruin_flash"),
+				(graphics, tickCounter) -> ClientCelestialRuinFx.renderFlash(graphics));
 
 		ClientTickEvents.END_CLIENT_TICK.register(PowersClient::tick);
 	}
@@ -148,6 +164,7 @@ public class PowersClient implements ClientModInitializer {
 
 	private static void tick(Minecraft client) {
 		ClientMagicFx.tick();
+		ClientCelestialRuinFx.tick();
 		ClientPowerState.tickCooldowns();
 		PrivateCompanionClient.tick();
 		// the marking window for a player teleport counts down here and closes itself

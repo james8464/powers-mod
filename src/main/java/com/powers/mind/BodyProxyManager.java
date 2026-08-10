@@ -88,7 +88,8 @@ public final class BodyProxyManager {
 				player.gameMode().getName(), kind.serializedName());
 		data.setMindBody(state);
 		ChunkPos bodyChunk = ChunkPos.containing(player.blockPosition());
-		level.getChunkSource().addTicketWithRadius(BODY_TICKET, bodyChunk, 1);
+		level.getChunkSource().addTicketWithRadius(BODY_TICKET, bodyChunk,
+				BodyProxyTicketRules.radius());
 		BodySnapshot snapshot = BodySnapshot.capture(player);
 		Active active = new Active(player.getUUID(), body, player.position(), level, bodyChunk, snapshot);
 		BY_OWNER.put(player.getUUID(), active);
@@ -186,7 +187,8 @@ public final class BodyProxyManager {
 			BY_BODY.remove(active.body().getUUID());
 			BodyProxyPackets.remove(active.body());
 			active.body().discard();
-			active.level().getChunkSource().removeTicketWithRadius(BODY_TICKET, active.chunk(), 1);
+			active.level().getChunkSource().removeTicketWithRadius(BODY_TICKET, active.chunk(),
+					BodyProxyTicketRules.radius());
 		}
 		PlayerPowers.get(player).setMindBody(null);
 	}
@@ -225,12 +227,18 @@ public final class BodyProxyManager {
 		BY_BODY.clear();
 	}
 
+	/** Number of vulnerable mind-body anchors and their one-chunk tickets. */
+	public static int activeProxyCount() {
+		return BY_OWNER.size();
+	}
+
 	private static void finishStale(Active active) {
 		if (!BY_OWNER.remove(active.ownerId(), active)) return;
 		BY_BODY.remove(active.body().getUUID());
 		BodyProxyPackets.remove(active.body());
 		active.body().discard();
-		active.level().getChunkSource().removeTicketWithRadius(BODY_TICKET, active.chunk(), 1);
+		active.level().getChunkSource().removeTicketWithRadius(BODY_TICKET, active.chunk(),
+				BodyProxyTicketRules.radius());
 	}
 
 	private static Vec3 findReturnSpot(ServerPlayer player, ServerLevel target, Vec3 requested) {
@@ -239,7 +247,8 @@ public final class BodyProxyManager {
 				for (int dx = -radius; dx <= radius; dx++) {
 					for (int dz = -radius; dz <= radius; dz++) {
 						Vec3 candidate = requested.add(dx, dy, dz);
-						if (SafeDestinationResolver.validate(player, target, candidate, TravelKind.RETURN).allowed()) {
+						if (SafeDestinationResolver.validate(player, target, candidate,
+								TravelKind.PLAYER_RETURN).allowed()) {
 							return candidate;
 						}
 					}

@@ -3,6 +3,8 @@ package com.powers.power;
 import com.powers.player.PlayerPowers;
 import com.powers.progression.PowerScalingService;
 import com.powers.progression.ScaledMagicValues;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.MagicPresenceId;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -133,7 +135,8 @@ public abstract class Ability {
 	 * defaulting to the fixed cooldown unless a stateful ability shortens it
 	 */
 	public int cooldownTicksFor(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		return rankScaling ? PowerScalingService.cooldown(player, id.getPath(), cooldownTicks)
+		return CastScalingContext.currentSource().appliesPlayerRank(rankScaling)
+				? PowerScalingService.cooldown(player, id.getPath(), cooldownTicks)
 				: cooldownTicks;
 	}
 
@@ -151,9 +154,15 @@ public abstract class Ability {
 		return 0;
 	}
 
+	/** Reanchors the committed collision residue to a physical projectile, beam, or field. */
+	public void bindPhysicalPresence(ServerPlayer player, PlayerPowers.PlayerPowersData data,
+			MagicPresenceId presenceId) {
+	}
+
 	/** Returns the single canonical rank profile for this ability's action. */
 	protected final ScaledMagicValues scaling(ServerPlayer player) {
-		return rankScaling ? PowerScalingService.forPlayer(player, id.getPath())
+		return CastScalingContext.currentSource().appliesPlayerRank(rankScaling)
+				? PowerScalingService.forPlayer(player, id.getPath())
 				: PowerScalingService.unranked(id.getPath());
 	}
 

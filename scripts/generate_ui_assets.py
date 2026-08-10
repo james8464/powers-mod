@@ -46,35 +46,48 @@ def line_rune(draw: ImageDraw.ImageDraw, center: tuple[int, int], radius: int,
 
 
 def energy_symbols() -> Image.Image:
-    """Create empty, half and full 9px symbols for each energy state."""
+    """Create vanilla-scale empty, half and full sigils for each energy state."""
     image = Image.new("RGBA", (27, 45), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
     palettes = [
-        ((31, 39, 45, 255), (80, 198, 222, 255), (184, 248, 255, 255)),
-        ((53, 29, 31, 255), (151, 45, 45, 255), (255, 111, 87, 255)),
-        ((47, 29, 57, 255), (148, 75, 196, 255), (232, 186, 255, 255)),
-        ((24, 19, 34, 255), (92, 54, 145, 255), (183, 105, 235, 255)),
-        ((35, 48, 59, 255), (113, 181, 212, 255), (220, 249, 255, 255)),
+        ((58, 37, 23, 255), (233, 148, 53, 255), (255, 240, 166, 255)),
+        ((37, 37, 37, 255), (85, 85, 85, 255), (138, 138, 138, 255)),
+        ((55, 32, 68, 255), (164, 95, 194, 255), (240, 199, 255, 255)),
+        ((18, 8, 26, 255), (111, 42, 168, 255), (213, 140, 255, 255)),
+        ((24, 49, 66, 255), (87, 185, 215, 255), (219, 251, 255, 255)),
     ]
+    silhouette = ((3, 0), (5, 0), (6, 1), (7, 2), (7, 5), (6, 6),
+                  (5, 8), (3, 8), (2, 7), (1, 6), (1, 3), (2, 2))
+    interior = ((3, 2), (4, 1), (5, 2), (6, 3), (6, 5), (5, 6),
+                (4, 7), (3, 6), (2, 5), (2, 3))
     for row, (container, fill, shine) in enumerate(palettes):
         y = row * 9
         for column in range(3):
             x = column * 9
-            # A one-pixel, vanilla-like vessel stays readable beside food icons.
-            diamond(draw, (x + 4, y + 4), 4, (8, 10, 13, 220), container)
-            diamond(draw, (x + 4, y + 4), 2, (13, 16, 21, 240))
-            if column == 1:
-                draw.polygon(((x + 4, y + 1), (x + 4, y + 7),
-                              (x + 1, y + 4)), fill=fill)
-                draw.point((x + 3, y + 3), fill=shine)
-            elif column == 2:
-                diamond(draw, (x + 4, y + 4), 3, fill)
+            draw.polygon([(x + px, y + py) for px, py in silhouette],
+                         fill=(8, 10, 13, 238))
+            draw.line([(x + px, y + py) for px, py in silhouette + (silhouette[0],)],
+                      fill=container, width=1)
+            if column > 0:
+                chosen = interior if column == 2 else tuple(
+                    (px, py) for px, py in interior if px <= 4)
+                for px, py in chosen:
+                    draw.point((x + px, y + py), fill=fill)
                 draw.point((x + 3, y + 2), fill=shine)
-        if row in (1, 2):
-            # Empty and amethyst-poisoned vessels are visibly fractured.
-            for column in range(3):
-                x = column * 9
-                draw.line((x + 5, y, x + 3, y + 4, x + 6, y + 8), fill=shine)
+                if column == 2:
+                    draw.point((x + 4, y + 3), fill=shine)
+            if row == 1:
+                draw.line((x + 5, y + 1, x + 3, y + 4, x + 6, y + 7),
+                          fill=shine)
+            elif row == 2:
+                draw.line((x + 6, y + 1, x + 3, y + 4, x + 5, y + 7),
+                          fill=shine)
+            elif row == 3:
+                draw.point((x + 2, y + 4), fill=shine)
+                draw.point((x + 6, y + 4), fill=shine)
+            elif row == 4:
+                draw.point((x + 4, y + 1), fill=shine)
+                draw.point((x + 4, y + 7), fill=shine)
     return image
 
 

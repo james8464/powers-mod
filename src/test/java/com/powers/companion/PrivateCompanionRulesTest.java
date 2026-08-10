@@ -12,11 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class PrivateCompanionRulesTest {
 	@Test
 	void eligibilityRequiresEveryShadowCondition() {
-		assertTrue(PrivateCompanionRules.eligible(true, true, true, false));
-		assertFalse(PrivateCompanionRules.eligible(false, true, true, false));
-		assertFalse(PrivateCompanionRules.eligible(true, false, true, false));
-		assertFalse(PrivateCompanionRules.eligible(true, true, false, false));
-		assertFalse(PrivateCompanionRules.eligible(true, true, true, true));
+		assertTrue(PrivateCompanionRules.eligible(true, true, true, false, true));
+		assertFalse(PrivateCompanionRules.eligible(true, true, true, false, false));
+		assertFalse(PrivateCompanionRules.eligible(false, true, true, false, true));
+		assertFalse(PrivateCompanionRules.eligible(true, false, true, false, true));
+		assertFalse(PrivateCompanionRules.eligible(true, true, false, false, true));
+		assertFalse(PrivateCompanionRules.eligible(true, true, true, true, true));
 	}
 
 	@Test

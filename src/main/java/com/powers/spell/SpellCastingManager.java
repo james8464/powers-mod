@@ -11,6 +11,7 @@ import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.magic.runtime.PreparedMagicCast;
 import com.powers.magic.runtime.ServerMagicCasts;
+import com.powers.magic.runtime.CastSource;
 import com.powers.progression.PowerScalingService;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
@@ -69,7 +70,7 @@ public final class SpellCastingManager {
 			failed(player, "spell.powers.no_target");
 			return;
 		}
-		PreparedMagicCast magic = ServerMagicCasts.prepare(player, spell.id());
+		PreparedMagicCast magic = ServerMagicCasts.prepare(player, spell.id(), CastSource.SPELL);
 		if (!magic.allowed()) return;
 		int energyCost = spellEnergyCost(spell);
 		if (!payAndCool(player, spell, energyCost)) return;
@@ -96,7 +97,7 @@ public final class SpellCastingManager {
 		if (grimoire == null) return false;
 		SpellDefinition spell = selectedSpell(player, grimoire);
 		if (spell.effect() != SpellEffect.SOUL_COMPASS || !commonChecks(player, spell, true)) return false;
-		PreparedMagicCast magic = ServerMagicCasts.prepare(player, spell.id());
+		PreparedMagicCast magic = ServerMagicCasts.prepare(player, spell.id(), CastSource.SPELL);
 		if (!magic.allowed()) return false;
 		int energyCost = spellEnergyCost(spell);
 		if (!payAndCool(player, spell, energyCost)) return false;
@@ -183,7 +184,8 @@ public final class SpellCastingManager {
 		ServerLevel level = (ServerLevel) player.level();
 		double phase = level.getGameTime() * 0.08;
 		PowerFx.ring(level, player.position().add(0, 0.08, 0), 1.8, 0x7455A8, 14, phase);
-		PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.ENCHANT, 3, 0.45, 0.01);
+		PowerFx.burst(level, player.position().add(0, 1, 0),
+				PowerFx.dust(0xBCA7FF, 0.85F), 3, 0.45, 0.0);
 	}
 
 	private static void finish(ServerPlayer player, SpellDefinition spell, boolean amplified,

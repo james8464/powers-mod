@@ -21,6 +21,9 @@ class TravelChunkLoaderTest {
 		assertThrows(IllegalArgumentException.class, () -> new TravelChunkLoader.Budget(80, 120));
 		assertTrue(TravelChunkLoader.DEFAULT_BUDGET.ticketTicks()
 				>= TravelChunkLoader.DEFAULT_BUDGET.waitTicks() + TravelChunkLoader.MAX_FOLLOWUP_TICKS);
+		assertEquals(TravelChunkLoader.MAX_FOLLOWUP_TICKS,
+				TravelChunkLoader.releaseDelayTicks(TravelChunkLoader.Resolution.READY));
+		assertEquals(0, TravelChunkLoader.releaseDelayTicks(TravelChunkLoader.Resolution.TIMEOUT));
 	}
 
 	@Test

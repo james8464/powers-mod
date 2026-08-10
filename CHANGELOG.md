@@ -7,13 +7,18 @@
 - Added independent per-player rate limits for every serverbound gameplay packet lane.
 - Added radiant- and darkness-exclusive innate powers with compatible, duplicate-free allegiance migration; artifacts remain exempt.
 - Corrected Darkness Creature revenge AI so darkness-tagged attackers can never provoke friendly fire.
-- Expanded the Shadow Sword to seven artifact rites with Oblivion Pulse and Soul Requiem, and corrupted each reused power through a darkened echo of its original colour.
+- Reduced the Shadow Sword to exactly three unique rites—Call the Hollowed, Blight Ground, and Nightfall Dominion—while retaining corrupted innate/crystal routes and migrating retired selections safely.
 - Preserved the darkness-level-10 Shadow Sword apotheosis: artifact casts ignore existing cooldowns and create no new cooldown.
 - Made Celestial Ruin persist its countdown, dimension, caster, detonation phase, and exact destruction cursor through server restarts.
 - Added explicit catastrophic terrain and block-entity policy for Celestial Ruin while always purging Darkness and Pure Light.
 - Added real Fabric GameTests for live Darkness spreading and Darkness Creature faction targeting.
-- Expanded the canonical collision kernel to 73 actions and all 2,701 unordered pairs including same-action resonance.
+- Expanded the canonical collision kernel to 82 actions and all 3,403 unordered pairs including same-action resonance.
 - Kept the survival HUD energy well as ten separate vanilla-aligned symbols directly above the hunger bar.
+- Added a non-pausing eight-favourite combat wheel, searchable invocation library, persistent artifact loadouts, dedicated rank-maze panels, and an enhanced five-state energy atlas.
+- Hid every power-owned status-effect cloud and replaced potion-like power visuals with bounded, colour-authored dust.
+- Strengthened Celestial Ruin to a 2,048-block living shockwave with 50,000 peak damage, persistent warning beam, whiteout, tinnitus, crater, and distant fire scars.
+- Added shared integrity forcefields that absorb the complete overkill impact which breaks them.
+- Added schema-v2 migration so obsolete non-destructive terrain defaults do not silently survive upgrades; explicit v2 administrator opt-out remains supported.
 
 ## 1.0.0 - 2026-08-08
 

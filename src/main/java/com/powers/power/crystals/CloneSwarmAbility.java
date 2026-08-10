@@ -84,7 +84,8 @@ public class CloneSwarmAbility extends Ability {
 			return false;
 		}
 		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0xFF6D00, 30, 1.5);
-		PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.ENCHANTED_HIT, 26, 1.0, 0.3);
+		PowerFx.burst(level, player.position().add(0, 1, 0),
+				PowerFx.dust(0xFF8A3D, 1.1F), 22, 1.0, 0.0);
 		PowerFx.sound(level, player.position(), SoundEvents.EVOKER_CAST_SPELL, 1.0f, 1.2f);
 		return true;
 	}

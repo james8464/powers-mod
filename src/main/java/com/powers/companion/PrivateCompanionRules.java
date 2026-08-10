@@ -11,8 +11,8 @@ public final class PrivateCompanionRules {
 	}
 
 	public static boolean eligible(boolean darknessTagged, boolean carriesShadowSword,
-			boolean alive, boolean bodySession) {
-		return darknessTagged && carriesShadowSword && alive && !bodySession;
+			boolean alive, boolean bodySession, boolean explicitlyRequested) {
+		return darknessTagged && carriesShadowSword && alive && !bodySession && explicitlyRequested;
 	}
 
 	public static Vec3 followPoint(Vec3 owner, Vec3 look) {

@@ -104,12 +104,12 @@ def render(root: Path) -> str:
         rows.append(
             f"| `{relative}` | {lines} | `{digest}` | {first_javadoc(source)} | "
             f"{contract(source, path)} | {ownership(path)} | {authority(path)} | "
-            "Reviewed; no unresolved source-quality finding. |"
+            "Tracked exact version; semantic review requires tests and human/code-review evidence. |"
         )
 
     header = """# Java source audit
 
-This manifest pins the exact SHA-256 prefix and line count of every production Java source reviewed in the exhaustive quality pass. Regenerate it after an intentional source change; CI rejects missing, extra, stale, wildcard-import, debug, unfinished, undocumented, or oversized source units.
+This manifest pins the exact SHA-256 prefix and line count of every production Java source included in the quality pass. A matching digest proves file identity only; it is not evidence of semantic line-by-line review. Regenerate it after an intentional source change. CI separately rejects missing, extra, stale, wildcard-import, debug, unfinished, undocumented, or oversized source units, while behavior is supported by focused tests and explicit review evidence.
 
 | Source | Lines | SHA-256 | Responsibility | Public contract | Ownership / lifecycle | Thread / authority | Findings and resolution |
 |---|---:|---|---|---|---|---|---|

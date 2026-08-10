@@ -1,0 +1,7 @@
+{
+  "title": "Light and Dark Mindscapes",
+  "keywords": ["light realm", "dark realm", "mindscape", "frozen body", "realm exit", "memory obelisk"],
+  "answer": "The Light and Dark realms are mindscapes. Entry leaves a player-shaped proxy body behind; that body remains vulnerable, mirrors damage and can kill the traveller. Realm memories and obelisks are lore sites, not unexplained waypoints. Leaving the Dark mindscape requires Darkness alignment and Darkness level 5; leaving the Light mindscape requires normal or Darkness skill level 5. Ordinary crystals, body return and player commands cannot bypass these gates.",
+  "sources": ["BodyProxyManager", "RealmMindscapeManager", "SafeDestinationResolver"],
+  "reveal_rank": 0
+}

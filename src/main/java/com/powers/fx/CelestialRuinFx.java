@@ -1,6 +1,7 @@
 package com.powers.fx;
 
 import com.powers.PowersSounds;
+import com.powers.network.CelestialRuinPackets;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -14,6 +15,7 @@ public final class CelestialRuinFx {
 
 	/** Opens the irreversible warning circle. */
 	public static void begins(ServerLevel level, Vec3 center, int beamRadius) {
+		CelestialRuinPackets.broadcast(level, center, CelestialRuinPackets.Phase.BEGIN, 0);
 		PowerFx.rune(level, center.add(0.0, 0.08, 0.0), beamRadius, 0xFFF7D6, 96, 0.0);
 		PowerFx.rune(level, center.add(0.0, 0.12, 0.0), beamRadius * 0.62,
 				0x8DEBFF, 64, Math.PI / 8.0);
@@ -24,6 +26,9 @@ public final class CelestialRuinFx {
 
 	/** Draws a pulsing hundred-block-wide sky column without unbounded particles. */
 	public static void beam(ServerLevel level, Vec3 center, int beamRadius, int age) {
+		if (age % com.powers.spell.CelestialRuinPresentation.BEAM_REFRESH_TICKS == 0) {
+			CelestialRuinPackets.broadcast(level, center, CelestialRuinPackets.Phase.SUSTAIN, age);
+		}
 		double pulse = 0.92 + 0.08 * Math.sin(age * 0.08);
 		double radius = beamRadius * pulse;
 		double phase = age * 0.012;
@@ -47,6 +52,7 @@ public final class CelestialRuinFx {
 
 	/** Releases the lethal light and first expanding ruin wave. */
 	public static void detonates(ServerLevel level, Vec3 center, int blastRadius) {
+		CelestialRuinPackets.broadcast(level, center, CelestialRuinPackets.Phase.DETONATE, 0);
 		PowerFx.burst(level, center, ParticleTypes.EXPLOSION_EMITTER, 8, 3.0, 0.0);
 		PowerFx.burst(level, center.add(0.0, 4.0, 0.0),
 				ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFFFFF), 10, 12.0, 0.0);
@@ -57,6 +63,7 @@ public final class CelestialRuinFx {
 
 	/** Seals the final terrain batch with an inward celestial fracture. */
 	public static void finished(ServerLevel level, Vec3 center, int blastRadius) {
+		CelestialRuinPackets.broadcast(level, center, CelestialRuinPackets.Phase.END, 0);
 		PowerFx.rune(level, center, Math.min(blastRadius, 48), 0x8DEBFF, 96, Math.PI);
 		PowerFx.burst(level, center, ParticleTypes.REVERSE_PORTAL, 64, 8.0, 0.25);
 		PowerFx.sound(level, center, PowersSounds.RIFT_CLOSE, 4.0F, 0.4F);

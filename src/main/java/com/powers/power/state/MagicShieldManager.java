@@ -11,7 +11,7 @@ import java.util.UUID;
  */
 public final class MagicShieldManager {
 	private static final MagicShieldManager GLOBAL = new MagicShieldManager();
-	private static final Impact MISSED = new Impact(false, false, 0.0f, 0);
+	private static final Impact MISSED = new Impact(false, false, 0.0f, 0, false);
 	private final Map<UUID, ShieldState> shields = new HashMap<>();
 
 	/** Returns the server-thread-owned production shield manager. */
@@ -21,10 +21,15 @@ public final class MagicShieldManager {
 
 	/** Replaces an owner's old shield with finite integrity and an absolute expiry tick. */
 	public void raise(UUID owner, float integrity, long expiresAt) {
+		raise(owner, integrity, expiresAt, false);
+	}
+
+	/** Raises a shield carrying the original caster's authored reflection trait. */
+	public void raise(UUID owner, float integrity, long expiresAt, boolean reflective) {
 		if (owner == null || !Float.isFinite(integrity) || integrity <= 0 || expiresAt < 0) {
 			throw new IllegalArgumentException("Invalid magical shield");
 		}
-		shields.put(owner, new ShieldState(integrity, integrity, expiresAt));
+		shields.put(owner, new ShieldState(integrity, integrity, expiresAt, reflective));
 	}
 
 	/** Consumes integrity for one positive finite impact. */
@@ -35,8 +40,10 @@ public final class MagicShieldManager {
 		float remaining = Math.max(0.0f, state.integrity() - damage);
 		boolean shattered = remaining <= 0;
 		if (shattered) shields.remove(owner);
-		else shields.put(owner, new ShieldState(state.maximum(), remaining, state.expiresAt()));
-		return new Impact(true, shattered, remaining, fractureStage(state.maximum(), remaining));
+		else shields.put(owner, new ShieldState(state.maximum(), remaining,
+				state.expiresAt(), state.reflective()));
+		return new Impact(true, shattered, remaining,
+				fractureStage(state.maximum(), remaining), state.reflective());
 	}
 
 	/** Returns whether a non-expired shield remains. */
@@ -84,9 +91,10 @@ public final class MagicShieldManager {
 	}
 
 	/** Result of an attempted impact absorption. */
-	public record Impact(boolean blocked, boolean shattered, float integrity, int fractureStage) {
+	public record Impact(boolean blocked, boolean shattered, float integrity,
+			int fractureStage, boolean reflective) {
 	}
 
-	private record ShieldState(float maximum, float integrity, long expiresAt) {
+	private record ShieldState(float maximum, float integrity, long expiresAt, boolean reflective) {
 	}
 }

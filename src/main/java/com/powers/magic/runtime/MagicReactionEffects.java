@@ -121,7 +121,7 @@ final class MagicReactionEffects {
 			if (entity instanceof ServerPlayer player) PlayerPowers.get(player).clearDimensionalAnchor();
 			SoulLinkAbility.clearLinksTouching(entity.getUUID());
 			PowerFx.burst(level, entity.position().add(0, 1, 0),
-					ParticleTypes.HAPPY_VILLAGER, 5, 0.35, 0.03);
+					PowerFx.dust(0xD8FFF1, 0.85F), 5, 0.35, 0.0);
 		}
 	}
 
@@ -153,7 +153,8 @@ final class MagicReactionEffects {
 			if (!entity.isAlive()) continue;
 			entity.heal(1.0f);
 		}
-		PowerFx.burst(level, midpoint, ParticleTypes.HAPPY_VILLAGER, 18, radius * 0.35, 0.03);
+		PowerFx.burst(level, midpoint, PowerFx.dust(0xB9FFB1, 1.0F),
+				18, radius * 0.35, 0.0);
 	}
 
 	private static List<LivingEntity> living(ServerLevel level, Vec3 midpoint, double radius) {

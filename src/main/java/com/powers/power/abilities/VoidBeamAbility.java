@@ -4,6 +4,9 @@ import com.powers.PowerStatusEffects;
 import com.powers.PowersBlocks;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
@@ -51,16 +54,18 @@ public final class VoidBeamAbility extends Ability {
 	private static final Map<UUID, Charge> CHARGES = new HashMap<>();
 
 	/** Immutable interaction- and rank-scaled values captured when payment commits. */
-	private record Charge(ResourceKey<Level> dimension, long startedAt, double range,
+	private record Charge(ResourceKey<Level> dimension, CastSource castSource,
+			long startedAt, double range,
 			float damage, int witherTicks, int witherAmplifier, double scarRadius,
 			int scarTicks, float scarDamage, int penetrations, boolean empoweredImpact,
-			boolean ancientMastery, boolean darkResurgence) {
+			boolean ancientMastery, boolean darkResurgence, int terrainTier) {
 		private Charge {
 			if (dimension == null || startedAt < 0L || !Double.isFinite(range) || range <= 0.0
 					|| !Float.isFinite(damage) || damage <= 0.0F || witherTicks <= 0
 					|| witherAmplifier < 0 || !Double.isFinite(scarRadius) || scarRadius <= 0.0
-					|| scarTicks <= 0 || !Float.isFinite(scarDamage) || scarDamage <= 0.0F
-					|| penetrations <= 0 || penetrations > VoidBeamRules.MAX_PENETRATIONS) {
+				|| scarTicks <= 0 || !Float.isFinite(scarDamage) || scarDamage <= 0.0F
+					|| penetrations <= 0 || penetrations > VoidBeamRules.MAX_PENETRATIONS
+					|| terrainTier < 0 || terrainTier > 10) {
 				throw new IllegalArgumentException("Invalid void charge");
 			}
 		}
@@ -79,7 +84,7 @@ public final class VoidBeamAbility extends Ability {
 		boolean ancient = variants.contains("ancient_mastery");
 		boolean resurgence = variants.contains("dark_resurgence");
 		long now = player.level().getServer().getTickCount();
-		Charge charge = new Charge(player.level().dimension(), now,
+		Charge charge = new Charge(player.level().dimension(), CastScalingContext.currentSource(), now,
 				Math.min(96.0, BASE_RANGE * scaled.rangeMultiplier()),
 				(float) VoidBeamRules.releaseDamage(BASE_DAMAGE * scaled.potencyMultiplier(), 0),
 				Math.max(20, (int) Math.round(BASE_WITHER_TICKS * scaled.durationMultiplier())),
@@ -88,7 +93,8 @@ public final class VoidBeamAbility extends Ability {
 				Math.max(20, (int) Math.round(BASE_SCAR_TICKS * scaled.durationMultiplier())),
 				(float) VoidBeamRules.scarPulseDamage(
 						BASE_SCAR_DAMAGE * scaled.potencyMultiplier(), resurgence),
-				VoidBeamRules.penetrationLimit(empowered, ancient), empowered, ancient, resurgence);
+				VoidBeamRules.penetrationLimit(empowered, ancient), empowered, ancient, resurgence,
+				CombatTerrainImpact.tier(player, CastScalingContext.currentSource()));
 		CHARGES.put(player.getUUID(), charge);
 		PowerFx.voidBeamCharge((ServerLevel) player.level(), player.getEyePosition(),
 				VoidBeamRules.CHARGE_TICKS, ancient);
@@ -131,11 +137,12 @@ public final class VoidBeamAbility extends Ability {
 		if (player == null || !player.isAlive() || !player.level().dimension().equals(charge.dimension())
 				|| AmethystDampening.isDampened(player)) return false;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		boolean innateOwned = false;
 		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
 			Power power = data.getPower(slot);
-			if (power != null && power.id().equals(POWER_ID)) return true;
+			if (power != null && power.id().equals(POWER_ID)) innateOwned = true;
 		}
-		return false;
+		return ServerCastLifecycle.mayContinue(player, charge.castSource(), innateOwned);
 	}
 
 	/** Resolves the final server aim, ordered targets, counters, and aftermath. */
@@ -204,6 +211,8 @@ public final class VoidBeamAbility extends Ability {
 			PowerFx.voidBeamCountered(level, terminal, counterplay);
 			return;
 		}
+		CombatTerrainImpact.rayScar(level, player, origin, terminal,
+				charge.terrainTier(), 0x6D32A8);
 		VoidScarManager.create(player, terminal, charge.scarRadius(), charge.scarTicks(),
 				charge.scarDamage(), charge.witherAmplifier(),
 				Math.max(20, charge.witherTicks() / 3), charge.ancientMastery());

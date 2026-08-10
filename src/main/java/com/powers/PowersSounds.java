@@ -13,6 +13,7 @@ public final class PowersSounds {
 	public static final SoundEvent CRYSTAL_RESONATE = register("crystal_resonate");
 	public static final SoundEvent AMETHYST_FRACTURE = register("amethyst_fracture");
 	public static final SoundEvent TIME_SUSPEND = register("time_suspend");
+	public static final SoundEvent CELESTIAL_RING = register("celestial_ring");
 	public static final SoundEvent TIME_RELEASE = register("time_release");
 	public static final SoundEvent RIFT_OPEN = register("rift_open");
 	public static final SoundEvent RIFT_CLOSE = register("rift_close");

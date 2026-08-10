@@ -2,6 +2,11 @@ package com.powers.power.abilities;
 
 import com.powers.PowersMod;
 import com.powers.fx.FireballFx;
+import com.powers.magic.runtime.MagicPresenceHandle;
+import com.powers.magic.runtime.MagicPresenceId;
+import com.powers.magic.runtime.PhysicalMagicPresences;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
@@ -87,6 +92,8 @@ public final class FireballAbility extends Ability {
 		Set<String> variants = profile.unlockedVariants();
 		int hoverTicks = Math.min(360, scaledDuration(player, BASE_HOVER_TICKS));
 		Cinderheart heart = new Cinderheart(player.getUUID(), projectile.getUUID(),
+				CastScalingContext.currentSource(), CombatTerrainImpact.tier(
+						player, CastScalingContext.currentSource()),
 				level.dimension(), now, now + hoverTicks, profile.potencyMultiplier(),
 				variants.contains("empowered_impact"), variants.contains("reflective_ward"),
 				variants.contains("afterimage"), variants.contains("true_sight"),
@@ -96,6 +103,17 @@ public final class FireballAbility extends Ability {
 		FireballFx.open(level, spawn, heart.tier, heart.empoweredImpact, heart.ancientMastery);
 		PowerMessages.send(player, "ability.powers.fireball.cast", 4);
 		return true;
+	}
+
+	@Override
+	public void bindPhysicalPresence(ServerPlayer player, PlayerPowers.PlayerPowersData data,
+			MagicPresenceId presenceId) {
+		Cinderheart heart = BY_OWNER.get(player.getUUID());
+		LargeFireball projectile = findProjectile(player.level().getServer(), heart);
+		if (heart != null && projectile != null) {
+			PhysicalMagicPresences.bindExistingEntity(presenceId, projectile,
+					MagicPresenceHandle.Kind.PROJECTILE, heart.expiresAt);
+		}
 	}
 
 	/** Advances all owned hearts without retaining Minecraft entity references. */
@@ -113,7 +131,8 @@ public final class FireballAbility extends Ability {
 			boolean frozen = originalOwner != null && EntityFreezeController.isFrozen(originalOwner);
 			boolean continues = FireballRules.continues(originalOwner != null, sameDimension,
 					originalOwner != null && originalOwner.isAlive() && !originalOwner.isRemoved(),
-					dampened, frozen, originalOwner != null && ownsFireSource(originalOwner),
+					dampened, frozen, originalOwner != null && ServerCastLifecycle.mayContinue(
+							originalOwner, heart.castSource, ownsFireSource(originalOwner)),
 					now, heart.expiresAt);
 			if (level == null || projectile == null || !continues) {
 				if (level != null) {
@@ -367,6 +386,8 @@ public final class FireballAbility extends Ability {
 			Cinderheart heart, Vec3 point) {
 		level.gameEvent(GameEvent.PROJECTILE_LAND, point,
 				GameEvent.Context.of(projectile, null));
+		PhysicalMagicPresences.fixEntity(projectile, level, point,
+				MagicPresenceHandle.Kind.IMPACT, level.getServer().getTickCount() + 20L);
 		removeState(heart, projectile, true);
 	}
 

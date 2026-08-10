@@ -4,15 +4,18 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"EntityMixin",
+		"KnowledgeBookItemMixin",
 		"FoodConsumeMixin",
 		"ItemEntityMixin",
 		"LargeFireballMixin",
 		"MobMixin",
 		"PlayerRankDisplayMixin",
 		"ProjectileDeflectionMixin",
+		"ServerTickRateManagerMixin",
 		"ServerPlayerRankDisplayMixin"
 	],
 	"client": [
+		"ArtifactScrollMixin",
 		"AvatarRendererMixin",
 		"LightRealmSkyMixin"
 	],

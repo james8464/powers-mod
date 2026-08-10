@@ -17,6 +17,11 @@ import com.powers.boss.FirstVesselRitual;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.player.SkillSystem;
 import com.powers.power.artifact.ArtifactDeathWardManager;
+import com.powers.power.PowerDamage;
+import com.powers.item.ArtifactWeaponManager;
+import com.powers.power.abilities.ForcefieldAbility;
+import com.powers.power.abilities.CombatTerrainImpact;
+import com.powers.power.state.MagicShieldManager;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -26,6 +31,10 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 
 /** Small runtime suite for mechanics that pure unit tests cannot exercise. */
 public final class PowersGameTests {
@@ -215,6 +224,89 @@ public final class PowersGameTests {
 		helper.assertBlockPresent(net.minecraft.world.level.block.Blocks.AIR,
 				altar.offset(3, 0, 0));
 		helper.succeed();
+	}
+
+	@GameTest
+	public void celestialRuinOverwhelmsTheFirstVesselsLayeredVitality(GameTestHelper helper) {
+		FirstVessel boss = helper.spawn(PowersEntities.FIRST_VESSEL, new BlockPos(2, 1, 2));
+		float before = boss.effectiveHealth();
+
+		boss.hurtServer(helper.getLevel(), PowerDamage.celestialRuin(helper.getLevel()), 50_000.0F);
+
+		helper.assertTrue(before >= 5_000.0F, "Test boss did not start at full layered vitality");
+		helper.assertTrue(boss.effectiveHealth() <= 0.0F || !boss.isAlive(),
+				"Celestial Ruin barely damaged the First Vessel");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void forcefieldSharesAndSacrificesItselfAgainstOverkill(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		ServerPlayer ally = helper.makeMockServerPlayerInLevel();
+		var origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		ally.setPos(origin.getX() + 1.5, origin.getY(), origin.getZ() + 0.5);
+		helper.assertTrue(new ForcefieldAbility().activate(caster,
+				com.powers.player.PlayerPowers.get(caster)), "Forcefield activation failed");
+		long tick = helper.getLevel().getServer().getTickCount();
+		helper.assertTrue(MagicShieldManager.global().active(caster.getUUID(), tick),
+				"Caster did not receive shared integrity");
+		helper.assertTrue(MagicShieldManager.global().active(ally.getUUID(), tick),
+				"Nearby ally did not receive shared integrity");
+		helper.assertTrue(ForcefieldAbility.absorbDamage(ally, ally.damageSources().generic(), 50_000.0F),
+				"Overkill impact bypassed the sacrificial shield");
+		helper.assertFalse(MagicShieldManager.global().active(ally.getUUID(), tick),
+				"Broken shield retained integrity after sacrificing itself");
+		MagicShieldManager.global().clear();
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void rankZeroCombatImpactStillLeavesBoundedTerrainDamage(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		BlockPos center = new BlockPos(5, 2, 5);
+		for (int x = -3; x <= 3; x++) {
+			for (int z = -3; z <= 3; z++) helper.setBlock(center.offset(x, 0, z), Blocks.STONE);
+		}
+		Vec3 impact = Vec3.atCenterOf(helper.absolutePos(center));
+		int removed = CombatTerrainImpact.crater(helper.getLevel(), caster, impact, 0);
+
+		helper.assertTrue(removed > 0, "A rank-zero offensive impact left no terrain damage");
+		helper.assertTrue(removed <= com.powers.power.abilities.CombatTerrainRules.craterBudget(0),
+				"Combat crater exceeded its rank-zero work budget");
+		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 40)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void shadowSwordLightningCreatesAVisibleBolt(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		var origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		caster.setYRot(0.0F);
+		caster.setXRot(0.0F);
+		caster.addTag(SkillSystem.DARKNESS_TAG);
+		com.powers.player.PlayerPowers.get(caster).setDarknessLevel(caster, 10);
+		caster.setItemInHand(InteractionHand.MAIN_HAND,
+				PowersWeapons.WEAPONS.get("lycanbane").getDefaultInstance());
+		var target = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 6));
+		target.setNoAi(true);
+		helper.assertTrue(ArtifactWeaponManager.select(caster, ArtifactAlignment.DARKNESS,
+				"innate/lightning_strike", -1), "Shadow Sword rejected Lightning");
+		helper.assertTrue(ArtifactWeaponManager.activateSelected(caster, ArtifactAlignment.DARKNESS)
+				== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+				"Shadow Sword Lightning activation pipeline failed");
+		boolean[] observedBolt = {false};
+		for (int delay = 7; delay <= 12; delay++) {
+			helper.runAfterDelay(delay, () -> observedBolt[0] |= !helper.getLevel().getEntitiesOfClass(
+					LightningBolt.class, caster.getBoundingBox().inflate(12.0), entity -> true).isEmpty());
+		}
+		helper.runAfterDelay(13, () -> {
+			helper.assertTrue(observedBolt[0], "Shadow Sword Lightning did not create a visible bolt");
+			helper.succeed();
+		});
 	}
 
 }

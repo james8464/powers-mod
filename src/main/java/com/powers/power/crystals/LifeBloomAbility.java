@@ -64,8 +64,8 @@ public class LifeBloomAbility extends Ability {
 				PowerFx.coloredBurst(level, orPlayer.position().add(0, 1, 0), 0x00C853, 12, 0.6);
 			}
 		}
-		PowerFx.coloredBurst(level, origin, 0x00C853, 40, 2.0);
-		PowerFx.burst(level, origin, ParticleTypes.HAPPY_VILLAGER, 30, 2.0, 0.2);
+		PowerFx.coloredBurst(level, origin, 0x00C853, 32, 2.0);
+		PowerFx.burst(level, origin, PowerFx.dust(0xD8FF8A, 1.25F), 18, 1.6, 0.0);
 		PowerFx.rune(level, origin, radius * 0.65, 0x78E06B, 36, 0.0);
 		PowerFx.sound(level, player.position(), SoundEvents.TOTEM_USE, 1.0f, 0.8f);
 		return true;

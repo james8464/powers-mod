@@ -42,6 +42,21 @@ class ActiveMagicIndexTest {
 	}
 
 	@Test
+	void rebindMovesAndExtendsPresenceToPhysicalLifetime() {
+		ActiveMagicIndex index = new ActiveMagicIndex(16);
+		MagicPresence presence = presence("00000000-0000-0000-0000-000000000008", "projectile",
+				"overworld", 0, 64, 0, 2, 20);
+		index.register(presence);
+
+		assertTrue(index.rebind(presence.id(), "nether",
+				PresenceAnchor.entity(PresenceAnchor.Kind.PROJECTILE, UUID.randomUUID(), 40, 70, 40), 80));
+
+		assertTrue(index.nearby("overworld", 0, 64, 0, 4, 10).isEmpty());
+		assertEquals(Set.of("projectile"), actions(index.nearby("nether", 40, 70, 40, 4, 50)));
+		assertTrue(index.nearby("nether", 40, 70, 40, 4, 81).isEmpty());
+	}
+
+	@Test
 	void ownerAndGlobalCleanupRemovePresenceAndCellState() {
 		ActiveMagicIndex index = new ActiveMagicIndex(16);
 		index.register(presence("00000000-0000-0000-0000-000000000005", "one", "overworld",

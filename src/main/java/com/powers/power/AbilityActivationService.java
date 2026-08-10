@@ -2,6 +2,8 @@ package com.powers.power;
 
 import com.powers.magic.runtime.PreparedMagicCast;
 import com.powers.magic.runtime.ServerMagicCasts;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillQuestTracker;
@@ -32,15 +34,28 @@ public final class AbilityActivationService {
 		return activate(player, ability, toggleKey, false);
 	}
 
-	/** Activates an artifact cast; apotheosis artifacts may explicitly bypass cooldown bookkeeping. */
+	/** Activates a directly invoked innate cast with optional cooldown bypass. */
 	public static Result activate(ServerPlayer player, Ability ability, String toggleKey,
 			boolean bypassCooldown) {
-		return activateWithCooldown(player, ability, toggleKey, bypassCooldown ? 0 : null);
+		return activateWithCooldown(player, ability, toggleKey,
+				bypassCooldown ? 0 : null, CastSource.INNATE);
 	}
 
-	/** Activates an artifact with a server-derived explicit recovery time. */
+	/** Compatibility overload for an innate cast with a server-derived recovery time. */
 	public static Result activateWithCooldown(ServerPlayer player, Ability ability, String toggleKey,
 			Integer cooldownOverride) {
+		return activateWithCooldown(player, ability, toggleKey, cooldownOverride, CastSource.INNATE);
+	}
+
+	/** Activates through an explicit server-derived route so scaling cannot follow a reused ability. */
+	public static Result activateWithCooldown(ServerPlayer player, Ability ability, String toggleKey,
+			Integer cooldownOverride, CastSource source) {
+		return CastScalingContext.withSource(source,
+				() -> activateScoped(player, ability, toggleKey, cooldownOverride, source));
+	}
+
+	private static Result activateScoped(ServerPlayer player, Ability ability, String toggleKey,
+			Integer cooldownOverride, CastSource source) {
 		if (ability == null) return Result.FAILED;
 		if (!passesCasterChecks(player)) return Result.FAILED;
 		if (ability.requiresInput()) return Result.REQUIRES_INPUT;
@@ -52,10 +67,11 @@ public final class AbilityActivationService {
 			return selected ? Result.ACTIVATED : Result.FAILED;
 		}
 		if (ability.isToggle()) {
-			return toggle(player, data, ability, toggleKey);
+			return toggle(player, data, ability, toggleKey, source);
 		}
 
-		return cast(player, data, ability, cooldownOverride, () -> ability.activate(player, data));
+		return cast(player, data, ability, cooldownOverride, source,
+				() -> ability.activate(player, data));
 	}
 
 	/** Completes a server-owned input flow such as picking a Time Shift landing point. */
@@ -63,7 +79,9 @@ public final class AbilityActivationService {
 			Supplier<Boolean> operation) {
 		if (ability == null || !ability.requiresInput() || operation == null
 				|| !passesCasterChecks(player)) return Result.FAILED;
-		return cast(player, PlayerPowers.get(player), ability, bypassCooldown ? 0 : null, operation);
+		return CastScalingContext.withSource(CastSource.INNATE, () -> cast(player,
+				PlayerPowers.get(player), ability, bypassCooldown ? 0 : null,
+				CastSource.INNATE, operation));
 	}
 
 	/** Shared coordinate-teleport pipeline used by an assigned power and the Shadow Sword. */
@@ -84,8 +102,9 @@ public final class AbilityActivationService {
 		}
 
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(caster);
-		return cast(caster, data, ability, bypassCooldown ? 0 : null, () -> ability.activateTeleport(
-				caster, subject, data, dimension, x, y, z));
+		return CastScalingContext.withSource(CastSource.INNATE, () -> cast(caster, data, ability,
+				bypassCooldown ? 0 : null, CastSource.INNATE, () -> ability.activateTeleport(
+						caster, subject, data, dimension, x, y, z)));
 	}
 
 	/** Completes artifact coordinate input with its alignment cooldown policy. */
@@ -99,12 +118,13 @@ public final class AbilityActivationService {
 		AmethystDampening.update(subject);
 		if (AmethystDampening.isDampened(subject)) return Result.FAILED;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(caster);
-		return cast(caster, data, ability, Math.max(0, cooldownTicks), () -> ability.activateTeleport(
-				caster, subject, data, dimension, x, y, z));
+		return CastScalingContext.withSource(CastSource.ARTIFACT, () -> cast(caster, data, ability,
+				Math.max(0, cooldownTicks), CastSource.ARTIFACT, () -> ability.activateTeleport(
+						caster, subject, data, dimension, x, y, z)));
 	}
 
 	private static Result cast(ServerPlayer player, PlayerPowers.PlayerPowersData data, Ability ability,
-			Integer cooldownOverride, Supplier<Boolean> operation) {
+			Integer cooldownOverride, CastSource source, Supplier<Boolean> operation) {
 		int remaining = cooldownOverride != null && cooldownOverride == 0
 				? 0 : ActivationCooldowns.remainingTicks(player, ability);
 		if (ActivationCooldowns.blocks(remaining,
@@ -112,7 +132,8 @@ public final class AbilityActivationService {
 			PowerMessages.send(player, "ability.powers.cooldown", 4, seconds(remaining));
 			return Result.FAILED;
 		}
-		PreparedMagicCast magic = ServerMagicCasts.prepare(player, ability.magicActionId(player, data));
+		PreparedMagicCast magic = ServerMagicCasts.prepare(
+				player, ability.magicActionId(player, data), source);
 		if (!magic.allowed() || !data.spendEnergy(player, ability)) return Result.FAILED;
 		int cooldown = cooldownOverride == null
 				? ability.cooldownTicksFor(player, data) : cooldownOverride;
@@ -122,7 +143,8 @@ public final class AbilityActivationService {
 			data.refundEnergy(ability);
 		} else {
 			ActivationCooldowns.start(player, ability, cooldown);
-			ServerMagicCasts.commit(magic, player);
+			var presenceId = ServerMagicCasts.commit(magic, player);
+			ability.bindPhysicalPresence(player, data, presenceId);
 			SkillQuestTracker.recordPowerUse(player, ability);
 		}
 		PowersPackets.syncTo(player);
@@ -144,7 +166,7 @@ public final class AbilityActivationService {
 	}
 
 	private static Result toggle(ServerPlayer player, PlayerPowers.PlayerPowersData data,
-			Ability ability, String toggleKey) {
+			Ability ability, String toggleKey, CastSource source) {
 		if (toggleKey == null || toggleKey.isBlank()) return Result.FAILED;
 		if (data.isToggleActive(toggleKey)) {
 			ability.activateToggleOff(player, data);
@@ -162,13 +184,15 @@ public final class AbilityActivationService {
 			}
 		}
 
-		PreparedMagicCast magic = ServerMagicCasts.prepare(player, ability.magicActionId(player, data));
+		PreparedMagicCast magic = ServerMagicCasts.prepare(
+				player, ability.magicActionId(player, data), source);
 		if (!magic.allowed()) return Result.FAILED;
 		boolean paid = data.spendEnergy(player, ability);
 		boolean activated = paid && ServerMagicCasts.execute(magic, () -> ability.activateToggleOn(player, data));
 		if (activated) {
 			data.setToggleActive(player, toggleKey, true);
-			ServerMagicCasts.commit(magic, player);
+			var presenceId = ServerMagicCasts.commit(magic, player);
+			ability.bindPhysicalPresence(player, data, presenceId);
 			SkillQuestTracker.recordPowerUse(player, ability);
 			PowerMessages.overlay(player, Component.translatable("ability.powers.toggle_on", ability.name()));
 		} else if (paid) {

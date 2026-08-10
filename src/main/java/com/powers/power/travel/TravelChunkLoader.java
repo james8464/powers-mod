@@ -22,6 +22,7 @@ public final class TravelChunkLoader {
 	public static final Budget DEFAULT_BUDGET = new Budget(80, 200);
 	private static final int TICKET_RADIUS = 1;
 	private static final Map<UUID, Pending> PENDING = new HashMap<>();
+	private static final Map<UUID, Lease> READY_LEASES = new HashMap<>();
 
 	/* Keep Minecraft's bootstrapped TicketType lazy so pure policy tests can load this utility safely. */
 	private static final class TicketHolder {
@@ -80,6 +81,10 @@ public final class TravelChunkLoader {
 		}
 	}
 
+	private record Lease(UUID owner, ServerLevel level, ChunkPos chunk,
+			ScheduledTaskQueue.TaskToken releaseToken) {
+	}
+
 	private TravelChunkLoader() {
 	}
 
@@ -93,6 +98,7 @@ public final class TravelChunkLoader {
 		Objects.requireNonNull(timedOut, "timedOut");
 		MinecraftServer server = level.getServer();
 		if (server == null) return false;
+		releaseLease(owner);
 		Pending previous = PENDING.get(owner);
 		if (previous != null) settle(previous, Resolution.REPLACED);
 		Pending pending = new Pending(owner, level, destination, server.getTickCount(), ready, timedOut);
@@ -130,16 +136,50 @@ public final class TravelChunkLoader {
 			settle(pending, Resolution.CANCELLED);
 		}
 		PENDING.clear();
+		for (UUID owner : new ArrayList<>(READY_LEASES.keySet())) releaseLease(owner);
+		READY_LEASES.clear();
+	}
+
+	/** Number of bounded, temporary destination-loading tickets. */
+	public static int pendingRequestCount() {
+		return PENDING.size() + READY_LEASES.size();
+	}
+
+	/** Ready destinations retain their ticket while delayed storms and body creation finish. */
+	static int releaseDelayTicks(Resolution resolution) {
+		return resolution == Resolution.READY ? MAX_FOLLOWUP_TICKS : 0;
 	}
 
 	private static boolean settle(Pending pending, Resolution resolution) {
 		if (!pending.state.resolve(resolution)) return false;
 		PENDING.remove(pending.owner, pending);
 		if (pending.timeoutToken != null) pending.timeoutToken.cancel();
-		pending.level.getChunkSource().removeTicketWithRadius(TicketHolder.TRAVEL,
-				pending.chunk, TICKET_RADIUS);
-		if (resolution == Resolution.READY) pending.ready.run();
-		else pending.failed.run();
+		if (resolution == Resolution.READY) {
+			int delay = releaseDelayTicks(resolution);
+			ScheduledTaskQueue.TaskToken token = PowersMod.scheduleDelayed(
+					pending.level.getServer(), delay, () -> releaseLease(pending.owner));
+			if (token.accepted()) {
+				READY_LEASES.put(pending.owner,
+						new Lease(pending.owner, pending.level, pending.chunk, token));
+			} else {
+				removeTicket(pending.level, pending.chunk);
+			}
+			pending.ready.run();
+		} else {
+			removeTicket(pending.level, pending.chunk);
+			pending.failed.run();
+		}
 		return true;
+	}
+
+	private static void releaseLease(UUID owner) {
+		Lease lease = READY_LEASES.remove(owner);
+		if (lease == null) return;
+		lease.releaseToken().cancel();
+		removeTicket(lease.level(), lease.chunk());
+	}
+
+	private static void removeTicket(ServerLevel level, ChunkPos chunk) {
+		level.getChunkSource().removeTicketWithRadius(TicketHolder.TRAVEL, chunk, TICKET_RADIUS);
 	}
 }

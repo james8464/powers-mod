@@ -46,7 +46,7 @@ public final class PowerHudRenderer {
 		Identifier texture = activeToggle && (tick / 5) % 2 == 0 ? ACTIVE_SLOT : SLOT;
 		graphics.blit(RenderPipelines.GUI_TEXTURED, texture, centerX - SIZE / 2, centerY - SIZE / 2,
 				0, 0, SIZE, SIZE, SIZE, SIZE);
-		drawPowerGlyph(graphics, power, centerX, centerY,
+		AbilityGlyphRenderer.draw(graphics, power == null ? null : power.id().getPath(), centerX, centerY,
 				activeToggle ? 0xFFF5FDFF : color);
 		if (elemental != null) drawElementalCycle(graphics, centerX, centerY - 9, elemental, tick);
 
@@ -63,8 +63,8 @@ public final class PowerHudRenderer {
 			graphics.fill(runeX - 1, runeY - 1, runeX + 2, runeY + 2, runeColor);
 		}
 		if (reactivation > 0) {
-			drawDiamond(graphics, centerX - 3, centerY, 2, 0xFFD7F8FF);
-			drawDiamond(graphics, centerX + 3, centerY, 2, 0xFFFFD166);
+			AbilityGlyphRenderer.diamond(graphics, centerX - 3, centerY, 2, 0xFFD7F8FF);
+			AbilityGlyphRenderer.diamond(graphics, centerX + 3, centerY, 2, 0xFFFFD166);
 		}
 
 		String key = keyLabel(slot);
@@ -82,80 +82,13 @@ public final class PowerHudRenderer {
 		}
 	}
 
-	/** Draws a readable semantic sigil without requiring one texture per power. */
-	private static void drawPowerGlyph(GuiGraphicsExtractor graphics, Power power,
-			int centerX, int centerY, int color) {
-		if (power == null) {
-			drawDiamond(graphics, centerX, centerY, 2, 0xFF626874);
-			return;
-		}
-		String id = power.id().getPath();
-		if (id.contains("lightning")) {
-			graphics.fill(centerX, centerY - 6, centerX + 2, centerY - 1, color);
-			graphics.fill(centerX - 2, centerY - 1, centerX + 2, centerY + 2, color);
-			graphics.fill(centerX - 2, centerY + 2, centerX, centerY + 7, color);
-		} else if (id.contains("fire")) {
-			drawDiamond(graphics, centerX, centerY + 2, 5, color);
-			drawDiamond(graphics, centerX + 1, centerY - 4, 3, color);
-		} else if (id.contains("flight") || id.contains("breezy")) {
-			for (int step = 0; step < 5; step++) {
-				graphics.fill(centerX - 7 + step, centerY - 3 + step,
-						centerX - 5 + step, centerY + 3 + step, color);
-				graphics.fill(centerX + 5 - step, centerY - 3 + step,
-						centerX + 7 - step, centerY + 3 + step, color);
-			}
-		} else if (id.contains("time")) {
-			graphics.fill(centerX - 5, centerY - 6, centerX + 6, centerY - 4, color);
-			graphics.fill(centerX - 5, centerY + 4, centerX + 6, centerY + 6, color);
-			for (int step = 0; step < 4; step++) {
-				graphics.fill(centerX - 3 + step, centerY - 4 + step,
-						centerX + 4 - step, centerY - 3 + step, color);
-				graphics.fill(centerX - step, centerY + step,
-						centerX + step + 1, centerY + step + 1, color);
-			}
-		} else if (id.contains("ice") || id.contains("frost")) {
-			graphics.fill(centerX, centerY - 7, centerX + 1, centerY + 8, color);
-			graphics.fill(centerX - 7, centerY, centerX + 8, centerY + 1, color);
-			for (int offset = -5; offset <= 5; offset++) {
-				graphics.fill(centerX + offset, centerY + offset,
-						centerX + offset + 1, centerY + offset + 1, color);
-				graphics.fill(centerX + offset, centerY - offset,
-						centerX + offset + 1, centerY - offset + 1, color);
-			}
-		} else if (id.contains("shadow") || id.contains("void") || id.contains("invisibility")) {
-			drawDiamond(graphics, centerX, centerY, 7, color);
-			drawDiamond(graphics, centerX + 3, centerY - 2, 6, 0xFF11131B);
-		} else if (id.contains("plant") || id.contains("health") || id.contains("healing")) {
-			graphics.fill(centerX - 2, centerY - 7, centerX + 3, centerY + 8, color);
-			graphics.fill(centerX - 7, centerY - 2, centerX + 8, centerY + 3, color);
-		} else if (id.contains("speed")) {
-			for (int arrow = -1; arrow <= 1; arrow++) {
-				int y = centerY + arrow * 5;
-				graphics.fill(centerX - 6, y, centerX + 5, y + 2, color);
-				graphics.fill(centerX + 2, y - 2, centerX + 7, y + 4, color);
-			}
-		} else {
-			drawDiamond(graphics, centerX, centerY, 6, color);
-			drawDiamond(graphics, centerX, centerY, 2, 0xFF11131B);
-		}
-	}
-
 	private static void drawElementalCycle(GuiGraphicsExtractor graphics, int centerX, int centerY,
 			ElementalPhase current, int tick) {
 		for (int index = 0; index < ElementalPhase.values().length; index++) {
 			int x = centerX - 9 + index * 6;
 			int radius = index == current.index() ? 2 : 1;
-			drawDiamond(graphics, x, centerY, radius,
+			AbilityGlyphRenderer.diamond(graphics, x, centerY, radius,
 					HudMath.elementalRuneColor(current.index(), index, tick));
-		}
-	}
-
-	private static void drawDiamond(GuiGraphicsExtractor graphics, int centerX, int centerY,
-			int radius, int color) {
-		for (int dy = -radius; dy <= radius; dy++) {
-			int half = radius - Math.abs(dy);
-			graphics.fill(centerX - half, centerY + dy,
-					centerX + half + 1, centerY + dy + 1, color);
 		}
 	}
 

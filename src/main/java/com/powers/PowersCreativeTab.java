@@ -32,7 +32,9 @@ public final class PowersCreativeTab {
 						output.accept(PowersBlocks.PURE_LIGHT);
 						output.accept(PowersBlocks.AMETHYST_WARD);
 						PowersWeapons.WEAPONS.values().forEach(output::accept);
-						ImportedPackItems.ITEMS.values().forEach(output::accept);
+						ImportedPackItems.ITEMS.entrySet().stream()
+								.filter(entry -> !ImportedItemRules.isLegacyAssetLayer(entry.getKey()))
+								.map(java.util.Map.Entry::getValue).forEach(output::accept);
 					})
 					.build());
 

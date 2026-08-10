@@ -3,6 +3,7 @@ package com.powers.power.abilities;
 import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.ThunderclapFx;
+import com.powers.magic.runtime.CastScalingContext;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
@@ -59,6 +60,8 @@ public final class ThunderclapAbility extends Ability {
 			projectile.setDeltaMovement(push);
 			projectile.hurtMarked = true;
 		}
+		CombatTerrainImpact.thunderclap(level, player, origin, horizontal, range,
+				CombatTerrainImpact.tier(player, CastScalingContext.currentSource()));
 		ThunderclapFx.release(level, origin.add(horizontal.scale(2.0)), horizontal, range);
 		return true;
 	}

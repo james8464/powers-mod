@@ -9,7 +9,6 @@ import com.powers.power.state.PowerEntityState;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import com.powers.util.BoundedEntityCandidates;
-import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -55,9 +54,9 @@ public class TelekinesisAbility extends Ability {
 			moved++;
 			Vec3 targetCenter = target.position().add(0, target.getBbHeight() * 0.5, 0);
 			PowerFx.beam(level, center.add(0, 1.2, 0), targetCenter,
-					ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0xFFC27CFF), 8);
+					PowerFx.dust(0xC27CFF, 0.9F), 8);
 			PowerFx.rune(level, targetCenter, 0.42, 0x9C27B0, 10, moved * 0.7);
-			PowerFx.burst(level, targetCenter, ParticleTypes.ENCHANT, 5, 0.32, 0.035);
+			PowerFx.burst(level, targetCenter, PowerFx.dust(0xC27CFF, 0.85F), 5, 0.32, 0.0);
 		}
 		int intercepted = 0;
 		for (Projectile projectile : BoundedEntityCandidates.collect(level,
@@ -72,7 +71,7 @@ public class TelekinesisAbility extends Ability {
 			PowerFx.beam(level, center.add(0, 1.2, 0), projectile.position(),
 					ParticleTypes.ELECTRIC_SPARK, 6);
 			PowerFx.rune(level, projectile.position(), 0.45, 0xC27CFF, 10, intercepted);
-			PowerFx.burst(level, projectile.position(), ParticleTypes.WITCH, 4, 0.2, 0.04);
+			PowerFx.burst(level, projectile.position(), PowerFx.dust(0x8FE9FF, 0.75F), 4, 0.2, 0.0);
 		}
 		if (!TelekinesisRules.resolved(moved, intercepted)) {
 			PowerFx.cancelled(level, center.add(0, 1.0, 0), 0xC27CFF);

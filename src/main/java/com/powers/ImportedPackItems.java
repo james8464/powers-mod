@@ -10,6 +10,9 @@ import com.powers.item.CelestialGrimoireItem;
 import com.powers.item.GrimoireItem;
 import com.powers.item.RuneItem;
 import com.powers.item.RuneTierRules;
+import com.powers.item.ImportedArtifactItem;
+import com.powers.item.ImportedArtifactKind;
+import com.powers.item.ImportedArtifactRules;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -51,10 +54,14 @@ public final class ImportedPackItems {
 			} else if (texture.startsWith("book_grimoire")) {
 				// grimoires get their own item class so they can hold spells
 				factory = props -> new GrimoireItem(props, texture);
-			} else if (texture.contains("runestone") || texture.contains("rune")) {
+			} else if (!ImportedItemRules.isLegacyAssetLayer(texture)
+					&& (texture.contains("runestone") || texture.contains("rune"))) {
 				// runestones and runes become usable rune items
 				int energy = RuneTierRules.energyFor(texture);
 				factory = props -> new RuneItem(props, energy);
+			} else if (ImportedArtifactRules.kind(texture) != ImportedArtifactKind.NONE) {
+				// Formerly decorative relics now use their family-specific bounded action.
+				factory = props -> new ImportedArtifactItem(props, texture);
 			}
 			ITEMS.put(id, ModItemIds.register(ModItemIds.create(id), factory, properties));
 		}

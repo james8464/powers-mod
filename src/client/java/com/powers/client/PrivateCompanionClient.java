@@ -61,10 +61,12 @@ public final class PrivateCompanionClient {
 	}
 
 	public static void interact() {
-		if (sessionId >= 0L && ghost != null && !ghost.isRemoved()) {
-			net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(
-					new CompanionPackets.InteractPayload(sessionId));
-		}
+		Minecraft client = Minecraft.getInstance();
+		boolean active = sessionId >= 0L && ghost != null && !ghost.isRemoved();
+		long request = active && client.player != null && client.player.isCrouching()
+				? -2L : active ? sessionId : -1L;
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(
+				new CompanionPackets.InteractPayload(request));
 	}
 
 	/** Renders dialogue as a compact title-style panel, never as chat spam. */

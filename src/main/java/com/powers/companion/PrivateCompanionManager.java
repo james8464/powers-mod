@@ -28,6 +28,7 @@ public final class PrivateCompanionManager {
 	private static final int UPDATE_INTERVAL_TICKS = 4;
 	private static final AtomicLong NEXT_SESSION = new AtomicLong(1L);
 	private static final Map<UUID, Integer> ELIGIBILITY = new HashMap<>();
+	private static final java.util.Set<UUID> REQUESTED = new java.util.HashSet<>();
 	private static final Map<UUID, Session> SESSIONS = new HashMap<>();
 	private static final Map<UUID, Integer> LAST_DEATH_AT = new HashMap<>();
 	private static final Map<UUID, Integer> LAST_RANK = new HashMap<>();
@@ -60,7 +61,7 @@ public final class PrivateCompanionManager {
 				SkillSystem.hasDarknessTag(player),
 				ArtifactWeaponManager.carries(player, ArtifactAlignment.DARKNESS),
 				player.isAlive() && !player.isRemoved(),
-				PlayerPowers.get(player).mindBody() != null);
+				PlayerPowers.get(player).mindBody() != null, REQUESTED.contains(owner));
 		if (!eligible) {
 			ELIGIBILITY.remove(owner);
 			despawn(player);
@@ -98,6 +99,17 @@ public final class PrivateCompanionManager {
 
 	/** Validates the private session, distance, and view cone before speaking. */
 	public static void interact(ServerPlayer owner, long suppliedSession) {
+		if (suppliedSession == -1L) {
+			REQUESTED.add(owner.getUUID());
+			ELIGIBILITY.put(owner.getUUID(), STABLE_ELIGIBILITY_TICKS);
+			return;
+		}
+		if (suppliedSession == -2L) {
+			REQUESTED.remove(owner.getUUID());
+			ELIGIBILITY.remove(owner.getUUID());
+			despawn(owner);
+			return;
+		}
 		Session session = SESSIONS.get(owner.getUUID());
 		if (session == null || !session.dimension.equals(dimension(owner))) return;
 		Vec3 eyeToCompanion = session.position.add(0.0, 1.62, 0.0).subtract(owner.getEyePosition());
@@ -168,6 +180,7 @@ public final class PrivateCompanionManager {
 
 	public static void forget(ServerPlayer player) {
 		ELIGIBILITY.remove(player.getUUID());
+		REQUESTED.remove(player.getUUID());
 		LAST_DEATH_AT.remove(player.getUUID());
 		LAST_RANK.remove(player.getUUID());
 		MILESTONE_AT.remove(player.getUUID());
@@ -186,6 +199,7 @@ public final class PrivateCompanionManager {
 
 	public static void clear() {
 		ELIGIBILITY.clear();
+		REQUESTED.clear();
 		SESSIONS.clear();
 		LAST_DEATH_AT.clear();
 		LAST_RANK.clear();

@@ -3,6 +3,9 @@ package com.powers.mixin;
 import com.powers.PowersItems;
 import com.powers.power.state.PowerEntityState;
 import com.powers.power.state.SummonPolicy;
+import com.powers.network.NamedLivingTargetIndex;
+import com.powers.magic.runtime.PhysicalMagicPresences;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -18,6 +21,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(Entity.class)
 public abstract class EntityMixin {
+	@Inject(method = "setCustomName", at = @At("TAIL"))
+	private void powers$refreshNamedTargetIndex(Component name, CallbackInfo callback) {
+		NamedLivingTargetIndex.track((Entity) (Object) this);
+	}
+
+	@Inject(method = "tick", at = @At("TAIL"))
+	private void powers$movePhysicalMagicPresence(CallbackInfo callback) {
+		PhysicalMagicPresences.move((Entity) (Object) this);
+	}
+
 	@Inject(method = "shouldBeSaved", at = @At("HEAD"), cancellable = true)
 	private void powers$skipEphemeralSummonSave(CallbackInfoReturnable<Boolean> cir) {
 		Entity self = (Entity) (Object) this;

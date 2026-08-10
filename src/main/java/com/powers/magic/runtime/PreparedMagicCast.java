@@ -12,11 +12,13 @@ import java.util.Objects;
  * @param context authoritative cast facts
  * @param preview side-effect-free collision adjustments and pending reactions
  */
-public record PreparedMagicCast(MagicCastContext context, MagicCastPreview preview) {
+public record PreparedMagicCast(MagicCastContext context, MagicCastPreview preview,
+		CastSource source) {
 	/** Validates the immutable transaction handle. */
 	public PreparedMagicCast {
 		Objects.requireNonNull(context, "context");
 		Objects.requireNonNull(preview, "preview");
+		Objects.requireNonNull(source, "source");
 	}
 
 	/** Returns whether payment and execution may proceed. */
