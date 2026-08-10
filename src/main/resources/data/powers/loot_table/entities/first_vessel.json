@@ -1,0 +1,28 @@
+{
+	"type": "minecraft:entity",
+	"pools": [
+		{
+			"rolls": 1,
+			"entries": [
+				{
+					"type": "minecraft:item",
+					"name": "minecraft:nether_star"
+				}
+			]
+		},
+		{
+			"rolls": 1,
+			"entries": [
+				{
+					"type": "minecraft:item",
+					"name": "powers:imported_artifact_star_animated",
+					"weight": 1
+				},
+				{
+					"type": "minecraft:empty",
+					"weight": 2
+				}
+			]
+		}
+	]
+}

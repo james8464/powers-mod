@@ -87,6 +87,11 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 		return false;
 	}
 
+	/** Boss subclasses own a complete tactical catalogue instead of this simple pair. */
+	protected boolean usesSharedRangedCombat() {
+		return true;
+	}
+
 	@Override
 	protected void customServerAiStep(ServerLevel level) {
 		super.customServerAiStep(level);
@@ -100,6 +105,7 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 			}
 		}
 		LivingEntity target = getTarget();
+		if (!usesSharedRangedCombat()) return;
 		if (target == null || !target.isAlive() || distanceToSqr(target) > 32.0 * 32.0
 				|| !getSensing().hasLineOfSight(target)
 				|| PowerProtection.isSafeZone(level, target.position())) {
