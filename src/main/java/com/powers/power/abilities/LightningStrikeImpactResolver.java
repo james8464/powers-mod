@@ -7,7 +7,6 @@ import com.powers.mind.BodyProxyManager;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.power.state.EntityFreezeController;
-import com.powers.power.state.MagicShieldManager;
 import com.powers.power.state.PowerEntityState;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
@@ -46,31 +45,39 @@ final class LightningStrikeImpactResolver {
 	record StrikeSite(Vec3 sky, Vec3 point, BlockPos support,
 			LightningStrikeRules.Counterplay counterplay) {
 	}
+
 	/** One completed verdict with evidence for lifecycle and Veil effects. */
 	record ImpactResult(Vec3 point, int affected,
 			LightningStrikeRules.Counterplay counterplay) {
 	}
+
 	/** Direct-impact evidence needed to seed exactly one wet chain. */
 	private record DamageResult(int affected, LivingEntity chainOrigin,
 			Set<UUID> struck) {
 	}
+
 	private LightningStrikeImpactResolver() {
 	}
+
 	/** Locates the initial lawful endpoint without loading a chunk. */
 	static StrikeSite initialSite(ServerLevel level, ServerPlayer caster, Vec3 requested) {
 		return locate(level, caster, requested);
 	}
+
 	/** Returns the current loaded warning endpoint without mutating entities. */
 	static StrikeSite previewSite(ServerLevel level, ServerPlayer caster, Vec3 requested) {
 		return locate(level, caster, requested);
 	}
+
 	/** Refuses a cast aimed directly at a body protected before payment commits. */
 	static LightningStrikeRules.Counterplay initialBodyCounter(ServerLevel level,
 			ServerPlayer caster, LivingEntity target) {
 		if (target == null) return LightningStrikeRules.Counterplay.STRIKE;
-		return bodyCounter(level, caster, target, caster.getEyePosition(),
+		return LightningStrikeBodyResolver.resolve(level, caster, target,
+				caster.getEyePosition(),
 				level.getServer().getTickCount(), false);
 	}
+
 	/** Resolves one primary or Dominion verdict without harmful vanilla lightning. */
 	static ImpactResult resolve(ServerLevel level, ServerPlayer caster,
 			StormTribunal tribunal, Vec3 requested, LightningStrikeRules.Beat beat) {
@@ -188,7 +195,7 @@ final class LightningStrikeImpactResolver {
 				}
 				continue;
 			}
-			LightningStrikeRules.Counterplay counter = bodyCounter(
+			LightningStrikeRules.Counterplay counter = LightningStrikeBodyResolver.resolve(
 					level, caster, target, site.point(), now, true);
 			double distance = Math.sqrt(bodyCenter(target).distanceToSqr(site.point()));
 			float damage = (float) (centreDamage
@@ -246,7 +253,7 @@ final class LightningStrikeImpactResolver {
 			if (next == null) break;
 			LightningStrikeRules.Conductance medium =
 					LightningConductanceRuntime.classify(level, next);
-			LightningStrikeRules.Counterplay counter = bodyCounter(
+			LightningStrikeRules.Counterplay counter = LightningStrikeBodyResolver.resolve(
 					level, caster, next, bodyCenter(current),
 					level.getServer().getTickCount(), true);
 			double distance = current.distanceTo(next);
@@ -307,8 +314,9 @@ final class LightningStrikeImpactResolver {
 		if (target == null) return 0;
 		LightningStrikeRules.Conductance medium =
 				LightningConductanceRuntime.classify(level, target);
-		LightningStrikeRules.Counterplay counter = bodyCounter(level, caster, target,
-				bodyCenter(origin), level.getServer().getTickCount(), true);
+		LightningStrikeRules.Counterplay counter = LightningStrikeBodyResolver.resolve(
+				level, caster, target, bodyCenter(origin),
+				level.getServer().getTickCount(), true);
 		if (!lineClear(level, bodyCenter(origin), target)) {
 			LightningStrikeFx.terminal(level, bodyCenter(target),
 					LightningStrikeRules.Counterplay.OBSTRUCTED);
@@ -373,22 +381,6 @@ final class LightningStrikeImpactResolver {
 		return candidates.isEmpty() ? null : candidates.getFirst();
 	}
 
-	/** Resolves body amethyst, crossed wards, Sanctuary, and personal shields. */
-	private static LightningStrikeRules.Counterplay bodyCounter(ServerLevel level,
-			ServerPlayer caster, LivingEntity target, Vec3 rayOrigin, long now,
-			boolean includeForcefield) {
-		SpellFieldManager.RayWardHit ward = SpellFieldManager.firstHarmfulRayIntercept(
-				level, caster.getUUID(), rayOrigin, bodyCenter(target)).orElse(null);
-		boolean sanctuary = SpellFieldManager.isSanctuaryProtected(level, target)
-				|| ward != null && ward.counterplay() == VoidBeamRules.Counterplay.SANCTUARY;
-		boolean kineticWard = ward != null
-				&& ward.counterplay() == VoidBeamRules.Counterplay.KINETIC_WARD;
-		boolean forcefield = includeForcefield
-				&& MagicShieldManager.global().active(target.getUUID(), now);
-		return LightningStrikeRules.bodyDecision(PowerProtection.mayHarm(caster, target),
-				bodyAmethyst(level, target), sanctuary, kineticWard, forcefield);
-	}
-
 	/** Insight reveals only a body that accepted damage and can carry secondary magic. */
 	private static void reveal(ServerLevel level, LivingEntity target) {
 		boolean concealed = target.isInvisible();
@@ -408,15 +400,6 @@ final class LightningStrikeImpactResolver {
 			tribunal.hits.remove(eldest);
 		}
 		tribunal.hits.merge(target, 1, Integer::sum);
-	}
-
-	/** Extends carried/tagged and nearby powered amethyst to every living body. */
-	private static boolean bodyAmethyst(ServerLevel level, LivingEntity target) {
-		BlockPos feet = target.blockPosition();
-		return AmethystDampening.isDampened(target)
-				|| level.getBlockState(feet).is(AmethystDampening.AMETHYST_BLOCKS)
-				|| level.getBlockState(feet.below()).is(AmethystDampening.AMETHYST_BLOCKS)
-				|| AmethystDampening.findPoweredWard(level, feet).isPresent();
 	}
 
 	/** Prevents radial and chained electricity from crossing ordinary collision. */
