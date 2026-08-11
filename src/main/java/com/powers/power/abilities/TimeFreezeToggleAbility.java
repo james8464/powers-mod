@@ -23,6 +23,18 @@ public class TimeFreezeToggleAbility extends ToggleAbility {
 
 	@Override
 	public boolean activateToggleOn(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		double mspt = player.level().getServer().getAverageTickTimeNanos() / 1_000_000.0;
+		TimeFreezeDrainRules.Forecast forecast = TimeFreezeDrainRules.forecast(
+				data.energy(), data.energyCapacity(), mspt);
+		player.sendSystemMessage(Component.translatable(
+				"ability.powers.time_freeze.forecast",
+				forecast.energyPerSecond(), forecast.safeSeconds()));
+		if (forecast.lowTpsWarning()) {
+			player.sendSystemMessage(Component.translatable(
+					"ability.powers.time_freeze.low_tps", String.format(
+							java.util.Locale.ROOT, "%.1f", mspt)));
+		}
+		// Load is advisory only; clock ownership remains the sole activation policy here.
 		return GlobalTimeStopManager.start(player);
 	}
 
