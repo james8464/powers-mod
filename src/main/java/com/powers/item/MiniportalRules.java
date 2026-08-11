@@ -52,6 +52,13 @@ public final class MiniportalRules {
 		return charges > 0;
 	}
 
+	/** Selects exactly the first bound inventory anchor for preview and travel. */
+	public static TravelAnchorData firstAnchor(Iterable<TravelAnchorData> anchors) {
+		if (anchors == null) return null;
+		for (TravelAnchorData anchor : anchors) if (anchor != null) return anchor;
+		return null;
+	}
+
 	/** Keeps the empty-model flag derived from the authoritative charge component. */
 	public static void applyVisual(ItemStack stack, int charges) {
 		stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(

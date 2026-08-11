@@ -220,14 +220,11 @@ public final class ImportedArtifactItem extends Item {
 	}
 
 	private static boolean openMiniportal(ServerPlayer player, ItemStack device) {
-		TravelAnchorData anchor = null;
+		java.util.List<TravelAnchorData> anchors = new java.util.ArrayList<>();
 		for (ItemStack candidate : player.getInventory().getNonEquipmentItems()) {
-			TravelAnchorData stored = candidate.get(PowersDataComponents.TRAVEL_ANCHOR);
-			if (stored != null) {
-				anchor = stored;
-				break;
-			}
+			anchors.add(candidate.get(PowersDataComponents.TRAVEL_ANCHOR));
 		}
+		TravelAnchorData anchor = MiniportalRules.firstAnchor(anchors);
 		if (anchor == null) return explain(player, "item.powers.relic.no_anchor");
 		int charges = MiniportalRules.charges(
 				device.get(PowersDataComponents.MINIPORTAL_CHARGES));
