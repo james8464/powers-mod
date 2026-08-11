@@ -50,6 +50,11 @@ public final class SpellCastingManager {
 		return REGISTRY;
 	}
 
+	/** Returns whether the player currently owns a live ritual channel. */
+	public static boolean isChanneling(UUID playerId) {
+		return CHANNELS.containsKey(playerId);
+	}
+
 	public static void use(ServerPlayer player, String texture) {
 		if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.RITUAL)) return;
 		if (GlobalTimeStopManager.rejectIfStopped(player)) return;

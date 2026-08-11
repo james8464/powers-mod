@@ -5,6 +5,7 @@ import com.powers.AmethystWardBlock;
 import com.powers.PowersEffects;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
+import com.powers.player.LastDeathRecord;
 import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
@@ -17,6 +18,7 @@ import com.powers.progression.PowerScalingService;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -24,6 +26,10 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.ClipContext;
@@ -35,7 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/** Concrete, original spell suite shared by all six grimoires. */
+/** Server-authoritative effects for the active practical grimoire catalogue. */
 final class SpellEffects {
 	private record Veil(long expiresAt) {
 	}
@@ -70,8 +76,11 @@ final class SpellEffects {
 				PowerScalingService.unranked(spell.id()), amplified);
 		LivingEntity target = resolveEntity(caster, lockedTarget, values.targetRange());
 		boolean success = switch (spell.effect()) {
-			case AUGURY, CARTOGRAPHERS_STAR, BLOOD_READING, GRAVE_RECALL,
-					VERDANT_TENDING, HEARTH_SANCTUARY -> false;
+			case AUGURY -> augury(caster);
+			case CARTOGRAPHERS_STAR, HEARTH_SANCTUARY -> false;
+			case BLOOD_READING -> bloodReading(caster, target);
+			case GRAVE_RECALL -> graveRecall(caster);
+			case VERDANT_TENDING -> verdantTending(caster, values);
 			case TRACKING_MARK -> trackingMark(caster, target, values.durationTicks());
 			case WEATHER_SIGIL -> weatherSigil(caster, values);
 			case CELESTIAL_RUIN -> celestialRuin(caster, lockedTarget.blockPos(), values.targetRange());
@@ -137,6 +146,98 @@ final class SpellEffects {
 
 	private static boolean celestialRuin(ServerPlayer caster, BlockPos target, double range) {
 		return blockTargetValid(caster, target, range) && CelestialRuinManager.begin(caster, target);
+	}
+
+	private static boolean augury(ServerPlayer caster) {
+		ServerLevel level = (ServerLevel) caster.level();
+		AuguryReport report = AuguryReport.create(level, caster.blockPosition());
+		caster.sendSystemMessage(Component.translatable("spell.powers.augury.sky",
+				report.weather().name().toLowerCase(java.util.Locale.ROOT), report.moon()));
+		if (report.ticksUntilRealmEvent() >= 0L) {
+			caster.sendSystemMessage(Component.translatable("spell.powers.augury.event",
+					(report.ticksUntilRealmEvent() + 19L) / 20L));
+		}
+		caster.sendSystemMessage(Component.translatable("spell.powers.augury.force",
+				report.darknessNear(), report.pureLightNear()));
+		PowerFx.ring(level, caster.position().add(0.0, 0.08, 0.0), 3.2,
+				0xD9E9FF, 28, level.getGameTime() * 0.04);
+		PowerFx.sound(level, caster.position(), SoundEvents.AMETHYST_BLOCK_CHIME, 1.0F, 1.55F);
+		return true;
+	}
+
+	private static boolean bloodReading(ServerPlayer caster, LivingEntity target) {
+		if (target == null || target == caster) return false;
+		if (target instanceof ServerPlayer player && !PowerProtection.mayLocate(caster, player)) return false;
+		BloodReadingReport report = BloodReadingReport.create(target);
+		caster.sendSystemMessage(Component.translatable("spell.powers.blood_reading.vitals",
+				target.getDisplayName(), report.health(), report.maximumHealth(), report.healthPercent()));
+		caster.sendSystemMessage(Component.translatable("spell.powers.blood_reading.warding",
+				report.armour(), report.alignment().name().toLowerCase(java.util.Locale.ROOT)));
+		caster.sendSystemMessage(Component.translatable("spell.powers.blood_reading.effects",
+				report.effectIds().isEmpty() ? "none" : String.join(", ", report.effectIds())));
+		ServerLevel level = (ServerLevel) caster.level();
+		PowerFx.beam(level, caster.getEyePosition(), target.getEyePosition(),
+				PowerFx.dust(0x9D1735, 0.8F), 12);
+		PowerFx.rune(level, target.position().add(0.0, 0.1, 0.0), 1.3,
+				0x9D1735, 18, level.getGameTime() * 0.05);
+		return true;
+	}
+
+	private static boolean graveRecall(ServerPlayer caster) {
+		LastDeathRecord death = PlayerPowers.get(caster).lastDeath();
+		if (death == null) {
+			caster.sendSystemMessage(Component.translatable("spell.powers.grave_recall.none"));
+			return false;
+		}
+		caster.sendSystemMessage(Component.translatable("spell.powers.grave_recall.dimension",
+				death.dimension()));
+		caster.sendSystemMessage(Component.translatable("spell.powers.grave_recall.coordinates",
+				death.x(), death.y(), death.z()));
+		ServerLevel level = (ServerLevel) caster.level();
+		PowerFx.rune(level, caster.position().add(0.0, 0.08, 0.0), 2.0,
+				0x67405B, 24, level.getGameTime() * -0.05);
+		PowerFx.sound(level, caster.position(), SoundEvents.SOUL_ESCAPE.value(), 0.8F, 0.65F);
+		return true;
+	}
+
+	private static boolean verdantTending(ServerPlayer caster, SpellCastValues values) {
+		ServerLevel level = (ServerLevel) caster.level();
+		int radius = Math.clamp((int) Math.round(values.fieldRadius()), 2, 8);
+		int inspected = 0;
+		int changed = 0;
+		for (BlockPos candidate : BlockPos.withinManhattan(caster.blockPosition(), radius, radius, radius)) {
+			if (inspected++ >= VerdantTendingRules.MAX_INSPECTED_BLOCKS
+					|| changed >= VerdantTendingRules.MAX_CHANGED_BLOCKS) break;
+			BlockPos pos = candidate.immutable();
+			BlockState state = level.getBlockState(pos);
+			VerdantTendingRules.Action action = VerdantTendingRules.action(state);
+			if (action == VerdantTendingRules.Action.NONE
+					|| !PowerProtection.mayAffectBlock(caster, level, pos)) continue;
+			boolean updated = switch (action) {
+				case GROW -> grow(level, pos, state);
+				case HYDRATE -> level.setBlock(pos,
+						state.setValue(FarmlandBlock.MOISTURE, FarmlandBlock.MAX_MOISTURE), Block.UPDATE_CLIENTS);
+				case EXTINGUISH -> level.removeBlock(pos, false);
+				case NONE -> false;
+			};
+			if (!updated) continue;
+			changed++;
+			if (changed <= 12) PowerFx.burst(level, Vec3.atCenterOf(pos),
+					PowerFx.dust(0x65A765, 0.75F), 3, 0.25, 0.0);
+		}
+		if (changed == 0) return false;
+		PowerFx.ring(level, caster.position().add(0.0, 0.08, 0.0), radius,
+				0x65A765, 30, level.getGameTime() * 0.03);
+		PowerFx.sound(level, caster.position(), SoundEvents.BONE_MEAL_USE, 1.0F, 0.85F);
+		caster.sendSystemMessage(Component.translatable("spell.powers.verdant_tending.changed", changed));
+		return true;
+	}
+
+	private static boolean grow(ServerLevel level, BlockPos pos, BlockState state) {
+		if (!(state.getBlock() instanceof BonemealableBlock growable)
+				|| !growable.isValidBonemealTarget(level, pos, state)) return false;
+		growable.performBonemeal(level, level.getRandom(), pos, state);
+		return !level.getBlockState(pos).equals(state);
 	}
 
 	private static BlockPos celestialTarget(ServerPlayer caster, double range) {
