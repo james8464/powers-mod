@@ -10,5 +10,11 @@ public enum EnergyHistorySource {
 	OPERATOR_RESTORE,
 	DIRECT_DRAIN,
 	EMPTY,
-	TRANSACTION_ROLLBACK
+	TRANSACTION_ROLLBACK,
+	INTERNAL_TRANSFER;
+
+	/** Internal pool-to-reservoir movement changes location, not aggregate usage. */
+	public boolean countsTowardUsage() {
+		return this != INTERNAL_TRANSFER;
+	}
 }

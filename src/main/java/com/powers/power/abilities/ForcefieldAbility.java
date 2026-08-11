@@ -42,9 +42,9 @@ public class ForcefieldAbility extends Ability {
 		for (LivingEntity protectedTarget : com.powers.util.BoundedEntityCandidates.living(
 				level, player.getBoundingBox().inflate(2.0), 16,
 				target -> target != player && target.isAlive() && !target.isSpectator()
-						&& PlayerLikeTarget.isCompatible(target)
-						&& (!(target instanceof ServerPlayer ally) || !ally.isShiftKeyDown())
-						&& ForcefieldRules.withinSharingRadius(target.distanceToSqr(player)))) {
+						&& ForcefieldRules.mayShare(PlayerLikeTarget.isCompatible(target),
+								target instanceof ServerPlayer ally && ally.isShiftKeyDown(),
+								target.distanceToSqr(player)))) {
 			raiseWard(level, protectedTarget, player.getUUID(), integrity, reflective);
 		}
 		for (ServerPlayer ally : level.players()) {

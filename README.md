@@ -75,14 +75,14 @@ Random assignment guarantees one allegiance-exclusive option and never duplicate
 | Breezy Bash | Eighteen-tick two-stage Tempest Rite: bounded spherical capture, collision-safe lift/apex, independent slam revalidation, and safe Slow Falling release. |
 | Invisibility | Infinite owned toggle with amplifier 255, no vanilla particles or effect icon, continuous energy drain, and counter-magic/revelation without removing unrelated invisibility. |
 | Time Freeze | Owns Minecraft's true global tick freeze across loaded dimensions. Before activation it reports the exact per-second drain and safe whole seconds, with an advisory warning above 50 MSPT. Upkeep consumes at least 15% of full capacity each second; external `/tick freeze` ownership is preserved. |
-| Forcefield | Gives the caster and compatible entities within two blocks independent finite-integrity wards. A ward has no timer and sacrificially absorbs the complete overkill hit that breaks it. It follows a mind traveller's vulnerable physical body. |
-| Gravity Displacement | Five-second deterministic orrery for up to 16 nearby permitted bodies, collision-safe orbit, stable overlap arbitration, ranked collapse, projectile curvature, and Slow Falling release. |
+| Forcefield | Gives the caster and compatible entities within two blocks independent finite-integrity wards. Ownership colour and three crack stages expose integrity; same-caster recasts repair/merge safely, crouching allies opt out, and the breaking ward sacrificially absorbs the complete overkill hit. It follows a mind traveller's vulnerable physical body. |
+| Gravity Displacement | Five-second deterministic pull/orbit/repel field for up to 16 nearby permitted bodies, collision-safe steering, stable boss resistance and overlap arbitration, ranked collapse, projectile curvature, and Slow Falling release. Crouch-selection and artifact snapshots expose the server-owned mode. |
 | Vessel Possession | Up to 30 seconds of server-owned movement, aim, jump, crouch, hotbar, and attack control over a consented player or suitable mob while the caster's body remains vulnerable. Mob AI is restored; higher-ranked players resist. Host death returns the controller under Divine Wrath. |
 | Astral Projection | Bounded 150-block soul-form scouting with a vulnerable physical body, validated return, and no invulnerability shortcut. |
 | Energy Drain | Two-second channel. Players lose energy and receive hidden-particle Exhaustion; mobs take repeated percentage-health damage plus a capped completion strike; the caster refills. |
 | Ice Manipulation | Freezing ray that harms/freezes targets, water to ice, lava to obsidian, and protected snow placement. |
 | Plant & Healing Acceleration | Normal use grows an aimed bonemealable plant. Crouching emits a zero-cooldown heal for the caster and injured players in an inclusive two-block radius. |
-| Double Health | Owned maximum-health toggle, continuous drain, proportional cleanup, and no removal of unrelated attribute modifiers. |
+| Double Health | Owned maximum-health toggle, continuous drain, proportional cleanup, a clear extra-heart-row pulse, heal-to-cap rules, anti-toggle healing lock, and no removal of unrelated attribute modifiers. |
 
 Every innate has authored transformations at ranks 3, 6, 9, and 10 rather than only generic percentages. The exact 253 level profiles, capstone damage/range/duration, destruction tier, capacity, and transformation names are in [Innate power levels](docs/gameplay/innate-levels.md).
 
@@ -136,14 +136,14 @@ Crouch-use turns the selected page; normal use casts. A channel locks its item, 
 | Celestial — Augury of the Living Sky | 16 / 30s / 1s | Reports weather, moon, nearby force pressure, and time to the next realm event. |
 | Celestial — Cartographer's Star | 24 / 60s / instant | Authenticated structure, biome, or realm-landmark search; bounded to 64 structure chunks or 4,096 biome blocks and never forces search chunks. |
 | Celestial — Heavenfall: Celestial Ruin | 100 / 60m / 10s | Locks a point, then persists a one-minute catastrophe across logout/restart: 100-block beam, progressive 19×19 chunk preparation, 50,000 peak quadratic entity damage to 6,000 blocks, extreme knockback, 120-block crater, 96 loaded-chunk fire scars, three-second white flash, 20-second whiteout, and tinnitus. |
-| Deep — Dimensional Anchor | 22 / 60s / 2s | Anchors a consent-valid living target against teleport and dimension movement. This is the Deep Grimoire's only active spell. |
+| Deep — Dimensional Anchor | 22 / 60s / 2s | Anchors a consent-valid living target against teleport and dimension movement. Renewals preserve the shared group circle, tether and authoritative remaining-duration feedback. This is the Deep Grimoire's only active spell. |
 | Blight — Blood Reading | 12 / 10s / 1s | Reports health, maximum health, armour, alignment, and active effect IDs; player consent applies. |
-| Blight — Grave Recall | 10 / 10s / instant | Reports only the dimension and block coordinates of the caster's last recorded death. |
+| Blight — Grave Recall | 10 / 10s / instant | Reports the dimension and block coordinates of the caster's last retained death; in the same dimension it also gives a private compass bearing. Death memories expire after seven in-game days; legacy untimed records remain readable. |
 | Wild — Purification Circle | 20 / 30s / 2.5s | Heals allies, removes ordinary harmful effects except Amethyst Poisoning, clears anchors, and severs Soul Links in eight blocks. |
 | Wild — Verdant Tending | 22 / 30s / 2s | Bounded plant growth, farmland hydration, and local fire extinguishing. |
 | Wild — Hearth Sanctuary | 28 / 50s / 2s | Gives every living entity in a strict three-block radius an independent 40-integrity sacrificial forcefield. |
 | Abyssal — Ward-Breaking Ritual | 26 / 60s / 4s | Suppresses the aimed powered Amethyst Ward for 45 seconds without destroying it. |
-| Abyssal — Dispel | 18 / 25s / 1s | Removes the nearest spell field and/or removable non-amethyst effects and anchor from a valid target. |
+| Abyssal — Dispel | 18 / 25s / 1s | Inspection names the exact nearest currently removable field before channel commitment; release revalidates that snapshot, then removes it and/or removable non-amethyst effects and anchor from a valid target. |
 
 Infernal grimoire IDs are hidden, inert compatibility aliases for old saves. Recolour/Unbound aliases resolve to their supported schools rather than creating extra spell systems. Insight True Sight can reveal concealed path/rank information during a consented Soul Compass ritual, but never bypasses consent.
 
@@ -157,16 +157,16 @@ There are ten usable crystal items exposing 11 distinct actions. Multi-mode crys
 | Orange | **Clone Swarm:** three unarmed, owner-skinned 80-health Echoes for 60 seconds. **Creativity Manifestation:** protected fixed orange-concrete/glass/glowstone chamber. |
 | Yellow | **Size Shift:** alternates fixed 20-second `0.0625×` miniature and `10×` titan forms with corresponding movement/combat changes; separate from innate Size Morphing. |
 | Green | **Life Bloom:** fully heals and cleanses living allies in 20 blocks. |
-| Blue | **Chrono Stop:** toggles true global tick freeze and auto-releases after one minute without upkeep. **Dreamwalking:** controls one uniquely named consented player or mob for up to 30 seconds through the vulnerable body channel. |
+| Blue | **Chrono Stop:** toggles true global tick freeze, shows owner/deadline state plus a temporal-fracture edge, and auto-releases after one minute without upkeep. **Dreamwalking:** controls one uniquely named consented player or mob for up to 30 seconds through the vulnerable body channel. |
 | Indigo | **Middleworld:** persisted vulnerable mind travel to the muted Between; use again to return to the exact validated origin. |
-| Violet | **Soul Link:** binds up to eight nearby souls for ten seconds and mirrors a bounded share of later wounds among survivors. |
-| Rainbow | Six-mode convergence: Inferno, Clone Swarm, Size Shift, Life Bloom, Chrono Stop, or Soul Link. A Darkness holder receives the same item's corrupted model; the legacy infected item is a hidden inert save alias. |
+| Violet | **Soul Link:** binds up to eight nearby souls for ten seconds, renders its topology, and mirrors later wounds under an independently visible remaining-damage cap per target without recursive or forcefield double-counting. |
+| Rainbow | Six-mode convergence: Inferno, Clone Swarm, Size Shift, Life Bloom, Chrono Stop, or Soul Link. Crouch-use opens a non-pausing narrated radial selector backed only by a server-validated mode index. A Darkness holder receives the same item's corrupted model; the legacy infected item is a hidden inert save alias. |
 | Light | Vulnerable self/consented-target travel to the Light Realm. Crouch-use can take the caster plus up to 15 nearby eligible consenting players to distinct safe arrivals. |
 | Dark | Equivalent vulnerable group travel to the Dark Realm under corrupted presentation. |
 
 ## Mythic artifacts and combat UI
 
-Crouch-right-click the Shadow Sword or Heavenly Partisan for a non-pausing eight-segment wheel. Hover and release crouch, click, or press `1`–`8` to bind/cast a favourite. The centre opens a searchable icon library with Favourites, Innate, Crystals, and alignment tabs; entries show glyph, translated name, registry key, cost, cooldown progress, toggle, rank lock, and applicable variant. Loadouts persist and retired keys migrate without duplicates.
+Crouch-right-click the Shadow Sword or Heavenly Partisan for a non-pausing eight-segment wheel. Hover and release crouch, click, or press `1`–`8` to select a favourite; release-to-cast is a separately persisted opt-in and defaults off. The centre opens a searchable icon library with Favourites, Innate, Crystals, and alignment tabs; entries show glyph, translated name, registry key, exact live cost/savings, cooldown progress, toggle, rank lock, and applicable size/gravity variant. Loadouts persist and retired keys migrate without duplicates.
 
 ### Shadow Sword
 
@@ -227,13 +227,13 @@ The registry currently contains 262 gameplay/block rows. The exact ID, family, i
 | --- | --- |
 | Rings and amulets | Inventory attunements with one-to-three recovery weight, combined energy cap six/second, and hidden-particle Resistance capped at II. |
 | Soulstones / Soul Matrix | Persistent auxiliary energy reservoirs and atomic cast-shortfall payment. |
-| Ritual Dagger | Sacrifices four real health above the safety floor for 80 energy; cannot be made free by armour, forcefields, or cancelled damage. |
+| Ritual Dagger | Its tooltip previews exact health cost, survival floor and energy gain. Use sacrifices four real health above that floor for 80 energy; armour, forcefields, and cancelled damage cannot make it free. |
 | Five heart relics | Living Heart healing/regeneration; Wildwood stronger healing; Ghoul healing plus energy; Clockwork timed absorption; Bloodstone five-minute single lethal-damage ward. |
 | Philosopher's Stone | Protected 30-energy transmutation: stone/cobble to iron ore, deepslate variants, netherrack to quartz, end stone to amethyst. |
-| Lodestone / Miniportal | Bind a safe same-dimension anchor; two-charge async return through normal travel rules. Empty Miniportal plus a dropped amethyst shard restores both charges. |
+| Lodestone / Miniportal | Bind a named safe same-dimension anchor; charged/empty model and durability tooltip expose two-charge state. Async return uses the first valid inventory anchor and normal travel rules. Empty Miniportal plus a dropped amethyst shard restores both charges. |
 | Flute | Recalls, heals, and rebinds nearby player-shaped guardians under owner/global caps. |
 | Empyrean Jewel | Pays one 40-energy surcharge to override every player-consent gate—teleport/forced movement, locator, companion, Dreamwalking, possession—without bypassing protections or safe zones. The target receives a conspicuous permanent chat notice and the attempt enters the bounded operator audit. |
-| Malignember | Reduces explicit destructive-action energy cost by 20%, never below one and never through rank scaling. |
+| Malignember | Its registry-derived tooltip lists every eligible destructive action and each artifact snapshot reports the actual saved energy. It reduces only those costs by 20%, never below one and never through rank scaling. |
 | Stars, dusts, salts, fossils, jewels, stones, vessels, pages | Bounded Crucible XP/catalyst tiers, archaeology, and contextual Shadow lore; no essence economy. |
 
 There are 82 non-mythic fantasy weapons across 12 real archetypes: Frostbound slows/weakens; Quicksteel grants speed; Reaper executes wounded targets; Crusher launches/weakens; Berserker adds damage/strength; Arcane returns energy; Vital heals; Radiant burns/reveals; Abyssal withers/lifesteals; Guardian shields; Hunter marks/poisons; Piercer deals armour-ignoring magic damage. Procs have cooldowns, hidden vanilla particles, authored magic FX, and amethyst/safe-zone suppression. Every ordinary weapon belongs to one low-chance additive survival loot family and can enter the Arcane Crucible; mythic artifacts cannot.
@@ -307,7 +307,7 @@ The canonical registry contains 64 actions: 23 innate, 12 spells, 11 crystal, 13
 
 Notable physical interactions include Energy Beam × Void Beam creating a bounded no-grief pressure blast, visual lightning at both casters, and a short celestial ring; fire × frost producing steam; Pure Light × Darkness producing eclipse annihilation; Void scar × Light tearing a star rift; purification severing Soul Link; forcefields sacrificing against catastrophic damage; amethyst grounding/suppressing magic; and aligned same-innate Concords. Projectiles, beams, fields, impact points, bodies, wards, forces, and spell presences use dimension/chunk indexes rather than whole-world searches.
 
-Successful casts use anticipation, release, impact, and aftermath ceremonies. Eight authored particle sprites—mote, shard, glyph, ribbon, spark, eclipse, root, fracture—and 14 original mono Vorbis sound events replace potion-effect clouds. Common failures/cooldowns use concise action-bar text; chat is reserved for unusual outcomes. Reduced motion substitutes static bounded geometry, and both server and client stop spawning visuals when their budgets are exhausted.
+Successful casts use anticipation, release, impact, and aftermath ceremonies. Bounded collision sigils identify counters/resonance once without chat spam. Eight authored particle sprites—mote, shard, glyph, ribbon, spark, eclipse, root, fracture—and 16 original mono Vorbis sound events include separate short beam/boss ringing cues rather than reusing Celestial Ruin tinnitus. Common failures/cooldowns use concise action-bar text; chat is reserved for unusual outcomes. Reduced motion substitutes static bounded geometry, and both server and client stop spawning visuals when their budgets are exhausted.
 
 ## Commands
 
@@ -341,6 +341,8 @@ Operator commands:
 /powers travel <dimension>
 ```
 
+Optional Fabric Permissions API providers may grant the independent nodes `powers.command.diagnose`, `powers.command.testing`, `powers.command.travel`, `powers.command.assign`, `powers.command.recover`, and `powers.command.boss`; without a provider, the configured vanilla operator tier remains authoritative.
+
 Testing commands are operator-only, executor-local, session-only, and never bypass protection, amethyst, targeting, realm gates, damage, permissions, or Time Stop:
 
 ```text
@@ -357,7 +359,7 @@ Testing commands are operator-only, executor-local, session-only, and never bypa
 /powers testing profile start <minutes> <expectedPlayers>
 ```
 
-The arena creates seven named acceptance targets: neutral/radiant/dark test actors, zombie, iron golem, Hollowed, and Radiant Sentinel. Coverage is derived from live registries so a newly added action cannot silently disappear from the manual test inventory. `/powers diagnose` reports fields, forced chunks, body proxies, Celestial events, per-dimension spatial-index work and memory, scan/work budgets, packets, particles, testing flags, cleanup state, config-validation counts, and bounded privileged-action audit totals. `/powers diagnose export` atomically writes aggregate-only schema-v1 JSON to the world's `powers/diagnostics/latest.json`; it excludes chat, names, UUIDs, precise player coordinates, credentials, and remote-provider content.
+The arena creates seven named acceptance targets: neutral/radiant/dark test actors, zombie, iron golem, Hollowed, and Radiant Sentinel. Coverage is derived from live registries so a newly added action cannot silently disappear from the manual test inventory. `/powers diagnose` reports fields, forced chunks, body proxies, Celestial events, per-dimension spatial-index work and memory, scan/work budgets, packets, particles, testing flags, cleanup state, config-validation counts, bounded privileged-action audit totals, and the executor's last 32 authoritative energy transactions reconciled by source. Crash reports add only bounded aggregate POWERS session counts and the latest typed failure reason/tick—never names, chat, IDs, coordinates, or remote content. `/powers diagnose export` atomically writes aggregate-only schema-v1 JSON to the world's `powers/diagnostics/latest.json`; it excludes chat, names, UUIDs, precise player coordinates, credentials, and remote-provider content.
 
 Quest telemetry stores bounded, anonymous Light/Dark completion durations and route names; completed samples contain no player identity. Publication remains locked until each alignment/level has at least 20 samples. The opt-in profiler records full server ticks, connected-player counts, work-budget peaks, p95/p99 MSPT, and sampled allocations to `profiles/*.json` and `profiles/*.jfr`; it has no recording/allocation overhead while inactive.
 
@@ -424,7 +426,7 @@ The exact generated appendices are:
 
 ## Verification status
 
-Current automated evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md) and [bounded P2 acceptance ledger](docs/verification/2026-08-11-bounded-p2-acceptance.md), not inferred from documentation hashes. The current combined checkpoint proves 1,312 JUnit tests, 67 live Fabric GameTests, two isolated dedicated-server restart cycles, resource/asset validation, mutation/visual/save-migration gates, and the allocation-aware 10/50/100-player synthetic soak. The current-source interactive client review, long profiles/soak, quest sample collection, and manual acceptance remain explicit human or elapsed-time gates and are never represented as automated proof.
+Current automated evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md), [bounded P2 ledger](docs/verification/2026-08-11-bounded-p2-acceptance.md), and [Queue 1 ledger](docs/verification/2026-08-11-queue-1-acceptance.md), not inferred from documentation hashes. The exact fresh Queue 1 counts are recorded only after the final combined verification run. The current-source interactive client review, long profiles/soak, quest sample collection, and manual acceptance remain explicit human or elapsed-time gates and are never represented as automated proof.
 
 Useful checks:
 

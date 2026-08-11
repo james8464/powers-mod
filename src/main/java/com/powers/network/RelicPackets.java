@@ -89,8 +89,7 @@ public final class RelicPackets {
 			sendState(player, payload.slot(), stack);
 			return;
 		}
-		if (result.mainEnergy() < data.energy()) data.drainEnergy(data.energy() - result.mainEnergy());
-		else data.refundEnergy(result.mainEnergy() - data.energy());
+		data.transferEnergyBalance(result.mainEnergy());
 		ArtifactEnergyReservoir.setStored(stack, result.auxiliaryEnergy());
 		PowersPackets.syncTo(player);
 		sendState(player, payload.slot(), stack);

@@ -35,8 +35,13 @@ public final class ArtifactMenuRules {
 	public static int selectionVariant(String abilityPath, int sizeOption, int gravityOption) {
 		return switch (abilityPath == null ? "" : abilityPath) {
 			case "size_shift" -> sizeOption;
-			case "gravity_displacement" -> Math.clamp(gravityOption, 0, 2);
+			case "gravity_displacement" -> normalizeGravityOption(gravityOption);
 			default -> -1;
 		};
+	}
+
+	/** Keeps malformed or absent selector state on the non-destructive orbit mode. */
+	public static int normalizeGravityOption(int option) {
+		return option >= 0 && option <= 2 ? option : 1;
 	}
 }

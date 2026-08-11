@@ -35,4 +35,12 @@ class ArtifactMenuRulesTest {
 		assertEquals(2, ArtifactMenuRules.selectionVariant("gravity_displacement", 6, 2));
 		assertEquals(-1, ArtifactMenuRules.selectionVariant("flight", 6, 2));
 	}
+
+	@Test
+	void malformedGravityVariantsFallBackToNeutralOrbit() {
+		assertEquals(1, ArtifactMenuRules.normalizeGravityOption(-1));
+		assertEquals(1, ArtifactMenuRules.normalizeGravityOption(99));
+		assertEquals(0, ArtifactMenuRules.normalizeGravityOption(0));
+		assertEquals(2, ArtifactMenuRules.normalizeGravityOption(2));
+	}
 }

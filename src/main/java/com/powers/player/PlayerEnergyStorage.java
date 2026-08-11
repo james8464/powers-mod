@@ -107,6 +107,13 @@ final class PlayerEnergyStorage {
 		record(target, EnergyHistorySource.OPERATOR_RESTORE, before, after);
 	}
 
+	/** Moves energy between owned stores without reporting aggregate spend or restoration. */
+	static void transferBalance(AttachmentTarget target, int value) {
+		int before = energy(target);
+		store(target, value);
+		record(target, EnergyHistorySource.INTERNAL_TRANSFER, before, energy(target));
+	}
+
 	static void store(AttachmentTarget target, int value) {
 		int clamped = Math.clamp(value, 0, capacity(target));
 		if (usesDarkness(target)) target.setAttached(DARKNESS_ENERGY, clamped);

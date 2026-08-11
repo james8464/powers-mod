@@ -88,7 +88,8 @@ public record ArtifactMenuState(
 	public int optionFor(ArtifactActionDefinition action) {
 		return switch (action.abilityId()) {
 			case "size_shift" -> sizeMorphOption;
-			case "gravity_displacement" -> Math.clamp(variant(action), 0, 2);
+			case "gravity_displacement" -> com.powers.item.artifact.ArtifactMenuRules
+					.normalizeGravityOption(variant(action));
 			default -> -1;
 		};
 	}

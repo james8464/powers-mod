@@ -11,6 +11,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MagicShieldManagerTest {
 	@Test
+	void sharingRequiresAPlayerCompatibleTarget() {
+		assertTrue(com.powers.power.abilities.ForcefieldRules.mayShare(true, false, 1.0));
+		assertFalse(com.powers.power.abilities.ForcefieldRules.mayShare(false, false, 1.0));
+		assertFalse(com.powers.power.abilities.ForcefieldRules.mayShare(true, true, 1.0));
+	}
+	@Test
 	void shieldConsumesFiniteIntegrityAndCollapses() {
 		MagicShieldManager manager = new MagicShieldManager();
 		UUID owner = UUID.randomUUID();

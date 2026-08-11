@@ -37,4 +37,18 @@ class EnergyHistoryLedgerTest {
 		assertEquals(EnergyHistoryLedger.HISTORY_LIMIT, ledger.snapshot(owner).history().size());
 		assertEquals(EnergyHistorySource.values().length, ledger.snapshot(owner).breakdown().size());
 	}
+
+	@Test
+	void losslessReservoirMovementDoesNotInflateUsageTotals() {
+		EnergyHistoryLedger ledger = new EnergyHistoryLedger();
+		UUID owner = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+		ledger.record(owner, 1, EnergyHistorySource.INTERNAL_TRANSFER, 100, 40);
+		ledger.record(owner, 2, EnergyHistorySource.INTERNAL_TRANSFER, 40, 100);
+
+		EnergyHistorySnapshot snapshot = ledger.snapshot(owner);
+		assertEquals(0, snapshot.consumed());
+		assertEquals(0, snapshot.restored());
+		assertEquals(120, snapshot.amount(EnergyHistorySource.INTERNAL_TRANSFER));
+		assertTrue(snapshot.reconciles());
+	}
 }

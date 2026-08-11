@@ -9,7 +9,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
 | COR-018 | Guarantee | P2 | Add deterministic replay seeds for all random target, strike, scar, loot, and learning decisions. | A captured seed reproduces behavior and visuals without changing production randomness. |
-| COR-019 | Guarantee | P2 | Add explicit capability fallback for non-player living entities used by player-only mechanics. | Every action declares supported entity contract and returns a typed failure instead of casting/crashing. |
 | COR-020 | Guarantee | P2 | Audit every scheduled callback for stale entity, stale level, and stopped-server references. | Static/runtime audit proves UUID re-resolution, deadline, and cancellation ownership. |
 
 ## 2. Performance and scalability
@@ -45,14 +44,11 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | PWR-015 | Enhancement | P2 | Super Speed: client camera/FOV comfort controls and path-aware wake LOD. | Reduced-motion mode removes camera distortion without gameplay advantage. |
 | PWR-016 | Enhancement | P2 | Breezy Bash: caster-directed landing zone and allied rescue mode. | Hostile control still needs consent/policy; rescue never teleports through walls. |
 | PWR-017 | Enhancement | P2 | Invisibility: light/shadow exposure meter, footprints, rain silhouettes, and Insight counterplay. | Counter cues are consistent, configurable, and do not reveal through walls. |
-| PWR-019 | Enhancement | P2 | Forcefield: visible crack stages, ownership colour, repair/merge rules, and ally opt-out. | Integrity and sacrificial protection remain authoritative in all views. |
-| PWR-020 | Enhancement | P2 | Gravity Displacement: player-chosen pull/orbit/repel modes and stable boss resistance. | Mode selection is fast, bounded, and represented in artifact snapshots. |
 | PWR-021 | Enhancement | P2 | Vessel Possession: richer mob action adapters (doors, ranged use, special attack) without fabricating player inventories. | Each supported host type declares allowed controls and exact cleanup. |
 | PWR-022 | Enhancement | P2 | Astral Projection: interact-only spirit clues, ward sight, and return-path indicator. | Spirit cannot move items, attack, load arbitrary chunks, or bypass progression. |
 | PWR-023 | Enhancement | P2 | Energy Drain: visible tether stress, interruption minigame, and boss-scaled capped conversion. | No infinite reservoir loop or percent-health bypass. |
 | PWR-024 | Enhancement | P2 | Ice Manipulation: melt lifecycle, ice bridges, brittle armour, and fire interaction. | Temporary terrain restores safely and block updates are bounded. |
 | PWR-025 | Enhancement | P2 | Plant/Healing: species-aware growth, root shields, blight cleansing, and nature boss utility. | Never duplicates crops/drops and respects bonemeal/protection hooks. |
-| PWR-026 | Enhancement | P2 | Double Health: clear heart-row animation, heal-to-cap rules, and anti-toggle exploit lock. | Repeated toggle cannot heal, kill, or overlap HUD rows. |
 | PWR-027 | Expansion | P3 | Add cooperative three-caster Concord rituals combining complementary powers. | Each recipe is discoverable, consented, interruption-safe, and in the pair/triad catalogue. |
 | PWR-028 | Expansion | P3 | Add alignment-exclusive rank-10 ascension forms with a reversible ceremony. | Form has meaningful risk/counterplay and no permanent player-data corruption. |
 
@@ -64,14 +60,11 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | SPL-004 | Enhancement | P2 | Augury: forecast living-force spread fronts, Whiteout/Eclipse severity, and safe ritual windows. | Forecast uses loaded authoritative state and labels uncertainty. |
 | SPL-005 | Enhancement | P2 | Cartographer's Star: route breadcrumbs and reusable discovered-site journal. | It never forces search chunks or reveals progression-locked sites. |
 | SPL-007 | Enhancement | P2 | Celestial Ruin: vertical atmosphere column, cloud displacement, post-blast ash/weather, and distance-scaled structural scars. | Client LOD and server terrain budgets remain bounded across 6,000 blocks. |
-| SPL-008 | Enhancement | P2 | Dimensional Anchor: visible tether to anchor point, duration diagnostics, and renewable group anchor circle. | All travel paths consult one owner state and show the same remaining duration. |
 | SPL-009 | Enhancement | P2 | Blood Reading: trend recent damage/healing and diagnose force/amethyst vulnerability. | No hidden equipment, private data, or consent bypass leaks. |
-| SPL-010 | Enhancement | P2 | Grave Recall: optional compass bearing and death-marker expiry without teleportation. | Only the owner sees it and coordinates remain dimension-correct. |
 | SPL-011 | Enhancement | P2 | Purification Circle: ingredient/rune variants that choose cleanse, link sever, or corruption relief. | Amethyst Poisoning remains explicitly non-cleansable except by its own counter. |
 | SPL-012 | Enhancement | P2 | Verdant Tending: reforest bounded templates and repair biome vegetation. | No loot duplication, protected placement, or runaway scheduled ticks. |
 | SPL-013 | Enhancement | P2 | Hearth Sanctuary: persistent visible floor rune and voluntary ally exclusion. | Every ward remains individually owned and overkill-safe. |
 | SPL-014 | Enhancement | P2 | Ward Breaking: contest mechanic where defenders reinforce a Ward during the channel. | Both sides get readable progress; final state is deterministic. |
-| SPL-015 | Enhancement | P2 | Dispel: inspect mode that names the exact nearest removable field before committing. | The server advertises only currently legal choices and revalidates release. |
 | SPL-016 | Expansion | P3 | Add a Celestial **Oath of Return** that safely recalls consenting companions/bodies, never escaped mindscapes. | Travel matrix proves confinement and consent on every form. |
 | SPL-017 | Expansion | P3 | Add a Wild **Mending of Place** ritual to restore POWERS-owned temporary terrain scars. | It restores only recorded mod changes and cannot regenerate mined resources. |
 | SPL-018 | Expansion | P3 | Add an Archivist **Memory Echo** spell that replays redacted local magic residues. | Bounded history, no private chat/coordinates beyond the casting area, clear expiry. |
@@ -88,11 +81,8 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | CRY-006 | Enhancement | P2 | Creativity Manifestation: choose from small validated datapack blueprints. | Templates have size/material/protection budgets and atomic preflight. |
 | CRY-007 | Enhancement | P2 | Yellow Size Shift: transition shockwave, camera comfort, collision preview, and mount rejection reason. | Extreme scales never suffocate or desync the server hitbox. |
 | CRY-008 | Enhancement | P2 | Green Life Bloom: resurrect only tagged temporary allied summons and restore corrupted flora. | Never revives players/bosses or duplicates entities. |
-| CRY-009 | Enhancement | P2 | Blue Chrono Stop: visible world-edge temporal fracture and owner/deadline HUD. | True tick ownership and one-minute release remain exact. |
 | CRY-010 | Enhancement | P2 | Dreamwalking: host-compatible ability hints and voluntary host emergency eject. | Eject cannot strand controller or body. |
 | CRY-011 | Enhancement | P2 | Indigo Middleworld: memory trails, liminal hazards, and discoverable exits tied to exact origin. | Origin persistence and confinement survive restart. |
-| CRY-012 | Enhancement | P2 | Violet Soul Link: visible topology and per-target remaining mirrored-damage cap. | No recursive damage or forcefield double-count. |
-| CRY-013 | Enhancement | P2 | Rainbow convergence: one radial selector shared with artifact glyph language. | Mode can be chosen in combat without chat or pagination. |
 | CRY-014 | Enhancement | P2 | Light/Dark group travel: preview eligible/denied companions with individual reason. | No identity or consent leakage beyond nearby candidates. |
 | CRY-015 | Expansion | P3 | Design non-crafting story acquisition trials for each crystal while retaining recipe absence. | Every trial is non-circular, multiplayer-safe, and documented; no recipe JSON added. |
 | CRY-016 | Research | P3 | Explore crystal fractures/temporary exhaustion as optional high-stakes server policy. | Default remains indestructible; prototype is opt-in and save-safe. |
@@ -106,13 +96,11 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | PRG-004 | Enhancement | P2 | Make each of 28 nodes alter at least one named mechanic and display it numerically. | No node is title-only; tooltip matches executable profile tests. |
 | PRG-005 | Enhancement | P2 | Add rank-maze route preview, dependency highlights, respec delta, and confirmation. | Keyboard/narration users can inspect every consequence before spending XP. |
 | PRG-006 | Enhancement | P2 | Add server-configurable ethical alternatives to Darkness tasks without weakening default lore. | Alternate objectives are explicit, equally severe, and disabled by default. |
-| PRG-007 | Enhancement | P2 | Add energy consumption history and source breakdown to diagnostics/HUD tooltip. | Totals reconcile with authoritative transactions and reservoirs. |
 | PRG-008 | Enhancement | P2 | Define diminishing returns for stacking attunements, Darkness aura, Shadow link, sleep, runestones, and reservoirs. | One generated table covers every source combination and prevents overflow. |
 | PRG-009 | Enhancement | P2 | Add runestone degradation/repair only as an opt-in economy mode. | Existing worlds retain reusable behavior by default. |
 | PRG-010 | Enhancement | P2 | Add alignment tension meter driven by actions rather than instant binary swaps. | It cannot silently remove powers/items; transitions are previewed and reversible until committed. |
 | PRG-011 | Expansion | P3 | Add cooperative **Concordance** progression for groups mixing Light and Darkness. | Rewards coordination without erasing each player's alignment identity. |
 | PRG-012 | Expansion | P3 | Add post-rank-10 mastery challenges that unlock cosmetics/variants, not raw infinite scaling. | Boss balance and server budgets remain bounded. |
-| PRG-013 | Guarantee | P2 | Verify chat prefixes against teams, nicknames, signed chat, death messages, and common formatting mods. | Prefix is compatible or cleanly disabled without mutating signed content. |
 | PRG-014 | Enhancement | P3 | Add operator-import/export of a player's progression snapshot. | Signed/validated format, dry run, backups, and no arbitrary NBT injection. |
 
 ## 7. Artifacts, relics, Crucible, food, and loot
@@ -120,13 +108,9 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
 | ART-003 | Enhancement | P2 | Give every ring/amulet a visible attunement school and one bounded situational modifier. | Variants are mechanically distinct without stack multiplicative abuse. |
-| ART-004 | Enhancement | P2 | Add reservoir transfer UI showing exact main/auxiliary balance and pending cast shortfall. | No client-authored quantities; atomic server result. |
-| ART-005 | Enhancement | P2 | Add ritual dagger blood-rune visuals and a clear health safety preview. | It never kills below the documented floor or bypasses health cost. |
 | ART-006 | Enhancement | P2 | Give heart relics unique models/beat audio and explicit mutual-exclusion policy. | Multiple hearts cannot stack hidden death wards or unbounded passives. |
 | ART-007 | Enhancement | P2 | Expand Philosopher's Stone through datapack transmutation recipes with entropy cost. | Recipes are discoverable, protected, non-circular, and cannot duplicate value. |
-| ART-008 | Enhancement | P2 | Miniportal: named anchors, durability bar tooltip, and charged/empty model variants. | Still two charges, same dimension, async, and commit-after-arrival. |
 | ART-009 | Enhancement | P2 | Flute: formation/stance wheel and guardian status. | Commands affect only owned eligible guardians under caps. |
-| ART-011 | Enhancement | P2 | Malignember: display eligible destructive actions and actual saved energy. | Tooltip is registry-derived and never promises an ineligible discount. |
 | ART-012 | Enhancement | P2 | Give fossils/pages/jewels in-world archaeology clue chains instead of only XP values. | Each clue has source, interpretation, and non-circular reward. |
 | ART-013 | Enhancement | P2 | Expand Crucible output previews with retained/lost components and exact level curve. | Server snapshot drives all displayed data; stale preview cannot commit. |
 | ART-014 | Enhancement | P2 | Add alignment-specific weapon models/animations for the six conversion outputs. | All GUI/ground/first/third-person views pass asset QA. |
@@ -190,7 +174,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | SHD-011 | Enhancement | P2 | Expand offline lore/registry knowledge to all 262 catalogue rows, 64 actions, ranks, realms, and interaction rules. | Generated knowledge coverage report reaches 100% with source links. |
 | SHD-013 | Enhancement | P2 | Make Shadow's subtle ulterior Darkness agenda stateful but never deceptive about mechanics/safety. | Tone tests distinguish persuasion from fabricated facts. |
 | SHD-014 | Enhancement | P2 | Add spoken/visual combat callouts with frequency controls. | Critical warnings survive; chatter respects global/private and accessibility settings. |
-| SHD-015 | Enhancement | P2 | Add owner-visible Shadow energy/status HUD only while relevant. | No permanent clutter; server snapshot is authoritative. |
 | SHD-016 | Research | P2 | Evaluate a local small-language-model provider for optional private dialogue. | Benchmarks cover latency, memory, moderation, redaction, CPU/RAM, and offline fallback. |
 | SHD-018 | Enhancement | P3 | Add Shadow/Herald/First Vessel relationship memories and evolving dialogue. | State is compact, migratable, and cannot change gameplay permissions invisibly. |
 | SHD-019 | Enhancement | P3 | Allow Shadow to coordinate owned Hollowed formations. | Total AI/cast quotas stay shared and capped. |
@@ -201,17 +184,14 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
 | UX-004 | Enhancement | P2 | Replace artifact catalogue pagination with virtual scroll, filters, and recent actions. | Any action is bindable in two interactions after search. |
-| UX-005 | Enhancement | P2 | Add hold-to-preview wheel aim and optional release-to-cast mode. | Default behavior remains safe; narration/keyboard parity. |
 | UX-007 | Enhancement | P2 | Add complete controller/gamepad navigation for all screens and selectors. | Every action is reachable without mouse and focus never traps. |
 | UX-008 | Guarantee | P2 | Complete narration labels, order, live-region throttling, and high-contrast focus for every custom screen. | Automated accessibility audit plus manual screen-reader pass. |
 | UX-009 | Enhancement | P2 | Add configurable reduced flashes, tinnitus, camera shake, FOV, and large-beam opacity. | Celestial Ruin remains mechanically readable with all comfort options enabled. |
-| UX-010 | Enhancement | P2 | Add spell/crystal/artifact favorites to the first-join guide as discoverable diagrams. | Guide remains concise and updates from current bindings. |
 | VFX-003 | Enhancement | P1 | Establish per-action near-camera particle exclusion/cone limits for Lightning and Fireball. | First-person captures preserve aim visibility at all ranks. |
 | VFX-004 | Enhancement | P2 | Add material-aware impact decals/scars for beam, slam, thunderclap, ice, and fire. | Decals are bounded, protected, and restore/expire cleanly. |
 | VFX-005 | Enhancement | P2 | Create unique silhouettes for each rank-10 transformation. | A distant observer identifies power/alignment without reading chat. |
 | VFX-006 | Enhancement | P2 | Add animation controllers for Shadow, guardians, Heralds, and First Vessel casting poses. | Client/server action timing stays synchronized under latency. |
 | VFX-007 | Enhancement | P2 | Expand 14 sounds into layered near/mid/far variants and occlusion-aware mixes. | Loud events do not clip; volume falls off correctly; subtitles exist. |
-| VFX-008 | Enhancement | P2 | Add dedicated short tinnitus/ringing variants for beam collision and boss impacts. | No long Celestial Ruin effect is reused for small collisions. |
 | VFX-009 | Enhancement | P2 | Add custom Light Realm sky shader/skybox with accessibility fallback. | Pure white target remains stable across render distance/resource packs. |
 | VFX-010 | Enhancement | P2 | Add weather/biome-responsive ancient rune color grading. | Meaningful action colors remain consistent and color-blind safe. |
 | VFX-011 | Guarantee | P2 | Audit texture mipmaps, alpha seams, spawn eggs, item transforms, and atlas bleeding. | Pixel-perfect captures at all mip levels/views. |
@@ -221,7 +201,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
-| INT-005 | Enhancement | P2 | Add visible interaction sigils naming counter/resonance without chat spam. | Short action-bar/icon cue appears once per bounded collision. |
 | INT-006 | Enhancement | P2 | Expand conductive networks across Lightning, water, copper, Pure Light, amethyst, and forcefields. | Graph is capped and each terminal has distinct visuals/damage. |
 | INT-007 | Enhancement | P2 | Expand thermal rules across Fireball/Inferno, Ice, water, snow, plants, and realm blocks. | State table prevents contradictory conversions and scheduled-tick storms. |
 | INT-008 | Enhancement | P2 | Expand temporal rules across Time Freeze, Chrono Stop, projectiles, channels, Ruin countdown, realm cycles, and external tick state. | Each clock explicitly uses frozen or unfrozen time and is test-proven. |
@@ -232,13 +211,11 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | INT-013 | Enhancement | P2 | Add amethyst crystallization of temporary void/fire/ice scars with recoverable residue. | Transformation is bounded and cannot farm rare blocks. |
 | INT-014 | Enhancement | P2 | Add boss-specific reactions to Concords and opposing artifacts. | Reactions reward setup without hard-requiring one player alignment. |
 | INT-015 | Expansion | P3 | Add rare **Eclipse Synthesis** when matched Light/Dark dominions collide. | It is telegraphed, consensual near allies, protected, and globally budgeted. |
-| INT-016 | Guarantee | P2 | Add third-party projectile/damage/effect compatibility fixtures. | Unknown sources follow safe defaults and never crash resolver casts. |
 
 ## 13. Multiplayer, administration, compatibility, and API
 
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
-| NET-004 | Enhancement | P2 | Add permissions-node integration alongside vanilla operator levels. | Server owners can separate diagnose, testing, travel, assign, recover, and boss controls. |
 | NET-007 | Enhancement | P2 | Add per-world/dimension policy overrides. | Fallback order is deterministic and shown by diagnose. |
 | NET-009 | Enhancement | P2 | Add formal public integration API for custom powers, cast sources, actions, presences, and protection. | API has lifecycle contract, examples, compatibility tests, and semantic versioning. |
 | NET-010 | Enhancement | P2 | Add datapack reload migration for action/menu keys without reconnect. | Active casts either finish on old revision or cancel safely; clients receive one revision. |
@@ -255,10 +232,8 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | QA-006 | Guarantee | P1 | Add long-duration world soak with forced restart every few minutes. | No leaked ticket, index, field, summon, body, freeze, or Ruin state over 24 hours. |
 | QA-009 | Guarantee | P2 | Add network latency/loss/reorder simulation for menus, movement control, wheel binding, and FX. | State converges without double cast, ghost selection, or unsafe prediction. |
 | QA-010 | Guarantee | P2 | Add test worlds for claims, borders, low ceilings, void, fluids, mounts, passengers, portals, and modded dimensions. | Each critical action has at least one hostile-environment scenario. |
-| QA-012 | Enhancement | P2 | Add crash-report sections for active POWERS sessions and last typed failure. | Report is useful, bounded, and redacted. |
 | QA-015 | Enhancement | P2 | Add in-game operator test dashboard summarizing coverage and recent failures. | Dashboard is read-only outside explicit testing actions and has negligible idle cost. |
 | QA-016 | Guarantee | P2 | Audit all comments for intent/invariants rather than line-by-line narration. | Source quality check rejects stale TODOs, misleading claims, and public APIs without contracts. |
-| QA-017 | Guarantee | P2 | Add resource-pack fallback and missing-asset tests. | Missing optional custom art degrades visibly and never crashes model baking. |
 | QA-019 | Enhancement | P3 | Produce a concise operator handbook separate from the player README. | Includes install, config, backups, recovery, diagnostics, permissions, and catastrophe policy. |
 | QA-020 | Enhancement | P3 | Produce an in-game bestiary/ritual codex from the same generated data. | It contains no unearned spoilers and cannot drift from registries. |
 

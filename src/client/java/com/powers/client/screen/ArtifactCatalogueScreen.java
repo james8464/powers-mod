@@ -42,7 +42,8 @@ public final class ArtifactCatalogueScreen extends Screen {
 		ArtifactActionDefinition gravity = state.actions().stream()
 				.filter(action -> action.abilityId().equals("gravity_displacement"))
 				.findFirst().orElse(null);
-		this.gravityOption = gravity == null ? 1 : Math.clamp(state.variant(gravity), 0, 2);
+		this.gravityOption = gravity == null ? 1 : com.powers.item.artifact.ArtifactMenuRules
+				.normalizeGravityOption(state.variant(gravity));
 		this.favourites = state.favourites();
 	}
 
