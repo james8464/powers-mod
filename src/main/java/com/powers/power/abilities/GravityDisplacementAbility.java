@@ -255,6 +255,7 @@ public final class GravityDisplacementAbility extends Ability {
 					seed, age, field.radius, Math.min(4.5, field.radius * 0.56)));
 			Vec3 velocity = GravityDisplacementRules.steeringVelocity(
 					target.position(), target.getDeltaMovement(), desired, STEERING_PULL, MAX_ORBIT_SPEED);
+			velocity = ControlResistance.adjustImpulse(velocity, ControlResistance.outcome(target));
 			if (!level.noBlockCollision(target, target.getBoundingBox().move(velocity))) {
 				velocity = new Vec3(velocity.x * 0.15, Math.max(0.12, velocity.y), velocity.z * 0.15);
 				if (!level.noBlockCollision(target, target.getBoundingBox().move(velocity))) {
@@ -326,6 +327,7 @@ public final class GravityDisplacementAbility extends Ability {
 			Vec3 impulse = GravityDisplacementRules.collapseImpulse(
 					field.center, target.position(), horizontal, downward);
 			if (!empowered) impulse = impulse.add(0.0, 0.16, 0.0);
+			impulse = ControlResistance.adjustImpulse(impulse, ControlResistance.outcome(target));
 			if (level.noBlockCollision(target, target.getBoundingBox().move(impulse))) {
 				target.setDeltaMovement(impulse);
 				target.hurtMarked = true;

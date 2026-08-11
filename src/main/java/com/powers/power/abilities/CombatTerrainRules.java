@@ -25,6 +25,16 @@ public final class CombatTerrainRules {
 		return 2.5F + clampRank(rank) * 0.75F;
 	}
 
+	/** Applies a server minimum without allowing either source to escape the authored ladder. */
+	public static int effectiveTier(int authoredTier, int configuredMinimum) {
+		return Math.max(clampRank(authoredTier), clampRank(configuredMinimum));
+	}
+
+	/** Enforces the administrator's hard per-cast mutation ceiling. */
+	public static int cappedBudget(int requested, int configuredMaximum) {
+		return Math.min(Math.max(0, requested), Math.max(1, configuredMaximum));
+	}
+
 	private static int clampRank(int rank) {
 		return Math.clamp(rank, 0, 10);
 	}

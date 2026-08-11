@@ -4,6 +4,7 @@ import com.powers.fx.PowerFx;
 import com.powers.item.GrimoireItem;
 import com.powers.network.PowersPackets;
 import com.powers.network.PacketRateLimiter;
+import com.powers.network.GrimoirePackets;
 import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.MagicUseGate;
@@ -68,8 +69,7 @@ public final class SpellCastingManager {
 		}
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		if (player.isShiftKeyDown()) {
-			int selected = data.cycleSpell(grimoire.key(), grimoire.spells().size());
-			showSelection(player, grimoire.spells().get(selected));
+			GrimoirePackets.open(player, grimoire);
 			return;
 		}
 		SpellDefinition spell = selectedSpell(player, grimoire);
@@ -232,6 +232,11 @@ public final class SpellCastingManager {
 	private static GrimoireDefinition heldGrimoire(ServerPlayer player) {
 		GrimoireDefinition main = definition(player.getMainHandItem());
 		return main != null ? main : definition(player.getOffhandItem());
+	}
+
+	/** Resolves the currently held canonical grimoire for server packet revalidation. */
+	public static GrimoireDefinition heldDefinition(ServerPlayer player) {
+		return heldGrimoire(player);
 	}
 
 	private static GrimoireDefinition definition(ItemStack stack) {

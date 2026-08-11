@@ -34,4 +34,17 @@ class SkillQuestRulesTest {
 		assertEquals(1, SkillQuestRules.highestContiguousLevel(0,
 				Map.of(SkillDeed.POWER_USE, 299, SkillDeed.POWER_KILL, 49)));
 	}
+
+	@Test
+	void everyRankOffersTwoStableAlternativesWithoutDoubleAwarding() {
+		for (int level = 1; level <= 10; level++) {
+			assertEquals(2, SkillQuestRules.routes(level).size());
+		}
+		Map<SkillDeed, Integer> overqualified = Map.of(
+				SkillDeed.POWER_USE, 100_000,
+				SkillDeed.POWER_KILL, 100_000,
+				SkillDeed.LIGHT_MEMORY, 100,
+				SkillDeed.BOSS_KILL, 100);
+		assertEquals("mastery", SkillQuestRules.completedRoute(10, overqualified));
+	}
 }

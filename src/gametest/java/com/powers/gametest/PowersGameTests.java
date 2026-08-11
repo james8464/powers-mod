@@ -56,6 +56,9 @@ import com.powers.spell.CartographerQuery;
 import com.powers.spell.CartographerSearch;
 import com.powers.protection.ConsentKind;
 import com.powers.protection.ConsentOverrideRuntime;
+import com.powers.progression.RankAttributeManager;
+import com.powers.progression.RankPerkType;
+import com.powers.progression.RankProfile;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -67,6 +70,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.entity.decoration.Mannequin;
 import net.minecraft.core.Direction;
@@ -78,6 +83,31 @@ import net.minecraft.world.effect.MobEffects;
 /** Small runtime suite for mechanics that pure unit tests cannot exercise. */
 public final class PowersGameTests {
 	public PowersGameTests() {
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
+	public void rankReconciliationPreservesForeignAttributeOwners(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		var foreignId = net.minecraft.resources.Identifier.fromNamespaceAndPath("example_mod", "persistent_buff");
+		for (var attribute : java.util.List.of(Attributes.SCALE, Attributes.MOVEMENT_SPEED,
+				Attributes.MAX_HEALTH, Attributes.ARMOR, Attributes.KNOCKBACK_RESISTANCE)) {
+			var instance = player.getAttribute(attribute);
+			helper.assertTrue(instance != null, "Test player lacked a required vanilla attribute");
+			instance.addTransientModifier(new AttributeModifier(foreignId, 0.05,
+					AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+		}
+		RankProfile profile = new RankProfile(java.util.Map.of(
+				RankPerkType.MOVEMENT, 0.20, RankPerkType.RESISTANCE, 0.20,
+				RankPerkType.WARD_INTEGRITY, 0.20), java.util.Map.of(), java.util.Map.of(), "test");
+		RankAttributeManager.reconcile(player, profile);
+		RankAttributeManager.clear(player);
+		for (var attribute : java.util.List.of(Attributes.SCALE, Attributes.MOVEMENT_SPEED,
+				Attributes.MAX_HEALTH, Attributes.ARMOR, Attributes.KNOCKBACK_RESISTANCE)) {
+			helper.assertTrue(player.getAttribute(attribute).hasModifier(foreignId),
+					"POWERS removed a foreign modifier from " + attribute.getRegisteredName());
+		}
+		helper.succeed();
 	}
 
 	@GameTest
@@ -758,18 +788,25 @@ public final class PowersGameTests {
 
 	@GameTest
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
-	public void rankZeroCombatImpactStillLeavesBoundedTerrainDamage(GameTestHelper helper) {
+	public void rankZeroAndRankTenCombatImpactsLeaveDistinctBoundedScars(GameTestHelper helper) {
 		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
-		BlockPos center = new BlockPos(5, 2, 5);
-		for (int x = -3; x <= 3; x++) {
-			for (int z = -3; z <= 3; z++) helper.setBlock(center.offset(x, 0, z), Blocks.STONE);
+		BlockPos center = new BlockPos(7, 2, 7);
+		for (int x = -6; x <= 6; x++) {
+			for (int z = -6; z <= 6; z++) helper.setBlock(center.offset(x, 0, z), Blocks.STONE);
 		}
 		Vec3 impact = Vec3.atCenterOf(helper.absolutePos(center));
-		int removed = CombatTerrainImpact.crater(helper.getLevel(), caster, impact, 0);
+		int rankZero = CombatTerrainImpact.crater(helper.getLevel(), caster, impact, 0);
 
-		helper.assertTrue(removed > 0, "A rank-zero offensive impact left no terrain damage");
-		helper.assertTrue(removed <= com.powers.power.abilities.CombatTerrainRules.craterBudget(0),
+		helper.assertTrue(rankZero > 0, "A rank-zero offensive impact left no terrain damage");
+		helper.assertTrue(rankZero <= com.powers.power.abilities.CombatTerrainRules.craterBudget(0),
 				"Combat crater exceeded its rank-zero work budget");
+		for (int x = -6; x <= 6; x++) {
+			for (int z = -6; z <= 6; z++) helper.setBlock(center.offset(x, 0, z), Blocks.STONE);
+		}
+		int rankTen = CombatTerrainImpact.crater(helper.getLevel(), caster, impact, 10);
+		helper.assertTrue(rankTen > rankZero, "Rank ten did not leave a visibly larger scar");
+		helper.assertTrue(rankTen <= com.powers.power.abilities.CombatTerrainRules.craterBudget(10),
+				"Combat crater exceeded its rank-ten work budget");
 		helper.succeed();
 	}
 
@@ -1308,6 +1345,29 @@ public final class PowersGameTests {
 		helper.assertTrue(MagicRuntime.catalogue().definitions().size() == 64
 				&& MagicRuntime.global().interactionCount() == 2_080,
 				"The exhaustive live magic-collision kernel was incomplete");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void allTwoHundredFiftyThreeInnateRankProfilesResolveLive(GameTestHelper helper) {
+		var actions = com.powers.magic.MagicActionCatalogue.defaults();
+		int scenarios = 0;
+		for (var power : PowerRegistry.getAll()) {
+			String id = power.id().getPath();
+			var action = actions.definition(new com.powers.magic.MagicActionId(id));
+			helper.assertTrue(action != null, "No canonical action for innate " + id);
+			for (int rank = 0; rank <= 10; rank++) {
+				var profile = com.powers.progression.InnatePowerLevels.forPower(id, rank);
+				helper.assertTrue(profile.damageMultiplier() >= 1.0
+						&& profile.rangeMultiplier() >= 1.0
+						&& profile.durationMultiplier() >= 1.0
+						&& profile.capacityMultiplier() >= 1.0
+						&& profile.destructionTier() >= 0 && profile.destructionTier() <= 10,
+						"Invalid live rank profile " + id + "@" + rank);
+				scenarios++;
+			}
+		}
+		helper.assertTrue(scenarios == 253, "Expected 253 live innate rank scenarios, got " + scenarios);
 		helper.succeed();
 	}
 

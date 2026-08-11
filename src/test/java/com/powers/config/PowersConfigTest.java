@@ -41,6 +41,7 @@ class PowersConfigTest {
 	void sanitizationClampsUnsafeNumericValues() {
 		PowersConfig invalid = new PowersConfig(-10, false, false, false, false, true, true, true,
 				true, true, true, true, true, true, -5, 0, 0, 5000, 99, java.util.List.of(),
+				new PowersConfig.TerrainScars(-50, 99_999),
 				new PowersConfig.LivingForces(true, -1, -2, -3, -4, 1000, 1),
 				new PowersConfig.DialogueProvider(true, " endpoint ", " model ", "bad variable!",
 						99_999, 999, 1));
@@ -52,6 +53,8 @@ class PowersConfigTest {
 		assertEquals(1, sanitized.teleportMaxChunkDistance());
 		assertEquals(1000, sanitized.rankRespecExperienceLevels());
 		assertEquals(4, sanitized.adminPermissionLevel());
+		assertEquals(0, sanitized.terrainScars().minimumTier());
+		assertEquals(2_048, sanitized.terrainScars().maxBlocksPerCast());
 		assertEquals(1, sanitized.livingForces().spreadAttempts());
 		assertEquals(1, sanitized.livingForces().auraRadius());
 		assertEquals(0, sanitized.livingForces().witherAmplifier());
@@ -113,6 +116,7 @@ class PowersConfigTest {
 				defaults.celestialRuinBlockEntityDamage(), defaults.wardRadius(),
 				defaults.maxParticlesPerTick(), defaults.teleportMaxChunkDistance(),
 				defaults.rankRespecExperienceLevels(), defaults.adminPermissionLevel(), zones,
+				defaults.terrainScars(),
 				defaults.livingForces(), defaults.dialogueProvider()).sanitized();
 
 		assertEquals(256, sanitized.safeZones().size());

@@ -60,6 +60,9 @@ final class SpellEffects {
 		ServerLevel level = (ServerLevel) caster.level();
 		SpellCastValues values = SpellCastValues.from(PowerScalingService.unranked(spell.id()));
 		LivingEntity target = resolveEntity(caster, lockedTarget, values.targetRange());
+		BlockPos focus = lockedTarget != null && lockedTarget.blockPos() != null
+				? lockedTarget.blockPos() : target != null ? target.blockPosition() : caster.blockPosition();
+		if (!PowerProtection.mayRitual(caster, level, focus)) return false;
 		boolean success = switch (spell.effect()) {
 			case AUGURY -> augury(caster);
 			case CARTOGRAPHERS_STAR -> false;

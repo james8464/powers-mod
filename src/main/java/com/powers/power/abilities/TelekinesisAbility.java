@@ -48,6 +48,7 @@ public class TelekinesisAbility extends Ability {
 				e -> mayMove(level, player, e))) {
 			Vec3 fling = TelekinesisRules.outwardFling(
 					center, target.position(), 2.2 * force, 0.7 * force);
+			fling = ControlResistance.adjustImpulse(fling, ControlResistance.outcome(target));
 			// Right on top of the player the radial direction is undefined, so the
 			// target remains available for a later cast after either entity moves.
 			if (fling.lengthSqr() == 0.0) continue;

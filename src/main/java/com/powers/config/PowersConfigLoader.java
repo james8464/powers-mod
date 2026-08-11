@@ -50,7 +50,7 @@ public final class PowersConfigLoader {
 		int schemaVersion = integer(object, "schemaVersion", 0);
 		boolean allowTerrainDamage = bool(object, "allowTerrainDamage",
 				defaults.allowTerrainDamage());
-		if (schemaVersion < PowersConfig.CURRENT_SCHEMA_VERSION) {
+		if (schemaVersion < 2) {
 			// Version 1 generated this setting as false even though the authored
 			// combat powers promise terrain scars. Migrate that obsolete default once;
 			// version-2 administrators can still opt out explicitly.
@@ -62,6 +62,12 @@ public final class PowersConfigLoader {
 					new TypeToken<java.util.List<PowersConfig.SafeZone>>() { }.getType());
 		}
 		PowersConfig.LivingForces forceDefaults = defaults.livingForces();
+		PowersConfig.TerrainScars terrainDefaults = defaults.terrainScars();
+		JsonObject terrainObject = object.has("terrainScars") && object.get("terrainScars").isJsonObject()
+				? object.getAsJsonObject("terrainScars") : new JsonObject();
+		PowersConfig.TerrainScars terrainScars = new PowersConfig.TerrainScars(
+				integer(terrainObject, "minimumTier", terrainDefaults.minimumTier()),
+				integer(terrainObject, "maxBlocksPerCast", terrainDefaults.maxBlocksPerCast()));
 		JsonObject forceObject = object.has("livingForces") && object.get("livingForces").isJsonObject()
 				? object.getAsJsonObject("livingForces") : new JsonObject();
 		PowersConfig.LivingForces livingForces = new PowersConfig.LivingForces(
@@ -105,7 +111,7 @@ public final class PowersConfigLoader {
 				integer(object, "teleportMaxChunkDistance", defaults.teleportMaxChunkDistance()),
 				integer(object, "rankRespecExperienceLevels", defaults.rankRespecExperienceLevels()),
 				integer(object, "adminPermissionLevel", defaults.adminPermissionLevel()), zones,
-				livingForces, dialogueProvider).sanitized();
+				terrainScars, livingForces, dialogueProvider).sanitized();
 	}
 
 	private static boolean bool(JsonObject object, String key, boolean fallback) {

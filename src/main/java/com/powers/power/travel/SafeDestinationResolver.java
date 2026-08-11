@@ -86,6 +86,10 @@ public final class SafeDestinationResolver {
 				&& !target.dimension().equals(DimensionalAnchorAbility.anchorDimension(subject))) {
 			return new Result(DestinationFailure.ANCHOR, requested);
 		}
+		if (!recovery(kind) && !PowerProtection.mayPortal(subject, target,
+				BlockPos.containing(requested))) {
+			return new Result(DestinationFailure.SAFE_ZONE, requested);
+		}
 		return new Result(DestinationFailure.NONE, requested);
 	}
 

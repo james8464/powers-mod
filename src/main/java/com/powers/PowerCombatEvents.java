@@ -12,6 +12,7 @@ import com.powers.power.artifact.ArtifactCovenantManager;
 import com.powers.player.DarknessQuestTracker;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillQuestTracker;
+import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellCastingManager;
 import com.powers.entity.PlayerLikeTarget;
 import com.powers.entity.TestActorPowerState;
@@ -35,6 +36,8 @@ final class PowerCombatEvents {
 						|| !GlobalTimeStopManager.mayAct(actor)) return false;
 			}
 			if (ForcefieldAbility.absorbDamage(entity, source, amount)) return false;
+			if (PowerDamage.isPowerDamage(source)
+					&& !PowerProtection.mayPowerDamage(source.getEntity(), entity)) return false;
 			// Amethyst blocks power damage, not ordinary weapons or environmental harm.
 			if (AmethystDampening.isDampened(entity) && PowerDamage.isPowerDamage(source)) return false;
 			// Mindscape avatars keep their ordinary health while their proxy body is

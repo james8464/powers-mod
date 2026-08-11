@@ -4,6 +4,7 @@ import com.powers.PowersBlocks;
 import com.powers.config.PowersConfig;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.CelestialRuinFx;
+import com.powers.mind.PersistentDimensionDiagnostics;
 import com.powers.protection.PowerProtection;
 import com.powers.power.PowerDamage;
 import com.powers.power.state.GlobalTimeStopManager;
@@ -49,6 +50,8 @@ public final class CelestialRuinManager {
 	private static final int REMOVAL_FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_SUPPRESS_DROPS
 			| Block.UPDATE_SKIP_ON_PLACE;
 	private static final Map<MinecraftServer, List<Ritual>> ACTIVE = new WeakHashMap<>();
+	private static final Map<MinecraftServer, List<CelestialRuinSavedData.Snapshot>> ORPHANED =
+			new WeakHashMap<>();
 	private static final Set<MinecraftServer> LOADED = java.util.Collections.newSetFromMap(new WeakHashMap<>());
 
 	private static final class TicketHolder {
@@ -57,6 +60,29 @@ public final class CelestialRuinManager {
 	}
 
 	private CelestialRuinManager() {
+	}
+
+	/** Builds a bounded staging report from current loaded state and configured regions. */
+	public static CelestialRuinPreview preview(ServerLevel level, BlockPos center) {
+		return CelestialRuinPreviewService.preview(level, center);
+	}
+
+	/** Cancels the nearest staged event only while its commit boundary is still open. */
+	public static CelestialRuinCancellation cancelNearest(ServerLevel level, Vec3 position) {
+		loadPersisted(level.getServer());
+		List<Ritual> rituals = ACTIVE.getOrDefault(level.getServer(), List.of());
+		Ritual nearest = rituals.stream().filter(ritual -> ritual.level == level)
+				.min(Comparator.comparingDouble(ritual -> Vec3.atCenterOf(ritual.center)
+						.distanceToSqr(position))).orElse(null);
+		if (nearest == null) return CelestialRuinCancellation.NONE;
+		if (!CelestialRuinStagingRules.mayCancel(nearest.countdownRemaining, nearest.detonated)) {
+			return CelestialRuinCancellation.LOCKED;
+		}
+		nearest.removeTicket();
+		rituals.remove(nearest);
+		if (rituals.isEmpty()) ACTIVE.remove(level.getServer());
+		persist(level.getServer());
+		return CelestialRuinCancellation.CANCELLED;
 	}
 
 	/** Refuses overlap abuse while allowing a second catastrophe elsewhere. */
@@ -73,7 +99,8 @@ public final class CelestialRuinManager {
 	/** Starts an irreversible one-minute warning; chunk loading begins only near impact. */
 	public static boolean begin(ServerPlayer caster, BlockPos center) {
 		ServerLevel level = caster.level();
-		if (!canBegin(level, center) || PowerProtection.isSafeZone(level, Vec3.atCenterOf(center))) {
+		if (!canBegin(level, center) || PowerProtection.isSafeZone(level, Vec3.atCenterOf(center))
+				|| !PowerProtection.mayRitual(caster, level, center)) {
 			return false;
 		}
 		Ritual ritual = new Ritual(level, center.immutable(), caster.getUUID(),
@@ -107,6 +134,7 @@ public final class CelestialRuinManager {
 	/** Clears only process-local references; SavedData remains authoritative across restarts. */
 	public static void clearAll() {
 		ACTIVE.clear();
+		ORPHANED.clear();
 		LOADED.clear();
 	}
 
@@ -114,6 +142,12 @@ public final class CelestialRuinManager {
 	public static int activeRitualCount(MinecraftServer server) {
 		loadPersisted(server);
 		return ACTIVE.getOrDefault(server, List.of()).size();
+	}
+
+	/** Persisted events awaiting restoration of a removed datapack dimension. */
+	public static int orphanedRitualCount(MinecraftServer server) {
+		loadPersisted(server);
+		return ORPHANED.getOrDefault(server, List.of()).size();
 	}
 
 	/** Sum of currently held square ticket footprints; zero during the distant countdown. */
@@ -128,12 +162,17 @@ public final class CelestialRuinManager {
 	private static void loadPersisted(MinecraftServer server) {
 		if (!LOADED.add(server)) return;
 		List<Ritual> restored = new ArrayList<>();
+		List<CelestialRuinSavedData.Snapshot> orphaned = new ArrayList<>();
 		for (CelestialRuinSavedData.Snapshot snapshot : data(server).snapshots()) {
 			Identifier dimension = Identifier.tryParse(snapshot.dimension());
 			if (dimension == null) continue;
 			ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, dimension);
 			ServerLevel level = server.getLevel(key);
-			if (level == null) continue;
+			if (level == null) {
+				orphaned.add(snapshot);
+				PersistentDimensionDiagnostics.record("celestial_ruin", snapshot.dimension());
+				continue;
+			}
 			UUID caster;
 			try {
 				caster = UUID.fromString(snapshot.caster());
@@ -151,6 +190,7 @@ public final class CelestialRuinManager {
 							CelestialRuinRules.aftershockTotalSteps())));
 		}
 		if (!restored.isEmpty()) ACTIVE.put(server, restored);
+		if (!orphaned.isEmpty()) ORPHANED.put(server, List.copyOf(orphaned));
 		persist(server);
 	}
 
@@ -159,8 +199,9 @@ public final class CelestialRuinManager {
 	}
 
 	private static void persist(MinecraftServer server) {
-		List<CelestialRuinSavedData.Snapshot> snapshots = ACTIVE
-				.getOrDefault(server, List.of()).stream().map(Ritual::snapshot).toList();
+		List<CelestialRuinSavedData.Snapshot> snapshots = new ArrayList<>(
+				ORPHANED.getOrDefault(server, List.of()));
+		snapshots.addAll(ACTIVE.getOrDefault(server, List.of()).stream().map(Ritual::snapshot).toList());
 		data(server).replace(snapshots);
 	}
 
@@ -295,10 +336,10 @@ public final class CelestialRuinManager {
 					epicenter, level.getMinY(), level.getMaxY());
 			List<LivingEntity> entities = BoundedEntityCandidates.living(level, bounds,
 					CelestialRuinRules.ENTITY_LIMIT, Entity::isAlive,
-					Comparator.comparingDouble((LivingEntity entity) -> entity.distanceToSqr(epicenter))
-							.thenComparing(entity -> entity.getUUID().toString()));
+						Comparator.comparingDouble((LivingEntity entity) -> entity.distanceToSqr(epicenter))
+								.thenComparing(entity -> entity.getUUID().toString()));
 			for (LivingEntity entity : entities) {
-				if (PowerProtection.isSafeZone(level, entity.position())) continue;
+				if (!PowerProtection.mayPowerDamage(null, entity)) continue;
 				double distance = entity.position().distanceTo(epicenter);
 				float damage = CelestialRuinRules.damage(distance);
 				if (damage > 0.0f) entity.hurtServer(level, PowerDamage.celestialRuin(level), damage);
@@ -323,7 +364,7 @@ public final class CelestialRuinManager {
 				target.set(center.getX() + offset.x(), center.getY() + offset.y(), center.getZ() + offset.z());
 				if (target.getY() < level.getMinY() || target.getY() >= level.getMaxY()) continue;
 				if (!level.getWorldBorder().isWithinBounds(target)) continue;
-				if (PowerProtection.isSafeZone(level, Vec3.atCenterOf(target))) continue;
+				if (!PowerProtection.mayAffectBlock(level, target)) continue;
 				BlockState state = level.getBlockState(target);
 				boolean livingForce = state.is(PowersBlocks.DARKNESS) || state.is(PowersBlocks.PURE_LIGHT);
 				boolean hasBlockEntity = level.getBlockEntity(target) != null;
@@ -369,7 +410,7 @@ public final class CelestialRuinManager {
 				for (int down = 0; down < depth; down++) {
 					BlockPos target = new BlockPos(column.getX(), surfaceY - down, column.getZ());
 					if (target.getY() < level.getMinY()
-							|| PowerProtection.isSafeZone(level, Vec3.atCenterOf(target))) continue;
+							|| !PowerProtection.mayAffectBlock(level, target)) continue;
 					BlockState state = level.getBlockState(target);
 					if (!state.isAir() && CelestialRuinRules.shouldDestroy(
 							state.is(PowersBlocks.DARKNESS) || state.is(PowersBlocks.PURE_LIGHT),
@@ -379,8 +420,8 @@ public final class CelestialRuinManager {
 					}
 				}
 				BlockPos fire = new BlockPos(column.getX(), surfaceY - depth + 1, column.getZ());
-				if (CelestialRuinRules.shouldIgnite(config.celestialRuinTerrainDamage(),
-						PowerProtection.isSafeZone(level, Vec3.atCenterOf(fire)))
+				if (CelestialRuinRules.shouldIgnite(config.celestialRuinTerrainDamage(), false)
+						&& PowerProtection.mayAffectBlock(level, fire)
 						&& level.getBlockState(fire).isAir()
 						&& Blocks.FIRE.defaultBlockState().canSurvive(level, fire)) {
 					level.setBlock(fire, Blocks.FIRE.defaultBlockState(), Block.UPDATE_CLIENTS);

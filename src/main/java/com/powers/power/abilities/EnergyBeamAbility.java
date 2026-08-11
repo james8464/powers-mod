@@ -239,6 +239,7 @@ public final class EnergyBeamAbility extends Ability {
 					&& PowerProtection.mayForceMove(caster, target)
 					&& !SpellFieldManager.blocksForcedMovement(level, target, caster.getUUID())) {
 				Vec3 impulse = EnergyBeamRules.steamImpulse(center, target.position(), STEAM_FORCE);
+				impulse = ControlResistance.adjustImpulse(impulse, ControlResistance.outcome(target));
 				if (level.noBlockCollision(target, target.getBoundingBox().move(impulse))) {
 					target.setDeltaMovement(target.getDeltaMovement().add(impulse));
 					target.hurtMarked = true;

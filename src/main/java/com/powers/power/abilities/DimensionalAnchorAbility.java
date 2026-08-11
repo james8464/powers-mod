@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.entity.PlayerLikeTarget;
 import com.powers.entity.TestActorPowerState;
 import com.powers.fx.PowerFx;
+import com.powers.mind.PersistentDimensionDiagnostics;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
@@ -55,7 +56,11 @@ public class DimensionalAnchorAbility extends Ability {
 			return null;
 		}
 		Identifier id = Identifier.tryParse(dimensionId);
-		if (id != null) return ResourceKey.create(Registries.DIMENSION, id);
+		if (id != null) {
+			ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, id);
+			if (target.level().getServer().getLevel(key) != null) return key;
+			PersistentDimensionDiagnostics.record("anchor", dimensionId);
+		}
 		if (target instanceof ServerPlayer player) PlayerPowers.get(player).clearDimensionalAnchor();
 		else TestActorPowerState.clearAnchor(target.getUUID());
 		return null;
@@ -77,14 +82,18 @@ public class DimensionalAnchorAbility extends Ability {
 
 	/** Shared by the Deep Grimoire; the former random power now delegates here. */
 	public static boolean apply(ServerPlayer player, LivingEntity target) {
-		if (!PlayerLikeTarget.isCompatible(target) || AmethystDampening.isDampened(target)) {
+		if (!PlayerLikeTarget.isCompatible(target) || AmethystDampening.isDampened(target)
+				|| !com.powers.protection.PowerProtection.mayForceMove(player, target)) {
 			PowerMessages.send(player, "amethyst.powers.target_protected", 4);
 			return false;
 		}
+		ControlResistance.Outcome control = ControlResistance.outcome(target);
 		ResourceKey<Level> dim = target.level().dimension();
 		String dimName = dim.identifier().getPath();
-		long expiresAt = target.level().getGameTime()
-				+ PowerScalingService.duration(player, "dimensional_anchor", ANCHOR_TICKS);
+		int duration = ControlResistance.adjustDuration(
+				PowerScalingService.duration(player, "dimensional_anchor", ANCHOR_TICKS), control);
+		if (duration <= 0) return false;
+		long expiresAt = target.level().getGameTime() + duration;
 		if (target instanceof ServerPlayer targetPlayer) {
 			PlayerPowers.get(targetPlayer).setDimensionalAnchor(dim.identifier().toString(), expiresAt);
 		} else {

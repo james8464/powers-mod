@@ -280,6 +280,7 @@ public final class SpeedBurstAbility extends Ability {
 		}
 		if (!mayMove(level, caster, target)) return;
 		Vec3 impulse = SpeedBurstRules.impactImpulse(center, target.position(), trace.force());
+		impulse = ControlResistance.adjustImpulse(impulse, ControlResistance.outcome(target));
 		if (impulse.lengthSqr() == 0.0) return;
 		target.push(impulse.x, impulse.y, impulse.z);
 		target.hurtMarked = true;

@@ -263,6 +263,7 @@ public final class SuperSpeedAbility extends Ability {
 							level, target, owner.getUUID()),
 					EntityFreezeController.isFrozen(target), clearPath);
 			if (decision == SuperSpeedRules.PressureDecision.MOVE) {
+				velocity = ControlResistance.adjustImpulse(velocity, ControlResistance.outcome(target));
 				target.setDeltaMovement(velocity);
 				target.hurtMarked = true;
 				target.fallDistance = 0.0F;

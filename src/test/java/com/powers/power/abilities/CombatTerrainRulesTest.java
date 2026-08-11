@@ -24,4 +24,12 @@ class CombatTerrainRulesTest {
 		assertEquals(CombatTerrainRules.craterBudget(0), CombatTerrainRules.craterBudget(-50));
 		assertEquals(CombatTerrainRules.rayBudget(10), CombatTerrainRules.rayBudget(99));
 	}
+
+	@Test
+	void serverMinimumAndMaximumRemainBounded() {
+		assertEquals(4, CombatTerrainRules.effectiveTier(2, 4));
+		assertEquals(10, CombatTerrainRules.effectiveTier(99, -1));
+		assertEquals(12, CombatTerrainRules.cappedBudget(96, 12));
+		assertEquals(1, CombatTerrainRules.cappedBudget(96, -20));
+	}
 }
