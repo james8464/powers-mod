@@ -42,6 +42,8 @@ public final class MagicDiagnosticAnswer {
 			case MAGIC_COLLISION -> failed(action, "another magical presence cancelled it");
 			case ALREADY_CHANNELING -> failed(action, "you were already channeling another ritual");
 			case INVALID_INPUT -> failed(action, "its selected input was invalid");
+			case UNSUPPORTED_TARGET -> failed(action,
+					"that living target does not expose the required player capability");
 			case EXECUTION_FAILED -> failed(action, "its world conditions changed before it completed");
 		};
 		return explanation + " I recorded this at server tick " + attempt.gameTick() + ".";

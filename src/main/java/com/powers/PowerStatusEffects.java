@@ -12,6 +12,8 @@ public final class PowerStatusEffects {
 	/** Creates an effect with particles hidden and explicit ambient/icon presentation. */
 	public static MobEffectInstance hidden(Holder<MobEffect> effect, int duration,
 			int amplifier, boolean ambient, boolean showIcon) {
-		return new MobEffectInstance(effect, duration, amplifier, ambient, false, showIcon);
+		return new MobEffectInstance(effect,
+				com.powers.compat.ThirdPartyCombatCompatibility.effectDuration(duration),
+				Math.clamp(amplifier, 0, 255), ambient, false, showIcon);
 	}
 }

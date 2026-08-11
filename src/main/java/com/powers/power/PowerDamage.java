@@ -67,7 +67,7 @@ public final class PowerDamage {
 	 * from every flavour of ability damage but still fights normally.
 	 */
 	public static boolean isPowerDamage(DamageSource source) {
-		return source.is(POWER_DAMAGE);
+		return source != null && source.is(POWER_DAMAGE);
 	}
 
 	static boolean isPowerDamageKey(ResourceKey<DamageType> key) {

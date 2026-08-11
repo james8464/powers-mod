@@ -15,6 +15,10 @@ import java.util.Optional;
 public final class MagicParticipants {
 	public enum Kind { PLAYER, TEST_ACTOR, SHADOW, NONE }
 	public record Policy(MagicConsentAuthority consent, MagicParticipant.Alignment alignment) { }
+	public record CapabilityResolution(Optional<MagicParticipant> participant,
+			com.powers.knowledge.MagicFailureReason failure) {
+		public boolean supported() { return participant.isPresent(); }
+	}
 
 	private MagicParticipants() {
 	}
@@ -37,6 +41,21 @@ public final class MagicParticipants {
 		if (entity instanceof PowerTestActor actor) return Optional.of(testActor(actor));
 		if (entity instanceof ShadowCompanionEntity shadow) return Optional.of(shadow(shadow));
 		return Optional.empty();
+	}
+
+	/** Resolves a participant only after the requested target capability is explicitly supported. */
+	public static CapabilityResolution resolve(LivingEntity entity, ParticipantCapability capability) {
+		Kind kind = kind(entity);
+		var support = ParticipantCapabilityContract.check(kind, capability);
+		if (!support.supported()) return new CapabilityResolution(Optional.empty(), support.failure());
+		return new CapabilityResolution(resolve(entity), com.powers.knowledge.MagicFailureReason.NONE);
+	}
+
+	public static Kind kind(LivingEntity entity) {
+		if (entity instanceof ServerPlayer) return Kind.PLAYER;
+		if (entity instanceof PowerTestActor) return Kind.TEST_ACTOR;
+		if (entity instanceof ShadowCompanionEntity) return Kind.SHADOW;
+		return Kind.NONE;
 	}
 
 	private static MagicParticipant player(ServerPlayer player) {

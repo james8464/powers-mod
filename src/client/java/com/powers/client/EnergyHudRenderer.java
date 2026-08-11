@@ -15,6 +15,8 @@ import net.minecraft.world.entity.LivingEntity;
 /** Renders ten vanilla-scale full/half energy symbols above the hunger row. */
 public final class EnergyHudRenderer {
 	private static final Identifier SYMBOLS = PowersMod.id("textures/gui/energy_symbols.png");
+	private static final Identifier VISIBLE_FALLBACK =
+			Identifier.withDefaultNamespace("textures/misc/unknown_pack.png");
 	private static final int SYMBOL_SIZE = 9;
 	private static final int TEXTURE_WIDTH = 27;
 	private static final int TEXTURE_HEIGHT = 45;
@@ -39,10 +41,12 @@ public final class EnergyHudRenderer {
 				ClientHudPreferences.get()).energy();
 		int halfUnits = mode == HudEnergyMode.EMPTY ? 0 : HudMath.energyHalfUnits(energy, capacity);
 		int visibleSymbols = Math.min(10, Math.max(0, (bounds.width() + 7) / 8));
+		Identifier symbols = com.powers.resource.OptionalAssetFallback.resolve(SYMBOLS,
+				VISIBLE_FALLBACK, id -> client.getResourceManager().getResource(id).isPresent());
 		for (int symbol = 0; symbol < visibleSymbols; symbol++) {
 			int sourceX = HudMath.energyFillColumn(halfUnits, symbol) * SYMBOL_SIZE;
 			int x = HudLayout.energySymbolX(bounds, symbol);
-			graphics.blit(RenderPipelines.GUI_TEXTURED, SYMBOLS, x, bounds.y(), sourceX,
+			graphics.blit(RenderPipelines.GUI_TEXTURED, symbols, x, bounds.y(), sourceX,
 					textureRow(mode) * SYMBOL_SIZE, SYMBOL_SIZE, SYMBOL_SIZE,
 					TEXTURE_WIDTH, TEXTURE_HEIGHT);
 		}
