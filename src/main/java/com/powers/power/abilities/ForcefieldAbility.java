@@ -58,6 +58,11 @@ public class ForcefieldAbility extends Ability {
 				1.45, 0x40C4FF, 22, level.getGameTime() * 0.1);
 	}
 
+	/** Raises a fixed-integrity, non-reflective ward for an unranked spell target. */
+	public static void raiseSpellWard(ServerLevel level, LivingEntity target, float integrity) {
+		raiseWard(level, target, integrity, false);
+	}
+
 	public static boolean absorbDamage(LivingEntity target, DamageSource source, float amount) {
 		return absorbDamage(target, target, source, amount);
 	}

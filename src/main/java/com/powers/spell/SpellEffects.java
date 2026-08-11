@@ -11,6 +11,7 @@ import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.power.PowerTargeting;
 import com.powers.power.abilities.DimensionalAnchorAbility;
+import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.crystals.SoulLinkAbility;
 import com.powers.power.state.PowerEntityState;
 import com.powers.protection.PowerProtection;
@@ -77,7 +78,8 @@ final class SpellEffects {
 		LivingEntity target = resolveEntity(caster, lockedTarget, values.targetRange());
 		boolean success = switch (spell.effect()) {
 			case AUGURY -> augury(caster);
-			case CARTOGRAPHERS_STAR, HEARTH_SANCTUARY -> false;
+			case CARTOGRAPHERS_STAR -> false;
+			case HEARTH_SANCTUARY -> hearthSanctuary(caster);
 			case BLOOD_READING -> bloodReading(caster, target);
 			case GRAVE_RECALL -> graveRecall(caster);
 			case VERDANT_TENDING -> verdantTending(caster, values);
@@ -230,6 +232,28 @@ final class SpellEffects {
 				0x65A765, 30, level.getGameTime() * 0.03);
 		PowerFx.sound(level, caster.position(), SoundEvents.BONE_MEAL_USE, 1.0F, 0.85F);
 		caster.sendSystemMessage(Component.translatable("spell.powers.verdant_tending.changed", changed));
+		return true;
+	}
+
+	private static boolean hearthSanctuary(ServerPlayer caster) {
+		ServerLevel level = (ServerLevel) caster.level();
+		ForcefieldAbility.raiseSpellWard(level, caster, HearthSanctuaryRules.INTEGRITY);
+		int raised = 1;
+		for (LivingEntity target : BoundedEntityCandidates.living(level,
+				caster.getBoundingBox().inflate(HearthSanctuaryRules.RADIUS),
+				HearthSanctuaryRules.MAX_TARGETS - 1,
+				entity -> entity != caster && entity.isAlive() && !entity.isSpectator()
+						&& HearthSanctuaryRules.withinRadius(entity.distanceToSqr(caster)))) {
+			ForcefieldAbility.raiseSpellWard(level, target, HearthSanctuaryRules.INTEGRITY);
+			raised++;
+		}
+		Vec3 center = caster.position().add(0.0, 0.08, 0.0);
+		PowerFx.ring(level, center, HearthSanctuaryRules.RADIUS, 0xD8B85B,
+				32, level.getGameTime() * 0.04);
+		PowerFx.ring(level, center.add(0.0, 0.12, 0.0), 2.4, 0x5BE2D2,
+				28, level.getGameTime() * -0.05);
+		PowerFx.sound(level, center, SoundEvents.BEACON_ACTIVATE, 1.0F, 0.72F);
+		caster.sendSystemMessage(Component.translatable("spell.powers.hearth_sanctuary.raised", raised));
 		return true;
 	}
 
