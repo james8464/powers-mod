@@ -54,6 +54,9 @@ public final class ShadowConjurationManager {
 
 	public static Outcome begin(ServerPlayer owner, ShadowCompanionEntity shadow,
 			Item item, int requestedCount) {
+		if (ShadowMagicState.actionsSuppressed(shadow)) {
+			return new Outcome(false, false, "amethyst_suppressed", 0, 0);
+		}
 		boolean testing = TestingOverrides.energyDisabled(owner.getUUID());
 		ShadowConjurationFacts facts = ShadowConjurationPolicy.facts(item, requestedCount,
 				shadow.energy(), testing);
@@ -91,7 +94,8 @@ public final class ShadowConjurationManager {
 		if (rite == null) return new Outcome(false, false, "no_rite", 0, 0);
 		boolean bodyLost = !shadow.isAlive() || !shadow.getUUID().equals(rite.bodyId());
 		boolean dimensionMismatch = owner.level() != shadow.level();
-		if (interrupts(bodyLost, !owner.isAlive(), dimensionMismatch, shadow.energy() > 0)) {
+		if (interrupts(bodyLost, !owner.isAlive(), dimensionMismatch,
+				shadow.energy() > 0 || ShadowMagicState.actionsSuppressed(shadow))) {
 			return interrupt(owner, shadow, "rite_interrupted");
 		}
 		ServerLevel level = (ServerLevel) shadow.level();

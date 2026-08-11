@@ -3,6 +3,8 @@ package com.powers.protection;
 import com.powers.config.PowersConfig;
 import com.powers.config.PowersConfigLoader;
 import com.powers.player.PlayerPowers;
+import com.powers.magic.participant.MagicConsentAuthority;
+import com.powers.magic.participant.MagicParticipants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -53,7 +55,11 @@ public final class PowerProtection {
 	public static boolean mayForceMove(ServerPlayer caster, LivingEntity target) {
 		if (caster == target) return true;
 		if (isSafeZone((ServerLevel) target.level(), target.position())) return false;
-		return !(target instanceof ServerPlayer player) || mayForceMove(caster, player);
+		if (target instanceof ServerPlayer player) return mayForceMove(caster, player);
+		var participant = MagicParticipants.resolve(target);
+		if (participant.isEmpty()) return true;
+		if (participant.get().consentAuthority() == MagicConsentAuthority.ALWAYS_ALLOW_TESTS) return true;
+		return participant.get().consentOwner().map(owner -> mayForceMove(caster, owner)).orElse(true);
 	}
 
 	/** Safe zones prevent offensive power damage regardless of target type. */
@@ -82,7 +88,11 @@ public final class PowerProtection {
 	/** Keeps player consent while allowing named or aimed mobs outside safe zones. */
 	public static boolean mayDreamwalk(ServerPlayer caster, LivingEntity target) {
 		if (target instanceof ServerPlayer player) return mayDreamwalk(caster, player);
-		return caster != target && !isSafeZone((ServerLevel) target.level(), target.position());
+		if (caster == target || isSafeZone((ServerLevel) target.level(), target.position())) return false;
+		var participant = MagicParticipants.resolve(target);
+		if (participant.isEmpty()
+				|| participant.get().consentAuthority() == MagicConsentAuthority.ALWAYS_ALLOW_TESTS) return true;
+		return participant.get().consentOwner().map(owner -> mayDreamwalk(caster, owner)).orElse(true);
 	}
 
 	public static boolean mayPossess(ServerPlayer caster, ServerPlayer target) {
@@ -96,6 +106,9 @@ public final class PowerProtection {
 		if (target instanceof ServerPlayer player) return mayPossess(caster, player);
 		if (caster == target) return false;
 		if (isSafeZone((ServerLevel) target.level(), target.position())) return false;
-		return true;
+		var participant = MagicParticipants.resolve(target);
+		if (participant.isEmpty()
+				|| participant.get().consentAuthority() == MagicConsentAuthority.ALWAYS_ALLOW_TESTS) return true;
+		return participant.get().consentOwner().map(owner -> mayPossess(caster, owner)).orElse(true);
 	}
 }

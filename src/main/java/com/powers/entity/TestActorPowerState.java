@@ -77,7 +77,8 @@ public final class TestActorPowerState {
 		return STATES.getOrDefault(actorId, new State(ENERGY_CAPACITY, null));
 	}
 
-	private static void setEnergy(UUID actorId, int energy) {
+	/** Server-side participant adapter hook; remains bounded like every other mutation. */
+	public static void setEnergy(UUID actorId, int energy) {
 		State current = state(actorId);
 		STATES.put(actorId, new State(Math.clamp(energy, 0, ENERGY_CAPACITY), current.anchor()));
 		removeDefault(actorId);

@@ -71,16 +71,21 @@ public final class AmethystDampening {
 
 	/** rechecks the field around the player and applies or clears the amethyst poisoning effect, returning whether they're suppressed */
 	public static boolean update(ServerPlayer player) {
-		ServerLevel level = (ServerLevel) player.level();
-		boolean dampened = hasAmethystItem(player)
-				|| nearAmethystCached(player, level, player.blockPosition())
-				|| findPoweredWard(level, player.blockPosition()).isPresent();
+		return update((LivingEntity) player);
+	}
+
+	/** Player-like entities share location/ward suppression; only real players carry inventories. */
+	public static boolean update(LivingEntity entity) {
+		if (!(entity.level() instanceof ServerLevel level)) return false;
+		boolean dampened = entity instanceof ServerPlayer player && hasAmethystItem(player)
+				|| nearAmethystCached(entity, level, entity.blockPosition())
+				|| findPoweredWard(level, entity.blockPosition()).isPresent();
 		if (dampened) {
 			// 30 ticks is plenty because this effect gets refreshed on every update
-			player.addEffect(PowerStatusEffects.hidden(
+			entity.addEffect(PowerStatusEffects.hidden(
 					PowersEffects.AMETHYST_POISONING, 30, 0, true, true));
-		} else if (player.hasEffect(PowersEffects.AMETHYST_POISONING)) {
-			player.removeEffect(PowersEffects.AMETHYST_POISONING);
+		} else if (entity.hasEffect(PowersEffects.AMETHYST_POISONING)) {
+			entity.removeEffect(PowersEffects.AMETHYST_POISONING);
 		}
 		return dampened;
 	}
@@ -111,7 +116,11 @@ public final class AmethystDampening {
 	}
 
 	public static void forget(ServerPlayer player) {
-		BLOCK_SCAN_CACHE.remove(player.getUUID());
+		forget((LivingEntity) player);
+	}
+
+	public static void forget(LivingEntity entity) {
+		if (entity != null) BLOCK_SCAN_CACHE.remove(entity.getUUID());
 	}
 
 	/** A completed ward-breaking ritual grounds one powered ward temporarily. */
@@ -162,7 +171,7 @@ public final class AmethystDampening {
 
 	/** whether the entity is currently under the amethyst poisoning effect */
 	public static boolean isDampened(LivingEntity entity) {
-		return entity instanceof ServerPlayer player && player.hasEffect(PowersEffects.AMETHYST_POISONING);
+		return entity != null && entity.hasEffect(PowersEffects.AMETHYST_POISONING);
 	}
 
 	/** Location-only suppression used by non-player tactical entities and rituals. */
@@ -176,19 +185,24 @@ public final class AmethystDampening {
 	 * violet spark bursts, and a message that the power was blocked
 	 */
 	public static void punish(ServerPlayer player) {
-		ServerLevel level = (ServerLevel) player.level();
-		Vec3 pos = player.position().add(0, 1, 0);
+		punish((LivingEntity) player);
+		PowerMessages.send(player, "amethyst.powers.suppressed", 6);
+	}
+
+	/** Non-player magic users receive the same damage and semantic feedback without chat. */
+	public static void punish(LivingEntity entity) {
+		if (!(entity.level() instanceof ServerLevel level)) return;
+		Vec3 pos = entity.position().add(0, 1, 0);
 		// don't deal damage to a player who's already down. the source carries no
 		// attacker on purpose: this is the amethyst answering back, so the
 		// dampening shield must not cancel it
-		if (player.isAlive()) {
-			player.hurtServer(level, player.damageSources().magic(), 2.5f);
+		if (entity.isAlive()) {
+			entity.hurtServer(level, entity.damageSources().magic(), 2.5f);
 		}
 		PowerFx.burst(level, pos, ParticleTypes.ELECTRIC_SPARK, 16, 0.5, 0.1);
 		PowerFx.coloredBurst(level, pos, 0xB36BFF, 22, 0.7);
 		PowerFx.burst(level, pos, ParticleTypes.END_ROD, 10, 0.4, 0.2);
 		PowerFx.sound(level, pos, SoundEvents.BEACON_DEACTIVATE, 0.8f, 1.1f);
-		PowerMessages.send(player, "amethyst.powers.suppressed", 6);
 	}
 
 	// any amethyst item suppresses powers, from the main inventory, offhand, or armor
@@ -227,14 +241,14 @@ public final class AmethystDampening {
 		return false;
 	}
 
-	private static boolean nearAmethystCached(ServerPlayer player, ServerLevel level, BlockPos center) {
+	private static boolean nearAmethystCached(LivingEntity entity, ServerLevel level, BlockPos center) {
 		String dimension = level.dimension().identifier().toString();
 		long now = level.getGameTime();
-		Boolean cached = BLOCK_SCAN_CACHE.get(player.getUUID(), dimension,
+		Boolean cached = BLOCK_SCAN_CACHE.get(entity.getUUID(), dimension,
 				center.getX(), center.getY(), center.getZ(), now);
 		if (cached != null) return cached;
 		boolean result = nearAmethyst(level, center);
-		BLOCK_SCAN_CACHE.put(player.getUUID(), dimension, center.getX(), center.getY(), center.getZ(),
+		BLOCK_SCAN_CACHE.put(entity.getUUID(), dimension, center.getX(), center.getY(), center.getZ(),
 				now + BLOCK_SCAN_CACHE_TICKS, result);
 		return result;
 	}

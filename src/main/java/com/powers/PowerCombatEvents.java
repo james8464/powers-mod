@@ -61,6 +61,7 @@ final class PowerCombatEvents {
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
 			PrivateCompanionManager.afterDeath(entity);
+			AmethystDampening.forget(entity);
 			if (entity instanceof ServerPlayer player) PlayerPowers.get(player).recordDeath(player);
 			if (entity instanceof PlayerLikeTarget) {
 				TestActorPowerState.clear(entity.getUUID());
