@@ -37,4 +37,23 @@ public final class ArtifactWheelRules {
 		return isShift(key) && hoveredTarget >= 0 && hoveredTarget < SLOT_COUNT
 				? hoveredTarget : NONE;
 	}
+
+	/** Normalizes live server state into the compact indicators drawn on one segment. */
+	public static SegmentStatus segmentStatus(int cost, int cooldownTicks, int cooldownMaximumTicks,
+			boolean active, boolean locked, int variant) {
+		int pips = cooldownTicks <= 0 || cooldownMaximumTicks <= 0 ? 0
+				: (int) Math.clamp(((long) cooldownTicks * SLOT_COUNT
+						+ cooldownMaximumTicks - 1L) / cooldownMaximumTicks, 1L, (long) SLOT_COUNT);
+		return new SegmentStatus(Math.max(0, cost), pips, active, locked, variant);
+	}
+
+	/** Advances an authenticated cooldown snapshot without letting client time underflow it. */
+	public static int remainingCooldown(int initialTicks, int elapsedTicks) {
+		return Math.max(0, Math.max(0, initialTicks) - Math.max(0, elapsedTicks));
+	}
+
+	/** All status information needed for a quick combat decision without opening the library. */
+	public record SegmentStatus(int cost, int cooldownPips, boolean active,
+			boolean locked, int variant) {
+	}
 }

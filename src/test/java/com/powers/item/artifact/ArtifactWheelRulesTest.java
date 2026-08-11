@@ -33,4 +33,26 @@ class ArtifactWheelRulesTest {
 		assertEquals(ArtifactWheelRules.NONE,
 				ArtifactWheelRules.releasedSelection(340, ArtifactWheelRules.CENTER));
 	}
+
+	@Test
+	void liveSegmentStatusKeepsEveryCombatDecisionVisible() {
+		ArtifactWheelRules.SegmentStatus ready = ArtifactWheelRules.segmentStatus(
+				12, 0, 80, false, false, -1);
+		assertEquals(new ArtifactWheelRules.SegmentStatus(12, 0, false, false, -1), ready);
+
+		ArtifactWheelRules.SegmentStatus cooling = ArtifactWheelRules.segmentStatus(
+				30, 25, 40, true, false, 6);
+		assertEquals(new ArtifactWheelRules.SegmentStatus(30, 5, true, false, 6), cooling);
+
+		ArtifactWheelRules.SegmentStatus locked = ArtifactWheelRules.segmentStatus(
+				4, 200, 20, false, true, -1);
+		assertEquals(new ArtifactWheelRules.SegmentStatus(4, 8, false, true, -1), locked);
+	}
+
+	@Test
+	void authenticatedCooldownSnapshotCountsDownWhileWheelRemainsOpen() {
+		assertEquals(80, ArtifactWheelRules.remainingCooldown(100, 20));
+		assertEquals(0, ArtifactWheelRules.remainingCooldown(100, 140));
+		assertEquals(0, ArtifactWheelRules.remainingCooldown(-1, 5));
+	}
 }

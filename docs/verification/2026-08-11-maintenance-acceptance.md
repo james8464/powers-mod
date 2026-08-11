@@ -1,4 +1,6 @@
-# Repository maintenance and acceptance — 2026-08-11
+# Historical repository-maintenance checkpoint — 2026-08-11
+
+This file records the earlier `ebac214` maintenance checkpoint and its then-current counts. It is retained as history, not as proof for the present tree. Current evidence is in [`2026-08-11-release.md`](2026-08-11-release.md) and [`final-requirement-matrix.md`](final-requirement-matrix.md).
 
 Target: Minecraft Java Edition 26.2, Fabric Loader 0.19.3, Fabric API 0.156.0+26.2 and Java 25.
 

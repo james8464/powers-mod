@@ -26,6 +26,27 @@ class ArtifactCatalogueRulesTest {
 	}
 
 	@Test
+	void combatTabsSeparateFavouritesInnateCrystalsAndSwordActions() {
+		List<ArtifactActionDefinition> actions = ArtifactActionCatalogue.forAlignment(
+				ArtifactAlignment.DARKNESS);
+		List<String> favourites = List.of("unique/blight_ground", "innate/lightning_strike");
+
+		assertEquals(List.of("unique/blight_ground", "innate/lightning_strike"),
+				ArtifactCatalogueRules.filter(actions, ArtifactCatalogueTab.FAVOURITES,
+						favourites, "", ArtifactActionDefinition::abilityId).stream()
+						.map(ArtifactActionDefinition::key).toList());
+		assertTrue(ArtifactCatalogueRules.filter(actions, ArtifactCatalogueTab.INNATE,
+				favourites, "", ArtifactActionDefinition::abilityId).stream()
+				.allMatch(action -> action.category() == ArtifactActionCategory.ROUTED_POWER));
+		assertTrue(ArtifactCatalogueRules.filter(actions, ArtifactCatalogueTab.CRYSTALS,
+				favourites, "", ArtifactActionDefinition::abilityId).stream()
+				.allMatch(action -> action.category() == ArtifactActionCategory.ROUTED_CRYSTAL));
+		assertTrue(ArtifactCatalogueRules.filter(actions, ArtifactCatalogueTab.SWORD,
+				favourites, "", ArtifactActionDefinition::abilityId).stream()
+				.allMatch(action -> action.category() == ArtifactActionCategory.DOMINION));
+	}
+
+	@Test
 	void layoutFitsSmallScreensAndExpandsToTwoColumns() {
 		ArtifactCatalogueRules.Layout compact = ArtifactCatalogueRules.layout(320, 240);
 		assertTrue(compact.panelX() >= 8 && compact.panelY() >= 8);
