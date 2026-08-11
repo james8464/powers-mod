@@ -142,7 +142,8 @@ public final class ShadowSwordScreen extends Screen {
 	private void drawLiveStatus(GuiGraphicsExtractor graphics, ArtifactActionDefinition action,
 			int glyphX, int glyphY) {
 		ArtifactWheelRules.SegmentStatus status = ArtifactWheelRules.segmentStatus(
-				state.cost(action), ArtifactWheelRules.remainingCooldown(state.cooldown(action), openTicks),
+				state.cost(action), state.energy(),
+				ArtifactWheelRules.remainingCooldown(state.cooldown(action), openTicks),
 				state.cooldownMaximum(action),
 				state.active(action), state.locked(action), state.variant(action));
 		String name = font.plainSubstrByWidth(state.actionName(action).getString(), 36);
@@ -151,7 +152,8 @@ public final class ShadowSwordScreen extends Screen {
 		String variant = status.variant() >= 0 && SizeMorphRules.isValidOption(status.variant())
 				? " " + SizeMorphRules.scale(status.variant()) + "×" : "";
 		graphics.centeredText(font, status.cost() + "E" + variant, glyphX, glyphY + 18,
-				status.locked() ? 0xFF77727C : 0xFFBDB5C7);
+				status.locked() ? 0xFF77727C
+						: status.energySufficient() ? 0xFFBDB5C7 : 0xFFFF7777);
 		int barLeft = glyphX - 12;
 		graphics.fill(barLeft, glyphY + 27, barLeft + 24, glyphY + 29, 0xB0201A26);
 		if (status.cooldownPips() > 0) {

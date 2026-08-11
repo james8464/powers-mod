@@ -39,12 +39,14 @@ public final class ArtifactWheelRules {
 	}
 
 	/** Normalizes live server state into the compact indicators drawn on one segment. */
-	public static SegmentStatus segmentStatus(int cost, int cooldownTicks, int cooldownMaximumTicks,
+	public static SegmentStatus segmentStatus(int cost, int energy, int cooldownTicks, int cooldownMaximumTicks,
 			boolean active, boolean locked, int variant) {
+		int safeCost = Math.max(0, cost);
 		int pips = cooldownTicks <= 0 || cooldownMaximumTicks <= 0 ? 0
 				: (int) Math.clamp(((long) cooldownTicks * SLOT_COUNT
 						+ cooldownMaximumTicks - 1L) / cooldownMaximumTicks, 1L, (long) SLOT_COUNT);
-		return new SegmentStatus(Math.max(0, cost), pips, active, locked, variant);
+		return new SegmentStatus(safeCost, Math.max(0, energy) >= safeCost,
+				pips, active, locked, variant);
 	}
 
 	/** Advances an authenticated cooldown snapshot without letting client time underflow it. */
@@ -53,7 +55,7 @@ public final class ArtifactWheelRules {
 	}
 
 	/** All status information needed for a quick combat decision without opening the library. */
-	public record SegmentStatus(int cost, int cooldownPips, boolean active,
+	public record SegmentStatus(int cost, boolean energySufficient, int cooldownPips, boolean active,
 			boolean locked, int variant) {
 	}
 }
