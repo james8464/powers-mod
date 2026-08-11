@@ -73,6 +73,8 @@ final class PowersServerLifecycle {
 
 	private static void afterRespawn(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
 		PlayerPowerTicker.migrateLegacyRealmGamemode(newPlayer);
+		PrivateCompanionManager.forget(oldPlayer);
+		com.powers.companion.ShadowCompanionStore.clearBody(newPlayer);
 		MagicRuntime.global().clearOwner(oldPlayer.getUUID());
 		PowerAbilityRuntime.afterRespawn(newPlayer.level().getServer(), oldPlayer, newPlayer);
 		PlayerPowerTicker.forget(newPlayer.getUUID());

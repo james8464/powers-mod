@@ -104,6 +104,7 @@ public final class ShadowPowerExecutor {
 				action.id(), context.serverTick() + 1_200L);
 		shadow.setEnergy(shadow.energy() - action.cost());
 		ShadowPowerFx.cast(level, shadow, target, action);
+		ShadowPowerRuntime.recordCast();
 		return new ExecutionResult(true, "cast", action.cost(), handler, List.of());
 	}
 

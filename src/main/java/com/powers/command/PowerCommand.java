@@ -109,11 +109,26 @@ public final class PowerCommand {
 				.then(Commands.literal("diagnose")
 						.requires(PowerCommand::isAdmin)
 						.executes(PowerDiagnosticsCommand::run))
+				.then(Commands.literal("shadow")
+						.requires(PowerCommand::isAdmin)
+						.then(Commands.literal("learning")
+								.then(Commands.literal("reset")
+										.then(Commands.argument("player", EntityArgument.player())
+												.executes(PowerCommand::resetShadowLearning)))))
 				.then(TestingCommand.create())
 				.then(Commands.literal("travel")
 						.requires(PowerCommand::isAdmin)
 						.then(Commands.argument("dimension", StringArgumentType.word())
 								.executes(PowerCommand::travel))));
+	}
+
+	private static int resetShadowLearning(CommandContext<CommandSourceStack> context)
+			throws CommandSyntaxException {
+		ServerPlayer player = EntityArgument.getPlayer(context, "player");
+		com.powers.companion.PrivateCompanionManager.resetLearning(player);
+		context.getSource().sendSuccess(() -> Component.literal("Reset bounded Shadow combat learning for "
+				+ player.getScoreboardName() + "; conversation memory was preserved."), true);
+		return 1;
 	}
 
 	private static int spawnFirstVessel(CommandContext<CommandSourceStack> context) {

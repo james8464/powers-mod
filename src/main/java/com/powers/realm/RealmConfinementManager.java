@@ -42,7 +42,6 @@ public final class RealmConfinementManager {
 			lockForRecovery(respawned, id.toString());
 			return true;
 		}
-		respawned.setGameMode(GameType.SPECTATOR);
 		requestConfinement(respawned.level().getServer(), respawned.getUUID(), realm.dimension(), id, 0);
 		return true;
 	}
@@ -66,7 +65,6 @@ public final class RealmConfinementManager {
 			if (captive == null) return;
 			captive.teleportTo(realm, RealmLayout.ENTRY_X, realm.getMinY() + 1,
 					RealmLayout.ENTRY_Z, Set.of(), captive.getYRot(), captive.getXRot(), false);
-			captive.setGameMode(GameType.ADVENTURE);
 			PowerFx.rune(realm, captive.position(), 2.0,
 					realmId.equals(PowersMod.id("dark_realm")) ? 0x2A143D : 0xFFFFFF, 28, Math.PI);
 			PowerMessages.sendImportant(captive, "realm.powers.death_confined", 1);

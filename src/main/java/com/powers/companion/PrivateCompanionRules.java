@@ -13,7 +13,9 @@ public final class PrivateCompanionRules {
 
 	public static boolean eligible(boolean darknessTagged, boolean carriesShadowSword,
 			boolean alive, boolean bodySession, boolean explicitlyRequested) {
-		return darknessTagged && carriesShadowSword && alive && !bodySession && explicitlyRequested;
+		// A mindscape/body-proxy session does not revoke the sword-bound companion;
+		// realm travel is enforced separately by the owner's authoritative route.
+		return darknessTagged && carriesShadowSword && alive && explicitlyRequested;
 	}
 
 	public static Vec3 followPoint(Vec3 owner, Vec3 look) {

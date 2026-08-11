@@ -22,6 +22,7 @@ public final class ShadowPowerRuntime {
 	private static final EnumMap<ShadowPowerAction.WorkClass, Integer> USED =
 			new EnumMap<>(ShadowPowerAction.WorkClass.class);
 	private static long budgetTick = Long.MIN_VALUE;
+	private static long casts;
 
 	private ShadowPowerRuntime() {
 	}
@@ -100,6 +101,18 @@ public final class ShadowPowerRuntime {
 		STATES.clear();
 		USED.clear();
 		budgetTick = Long.MIN_VALUE;
+		casts = 0L;
+	}
+
+	public static void recordCast() {
+		casts++;
+	}
+
+	public record Diagnostics(int owners, int toggles, int budgetClassesUsed, long casts) { }
+
+	public static Diagnostics diagnostics() {
+		return new Diagnostics(STATES.size(), STATES.values().stream()
+				.mapToInt(state -> state.toggles().size()).sum(), USED.size(), casts);
 	}
 
 	private static void cleanup(ServerPlayer owner, ShadowCompanionEntity shadow, Set<String> ids) {

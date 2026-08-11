@@ -62,6 +62,7 @@ public final class PrivateCompanionManager {
 		private ShadowCompanionEntity body;
 		private final Set<UUID> apparitionViewers = new HashSet<>();
 		private final ShadowTaskController tasks = new ShadowTaskController();
+		private int dimensionTransferFailures;
 
 		private Session(long id, ShadowCompanionEntity body) {
 			this.id = id;
@@ -125,8 +126,20 @@ public final class PrivateCompanionManager {
 			replyAndRemember(player, "", DIALOGUE.failure(taskState.reason()));
 		}
 		if (ShadowConjurationManager.active(ownerId)) tickConjuration(player, session);
-		boolean teleported = ShadowCompanionStore.get(player).stance() == ShadowStance.FOLLOW
+		boolean dimensionMismatch = body.level() != player.level();
+		boolean teleported = (dimensionMismatch
+				|| ShadowCompanionStore.get(player).stance() == ShadowStance.FOLLOW)
 				&& followOwner(player, session);
+		if (dimensionMismatch && session.body.level() != player.level()) {
+			session.dimensionTransferFailures++;
+			if (session.dimensionTransferFailures >= 3) {
+				replyPrivate(player, "The path between dimensions failed safely; call me again once it is stable.");
+				despawn(player);
+				return;
+			}
+		} else {
+			session.dimensionTransferFailures = 0;
+		}
 		syncApparition(player, session, teleported);
 	}
 
@@ -672,6 +685,35 @@ public final class PrivateCompanionManager {
 
 	public static boolean isRevealed(UUID owner) {
 		return REVEALED.contains(owner);
+	}
+
+	public static void resetLearning(ServerPlayer owner) {
+		ShadowCompanionStore.update(owner, state -> state.withLearnedCombat(""));
+		body(owner.getUUID()).ifPresent(shadow -> ShadowCombatController.clearBody(shadow.getUUID()));
+	}
+
+	public static ShadowDiagnostics diagnostics() {
+		int bodies = 0;
+		int revealed = 0;
+		int tasks = 0;
+		int energy = 0;
+		Set<UUID> liveBodyIds = new HashSet<>();
+		for (Session session : SESSIONS.values()) {
+			if (session.body != null && session.body.isAlive() && !session.body.isRemoved()) {
+				bodies++;
+				energy += session.body.energy();
+				liveBodyIds.add(session.body.getUUID());
+				if (session.body.revealed()) revealed++;
+			}
+			if (session.tasks.active().isPresent()) tasks++;
+		}
+		var power = ShadowPowerRuntime.diagnostics();
+		var combat = ShadowCombatController.diagnostics();
+		int leaked = (int) BODY_OWNERS.keySet().stream().filter(id -> !liveBodyIds.contains(id)).count();
+		return new ShadowDiagnostics(bodies, bodies - revealed, revealed, tasks, energy,
+				ShadowConjurationManager.activeCount(), power.toggles(), power.casts(),
+				ShadowConjurationManager.completedCount(), combat.bodies(), combat.contexts(),
+				combat.targetTypes(), combat.creditWindows(), 0, leaked);
 	}
 
 	public static void forget(ServerPlayer player) {
