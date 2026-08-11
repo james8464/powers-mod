@@ -50,6 +50,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.decoration.Mannequin;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
@@ -285,6 +286,31 @@ public final class PowersGameTests {
 				"Overkill impact bypassed the sacrificial shield");
 		helper.assertFalse(MagicShieldManager.global().active(ally.getUUID(), tick),
 				"Broken shield retained integrity after sacrificing itself");
+		MagicShieldManager.global().clear();
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void forcefieldFollowsTheMindBodyTetherAndProtectsThePhysicalBody(GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		var origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		owner.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		owner.setHealth(20.0F);
+		helper.assertTrue(BodyProxyManager.start(owner, BodyProxyKind.ASTRAL),
+				"Could not create a physical body for the shield collision test");
+		Mannequin body = helper.getLevel().getEntitiesOfClass(Mannequin.class,
+				owner.getBoundingBox().inflate(2.0), BodyProxyManager::isProxy).getFirst();
+		MagicShieldManager.global().raise(owner.getUUID(), 40.0F, Long.MAX_VALUE);
+
+		helper.assertFalse(body.hurtServer(helper.getLevel(), body.damageSources().generic(), 50_000.0F),
+				"The sacrificial shield let an overkill impact reach the physical body");
+		helper.assertTrue(owner.getHealth() == 20.0F,
+				"A shielded physical-body hit leaked to the detached mind");
+		helper.assertFalse(MagicShieldManager.global().active(owner.getUUID(),
+				helper.getLevel().getServer().getTickCount()),
+				"The sacrificed tethered shield retained integrity");
+		BodyProxyManager.finish(owner);
 		MagicShieldManager.global().clear();
 		helper.succeed();
 	}

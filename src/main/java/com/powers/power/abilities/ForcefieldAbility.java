@@ -52,11 +52,18 @@ public class ForcefieldAbility extends Ability {
 	}
 
 	public static boolean absorbDamage(LivingEntity target, DamageSource source, float amount) {
-		long tick = target.level().getServer().getTickCount();
-		MagicShieldManager.Impact impact = MagicShieldManager.global().absorb(target.getUUID(), amount, tick);
+		return absorbDamage(target, target, source, amount);
+	}
+
+	/** Lets a detached physical body consume the shield owned by its remote mind. */
+	public static boolean absorbDamage(LivingEntity shieldOwner, LivingEntity visualTarget,
+			DamageSource source, float amount) {
+		long tick = visualTarget.level().getServer().getTickCount();
+		MagicShieldManager.Impact impact = MagicShieldManager.global().absorb(
+				shieldOwner.getUUID(), amount, tick);
 		if (!impact.blocked()) return false;
-		ServerLevel level = (ServerLevel) target.level();
-		Vec3 center = target.position().add(0, 1, 0);
+		ServerLevel level = (ServerLevel) visualTarget.level();
+		Vec3 center = visualTarget.position().add(0, 1, 0);
 		int color = impact.shattered() ? 0xE8F8FF : impact.fractureStage() == 0 ? 0x40C4FF : 0x8ADCF7;
 		com.powers.fx.PowerFx.rune(level, center, impact.shattered() ? 2.0 : 1.4,
 				color, impact.shattered() ? 30 : 18, tick * 0.1);
@@ -68,16 +75,16 @@ public class ForcefieldAbility extends Ability {
 		if (impact.reflective()) {
 			Entity direct = source.getDirectEntity();
 			if (direct instanceof Projectile projectile && PowerEntityState.tryReflect(projectile, 1)) {
-				projectile.setOwner(target);
+				projectile.setOwner(shieldOwner);
 				projectile.setDeltaMovement(projectile.getDeltaMovement().scale(-1.15));
 				projectile.hurtMarked = true;
 			}
 			Entity attacker = source.getEntity();
-			if (target instanceof ServerPlayer player
+			if (shieldOwner instanceof ServerPlayer player
 					&& attacker instanceof net.minecraft.world.entity.LivingEntity living && attacker != player
 					&& PowerProtection.mayForceMove(player, living)
 					&& !SpellFieldManager.blocksForcedMovement(level, living, player.getUUID())) {
-				Vec3 away = attacker.position().subtract(player.position()).normalize().scale(0.65);
+				Vec3 away = attacker.position().subtract(visualTarget.position()).normalize().scale(0.65);
 				attacker.push(away.x, 0.25, away.z);
 				com.powers.fx.PowerFx.clash(level, center, attacker.position().add(0, 1, 0), 0x40C4FF, 0xFFFFFF);
 			}

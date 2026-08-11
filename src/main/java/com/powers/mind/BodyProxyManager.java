@@ -5,6 +5,7 @@ import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
+import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.state.PowerEntityState;
 import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelKind;
@@ -121,6 +122,7 @@ public final class BodyProxyManager {
 		if (active == null) return true;
 		if (!PowersConfigLoader.get().projectionBodiesVulnerable()) return false;
 		ServerPlayer owner = active.level().getServer().getPlayerList().getPlayer(active.ownerId());
+		if (owner != null && ForcefieldAbility.absorbDamage(owner, entity, source, amount)) return false;
 		if (owner != null && PowerDamage.isPowerDamage(source) && AmethystDampening.isDampened(owner)) {
 			return false;
 		}

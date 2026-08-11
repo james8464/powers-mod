@@ -1,6 +1,6 @@
 {
 	"parent": "minecraft:item/generated",
 	"textures": {
-		"layer0": "minecraft:item/enderman_spawn_egg"
+		"layer0": "powers:item/first_vessel_spawn_egg"
 	}
 }

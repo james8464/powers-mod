@@ -12,4 +12,9 @@ public final class SpellTargetRules {
 				&& distanceSquared >= 0.0 && Double.isFinite(maximumRange) && maximumRange >= 0.0
 				&& distanceSquared <= maximumRange * maximumRange;
 	}
+
+	/** Purification is aid, not an accidental heal for every hostile mob in the circle. */
+	public static boolean mayPurify(boolean caster, boolean allied) {
+		return caster || allied;
+	}
 }

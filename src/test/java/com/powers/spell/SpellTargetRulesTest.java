@@ -21,4 +21,11 @@ class SpellTargetRulesTest {
 		assertFalse(SpellTargetRules.remainsValid(true, true, true, Double.NaN, 32.0));
 		assertFalse(SpellTargetRules.remainsValid(true, true, true, 1.0, Double.POSITIVE_INFINITY));
 	}
+
+	@Test
+	void purificationNeverHealsAnUnalliedHostileMob() {
+		assertTrue(SpellTargetRules.mayPurify(true, false));
+		assertTrue(SpellTargetRules.mayPurify(false, true));
+		assertFalse(SpellTargetRules.mayPurify(false, false));
+	}
 }

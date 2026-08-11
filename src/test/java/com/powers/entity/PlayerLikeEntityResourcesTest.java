@@ -25,14 +25,18 @@ class PlayerLikeEntityResourcesTest {
 	}
 
 	@Test
-	void playerLikeSkinUsesTheVanillaSkinCanvas() throws IOException {
-		byte[] png = Files.readAllBytes(RESOURCES.resolve("assets/powers/textures/entity/darkness_player.png"));
-		assertEquals(64, readInt(png, 16));
-		assertEquals(64, readInt(png, 20));
-	}
-
-	private static int readInt(byte[] bytes, int offset) {
-		return (bytes[offset] & 0xFF) << 24 | (bytes[offset + 1] & 0xFF) << 16
-				| (bytes[offset + 2] & 0xFF) << 8 | bytes[offset + 3] & 0xFF;
+	void everyPlayerLikeSkinUsesTheVanillaCanvasAndPaintsEveryBaseFace() throws IOException {
+		for (String id : new String[] {"darkness_player", "test_actor", "radiant_sentinel",
+				"first_vessel"}) {
+			var image = javax.imageio.ImageIO.read(RESOURCES.resolve(
+					"assets/powers/textures/entity/" + id + ".png").toFile());
+			assertEquals(64, image.getWidth(), id + " width");
+			assertEquals(64, image.getHeight(), id + " height");
+			for (int[] point : new int[][] {{12, 12}, {24, 24}, {6, 24}, {46, 24},
+					{22, 56}, {38, 56}}) {
+				assertTrue((image.getRGB(point[0], point[1]) >>> 24) != 0,
+						id + " left a transparent base UV face at " + point[0] + "," + point[1]);
+			}
+		}
 	}
 }

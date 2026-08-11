@@ -1,6 +1,6 @@
 {
 	"parent": "minecraft:item/generated",
 	"textures": {
-		"layer0": "minecraft:item/pillager_spawn_egg"
+		"layer0": "powers:item/power_test_actor_spawn_egg"
 	}
 }
