@@ -298,16 +298,21 @@ public final class SpellFieldManager {
 
 	private static String actionId(SpellFieldKind kind) {
 		return switch (kind) {
-			case ANTI_PORTAL -> "anti_portal_field";
-			case KINETIC_WARD -> "kinetic_ward";
-			case SANCTUARY -> "sanctuary_growth";
-			case INFERNAL_SEAL -> "infernal_seal";
+			case ANTI_PORTAL -> "dimensional_anchor";
+			case KINETIC_WARD -> "forcefield";
+			case SANCTUARY -> "hearth_sanctuary";
+			case INFERNAL_SEAL -> "dispel";
 		};
 	}
 
 	/** Active count exposed to the administrative diagnostics command. */
 	public static int activeFieldCount() {
 		return FIELDS.size();
+	}
+
+	/** Exact ownership probe for diagnostics and live acceptance tests. */
+	public static boolean hasField(UUID owner, SpellFieldKind kind) {
+		return owner != null && kind != null && FIELDS.containsKey(new FieldKey(owner, kind));
 	}
 
 	/** Maximum recurring field evaluations performed in one server tick. */

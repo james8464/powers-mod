@@ -7,7 +7,8 @@
 	"entrypoints": {
 		"fabric-gametest": [
 			"com.powers.gametest.PowersGameTests",
-			"com.powers.gametest.LivingForceGameTests"
+			"com.powers.gametest.LivingForceGameTests",
+			"com.powers.gametest.P1AcceptanceGameTests"
 		]
 	},
 	"depends": {

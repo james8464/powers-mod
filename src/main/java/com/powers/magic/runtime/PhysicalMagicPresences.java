@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -27,6 +28,7 @@ public final class PhysicalMagicPresences {
 	private static final Map<UUID, MagicPresenceId> BY_ENTITY = new HashMap<>();
 	private static final TreeMap<Long, Set<MagicPresenceId>> BY_EXPIRY = new TreeMap<>();
 	private static final Map<CollisionKey, Long> COLLISION_COOLDOWNS = new HashMap<>();
+	private static final Map<RayCollisionKey, Long> RAY_COLLISION_COOLDOWNS = new HashMap<>();
 	private static final int MAX_COLLISION_KEYS = 4_096;
 	private static final int COLLISION_REPEAT_TICKS = 10;
 
@@ -39,6 +41,7 @@ public final class PhysicalMagicPresences {
 			}
 		}
 	}
+	private record RayCollisionKey(UUID owner, String action, MagicPresenceId field) { }
 
 	private PhysicalMagicPresences() {
 	}
@@ -152,10 +155,75 @@ public final class PhysicalMagicPresences {
 	}
 
 	public static void clear() {
+		for (MagicPresenceId id : java.util.List.copyOf(BOUND.keySet())) {
+			MagicRuntime.global().removePresence(id);
+		}
 		BOUND.clear();
 		BY_ENTITY.clear();
 		BY_EXPIRY.clear();
 		COLLISION_COOLDOWNS.clear();
+		RAY_COLLISION_COOLDOWNS.clear();
+	}
+
+	/** Resolves the first exact ray/field capsule intersection without a broad beam sphere. */
+	public static Optional<Vec3> collideRayWithFields(ServerLevel level, String action, UUID owner,
+			Vec3 start, Vec3 end, long gameTime) {
+		if (level == null || action == null || owner == null || start == null || end == null) {
+			return Optional.empty();
+		}
+		Vec3 delta = end.subtract(start);
+		double length = delta.length();
+		if (!Double.isFinite(length) || length < 1.0E-6 || length > 256.0) return Optional.empty();
+		Vec3 midpoint = start.add(end).scale(0.5);
+		double queryRadius = Math.min(128.0, length * 0.5 + 1.0);
+		RAY_COLLISION_COOLDOWNS.entrySet().removeIf(entry -> entry.getValue() <= gameTime);
+		MagicRuntime runtime = MagicRuntime.global();
+		var candidate = runtime.indexedNearby(dimension(level), midpoint, queryRadius, gameTime).stream()
+				.filter(presence -> !presence.owner().equals(owner))
+				.filter(presence -> {
+					Bound bound = BOUND.get(presence.id());
+					return bound != null && bound.handle().kind() == MagicPresenceHandle.Kind.FIELD;
+				})
+				.map(presence -> new RayHit(presence, closestFraction(start, delta, presence.anchor())))
+				.filter(hit -> rayTouches(start, delta, hit))
+				.sorted(java.util.Comparator.comparingDouble(RayHit::fraction)
+						.thenComparing(hit -> hit.presence().id().value()))
+				.findFirst();
+		if (candidate.isEmpty()) return Optional.empty();
+		RayHit hit = candidate.get();
+		RayCollisionKey key = new RayCollisionKey(owner, action, hit.presence().id());
+		if (RAY_COLLISION_COOLDOWNS.getOrDefault(key, Long.MIN_VALUE) > gameTime) return Optional.empty();
+		if (RAY_COLLISION_COOLDOWNS.size() >= MAX_COLLISION_KEYS) {
+			RAY_COLLISION_COOLDOWNS.remove(RAY_COLLISION_COOLDOWNS.keySet().iterator().next());
+		}
+		RAY_COLLISION_COOLDOWNS.put(key, gameTime + COLLISION_REPEAT_TICKS);
+		Vec3 point = start.add(delta.scale(hit.fraction()));
+		var definition = MagicRuntime.catalogue().definition(new MagicActionId(action));
+		if (definition == null) return Optional.empty();
+		var resolution = runtime.resolveInteraction(action, hit.presence().action().value());
+		MagicCastContext cast = new MagicCastContext(definition, owner, dimension(level),
+				PresenceAnchor.fixed(point.x, point.y, point.z), 1.0, gameTime, InteractionContext.DEFAULT);
+		ServerMagicCasts.emitPhysicalPresenceReaction(level,
+				new MagicReactionEvent(cast, hit.presence(), resolution));
+		return Optional.of(point);
+	}
+
+	private record RayHit(MagicPresence presence, double fraction) { }
+
+	private static double closestFraction(Vec3 start, Vec3 delta, PresenceAnchor point) {
+		double lengthSquared = delta.lengthSqr();
+		Vec3 offset = new Vec3(point.x(), point.y(), point.z()).subtract(start);
+		return Math.clamp(offset.dot(delta) / lengthSquared, 0.0, 1.0);
+	}
+
+	private static boolean rayTouches(Vec3 start, Vec3 delta, RayHit hit) {
+		Vec3 closest = start.add(delta.scale(hit.fraction()));
+		PresenceAnchor anchor = hit.presence().anchor();
+		double radius = hit.presence().radius() + MagicRayCollisionRules.COLLISION_THICKNESS;
+		double dx = closest.x - anchor.x();
+		double dy = closest.y - anchor.y();
+		double dz = closest.z - anchor.z();
+		return dx * dx + dy * dy + dz * dz <= radius * radius;
 	}
 
 	/** Resolves every indexed physical overlap once per bounded repeat window. */

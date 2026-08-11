@@ -203,6 +203,12 @@ public final class MagicRuntime {
 				presence.anchor().z(), radius, gameTime);
 	}
 
+	/** Bounded indexed query used by exact physical geometry adapters. */
+	List<MagicPresence> indexedNearby(String dimension, net.minecraft.world.phys.Vec3 point,
+			double radius, long gameTime) {
+		return index.nearby(dimension, point.x, point.y, point.z, radius, gameTime);
+	}
+
 	private static CueKey cueKey(MagicCastContext cast, MagicPresence presence) {
 		return new CueKey(ActionPair.of(cast.definition().id(), presence.action()), cast.dimension(),
 				floorCell(cast.anchor().x()), floorCell(cast.anchor().y()), floorCell(cast.anchor().z()),
