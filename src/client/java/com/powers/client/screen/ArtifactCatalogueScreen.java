@@ -33,11 +33,16 @@ public final class ArtifactCatalogueScreen extends Screen {
 	private String query = "";
 	private int page;
 	private int sizeMorphOption;
+	private int gravityOption;
 
 	ArtifactCatalogueScreen(ArtifactMenuState state) {
 		super(Component.translatable("screen.powers.artifact.catalogue.title"));
 		this.state = state;
 		this.sizeMorphOption = state.sizeMorphOption();
+		ArtifactActionDefinition gravity = state.actions().stream()
+				.filter(action -> action.abilityId().equals("gravity_displacement"))
+				.findFirst().orElse(null);
+		this.gravityOption = gravity == null ? 1 : Math.clamp(state.variant(gravity), 0, 2);
 		this.favourites = state.favourites();
 	}
 
@@ -144,6 +149,18 @@ public final class ArtifactCatalogueScreen extends Screen {
 							Component.translatable("screen.powers.shadow_sword.variant"),
 							(button, option) -> sizeMorphOption = option));
 		}
+		if (selected != null && selected.abilityId().equals("gravity_displacement")) {
+			addRenderableWidget(CycleButton.<Integer>builder(
+					option -> Component.translatable(switch (option) {
+						case 0 -> "ability.powers.gravity_displacement.mode.pull";
+						case 1 -> "ability.powers.gravity_displacement.mode.orbit";
+						default -> "ability.powers.gravity_displacement.mode.repel";
+					}), () -> gravityOption)
+					.withValues(List.of(0, 1, 2)).displayOnlyValue()
+					.create(left + 8, y, panelWidth / 2 - 12, 18,
+							Component.translatable("screen.powers.shadow_sword.variant"),
+							(button, option) -> gravityOption = option));
+		}
 		Button bind = addRenderableWidget(Button.builder(
 				Component.translatable("screen.powers.artifact.catalogue.select"), ignored -> choose())
 				.bounds(left + panelWidth / 2 + 4, y, panelWidth / 2 - 12, 18).build());
@@ -170,7 +187,11 @@ public final class ArtifactCatalogueScreen extends Screen {
 
 	private void choose() {
 		if (selected == null || state.locked(selected)) return;
-		int option = selected.abilityId().equals("size_shift") ? sizeMorphOption : -1;
+		int option = switch (selected.abilityId()) {
+			case "size_shift" -> sizeMorphOption;
+			case "gravity_displacement" -> gravityOption;
+			default -> -1;
+		};
 		ClientPlayNetworking.send(new ShadowSwordPackets.SelectPayload(
 				state.alignment().serializedName(), selected.key(), option));
 		minecraft.gui.setScreen(null);

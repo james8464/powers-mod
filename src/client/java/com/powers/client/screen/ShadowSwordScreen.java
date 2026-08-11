@@ -159,8 +159,17 @@ public final class ShadowSwordScreen extends Screen {
 		String name = font.plainSubstrByWidth(state.actionName(action).getString(), 36);
 		graphics.centeredText(font, name, glyphX, glyphY + 9,
 				status.locked() ? 0xFF77727C : 0xFFE8E2EC);
-		String variant = status.variant() >= 0 && SizeMorphRules.isValidOption(status.variant())
-				? " " + SizeMorphRules.scale(status.variant()) + "×" : "";
+		String variant = switch (action.abilityId()) {
+			case "size_shift" -> status.variant() >= 0 && SizeMorphRules.isValidOption(status.variant())
+					? " " + SizeMorphRules.scale(status.variant()) + "×" : "";
+			case "gravity_displacement" -> status.variant() >= 0
+					? " " + Component.translatable(switch (Math.clamp(status.variant(), 0, 2)) {
+						case 0 -> "ability.powers.gravity_displacement.mode.pull";
+						case 1 -> "ability.powers.gravity_displacement.mode.orbit";
+						default -> "ability.powers.gravity_displacement.mode.repel";
+					}).getString() : "";
+			default -> "";
+		};
 		graphics.centeredText(font, status.cost() + "E" + variant, glyphX, glyphY + 18,
 				status.locked() ? 0xFF77727C
 						: status.energySufficient() ? 0xFFBDB5C7 : 0xFFFF7777);

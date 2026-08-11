@@ -32,9 +32,10 @@ public final class ArtifactMenuRules {
 	}
 
 	/** Returns the authored selector value for abilities that actually expose one. */
-	public static int selectionVariant(String abilityPath, int sizeOption) {
+	public static int selectionVariant(String abilityPath, int sizeOption, int gravityOption) {
 		return switch (abilityPath == null ? "" : abilityPath) {
 			case "size_shift" -> sizeOption;
+			case "gravity_displacement" -> Math.clamp(gravityOption, 0, 2);
 			default -> -1;
 		};
 	}

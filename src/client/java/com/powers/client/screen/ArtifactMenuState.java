@@ -86,8 +86,11 @@ public record ArtifactMenuState(
 	}
 
 	public int optionFor(ArtifactActionDefinition action) {
-		if (action.abilityId().equals("size_shift")) return sizeMorphOption;
-		return -1;
+		return switch (action.abilityId()) {
+			case "size_shift" -> sizeMorphOption;
+			case "gravity_displacement" -> Math.clamp(variant(action), 0, 2);
+			default -> -1;
+		};
 	}
 
 	public Component actionName(ArtifactActionDefinition action) {

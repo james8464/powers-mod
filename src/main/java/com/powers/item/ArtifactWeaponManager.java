@@ -134,7 +134,9 @@ public final class ArtifactWeaponManager {
 			boolean locked = !ArtifactSelectionRules.maySelect(action.definition(), alignment,
 					rank(player, alignment));
 			int variant = com.powers.item.artifact.ArtifactMenuRules.selectionVariant(
-					action.ability().id().getPath(), data.getSizeMorphOption());
+					action.ability().id().getPath(), data.getSizeMorphOption(),
+					com.powers.power.abilities.GravityDisplacementAbility.selectedModeOption(
+							player.getUUID()));
 			return new ArtifactActionSnapshot(action.definition().key(), action.definition().category(),
 					quote.cost(), quote.saved(), remaining, maximum, active, locked, variant);
 		}).toList();
