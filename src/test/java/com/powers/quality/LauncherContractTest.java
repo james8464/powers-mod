@@ -49,4 +49,14 @@ class LauncherContractTest {
 		assertTrue(build.contains("server.properties") && build.contains("eula.txt"),
 				"GameTest runtime files are not seeded before server bootstrap");
 	}
+
+	@Test
+	void dedicatedServerTaskSeedsItsOwnRuntimeFiles() throws IOException {
+		String build = Files.readString(Path.of(System.getProperty("user.dir")).resolve("build.gradle"));
+		int runServer = build.indexOf("tasks.named(\"runServer\")");
+		assertTrue(runServer >= 0, "runServer task is not configured");
+		String taskBody = build.substring(runServer, Math.min(build.length(), runServer + 700));
+		assertTrue(taskBody.contains("server.properties") && taskBody.contains("eula.txt"),
+				"Dedicated server runtime files are not seeded before bootstrap");
+	}
 }

@@ -2,6 +2,8 @@
 
 ## 1.0.2 - 2026-08-11
 
+- Added a real rendered-client acceptance harness with live Light/Dark Crystal journeys, body recovery, 19 HUD/screen/realm captures, compact layouts, and checked operator commands; expanded the live server suite to 69 GameTests and published an honest 429-identity campaign report.
+- Corrected Rainbow Crystal's missing seventh Middleworld mode, high-GUI-scale artifact-wheel crowding, untranslated Locator prompts, low-contrast Crucible labels, the omitted Shadow acceptance entry, and false-positive dedicated-server/checklist evidence.
 - Completed the 25-item Queue 1 pass: practical spell inspection/feedback, authoritative crystal and power state, relic previews/transfers, accessible artifact/Rainbow selectors, Shadow/energy diagnostics, permissions integration, compatibility contracts, resource fallbacks, and bounded collision presentation.
 - Added Grave Recall retention/bearing, exact Dispel preflight, renewable Dimensional Anchor feedback, Soul Link topology/caps, Chrono Stop owner/deadline state, Double Health HUD/anti-toggle rules, Forcefield ownership/cracks/merge/opt-out, and selectable pull/orbit/repel Gravity modes including artifact snapshots.
 - Added named charged Miniportals, Ritual Dagger safety previews, registry-derived Malignember savings, exact reservoir transfers, persisted safe-default release-to-cast, contextual Shadow status, first-awakening binding diagrams, short beam/boss ringing sounds, six granular permission nodes, crash/energy diagnostics, signed-chat-safe prefixes, target capability contracts, and optional-asset procedural fallbacks.

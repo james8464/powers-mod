@@ -16,6 +16,7 @@ Every POWERS injection is a separate one-roll pool, so foreign loot weights cann
 | `minecraft:chests/ruined_portal` | 0.070 | 0.070 | 70.36 | 4.22 | 0.2450% | identical |
 | `minecraft:chests/nether_bridge` | 0.060 | 0.060 | 60.21 | 3.61 | 0.1800% | identical |
 | `minecraft:chests/buried_treasure` | 0.120 | 0.121 | 120.66 | 7.24 | 0.4800% | identical |
+| `powers:chests/realm_memory` | 0.035 | 0.035 | 35.31 | 2.12 | 0.1225% | identical |
 | `minecraft:blocks/birch_leaves` | 0.025 | 0.025 | 25.17 | 1.51 | 0.0625% | identical |
 | `minecraft:blocks/cherry_leaves` | 0.025 | 0.025 | 25.17 | 1.51 | 0.0625% | identical |
 | `minecraft:blocks/jungle_leaves` | 0.040 | 0.040 | 40.42 | 2.43 | 0.0320% | identical |
@@ -32,7 +33,7 @@ Every POWERS injection is a separate one-roll pool, so foreign loot weights cann
 | `minecraft:entities/salmon` | 0.450 | 0.451 | 450.72 | 27.04 | 20.2500% | identical |
 | `minecraft:entities/slime` | 0.150 | 0.151 | 150.74 | 9.04 | 2.2500% | identical |
 | `minecraft:entities/villager` | 0.650 | 0.651 | 651.23 | 39.07 | 2.1125% | identical |
-| `minecraft:chests/village/village_plains_house` | 0.220 | 0.221 | 220.95 | 13.26 | 0.0712% | identical |
+| `minecraft:chests/village/village_plains_house` | 0.220 | 0.221 | 220.95 | 13.26 | 0.0722% | identical |
 | `minecraft:chests/stronghold_corridor` | 0.120 | 0.121 | 120.66 | 7.24 | 0.1108% | identical |
 | `minecraft:chests/trial_chambers/reward_common` | 0.100 | 0.100 | 100.36 | 6.02 | 0.0625% | identical |
 | `minecraft:archaeology/desert_well` | 0.080 | 0.080 | 80.27 | 4.82 | 0.0152% | identical |

@@ -58,7 +58,7 @@ fabricApi {
 		createSourceSet = true
 		modId = "powers-gametest"
 		enableGameTests = true
-		enableClientGameTests = false
+		enableClientGameTests = true
 		eula = true
 	}
 }
@@ -161,6 +161,19 @@ tasks.named("runGameTest") {
 tasks.named("runServer") {
 	// Required by restart_soak.py and useful for ordinary dedicated-server administration.
 	standardInput = System.in
+	doFirst {
+		def configuredRun = providers.gradleProperty("powersRunDir").orNull
+		def serverRun = configuredRun == null ? file("run") : file(configuredRun)
+		serverRun.mkdirs()
+		def properties = new File(serverRun, "server.properties")
+		if (!properties.exists()) {
+			properties.text = "online-mode=false\nlevel-name=world\n"
+		}
+		def eula = new File(serverRun, "eula.txt")
+		if (!eula.exists()) {
+			eula.text = "eula=true\n"
+		}
+	}
 }
 
 tasks.named("check") {

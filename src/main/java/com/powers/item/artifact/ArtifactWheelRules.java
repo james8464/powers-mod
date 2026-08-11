@@ -6,22 +6,43 @@ public final class ArtifactWheelRules {
 	public static final int NONE = -1;
 	public static final int CENTER = -2;
 	public static final int SLOT_COUNT = 8;
-	public static final int INNER_RADIUS = 24;
+	public static final int INNER_RADIUS = 32;
 	public static final int OUTER_RADIUS = 82;
 
 	private ArtifactWheelRules() {
 	}
 
 	public static int targetAt(int centerX, int centerY, double mouseX, double mouseY) {
+		return targetAt(centerX, centerY, mouseX, mouseY, OUTER_RADIUS);
+	}
+
+	public static int targetAt(int centerX, int centerY, double mouseX, double mouseY,
+			int outerRadius) {
 		double dx = mouseX - centerX;
 		double dy = mouseY - centerY;
 		double distanceSquared = dx * dx + dy * dy;
 		if (distanceSquared <= INNER_RADIUS * INNER_RADIUS) return CENTER;
-		if (distanceSquared > OUTER_RADIUS * OUTER_RADIUS) return NONE;
+		int boundedOuter = Math.max(INNER_RADIUS + 1, outerRadius);
+		if (distanceSquared > boundedOuter * boundedOuter) return NONE;
 		double clockwiseFromNorth = Math.atan2(dx, -dy);
 		if (clockwiseFromNorth < 0.0) clockwiseFromNorth += Math.PI * 2.0;
 		return (int) Math.floor((clockwiseFromNorth + Math.PI / SLOT_COUNT)
 				/ (Math.PI * 2.0 / SLOT_COUNT)) % SLOT_COUNT;
+	}
+
+	/** Fits the information-rich wheel inside both standard and compact GUI canvases. */
+	public static Layout layout(int width, int height) {
+		int outer = Math.clamp(Math.min(width, height) / 2 - 25, 72, 120);
+		int glyph = Math.max(45, outer - 20);
+		int verticalGlyph = Math.max(42, glyph - 18);
+		int nameWidth = outer >= 110 ? 70 : 48;
+		boolean showSegmentNames = height >= 210
+				&& 2.0 * glyph * Math.sin(Math.PI / SLOT_COUNT) > nameWidth;
+		return new Layout(outer, glyph, verticalGlyph, nameWidth, showSegmentNames);
+	}
+
+	public static double adjacentGlyphDistance(Layout layout) {
+		return 2.0 * layout.glyphRadius() * Math.sin(Math.PI / SLOT_COUNT);
 	}
 
 	public static int numberSlot(int key) {
@@ -64,5 +85,9 @@ public final class ArtifactWheelRules {
 	/** All status information needed for a quick combat decision without opening the library. */
 	public record SegmentStatus(int cost, boolean energySufficient, int cooldownPips, boolean active,
 			boolean locked, int variant) {
+	}
+
+	public record Layout(int outerRadius, int glyphRadius, int verticalGlyphRadius, int nameWidth,
+			boolean showSegmentNames) {
 	}
 }

@@ -24,6 +24,13 @@ class CrystalAbilityCatalogTest {
 				"soul_link", "chrono_stop", "light_crystal", "dark_crystal"), reachable);
 		assertEquals(java.util.List.of("life_bloom"), bindings.get("green_crystal"));
 		assertEquals(java.util.List.of("middleworld"), bindings.get("indigo_crystal"));
+		assertEquals(7, bindings.get("rainbow_crystal").size(),
+				"Sevenfold Convergence must expose one mode for every coloured force");
+		assertTrue(bindings.get("rainbow_crystal").contains("middleworld"),
+				"The Indigo force must not disappear from the Rainbow convergence");
+		assertEquals("soul_link", bindings.get("rainbow_crystal").get(5),
+				"Existing numeric Rainbow selections must retain their pre-sevenfold meaning");
+		assertEquals("middleworld", bindings.get("rainbow_crystal").get(6));
 	}
 
 	@Test

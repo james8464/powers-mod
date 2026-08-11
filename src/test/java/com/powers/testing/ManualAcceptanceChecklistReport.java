@@ -19,7 +19,7 @@ public final class ManualAcceptanceChecklistReport {
 		List<Row> rows = new ArrayList<>();
 		for (GameplayAcceptanceCatalogue.Entry entry : GameplayAcceptanceCatalogue.entries()) {
 			rows.add(new Row(entry.family().name().toLowerCase(), entry.id(),
-					entry.evidence(), "AUTOMATED PASS"));
+					entry.evidence(), statusFor(entry.proof())));
 		}
 		for (String line : Files.readAllLines(root.resolve("docs/gameplay/item-catalogue.md"))) {
 			if (!line.startsWith("| `powers:")) continue;
@@ -27,13 +27,14 @@ public final class ManualAcceptanceChecklistReport {
 			if (cells.length < 7) continue;
 			String id = cells[1].strip().replace("`", "");
 			rows.add(new Row("item", id, "ItemCatalogueExecutableAuditTest; "
-					+ cells[4].strip() + "; " + cells[5].strip(), "AUTOMATED PASS"));
+					+ cells[4].strip() + "; " + cells[5].strip(),
+					"CONTRACT PASS; MANUAL LIVE PENDING"));
 		}
 		for (String screen : List.of("power selection", "artifact combat wheel", "artifact library",
 				"rank maze light", "rank maze darkness", "grimoire index", "arcane crucible",
 				"locator", "teleport", "advancement light", "advancement darkness")) {
 			rows.add(new Row("screen", screen, "verifyScreenshots visual golden",
-					"GOLDEN REVIEW PASS"));
+					"GOLDEN CONTRACT PASS; MANUAL LIVE PENDING"));
 		}
 		for (String command : commands()) {
 			rows.add(new Row("command", command, "PowerCommand/TestingCommand registration",
@@ -52,6 +53,17 @@ public final class ManualAcceptanceChecklistReport {
 		}
 		output.append("\nTotal registered rows: **").append(rows.size()).append("**.\n");
 		Files.writeString(root.resolve("docs/verification/manual-acceptance-checklist.md"), output);
+	}
+
+	/** Maps repeatable proof to a result without upgrading registry presence into behavior. */
+	static String statusFor(GameplayAcceptanceCatalogue.Proof proof) {
+		return switch (proof) {
+			case LIVE_REGISTRY -> "MANUAL LIVE PENDING";
+			case LIVE_BEHAVIOR -> "AUTOMATED BEHAVIOR PASS";
+			case UNIT_RULES -> "AUTOMATED RULE PASS";
+			case RESOURCE -> "RESOURCE CONTRACT PASS";
+			case SOAK -> "AUTOMATED SOAK PASS";
+		};
 	}
 
 	private static List<String> commands() {

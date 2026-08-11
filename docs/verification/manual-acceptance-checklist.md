@@ -6,402 +6,403 @@ This generated register makes omissions visible. Automated/resource evidence is 
 
 | Family | Identity | Current evidence | Manual result | Notes / screenshot / log |
 | --- | --- | --- | --- | --- |
-| innate | `size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `time_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `void_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `fireball` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `speed_burst` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `telekinesis` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `super_speed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `breezy_bash` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `invisibility` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `time_freeze` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `gravity_displacement` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `vessel_possession` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `astral_projection` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `energy_drain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `ice_manipulation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| innate | `double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| spell | `soul_compass` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| spell | `augury` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| spell | `cartographers_star` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| spell | `celestial_ruin` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| spell | `dimensional_anchor` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| spell | `blood_reading` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| spell | `grave_recall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| spell | `purification_circle` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| spell | `verdant_tending` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| spell | `hearth_sanctuary` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| spell | `ward_breaking_ritual` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| spell | `dispel` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| crystal | `clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| crystal | `creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| crystal | `chrono_stop` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| crystal | `dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| crystal | `life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| crystal | `size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| crystal | `inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| crystal | `light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| crystal | `soul_link` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| crystal | `middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| crystal | `dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/time_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/void_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/fireball` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/speed_burst` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/telekinesis` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/super_speed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/breezy_bash` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/invisibility` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/time_freeze` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/gravity_displacement` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/vessel_possession` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/astral_projection` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/energy_drain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/ice_manipulation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/crystal/clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/crystal/chrono_stop` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/crystal/dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/crystal/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/crystal/inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/crystal/soul_link` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/crystal/middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/crystal/dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/unique/call_hollowed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/unique/blight_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `darkness/unique/nightfall_dominion` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/dominion/call_radiant` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/dominion/consecrate_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/dominion/covenant_chain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/dominion/daybreak_wave` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/dominion/heaven_gate` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/dominion/solar_firmament` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/dominion/second_dawn` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| artifact | `light/dominion/host_heaven` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| entity | `darkness_creature` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED PASS |  |
-| entity | `power_test_actor` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED PASS |  |
-| entity | `radiant_sentinel` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED PASS |  |
-| entity | `dark_herald` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED PASS |  |
-| entity | `light_herald` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED PASS |  |
-| entity | `first_vessel` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED PASS |  |
-| entity | `echo_clone` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED PASS |  |
-| system | `light_realm` | RealmResourcesTest and dedicated-server boot | AUTOMATED PASS |  |
-| system | `dark_realm` | PowersGameTests#darkCrystalMovesItsCasterIntoTheMindscape | AUTOMATED PASS |  |
-| system | `middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | AUTOMATED PASS |  |
-| system | `mind_body` | PowersGameTests#forcefieldFollowsTheMindBodyTetherAndProtectsThePhysicalBody | AUTOMATED PASS |  |
-| system | `living_forces` | LivingForceGameTests | AUTOMATED PASS |  |
-| system | `amethyst` | LivingForceGameTests#poweredAmethystCeremonyCrystallisesLivingForce | AUTOMATED PASS |  |
-| system | `rank_maze` | RankMazePresentationResourcesTest | AUTOMATED PASS |  |
-| system | `energy_hud` | HudLayoutTest and HudMathTest | AUTOMATED PASS |  |
-| system | `shadow_companion` | PowersGameTests#shadowChatOwnsVisibilityAndFormerBookKnowledge and #shadowExplainsTheExactLatestServerRecordedMagicFailure | AUTOMATED PASS |  |
-| system | `shadow_diagnostics` | PowersGameTests#shadowExplainsTheExactLatestServerRecordedMagicFailure | AUTOMATED PASS |  |
-| system | `artifact_energy` | PowersGameTests#soulstoneReservoirPaysEnergyShortfallsAtomically | AUTOMATED PASS |  |
-| system | `celestial_ruin` | PowersGameTests#celestialRuinOverwhelmsTheFirstVesselsLayeredVitality | AUTOMATED PASS |  |
-| system | `magic_collisions` | MagicInteractionResolverTest exhaustive 2,080-pair matrix | AUTOMATED PASS |  |
-| system | `multiplayer_soak` | SyntheticMultiplayerSoakTest | AUTOMATED PASS |  |
-| item | `powers:rainbow_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | AUTOMATED PASS |  |
-| item | `powers:red_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | AUTOMATED PASS |  |
-| item | `powers:orange_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | AUTOMATED PASS |  |
-| item | `powers:yellow_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | AUTOMATED PASS |  |
-| item | `powers:green_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | AUTOMATED PASS |  |
-| item | `powers:blue_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | AUTOMATED PASS |  |
-| item | `powers:indigo_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | AUTOMATED PASS |  |
-| item | `powers:violet_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | AUTOMATED PASS |  |
-| item | `powers:light_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | AUTOMATED PASS |  |
-| item | `powers:dark_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | AUTOMATED PASS |  |
-| item | `powers:infected_rainbow_crystal` | ItemCatalogueExecutableAuditTest; Inert; Rainbow appearance now derives from holder alignment; Hidden; old-save compatibility only | AUTOMATED PASS |  |
-| item | `powers:darkness` | ItemCatalogueExecutableAuditTest; Spreading Darkness realm matter; Dark Realm generation, Blight Ground, and invasion scars | AUTOMATED PASS |  |
-| item | `powers:pure_light` | ItemCatalogueExecutableAuditTest; Spreading Pure Light realm matter; Light Realm generation, consecration, and invasion scars | AUTOMATED PASS |  |
-| item | `powers:amethyst_ward` | ItemCatalogueExecutableAuditTest; Powered dampening and force-containment ceremony; Crafting recipe | AUTOMATED PASS |  |
-| item | `powers:arcane_crucible` | ItemCatalogueExecutableAuditTest; Atomic staged magical weapon conversion; Crafting recipe | AUTOMATED PASS |  |
-| item | `powers:light_memory_obelisk` | ItemCatalogueExecutableAuditTest; Light memory landmark core; Generated in the Light Realm; not a survival drop | AUTOMATED PASS |  |
-| item | `powers:dark_memory_obelisk` | ItemCatalogueExecutableAuditTest; Dark memory landmark core; Generated in the Dark Realm; not a survival drop | AUTOMATED PASS |  |
-| item | `powers:darkness_creature_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns Darkness Creature for controlled testing; Creative/operator testing only | AUTOMATED PASS |  |
-| item | `powers:power_test_actor_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns Power Test Actor for controlled testing; Creative/operator testing only | AUTOMATED PASS |  |
-| item | `powers:radiant_sentinel_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns Radiant Sentinel for controlled testing; Creative/operator testing only | AUTOMATED PASS |  |
-| item | `powers:first_vessel_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns The First Vessel for controlled testing; Creative/operator testing only | AUTOMATED PASS |  |
-| item | `powers:dark_herald_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns The Veiled Regent for controlled testing; Creative/operator testing only | AUTOMATED PASS |  |
-| item | `powers:light_herald_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns The Aureate Witness for controlled testing; Creative/operator testing only | AUTOMATED PASS |  |
-| item | `powers:amethyst_greatblade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:amethyst_greatpick` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:amethyst_greatshovel` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:ancient_greatslab` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:azure_dagger` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:azure_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:azure_greatsword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:azure_pickaxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:azure_sabre` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:azure_scythe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:azure_shovel` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:berserkers_cleaver` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:berserkers_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:black_iron_clobberer` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:black_iron_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:black_iron_greatsword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:calamity_blade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:claymore` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:crescent_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:crimson_cleaver` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:crystal_frostblade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:crystal_frostscythe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:demonic_sword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:demons_blood_blade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:demons_blood_pick` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:demons_blood_shovel` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:demonslayers_greatsword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:dragon_sword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:emerald_greatcleaver` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:ethereal_frostblade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:flamberge` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:gilded_phoenix_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:gloomsteel_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:gloomsteel_katana` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:gloomsteel_knife` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:grand_claymore` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:heavenly_partisan` | ItemCatalogueExecutableAuditTest; Curated radiant dominions and routed powers; Guaranteed Light Herald drop | AUTOMATED PASS |  |
-| item | `powers:iron_battle_axe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:iron_broadsword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:iron_dagger` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:iron_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:iron_halberd` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:iron_hay_sickle` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:iron_mace` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:iron_polearm` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:iron_sai` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:lycanbane` | ItemCatalogueExecutableAuditTest; All routed powers plus exactly three Shadow rites; Guaranteed Dark Herald drop | AUTOMATED PASS |  |
-| item | `powers:moonlight` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:nature_sword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:nocturne` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:oculus` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:phantomguard_greatsword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:phantomguard_partisan` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:piercer` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:ravenous_blade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:revenants_darkscepter` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:revenants_gravecleaver` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:revenants_gravescepter` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:runic_piercer` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:sacrificial_cleaver` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:skeleton_axe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:solstice` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:spider_sword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:talonbrand` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:talonpick` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:talonshovel` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:treacherous_axe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:treacherous_bludgeon` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:treacherous_cleaver` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:uchigatana` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:vaelith` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:valhakyra` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:vengeance_blade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:vesper` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:vindicator` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:viridian_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:viridian_pickaxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:viridian_shovel` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:void_oculus` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:windreaper` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:winterthorn` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:wooden_bludgeon` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:wooden_tonfa` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:zenith` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_ammolite` | ItemCatalogueExecutableAuditTest; Passively restores 1 energy per second and provides bounded Arcane Crucible infusion; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_amulet` | ItemCatalogueExecutableAuditTest; Restores 2 energy per second; carried attunements jointly cap at 6 and grant bounded resistance; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_beating_heart` | ItemCatalogueExecutableAuditTest; Active healing plus passive regeneration; Settlement and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_blackpearl` | ItemCatalogueExecutableAuditTest; Arcane Crucible reagent or memory fragment interpreted by Shadow; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_bloodstone` | ItemCatalogueExecutableAuditTest; Arms one five-minute lethal-damage ward; the ward is consumed to prevent a legal death; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_bonefigurine` | ItemCatalogueExecutableAuditTest; Arcane Crucible reagent or memory fragment interpreted by Shadow; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_bound_runestone_active_1` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_bound_runestone_active_2` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_bound_runestone_active_3` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_bound_runestone_inert_1` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_bound_runestone_inert_2` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_bound_runestone_inert_3` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_bowl` | ItemCatalogueExecutableAuditTest; Provides a bounded Arcane Crucible infusion catalyst; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_bullion` | ItemCatalogueExecutableAuditTest; Arcane Crucible reagent or memory fragment interpreted by Shadow; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_coins` | ItemCatalogueExecutableAuditTest; Arcane Crucible reagent or memory fragment interpreted by Shadow; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_corroded_copper_ring` | ItemCatalogueExecutableAuditTest; Restores 1 energy per second; carried attunements jointly cap at 6 and grant bounded resistance; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_dark_bone_figurine` | ItemCatalogueExecutableAuditTest; Arcane Crucible reagent or memory fragment interpreted by Shadow; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_diamond_ring` | ItemCatalogueExecutableAuditTest; Restores 3 energy per second; carried attunements jointly cap at 6 and grant bounded resistance; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_dripping_orb_1` | ItemCatalogueExecutableAuditTest; Provides a bounded Arcane Crucible infusion catalyst; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_dripping_orb_2` | ItemCatalogueExecutableAuditTest; Provides a bounded Arcane Crucible infusion catalyst; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_emerald_ring` | ItemCatalogueExecutableAuditTest; Restores 2 energy per second; carried attunements jointly cap at 6 and grant bounded resistance; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_emperyeanjewel` | ItemCatalogueExecutableAuditTest; Overrides every player-consent gate for one 40-energy surcharge; safe zones and server policy still win; Rare stronghold and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_flute` | ItemCatalogueExecutableAuditTest; Recalls, heals, and aligns nearby player-shaped guardians; Jungle-temple and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_ghoul_heart` | ItemCatalogueExecutableAuditTest; Trades weaker healing for active and passive energy restoration; Settlement and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_heart_mechanism` | ItemCatalogueExecutableAuditTest; Raises a timed clockwork absorption ward; Settlement and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_lodestone` | ItemCatalogueExecutableAuditTest; Binds a safe same-dimension destination for a Miniportal; Desert-pyramid and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_malignember` | ItemCatalogueExecutableAuditTest; Reduces explicit destructive magic activation costs by 20%, never below 1; Nether-fortress and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_oddstone` | ItemCatalogueExecutableAuditTest; Arcane Crucible reagent or memory fragment interpreted by Shadow; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_philosopherstone` | ItemCatalogueExecutableAuditTest; Controlled stone/deepslate/netherrack/end-stone transmutation; Rare woodland-mansion and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_plain_copper_ring` | ItemCatalogueExecutableAuditTest; Restores 1 energy per second; carried attunements jointly cap at 6 and grant bounded resistance; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_ritualdagger` | ItemCatalogueExecutableAuditTest; Directly sacrifices 4 health to restore 80 magic energy; Woodland-mansion and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_back` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_dark_inscribed_large` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_dark_inscribed_medium` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_dark_inscribed_small` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_dark_inscribed_tiny` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_dark_large` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_dark_medium` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_dark_small` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_dark_tiny` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_frigid` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_inert` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_overlay_0` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_overlay_1` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_overlay_10` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_overlay_2` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_overlay_3` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_overlay_4` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_overlay_5` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_overlay_6` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_overlay_7` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_overlay_8` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_runestone_overlay_9` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_smallpot` | ItemCatalogueExecutableAuditTest; Provides a bounded Arcane Crucible infusion catalyst; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_soulmatrix` | ItemCatalogueExecutableAuditTest; Stores 1600 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_soulstone_large` | ItemCatalogueExecutableAuditTest; Stores 800 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_soulstone_large_inert` | ItemCatalogueExecutableAuditTest; Stores 800 magic energy (starts empty); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_soulstone_medium` | ItemCatalogueExecutableAuditTest; Stores 400 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_soulstone_medium_inert` | ItemCatalogueExecutableAuditTest; Stores 400 magic energy (starts empty); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_soulstone_small` | ItemCatalogueExecutableAuditTest; Stores 200 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_soulstone_small_inert` | ItemCatalogueExecutableAuditTest; Stores 200 magic energy (starts empty); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_star` | ItemCatalogueExecutableAuditTest; Passively restores 1 energy per second and provides bounded Arcane Crucible infusion; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_star_animated` | ItemCatalogueExecutableAuditTest; Passively restores 1 energy per second and provides bounded Arcane Crucible infusion; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_trilobite_fossil` | ItemCatalogueExecutableAuditTest; Provides a bounded archaeology-themed Arcane Crucible infusion; Thematic archaeology and structure salvage | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_trilobitefossil` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_artifact_woodheart` | ItemCatalogueExecutableAuditTest; Strong active healing plus passive regeneration; Settlement and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_blood_salts_2` | ItemCatalogueExecutableAuditTest; A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource; Buried-treasure, fortress, and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_book_grimoire_abyssal` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | AUTOMATED PASS |  |
-| item | `powers:imported_book_grimoire_blight` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | AUTOMATED PASS |  |
-| item | `powers:imported_book_grimoire_celestial` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | AUTOMATED PASS |  |
-| item | `powers:imported_book_grimoire_deep` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | AUTOMATED PASS |  |
-| item | `powers:imported_book_grimoire_infernal` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_book_grimoire_recolor` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | AUTOMATED PASS |  |
-| item | `powers:imported_book_grimoire_recolor_overlay_abyssal` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | AUTOMATED PASS |  |
-| item | `powers:imported_book_grimoire_recolor_overlay_blight` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | AUTOMATED PASS |  |
-| item | `powers:imported_book_grimoire_recolor_overlay_celestial` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | AUTOMATED PASS |  |
-| item | `powers:imported_book_grimoire_recolor_overlay_deep` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | AUTOMATED PASS |  |
-| item | `powers:imported_book_grimoire_recolor_overlay_infernal` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_book_grimoire_recolor_overlay_wild` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | AUTOMATED PASS |  |
-| item | `powers:imported_book_grimoire_wild` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | AUTOMATED PASS |  |
-| item | `powers:imported_book_page_written` | ItemCatalogueExecutableAuditTest; Archaeological grimoire fragment interpreted by Shadow; Stronghold discovery | AUTOMATED PASS |  |
-| item | `powers:imported_book_tattered` | ItemCatalogueExecutableAuditTest; Archaeological grimoire fragment interpreted by Shadow; Stronghold discovery | AUTOMATED PASS |  |
-| item | `powers:imported_device_miniportal` | ItemCatalogueExecutableAuditTest; Two safe same-dimension trips; dropped amethyst restores both charges; Guaranteed First Vessel drop and rare ruined-portal salvage | AUTOMATED PASS |  |
-| item | `powers:imported_device_miniportal_active` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | AUTOMATED PASS |  |
-| item | `powers:imported_food_apple_green` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_apple_wormy` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_apple_wormy_2` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_bacon_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_bacon_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_beans` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_beet` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_billberry` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_blackberry` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_blueberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_bread_big` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_cabbage` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_chickpeas` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_coconut_normal` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_coconut_opened` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_coconut_straw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_cranberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_fig` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_fish_fillet_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_fish_fillet_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_fish_fillet_smoked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_fisherberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_garlic` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_grapes` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_jerky` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_leek` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_lentils` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_lettuce` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_muckroot` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_mulberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_mungbean` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_onion` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_pantao` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_pepper` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_prickleberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_radish` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_raspberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_redbeans` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_salmon_fillet_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_salmon_fillet_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_salmon_fillet_smoked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_sausage_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_sausage_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_silver_pear` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slab_beef_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slab_beef_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slab_beef_salted` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slab_cheval_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slab_cheval_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slab_cheval_salted` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slab_mooshroom_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slab_mooshroom_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slab_pork_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slab_pork_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slab_pork_salted` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slice_cantaloupe` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slice_honeydew` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slice_hornedmelon` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slice_squash` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_slice_wintermelon` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_spinach` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_stew_sweetpod` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_strawberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_sunberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_sweetpod` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_tomato` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_uradbean` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_food_wisdomfruit` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | AUTOMATED PASS |  |
-| item | `powers:imported_magic_essence_blood_dust` | ItemCatalogueExecutableAuditTest; A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource; Buried-treasure, fortress, and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_magic_essence_sacred_dust` | ItemCatalogueExecutableAuditTest; A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource; Buried-treasure, fortress, and archaeology salvage | AUTOMATED PASS |  |
-| item | `powers:imported_magic_essence_soul_dust` | ItemCatalogueExecutableAuditTest; A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource; Buried-treasure, fortress, and archaeology salvage | AUTOMATED PASS |  |
-| screen | `power selection` | verifyScreenshots visual golden | GOLDEN REVIEW PASS |  |
-| screen | `artifact combat wheel` | verifyScreenshots visual golden | GOLDEN REVIEW PASS |  |
-| screen | `artifact library` | verifyScreenshots visual golden | GOLDEN REVIEW PASS |  |
-| screen | `rank maze light` | verifyScreenshots visual golden | GOLDEN REVIEW PASS |  |
-| screen | `rank maze darkness` | verifyScreenshots visual golden | GOLDEN REVIEW PASS |  |
-| screen | `grimoire index` | verifyScreenshots visual golden | GOLDEN REVIEW PASS |  |
-| screen | `arcane crucible` | verifyScreenshots visual golden | GOLDEN REVIEW PASS |  |
-| screen | `locator` | verifyScreenshots visual golden | GOLDEN REVIEW PASS |  |
-| screen | `teleport` | verifyScreenshots visual golden | GOLDEN REVIEW PASS |  |
-| screen | `advancement light` | verifyScreenshots visual golden | GOLDEN REVIEW PASS |  |
-| screen | `advancement darkness` | verifyScreenshots visual golden | GOLDEN REVIEW PASS |  |
+| innate | `size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `time_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `void_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `fireball` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `speed_burst` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `telekinesis` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `super_speed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `breezy_bash` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `invisibility` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `time_freeze` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `gravity_displacement` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `vessel_possession` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `astral_projection` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `energy_drain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `ice_manipulation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| spell | `soul_compass` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| spell | `augury` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| spell | `cartographers_star` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| spell | `celestial_ruin` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| spell | `dimensional_anchor` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| spell | `blood_reading` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| spell | `grave_recall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| spell | `purification_circle` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| spell | `verdant_tending` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| spell | `hearth_sanctuary` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| spell | `ward_breaking_ritual` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| spell | `dispel` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `chrono_stop` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `soul_link` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/call_radiant` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/consecrate_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/covenant_chain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/daybreak_wave` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/heaven_gate` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/solar_firmament` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/second_dawn` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/host_heaven` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/time_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/void_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/fireball` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/speed_burst` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/telekinesis` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/super_speed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/breezy_bash` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/invisibility` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/time_freeze` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/gravity_displacement` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/vessel_possession` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/astral_projection` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/energy_drain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/ice_manipulation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/chrono_stop` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/soul_link` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/unique/call_hollowed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/unique/blight_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/unique/nightfall_dominion` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| entity | `darkness_creature` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
+| entity | `power_test_actor` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
+| entity | `radiant_sentinel` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
+| entity | `dark_herald` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
+| entity | `light_herald` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
+| entity | `first_vessel` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
+| entity | `echo_clone` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
+| entity | `shadow_companion` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
+| system | `light_realm` | RealmResourcesTest and dedicated-server boot | RESOURCE CONTRACT PASS |  |
+| system | `dark_realm` | PowersGameTests#darkCrystalMovesItsCasterIntoTheMindscape | AUTOMATED BEHAVIOR PASS |  |
+| system | `middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| system | `mind_body` | PowersGameTests#forcefieldFollowsTheMindBodyTetherAndProtectsThePhysicalBody | AUTOMATED BEHAVIOR PASS |  |
+| system | `living_forces` | LivingForceGameTests | AUTOMATED BEHAVIOR PASS |  |
+| system | `amethyst` | LivingForceGameTests#poweredAmethystCeremonyCrystallisesLivingForce | AUTOMATED BEHAVIOR PASS |  |
+| system | `rank_maze` | RankMazePresentationResourcesTest | RESOURCE CONTRACT PASS |  |
+| system | `energy_hud` | HudLayoutTest and HudMathTest | AUTOMATED RULE PASS |  |
+| system | `shadow_companion` | PowersGameTests#shadowChatOwnsVisibilityAndFormerBookKnowledge and #shadowExplainsTheExactLatestServerRecordedMagicFailure | AUTOMATED BEHAVIOR PASS |  |
+| system | `shadow_diagnostics` | PowersGameTests#shadowExplainsTheExactLatestServerRecordedMagicFailure | AUTOMATED BEHAVIOR PASS |  |
+| system | `artifact_energy` | PowersGameTests#soulstoneReservoirPaysEnergyShortfallsAtomically | AUTOMATED BEHAVIOR PASS |  |
+| system | `celestial_ruin` | PowersGameTests#celestialRuinOverwhelmsTheFirstVesselsLayeredVitality | AUTOMATED BEHAVIOR PASS |  |
+| system | `magic_collisions` | MagicInteractionResolverTest exhaustive 2,080-pair matrix | AUTOMATED RULE PASS |  |
+| system | `multiplayer_soak` | SyntheticMultiplayerSoakTest | AUTOMATED SOAK PASS |  |
+| item | `powers:rainbow_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:red_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:orange_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:yellow_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:green_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:blue_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:indigo_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:violet_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:light_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:dark_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; No crafting recipe; operator testing or Shadow's full-energy 60-second manifestation rite | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:infected_rainbow_crystal` | ItemCatalogueExecutableAuditTest; Inert; Rainbow appearance now derives from holder alignment; Hidden; old-save compatibility only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:darkness` | ItemCatalogueExecutableAuditTest; Spreading Darkness realm matter; Dark Realm generation, Blight Ground, and invasion scars | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:pure_light` | ItemCatalogueExecutableAuditTest; Spreading Pure Light realm matter; Light Realm generation, consecration, and invasion scars | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:amethyst_ward` | ItemCatalogueExecutableAuditTest; Powered dampening and force-containment ceremony; Crafting recipe | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:arcane_crucible` | ItemCatalogueExecutableAuditTest; Atomic staged magical weapon conversion; Crafting recipe | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:light_memory_obelisk` | ItemCatalogueExecutableAuditTest; Light memory landmark core; Generated in the Light Realm; not a survival drop | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:dark_memory_obelisk` | ItemCatalogueExecutableAuditTest; Dark memory landmark core; Generated in the Dark Realm; not a survival drop | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:darkness_creature_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns Darkness Creature for controlled testing; Creative/operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:power_test_actor_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns Power Test Actor for controlled testing; Creative/operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:radiant_sentinel_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns Radiant Sentinel for controlled testing; Creative/operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:first_vessel_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns The First Vessel for controlled testing; Creative/operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:dark_herald_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns The Veiled Regent for controlled testing; Creative/operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:light_herald_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns The Aureate Witness for controlled testing; Creative/operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:amethyst_greatblade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:amethyst_greatpick` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:amethyst_greatshovel` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:ancient_greatslab` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:azure_dagger` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:azure_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:azure_greatsword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:azure_pickaxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:azure_sabre` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:azure_scythe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:azure_shovel` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:berserkers_cleaver` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:berserkers_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:black_iron_clobberer` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:black_iron_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:black_iron_greatsword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:calamity_blade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:claymore` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:crescent_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:crimson_cleaver` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:crystal_frostblade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:crystal_frostscythe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:demonic_sword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:demons_blood_blade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:demons_blood_pick` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:demons_blood_shovel` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:demonslayers_greatsword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:dragon_sword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:emerald_greatcleaver` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:ethereal_frostblade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:flamberge` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:gilded_phoenix_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:gloomsteel_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:gloomsteel_katana` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:gloomsteel_knife` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:grand_claymore` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:heavenly_partisan` | ItemCatalogueExecutableAuditTest; Curated radiant dominions and routed powers; Guaranteed Light Herald drop | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:iron_battle_axe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:iron_broadsword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:iron_dagger` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:iron_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:iron_halberd` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:iron_hay_sickle` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:iron_mace` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:iron_polearm` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:iron_sai` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:lycanbane` | ItemCatalogueExecutableAuditTest; All routed powers plus exactly three Shadow rites; Guaranteed Dark Herald drop | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:moonlight` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:nature_sword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:nocturne` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:oculus` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:phantomguard_greatsword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:phantomguard_partisan` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:piercer` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:ravenous_blade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:revenants_darkscepter` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:revenants_gravecleaver` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:revenants_gravescepter` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:runic_piercer` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:sacrificial_cleaver` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:skeleton_axe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:solstice` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:spider_sword` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:talonbrand` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:talonpick` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:talonshovel` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:treacherous_axe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:treacherous_bludgeon` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:treacherous_cleaver` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:uchigatana` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:vaelith` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:valhakyra` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:vengeance_blade` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:vesper` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:vindicator` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:viridian_greataxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:viridian_pickaxe` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:viridian_shovel` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:void_oculus` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:windreaper` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:winterthorn` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:wooden_bludgeon` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:wooden_tonfa` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:zenith` | ItemCatalogueExecutableAuditTest; One of twelve named combat archetypes; tooltip identifies its proc; Low-chance archetype-themed chest or mob loot | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_ammolite` | ItemCatalogueExecutableAuditTest; Passively restores 1 energy per second and provides bounded Arcane Crucible infusion; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_amulet` | ItemCatalogueExecutableAuditTest; Restores 2 energy per second; carried attunements jointly cap at 6 and grant bounded resistance; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_beating_heart` | ItemCatalogueExecutableAuditTest; Active healing plus passive regeneration; Settlement and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_blackpearl` | ItemCatalogueExecutableAuditTest; Arcane Crucible reagent or memory fragment interpreted by Shadow; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_bloodstone` | ItemCatalogueExecutableAuditTest; Arms one five-minute lethal-damage ward; the ward is consumed to prevent a legal death; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_bonefigurine` | ItemCatalogueExecutableAuditTest; Arcane Crucible reagent or memory fragment interpreted by Shadow; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_bound_runestone_active_1` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_bound_runestone_active_2` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_bound_runestone_active_3` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_bound_runestone_inert_1` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_bound_runestone_inert_2` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_bound_runestone_inert_3` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_bowl` | ItemCatalogueExecutableAuditTest; Provides a bounded Arcane Crucible infusion catalyst; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_bullion` | ItemCatalogueExecutableAuditTest; Arcane Crucible reagent or memory fragment interpreted by Shadow; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_coins` | ItemCatalogueExecutableAuditTest; Arcane Crucible reagent or memory fragment interpreted by Shadow; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_corroded_copper_ring` | ItemCatalogueExecutableAuditTest; Restores 1 energy per second; carried attunements jointly cap at 6 and grant bounded resistance; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_dark_bone_figurine` | ItemCatalogueExecutableAuditTest; Arcane Crucible reagent or memory fragment interpreted by Shadow; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_diamond_ring` | ItemCatalogueExecutableAuditTest; Restores 3 energy per second; carried attunements jointly cap at 6 and grant bounded resistance; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_dripping_orb_1` | ItemCatalogueExecutableAuditTest; Provides a bounded Arcane Crucible infusion catalyst; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_dripping_orb_2` | ItemCatalogueExecutableAuditTest; Provides a bounded Arcane Crucible infusion catalyst; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_emerald_ring` | ItemCatalogueExecutableAuditTest; Restores 2 energy per second; carried attunements jointly cap at 6 and grant bounded resistance; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_emperyeanjewel` | ItemCatalogueExecutableAuditTest; Overrides every player-consent gate for one 40-energy surcharge; safe zones and server policy still win; Rare stronghold and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_flute` | ItemCatalogueExecutableAuditTest; Recalls, heals, and aligns nearby player-shaped guardians; Jungle-temple and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_ghoul_heart` | ItemCatalogueExecutableAuditTest; Trades weaker healing for active and passive energy restoration; Settlement and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_heart_mechanism` | ItemCatalogueExecutableAuditTest; Raises a timed clockwork absorption ward; Settlement and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_lodestone` | ItemCatalogueExecutableAuditTest; Binds a safe same-dimension destination for a Miniportal; Desert-pyramid and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_malignember` | ItemCatalogueExecutableAuditTest; Reduces explicit destructive magic activation costs by 20%, never below 1; Nether-fortress and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_oddstone` | ItemCatalogueExecutableAuditTest; Arcane Crucible reagent or memory fragment interpreted by Shadow; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_philosopherstone` | ItemCatalogueExecutableAuditTest; Controlled stone/deepslate/netherrack/end-stone transmutation; Rare woodland-mansion and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_plain_copper_ring` | ItemCatalogueExecutableAuditTest; Restores 1 energy per second; carried attunements jointly cap at 6 and grant bounded resistance; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_ritualdagger` | ItemCatalogueExecutableAuditTest; Directly sacrifices 4 health to restore 80 magic energy; Woodland-mansion and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_back` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_dark_inscribed_large` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_dark_inscribed_medium` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_dark_inscribed_small` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_dark_inscribed_tiny` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_dark_large` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_dark_medium` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_dark_small` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_dark_tiny` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_frigid` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_inert` | ItemCatalogueExecutableAuditTest; Finite tiered energy restoration and Arcane Crucible infusion; Crafting upgrade chain plus dungeon, ancient-city, and trial rewards | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_overlay_0` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_overlay_1` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_overlay_10` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_overlay_2` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_overlay_3` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_overlay_4` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_overlay_5` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_overlay_6` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_overlay_7` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_overlay_8` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_runestone_overlay_9` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_smallpot` | ItemCatalogueExecutableAuditTest; Provides a bounded Arcane Crucible infusion catalyst; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_soulmatrix` | ItemCatalogueExecutableAuditTest; Stores 1600 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_soulstone_large` | ItemCatalogueExecutableAuditTest; Stores 800 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_soulstone_large_inert` | ItemCatalogueExecutableAuditTest; Stores 800 magic energy (starts empty); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_soulstone_medium` | ItemCatalogueExecutableAuditTest; Stores 400 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_soulstone_medium_inert` | ItemCatalogueExecutableAuditTest; Stores 400 magic energy (starts empty); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_soulstone_small` | ItemCatalogueExecutableAuditTest; Stores 200 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_soulstone_small_inert` | ItemCatalogueExecutableAuditTest; Stores 200 magic energy (starts empty); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls; Nether-fortress and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_star` | ItemCatalogueExecutableAuditTest; Passively restores 1 energy per second and provides bounded Arcane Crucible infusion; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_star_animated` | ItemCatalogueExecutableAuditTest; Passively restores 1 energy per second and provides bounded Arcane Crucible infusion; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_trilobite_fossil` | ItemCatalogueExecutableAuditTest; Provides a bounded archaeology-themed Arcane Crucible infusion; Thematic archaeology and structure salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_trilobitefossil` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_artifact_woodheart` | ItemCatalogueExecutableAuditTest; Strong active healing plus passive regeneration; Settlement and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_blood_salts_2` | ItemCatalogueExecutableAuditTest; A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource; Buried-treasure, fortress, and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_grimoire_abyssal` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_grimoire_blight` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_grimoire_celestial` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_grimoire_deep` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_grimoire_infernal` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_grimoire_recolor` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_grimoire_recolor_overlay_abyssal` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_grimoire_recolor_overlay_blight` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_grimoire_recolor_overlay_celestial` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_grimoire_recolor_overlay_deep` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_grimoire_recolor_overlay_infernal` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_grimoire_recolor_overlay_wild` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_grimoire_wild` | ItemCatalogueExecutableAuditTest; Selects and channels the documented spells of one school; Stronghold library/corridor discovery | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_page_written` | ItemCatalogueExecutableAuditTest; Archaeological grimoire fragment interpreted by Shadow; Stronghold discovery | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_book_tattered` | ItemCatalogueExecutableAuditTest; Archaeological grimoire fragment interpreted by Shadow; Stronghold discovery | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_device_miniportal` | ItemCatalogueExecutableAuditTest; Two safe same-dimension trips; dropped amethyst restores both charges; Guaranteed First Vessel drop and rare ruined-portal salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_device_miniportal_active` | ItemCatalogueExecutableAuditTest; Hidden; retained only for old saves and model composition; Deferred/hidden | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_apple_green` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_apple_wormy` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_apple_wormy_2` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_bacon_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_bacon_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_beans` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_beet` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_billberry` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_blackberry` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_blueberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_bread_big` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_cabbage` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_chickpeas` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_coconut_normal` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_coconut_opened` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_coconut_straw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_cranberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_fig` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_fish_fillet_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_fish_fillet_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_fish_fillet_smoked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_fisherberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_garlic` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_grapes` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_jerky` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_leek` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_lentils` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_lettuce` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_muckroot` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_mulberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_mungbean` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_onion` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_pantao` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_pepper` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_prickleberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_radish` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_raspberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_redbeans` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_salmon_fillet_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_salmon_fillet_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_salmon_fillet_smoked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_sausage_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_sausage_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_silver_pear` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slab_beef_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slab_beef_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slab_beef_salted` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slab_cheval_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slab_cheval_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slab_cheval_salted` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slab_mooshroom_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slab_mooshroom_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slab_pork_cooked` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slab_pork_raw` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slab_pork_salted` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slice_cantaloupe` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slice_honeydew` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slice_hornedmelon` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slice_squash` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_slice_wintermelon` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_spinach` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_stew_sweetpod` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_strawberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_sunberries` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_sweetpod` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_tomato` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_uradbean` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; Themed mob/block loot and village provision salvage; processed variants may also be cooked | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_food_wisdomfruit` | ItemCatalogueExecutableAuditTest; Edible food; cooked and smoked forms restore more hunger; 3.5% additive drop from Archivist realm-memory caches | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_magic_essence_blood_dust` | ItemCatalogueExecutableAuditTest; A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource; Buried-treasure, fortress, and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_magic_essence_sacred_dust` | ItemCatalogueExecutableAuditTest; A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource; Buried-treasure, fortress, and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| item | `powers:imported_magic_essence_soul_dust` | ItemCatalogueExecutableAuditTest; A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource; Buried-treasure, fortress, and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
+| screen | `power selection` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
+| screen | `artifact combat wheel` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
+| screen | `artifact library` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
+| screen | `rank maze light` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
+| screen | `rank maze darkness` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
+| screen | `grimoire index` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
+| screen | `arcane crucible` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
+| screen | `locator` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
+| screen | `teleport` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
+| screen | `advancement light` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
+| screen | `advancement darkness` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
 | command | `/powers list` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
 | command | `/powers slots [player]` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
 | command | `/powers assign <player> <power> <slot>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
@@ -435,4 +436,4 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | command | `/powers testing arena <spawn\|clear>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
 | command | `/powers testing actor spawn [username]` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
 
-Total registered rows: **428**.
+Total registered rows: **429**.

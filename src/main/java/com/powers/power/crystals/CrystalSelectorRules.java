@@ -29,4 +29,20 @@ public final class CrystalSelectorRules {
 		return (int) Math.floor((angle + Math.PI / modeCount)
 				/ (Math.PI * 2.0 / modeCount)) % modeCount;
 	}
+
+	/** Responsive ellipse that leaves clear title, hint, and full-width button lanes. */
+	public static Layout layout(int width, int height) {
+		int centerX = width / 2;
+		int centerY = height / 2;
+		int horizontal = Math.clamp(width / 2 - 60, 60, 108);
+		int vertical = Math.clamp(height / 2 - 45, 50, 70);
+		int buttonWidth = Math.clamp(width / 3, 78, 90);
+		int titleY = Math.max(14, centerY - vertical - 42);
+		int hintY = Math.min(height - 12, centerY + vertical + 35);
+		return new Layout(centerX, centerY, horizontal, vertical, buttonWidth, titleY, hintY);
+	}
+
+	public record Layout(int centerX, int centerY, int horizontalRadius, int verticalRadius,
+			int buttonWidth, int titleY, int hintY) {
+	}
 }

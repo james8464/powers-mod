@@ -19,7 +19,7 @@ public final class CrystalAbilityCatalog {
 		bindings.put("indigo_crystal", List.of("middleworld"));
 		bindings.put("violet_crystal", List.of("soul_link"));
 		bindings.put("rainbow_crystal", List.of("inferno", "clone_swarm", "size_shift",
-				"life_bloom", "chrono_stop", "soul_link"));
+				"life_bloom", "chrono_stop", "soul_link", "middleworld"));
 		bindings.put("light_crystal", List.of("light_crystal"));
 		bindings.put("dark_crystal", List.of("dark_crystal"));
 		return Map.copyOf(bindings);
