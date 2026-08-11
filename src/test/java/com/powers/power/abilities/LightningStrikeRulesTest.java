@@ -52,6 +52,35 @@ class LightningStrikeRulesTest {
 	}
 
 	@Test
+	void conductorClassificationIsExplicitAndRetainsTheNodeCap() {
+		assertEquals(LightningStrikeRules.Conductance.NONE,
+				LightningStrikeRules.conductance(false, false, false));
+		assertEquals(LightningStrikeRules.Conductance.ARMOUR,
+				LightningStrikeRules.conductance(false, false, true));
+		assertEquals(LightningStrikeRules.Conductance.BLOCK,
+				LightningStrikeRules.conductance(false, true, true));
+		assertEquals(LightningStrikeRules.Conductance.WATER,
+				LightningStrikeRules.conductance(true, true, true));
+		assertEquals(5, LightningStrikeRules.chainLimit(true, true));
+		assertFalse(LightningStrikeRules.chainEligible(
+				LightningStrikeRules.Conductance.NONE, true, false, 2.0, 6.0, STRIKE));
+		assertTrue(LightningStrikeRules.chainEligible(
+				LightningStrikeRules.Conductance.BLOCK, true, false, 2.0, 6.0, STRIKE));
+	}
+
+	@Test
+	void conductorDamageMetadataIsMediumSpecificAndBounded() {
+		assertEquals(0.62, LightningStrikeRules.chainDamageMultiplier(
+				0, LightningStrikeRules.Conductance.WATER), 0.0001);
+		assertEquals(0.558, LightningStrikeRules.chainDamageMultiplier(
+				0, LightningStrikeRules.Conductance.BLOCK), 0.0001);
+		assertEquals(0.496, LightningStrikeRules.chainDamageMultiplier(
+				0, LightningStrikeRules.Conductance.ARMOUR), 0.0001);
+		assertEquals(0.0, LightningStrikeRules.chainDamageMultiplier(
+				0, LightningStrikeRules.Conductance.NONE), 0.0001);
+	}
+
+	@Test
 	void environmentUsesProtectionFirstPriorityAndExplicitTransformations() {
 		assertEquals(UNOWNED, environment(false, false, true, true, true,
 				true, true, true, true, true));
@@ -143,17 +172,17 @@ class LightningStrikeRulesTest {
 	@Test
 	void chainEligibilityCannotBypassWetLoadedUniqueProtectedNodes() {
 		assertTrue(LightningStrikeRules.chainEligible(
-				true, true, false, 5.9, 6.0, STRIKE));
+				LightningStrikeRules.Conductance.WATER, true, false, 5.9, 6.0, STRIKE));
 		assertFalse(LightningStrikeRules.chainEligible(
-				false, true, false, 5.9, 6.0, STRIKE));
+				LightningStrikeRules.Conductance.NONE, true, false, 5.9, 6.0, STRIKE));
 		assertFalse(LightningStrikeRules.chainEligible(
-				true, false, false, 5.9, 6.0, STRIKE));
+				LightningStrikeRules.Conductance.WATER, false, false, 5.9, 6.0, STRIKE));
 		assertFalse(LightningStrikeRules.chainEligible(
-				true, true, true, 5.9, 6.0, STRIKE));
+				LightningStrikeRules.Conductance.WATER, true, true, 5.9, 6.0, STRIKE));
 		assertFalse(LightningStrikeRules.chainEligible(
-				true, true, false, 6.1, 6.0, STRIKE));
+				LightningStrikeRules.Conductance.WATER, true, false, 6.1, 6.0, STRIKE));
 		assertFalse(LightningStrikeRules.chainEligible(
-				true, true, false, 5.9, 6.0, AMETHYST));
+				LightningStrikeRules.Conductance.WATER, true, false, 5.9, 6.0, AMETHYST));
 		assertEquals(6.0, LightningStrikeRules.chainRange(false), 0.0001);
 		assertEquals(7.5, LightningStrikeRules.chainRange(true), 0.0001);
 	}

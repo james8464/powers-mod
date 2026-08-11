@@ -2,6 +2,8 @@ package com.powers.power.abilities;
 
 import net.minecraft.world.phys.Vec3;
 
+import java.util.UUID;
+
 /** Pure finite rules for the server-owned Cinderheart projectile runtime. */
 public final class FireballRules {
 	private static final int BASE_MAXIMUM_TIER = 3;
@@ -10,6 +12,7 @@ public final class FireballRules {
 	private static final int MAXIMUM_HOVER_LIFETIME = 360;
 	private static final int LAUNCHED_LIFETIME = 120;
 	private static final int MAX_TRAIL_SEGMENTS = 24;
+	private static final double RELEASE_SPEED = 1.5;
 
 	private FireballRules() {
 	}
@@ -25,6 +28,20 @@ public final class FireballRules {
 		FORCEFIELD,
 		WATER,
 		FROST
+	}
+
+	/** Immutable server-authoritative state produced by a deliberate release. */
+	public record ReleaseState(boolean launched, UUID originalOwner,
+			UUID controller, int reflections, Vec3 velocity) {
+	}
+
+	/** Launches in the owner's look direction without transferring ownership. */
+	public static ReleaseState deliberateRelease(UUID originalOwner, Vec3 look) {
+		if (originalOwner == null || !finite(look) || look.lengthSqr() <= 1.0E-12) {
+			return new ReleaseState(false, originalOwner, originalOwner, 0, Vec3.ZERO);
+		}
+		return new ReleaseState(true, originalOwner, originalOwner, 0,
+				look.normalize().scale(RELEASE_SPEED));
 	}
 
 	/** Returns the highest paid charge tier available to this rank. */

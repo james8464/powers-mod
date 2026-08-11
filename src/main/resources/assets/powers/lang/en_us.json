@@ -136,6 +136,8 @@
 	"ability.powers.lightning_strike.complete.1": "The last electric glyph fades, and the old thunder closes its ledger.",
 	"ability.powers.lightning_strike.complete.2": "Every lawful arc is counted; the cyan compass seals itself.",
 	"ability.powers.lightning_strike.complete.3": "The Storm Tribunal returns its crown to the silent clouds.",
+	"tag.block.powers.lightning_conductors": "Lightning Conductors",
+	"tag.item.powers.conductive_armor": "Conductive Armour",
 	"ability.powers.speed_burst": "Speed Burst",
 	"ability.powers.speed_burst.second_step.1": "The first stride leaves a door of lightning behind you. Step through it once more.",
 	"ability.powers.speed_burst.second_step.2": "Two kinetic sigils align. Motion remembers one final path.",
