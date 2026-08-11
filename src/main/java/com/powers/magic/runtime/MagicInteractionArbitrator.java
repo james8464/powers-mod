@@ -39,4 +39,18 @@ public final class MagicInteractionArbitrator {
 			case COEXIST -> 4;
 		};
 	}
+
+	public static String presentationIcon(InteractionOutcome outcome) {
+		return switch (outcome) {
+			case AMPLIFY, RESONATE -> "◎"; case COEXIST -> "◇"; default -> "✕";
+		};
+	}
+
+	public static String presentationKey(InteractionOutcome outcome) {
+		return switch (outcome) {
+			case AMPLIFY, RESONATE -> "magic.powers.interaction.resonance";
+			case COEXIST -> "magic.powers.interaction.coexist";
+			default -> "magic.powers.interaction.counter";
+		};
+	}
 }

@@ -143,7 +143,8 @@ public final class ServerMagicCasts {
 				0.55f + cue.intensity() * 0.13f, 0.88f + cue.intensity() * 0.045f);
 		long eventId = Integer.toUnsignedLong(java.util.Objects.hash(event.cast().owner(),
 				event.cast().definition().id(), event.cast().gameTime(), event.existing().id()));
-		MagicFxPackets.broadcast(level, MagicFxEvent.interaction(eventId, cue.motif(), cue.sound(),
+		String collisionSound = cue.motif().equals("annihilating_beam_clash") ? "beam_ring" : cue.sound();
+		MagicFxPackets.broadcast(level, MagicFxEvent.interaction(eventId, cue.motif(), collisionSound,
 				midpoint.x, midpoint.y, midpoint.z, cue.primaryColor(), cue.secondaryColor(),
 				cue.glyphSeed(), cue.intensity()));
 		MagicReactionEffects.apply(level, event, midpoint);
@@ -162,7 +163,7 @@ public final class ServerMagicCasts {
 	private static void announceInteraction(ServerLevel level, java.util.UUID first, java.util.UUID second,
 			InteractionOutcome outcome) {
 		var message = net.minecraft.network.chat.Component.translatable(
-				InteractionPresentation.translationKey(outcome), InteractionPresentation.icon(outcome));
+				MagicInteractionArbitrator.presentationKey(outcome), MagicInteractionArbitrator.presentationIcon(outcome));
 		ServerPlayer firstPlayer = level.getServer().getPlayerList().getPlayer(first);
 		if (firstPlayer != null) firstPlayer.sendSystemMessage(message, true);
 		ServerPlayer secondPlayer = level.getServer().getPlayerList().getPlayer(second);
@@ -193,7 +194,8 @@ public final class ServerMagicCasts {
 				collision.submitted().owner(), collision.existing().owner(),
 				collision.submitted().action(), collision.existing().action(),
 				collision.submitted().gameTime()));
-		MagicFxPackets.broadcast(level, MagicFxEvent.interaction(eventId, cue.motif(), cue.sound(),
+		String collisionSound = cue.motif().equals("annihilating_beam_clash") ? "beam_ring" : cue.sound();
+		MagicFxPackets.broadcast(level, MagicFxEvent.interaction(eventId, cue.motif(), collisionSound,
 				midpoint.x, midpoint.y, midpoint.z, cue.primaryColor(), cue.secondaryColor(),
 				cue.glyphSeed(), cue.intensity()));
 		announceInteraction(level, collision.submitted().owner(), collision.existing().owner(), resolution.outcome());

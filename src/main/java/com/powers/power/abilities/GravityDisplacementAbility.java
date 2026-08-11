@@ -1,5 +1,4 @@
 package com.powers.power.abilities;
-
 import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.GravityFx;
@@ -30,7 +29,6 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -41,11 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
-/**
- * Anchors a bounded gravitational orrery that captures permitted targets,
- * bends mastered projectiles, and releases every body safely on all exits.
- */
+/** Bounded gravitational orrery with safe lifecycle release. */
 public final class GravityDisplacementAbility extends Ability {
 	private static final net.minecraft.resources.Identifier POWER_ID =
 			PowersMod.id("gravity_displacement");
@@ -66,13 +60,11 @@ public final class GravityDisplacementAbility extends Ability {
 	private static final Map<UUID, GravityField> ACTIVE = new LinkedHashMap<>();
 	private static final Map<UUID, UUID> TARGET_OWNERS = new HashMap<>();
 	private static final Map<UUID, GravityDisplacementRules.Mode> SELECTED_MODES = new HashMap<>();
-
 	public GravityDisplacementAbility() {
 		super(PowersMod.id("gravity_displacement"),
 				net.minecraft.network.chat.Component.translatable("ability.powers.gravity_displacement"),
 				300, false);
 	}
-
 	@Override public int selectionOptionCount() { return 3; }
 	@Override public net.minecraft.network.chat.Component selectionOptionName(int option) {
 		return net.minecraft.network.chat.Component.translatable(switch (Math.floorMod(option, 3)) {
@@ -85,12 +77,10 @@ public final class GravityDisplacementAbility extends Ability {
 		SELECTED_MODES.put(player.getUUID(), GravityDisplacementRules.Mode.values()[Math.floorMod(option, 3)]);
 		return true;
 	}
-
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		UUID owner = player.getUUID();
 		if (ACTIVE.containsKey(owner) || ACTIVE.size() >= MAX_ACTIVE_FIELDS) return false;
-
 		ServerLevel level = (ServerLevel) player.level();
 		long now = level.getServer().getTickCount();
 		Set<String> variants = scaling(player).unlockedVariants();
@@ -106,7 +96,6 @@ public final class GravityDisplacementAbility extends Ability {
 				empoweredImpact, ancientMastery, scaledPotency(player, 4.0F),
 				Math.min(1.5, 1.05 * scaling(player).potencyMultiplier()));
 		ACTIVE.put(owner, field);
-
 		player.addEffect(PowerStatusEffects.hidden(MobEffects.SLOW_FALLING,
 				duration + RELEASE_SLOW_FALL_TICKS, 0, true, true));
 		GravityFx.open(level, field.center, field.radius, ancientMastery);
@@ -115,8 +104,6 @@ public final class GravityDisplacementAbility extends Ability {
 		steerCaptured(level, field, now);
 		return true;
 	}
-
-	/** Advances every field from the authoritative end-server-tick callback. */
 	public static void tickAll(MinecraftServer server) {
 		long now = server.getTickCount();
 		Iterator<Map.Entry<UUID, GravityField>> iterator = ACTIVE.entrySet().iterator();
@@ -138,7 +125,6 @@ public final class GravityDisplacementAbility extends Ability {
 				iterator.remove();
 				continue;
 			}
-
 			if (now % SCAN_INTERVAL_TICKS == 0) {
 				refreshTargets(level, owner, field, now);
 				bendProjectiles(level, field, now);
@@ -151,8 +137,6 @@ public final class GravityDisplacementAbility extends Ability {
 			}
 		}
 	}
-
-	/** Releases one owner's field during respawn or disconnect. */
 	public static void clear(MinecraftServer server, UUID owner) {
 		SELECTED_MODES.remove(owner);
 		GravityField field = ACTIVE.remove(owner);
@@ -160,8 +144,6 @@ public final class GravityDisplacementAbility extends Ability {
 		ServerLevel level = server.getLevel(field.dimension);
 		if (level != null) collapse(level, null, field, false, true);
 	}
-
-	/** Releases every capture before server world state is discarded. */
 	public static void clearAll(MinecraftServer server) {
 		if (server != null) {
 			for (GravityField field : new ArrayList<>(ACTIVE.values())) {
@@ -173,7 +155,6 @@ public final class GravityDisplacementAbility extends Ability {
 		TARGET_OWNERS.clear();
 		SELECTED_MODES.clear();
 	}
-
 	private static void refreshTargets(ServerLevel level,
 			ServerPlayer owner, GravityField field, long now) {
 		AABB bounds = AABB.ofSize(field.center, field.radius * 2.0,
@@ -187,7 +168,6 @@ public final class GravityDisplacementAbility extends Ability {
 				.comparing((LivingEntity entity) -> !field.captured.contains(entity.getUUID()))
 				.thenComparingDouble(entity -> entity.position().distanceToSqr(field.center))
 				.thenComparing(entity -> entity.getUUID().toString()));
-
 		Set<UUID> retained = new LinkedHashSet<>();
 		int cues = 0;
 		for (int index = 0; index < Math.min(MAX_SCAN_CANDIDATES, candidates.size()); index++) {
@@ -208,7 +188,6 @@ public final class GravityDisplacementAbility extends Ability {
 				}
 				decision = GravityDisplacementRules.CaptureDecision.GRAVITY_RESONANCE;
 			}
-
 			if (field.captured.remove(target.getUUID())) {
 				if (decision == GravityDisplacementRules.CaptureDecision.TIME_LOCK) {
 					EntityFreezeController.neutralizeReleaseMotion(target);
@@ -226,7 +205,6 @@ public final class GravityDisplacementAbility extends Ability {
 				field.resistanceSnapshots.put(target.getUUID(), decision);
 			}
 		}
-
 		for (UUID previous : new ArrayList<>(field.captured)) {
 			if (retained.contains(previous)) continue;
 			Entity entity = level.getEntity(previous);
@@ -236,7 +214,6 @@ public final class GravityDisplacementAbility extends Ability {
 		}
 		field.resistanceCues.entrySet().removeIf(entry -> now - entry.getValue() > 100L);
 	}
-
 	private static GravityDisplacementRules.CaptureDecision captureDecision(
 			ServerLevel level, ServerPlayer owner, LivingEntity target, long now) {
 		boolean movementAllowed = PowerProtection.mayForceMove(owner, target);
@@ -249,7 +226,6 @@ public final class GravityDisplacementAbility extends Ability {
 		return GravityDisplacementRules.captureDecision(
 				movementAllowed, dampened, anchoredBody, forcefield, spellWard, frozen);
 	}
-
 	private static void steerCaptured(ServerLevel level, GravityField field, long now) {
 		int age = (int) Math.min(Integer.MAX_VALUE, Math.max(0L, now - field.openedAt));
 		Iterator<UUID> iterator = field.captured.iterator();
@@ -270,7 +246,6 @@ public final class GravityDisplacementAbility extends Ability {
 				iterator.remove();
 				continue;
 			}
-
 			long seed = id.getMostSignificantBits() ^ Long.rotateLeft(id.getLeastSignificantBits(), 17);
 			Vec3 desired = switch (field.mode) {
 				case PULL -> field.center.add(0.0, 1.0, 0.0);
@@ -297,7 +272,6 @@ public final class GravityDisplacementAbility extends Ability {
 					12, 0, true, true));
 		}
 	}
-
 	private static void bendProjectiles(ServerLevel level, GravityField field, long now) {
 		int limit = GravityDisplacementRules.projectileLimit(field.ancientMastery);
 		if (limit <= 0) return;
@@ -322,7 +296,6 @@ public final class GravityDisplacementAbility extends Ability {
 			if (index < 4) GravityFx.projectileCurve(level, projectile.position(), bent, now);
 		}
 	}
-
 	private static void emitTethers(ServerLevel level, GravityField field) {
 		int emitted = 0;
 		for (UUID id : field.captured) {
@@ -335,7 +308,6 @@ public final class GravityDisplacementAbility extends Ability {
 			emitted++;
 		}
 	}
-
 	private static void collapse(ServerLevel level, ServerPlayer owner, GravityField field,
 			boolean naturalExpiry, boolean interrupted) {
 		boolean empowered = naturalExpiry && field.empoweredImpact && owner != null;
@@ -349,7 +321,6 @@ public final class GravityDisplacementAbility extends Ability {
 					|| AmethystDampening.isDampened(target)
 					|| SpellFieldManager.blocksForcedMovement(level, target, owner.getUUID())
 					|| frozen) continue;
-
 			double horizontal = empowered ? field.collapseForce : 0.35;
 			double downward = empowered ? 0.70 : 0.0;
 			Vec3 impulse = GravityDisplacementRules.collapseImpulse(
@@ -371,20 +342,17 @@ public final class GravityDisplacementAbility extends Ability {
 		GravityFx.collapse(level, field.center, field.radius, empowered,
 				interrupted, field.ancientMastery);
 	}
-
 	private static void safeRelease(LivingEntity target) {
 		target.fallDistance = 0.0F;
 		target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOW_FALLING,
 				RELEASE_SLOW_FALL_TICKS, 0, true, true));
 	}
-
 	private static boolean shouldCue(GravityField field, UUID target, long now) {
 		Long previous = field.resistanceCues.get(target);
 		if (previous != null && now - previous < RESISTANCE_CUE_INTERVAL_TICKS) return false;
 		field.resistanceCues.put(target, now);
 		return true;
 	}
-
 	private static boolean claimTarget(ServerLevel level, LivingEntity target, GravityField candidate) {
 		UUID targetId = target.getUUID();
 		UUID currentOwner = TARGET_OWNERS.get(targetId);
@@ -407,11 +375,9 @@ public final class GravityDisplacementAbility extends Ability {
 				target.position().add(0.0, target.getBbHeight() * 0.5, 0.0));
 		return true;
 	}
-
 	private static void releaseClaim(GravityField field, UUID target) {
 		TARGET_OWNERS.remove(target, field.owner);
 	}
-
 	private static boolean ownsPower(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
@@ -420,16 +386,12 @@ public final class GravityDisplacementAbility extends Ability {
 		}
 		return false;
 	}
-
 	public static List<FieldSnapshot> snapshots() {
 		return ACTIVE.values().stream().map(field -> new FieldSnapshot(field.owner,
 				field.mode.snapshotName(), field.expiresAt, Map.copyOf(field.resistanceSnapshots))).toList();
 	}
-
 	public record FieldSnapshot(UUID owner, String mode, long deadline,
 			Map<UUID, GravityDisplacementRules.CaptureDecision> stableResistance) { }
-
-	/** Mutable state is deliberately private and owned by the server tick thread. */
 	private static final class GravityField {
 		private final UUID owner;
 		private final ResourceKey<Level> dimension;
@@ -447,7 +409,6 @@ public final class GravityDisplacementAbility extends Ability {
 		private final Set<UUID> captured = new LinkedHashSet<>();
 		private final Map<UUID, Long> resistanceCues = new HashMap<>();
 		private final Map<UUID, GravityDisplacementRules.CaptureDecision> resistanceSnapshots = new HashMap<>();
-
 		private GravityField(UUID owner, ResourceKey<Level> dimension, CastSource castSource, Vec3 center,
 				long openedAt, long expiresAt, double radius, GravityDisplacementRules.Mode mode, int targetLimit,
 				boolean empoweredImpact, boolean ancientMastery, float impactDamage,

@@ -28,6 +28,10 @@ import com.powers.util.BoundedEntityCandidates;
 public class DimensionalAnchorAbility extends Ability {
 	// 2 minutes before the anchor fades
 	private static final int ANCHOR_TICKS = 2400;
+	public static long renewedDeadline(long now, long currentDeadline, int durationTicks) {
+		return Math.max(now, currentDeadline) + Math.max(1, durationTicks);
+	}
+	public static long remainingTicks(long now, long deadline) { return Math.max(0L, deadline - now); }
 
 	public DimensionalAnchorAbility() {
 		super(PowersMod.id("dimensional_anchor"),
@@ -75,7 +79,7 @@ public class DimensionalAnchorAbility extends Ability {
 		long deadline = target instanceof ServerPlayer player
 				? PlayerPowers.get(player).dimensionalAnchor().expiresAt() : target.level().getGameTime() + 1L;
 		return new AnchorSnapshot(dimension.identifier().toString(), deadline,
-				DimensionalAnchorRules.remainingTicks(target.level().getGameTime(), deadline));
+				remainingTicks(target.level().getGameTime(), deadline));
 	}
 
 	public record AnchorSnapshot(String dimensionId, long deadline, long remainingTicks) { }
@@ -111,7 +115,7 @@ public class DimensionalAnchorAbility extends Ability {
 		long currentDeadline = target instanceof ServerPlayer targetPlayer
 				&& PlayerPowers.get(targetPlayer).dimensionalAnchor() != null
 				? PlayerPowers.get(targetPlayer).dimensionalAnchor().expiresAt() : now;
-		long expiresAt = DimensionalAnchorRules.renewedDeadline(now, currentDeadline, duration);
+		long expiresAt = renewedDeadline(now, currentDeadline, duration);
 		if (target instanceof ServerPlayer targetPlayer) {
 			PlayerPowers.get(targetPlayer).setDimensionalAnchor(dim.identifier().toString(), expiresAt);
 		} else {
@@ -131,7 +135,7 @@ public class DimensionalAnchorAbility extends Ability {
 		if (target instanceof ServerPlayer targetPlayer) {
 			PowerMessages.sendImportant(targetPlayer, "ability.powers.anchored", 3, dimName);
 			targetPlayer.sendSystemMessage(Component.literal("Dimensional anchor: "
-					+ DimensionalAnchorRules.remainingTicks(now, expiresAt) + " ticks remaining"), true);
+					+ remainingTicks(now, expiresAt) + " ticks remaining"), true);
 		}
 		PowerMessages.sendImportant(player, "ability.powers.anchor_applied", 3,
 				PlayerLikeTarget.username(target), dimName);
@@ -146,11 +150,11 @@ public class DimensionalAnchorAbility extends Ability {
 			if (!com.powers.protection.PowerProtection.mayForceMove(player, ally)) continue;
 			if (ally instanceof ServerPlayer allyPlayer) {
 				PlayerPowers.AnchorState existing = PlayerPowers.get(allyPlayer).dimensionalAnchor();
-				long allyDeadline = DimensionalAnchorRules.renewedDeadline(now,
+				long allyDeadline = renewedDeadline(now,
 						existing == null ? now : existing.expiresAt(), duration);
 				PlayerPowers.get(allyPlayer).setDimensionalAnchor(dim.identifier().toString(), allyDeadline);
 				allyPlayer.sendSystemMessage(Component.literal("Group anchor: "
-						+ DimensionalAnchorRules.remainingTicks(now, allyDeadline) + " ticks remaining"), true);
+						+ remainingTicks(now, allyDeadline) + " ticks remaining"), true);
 			} else {
 				TestActorPowerState.anchor(ally.getUUID(), dim.identifier().toString(), expiresAt);
 			}

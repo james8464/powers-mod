@@ -32,6 +32,19 @@ public final class PowerHudRenderer {
 			drawSlot(graphics, client.font, slot, bounds.x() + SIZE / 2,
 					bounds.y() + SIZE / 2, client.player.tickCount);
 		}
+		drawHealthRowPulse(graphics, client);
+	}
+
+	private static void drawHealthRowPulse(GuiGraphicsExtractor graphics, Minecraft client) {
+		int ticks = ClientPowerState.doubleHealthPulseTicks();
+		if (ticks <= 0) return;
+		boolean reduced = com.powers.client.fx.FxAccessibility.reducedMotion(client);
+		int visible = reduced ? 10 : Math.clamp((20 - ticks + 1) / 2, 1, 10);
+		String hearts = "♥".repeat(visible);
+		int center = client.getWindow().getGuiScaledWidth() / 2;
+		int y = client.getWindow().getGuiScaledHeight() - 54;
+		graphics.text(client.font, hearts, center - client.font.width(hearts) / 2, y,
+				reduced ? 0xFFD85858 : 0xFFFF5A68, true);
 	}
 
 	private static void drawSlot(GuiGraphicsExtractor graphics, Font font, int slot,

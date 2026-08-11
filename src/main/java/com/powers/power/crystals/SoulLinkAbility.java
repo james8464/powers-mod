@@ -172,10 +172,13 @@ public class SoulLinkAbility extends Ability {
 							PowerFx.dust(0x9C27B0, 0.65F), 8);
 					previous = link.entity().getEyePosition();
 				}
-				float minimumCap = updated.stream().map(Link::remainingMirrorCap)
-						.min(Float::compare).orElse(0.0F);
-				caster.sendSystemMessage(Component.translatable("crystal.powers.soul_link.status",
-						updated.size(), Math.round(minimumCap)), true);
+				var topology = Component.translatable("crystal.powers.soul_link.status", updated.size());
+				for (Link link : updated.stream().limit(MAX_LINKS).toList()) {
+					topology.append(Component.literal("  ")).append(Component.translatable(
+							"crystal.powers.soul_link.target", link.entity().getDisplayName(),
+							Math.round(link.remainingMirrorCap())));
+				}
+				caster.sendSystemMessage(topology, true);
 			}
 
 			// the link ends when time runs out or no souls remain

@@ -12,7 +12,7 @@
   "time_release": { "sounds": ["powers:magic/time_release"] },
   "time_suspend": { "sounds": ["powers:magic/time_suspend"] },
   "celestial_ring": { "sounds": ["powers:magic/celestial_ring"] },
-  "beam_ring": { "sounds": [{"name":"powers:magic/interaction_clash","pitch":1.18}] },
-  "boss_impact_ring": { "sounds": [{"name":"powers:magic/ward_impact","pitch":0.82}] },
+  "beam_ring": { "sounds": ["powers:magic/beam_ring"] },
+  "boss_impact_ring": { "sounds": ["powers:magic/boss_impact_ring"] },
   "ward_impact": { "sounds": ["powers:magic/ward_impact"] }
 }
