@@ -51,10 +51,7 @@ public final class PowersConfigLoader {
 			validationReport = parsed.report();
 			write(current);
 			PowersMod.LOGGER.info("POWERS config validation: {}", validationReport.summary());
-			for (ConfigValidationReport.Entry entry : validationReport.entries()) {
-				PowersMod.LOGGER.warn("POWERS config substituted field={} reason={}",
-						entry.path(), entry.kind().name().toLowerCase(java.util.Locale.ROOT));
-			}
+			for (String line : validationReport.operatorLines()) PowersMod.LOGGER.warn("POWERS config {}", line);
 			return true;
 		} catch (Exception error) {
 			PowersMod.LOGGER.error("Keeping the last valid POWERS configuration: {}", error.getMessage());
@@ -71,6 +68,11 @@ public final class PowersConfigLoader {
 		PowersConfig defaults = PowersConfig.defaults();
 		List<ConfigValidationReport.Entry> changes = new ArrayList<>();
 		int schemaVersion = integer(object, "schemaVersion", 0, "schemaVersion", changes);
+		if (schemaVersion != PowersConfig.CURRENT_SCHEMA_VERSION) {
+			changes.add(new ConfigValidationReport.Entry("schemaVersion",
+					ConfigValidationReport.Kind.DEFAULTED, Integer.toString(schemaVersion),
+					Integer.toString(PowersConfig.CURRENT_SCHEMA_VERSION), "schema_upgrade"));
+		}
 		boolean allowTerrainDamage = bool(object, "allowTerrainDamage",
 				defaults.allowTerrainDamage(), "allowTerrainDamage", changes);
 		if (schemaVersion < 2) {
@@ -79,7 +81,8 @@ public final class PowersConfigLoader {
 			// version-2 administrators can still opt out explicitly.
 			allowTerrainDamage = true;
 			changes.add(new ConfigValidationReport.Entry("allowTerrainDamage",
-					ConfigValidationReport.Kind.DEFAULTED));
+					ConfigValidationReport.Kind.DEFAULTED, "legacy_generated_default", "true",
+					"schema_migration"));
 		}
 		java.util.List<PowersConfig.SafeZone> zones = defaults.safeZones();
 		if (object.has("safeZones") && object.get("safeZones").isJsonArray()) {
@@ -88,11 +91,13 @@ public final class PowersConfigLoader {
 						new TypeToken<java.util.List<PowersConfig.SafeZone>>() { }.getType());
 			} catch (RuntimeException error) {
 				changes.add(new ConfigValidationReport.Entry("safeZones",
-						ConfigValidationReport.Kind.DEFAULTED));
+						ConfigValidationReport.Kind.DEFAULTED, "<invalid:array>", "0 zones",
+						"invalid_structure"));
 			}
 		} else if (!object.has("safeZones") || !object.get("safeZones").isJsonArray()) {
 			changes.add(new ConfigValidationReport.Entry("safeZones",
-					ConfigValidationReport.Kind.DEFAULTED));
+					ConfigValidationReport.Kind.DEFAULTED, invalidMarker(object, "safeZones"),
+					"0 zones", object.has("safeZones") ? "invalid_type" : "missing"));
 		}
 		PowersConfig.LivingForces forceDefaults = defaults.livingForces();
 		PowersConfig.TerrainScars terrainDefaults = defaults.terrainScars();
@@ -174,7 +179,9 @@ public final class PowersConfigLoader {
 		} catch (RuntimeException ignored) {
 			// Report the value-free default substitution below.
 		}
-		changes.add(new ConfigValidationReport.Entry(path, ConfigValidationReport.Kind.DEFAULTED));
+		changes.add(new ConfigValidationReport.Entry(path, ConfigValidationReport.Kind.DEFAULTED,
+				invalidMarker(object, key), Boolean.toString(fallback),
+				object.has(key) ? "invalid_type" : "missing"));
 		return fallback;
 	}
 
@@ -186,7 +193,9 @@ public final class PowersConfigLoader {
 		} catch (RuntimeException ignored) {
 			// Report the value-free default substitution below.
 		}
-		changes.add(new ConfigValidationReport.Entry(path, ConfigValidationReport.Kind.DEFAULTED));
+		changes.add(new ConfigValidationReport.Entry(path, ConfigValidationReport.Kind.DEFAULTED,
+				invalidMarker(object, key), Integer.toString(fallback),
+				object.has(key) ? "invalid_type" : "missing"));
 		return fallback;
 	}
 
@@ -194,7 +203,9 @@ public final class PowersConfigLoader {
 			List<ConfigValidationReport.Entry> changes) {
 		if (object.has(key) && object.get(key).isJsonPrimitive()
 				&& object.getAsJsonPrimitive(key).isString()) return object.get(key).getAsString();
-		changes.add(new ConfigValidationReport.Entry(path, ConfigValidationReport.Kind.DEFAULTED));
+		changes.add(new ConfigValidationReport.Entry(path, ConfigValidationReport.Kind.DEFAULTED,
+				invalidMarker(object, key), fallback.isEmpty() ? "<empty-default>" : "<default-string>",
+				object.has(key) ? "invalid_type" : "missing"));
 		return fallback;
 	}
 
@@ -219,10 +230,16 @@ public final class PowersConfigLoader {
 		if (!raw.dialogueProvider().credentialEnvironmentVariable().equals(
 				safe.dialogueProvider().credentialEnvironmentVariable())) {
 			changes.add(new ConfigValidationReport.Entry("dialogueProvider.credentialEnvironmentVariable",
-					ConfigValidationReport.Kind.DEFAULTED));
+					ConfigValidationReport.Kind.DEFAULTED, "<redacted-string>", "<default-string>",
+					"invalid_format"));
 		}
+		recordStringAdjustment(changes, "dialogueProvider.endpoint",
+				raw.dialogueProvider().endpoint(), safe.dialogueProvider().endpoint());
+		recordStringAdjustment(changes, "dialogueProvider.model",
+				raw.dialogueProvider().model(), safe.dialogueProvider().model());
 		if (raw.safeZones().size() != safe.safeZones().size()) {
-			changes.add(new ConfigValidationReport.Entry("safeZones", ConfigValidationReport.Kind.CLAMPED));
+			changes.add(new ConfigValidationReport.Entry("safeZones", ConfigValidationReport.Kind.CLAMPED,
+					raw.safeZones().size() + " zones", safe.safeZones().size() + " zones", "bounded_count"));
 		}
 		int compared = Math.min(raw.safeZones().size(), safe.safeZones().size());
 		for (int index = 0; index < compared; index++) {
@@ -230,7 +247,8 @@ public final class PowersConfigLoader {
 			PowersConfig.SafeZone after = safe.safeZones().get(index);
 			if (before != null && !before.equals(after)) {
 				changes.add(new ConfigValidationReport.Entry("safeZones[" + index + "]",
-						ConfigValidationReport.Kind.CLAMPED));
+						ConfigValidationReport.Kind.CLAMPED, "<zone-definition>", "<sanitized-zone>",
+						"invalid_zone_field"));
 			}
 		}
 	}
@@ -238,7 +256,29 @@ public final class PowersConfigLoader {
 	private static void clamp(List<ConfigValidationReport.Entry> changes,
 			String path, int raw, int safe) {
 		if (raw != safe) changes.add(new ConfigValidationReport.Entry(path,
-				ConfigValidationReport.Kind.CLAMPED));
+				ConfigValidationReport.Kind.CLAMPED, Integer.toString(raw), Integer.toString(safe),
+				"out_of_range"));
+	}
+
+	private static void recordStringAdjustment(List<ConfigValidationReport.Entry> changes,
+			String path, String raw, String safe) {
+		if (!raw.equals(safe)) changes.add(new ConfigValidationReport.Entry(path,
+				ConfigValidationReport.Kind.CLAMPED, "<redacted-string>", "<sanitized-string>",
+				"normalized_or_truncated"));
+	}
+
+	private static String invalidMarker(JsonObject object, String key) {
+		if (!object.has(key) || object.get(key).isJsonNull()) return "<missing>";
+		var value = object.get(key);
+		if (value.isJsonArray()) return "<invalid:array>";
+		if (value.isJsonObject()) return "<invalid:object>";
+		if (value.isJsonPrimitive()) {
+			var primitive = value.getAsJsonPrimitive();
+			if (primitive.isBoolean()) return "<invalid:boolean>";
+			if (primitive.isNumber()) return "<invalid:number>";
+			if (primitive.isString()) return "<invalid:string>";
+		}
+		return "<invalid:value>";
 	}
 
 	private static void write(PowersConfig config) {

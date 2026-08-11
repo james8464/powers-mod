@@ -23,7 +23,8 @@ class DiagnosticExportTest {
 				3, 9, 4, 32, 2, 7, 120, 1, 4096, 512,
 				2, 1, 1, 362, 18, 240, 88);
 		ConfigValidationReport config = ConfigValidationReport.of(5, List.of(
-				new ConfigValidationReport.Entry("wardRadius", ConfigValidationReport.Kind.CLAMPED)));
+				new ConfigValidationReport.Entry("wardRadius", ConfigValidationReport.Kind.CLAMPED,
+						"999", "64", "out_of_range")));
 
 		String json = DiagnosticExportJson.toJson(DiagnosticExport.create(
 				1234, runtime, ledger.snapshot(), config));
@@ -37,5 +38,7 @@ class DiagnosticExportTest {
 		assertFalse(json.contains("/host/path"));
 		assertFalse(json.contains("coordinate"));
 		assertFalse(json.contains("token"));
+		assertFalse(json.contains("out_of_range"));
+		assertFalse(json.contains("999"));
 	}
 }

@@ -34,10 +34,38 @@ public record ConfigValidationReport(long revision, int adjustments, int dropped
 				+ "; retained=" + entries.size() + "; dropped=" + dropped;
 	}
 
-	public record Entry(String path, Kind kind) {
+	public List<String> operatorLines() {
+		return entries.stream().map(entry -> entry.operatorLine(revision)).toList();
+	}
+
+	public record Entry(String path, Kind kind, String original, String sanitized, String reason) {
+		public Entry(String path, Kind kind) {
+			this(path, kind, kind == Kind.DEFAULTED ? "<missing-or-invalid>" : "<out-of-range>",
+					kind == Kind.DEFAULTED ? "<default>" : "<bounded>",
+					kind == Kind.DEFAULTED ? "default_substitution" : "sanitized");
+		}
+
 		public Entry {
-			path = path == null || path.isBlank() ? "unknown" : path.substring(0, Math.min(80, path.length()));
+			path = path == null || path.isBlank() ? "unknown" : bounded(path);
 			kind = java.util.Objects.requireNonNull(kind, "kind");
+			original = bounded(original);
+			sanitized = bounded(sanitized);
+			reason = bounded(reason);
+		}
+
+		public String operatorLine(long revision) {
+			return "revision=" + Math.max(0L, revision) + "; field=" + path
+					+ "; original=" + original + "; sanitized=" + sanitized + "; reason=" + reason;
+		}
+
+		private static String bounded(String value) {
+			if (value == null || value.isBlank()) return "<none>";
+			StringBuilder safe = new StringBuilder(Math.min(80, value.length()));
+			for (int index = 0; index < value.length() && safe.length() < 80; index++) {
+				char character = value.charAt(index);
+				safe.append(character >= 0x20 && character <= 0x7e ? character : '_');
+			}
+			return safe.toString();
 		}
 	}
 }
