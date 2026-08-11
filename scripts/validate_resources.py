@@ -311,6 +311,13 @@ def validate(root: Path) -> list[str]:
         if f"effect.powers.{effect}" not in lang:
             errors.append(f"missing en_us effect translation: effect.powers.{effect}")
 
+    item_tags = root / "data" / "powers" / "tags" / "item"
+    for path in sorted(item_tags.rglob("*.json")):
+        tag_path = path.relative_to(item_tags).with_suffix("").as_posix().replace("/", ".")
+        translation = f"tag.item.powers.{tag_path}"
+        if translation not in lang:
+            errors.append(f"{path}: missing en_us item-tag translation {translation}")
+
     sounds_path = assets / "sounds.json"
     sounds = parsed.get(sounds_path, {})
     if not isinstance(sounds, dict):
