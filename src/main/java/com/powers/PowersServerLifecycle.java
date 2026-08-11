@@ -36,6 +36,7 @@ import com.powers.spell.SpellFieldManager;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.MinecraftServer;
@@ -58,6 +59,10 @@ final class PowersServerLifecycle {
 		ServerLifecycleEvents.SERVER_STOPPING.register(GlobalTimeStopManager::clearAll);
 		ServerLifecycleEvents.SERVER_STARTED.register(GlobalTimeStopManager::reconcileStartup);
 		ServerLifecycleEvents.SERVER_STOPPED.register(PowersServerLifecycle::onServerStopped);
+		ServerChunkEvents.CHUNK_LOAD.register((level, chunk, newlyGenerated) ->
+				AmethystDampening.invalidateChunk(level, chunk.getPos()));
+		ServerChunkEvents.CHUNK_UNLOAD.register((level, chunk) ->
+				AmethystDampening.invalidateChunk(level, chunk.getPos()));
 		ServerTickEvents.END_SERVER_TICK.register(PowersServerLifecycle::tick);
 	}
 
@@ -109,7 +114,6 @@ final class PowersServerLifecycle {
 		CrystalPowerRegistry.clearSelections(player.getUUID());
 		BodyProxyManager.returnToBody(player);
 		SpellCastingManager.clear(player);
-		AmethystDampening.forget(player);
 		ArtifactInventoryRuntime.forget(player);
 		CrucibleWeaponRuntime.forget(player.getUUID());
 		PrivateCompanionManager.forget(player);

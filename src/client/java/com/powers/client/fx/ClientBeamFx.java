@@ -20,8 +20,9 @@ public final class ClientBeamFx {
 		Vec3 from = new Vec3(payload.fromX(), payload.fromY(), payload.fromZ());
 		Vec3 delta = new Vec3(payload.toX(), payload.toY(), payload.toZ()).subtract(from);
 		ParticleOptions particle = particle(payload.style(), payload.color());
-		for (int index = 1; index <= payload.count(); index++) {
-			Vec3 point = from.add(delta.scale(index / (double) payload.count()));
+		int count = Math.max(1, (int) Math.round(payload.count() * FxAccessibility.effectScale(client)));
+		for (int index = 1; index <= count; index++) {
+			Vec3 point = from.add(delta.scale(index / (double) count));
 			client.level.addParticle(particle, point.x, point.y, point.z, 0.0, 0.0, 0.0);
 		}
 	}

@@ -22,6 +22,8 @@ import java.util.WeakHashMap;
 /** Owns the compact clientbound protocol for semantic magic presentation. */
 public final class MagicFxPackets {
 	private static final Map<ServerLevel, MagicFxService> SERVICES = new WeakHashMap<>();
+	private static final FxPacketCoalescer COALESCER = new FxPacketCoalescer(32_768);
+	private static final FxPayloadPool PAYLOADS = new FxPayloadPool(1_024);
 
 	private MagicFxPackets() {
 	}
@@ -171,19 +173,26 @@ public final class MagicFxPackets {
 
 	/** Sends an already budgeted beam only to its intended observer. */
 	public static void sendBeam(ServerPlayer observer, BeamFxPayload payload) {
-		if (ServerPlayNetworking.canSend(observer, BeamFxPayload.TYPE)) {
+		long tick = observer.level().getServer().getTickCount();
+		int chunkX = ((int) Math.floor((payload.fromX() + payload.toX()) * 0.5)) >> 4;
+		int chunkZ = ((int) Math.floor((payload.fromZ() + payload.toZ()) * 0.5)) >> 4;
+		if (COALESCER.allow(tick, observer.getUUID(), observer.level().dimension().identifier().toString(),
+				chunkX, chunkZ, "beam:" + payload.style().name())
+				&& ServerPlayNetworking.canSend(observer, BeamFxPayload.TYPE)) {
 			ServerPlayNetworking.send(observer, payload);
-			ServerRuntimeMetrics.recordPacket(observer.level().getServer(),
-					observer.level().getServer().getTickCount());
+			ServerRuntimeMetrics.recordPacket(observer.level().getServer(), tick);
 		}
 	}
 
 	/** Sends an already budgeted semantic shape only to its intended observer. */
 	public static void sendShape(ServerPlayer observer, ShapeFxPayload payload) {
-		if (ServerPlayNetworking.canSend(observer, ShapeFxPayload.TYPE)) {
+		long tick = observer.level().getServer().getTickCount();
+		if (COALESCER.allow(tick, observer.getUUID(), observer.level().dimension().identifier().toString(),
+				((int) Math.floor(payload.x())) >> 4, ((int) Math.floor(payload.z())) >> 4,
+				"shape:" + payload.kind().name())
+				&& ServerPlayNetworking.canSend(observer, ShapeFxPayload.TYPE)) {
 			ServerPlayNetworking.send(observer, payload);
-			ServerRuntimeMetrics.recordPacket(observer.level().getServer(),
-					observer.level().getServer().getTickCount());
+			ServerRuntimeMetrics.recordPacket(observer.level().getServer(), tick);
 		}
 	}
 
@@ -199,15 +208,26 @@ public final class MagicFxPackets {
 	/** Clears weak transport state explicitly at the normal server lifecycle edge. */
 	public static void clear() {
 		SERVICES.clear();
+		COALESCER.clear();
+		PAYLOADS.clear();
+	}
+
+	/** Canonicalizes a short-lived immutable payload for repeated observer sends. */
+	public static <T extends CustomPacketPayload> T pooled(T payload) {
+		return PAYLOADS.intern(payload);
 	}
 
 	private static void send(ServerLevel level, MagicFxEvent event) {
 		MagicFxPayload payload = new MagicFxPayload(event);
 		for (ServerPlayer observer : level.players()) {
 			if (observer.position().distanceToSqr(event.x(), event.y(), event.z()) > 128.0 * 128.0) continue;
-			if (ServerPlayNetworking.canSend(observer, MagicFxPayload.TYPE)) {
+			long tick = level.getServer().getTickCount();
+			if (COALESCER.allow(tick, observer.getUUID(), level.dimension().identifier().toString(),
+					((int) Math.floor(event.x())) >> 4, ((int) Math.floor(event.z())) >> 4,
+					"magic:" + event.kind().name() + ":" + event.motif())
+					&& ServerPlayNetworking.canSend(observer, MagicFxPayload.TYPE)) {
 				ServerPlayNetworking.send(observer, payload);
-				ServerRuntimeMetrics.recordPacket(level.getServer(), level.getServer().getTickCount());
+				ServerRuntimeMetrics.recordPacket(level.getServer(), tick);
 			}
 		}
 	}

@@ -1,15 +1,11 @@
 {
   "type": "powers:dark_realm_type",
   "generator": {
-    "type": "minecraft:flat",
-    "settings": {
-      "layers": [
-        {
-          "height": 1,
-          "block": "powers:darkness"
-        }
-      ],
+    "type": "minecraft:noise",
+    "biome_source": {
+      "type": "minecraft:fixed",
       "biome": "powers:dark_realm"
-    }
+    },
+    "settings": "powers:dark_realm"
   }
 }

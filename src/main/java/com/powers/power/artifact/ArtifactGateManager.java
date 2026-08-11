@@ -53,6 +53,8 @@ public final class ArtifactGateManager {
 			ServerPlayer owner = server.getPlayerList().getPlayer(entry.getKey());
 			if (level == null || owner == null || !owner.isAlive()
 					|| owner.level() != level
+					|| !level.getWorldBorder().isWithinBounds(BlockPos.containing(gate.entrance()))
+					|| !level.getWorldBorder().isWithinBounds(BlockPos.containing(gate.exit()))
 					|| !ArtifactWeaponManager.maySustain(owner, gate.alignment())
 					|| server.getTickCount() >= gate.expiresAt()) {
 				iterator.remove();
@@ -101,6 +103,11 @@ public final class ArtifactGateManager {
 	public static void forget(UUID ownerId) {
 		GATES.remove(ownerId);
 		RECENT_TRAVEL.remove(ownerId);
+	}
+
+	public static void forget(UUID ownerId, ArtifactAlignment alignment) {
+		Gate gate = GATES.get(ownerId);
+		if (gate != null && gate.alignment() == alignment) forget(ownerId);
 	}
 
 	public static void clear() {

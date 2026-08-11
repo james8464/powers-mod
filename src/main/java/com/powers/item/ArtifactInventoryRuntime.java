@@ -62,9 +62,12 @@ public final class ArtifactInventoryRuntime {
 	 */
 	public static void reconcileOwnership(ServerPlayer player) {
 		for (ArtifactAlignment alignment : ArtifactAlignment.values()) {
-			if (!ArtifactWeaponManager.carries(player, alignment)
-					|| !ArtifactWeaponManager.authorized(player, alignment)) {
+			boolean owns = com.powers.item.artifact.ArtifactAuthorizationRules.mayOwn(
+					ArtifactWeaponManager.carries(player, alignment),
+					ArtifactWeaponManager.authorized(player, alignment));
+			if (!owns) {
 				stopToggles(player, alignment);
+				ArtifactOwnedStateRevoker.revoke(player.level().getServer(), player.getUUID(), alignment);
 			}
 		}
 	}

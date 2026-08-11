@@ -10,6 +10,8 @@ import com.powers.force.LivingForceManager;
 import com.powers.magic.runtime.MagicRuntime;
 import com.powers.magic.runtime.MagicRayCollisionRuntime;
 import com.powers.mind.BodyProxyManager;
+import com.powers.network.NamedLivingTargetIndex;
+import com.powers.power.AmethystDampening;
 import com.powers.power.ConcordCastManager;
 import com.powers.power.artifact.ArtifactFieldManager;
 import com.powers.power.artifact.ArtifactGuardianSummons;
@@ -57,6 +59,33 @@ final class PowerDiagnosticsCommand {
 				+ " (cap/tick " + containment.inspectionBudget() + ")"
 				+ "; invasions=" + invasions.activeInvaders() + "/" + invasions.globalCap()
 				+ "; concord=" + concord.recentCasts() + "/" + concord.coolingPairs());
+		var spellIndex = SpellFieldManager.spatialDiagnostics();
+		var artifactIndex = ArtifactFieldManager.spatialDiagnostics();
+		var naturalAmethyst = AmethystDampening.naturalIndexDiagnostics();
+		var wardIndex = AmethystDampening.wardIndexDiagnostics();
+		var nameIndex = NamedLivingTargetIndex.diagnostics(server);
+		var ticketDiagnostics = TravelChunkLoader.diagnostics();
+		send(context, indexLine("spellFields", spellIndex.queries(), spellIndex.candidates(),
+				spellIndex.misses(), spellIndex.staleRemovals(), 0L, spellIndex.estimatedBytes()));
+		send(context, indexLine("artifactFields", artifactIndex.queries(), artifactIndex.candidates(),
+				artifactIndex.misses(), artifactIndex.staleRemovals(), 0L, artifactIndex.estimatedBytes()));
+		send(context, indexLine("amethystNatural", naturalAmethyst.queries(),
+				naturalAmethyst.candidates(), naturalAmethyst.misses(), naturalAmethyst.staleRemovals(),
+				naturalAmethyst.sectionScans(), naturalAmethyst.estimatedBytes()));
+		send(context, indexLine("amethystWards", wardIndex.queries(), wardIndex.candidates(),
+				wardIndex.misses(), wardIndex.staleRemovals(), 0L, wardIndex.estimatedBytes()));
+		send(context, indexLine("namedTargets", nameIndex.queries(), nameIndex.candidates(),
+				nameIndex.misses(), nameIndex.staleRemovals(), 0L, nameIndex.estimatedBytes()));
+		send(context, indexLine("livingForces", forces.queries(), forces.candidates(),
+				forces.misses(), forces.staleRemovals(), 0L, forces.estimatedBytes()));
+		send(context, "travelTickets=" + ticketDiagnostics.active() + "/" + ticketDiagnostics.limit()
+				+ "; perDimensionLimit=" + ticketDiagnostics.perDimensionLimit()
+				+ "; lastRefusal=" + ticketDiagnostics.lastRefusal());
+		for (var ticket : ticketDiagnostics.tickets()) {
+			send(context, "ticket owner=" + ticket.owner() + "; dimension=" + ticket.dimension()
+					+ "; reason=" + ticket.reason() + "; deadline=" + ticket.deadline()
+					+ "; state=" + ticket.state());
+		}
 		if (context.getSource().getEntity() instanceof ServerPlayer player) {
 			var testing = TestingOverrides.state(player.getUUID());
 			send(context, "testing: energy=" + (testing.energyDisabled() ? "disabled" : "normal")
@@ -68,5 +97,12 @@ final class PowerDiagnosticsCommand {
 	private static void send(CommandContext<CommandSourceStack> context, String line) {
 		context.getSource().sendSuccess(
 				() -> Component.literal(line).withStyle(ChatFormatting.AQUA), false);
+	}
+
+	private static String indexLine(String name, long queries, long candidates, long misses,
+			long staleRemovals, long fallbackScans, long estimatedBytes) {
+		return "index=" + name + "; q=" + queries + "; candidates=" + candidates
+				+ "; misses=" + misses + "; stale=" + staleRemovals
+				+ "; fallbackScans=" + fallbackScans + "; memory~=" + estimatedBytes + "B";
 	}
 }

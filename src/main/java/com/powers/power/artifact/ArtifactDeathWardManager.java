@@ -67,6 +67,11 @@ public final class ArtifactDeathWardManager {
 		WARDS.remove(playerId);
 	}
 
+	public static void forget(UUID playerId, ArtifactAlignment alignment) {
+		Ward ward = WARDS.get(playerId);
+		if (ward != null && ward.alignment() == alignment) WARDS.remove(playerId, ward);
+	}
+
 	public static void clear() {
 		WARDS.clear();
 	}

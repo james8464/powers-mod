@@ -38,4 +38,19 @@ class TravelChunkLoaderTest {
 		assertFalse(replaced.resolve(TravelChunkLoader.Resolution.READY));
 		assertEquals(TravelChunkLoader.Resolution.REPLACED, replaced.resolution());
 	}
+
+	@Test
+	void admissionAppliesGlobalAndPerDimensionBackpressureButAllowsReplacement() {
+		assertTrue(TravelChunkLoader.mayAdmit(63, 23, false));
+		assertFalse(TravelChunkLoader.mayAdmit(64, 0, false));
+		assertFalse(TravelChunkLoader.mayAdmit(10, 24, false));
+		assertTrue(TravelChunkLoader.mayAdmit(64, 24, true));
+	}
+
+	@Test
+	void diagnosticReasonsAreBoundedAndControlFree() {
+		assertEquals("realm_crystal", TravelChunkLoader.safeReason("realm_crystal"));
+		assertEquals("unknown", TravelChunkLoader.safeReason("\u0000\n"));
+		assertEquals(48, TravelChunkLoader.safeReason("x".repeat(100)).length());
+	}
 }

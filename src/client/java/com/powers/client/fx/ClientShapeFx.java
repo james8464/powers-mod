@@ -16,15 +16,16 @@ public final class ClientShapeFx {
 		Minecraft client = Minecraft.getInstance();
 		if (client.level == null) return;
 		DustParticleOptions dust = new DustParticleOptions(payload.color(), 1.0F);
-		for (int index = 0; index < payload.count(); index++) {
-			if (payload.kind() == ShapeFxKind.RUNE) spawnRunePoint(client, payload, dust, index);
-			else spawnSimplePoint(client, payload, dust, index);
+		int count = Math.max(1, (int) Math.round(payload.count() * FxAccessibility.effectScale(client)));
+		for (int index = 0; index < count; index++) {
+			if (payload.kind() == ShapeFxKind.RUNE) spawnRunePoint(client, payload, dust, index, count);
+			else spawnSimplePoint(client, payload, dust, index, count);
 		}
 	}
 
 	private static void spawnSimplePoint(Minecraft client, MagicFxPackets.ShapeFxPayload payload,
-			ParticleOptions particle, int index) {
-		double progress = index / (double) Math.max(1, payload.count() - 1);
+			ParticleOptions particle, int index, int count) {
+		double progress = index / (double) Math.max(1, count - 1);
 		double turns = payload.kind() == ShapeFxKind.SPIRAL ? 2.0 : 1.0;
 		double angle = payload.phase() + progress * Math.PI * 2.0 * turns;
 		double y = payload.kind() == ShapeFxKind.SPIRAL ? progress * payload.height() : 0.0;
@@ -32,9 +33,9 @@ public final class ClientShapeFx {
 	}
 
 	private static void spawnRunePoint(Minecraft client, MagicFxPackets.ShapeFxPayload payload,
-			DustParticleOptions dust, int index) {
+			DustParticleOptions dust, int index, int count) {
 		int family = index % 5;
-		double progress = index / (double) Math.max(1, payload.count() - 1);
+		double progress = index / (double) Math.max(1, count - 1);
 		if (family < 2) {
 			add(client, payload, dust, payload.phase() + progress * Math.PI * 5.0,
 					payload.radius(), 0.0);

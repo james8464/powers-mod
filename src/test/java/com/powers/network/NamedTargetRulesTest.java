@@ -44,4 +44,13 @@ class NamedTargetRulesTest {
 		assertEquals(NamedTargetRules.Status.SCAN_LIMIT, resolution.status());
 		assertNull(resolution.target());
 	}
+
+	@Test
+	void formattedAndUnicodeCompatibilityNamesShareOneAuthenticatedIdentity() {
+		NamedTargetRules.Resolution<String> resolution = NamedTargetRules.resolve("watcher", List.of(
+				new NamedTargetRules.Candidate<>("first", "Watcher"),
+				new NamedTargetRules.Candidate<>("second", "§5Ｗаtcher\u200B")));
+		assertEquals(NamedTargetRules.Status.AMBIGUOUS, resolution.status());
+		assertNull(resolution.target());
+	}
 }

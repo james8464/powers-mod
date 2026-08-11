@@ -73,4 +73,22 @@ class LivingForceIndexTest {
 		assertEquals(3, index.within(8.5, 64.5, 0.5, 32.0, DARKNESS, 3).size());
 		assertTrue(index.within(8.5, 64.5, 0.5, 32.0, DARKNESS, 0).isEmpty());
 	}
+
+	@Test
+	void diagnosticsExposeQueryCandidatesMissesStaleRepairsAndMemory() {
+		LivingForceIndex index = new LivingForceIndex();
+		long position = BlockPos.asLong(1, 64, 1);
+		index.add(position, DARKNESS);
+		assertEquals(List.of(position), index.within(0.5, 64.5, 0.5, 4.0, DARKNESS));
+		assertTrue(index.within(500.0, 64.0, 500.0, 4.0, DARKNESS).isEmpty());
+		index.removeStale(position);
+
+		var diagnostics = index.diagnostics();
+		assertEquals(2, diagnostics.queries());
+		assertEquals(1, diagnostics.candidates());
+		assertEquals(1, diagnostics.misses());
+		assertEquals(1, diagnostics.staleRemovals());
+		assertEquals(0, diagnostics.entries());
+		assertTrue(diagnostics.estimatedBytes() >= 0);
+	}
 }

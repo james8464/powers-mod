@@ -42,6 +42,14 @@ final class LivingForceIndex {
 
 	private final Map<Long, ChunkBucket> chunks = new HashMap<>();
 	private int size;
+	private long queries;
+	private long candidates;
+	private long misses;
+	private long staleRemovals;
+
+	record Diagnostics(long queries, long candidates, long misses, long staleRemovals,
+			int entries, int chunks, long estimatedBytes) {
+	}
 
 	void add(long position, LivingForceKind kind) {
 		long chunk = ChunkPos.pack(BlockPos.getX(position) >> 4, BlockPos.getZ(position) >> 4);
@@ -57,6 +65,12 @@ final class LivingForceIndex {
 		if (entries.entries.isEmpty()) chunks.remove(chunk);
 	}
 
+	void removeStale(long position) {
+		int before = size;
+		remove(position);
+		if (size < before) staleRemovals++;
+	}
+
 	void removeChunk(long chunk) {
 		ChunkBucket removed = chunks.remove(chunk);
 		if (removed != null) size -= removed.entries.size();
@@ -69,6 +83,7 @@ final class LivingForceIndex {
 	/** Range query that stops collecting once the caller's fixed work allowance is full. */
 	List<Long> within(double x, double y, double z, double radius, LivingForceKind kind, int limit) {
 		if (radius < 0.0 || !Double.isFinite(radius) || limit <= 0) return List.of();
+		queries++;
 		int minChunkX = ((int) Math.floor(x - radius)) >> 4;
 		int maxChunkX = ((int) Math.floor(x + radius)) >> 4;
 		int minChunkZ = ((int) Math.floor(z - radius)) >> 4;
@@ -81,6 +96,7 @@ final class LivingForceIndex {
 				Map<Long, LivingForceKind> entries = bucket == null ? null : bucket.entries;
 				if (entries == null) continue;
 				for (Map.Entry<Long, LivingForceKind> entry : entries.entrySet()) {
+					candidates++;
 					if (entry.getValue() != kind) continue;
 					long position = entry.getKey();
 					double dx = BlockPos.getX(position) + 0.5 - x;
@@ -93,6 +109,7 @@ final class LivingForceIndex {
 				}
 			}
 		}
+		if (result.isEmpty()) misses++;
 		return List.copyOf(result);
 	}
 
@@ -109,8 +126,14 @@ final class LivingForceIndex {
 		return size;
 	}
 
+	Diagnostics diagnostics() {
+		return new Diagnostics(queries, candidates, misses, staleRemovals,
+				size, chunks.size(), chunks.size() * 96L + size * 48L);
+	}
+
 	void clear() {
 		chunks.clear();
 		size = 0;
+		queries = candidates = misses = staleRemovals = 0L;
 	}
 }

@@ -53,7 +53,7 @@ public final class NamedLivingTargetIndex {
 			ServerLevel level = server.getLevel(ref.dimension());
 			Entity entity = level == null ? null : level.getEntity(ref.id());
 			if (!(entity instanceof Mob mob) || !mob.isAlive() || !mob.hasCustomName()) {
-				index.remove(ref);
+				index.removeStale(ref);
 				continue;
 			}
 			Component name = mob.getCustomName();
@@ -83,5 +83,12 @@ public final class NamedLivingTargetIndex {
 	public static void clearAll() {
 		INDEXES.values().forEach(UniqueNameIndex::clear);
 		INDEXES.clear();
+	}
+
+	/** Aggregate bounded-name index counters for one server. */
+	public static UniqueNameIndex.Diagnostics diagnostics(MinecraftServer server) {
+		UniqueNameIndex<TargetRef> index = INDEXES.get(server);
+		return index == null ? new UniqueNameIndex.Diagnostics(0, 0, 0, 0, 0, 0, 0)
+				: index.diagnostics();
 	}
 }

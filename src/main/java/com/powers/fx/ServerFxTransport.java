@@ -20,9 +20,11 @@ final class ServerFxTransport {
 	private static final double RANGE = 128.0;
 	private static final Map<MinecraftServer, ViewerParticleBudget> BUDGETS = new WeakHashMap<>();
 	private static final Map<ServerLevel, CachedViewers> VIEWERS = new WeakHashMap<>();
+	private static final Map<MinecraftServer, AdaptiveState> ADAPTIVE = new WeakHashMap<>();
 
 	private record CachedViewers(long tick, ViewerSpatialIndex<ServerPlayer> index) {
 	}
+	private record AdaptiveState(AdaptiveFxBudget budget, long tick, double scale) { }
 
 	private ServerFxTransport() {
 	}
@@ -32,10 +34,11 @@ final class ServerFxTransport {
 		if (count <= 0) return;
 		ViewerParticleBudget budget = budget(level);
 		long tick = level.getServer().getTickCount();
+		int adaptiveCount = AdaptiveFxBudget.scaleCount(count, adaptiveScale(level), 1);
 		for (ServerPlayer viewer : nearby(level, position)) {
 			double distanceSquared = viewer.getEyePosition().distanceToSqr(position);
 			int requested = protectFirstPerson
-					? ParticleBudget.viewerCount(count, distanceSquared) : count;
+					? ParticleBudget.viewerCount(adaptiveCount, distanceSquared) : adaptiveCount;
 			int granted = budget.claim(tick, viewer.getUUID(), requested, distanceSquared);
 			if (granted <= 0) continue;
 			ServerRuntimeMetrics.recordParticles(level.getServer(), tick, granted);
@@ -46,7 +49,7 @@ final class ServerFxTransport {
 
 	static void beam(ServerLevel level, Vec3 from, Vec3 to, ParticleOptions particle, int steps) {
 		if (steps <= 0 || !finite(from) || !finite(to)) return;
-		int requested = Math.min(64, steps);
+		int requested = AdaptiveFxBudget.scaleCount(Math.min(64, steps), adaptiveScale(level), 4);
 		Vec3 midpoint = from.add(to).scale(0.5);
 		ViewerParticleBudget budget = budget(level);
 		long tick = level.getServer().getTickCount();
@@ -57,8 +60,8 @@ final class ServerFxTransport {
 			int granted = claim(budget, tick, viewer, midpoint, requested);
 			if (granted <= 0) continue;
 			ServerRuntimeMetrics.recordParticles(level.getServer(), tick, granted);
-			MagicFxPackets.sendBeam(viewer, new MagicFxPackets.BeamFxPayload(eventId, style,
-					from.x, from.y, from.z, to.x, to.y, to.z, granted, color));
+			MagicFxPackets.sendBeam(viewer, MagicFxPackets.pooled(new MagicFxPackets.BeamFxPayload(
+					eventId, style, from.x, from.y, from.z, to.x, to.y, to.z, granted, color)));
 		}
 	}
 
@@ -67,6 +70,7 @@ final class ServerFxTransport {
 		int requested = kind.requestedParticles(points);
 		if (requested <= 0 || !finite(center) || !Double.isFinite(radius)
 				|| !Double.isFinite(height) || !Double.isFinite(phase)) return;
+		requested = AdaptiveFxBudget.scaleCount(requested, adaptiveScale(level), 6);
 		ViewerParticleBudget budget = budget(level);
 		long tick = level.getServer().getTickCount();
 		long eventId = Integer.toUnsignedLong(Objects.hash(tick, center, radius,
@@ -75,14 +79,15 @@ final class ServerFxTransport {
 			int granted = claim(budget, tick, viewer, center, requested);
 			if (granted <= 0) continue;
 			ServerRuntimeMetrics.recordParticles(level.getServer(), tick, granted);
-			MagicFxPackets.sendShape(viewer, new MagicFxPackets.ShapeFxPayload(eventId, kind,
-					center.x, center.y, center.z, radius, height, granted, rgb, phase));
+			MagicFxPackets.sendShape(viewer, MagicFxPackets.pooled(new MagicFxPackets.ShapeFxPayload(
+					eventId, kind, center.x, center.y, center.z, radius, height, granted, rgb, phase)));
 		}
 	}
 
 	static void clear() {
 		BUDGETS.clear();
 		VIEWERS.clear();
+		ADAPTIVE.clear();
 	}
 
 	private static int claim(ViewerParticleBudget budget, long tick, ServerPlayer viewer,
@@ -118,5 +123,17 @@ final class ServerFxTransport {
 
 	private static boolean finite(Vec3 point) {
 		return Double.isFinite(point.x) && Double.isFinite(point.y) && Double.isFinite(point.z);
+	}
+
+	private static double adaptiveScale(ServerLevel level) {
+		MinecraftServer server = level.getServer();
+		long tick = server.getTickCount();
+		AdaptiveState state = ADAPTIVE.get(server);
+		if (state != null && state.tick() == tick) return state.scale();
+		AdaptiveFxBudget controller = state == null ? new AdaptiveFxBudget(100) : state.budget();
+		double mspt = server.getAverageTickTimeNanos() / 1_000_000.0;
+		double scale = controller.update(mspt);
+		ADAPTIVE.put(server, new AdaptiveState(controller, tick, scale));
+		return scale;
 	}
 }

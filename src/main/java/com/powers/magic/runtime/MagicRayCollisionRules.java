@@ -9,6 +9,7 @@ import java.util.Optional;
 public final class MagicRayCollisionRules {
 	public static final int RETENTION_TICKS = 4;
 	public static final int MAX_COLLISIONS_PER_TICK = 32;
+	public static final int MAX_COLLISIONS_PER_OWNER_PER_TICK = 4;
 	public static final int MAX_SEGMENTS_PER_DIMENSION = 256;
 	public static final double COLLISION_THICKNESS = 0.75;
 

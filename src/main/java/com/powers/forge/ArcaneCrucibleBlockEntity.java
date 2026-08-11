@@ -27,7 +27,6 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.List;
-import java.util.UUID;
 
 /** Persistent two-slot inventory and one-lock delayed transaction owner. */
 public final class ArcaneCrucibleBlockEntity extends BaseContainerBlockEntity
@@ -58,7 +57,6 @@ public final class ArcaneCrucibleBlockEntity extends BaseContainerBlockEntity
 	private long releaseAt;
 	private int pendingVersion;
 	private String pendingChoice = "";
-	private UUID pendingOwner;
 
 	public ArcaneCrucibleBlockEntity(BlockPos pos, BlockState state) {
 		super(PowersBlockEntities.ARCANE_CRUCIBLE, pos, state);
@@ -118,7 +116,6 @@ public final class ArcaneCrucibleBlockEntity extends BaseContainerBlockEntity
 			return false;
 		}
 		pendingChoice = choice.id();
-		pendingOwner = player.getUUID();
 		pendingVersion = version;
 		releaseAt = level.getGameTime() + RITUAL_TICKS;
 		updateLit(true);
@@ -157,16 +154,13 @@ public final class ArcaneCrucibleBlockEntity extends BaseContainerBlockEntity
 			CrucibleTransactionResult transaction = CrucibleTransactionEngine.prepare(
 					getItem(WEAPON_SLOT), getItem(CATALYST_SLOT), choice);
 			if (!transaction.success()) return;
-			items.set(WEAPON_SLOT, transaction.weaponAfter());
+			// Keep the output inside the same persistent inventory transaction.
+			// Giving/dropping it here creates a second save boundary and can duplicate
+			// or lose the result if the server stops between those two mutations.
+			items.set(WEAPON_SLOT, transaction.result().copy());
 			items.set(CATALYST_SLOT, transaction.catalystAfter());
 			version++;
 			super.setChanged();
-			ServerPlayer owner = pendingOwner == null ? null
-					: serverLevel.getServer().getPlayerList().getPlayer(pendingOwner);
-			ItemStack result = transaction.result().copy();
-			if (owner == null || !owner.getInventory().add(result)) {
-				Block.popResource(serverLevel, worldPosition.above(), result);
-			}
 			int color = choice.alignment() == com.powers.item.artifact.ArtifactAlignment.DARKNESS
 					? 0x4B145D : 0xFFF2B2;
 			PowerFx.rune(serverLevel, center(), transaction.levelUp() ? 3.0 : 2.0,
@@ -177,7 +171,6 @@ public final class ArcaneCrucibleBlockEntity extends BaseContainerBlockEntity
 					transaction.levelUp() ? 1.8F : 1.2F, 1.15F);
 		} finally {
 			pendingChoice = "";
-			pendingOwner = null;
 			mutation.unlock();
 			updateLit(!choices().isEmpty());
 		}

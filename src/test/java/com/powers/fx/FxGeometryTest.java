@@ -48,4 +48,12 @@ class FxGeometryTest {
 		assertThrows(IllegalArgumentException.class,
 				() -> FxGeometry.scale(point, Double.POSITIVE_INFINITY));
 	}
+
+	@Test
+	void immutableGeometryIsReusedForIdenticalSemanticRequests() {
+		List<FxGeometry.Point> first = FxGeometry.points(FxMotif.GLYPH, 12, 4, 48);
+		List<FxGeometry.Point> second = FxGeometry.points(FxMotif.GLYPH, 12, 4, 48);
+		assertTrue(first == second);
+		assertTrue(FxGeometry.poolSize() <= FxGeometry.MAX_POOLED_GEOMETRIES);
+	}
 }

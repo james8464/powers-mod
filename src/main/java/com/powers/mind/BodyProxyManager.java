@@ -11,6 +11,7 @@ import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.state.PowerEntityState;
 import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelKind;
+import com.powers.power.travel.WorldBoundaryRules;
 import com.powers.power.travel.TravelChunkLoader;
 import com.powers.util.LoadedChunks;
 import com.powers.util.PowerMessages;
@@ -210,18 +211,35 @@ public final class BodyProxyManager {
 			Consumer<Boolean> completion) {
 		MindBodyState state = PlayerPowers.get(player).mindBody();
 		if (state == null) return completed(completion, false);
-		Identifier dimensionId = Identifier.tryParse(state.dimension());
-		if (dimensionId == null) return completed(completion, false);
 		MinecraftServer server = player.level().getServer();
-		ServerLevel target = server.getLevel(ResourceKey.create(Registries.DIMENSION, dimensionId));
-		if (target == null) return completed(completion, false);
-		Vec3 requested = new Vec3(state.x(), state.y(), state.z());
+		Identifier dimensionId = Identifier.tryParse(state.dimension());
+		ServerLevel target = dimensionId == null ? null
+				: server.getLevel(ResourceKey.create(Registries.DIMENSION, dimensionId));
+		boolean fallback = MissingDimensionRecoveryRules.useOverworldFallback(travelKind, target != null);
+		if (target == null && !fallback) {
+			PowersMod.LOGGER.error("Body return blocked because recorded dimension is unavailable: player={}, dimension={}; use /powers recoverbody as an operator",
+					player.getUUID(), state.dimension());
+			return completed(completion, false);
+		}
+		if (fallback) {
+			target = server.overworld();
+			PowersMod.LOGGER.warn("Administratively recovering body with deleted dimension to Overworld spawn: player={}, missing={}",
+					player.getUUID(), state.dimension());
+		}
+		ServerLevel returnLevel = target;
+		var border = returnLevel.getWorldBorder();
+		Vec3 recorded = fallback ? Vec3.atBottomCenterOf(server.getRespawnData().pos())
+				: new Vec3(state.x(), state.y(), state.z());
+		Vec3 requested = new Vec3(
+				WorldBoundaryRules.clampCoordinate(recorded.x, border.getMinX(), border.getMaxX(), 1.0),
+				recorded.y,
+				WorldBoundaryRules.clampCoordinate(recorded.z, border.getMinZ(), border.getMaxZ(), 1.0));
 		BlockPos requestedBlock = BlockPos.containing(requested);
-		if (!LoadedChunks.contains(target, requestedBlock)) {
+		if (!LoadedChunks.contains(returnLevel, requestedBlock)) {
 			UUID ownerId = player.getUUID();
-			return TravelChunkLoader.request(ownerId, target, requestedBlock,
+			return TravelChunkLoader.request(ownerId, returnLevel, requestedBlock, "body_return",
 					() -> completed(completion,
-							completeReturn(server, ownerId, target, state, requested, travelKind)),
+							completeReturn(server, ownerId, returnLevel, state, requested, travelKind)),
 					() -> {
 						ServerPlayer owner = server.getPlayerList().getPlayer(ownerId);
 						if (owner != null) PowerMessages.send(owner, "ability.powers.no_room", 3);
@@ -229,7 +247,7 @@ public final class BodyProxyManager {
 					});
 		}
 		return completed(completion,
-				completeReturn(server, player.getUUID(), target, state, requested, travelKind));
+				completeReturn(server, player.getUUID(), returnLevel, state, requested, travelKind));
 	}
 
 	private static boolean completed(Consumer<Boolean> completion, boolean result) {

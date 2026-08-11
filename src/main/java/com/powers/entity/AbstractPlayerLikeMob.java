@@ -4,6 +4,8 @@ import com.powers.PowersSounds;
 import com.powers.fx.PowerFx;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
+import com.powers.item.ArtifactWeaponManager;
+import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import net.minecraft.core.particles.ParticleTypes;
@@ -104,7 +106,11 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 			guardianLifetime--;
 			var owner = guardianOwner == null ? null
 					: level.getServer().getPlayerList().getPlayer(guardianOwner);
-			boolean ownerPresent = guardianOwner == null || owner != null && owner.level() == level;
+			ArtifactAlignment alignment = radiantCombat()
+					? ArtifactAlignment.LIGHT : ArtifactAlignment.DARKNESS;
+			boolean ownerPresent = guardianOwner == null || owner != null && owner.level() == level
+					&& ArtifactWeaponManager.carries(owner, alignment)
+					&& ArtifactWeaponManager.authorized(owner, alignment);
 			if (GuardianFactionRules.shouldExpire(guardianLifetime, ownerPresent)) {
 				discard();
 				return;

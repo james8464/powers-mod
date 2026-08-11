@@ -35,4 +35,23 @@ class ChunkSpatialIndexTest {
 		assertEquals(0, index.size());
 		assertEquals(0, index.cellCount());
 	}
+
+	@Test
+	void diagnosticsExposeBoundedQueryWorkAndStaleCleanup() {
+		ChunkSpatialIndex<String, Integer> index = new ChunkSpatialIndex<>(16);
+		index.put("a", "overworld", 0.0, 0.0, 1.0, 1);
+		index.put("b", "overworld", 15.0, 15.0, 1.0, 2);
+
+		assertEquals(Set.of(1), Set.copyOf(index.nearby("overworld", 0.0, 0.0, 1.0)));
+		assertTrue(index.nearby("nether", 0.0, 0.0, 1.0).isEmpty());
+		assertTrue(index.removeStale("b"));
+
+		var diagnostics = index.diagnostics();
+		assertEquals(2, diagnostics.queries());
+		assertEquals(2, diagnostics.candidates());
+		assertEquals(1, diagnostics.misses());
+		assertEquals(1, diagnostics.staleRemovals());
+		assertEquals(1, diagnostics.entries());
+		assertTrue(diagnostics.estimatedBytes() > 0);
+	}
 }

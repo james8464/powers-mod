@@ -14,6 +14,14 @@ import java.util.Set;
 public final class AmethystWardIndex {
 	private final Map<Long, Set<BlockPos>> byChunk = new HashMap<>();
 	private int size;
+	private long queries;
+	private long candidates;
+	private long misses;
+	private long staleRemovals;
+
+	public record Diagnostics(long queries, long candidates, long misses, long staleRemovals,
+			int entries, int chunks, long estimatedBytes) {
+	}
 
 	public void add(BlockPos pos) {
 		BlockPos immutable = pos.immutable();
@@ -30,6 +38,7 @@ public final class AmethystWardIndex {
 	}
 
 	public List<BlockPos> nearby(BlockPos center, int radius) {
+		queries++;
 		int safeRadius = Math.max(0, radius);
 		int minChunkX = (center.getX() - safeRadius) >> 4;
 		int maxChunkX = (center.getX() + safeRadius) >> 4;
@@ -42,20 +51,39 @@ public final class AmethystWardIndex {
 				Set<BlockPos> positions = byChunk.get(ChunkPos.pack(chunkX, chunkZ));
 				if (positions == null) continue;
 				for (BlockPos pos : positions) {
+					candidates++;
 					if (center.distSqr(pos) <= radiusSquared) result.add(pos);
 				}
 			}
 		}
 		result.sort(java.util.Comparator.comparingLong(BlockPos::asLong));
+		if (result.isEmpty()) misses++;
 		return result;
+	}
+
+	/** Removes a ward disproved by the loaded authoritative block state. */
+	public void removeStale(BlockPos pos) {
+		int before = size;
+		remove(pos);
+		if (size < before) staleRemovals++;
 	}
 
 	public int size() {
 		return size;
 	}
 
+	public Diagnostics diagnostics() {
+		long estimatedBytes = byChunk.size() * 80L + size * 56L;
+		return new Diagnostics(queries, candidates, misses, staleRemovals,
+				size, byChunk.size(), estimatedBytes);
+	}
+
 	public void clear() {
 		byChunk.clear();
 		size = 0;
+		queries = 0L;
+		candidates = 0L;
+		misses = 0L;
+		staleRemovals = 0L;
 	}
 }

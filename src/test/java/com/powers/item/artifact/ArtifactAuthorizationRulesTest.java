@@ -31,4 +31,16 @@ class ArtifactAuthorizationRulesTest {
 		assertFalse(ArtifactAuthorizationRules.maySustain(true, false, true));
 		assertFalse(ArtifactAuthorizationRules.maySustain(true, true, false));
 	}
+
+	@Test
+	void inventoryAndHeldOwnershipAreDistinctAndFailClosed() {
+		assertTrue(ArtifactAuthorizationRules.mayOwn(true, true));
+		assertFalse(ArtifactAuthorizationRules.mayOwn(false, true));
+		assertFalse(ArtifactAuthorizationRules.mayOwn(true, false));
+
+		assertTrue(ArtifactAuthorizationRules.maySustain(true, true, true, true, true));
+		assertFalse(ArtifactAuthorizationRules.maySustain(true, true, false, true, true));
+		assertTrue(ArtifactAuthorizationRules.maySustain(true, true, false, true, false));
+		assertFalse(ArtifactAuthorizationRules.maySustain(false, true, true, true, false));
+	}
 }

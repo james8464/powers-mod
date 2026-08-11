@@ -65,6 +65,21 @@ class MagicRayCollisionIndexTest {
 				index.collisionsThisTick());
 	}
 
+	@Test
+	void oneOwnerCannotConsumeTheWholeCollisionBudget() {
+		MagicRayCollisionIndex index = new MagicRayCollisionIndex();
+		UUID loud = new UUID(0L, 1L);
+		for (int collision = 0; collision < 12; collision++) {
+			UUID other = new UUID(1L, collision + 2L);
+			double offset = collision * 5.0;
+			index.submit(ray(other, "energy_beam", -4, offset, 4, offset, 70));
+			index.submit(ray(loud, "void_beam", 0, offset - 2, 0, offset + 2, 70));
+		}
+
+		assertEquals(MagicRayCollisionRules.MAX_COLLISIONS_PER_OWNER_PER_TICK,
+				index.collisionsThisTick());
+	}
+
 	private static MagicRaySegment ray(UUID owner, String action,
 			double startX, double startZ, double endX, double endZ, long tick) {
 		return new MagicRaySegment(owner, action, "minecraft:overworld",

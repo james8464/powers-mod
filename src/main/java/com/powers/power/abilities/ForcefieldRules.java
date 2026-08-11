@@ -16,4 +16,9 @@ public final class ForcefieldRules {
 	public static long expiryTick() {
 		return Long.MAX_VALUE;
 	}
+
+	/** Administrative kill and the void remain explicit server recovery mechanisms. */
+	public static boolean interceptable(boolean administratorKill, boolean voidDamage, float amount) {
+		return !administratorKill && !voidDamage && Float.isFinite(amount) && amount > 0.0F;
+	}
 }

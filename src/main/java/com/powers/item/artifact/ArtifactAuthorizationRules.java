@@ -20,4 +20,15 @@ public final class ArtifactAuthorizationRules {
 	public static boolean maySustain(boolean magicAllowed, boolean held, boolean authorized) {
 		return magicAllowed && held && authorized;
 	}
+
+	/** Inventory-owned effects require the artifact to remain carried and aligned. */
+	public static boolean mayOwn(boolean carried, boolean authorized) {
+		return carried && authorized;
+	}
+
+	/** Central policy for both held channels and inventory-owned companions/wards. */
+	public static boolean maySustain(boolean magicAllowed, boolean carried, boolean held,
+			boolean authorized, boolean requiresHeld) {
+		return magicAllowed && mayOwn(carried, authorized) && (!requiresHeld || held);
+	}
 }

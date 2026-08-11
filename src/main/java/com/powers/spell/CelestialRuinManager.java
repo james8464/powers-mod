@@ -61,6 +61,7 @@ public final class CelestialRuinManager {
 
 	/** Refuses overlap abuse while allowing a second catastrophe elsewhere. */
 	public static boolean canBegin(ServerLevel level, BlockPos center) {
+		if (!level.getWorldBorder().isWithinBounds(center)) return false;
 		loadPersisted(level.getServer());
 		List<Ritual> rituals = ACTIVE.getOrDefault(level.getServer(), List.of());
 		if (rituals.size() >= MAX_ACTIVE_RITUALS) return false;
@@ -200,6 +201,12 @@ public final class CelestialRuinManager {
 
 		private boolean tick() {
 			ensureTicket();
+			var borderDecision = com.powers.power.travel.WorldBoundaryRules.eventDecision(
+					detonated, level.getWorldBorder().isWithinBounds(center));
+			if (borderDecision == com.powers.power.travel.WorldBoundaryRules.EventDecision.CANCEL) {
+				removeTicket();
+				return true;
+			}
 			if (countdownRemaining > 0) {
 				int elapsed = CelestialRuinRules.COUNTDOWN_TICKS - countdownRemaining;
 				if (elapsed % 10 == 0) {
@@ -315,6 +322,7 @@ public final class CelestialRuinManager {
 			for (BoundedSphereCursor.Offset offset : destruction.take(CelestialRuinRules.BLOCKS_PER_TICK)) {
 				target.set(center.getX() + offset.x(), center.getY() + offset.y(), center.getZ() + offset.z());
 				if (target.getY() < level.getMinY() || target.getY() >= level.getMaxY()) continue;
+				if (!level.getWorldBorder().isWithinBounds(target)) continue;
 				if (PowerProtection.isSafeZone(level, Vec3.atCenterOf(target))) continue;
 				BlockState state = level.getBlockState(target);
 				boolean livingForce = state.is(PowersBlocks.DARKNESS) || state.is(PowersBlocks.PURE_LIGHT);
@@ -352,6 +360,7 @@ public final class CelestialRuinManager {
 						CelestialRuinRules.aftershockOffset(aftershockStep);
 				BlockPos column = new BlockPos(center.getX() + offset.x(), center.getY(),
 						center.getZ() + offset.z());
+				if (!level.getWorldBorder().isWithinBounds(column)) continue;
 				if (!LoadedChunks.contains(level, column)) continue;
 				int surfaceY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
 						column.getX(), column.getZ()) - 1;

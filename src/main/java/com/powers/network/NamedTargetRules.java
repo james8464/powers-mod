@@ -25,9 +25,9 @@ public final class NamedTargetRules {
 
 	/** Matches trimmed names exactly while ignoring ordinary case differences. */
 	public static boolean matches(String requestedName, String candidateName) {
-		return requestedName != null && candidateName != null
-				&& !requestedName.isBlank()
-				&& requestedName.trim().equalsIgnoreCase(candidateName.trim());
+		String requested = AuthenticatedName.canonical(requestedName);
+		return !requested.isEmpty()
+				&& requested.equals(AuthenticatedName.canonical(candidateName));
 	}
 
 	/** Returns a target only when exactly one candidate has the requested name. */

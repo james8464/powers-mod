@@ -5,11 +5,21 @@ import com.powers.magic.fx.FxOrientation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /** Pure deterministic geometry generator for bounded client particle choreography. */
 public final class FxGeometry {
 	public static final int MAX_POINTS = 96;
+	public static final int MAX_POOLED_GEOMETRIES = 256;
 	private static final double MAX_DISTANCE = 128.0;
+	private record GeometryKey(FxMotif motif, int phaseSeed, int intensity, int count) { }
+	private static final Map<GeometryKey, List<Point>> POOL = new LinkedHashMap<>(64, 0.75F, true) {
+		@Override
+		protected boolean removeEldestEntry(Map.Entry<GeometryKey, List<Point>> eldest) {
+			return size() > MAX_POOLED_GEOMETRIES;
+		}
+	};
 
 	private FxGeometry() {
 	}
@@ -18,15 +28,32 @@ public final class FxGeometry {
 	public static List<Point> points(FxMotif motif, int seed, int intensity, int requestedBudget) {
 		int count = Math.clamp(requestedBudget, 0, MAX_POINTS);
 		if (count == 0) return List.of();
-		double phase = Math.floorMod(seed, 360) * Math.PI / 180.0;
-		double scale = 0.65 + Math.clamp(intensity, 1, 5) * 0.18;
+		int phaseSeed = Math.floorMod(seed, 360);
+		int boundedIntensity = Math.clamp(intensity, 1, 5);
+		GeometryKey key = new GeometryKey(motif, phaseSeed, boundedIntensity, count);
+		synchronized (POOL) {
+			List<Point> cached = POOL.get(key);
+			if (cached != null) return cached;
+		}
+		double phase = phaseSeed * Math.PI / 180.0;
+		double scale = 0.65 + boundedIntensity * 0.18;
 		List<Point> result = new ArrayList<>(count);
 		for (int i = 0; i < count; i++) {
 			double progress = i / (double) Math.max(1, count - 1);
 			double angle = phase + progress * Math.PI * 2.0;
 			result.add(point(motif, i, progress, angle, scale));
 		}
-		return List.copyOf(result);
+		List<Point> immutable = List.copyOf(result);
+		synchronized (POOL) {
+			List<Point> existing = POOL.putIfAbsent(key, immutable);
+			return existing == null ? immutable : existing;
+		}
+	}
+
+	public static int poolSize() {
+		synchronized (POOL) {
+			return POOL.size();
+		}
 	}
 
 	/** Uses static, shape-distinct sigils when reduced motion is requested. */
