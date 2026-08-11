@@ -16,17 +16,17 @@ The tone is heavily inspired by FavreMySabre's *The Rainbow Quest*, with additio
 
 On first join, a player receives three distinct powers from a pool of 23. They persist with the player. The default keys are `V`, `X`, and `C`; they can be rebound in Minecraft's Controls screen. Crouch while pressing a power key to open that power's option menu when it has selectable modes.
 
-Innate loadouts are allegiance-aware. Radiant players can uniquely receive Starfall and Plant and Healing Acceleration; darkness-infected players can uniquely receive Void Beam and Energy Drain. Every random loadout guarantees at least one matching exclusive power. If allegiance changes, compatible powers remain in place while forbidden or retired slots migrate deterministically without duplicates. Crystal, grimoire, and Shadow Sword access is unaffected; the sword deliberately bypasses innate allegiance locks. Merely owning an innate power applies no passive effects or ambient particles.
+Innate loadouts are allegiance-aware. Radiant players can uniquely receive Starfall and Plant Healing Acceleration; darkness-infected players can uniquely receive Void Beam and Energy Drain. Every random loadout guarantees at least one matching exclusive power. If allegiance changes, compatible powers remain in place while forbidden or retired slots migrate deterministically without duplicates. Crystal, grimoire, and Shadow Sword access is unaffected; the sword deliberately bypasses innate allegiance locks. Merely owning an innate power applies no passive effects or ambient particles.
 
 The HUD shows the three powers as compact 30-pixel rune medallions at the right edge, with live toggle and rank-adjusted cooldown states. Energy is rendered as ten separate nine-pixel symbols directly above and exactly aligned with the vanilla hunger bar. Full, half, and empty symbols use normal, darkness, amethyst-poisoned, or projected-body colours; the bar is moved with the vanilla survival HUD so extra heart rows never overlap it.
 
-On first join, each persistent character receives one vanilla written book, **POWERS: First Awakening**. It explains V/X/C, the B-key Labyrinth, energy, grimoires, crystals, mind-body vulnerability, artifacts, Shadow chat, and the major counter-magic systems. The persistent delivery flag prevents reconnect, respawn, or death duplication; if the inventory is full the book is dropped safely at the player.
+On first join, each persistent character receives one vanilla written book, **POWERS: First Awakening**. It explains V/X/C, the B-key Rank Maze, energy, grimoires, crystals, mind-body vulnerability, artifacts, Shadow chat, and the major counter-magic systems. The persistent delivery flag prevents reconnect, respawn, or death duplication; if the inventory is full the book is dropped safely at the player.
 
 The assignable powers are:
 
 - Movement and control: Size Morphing, Flight, Super Speed, Speed Burst, Teleport, Telekinesis, Gravity Displacement, and Breezy Bash.
 - Offence: Fireball, Lightning Strike, Thunderclap, Energy Beam, Void Beam, Ice Manipulation, Starfall, and Energy Drain.
-- Defence and support: Forcefield, Plant and Healing Acceleration, and Double Health.
+- Defence and support: Forcefield, Plant Healing Acceleration, and Double Health.
 - Time and mind: Time Freeze, Invisibility, Vessel Possession, and Astral Projection.
 
 | Innate power | What it does |
@@ -52,7 +52,7 @@ The assignable powers are:
 | Astral Projection | Leaves a vulnerable physical body and releases a bounded soul-form scout; return is validated and cannot be used as invulnerability. |
 | Energy Drain | Channels against a player or mob for two seconds. Players lose energy and receive particle-free Exhaustion; mobs take repeated percentage-health damage plus a capped 30% completion strike, while the caster recovers energy. |
 | Ice Manipulation | Fires a freezing ray that harms and freezes targets, converts water to ice and lava to obsidian, and lays snow only where terrain policy permits. |
-| Plant and Healing Acceleration | Normally grows the aimed bonemealable plant with stronger growth at higher potency. Crouching instead releases a zero-cooldown healing pulse that restores the caster and injured players within an inclusive two-block radius. |
+| Plant Healing Acceleration | Normally grows the aimed bonemealable plant with stronger growth at higher potency. Crouching instead releases a zero-cooldown healing pulse that restores the caster and injured players within an inclusive two-block radius. |
 | Double Health | Toggles a mod-owned maximum-health multiplier, preserves unrelated modifiers, drains energy while active, and proportionally restores the vanilla heart layout when released. |
 
 Telekinesis is a true radial release: permitted living targets are thrown away from the caster while up to 16 hostile projectiles are reflected along the caster's aim. If neither can be affected, its collapsed violet rune refunds the offered energy and starts no cooldown or collision residue.
@@ -96,13 +96,13 @@ Force Pressure rises as a mind travels away from the entry. Aligned players rega
 
 The original cosmology names four competing claims. The **Luminous Concord** seeks a perfect pattern through healing or erasure; the **Hollow Court** offers freedom by dissolving identity into Darkness; the **Amethyst Covenant** contains both extremes; and the **Archivists of the Between** preserve memories either force would delete. The First Vessel was their failed attempt to carry both Light and Darkness, while each Herald is a self-aware verdict rather than a god.
 
-Realm departure is intentionally stricter than entry. A player trapped in the Dark Realm cannot leave through gameplay travel until they have the `darkness` tag and darkness level 5; leaving the Light Realm requires level 5 in either progression. `/powers return` is reserved for an ordinary validated detached-body return; operators can use `/powers recover <player>` for the explicit administrative recovery route. Ordinary crystals, teleports, deaths, body returns, and dimension menus cannot bypass the lock.
+Realm departure is intentionally stricter than entry. A player trapped in the Dark Realm cannot leave through gameplay travel until they have the `darkness` tag and darkness level 5; leaving the Light Realm requires level 5 in either progression. `/powers return` is reserved for an ordinary validated detached-body return; operators can use `/powers recover <player>` for the explicit administrative recovery route. Ordinary crystals, teleports, dreamwalking, projection returns, deaths, dimension menus, and Nether/End/gateway blocks cannot bypass the lock.
 
 Death does not provide a realm escape: an underqualified player respawns at the corresponding mindscape entry instead of being accepted at a vanilla Overworld spawn. The rule is shared with every travel policy so later gateways cannot accidentally disagree with it.
 
 ## Rank maze
 
-Advancements determine earned rank depth, innate-power scaling, and energy capacity. Rank never changes crystal abilities, grimoire spells, or powers routed through an artifact. Each of the 23 innate powers has its own authored level-0 to level-10 shape for damage/healing, range, duration, destructive work, capacity, and named transformations; there is no generic perk percentage that can accidentally leak into unrelated equipment magic. At level 10, combat powers reach boss-scale multipliers of up to 8×, utility powers favour range/duration/capacity instead, energy cost is reduced by up to 25%, and cooldown is reduced by up to 30%. The exact capstone table is documented in [`docs/gameplay/innate-levels.md`](docs/gameplay/innate-levels.md).
+Advancements determine earned rank depth, innate-power scaling, and energy capacity. Crystals and grimoire spells never inherit innate scaling; artifact-routed powers use only their explicit relic and rank-10 apotheosis profiles. Each of the 23 innate powers has its own authored level-0 to level-10 shape for damage/healing, range, duration, destructive work, capacity, and named transformations; there is no generic perk percentage that can accidentally leak into unrelated equipment magic. At level 10, combat powers reach boss-scale multipliers of up to 8×, utility powers favour range/duration/capacity instead, energy cost is reduced by up to 25%, and cooldown is reduced by up to 30%. The exact capstone table is documented in [`docs/gameplay/innate-levels.md`](docs/gameplay/innate-levels.md).
 
 The light and darkness graphs each contain 28 nodes, including legacy titles and paths through might, motion, insight, wardcraft, veils, communion, and dominion. Converging paths create hybrid titles such as Runeblade, Riftwalker, Soulwarden, Eclipse Weaver, and their endgame forms.
 
@@ -110,7 +110,7 @@ Named branch variants still have mechanical consequences as well as stronger cer
 
 Two aligned players who release the same **innate** power within two seconds and twelve blocks form a cooperative **Radiant Concord** or **Umbral Concord**. Both recover 20% of their energy capacity and gain ten seconds of Absorption V and Resistance II; a bounded ten-block pulse deals 48 magic damage to at most 24 opposed-faction bodies. The same pair cannot concord again for ten seconds. Spells, crystals and artifact-routed casts never enter this system.
 
-Press `B` (rebindable) to open the synchronized Labyrinth of Names, inspect every connected title and its real transformation, awaken reachable nodes, or attune a previously earned title. Light uses a pale carved-stone/parchment panel with gold-white runes; Darkness uses ancient blackstone, violet tendrils, and worn silver edging. The server revalidates every click. The equivalent commands are `/powers path list`, `/powers path unlock <node>`, `/powers path focus <node>`, and `/powers path respec`; respeccing preserves earned depth and costs 30 experience levels by default.
+Press `B` (rebindable) to open the synchronized Rank Maze, inspect every connected title and its real transformation, awaken reachable nodes, or attune a previously earned title. Light uses a pale carved-stone/parchment panel with gold-white runes; Darkness uses ancient blackstone, violet tendrils, and worn silver edging. The server revalidates every click. The equivalent commands are `/powers path list`, `/powers path unlock <node>`, `/powers path focus <node>`, and `/powers path respec`; respeccing preserves earned depth and costs 30 experience levels by default.
 
 Players with the `darkness` entity tag use the darkness advancement track and energy well. `/powers darkprefix` controls whether the focused darkness title is publicly shown.
 
@@ -129,7 +129,7 @@ Sneak-use a grimoire to turn its pages; use it normally to cast the selected spe
 | Celestial: Soul Compass | 14 / 10s / instant | Opens the authenticated locator screen. It accepts an online player or the unique custom name of one loaded mob, rejects ambiguous or incomplete world scans, enforces player locator consent, reveals the result, then begins a one-minute vulnerable-body camera view through that target. |
 | Celestial: Mark of the Far Star | 18 / 25s / 2s | Locks a permitted living target and marks it with particle-free Glowing for 30 seconds. |
 | Celestial: Tempest Sigil | 22 / 60s / 4s | Starts a localized ancient storm centred on the caster. |
-| Celestial: Heavenfall — Celestial Ruin | 100 / 60m / 10s | Locks a ground point and starts an irreversible one-minute warning. A pulsing 100-block-diameter sky beam remains even after players leave; countdown and exact ruin-wave cursor survive server restarts. The strike flashes the screen white for three seconds, applies a tinnitus cue, deals up to 50,000 custom damage with quadratic falloff across 2,048 blocks, excavates a 120-block-radius crater, and sends 96 loaded-chunk fire-scar rays outward. Only the 19×19 detonation area is progressively ticketed shortly before impact. |
+| Celestial: Heavenfall — Celestial Ruin | 100 / 60m / 10s | Locks a ground point and starts an irreversible one-minute warning. A pulsing 100-block-diameter sky beam is visible and audible across 6,000 blocks even after players leave; countdown and exact ruin-wave cursor survive server restarts. The strike holds an opaque white flash for three seconds before fading across a 20-second whiteout, sustains tinnitus, deals up to 50,000 custom damage with quadratic falloff and extreme knockback across 6,000 blocks, excavates a 120-block-radius crater, and sends 96 loaded-chunk fire-scar rays outward. Only the 19×19 detonation area is progressively ticketed shortly before impact. |
 | Deep: Dimensional Anchor | 22 / 60s / 2s | Anchors a consent-valid targeted player or player-compatible test actor against dimensional and teleport movement. |
 | Deep: Deepbinding Sigil | 16 / 20s / 1.5s | Locks a living target under severe Slowness and Weakness for 30 seconds. |
 | Deep: Seal of Closed Ways | 24 / 50s / 3s | Creates a seven-block anti-portal field for 30 seconds. Recasting replaces the caster's earlier field instead of accumulating unbounded wards. |
@@ -157,14 +157,13 @@ Every crystal has a bound ability or selectable convergence. Sneak-use turns a m
 | Crystal | Ability |
 | --- | --- |
 | Red | Inferno creates an eight-second, 12-block firestorm that repeatedly damages and ignites permitted targets without a vanilla terrain explosion. |
-| Orange | Clone Swarm creates three 80-health combat clones for 60 seconds; Creativity Manifestation builds a protected obsidian/glass/glowstone redoubt at the aimed point when terrain policy allows. |
-| Yellow | Size Shift alternates a 20-second titan form and miniature form, with appropriate strength, speed, resistance, reach, and knockback changes. This remains separate from the freely selectable innate Size Morphing power. |
-| Green | Life Bloom fully heals and cleanses living allies in a 20-block radius; Space-Time alternates six seconds of extreme personal acceleration and a six-second local entity/projectile freeze. The obsolete self-slow mode has been removed. |
-| Blue | Chrono Stop freezes entities and projectiles in the configured local radius; Dreamwalking watches through one uniquely named, consented player or mob for up to 30 seconds while leaving a vulnerable body. |
+| Orange | Clone Swarm creates three unarmed, player-skinned 80-health combat echoes for 60 seconds; they follow, teleport and fight for their owner without copying equipment. Creativity Manifestation builds a fixed protected orange-concrete, orange-glass and glowstone creation chamber at the aimed point when terrain policy allows. |
+| Yellow | Size Shift alternates a 20-second `0.0625×` miniature form and an immense `10×` titan form, with corresponding speed/jump or strength/resistance/knockback changes. This fixed crystal rite remains separate from the freely selectable innate Size Morphing power. |
+| Green | Life Bloom fully heals and cleanses living allies in a 20-block radius. |
+| Blue | Chrono Stop claims Minecraft's true global server tick freeze and may be toggled off by using the crystal again; it releases automatically after one minute and has no ongoing energy drain. Dreamwalking controls one uniquely named, consented player or mob through the authenticated possession channel for up to 30 seconds while leaving a vulnerable body. |
 | Indigo | Middleworld opens vulnerable, persisted mind travel to the muted dream dimension; using it again returns to the exact physical origin when travel policy allows. |
 | Violet | Soul Link binds up to eight nearby souls for ten seconds and mirrors a bounded share of later wounds across survivors. |
-| Rainbow | Sevenfold convergence of the chromatic forces |
-| Infected Rainbow | Fractured convergence of Inferno, Chrono Stop, Middleworld, and Soul Link |
+| Rainbow | Sixfold convergence of the chromatic combat forces. In a darkness-tagged holder's hands its same item model becomes visibly corrupted; no duplicate infected gameplay item is required. |
 | Light | Aims at a consented player or defaults to the wielder, leaves a vulnerable body, asynchronously loads the destination, and enters the Light Realm beneath a white celestial storm. Crouch-use takes the caster and up to 15 eligible, consented players within two blocks, each to a distinct safe arrival. |
 | Dark | Aims at a consented player or defaults to the wielder, leaves a vulnerable body, asynchronously loads the destination, and enters the Dark Realm beneath a corrupted storm. Crouch-use takes the caster and up to 15 eligible, consented players within two blocks, each to a distinct safe arrival. |
 
@@ -190,18 +189,15 @@ Exactly three actions are unique to the Shadow Sword. Retired saved selections m
 
 ## Heavenly Partisan
 
-The **Heavenly Partisan** is the unbreakable Pure Light counterpart. Only non-dark players may wield it; a darkness-infected carrier is judged with hidden Glowing/radiant damage and guarded by lightning-arriving Radiant Sentinels. It currently routes the same 23 innate and 12 crystal actions through a gold-white presentation, while its authored rites emphasize protection and group play. Normal rank 10 reduces Partisan cooldowns by 60%, increases its regeneration aura, and strengthens its support effects; unlike darkness apotheosis, it does not remove cooldowns.
+The **Heavenly Partisan** is the unbreakable Pure Light counterpart. Only non-dark players may wield it; a darkness-infected carrier is judged with hidden Glowing/radiant damage and guarded by lightning-arriving Radiant Sentinels. It deliberately has a smaller curated roster than the Shadow Sword: Flight, Starfall, Lightning Strike, Thunderclap, Energy Beam, Forcefield, Plant Healing Acceleration, Double Health, Creativity Manifestation, Life Bloom, and Light-realm travel, all with gold-white presentation. Normal rank 10 reduces Partisan cooldowns by 60%, increases its regeneration aura, and strengthens its support effects; unlike darkness apotheosis, it does not remove cooldowns.
 
 | Partisan rite | Rank | Effect |
 | --- | ---: | --- |
 | Call the Radiant | 1 | Summons a bounded squad of Radiant Sentinels. |
 | Consecrate Ground | 2 | Queues a six-block protected Pure Light conversion. |
-| Dawnstride | 3 | Performs a legal 24-block beam step. |
 | Covenant Chain | 4 | Gives an ally 30 seconds of regeneration/absorption and bounded damage sharing, or binds an opposed hostile. Each owner is capped at eight allies. |
 | Daybreak Wave | 5 | Damages darkness hostiles, purifies removable harmful effects, heals others, and clears unprotected projectiles. |
 | Heaven Gate | 6 | Opens one owner-only pair of temporary radiant gates. |
-| Banish Darkness | 7 | Queues a protected nine-block darkness purge; touching living opposed matter can still trigger its catastrophic clash. |
-| Divine Decree | 8 | Resolves five-second radiant judgement against a hostile or a major heal/absorption blessing on an ally. |
 | Solar Firmament | 8 | Opens an eight-second field that repels hostiles/projectiles and heals light-aligned occupants. |
 | Second Dawn | 9 | Arms one five-minute, single-use radiant death ward. |
 | Host of Heaven | 10 | Calls two elite sentinels, a radiant dominion field, consecrated ground, and a cosmic heaven-beam ceremony. |
@@ -219,11 +215,13 @@ Formerly decorative imported relics now have bounded server-owned roles:
 - The Ritual Dagger sacrifices four health to amplify the next grimoire ritual for 30 seconds.
 - Beating, wooden, mechanical, and ghoul hearts heal on use and sustain a small particle-free regeneration attunement while carried.
 - The Philosopher's Stone performs controlled, energy-priced transmutation of stone, deepslate, netherrack, or end stone. It refuses protected blocks and block entities.
-- Use a Lodestone relic on a safe destination to bind its dimension and coordinates. A carried Miniportal asynchronously loads and returns to that anchor through the same border, realm, ward, anchor, collision, and hazard policy as other travel.
+- Use a Lodestone relic on a safe destination to bind its dimension and coordinates. A Miniportal carries two visible charges and asynchronously returns to that same-dimension anchor through the normal border, realm, ward, anchor, collision, and hazard policy; a charge is committed only after successful arrival. Drop an empty Miniportal beside one amethyst shard to restore both charges. The First Vessel always drops one, and ruined portals can rarely contain another.
 - The Flute recalls, heals, and rebinds nearby player-shaped guardians to its wielder under the normal guardian caps.
 - Essences, blood salts, fossils, jewels, pearls, stones, ember fragments, and other archaeology reagents contribute documented Arcane Crucible XP tiers. Tattered pages and remaining lore relics become contextual clues that Shadow can decipher rather than fake weapons.
 
 Representative relics are injected additively into dungeon, pyramid, temple, mansion, ruined-portal, fortress, buried-treasure, stronghold, ancient-city, bastion, and end-city loot. Their variants share the same family behavior. Crystals and deliberately deferred story items remain recipe-less.
+
+The exhaustive purpose and acquisition status of every registered gameplay item is in [`docs/gameplay/item-catalogue.md`](docs/gameplay/item-catalogue.md). Hidden compatibility aliases are listed there explicitly instead of masquerading as obtainable content.
 
 ## Fantasy weapon archetypes
 
@@ -251,7 +249,7 @@ Datapacks can add base weapons to `#powers:arcane_crucible_base_weapons`. Java i
 
 A darkness-tagged player carrying the Shadow Sword may press `G`, say `shadow, come to me`, or ask any `shadow, …` question to call Shadow explicitly. Merely holding the sword never spawns it. Shadow is a collisionless client-local `RemotePlayer` shell driven by a lightweight server session: it uses the wielder's live skin and correct slim/classic player model, carries no item or armour, follows at 5 Hz to a rear-side doglike position, and teleports through a custom eclipse effect beyond 12 blocks. It disappears on dismissal, lost eligibility, logout, death/projection, or server stop and never owns AI, a hitbox, save data, or chunk tickets.
 
-Shadow is private by default. `shadow, reveal yourself` reveals its avatar to every player in the wielder's dimension and broadcasts subsequent Shadow replies server-wide. `shadow, hide yourself` immediately removes it from other clients and makes replies owner-only again without hiding it from its owner. `shadow, leave me` dismisses it completely. All addressed messages are removed from ordinary signed chat and answered as clearly attributed server messages; unrelated chat remains untouched.
+Shadow is private by default. `shadow, reveal yourself` sets a global reveal: every player can receive its replies, while the player-model avatar is naturally rendered only to observers currently sharing the wielder's dimension. `shadow, hide yourself` immediately removes it from every other client and makes replies owner-only again without hiding it from its owner. `shadow, leave me` dismisses it completely. All addressed messages are removed from ordinary signed chat and answered as clearly attributed server messages; unrelated chat remains untouched.
 
 An optional OpenAI-compatible text endpoint may replace only the wording. It is disabled by default, never receives UUIDs, names, chat, IPs, coordinates, or secrets, and cannot change gameplay. Credentials come only from the configured environment-variable name. Requests are asynchronous, capped at one per owner/four globally, limited to 2.5 seconds and 256 output characters, and always fall back to offline lore.
 
@@ -282,14 +280,14 @@ Operators may use `/powers boss spawn`. The survival ritual requires a darkness-
   amethyst, indestructible blocks, block entities, and the administrator override remain protected.
 - Teleports validate world borders, loaded-distance limits, collisions, floors, wards, anchors, and destination dimensions.
 - Temporary entities are marked ephemeral and excluded from saves.
-- Global Time Freeze uses shared `/tick freeze` ownership and safe restoration; local crystal freezes retain bounded radii and overlap-safe cleanup.
+- Innate Time Freeze and the Blue Crystal's Chrono Stop share guarded `/tick freeze` ownership and safe restoration. Chrono Stop is global, toggleable, and automatically releases after one minute.
 - Particles use a server-wide per-tick budget; amethyst scanning and state network syncs are cached.
 - Serverbound activation, selection, travel, rank, artifact, locator, and ritual packets each have independent per-player rate lanes, so one noisy client cannot monopolize the server thread or starve ordinary play.
 - Custom food and mob drops are injected additively instead of replacing vanilla loot tables.
 
 ## Magic collisions and presentation
 
-The 23 assignable powers resolve to 22 innate action identities because player Size Morphing and the Yellow Crystal deliberately share the canonical `size_shift` force. Those 22 innate actions, 21 grimoire spells, 12 crystal actions, 16 artifact actions (three Shadow Sword rites, 11 Partisan rites, and two star-bound lightning alignments), three amethyst suppressors, and two living realm forces form a 76-action collision system. Every one of the 2,926 unordered same-or-cross-action pairs, including same-action resonance, has a deterministic outcome, potency/duration/range adjustment, accessible shape cue, and semantic sound cue. Named high-impact combinations add mechanics such as steam pressure, eclipses that reveal concealment, realm-matter annihilation, projectile-consuming star rifts, summon banishment, soul-link purification, finite ward fracture, grounded storms, hostile pressure waves, and concordant healing.
+The 23 assignable powers have 23 innate action identities. Player Size Morphing keeps its legacy saved power identifier but uses the distinct `size_morph` collision identity; the Yellow Crystal retains its fixed-strength `size_shift` rite and never inherits innate rank scaling. Those 23 innate actions, 21 grimoire spells, 11 crystal actions, 13 artifact actions (three Shadow Sword rites, eight Partisan rites, and two star-bound lightning alignments), three amethyst suppressors, and two living realm forces form a 73-action collision system. Every one of the 2,701 unordered same-or-cross-action pairs, including same-action resonance, has a deterministic outcome, potency/duration/range adjustment, accessible shape cue, and semantic sound cue. Named high-impact combinations add mechanics such as steam pressure, eclipses that reveal concealment, realm-matter annihilation, projectile-consuming star rifts, summon banishment, soul-link purification, finite ward fracture, grounded storms, hostile pressure waves, and concordant healing.
 
 The complete catalogue is in [`docs/interactions/action-catalogue.md`](docs/interactions/action-catalogue.md), and every possible pair is listed in [`docs/interactions/interaction-matrix.csv`](docs/interactions/interaction-matrix.csv). Every successful innate, crystal, grimoire, Shadow Sword, and Heavenly Partisan cast receives a signature-driven anticipation, release, impact, and aftermath ceremony in addition to its bespoke gameplay effects. Flame fractures, frost shards, storms fork, time spirals, space and soul tether, life roots, darkness eclipses, and light forms celestial crowns; the server chooses the matching authored sound and both signature colours. Ritual glyphs form on the ground beneath the caster, while vertical glyph, eclipse, and lightning sigils face each observer locally instead of becoming edge-on. Ceremony radius, density, motion, volume, and pitch intensify at rank depths 4 and 8, with another bounded step for Ancient Mastery. Client effects use eight authored particle sprites, 13 original mono Vorbis sounds, distance culling, reduced-motion geometry and velocity clamps, and hard client/server particle budgets.
 
@@ -320,6 +318,7 @@ Administrative commands:
 - `/powers testing energy on|off`
 - `/powers testing cooldowns on|off`
 - `/powers testing refill`
+- `/powers testing reset`
 - `/powers testing actor spawn [username]`
 
 Testing mode is operator-only and affects only its executor. `on` temporarily disables both energy limits and gameplay cooldowns; the narrower branches change one limit, `refill` restores energy and clears saved cooldowns, and `reset` returns both overrides to normal. It covers innate powers, spells, crystals, artifacts, runes and ongoing energy drains at their shared server-authoritative boundaries. It does not bypass amethyst, protection, permissions, damage, targeting, realm gates or Time Stop. The switches are session-only and clear on disconnect/server stop; run `/powers testing reset` before returning to ordinary survival testing. `/powers diagnose` includes the executor's current testing flags.
@@ -344,8 +343,6 @@ Important defaults:
 | `wardRadius` | `20` | Powered Amethyst Ward range |
 | `maxParticlesPerTick` | `512` | Server-wide effect budget |
 | `teleportMaxChunkDistance` | `8` | Maximum radius, in chunks, for the spectator marking phase around its target; coordinate-menu travel itself can asynchronously load any in-border destination |
-| `spaceTimeRadius` | `32` | Green Crystal freeze radius |
-| `chronoStopRadius` | `64` | Indigo Crystal chrono-stop radius |
 | `rankRespecExperienceLevels` | `30` | Rank-maze respec price |
 | `adminPermissionLevel` | `2` | Permission level required by administrative commands |
 | `livingForces.spreadingEnabled` | `true` | Enables random-tick Darkness and Pure Light conversion |
@@ -376,11 +373,12 @@ For troubleshooting, first run `/powers reload` and inspect the server log for a
 ## Building and verification
 
 ```bash
-export JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home
-./gradlew clean test runGameTest build
+export JAVA_HOME='/path/to/java-25/Contents/Home'
+./gradlew clean check build
+./gradlew runGameTest
 ```
 
-`check` includes strict validation of JSON, duplicate keys, PNG headers/alpha/dimensions, Ogg/Vorbis streams, particle and sound references, models, translations, namespace safety, dimension biomes, exhaustive interaction-document drift, every production Java source, all non-item assets, and intentionally absent crystal recipes. `runGameTest` boots a real Fabric server and exercises live Darkness spreading and tagged Darkness Creature targeting. The release JAR is written to `build/libs/`.
+`check` includes 579 deterministic JUnit cases plus strict validation of JSON, duplicate keys, PNG headers/alpha/dimensions, Ogg/Vorbis streams, particle and sound references, models, translations, namespace safety, dimension biomes, exhaustive interaction-document drift, every production Java source, all non-item assets, and intentionally absent crystal recipes. `runGameTest` boots a real Fabric server and runs 36 registered live tests covering critical combat, artifacts, travel, bodies, creatures, realm forces, progression, testing tools, and catastrophic magic. The release JAR is written to `build/libs/`.
 
 Automated tests validate rules, registries, resources, packet bounds, lifecycle cleanup, and dedicated-server behavior. A final manual playtest is still appropriate before deploying to a valuable multiplayer world, especially for subjective particle density, HUD scale at a player's chosen GUI scale, controls alongside other mods, and catastrophic terrain settings. Back up the world before enabling Celestial Ruin terrain damage or placing opposed living realm matter.
 

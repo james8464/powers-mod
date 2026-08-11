@@ -1,5 +1,7 @@
 # Playtest stabilisation checkpoint — 2026-08-10
 
+> Historical checkpoint: counts and open items below describe the intermediate 2026-08-10 tree. The authoritative final state is [`final-requirement-matrix.md`](final-requirement-matrix.md) and the 2026-08-11 release verification.
+
 Target: Minecraft Java Edition 26.2, Fabric Loader 0.19.3, Fabric API 0.156.0+26.2, Java 25
 
 This records the automated checkpoint after the 2026-08-09/10 playtest fixes. It does not replace the final hands-on client acceptance pass, particularly for custom-dimension crystal travel and subjective HUD/particle density.
