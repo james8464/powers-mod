@@ -1,5 +1,6 @@
 package com.powers.companion;
 
+import com.powers.PowersEntities;
 import com.powers.PowersSounds;
 import com.powers.fx.PowerFx;
 import com.powers.item.ArtifactWeaponManager;
@@ -10,21 +11,20 @@ import com.powers.magic.runtime.MagicLifecycleRules;
 import com.powers.network.CompanionPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
-import com.powers.power.state.PowerEntityState;
+import com.powers.util.LoadedChunks;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.decoration.Mannequin;
-import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,11 +34,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * Owns lightweight Shadow sessions without AI, equipment, persistence, or
- * chunk tickets. Hidden sessions render an owner-only client apparition;
- * revealed sessions replace it with one globally tracked mortal mannequin.
- */
+/** Owns one real Shadow body and its private-apparition presentation per eligible player. */
 public final class PrivateCompanionManager {
 	private static final AtomicLong NEXT_SESSION = new AtomicLong(1L);
 	private static final Set<UUID> REQUESTED = new HashSet<>();
@@ -48,21 +44,12 @@ public final class PrivateCompanionManager {
 
 	private static final class Session {
 		private final long id;
-		private String dimension;
-		private Vec3 position;
-		private float yaw;
-		private boolean revealed;
-		private Mannequin body;
-		private final Set<UUID> viewers = new HashSet<>();
-		private final Set<UUID> pendingTeleports = new HashSet<>();
-		private long viewerCursor;
+		private ShadowCompanionEntity body;
+		private final Set<UUID> apparitionViewers = new HashSet<>();
 
-		private Session(long id, String dimension, Vec3 position, float yaw, boolean revealed) {
+		private Session(long id, ShadowCompanionEntity body) {
 			this.id = id;
-			this.dimension = dimension;
-			this.position = position;
-			this.yaw = yaw;
-			this.revealed = revealed;
+			this.body = body;
 		}
 	}
 
@@ -70,54 +57,45 @@ public final class PrivateCompanionManager {
 	}
 
 	public static void tickPlayer(ServerPlayer player, int serverTick) {
-		UUID owner = player.getUUID();
+		UUID ownerId = player.getUUID();
 		if (!eligible(player)) {
-			REQUESTED.remove(owner);
-			REVEALED.remove(owner);
+			REQUESTED.remove(ownerId);
+			REVEALED.remove(ownerId);
 			despawn(player);
 			return;
 		}
-		if (!REQUESTED.contains(owner)) {
+		if (!REQUESTED.contains(ownerId)) {
 			despawn(player);
 			return;
 		}
+		ShadowCompanionData data = ShadowCompanionStore.get(player);
+		if (!ShadowManifestationRules.mayRecall(data, player.level().getGameTime())) return;
 
-		Session session = SESSIONS.get(owner);
+		Session session = SESSIONS.get(ownerId);
 		if (session == null) {
-			Vec3 position = desiredPosition(player);
-			session = new Session(NEXT_SESSION.getAndIncrement(), dimension(player),
-					position, player.getYRot(), REVEALED.contains(owner));
-			SESSIONS.put(owner, session);
-			syncViewers(player, session, true);
-			return;
+			ShadowCompanionEntity body = ensureBody(player, data);
+			if (body == null) return;
+			session = new Session(NEXT_SESSION.getAndIncrement(), body);
+			SESSIONS.put(ownerId, session);
 		}
 		if (!CompanionSyncRules.shouldUpdate(serverTick, session.id)) return;
-		if (session.revealed && (session.body == null || !session.body.isAlive()
-				|| session.body.isRemoved())) {
-			ServerLevel effectLevel = session.body != null
-					&& session.body.level() instanceof ServerLevel bodyLevel
-							? bodyLevel : (ServerLevel) player.level();
-			dismissBrokenBody(player, session, effectLevel,
+		if (session.body == null || !session.body.isAlive() || session.body.isRemoved()) {
+			dismissBrokenBody(player, session,
 					session.body == null ? player.position() : session.body.position());
 			return;
 		}
 
-		String dimension = dimension(player);
-		Vec3 desired = desiredPosition(player);
-		boolean teleport = !dimension.equals(session.dimension)
-				|| PrivateCompanionRules.shouldTeleport(session.position, desired);
-		if (teleport) {
-			session.position = desired;
-			session.dimension = dimension;
-		} else {
-			session.position = session.position.lerp(desired, 0.55);
-		}
-		session.yaw = player.getYRot();
-		session.revealed = REVEALED.contains(owner);
-		syncViewers(player, session, teleport);
+		boolean revealed = REVEALED.contains(ownerId);
+		if (session.body.revealed() != revealed) session.body.setRevealed(revealed);
+		ShadowCompanionEntity body = session.body;
+		ShadowCompanionStore.update(player, current -> current
+				.withEnergy(body.energy()).withRevealed(revealed)
+				.withBodyId(body.getUUID()).withStance(ShadowStance.FOLLOW));
+		boolean teleported = followOwner(player, session);
+		syncApparition(player, session, teleported);
 	}
 
-	/** Item/body/death eligibility is reconciled even when the global clock is frozen. */
+	/** Item/body/death eligibility is reconciled even while the global clock is frozen. */
 	public static void reconcileEligibility(ServerPlayer player) {
 		if (eligible(player)) return;
 		REQUESTED.remove(player.getUUID());
@@ -125,10 +103,7 @@ public final class PrivateCompanionManager {
 		despawn(player);
 	}
 
-	/**
-	 * Consumes an explicit Shadow address so it never appears as ordinary chat.
-	 * Returns false for all unrelated messages.
-	 */
+	/** Consumes explicit Shadow-addressed chat and leaves unrelated signed chat untouched. */
 	public static boolean handleChat(ServerPlayer owner, String rawMessage) {
 		ShadowChatIntent intent = ShadowChatIntent.parse(rawMessage);
 		if (!intent.addressed()) return false;
@@ -141,10 +116,7 @@ public final class PrivateCompanionManager {
 		switch (intent.action()) {
 			case EMPTY -> reply(owner, "Speak, and I will listen.");
 			case TOO_LONG -> reply(owner, "One thought at a time. Your question is too long.");
-			case SUMMON -> {
-				REQUESTED.add(owner.getUUID());
-				reply(owner, "I am beside you.");
-			}
+			case SUMMON -> summon(owner);
 			case DISMISS -> {
 				REQUESTED.remove(owner.getUUID());
 				REVEALED.remove(owner.getUUID());
@@ -177,14 +149,108 @@ public final class PrivateCompanionManager {
 	/** G-key compatibility: summon or dismiss without creating a chat message. */
 	public static void interact(ServerPlayer owner, long request) {
 		if (!eligible(owner)) return;
-		if (request == -1L) {
-			REQUESTED.add(owner.getUUID());
-			reply(owner, "I am beside you.");
-		} else if (request == -2L) {
+		if (request == -1L) summon(owner);
+		else if (request == -2L) {
 			REQUESTED.remove(owner.getUUID());
 			REVEALED.remove(owner.getUUID());
 			despawn(owner);
 			replyPrivate(owner, "I return to the blade.");
+		}
+	}
+
+	private static void summon(ServerPlayer owner) {
+		ShadowCompanionData data = ShadowCompanionStore.get(owner);
+		long now = owner.level().getGameTime();
+		if (!ShadowManifestationRules.mayRecall(data, now)) {
+			replyPrivate(owner, "The blade is still rebuilding what was broken.");
+			return;
+		}
+		REQUESTED.add(owner.getUUID());
+		if (data.revealed()) REVEALED.add(owner.getUUID());
+		reply(owner, "I am beside you.");
+	}
+
+	private static ShadowCompanionEntity ensureBody(ServerPlayer owner,
+			ShadowCompanionData data) {
+		ShadowCompanionEntity body = data.bodyUuid().flatMap(id -> findBody(owner, id)).orElse(null);
+		if (body == null) {
+			ServerLevel level = (ServerLevel) owner.level();
+			body = PowersEntities.SHADOW_COMPANION.create(level, EntitySpawnReason.TRIGGERED);
+			if (body == null) return null;
+			body.setPos(PrivateCompanionRules.followPoint(owner.position(), owner.getLookAngle()));
+			body.configure(owner, data.withRevealed(REVEALED.contains(owner.getUUID())));
+			if (!level.addFreshEntity(body)) return null;
+			manifestBody(level, body.position());
+		} else {
+			body.configure(owner, data.withRevealed(REVEALED.contains(owner.getUUID())));
+		}
+		BODY_OWNERS.put(body.getUUID(), owner.getUUID());
+		ShadowCompanionEntity resolved = body;
+		ShadowCompanionStore.update(owner, current -> current.withBodyId(resolved.getUUID())
+				.withStance(ShadowStance.FOLLOW));
+		return body;
+	}
+
+	private static Optional<ShadowCompanionEntity> findBody(ServerPlayer owner, UUID bodyId) {
+		for (ServerLevel level : owner.level().getServer().getAllLevels()) {
+			Entity entity = level.getEntity(bodyId);
+			if (entity instanceof ShadowCompanionEntity body
+					&& owner.getUUID().equals(body.ownerId()) && body.isAlive()) return Optional.of(body);
+		}
+		return Optional.empty();
+	}
+
+	private static boolean followOwner(ServerPlayer owner, Session session) {
+		ShadowCompanionEntity body = session.body;
+		Vec3 desired = PrivateCompanionRules.followPoint(owner.position(), owner.getLookAngle());
+		boolean changedDimension = body.level() != owner.level();
+		boolean tooFar = changedDimension || ShadowCompanionRules.shouldTeleport(
+				body.position().distanceToSqr(desired));
+		if (!tooFar) return false;
+		ServerLevel destinationLevel = (ServerLevel) owner.level();
+		BlockPos destinationBlock = BlockPos.containing(desired);
+		if (!LoadedChunks.contains(destinationLevel, destinationBlock)) return false;
+		AABB landing = body.getBoundingBox().move(desired.subtract(body.position()));
+		if (!destinationLevel.getWorldBorder().isWithinBounds(landing)
+				|| !destinationLevel.noBlockCollision(body, landing)) {
+			desired = owner.position();
+		}
+		if (changedDimension) {
+			Entity moved = body.teleport(new TeleportTransition(destinationLevel, desired, Vec3.ZERO,
+					owner.getYRot(), owner.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+			if (!(moved instanceof ShadowCompanionEntity movedShadow)) return false;
+			BODY_OWNERS.remove(body.getUUID());
+			session.body = movedShadow;
+			BODY_OWNERS.put(movedShadow.getUUID(), owner.getUUID());
+		} else {
+			body.setPos(desired);
+			body.setDeltaMovement(Vec3.ZERO);
+		}
+		return true;
+	}
+
+	private static void setRevealed(ServerPlayer owner, boolean revealed) {
+		Session session = SESSIONS.get(owner.getUUID());
+		if (session != null && session.body != null) {
+			ShadowManifestationRules.visibility(session.body.getUUID(),
+					session.body.revealed(), revealed);
+			session.body.setRevealed(revealed);
+			syncApparition(owner, session, true);
+		}
+		ShadowCompanionStore.update(owner, state -> state.withRevealed(revealed));
+	}
+
+	private static void syncApparition(ServerPlayer owner, Session session, boolean teleport) {
+		ShadowCompanionEntity body = session.body;
+		if (body == null) return;
+		if (body.revealed()) {
+			removeClientViewers(owner, session);
+			return;
+		}
+		if (CompanionPackets.sendState(owner, owner.getUUID(), session.id, true, teleport,
+				body.level().dimension().identifier().toString(), body.getX(), body.getY(), body.getZ(),
+				body.getYRot())) {
+			session.apparitionViewers.add(owner.getUUID());
 		}
 	}
 
@@ -199,87 +265,43 @@ public final class PrivateCompanionManager {
 
 	private static String spokenAnswer(KnowledgeAnswer answer) {
 		String text = answer.answer().strip();
-		if (!text.isEmpty()) return text;
-		return "That truth has not yet left a trace I can verify.";
+		return text.isEmpty() ? "That truth has not yet left a trace I can verify." : text;
 	}
 
-	private static void setRevealed(ServerPlayer owner, boolean revealed) {
-		Session session = SESSIONS.get(owner.getUUID());
-		if (session == null) return;
-		session.revealed = revealed;
-		syncViewers(owner, session, true);
-	}
-
-	private static void syncViewers(ServerPlayer owner, Session session, boolean teleport) {
-		List<ServerPlayer> desired = new ArrayList<>();
-		if (session.revealed) {
-			if (!ensureRevealedBody(owner, session)) {
-				dismissBrokenBody(owner, session, (ServerLevel) owner.level(), session.position);
-				return;
-			}
-			updateBodyTransform(session, teleport);
-		} else {
-			discardBody(session);
-			desired.add(owner);
+	/** Called by the common death hook; memories remain on the sword owner. */
+	public static boolean afterDeath(LivingEntity entity) {
+		if (!(entity instanceof ShadowCompanionEntity body)) return false;
+		UUID ownerId = BODY_OWNERS.getOrDefault(body.getUUID(), body.ownerId());
+		if (ownerId == null) return false;
+		if (MagicLifecycleRules.resolve(MagicLifecycleRules.Form.SHADOW_REVEALED,
+				MagicLifecycleRules.Source.SHADOW_SWORD,
+				MagicLifecycleRules.Event.AVATAR_FATAL).outcome()
+				!= MagicLifecycleRules.Outcome.DISMISS_SHADOW) return false;
+		BODY_OWNERS.remove(body.getUUID());
+		Session session = SESSIONS.remove(ownerId);
+		REQUESTED.remove(ownerId);
+		REVEALED.remove(ownerId);
+		ServerPlayer owner = entity.level().getServer().getPlayerList().getPlayer(ownerId);
+		if (owner != null) {
+			if (session != null) removeClientViewers(owner, session);
+			ShadowCompanionStore.set(owner, ShadowManifestationRules.afterDeath(
+					ShadowCompanionStore.get(owner), owner.level().getGameTime()));
+			collapse((ServerLevel) entity.level(), entity.position());
+			replyPrivate(owner, "This vessel is broken. Call me from the blade, and I will remember.");
 		}
-		Set<UUID> desiredIds = new HashSet<>();
-		for (ServerPlayer player : desired) desiredIds.add(player.getUUID());
-		if (teleport) session.pendingTeleports.addAll(session.viewers);
-		for (UUID previous : Set.copyOf(session.viewers)) {
-			if (desiredIds.contains(previous)) continue;
-			ServerPlayer recipient = owner.level().getServer().getPlayerList().getPlayer(previous);
-			if (recipient != null && recipient.connection != null) {
-				CompanionPackets.sendCriticalState(recipient, owner.getUUID(), session.id, false, true,
-						session.dimension, 0.0, 0.0, 0.0, 0.0F);
-			}
-			session.viewers.remove(previous);
-			session.pendingTeleports.remove(previous);
-		}
-		int allowance = Math.min(desired.size(),
-				CompanionSyncRules.viewerAllowance(SESSIONS.size()));
-		for (int offset = 0; offset < allowance; offset++) {
-			int index = CompanionSyncRules.rotatingIndex(session.viewerCursor + offset,
-					desired.size());
-			ServerPlayer recipient = desired.get(index);
-			UUID recipientId = recipient.getUUID();
-			boolean recipientTeleport = teleport
-					|| session.pendingTeleports.contains(recipientId)
-					|| !session.viewers.contains(recipientId);
-			if (CompanionPackets.sendState(recipient, owner.getUUID(), session.id, true,
-					recipientTeleport,
-					session.dimension, session.position.x, session.position.y,
-					session.position.z, session.yaw)) {
-				session.viewers.add(recipientId);
-				session.pendingTeleports.remove(recipientId);
-			}
-		}
-		session.viewerCursor += allowance;
-	}
-
-	private static boolean ensureRevealedBody(ServerPlayer owner, Session session) {
-		if (session.body != null && session.body.isAlive() && !session.body.isRemoved()
-				&& session.body.level() == owner.level()) return true;
-		discardBody(session);
-		ServerLevel level = (ServerLevel) owner.level();
-		Mannequin body = EntityTypes.MANNEQUIN.create(level, EntitySpawnReason.TRIGGERED);
-		if (body == null) return false;
-		body.setPos(session.position);
-		body.setYRot(session.yaw);
-		body.setYHeadRot(session.yaw);
-		body.setYBodyRot(session.yaw);
-		body.setNoGravity(true);
-		body.setSilent(true);
-		body.setInvulnerable(false);
-		body.setCustomName(Component.literal("Shadow of " + owner.getScoreboardName()));
-		body.setCustomNameVisible(false);
-		body.setComponent(DataComponents.PROFILE,
-				ResolvableProfile.createResolved(owner.getGameProfile()));
-		PowerEntityState.markEphemeral(body);
-		if (!level.addFreshEntity(body)) return false;
-		session.body = body;
-		BODY_OWNERS.put(body.getUUID(), owner.getUUID());
-		manifestBody(level, body.position());
 		return true;
+	}
+
+	private static void dismissBrokenBody(ServerPlayer owner, Session session, Vec3 position) {
+		REQUESTED.remove(owner.getUUID());
+		REVEALED.remove(owner.getUUID());
+		SESSIONS.remove(owner.getUUID(), session);
+		removeClientViewers(owner, session);
+		if (session.body != null) BODY_OWNERS.remove(session.body.getUUID());
+		ShadowCompanionStore.set(owner, ShadowManifestationRules.afterDeath(
+				ShadowCompanionStore.get(owner), owner.level().getGameTime()));
+		collapse((ServerLevel) owner.level(), position);
+		replyPrivate(owner, "This vessel is broken. Call me from the blade, and I will remember.");
 	}
 
 	private static void manifestBody(ServerLevel level, Vec3 position) {
@@ -288,77 +310,22 @@ public final class PrivateCompanionManager {
 				ParticleTypes.REVERSE_PORTAL, 18, 0.55, 0.02);
 	}
 
-	private static void updateBodyTransform(Session session, boolean teleport) {
-		Mannequin body = session.body;
-		if (body == null) return;
-		Vec3 previous = body.position();
-		Vec3 next = teleport ? session.position : previous.lerp(session.position, 0.55);
-		body.setDeltaMovement(next.subtract(previous));
-		body.setPos(next);
-		body.setYRot(session.yaw);
-		body.setYHeadRot(session.yaw);
-		body.setYBodyRot(session.yaw);
-		body.setNoGravity(true);
-	}
-
-	private static void discardBody(Session session) {
-		Mannequin body = session.body;
-		if (body == null) return;
-		BODY_OWNERS.remove(body.getUUID());
-		if (!body.isRemoved()) body.discard();
-		session.body = null;
-	}
-
-	/** Called by the common death hook; memories remain keyed to the sword owner. */
-	public static boolean afterDeath(LivingEntity entity) {
-		UUID ownerId = entity == null ? null : BODY_OWNERS.get(entity.getUUID());
-		if (ownerId == null) return false;
-		if (MagicLifecycleRules.resolve(MagicLifecycleRules.Form.SHADOW_REVEALED,
-				MagicLifecycleRules.Source.SHADOW_SWORD,
-				MagicLifecycleRules.Event.AVATAR_FATAL).outcome()
-				!= MagicLifecycleRules.Outcome.DISMISS_SHADOW) return false;
-		Session session = SESSIONS.get(ownerId);
-		if (session == null || session.body != entity) {
-			BODY_OWNERS.remove(entity.getUUID(), ownerId);
-			return false;
-		}
-		BODY_OWNERS.remove(entity.getUUID(), ownerId);
-		ServerPlayer owner = entity.level().getServer().getPlayerList().getPlayer(ownerId);
-		if (owner != null) dismissBrokenBody(owner, session,
-				(ServerLevel) entity.level(), entity.position());
-		else {
-			session.body = null;
-			SESSIONS.remove(ownerId);
-			REQUESTED.remove(ownerId);
-			REVEALED.remove(ownerId);
-		}
-		return true;
-	}
-
-	private static void dismissBrokenBody(ServerPlayer owner, Session session,
-			ServerLevel effectLevel, Vec3 position) {
-		REQUESTED.remove(owner.getUUID());
-		REVEALED.remove(owner.getUUID());
-		SESSIONS.remove(owner.getUUID(), session);
-		removeClientViewers(owner, session);
-		discardBody(session);
-		PowerFx.rune(effectLevel, position, 1.4, 0x55265F, 24, Math.PI);
-		PowerFx.burst(effectLevel, position.add(0.0, 0.9, 0.0),
+	private static void collapse(ServerLevel level, Vec3 position) {
+		PowerFx.rune(level, position, 1.4, 0x55265F, 24, Math.PI);
+		PowerFx.burst(level, position.add(0.0, 0.9, 0.0),
 				ParticleTypes.REVERSE_PORTAL, 26, 0.7, 0.03);
-		PowerFx.sound(effectLevel, position, PowersSounds.DARK_WHISPER, 1.1F, 0.55F);
-		replyPrivate(owner, "This vessel is broken. Call me from the blade, and I will remember.");
+		PowerFx.sound(level, position, PowersSounds.DARK_WHISPER, 1.1F, 0.55F);
 	}
 
 	private static void removeClientViewers(ServerPlayer owner, Session session) {
-		for (UUID viewer : Set.copyOf(session.viewers)) {
+		for (UUID viewer : Set.copyOf(session.apparitionViewers)) {
 			ServerPlayer recipient = owner.level().getServer().getPlayerList().getPlayer(viewer);
 			if (recipient != null && recipient.connection != null) {
 				CompanionPackets.sendCriticalState(recipient, owner.getUUID(), session.id, false, true,
-						session.dimension, 0.0, 0.0, 0.0, 0.0F);
+						owner.level().dimension().identifier().toString(), 0.0, 0.0, 0.0, 0.0F);
 			}
 		}
-		session.viewers.clear();
-		session.pendingTeleports.clear();
+		session.apparitionViewers.clear();
 	}
 
 	private static void reply(ServerPlayer owner, String line) {
@@ -390,32 +357,28 @@ public final class PrivateCompanionManager {
 				PlayerPowers.get(player).mindBody() != null, true);
 	}
 
-	private static Vec3 desiredPosition(ServerPlayer player) {
-		return PrivateCompanionRules.followPoint(player.position(), player.getLookAngle());
-	}
-
-	private static String dimension(ServerPlayer player) {
-		return player.level().dimension().identifier().toString();
-	}
-
 	/** Bounded diagnostics for GameTests and {@code /powers diagnose}. */
 	public static int activeSessionCount() {
 		return SESSIONS.size();
 	}
 
-	/** Number of mortal, globally tracked Shadow bodies (hidden sessions add none). */
 	public static int activeRevealedBodyCount() {
-		return BODY_OWNERS.size();
+		return (int) SESSIONS.values().stream().filter(session -> session.body != null
+				&& session.body.isAlive() && session.body.revealed()).count();
 	}
 
-	/** Stable world-entity identity for diagnostics and live verification. */
-	public static Optional<UUID> revealedBodyId(UUID owner) {
+	public static Optional<UUID> bodyId(UUID owner) {
 		Session session = SESSIONS.get(owner);
 		return session == null || session.body == null ? Optional.empty()
 				: Optional.of(session.body.getUUID());
 	}
 
-	/** Returns the current server-authoritative global visibility state. */
+	public static Optional<UUID> revealedBodyId(UUID owner) {
+		Session session = SESSIONS.get(owner);
+		return session == null || session.body == null || !session.body.revealed()
+				? Optional.empty() : Optional.of(session.body.getUUID());
+	}
+
 	public static boolean isRevealed(UUID owner) {
 		return REVEALED.contains(owner);
 	}
@@ -430,13 +393,23 @@ public final class PrivateCompanionManager {
 
 	private static void despawn(ServerPlayer owner) {
 		Session removed = SESSIONS.remove(owner.getUUID());
-		if (removed == null) return;
+		if (removed == null) {
+			ShadowCompanionStore.clearBody(owner);
+			return;
+		}
 		removeClientViewers(owner, removed);
-		discardBody(removed);
+		if (removed.body != null) {
+			BODY_OWNERS.remove(removed.body.getUUID());
+			ShadowCompanionStore.update(owner, state -> state.withEnergy(removed.body.energy())
+					.withRevealed(false).withoutBody());
+			if (!removed.body.isRemoved()) removed.body.discard();
+		}
 	}
 
 	public static void clear() {
-		for (Session session : List.copyOf(SESSIONS.values())) discardBody(session);
+		for (Session session : List.copyOf(SESSIONS.values())) {
+			if (session.body != null && !session.body.isRemoved()) session.body.discard();
+		}
 		REQUESTED.clear();
 		REVEALED.clear();
 		SESSIONS.clear();

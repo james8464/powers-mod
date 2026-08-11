@@ -16,6 +16,7 @@ import com.powers.entity.FirstVessel;
 import com.powers.entity.PowerTestActor;
 import com.powers.entity.TestActorPowerState;
 import com.powers.entity.RealmHerald;
+import com.powers.companion.ShadowCompanionEntity;
 import com.powers.boss.FirstVesselPowerCatalogue;
 import com.powers.boss.FirstVesselRitual;
 import com.powers.item.artifact.ArtifactAlignment;
@@ -182,7 +183,7 @@ public final class PowersGameTests {
 		helper.succeed();
 	}
 
-	@GameTest
+	@GameTest(maxTicks = 180)
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void shadowChatOwnsVisibilityAndFormerBookKnowledge(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
@@ -210,11 +211,19 @@ public final class PowersGameTests {
 			helper.assertTrue(bodyId.isPresent(),
 					"Revealed Shadow diagnostic count had no body identity");
 			var worldBody = helper.getLevel().getEntity(bodyId.orElseThrow());
-			helper.assertTrue(worldBody instanceof Mannequin,
+			helper.assertTrue(worldBody instanceof ShadowCompanionEntity,
 					"Revealed Shadow body identity was absent from the live world");
-			Mannequin body = (Mannequin) worldBody;
+			ShadowCompanionEntity body = (ShadowCompanionEntity) worldBody;
 			helper.assertTrue(body.getMainHandItem().isEmpty() && body.getOffhandItem().isEmpty(),
 					"Shadow copied equipment despite owning only the user's skin");
+			PrivateCompanionManager.handleChat(player, "shadow, hide yourself");
+			helper.assertTrue(PrivateCompanionManager.bodyId(player.getUUID()).orElseThrow()
+					.equals(body.getUUID()), "Hiding Shadow replaced its authoritative body");
+			helper.assertTrue(body.isInvisible() && body.isInvulnerable(),
+					"Hidden Shadow remained externally visible or vulnerable");
+			PrivateCompanionManager.handleChat(player, "shadow, reveal yourself");
+			helper.assertTrue(PrivateCompanionManager.bodyId(player.getUUID()).orElseThrow()
+					.equals(body.getUUID()), "Revealing Shadow replaced its authoritative body");
 			helper.assertTrue(body.hurtServer(helper.getLevel(), body.damageSources().generic(), 10_000.0F),
 					"Revealed Shadow body could not be killed");
 			helper.assertTrue(PrivateCompanionManager.activeSessionCount() == 0
@@ -223,21 +232,23 @@ public final class PowersGameTests {
 			var remembered = KnowledgeService.answer(player, "Shadow, why did my fireball fail?");
 			helper.assertTrue(remembered.answer().contains("required 40 energy"),
 					"Shadow death erased player-keyed magic memories");
-			PrivateCompanionManager.handleChat(player, "shadow, reveal yourself");
-			PrivateCompanionManager.tickPlayer(player, 20);
-			helper.assertTrue(PrivateCompanionManager.activeRevealedBodyCount() == 1,
-					"Shadow Sword could not manifest a new remembered body");
-			PrivateCompanionManager.handleChat(player, "shadow, hide yourself");
-			helper.assertFalse(PrivateCompanionManager.isRevealed(player.getUUID())
-					|| PrivateCompanionManager.activeRevealedBodyCount() != 0,
-					"Hide command left the global mortal body visible");
-			PrivateCompanionManager.handleChat(player, "shadow, leave me");
-			helper.assertTrue(PrivateCompanionManager.activeSessionCount() == 0,
-					"Dismiss command leaked a Shadow session");
-			helper.assertFalse(PrivateCompanionManager.handleChat(player, "ordinary chat"),
-					"Unrelated signed chat was intercepted");
-			PrivateCompanionManager.clear();
-			helper.succeed();
+			helper.runAfterDelay(102, () -> {
+				PrivateCompanionManager.handleChat(player, "shadow, reveal yourself");
+				PrivateCompanionManager.tickPlayer(player, 120);
+				helper.assertTrue(PrivateCompanionManager.activeRevealedBodyCount() == 1,
+						"Shadow Sword could not manifest a new remembered body after its delay");
+				PrivateCompanionManager.handleChat(player, "shadow, hide yourself");
+				helper.assertFalse(PrivateCompanionManager.isRevealed(player.getUUID())
+						|| PrivateCompanionManager.activeRevealedBodyCount() != 0,
+						"Hide command left the global mortal body visible");
+				PrivateCompanionManager.handleChat(player, "shadow, leave me");
+				helper.assertTrue(PrivateCompanionManager.activeSessionCount() == 0,
+						"Dismiss command leaked a Shadow session");
+				helper.assertFalse(PrivateCompanionManager.handleChat(player, "ordinary chat"),
+						"Unrelated signed chat was intercepted");
+				PrivateCompanionManager.clear();
+				helper.succeed();
+			});
 		});
 	}
 
