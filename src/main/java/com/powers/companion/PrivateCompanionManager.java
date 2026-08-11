@@ -11,9 +11,12 @@ import com.powers.magic.runtime.MagicLifecycleRules;
 import com.powers.network.CompanionPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
+import com.powers.power.Power;
+import com.powers.power.PowerRegistry;
 import com.powers.util.LoadedChunks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -41,11 +44,14 @@ public final class PrivateCompanionManager {
 	private static final Set<UUID> REVEALED = new HashSet<>();
 	private static final Map<UUID, Session> SESSIONS = new HashMap<>();
 	private static final Map<UUID, UUID> BODY_OWNERS = new HashMap<>();
+	private static final ShadowDialogueEngine DIALOGUE = new ShadowDialogueEngine();
+	private static volatile ShadowNameResolver nameResolver;
 
 	private static final class Session {
 		private final long id;
 		private ShadowCompanionEntity body;
 		private final Set<UUID> apparitionViewers = new HashSet<>();
+		private final ShadowTaskController tasks = new ShadowTaskController();
 
 		private Session(long id, ShadowCompanionEntity body) {
 			this.id = id;
@@ -90,8 +96,14 @@ public final class PrivateCompanionManager {
 		ShadowCompanionEntity body = session.body;
 		ShadowCompanionStore.update(player, current -> current
 				.withEnergy(body.energy()).withRevealed(revealed)
-				.withBodyId(body.getUUID()).withStance(ShadowStance.FOLLOW));
-		boolean teleported = followOwner(player, session);
+				.withBodyId(body.getUUID()));
+		ShadowTask.Result taskState = session.tasks.tick(player.level().getGameTime());
+		if (taskState.state() == ShadowTask.State.FAILED) {
+			rememberFailure(player, taskState.reason());
+			replyAndRemember(player, "", DIALOGUE.failure(taskState.reason()));
+		}
+		boolean teleported = ShadowCompanionStore.get(player).stance() == ShadowStance.FOLLOW
+				&& followOwner(player, session);
 		syncApparition(player, session, teleported);
 	}
 
@@ -105,17 +117,19 @@ public final class PrivateCompanionManager {
 
 	/** Consumes explicit Shadow-addressed chat and leaves unrelated signed chat untouched. */
 	public static boolean handleChat(ServerPlayer owner, String rawMessage) {
-		ShadowChatIntent intent = ShadowChatIntent.parse(rawMessage);
-		if (!intent.addressed()) return false;
+		ShadowCompanionData stored = ShadowCompanionStore.get(owner);
+		ShadowRequest request = ShadowRequestParser.parse(rawMessage, stored.memory(), names());
+		if (!request.addressed()) return false;
 		if (!eligible(owner)) {
 			owner.sendSystemMessage(Component.literal(
 					"Shadow is silent. Darkness and the Shadow Sword must both recognise you.")
 					.withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
 			return true;
 		}
-		switch (intent.action()) {
-			case EMPTY -> reply(owner, "Speak, and I will listen.");
-			case TOO_LONG -> reply(owner, "One thought at a time. Your question is too long.");
+		if (REVEALED.contains(owner.getUUID())) broadcastAddress(owner, request.original());
+		switch (request.kind()) {
+			case EMPTY -> replyAndRemember(owner, request.original(), "Speak, and I will listen.");
+			case TOO_LONG -> replyAndRemember(owner, "", "One thought at a time. Your request is too long.");
 			case SUMMON -> summon(owner);
 			case DISMISS -> {
 				REQUESTED.remove(owner.getUUID());
@@ -135,15 +149,63 @@ public final class PrivateCompanionManager {
 				setRevealed(owner, false);
 				replyPrivate(owner, "Only you may see or hear me now.");
 			}
-			case QUESTION -> {
+			case FOLLOW -> setStance(owner, ShadowStance.FOLLOW, request);
+			case STAY -> setStance(owner, ShadowStance.STAY, request);
+			case GUARD -> setStance(owner, ShadowStance.GUARD, request);
+			case STOP -> stop(owner, request);
+			case CLARIFY -> replyAndRemember(owner, request.original(), DIALOGUE.clarification(request));
+			case DIAGNOSE, CONVERSE -> {
 				REQUESTED.add(owner.getUUID());
-				answer(owner, intent.message());
+				answer(owner, request.original());
 			}
+			case ATTACK, DEFEND, USE_POWER, STOP_POWER, GET_ITEM, CONJURE_ITEM, SCOUT,
+					RANGE_PREFERENCE -> submit(owner, request);
 			case NONE -> {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	private static void setStance(ServerPlayer owner, ShadowStance stance, ShadowRequest request) {
+		REQUESTED.add(owner.getUUID());
+		ShadowCompanionStore.update(owner, state -> state.withStance(stance));
+		replyAndRemember(owner, request.original(), DIALOGUE.accepted(request));
+	}
+
+	private static void stop(ServerPlayer owner, ShadowRequest request) {
+		Session session = SESSIONS.get(owner.getUUID());
+		if (session != null) session.tasks.cancel("owner_stop");
+		ShadowCompanionStore.update(owner, state -> state.withStance(ShadowStance.FOLLOW));
+		replyAndRemember(owner, request.original(), DIALOGUE.accepted(request));
+	}
+
+	private static void submit(ServerPlayer owner, ShadowRequest request) {
+		REQUESTED.add(owner.getUUID());
+		Session session = SESSIONS.get(owner.getUUID());
+		if (session == null) {
+			replyAndRemember(owner, request.original(), "Manifest me first; a command needs a body.");
+			return;
+		}
+		long now = owner.level().getGameTime();
+		ShadowTask task = ShadowTask.create(request.kind(), request.subject(), request.count(),
+				now, now + taskLifetime(request.kind()), 0);
+		ShadowTask.Result result = session.tasks.submit(task);
+		if (!result.accepted()) {
+			replyAndRemember(owner, request.original(), DIALOGUE.failure(result.reason()));
+			return;
+		}
+		ShadowCompanionStore.update(owner, state -> state.withStance(ShadowStance.TASK)
+				.withMemory(rememberReferent(state.memory(), request)));
+		replyAndRemember(owner, request.original(), DIALOGUE.accepted(request));
+	}
+
+	private static long taskLifetime(ShadowRequest.Kind kind) {
+		return switch (kind) {
+			case ATTACK, DEFEND -> 20L * 60L * 5L;
+			case SCOUT, GET_ITEM -> 20L * 60L;
+			default -> 20L * 20L;
+		};
 	}
 
 	/** G-key compatibility: summon or dismiss without creating a chat message. */
@@ -259,8 +321,32 @@ public final class PrivateCompanionManager {
 				owner.level().getServer().execute(() -> {
 					if (owner.connection == null || owner.isRemoved()
 							|| !REQUESTED.contains(owner.getUUID())) return;
-					reply(owner, spokenAnswer(answer));
+					replyAndRemember(owner, question, spokenAnswer(answer));
 				}));
+	}
+
+	private static void rememberFailure(ServerPlayer owner, String reason) {
+		ShadowCompanionStore.update(owner, state -> state.withMemory(
+				state.memory().rememberFailure(reason)));
+	}
+
+	private static void replyAndRemember(ServerPlayer owner, String request, String line) {
+		ShadowCompanionStore.update(owner, state -> state.withMemory(
+				state.memory().remember(request, line)));
+		reply(owner, line);
+	}
+
+	private static ShadowConversationMemory rememberReferent(
+			ShadowConversationMemory memory, ShadowRequest request) {
+		ShadowConversationMemory.ReferentType type = switch (request.kind()) {
+			case ATTACK, DEFEND -> ShadowConversationMemory.ReferentType.ENTITY;
+			case USE_POWER, STOP_POWER -> ShadowConversationMemory.ReferentType.POWER;
+			case GET_ITEM, CONJURE_ITEM -> ShadowConversationMemory.ReferentType.ITEM;
+			default -> ShadowConversationMemory.ReferentType.TASK;
+		};
+		return memory.rememberReferent(type, request.subject())
+				.rememberReferent(ShadowConversationMemory.ReferentType.TASK,
+						request.kind().name().toLowerCase());
 	}
 
 	private static String spokenAnswer(KnowledgeAnswer answer) {
@@ -349,6 +435,32 @@ public final class PrivateCompanionManager {
 				Component.literal(line).withStyle(ChatFormatting.GRAY)));
 	}
 
+	private static void broadcastAddress(ServerPlayer owner, String line) {
+		Component message = Component.literal("<" + owner.getScoreboardName() + "> shadow, " + line)
+				.withStyle(ChatFormatting.GRAY);
+		owner.level().getServer().getPlayerList().broadcastSystemMessage(message, false);
+	}
+
+	private static ShadowNameResolver names() {
+		ShadowNameResolver cached = nameResolver;
+		if (cached != null) return cached;
+		Map<String, String> powers = new HashMap<>();
+		for (Power power : PowerRegistry.getAll()) {
+			String id = power.id().toString();
+			powers.put(id, id);
+			powers.put(power.id().getPath().replace('_', ' '), id);
+			powers.putIfAbsent(power.name().getString(), id);
+		}
+		Map<String, String> items = new HashMap<>();
+		BuiltInRegistries.ITEM.keySet().forEach(id -> {
+			items.put(id.toString(), id.toString());
+			items.putIfAbsent(id.getPath().replace('_', ' '), id.toString());
+		});
+		cached = ShadowNameResolver.from(powers, items);
+		nameResolver = cached;
+		return cached;
+	}
+
 	private static boolean eligible(ServerPlayer player) {
 		return PrivateCompanionRules.eligible(
 				SkillSystem.hasDarknessTag(player),
@@ -371,6 +483,12 @@ public final class PrivateCompanionManager {
 		Session session = SESSIONS.get(owner);
 		return session == null || session.body == null ? Optional.empty()
 				: Optional.of(session.body.getUUID());
+	}
+
+	public static Optional<ShadowCompanionEntity> body(UUID owner) {
+		Session session = SESSIONS.get(owner);
+		return session == null || session.body == null ? Optional.empty()
+				: Optional.of(session.body);
 	}
 
 	public static Optional<UUID> revealedBodyId(UUID owner) {
@@ -414,6 +532,7 @@ public final class PrivateCompanionManager {
 		REVEALED.clear();
 		SESSIONS.clear();
 		BODY_OWNERS.clear();
+		nameResolver = null;
 		com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
 		com.powers.knowledge.MagicAttemptJournal.global().clear();
 	}

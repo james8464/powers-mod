@@ -8,8 +8,8 @@ import java.util.UUID;
 
 /** Small owner-keyed save record; runtime entity references never enter it. */
 public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance stance,
-		boolean revealed, String bodyId, long recallReadyAt) {
-	public static final int CURRENT_SCHEMA_VERSION = 1;
+		boolean revealed, String bodyId, long recallReadyAt, ShadowConversationMemory memory) {
+	public static final int CURRENT_SCHEMA_VERSION = 2;
 	public static final Codec<ShadowCompanionData> CODEC = RecordCodecBuilder.create(instance ->
 			instance.group(
 					Codec.INT.optionalFieldOf("schema", CURRENT_SCHEMA_VERSION)
@@ -23,7 +23,9 @@ public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance st
 					Codec.STRING.optionalFieldOf("body_id", "")
 							.forGetter(ShadowCompanionData::bodyId),
 					Codec.LONG.optionalFieldOf("recall_ready_at", 0L)
-							.forGetter(ShadowCompanionData::recallReadyAt))
+							.forGetter(ShadowCompanionData::recallReadyAt),
+					ShadowConversationMemory.CODEC.optionalFieldOf("memory",
+							ShadowConversationMemory.empty()).forGetter(ShadowCompanionData::memory))
 					.apply(instance, ShadowCompanionData::new));
 
 	public ShadowCompanionData {
@@ -32,11 +34,12 @@ public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance st
 		stance = stance == null ? ShadowStance.FOLLOW : stance;
 		bodyId = sanitizeUuid(bodyId);
 		recallReadyAt = Math.max(0L, recallReadyAt);
+		memory = memory == null ? ShadowConversationMemory.empty() : memory;
 	}
 
 	public static ShadowCompanionData defaults() {
 		return new ShadowCompanionData(CURRENT_SCHEMA_VERSION, ShadowCompanionRules.MAX_ENERGY,
-				ShadowStance.FOLLOW, false, "", 0L);
+				ShadowStance.FOLLOW, false, "", 0L, ShadowConversationMemory.empty());
 	}
 
 	public Optional<UUID> bodyUuid() {
@@ -45,20 +48,20 @@ public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance st
 	}
 
 	public ShadowCompanionData withEnergy(int value) {
-		return new ShadowCompanionData(schemaVersion, value, stance, revealed, bodyId, recallReadyAt);
+		return new ShadowCompanionData(schemaVersion, value, stance, revealed, bodyId, recallReadyAt, memory);
 	}
 
 	public ShadowCompanionData withStance(ShadowStance value) {
-		return new ShadowCompanionData(schemaVersion, energy, value, revealed, bodyId, recallReadyAt);
+		return new ShadowCompanionData(schemaVersion, energy, value, revealed, bodyId, recallReadyAt, memory);
 	}
 
 	public ShadowCompanionData withRevealed(boolean value) {
-		return new ShadowCompanionData(schemaVersion, energy, stance, value, bodyId, recallReadyAt);
+		return new ShadowCompanionData(schemaVersion, energy, stance, value, bodyId, recallReadyAt, memory);
 	}
 
 	public ShadowCompanionData withBodyId(UUID value) {
 		return new ShadowCompanionData(schemaVersion, energy, stance, revealed,
-				value == null ? "" : value.toString(), recallReadyAt);
+				value == null ? "" : value.toString(), recallReadyAt, memory);
 	}
 
 	public ShadowCompanionData withoutBody() {
@@ -66,7 +69,12 @@ public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance st
 	}
 
 	public ShadowCompanionData withRecallReadyAt(long value) {
-		return new ShadowCompanionData(schemaVersion, energy, stance, revealed, bodyId, value);
+		return new ShadowCompanionData(schemaVersion, energy, stance, revealed, bodyId, value, memory);
+	}
+
+	public ShadowCompanionData withMemory(ShadowConversationMemory value) {
+		return new ShadowCompanionData(schemaVersion, energy, stance, revealed, bodyId,
+				recallReadyAt, value);
 	}
 
 	private static String sanitizeUuid(String value) {
