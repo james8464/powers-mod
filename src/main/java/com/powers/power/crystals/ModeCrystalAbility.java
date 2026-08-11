@@ -56,8 +56,8 @@ public final class ModeCrystalAbility extends Ability {
 				com.powers.network.CrystalSelectorPackets.open(player, this);
 				return true;
 			}
-			int nextIndex = (PlayerPowers.get(player).selectedCrystalMode(crystalPath, modes.size()) + 1)
-					% modes.size();
+			int nextIndex = CrystalModeState.advance(
+					PlayerPowers.get(player).selectedCrystalMode(crystalPath, modes.size()), modes.size());
 			PlayerPowers.get(player).setSelectedCrystalMode(crystalPath, nextIndex);
 			Ability next = modes.get(nextIndex);
 			PowerMessages.overlay(player,

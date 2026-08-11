@@ -99,8 +99,9 @@ public final class PlayerPowers {
 
 		public int selectedCrystalMode(String crystalKey, int modeCount) {
 			if (modeCount <= 0) return 0;
-			return Math.floorMod(target.getAttachedOrElse(CRYSTAL_SELECTIONS, Map.of())
-					.getOrDefault(crystalKey, 0), modeCount);
+			return com.powers.power.crystals.CrystalModeState.current(
+					target.getAttachedOrElse(CRYSTAL_SELECTIONS, Map.of())
+							.getOrDefault(crystalKey, 0), modeCount);
 		}
 
 		public void setSelectedCrystalMode(String crystalKey, int selected) {

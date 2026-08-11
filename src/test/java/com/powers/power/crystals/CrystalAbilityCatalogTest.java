@@ -27,15 +27,12 @@ class CrystalAbilityCatalogTest {
 	}
 
 	@Test
-	void modeStateStartsAtFirstChoiceWrapsAndCanBeForgotten() {
-		CrystalModeState state = new CrystalModeState();
-		var player = java.util.UUID.randomUUID();
-		assertEquals(0, state.current(player, 3));
-		assertEquals(1, state.advance(player, 3));
-		assertEquals(2, state.advance(player, 3));
-		assertEquals(0, state.advance(player, 3));
-		state.clear(player);
-		assertEquals(0, state.current(player, 3));
+	void persistedModeValuesNormalizeAndWrap() {
+		assertEquals(0, CrystalModeState.current(0, 3));
+		assertEquals(2, CrystalModeState.current(-1, 3));
+		assertEquals(1, CrystalModeState.advance(0, 3));
+		assertEquals(2, CrystalModeState.advance(1, 3));
+		assertEquals(0, CrystalModeState.advance(2, 3));
 	}
 
 	@Test
