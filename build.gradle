@@ -119,6 +119,18 @@ tasks.register("verifyMagicDocs", JavaExec) {
 	args projectDir.absolutePath, "--check"
 }
 
+tasks.register("verifyItemDocs", Exec) {
+	group = "verification"
+	description = "Rejects stale generated item and acquisition documentation."
+	commandLine "python3", "scripts/generate_item_docs.py", "--check"
+}
+
+tasks.register("testPythonScripts", Exec) {
+	group = "verification"
+	description = "Runs deterministic generator and resource-validator fixture tests."
+	commandLine "python3", "-B", "-m", "unittest", "discover", "-s", "scripts/tests", "-p", "test_*.py"
+}
+
 tasks.named("runGameTest") {
 	doFirst {
 		def gameTestRun = layout.buildDirectory.dir("run/gameTest").get().asFile
@@ -144,6 +156,8 @@ tasks.named("check") {
 	dependsOn("auditJavaSources")
 	dependsOn("auditNonItemAssets")
 	dependsOn("verifyMagicDocs")
+	dependsOn("verifyItemDocs")
+	dependsOn("testPythonScripts")
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -187,6 +201,17 @@ tasks.register("verifyScreenshots", Test) {
 		includeTestsMatching "com.powers.client.visual.*"
 		includeTestsMatching "com.powers.hud.HudLayoutTest"
 		includeTestsMatching "com.powers.hud.HudMathTest"
+	}
+}
+
+tasks.register("syntheticSoak", Test) {
+	description = "Runs the separately attributed deterministic multiplayer budget soak."
+	group = "verification"
+	useJUnitPlatform()
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+	filter {
+		includeTestsMatching "com.powers.performance.SyntheticMultiplayerSoakTest"
 	}
 }
 

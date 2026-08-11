@@ -27,10 +27,22 @@ class ReleasePipelineContractTest {
 		for (String command : new String[] {
 				"./gradlew clean check", "./test.sh gametest", "server_smoke.py",
 				"saveMigrationCorpus", "pitest", "validatePowerResources",
-				"verifyMagicDocs", "verifyScreenshots"
+				"verifyMagicDocs", "verifyItemDocs", "verifyScreenshots",
+				"./gradlew syntheticSoak", "git diff --exit-code"
 		}) {
 			assertTrue(workflow.contains(command), () -> "Missing CI lane: " + command);
 		}
+		assertTrue(workflow.contains("synthetic-soak:"));
+		assertTrue(workflow.contains("POWERS_TEST_RUN_ID=synthetic-soak"));
+	}
+
+	@Test
+	void syntheticSoakHasASeparatelyAttributedGradleTask() throws IOException {
+		String build = Files.readString(ROOT.resolve("build.gradle"));
+		assertTrue(build.contains("tasks.register(\"syntheticSoak\", Test)"));
+		assertTrue(build.contains("com.powers.performance.SyntheticMultiplayerSoakTest"));
+		assertTrue(build.contains("tasks.register(\"testPythonScripts\", Exec)"));
+		assertTrue(build.contains("\"-m\", \"unittest\""));
 	}
 
 	@Test

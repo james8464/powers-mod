@@ -1,0 +1,6 @@
+{
+  "pools": [{"rolls": 1, "entries": [
+    {"type": "minecraft:loot_table", "name": "powers:chests/b"},
+    {"type": "minecraft:loot_table", "name": "powers:chests/missing"}
+  ]}]
+}

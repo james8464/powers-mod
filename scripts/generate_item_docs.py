@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Generate the exhaustive purpose/acquisition catalogue from registry sources."""
 
+import argparse
 import json
 import re
+import sys
 from pathlib import Path
 
 
@@ -150,11 +152,22 @@ This generated table names every registered gameplay item family, including hidd
 """ + "\n".join(rows) + "\n"
 
 
-def main() -> None:
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--check", action="store_true")
+    args = parser.parse_args()
     target = ROOT / "docs/gameplay/item-catalogue.md"
+    expected = render()
+    if args.check:
+        actual = target.read_text(encoding="utf-8") if target.exists() else None
+        if actual != expected:
+            print(f"Generated item documentation is stale: {target}", file=sys.stderr)
+            return 1
+        return 0
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(render(), encoding="utf-8")
+    target.write_text(expected, encoding="utf-8")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

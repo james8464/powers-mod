@@ -89,6 +89,185 @@ def walk_strings(value):
             yield from walk_strings(child)
 
 
+def namespaced_id(path: Path, base: Path) -> str:
+    return "powers:" + path.relative_to(base).with_suffix("").as_posix()
+
+
+def graph_cycles(graph: dict[str, set[str]], label: str) -> list[str]:
+    errors: list[str] = []
+    state: dict[str, int] = {}
+    stack: list[str] = []
+    reported: set[frozenset[str]] = set()
+
+    def visit(node: str) -> None:
+        state[node] = 1
+        stack.append(node)
+        for target in sorted(graph.get(node, ())):
+            if target not in graph:
+                continue
+            if state.get(target, 0) == 0:
+                visit(target)
+            elif state.get(target) == 1:
+                start = stack.index(target)
+                cycle = stack[start:] + [target]
+                identity = frozenset(cycle[:-1])
+                if identity not in reported:
+                    reported.add(identity)
+                    errors.append(f"{label} cycle: {' -> '.join(cycle)}")
+        stack.pop()
+        state[node] = 2
+
+    for node in sorted(graph):
+        if state.get(node, 0) == 0:
+            visit(node)
+    return errors
+
+
+def ingredient_tokens(value):
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, list):
+        for child in value:
+            yield from ingredient_tokens(child)
+    elif isinstance(value, dict):
+        item = value.get("item")
+        tag = value.get("tag")
+        if isinstance(item, str):
+            yield item
+        if isinstance(tag, str):
+            yield "#" + tag.removeprefix("#")
+        if item is None and tag is None:
+            for child in value.values():
+                yield from ingredient_tokens(child)
+
+
+def tag_reference(category: str, identifier: str) -> str:
+    namespace, path = identifier.removeprefix("#").split(":", 1)
+    if path.startswith(category + "/"):
+        return f"{namespace}:{path}"
+    return f"{namespace}:{category}/{path}"
+
+
+def validate_data_references(root: Path, parsed: dict[Path, object]) -> list[str]:
+    errors: list[str] = []
+    data = root / "data" / "powers"
+    items = root / "assets" / "powers" / "items"
+    blockstates = root / "assets" / "powers" / "blockstates"
+
+    recipe_base = data / "recipe"
+    recipe_paths = sorted(recipe_base.rglob("*.json"))
+    recipe_ids = {path: namespaced_id(path, recipe_base) for path in recipe_paths}
+    produced_by: dict[str, set[str]] = {}
+    recipe_dependencies: dict[str, set[str]] = {identifier: set() for identifier in recipe_ids.values()}
+    recipe_tokens: dict[Path, list[str]] = {}
+    for path in recipe_paths:
+        value = parsed.get(path, {})
+        if not isinstance(value, dict):
+            continue
+        result = value.get("result", {})
+        result_id = result.get("id") if isinstance(result, dict) else result
+        if isinstance(result_id, str) and result_id.startswith("powers:"):
+            produced_by.setdefault(result_id, set()).add(recipe_ids[path])
+            item_path = items / (result_id.split(":", 1)[1] + ".json")
+            if not item_path.is_file():
+                errors.append(f"{path}: missing local item {result_id}")
+        tokens: list[str] = []
+        for key in ("ingredient", "ingredients"):
+            tokens.extend(ingredient_tokens(value.get(key, [])))
+        key_map = value.get("key", {})
+        if isinstance(key_map, dict):
+            for ingredient in key_map.values():
+                tokens.extend(ingredient_tokens(ingredient))
+        recipe_tokens[path] = tokens
+        for token in tokens:
+            if token.startswith("powers:"):
+                item_path = items / (token.split(":", 1)[1] + ".json")
+                if not item_path.is_file():
+                    errors.append(f"{path}: missing local item {token}")
+            elif token.startswith("#powers:"):
+                reference = tag_reference("item", token)
+                tag_path = data / "tags" / (reference.split(":", 1)[1] + ".json")
+                if not tag_path.is_file():
+                    errors.append(f"{path}: missing local tag {reference}")
+
+    for path, tokens in recipe_tokens.items():
+        dependencies = recipe_dependencies[recipe_ids[path]]
+        for token in tokens:
+            dependencies.update(produced_by.get(token, ()))
+    errors.extend(graph_cycles(recipe_dependencies, "recipe"))
+
+    loot_base = data / "loot_table"
+    loot_paths = sorted(loot_base.rglob("*.json"))
+    loot_ids = {path: namespaced_id(path, loot_base) for path in loot_paths}
+    loot_by_id = {identifier: path for path, identifier in loot_ids.items()}
+    loot_graph: dict[str, set[str]] = {identifier: set() for identifier in loot_ids.values()}
+
+    def inspect_loot(path: Path, value) -> None:
+        if isinstance(value, dict):
+            entry_type = value.get("type")
+            identifier = value.get("name", value.get("value"))
+            if isinstance(identifier, str) and identifier.startswith("powers:"):
+                if entry_type == "minecraft:item":
+                    item_path = items / (identifier.split(":", 1)[1] + ".json")
+                    if not item_path.is_file():
+                        errors.append(f"{path}: missing local item {identifier}")
+                elif entry_type == "minecraft:loot_table":
+                    loot_graph[loot_ids[path]].add(identifier)
+                    if identifier not in loot_by_id:
+                        errors.append(f"{path}: missing local loot table {identifier}")
+                elif entry_type == "minecraft:tag":
+                    reference = tag_reference("item", identifier)
+                    tag_path = data / "tags" / (reference.split(":", 1)[1] + ".json")
+                    if not tag_path.is_file():
+                        errors.append(f"{path}: missing local tag {reference}")
+            for child in value.values():
+                inspect_loot(path, child)
+        elif isinstance(value, list):
+            for child in value:
+                inspect_loot(path, child)
+
+    for path in loot_paths:
+        inspect_loot(path, parsed.get(path, {}))
+    errors.extend(graph_cycles(loot_graph, "loot table"))
+
+    tags_base = data / "tags"
+    tag_paths = sorted(tags_base.rglob("*.json"))
+    tag_ids = {path: namespaced_id(path, tags_base) for path in tag_paths}
+    tags_by_id = {identifier: path for path, identifier in tag_ids.items()}
+    tag_graph: dict[str, set[str]] = {identifier: set() for identifier in tag_ids.values()}
+    for path in tag_paths:
+        relative = path.relative_to(tags_base)
+        category = relative.parts[0]
+        value = parsed.get(path, {})
+        values = value.get("values", []) if isinstance(value, dict) else []
+        for entry in values if isinstance(values, list) else []:
+            required = True
+            if isinstance(entry, dict):
+                required = entry.get("required", True) is not False
+                entry = entry.get("id")
+            if not isinstance(entry, str) or not entry.startswith(("powers:", "#powers:")):
+                continue
+            if entry.startswith("#"):
+                reference = tag_reference(category, entry)
+                tag_graph[tag_ids[path]].add(reference)
+                if required and reference not in tags_by_id:
+                    errors.append(f"{path}: missing local tag {reference}")
+            elif required and category == "item":
+                item_path = items / (entry.split(":", 1)[1] + ".json")
+                if not item_path.is_file():
+                    errors.append(f"{path}: missing local item {entry}")
+            elif required and category == "block":
+                block_path = blockstates / (entry.split(":", 1)[1] + ".json")
+                if not block_path.is_file():
+                    errors.append(f"{path}: missing local block {entry}")
+            elif required and category == "damage_type":
+                damage_path = data / "damage_type" / (entry.split(":", 1)[1] + ".json")
+                if not damage_path.is_file():
+                    errors.append(f"{path}: missing local damage type {entry}")
+    errors.extend(graph_cycles(tag_graph, "tag"))
+    return errors
+
+
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
     parsed = {}
@@ -118,6 +297,7 @@ def validate(root: Path) -> list[str]:
     assets = root / "assets" / "powers"
     lang_path = assets / "lang" / "en_us.json"
     lang = parsed.get(lang_path, {})
+    errors.extend(validate_data_references(root, parsed))
 
     for relative, expected_dimensions in REQUIRED_UI_TEXTURES.items():
         path = assets / relative
