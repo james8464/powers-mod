@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Optional;
 
 /**
  * Owns the innate Time Stop's real server-wide {@code /tick freeze} state.
@@ -125,6 +126,17 @@ public final class GlobalTimeStopManager {
 				&& stop.owner().equals(player.getUUID());
 	}
 
+	/** Read-only HUD snapshot of the same owner/deadline that controls the true server clock. */
+	public static Optional<ClockSnapshot> snapshot(MinecraftServer server) {
+		Stop stop = ACTIVE.get(server);
+		if (stop == null) return Optional.empty();
+		long remaining = stop.deadline == Long.MAX_VALUE ? -1L
+				: GlobalTimeStopRules.remainingTicks(server.getTickCount(), stop.deadline);
+		return Optional.of(new ClockSnapshot(stop.owner, stop.source.name(), stop.deadline, remaining));
+	}
+
+	public record ClockSnapshot(UUID owner, String source, long deadline, long remainingTicks) { }
+
 	/** Advances lifecycle checks and sparse cross-dimensional clock visuals. */
 	public static void tick(MinecraftServer server) {
 		Stop stop = ACTIVE.get(server);
@@ -157,6 +169,12 @@ public final class GlobalTimeStopManager {
 			for (ServerPlayer observer : server.getPlayerList().getPlayers()) {
 				TimeStopFx.globalSustain((ServerLevel) observer.level(), observer.position(),
 						server.getTickCount(), stop.source == Source.CRYSTAL);
+				if (stop.source == Source.CRYSTAL) {
+					observer.sendSystemMessage(Component.literal("Temporal fracture — owner "
+							+ owner.getScoreboardName() + ", release in "
+							+ GlobalTimeStopRules.remainingTicks(server.getTickCount(), stop.deadline)
+							+ " ticks"), true);
+				}
 			}
 		}
 	}

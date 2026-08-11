@@ -37,4 +37,8 @@ public final class GlobalTimeStopRules {
 			boolean externallyMutated) {
 		return serverFrozen && !externallyMutated;
 	}
+
+	public static long remainingTicks(long now, long deadline) {
+		return Math.max(0L, deadline - now);
+	}
 }
