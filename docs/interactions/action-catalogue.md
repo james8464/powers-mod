@@ -54,7 +54,6 @@ This is the server-authoritative set of every innate power, crystal action, grim
 | `middleworld` | CRYSTAL | MIND, SPACE | TRAVEL | MOVEMENT | STANDARD | 2 | 13 | 48.000 | 40 | 55 | 1200 | 20 | 20 | `space` | `crystal_space` | `#5267D8 / #C27CFF` |
 | `nightfall_dominion` | ARTIFACT | DARKNESS, PROTECTION, SOUL | AURA | DEFENCE | COSMIC | 6 | 21 | 8.000 | 200 | 40 | 800 | 100 | 22 | `darkness` | `artifact_darkness` | `#55265F / #8FE9FF` |
 | `plant_healing_acceleration` | INNATE | LIFE | FIELD | SUPPORT | STANDARD | 2 | 7 | 12.000 | 200 | 18 | 200 | 100 | 10 | `life` | `innate_life` | `#78E06B / #78E06B` |
-| `portal_rift` | CRYSTAL | FORCE, SPACE | TRAVEL | HARM | STANDARD | 2 | 18 | 48.000 | 40 | 63 | 1200 | 20 | 20 | `space` | `crystal_space` | `#5267D8 / #B9E7FF` |
 | `pure_light_block` | REALM | LIGHT | FIELD | WORLD_INTERACTION | NONE | 0 | 25 | 12.000 | 200 | 0 | 0 | 100 | 30 | `light` | `realm_light` | `#FFF2B0 / #FFF2B0` |
 | `purification_circle` | SPELL | LIFE, LIGHT, SUPPRESSION | FIELD | SUPPORT | RITUAL | 4 | 10 | 12.000 | 200 | 20 | 600 | 100 | 15 | `life` | `spell_life` | `#78E06B / #FFF2B0` |
 | `ritual_amplification` | SPELL | CREATION, SOUL | CHANNEL | SUPPORT | RITUAL | 4 | 10 | 20.000 | 80 | 20 | 600 | 60 | 15 | `creation` | `spell_creation` | `#FF9D42 / #8FE9FF` |

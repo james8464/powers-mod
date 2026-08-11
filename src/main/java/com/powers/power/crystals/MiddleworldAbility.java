@@ -5,6 +5,8 @@ import com.powers.fx.PowerFx;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
 import com.powers.magic.runtime.ServerCastLifecycle;
+import com.powers.mind.BodyProxyKind;
+import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.travel.SafeDestinationResolver;
@@ -34,7 +36,15 @@ public class MiddleworldAbility extends Ability {
 	}
 
 	@Override
+	public boolean isSelectionAction(ServerPlayer player) {
+		return BodyProxyManager.hasSession(player, BodyProxyKind.REALM);
+	}
+
+	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		if (BodyProxyManager.hasSession(player, BodyProxyKind.REALM)) {
+			return BodyProxyManager.returnToBody(player);
+		}
 		ServerLevel sourceLevel = (ServerLevel) player.level();
 		Vec3 sourcePosition = player.position();
 		ServerLevel targetLevel = player.level().getServer().getLevel(
@@ -62,9 +72,14 @@ public class MiddleworldAbility extends Ability {
 				transaction.fail();
 				return;
 			}
+			if (!BodyProxyManager.start(traveler, BodyProxyKind.REALM)) {
+				transaction.fail();
+				return;
+			}
 			traveler.teleport(new TeleportTransition(targetLevel, dest, Vec3.ZERO,
 					traveler.getYRot(), traveler.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 			if (traveler.level() != targetLevel) {
+				BodyProxyManager.finish(traveler);
 				transaction.fail();
 				return;
 			}

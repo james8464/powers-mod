@@ -20,8 +20,9 @@ class CrystalAbilityCatalogTest {
 		Set<String> reachable = new HashSet<>();
 		bindings.values().forEach(reachable::addAll);
 		assertEquals(Set.of("inferno", "creativity_manifestation", "clone_swarm", "size_shift",
-				"space_time", "life_bloom", "dreamwalking", "middleworld", "portal_rift",
+				"space_time", "life_bloom", "dreamwalking", "middleworld",
 				"soul_link", "chrono_stop", "light_crystal", "dark_crystal"), reachable);
+		assertEquals(java.util.List.of("middleworld"), bindings.get("indigo_crystal"));
 	}
 
 	@Test

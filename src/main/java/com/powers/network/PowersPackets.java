@@ -38,7 +38,7 @@ import java.util.Map;
  */
 public final class PowersPackets {
 	private static final StreamCodec<io.netty.buffer.ByteBuf, String> PLAYER_NAME_CODEC =
-			ByteBufCodecs.stringUtf8(16);
+			ByteBufCodecs.stringUtf8(64);
 	private static final StreamCodec<io.netty.buffer.ByteBuf, String> LOCATOR_NAME_CODEC =
 			ByteBufCodecs.stringUtf8(64);
 	private static final Map<UUID, PowerStatePayload> LAST_SENT_STATE = new HashMap<>();
@@ -167,6 +167,7 @@ public final class PowersPackets {
 		BodyProxyPackets.initialize();
 		ShadowSwordPackets.initialize();
 		CompanionPackets.initialize();
+		VesselControlPackets.initialize();
 		KnowledgePackets.initialize();
 		CelestialRuinPackets.initialize();
 
@@ -226,7 +227,7 @@ public final class PowersPackets {
 			// guards against malformed packets: names cap at 16 chars and
 			// NaN coordinates must never reach the teleport code
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT
-					|| payload.targetName().length() > 16
+					|| payload.targetName().length() > 64
 					|| !Double.isFinite(payload.x()) || !Double.isFinite(payload.y()) || !Double.isFinite(payload.z())) return;
 			Power power = data.getPower(payload.slot());
 			// only targeted teleports arrive here; one-shot casts come through activate

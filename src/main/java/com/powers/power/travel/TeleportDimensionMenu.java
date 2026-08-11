@@ -17,7 +17,8 @@ public final class TeleportDimensionMenu {
 	public static List<String> visibleIds(Collection<String> serverIds, boolean showDarkRealm) {
 		Set<String> unique = new LinkedHashSet<>();
 		for (String id : serverIds) {
-			if (id != null && !id.isBlank() && (showDarkRealm || !id.equals("powers:dark_realm"))) {
+			if (id != null && !id.isBlank() && !id.equals("powers:middleworld")
+					&& (showDarkRealm || !id.equals("powers:dark_realm"))) {
 				unique.add(id);
 			}
 		}

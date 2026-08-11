@@ -45,7 +45,7 @@ class MagicCastPresentationTest {
 		MagicActionCatalogue catalogue = MagicActionCatalogue.defaults();
 
 		assertEquals("time_suspend", profile(catalogue, "time_freeze").soundCue());
-		assertEquals("rift_open", profile(catalogue, "portal_rift").soundCue());
+		assertEquals("rift_open", profile(catalogue, "middleworld").soundCue());
 		assertEquals("soul_tether", profile(catalogue, "astral_projection").soundCue());
 		assertEquals("light_chorus", profile(catalogue, "starfall").soundCue());
 		assertEquals("dark_whisper", profile(catalogue, "void_beam").soundCue());

@@ -65,6 +65,7 @@ public final class PowerAbilityRuntime {
 	private static void clearPlayerState(MinecraftServer server, ServerPlayer player) {
 		UUID owner = player.getUUID();
 		TeleportAbility.clearMarking(player);
+		TeleportAbility.clearStorm(owner);
 		TimeFreezeToggleAbility.clear(server, owner);
 		clearRuntimeOnlyToggles(player);
 		ForcefieldAbility.clear(owner);
@@ -96,9 +97,11 @@ public final class PowerAbilityRuntime {
 
 	/** Releases all server-owned ability state before world references are discarded. */
 	public static void onServerStopped(MinecraftServer server) {
+		com.powers.mind.ParticipantPowerLock.clear();
 		com.powers.testing.TestingOverrides.clearAll();
 		com.powers.entity.TestActorPowerState.clearAll();
 		TeleportAbility.clearAllMarking();
+		TeleportAbility.clearAllStorms();
 		TimeFreezeToggleAbility.clearAll(server);
 		ForcefieldAbility.clearAll();
 		GravityDisplacementAbility.clearAll(server);

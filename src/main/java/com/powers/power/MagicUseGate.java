@@ -1,5 +1,6 @@
 package com.powers.power;
 
+import com.powers.mind.ParticipantPowerLock;
 import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.state.GlobalTimeStopManager;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,6 +13,7 @@ public final class MagicUseGate {
 	}
 
 	public static boolean passes(ServerPlayer player, boolean punishAmethyst) {
+		if (player == null || ParticipantPowerLock.isLocked(player.getUUID())) return false;
 		if (GlobalTimeStopManager.rejectIfStopped(player)) return false;
 		AmethystDampening.update(player);
 		Block reason = reason(false, AmethystDampening.isDampened(player),

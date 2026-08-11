@@ -24,7 +24,7 @@ On first join, each persistent character receives one vanilla written book, **PO
 
 The assignable powers are:
 
-- Movement and control: Size Morphing, Flight, Super Speed, Speed Burst, Time Shift, Telekinesis, Gravity Displacement, and Breezy Bash.
+- Movement and control: Size Morphing, Flight, Super Speed, Speed Burst, Teleport, Telekinesis, Gravity Displacement, and Breezy Bash.
 - Offence: Fireball, Lightning Strike, Thunderclap, Energy Beam, Void Beam, Ice Manipulation, Starfall, and Energy Drain.
 - Defence and support: Forcefield, Plant and Healing Acceleration, and Double Health.
 - Time and mind: Time Freeze, Invisibility, Vessel Possession, and Astral Projection.
@@ -32,7 +32,7 @@ The assignable powers are:
 | Innate power | What it does |
 | --- | --- |
 | Size Morphing | Selects `0.25×`–`2×` from rank 0, then unlocks `2.5×` at rank 4, `0.125×` at rank 6, `3×` at rank 7, and `4×` at rank 10. Distance from normal size determines the per-second energy drain. |
-| Time Shift | Opens a server-advertised dimension/coordinate menu and asynchronously loads, validates, and enters even currently unloaded destination chunks. It can also mark another player with consent while a vulnerable body remains behind. |
+| Teleport | Opens a server-advertised dimension/coordinate menu and asynchronously loads, validates, and enters even currently unloaded destination chunks. A two-stage 100-tick storm announces the vulnerable transfer at both ends. It can instead locate one uniquely named player or mob, subject to consent and concealment rules. |
 | Flight | Uses server-authoritative survival propulsion, including directional ascent/descent and a much faster sprint-flight mode; it never grants creative-mode flight. |
 | Starfall | Opens a warned, finite celestial strike sequence with rank branches for extra strikes, a moving storm eye, concealment reveal, projectile diversion, echoes, and a dominion crown. |
 | Void Beam | Charges a penetrating live-aim ray, with ranked target penetration and a temporary terrain-safe void scar that interacts with later magic. |
@@ -48,7 +48,7 @@ The assignable powers are:
 | Time Freeze | Claims Minecraft's global server tick freeze across every loaded dimension, preventing entities, projectiles, attacks, and world ticks while the caster remains able to act. Its upkeep consumes at least 15% of the caster's full energy capacity each second, so an undisturbed full well lasts only about seven seconds. |
 | Forcefield | Toggles an owned, high-capacity defensive field without overwriting unrelated attribute effects. Like every indefinite innate toggle, it drains energy until released or exhausted. |
 | Gravity Displacement | Opens a five-second orrery that collision-safely orbits nearby bodies, resolves overlapping claims, and can collapse or curve projectiles at advanced ranks. |
-| Vessel Possession | Moves the mind into a consented player or suitable mob while a vulnerable skin-matched physical body remains at the casting point. |
+| Vessel Possession | Moves the mind into a consented player or suitable mob for at most 30 seconds while a vulnerable skin-matched physical body remains at the casting point. Movement, aim, jumping, crouching, hotbar selection, and attacks are server-authoritative; mobs are released with their original AI state. A higher-ranked player cannot be possessed. |
 | Astral Projection | Leaves a vulnerable physical body and releases a bounded soul-form scout; return is validated and cannot be used as invulnerability. |
 | Energy Drain | Channels against a player or mob for two seconds. Players lose energy and receive particle-free Exhaustion; mobs take repeated percentage-health damage plus a capped 30% completion strike, while the caster recovers energy. |
 | Ice Manipulation | Fires a freezing ray that harms and freezes targets, converts water to ice and lava to obsidian, and lays snow only where terrain policy permits. |
@@ -79,16 +79,18 @@ Darkness and Pure Light are living realm matter. Vanilla random ticks make eithe
 
 ## Mind travel and vulnerable bodies
 
-Astral projection, vessel possession, dreamwalking, player-marking during Time Shift, and travel to the Light or Dark Realm leave a skin-matched Minecraft mannequin where the player's physical body remains.
+Astral projection, vessel possession, dreamwalking, named-target Teleport, Middleworld travel, and travel to the Light or Dark Realm leave a skin-matched Minecraft mannequin where the player's physical body remains.
 
 - The spirit or mind moves; the body remains loaded and visible.
-- Damage to the body is mirrored to the real player, so projection never grants invincibility.
+- Damage to the physical body is mirrored to the real player, so projection never grants invincibility. The remote mind/avatar cannot be damaged a second time.
+- A fatal hit first attempts the exact validated return; if return cannot be completed, the player dies and realm confinement owns the respawn.
+- A player or mob already participating in one mind session cannot start or become the target of another.
 - Death, disconnect, server shutdown, invalid state, or `/powers return` cleans up or restores the session safely.
 - Return placement is collision-, border-, ward-, and safe-zone-validated.
 
 The Light Realm and Dark Realm are mindscapes rather than ordinary destinations. Each contains six persistent memory sites with custom obelisks, localized lore, explained rewards, magical effects, and choices that feed the title maze. The Light Realm uses a pure white sky without a sun, moon, stars, weather tint, or black void; the Dark Realm remains an enclosed hostile thoughtscape. Middleworld has its own muted dream biome rather than borrowing the Light Realm's appearance.
 
-Realm departure is intentionally stricter than entry. A player trapped in the Dark Realm cannot leave through gameplay travel until they have the `darkness` tag and darkness level 5; leaving the Light Realm requires level 5 in either progression. `/powers return` is reserved for restoring a valid detached body and operator travel remains an explicit recovery route, so ordinary crystals, portals, teleports, deaths, and dimension menus cannot bypass the lock.
+Realm departure is intentionally stricter than entry. A player trapped in the Dark Realm cannot leave through gameplay travel until they have the `darkness` tag and darkness level 5; leaving the Light Realm requires level 5 in either progression. `/powers return` is reserved for an ordinary validated detached-body return; operators can use `/powers recover <player>` for the explicit administrative recovery route. Ordinary crystals, teleports, deaths, body returns, and dimension menus cannot bypass the lock.
 
 Death does not provide a realm escape: an underqualified player respawns at the corresponding mindscape entry instead of being accepted at a vanilla Overworld spawn. The rule is shared with every travel policy so later gateways cannot accidentally disagree with it.
 
@@ -150,13 +152,13 @@ Every crystal has a bound ability or selectable convergence. Sneak-use turns a m
 | Orange | Clone Swarm creates three 80-health combat clones for 60 seconds; Creativity Manifestation builds a protected obsidian/glass/glowstone redoubt at the aimed point when terrain policy allows. |
 | Yellow | Size Shift alternates a 20-second titan form and miniature form, with appropriate strength, speed, resistance, reach, and knockback changes. This remains separate from the freely selectable innate Size Morphing power. |
 | Green | Life Bloom fully heals and cleanses living allies in a 20-block radius; Space-Time alternates six seconds of extreme personal acceleration and a six-second local entity/projectile freeze. The obsolete self-slow mode has been removed. |
-| Blue | Chrono Stop freezes entities and projectiles in the configured local radius; Dreamwalking watches through a consented player's eyes for up to two minutes while leaving a vulnerable body. |
-| Indigo | Portal Rift repeatedly strikes and repositions an aimed target through short rifts; Middleworld opens vulnerable mind travel to the muted dream dimension. |
+| Blue | Chrono Stop freezes entities and projectiles in the configured local radius; Dreamwalking watches through one uniquely named, consented player or mob for up to 30 seconds while leaving a vulnerable body. |
+| Indigo | Middleworld opens vulnerable, persisted mind travel to the muted dream dimension; using it again returns to the exact physical origin when travel policy allows. |
 | Violet | Soul Link binds up to eight nearby souls for ten seconds and mirrors a bounded share of later wounds across survivors. |
 | Rainbow | Sevenfold convergence of the chromatic forces |
-| Infected Rainbow | Fractured convergence of Inferno, Chrono Stop, Portal Rift, and Soul Link |
-| Light | Aims at a consented player or defaults to the wielder, leaves a vulnerable body, asynchronously loads the destination, and enters the Light Realm beneath a white celestial storm. |
-| Dark | Aims at a consented player or defaults to the wielder, leaves a vulnerable body, asynchronously loads the destination, and enters the Dark Realm beneath a corrupted storm. |
+| Infected Rainbow | Fractured convergence of Inferno, Chrono Stop, Middleworld, and Soul Link |
+| Light | Aims at a consented player or defaults to the wielder, leaves a vulnerable body, asynchronously loads the destination, and enters the Light Realm beneath a white celestial storm. Crouch-use takes the caster and up to 15 eligible, consented players within two blocks, each to a distinct safe arrival. |
+| Dark | Aims at a consented player or defaults to the wielder, leaves a vulnerable body, asynchronously loads the destination, and enters the Dark Realm beneath a corrupted storm. Crouch-use takes the caster and up to 15 eligible, consented players within two blocks, each to a distinct safe arrival. |
 
 Convergence cooldowns are shared with their underlying forces, so swapping crystals cannot bypass a rare ability's recharge. Crystal crafting recipes are deliberately not included; they are reserved for later progression design. The resource validator prevents accidental crystal recipes from entering a release.
 
@@ -243,7 +245,7 @@ An optional OpenAI-compatible text endpoint may replace only the wording. It is 
 
 `Darkness Creature` is a naturally spawning Dark Realm monster with a completely black player model, 100 health, 12 armour, 16 melee damage, and player-like movement. It attacks every living entity without the `darkness` tag and alternates bounded, terrain-safe lightning and custom darkness fireballs at range. Sword guardians use the same creature and disappear naturally rather than accumulating permanent server entities.
 
-`Power Test Actor` is a player-model test opponent with the same boss-capable base attributes. Every actor has a persistent, visible username (`Test_<id>` by default); name tags and `/powers testing actor spawn <username>` assign a normalized username. Player-target powers can resolve that unique name for remote viewing and Time Shift, and the actor supplies player-like energy, dimensional-anchor and sacrificial-forcefield state while preserving ordinary safe-zone, amethyst, ward, death and collision rules. This makes possession, drains, forced movement, projectile counters and particle presentation testable in a single-player world. Spawn eggs for both entities are available in creative/operator testing.
+`Power Test Actor` is a player-model test opponent with the same boss-capable base attributes. Every actor has a persistent, visible username (`Test_<id>` by default); name tags and `/powers testing actor spawn <username>` assign a normalized username. Player-target powers can resolve that unique name for remote viewing and Teleport, and the actor supplies player-like energy, dimensional-anchor and sacrificial-forcefield state while preserving ordinary safe-zone, amethyst, ward, death and collision rules. This makes possession, drains, forced movement, projectile counters and particle presentation testable in a single-player world. Spawn eggs for both entities are available in creative/operator testing.
 
 `Radiant Sentinel` is the Partisan's light-aligned player-shaped guardian. Both guardian factions preserve owner and alignment, expire when their owner leaves the dimension, enforce four-normal/two-elite owner caps and a global cap, and cycle bounded melee, lightning, fireball, and alignment-field tactics. Their fields heal allies or punish the opposed faction without crossing safe zones or amethyst counterplay.
 
@@ -273,7 +275,7 @@ Operators may use `/powers boss spawn`. The survival ritual requires a darkness-
 
 ## Magic collisions and presentation
 
-The 28 assignable powers resolve to 27 distinct innate action identities because player Size Morphing and the Yellow Crystal deliberately share the canonical `size_shift` force. Those 27 innate actions, 21 grimoire spells, 13 crystal actions, 16 artifact actions (three Shadow Sword rites, 11 Partisan rites, and two star-bound lightning alignments), three amethyst suppressors, and two living realm forces form an 82-action collision system. Every one of the 3,403 unordered same-or-cross-action pairs, including same-action resonance, has a deterministic outcome, potency/duration/range adjustment, accessible shape cue, and semantic sound cue. Named high-impact combinations add mechanics such as steam pressure, eclipses that reveal concealment, realm-matter annihilation, projectile-consuming star rifts, summon banishment, soul-link purification, finite ward fracture, grounded storms, hostile pressure waves, and concordant healing.
+The 23 assignable powers resolve to 22 innate action identities because player Size Morphing and the Yellow Crystal deliberately share the canonical `size_shift` force. Those 22 innate actions, 21 grimoire spells, 12 crystal actions, 16 artifact actions (three Shadow Sword rites, 11 Partisan rites, and two star-bound lightning alignments), three amethyst suppressors, and two living realm forces form a 76-action collision system. Every one of the 2,926 unordered same-or-cross-action pairs, including same-action resonance, has a deterministic outcome, potency/duration/range adjustment, accessible shape cue, and semantic sound cue. Named high-impact combinations add mechanics such as steam pressure, eclipses that reveal concealment, realm-matter annihilation, projectile-consuming star rifts, summon banishment, soul-link purification, finite ward fracture, grounded storms, hostile pressure waves, and concordant healing.
 
 The complete catalogue is in [`docs/interactions/action-catalogue.md`](docs/interactions/action-catalogue.md), and every possible pair is listed in [`docs/interactions/interaction-matrix.csv`](docs/interactions/interaction-matrix.csv). Every successful innate, crystal, grimoire, Shadow Sword, and Heavenly Partisan cast receives a signature-driven anticipation, release, impact, and aftermath ceremony in addition to its bespoke gameplay effects. Flame fractures, frost shards, storms fork, time spirals, space and soul tether, life roots, darkness eclipses, and light forms celestial crowns; the server chooses the matching authored sound and both signature colours. Ritual glyphs form on the ground beneath the caster, while vertical glyph, eclipse, and lightning sigils face each observer locally instead of becoming edge-on. Ceremony radius, density, motion, volume, and pitch intensify at rank depths 4 and 8, with another bounded step for Ancient Mastery. Client effects use eight authored particle sprites, 13 original mono Vorbis sounds, distance culling, reduced-motion geometry and velocity clamps, and hard client/server particle budgets.
 

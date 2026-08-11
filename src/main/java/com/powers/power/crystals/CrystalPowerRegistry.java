@@ -84,7 +84,6 @@ public final class CrystalPowerRegistry {
 			case "life_bloom" -> new LifeBloomAbility();
 			case "dreamwalking" -> new DreamwalkingAbility();
 			case "middleworld" -> new MiddleworldAbility();
-			case "portal_rift" -> new PortalRiftAbility();
 			case "soul_link" -> new SoulLinkAbility();
 			case "chrono_stop" -> new ChronoStopAbility();
 			case "light_crystal" -> new LightCrystalAbility();
@@ -117,12 +116,12 @@ public final class CrystalPowerRegistry {
 		if (ability == null) {
 			return false;
 		}
-		if (!MagicUseGate.passes(player, true)) return false;
 		// Crouch-use only selects a mode. It does not cast, spend energy, or
 		// start a cooldown, so players can prepare a crystal before a fight.
 		if (ability.isSelectionAction(player)) {
 			return ability.activate(player, PlayerPowers.get(player));
 		}
+		if (!MagicUseGate.passes(player, true)) return false;
 		// not ready yet - tell the player how long is left
 		if (!ActivationCooldowns.isReady(player, ability)) {
 			PowerMessages.send(player, "ability.powers.cooldown", 4,

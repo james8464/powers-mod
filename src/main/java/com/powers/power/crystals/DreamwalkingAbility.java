@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
+import com.powers.mind.ParticipantPowerLock;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
 import com.powers.magic.runtime.ServerCastLifecycle;
@@ -37,10 +38,10 @@ import java.util.UUID;
  */
 public class DreamwalkingAbility extends Ability {
 	private static final double BASE_RANGE = 32.0;
-	private static final int DURATION = 2400;
+	private static final int DURATION = 600;
 	private static final Map<UUID, Dream> ACTIVE = new HashMap<>();
 
-	private record Dream(UUID hostId, ResourceKey<Level> dimension,
+	private record Dream(UUID sessionId, UUID hostId, ResourceKey<Level> dimension,
 			CastSource castSource, long endsAt) {}
 
 	public DreamwalkingAbility() {
@@ -58,7 +59,7 @@ public class DreamwalkingAbility extends Ability {
 		// activating again while dreaming ends the current dream early
 		Dream current = ACTIVE.remove(player.getUUID());
 		if (current != null) {
-			end(player);
+			end(current, player);
 			return true;
 		}
 		LivingEntity target = PowerTargeting.findLivingTarget(player, scaledRange(player, BASE_RANGE));
@@ -94,13 +95,19 @@ public class DreamwalkingAbility extends Ability {
 				|| !MagicUseGate.ongoingAllowed(player)
 				|| player.level().getServer() != host.level().getServer()
 				|| ACTIVE.containsKey(player.getUUID()) || AmethystDampening.isDampened(host)
-				|| !PowerProtection.mayDreamwalk(player, host)
-				|| !BodyProxyManager.start(player, BodyProxyKind.DREAMWALK)) return false;
+				|| !PowerProtection.mayDreamwalk(player, host)) return false;
+		UUID sessionId = UUID.randomUUID();
+		if (!ParticipantPowerLock.acquire(sessionId, java.util.List.of(
+				player.getUUID(), host.getUUID()))) return false;
+		if (!BodyProxyManager.start(player, BodyProxyKind.DREAMWALK)) {
+			ParticipantPowerLock.release(sessionId);
+			return false;
+		}
 		MinecraftServer server = player.level().getServer();
 		ServerLevel sourceLevel = (ServerLevel) player.level();
 		ServerLevel hostLevel = (ServerLevel) host.level();
 		Vec3 bodyPosition = player.position();
-		Dream dream = new Dream(host.getUUID(), host.level().dimension(), castSource,
+		Dream dream = new Dream(sessionId, host.getUUID(), host.level().dimension(), castSource,
 				server.getTickCount() + Math.clamp(durationTicks, 20, DURATION));
 		player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
 		boolean crossDimension = DreamwalkingRules.mustTravel(
@@ -109,6 +116,7 @@ public class DreamwalkingAbility extends Ability {
 			player.teleport(new TeleportTransition(hostLevel, host.position(), Vec3.ZERO,
 					host.getYRot(), host.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 			if (player.level() != hostLevel) {
+				ParticipantPowerLock.release(sessionId);
 				BodyProxyManager.returnToBody(player);
 				return false;
 			}
@@ -147,7 +155,7 @@ public class DreamwalkingAbility extends Ability {
 						|| !PowerProtection.mayDreamwalk(dreamer, host);
 			}
 			if (invalid) {
-				if (dreamer != null) end(dreamer);
+				end(dream, dreamer);
 				it.remove();
 			} else if (now % 20 == 0) {
 				PowerFx.coloredBurst(hostLevel, host.getEyePosition(), 0x7986CB, 3, 0.22);
@@ -155,7 +163,9 @@ public class DreamwalkingAbility extends Ability {
 		}
 	}
 
-	private static void end(ServerPlayer dreamer) {
+	private static void end(Dream dream, ServerPlayer dreamer) {
+		ParticipantPowerLock.release(dream.sessionId());
+		if (dreamer == null) return;
 		ServerLevel level = (ServerLevel) dreamer.level();
 		PowerFx.rune(level, dreamer.position(), 1.1, 0x7986CB, 18, Math.PI);
 		PowerFx.sound(level, dreamer.position(), SoundEvents.BEACON_DEACTIVATE, 0.65f, 1.35f);
@@ -165,8 +175,9 @@ public class DreamwalkingAbility extends Ability {
 
 	/** Resets every surviving dreamer's camera during server shutdown. */
 	public static void clearAll(MinecraftServer server) {
-		for (UUID dreamerId : ACTIVE.keySet()) {
-			ServerPlayer dreamer = server.getPlayerList().getPlayer(dreamerId);
+		for (var entry : ACTIVE.entrySet()) {
+			ServerPlayer dreamer = server.getPlayerList().getPlayer(entry.getKey());
+			ParticipantPowerLock.release(entry.getValue().sessionId());
 			if (dreamer != null) dreamer.setCamera(null);
 		}
 		ACTIVE.clear();
@@ -175,6 +186,6 @@ public class DreamwalkingAbility extends Ability {
 	/** Ends one dream and restores its camera during disconnect cleanup. */
 	public static void clear(ServerPlayer dreamer) {
 		Dream dream = ACTIVE.remove(dreamer.getUUID());
-		if (dream != null) end(dreamer);
+		if (dream != null) end(dream, dreamer);
 	}
 }
