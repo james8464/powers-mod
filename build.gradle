@@ -125,6 +125,18 @@ tasks.register("verifyItemDocs", Exec) {
 	commandLine "python3", "scripts/generate_item_docs.py", "--check"
 }
 
+tasks.register("generateRankDocs", Exec) {
+	group = "documentation"
+	description = "Regenerates the source-backed Light and Darkness rank appendix."
+	commandLine "python3", "scripts/generate_rank_docs.py"
+}
+
+tasks.register("verifyRankDocs", Exec) {
+	group = "verification"
+	description = "Rejects stale generated Light and Darkness rank documentation."
+	commandLine "python3", "scripts/generate_rank_docs.py", "--check"
+}
+
 tasks.register("testPythonScripts", Exec) {
 	group = "verification"
 	description = "Runs deterministic generator and resource-validator fixture tests."
@@ -157,6 +169,7 @@ tasks.named("check") {
 	dependsOn("auditNonItemAssets")
 	dependsOn("verifyMagicDocs")
 	dependsOn("verifyItemDocs")
+	dependsOn("verifyRankDocs")
 	dependsOn("testPythonScripts")
 }
 
