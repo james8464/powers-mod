@@ -6,6 +6,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.powers.PowersEntities;
+import com.powers.audit.OperatorAuditAction;
+import com.powers.audit.OperatorAuditResult;
 import com.powers.entity.PowerTestActor;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
@@ -181,7 +183,9 @@ final class TestingCommand {
 
 	private static int reset(CommandContext<CommandSourceStack> context)
 			throws CommandSyntaxException {
-		TestingOverrides.clear(context.getSource().getPlayerOrException().getUUID());
+		ServerPlayer player = context.getSource().getPlayerOrException();
+		TestingOverrides.clear(player.getUUID());
+		audit(context, player, "reset");
 		return status(context);
 	}
 
@@ -189,6 +193,7 @@ final class TestingCommand {
 			throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();
 		TestingOverrides.setAll(player.getUUID(), enabled);
+		audit(context, player, enabled ? "all_disabled" : "all_normal");
 		if (enabled) refillPlayer(player);
 		else PlayerPowers.get(player).clearCooldowns();
 		return status(context);
@@ -198,6 +203,7 @@ final class TestingCommand {
 			throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();
 		TestingOverrides.setEnergyDisabled(player.getUUID(), enabled);
+		audit(context, player, enabled ? "energy_disabled" : "energy_normal");
 		if (enabled) {
 			PlayerPowers.get(player).forceRestoreEnergy();
 			PowersPackets.syncTo(player);
@@ -209,13 +215,16 @@ final class TestingCommand {
 			throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();
 		TestingOverrides.setCooldownsDisabled(player.getUUID(), enabled);
+		audit(context, player, enabled ? "cooldowns_disabled" : "cooldowns_normal");
 		if (enabled) PlayerPowers.get(player).clearCooldowns();
 		return status(context);
 	}
 
 	private static int refill(CommandContext<CommandSourceStack> context)
 			throws CommandSyntaxException {
-		refillPlayer(context.getSource().getPlayerOrException());
+		ServerPlayer player = context.getSource().getPlayerOrException();
+		refillPlayer(player);
+		audit(context, player, "refill");
 		context.getSource().sendSuccess(() -> Component.literal(
 				"Energy refilled and saved power cooldowns cleared.")
 				.withStyle(ChatFormatting.AQUA), false);
@@ -227,6 +236,12 @@ final class TestingCommand {
 		data.forceRestoreEnergy();
 		data.clearCooldowns();
 		PowersPackets.syncTo(player);
+	}
+
+	private static void audit(CommandContext<CommandSourceStack> context,
+			ServerPlayer player, String detail) {
+		PowerCommand.audit(context.getSource(), OperatorAuditAction.TESTING_CONTROL,
+				OperatorAuditResult.SUCCESS, player.getScoreboardName(), detail);
 	}
 
 	private static int status(CommandContext<CommandSourceStack> context)

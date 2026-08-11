@@ -1,6 +1,8 @@
 package com.powers.command;
 
 import com.mojang.brigadier.context.CommandContext;
+import com.powers.audit.OperatorAuditAction;
+import com.powers.audit.OperatorAuditResult;
 import com.powers.spell.CelestialRuinManager;
 import com.powers.spell.CelestialRuinCancellation;
 import net.minecraft.commands.CommandSourceStack;
@@ -16,6 +18,9 @@ final class CelestialRuinCommand {
 		CommandSourceStack source = context.getSource();
 		var preview = CelestialRuinManager.preview(source.getLevel(),
 				BlockPos.containing(source.getPosition()));
+		PowerCommand.audit(source, OperatorAuditAction.CATASTROPHIC_RITUAL,
+				preview.centerPermitted() ? OperatorAuditResult.SUCCESS : OperatorAuditResult.DENIED,
+				"world", "preview");
 		source.sendSuccess(() -> Component.literal("Heavenfall dry run at " + preview.center().toShortString()
 				+ " in " + preview.dimension() + ": crater=" + preview.craterChunks()
 				+ " chunks, shockwave=" + preview.shockwaveChunks() + " chunks, loaded entities="
@@ -31,6 +36,10 @@ final class CelestialRuinCommand {
 	static int cancel(CommandContext<CommandSourceStack> context) {
 		CommandSourceStack source = context.getSource();
 		var result = CelestialRuinManager.cancelNearest(source.getLevel(), source.getPosition());
+		PowerCommand.audit(source, OperatorAuditAction.CATASTROPHIC_RITUAL,
+				result == CelestialRuinCancellation.CANCELLED ? OperatorAuditResult.SUCCESS
+						: OperatorAuditResult.DENIED,
+				"world", "cancel_" + result.name().toLowerCase(java.util.Locale.ROOT));
 		Component message = switch (result) {
 			case CANCELLED -> Component.literal("The nearest staged Heavenfall was cancelled before lock.");
 			case LOCKED -> Component.literal("The nearest Heavenfall has begun preload and is irreversible.");
