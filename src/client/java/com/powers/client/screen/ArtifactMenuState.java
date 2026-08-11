@@ -1,5 +1,6 @@
 package com.powers.client.screen;
 
+import com.powers.cooldown.CooldownPresentation;
 import com.powers.item.artifact.ArtifactActionCatalogue;
 import com.powers.item.artifact.ArtifactActionCategory;
 import com.powers.item.artifact.ArtifactActionDefinition;
@@ -103,8 +104,8 @@ public record ArtifactMenuState(
 		return Component.empty().append(sourceName(action.category())).append("\n")
 				.append(description).append("\n")
 				.append(Component.translatable("screen.powers.artifact.tooltip.live",
-						cost(action), energy, action.requiredRank(), cooldown(action) / 20.0,
-						cooldownMaximum(action) / 20.0));
+						cost(action), energy, action.requiredRank(), CooldownPresentation.tenths(cooldown(action)),
+						CooldownPresentation.tenths(cooldownMaximum(action))));
 	}
 
 	public static Component sourceName(ArtifactActionCategory source) {

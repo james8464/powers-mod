@@ -1,5 +1,6 @@
 package com.powers.power.crystals;
 
+import com.powers.cooldown.CooldownPresentation;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -59,7 +60,8 @@ public final class ModeCrystalAbility extends Ability {
 		// player cannot bypass a rare power's cooldown by swapping artifacts.
 		if (!ActivationCooldowns.isReady(player, selected)) {
 			PowerMessages.send(player, "ability.powers.cooldown", 4,
-					String.valueOf((ActivationCooldowns.remainingTicks(player, selected) + 19) / 20));
+					Long.toString(CooldownPresentation.wholeSeconds(
+							ActivationCooldowns.remainingTicks(player, selected))));
 			return false;
 		}
 		boolean activated = selected.activate(player, data);

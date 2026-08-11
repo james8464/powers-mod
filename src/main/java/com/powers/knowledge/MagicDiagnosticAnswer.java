@@ -1,5 +1,6 @@
 package com.powers.knowledge;
 
+import com.powers.cooldown.CooldownPresentation;
 import java.util.List;
 import java.util.Locale;
 
@@ -23,7 +24,7 @@ public final class MagicDiagnosticAnswer {
 			case NO_TARGET -> failed(action, "it could not find a valid target");
 			case INSUFFICIENT_ENERGY -> "Your " + action + " failed because it required "
 					+ required + " energy, but only " + available + " was available.";
-			case COOLDOWN -> failed(action, "its cooldown has " + ((remaining + 19L) / 20L)
+			case COOLDOWN -> failed(action, "its cooldown has " + CooldownPresentation.wholeSeconds(remaining)
 					+ " seconds remaining");
 			case AMETHYST -> failed(action, "amethyst suppressed the magic");
 			case SAFE_ZONE -> failed(action, "the destination or target was protected by a safe zone");
