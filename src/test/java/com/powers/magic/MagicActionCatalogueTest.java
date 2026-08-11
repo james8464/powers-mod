@@ -99,4 +99,17 @@ class MagicActionCatalogueTest {
 		assertEquals(MagicSignificance.NONE,
 				catalogue.definition(new MagicActionId("amethyst_item")).significance());
 	}
+
+	@Test
+	void everyRegisteredActionDeclaresAnEntityTargetContract() {
+		MagicActionCatalogue catalogue = MagicActionCatalogue.defaults();
+		assertEquals(64, catalogue.definitions().stream()
+				.filter(definition -> definition.targetContract() != null).count());
+		assertEquals(ActionTargetContract.PLAYER_OR_MOB_FALLBACK,
+				catalogue.definition(new MagicActionId("energy_drain")).targetContract());
+		assertEquals(ActionTargetContract.PLAYER_PARTICIPANT,
+				catalogue.definition(new MagicActionId("light_crystal")).targetContract());
+		assertEquals(ActionTargetContract.NONE,
+				catalogue.definition(new MagicActionId("flight")).targetContract());
+	}
 }

@@ -15,8 +15,6 @@ import net.minecraft.world.entity.LivingEntity;
 /** Renders ten vanilla-scale full/half energy symbols above the hunger row. */
 public final class EnergyHudRenderer {
 	private static final Identifier SYMBOLS = PowersMod.id("textures/gui/energy_symbols.png");
-	private static final Identifier VISIBLE_FALLBACK =
-			Identifier.withDefaultNamespace("textures/misc/unknown_pack.png");
 	private static final int SYMBOL_SIZE = 9;
 	private static final int TEXTURE_WIDTH = 27;
 	private static final int TEXTURE_HEIGHT = 45;
@@ -41,14 +39,18 @@ public final class EnergyHudRenderer {
 				ClientHudPreferences.get()).energy();
 		int halfUnits = mode == HudEnergyMode.EMPTY ? 0 : HudMath.energyHalfUnits(energy, capacity);
 		int visibleSymbols = Math.min(10, Math.max(0, (bounds.width() + 7) / 8));
-		Identifier symbols = com.powers.resource.OptionalAssetFallback.resolve(SYMBOLS,
-				VISIBLE_FALLBACK, id -> client.getResourceManager().getResource(id).isPresent());
+		boolean atlasAvailable = client.getResourceManager().getResource(SYMBOLS).isPresent();
 		for (int symbol = 0; symbol < visibleSymbols; symbol++) {
-			int sourceX = HudMath.energyFillColumn(halfUnits, symbol) * SYMBOL_SIZE;
+			int fill = HudMath.energyFillColumn(halfUnits, symbol);
 			int x = HudLayout.energySymbolX(bounds, symbol);
-			graphics.blit(RenderPipelines.GUI_TEXTURED, symbols, x, bounds.y(), sourceX,
-					textureRow(mode) * SYMBOL_SIZE, SYMBOL_SIZE, SYMBOL_SIZE,
-					TEXTURE_WIDTH, TEXTURE_HEIGHT);
+			if (com.powers.hud.EnergyAssetDecision.resolve(atlasAvailable)
+					== com.powers.hud.EnergyAssetDecision.AUTHORED_ATLAS) {
+				graphics.blit(RenderPipelines.GUI_TEXTURED, SYMBOLS, x, bounds.y(), fill * SYMBOL_SIZE,
+						textureRow(mode) * SYMBOL_SIZE, SYMBOL_SIZE, SYMBOL_SIZE,
+						TEXTURE_WIDTH, TEXTURE_HEIGHT);
+			} else {
+				drawProceduralSymbol(graphics, x, bounds.y(), fill, mode);
+			}
 		}
 		int mouseX = (int) (client.mouseHandler.xpos() * client.getWindow().getGuiScaledWidth()
 				/ client.getWindow().getScreenWidth());
@@ -68,6 +70,19 @@ public final class EnergyHudRenderer {
 			}
 			graphics.setComponentTooltipForNextFrame(client.font, tooltip, mouseX, mouseY);
 		}
+	}
+
+	private static void drawProceduralSymbol(GuiGraphicsExtractor graphics, int x, int y,
+			int fill, HudEnergyMode mode) {
+		int colour = switch (mode) {
+			case NORMAL -> 0xFF33CC66;
+			case EMPTY -> 0xFF777777;
+			case DAMPENED -> 0xFFAA55CC;
+			case DARKNESS -> 0xFF552277;
+			case PROJECTION -> 0xFF55CCEE;
+		};
+		graphics.outline(x, y, SYMBOL_SIZE, SYMBOL_SIZE, 0xFFFFFFFF);
+		if (fill > 0) graphics.fill(x + 2, y + 2, x + (fill == 1 ? 5 : 7), y + 7, colour);
 	}
 
 	private static int textureRow(HudEnergyMode mode) {

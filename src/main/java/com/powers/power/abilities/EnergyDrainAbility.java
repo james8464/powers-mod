@@ -4,7 +4,6 @@ import com.powers.PowerStatusEffects;
 import com.powers.PowersEffects;
 import com.powers.PowersMod;
 import com.powers.entity.PlayerLikeTarget;
-import com.powers.magic.participant.MagicParticipants;
 import com.powers.fx.PowerFx;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
@@ -129,7 +128,7 @@ public class EnergyDrainAbility extends Ability {
 			if (now >= ritual.state().finishesAt()) {
 				// full drain landed, hit the target with exhaustion
 				if (PlayerLikeTarget.isCompatible(target)) {
-					MagicParticipants.resolve(target,
+					com.powers.magic.ActionTargetCapabilities.resolveParticipant("energy_drain", target,
 							com.powers.magic.participant.ParticipantCapability.ENERGY_POOL)
 							.participant().ifPresent(participant -> participant.setEnergy(0));
 					if (target instanceof ServerPlayer targetPlayer) PowersPackets.syncTo(targetPlayer);
@@ -149,7 +148,8 @@ public class EnergyDrainAbility extends Ability {
 				continue;
 			}
 			if (PlayerLikeTarget.isCompatible(target)) {
-				var resolution = MagicParticipants.resolve(target,
+				var resolution = com.powers.magic.ActionTargetCapabilities.resolveParticipant(
+						"energy_drain", target,
 						com.powers.magic.participant.ParticipantCapability.ENERGY_POOL);
 				if (!resolution.supported()) {
 					com.powers.knowledge.MagicAttemptReporter.failure(caster, "energy_drain",

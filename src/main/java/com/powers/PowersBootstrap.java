@@ -23,6 +23,7 @@ final class PowersBootstrap {
 
 	static void initialize() {
 		PowersConfigLoader.initialize();
+		com.powers.command.PermissionNodes.installFabricAdapterIfPresent();
 		KnowledgeEntryReloadListener.initialize();
 		PowerEntityState.initialize();
 		ShadowCompanionStore.initialize();

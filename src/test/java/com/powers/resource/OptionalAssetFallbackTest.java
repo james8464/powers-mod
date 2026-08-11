@@ -19,4 +19,19 @@ class OptionalAssetFallbackTest {
 		assertEquals(requested, OptionalAssetFallback.resolve(requested,
 				Identifier.parse("powers:textures/gui/energy_symbols.png"), requested::equals));
 	}
+
+	@Test
+	void missingEnergyAtlasSelectsSameContractProceduralSymbols() {
+		assertEquals(com.powers.hud.EnergyAssetDecision.PROCEDURAL_SYMBOLS,
+				com.powers.hud.EnergyAssetDecision.resolve(false));
+		assertEquals(com.powers.hud.EnergyAssetDecision.AUTHORED_ATLAS,
+				com.powers.hud.EnergyAssetDecision.resolve(true));
+	}
+
+	@Test
+	void missingOptionalModelSelectsBakedVanillaBarrier() {
+		Identifier barrier = Identifier.parse("minecraft:item/barrier");
+		assertEquals(barrier, OptionalAssetFallback.resolve(
+				Identifier.parse("powers:item/optional_art"), barrier, ignored -> false));
+	}
 }
