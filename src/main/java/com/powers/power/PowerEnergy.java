@@ -8,6 +8,7 @@ import com.powers.progression.PowerScalingService;
 import com.powers.power.artifact.AlignedArtifactAbility;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.magic.runtime.CastScalingContext;
+import com.powers.item.ArtifactEnergyModifiers;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -75,14 +76,17 @@ public final class PowerEnergy {
 
 	/** Applies rank efficiency only to innate player powers, never crystals. */
 	public static int cost(ServerPlayer player, Ability ability) {
+		int resolved;
 		if (ability instanceof AlignedArtifactAbility artifact
 				&& artifact.definition().alignment() == ArtifactAlignment.DARKNESS
 				&& PlayerPowers.get(player).darknessLevel() >= 10) {
-			return Math.max(1, (int) Math.ceil(cost(ability) * 0.8));
+			resolved = Math.max(1, (int) Math.ceil(cost(ability) * 0.8));
+		} else {
+			resolved = CastScalingContext.currentSource().appliesPlayerRank(ability.usesRankScaling())
+					? PowerScalingService.energyCost(player, ability.id().getPath(), cost(ability))
+					: cost(ability);
 		}
-		return CastScalingContext.currentSource().appliesPlayerRank(ability.usesRankScaling())
-				? PowerScalingService.energyCost(player, ability.id().getPath(), cost(ability))
-				: cost(ability);
+		return ArtifactEnergyModifiers.forPlayer(player, ability.id().getPath(), resolved);
 	}
 
 	/** per-tick drain while a toggle like flight stays on, zero for everything else */

@@ -27,6 +27,10 @@ public final class PowersDataComponents {
 			BuiltInRegistries.DATA_COMPONENT_TYPE, PowersMod.id("miniportal_charges"),
 			DataComponentType.<Integer>builder().persistent(Codec.intRange(0, 2))
 					.networkSynchronized(ByteBufCodecs.VAR_INT).build());
+	public static final DataComponentType<Integer> STORED_ENERGY = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE, PowersMod.id("stored_energy"),
+			DataComponentType.<Integer>builder().persistent(Codec.intRange(0, 1_600))
+					.networkSynchronized(ByteBufCodecs.VAR_INT).build());
 
 	private PowersDataComponents() {
 	}

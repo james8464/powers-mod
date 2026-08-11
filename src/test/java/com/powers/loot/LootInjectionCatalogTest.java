@@ -34,7 +34,7 @@ class LootInjectionCatalogTest {
 			assertTrue(obtainable.contains("powers:" + weapon), weapon);
 		}
 		for (String imported : ImportedPackItems.importedIds()) {
-			if (!ImportedItemRules.isLegacyAssetLayer(imported)) {
+			if (!ImportedItemRules.isHiddenCompatibilityItem(imported)) {
 				assertTrue(obtainable.contains(imported), imported);
 			}
 		}

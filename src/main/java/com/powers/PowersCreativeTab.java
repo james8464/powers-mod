@@ -37,7 +37,7 @@ public final class PowersCreativeTab {
 						output.accept(PowersBlocks.ARCANE_CRUCIBLE);
 						PowersWeapons.weapons().values().forEach(output::accept);
 						ImportedPackItems.items().entrySet().stream()
-								.filter(entry -> !ImportedItemRules.isLegacyAssetLayer(entry.getKey()))
+								.filter(entry -> !ImportedItemRules.isHiddenCompatibilityItem(entry.getKey()))
 								.map(java.util.Map.Entry::getValue).forEach(output::accept);
 					})
 					.build());

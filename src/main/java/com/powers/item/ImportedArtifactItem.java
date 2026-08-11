@@ -4,8 +4,6 @@ import com.powers.PowersDataComponents;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
-import com.powers.power.PowerDamage;
-import com.powers.power.PowerTargeting;
 import com.powers.power.MagicUseGate;
 import com.powers.power.AmethystDampening;
 import com.powers.power.abilities.DelayedTravelRules;
@@ -13,7 +11,6 @@ import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelChunkLoader;
 import com.powers.power.travel.TravelKind;
 import com.powers.protection.PowerProtection;
-import com.powers.spell.SpellCastingManager;
 import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.PowerMessages;
 import com.powers.testing.TestingOverrides;
@@ -41,12 +38,14 @@ public final class ImportedArtifactItem extends Item {
 	private static final int USE_COOLDOWN_TICKS = 100;
 	private final String texture;
 	private final ImportedArtifactKind kind;
+	private final ArtifactRole role;
 
 	public ImportedArtifactItem(Properties properties, String texture) {
-		super(properties.stacksTo(ImportedArtifactRules.kind(texture)
-				== ImportedArtifactKind.ARCANE_CATALYST ? 16 : 1));
+		super(properties.stacksTo(ArtifactRoleCatalogue.role(texture)
+				== ArtifactRole.ARCANE_ENERGY_DUST ? 16 : 1));
 		this.texture = texture;
 		this.kind = ImportedArtifactRules.kind(texture);
+		this.role = ArtifactRoleCatalogue.role(texture);
 	}
 
 	@Override
@@ -61,7 +60,7 @@ public final class ImportedArtifactItem extends Item {
 				&& player.getCooldowns().isOnCooldown(stack)) return InteractionResult.SUCCESS;
 		boolean success = switch (kind) {
 			case ATTUNEMENT -> recharge(player, 24, 0xE6CF7B);
-			case SOUL_VESSEL -> drainSoul(player);
+			case ENERGY_RESERVOIR -> transferReservoir(player, stack);
 			case RITUAL_CATALYST -> primeRitual(player);
 			case HEART_RELIC -> awakenHeart(player);
 			case TRAVEL_RELIC -> texture.equals("device_miniportal")
@@ -108,6 +107,10 @@ public final class ImportedArtifactItem extends Item {
 		return kind;
 	}
 
+	public ArtifactRole role() {
+		return role;
+	}
+
 	@Override
 	public boolean isBarVisible(ItemStack stack) {
 		return texture.equals("device_miniportal");
@@ -125,26 +128,37 @@ public final class ImportedArtifactItem extends Item {
 		return texture.equals("device_miniportal") ? 0xC99CFF : super.getBarColor(stack);
 	}
 
-	private boolean drainSoul(ServerPlayer player) {
-		LivingEntity target = PowerTargeting.findLivingTarget(player, 16.0);
-		if (target == null || target == player || !PowerProtection.mayHarm(player, target)) {
-			return explain(player, "item.powers.relic.no_soul");
+	private static boolean transferReservoir(ServerPlayer player, ItemStack stack) {
+		ImportedArtifactItem relic = (ImportedArtifactItem) stack.getItem();
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		int stored = ArtifactEnergyReservoir.stored(stack);
+		int transfer;
+		if (player.isShiftKeyDown()) {
+			transfer = Math.min(100, Math.min(data.energy(),
+					ArtifactEnergyReservoir.capacity(relic.texture()) - stored));
+			if (transfer <= 0) return explain(player, "item.powers.relic.reservoir_cannot_store");
+			data.drainEnergy(transfer);
+			ArtifactEnergyReservoir.setStored(stack, stored + transfer);
+		} else {
+			transfer = Math.min(100, Math.min(stored, data.energyCapacity() - data.energy()));
+			if (transfer <= 0) return explain(player, "item.powers.relic.reservoir_cannot_release");
+			ArtifactEnergyReservoir.setStored(stack, stored - transfer);
+			data.refundEnergy(transfer);
 		}
-		int drain = ImportedArtifactRules.soulDrain(texture);
-		float damage = Math.min(target.getHealth() - 1.0F, drain * 0.35F);
-		if (damage <= 0.0F || !target.hurtServer((ServerLevel) player.level(),
-				PowerDamage.source(player), damage)) return false;
-		PlayerPowers.get(player).regenerateEnergy(drain);
-		PowerFx.beam((ServerLevel) player.level(), target.getEyePosition(), player.getEyePosition(),
-				PowerFx.dust(0x7B4BA3, 1.25F), 20);
-		PowerFx.rune((ServerLevel) player.level(), target.position(), 1.2, 0x7B4BA3, 18, 0.0);
+		com.powers.network.PowersPackets.syncTo(player);
+		PowerFx.rune((ServerLevel) player.level(), player.position().add(0.0, 1.0, 0.0),
+				1.2, 0x7B4BA3, 18, player.level().getGameTime() * 0.06);
 		return true;
 	}
 
 	private static boolean primeRitual(ServerPlayer player) {
-		if (player.getHealth() <= 6.0F) return false;
-		player.hurtServer((ServerLevel) player.level(), player.damageSources().magic(), 4.0F);
-		SpellCastingManager.amplify(player, 600);
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		if (player.getHealth() <= 6.0F || data.energy() >= data.energyCapacity()) return false;
+		// A ritual payment is not an incoming attack: armor, spawn invulnerability,
+		// forcefields, and other mods' damage cancellation must not turn it into free energy.
+		player.setHealth(player.getHealth() - 4.0F);
+		data.refundEnergy(80);
+		com.powers.network.PowersPackets.syncTo(player);
 		PowerFx.rune((ServerLevel) player.level(), player.position(), 1.8, 0x9D1735, 26, 0.0);
 		return true;
 	}

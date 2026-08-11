@@ -892,6 +892,49 @@ public final class PowersGameTests {
 
 	@GameTest
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void soulstoneReservoirPaysEnergyShortfallsAtomically(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		var powers = com.powers.player.PlayerPowers.get(player);
+		powers.emptyEnergy();
+		ItemStack stone = com.powers.ImportedPackItems.item(
+				"imported_artifact_soulstone_small").getDefaultInstance();
+		com.powers.item.ArtifactEnergyReservoir.setStored(stone, 100);
+		player.getInventory().setItem(0, stone);
+
+		helper.assertTrue(powers.consumeEnergy(60),
+				"A carried Soulstone did not pay the player's energy shortfall");
+		helper.assertTrue(com.powers.item.ArtifactEnergyReservoir.stored(stone) == 40,
+				"Soulstone payment did not debit the exact stored energy");
+		helper.assertFalse(powers.consumeEnergy(41),
+				"An underfilled Soulstone paid more energy than it contained");
+		helper.assertTrue(com.powers.item.ArtifactEnergyReservoir.stored(stone) == 40,
+				"A refused Soulstone payment partially mutated its balance");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void ritualDaggerConvertsHealthDirectlyIntoExistingEnergy(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		player.setGameMode(GameType.SURVIVAL);
+		player.setHealth(20.0F);
+		var powers = com.powers.player.PlayerPowers.get(player);
+		powers.emptyEnergy();
+		ItemStack dagger = com.powers.ImportedPackItems.item(
+				"imported_artifact_ritualdagger").getDefaultInstance();
+		player.setItemInHand(InteractionHand.MAIN_HAND, dagger);
+
+		dagger.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+		helper.assertTrue(player.getHealth() == 16.0F,
+				"Ritual Dagger did not take its fixed health payment");
+		helper.assertTrue(powers.energy() == 80,
+				"Ritual Dagger created essence instead of refilling the existing energy pool");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void graveRecallStateCapturesThePlayersCurrentDimensionAndPosition(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		BlockPos point = helper.absolutePos(new BlockPos(5, 3, 7));

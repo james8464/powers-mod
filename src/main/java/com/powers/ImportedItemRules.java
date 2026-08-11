@@ -15,4 +15,15 @@ public final class ImportedItemRules {
 				|| texture.startsWith("artifact_runestone_overlay_")
 				|| texture.equals("device_miniportal_active");
 	}
+
+	/** Registered aliases retained only so existing saves never lose item IDs. */
+	public static boolean isHiddenCompatibilityItem(String idOrTexture) {
+		if (idOrTexture == null) return false;
+		String texture = idOrTexture.startsWith(IMPORTED_PREFIX)
+				? idOrTexture.substring(IMPORTED_PREFIX.length()) : idOrTexture;
+		return isLegacyAssetLayer(texture)
+				|| texture.equals("book_grimoire_infernal")
+				|| texture.equals("book_grimoire_recolor_overlay_infernal")
+				|| texture.equals("artifact_trilobitefossil");
+	}
 }

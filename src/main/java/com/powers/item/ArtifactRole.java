@@ -1,0 +1,23 @@
+package com.powers.item;
+
+/** Explicit player-facing purpose for each visible imported non-food item. */
+public enum ArtifactRole {
+	NONE,
+	ATTUNEMENT,
+	ENERGY_RESERVOIR,
+	HEALTH_TO_ENERGY,
+	VITALITY_RELIC,
+	TRANSMUTER,
+	TRAVEL_RELIC,
+	CREATURE_COMMAND,
+	CONSENT_OVERRIDE,
+	DESTRUCTIVE_FOCUS,
+	CELESTIAL_FOCUS,
+	ARCANE_ENERGY_DUST,
+	RITUAL_CONTAINER,
+	ARCHAEOLOGY,
+	ARCANE_CATALYST,
+	ENERGY_RUNE,
+	GRIMOIRE,
+	LORE_FRAGMENT
+}

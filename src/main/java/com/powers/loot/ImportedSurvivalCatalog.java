@@ -17,7 +17,7 @@ final class ImportedSurvivalCatalog {
 		List<String> runes = new ArrayList<>();
 		List<String> relics = new ArrayList<>();
 		for (String texture : ImportedPackItems.textureIds()) {
-			if (ImportedItemRules.isLegacyAssetLayer(texture)) continue;
+			if (ImportedItemRules.isHiddenCompatibilityItem(texture)) continue;
 			String id = "imported_" + texture.replace('.', '_');
 			if (texture.startsWith("food_")) provisions.add(id);
 			else if (texture.startsWith("book_")) grimoires.add(id);
