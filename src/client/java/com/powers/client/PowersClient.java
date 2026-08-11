@@ -122,6 +122,7 @@ public class PowersClient implements ClientModInitializer {
 		EntityRenderers.register(PowersEntities.FIRST_VESSEL,
 				context -> new PlayerLikeMobRenderer(context, "first_vessel", 0.65F));
 		EntityRenderers.register(PowersEntities.ECHO_CLONE, EchoCloneRenderer::new);
+		EntityRenderers.register(PowersEntities.SHADOW_COMPANION, ShadowCompanionRenderer::new);
 
 		// Join vanilla's survival-bar layer so extra heart/armour rows are known
 		// before the adaptive energy vessel and icon rail are extracted.

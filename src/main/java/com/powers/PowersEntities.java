@@ -7,6 +7,7 @@ import com.powers.entity.FirstVessel;
 import com.powers.entity.RadiantSentinel;
 import com.powers.entity.RealmHerald;
 import com.powers.entity.EchoClone;
+import com.powers.companion.ShadowCompanionEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -36,6 +37,8 @@ public final class PowersEntities {
 			"first_vessel", FirstVessel::new, MobCategory.MONSTER);
 	public static final EntityType<EchoClone> ECHO_CLONE = register(
 			"echo_clone", EchoClone::new, MobCategory.CREATURE);
+	public static final EntityType<ShadowCompanionEntity> SHADOW_COMPANION = register(
+			"shadow_companion", ShadowCompanionEntity::new, MobCategory.CREATURE);
 
 	private PowersEntities() {
 	}
@@ -51,6 +54,8 @@ public final class PowersEntities {
 		FabricDefaultAttributeRegistry.register(LIGHT_HERALD, RealmHerald.createAttributes());
 		FabricDefaultAttributeRegistry.register(FIRST_VESSEL, FirstVessel.createAttributes());
 		FabricDefaultAttributeRegistry.register(ECHO_CLONE, AbstractPlayerLikeMob.createAttributes());
+		FabricDefaultAttributeRegistry.register(SHADOW_COMPANION,
+				AbstractPlayerLikeMob.createAttributes());
 		SpawnPlacements.register(DARKNESS_CREATURE, SpawnPlacementTypes.ON_GROUND,
 				Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkAnyLightMonsterSpawnRules);
 	}
