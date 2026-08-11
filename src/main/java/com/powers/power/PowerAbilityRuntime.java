@@ -1,5 +1,6 @@
 package com.powers.power;
 
+import com.powers.magic.runtime.MagicRayCollisionRuntime;
 import com.powers.power.abilities.AstralProjectionAbility;
 import com.powers.power.abilities.BreezyBashAbility;
 import com.powers.power.abilities.EnergyBeamAbility;
@@ -82,6 +83,7 @@ public final class PowerAbilityRuntime {
 		SpeedBurstAbility.clear(owner);
 		EnergyBeamAbility.clear(owner);
 		VoidBeamAbility.clear(owner);
+		MagicRayCollisionRuntime.clear(owner);
 		EnergyDrainAbility.clear(owner);
 	}
 
@@ -118,11 +120,13 @@ public final class PowerAbilityRuntime {
 		SpeedBurstAbility.clearAll();
 		EnergyBeamAbility.clearAll();
 		VoidBeamAbility.clearAll();
+		MagicRayCollisionRuntime.clearAll();
 	}
 
 	/** Advances every ability with persistent server-owned state exactly once per tick. */
 	public static void tick(MinecraftServer server) {
 		GlobalTimeStopManager.tick(server);
+		MagicRayCollisionRuntime.tick(server.getTickCount());
 		VesselPossessionAbility.tickAll(server);
 		AstralProjectionAbility.tickAll(server);
 		EnergyDrainAbility.tickAll(server);

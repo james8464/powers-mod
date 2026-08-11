@@ -41,6 +41,16 @@ public final class MagicInteractionResolver {
 		register(exact, "darkness_block", "pure_light_block",
 				(first, second, context) -> cancellation(first, second, "realm_annihilation",
 						"Opposed realm matter annihilates in a staged power-100-equivalent wave."));
+		register(exact, "energy_beam", "void_beam",
+				(first, second, context) -> new InteractionResolution(
+						InteractionOutcome.DESTABILIZE, 0.65, 0.65,
+						0.0, 0.0, 0.55, 0.55, MagicAspect.STORM,
+						false, false,
+						new InteractionCue("annihilating_beam_clash", "celestial_ring",
+								first.signature().primaryColor(), second.signature().primaryColor(),
+								31 * first.signature().glyphSeed() + second.signature().glyphSeed(), 5),
+						"Crossing Sunfire and Void rays collapse into a bounded pressure blast, "
+								+ "caster lightning omens, and a short celestial ring."));
 		return new MagicInteractionResolver(catalogue, exact);
 	}
 

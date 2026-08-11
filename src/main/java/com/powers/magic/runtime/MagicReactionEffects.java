@@ -2,7 +2,9 @@ package com.powers.magic.runtime;
 
 import com.powers.PowerStatusEffects;
 import com.powers.PowersEffects;
+import com.powers.PowersSounds;
 import com.powers.fx.PowerFx;
+import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.abilities.InvisibilityToggleAbility;
@@ -19,6 +21,8 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.AABB;
@@ -51,6 +55,43 @@ final class MagicReactionEffects {
 				// Multipliers are the mechanics for the remaining exhaustive cases;
 				// their deterministic rune/clash presentation is emitted by the adapter.
 			}
+		}
+	}
+
+	/** Applies the authored no-grief consequence for crossing Sunfire and Void rays. */
+	static void annihilatingBeamClash(ServerLevel level, MagicRaySegment first,
+			MagicRaySegment second, Vec3 midpoint) {
+		ServerPlayer firstCaster = level.getServer().getPlayerList().getPlayer(first.owner());
+		ServerPlayer secondCaster = level.getServer().getPlayerList().getPlayer(second.owner());
+		ServerPlayer source = firstCaster != null && firstCaster.level() == level
+				? firstCaster : secondCaster != null && secondCaster.level() == level ? secondCaster : null;
+		for (LivingEntity entity : living(level, midpoint, 3.5)) {
+			if (!mayContest(level, entity)
+					|| source != null && !PowerProtection.mayHarm(source, entity)) continue;
+			entity.hurtServer(level, source == null ? entity.damageSources().magic()
+					: com.powers.power.PowerDamage.source(source), 12.0F);
+			Vec3 away = entity.position().subtract(midpoint);
+			if (away.lengthSqr() > 0.01 && !BodyProxyManager.isProxy(entity)
+					&& (source == null || PowerProtection.mayForceMove(source, entity))) {
+				away = away.normalize().scale(0.65);
+				entity.push(away.x, Math.max(0.18, away.y + 0.12), away.z);
+			}
+		}
+		lightningOmen(level, firstCaster);
+		lightningOmen(level, secondCaster);
+		PowerFx.burst(level, midpoint, ParticleTypes.EXPLOSION, 5, 0.8, 0.04);
+		PowerFx.ring(level, midpoint, 3.8, 0xF7E9FF, 34, 0.0);
+		PowerFx.ring(level, midpoint, 2.4, 0x6D32A8, 26, Math.PI / 2.0);
+		PowerFx.sound(level, midpoint, PowersSounds.CELESTIAL_RING, 1.8F, 1.35F);
+	}
+
+	private static void lightningOmen(ServerLevel level, ServerPlayer caster) {
+		if (caster == null || caster.level() != level || caster.isRemoved()) return;
+		var bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
+		if (bolt != null) {
+			bolt.setVisualOnly(true);
+			bolt.setPos(caster.position());
+			level.addFreshEntity(bolt);
 		}
 	}
 

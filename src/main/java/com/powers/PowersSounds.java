@@ -27,6 +27,7 @@ public final class PowersSounds {
 	private static final Map<String, SoundEvent> BY_CUE = Map.ofEntries(
 			Map.entry("rune_hum", RUNE_HUM), Map.entry("crystal_resonate", CRYSTAL_RESONATE),
 			Map.entry("amethyst_fracture", AMETHYST_FRACTURE), Map.entry("time_suspend", TIME_SUSPEND),
+			Map.entry("celestial_ring", CELESTIAL_RING),
 			Map.entry("time_release", TIME_RELEASE), Map.entry("rift_open", RIFT_OPEN),
 			Map.entry("rift_close", RIFT_CLOSE), Map.entry("soul_tether", SOUL_TETHER),
 			Map.entry("light_chorus", LIGHT_CHORUS), Map.entry("dark_whisper", DARK_WHISPER),

@@ -6,6 +6,7 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.MagicRayCollisionRuntime;
 import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -164,6 +165,13 @@ public final class VoidBeamAbility extends Ability {
 				.orElse(blockDistance);
 		Vec3 terminal = ward.map(SpellFieldManager.RayWardHit::point)
 				.orElse(origin.add(direction.scale(terminalDistance)));
+		var rayCollision = MagicRayCollisionRuntime.publish(level, "void_beam",
+				player.getUUID(), origin, terminal, level.getServer().getTickCount());
+		if (rayCollision.isPresent()) {
+			PowerFx.voidBeamRelease(level, origin, rayCollision.get(),
+					charge.empoweredImpact(), charge.ancientMastery());
+			return;
+		}
 		VoidBeamRules.Counterplay counterplay = ward.map(SpellFieldManager.RayWardHit::counterplay)
 				.orElseGet(() -> blockCounter(level, picked));
 		if (counterplay == VoidBeamRules.Counterplay.NONE

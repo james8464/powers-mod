@@ -1,10 +1,18 @@
 package com.powers.fx;
 
+import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
+import com.powers.PowersSounds;
+import com.powers.network.PowersPackets;
+import com.powers.player.PlayerPowers;
+import com.powers.power.abilities.PossessionEndRules;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -48,6 +56,37 @@ public final class GodlyPunishment {
 			PowerFx.burst(level, follow, ParticleTypes.ELECTRIC_SPARK, 18, 0.9, 0.12);
 			PowerFx.sound(level, follow, SoundEvents.BEACON_DEACTIVATE, 1.0f, 0.6f);
 		});
+	}
+
+	/** Nonlethal but severe judgement after a controlled vessel is killed. */
+	public static void deadVesselWrath(ServerPlayer player) {
+		ServerLevel level = (ServerLevel) player.level();
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		data.drainEnergy(PossessionEndRules.wrathEnergyDrain(data.energyCapacity()));
+		float damage = PossessionEndRules.wrathDamage(player.getHealth());
+		if (damage > 0.0F) player.setHealth(player.getHealth() - damage);
+		player.addEffect(PowerStatusEffects.hidden(MobEffects.WEAKNESS,
+				PossessionEndRules.WRATH_TICKS, 3, false, true));
+		player.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS,
+				PossessionEndRules.WRATH_TICKS, 2, false, true));
+		player.addEffect(PowerStatusEffects.hidden(MobEffects.DARKNESS,
+				PossessionEndRules.WRATH_TICKS, 0, false, true));
+		PowersPackets.syncTo(player);
+
+		Vec3 center = player.position().add(0.0, 1.0, 0.0);
+		PowerFx.rune(level, player.position().add(0.0, 0.05, 0.0), 3.4, 0xC27CFF, 36, 0.0);
+		PowerFx.ring(level, player.position().add(0.0, 0.08, 0.0), 5.2, 0xFFF2B0, 44, Math.PI / 2.0);
+		PowerFx.spiral(level, center, 1.5, 5.5, 0x6D32A8, 48, 0.0);
+		PowerFx.coloredBurst(level, center, 0xFFF2B0, 42, 1.4);
+		PowerFx.sound(level, center, PowersSounds.CELESTIAL_RING, 1.75F, 0.72F);
+		var bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
+		if (bolt != null) {
+			bolt.setVisualOnly(true);
+			bolt.setPos(player.position());
+			level.addFreshEntity(bolt);
+		}
+		com.powers.util.PowerMessages.overlay(player,
+				net.minecraft.network.chat.Component.translatable("ability.powers.vessel_wrath"));
 	}
 
 	/** a cold, dragging rejection, used when the dark realm refuses entry */

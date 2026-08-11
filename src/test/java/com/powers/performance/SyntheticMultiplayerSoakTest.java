@@ -7,6 +7,9 @@ import com.powers.magic.MagicActionId;
 import com.powers.magic.runtime.ActiveMagicIndex;
 import com.powers.magic.runtime.MagicPresence;
 import com.powers.magic.runtime.MagicPresenceId;
+import com.powers.magic.runtime.MagicRayCollisionIndex;
+import com.powers.magic.runtime.MagicRayCollisionRules;
+import com.powers.magic.runtime.MagicRaySegment;
 import com.powers.magic.runtime.PresenceAnchor;
 import com.powers.mind.BodyProxyTicketRules;
 import com.powers.network.UniqueNameIndex;
@@ -16,6 +19,7 @@ import com.powers.power.artifact.ArtifactFieldPulseRules;
 import com.powers.util.BoundedRoundRobinQueue;
 import com.powers.util.ChunkSpatialIndex;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -44,6 +48,7 @@ class SyntheticMultiplayerSoakTest {
 		AmethystWardIndex wards = new AmethystWardIndex();
 		UniqueNameIndex<UUID> names = new UniqueNameIndex<>();
 		BoundedRoundRobinQueue<UUID> rotatingWork = new BoundedRoundRobinQueue<>();
+		MagicRayCollisionIndex rays = new MagicRayCollisionIndex();
 		for (int index = 0; index < playerCount; index++) {
 			UUID player = new UUID(0L, index + 1L);
 			double x = index * 64.0;
@@ -60,6 +65,7 @@ class SyntheticMultiplayerSoakTest {
 		ParticleBudget particles = new ParticleBudget(512);
 		TickWorkMetrics metrics = new TickWorkMetrics();
 		for (int tick = 0; tick < 1_200; tick++) {
+			rays.tick(tick);
 			ForceAuraWorkBudget scans = new ForceAuraWorkBudget(2_048, 32);
 			int acceptedPackets = 0;
 			for (int index = 0; index < players.size(); index++) {
@@ -74,6 +80,18 @@ class SyntheticMultiplayerSoakTest {
 				assertTrue(magic.nearby("minecraft:overworld", x, 64.0, 0.0, 12.0, tick).size() <= 1);
 				assertTrue(fields.nearby("minecraft:overworld", x, 0.0, 12.0).size() <= 1);
 				assertTrue(wards.nearby(BlockPos.containing(x, 64.0, 0.0), 12).size() <= 1);
+			}
+			if (tick % 20 == 0) {
+				for (int index = 0; index < players.size(); index++) {
+					double height = 64.0 + index / 2;
+					boolean horizontal = (index & 1) == 0;
+					rays.submit(new MagicRaySegment(players.get(index),
+							horizontal ? "energy_beam" : "void_beam", "minecraft:overworld",
+							horizontal ? new Vec3(-4, height, 0) : new Vec3(0, height, -4),
+							horizontal ? new Vec3(4, height, 0) : new Vec3(0, height, 4), tick));
+				}
+				assertTrue(rays.collisionsThisTick() <= MagicRayCollisionRules.MAX_COLLISIONS_PER_TICK);
+				assertTrue(rays.activeSegmentCount() <= MagicRayCollisionRules.MAX_SEGMENTS_PER_DIMENSION);
 			}
 			List<UUID> queueBatch = rotatingWork.pollBatch(32);
 			assertTrue(queueBatch.size() <= 32);
@@ -96,9 +114,11 @@ class SyntheticMultiplayerSoakTest {
 		wards.clear();
 		names.clear();
 		rotatingWork.clear();
+		rays.clear();
 		assertEquals(0, fields.cellCount());
 		assertEquals(0, wards.size());
 		assertEquals(0, rotatingWork.size());
+		assertEquals(0, rays.activeSegmentCount());
 		assertEquals(1, BodyProxyTicketRules.maximumChunksPerBody());
 	}
 }

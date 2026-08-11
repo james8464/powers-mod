@@ -1,8 +1,10 @@
 package com.powers.magic.runtime;
 
 import com.powers.magic.ActionPair;
+import com.powers.magic.InteractionContext;
 import com.powers.magic.InteractionResolution;
 import com.powers.magic.MagicActionCatalogue;
+import com.powers.magic.MagicActionId;
 import com.powers.magic.MagicInteractionResolver;
 
 import java.util.ArrayList;
@@ -49,6 +51,16 @@ public final class MagicRuntime {
 	/** Returns the canonical catalogue used by the production cast adapters. */
 	public static MagicActionCatalogue catalogue() {
 		return GLOBAL_CATALOGUE;
+	}
+
+	/** Resolves two trusted runtime action IDs through the canonical matrix. */
+	public InteractionResolution resolveInteraction(String firstAction, String secondAction) {
+		var first = catalogue.definition(new MagicActionId(firstAction));
+		var second = catalogue.definition(new MagicActionId(secondAction));
+		if (first == null || second == null) {
+			throw new IllegalArgumentException("Runtime ray action is not registered");
+		}
+		return resolver.resolve(first, second, InteractionContext.DEFAULT);
 	}
 
 	/**

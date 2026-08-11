@@ -1297,7 +1297,7 @@ energy_beam,time_freeze,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,
 energy_beam,time_shift,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 energy_beam,verdant_tending,INNATE,SPELL,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
 energy_beam,vessel_possession,INNATE,INNATE,COEXIST,harmonic_weave,crystal_resonate,1,1.000,1.000,1.000,1.000,1.000,1.000,,false,false,Independent forces coexist with a restrained harmonic weave.
-energy_beam,void_beam,INNATE,INNATE,DESTABILIZE,violent_interference,interaction_clash,4,1.050,1.050,0.750,0.750,1.000,1.000,,false,false,Colliding hostile forces intensify impact while shortening persistence.
+energy_beam,void_beam,INNATE,INNATE,DESTABILIZE,annihilating_beam_clash,celestial_ring,5,0.650,0.650,0.000,0.000,0.550,0.550,STORM,false,false,"Crossing Sunfire and Void rays collapse into a bounded pressure blast, caster lightning omens, and a short celestial ring."
 energy_beam,ward_breaking_ritual,INNATE,SPELL,DAMPEN,counter_sigils,rune_hum,2,0.550,1.000,0.550,1.000,1.000,1.000,,false,false,Suppression and action contest according to interaction priority.
 energy_drain,energy_drain,INNATE,INNATE,RESONATE,soul_resonance,soul_tether,3,1.120,1.120,1.100,1.100,1.050,1.050,SOUL,false,false,Shared aspects resonate with bounded potency and duration.
 energy_drain,fireball,INNATE,INNATE,DESTABILIZE,violent_interference,interaction_clash,4,1.050,1.050,0.750,0.750,1.000,1.000,,false,false,Colliding hostile forces intensify impact while shortening persistence.

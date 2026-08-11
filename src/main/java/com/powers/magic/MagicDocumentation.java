@@ -1,5 +1,7 @@
 package com.powers.magic;
 
+import com.powers.magic.runtime.MagicLifecycleRules;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,6 +16,7 @@ public final class MagicDocumentation {
 	private static final String CATALOGUE_PATH = "docs/interactions/action-catalogue.md";
 	private static final String RULES_PATH = "docs/interactions/interaction-rules.md";
 	private static final String MATRIX_PATH = "docs/interactions/interaction-matrix.csv";
+	private static final String LIFECYCLE_MATRIX_PATH = "docs/interactions/lifecycle-matrix.csv";
 
 	private MagicDocumentation() {
 	}
@@ -52,7 +55,7 @@ public final class MagicDocumentation {
 		return """
 				# Magic interaction rules
 
-				Every unordered pair—including two copies of the same action—has a deterministic mechanical outcome and a shape, sound, colour pair, glyph seed, and bounded intensity. The exhaustive concrete results are in `interaction-matrix.csv`.
+				Every unordered action pair—including two copies of the same action—has a deterministic mechanical outcome and a shape, sound, colour pair, glyph seed, and bounded intensity. The exhaustive concrete results are in `interaction-matrix.csv`. Every form, cast source, and termination event likewise has a defined lifecycle result in `lifecycle-matrix.csv`.
 
 				## Resolution priority
 
@@ -81,6 +84,7 @@ public final class MagicDocumentation {
 				| Gravity orrery × protected body | Consent/safe zones, amethyst, soul-anchored projection bodies, personal forcefields, powered wards, and time locks resist capture without consuming or moving the target. | Privacy-blue boundary, amethyst fracture, soul tether, cyan shield, green-gold seal, or pale time fracture. |
 				| Gravity orrery × gravity orrery | Each shared body belongs to the nearer field after a hysteresis margin; ownership hands off once with no competing velocity writes. | Violet-cyan twin tether and resonance fracture. |
 				| Sunfire Energy Beam × water | The nearest sampled water boundary converts only that damage beat into a radius-three, eight-target steam pulse at 65% base damage, with bounded consent-safe motion and no ignition. | Pale pressure rune, cloud bloom, extinguish hiss, and interaction clash. |
+				| Sunfire Energy Beam × Void Beam | Crossing live ray segments terminate at their first bounded intersection. The meeting point releases a small no-grief pressure blast, both casters receive harmless lightning omens, and one short celestial ring is deduplicated for the collision. | White-gold/violet fracture, opposing coronas, two visual lightning strikes, and short celestial ring. |
 				| Sunfire Energy Beam × terminal ward or matter | Ordinary matter, amethyst, Pure Light, Darkness, safe zones, powered wards, personal forcefields, and invulnerable bodies stop the ray before protected effects; shields alone consume integrity through the damage bridge. | Material-specific double corona, fracture language, and semantic ward sound. |
 				| Sunfire Energy Beam × ranked body sequence | Three consecutive hits escalate scorch and unlock at most one Empowered solar flare; Ancient Mastery adds at most two visible 45% forks that never chain or cross protection. | Rising ember coronas, compact solar disc, and twin white-gold arcs. |
 				| Tempest Rite × protected body | Consent/safe zones, amethyst, projection bodies, forcefields, powered wards, time locks, and blocked launch volumes resist before velocity writes; later protection changes trigger Slow Falling release. | Privacy blue, amethyst violet, soul lavender, shield cyan, ritual green-gold, time white, or terrain-grey double corona. |
@@ -119,7 +123,7 @@ public final class MagicDocumentation {
 
 				## Runtime guarantees
 
-				The cast transaction resolves nearby presences before payment or cooldown, commits residue only after gameplay success, deduplicates a pair/cell/tick cue, bounds spatial cells and residue lifetime, and clears owner state on disconnect, respawn, and shutdown. Server-derived action IDs prevent clients from selecting a stronger rule directly.
+				The cast transaction resolves nearby presences before payment or cooldown, commits residue only after gameplay success, deduplicates a pair/cell/tick cue, bounds spatial cells and residue lifetime, and clears owner state on disconnect, respawn, and shutdown. Physical ray collisions use a separate bounded per-dimension index cleared every server tick. Server-derived action IDs prevent clients from selecting a stronger rule directly. Lifecycle cleanup is exhaustive across the eight forms, six sources, and fourteen terminal events documented in `lifecycle-matrix.csv`.
 				""";
 	}
 
@@ -144,6 +148,22 @@ public final class MagicDocumentation {
 		return output.toString();
 	}
 
+	/** Renders every form/source/termination combination as auditable CSV evidence. */
+	public static String renderLifecycleMatrix() {
+		StringBuilder output = new StringBuilder(
+				"form,source,event,outcome,motif,mechanics\n");
+		for (MagicLifecycleRules.Form form : MagicLifecycleRules.Form.values()) {
+			for (MagicLifecycleRules.Source source : MagicLifecycleRules.Source.values()) {
+				for (MagicLifecycleRules.Event event : MagicLifecycleRules.Event.values()) {
+					MagicLifecycleRules.Decision decision = MagicLifecycleRules.resolve(form, source, event);
+					appendCsv(output, form.name(), source.name(), event.name(),
+							decision.outcome().name(), decision.motif(), decision.mechanics());
+				}
+			}
+		}
+		return output.toString();
+	}
+
 	/** Writes documents, or verifies them with a second {@code --check} argument. */
 	public static void main(String[] args) throws IOException {
 		Path root = args.length == 0 ? Path.of("").toAbsolutePath() : Path.of(args[0]).toAbsolutePath();
@@ -151,6 +171,7 @@ public final class MagicDocumentation {
 		writeOrCheck(root.resolve(CATALOGUE_PATH), renderCatalogue(), check);
 		writeOrCheck(root.resolve(RULES_PATH), renderRules(), check);
 		writeOrCheck(root.resolve(MATRIX_PATH), renderMatrix(), check);
+		writeOrCheck(root.resolve(LIFECYCLE_MATRIX_PATH), renderLifecycleMatrix(), check);
 	}
 
 	private static List<MagicActionDefinition> sortedActions() {

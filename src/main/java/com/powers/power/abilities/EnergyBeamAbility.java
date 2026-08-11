@@ -5,6 +5,7 @@ import com.powers.PowersMod;
 import com.powers.fx.EnergyBeamFx;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.MagicRayCollisionRuntime;
 import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.mind.BodyProxyManager;
 import com.powers.player.PlayerPowers;
@@ -130,8 +131,15 @@ public final class EnergyBeamAbility extends Ability {
 			if (!damageBeat && (age & 1L) != 0L) continue;
 			EnergyBeamRayResolver.RayResolution ray = EnergyBeamRayResolver.resolve(
 					level, owner, channel.range);
-			EnergyBeamFx.ray(level, owner.getEyePosition(), ray.endpoint(),
+			Vec3 origin = owner.getEyePosition();
+			var collision = MagicRayCollisionRuntime.publish(level, "energy_beam",
+					owner.getUUID(), origin, ray.endpoint(), now);
+			EnergyBeamFx.ray(level, origin, collision.orElse(ray.endpoint()),
 					damageBeat, channel.ancientMastery);
+			if (collision.isPresent()) {
+				resetStreak(channel);
+				continue;
+			}
 			if (damageBeat) resolveDamageBeat(level, owner, channel, ray);
 		}
 	}

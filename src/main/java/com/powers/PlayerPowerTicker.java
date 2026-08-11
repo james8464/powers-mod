@@ -37,7 +37,11 @@ final class PlayerPowerTicker {
 	static void tick(ServerPlayer player, int tick, PlayerTickCadence cadence) {
 		enforceRealmGamemode(player);
 		// The server-end callback still runs while Minecraft's global tick is frozen.
-		if (!GlobalTimeStopManager.mayAct(player)) return;
+		if (!GlobalTimeStopManager.mayAct(player)) {
+			ArtifactInventoryRuntime.reconcileOwnership(player);
+			PrivateCompanionManager.reconcileEligibility(player);
+			return;
+		}
 		if (cadence.passiveRefresh()) PowersPackets.syncTo(player);
 		ArtifactInventoryRuntime.tickPlayer(player, tick);
 		ImportedArtifactRuntime.tickPlayer(player, tick);

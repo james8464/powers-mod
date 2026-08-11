@@ -76,6 +76,17 @@ class MagicInteractionResolverTest {
 	}
 
 	@Test
+	void crossingEnergyAndVoidBeamsDestabilizeWithTheirAuthoredClash() {
+		InteractionResolution resolution = resolve("energy_beam", "void_beam");
+
+		assertEquals(InteractionOutcome.DESTABILIZE, resolution.outcome());
+		assertEquals("annihilating_beam_clash", resolution.cue().motif());
+		assertEquals("celestial_ring", resolution.cue().sound());
+		assertTrue(!resolution.blocksFirst());
+		assertTrue(!resolution.blocksSecond());
+	}
+
+	@Test
 	void sameAspectActionsResonateWhileUnrelatedActionsSafelyCoexist() {
 		assertEquals(InteractionOutcome.RESONATE, resolve("fireball", "inferno").outcome());
 		assertEquals(InteractionOutcome.COEXIST, resolve("flight", "soul_compass").outcome());

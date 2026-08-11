@@ -2,12 +2,15 @@ package com.powers.magic.runtime;
 
 import com.powers.PowersSounds;
 import com.powers.fx.PowerFx;
+import com.powers.knowledge.MagicAttemptReporter;
+import com.powers.knowledge.MagicFailureReason;
 import com.powers.magic.InteractionContext;
 import com.powers.magic.InteractionOutcome;
+import com.powers.magic.InteractionResolution;
 import com.powers.magic.MagicActionDefinition;
 import com.powers.magic.MagicActionId;
-import com.powers.magic.MagicSignature;
 import com.powers.magic.MagicOrigin;
+import com.powers.magic.MagicSignature;
 import com.powers.magic.fx.MagicCastPresentation;
 import com.powers.magic.fx.MagicFxEvent;
 import com.powers.network.MagicFxPackets;
@@ -25,8 +28,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.function.Supplier;
-import com.powers.knowledge.MagicAttemptReporter;
-import com.powers.knowledge.MagicFailureReason;
 
 /**
  * Minecraft adapter for the pure {@link MagicRuntime}. It derives identity,
@@ -149,6 +150,37 @@ public final class ServerMagicCasts {
 		} else if (event.resolution().outcome() == InteractionOutcome.RESONATE
 				|| event.resolution().outcome() == InteractionOutcome.AMPLIFY) {
 			PowerFx.sound(level, midpoint, SoundEvents.ENCHANTMENT_TABLE_USE, 0.8f, 1.35f);
+		}
+	}
+
+	/** Emits an already-resolved physical ray collision at its true intersection. */
+	static void emitPhysicalRayReaction(ServerLevel level,
+			MagicRayCollisionIndex.Collision collision,
+			InteractionResolution resolution) {
+		Vec3 midpoint = collision.point();
+		var cue = resolution.cue();
+		Vec3 firstDirection = collision.submitted().end().subtract(collision.submitted().start()).normalize();
+		Vec3 secondDirection = collision.existing().end().subtract(collision.existing().start()).normalize();
+		Vec3 from = midpoint.subtract(firstDirection.scale(1.2));
+		Vec3 to = midpoint.subtract(secondDirection.scale(1.2));
+		PowerFx.clash(level, from, to, cue.primaryColor(), cue.secondaryColor());
+		PowerFx.rune(level, midpoint, 0.7 + cue.intensity() * 0.22, cue.primaryColor(),
+				8 + cue.intensity() * 4, Math.floorMod(cue.glyphSeed(), 360) * Math.PI / 180.0);
+		PowerFx.coloredBurst(level, midpoint, cue.secondaryColor(), 4 + cue.intensity() * 3,
+				0.25 + cue.intensity() * 0.08);
+		long eventId = Integer.toUnsignedLong(java.util.Objects.hash(
+				collision.submitted().owner(), collision.existing().owner(),
+				collision.submitted().action(), collision.existing().action(),
+				collision.submitted().gameTime()));
+		MagicFxPackets.broadcast(level, MagicFxEvent.interaction(eventId, cue.motif(), cue.sound(),
+				midpoint.x, midpoint.y, midpoint.z, cue.primaryColor(), cue.secondaryColor(),
+				cue.glyphSeed(), cue.intensity()));
+		if (cue.motif().equals("annihilating_beam_clash")) {
+			MagicReactionEffects.annihilatingBeamClash(level, collision.submitted(),
+					collision.existing(), midpoint);
+		} else {
+			PowerFx.sound(level, midpoint, PowersSounds.forCue(cue.sound()),
+					0.55F + cue.intensity() * 0.13F, 0.88F + cue.intensity() * 0.045F);
 		}
 	}
 }

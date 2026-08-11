@@ -21,6 +21,12 @@ class MagicDocumentationTest {
 		long actionCount = MagicActionCatalogue.defaults().definitions().size();
 		assertEquals(1L + actionCount * (actionCount + 1L) / 2L, matrix.lines().count());
 		assertEquals(MagicDocumentation.renderMatrix(), matrix);
+		String lifecycle = read("docs/interactions/lifecycle-matrix.csv");
+		long lifecycleCases = (long) com.powers.magic.runtime.MagicLifecycleRules.Form.values().length
+				* com.powers.magic.runtime.MagicLifecycleRules.Source.values().length
+				* com.powers.magic.runtime.MagicLifecycleRules.Event.values().length;
+		assertEquals(1L + lifecycleCases, lifecycle.lines().count());
+		assertEquals(MagicDocumentation.renderLifecycleMatrix(), lifecycle);
 	}
 
 	private static String read(String relative) throws IOException {

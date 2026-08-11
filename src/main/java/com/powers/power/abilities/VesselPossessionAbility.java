@@ -182,17 +182,18 @@ public class VesselPossessionAbility extends Ability {
 					&& (!(possession.target() instanceof ServerPlayer targetPlayer)
 					|| server.getPlayerList().getPlayer(targetPlayer.getUUID()) == targetPlayer);
 			boolean sameDimension = owner != null && owner.level() == possession.target().level();
-			// End early if either participant becomes invalid, protection changes,
-			// or a mob unloads while its camera session is active.
-			if (!MagicUseGate.ongoingAllowed(owner) || !possession.target().isAlive()
-					|| !targetAvailable || now >= possession.endsAt()
-					|| !PossessionRules.sessionLocationValid(ownerIsCurrent, sameDimension)
-					|| AmethystDampening.isDampened(possession.target())
-					|| !rankAllowsControl(possession.owner(), possession.target(), possession.kind())
-					|| !mayControl(possession.owner(), possession.target(), possession.kind())
-					|| !ServerCastLifecycle.mayContinue(owner, possession.castSource(), ownsPower(owner))) {
-				// reset the owner's camera before dropping the possession
-				end(possession, owner);
+			boolean protectionValid = !AmethystDampening.isDampened(possession.target())
+					&& rankAllowsControl(possession.owner(), possession.target(), possession.kind())
+					&& mayControl(possession.owner(), possession.target(), possession.kind());
+			boolean sourceValid = ServerCastLifecycle.mayContinue(
+					owner, possession.castSource(), ownsPower(owner));
+			PossessionEndRules.Reason reason = PossessionEndRules.reason(
+					possession.target().isAlive(), targetAvailable,
+					MagicUseGate.ongoingAllowed(owner),
+					PossessionRules.sessionLocationValid(ownerIsCurrent, sameDimension),
+					protectionValid, sourceValid, now < possession.endsAt());
+			if (reason != PossessionEndRules.Reason.NONE) {
+				end(possession, owner, reason);
 				it.remove();
 			} else if (now % 20 == 0 && owner.level() == possession.target().level()) {
 				com.powers.fx.PowerFx.clash((ServerLevel) owner.level(), owner.getEyePosition(),
@@ -204,10 +205,11 @@ public class VesselPossessionAbility extends Ability {
 	/** Ends any possession by the given player and resets their camera, used on disconnect. */
 	public static void clear(ServerPlayer owner) {
 		Possession possession = POSSESSING.remove(owner.getUUID());
-		if (possession != null) end(possession, owner);
+		if (possession != null) end(possession, owner, PossessionEndRules.Reason.OWNER_INVALID);
 	}
 
-	private static void end(Possession possession, ServerPlayer owner) {
+	private static void end(Possession possession, ServerPlayer owner,
+			PossessionEndRules.Reason reason) {
 		ParticipantPowerLock.release(possession.sessionId());
 		if (possession.target() instanceof Mob mob) {
 			mob.setNoAi(possession.targetOriginallyNoAi());
@@ -215,7 +217,15 @@ public class VesselPossessionAbility extends Ability {
 		if (owner == null) return;
 		VesselControlPackets.sendState(owner, false);
 		owner.setCamera(null);
-		BodyProxyManager.returnToBody(owner);
+		if (reason == PossessionEndRules.Reason.VESSEL_FATAL) {
+			BodyProxyManager.returnToBody(owner, returned -> {
+				if (returned && owner.isAlive() && !owner.isRemoved()) {
+					com.powers.fx.GodlyPunishment.deadVesselWrath(owner);
+				}
+			});
+		} else {
+			BodyProxyManager.returnToBody(owner);
+		}
 	}
 
 	/** True only for the remote player whose vanilla input must be suppressed. */
@@ -239,7 +249,7 @@ public class VesselPossessionAbility extends Ability {
 		Possession possession = owner == null ? null : POSSESSING.get(owner.getUUID());
 		if (possession == null || possession.kind() != PossessionRules.SessionKind.DREAMWALK) return false;
 		POSSESSING.remove(owner.getUUID());
-		end(possession, owner);
+		end(possession, owner, PossessionEndRules.Reason.NONE);
 		return true;
 	}
 
@@ -304,7 +314,9 @@ public class VesselPossessionAbility extends Ability {
 	}
 
 	public static void clearAll() {
-		for (Possession possession : POSSESSING.values()) end(possession, possession.owner());
+		for (Possession possession : POSSESSING.values()) {
+			end(possession, possession.owner(), PossessionEndRules.Reason.OWNER_INVALID);
+		}
 		POSSESSING.clear();
 	}
 }
