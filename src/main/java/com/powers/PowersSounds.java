@@ -14,6 +14,8 @@ public final class PowersSounds {
 	public static final SoundEvent AMETHYST_FRACTURE = register("amethyst_fracture");
 	public static final SoundEvent TIME_SUSPEND = register("time_suspend");
 	public static final SoundEvent CELESTIAL_RING = register("celestial_ring");
+	public static final SoundEvent BEAM_RING = register("beam_ring");
+	public static final SoundEvent BOSS_IMPACT_RING = register("boss_impact_ring");
 	public static final SoundEvent TIME_RELEASE = register("time_release");
 	public static final SoundEvent RIFT_OPEN = register("rift_open");
 	public static final SoundEvent RIFT_CLOSE = register("rift_close");
@@ -28,6 +30,7 @@ public final class PowersSounds {
 			Map.entry("rune_hum", RUNE_HUM), Map.entry("crystal_resonate", CRYSTAL_RESONATE),
 			Map.entry("amethyst_fracture", AMETHYST_FRACTURE), Map.entry("time_suspend", TIME_SUSPEND),
 			Map.entry("celestial_ring", CELESTIAL_RING),
+			Map.entry("beam_ring", BEAM_RING), Map.entry("boss_impact_ring", BOSS_IMPACT_RING),
 			Map.entry("time_release", TIME_RELEASE), Map.entry("rift_open", RIFT_OPEN),
 			Map.entry("rift_close", RIFT_CLOSE), Map.entry("soul_tether", SOUL_TETHER),
 			Map.entry("light_chorus", LIGHT_CHORUS), Map.entry("dark_whisper", DARK_WHISPER),

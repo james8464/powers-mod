@@ -147,6 +147,7 @@ public final class ServerMagicCasts {
 				midpoint.x, midpoint.y, midpoint.z, cue.primaryColor(), cue.secondaryColor(),
 				cue.glyphSeed(), cue.intensity()));
 		MagicReactionEffects.apply(level, event, midpoint);
+		announceInteraction(level, event.cast().owner(), event.existing().owner(), event.resolution().outcome());
 		if (event.resolution().outcome() == InteractionOutcome.TRANSFORM) {
 			PowerFx.burst(level, midpoint, com.powers.PowersParticles.RIBBON, 8 + cue.intensity() * 2, 0.5, 0.04);
 			PowerFx.sound(level, midpoint, SoundEvents.FIRE_EXTINGUISH, 0.9f, 0.75f);
@@ -156,6 +157,16 @@ public final class ServerMagicCasts {
 				|| event.resolution().outcome() == InteractionOutcome.AMPLIFY) {
 			PowerFx.sound(level, midpoint, SoundEvents.ENCHANTMENT_TABLE_USE, 0.8f, 1.35f);
 		}
+	}
+
+	private static void announceInteraction(ServerLevel level, java.util.UUID first, java.util.UUID second,
+			InteractionOutcome outcome) {
+		var message = net.minecraft.network.chat.Component.translatable(
+				InteractionPresentation.translationKey(outcome), InteractionPresentation.icon(outcome));
+		ServerPlayer firstPlayer = level.getServer().getPlayerList().getPlayer(first);
+		if (firstPlayer != null) firstPlayer.sendSystemMessage(message, true);
+		ServerPlayer secondPlayer = level.getServer().getPlayerList().getPlayer(second);
+		if (secondPlayer != null && secondPlayer != firstPlayer) secondPlayer.sendSystemMessage(message, true);
 	}
 
 	/** Emits a deduplicated physical-handle collision through the normal reaction vocabulary. */
@@ -185,6 +196,7 @@ public final class ServerMagicCasts {
 		MagicFxPackets.broadcast(level, MagicFxEvent.interaction(eventId, cue.motif(), cue.sound(),
 				midpoint.x, midpoint.y, midpoint.z, cue.primaryColor(), cue.secondaryColor(),
 				cue.glyphSeed(), cue.intensity()));
+		announceInteraction(level, collision.submitted().owner(), collision.existing().owner(), resolution.outcome());
 		if (cue.motif().equals("annihilating_beam_clash")) {
 			MagicReactionEffects.annihilatingBeamClash(level, collision.submitted(),
 					collision.existing(), midpoint);

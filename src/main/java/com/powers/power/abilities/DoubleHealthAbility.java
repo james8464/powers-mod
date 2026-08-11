@@ -12,7 +12,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 /** Toggles an owned max-health modifier while preserving unrelated modifiers. */
 public class DoubleHealthAbility extends ToggleAbility {
 	private static final net.minecraft.resources.Identifier MODIFIER_ID = PowersMod.id("double_health");
-	private static final java.util.Map<java.util.UUID, Long> LAST_HEAL = new java.util.HashMap<>();
+	private static final String HEAL_LOCK = "double_health_heal";
 
 	public DoubleHealthAbility() {
 		super(PowersMod.id("double_health"), Component.translatable("ability.powers.double_health"));
@@ -23,13 +23,16 @@ public class DoubleHealthAbility extends ToggleAbility {
 		float oldMaximum = player.getMaxHealth();
 		applyModifier(player, innateLevel(player).capacityMultiplier());
 		long now = player.level().getServer().getTickCount();
-		long last = LAST_HEAL.getOrDefault(player.getUUID(), Long.MIN_VALUE / 2);
-		if (DoubleHealthRules.mayHeal(last, now)) {
+		if (now >= data.cooldownReadyAt(HEAL_LOCK)) {
 			player.setHealth(player.getHealth() + DoubleHealthRules.healToCap(
 					player.getHealth(), oldMaximum, player.getMaxHealth()));
-			LAST_HEAL.put(player.getUUID(), now);
+			data.setCooldown(HEAL_LOCK, now + DoubleHealthRules.HEAL_LOCK_TICKS);
 		}
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+			for (int heart = 0; heart < 10; heart++) {
+				com.powers.fx.PowerFx.burst(level, player.position().add((heart - 4.5) * 0.16, 2.0, 0.0),
+						net.minecraft.core.particles.ParticleTypes.HEART, 1, 0.01, heart * 0.002);
+			}
 			com.powers.fx.PowerFx.spiral(level, player.position(), 0.8, 2.0, 0xFF1744, 20, 0);
 			com.powers.fx.PowerFx.rune(level, player.position(), 1.4, 0x78E06B, 22,
 					scaling(player).unlockedVariants().contains("ancient_mastery") ? Math.PI : 0.0);

@@ -82,7 +82,7 @@ final class MagicReactionEffects {
 		PowerFx.burst(level, midpoint, ParticleTypes.EXPLOSION, 5, 0.8, 0.04);
 		PowerFx.ring(level, midpoint, 3.8, 0xF7E9FF, 34, 0.0);
 		PowerFx.ring(level, midpoint, 2.4, 0x6D32A8, 26, Math.PI / 2.0);
-		PowerFx.sound(level, midpoint, PowersSounds.CELESTIAL_RING, 1.8F, 1.35F);
+		PowerFx.sound(level, midpoint, PowersSounds.BEAM_RING, 1.8F, 1.35F);
 	}
 
 	private static void lightningOmen(ServerLevel level, ServerPlayer caster) {

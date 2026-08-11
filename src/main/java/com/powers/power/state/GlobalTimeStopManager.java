@@ -170,10 +170,9 @@ public final class GlobalTimeStopManager {
 				TimeStopFx.globalSustain((ServerLevel) observer.level(), observer.position(),
 						server.getTickCount(), stop.source == Source.CRYSTAL);
 				if (stop.source == Source.CRYSTAL) {
-					observer.sendSystemMessage(Component.literal("Temporal fracture — owner "
-							+ owner.getScoreboardName() + ", release in "
-							+ GlobalTimeStopRules.remainingTicks(server.getTickCount(), stop.deadline)
-							+ " ticks"), true);
+					long seconds = (GlobalTimeStopRules.remainingTicks(server.getTickCount(), stop.deadline) + 19L) / 20L;
+					observer.sendSystemMessage(Component.translatable("crystal.powers.chrono_status",
+							owner.getDisplayName(), seconds), true);
 				}
 			}
 		}
