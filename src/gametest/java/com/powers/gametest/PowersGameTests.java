@@ -391,6 +391,36 @@ public final class PowersGameTests {
 		helper.succeed();
 	}
 
+	@GameTest(maxTicks = 90)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void hearthSanctuaryRaisesIndependentSacrificialWards(GameTestHelper helper) {
+		MagicShieldManager.global().clear();
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		DarknessCreature ally = helper.spawn(PowersEntities.DARKNESS_CREATURE, new BlockPos(4, 1, 2));
+		ally.setNoAi(true);
+		caster.setItemInHand(InteractionHand.MAIN_HAND, com.powers.ImportedPackItems.item(
+				"imported_book_grimoire_wild").getDefaultInstance());
+		com.powers.player.PlayerPowers.get(caster).setSelectedSpell("book_grimoire_wild", 2);
+
+		SpellCastingManager.use(caster, "book_grimoire_wild");
+		helper.runAfterDelay(50, () -> {
+			long tick = helper.getLevel().getServer().getTickCount();
+			helper.assertTrue(MagicShieldManager.global().active(caster.getUUID(), tick),
+					"Hearth Sanctuary did not ward its caster");
+			helper.assertTrue(MagicShieldManager.global().active(ally.getUUID(), tick),
+					"Hearth Sanctuary did not ward a living entity inside three blocks");
+			helper.assertTrue(ForcefieldAbility.absorbDamage(
+					ally, ally.damageSources().generic(), 50_000.0F),
+					"An oversized hit bypassed Hearth Sanctuary's sacrificial ward");
+			helper.assertTrue(MagicShieldManager.global().active(caster.getUUID(), tick),
+					"One recipient's broken ward consumed another recipient's integrity");
+			MagicShieldManager.global().clear();
+			helper.succeed();
+		});
+	}
+
 	@GameTest
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void forcefieldFollowsTheMindBodyTetherAndProtectsThePhysicalBody(GameTestHelper helper) {
