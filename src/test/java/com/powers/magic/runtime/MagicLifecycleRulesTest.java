@@ -2,6 +2,11 @@ package com.powers.magic.runtime;
 
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -20,6 +25,23 @@ class MagicLifecycleRulesTest {
 			}
 		}
 		assertEquals(672, combinations);
+	}
+
+	@Test
+	void completeLifecycleMatrixHasAnExactMutationSensitiveContract() throws NoSuchAlgorithmException {
+		MessageDigest digest = MessageDigest.getInstance("SHA-256");
+		for (MagicLifecycleRules.Form form : MagicLifecycleRules.Form.values()) {
+			for (MagicLifecycleRules.Source source : MagicLifecycleRules.Source.values()) {
+				for (MagicLifecycleRules.Event event : MagicLifecycleRules.Event.values()) {
+					MagicLifecycleRules.Decision decision = MagicLifecycleRules.resolve(form, source, event);
+					String row = form + "|" + source + "|" + event + "|" + decision.outcome()
+							+ "|" + decision.motif() + "|" + decision.mechanics() + "\n";
+					digest.update(row.getBytes(StandardCharsets.UTF_8));
+				}
+			}
+		}
+		assertEquals("b84b11a51c27172ff2ffb969b22b4ade6c9c8710daad947807c5f082e382e06c",
+				HexFormat.of().formatHex(digest.digest()));
 	}
 
 	@Test

@@ -1,0 +1,128 @@
+[
+  {
+    "name": "released-1.0.0",
+    "input": {
+      "affinity": "RADIANT",
+      "rank": 3,
+      "powers": ["powers:flight", "powers:fireball", "powers:starfall"],
+      "spells": {"book_grimoire_celestial": 2, "book_grimoire_infernal": 5},
+      "dark_selection": "legacy/summon_darkness",
+      "dark_favourites": ["legacy/summon_darkness", "legacy/spread_darkness"],
+      "opaque": {"player_note": "preserve-100"}
+    },
+    "expected": {
+      "affinity": "RADIANT",
+      "rank": 3,
+      "powers": ["powers:flight", "powers:fireball", "powers:starfall"],
+      "spells": {"book_grimoire_celestial": 2, "book_grimoire_infernal": 0},
+      "dark_selection": "unique/call_hollowed",
+      "dark_favourites": ["unique/call_hollowed", "unique/blight_ground", "innate/lightning_strike", "innate/fireball", "innate/time_shift", "innate/forcefield", "innate/flight", "unique/nightfall_dominion"],
+      "opaque": {"player_note": "preserve-100"}
+    }
+  },
+  {
+    "name": "released-1.0.1",
+    "input": {
+      "affinity": "DARKNESS",
+      "rank": 10,
+      "powers": ["powers:flight", "powers:void_beam", "powers:energy_drain"],
+      "spells": {"book_grimoire_abyssal": 3, "book_grimoire_blight": 1},
+      "dark_selection": "legacy/annihilation_beam",
+      "dark_favourites": ["legacy/annihilation_beam", "summon_darkness", "spread_darkness"],
+      "opaque": {"shadow_memory": "preserve-101"}
+    },
+    "expected": {
+      "affinity": "DARKNESS",
+      "rank": 10,
+      "powers": ["powers:flight", "powers:void_beam", "powers:energy_drain"],
+      "spells": {"book_grimoire_abyssal": 1, "book_grimoire_blight": 1},
+      "dark_selection": "unique/nightfall_dominion",
+      "dark_favourites": ["unique/nightfall_dominion", "unique/call_hollowed", "unique/blight_ground", "innate/lightning_strike", "innate/fireball", "innate/time_shift", "innate/forcefield", "innate/flight"],
+      "opaque": {"shadow_memory": "preserve-101"}
+    }
+  },
+  {
+    "name": "corrupt-partial-session",
+    "input": {
+      "affinity": "DARKNESS",
+      "rank": 2,
+      "powers": ["powers:flight", "powers:ground_slam"],
+      "spells": {"book_grimoire_celestial": -2},
+      "dark_selection": "corrupt/not-an-action",
+      "dark_favourites": ["", "corrupt/not-an-action", "legacy/summon_darkness"],
+      "opaque": {"partial_session": "operator-recovery-required"}
+    },
+    "expected": {
+      "affinity": "DARKNESS",
+      "rank": 2,
+      "powers": ["powers:flight", "powers:forcefield", "powers:energy_drain"],
+      "spells": {"book_grimoire_celestial": 0},
+      "dark_selection": "innate/lightning_strike",
+      "dark_favourites": ["innate/lightning_strike", "unique/call_hollowed", "innate/fireball", "innate/time_shift", "innate/forcefield", "innate/flight", "unique/blight_ground", "unique/nightfall_dominion"],
+      "opaque": {"partial_session": "operator-recovery-required"}
+    }
+  },
+  {
+    "name": "retired-powers",
+    "input": {
+      "affinity": "RADIANT",
+      "rank": 4,
+      "powers": ["powers:cozy_campfire", "powers:ground_slam", "powers:shadow_step"],
+      "spells": {},
+      "dark_selection": "innate/lightning_strike",
+      "dark_favourites": [],
+      "opaque": {"quest_state": "unchanged"}
+    },
+    "expected": {
+      "affinity": "RADIANT",
+      "rank": 4,
+      "powers": ["powers:flight", "powers:forcefield", "powers:starfall"],
+      "spells": {},
+      "dark_selection": "innate/lightning_strike",
+      "dark_favourites": ["innate/lightning_strike", "innate/fireball", "innate/time_shift", "innate/forcefield", "innate/flight", "unique/call_hollowed", "unique/blight_ground", "unique/nightfall_dominion"],
+      "opaque": {"quest_state": "unchanged"}
+    }
+  },
+  {
+    "name": "retired-spells",
+    "input": {
+      "affinity": "RADIANT",
+      "rank": 6,
+      "powers": ["powers:flight", "powers:forcefield", "powers:starfall"],
+      "spells": {"book_grimoire_deep": 3, "book_grimoire_infernal": 8, "book_grimoire_wild": 7, "book_grimoire_abyssal": 2},
+      "dark_selection": "innate/fireball",
+      "dark_favourites": ["innate/fireball"],
+      "opaque": {"last_death": "powers:dark_realm@10,64,10"}
+    },
+    "expected": {
+      "affinity": "RADIANT",
+      "rank": 6,
+      "powers": ["powers:flight", "powers:forcefield", "powers:starfall"],
+      "spells": {"book_grimoire_deep": 0, "book_grimoire_infernal": 0, "book_grimoire_wild": 0, "book_grimoire_abyssal": 1},
+      "dark_selection": "innate/fireball",
+      "dark_favourites": ["innate/fireball", "innate/lightning_strike", "innate/time_shift", "innate/forcefield", "innate/flight", "unique/call_hollowed", "unique/blight_ground", "unique/nightfall_dominion"],
+      "opaque": {"last_death": "powers:dark_realm@10,64,10"}
+    }
+  },
+  {
+    "name": "retired-artifact-loadout",
+    "input": {
+      "affinity": "DARKNESS",
+      "rank": 7,
+      "powers": ["powers:flight", "powers:fireball", "powers:energy_drain"],
+      "spells": {"book_grimoire_blight": 99},
+      "dark_selection": "dominion/event_horizon",
+      "dark_favourites": ["dominion/event_horizon", "dominion/umbral_step", "legacy/spread_darkness", "legacy/spread_darkness"],
+      "opaque": {"miniportal_charge": "3"}
+    },
+    "expected": {
+      "affinity": "DARKNESS",
+      "rank": 7,
+      "powers": ["powers:flight", "powers:fireball", "powers:energy_drain"],
+      "spells": {"book_grimoire_blight": 0},
+      "dark_selection": "unique/call_hollowed",
+      "dark_favourites": ["unique/call_hollowed", "unique/blight_ground", "innate/lightning_strike", "innate/fireball", "innate/time_shift", "innate/forcefield", "innate/flight", "unique/nightfall_dominion"],
+      "opaque": {"miniportal_charge": "3"}
+    }
+  }
+]

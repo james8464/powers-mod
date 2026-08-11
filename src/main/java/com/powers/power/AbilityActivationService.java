@@ -4,8 +4,11 @@ import com.powers.magic.runtime.PreparedMagicCast;
 import com.powers.magic.runtime.ServerMagicCasts;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.CastTransaction;
+import com.powers.magic.runtime.MagicPresenceId;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
+import com.powers.player.EnergyPaymentSnapshot;
 import com.powers.player.SkillQuestTracker;
 import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.util.PowerMessages;
@@ -22,6 +25,8 @@ import com.powers.knowledge.MagicFailureReason;
 import com.powers.item.ArtifactEnergyReservoir;
 
 import java.util.Map;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Single server-authoritative pipeline shared by innate powers and artifacts.
@@ -154,22 +159,42 @@ public final class AbilityActivationService {
 		if (!magic.allowed()) return Result.FAILED;
 		int energyCost = PowerEnergy.cost(player, ability);
 		long available = (long) data.energy() + ArtifactEnergyReservoir.totalStored(player);
-		if (!data.spendEnergy(player, ability)) {
-			MagicAttemptReporter.failure(player, actionId, MagicFailureReason.INSUFFICIENT_ENERGY,
-					Map.of("required", (long) energyCost, "available", available));
-			return Result.FAILED;
-		}
 		int cooldown = cooldownOverride == null
 				? ability.cooldownTicksFor(player, data) : cooldownOverride;
-		boolean activated = ServerMagicCasts.execute(magic,
-				() -> AbilityActivationContext.withCooldown(cooldownOverride, operation));
+		EnergyPaymentSnapshot energy = EnergyPaymentSnapshot.capture(player);
+		long previousCooldown = data.cooldownReadyAt(ability.id().toString());
+		AtomicReference<MagicPresenceId> presence = new AtomicReference<>();
+		CastTransaction.Result transaction = new CastTransaction()
+				.stage(CastTransaction.Phase.VALIDATION, () -> magic.allowed(), () -> { })
+				.stage(CastTransaction.Phase.COST, () -> data.spendEnergy(player, ability),
+						() -> energy.restore(player))
+				.stage(CastTransaction.Phase.EFFECT,
+						() -> ServerMagicCasts.execute(magic,
+								() -> AbilityActivationContext.withCooldown(cooldownOverride, operation)),
+						() -> ability.rollbackFailedActivation(player, data))
+				.stage(CastTransaction.Phase.COOLDOWN, () -> {
+					ActivationCooldowns.start(player, ability, cooldown);
+					return true;
+				}, () -> ActivationCooldowns.restore(player, ability, previousCooldown))
+				.stage(CastTransaction.Phase.PRESENCE, () -> {
+					MagicPresenceId id = ServerMagicCasts.commit(magic, player);
+					presence.set(id);
+					ability.bindPhysicalPresence(player, data, id);
+					return true;
+				}, () -> {
+					MagicPresenceId id = presence.get();
+					if (id != null) com.powers.magic.runtime.MagicRuntime.global().removePresence(id);
+				})
+				.execute();
+		boolean activated = transaction.committed();
 		if (!activated) {
-			data.refundEnergy(ability);
-			MagicAttemptReporter.executionFailure(player, actionId);
+			if (transaction.failedPhase() == CastTransaction.Phase.COST) {
+				MagicAttemptReporter.failure(player, actionId, MagicFailureReason.INSUFFICIENT_ENERGY,
+						Map.of("required", (long) energyCost, "available", available));
+			} else {
+				MagicAttemptReporter.executionFailure(player, actionId);
+			}
 		} else {
-			ActivationCooldowns.start(player, ability, cooldown);
-			var presenceId = ServerMagicCasts.commit(magic, player);
-			ability.bindPhysicalPresence(player, data, presenceId);
 			SkillQuestTracker.recordPowerUse(player, ability);
 			if (source == CastSource.INNATE) ConcordCastManager.record(player, ability);
 		}
@@ -191,34 +216,56 @@ public final class AbilityActivationService {
 			PowersPackets.syncTo(player);
 			return Result.ACTIVATED;
 		}
-		// A player may own the same toggle normally and through an artifact. Only
-		// one invocation may own its physical modifier/state at a time.
-		for (String activeKey : data.getActiveToggles()) {
-			if (!activeKey.equals(toggleKey) && ToggleKeyRules.ownsAbility(activeKey, ability.id())) {
-				ability.activateToggleOff(player, data);
-				data.setToggleActive(player, activeKey, false);
-			}
-		}
+		// Keep the previous owner authoritative until the replacement commits.
+		// This lets a failed artifact/innate hand-off restore the physical state.
+		List<String> previousOwners = data.getActiveToggles().stream()
+				.filter(activeKey -> !activeKey.equals(toggleKey)
+						&& ToggleKeyRules.ownsAbility(activeKey, ability.id()))
+				.toList();
 
 		String actionId = ability.magicActionId(player, data);
 		PreparedMagicCast magic = ServerMagicCasts.prepare(player, actionId, source);
 		if (!magic.allowed()) return Result.FAILED;
 		int energyCost = PowerEnergy.cost(player, ability);
 		long available = (long) data.energy() + ArtifactEnergyReservoir.totalStored(player);
-		boolean paid = data.spendEnergy(player, ability);
-		if (!paid) MagicAttemptReporter.failure(player, actionId,
-				MagicFailureReason.INSUFFICIENT_ENERGY,
-				Map.of("required", (long) energyCost, "available", available));
-		boolean activated = paid && ServerMagicCasts.execute(magic, () -> ability.activateToggleOn(player, data));
+		EnergyPaymentSnapshot energy = EnergyPaymentSnapshot.capture(player);
+		AtomicReference<MagicPresenceId> presence = new AtomicReference<>();
+		CastTransaction.Result transaction = new CastTransaction()
+				.stage(CastTransaction.Phase.VALIDATION, () -> magic.allowed(), () -> { })
+				.stage(CastTransaction.Phase.COST, () -> data.spendEnergy(player, ability),
+						() -> energy.restore(player))
+				.stage(CastTransaction.Phase.EFFECT,
+						() -> ServerMagicCasts.execute(magic,
+								() -> ability.activateToggleOn(player, data)),
+						() -> {
+							ability.activateToggleOff(player, data);
+							if (!previousOwners.isEmpty()) ability.activateToggleOn(player, data);
+						})
+				.stage(CastTransaction.Phase.COOLDOWN, () -> true, () -> { })
+				.stage(CastTransaction.Phase.PRESENCE, () -> {
+					MagicPresenceId id = ServerMagicCasts.commit(magic, player);
+					presence.set(id);
+					data.setToggleActive(player, toggleKey, true);
+					ability.bindPhysicalPresence(player, data, id);
+					return true;
+				}, () -> {
+					data.setToggleActive(player, toggleKey, false);
+					MagicPresenceId id = presence.get();
+					if (id != null) com.powers.magic.runtime.MagicRuntime.global().removePresence(id);
+				})
+				.execute();
+		boolean activated = transaction.committed();
 		if (activated) {
-			data.setToggleActive(player, toggleKey, true);
-			var presenceId = ServerMagicCasts.commit(magic, player);
-			ability.bindPhysicalPresence(player, data, presenceId);
+			for (String previousOwner : previousOwners) {
+				data.setToggleActive(player, previousOwner, false);
+			}
 			SkillQuestTracker.recordPowerUse(player, ability);
 			if (source == CastSource.INNATE) ConcordCastManager.record(player, ability);
 			PowerMessages.overlay(player, Component.translatable("ability.powers.toggle_on", ability.name()));
-		} else if (paid) {
-			data.refundEnergy(ability);
+		} else if (transaction.failedPhase() == CastTransaction.Phase.COST) {
+			MagicAttemptReporter.failure(player, actionId, MagicFailureReason.INSUFFICIENT_ENERGY,
+					Map.of("required", (long) energyCost, "available", available));
+		} else {
 			MagicAttemptReporter.executionFailure(player, actionId);
 		}
 		PowersPackets.syncTo(player);

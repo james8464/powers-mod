@@ -4,6 +4,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,6 +38,29 @@ class MagicInteractionResolverTest {
 			assertTrue(pair.resolution().hasFiniteMultipliers(), pair.pair().toString());
 			assertTrue(!pair.resolution().mechanics().isBlank(), pair.pair().toString());
 		}
+	}
+
+	@Test
+	void completeInteractionMatrixHasAnExactMutationSensitiveContract() throws NoSuchAlgorithmException {
+		MessageDigest digest = MessageDigest.getInstance("SHA-256");
+		for (ResolvedPair pair : resolver.allPairs()) {
+			InteractionResolution value = pair.resolution();
+			String row = pair.pair() + "|" + value.outcome() + "|"
+					+ Double.doubleToLongBits(value.firstPotencyMultiplier()) + "|"
+					+ Double.doubleToLongBits(value.secondPotencyMultiplier()) + "|"
+					+ Double.doubleToLongBits(value.firstDurationMultiplier()) + "|"
+					+ Double.doubleToLongBits(value.secondDurationMultiplier()) + "|"
+					+ Double.doubleToLongBits(value.firstRangeMultiplier()) + "|"
+					+ Double.doubleToLongBits(value.secondRangeMultiplier()) + "|"
+					+ value.replacementAspect() + "|" + value.blocksFirst() + "|"
+					+ value.blocksSecond() + "|" + value.cue().motif() + "|"
+					+ value.cue().sound() + "|" + value.cue().primaryColor() + "|"
+					+ value.cue().secondaryColor() + "|" + value.cue().glyphSeed() + "|"
+					+ value.cue().intensity() + "|" + value.mechanics() + "\n";
+			digest.update(row.getBytes(StandardCharsets.UTF_8));
+		}
+		assertEquals("757374470e4d917c67dad4ea35d7f12c4a34007ba85fca00723e0d6129195cfd",
+				HexFormat.of().formatHex(digest.digest()));
 	}
 
 	@Test

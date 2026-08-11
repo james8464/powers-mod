@@ -1,6 +1,33 @@
 plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+	id 'info.solidsoft.pitest' version '1.19.0'
+}
+
+pitest {
+	pitestVersion = '1.25.3'
+	junit5PluginVersion = '1.2.3'
+	targetClasses = [
+			'com.powers.magic.MagicInteractionResolver',
+			'com.powers.magic.runtime.MagicLifecycleRules',
+			'com.powers.item.artifact.ArtifactAuthorizationRules',
+			'com.powers.power.abilities.ForcefieldRules',
+			'com.powers.power.abilities.TimeFreezeDrainRules',
+			'com.powers.spell.CelestialRuinRules'
+	]
+	targetTests = [
+			'com.powers.magic.MagicInteractionResolverTest',
+			'com.powers.magic.runtime.MagicLifecycleRulesTest',
+			'com.powers.item.artifact.ArtifactAuthorizationRulesTest',
+			'com.powers.power.abilities.ForcefieldRulesTest',
+			'com.powers.power.abilities.TimeFreezeDrainRulesTest',
+			'com.powers.spell.CelestialRuinRulesTest'
+	]
+	threads = 4
+	mutationThreshold = 80
+	coverageThreshold = 85
+	outputFormats = ['XML', 'HTML']
+	timestampedReports = false
 }
 
 version = project.mod_version
@@ -114,8 +141,43 @@ tasks.withType(JavaCompile).configureEach {
 	it.options.compilerArgs += ["-Xlint:deprecation", "-Xlint:unchecked", "-Werror"]
 }
 
-tasks.withType(Test).configureEach {
+tasks.withType(Test).configureEach { Test testTask ->
 	useJUnitPlatform()
+	def rawRunId = providers.environmentVariable("POWERS_TEST_RUN_ID")
+			.orElse(providers.gradleProperty("powersTestRunId"))
+			.orElse("default").get()
+	def testRunId = rawRunId.replaceAll("[^A-Za-z0-9._-]", "_").take(80)
+	reports.junitXml.outputLocation = layout.buildDirectory.dir("test-results/${testTask.name}/${testRunId}")
+	reports.html.outputLocation = layout.buildDirectory.dir("reports/tests/${testTask.name}/${testRunId}")
+	binaryResultsDirectory = layout.buildDirectory.dir("test-results/${testTask.name}/${testRunId}/binary")
+}
+
+tasks.register("saveMigrationCorpus", Test) {
+	description = "Runs versioned save and selection migration acceptance fixtures."
+	group = "verification"
+	useJUnitPlatform()
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+	filter {
+		includeTestsMatching "com.powers.migration.*"
+		includeTestsMatching "com.powers.item.artifact.ArtifactSelectionMigrationTest"
+		includeTestsMatching "com.powers.item.artifact.ArtifactFavouriteRulesTest"
+		includeTestsMatching "com.powers.spell.SpellSelectionMigrationTest"
+		includeTestsMatching "com.powers.progression.RankMigrationTest"
+	}
+}
+
+tasks.register("verifyScreenshots", Test) {
+	description = "Runs deterministic client presentation and screenshot-contract checks."
+	group = "verification"
+	useJUnitPlatform()
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+	filter {
+		includeTestsMatching "com.powers.client.visual.*"
+		includeTestsMatching "com.powers.hud.HudLayoutTest"
+		includeTestsMatching "com.powers.hud.HudMathTest"
+	}
 }
 
 java {

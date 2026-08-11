@@ -44,4 +44,11 @@ public final class ActivationCooldowns {
 		PlayerPowers.get(player).setCooldown(ability.id().toString(),
 				player.level().getGameTime() + ticks);
 	}
+
+	/** Restores the exact deadline captured before a failed transaction. */
+	public static void restore(ServerPlayer player, Ability ability, long readyAt) {
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		if (readyAt <= 0L) data.clearCooldown(ability.id().toString());
+		else data.setCooldown(ability.id().toString(), readyAt);
+	}
 }

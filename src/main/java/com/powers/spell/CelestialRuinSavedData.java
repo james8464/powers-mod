@@ -23,10 +23,19 @@ public final class CelestialRuinSavedData extends SavedData {
 
 	public record Snapshot(String dimension, int x, int y, int z, String caster,
 			int countdownRemaining, boolean detonated, BoundedSphereCursor.Snapshot cursor,
-			int aftershockStep) {
+			int aftershockStep, String pendingPhase,
+			BoundedSphereCursor.Snapshot pendingCursor, int pendingAftershockEnd) {
 		public Snapshot(String dimension, int x, int y, int z, String caster,
 				int countdownRemaining, boolean detonated, BoundedSphereCursor.Snapshot cursor) {
-			this(dimension, x, y, z, caster, countdownRemaining, detonated, cursor, 0);
+			this(dimension, x, y, z, caster, countdownRemaining, detonated, cursor, 0,
+					"", cursor, 0);
+		}
+
+		public Snapshot(String dimension, int x, int y, int z, String caster,
+				int countdownRemaining, boolean detonated, BoundedSphereCursor.Snapshot cursor,
+				int aftershockStep) {
+			this(dimension, x, y, z, caster, countdownRemaining, detonated, cursor,
+					aftershockStep, "", cursor, aftershockStep);
 		}
 	}
 
@@ -40,7 +49,13 @@ public final class CelestialRuinSavedData extends SavedData {
 						Codec.INT.fieldOf("countdown_remaining").forGetter(Snapshot::countdownRemaining),
 						Codec.BOOL.fieldOf("detonated").forGetter(Snapshot::detonated),
 						CURSOR_CODEC.fieldOf("cursor").forGetter(Snapshot::cursor),
-						Codec.INT.optionalFieldOf("aftershock_step", 0).forGetter(Snapshot::aftershockStep)
+						Codec.INT.optionalFieldOf("aftershock_step", 0).forGetter(Snapshot::aftershockStep),
+						Codec.STRING.optionalFieldOf("pending_phase", "").forGetter(Snapshot::pendingPhase),
+						CURSOR_CODEC.optionalFieldOf("pending_cursor",
+								new BoundedSphereCursor.Snapshot(0, 0, 0, 0, true))
+								.forGetter(Snapshot::pendingCursor),
+						Codec.INT.optionalFieldOf("pending_aftershock_end", 0)
+								.forGetter(Snapshot::pendingAftershockEnd)
 				).apply(instance, Snapshot::new));
 
 	public static final Codec<CelestialRuinSavedData> CODEC = SNAPSHOT_CODEC.listOf()

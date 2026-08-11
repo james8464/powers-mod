@@ -42,6 +42,20 @@ class CelestialRuinRulesTest {
 	}
 
 	@Test
+	void damageAndKnockbackFollowTheExactAuthoredFalloff() {
+		assertEquals(50_000.0f, CelestialRuinRules.damage(0.0), 0.001f);
+		assertEquals(40_500.0f, CelestialRuinRules.damage(600.0), 0.01f);
+		assertEquals(12_500.0f, CelestialRuinRules.damage(3_000.0), 0.01f);
+		assertEquals(500.0f, CelestialRuinRules.damage(5_400.0), 0.01f);
+		assertEquals(18.0, CelestialRuinRules.knockback(0.0), 0.000001);
+		assertEquals(18.0 * Math.pow(0.5, 0.65), CelestialRuinRules.knockback(3_000.0), 0.000001);
+		assertEquals(0.0f, CelestialRuinRules.damage(-1.0), 0.0f);
+		assertEquals(0.0f, CelestialRuinRules.damage(Double.NaN), 0.0f);
+		assertEquals(0.0, CelestialRuinRules.knockback(-1.0), 0.0);
+		assertEquals(0.0, CelestialRuinRules.knockback(Double.POSITIVE_INFINITY), 0.0);
+	}
+
+	@Test
 	void damageQueryCoversTheDimensionsEntireBuildHeight() {
 		AABB bounds = CelestialRuinRules.damageBounds(new Vec3(12.5, 64.0, -8.5), -64, 320);
 		assertEquals(-64.0, bounds.minY, 0.001);
@@ -61,6 +75,9 @@ class CelestialRuinRulesTest {
 	void destructionSphereHasAHardBoundary() {
 		assertTrue(CelestialRuinRules.insideBlast(120, 0, 0));
 		assertFalse(CelestialRuinRules.insideBlast(121, 0, 0));
+		assertTrue(CelestialRuinRules.insideBlast(0, -120, 0));
+		assertTrue(CelestialRuinRules.insideBlast(0, 0, 120));
+		assertFalse(CelestialRuinRules.insideBlast(85, 85, 0));
 	}
 
 	@Test
@@ -72,6 +89,13 @@ class CelestialRuinRulesTest {
 		assertTrue(Math.hypot(first.x(), first.z()) <= CelestialRuinRules.DAMAGE_RADIUS);
 		assertTrue(Math.hypot(last.x(), last.z()) <= CelestialRuinRules.DAMAGE_RADIUS + 1.0);
 		assertEquals(first, CelestialRuinRules.aftershockOffset(0));
+		assertEquals(new CelestialRuinRules.AftershockOffset(4, 0), first);
+		assertEquals(first, CelestialRuinRules.aftershockOffset(-100));
+		assertEquals(last, CelestialRuinRules.aftershockOffset(Integer.MAX_VALUE));
+		assertEquals(new CelestialRuinRules.AftershockOffset(0, 4),
+				CelestialRuinRules.aftershockOffset(24));
+		assertEquals(new CelestialRuinRules.AftershockOffset(-4, 0),
+				CelestialRuinRules.aftershockOffset(48));
 	}
 
 	@Test

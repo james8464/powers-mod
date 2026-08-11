@@ -38,8 +38,8 @@ public final class SpellCastingManager {
 	private static final SpellRegistry REGISTRY = SpellRegistry.defaults();
 	private static final Map<UUID, Session> CHANNELS = new HashMap<>();
 
-	private record Session(ChannelState state, SpellDefinition spell, String grimoireKey, int energyCost,
-			PreparedMagicCast magic, SpellTarget target, ResourceKey<Level> dimension) {
+	private record Session(ChannelState state, SpellDefinition spell, String grimoireKey,
+			SpellCastTransaction transaction, SpellTarget target, ResourceKey<Level> dimension) {
 	}
 
 	private SpellCastingManager() {
@@ -90,16 +90,17 @@ public final class SpellCastingManager {
 		PreparedMagicCast magic = ServerMagicCasts.prepare(player, spell.id(), CastSource.SPELL);
 		if (!magic.allowed()) return;
 		int energyCost = spellEnergyCost(player, spell);
-		if (!payAndCool(player, spell, energyCost)) return;
+		SpellCastTransaction transaction = new SpellCastTransaction(player, spell, magic, energyCost);
+		if (!begin(player, spell, transaction)) return;
 		int channelTicks = SpellCastValues.from(PowerScalingService.unranked(spell.id()))
 				.channelTicks(spell.channelTicks());
 		if (channelTicks == 0) {
-			finish(player, spell, magic, energyCost, false, target);
+			finish(player, spell, transaction, target);
 			return;
 		}
 		long end = player.level().getGameTime() + channelTicks;
 		ChannelState state = new ChannelState(end, player.getX(), player.getY(), player.getZ(), grimoire.key(), false);
-		CHANNELS.put(player.getUUID(), new Session(state, spell, grimoire.key(), energyCost, magic,
+		CHANNELS.put(player.getUUID(), new Session(state, spell, grimoire.key(), transaction,
 				target, player.level().dimension()));
 		ServerLevel level = (ServerLevel) player.level();
 		PowerFx.rune(level, player.position().add(0, 0.08, 0), 1.7, 0x7455A8, 20, 0);
@@ -122,10 +123,12 @@ public final class SpellCastingManager {
 		PreparedMagicCast magic = ServerMagicCasts.prepare(player, spell.id(), CastSource.SPELL);
 		if (!magic.allowed()) return false;
 		int energyCost = spellEnergyCost(player, spell);
-		if (!payAndCool(player, spell, energyCost)) return false;
-		ServerMagicCasts.execute(magic, () -> Boolean.TRUE);
-		ServerMagicCasts.commit(magic, player);
-		return true;
+		SpellCastTransaction transaction = new SpellCastTransaction(player, spell, magic, energyCost);
+		if (!begin(player, spell, transaction)) return false;
+		boolean committed = transaction.complete(() -> true);
+		PowersPackets.syncTo(player);
+		if (!committed) MagicAttemptReporter.executionFailure(player, spell.id());
+		return committed;
 	}
 
 	private static boolean commonChecks(ServerPlayer player, SpellDefinition spell, boolean punishDampening) {
@@ -152,18 +155,15 @@ public final class SpellCastingManager {
 		return ArtifactEnergyModifiers.forPlayer(player, spell.id(), spell.energyCost());
 	}
 
-	private static boolean payAndCool(ServerPlayer player, SpellDefinition spell, int energyCost) {
+	private static boolean begin(ServerPlayer player, SpellDefinition spell,
+			SpellCastTransaction transaction) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		if (!data.consumeEnergy(energyCost)) {
+		if (!transaction.begin()) {
 			long available = (long) data.energy() + ArtifactEnergyReservoir.totalStored(player);
 			MagicAttemptReporter.failure(player, spell.id(), MagicFailureReason.INSUFFICIENT_ENERGY,
-					Map.of("required", (long) energyCost, "available", available));
+					Map.of("required", (long) transaction.energyCost(), "available", available));
 			failed(player, "energy.powers.empty.1");
 			return false;
-		}
-		if (!TestingOverrides.cooldownsDisabled(player.getUUID())) {
-			int cooldown = spell.cooldownTicks();
-			data.setCooldown(cooldownId(spell), player.level().getGameTime() + cooldown);
 		}
 		PowersPackets.syncTo(player);
 		return true;
@@ -176,6 +176,7 @@ public final class SpellCastingManager {
 			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
 			Session session = entry.getValue();
 			if (player == null || !player.isAlive()) {
+				session.transaction().rollbackFull();
 				iterator.remove();
 				continue;
 			}
@@ -192,13 +193,12 @@ public final class SpellCastingManager {
 			if (status == ChannelStatus.INTERRUPTED) {
 				MagicAttemptReporter.failure(player, session.spell().id(),
 						MagicFailureReason.CHANNEL_INTERRUPTED);
-				PlayerPowers.get(player).refundEnergy(session.energyCost() / 2);
+				session.transaction().interrupt();
 				PowersPackets.syncTo(player);
 				failed(player, "spell.powers.interrupted");
 				continue;
 			}
-			finish(player, session.spell(), session.magic(), session.energyCost(), true,
-					session.target());
+			finish(player, session.spell(), session.transaction(), session.target());
 		}
 	}
 
@@ -211,26 +211,22 @@ public final class SpellCastingManager {
 	}
 
 	private static void finish(ServerPlayer player, SpellDefinition spell,
-			PreparedMagicCast magic, int energyCost, boolean channeled, SpellTarget target) {
-		if (!ServerMagicCasts.execute(magic,
-				() -> SpellEffects.execute(player, spell, target))) {
-			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-			data.refundEnergy(channeled ? energyCost / 2 : energyCost);
-			data.clearCooldown(cooldownId(spell));
+			SpellCastTransaction transaction, SpellTarget target) {
+		if (!transaction.complete(() -> SpellEffects.execute(player, spell, target))) {
 			PowersPackets.syncTo(player);
 			failed(player, "spell.powers.failed");
 			MagicAttemptReporter.executionFailure(player, spell.id());
 			return;
 		}
-		ServerMagicCasts.commit(magic, player);
+		PowersPackets.syncTo(player);
 		PowerMessages.overlay(player, Component.translatable("spell.powers.cast", spellName(spell)));
 	}
 
 	public static void markDamaged(LivingEntity entity) {
 		Session session = CHANNELS.get(entity.getUUID());
 		if (session != null) CHANNELS.put(entity.getUUID(), new Session(
-				session.state().withDamaged(true), session.spell(), session.grimoireKey(), session.energyCost(),
-				session.magic(), session.target(), session.dimension()));
+				session.state().withDamaged(true), session.spell(), session.grimoireKey(),
+				session.transaction(), session.target(), session.dimension()));
 	}
 
 	private static GrimoireDefinition heldGrimoire(ServerPlayer player) {
@@ -274,10 +270,12 @@ public final class SpellCastingManager {
 	}
 
 	public static void clear(ServerPlayer player) {
-		CHANNELS.remove(player.getUUID());
+		Session session = CHANNELS.remove(player.getUUID());
+		if (session != null) session.transaction().rollbackFull();
 	}
 
 	public static void clearAll() {
+		CHANNELS.values().forEach(session -> session.transaction().rollbackFull());
 		CHANNELS.clear();
 	}
 }

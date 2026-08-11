@@ -165,6 +165,7 @@ public final class PowersPackets {
 			buf -> new UUID(buf.readLong(), buf.readLong()));
 
 	public static void initialize() {
+		ProtocolHandshakePackets.initialize();
 		PayloadTypeRegistry.serverboundPlay().register(ActivateAbilityPayload.TYPE, ActivateAbilityPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(
 				SelectAbilityOptionPayload.TYPE, SelectAbilityOptionPayload.STREAM_CODEC);
