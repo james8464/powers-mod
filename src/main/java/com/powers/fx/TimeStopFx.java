@@ -81,6 +81,10 @@ public final class TimeStopFx {
 				FROZEN_WHITE, 40, Math.PI / 12.0);
 		PowerFx.spiral(level, observer.add(0.0, 0.2, 0.0), 1.0,
 				8.0, color, crystal ? 28 : 18, 0.0);
+		if (crystal) {
+			PowerFx.clarityBurst(level, observer.add(0.0, 5.0, 0.0),
+					PowersParticles.FRACTURE, 18, 2.4, 0.025);
+		}
 		PowerFx.sound(level, observer, PowersSounds.TIME_SUSPEND, 1.0F, 0.72F);
 		PowerFx.sound(level, observer, SoundEvents.BEACON_ACTIVATE, 0.6F, 1.65F);
 	}

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GlobalTimeStopRulesTest {
 	private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-000000000001");
@@ -42,5 +43,10 @@ class GlobalTimeStopRulesTest {
 		assertFalse(GlobalTimeStopRules.shouldUnfreezeOnRelease(true, true));
 		assertTrue(GlobalTimeStopRules.shouldUnfreezeOnRelease(true, false));
 		assertFalse(GlobalTimeStopRules.shouldUnfreezeOnRelease(false, false));
+	}
+
+	@Test void ownerHudUsesTheAuthoritativeDeadline() {
+		assertEquals(1200L, GlobalTimeStopRules.remainingTicks(500, 1700));
+		assertEquals(0L, GlobalTimeStopRules.remainingTicks(1701, 1700));
 	}
 }

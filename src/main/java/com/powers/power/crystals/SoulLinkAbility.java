@@ -41,9 +41,10 @@ public class SoulLinkAbility extends Ability {
 	private static final int COOLDOWN_TICKS = 2400;
 	private static final int RADIUS = 15;
 	private static final int MAX_LINKS = 8;
+	private static final float MIRROR_CAP_PER_TARGET = 20.0F;
 
 	// lastHealth is remembered each tick so fresh wounds can be measured
-	private record Link(LivingEntity entity, float lastHealth) {
+	private record Link(LivingEntity entity, float lastHealth, float remainingMirrorCap) {
 	}
 
 	private record ActiveLink(CastSource castSource, int ticksLeft,
@@ -77,7 +78,7 @@ public class SoulLinkAbility extends Ability {
 						 && !AmethystDampening.isDampened(e)
 						 && PowerProtection.mayHarm(player, e)
 						 && !SpellFieldManager.isSanctuaryProtected(level, e))) {
-			links.add(new Link(target, target.getHealth()));
+			links.add(new Link(target, target.getHealth(), MIRROR_CAP_PER_TARGET));
 			PowerFx.coloredBurst(level, target.position().add(0, 1, 0), 0x9C27B0, 10, 0.5);
 			if (links.size() >= maxLinks) {
 				break;
@@ -85,6 +86,11 @@ public class SoulLinkAbility extends Ability {
 		}
 		if (links.isEmpty()) {
 			return false;
+		}
+		Vec3 previous = player.getEyePosition();
+		for (Link link : links) {
+			PowerFx.beam(level, previous, link.entity().getEyePosition(), PowerFx.dust(0x9C27B0, 0.75F), 12);
+			previous = link.entity().getEyePosition();
 		}
 		ACTIVE.put(player.getUUID(), new ActiveLink(CastScalingContext.currentSource(),
 				scaledDuration(player, DURATION_TICKS), links,
@@ -127,7 +133,7 @@ public class SoulLinkAbility extends Ability {
 					damage = suffered;
 					wounded = entity;
 				}
-				updated.add(new Link(entity, entity.getHealth()));
+				updated.add(new Link(entity, entity.getHealth(), link.remainingMirrorCap()));
 			}
 			if (damage > 0) {
 				ServerLevel level = (ServerLevel) caster.level();
@@ -136,8 +142,10 @@ public class SoulLinkAbility extends Ability {
 					LivingEntity entity = link.entity();
 					// the wounded soul itself doesn't take its own wound twice
 					if (entity != null && entity != wounded) {
-						entity.hurtServer(level, PowerDamage.source(caster),
-								(float) (damage * active.damageMultiplier()));
+						float mirrored = SoulLinkMath.cappedMirror(
+								(float) (damage * active.damageMultiplier()), link.remainingMirrorCap());
+						if (mirrored <= 0.0F) continue;
+						entity.hurtServer(level, PowerDamage.source(caster), mirrored);
 						PowerFx.coloredBurst(level, entity.position().add(0, 1, 0), 0x9C27B0, 6, 0.4);
 					}
 				}
@@ -147,10 +155,22 @@ public class SoulLinkAbility extends Ability {
 				List<Link> postMirror = new ArrayList<>();
 				for (Link link : updated) {
 					if (link.entity().isAlive() && !link.entity().isRemoved()) {
-						postMirror.add(new Link(link.entity(), link.entity().getHealth()));
+						float spent = link.entity() == wounded ? 0.0F : SoulLinkMath.cappedMirror(
+								(float) (damage * active.damageMultiplier()), link.remainingMirrorCap());
+						postMirror.add(new Link(link.entity(), link.entity().getHealth(),
+								SoulLinkMath.remainingCap(link.remainingMirrorCap(), spent)));
 					}
 				}
 				updated = postMirror;
+			}
+			if (server.getTickCount() % 20 == 0 && updated.size() > 1) {
+				ServerLevel level = (ServerLevel) caster.level();
+				Vec3 previous = caster.getEyePosition();
+				for (Link link : updated) {
+					PowerFx.beam(level, previous, link.entity().getEyePosition(),
+							PowerFx.dust(0x9C27B0, 0.65F), 8);
+					previous = link.entity().getEyePosition();
+				}
 			}
 
 			// the link ends when time runs out or no souls remain

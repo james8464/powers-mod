@@ -21,4 +21,12 @@ public final class SoulLinkMath {
 	public static float[] snapshot(float[] health) {
 		return health.clone();
 	}
+
+	public static float cappedMirror(float requested, float remainingCap) {
+		return Math.min(Math.max(0.0f, requested), Math.max(0.0f, remainingCap));
+	}
+
+	public static float remainingCap(float currentCap, float applied) {
+		return Math.max(0.0f, currentCap - Math.max(0.0f, applied));
+	}
 }
