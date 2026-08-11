@@ -50,6 +50,8 @@ import com.powers.item.artifact.ArtifactActionCatalogue;
 import com.powers.magic.runtime.MagicRuntime;
 import com.powers.spell.SpellRegistry;
 import com.powers.spell.SpellCastingManager;
+import com.powers.spell.CartographerQuery;
+import com.powers.spell.CartographerSearch;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -797,6 +799,22 @@ public final class PowersGameTests {
 			helper.assertBlockPresent(Blocks.AIR, fire);
 			helper.succeed();
 		});
+	}
+
+	@GameTest(maxTicks = 40)
+	public void cartographersStarFindsARegisteredBiomeWithoutKeepingChunksLoaded(GameTestHelper helper) {
+		var level = helper.getLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		var biomeRegistry = level.registryAccess().lookupOrThrow(
+				net.minecraft.core.registries.Registries.BIOME);
+		var biomeId = biomeRegistry.getKey(level.getBiome(origin).value());
+		CartographerQuery query = new CartographerQuery(CartographerQuery.Kind.BIOME, biomeId.toString());
+		helper.assertTrue(CartographerSearch.isKnownTarget(level, query),
+				"Cartographer's Star rejected a biome present in the live registry");
+		var result = CartographerSearch.find(level, origin, query);
+		helper.assertTrue(result.isPresent() && result.get().registryId().equals(biomeId.toString()),
+				"Cartographer's Star did not resolve the live biome around its caster");
+		helper.succeed();
 	}
 
 	@GameTest

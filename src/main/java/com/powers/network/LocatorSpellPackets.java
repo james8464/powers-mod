@@ -15,9 +15,14 @@ import com.powers.progression.PowerScalingService;
 import com.powers.progression.RankVariantRules;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.GrimoireDefinition;
+import com.powers.spell.CartographerQuery;
+import com.powers.spell.CartographerSearch;
+import com.powers.spell.CelestialSearchMode;
+import com.powers.spell.SpellEffect;
 import com.powers.spell.SpellCastingManager;
 import com.powers.util.PowerMessages;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -34,7 +39,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -47,22 +54,26 @@ final class LocatorSpellPackets {
 	private static final int CELESTIAL_COLOR = 0xFFD9E9FF;
 	private static final int GOLD_COLOR = 0xFFFFE08A;
 	private static final CastNonceTracker NONCES = new CastNonceTracker(NONCE_LIFETIME_TICKS);
+	private static final Map<UUID, CelestialSearchMode> MODES = new HashMap<>();
 	private record TargetRef(UUID id, ResourceKey<Level> dimension) { }
 
 	private LocatorSpellPackets() {
 	}
 
-	static void open(ServerPlayer player) {
+	static void open(ServerPlayer player, CelestialSearchMode mode) {
 		UUID nonce = NONCES.issue(player.getUUID(), player.level().getServer().getTickCount());
-		ServerPlayNetworking.send(player, new PowersPackets.OpenLocatorScreenPayload(nonce));
+		MODES.put(player.getUUID(), mode);
+		ServerPlayNetworking.send(player, new PowersPackets.OpenLocatorScreenPayload(mode, nonce));
 	}
 
 	static void forget(UUID owner) {
 		NONCES.clear(owner);
+		MODES.remove(owner);
 	}
 
 	static void clearAll() {
 		NONCES.clearAll();
+		MODES.clear();
 	}
 
 	static void handleLocate(PowersPackets.LocateTargetPayload payload, ServerPlayNetworking.Context context) {
@@ -75,9 +86,16 @@ final class LocatorSpellPackets {
 
 	private static void locate(ServerPlayer player, PowersPackets.LocateTargetPayload payload, long currentTick) {
 		if (!NONCES.consume(player.getUUID(), payload.nonce(), currentTick) || !holdsCelestialGrimoire(player)) return;
+		CelestialSearchMode mode = MODES.remove(player.getUUID());
+		if (mode == null) return;
 		if (payload.targetName().isBlank() || payload.targetName().length() > 64) return;
 		if (EntityFreezeController.isFrozen(player)) {
 			EntityFreezeController.reject(player);
+			return;
+		}
+
+		if (mode == CelestialSearchMode.WORLD) {
+			locateWorld(player, payload.targetName());
 			return;
 		}
 
@@ -124,6 +142,57 @@ final class LocatorSpellPackets {
 		if (SpellCastingManager.commitSoulCompass(player)) {
 			cast(player, level, castPosition, target, piercedWithTrueSight);
 		}
+	}
+
+	private static void locateWorld(ServerPlayer player, String rawQuery) {
+		CartographerQuery query = CartographerQuery.parse(rawQuery).orElse(null);
+		if (query == null) {
+			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.world.syntax"));
+			return;
+		}
+		ServerLevel level = (ServerLevel) player.level();
+		if (!CartographerSearch.isKnownTarget(level, query)) {
+			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.world.unknown",
+					query.target()));
+			return;
+		}
+		if (!SpellCastingManager.commitLocator(player, SpellEffect.CARTOGRAPHERS_STAR)) return;
+		CartographerSearch.Result result = CartographerSearch.find(level, player.blockPosition(), query)
+				.orElse(null);
+		if (result == null) {
+			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.world.not_found",
+					query.target()));
+			return;
+		}
+		revealWorldResult(player, level, result);
+	}
+
+	private static void revealWorldResult(ServerPlayer player, ServerLevel level,
+			CartographerSearch.Result result) {
+		BlockPos origin = player.blockPosition();
+		BlockPos target = result.position();
+		long dx = (long) target.getX() - origin.getX();
+		long dz = (long) target.getZ() - origin.getZ();
+		long distance = Math.round(Math.sqrt(dx * dx + dz * dz));
+		String direction = compassDirection(dx, dz);
+		player.sendSystemMessage(Component.translatable("grimoire.celestial.world.result",
+				result.registryId(), direction, distance));
+		player.sendSystemMessage(Component.translatable("grimoire.celestial.world.coordinates",
+				level.dimension().identifier().toString(), target.getX(), target.getY(), target.getZ()));
+		Vec3 castPosition = player.position().add(0.0, 1.0, 0.0);
+		PowerFx.rune(level, castPosition, 2.8, GOLD_COLOR, 30, level.getGameTime() * 0.03);
+		PowerFx.beam(level, castPosition, castPosition.add(dx == 0 ? 0 : Math.signum(dx) * 8.0,
+				3.0, dz == 0 ? 0 : Math.signum(dz) * 8.0), PowerFx.dust(CELESTIAL_COLOR, 1.0F), 16);
+		PowerFx.sound(level, castPosition, SoundEvents.LODESTONE_COMPASS_LOCK, 1.0F, 1.25F);
+	}
+
+	static String compassDirection(long dx, long dz) {
+		if (dx == 0 && dz == 0) return "here";
+		double angle = Math.atan2(dx, -dz);
+		String[] names = {"north", "north-east", "east", "south-east",
+				"south", "south-west", "west", "north-west"};
+		int index = Math.floorMod((int) Math.round(angle / (Math.PI / 4.0)), names.length);
+		return names[index];
 	}
 
 	private static boolean holdsCelestialGrimoire(ServerPlayer player) {

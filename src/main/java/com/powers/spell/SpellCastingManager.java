@@ -72,8 +72,11 @@ public final class SpellCastingManager {
 			return;
 		}
 		SpellDefinition spell = selectedSpell(player, grimoire);
-		if (spell.effect() == SpellEffect.SOUL_COMPASS) {
-			if (commonChecks(player, spell, false)) PowersPackets.openLocator(player);
+		if (spell.effect() == SpellEffect.SOUL_COMPASS
+				|| spell.effect() == SpellEffect.CARTOGRAPHERS_STAR) {
+			if (commonChecks(player, spell, false)) PowersPackets.openLocator(player,
+					spell.effect() == SpellEffect.SOUL_COMPASS
+							? CelestialSearchMode.ENTITY : CelestialSearchMode.WORLD);
 			return;
 		}
 		if (!commonChecks(player, spell, true)) return;
@@ -105,10 +108,17 @@ public final class SpellCastingManager {
 	}
 
 	public static boolean commitSoulCompass(ServerPlayer player) {
+		return commitLocator(player, SpellEffect.SOUL_COMPASS);
+	}
+
+	/** Revalidates and commits the selected non-channeled celestial search spell. */
+	public static boolean commitLocator(ServerPlayer player, SpellEffect expectedEffect) {
+		if (expectedEffect != SpellEffect.SOUL_COMPASS
+				&& expectedEffect != SpellEffect.CARTOGRAPHERS_STAR) return false;
 		GrimoireDefinition grimoire = heldGrimoire(player);
 		if (grimoire == null) return false;
 		SpellDefinition spell = selectedSpell(player, grimoire);
-		if (spell.effect() != SpellEffect.SOUL_COMPASS || !commonChecks(player, spell, true)) return false;
+		if (spell.effect() != expectedEffect || !commonChecks(player, spell, true)) return false;
 		PreparedMagicCast magic = ServerMagicCasts.prepare(player, spell.id(), CastSource.SPELL);
 		if (!magic.allowed()) return false;
 		int energyCost = spellEnergyCost(spell);

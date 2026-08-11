@@ -2,6 +2,7 @@ package com.powers.client.screen;
 
 import com.powers.PowersMod;
 import com.powers.network.PowersPackets;
+import com.powers.spell.CelestialSearchMode;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -25,12 +26,15 @@ public final class CelestialLocatorScreen extends Screen {
 	private static final int PANEL_HEIGHT = 224;
 
 	private final UUID nonce;
+	private final CelestialSearchMode mode;
 	private PlayerList playerList;
 	private EditBox targetNameField;
 	private boolean empty;
 
-	public CelestialLocatorScreen(UUID nonce) {
-		super(Component.translatable("screen.powers.locator.title"));
+	public CelestialLocatorScreen(CelestialSearchMode mode, UUID nonce) {
+		super(Component.translatable(mode == CelestialSearchMode.ENTITY
+				? "screen.powers.locator.title" : "screen.powers.locator.world_title"));
+		this.mode = mode;
 		this.nonce = nonce;
 	}
 
@@ -38,26 +42,32 @@ public final class CelestialLocatorScreen extends Screen {
 	protected void init() {
 		int left = panelX();
 		int top = panelY();
-		List<PlayerInfo> players = Minecraft.getInstance().getConnection() == null
+		List<PlayerInfo> players = mode == CelestialSearchMode.WORLD
+				|| Minecraft.getInstance().getConnection() == null
 				? List.of()
 				: Minecraft.getInstance().getConnection().getOnlinePlayers().stream()
 						.filter(info -> Minecraft.getInstance().player != null
 								&& !info.getProfile().id().equals(Minecraft.getInstance().player.getUUID()))
 						.sorted(java.util.Comparator.comparing(info -> info.getProfile().name()))
 						.toList();
-		empty = players.isEmpty();
+		empty = mode == CelestialSearchMode.ENTITY && players.isEmpty();
 		targetNameField = addRenderableWidget(new EditBox(font, left + 20, top + 36, 148, 20,
-				Component.literal("Player or custom mob name")));
-		targetNameField.setHint(Component.literal("Player or named mob"));
+				Component.translatable(mode == CelestialSearchMode.ENTITY
+						? "screen.powers.locator.field" : "screen.powers.locator.world_field")));
+		targetNameField.setHint(Component.translatable(mode == CelestialSearchMode.ENTITY
+				? "screen.powers.locator.hint" : "screen.powers.locator.world_hint"));
 		targetNameField.setMaxLength(64);
-		addRenderableWidget(Button.builder(Component.literal("View"), button -> chooseTyped())
+		addRenderableWidget(Button.builder(Component.translatable(mode == CelestialSearchMode.ENTITY
+				? "screen.powers.locator.view" : "screen.powers.locator.seek"), button -> chooseTyped())
 				.bounds(left + 172, top + 36, 48, 20).build());
-		playerList = new PlayerList(Minecraft.getInstance(), 200, 104, top + 68, 24);
-		playerList.setX(left + 20);
-		for (PlayerInfo info : players) {
-			playerList.add(new PlayerEntry(info.getProfile().name()));
+		if (mode == CelestialSearchMode.ENTITY) {
+			playerList = new PlayerList(Minecraft.getInstance(), 200, 104, top + 68, 24);
+			playerList.setX(left + 20);
+			for (PlayerInfo info : players) {
+				playerList.add(new PlayerEntry(info.getProfile().name()));
+			}
+			addRenderableWidget(playerList);
 		}
-		addRenderableWidget(playerList);
 		addRenderableWidget(Button.builder(Component.translatable("screen.powers.locator.cancel"),
 				button -> onClose()).bounds(left + 60, top + 184, 120, 20).build());
 	}
@@ -86,6 +96,12 @@ public final class CelestialLocatorScreen extends Screen {
 		graphics.centeredText(font, title, width / 2, panelY() + 15, 0xFFF1E8FF);
 		if (empty) graphics.centeredText(font, Component.translatable("screen.powers.locator.empty"),
 				width / 2, panelY() + 118, 0xFF9C91AF);
+		if (mode == CelestialSearchMode.WORLD) {
+			graphics.centeredText(font, Component.translatable("screen.powers.locator.world_help_1"),
+					width / 2, panelY() + 82, 0xFFD8D2E2);
+			graphics.centeredText(font, Component.translatable("screen.powers.locator.world_help_2"),
+					width / 2, panelY() + 100, 0xFF9C91AF);
+		}
 	}
 
 	private int panelX() {
