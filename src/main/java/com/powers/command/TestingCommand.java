@@ -240,7 +240,7 @@ final class TestingCommand {
 
 	private static void audit(CommandContext<CommandSourceStack> context,
 			ServerPlayer player, String detail) {
-		PowerCommand.audit(context.getSource(), OperatorAuditAction.TESTING_CONTROL,
+		OperatorCommandAudit.record(context.getSource(), OperatorAuditAction.TESTING_CONTROL,
 				OperatorAuditResult.SUCCESS, player.getScoreboardName(), detail);
 	}
 

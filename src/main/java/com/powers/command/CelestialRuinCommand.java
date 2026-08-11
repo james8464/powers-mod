@@ -18,7 +18,7 @@ final class CelestialRuinCommand {
 		CommandSourceStack source = context.getSource();
 		var preview = CelestialRuinManager.preview(source.getLevel(),
 				BlockPos.containing(source.getPosition()));
-		PowerCommand.audit(source, OperatorAuditAction.CATASTROPHIC_RITUAL,
+		OperatorCommandAudit.record(source, OperatorAuditAction.CATASTROPHIC_RITUAL,
 				preview.centerPermitted() ? OperatorAuditResult.SUCCESS : OperatorAuditResult.DENIED,
 				"world", "preview");
 		source.sendSuccess(() -> Component.literal("Heavenfall dry run at " + preview.center().toShortString()
@@ -36,7 +36,7 @@ final class CelestialRuinCommand {
 	static int cancel(CommandContext<CommandSourceStack> context) {
 		CommandSourceStack source = context.getSource();
 		var result = CelestialRuinManager.cancelNearest(source.getLevel(), source.getPosition());
-		PowerCommand.audit(source, OperatorAuditAction.CATASTROPHIC_RITUAL,
+		OperatorCommandAudit.record(source, OperatorAuditAction.CATASTROPHIC_RITUAL,
 				result == CelestialRuinCancellation.CANCELLED ? OperatorAuditResult.SUCCESS
 						: OperatorAuditResult.DENIED,
 				"world", "cancel_" + result.name().toLowerCase(java.util.Locale.ROOT));
