@@ -27,11 +27,16 @@ public final class DarknessQuestTracker {
 		if (deeds.isEmpty()) {
 			return;
 		}
+		com.powers.progression.QuestCompletionTelemetry.noteActivity(killer,
+				com.powers.progression.QuestTelemetryLedger.Alignment.DARK);
 
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(killer);
 		Map<DarknessDeed, Integer> totals = data.addDarknessDeeds(deeds);
 		int current = data.darknessLevel();
 		int completed = DarknessQuestRules.highestContiguousLevel(current, totals);
+		com.powers.progression.QuestCompletionTelemetry.completeRange(killer,
+				com.powers.progression.QuestTelemetryLedger.Alignment.DARK,
+				current + 1, completed, level -> DarknessQuestRules.completedRoute(level, totals));
 		for (int level = current + 1; level <= completed; level++) {
 			SkillSystem.awardDarknessRite(killer, level);
 		}

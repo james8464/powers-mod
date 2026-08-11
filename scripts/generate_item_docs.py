@@ -93,9 +93,12 @@ def render() -> str:
                 "green_crystal", "blue_crystal", "indigo_crystal", "violet_crystal",
                 "light_crystal", "dark_crystal"]
     for item in crystals:
+        acquisition = ("No crafting recipe; operator testing or Shadow's full-energy "
+                       "60-second manifestation rite" if item == "dark_crystal" else
+                       "Story acquisition intentionally deferred; no crafting recipe; operator testing only")
         rows.append(row(f"powers:{item}", LANG.get(f"item.powers.{item}", item), "Crystal",
                         "Selects the crystal powers documented in README",
-                        "Story acquisition intentionally deferred; no crafting recipe; operator testing only"))
+                        acquisition))
     rows.append(row("powers:infected_rainbow_crystal", "Legacy Fractured Crystal", "Compatibility alias",
                     "Inert; Rainbow appearance now derives from holder alignment", "Hidden; old-save compatibility only"))
 

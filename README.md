@@ -351,9 +351,14 @@ Testing commands are operator-only, executor-local, session-only, and never bypa
 /powers testing actor spawn [username]
 /powers testing arena [spawn|clear]
 /powers testing coverage
+/powers testing quest-telemetry
+/powers testing profile [status]
+/powers testing profile start <minutes> <expectedPlayers>
 ```
 
 The arena creates seven named acceptance targets: neutral/radiant/dark test actors, zombie, iron golem, Hollowed, and Radiant Sentinel. Coverage is derived from live registries so a newly added action cannot silently disappear from the manual test inventory. `/powers diagnose` reports fields, forced chunks, body proxies, Celestial events, spatial indexes, scan/work budgets, packets, particles, testing flags, and cleanup state.
+
+Quest telemetry stores bounded, anonymous Light/Dark completion durations and route names; completed samples contain no player identity. Publication remains locked until each alignment/level has at least 20 samples. The opt-in profiler records full server ticks, connected-player counts, work-budget peaks, p95/p99 MSPT, and sampled allocations to `profiles/*.json` and `profiles/*.jfr`; it has no recording/allocation overhead while inactive.
 
 ## Configuration
 
@@ -399,7 +404,7 @@ Back up a world before enabling or testing Celestial Ruin terrain/block-entity d
 - Shadow planning, retrieval, learning, dialogue, and remote requests have independent hard bounds.
 - Ephemeral summons and visual entities are excluded from ordinary saves where appropriate.
 
-The deterministic soak exercises 10/50/100 simulated players and asserts packet, particle, scan, field, queue, and forced-chunk budgets.
+The deterministic soak exercises 10/50/100 simulated players and asserts packet, particle, scan, field, queue, and forced-chunk budgets. `./test.sh restart-soak` runs an isolated 24-hour repeated-restart harness by default and writes `build/restart-soak/restart-soak-report.json`; it never opens the ordinary `run/world`. The manual-only connected-bot GameTest profiles 10, 50, and 100 embedded connections for 30 minutes each and publishes JFR/JSON evidence.
 
 ## Datapack and integration surfaces
 
@@ -417,7 +422,7 @@ The exact generated appendices are:
 
 ## Verification status
 
-The current release evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md), not inferred from documentation hashes. The last recorded complete run proves 676 JUnit tests, 56 live Fabric GameTests, dedicated-server boot, development-client boot, resource/asset validation, and the 10/50/100-player synthetic soak. Manual acceptance remains a human visual/gameplay activity and is never represented as automated proof.
+Current automated evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md), not inferred from documentation hashes. The exact P0/P1 checkpoint proves 1,283 JUnit tests, 66 live Fabric GameTests, two isolated dedicated-server restart cycles, resource/asset validation, mutation/visual/save-migration gates, and the 10/50/100-player synthetic soak. The current-source client review, long profiles/soak, quest sample collection, and manual acceptance remain explicit human or elapsed-time gates and are never represented as automated proof.
 
 Useful checks:
 
@@ -426,9 +431,12 @@ Useful checks:
 ./test.sh check
 ./test.sh gametest
 ./test.sh soak
+./test.sh restart-soak
 ./test.sh client
 ./test.sh server
 ```
+
+The generated [manual acceptance checklist](docs/verification/manual-acceptance-checklist.md) covers every registered action, item, entity, screen, and command. Rows marked `MANUAL LIVE PENDING` must be completed by a tester against the recorded build ID; automated checks never impersonate that sign-off. Current P0/P1 closure evidence and deliberately pending duration/manual gates are recorded in [the P0/P1 acceptance ledger](docs/verification/2026-08-11-p0-p1-acceptance.md).
 
 ## Lore and design boundary
 

@@ -65,8 +65,11 @@ case "${1:-client}" in
   soak)
     exec ./gradlew test --tests com.powers.performance.SyntheticMultiplayerSoakTest --no-daemon
     ;;
+	restart-soak)
+		exec python3 scripts/restart_soak.py "${@:2}"
+		;;
   *)
-    printf 'Usage: %s {client|server|check|gametest|soak|doctor}\n' "$0" >&2
+    printf 'Usage: %s {client|server|check|gametest|soak|restart-soak|doctor}\n' "$0" >&2
     exit 2
     ;;
 esac

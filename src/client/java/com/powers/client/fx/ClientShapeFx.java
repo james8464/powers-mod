@@ -1,11 +1,11 @@
 package com.powers.client.fx;
 
+import com.powers.PowersParticles;
 import com.powers.fx.ShapeFxKind;
 import com.powers.network.MagicFxPackets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 
 /** Expands one bounded semantic ring, rune, or spiral entirely on the client. */
 public final class ClientShapeFx {
@@ -40,7 +40,7 @@ public final class ClientShapeFx {
 			add(client, payload, dust, payload.phase() + progress * Math.PI * 5.0,
 					payload.radius(), 0.0);
 		} else if (family < 4) {
-			add(client, payload, ParticleTypes.END_ROD,
+			add(client, payload, PowersParticles.GLYPH,
 					payload.phase() + progress * Math.PI * 5.0, payload.radius(), 0.15);
 		} else {
 			double angle = payload.phase() + Math.PI / 8.0 + progress * Math.PI * 10.0;

@@ -204,6 +204,81 @@ public final class P1AcceptanceGameTests {
 		helper.succeed();
 	}
 
+	@GameTest(padding = 128)
+	@SuppressWarnings("removal")
+	public void ordinaryCrystalUseExecutesEveryLocalEffectFamily(GameTestHelper helper) {
+		ServerLevel level = helper.getLevel();
+		ServerPlayer red = crystalPlayer(helper, new BlockPos(8, 1, 8));
+		var infernoTarget = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE,
+				new BlockPos(8, 1, 10));
+		float infernoHealth = infernoTarget.getHealth();
+		helper.assertTrue(com.powers.power.crystals.CrystalPowerRegistry.tryActivate(
+				red, com.powers.PowersItems.RED_CRYSTAL), "Red Crystal rejected ordinary item use");
+		com.powers.power.crystals.CrystalPowerRegistry.tick(level.getServer());
+		helper.assertTrue(infernoTarget.getHealth() < infernoHealth && infernoTarget.isOnFire(),
+				"Red Inferno did not damage and ignite a living mob");
+		com.powers.power.crystals.InfernoAbility.clearAll();
+		infernoTarget.discard();
+
+		ServerPlayer orange = crystalPlayer(helper, new BlockPos(8, 1, 8));
+		helper.assertTrue(com.powers.power.crystals.CrystalPowerRegistry.tryActivate(
+				orange, com.powers.PowersItems.ORANGE_CRYSTAL), "Orange Crystal rejected ordinary item use");
+		helper.runAfterDelay(1, () -> {
+			var echoes = com.powers.util.BoundedEntityCandidates.ofClass(
+					level, com.powers.entity.EchoClone.class,
+					net.minecraft.world.phys.AABB.ofSize(orange.position(), 16.0, 8.0, 16.0),
+					16, entity -> true);
+			helper.assertTrue(echoes.size() == 3,
+					"Orange Clone Swarm did not create exactly three echoes: " + echoes.size());
+			echoes.forEach(Entity::discard);
+
+			ServerPlayer yellow = crystalPlayer(helper, new BlockPos(8, 1, 8));
+			double scaleBefore = yellow.getAttributeValue(
+					net.minecraft.world.entity.ai.attributes.Attributes.SCALE);
+			helper.assertTrue(com.powers.power.crystals.CrystalPowerRegistry.tryActivate(
+					yellow, com.powers.PowersItems.YELLOW_CRYSTAL),
+					"Yellow Crystal rejected ordinary item use");
+			helper.assertTrue(yellow.getAttributeValue(
+					net.minecraft.world.entity.ai.attributes.Attributes.SCALE) != scaleBefore,
+					"Yellow Size Shift did not change the player scale");
+
+			ServerPlayer green = crystalPlayer(helper, new BlockPos(8, 1, 8));
+			green.setHealth(2.0F);
+			helper.assertTrue(com.powers.power.crystals.CrystalPowerRegistry.tryActivate(
+					green, com.powers.PowersItems.GREEN_CRYSTAL),
+					"Green Crystal rejected ordinary item use");
+			helper.assertTrue(green.getHealth() == green.getMaxHealth(),
+					"Green Life Bloom did not heal its caster");
+
+			ServerPlayer violet = crystalPlayer(helper, new BlockPos(8, 1, 8));
+			var firstSoul = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE,
+					new BlockPos(8, 1, 10));
+			var secondSoul = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE,
+					new BlockPos(10, 1, 10));
+			// Fabric's mock players deliberately share a profile UUID across GameTests.
+			com.powers.power.crystals.SoulLinkAbility.clear(violet.getUUID());
+			helper.runAfterDelay(2, () -> {
+				boolean violetActivated = com.powers.power.crystals.CrystalPowerRegistry.tryActivate(
+						violet, com.powers.PowersItems.VIOLET_CRYSTAL);
+				helper.assertTrue(violetActivated, "Violet Crystal rejected ordinary item use: "
+						+ com.powers.knowledge.KnowledgeService.answer(violet,
+						"why did soul link fail?").answer());
+				float secondBefore = secondSoul.getHealth();
+				firstSoul.hurtServer(level, level.damageSources().generic(), 3.0F);
+				com.powers.power.crystals.CrystalPowerRegistry.tick(level.getServer());
+				helper.assertTrue(secondSoul.getHealth() < secondBefore,
+						"Violet Soul Link did not mirror a wound between living mobs");
+
+				for (ServerPlayer player : java.util.List.of(red, orange, yellow, green, violet)) {
+					com.powers.testing.TestingOverrides.clear(player.getUUID());
+				}
+				com.powers.power.crystals.SoulLinkAbility.clearAll();
+				com.powers.power.crystals.SizeShiftAbility.clear(yellow);
+				helper.succeed();
+			});
+		});
+	}
+
 	@GameTest(maxTicks = 120, padding = 128)
 	@SuppressWarnings("removal")
 	public void abyssalWardBreakingAndDispelMutateOnlyTheirLockedTargets(GameTestHelper helper) {
@@ -290,6 +365,16 @@ public final class P1AcceptanceGameTests {
 				family + " did not resolve exactly once");
 		helper.assertTrue(PhysicalMagicPresences.collideNearby(handle, level, point, tick) == 0,
 				family + " repeated inside its collision window");
+	}
+
+	@SuppressWarnings("removal")
+	private static ServerPlayer crystalPlayer(GameTestHelper helper, BlockPos relativePosition) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		Vec3 position = Vec3.atBottomCenterOf(helper.absolutePos(relativePosition));
+		player.snapTo(position, 0.0F, 0.0F);
+		com.powers.testing.TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		com.powers.testing.TestingOverrides.setCooldownsDisabled(player.getUUID(), true);
+		return player;
 	}
 
 	private static MagicPresenceHandle projectile(ServerLevel level, ServerPlayer owner,

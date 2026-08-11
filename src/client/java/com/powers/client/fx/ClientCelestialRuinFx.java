@@ -1,12 +1,12 @@
 package com.powers.client.fx;
 
+import com.powers.PowersParticles;
 import com.powers.PowersSounds;
 import com.powers.network.CelestialRuinPackets;
 import com.powers.spell.CelestialRuinPresentation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
@@ -98,7 +98,7 @@ public final class ClientCelestialRuinFx {
 				double z = column.center.z + Math.sin(angle) * radius;
 				client.level.addParticle(index % 4 == 0 ? white : warm,
 						x, y, z, 0.0, 0.02, 0.0);
-				if (slice == 1 && index % 2 == 0) client.level.addParticle(ParticleTypes.END_ROD,
+				if (slice == 1 && index % 2 == 0) client.level.addParticle(PowersParticles.MOTE,
 						x, y, z, 0.0, 0.01, 0.0);
 			}
 		}

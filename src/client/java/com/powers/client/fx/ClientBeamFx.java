@@ -39,11 +39,11 @@ public final class ClientBeamFx {
 			case ROOT -> PowersParticles.ROOT;
 			case ELECTRIC -> ParticleTypes.ELECTRIC_SPARK;
 			case FLAME -> ParticleTypes.FLAME;
-			case SOUL -> ParticleTypes.SOUL_FIRE_FLAME;
-			case END_ROD -> ParticleTypes.END_ROD;
+			case SOUL -> PowersParticles.SHARD;
+			case END_ROD -> PowersParticles.MOTE;
 			case ENCHANT -> ParticleTypes.ENCHANT;
-			case CLOUD -> ParticleTypes.CLOUD;
-			case PORTAL -> ParticleTypes.REVERSE_PORTAL;
+			case CLOUD -> PowersParticles.FRACTURE;
+			case PORTAL -> PowersParticles.ECLIPSE;
 			case COLORED -> new DustParticleOptions(color & 0xFFFFFF, 1.0F);
 		};
 	}

@@ -1,6 +1,7 @@
 package com.powers.command;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -48,6 +49,16 @@ final class TestingCommand {
 						.then(Commands.literal("off").executes(context -> setCooldowns(context, false))))
 				.then(Commands.literal("refill").executes(TestingCommand::refill))
 				.then(Commands.literal("coverage").executes(TestingCommand::coverage))
+				.then(Commands.literal("quest-telemetry")
+						.executes(TestingCommand::questTelemetry))
+				.then(Commands.literal("profile")
+						.executes(TestingCommand::profileStatus)
+						.then(Commands.literal("status").executes(TestingCommand::profileStatus))
+						.then(Commands.literal("start")
+								.then(Commands.argument("minutes", IntegerArgumentType.integer(1, 180))
+										.then(Commands.argument("expectedPlayers",
+												IntegerArgumentType.integer(0, 1_000))
+												.executes(TestingCommand::profileStart)))))
 				.then(Commands.literal("arena")
 						.executes(TestingCommand::spawnArena)
 						.then(Commands.literal("spawn").executes(TestingCommand::spawnArena))
@@ -66,6 +77,45 @@ final class TestingCommand {
 				.append(Component.literal(GameplayAcceptanceCatalogue.summary())
 						.withStyle(ChatFormatting.AQUA)), false);
 		return count;
+	}
+
+	private static int questTelemetry(CommandContext<CommandSourceStack> context) {
+		var source = context.getSource();
+		source.sendSuccess(() -> Component.literal(
+				com.powers.progression.QuestCompletionTelemetry.diagnosticLine(source.getServer()))
+				.withStyle(ChatFormatting.AQUA), false);
+		for (String row : com.powers.progression.QuestCompletionTelemetry.reportRows(
+				source.getServer())) {
+			source.sendSuccess(() -> Component.literal(row).withStyle(ChatFormatting.GRAY), false);
+		}
+		return 1;
+	}
+
+	private static int profileStart(CommandContext<CommandSourceStack> context) {
+		int minutes = IntegerArgumentType.getInteger(context, "minutes");
+		int expectedPlayers = IntegerArgumentType.getInteger(context, "expectedPlayers");
+		boolean started = com.powers.performance.ServerTickProfiler.start(
+				context.getSource().getServer(), expectedPlayers, minutes * 60 * 20,
+				expectedPlayers + "p-" + minutes + "m");
+		if (!started) {
+			context.getSource().sendFailure(Component.literal("A server tick profile is already active."));
+			return 0;
+		}
+		context.getSource().sendSuccess(() -> Component.literal("Started a " + minutes
+				+ " minute profile for the " + expectedPlayers + "-player scenario; JFR and JSON"
+				+ " will be written under the server's profiles directory.")
+				.withStyle(ChatFormatting.AQUA), true);
+		return 1;
+	}
+
+	private static int profileStatus(CommandContext<CommandSourceStack> context) {
+		var status = com.powers.performance.ServerTickProfiler.status(context.getSource().getServer());
+		context.getSource().sendSuccess(() -> Component.literal("Profile active=" + status.active()
+				+ "; expectedPlayers=" + status.expectedPlayers()
+				+ "; connectedPlayers=" + status.connectedPlayers()
+				+ "; ticks=" + status.sampledTicks() + "/" + status.requestedTicks()
+				+ "; label=" + status.label()).withStyle(ChatFormatting.AQUA), false);
+		return status.active() ? 1 : 0;
 	}
 
 	private static int spawnArena(CommandContext<CommandSourceStack> context) {
