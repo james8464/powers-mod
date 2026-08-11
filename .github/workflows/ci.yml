@@ -26,9 +26,9 @@ jobs:
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew clean check --no-daemon
-      - run: ./gradlew verifyItemDocs verifyMagicDocs --no-daemon
+      - run: ./gradlew verifyItemDocs verifyMagicDocs verifyRankDocs --no-daemon
       - run: python3 scripts/generate_item_docs.py
-      - run: ./gradlew generateMagicDocs --no-daemon
+      - run: ./gradlew generateMagicDocs generateRankDocs --no-daemon
       - run: git diff --exit-code
 
   synthetic-soak:

@@ -27,7 +27,8 @@ class ReleasePipelineContractTest {
 		for (String command : new String[] {
 				"./gradlew clean check", "./test.sh gametest", "server_smoke.py",
 				"saveMigrationCorpus", "pitest", "validatePowerResources",
-				"verifyMagicDocs", "verifyItemDocs", "verifyScreenshots",
+				"verifyMagicDocs", "verifyItemDocs", "verifyRankDocs", "generateRankDocs",
+				"verifyScreenshots",
 				"./gradlew syntheticSoak", "git diff --exit-code"
 		}) {
 			assertTrue(workflow.contains(command), () -> "Missing CI lane: " + command);
@@ -43,6 +44,8 @@ class ReleasePipelineContractTest {
 		assertTrue(build.contains("com.powers.performance.SyntheticMultiplayerSoakTest"));
 		assertTrue(build.contains("tasks.register(\"testPythonScripts\", Exec)"));
 		assertTrue(build.contains("\"-m\", \"unittest\""));
+		assertTrue(build.contains("tasks.register(\"generateRankDocs\", Exec)"));
+		assertTrue(build.contains("tasks.register(\"verifyRankDocs\", Exec)"));
 	}
 
 	@Test
