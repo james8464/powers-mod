@@ -180,6 +180,7 @@ public final class PowersPackets {
 		BodyProxyPackets.initialize();
 		ShadowSwordPackets.initialize();
 		RelicPackets.initialize();
+		CrystalSelectorPackets.initialize();
 		CompanionPackets.initialize();
 		VesselControlPackets.initialize();
 		CelestialRuinPackets.initialize();

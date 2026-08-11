@@ -44,6 +44,8 @@ final class PlayerPowerAttachments {
 			"cooldowns", Codec.unboundedMap(Codec.STRING, Codec.LONG));
 	static final AttachmentType<Map<String, Integer>> SPELL_SELECTIONS = persistentMap(
 			"spell_selections", Codec.unboundedMap(Codec.STRING, Codec.INT));
+	static final AttachmentType<Map<String, Integer>> CRYSTAL_SELECTIONS = persistentMap(
+			"crystal_selections", Codec.unboundedMap(Codec.STRING, Codec.INT));
 	static final AttachmentType<Map<String, Integer>> DARKNESS_DEEDS = persistentMap(
 			"darkness_deeds", Codec.unboundedMap(Codec.STRING, Codec.INT));
 	static final AttachmentType<Map<String, Integer>> SKILL_DEEDS = persistentMap(

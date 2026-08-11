@@ -2,6 +2,7 @@ package com.powers.item.artifact;
 
 /** Pure hit-testing and keyboard rules for the eight-segment quick wheel. */
 public final class ArtifactWheelRules {
+	public enum ReleaseAction { NONE, SELECT, CAST }
 	public static final int NONE = -1;
 	public static final int CENTER = -2;
 	public static final int SLOT_COUNT = 8;
@@ -36,6 +37,12 @@ public final class ArtifactWheelRules {
 	public static int releasedSelection(int key, int hoveredTarget) {
 		return isShift(key) && hoveredTarget >= 0 && hoveredTarget < SLOT_COUNT
 				? hoveredTarget : NONE;
+	}
+
+	public static ReleaseAction releaseAction(boolean releaseToCast, int key,
+			int hoveredTarget) {
+		if (releasedSelection(key, hoveredTarget) == NONE) return ReleaseAction.NONE;
+		return releaseToCast ? ReleaseAction.CAST : ReleaseAction.SELECT;
 	}
 
 	/** Normalizes live server state into the compact indicators drawn on one segment. */
