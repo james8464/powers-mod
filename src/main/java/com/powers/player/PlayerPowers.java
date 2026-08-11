@@ -83,12 +83,23 @@ public final class PlayerPowers {
 			return Math.floorMod(selected, spellCount);
 		}
 
+		/** Returns the stored page before catalogue migration. */
+		public int rawSelectedSpell(String grimoireKey) {
+			return target.getAttachedOrElse(SPELL_SELECTIONS, Map.of()).getOrDefault(grimoireKey, 0);
+		}
+
+		/** Stores one canonical spell page after migration or explicit selection. */
+		public void setSelectedSpell(String grimoireKey, int selected) {
+			Map<String, Integer> updated = new HashMap<>(
+					target.getAttachedOrElse(SPELL_SELECTIONS, Map.of()));
+			updated.put(grimoireKey, Math.max(0, selected));
+			target.setAttached(SPELL_SELECTIONS, updated);
+		}
+
 		public int cycleSpell(String grimoireKey, int spellCount) {
 			if (spellCount <= 0) return 0;
 			int selected = (selectedSpell(grimoireKey, spellCount) + 1) % spellCount;
-			Map<String, Integer> updated = new HashMap<>(target.getAttachedOrElse(SPELL_SELECTIONS, Map.of()));
-			updated.put(grimoireKey, selected);
-			target.setAttached(SPELL_SELECTIONS, updated);
+			setSelectedSpell(grimoireKey, selected);
 			return selected;
 		}
 		public long cooldownReadyAt(String abilityId) {

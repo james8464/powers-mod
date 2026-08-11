@@ -4,11 +4,13 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /** Complete spell catalogue plus aliases used by the imported recolour textures. */
 public final class SpellRegistry {
 	private final List<GrimoireDefinition> definitions;
 	private final Map<String, GrimoireDefinition> byTexture;
+	private final Set<String> dormantTextures;
 
 	private SpellRegistry(List<GrimoireDefinition> definitions) {
 		this.definitions = List.copyOf(definitions);
@@ -23,41 +25,33 @@ public final class SpellRegistry {
 			}
 		}
 		alias(indexed, "book_grimoire_recolor", "book_grimoire_abyssal");
-		for (String school : List.of("abyssal", "blight", "celestial", "deep", "infernal", "wild")) {
+		for (String school : List.of("abyssal", "blight", "celestial", "deep", "wild")) {
 			alias(indexed, "book_grimoire_recolor_overlay_" + school, "book_grimoire_" + school);
 		}
 		this.byTexture = Map.copyOf(indexed);
+		this.dormantTextures = Set.of("book_grimoire_infernal",
+				"book_grimoire_recolor_overlay_infernal");
 	}
 
 	public static SpellRegistry defaults() {
 		return new SpellRegistry(List.of(
 				book("celestial",
 						spell("soul_compass", 14, 200, 0, SpellEffect.SOUL_COMPASS),
-						spell("tracking_mark", 18, 500, 40, SpellEffect.TRACKING_MARK),
-						spell("weather_sigil", 22, 1200, 80, SpellEffect.WEATHER_SIGIL),
+						spell("augury", 16, 600, 20, SpellEffect.AUGURY),
+						spell("cartographers_star", 24, 1200, 0, SpellEffect.CARTOGRAPHERS_STAR),
 						spell("celestial_ruin", 100, 72_000, 200, SpellEffect.CELESTIAL_RUIN)),
 				book("deep",
-						spell("dimensional_anchor", 22, 1200, 40, SpellEffect.DIMENSIONAL_ANCHOR),
-						spell("binding_sigil", 16, 400, 30, SpellEffect.BINDING_SIGIL),
-						spell("anti_portal_field", 24, 1000, 60, SpellEffect.ANTI_PORTAL_FIELD),
-						spell("kinetic_ward", 18, 600, 20, SpellEffect.KINETIC_WARD)),
+						spell("dimensional_anchor", 22, 1200, 40, SpellEffect.DIMENSIONAL_ANCHOR)),
 				book("blight",
-						spell("vitality_transfer", 18, 500, 30, SpellEffect.VITALITY_TRANSFER),
-						spell("hex", 20, 800, 40, SpellEffect.HEX),
-						spell("concealment_veil", 16, 600, 20, SpellEffect.CONCEALMENT_VEIL)),
+						spell("blood_reading", 12, 200, 20, SpellEffect.BLOOD_READING),
+						spell("grave_recall", 10, 200, 0, SpellEffect.GRAVE_RECALL)),
 				book("wild",
 						spell("purification_circle", 20, 600, 50, SpellEffect.PURIFICATION_CIRCLE),
-						spell("root_binding", 16, 400, 30, SpellEffect.ROOT_BINDING),
-						spell("sanctuary_growth", 24, 1000, 60, SpellEffect.SANCTUARY_GROWTH)),
-				book("infernal",
-						spell("infernal_seal", 20, 800, 40, SpellEffect.INFERNAL_SEAL),
-						spell("banishment_circle", 24, 1000, 60, SpellEffect.BANISHMENT_CIRCLE),
-						spell("controlled_hellfire", 18, 500, 20, SpellEffect.CONTROLLED_HELLFIRE)),
+						spell("verdant_tending", 22, 600, 40, SpellEffect.VERDANT_TENDING),
+						spell("hearth_sanctuary", 28, 1000, 40, SpellEffect.HEARTH_SANCTUARY)),
 				book("abyssal",
 						spell("ward_breaking_ritual", 26, 1200, 80, SpellEffect.WARD_BREAKING_RITUAL),
-						spell("counterspell", 16, 300, 0, SpellEffect.COUNTERSPELL),
-						spell("dispel", 18, 500, 20, SpellEffect.DISPEL),
-						spell("ritual_amplification", 22, 900, 50, SpellEffect.RITUAL_AMPLIFICATION))));
+						spell("dispel", 18, 500, 20, SpellEffect.DISPEL))));
 	}
 
 	private static GrimoireDefinition book(String school, SpellDefinition... spells) {
@@ -74,6 +68,11 @@ public final class SpellRegistry {
 
 	public GrimoireDefinition forTexture(String texture) {
 		return byTexture.get(texture);
+	}
+
+	/** Historical Infernal item textures remain registered but expose no active spells. */
+	public boolean isDormantTexture(String texture) {
+		return dormantTextures.contains(texture);
 	}
 
 	public Collection<GrimoireDefinition> definitions() {

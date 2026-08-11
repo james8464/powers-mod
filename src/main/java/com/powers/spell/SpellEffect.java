@@ -3,6 +3,8 @@ package com.powers.spell;
 /** Server-side behaviours understood by the grimoire casting engine. */
 public enum SpellEffect {
 	SOUL_COMPASS,
+	AUGURY,
+	CARTOGRAPHERS_STAR,
 	TRACKING_MARK,
 	WEATHER_SIGIL,
 	CELESTIAL_RUIN,
@@ -22,5 +24,9 @@ public enum SpellEffect {
 	WARD_BREAKING_RITUAL,
 	COUNTERSPELL,
 	DISPEL,
-	RITUAL_AMPLIFICATION
+	RITUAL_AMPLIFICATION,
+	BLOOD_READING,
+	GRAVE_RECALL,
+	VERDANT_TENDING,
+	HEARTH_SANCTUARY
 }

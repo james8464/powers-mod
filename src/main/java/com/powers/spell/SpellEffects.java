@@ -51,6 +51,7 @@ final class SpellEffects {
 		return switch (spell.effect()) {
 			case CELESTIAL_RUIN -> SpellTarget.block(celestialTarget(caster, range));
 			case TRACKING_MARK, DIMENSIONAL_ANCHOR, BINDING_SIGIL, VITALITY_TRANSFER, HEX,
+					BLOOD_READING,
 					ROOT_BINDING, BANISHMENT_CIRCLE, CONTROLLED_HELLFIRE ->
 					SpellTarget.entity(PowerTargeting.findLivingTarget(caster, range));
 			case WARD_BREAKING_RITUAL -> SpellTarget.block(wardTarget(caster, range));
@@ -69,6 +70,8 @@ final class SpellEffects {
 				PowerScalingService.unranked(spell.id()), amplified);
 		LivingEntity target = resolveEntity(caster, lockedTarget, values.targetRange());
 		boolean success = switch (spell.effect()) {
+			case AUGURY, CARTOGRAPHERS_STAR, BLOOD_READING, GRAVE_RECALL,
+					VERDANT_TENDING, HEARTH_SANCTUARY -> false;
 			case TRACKING_MARK -> trackingMark(caster, target, values.durationTicks());
 			case WEATHER_SIGIL -> weatherSigil(caster, values);
 			case CELESTIAL_RUIN -> celestialRuin(caster, lockedTarget.blockPos(), values.targetRange());
@@ -317,10 +320,12 @@ final class SpellEffects {
 
 	private static int color(SpellEffect effect) {
 		return switch (effect) {
-			case SOUL_COMPASS, TRACKING_MARK, WEATHER_SIGIL, CELESTIAL_RUIN -> 0xD9E9FF;
+			case SOUL_COMPASS, AUGURY, CARTOGRAPHERS_STAR, TRACKING_MARK, WEATHER_SIGIL,
+					CELESTIAL_RUIN -> 0xD9E9FF;
 			case DIMENSIONAL_ANCHOR, BINDING_SIGIL, ANTI_PORTAL_FIELD, KINETIC_WARD -> 0x665C99;
-			case VITALITY_TRANSFER, HEX, CONCEALMENT_VEIL -> 0x67405B;
-			case PURIFICATION_CIRCLE, ROOT_BINDING, SANCTUARY_GROWTH -> 0x65A765;
+			case BLOOD_READING, GRAVE_RECALL, VITALITY_TRANSFER, HEX, CONCEALMENT_VEIL -> 0x67405B;
+			case PURIFICATION_CIRCLE, VERDANT_TENDING, HEARTH_SANCTUARY, ROOT_BINDING,
+					SANCTUARY_GROWTH -> 0x65A765;
 			case INFERNAL_SEAL, BANISHMENT_CIRCLE, CONTROLLED_HELLFIRE -> 0xC63C32;
 			case WARD_BREAKING_RITUAL, COUNTERSPELL, DISPEL, RITUAL_AMPLIFICATION -> 0x7455A8;
 		};
