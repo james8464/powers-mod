@@ -45,7 +45,6 @@ import static com.powers.player.PlayerPowerAttachments.SPELL_SELECTIONS;
  */
 public final class PlayerPowers {
 	public static final int SLOT_COUNT = 3;
-	public enum ConsentKind { TELEPORT, LOCATOR, COMPANION, DREAMWALK, POSSESSION }
 	public record AnchorState(String dimensionId, long expiresAt) {
 		static final Codec<AnchorState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.STRING.fieldOf("dimension").forGetter(AnchorState::dimensionId),
@@ -170,11 +169,11 @@ public final class PlayerPowers {
 			target.setAttached(FLIGHT_SNAPSHOT, snapshot);
 		}
 
-		public boolean allowsConsent(ConsentKind kind) {
+		public boolean allowsConsent(com.powers.protection.ConsentKind kind) {
 			return target.getAttachedOrElse(PlayerConsentAttachments.type(kind), Boolean.FALSE);
 		}
 
-		public void setConsent(ConsentKind kind, boolean allowed) {
+		public void setConsent(com.powers.protection.ConsentKind kind, boolean allowed) {
 			target.setAttached(PlayerConsentAttachments.type(kind), allowed);
 		}
 		public List<String> getSlotIds() {

@@ -52,6 +52,8 @@ import com.powers.spell.SpellRegistry;
 import com.powers.spell.SpellCastingManager;
 import com.powers.spell.CartographerQuery;
 import com.powers.spell.CartographerSearch;
+import com.powers.protection.ConsentKind;
+import com.powers.protection.ConsentOverrideRuntime;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -844,6 +846,47 @@ public final class PowersGameTests {
 		var result = CartographerSearch.find(level, origin, query);
 		helper.assertTrue(result.isPresent() && result.get().registryId().equals(biomeId.toString()),
 				"Cartographer's Star did not resolve the live biome around its caster");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void empyreanJewelOverridesEveryConsentCategoryOncePerTick(GameTestHelper helper) {
+		ConsentOverrideRuntime.clear();
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		ServerPlayer target = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		target.setPos(origin.getX() + 2.5, origin.getY(), origin.getZ() + 0.5);
+		ItemStack jewel = com.powers.ImportedPackItems.item(
+				"imported_artifact_emperyeanjewel").getDefaultInstance();
+		jewel.setCount(2);
+		caster.setItemInHand(InteractionHand.MAIN_HAND, jewel);
+		var powers = com.powers.player.PlayerPowers.get(caster);
+		int before = powers.energy();
+		for (ConsentKind kind : ConsentKind.values()) {
+			helper.assertTrue(ConsentOverrideRuntime.authorize(caster, target, kind, false),
+					"Empyrean Jewel did not override " + kind);
+		}
+		helper.assertTrue(powers.energy() == before - ConsentKind.values().length * 40,
+				"Empyrean Jewel did not charge exactly once per consent category");
+		int after = powers.energy();
+		helper.assertTrue(ConsentOverrideRuntime.authorize(caster, target, ConsentKind.TELEPORT, false)
+				&& powers.energy() == after,
+				"A duplicate same-tick consent check charged the Empyrean Jewel twice");
+
+		ServerPlayer secondTarget = helper.makeMockServerPlayerInLevel();
+		secondTarget.setPos(origin.getX() + 3.5, origin.getY(), origin.getZ() + 0.5);
+		powers.emptyEnergy();
+		helper.assertFalse(ConsentOverrideRuntime.authorize(
+				caster, secondTarget, ConsentKind.TELEPORT, false),
+				"Empyrean Jewel bypassed its energy surcharge without testing mode");
+		TestingOverrides.setEnergyDisabled(caster.getUUID(), true);
+		helper.assertTrue(ConsentOverrideRuntime.authorize(
+				caster, secondTarget, ConsentKind.TELEPORT, false),
+				"Testing-mode energy bypass did not cover consent-override testing");
+		TestingOverrides.clear(caster.getUUID());
+		ConsentOverrideRuntime.clear();
 		helper.succeed();
 	}
 
