@@ -65,8 +65,8 @@ Random assignment guarantees one allegiance-exclusive option and never duplicate
 | Flight | Server-owned survival propulsion with directional rise/descent and faster sprint flight; never creative flight. |
 | Starfall | A finite warned Astral Convergence: deterministic strikes, roof/water/force reactions, repeat-hit caps, bounded scars, and rank branches for more strikes, moving focus, revelation, diversion, echoes, and dominion. |
 | Void Beam | A telegraphed live-aim penetrating ray with diminishing later hits, rank bores, distinct force/ward/amethyst terminals, and a finite terrain-safe void scar. |
-| Fireball | One server-owned chargeable Cinderheart per caster; recast charges, punch launches, reflection count is finite, and impact creates bounded terrain/fire instead of vanilla explosion grief. |
-| Lightning Strike | Opens a warned Storm Tribunal at the aimed column. It has no gameplay cooldown; energy, concurrency, protection, and targeting still apply. Visual lightning accompanies direct authored damage. |
+| Fireball | One server-owned chargeable Cinderheart per caster; recast charges and crouch-use deliberately releases it without changing ownership. Punch catch/deflection remains finite, and impact creates bounded terrain/fire instead of vanilla explosion grief. |
+| Lightning Strike | Opens a warned Storm Tribunal at the aimed column. It has no gameplay cooldown; energy, concurrency, protection, and targeting still apply. Water, tagged copper contact, and tagged conductive armour relay a capped chain; lightning rods ground it harmlessly with a distinct cue. |
 | Thunderclap | Wide boss-scale pressure cone with heavy rank-scaled damage, stun, projectile deflection, and bounded terrain impact. |
 | Speed Burst | Collision-predicted physical dash with afterimages and an ending shockwave; Motion rank can pay for one Second Step while the original cooldown remains. |
 | Telekinesis | Radially throws permitted living targets and reflects up to 16 hostile projectiles along aim. An empty release refunds energy and cooldown. |
@@ -74,7 +74,7 @@ Random assignment guarantees one allegiance-exclusive option and never duplicate
 | Super Speed | Eight-second Chronal Overdrive using an owned movement modifier, restrained wakes, 35% strength in water, collision branches, memory slips, projectile curvature, and exact cleanup. |
 | Breezy Bash | Eighteen-tick two-stage Tempest Rite: bounded spherical capture, collision-safe lift/apex, independent slam revalidation, and safe Slow Falling release. |
 | Invisibility | Infinite owned toggle with amplifier 255, no vanilla particles or effect icon, continuous energy drain, and counter-magic/revelation without removing unrelated invisibility. |
-| Time Freeze | Owns Minecraft's true global tick freeze across loaded dimensions. The caster remains active; upkeep drains at least 15% of full capacity each second, giving about seven seconds from a full well. External `/tick freeze` ownership is preserved. |
+| Time Freeze | Owns Minecraft's true global tick freeze across loaded dimensions. Before activation it reports the exact per-second drain and safe whole seconds, with an advisory warning above 50 MSPT. Upkeep consumes at least 15% of full capacity each second; external `/tick freeze` ownership is preserved. |
 | Forcefield | Gives the caster and compatible entities within two blocks independent finite-integrity wards. A ward has no timer and sacrificially absorbs the complete overkill hit that breaks it. It follows a mind traveller's vulnerable physical body. |
 | Gravity Displacement | Five-second deterministic orrery for up to 16 nearby permitted bodies, collision-safe orbit, stable overlap arbitration, ranked collapse, projectile curvature, and Slow Falling release. |
 | Vessel Possession | Up to 30 seconds of server-owned movement, aim, jump, crouch, hotbar, and attack control over a consented player or suitable mob while the caster's body remains vulnerable. Mob AI is restored; higher-ranked players resist. Host death returns the controller under Divine Wrath. |
@@ -232,7 +232,7 @@ The registry currently contains 262 gameplay/block rows. The exact ID, family, i
 | Philosopher's Stone | Protected 30-energy transmutation: stone/cobble to iron ore, deepslate variants, netherrack to quartz, end stone to amethyst. |
 | Lodestone / Miniportal | Bind a safe same-dimension anchor; two-charge async return through normal travel rules. Empty Miniportal plus a dropped amethyst shard restores both charges. |
 | Flute | Recalls, heals, and rebinds nearby player-shaped guardians under owner/global caps. |
-| Empyrean Jewel | Pays one 40-energy surcharge to override every player-consent gate—teleport/forced movement, locator, companion, Dreamwalking, possession—without bypassing protections or safe zones. |
+| Empyrean Jewel | Pays one 40-energy surcharge to override every player-consent gate—teleport/forced movement, locator, companion, Dreamwalking, possession—without bypassing protections or safe zones. The target receives a conspicuous permanent chat notice and the attempt enters the bounded operator audit. |
 | Malignember | Reduces explicit destructive-action energy cost by 20%, never below one and never through rank scaling. |
 | Stars, dusts, salts, fossils, jewels, stones, vessels, pages | Bounded Crucible XP/catalyst tiers, archaeology, and contextual Shadow lore; no essence economy. |
 
@@ -336,6 +336,7 @@ Operator commands:
 /powers recover <player>
 /powers boss spawn
 /powers diagnose
+/powers diagnose export
 /powers shadow learning reset <player>
 /powers travel <dimension>
 ```
@@ -356,13 +357,13 @@ Testing commands are operator-only, executor-local, session-only, and never bypa
 /powers testing profile start <minutes> <expectedPlayers>
 ```
 
-The arena creates seven named acceptance targets: neutral/radiant/dark test actors, zombie, iron golem, Hollowed, and Radiant Sentinel. Coverage is derived from live registries so a newly added action cannot silently disappear from the manual test inventory. `/powers diagnose` reports fields, forced chunks, body proxies, Celestial events, per-dimension spatial-index work and memory, scan/work budgets, packets, particles, testing flags, and cleanup state.
+The arena creates seven named acceptance targets: neutral/radiant/dark test actors, zombie, iron golem, Hollowed, and Radiant Sentinel. Coverage is derived from live registries so a newly added action cannot silently disappear from the manual test inventory. `/powers diagnose` reports fields, forced chunks, body proxies, Celestial events, per-dimension spatial-index work and memory, scan/work budgets, packets, particles, testing flags, cleanup state, config-validation counts, and bounded privileged-action audit totals. `/powers diagnose export` atomically writes aggregate-only schema-v1 JSON to the world's `powers/diagnostics/latest.json`; it excludes chat, names, UUIDs, precise player coordinates, credentials, and remote-provider content.
 
 Quest telemetry stores bounded, anonymous Light/Dark completion durations and route names; completed samples contain no player identity. Publication remains locked until each alignment/level has at least 20 samples. The opt-in profiler records full server ticks, connected-player counts, work-budget peaks, p95/p99 MSPT, and sampled allocations to `profiles/*.json` and `profiles/*.jfr`; it has no recording/allocation overhead while inactive.
 
 ## Configuration
 
-The server file uses schema version 2. Values are sanitized at load; `/powers reload` reapplies policy.
+The server file uses schema version 2. Values are sanitized at load; `/powers reload` reapplies policy and reports each bounded original-to-sanitized delta, reason, and active revision. Credentials, free-form strings, and safe-zone coordinates are represented only by redacted summaries.
 
 | Key | Default | Meaning |
 | --- | ---: | --- |
@@ -404,7 +405,7 @@ Back up a world before enabling or testing Celestial Ruin terrain/block-entity d
 - Shadow planning, retrieval, learning, dialogue, and remote requests have independent hard bounds.
 - Ephemeral summons and visual entities are excluded from ordinary saves where appropriate.
 
-The deterministic soak exercises 10/50/100 simulated players and asserts packet, particle, scan, field, queue, and forced-chunk budgets. `./test.sh restart-soak` runs an isolated 24-hour repeated-restart harness by default and writes `build/restart-soak/restart-soak-report.json`; it never opens the ordinary `run/world`. The manual-only connected-bot GameTest profiles 10, 50, and 100 embedded connections for 30 minutes each and publishes JFR/JSON evidence.
+The separately attributed CI soak exercises 10/50/100 simulated players and asserts packet, particle, scan, field, queue, forced-chunk, tactical-decision, and Java-25 per-thread allocation budgets. `./test.sh restart-soak` runs an isolated 24-hour repeated-restart harness by default and writes `build/restart-soak/restart-soak-report.json`; it never opens the ordinary `run/world`. The manual-only connected-bot GameTest profiles 10, 50, and 100 embedded connections for 30 minutes each and publishes JFR/JSON evidence.
 
 ## Datapack and integration surfaces
 
@@ -413,6 +414,7 @@ Datapacks can extend recipes, loot, tags, `powers:knowledge_entries`, Crucible e
 The exact generated appendices are:
 
 - [Item catalogue](docs/gameplay/item-catalogue.md): all registered item/block rows, roles, and acquisition status.
+- [Rank catalogue](docs/gameplay/rank-catalogue.md): all 56 Light/Dark maze nodes and exact costs, depths, branches, prerequisites, and titles.
 - [Innate levels](docs/gameplay/innate-levels.md): every rank profile and transformation.
 - [Action catalogue](docs/interactions/action-catalogue.md): all 64 canonical magic actions.
 - [Interaction matrix](docs/interactions/interaction-matrix.csv): all 2,080 unordered action pairs.
