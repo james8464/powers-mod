@@ -21,6 +21,7 @@
 		"ArtifactScrollMixin",
 		"AvatarRendererMixin",
 		"LightRealmSkyMixin",
+		"OptionalItemModelFallbackMixin",
 		"RainbowCrystalVisualMixin"
 	],
 	"injectors": {

@@ -34,4 +34,11 @@ class OptionalAssetFallbackTest {
 		assertEquals(barrier, OptionalAssetFallback.resolve(
 				Identifier.parse("powers:item/optional_art"), barrier, ignored -> false));
 	}
+
+	@Test
+	void onlyMissingPowersItemModelsUseTheRuntimeBarrierFallback() {
+		assertEquals(true, OptionalItemModelRules.useBarrier("powers", true));
+		assertEquals(false, OptionalItemModelRules.useBarrier("powers", false));
+		assertEquals(false, OptionalItemModelRules.useBarrier("minecraft", true));
+	}
 }

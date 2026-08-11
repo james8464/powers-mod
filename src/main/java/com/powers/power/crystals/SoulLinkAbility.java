@@ -40,8 +40,8 @@ public class SoulLinkAbility extends Ability {
 	private static final int DURATION_TICKS = 200;
 	private static final int COOLDOWN_TICKS = 2400;
 	private static final int RADIUS = 15;
-	private static final int MAX_LINKS = 8;
 	private static final float MIRROR_CAP_PER_TARGET = 20.0F;
+	private static final Map<UUID, MirrorBaseline> MIRROR_BASELINES = new HashMap<>();
 
 	// lastHealth is remembered each tick so fresh wounds can be measured
 	private record Link(LivingEntity entity, float lastHealth, float remainingMirrorCap) {
@@ -50,6 +50,8 @@ public class SoulLinkAbility extends Ability {
 	private record ActiveLink(CastSource castSource, int ticksLeft,
 			List<Link> links, double damageMultiplier) {
 	}
+
+	private record MirrorBaseline(float health, long tick) { }
 
 	// one active link per caster, keyed by uuid so a logged-off player can be dropped
 	private static final Map<UUID, ActiveLink> ACTIVE = new HashMap<>();
@@ -68,7 +70,7 @@ public class SoulLinkAbility extends Ability {
 		}
 		ServerLevel level = (ServerLevel) player.level();
 		double radius = scaledRange(player, RADIUS);
-		int maxLinks = Math.min(12, MAX_LINKS + (int) Math.floor((scaling(player).potencyMultiplier() - 1.0) * 10));
+		int maxLinks = SoulLinkMath.maximumLinks();
 		List<Link> links = new ArrayList<>();
 		for (LivingEntity target : BoundedEntityCandidates.living(level,
 				AABB.ofSize(player.position().add(0, 1, 0), radius * 2, radius * 2, radius * 2),
@@ -102,6 +104,8 @@ public class SoulLinkAbility extends Ability {
 
 	/** Called every server tick while links are active; mirrors wounds between souls. */
 	public static void tickAll(MinecraftServer server) {
+		long now = server.getTickCount();
+		MIRROR_BASELINES.entrySet().removeIf(entry -> now - entry.getValue().tick() > 1L);
 		Iterator<Map.Entry<UUID, ActiveLink>> it = ACTIVE.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<UUID, ActiveLink> entry = it.next();
@@ -128,7 +132,9 @@ public class SoulLinkAbility extends Ability {
 					continue;
 				}
 				// track the biggest wound suffered this tick
-				float suffered = SoulLinkMath.wound(link.lastHealth(), entity.getHealth());
+				MirrorBaseline mirror = MIRROR_BASELINES.get(entity.getUUID());
+				float suffered = SoulLinkMath.woundAfterMirror(link.lastHealth(),
+						mirror == null ? null : mirror.health(), entity.getHealth());
 				if (suffered > damage) {
 					damage = suffered;
 					wounded = entity;
@@ -137,6 +143,7 @@ public class SoulLinkAbility extends Ability {
 			}
 			if (damage > 0) {
 				ServerLevel level = (ServerLevel) caster.level();
+				Map<UUID, Float> appliedThisPass = new HashMap<>();
 				// the biggest wound is shared: every other bound soul takes the same hit
 				for (Link link : updated) {
 					LivingEntity entity = link.entity();
@@ -145,7 +152,12 @@ public class SoulLinkAbility extends Ability {
 						float mirrored = SoulLinkMath.cappedMirror(
 								(float) (damage * active.damageMultiplier()), link.remainingMirrorCap());
 						if (mirrored <= 0.0F) continue;
+						float beforeMirror = entity.getHealth();
 						entity.hurtServer(level, PowerDamage.source(caster), mirrored);
+						appliedThisPass.put(entity.getUUID(),
+								SoulLinkMath.wound(beforeMirror, entity.getHealth()));
+						MIRROR_BASELINES.put(entity.getUUID(),
+								new MirrorBaseline(entity.getHealth(), now));
 						PowerFx.coloredBurst(level, entity.position().add(0, 1, 0), 0x9C27B0, 6, 0.4);
 					}
 				}
@@ -156,8 +168,7 @@ public class SoulLinkAbility extends Ability {
 				for (Link link : updated) {
 					if (link.entity().isAlive() && !link.entity().isRemoved()) {
 						// Consume only health actually removed after shield/event interception.
-						float spent = link.entity() == wounded ? 0.0F
-								: SoulLinkMath.wound(link.lastHealth(), link.entity().getHealth());
+						float spent = appliedThisPass.getOrDefault(link.entity().getUUID(), 0.0F);
 						postMirror.add(new Link(link.entity(), link.entity().getHealth(),
 								SoulLinkMath.remainingCap(link.remainingMirrorCap(), spent)));
 					}
@@ -173,7 +184,7 @@ public class SoulLinkAbility extends Ability {
 					previous = link.entity().getEyePosition();
 				}
 				var topology = Component.translatable("crystal.powers.soul_link.status", updated.size());
-				for (Link link : updated.stream().limit(MAX_LINKS).toList()) {
+				for (Link link : updated) {
 					topology.append(Component.literal("  ")).append(Component.translatable(
 							"crystal.powers.soul_link.target", link.entity().getDisplayName(),
 							Math.round(link.remainingMirrorCap())));
@@ -207,6 +218,7 @@ public class SoulLinkAbility extends Ability {
 	/** release every link on server stop */
 	public static void clearAll() {
 		ACTIVE.clear();
+		MIRROR_BASELINES.clear();
 	}
 
 	/** Bounded owner-facing topology/cap state sourced from the authoritative links. */

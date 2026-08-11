@@ -24,8 +24,10 @@ public final class EnergyHistoryLedger {
 		if (owner == null || source == null || before == after) return;
 		State state = states.computeIfAbsent(owner, ignored -> new State());
 		long delta = (long) after - before;
-		if (delta < 0) state.consumed = add(state.consumed, -delta);
-		else state.restored = add(state.restored, delta);
+		if (source.countsTowardUsage()) {
+			if (delta < 0) state.consumed = add(state.consumed, -delta);
+			else state.restored = add(state.restored, delta);
+		}
 		state.breakdown.merge(source, Math.abs(delta), EnergyHistoryLedger::add);
 		state.history.addLast(new EnergyHistorySnapshot.Entry(Math.max(0L, tick), source, before, after));
 		while (state.history.size() > HISTORY_LIMIT) state.history.removeFirst();

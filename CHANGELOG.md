@@ -2,6 +2,9 @@
 
 ## 1.0.2 - 2026-08-11
 
+- Completed the 25-item Queue 1 pass: practical spell inspection/feedback, authoritative crystal and power state, relic previews/transfers, accessible artifact/Rainbow selectors, Shadow/energy diagnostics, permissions integration, compatibility contracts, resource fallbacks, and bounded collision presentation.
+- Added Grave Recall retention/bearing, exact Dispel preflight, renewable Dimensional Anchor feedback, Soul Link topology/caps, Chrono Stop owner/deadline state, Double Health HUD/anti-toggle rules, Forcefield ownership/cracks/merge/opt-out, and selectable pull/orbit/repel Gravity modes including artifact snapshots.
+- Added named charged Miniportals, Ritual Dagger safety previews, registry-derived Malignember savings, exact reservoir transfers, persisted safe-default release-to-cast, contextual Shadow status, first-awakening binding diagrams, short beam/boss ringing sounds, six granular permission nodes, crash/energy diagnostics, signed-chat-safe prefixes, target capability contracts, and optional-asset procedural fallbacks.
 - Centralized all player-facing cooldown conversion, added live wheel energy-shortfall colouring, a deliberate crouch-use Cinderheart release, capped tag-driven lightning conduction with harmless rod grounding, and Time Freeze drain/MSPT forecasts.
 - Added conspicuous Empyrean consent-override notices and bounded privileged-action auditing, aggregate-only atomic diagnostic export, and redacted config clamp/default reports with active revisions.
 - Gave Wisdom Fruit a low-rate Realm Archive source, added generated 56-node rank documentation, hardened recipe/loot/tag graph validation, and isolated the synthetic workload plus Java-allocation budget in CI.

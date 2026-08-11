@@ -12,6 +12,11 @@ public final class ForcefieldRules {
 				&& distanceSquared <= SHARING_RADIUS * SHARING_RADIUS;
 	}
 
+	/** Shares with player-compatible targets, while excluding ordinary hostile mobs. */
+	public static boolean mayShare(boolean compatible, boolean optedOut, double distanceSquared) {
+		return compatible && !optedOut && withinSharingRadius(distanceSquared);
+	}
+
 	/** Integrity, not elapsed time, is the only ordinary way a forcefield ends. */
 	public static long expiryTick() {
 		return Long.MAX_VALUE;

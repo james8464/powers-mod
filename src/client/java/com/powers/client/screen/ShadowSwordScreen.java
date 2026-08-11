@@ -163,7 +163,8 @@ public final class ShadowSwordScreen extends Screen {
 			case "size_shift" -> status.variant() >= 0 && SizeMorphRules.isValidOption(status.variant())
 					? " " + SizeMorphRules.scale(status.variant()) + "×" : "";
 			case "gravity_displacement" -> status.variant() >= 0
-					? " " + Component.translatable(switch (Math.clamp(status.variant(), 0, 2)) {
+					? " " + Component.translatable(switch (com.powers.item.artifact.ArtifactMenuRules
+							.normalizeGravityOption(status.variant())) {
 						case 0 -> "ability.powers.gravity_displacement.mode.pull";
 						case 1 -> "ability.powers.gravity_displacement.mode.orbit";
 						default -> "ability.powers.gravity_displacement.mode.repel";

@@ -18,7 +18,8 @@ public record EnergyHistorySnapshot(long consumed, long restored, List<Breakdown
 	}
 
 	public boolean reconciles() {
-		long signed = history.stream().mapToLong(Entry::delta).sum();
+		long signed = history.stream().filter(entry -> entry.source().countsTowardUsage())
+				.mapToLong(Entry::delta).sum();
 		return signed == restored - consumed;
 	}
 

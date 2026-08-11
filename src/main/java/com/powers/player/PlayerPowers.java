@@ -341,6 +341,11 @@ public final class PlayerPowers {
 			PlayerEnergyStorage.drain(target, amount);
 		}
 
+		/** Commits one already-validated internal reservoir transfer without usage inflation. */
+		public void transferEnergyBalance(int value) {
+			PlayerEnergyStorage.transferBalance(target, value);
+		}
+
 		public Power getPower(int slot) {
 			List<String> slots = getSlotIds();
 			if (slot < 0 || slot >= slots.size()) {

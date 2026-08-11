@@ -11,7 +11,7 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 | `blockstates/light_memory_obelisk.json` | blockstates | `62981c2f148e` | pass | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/pure_light.json` | blockstates | `c4375fe29f91` | pass | JSON decoded; references are covered by strict resource validation. |
 | `icon.png` | icon.png | `00ea24abeb49` | pass | PNG 128×128, alpha; reviewed in contact sheet. |
-| `lang/en_us.json` | lang | `229e0a30da61` | pass | JSON decoded; references are covered by strict resource validation. |
+| `lang/en_us.json` | lang | `539a0dce071e` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward.json` | models | `ec18f4c15589` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward_powered.json` | models | `e82316d2c639` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/arcane_crucible.json` | models | `7590e3936646` | pass | JSON decoded; references are covered by strict resource validation. |
@@ -28,9 +28,11 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 | `particles/root.json` | particles | `e09411967ede` | pass | JSON decoded; references are covered by strict resource validation. |
 | `particles/shard.json` | particles | `aabb8e3d848a` | pass | JSON decoded; references are covered by strict resource validation. |
 | `particles/spark.json` | particles | `ab031656cf84` | pass | JSON decoded; references are covered by strict resource validation. |
-| `sounds.json` | sounds.json | `dae444973962` | pass | JSON decoded; references are covered by strict resource validation. |
+| `sounds.json` | sounds.json | `2b1400f53c95` | pass | JSON decoded; references are covered by strict resource validation. |
 | `sounds/magic/amethyst_fracture.ogg` | sounds | `cf4b766784c8` | pass | Ogg/Vorbis, 1 channel(s), 10547 bytes; normalized original cue. |
-| `sounds/magic/celestial_ring.ogg` | sounds | `fd55e5e760c5` | pass | Ogg/Vorbis, 1 channel(s), 30025 bytes; normalized original cue. |
+| `sounds/magic/beam_ring.ogg` | sounds | `153bbff46127` | pass | Ogg/Vorbis, 1 channel(s), 10618 bytes; normalized original cue. |
+| `sounds/magic/boss_impact_ring.ogg` | sounds | `38431cc37124` | pass | Ogg/Vorbis, 1 channel(s), 14859 bytes; normalized original cue. |
+| `sounds/magic/celestial_ring.ogg` | sounds | `7d17c163117c` | pass | Ogg/Vorbis, 1 channel(s), 29935 bytes; normalized original cue. |
 | `sounds/magic/crystal_resonate.ogg` | sounds | `c60c2c2d529f` | pass | Ogg/Vorbis, 1 channel(s), 11263 bytes; normalized original cue. |
 | `sounds/magic/dark_whisper.ogg` | sounds | `928def201581` | pass | Ogg/Vorbis, 1 channel(s), 14442 bytes; normalized original cue. |
 | `sounds/magic/interaction_clash.ogg` | sounds | `7705651a85ef` | pass | Ogg/Vorbis, 1 channel(s), 11348 bytes; normalized original cue. |
