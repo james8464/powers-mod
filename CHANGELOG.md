@@ -2,6 +2,9 @@
 
 ## 1.0.2 - 2026-08-11
 
+- Centralized all player-facing cooldown conversion, added live wheel energy-shortfall colouring, a deliberate crouch-use Cinderheart release, capped tag-driven lightning conduction with harmless rod grounding, and Time Freeze drain/MSPT forecasts.
+- Added conspicuous Empyrean consent-override notices and bounded privileged-action auditing, aggregate-only atomic diagnostic export, and redacted config clamp/default reports with active revisions.
+- Gave Wisdom Fruit a low-rate Realm Archive source, added generated 56-node rank documentation, hardened recipe/loot/tag graph validation, and isolated the synthetic workload plus Java-allocation budget in CI.
 - Closed the automated P0/P1 stabilization programme with versioned save fixtures, transactional cast rollback, fatal body ordering, Time Freeze/Celestial Ruin recovery, artifact revocation, protocol negotiation, packet fuzzing, executable interaction/lifecycle matrices, mutation enforcement, live ritual/crystal/rank/collision GameTests, protection adapters, realm templates, tactical guardians, and deterministic visual goldens.
 - Added persistent anonymous Light/Dark quest-completion telemetry, an opt-in full-tick JFR profiler with p95/p99 and connected-player/work peaks, a manual 10/50/100 embedded-player profile scenario, and an isolated repeated-restart soak harness that cannot touch the normal development world.
 - Added hostile randomized arithmetic properties for energy, cooldowns, and reservoirs; proved POWERS attribute cleanup cannot remove foreign modifiers; expanded the ordinary crystal-use GameTest matrix; and fixed Green Life Bloom caster healing plus Orange Echo collision-safe three-clone placement.

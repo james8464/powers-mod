@@ -29,6 +29,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import org.junit.jupiter.api.Test;
 
+import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,12 +41,36 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Deterministic 10/50/100-player budget soak without requiring wall-clock Minecraft clients. */
 class SyntheticMultiplayerSoakTest {
+	private static final long HUNDRED_PLAYER_ALLOCATION_BUDGET_BYTES = 2_750_000_000L;
+
 	@Test
 	void serverBudgetsRemainBoundedAcrossAdvertisedPlayerCounts() {
 		for (int players : List.of(10, 50, 100)) {
 			assertTimeoutPreemptively(Duration.ofSeconds(3), () -> soak(players),
 					players + "-player synthetic workload exceeded its tick-time envelope");
 		}
+	}
+
+	@Test
+	void representativeHundredPlayerWorkloadHasAnAllocationRegressionBudget() {
+		var bean = ManagementFactory.getThreadMXBean();
+		assertTrue(bean instanceof com.sun.management.ThreadMXBean,
+				"Java 25 CI must expose per-thread allocation accounting");
+		var allocations = (com.sun.management.ThreadMXBean) bean;
+		assertTrue(allocations.isThreadAllocatedMemorySupported(),
+				"Java 25 CI must support per-thread allocation accounting");
+		if (!allocations.isThreadAllocatedMemoryEnabled()) {
+			allocations.setThreadAllocatedMemoryEnabled(true);
+		}
+
+		// Warm class loading and JIT bookkeeping before measuring only the workload.
+		soak(10);
+		long thread = Thread.currentThread().threadId();
+		long before = allocations.getThreadAllocatedBytes(thread);
+		soak(100);
+		long allocated = allocations.getThreadAllocatedBytes(thread) - before;
+		assertTrue(allocated <= HUNDRED_PLAYER_ALLOCATION_BUDGET_BYTES,
+				() -> "100-player synthetic allocation budget exceeded: " + allocated + " bytes");
 	}
 
 	private static void soak(int playerCount) {

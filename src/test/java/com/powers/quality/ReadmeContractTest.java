@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,5 +43,38 @@ class ReadmeContractTest {
 			checked++;
 		}
 		assertTrue(checked > 0, "README must retain locally validated documentation links");
+	}
+
+	@Test
+	void documentedRuntimeVersionsMatchTheBuild() throws Exception {
+		Properties build = new Properties();
+		try (var input = Files.newInputStream(ROOT.resolve("gradle.properties"))) {
+			build.load(input);
+		}
+		String readme = Files.readString(ROOT.resolve("README.md"));
+		assertTrue(readme.contains("| Minecraft Java Edition | " + build.getProperty("minecraft_version") + " |"));
+		assertTrue(readme.contains("| Fabric Loader | " + build.getProperty("loader_version") + " or newer |"));
+		assertTrue(readme.contains("| Fabric API | " + build.getProperty("fabric_api_version") + " or newer |"));
+		assertTrue(readme.contains("| Java | 25 |"));
+		assertTrue(Files.readString(ROOT.resolve("build.gradle")).contains("it.options.release = 25"));
+	}
+
+	@Test
+	void documentedOperatorExportsAndGeneratedAppendicesStayDiscoverable() throws Exception {
+		String readme = Files.readString(ROOT.resolve("README.md"));
+		String commands = Files.readString(ROOT.resolve(
+				"src/main/java/com/powers/command/PowerCommand.java"));
+		assertTrue(commands.contains("Commands.literal(\"diagnose\")"));
+		assertTrue(commands.contains("Commands.literal(\"export\")"));
+		assertTrue(readme.contains("/powers diagnose export"));
+		for (String path : new String[] {
+				"docs/gameplay/item-catalogue.md",
+				"docs/gameplay/rank-catalogue.md",
+				"docs/interactions/action-catalogue.md",
+				"docs/interactions/interaction-matrix.csv",
+				"docs/interactions/lifecycle-matrix.csv"
+		}) {
+			assertTrue(readme.contains("(" + path + ")"), () -> "README omits generated appendix " + path);
+		}
 	}
 }
