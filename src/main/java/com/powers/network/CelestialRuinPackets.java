@@ -3,6 +3,7 @@ package com.powers.network;
 import com.powers.PowersMod;
 import com.powers.diagnostics.ServerRuntimeMetrics;
 import com.powers.spell.CelestialRuinRules;
+import com.powers.spell.CelestialRuinPresentation;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -51,7 +52,7 @@ public final class CelestialRuinPackets {
 
 	public static void broadcast(ServerLevel level, Vec3 center, Phase phase, int age) {
 		double range = phase == Phase.DETONATE
-				? CelestialRuinRules.DAMAGE_RADIUS : 512.0;
+				? CelestialRuinRules.DAMAGE_RADIUS : CelestialRuinPresentation.BEAM_VIEW_RADIUS;
 		Payload payload = new Payload(phase, center.x, center.y, center.z, age);
 		for (ServerPlayer player : level.players()) {
 			if (player.position().distanceToSqr(center) > range * range

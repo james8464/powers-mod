@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "src/main/resources/assets/powers/textures/entity"
+ITEM_OUTPUT = ROOT / "src/main/resources/assets/powers/textures/item"
 
 
 def darkness_skin() -> Image.Image:
@@ -30,11 +31,44 @@ def test_actor_skin() -> Image.Image:
     return image
 
 
+def spawn_egg(base: str, shade: str, highlight: str, rune: str) -> Image.Image:
+    """Paint one crisp vanilla-scale egg with an alignment rune instead of borrowing another mob."""
+    image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    rows = {
+        1: (7, 8), 2: (5, 10), 3: (4, 11), 4: (3, 12),
+        5: (2, 13), 6: (2, 13), 7: (2, 13), 8: (2, 13),
+        9: (3, 12), 10: (3, 12), 11: (3, 12), 12: (4, 11),
+        13: (5, 10), 14: (7, 8),
+    }
+    for y, (left, right) in rows.items():
+        for x in range(left, right + 1):
+            edge = x == left or x == right or y in {1, 14}
+            color = shade if edge or x + y > 20 else base
+            draw.point((x, y), fill=color)
+    for x, y in ((5, 4), (6, 3), (4, 6), (10, 10), (11, 8)):
+        draw.point((x, y), fill=highlight)
+    # A compact forked rune stays legible at GUI scale and distinguishes custom eggs.
+    for x, y in ((8, 5), (7, 6), (8, 6), (9, 6), (8, 7), (8, 8),
+                 (7, 9), (8, 9), (9, 9), (7, 10), (9, 10)):
+        draw.point((x, y), fill=rune)
+    return image
+
+
 def main() -> None:
-    """Write both uncompressed semantic entity skins."""
+    """Write reproducible semantic skins and self-contained operator spawn eggs."""
     OUTPUT.mkdir(parents=True, exist_ok=True)
+    ITEM_OUTPUT.mkdir(parents=True, exist_ok=True)
     darkness_skin().save(OUTPUT / "darkness_player.png", format="PNG", optimize=True)
     test_actor_skin().save(OUTPUT / "test_actor.png", format="PNG", optimize=True)
+    eggs = {
+        "darkness_creature_spawn_egg": ("#13091d", "#030105", "#713d8c", "#d38cff"),
+        "power_test_actor_spawn_egg": ("#27303d", "#10151d", "#62dffc", "#ffd05c"),
+        "radiant_sentinel_spawn_egg": ("#fff3c4", "#b78d2e", "#ffffff", "#69dff7"),
+        "first_vessel_spawn_egg": ("#24102e", "#08040d", "#8e5ab0", "#e7ddff"),
+    }
+    for name, palette in eggs.items():
+        spawn_egg(*palette).save(ITEM_OUTPUT / f"{name}.png", format="PNG", optimize=True)
 
 
 if __name__ == "__main__":

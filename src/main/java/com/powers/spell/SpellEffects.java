@@ -72,9 +72,9 @@ final class SpellEffects {
 			case TRACKING_MARK -> trackingMark(caster, target, values.durationTicks());
 			case WEATHER_SIGIL -> weatherSigil(caster, values);
 			case CELESTIAL_RUIN -> celestialRuin(caster, lockedTarget.blockPos(), values.targetRange());
-			case DIMENSIONAL_ANCHOR -> target instanceof ServerPlayer player
-					&& PowerProtection.mayForceMove(caster, player)
-					&& DimensionalAnchorAbility.apply(caster, player);
+			case DIMENSIONAL_ANCHOR -> com.powers.entity.PlayerLikeTarget.isCompatible(target)
+					&& PowerProtection.mayForceMove(caster, target)
+					&& DimensionalAnchorAbility.apply(caster, target);
 			case BINDING_SIGIL -> bind(caster, target, values, false);
 			case ANTI_PORTAL_FIELD -> field(caster, SpellFieldKind.ANTI_PORTAL, values);
 			case KINETIC_WARD -> field(caster, SpellFieldKind.KINETIC_WARD, values);
@@ -224,7 +224,7 @@ final class SpellEffects {
 		for (LivingEntity ally : BoundedEntityCandidates.living(level,
 				AABB.ofSize(caster.position(), radius * 2, radius * 2, radius * 2),
 				256, LivingEntity::isAlive)) {
-			if (!caster.isAlliedTo(ally) && ally != caster && ally instanceof ServerPlayer) continue;
+			if (!SpellTargetRules.mayPurify(ally == caster, caster.isAlliedTo(ally))) continue;
 			for (MobEffectInstance instance : List.copyOf(ally.getActiveEffects())) {
 				if (instance.getEffect().equals(PowersEffects.AMETHYST_POISONING)) continue;
 				if (instance.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) {

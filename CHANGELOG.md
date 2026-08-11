@@ -18,6 +18,10 @@
 - Made detached mind avatars immune while their physical mannequins remain fully vulnerable, including sacrificial fatal-hit return, exact operator recovery, persistent Middleworld origins, and atomic nested-session prevention.
 - Upgraded Vessel Possession to server-authoritative movement, aim, jumping, crouching, hotbar, and attack control for consented players and ordinary mobs, with original mob AI restoration and higher-rank resistance.
 - Removed the obsolete Portal Rift crystal action. Indigo now owns only the persistent Middleworld journey, and Light/Dark crystals support a consent-safe crouching group journey of up to 16 players.
+- Made integrity wards follow the physical side of an active mind-body tether, so a shield still sacrifices itself against complete overkill without making the detached avatar damageable.
+- Increased the Celestial Ruin warning beam to a dense, client-bounded 100-block column visible from 1,024 blocks and extended its post-flash tinnitus fade while preserving the 2,048-block living shockwave.
+- Replaced borrowed spawn-egg references with four original self-contained egg textures and guarded every custom player-model base UV face against transparent/misaligned skins.
+- Prevented the Wild purification circle from healing unallied hostile mobs and allowed the Deep anchor spell to target the player-compatible test actor.
 
 ## 1.0.1 - 2026-08-10
 
