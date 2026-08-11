@@ -160,46 +160,28 @@ public final class MagicActionCatalogue {
 		// Grimoire spells: identifiers match SpellRegistry selections and cooldowns.
 		add(actions, "soul_compass", MagicOrigin.SPELL, MagicDelivery.INSTANT, MagicIntent.INFORMATION,
 				MagicAspect.SOUL, MagicAspect.MIND);
-		add(actions, "tracking_mark", MagicOrigin.SPELL, MagicDelivery.CHANNEL, MagicIntent.INFORMATION,
-				MagicAspect.LIGHT, MagicAspect.SOUL);
-		add(actions, "weather_sigil", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.CONTROL,
-				MagicAspect.STORM, MagicAspect.CREATION);
+		add(actions, "augury", MagicOrigin.SPELL, MagicDelivery.CHANNEL, MagicIntent.INFORMATION,
+				MagicAspect.LIGHT, MagicAspect.MIND);
+		add(actions, "cartographers_star", MagicOrigin.SPELL, MagicDelivery.INSTANT,
+				MagicIntent.INFORMATION, MagicAspect.SPACE, MagicAspect.LIGHT);
 		add(actions, "celestial_ruin", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.WORLD_INTERACTION,
 				MagicAspect.LIGHT, MagicAspect.CREATION, MagicAspect.FORCE);
 		add(actions, "dimensional_anchor", MagicOrigin.SPELL, MagicDelivery.CHANNEL, MagicIntent.CONTROL,
 				MagicAspect.SPACE, MagicAspect.SUPPRESSION);
-		add(actions, "binding_sigil", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.CONTROL,
-				MagicAspect.FORCE, MagicAspect.SUPPRESSION);
-		add(actions, "anti_portal_field", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.DEFENCE,
-				MagicAspect.SPACE, MagicAspect.SUPPRESSION);
-		add(actions, "kinetic_ward", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.DEFENCE,
-				MagicAspect.PROTECTION, MagicAspect.MOTION);
-		add(actions, "vitality_transfer", MagicOrigin.SPELL, MagicDelivery.CHANNEL, MagicIntent.SUPPORT,
+		add(actions, "blood_reading", MagicOrigin.SPELL, MagicDelivery.CHANNEL, MagicIntent.INFORMATION,
 				MagicAspect.LIFE, MagicAspect.SOUL);
-		add(actions, "hex", MagicOrigin.SPELL, MagicDelivery.CHANNEL, MagicIntent.HARM,
-				MagicAspect.DARKNESS, MagicAspect.MIND);
-		add(actions, "concealment_veil", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.DEFENCE,
-				MagicAspect.CONCEALMENT, MagicAspect.MIND);
+		add(actions, "grave_recall", MagicOrigin.SPELL, MagicDelivery.INSTANT, MagicIntent.INFORMATION,
+				MagicAspect.SOUL, MagicAspect.MIND);
 		add(actions, "purification_circle", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.SUPPORT,
 				MagicAspect.LIFE, MagicAspect.LIGHT, MagicAspect.SUPPRESSION);
-		add(actions, "root_binding", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.CONTROL,
-				MagicAspect.LIFE, MagicAspect.FORCE);
-		add(actions, "sanctuary_growth", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.DEFENCE,
+		add(actions, "verdant_tending", MagicOrigin.SPELL, MagicDelivery.FIELD,
+				MagicIntent.WORLD_INTERACTION, MagicAspect.LIFE, MagicAspect.CREATION);
+		add(actions, "hearth_sanctuary", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.DEFENCE,
 				MagicAspect.LIFE, MagicAspect.PROTECTION);
-		add(actions, "infernal_seal", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.CONTROL,
-				MagicAspect.FLAME, MagicAspect.SUPPRESSION);
-		add(actions, "banishment_circle", MagicOrigin.SPELL, MagicDelivery.FIELD, MagicIntent.CONTROL,
-				MagicAspect.SPACE, MagicAspect.SUPPRESSION);
-		add(actions, "controlled_hellfire", MagicOrigin.SPELL, MagicDelivery.PROJECTILE, MagicIntent.HARM,
-				MagicAspect.FLAME, MagicAspect.DARKNESS);
 		add(actions, "ward_breaking_ritual", MagicOrigin.SPELL, MagicDelivery.CHANNEL, MagicIntent.HARM,
 				MagicAspect.SUPPRESSION, MagicAspect.VOID);
-		add(actions, "counterspell", MagicOrigin.SPELL, MagicDelivery.INSTANT, MagicIntent.CONTROL,
-				MagicAspect.SUPPRESSION, MagicAspect.MIND);
 		add(actions, "dispel", MagicOrigin.SPELL, MagicDelivery.INSTANT, MagicIntent.SUPPORT,
 				MagicAspect.SUPPRESSION, MagicAspect.LIGHT);
-		add(actions, "ritual_amplification", MagicOrigin.SPELL, MagicDelivery.CHANNEL, MagicIntent.SUPPORT,
-				MagicAspect.CREATION, MagicAspect.SOUL);
 
 		// Suppression sources remain separate because their priorities differ.
 		add(actions, "amethyst_item", MagicOrigin.AMETHYST, MagicDelivery.AURA, MagicIntent.DEFENCE,
@@ -262,11 +244,9 @@ public final class MagicActionCatalogue {
 				"time_freeze", "chrono_stop", "celestial_ruin", "nightfall_dominion",
 				"solar_firmament", "host_heaven");
 		assign(values, MagicSignificance.RITUAL,
-				"soul_compass", "tracking_mark", "weather_sigil", "dimensional_anchor",
-				"binding_sigil", "anti_portal_field", "kinetic_ward", "vitality_transfer",
-				"hex", "concealment_veil", "purification_circle", "root_binding",
-				"sanctuary_growth", "infernal_seal", "banishment_circle", "controlled_hellfire",
-				"ward_breaking_ritual", "counterspell", "dispel", "ritual_amplification",
+				"soul_compass", "augury", "cartographers_star", "dimensional_anchor",
+				"blood_reading", "grave_recall", "purification_circle", "verdant_tending",
+				"hearth_sanctuary", "ward_breaking_ritual", "dispel",
 				"daybreak_wave", "heaven_gate", "second_dawn");
 		assign(values, MagicSignificance.STANDARD,
 				"size_morph", "time_shift", "flight", "starfall", "void_beam", "thunderclap", "speed_burst", "telekinesis",

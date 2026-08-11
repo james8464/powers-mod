@@ -49,6 +49,7 @@ import com.powers.power.PowerRegistry;
 import com.powers.item.artifact.ArtifactActionCatalogue;
 import com.powers.magic.runtime.MagicRuntime;
 import com.powers.spell.SpellRegistry;
+import com.powers.spell.SpellCastingManager;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -712,6 +713,94 @@ public final class PowersGameTests {
 
 	@GameTest
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void graveRecallConsumesEnergyOnlyWhenADeathRecordExists(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		var powers = com.powers.player.PlayerPowers.get(player);
+		powers.recordDeath(player);
+		powers.setSelectedSpell("book_grimoire_blight", 1);
+		player.setItemInHand(InteractionHand.MAIN_HAND, com.powers.ImportedPackItems.item(
+				"imported_book_grimoire_blight").getDefaultInstance());
+		int before = powers.energy();
+		SpellCastingManager.use(player, "book_grimoire_blight");
+		helper.assertTrue(powers.energy() == before - 10,
+				"Grave Recall failed to commit its exact energy payment");
+		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 80)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void auguryCompletesAsAnUnrankedPracticalRitual(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		player.setItemInHand(InteractionHand.MAIN_HAND, com.powers.ImportedPackItems.item(
+				"imported_book_grimoire_celestial").getDefaultInstance());
+		var powers = com.powers.player.PlayerPowers.get(player);
+		powers.setSelectedSpell("book_grimoire_celestial", 1);
+		SpellCastingManager.use(player, "book_grimoire_celestial");
+		helper.runAfterDelay(30, () -> {
+			helper.assertTrue(powers.cooldownReadyAt("spell:augury") > player.level().getGameTime(),
+					"Augury did not commit its authored payment and cooldown");
+			helper.assertFalse(SpellCastingManager.isChanneling(player.getUUID()),
+					"Augury remained stuck in its ritual channel");
+			helper.succeed();
+		});
+	}
+
+	@GameTest(maxTicks = 80)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void bloodReadingAcceptsAPlayerCompatibleTestActor(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		player.setYRot(0.0F);
+		player.setXRot(0.0F);
+		helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 6));
+		player.setItemInHand(InteractionHand.MAIN_HAND, com.powers.ImportedPackItems.item(
+				"imported_book_grimoire_blight").getDefaultInstance());
+		var powers = com.powers.player.PlayerPowers.get(player);
+		powers.setSelectedSpell("book_grimoire_blight", 0);
+		SpellCastingManager.use(player, "book_grimoire_blight");
+		helper.runAfterDelay(30, () -> {
+			helper.assertTrue(powers.cooldownReadyAt("spell:blood_reading") > player.level().getGameTime(),
+					"Blood Reading rejected the player-compatible target before payment");
+			helper.assertFalse(SpellCastingManager.isChanneling(player.getUUID()),
+					"Blood Reading remained stuck in its ritual channel");
+			helper.succeed();
+		});
+	}
+
+	@GameTest(maxTicks = 80)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void verdantTendingGrowsHydratesAndExtinguishesWithinItsWorkBudget(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(3, 1, 3));
+		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		player.setItemInHand(InteractionHand.MAIN_HAND, com.powers.ImportedPackItems.item(
+				"imported_book_grimoire_wild").getDefaultInstance());
+		var powers = com.powers.player.PlayerPowers.get(player);
+		powers.setSelectedSpell("book_grimoire_wild", 1);
+		BlockPos crop = new BlockPos(4, 1, 3);
+		BlockPos farmland = new BlockPos(3, 0, 4);
+		BlockPos fire = new BlockPos(2, 1, 3);
+		helper.setBlock(crop, Blocks.WHEAT);
+		helper.setBlock(farmland, Blocks.FARMLAND);
+		helper.setBlock(fire, Blocks.FIRE);
+		SpellCastingManager.use(player, "book_grimoire_wild");
+		helper.runAfterDelay(50, () -> {
+			helper.assertFalse(helper.getBlockState(crop).equals(Blocks.WHEAT.defaultBlockState()),
+					"Verdant Tending did not grow a valid crop");
+			helper.assertTrue(helper.getBlockState(farmland).getValue(
+					net.minecraft.world.level.block.FarmlandBlock.MOISTURE)
+					== net.minecraft.world.level.block.FarmlandBlock.MAX_MOISTURE,
+					"Verdant Tending did not hydrate farmland");
+			helper.assertBlockPresent(Blocks.AIR, fire);
+			helper.succeed();
+		});
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void graveRecallStateCapturesThePlayersCurrentDimensionAndPosition(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		BlockPos point = helper.absolutePos(new BlockPos(5, 3, 7));
@@ -825,8 +914,8 @@ public final class PowersGameTests {
 							.allMatch(action -> action.ability() != null),
 					"An artifact route failed to resolve for " + alignment);
 		}
-		helper.assertTrue(MagicRuntime.catalogue().definitions().size() == 73
-				&& MagicRuntime.global().interactionCount() == 2_701,
+		helper.assertTrue(MagicRuntime.catalogue().definitions().size() == 64
+				&& MagicRuntime.global().interactionCount() == 2_080,
 				"The exhaustive live magic-collision kernel was incomplete");
 		helper.succeed();
 	}

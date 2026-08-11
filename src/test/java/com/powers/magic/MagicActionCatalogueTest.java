@@ -15,7 +15,7 @@ class MagicActionCatalogueTest {
 			MagicOrigin.INNATE, 23,
 			MagicOrigin.CRYSTAL, 11,
 			MagicOrigin.ARTIFACT, 13,
-			MagicOrigin.SPELL, 21,
+			MagicOrigin.SPELL, 12,
 			MagicOrigin.AMETHYST, 3,
 			MagicOrigin.REALM, 2);
 
@@ -26,8 +26,8 @@ class MagicActionCatalogueTest {
 		catalogue.definitions().forEach(definition ->
 				actualCounts.merge(definition.origin(), 1, Integer::sum));
 
-		assertEquals(73, catalogue.definitions().size());
-		assertEquals(73, catalogue.definitions().stream()
+		assertEquals(64, catalogue.definitions().size());
+		assertEquals(64, catalogue.definitions().stream()
 				.map(MagicActionDefinition::id).distinct().count());
 		assertEquals(EXPECTED_ORIGIN_COUNTS, actualCounts);
 		assertTrue(catalogue.definitions().stream().allMatch(MagicActionDefinition::isComplete));
@@ -50,11 +50,9 @@ class MagicActionCatalogueTest {
 				"chrono_stop", "dreamwalking", "middleworld",
 				"soul_link", "light_crystal", "dark_crystal",
 				"call_hollowed", "blight_ground", "nightfall_dominion",
-				"soul_compass", "tracking_mark", "weather_sigil", "celestial_ruin", "dimensional_anchor",
-				"binding_sigil", "anti_portal_field", "kinetic_ward", "vitality_transfer",
-				"hex", "concealment_veil", "purification_circle", "root_binding",
-				"sanctuary_growth", "infernal_seal", "banishment_circle", "controlled_hellfire",
-				"ward_breaking_ritual", "counterspell", "dispel", "ritual_amplification",
+				"soul_compass", "augury", "cartographers_star", "celestial_ruin", "dimensional_anchor",
+				"blood_reading", "grave_recall", "purification_circle", "verdant_tending",
+				"hearth_sanctuary", "ward_breaking_ritual", "dispel",
 				"amethyst_item", "amethyst_block", "amethyst_ward",
 				"darkness_block", "pure_light_block")));
 		assertTrue(catalogue.definition(new MagicActionId("slow_world")) == null);
