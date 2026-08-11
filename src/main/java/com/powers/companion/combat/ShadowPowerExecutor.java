@@ -111,12 +111,13 @@ public final class ShadowPowerExecutor {
 	private static boolean mobility(ServerLevel level, ShadowCompanionEntity shadow,
 			LivingEntity target, String id) {
 		if (id.equals("time_shift")) {
+			if (target == null) return false;
 			Vec3 direction = target.position().subtract(shadow.position());
 			Vec3 destination = target.position().subtract(direction.normalize().scale(3.5));
 			return shadow.randomTeleport(destination.x, destination.y, destination.z, true);
 		}
-		if (target == null) return false;
-		Vec3 direction = target.getEyePosition().subtract(shadow.getEyePosition());
+		Vec3 direction = target == null ? shadow.getLookAngle()
+				: target.getEyePosition().subtract(shadow.getEyePosition());
 		if (direction.lengthSqr() < 1.0E-6) return false;
 		double speed = id.equals("flight") ? 1.25 : 2.15;
 		shadow.setNoGravity(id.equals("flight"));

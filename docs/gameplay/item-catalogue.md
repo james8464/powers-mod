@@ -13,7 +13,7 @@ This generated table names every registered gameplay item family, including hidd
 | `powers:indigo_crystal` | Indigo Crystal | Crystal | Selects the crystal powers documented in README | Story acquisition intentionally deferred; no crafting recipe; operator testing only |
 | `powers:violet_crystal` | Violet Crystal | Crystal | Selects the crystal powers documented in README | Story acquisition intentionally deferred; no crafting recipe; operator testing only |
 | `powers:light_crystal` | Light Crystal | Crystal | Selects the crystal powers documented in README | Story acquisition intentionally deferred; no crafting recipe; operator testing only |
-| `powers:dark_crystal` | Dark Crystal | Crystal | Selects the crystal powers documented in README | Story acquisition intentionally deferred; no crafting recipe; operator testing only |
+| `powers:dark_crystal` | Dark Crystal | Crystal | Selects the crystal powers documented in README | No crafting recipe; operator testing or Shadow's full-energy 60-second manifestation rite |
 | `powers:infected_rainbow_crystal` | Legacy Fractured Crystal | Compatibility alias | Inert; Rainbow appearance now derives from holder alignment | Hidden; old-save compatibility only |
 | `powers:darkness` | Darkness | Living force | Spreading Darkness realm matter | Dark Realm generation, Blight Ground, and invasion scars |
 | `powers:pure_light` | Pure Light | Living force | Spreading Pure Light realm matter | Light Realm generation, consecration, and invasion scars |

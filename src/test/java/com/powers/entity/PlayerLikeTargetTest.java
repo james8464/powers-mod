@@ -10,11 +10,11 @@ class PlayerLikeTargetTest {
 	}
 
 	@Test
-	void markerTargetIsCompatibleAndAlwaysConsenting() {
+	void arbitraryMarkerTargetIsCompatibleButCannotBypassConsent() {
 		TestingTarget target = new TestingTarget("Test_Alice");
 
 		assertTrue(PlayerLikeTarget.isCompatible(target));
-		assertTrue(PlayerLikeTarget.alwaysConsents(target));
+		assertFalse(PlayerLikeTarget.alwaysConsents(target));
 	}
 
 	@Test

@@ -246,10 +246,69 @@ public final class PowersGameTests {
 						"Dismiss command leaked a Shadow session");
 				helper.assertFalse(PrivateCompanionManager.handleChat(player, "ordinary chat"),
 						"Unrelated signed chat was intercepted");
-				PrivateCompanionManager.clear();
 				helper.succeed();
 			});
 		});
+	}
+
+	@GameTest(maxTicks = 80)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void shadowConjuresAndExecutesItsBoundedCombatArsenal(GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		owner.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		owner.addTag(SkillSystem.DARKNESS_TAG);
+		owner.getInventory().add(PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		helper.assertTrue(PrivateCompanionManager.handleChat(owner, "shadow, reveal yourself"),
+				"Shadow summon chat was not consumed");
+		PrivateCompanionManager.tickPlayer(owner, 0);
+		ShadowCompanionEntity shadow = PrivateCompanionManager.body(owner.getUUID()).orElseThrow();
+
+		var conjured = com.powers.companion.ShadowConjurationManager.begin(
+				owner, shadow, Items.TORCH, 4);
+		helper.assertTrue(conjured.accepted() && !conjured.pending()
+				&& conjured.count() == 4 && owner.getInventory().contains(new ItemStack(Items.TORCH)),
+				"Shadow did not deliver a bounded ordinary-item conjuration");
+		shadow.setEnergy(com.powers.companion.ShadowCompanionRules.MAX_ENERGY);
+		owner.getEnderChestInventory().setItem(0, new ItemStack(PowersItems.DARK_CRYSTAL));
+		var duplicateCrystal = com.powers.companion.ShadowConjurationManager.begin(
+				owner, shadow, PowersItems.DARK_CRYSTAL, 1);
+		helper.assertTrue(!duplicateCrystal.accepted()
+				&& duplicateCrystal.reason().equals("dark_crystal_already_carried"),
+				"Shadow ignored a Dark Crystal stored in the owner's ender chest");
+		owner.getEnderChestInventory().setItem(0, ItemStack.EMPTY);
+		PrivateCompanionManager.handleChat(owner, "shadow, hide yourself");
+		var hiddenRite = com.powers.companion.ShadowConjurationManager.begin(
+				owner, shadow, PowersItems.DARK_CRYSTAL, 1);
+		helper.assertTrue(!hiddenRite.accepted()
+				&& hiddenRite.reason().equals("rite_requires_reveal"),
+				"A hidden Shadow could begin the globally visible Dark Crystal rite");
+		PrivateCompanionManager.handleChat(owner, "shadow, reveal yourself");
+
+		long tick = helper.getLevel().getServer().getTickCount();
+		var flight = com.powers.companion.combat.ShadowPowerCatalogue.find("flight");
+		var flightResult = com.powers.companion.combat.ShadowPowerExecutor.execute(
+				helper.getLevel(), shadow, null, flight,
+				new com.powers.companion.combat.ShadowPowerExecutor.ExecutionContext(owner, false, tick));
+		helper.assertTrue(flightResult.success() && shadow.isNoGravity()
+				&& shadow.getDeltaMovement().lengthSqr() > 0.1,
+				"Shadow could not use a self-directed mobility power without a target");
+
+		PowerTestActor target = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 7));
+		target.setNoAi(true);
+		float before = target.getHealth();
+		var lightning = com.powers.companion.combat.ShadowPowerCatalogue.find("lightning_strike");
+		var strike = com.powers.companion.combat.ShadowPowerExecutor.execute(
+				helper.getLevel(), shadow, target, lightning,
+				new com.powers.companion.combat.ShadowPowerExecutor.ExecutionContext(owner, false, tick));
+		helper.assertTrue(strike.success() && target.getHealth() < before,
+				"Shadow's named lightning executor did not damage a player-like target");
+		helper.assertTrue(!helper.getLevel().getEntitiesOfClass(LightningBolt.class,
+				target.getBoundingBox().inflate(2.0), Entity -> true).isEmpty(),
+				"Shadow lightning did not create a live server bolt");
+		com.powers.companion.combat.ShadowPowerCatalogue.requireComplete();
+		PrivateCompanionManager.handleChat(owner, "shadow, leave me");
+		helper.succeed();
 	}
 
 	@GameTest

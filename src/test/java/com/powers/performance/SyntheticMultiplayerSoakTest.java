@@ -1,5 +1,11 @@
 package com.powers.performance;
 
+import com.powers.companion.combat.ShadowCombatFacts;
+import com.powers.companion.combat.ShadowLearningState;
+import com.powers.companion.combat.ShadowPowerAction;
+import com.powers.companion.combat.ShadowPowerCatalogue;
+import com.powers.companion.combat.ShadowRequestRange;
+import com.powers.companion.combat.ShadowTacticalPlanner;
 import com.powers.diagnostics.TickWorkMetrics;
 import com.powers.force.ForceAuraWorkBudget;
 import com.powers.fx.ParticleBudget;
@@ -15,6 +21,7 @@ import com.powers.mind.BodyProxyTicketRules;
 import com.powers.network.UniqueNameIndex;
 import com.powers.network.PacketRateLimiter;
 import com.powers.power.AmethystWardIndex;
+import com.powers.power.PowerRegistry;
 import com.powers.power.artifact.ArtifactFieldPulseRules;
 import com.powers.util.BoundedRoundRobinQueue;
 import com.powers.util.ChunkSpatialIndex;
@@ -42,7 +49,10 @@ class SyntheticMultiplayerSoakTest {
 	}
 
 	private static void soak(int playerCount) {
+		PowerRegistry.initialize();
 		List<UUID> players = new ArrayList<>();
+		List<ShadowLearningState> shadowLearning = new ArrayList<>();
+		List<ShadowPowerAction> shadowActions = ShadowPowerCatalogue.actions();
 		ActiveMagicIndex magic = new ActiveMagicIndex(16);
 		ChunkSpatialIndex<UUID, Integer> fields = new ChunkSpatialIndex<>(16);
 		AmethystWardIndex wards = new AmethystWardIndex();
@@ -53,6 +63,7 @@ class SyntheticMultiplayerSoakTest {
 			UUID player = new UUID(0L, index + 1L);
 			double x = index * 64.0;
 			players.add(player);
+			shadowLearning.add(new ShadowLearningState());
 			fields.put(player, "minecraft:overworld", x, 0.0, 4.0, index);
 			wards.add(BlockPos.containing(x, 64.0, 0.0));
 			names.upsert(player, "soak_player_" + index);
@@ -80,6 +91,18 @@ class SyntheticMultiplayerSoakTest {
 				assertTrue(magic.nearby("minecraft:overworld", x, 64.0, 0.0, 12.0, tick).size() <= 1);
 				assertTrue(fields.nearby("minecraft:overworld", x, 0.0, 12.0).size() <= 1);
 				assertTrue(wards.nearby(BlockPos.containing(x, 64.0, 0.0), 12).size() <= 1);
+				if (tick % 10 == 0) {
+					ShadowCombatFacts facts = new ShadowCombatFacts(4.0 + index % 24,
+							0.75, index % 3 == 0 ? 0.8 : 0.3, index % 2 == 0,
+							index % 20 == 0, 0.9, 0.8, 0.7, false, false,
+							ShadowRequestRange.AUTO);
+					var decision = ShadowTacticalPlanner.choose(
+							shadowActions, facts, shadowLearning.get(index));
+					assertTrue(decision.action() != null && decision.evaluatedCount() <= 26);
+					if (tick % 100 == 0) shadowLearning.get(index).adjust(
+							facts.contextKey(decision.mode()), facts.archetype().name(),
+							decision.action().id(), 0.25);
+				}
 			}
 			if (tick % 20 == 0) {
 				for (int index = 0; index < players.size(); index++) {
@@ -110,6 +133,14 @@ class SyntheticMultiplayerSoakTest {
 		assertEquals(0, magic.cellCount());
 		assertEquals(playerCount, fields.size());
 		assertEquals(playerCount, wards.size());
+		for (int index = 0; index < 96; index++) {
+			shadowLearning.getFirst().adjust("context_" + index, "general",
+					shadowActions.get(index % shadowActions.size()).id(), 0.1);
+		}
+		assertEquals(ShadowLearningState.MAX_CONTEXTS,
+				shadowLearning.getFirst().contextCount());
+		assertTrue(shadowLearning.stream().allMatch(state -> state.typeCount()
+				<= ShadowLearningState.MAX_TYPES && state.encode().length() <= 32_768));
 		fields.clear();
 		wards.clear();
 		names.clear();

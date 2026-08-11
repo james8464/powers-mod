@@ -1,5 +1,12 @@
 package com.powers.companion;
 
+import com.powers.companion.combat.ShadowCombatController;
+import com.powers.companion.combat.ShadowPowerRuntime;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 /** Non-sensitive bounded Shadow runtime snapshot for operators. */
 public record ShadowDiagnostics(int bodies, int hiddenBodies, int revealedBodies,
 		int activeTasks, int totalEnergy, int activeRites, int activeToggles,
@@ -31,6 +38,31 @@ public record ShadowDiagnostics(int bodies, int hiddenBodies, int revealedBodies
 				+ "; planner=" + plannerBodies + "; contexts=" + contexts
 				+ "; targetProfiles=" + targetProfiles + "; creditWindows=" + creditWindows
 				+ "; forcedChunks=" + forcedChunks + "; leaks=" + leakedHandles;
+	}
+
+	static ShadowDiagnostics collect(Iterable<PrivateCompanionManager.Session> sessions,
+			Set<UUID> bodyHandles) {
+		int bodies = 0;
+		int revealed = 0;
+		int tasks = 0;
+		int energy = 0;
+		Set<UUID> liveBodyIds = new HashSet<>();
+		for (PrivateCompanionManager.Session session : sessions) {
+			if (session.body != null && session.body.isAlive() && !session.body.isRemoved()) {
+				bodies++;
+				energy += session.body.energy();
+				liveBodyIds.add(session.body.getUUID());
+				if (session.body.revealed()) revealed++;
+			}
+			if (session.tasks.active().isPresent()) tasks++;
+		}
+		var power = ShadowPowerRuntime.diagnostics();
+		var combat = ShadowCombatController.diagnostics();
+		int leaked = (int) bodyHandles.stream().filter(id -> !liveBodyIds.contains(id)).count();
+		return new ShadowDiagnostics(bodies, bodies - revealed, revealed, tasks, energy,
+				ShadowConjurationManager.activeCount(), power.toggles(), power.casts(),
+				ShadowConjurationManager.completedCount(), combat.bodies(), combat.contexts(),
+				combat.targetTypes(), combat.creditWindows(), 0, leaked);
 	}
 
 	private static int nonNegative(int value) {
