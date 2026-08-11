@@ -48,6 +48,7 @@ final class PowerDiagnosticsCommand {
 				+ "; rayCollisionsThisTick=" + MagicRayCollisionRuntime.collisionsThisTick()
 				+ "; shadowSessions=" + PrivateCompanionManager.activeSessionCount()
 				+ "; revealedShadowBodies=" + PrivateCompanionManager.activeRevealedBodyCount());
+		send(context, PrivateCompanionManager.diagnostics().summary());
 		var containment = ForceContainmentManager.diagnostics();
 		var invasions = FactionInvasionManager.diagnostics();
 		var concord = ConcordCastManager.diagnostics();

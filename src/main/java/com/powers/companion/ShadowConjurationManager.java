@@ -48,6 +48,7 @@ public final class ShadowConjurationManager {
 
 	private record Rite(UUID bodyId, long startedAt, Reservation reservation) { }
 	private static final Map<UUID, Rite> RITES = new HashMap<>();
+	private static long completedConjurations;
 
 	private ShadowConjurationManager() {
 	}
@@ -73,6 +74,7 @@ public final class ShadowConjurationManager {
 		PowerFx.burst(level, owner.getEyePosition(), ParticleTypes.REVERSE_PORTAL,
 				12, 0.35, 0.01);
 		PowerFx.sound(level, shadow.position(), SoundEvents.SCULK_CATALYST_BLOOM, 0.65F, 0.65F);
+		completedConjurations++;
 		return new Outcome(true, false, "conjured", decision.cost(), decision.boundedCount());
 	}
 
@@ -121,6 +123,7 @@ public final class ShadowConjurationManager {
 		PowerFx.rune(level, shadow.position(), 7.0, 0x130018, 64, 0.0);
 		PowerFx.burst(level, shadow.getEyePosition(), ParticleTypes.REVERSE_PORTAL, 48, 1.4, 0.03);
 		PowerFx.sound(level, shadow.position(), SoundEvents.WARDEN_SONIC_BOOM, 1.2F, 0.45F);
+		completedConjurations++;
 		return new Outcome(true, false, "dark_crystal_conjured", 0, 1);
 	}
 
@@ -134,6 +137,14 @@ public final class ShadowConjurationManager {
 
 	public static boolean active(UUID owner) {
 		return RITES.containsKey(owner);
+	}
+
+	public static int activeCount() {
+		return RITES.size();
+	}
+
+	public static long completedCount() {
+		return completedConjurations;
 	}
 
 	/** Death consumes the committed effort; there is no body to receive a refund. */
@@ -152,5 +163,6 @@ public final class ShadowConjurationManager {
 
 	public static void clear() {
 		RITES.clear();
+		completedConjurations = 0L;
 	}
 }

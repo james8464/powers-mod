@@ -113,6 +113,20 @@ public final class ShadowCombatController {
 		STATES.clear();
 	}
 
+	public record Diagnostics(int bodies, int contexts, int targetTypes, int creditWindows) { }
+
+	public static Diagnostics diagnostics() {
+		int contexts = 0;
+		int types = 0;
+		int credits = 0;
+		for (RuntimeState state : STATES.values()) {
+			contexts += state.learning.contextCount();
+			types += state.learning.typeCount();
+			if (state.learner.activeCredit()) credits++;
+		}
+		return new Diagnostics(STATES.size(), contexts, types, credits);
+	}
+
 	private static String completeCredit(ServerLevel level, ServerPlayer owner,
 			ShadowCompanionEntity shadow, RuntimeState state, int tick) {
 		if (!state.learner.activeCredit() || tick < state.creditReadyAt) return "";
