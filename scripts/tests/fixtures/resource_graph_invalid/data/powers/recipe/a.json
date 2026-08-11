@@ -1,0 +1,5 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": ["powers:item_b", "powers:missing_item", "#powers:missing_recipe_tag"],
+  "result": {"id": "powers:item_a"}
+}
