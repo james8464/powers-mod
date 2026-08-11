@@ -42,6 +42,10 @@ public final class MagicShieldManager {
 			float repaired = Math.min(maximum, current.integrity() + integrity);
 			shields.put(owner, new ShieldState(sourceOwner, maximum, repaired,
 					Math.max(current.expiresAt(), expiresAt), current.reflective() || reflective));
+		} else if (current != null) {
+			shields.put(owner, new ShieldState(current.sourceOwner(),
+					Math.max(current.maximum(), integrity), Math.max(current.integrity(), integrity),
+					Math.max(current.expiresAt(), expiresAt), current.reflective() || reflective));
 		} else {
 			shields.put(owner, new ShieldState(sourceOwner, integrity, integrity, expiresAt, reflective));
 		}

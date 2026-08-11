@@ -155,8 +155,9 @@ public class SoulLinkAbility extends Ability {
 				List<Link> postMirror = new ArrayList<>();
 				for (Link link : updated) {
 					if (link.entity().isAlive() && !link.entity().isRemoved()) {
-						float spent = link.entity() == wounded ? 0.0F : SoulLinkMath.cappedMirror(
-								(float) (damage * active.damageMultiplier()), link.remainingMirrorCap());
+						// Consume only health actually removed after shield/event interception.
+						float spent = link.entity() == wounded ? 0.0F
+								: SoulLinkMath.wound(link.lastHealth(), link.entity().getHealth());
 						postMirror.add(new Link(link.entity(), link.entity().getHealth(),
 								SoulLinkMath.remainingCap(link.remainingMirrorCap(), spent)));
 					}
@@ -171,6 +172,10 @@ public class SoulLinkAbility extends Ability {
 							PowerFx.dust(0x9C27B0, 0.65F), 8);
 					previous = link.entity().getEyePosition();
 				}
+				float minimumCap = updated.stream().map(Link::remainingMirrorCap)
+						.min(Float::compare).orElse(0.0F);
+				caster.sendSystemMessage(Component.translatable("crystal.powers.soul_link.status",
+						updated.size(), Math.round(minimumCap)), true);
 			}
 
 			// the link ends when time runs out or no souls remain
@@ -200,4 +205,15 @@ public class SoulLinkAbility extends Ability {
 	public static void clearAll() {
 		ACTIVE.clear();
 	}
+
+	/** Bounded owner-facing topology/cap state sourced from the authoritative links. */
+	public static List<SoulLinkSnapshot> snapshots() {
+		return ACTIVE.entrySet().stream().map(entry -> new SoulLinkSnapshot(entry.getKey(),
+				entry.getValue().ticksLeft(), entry.getValue().links().stream()
+						.map(link -> new TargetCap(link.entity().getUUID(), link.remainingMirrorCap())).toList()))
+				.toList();
+	}
+
+	public record TargetCap(UUID target, float remainingMirrorDamage) { }
+	public record SoulLinkSnapshot(UUID owner, int ticksLeft, List<TargetCap> topology) { }
 }

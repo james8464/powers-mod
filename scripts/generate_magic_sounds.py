@@ -8,7 +8,7 @@ import numpy as np
 import soundfile as sf
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "src/main/resources/assets/powers/sounds/magic/celestial_ring.ogg"
+OUTPUT_DIR = ROOT / "src/main/resources/assets/powers/sounds/magic"
 RATE = 44_100
 DURATION = 5.0
 
@@ -25,13 +25,19 @@ def ringing_sample(time: float, rng: random.Random) -> float:
 
 
 def main() -> None:
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    rng = random.Random(0xCE1E57)
-    samples = np.empty(int(RATE * DURATION), dtype=np.float32)
-    for index in range(int(RATE * DURATION)):
-        value = max(-0.92, min(0.92, ringing_sample(index / RATE, rng)))
-        samples[index] = value
-    sf.write(OUTPUT, samples, RATE, format="OGG", subtype="VORBIS")
+	OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+	for name, duration, seed, pitch in (
+		("celestial_ring", 5.0, 0xCE1E57, 1.0),
+		("beam_ring", 0.85, 0xBEA7, 1.18),
+		("boss_impact_ring", 1.35, 0xB055, 0.82),
+	):
+		rng = random.Random(seed)
+		samples = np.empty(int(RATE * duration), dtype=np.float32)
+		for index in range(len(samples)):
+			time = index / RATE
+			value = ringing_sample(time * pitch, rng) * math.exp(-time / duration)
+			samples[index] = max(-0.92, min(0.92, value))
+		sf.write(OUTPUT_DIR / f"{name}.ogg", samples, RATE, format="OGG", subtype="VORBIS")
 
 
 if __name__ == "__main__":

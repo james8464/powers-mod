@@ -45,7 +45,12 @@ public class ForcefieldAbility extends Ability {
 						&& PlayerLikeTarget.isCompatible(target)
 						&& (!(target instanceof ServerPlayer ally) || !ally.isShiftKeyDown())
 						&& ForcefieldRules.withinSharingRadius(target.distanceToSqr(player)))) {
-		raiseWard(level, protectedTarget, player.getUUID(), integrity, reflective);
+			raiseWard(level, protectedTarget, player.getUUID(), integrity, reflective);
+		}
+		for (ServerPlayer ally : level.players()) {
+			if (ally != player && ally.isShiftKeyDown() && ally.distanceToSqr(player) <= 4.0) {
+				ally.sendSystemMessage(Component.translatable("ability.powers.forcefield.opted_out"), true);
+			}
 		}
 		com.powers.fx.PowerFx.sound(level,
 				player.position(), net.minecraft.sounds.SoundEvents.BEACON_ACTIVATE, 0.8f, 0.5f);

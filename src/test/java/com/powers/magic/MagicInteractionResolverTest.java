@@ -59,7 +59,7 @@ class MagicInteractionResolverTest {
 					+ value.cue().intensity() + "|" + value.mechanics() + "\n";
 			digest.update(row.getBytes(StandardCharsets.UTF_8));
 		}
-		assertEquals("757374470e4d917c67dad4ea35d7f12c4a34007ba85fca00723e0d6129195cfd",
+		assertEquals("1d7b0d2032b3cff267c45b958ba83df8faf106d2546e950fbc1daffa17bb2e5f",
 				HexFormat.of().formatHex(digest.digest()));
 	}
 
@@ -108,7 +108,7 @@ class MagicInteractionResolverTest {
 
 		assertEquals(InteractionOutcome.DESTABILIZE, resolution.outcome());
 		assertEquals("annihilating_beam_clash", resolution.cue().motif());
-		assertEquals("celestial_ring", resolution.cue().sound());
+		assertEquals("beam_ring", resolution.cue().sound());
 		assertTrue(!resolution.blocksFirst());
 		assertTrue(!resolution.blocksSecond());
 	}

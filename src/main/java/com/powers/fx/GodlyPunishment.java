@@ -78,7 +78,7 @@ public final class GodlyPunishment {
 		PowerFx.ring(level, player.position().add(0.0, 0.08, 0.0), 5.2, 0xFFF2B0, 44, Math.PI / 2.0);
 		PowerFx.spiral(level, center, 1.5, 5.5, 0x6D32A8, 48, 0.0);
 		PowerFx.coloredBurst(level, center, 0xFFF2B0, 42, 1.4);
-		PowerFx.sound(level, center, PowersSounds.CELESTIAL_RING, 1.75F, 0.72F);
+		PowerFx.sound(level, center, PowersSounds.BOSS_IMPACT_RING, 1.75F, 0.72F);
 		var bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
 		if (bolt != null) {
 			bolt.setVisualOnly(true);

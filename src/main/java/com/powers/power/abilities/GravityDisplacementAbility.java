@@ -75,8 +75,10 @@ public final class GravityDisplacementAbility extends Ability {
 
 	@Override public int selectionOptionCount() { return 3; }
 	@Override public net.minecraft.network.chat.Component selectionOptionName(int option) {
-		return net.minecraft.network.chat.Component.literal(switch (Math.floorMod(option, 3)) {
-			case 0 -> "Pull"; case 1 -> "Orbit"; default -> "Repel";
+		return net.minecraft.network.chat.Component.translatable(switch (Math.floorMod(option, 3)) {
+			case 0 -> "ability.powers.gravity_displacement.mode.pull";
+			case 1 -> "ability.powers.gravity_displacement.mode.orbit";
+			default -> "ability.powers.gravity_displacement.mode.repel";
 		});
 	}
 	@Override public boolean selectOption(ServerPlayer player, PlayerPowers.PlayerPowersData data, int option) {
@@ -152,6 +154,7 @@ public final class GravityDisplacementAbility extends Ability {
 
 	/** Releases one owner's field during respawn or disconnect. */
 	public static void clear(MinecraftServer server, UUID owner) {
+		SELECTED_MODES.remove(owner);
 		GravityField field = ACTIVE.remove(owner);
 		if (field == null || server == null) return;
 		ServerLevel level = server.getLevel(field.dimension);
@@ -168,6 +171,7 @@ public final class GravityDisplacementAbility extends Ability {
 		}
 		ACTIVE.clear();
 		TARGET_OWNERS.clear();
+		SELECTED_MODES.clear();
 	}
 
 	private static void refreshTargets(ServerLevel level,
