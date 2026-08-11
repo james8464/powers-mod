@@ -129,7 +129,9 @@ public class EnergyDrainAbility extends Ability {
 			if (now >= ritual.state().finishesAt()) {
 				// full drain landed, hit the target with exhaustion
 				if (PlayerLikeTarget.isCompatible(target)) {
-					MagicParticipants.resolve(target).ifPresent(participant -> participant.setEnergy(0));
+					MagicParticipants.resolve(target,
+							com.powers.magic.participant.ParticipantCapability.ENERGY_POOL)
+							.participant().ifPresent(participant -> participant.setEnergy(0));
 					if (target instanceof ServerPlayer targetPlayer) PowersPackets.syncTo(targetPlayer);
 					target.addEffect(PowerStatusEffects.hidden(PowersEffects.EXHAUSTION,
 							ritual.exhaustionTicks(), 0, false, true));
@@ -147,15 +149,21 @@ public class EnergyDrainAbility extends Ability {
 				continue;
 			}
 			if (PlayerLikeTarget.isCompatible(target)) {
-				var participant = MagicParticipants.resolve(target);
-				if (participant.isEmpty()) continue;
-				int targetEnergy = participant.get().energy();
+				var resolution = MagicParticipants.resolve(target,
+						com.powers.magic.participant.ParticipantCapability.ENERGY_POOL);
+				if (!resolution.supported()) {
+					com.powers.knowledge.MagicAttemptReporter.failure(caster, "energy_drain",
+							resolution.failure());
+					continue;
+				}
+				var participant = resolution.participant().orElseThrow();
+				int targetEnergy = participant.energy();
 				if (targetEnergy <= 0) continue;
 				int ticksRemaining = (int) Math.max(1L, ritual.state().finishesAt() - now);
 				int requested = AbilityArithmetic.drainStep(targetEnergy, ticksRemaining);
-				int before = participant.get().energy();
-				participant.get().consume(requested);
-				int drained = before - participant.get().energy();
+				int before = participant.energy();
+				participant.consume(requested);
+				int drained = before - participant.energy();
 				if (target instanceof ServerPlayer targetPlayer) PowersPackets.syncTo(targetPlayer);
 				PlayerPowers.PlayerPowersData casterData = PlayerPowers.get(caster);
 				casterData.refundEnergy(Math.max(1, (int) Math.floor(drained * ritual.transferRatio())));

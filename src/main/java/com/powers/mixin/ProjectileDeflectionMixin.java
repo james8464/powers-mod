@@ -29,7 +29,9 @@ public abstract class ProjectileDeflectionMixin {
 			CallbackInfoReturnable<Boolean> cir) {
 		Projectile projectile = (Projectile) (Object) this;
 		if (!(projectile instanceof LargeFireball fireball)
-				|| !PowerEntityState.isPowerProjectile(fireball)) return;
+				|| com.powers.compat.ThirdPartyCombatCompatibility.projectile(
+						PowerEntityState.isPowerProjectile(fireball))
+				!= com.powers.compat.CombatCompatibilityDisposition.POWERS_OWNED) return;
 		if (!FireballAbility.allowDeflection(fireball, deflectingEntity, byAttack)) {
 			cir.setReturnValue(false);
 		}
