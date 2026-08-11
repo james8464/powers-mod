@@ -86,6 +86,9 @@ public class PowersClient implements ClientModInitializer {
 				(payload, context) -> context.client().execute(() -> ClientBodySnapshots.handle(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(CompanionPackets.StatePayload.TYPE,
 				(payload, context) -> context.client().execute(() -> PrivateCompanionClient.handle(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(CompanionPackets.StatusPayload.TYPE,
+				(payload, context) -> context.client().execute(() ->
+						PrivateCompanionClient.handleStatus(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(VesselControlPackets.StatePayload.TYPE,
 				(payload, context) -> context.client().execute(() ->
 						VesselControlClient.setActive(payload.active())));
@@ -151,6 +154,9 @@ public class PowersClient implements ClientModInitializer {
 		HudElementRegistry.attachElementAfter(
 				PowersMod.id("power_hud"), PowersMod.id("celestial_ruin_flash"),
 				(graphics, tickCounter) -> ClientCelestialRuinFx.renderFlash(graphics));
+		HudElementRegistry.attachElementAfter(
+				PowersMod.id("power_hud"), PowersMod.id("shadow_status_hud"),
+				(graphics, tickCounter) -> ShadowStatusHudRenderer.render(graphics));
 
 		ClientTickEvents.END_CLIENT_TICK.register(PowersClient::tick);
 	}

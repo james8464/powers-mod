@@ -68,7 +68,7 @@ public final class PrivateCompanionManager {
 			return;
 		}
 		ShadowCompanionData data = ShadowCompanionStore.get(player);
-		if (!ShadowManifestationRules.mayRecall(data, player.level().getGameTime())) return;
+		if (!ShadowStatusSync.mayProceed(player, data)) return;
 
 		Session session = SESSIONS.get(ownerId);
 		if (session == null) {
@@ -111,6 +111,7 @@ public final class PrivateCompanionManager {
 		if (ShadowConjurationManager.active(ownerId)) {
 			ShadowCommandRuntime.tickConjuration(player, session);
 		}
+		ShadowStatusSync.active(player, body);
 		boolean dimensionMismatch = body.level() != player.level();
 		boolean teleported = (dimensionMismatch
 				|| ShadowCompanionStore.get(player).stance() == ShadowStance.FOLLOW)
@@ -404,6 +405,7 @@ public final class PrivateCompanionManager {
 		Session removed = SESSIONS.remove(owner.getUUID());
 		if (removed == null) {
 			ShadowCompanionStore.clearBody(owner);
+			ShadowStatusSync.inactive(owner);
 			return;
 		}
 		removeClientViewers(owner, removed);
@@ -418,6 +420,7 @@ public final class PrivateCompanionManager {
 					.withRevealed(false).withoutBody());
 			if (!removed.body.isRemoved()) removed.body.discard();
 		}
+		ShadowStatusSync.inactive(owner);
 	}
 
 	public static void clear() {
@@ -440,6 +443,7 @@ public final class PrivateCompanionManager {
 		ShadowPowerRuntime.clear();
 		ShadowCombatController.clear();
 		ShadowCommandRuntime.clear();
+		ShadowStatusSync.clear();
 		com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
 		com.powers.knowledge.MagicAttemptJournal.global().clear();
 	}

@@ -68,8 +68,32 @@ public final class CompanionPackets {
 		}
 	}
 
+	/** Authenticated owner-only energy and relevance snapshot. */
+	public record StatusPayload(UUID ownerId, boolean active, int energy, int maximumEnergy,
+			String stance, boolean revealed, boolean suppressed, int recallTicks)
+			implements CustomPacketPayload {
+		public static final Type<StatusPayload> TYPE = new Type<>(PowersMod.id("companion_status"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, StatusPayload> STREAM_CODEC =
+				StreamCodec.of((buffer, payload) -> {
+					UUID_CODEC.encode(buffer, payload.ownerId());
+					buffer.writeBoolean(payload.active());
+					buffer.writeVarInt(payload.energy());
+					buffer.writeVarInt(payload.maximumEnergy());
+					ByteBufCodecs.stringUtf8(16).encode(buffer, payload.stance());
+					buffer.writeBoolean(payload.revealed());
+					buffer.writeBoolean(payload.suppressed());
+					buffer.writeVarInt(payload.recallTicks());
+				}, buffer -> new StatusPayload(UUID_CODEC.decode(buffer), buffer.readBoolean(),
+						buffer.readVarInt(), buffer.readVarInt(),
+						ByteBufCodecs.stringUtf8(16).decode(buffer), buffer.readBoolean(),
+						buffer.readBoolean(), buffer.readVarInt()));
+
+		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
+	}
+
 	public static void initialize() {
 		PayloadTypeRegistry.clientboundPlay().register(StatePayload.TYPE, StatePayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(StatusPayload.TYPE, StatusPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(InteractPayload.TYPE, InteractPayload.STREAM_CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(InteractPayload.TYPE, (payload, context) ->
 				context.server().execute(() -> {
@@ -78,6 +102,16 @@ public final class CompanionPackets {
 						PrivateCompanionManager.interact(player, payload.sessionId());
 					}
 				}));
+	}
+
+	public static void sendStatus(ServerPlayer owner, boolean active, int energy,
+			String stance, boolean revealed, boolean suppressed, int recallTicks) {
+		if (!ServerPlayNetworking.canSend(owner, StatusPayload.TYPE)) return;
+		ServerPlayNetworking.send(owner, new StatusPayload(owner.getUUID(), active,
+				Math.clamp(energy, 0, com.powers.companion.ShadowCompanionRules.MAX_ENERGY),
+				com.powers.companion.ShadowCompanionRules.MAX_ENERGY,
+				stance == null ? "follow" : stance, revealed, suppressed,
+				Math.max(0, recallTicks)));
 	}
 
 	public static boolean sendState(ServerPlayer recipient, UUID ownerId, long sessionId,

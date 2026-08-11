@@ -14,6 +14,7 @@ import java.util.UUID;
 public final class PrivateCompanionClient {
 	private static final Map<UUID, Apparition> APPARITIONS = new HashMap<>();
 	private static int nextLocalEntityId = -1_930_062_001;
+	private static CompanionPackets.StatusPayload ownerStatus;
 
 	private static final class Apparition {
 		private final long sessionId;
@@ -82,6 +83,16 @@ public final class PrivateCompanionClient {
 		}
 	}
 
+	public static void handleStatus(CompanionPackets.StatusPayload payload) {
+		Minecraft client = Minecraft.getInstance();
+		if (client.player == null || !payload.ownerId().equals(client.player.getUUID())) return;
+		ownerStatus = payload;
+	}
+
+	public static CompanionPackets.StatusPayload ownerStatus() {
+		return ownerStatus;
+	}
+
 	/** G toggles the owner's own Shadow; questions and visibility use chat. */
 	public static void interact() {
 		Minecraft client = Minecraft.getInstance();
@@ -95,6 +106,7 @@ public final class PrivateCompanionClient {
 	public static void clear() {
 		for (UUID owner : java.util.List.copyOf(APPARITIONS.keySet())) remove(owner);
 		APPARITIONS.clear();
+		ownerStatus = null;
 	}
 
 	private static void remove(UUID owner) {
