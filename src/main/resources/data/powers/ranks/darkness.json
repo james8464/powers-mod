@@ -13,7 +13,7 @@
   {"id":"fang_1","depth":1,"branch":"might","title":"Black-Fanged","parents":["legacy_0"],"canonical":false,"perks":[{"type":"POWER_DAMAGE","amount":0.08,"actionOrAspect":""}]},
   {"id":"mist_1","depth":1,"branch":"motion","title":"Mist-Stalker","parents":["legacy_0"],"canonical":false,"perks":[{"type":"MOVEMENT","amount":0.08,"actionOrAspect":""}]},
   {"id":"echo_1","depth":1,"branch":"insight","title":"Grave-Echo","parents":["legacy_0"],"canonical":false,"perks":[{"type":"REVEAL","amount":0.06,"actionOrAspect":""}]},
-  {"id":"hex_2","depth":2,"branch":"wardcraft","title":"Hexwright","parents":["fang_1"],"canonical":false,"perks":[{"type":"CONTROL","amount":0.10,"actionOrAspect":"hex"}]},
+  {"id":"hex_2","depth":2,"branch":"wardcraft","title":"Dreadwright","parents":["fang_1"],"canonical":false,"perks":[{"type":"CONTROL","amount":0.10,"actionOrAspect":"darkness"}]},
   {"id":"shroud_2","depth":2,"branch":"veil","title":"Shroud-Born","parents":["mist_1"],"canonical":false,"perks":[{"type":"STEALTH","amount":0.14,"actionOrAspect":""}]},
   {"id":"hollow_2","depth":2,"branch":"communion","title":"Hollow Medium","parents":["echo_1"],"canonical":false,"perks":[{"type":"SOUL","amount":0.12,"actionOrAspect":""}]},
   {"id":"reaper_3","depth":3,"branch":"might","title":"Dusk Reaper","parents":["fang_1","hex_2"],"canonical":false,"perks":[{"type":"POWER_DAMAGE","amount":0.12,"actionOrAspect":"soul"}]},

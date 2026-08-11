@@ -64,7 +64,7 @@ class MagicRuntimeTest {
 
 	@Test
 	void delayedExecutionRebasesResidueAtTheActualCompletionPlaceAndTick() {
-		MagicCastContext started = cast("controlled_hellfire", CASTER, 0, 64, 0, 32, 100);
+		MagicCastContext started = cast("fireball", CASTER, 0, 64, 0, 32, 100);
 		CastAdjustment adjustment = runtime.previewCast(started).adjustment();
 		MagicCastContext completed = started.rebased("overworld", PresenceAnchor.fixed(24, 70, 24), 220);
 

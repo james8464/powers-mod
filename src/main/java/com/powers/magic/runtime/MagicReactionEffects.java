@@ -69,7 +69,6 @@ final class MagicReactionEffects {
 			entity.addEffect(PowerStatusEffects.hidden(MobEffects.GLOWING, 60, 0, true, true));
 			if (entity instanceof ServerPlayer player) {
 				InvisibilityToggleAbility.reveal(player);
-				SpellCastingManager.revealConcealment(player);
 			}
 		}
 		PowerFx.ring(level, midpoint, radius, 0xFFF2B0, 28, Math.PI / 2);

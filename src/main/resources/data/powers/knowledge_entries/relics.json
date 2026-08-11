@@ -1,7 +1,7 @@
 {
   "title": "Relics and Archaeology",
-  "keywords": ["artifact ring", "amulet", "soulstone", "soul matrix", "ritual dagger", "philosopher stone", "lodestone relic", "miniportal", "artifact flute", "fossil", "magic essence"],
-  "answer": "Rings and amulets attune energy; soul vessels drain a living target without killing it; the Ritual Dagger amplifies a spell at a health price; hearts heal and sustain vitality; the Philosopher's Stone performs protected transmutation; Lodestone relics bind Miniportal destinations; the Flute commands nearby aligned guardians. Essences, salts, fossils, jewels, pearls, stones and ember fragments infuse star-bound Crucible weapons. Representative relics occur additively in exploration loot.",
+  "keywords": ["artifact ring", "amulet", "soulstone", "soul matrix", "ritual dagger", "philosopher stone", "lodestone relic", "miniportal", "artifact flute", "fossil", "arcane energy dust", "empyrean jewel", "malignember"],
+  "answer": "Rings and amulets have distinct bounded energy attunements. Soulstones and the Soul Matrix are persistent auxiliary energy reservoirs that pay an otherwise unaffordable cast atomically. The Ritual Dagger converts four health into 80 existing magic energy. The five heart relics provide healing, energy, absorption, or a five-minute death ward; the Philosopher's Stone performs protected transmutation; Lodestones bind Miniportal destinations; the Flute commands aligned guardians. The Empyrean Jewel pays a fixed surcharge to override every consent-gated ability but never safe zones. Malignember reduces only explicit destructive-magic energy costs. Arcane energy dusts, salts, fossils, jewels, stones and ritual vessels contribute bounded Crucible XP. Representative relics occur additively in exploration loot.",
   "sources": ["ImportedArtifactRules", "ImportedArtifactItem", "CrucibleRuneRules", "LootInjectionCatalog"],
   "reveal_rank": 0
 }

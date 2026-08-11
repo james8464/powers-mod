@@ -2,6 +2,7 @@ package com.powers.item;
 
 import com.powers.PowersDataComponents;
 import com.powers.PowersMod;
+import com.powers.PowerStatusEffects;
 import com.powers.fx.PowerFx;
 import com.powers.player.PlayerPowers;
 import com.powers.power.MagicUseGate;
@@ -11,6 +12,8 @@ import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelChunkLoader;
 import com.powers.power.travel.TravelKind;
 import com.powers.protection.PowerProtection;
+import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.power.artifact.ArtifactDeathWardManager;
 import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.PowerMessages;
 import com.powers.testing.TestingOverrides;
@@ -23,6 +26,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -164,14 +168,31 @@ public final class ImportedArtifactItem extends Item {
 	}
 
 	private boolean awakenHeart(ServerPlayer player) {
+		ImportedArtifactRules.HeartSpecialization specialization =
+				ImportedArtifactRules.heartSpecialization(texture);
+		if (specialization == ImportedArtifactRules.HeartSpecialization.BLOOD_WARD) {
+			return ArtifactDeathWardManager.arm(player, ArtifactAlignment.DARKNESS);
+		}
+		if (specialization == ImportedArtifactRules.HeartSpecialization.CLOCKWORK) {
+			player.setAbsorptionAmount(Math.max(player.getAbsorptionAmount(), 8.0F));
+			player.addEffect(PowerStatusEffects.hidden(
+					MobEffects.ABSORPTION, 20 * 60, 1, true, true));
+			PowerFx.rune((ServerLevel) player.level(), player.position(), 1.4,
+					0xB58C61, 20, 0.0);
+			return true;
+		}
 		float before = player.getHealth();
-		float healing = texture.contains("woodheart") ? 12.0F
-				: texture.contains("ghoul") ? 6.0F : 9.0F;
+		float healing = specialization == ImportedArtifactRules.HeartSpecialization.WILDWOOD ? 12.0F
+				: specialization == ImportedArtifactRules.HeartSpecialization.GHOUL ? 6.0F : 9.0F;
 		player.heal(healing);
-		if (texture.contains("ghoul")) PlayerPowers.get(player).regenerateEnergy(30);
+		if (specialization == ImportedArtifactRules.HeartSpecialization.GHOUL) {
+			PlayerPowers.get(player).regenerateEnergy(30);
+		}
 		PowerFx.coloredBurst((ServerLevel) player.level(), player.position().add(0.0, 1.0, 0.0),
-				texture.contains("ghoul") ? 0x743551 : 0xB43A4C, 16, 0.5);
-		return player.getHealth() > before || texture.contains("ghoul");
+				specialization == ImportedArtifactRules.HeartSpecialization.GHOUL
+						? 0x743551 : 0xB43A4C, 16, 0.5);
+		return player.getHealth() > before
+				|| specialization == ImportedArtifactRules.HeartSpecialization.GHOUL;
 	}
 
 	private static boolean recharge(ServerPlayer player, int energy, int color) {

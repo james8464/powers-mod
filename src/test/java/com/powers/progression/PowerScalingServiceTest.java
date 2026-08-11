@@ -79,7 +79,7 @@ class PowerScalingServiceTest {
 	@Test
 	void unrankedCrystalAndSpellBaselinesDoNotInheritPlayerProgression() {
 		ScaledMagicValues crystal = PowerScalingService.unranked("inferno");
-		ScaledMagicValues spell = PowerScalingService.unranked("hex");
+		ScaledMagicValues spell = PowerScalingService.unranked("blood_reading");
 
 		assertEquals(1.0, crystal.potencyMultiplier(), 0.0001);
 		assertEquals(1.0, crystal.rangeMultiplier(), 0.0001);

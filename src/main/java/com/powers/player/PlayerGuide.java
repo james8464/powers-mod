@@ -51,7 +51,7 @@ public final class PlayerGuide {
 				page("THE TWO RELICS\n\nThe Shadow Sword answers Darkness; the Heavenly Partisan answers Light. "
 						+ "Sneak-use either to open its combat wheel. The Shadow can be addressed with messages beginning “shadow, …”."),
 				page("COUNTER-MAGIC\n\nForcefields absorb the complete hit that breaks them. Amethyst wards, "
-						+ "Sanctuary, Kinetic Ward, anchors, living Light, and living Darkness all collide differently."));
+						+ "Hearth forcefields, powered wards, anchors, living Light, and living Darkness all collide differently."));
 	}
 
 	private static Filterable<Component> page(String text) {

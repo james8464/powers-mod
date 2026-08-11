@@ -16,7 +16,7 @@ import java.util.Set;
  * is deliberate mechanics and still carries a generated presentation cue.
  */
 public final class MagicInteractionResolver {
-	private static final Set<String> ANCHORS = Set.of("dimensional_anchor", "anti_portal_field");
+	private static final Set<String> ANCHORS = Set.of("dimensional_anchor");
 	private static final Set<MagicDelivery> TRAVEL = EnumSet.of(MagicDelivery.TRAVEL, MagicDelivery.PROJECTION);
 
 	private final MagicActionCatalogue catalogue;
@@ -38,9 +38,6 @@ public final class MagicInteractionResolver {
 		register(exact, "soul_link", "purification_circle",
 				(first, second, context) -> cancellation(first, second, "purifying_severance",
 						"Purification severs the active soul tether."));
-		register(exact, "clone_swarm", "banishment_circle",
-				(first, second, context) -> cancellation(first, second, "return_seal",
-						"Banishment returns POWERS-owned ephemeral clones."));
 		register(exact, "darkness_block", "pure_light_block",
 				(first, second, context) -> cancellation(first, second, "realm_annihilation",
 						"Opposed realm matter annihilates in a staged power-100-equivalent wave."));

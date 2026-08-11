@@ -1,7 +1,7 @@
 {
   "title": "The Grimoires",
   "keywords": ["spell book", "grimoire spells", "locator spell", "dimensional anchor", "celestial ruin"],
-  "answer": "Grimoires cast authored spells rather than innate powers. Their effects never inherit player-rank scaling. The spell catalogue includes location and remote-sight rites, dimensional anchors, wards, bindings, concealment, counterspells, ritual amplification and Celestial Ruin. Status effects created by these rites hide ordinary potion particles so their bespoke magical visuals remain readable.",
+  "answer": "Grimoires cast twelve practical authored rituals and never inherit player-rank scaling. Celestial holds Soul Compass, Augury, Cartographer's Star and Celestial Ruin; Deep holds only Dimensional Anchor; Blight holds Blood Reading and Grave Recall; Wild holds Purification Circle, Verdant Tending and Hearth Sanctuary; Abyssal holds Ward-Breaking Ritual (Amethyst Unmaking) and Dispel (Unweaving). The Infernal volume is a hidden dormant compatibility alias. Every spell uses the existing magic-energy pool and bespoke effects instead of potion particles.",
   "sources": ["SpellCastingManager", "SpellDefinition", "generated spell reference"],
   "reveal_rank": 0
 }
