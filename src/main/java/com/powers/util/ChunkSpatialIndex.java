@@ -2,6 +2,7 @@ package com.powers.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Server-thread-owned horizontal spatial index for bounded fields and anchors.
@@ -24,14 +26,18 @@ public final class ChunkSpatialIndex<K, V> {
 	private record Entry<V>(String dimension, double x, double z, double radius, V value) {
 	}
 
+	private static final class WorkCounters {
+		private long queries;
+		private long candidates;
+		private long misses;
+		private long staleRemovals;
+	}
+
 	private final int cellSize;
 	private final Map<K, Entry<V>> entries = new LinkedHashMap<>();
 	private final Map<Cell, Set<K>> cells = new HashMap<>();
 	private final Map<K, Set<Cell>> memberships = new HashMap<>();
-	private long queries;
-	private long candidates;
-	private long misses;
-	private long staleRemovals;
+	private final Map<String, WorkCounters> workByDimension = new HashMap<>();
 
 	/** Bounded operational counters; memory is an intentionally conservative estimate. */
 	public record Diagnostics(long queries, long candidates, long misses, long staleRemovals,
@@ -65,12 +71,13 @@ public final class ChunkSpatialIndex<K, V> {
 	public List<V> nearby(String dimension, double x, double z, double radius) {
 		Objects.requireNonNull(dimension, "dimension");
 		validateGeometry(x, z, radius);
+		WorkCounters work = workByDimension.computeIfAbsent(dimension, ignored -> new WorkCounters());
 		Set<K> candidates = new LinkedHashSet<>();
 		for (Cell cell : cellsFor(dimension, x, z, radius)) {
 			candidates.addAll(cells.getOrDefault(cell, Set.of()));
 		}
-		queries++;
-		this.candidates += candidates.size();
+		work.queries++;
+		work.candidates += candidates.size();
 		List<V> result = new ArrayList<>();
 		for (K key : candidates) {
 			Entry<V> entry = entries.get(key);
@@ -80,7 +87,7 @@ public final class ChunkSpatialIndex<K, V> {
 			double dz = z - entry.z();
 			if (dx * dx + dz * dz <= combined * combined) result.add(entry.value());
 		}
-		if (result.isEmpty()) misses++;
+		if (result.isEmpty()) work.misses++;
 		return List.copyOf(result);
 	}
 
@@ -102,8 +109,12 @@ public final class ChunkSpatialIndex<K, V> {
 
 	/** Removes an entry rejected by authoritative world state and records the repair. */
 	public boolean removeStale(K key) {
+		Entry<V> entry = entries.get(key);
 		boolean removed = remove(key);
-		if (removed) staleRemovals++;
+		if (removed && entry != null) {
+			workByDimension.computeIfAbsent(entry.dimension(), ignored -> new WorkCounters())
+					.staleRemovals++;
+		}
 		return removed;
 	}
 
@@ -111,10 +122,7 @@ public final class ChunkSpatialIndex<K, V> {
 		entries.clear();
 		cells.clear();
 		memberships.clear();
-		queries = 0L;
-		candidates = 0L;
-		misses = 0L;
-		staleRemovals = 0L;
+		workByDimension.clear();
 	}
 
 	public int size() {
@@ -126,11 +134,38 @@ public final class ChunkSpatialIndex<K, V> {
 	}
 
 	public Diagnostics diagnostics() {
-		long membershipCount = memberships.values().stream().mapToLong(Set::size).sum();
-		long estimatedBytes = entries.size() * 96L + cells.size() * 80L
-				+ memberships.size() * 48L + membershipCount * 24L;
-		return new Diagnostics(queries, candidates, misses, staleRemovals,
-				entries.size(), cells.size(), memberships.size(), estimatedBytes);
+		long queries = 0L, candidates = 0L, misses = 0L, stale = 0L, memory = 0L;
+		for (Diagnostics value : diagnosticsByDimension().values()) {
+			queries += value.queries();
+			candidates += value.candidates();
+			misses += value.misses();
+			stale += value.staleRemovals();
+			memory += value.estimatedBytes();
+		}
+		return new Diagnostics(queries, candidates, misses, stale,
+				entries.size(), cells.size(), memberships.size(), memory);
+	}
+
+	/** Per-dimension counters used by operator diagnostics without scanning world state. */
+	public Map<String, Diagnostics> diagnosticsByDimension() {
+		Set<String> dimensions = new java.util.TreeSet<>(workByDimension.keySet());
+		entries.values().forEach(entry -> dimensions.add(entry.dimension()));
+		Map<String, Diagnostics> result = new TreeMap<>();
+		for (String dimension : dimensions) {
+			WorkCounters work = workByDimension.getOrDefault(dimension, new WorkCounters());
+			int entryCount = (int) entries.values().stream()
+					.filter(entry -> entry.dimension().equals(dimension)).count();
+			int cellCount = (int) cells.keySet().stream()
+					.filter(cell -> cell.dimension().equals(dimension)).count();
+			long membershipCount = cells.entrySet().stream()
+					.filter(entry -> entry.getKey().dimension().equals(dimension))
+					.mapToLong(entry -> entry.getValue().size()).sum();
+			long estimatedBytes = entryCount * 96L + cellCount * 80L
+					+ entryCount * 48L + membershipCount * 24L;
+			result.put(dimension, new Diagnostics(work.queries, work.candidates, work.misses,
+					work.staleRemovals, entryCount, cellCount, entryCount, estimatedBytes));
+		}
+		return Collections.unmodifiableMap(result);
 	}
 
 	private Set<Cell> cellsFor(String dimension, double x, double z, double radius) {

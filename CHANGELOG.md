@@ -27,6 +27,7 @@
 - Rebuilt `test.sh` as a location-independent Java-25 launcher with doctor, client, server, clean-check, GameTest and multiplayer-soak modes; GameTest now seeds its isolated EULA/properties without false error telemetry.
 - Added a registry-synchronized acceptance catalogue, operator coverage report and bounded seven-target test arena; extended the real-server suite with Light Crystal travel, operator command-tree and historical Cinderheart block-impact regression scenarios.
 - Expanded the deterministic 10/50/100-player soak to exercise live magic/field/ward/name spatial indexes, rotating work queues and exact cleanup in addition to packet, particle, entity-scan and chunk-ticket limits.
+- Attributed every principal spatial-index diagnostic to its dimension, including bounded query, candidate, miss, fallback, stale-removal, and estimated-memory counters.
 - Removed the five retired innate powers (Cozy Campfire, Frost Nova, Elemental Blast, Ground Slam, and Shadow Step), their runtime managers, selectors, protocol state, boss/artifact adapters, translations, and collision entries.
 - Removed every automatically assigned innate passive and the unconditional player aura dust emitter; saved loadouts now migrate deterministically to valid allegiance-safe powers.
 - Reduced the canonical innate roster to 23 and regenerated its exhaustive interaction documentation and audit manifests.

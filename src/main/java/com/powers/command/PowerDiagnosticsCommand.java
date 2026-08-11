@@ -60,25 +60,53 @@ final class PowerDiagnosticsCommand {
 				+ " (cap/tick " + containment.inspectionBudget() + ")"
 				+ "; invasions=" + invasions.activeInvaders() + "/" + invasions.globalCap()
 				+ "; concord=" + concord.recentCasts() + "/" + concord.coolingPairs());
-		var spellIndex = SpellFieldManager.spatialDiagnostics();
-		var artifactIndex = ArtifactFieldManager.spatialDiagnostics();
-		var naturalAmethyst = AmethystDampening.naturalIndexDiagnostics();
-		var wardIndex = AmethystDampening.wardIndexDiagnostics();
-		var nameIndex = NamedLivingTargetIndex.diagnostics(server);
+		var spellIndexes = SpellFieldManager.spatialDiagnosticsByDimension();
+		var artifactIndexes = ArtifactFieldManager.spatialDiagnosticsByDimension();
+		var naturalAmethystIndexes = AmethystDampening.naturalIndexDiagnosticsByDimension();
+		var wardIndexes = AmethystDampening.wardIndexDiagnosticsByDimension();
+		var nameIndexes = NamedLivingTargetIndex.diagnosticsByDimension(server);
+		var forceIndexes = LivingForceManager.diagnosticsByDimension();
 		var ticketDiagnostics = TravelChunkLoader.diagnostics();
-		send(context, indexLine("spellFields", spellIndex.queries(), spellIndex.candidates(),
-				spellIndex.misses(), spellIndex.staleRemovals(), 0L, spellIndex.estimatedBytes()));
-		send(context, indexLine("artifactFields", artifactIndex.queries(), artifactIndex.candidates(),
-				artifactIndex.misses(), artifactIndex.staleRemovals(), 0L, artifactIndex.estimatedBytes()));
-		send(context, indexLine("amethystNatural", naturalAmethyst.queries(),
-				naturalAmethyst.candidates(), naturalAmethyst.misses(), naturalAmethyst.staleRemovals(),
-				naturalAmethyst.sectionScans(), naturalAmethyst.estimatedBytes()));
-		send(context, indexLine("amethystWards", wardIndex.queries(), wardIndex.candidates(),
-				wardIndex.misses(), wardIndex.staleRemovals(), 0L, wardIndex.estimatedBytes()));
-		send(context, indexLine("namedTargets", nameIndex.queries(), nameIndex.candidates(),
-				nameIndex.misses(), nameIndex.staleRemovals(), 0L, nameIndex.estimatedBytes()));
-		send(context, indexLine("livingForces", forces.queries(), forces.candidates(),
-				forces.misses(), forces.staleRemovals(), 0L, forces.estimatedBytes()));
+		var dimensions = new java.util.TreeSet<String>();
+		server.getAllLevels().forEach(level -> dimensions.add(level.dimension().identifier().toString()));
+		dimensions.addAll(spellIndexes.keySet());
+		dimensions.addAll(artifactIndexes.keySet());
+		dimensions.addAll(naturalAmethystIndexes.keySet());
+		dimensions.addAll(wardIndexes.keySet());
+		dimensions.addAll(nameIndexes.keySet());
+		dimensions.addAll(forceIndexes.keySet());
+		for (String dimension : dimensions) {
+			var spellIndex = spellIndexes.getOrDefault(dimension,
+					new com.powers.util.ChunkSpatialIndex.Diagnostics(0, 0, 0, 0, 0, 0, 0, 0));
+			var artifactIndex = artifactIndexes.getOrDefault(dimension,
+					new com.powers.util.ChunkSpatialIndex.Diagnostics(0, 0, 0, 0, 0, 0, 0, 0));
+			var naturalAmethyst = naturalAmethystIndexes.getOrDefault(dimension,
+					new com.powers.power.NaturalAmethystIndex.Diagnostics(0, 0, 0, 0, 0, 0, 0, 0));
+			var wardIndex = wardIndexes.getOrDefault(dimension,
+					new AmethystDampening.WardDiagnostics(0, 0, 0, 0, 0, 0, 0));
+			var nameIndex = nameIndexes.getOrDefault(dimension,
+					new com.powers.network.UniqueNameIndex.Diagnostics(0, 0, 0, 0, 0, 0, 0));
+			var forceIndex = forceIndexes.getOrDefault(dimension,
+					new LivingForceManager.Diagnostics(0, 0, 0, 0, 0, 0, 0, 0, 0));
+			send(context, indexLine("spellFields", dimension, spellIndex.queries(),
+					spellIndex.candidates(), spellIndex.misses(), spellIndex.staleRemovals(), 0L,
+					spellIndex.estimatedBytes()));
+			send(context, indexLine("artifactFields", dimension, artifactIndex.queries(),
+					artifactIndex.candidates(), artifactIndex.misses(), artifactIndex.staleRemovals(), 0L,
+					artifactIndex.estimatedBytes()));
+			send(context, indexLine("amethystNatural", dimension, naturalAmethyst.queries(),
+					naturalAmethyst.candidates(), naturalAmethyst.misses(), naturalAmethyst.staleRemovals(),
+					naturalAmethyst.sectionScans(), naturalAmethyst.estimatedBytes()));
+			send(context, indexLine("amethystWards", dimension, wardIndex.queries(),
+					wardIndex.candidates(), wardIndex.misses(), wardIndex.staleRemovals(), 0L,
+					wardIndex.estimatedBytes()));
+			send(context, indexLine("namedTargets", dimension, nameIndex.queries(),
+					nameIndex.candidates(), nameIndex.misses(), nameIndex.staleRemovals(), 0L,
+					nameIndex.estimatedBytes()));
+			send(context, indexLine("livingForces", dimension, forceIndex.queries(),
+					forceIndex.candidates(), forceIndex.misses(), forceIndex.staleRemovals(), 0L,
+					forceIndex.estimatedBytes()));
+		}
 		send(context, "travelTickets=" + ticketDiagnostics.active() + "/" + ticketDiagnostics.limit()
 				+ "; perDimensionLimit=" + ticketDiagnostics.perDimensionLimit()
 				+ "; lastRefusal=" + ticketDiagnostics.lastRefusal());
@@ -109,9 +137,9 @@ final class PowerDiagnosticsCommand {
 				() -> Component.literal(line).withStyle(ChatFormatting.AQUA), false);
 	}
 
-	private static String indexLine(String name, long queries, long candidates, long misses,
+	private static String indexLine(String name, String dimension, long queries, long candidates, long misses,
 			long staleRemovals, long fallbackScans, long estimatedBytes) {
-		return "index=" + name + "; q=" + queries + "; candidates=" + candidates
+		return "index=" + name + "; dimension=" + dimension + "; q=" + queries + "; candidates=" + candidates
 				+ "; misses=" + misses + "; stale=" + staleRemovals
 				+ "; fallbackScans=" + fallbackScans + "; memory~=" + estimatedBytes + "B";
 	}

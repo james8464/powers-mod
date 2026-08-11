@@ -11,7 +11,7 @@ This ledger is the evidence boundary for removing rows from `docs/planning/IMPRO
 | COR-001–005 | `SaveMigrationCorpusTest`, transactional fault injection, `FatalResolutionGateTest`, 30/30 killed `MagicLifecycleRules` mutations, `TimeStopSavedDataTest`, `CelestialRuinSavedDataTest`, and the live body/Ruin GameTests. |
 | COR-006–012 | Central artifact reconciliation and `ArtifactRevocationCoverageTest`; executable 672-row lifecycle digest; attachment/item/entity SavedData tests; `ConsentPaymentLedgerTest`; Unicode/authenticated name tests; forcefield damage matrix; Crucible single-boundary transaction/atomicity tests. |
 | COR-013–016 | Legacy-owned Adventure migration, border/recovery rules at live entrypoints, missing-dimension diagnostics, and `AttributeModifierIsolationTest`, which removes every POWERS scale/speed/health/knockback ID while preserving a foreign modifier and creative-flight authority. |
-| PERF-002, PERF-004 | Lazy section/tag natural-Amethyst index with block/chunk invalidation and equivalence tests; hysteretic MSPT/client-setting visual budgets with readable-minimum tests. |
+| PERF-002–004 | Lazy section/tag natural-Amethyst index with block/chunk invalidation and equivalence tests; every principal spatial index attributes queries, candidates, misses, fallback scans, stale removals, and estimated memory by dimension in `/powers diagnose`; hysteretic MSPT/client-setting visual budgets with readable-minimum tests. |
 | PERF-007–009 | Compact persistent living-force frontier, fair per-owner work queues, bounded ticket admission plus owner/reason/deadline diagnostics, cleanup tests, and two clean isolated restart-smoke cycles. |
 | PWR-001–003 | Live loop over all 253 innate/rank profiles, rank-0/rank-10 protected terrain GameTests, and explicit full/resisted/immune/reflected control categories with feedback coverage. |
 | SPL-001, SPL-002, SPL-006 | Live acceptance across all 12 practical rituals plus interruption/half-refund/source-isolation tests; in-game grimoire index metadata; Celestial Ruin preview, protected dry run, pre-lock cancellation, and persistent irreversible commit tests. |
@@ -33,7 +33,6 @@ This ledger is the evidence boundary for removing rows from `docs/planning/IMPRO
 | ID | Implemented foundation | Required closure evidence |
 | --- | --- | --- |
 | PERF-001 | Opt-in full-tick JFR/JSON profiler and manual 10/50/100 embedded-connection GameTest. | Run all three populations for 30 minutes, agree a budget, and review/publish p95/p99 traces. |
-| PERF-003 | Aggregate counters exist for every principal index in `/powers diagnose`. | Attribute queries/misses/fallbacks/stale removals/memory by dimension for every indexed subsystem. |
 | PERF-005 | Per-tick observer/dimension/chunk/action coalescer and collision-equivalence tests exist. | Capture and publish before/after encoded bytes and packet counts in live mass combat. |
 | PERF-006 | Geometry/payload canonicalization and allocation-sampling JFR are implemented. | Publish a before/after allocation profile showing materially lower young-generation churn. |
 | PRG-001 | Persistent anonymous route/duration telemetry, median/p90 summaries, and a 20-sample-per-level publication lock are implemented. | Collect real multiplayer samples for all 20 alignment/level rows, then publish and justify any quest changes/migration. |
