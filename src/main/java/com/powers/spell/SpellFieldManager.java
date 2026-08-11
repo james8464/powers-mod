@@ -12,6 +12,8 @@ import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.BoundedRoundRobinQueue;
 import com.powers.util.ChunkSpatialIndex;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -49,12 +51,12 @@ public final class SpellFieldManager {
 	/** Immutable server snapshot captured during Dispel inspection. */
 	public record DispelTarget(UUID owner, SpellFieldKind kind, String dimension,
 			Vec3 center, long expiresAt) {
-		public String displayName() {
+		public Component displayName() {
 			return switch (kind) {
-				case ANTI_PORTAL -> "Anti-Portal Field";
-				case KINETIC_WARD -> "Kinetic Ward";
-				case SANCTUARY -> "Hearth Sanctuary";
-				case INFERNAL_SEAL -> "Infernal Seal";
+				case ANTI_PORTAL -> Component.translatable("spell.powers.field.anti_portal");
+				case KINETIC_WARD -> Component.translatable("spell.powers.field.kinetic_ward");
+				case SANCTUARY -> Component.translatable("spell.powers.field.sanctuary");
+				case INFERNAL_SEAL -> Component.translatable("spell.powers.field.infernal_seal");
 			};
 		}
 	}
@@ -187,6 +189,8 @@ public final class SpellFieldManager {
 		double distance = range * range;
 		for (Field field : nearby((ServerLevel) caster.level(), caster.position(), Math.min(range, 256.0))) {
 			if (field.expiresAt() <= caster.level().getGameTime()) continue;
+			if (!com.powers.protection.PowerProtection.mayRitual(caster,
+					(ServerLevel) caster.level(), BlockPos.containing(field.center()))) continue;
 			double candidate = field.center().distanceToSqr(caster.position());
 			if (candidate <= distance) {
 				distance = candidate;
@@ -205,6 +209,8 @@ public final class SpellFieldManager {
 				&& live.expiresAt() == target.expiresAt() && live.center().equals(target.center()),
 				dimensionId(caster.level().dimension()).equals(target.dimension()), caster.level().getGameTime(),
 				target.expiresAt(), target.center().distanceToSqr(caster.position()), range);
+		valid = valid && com.powers.protection.PowerProtection.mayRitual(caster,
+				(ServerLevel) caster.level(), BlockPos.containing(target.center()));
 		if (!valid) return false;
 		remove(key);
 		PowerFx.cancelled((ServerLevel) caster.level(), target.center().add(0, 0.5, 0), 0x7455A8);
