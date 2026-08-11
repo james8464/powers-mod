@@ -1,102 +1,120 @@
 package com.powers.client;
 
-import com.powers.PowersEntities;
-import com.powers.entity.PrivateCompanionGhost;
+import com.powers.PowersParticles;
 import com.powers.network.CompanionPackets;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.phys.Vec3;
 
-/** Owns the single apparition that exists only inside its owner's client. */
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+/** Owns collisionless client-local Shadow avatars for every authorised owner. */
 public final class PrivateCompanionClient {
-	private static final int LOCAL_ENTITY_ID = -1_930_062_001;
-	private static PrivateCompanionGhost ghost;
-	private static long sessionId = -1L;
-	private static Vec3 target = Vec3.ZERO;
-	private static float targetYaw;
-	private static String dialogue = "";
-	private static int dialogueTicks;
+	private static final Map<UUID, Apparition> APPARITIONS = new HashMap<>();
+	private static int nextLocalEntityId = -1_930_062_001;
+
+	private static final class Apparition {
+		private final long sessionId;
+		private final ShadowRemotePlayer avatar;
+		private Vec3 target;
+		private float targetYaw;
+
+		private Apparition(long sessionId, ShadowRemotePlayer avatar,
+				Vec3 target, float targetYaw) {
+			this.sessionId = sessionId;
+			this.avatar = avatar;
+			this.target = target;
+			this.targetYaw = targetYaw;
+		}
+	}
 
 	private PrivateCompanionClient() {
 	}
 
 	public static void handle(CompanionPackets.StatePayload payload) {
 		Minecraft client = Minecraft.getInstance();
-		if (!payload.active()) {
-			clear();
+		if (!payload.active() || client.level == null || client.player == null
+				|| !payload.dimension().equals(client.level.dimension().identifier().toString())) {
+			remove(payload.ownerId());
 			return;
 		}
-		if (client.level == null || client.player == null) return;
-		if (ghost == null || sessionId != payload.sessionId() || ghost.isRemoved()) {
-			clear();
-			ghost = PowersEntities.PRIVATE_COMPANION_GHOST.create(
-					client.level, EntitySpawnReason.TRIGGERED);
-			if (ghost == null) return;
-			ghost.setId(LOCAL_ENTITY_ID);
-			ghost.setPos(payload.x(), payload.y(), payload.z());
-			ghost.setYRot(payload.yaw());
-			client.level.addEntity(ghost);
-			sessionId = payload.sessionId();
+		Apparition current = APPARITIONS.get(payload.ownerId());
+		if (current == null || current.sessionId != payload.sessionId()
+				|| current.avatar.isRemoved() || current.avatar.level() != client.level) {
+			remove(payload.ownerId());
+			ShadowRemotePlayer avatar = new ShadowRemotePlayer(client.level, payload.ownerId());
+			avatar.setId(nextLocalEntityId--);
+			avatar.setPos(payload.x(), payload.y(), payload.z());
+			avatar.setYRot(payload.yaw());
+			avatar.setYHeadRot(payload.yaw());
+			client.level.addEntity(avatar);
+			current = new Apparition(payload.sessionId(), avatar,
+					new Vec3(payload.x(), payload.y(), payload.z()), payload.yaw());
+			APPARITIONS.put(payload.ownerId(), current);
+			manifest(client, current.target);
 		}
-		target = new Vec3(payload.x(), payload.y(), payload.z());
-		targetYaw = payload.yaw();
-		if (payload.teleport()) ghost.setPos(target);
-		if (!payload.dialogue().isBlank()) {
-			dialogue = payload.dialogue();
-			dialogueTicks = 140;
+		current.target = new Vec3(payload.x(), payload.y(), payload.z());
+		current.targetYaw = payload.yaw();
+		if (payload.teleport()) {
+			current.avatar.setPos(current.target);
+			manifest(client, current.target);
 		}
 	}
 
 	public static void tick() {
-		if (ghost == null || ghost.isRemoved()) return;
-		Vec3 next = ghost.position().lerp(target, 0.34);
-		ghost.setPos(next);
-		ghost.setYRot(rotateToward(ghost.getYRot(), targetYaw, 0.28F));
-		ghost.setYHeadRot(ghost.getYRot());
-		if (dialogueTicks > 0) dialogueTicks--;
-		else dialogue = "";
+		Minecraft client = Minecraft.getInstance();
+		for (UUID owner : java.util.List.copyOf(APPARITIONS.keySet())) {
+			Apparition apparition = APPARITIONS.get(owner);
+			if (apparition == null || apparition.avatar.isRemoved()
+					|| client.level == null || apparition.avatar.level() != client.level) {
+				remove(owner);
+				continue;
+			}
+			Vec3 previous = apparition.avatar.position();
+			Vec3 next = previous.lerp(apparition.target, 0.34);
+			apparition.avatar.setDeltaMovement(next.subtract(previous));
+			apparition.avatar.setPos(next);
+			apparition.avatar.setYRot(rotateToward(apparition.avatar.getYRot(),
+					apparition.targetYaw, 0.28F));
+			apparition.avatar.setYHeadRot(apparition.avatar.getYRot());
+		}
 	}
 
+	/** G toggles the owner's own Shadow; questions and visibility use chat. */
 	public static void interact() {
 		Minecraft client = Minecraft.getInstance();
-		boolean active = sessionId >= 0L && ghost != null && !ghost.isRemoved();
-		long request = active && client.player != null && client.player.isCrouching()
-				? -2L : active ? sessionId : -1L;
+		if (client.player == null) return;
+		Apparition own = APPARITIONS.get(client.player.getUUID());
+		long request = own == null || own.avatar.isRemoved() ? -1L : -2L;
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(
 				new CompanionPackets.InteractPayload(request));
 	}
 
-	/** Renders dialogue as a compact title-style panel, never as chat spam. */
-	public static void renderDialogue(GuiGraphicsExtractor graphics) {
-		if (dialogue.isBlank() || dialogueTicks <= 0) return;
-		Minecraft client = Minecraft.getInstance();
-		String visible = client.font.plainSubstrByWidth(dialogue,
-				Math.min(300, client.getWindow().getGuiScaledWidth() - 40));
-		int width = client.font.width(visible);
-		int center = client.getWindow().getGuiScaledWidth() / 2;
-		int y = client.getWindow().getGuiScaledHeight() - 82;
-		int alpha = dialogueTicks < 20 ? Math.max(0x22, dialogueTicks * 0x0C) : 0xCC;
-		graphics.fill(center - width / 2 - 7, y - 5,
-				center + width / 2 + 7, y + 14, alpha << 24 | 0x120E18);
-		graphics.fill(center - width / 2 - 7, y - 5,
-				center + width / 2 + 7, y - 3, alpha << 24 | 0x6F3B88);
-		graphics.text(client.font, Component.literal(visible), center - width / 2, y,
-				alpha << 24 | 0xE8D8F4, true);
+	public static void clear() {
+		for (UUID owner : java.util.List.copyOf(APPARITIONS.keySet())) remove(owner);
+		APPARITIONS.clear();
 	}
 
-	public static void clear() {
+	private static void remove(UUID owner) {
+		Apparition removed = APPARITIONS.remove(owner);
 		Minecraft client = Minecraft.getInstance();
-		if (ghost != null && client.level != null && !ghost.isRemoved()) {
-			client.level.removeEntity(ghost.getId(), Entity.RemovalReason.DISCARDED);
+		if (removed != null && client.level != null && !removed.avatar.isRemoved()) {
+			client.level.removeEntity(removed.avatar.getId(), Entity.RemovalReason.DISCARDED);
 		}
-		ghost = null;
-		sessionId = -1L;
-		target = Vec3.ZERO;
-		dialogue = "";
-		dialogueTicks = 0;
+	}
+
+	private static void manifest(Minecraft client, Vec3 position) {
+		if (client.level == null) return;
+		for (int i = 0; i < 18; i++) {
+			double angle = Math.PI * 2.0 * i / 18.0;
+			double y = position.y + 0.1 + i % 6 * 0.32;
+			client.level.addParticle(PowersParticles.ECLIPSE,
+					position.x + Math.cos(angle) * 0.48, y,
+					position.z + Math.sin(angle) * 0.48,
+					0.0, 0.015, 0.0);
+		}
 	}
 
 	private static float rotateToward(float from, float to, float fraction) {

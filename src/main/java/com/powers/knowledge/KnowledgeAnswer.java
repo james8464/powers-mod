@@ -2,7 +2,7 @@ package com.powers.knowledge;
 
 import java.util.List;
 
-/** One bounded response returned to the Knowledge Book client. */
+/** One bounded, sourced answer spoken by Shadow. */
 public record KnowledgeAnswer(String entryId, String answer, double confidence,
 		List<String> sources, List<String> registryIds) {
 	public KnowledgeAnswer {

@@ -7,7 +7,6 @@ import com.powers.client.screen.PowerSelectionScreen;
 import com.powers.client.screen.TeleportInputScreen;
 import com.powers.client.screen.RankMazeScreen;
 import com.powers.client.screen.ShadowSwordScreen;
-import com.powers.client.screen.KnowledgeBookScreen;
 import com.powers.client.fx.ClientMagicFx;
 import com.powers.client.fx.ClientShapeFx;
 import com.powers.client.fx.ClientBeamFx;
@@ -17,12 +16,10 @@ import com.powers.client.fx.particle.ArcaneParticle;
 import com.powers.PowersParticles;
 import com.powers.PowersEntities;
 import com.powers.PowersMenus;
-import com.powers.entity.PrivateCompanionGhost;
 import com.powers.client.screen.ArcaneCrucibleScreen;
 import com.powers.network.PowerStatePayload;
 import com.powers.network.PowersPackets;
 import com.powers.network.MagicFxPackets;
-import com.powers.network.KnowledgePackets;
 import com.powers.network.CelestialRuinPackets;
 import com.powers.network.ShadowSwordPackets;
 import com.powers.network.BodyProxyPackets;
@@ -37,7 +34,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
@@ -45,7 +41,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.EntityRenderers;
-import net.minecraft.world.InteractionResult;
 import org.lwjgl.glfw.GLFW;
 
 /** client entry point: registers the v/x/c slot keys, wires up the huds and the teleport screen */
@@ -72,15 +67,6 @@ public class PowersClient implements ClientModInitializer {
 				"key.powers.rank_maze", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, CATEGORY));
 		companionKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 				"key.powers.companion", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, CATEGORY));
-		UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
-			if (level.isClientSide() && player.isCrouching()
-					&& entity instanceof PrivateCompanionGhost) {
-				PrivateCompanionClient.interact();
-				return InteractionResult.SUCCESS;
-			}
-			return InteractionResult.PASS;
-		});
-
 		ClientPlayNetworking.registerGlobalReceiver(PowerStatePayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientPowerState.update(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.MagicFxPayload.TYPE,
@@ -109,11 +95,6 @@ public class PowersClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenTeleportPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
 						TeleportInputScreen.artifact(payload.alignment()))));
-		ClientPlayNetworking.registerGlobalReceiver(KnowledgePackets.OpenPayload.TYPE,
-				(payload, context) -> context.client().execute(() ->
-						Minecraft.getInstance().gui.setScreen(new KnowledgeBookScreen())));
-		ClientPlayNetworking.registerGlobalReceiver(KnowledgePackets.AnswerPayload.TYPE,
-				(payload, context) -> context.client().execute(() -> KnowledgeBookScreen.accept(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(CelestialRuinPackets.Payload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientCelestialRuinFx.handle(payload)));
 		// clear the cached state when you leave the server so the hud doesn't carry over old powers
@@ -123,7 +104,6 @@ public class PowersClient implements ClientModInitializer {
 			ClientBodySnapshots.clear();
 			PrivateCompanionClient.clear();
 			VesselControlClient.setActive(false);
-			KnowledgeBookScreen.reset();
 			ClientCelestialRuinFx.reset();
 		});
 
@@ -134,8 +114,6 @@ public class PowersClient implements ClientModInitializer {
 				context -> new PlayerLikeMobRenderer(context, "test_actor"));
 		EntityRenderers.register(PowersEntities.RADIANT_SENTINEL,
 				context -> new PlayerLikeMobRenderer(context, "radiant_sentinel"));
-		EntityRenderers.register(PowersEntities.PRIVATE_COMPANION_GHOST,
-				context -> new PlayerLikeMobRenderer(context, "darkness_player", 0.0F));
 		EntityRenderers.register(PowersEntities.FIRST_VESSEL,
 				context -> new PlayerLikeMobRenderer(context, "first_vessel", 0.65F));
 
@@ -246,6 +224,5 @@ public class PowersClient implements ClientModInitializer {
 			return;
 		}
 		PowerHudRenderer.render(graphics, tickCounter);
-		PrivateCompanionClient.renderDialogue(graphics);
 	}
 }

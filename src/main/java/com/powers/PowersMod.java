@@ -40,6 +40,7 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -95,6 +96,8 @@ public class PowersMod implements ModInitializer {
 		PowersPackets.initialize();
 		PowerCommand.register();
 		PowerCombatEvents.register();
+		ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, parameters) ->
+				!PrivateCompanionManager.handleChat(sender, message.signedContent()));
 		com.powers.entity.EntityRuntimeLifecycle.initialize();
 		LOGGER.info("Magic collision kernel loaded: {} actions, {} exhaustive interactions",
 				MagicRuntime.catalogue().definitions().size(), MagicRuntime.global().interactionCount());
@@ -179,6 +182,7 @@ public class PowersMod implements ModInitializer {
 			ArtifactInventoryRuntime.clear();
 			CrucibleWeaponRuntime.clear();
 			PrivateCompanionManager.clear();
+			com.powers.companion.DialogueProviderRuntime.clear();
 			com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
 			com.powers.fx.PowerFx.clearBudgets();
 			PowersPackets.clearSyncCache();

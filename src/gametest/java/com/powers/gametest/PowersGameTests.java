@@ -37,6 +37,8 @@ import com.powers.mind.BodyProxyManager;
 import com.powers.network.NamedLivingTargetIndex;
 import com.powers.network.NamedTargetRules;
 import com.powers.testing.TestingOverrides;
+import com.powers.companion.PrivateCompanionManager;
+import com.powers.knowledge.KnowledgeService;
 import com.powers.power.abilities.CombatTerrainImpact;
 import com.powers.power.state.MagicShieldManager;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
@@ -103,6 +105,34 @@ public final class PowersGameTests {
 		helper.assertTrue(guide.is(Items.WRITTEN_BOOK), "Guide did not use the vanilla written book");
 		helper.assertTrue(content != null && content.resolved() && content.pages().size() >= 5,
 				"Guide pages were incomplete or unresolved");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void shadowChatOwnsVisibilityAndFormerBookKnowledge(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		player.addTag(SkillSystem.DARKNESS_TAG);
+		player.getInventory().add(PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		helper.assertTrue(PrivateCompanionManager.handleChat(player,
+				"shadow, reveal yourself"), "Explicit Shadow chat leaked into ordinary chat");
+		PrivateCompanionManager.tickPlayer(player, 0);
+		helper.assertTrue(PrivateCompanionManager.activeSessionCount() == 1,
+				"Shadow address did not create exactly one lightweight session");
+		helper.assertTrue(PrivateCompanionManager.isRevealed(player.getUUID()),
+				"Reveal command did not change global visibility");
+		var answer = KnowledgeService.answer(player, "How do the crystals work?");
+		helper.assertTrue(!answer.answer().isBlank() && KnowledgeService.entryCount() > 0,
+				"Shadow could not answer the former curated-book question offline");
+		PrivateCompanionManager.handleChat(player, "shadow, hide yourself");
+		helper.assertFalse(PrivateCompanionManager.isRevealed(player.getUUID()),
+				"Hide command left global visibility enabled");
+		PrivateCompanionManager.handleChat(player, "shadow, leave me");
+		helper.assertTrue(PrivateCompanionManager.activeSessionCount() == 0,
+				"Dismiss command leaked a Shadow session");
+		helper.assertFalse(PrivateCompanionManager.handleChat(player, "ordinary chat"),
+				"Unrelated signed chat was intercepted");
+		PrivateCompanionManager.clear();
 		helper.succeed();
 	}
 

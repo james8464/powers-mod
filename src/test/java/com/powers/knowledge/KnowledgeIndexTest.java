@@ -32,7 +32,7 @@ class KnowledgeIndexTest {
 		KnowledgeIndex index = new KnowledgeIndex(List.of(
 				entry("herald", "The Hidden Herald", List.of("boss herald"), "A final herald waits.", 8)));
 
-		assertTrue(index.answer("Where is the hidden herald?", 4).answer().contains("not yet"));
+		assertTrue(index.answer("Where is the hidden herald?", 4).answer().contains("cannot yet"));
 		assertEquals("herald", index.answer("Where is the hidden herald?", 8).entryId());
 	}
 
@@ -41,6 +41,6 @@ class KnowledgeIndexTest {
 		KnowledgeIndex index = new KnowledgeIndex(List.of());
 		KnowledgeAnswer answer = index.answer("craft a crystal", 10);
 		assertEquals(0.0, answer.confidence());
-		assertTrue(answer.answer().contains("could not verify"));
+		assertTrue(answer.answer().contains("cannot verify"));
 	}
 }

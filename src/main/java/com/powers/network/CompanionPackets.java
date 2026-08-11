@@ -10,28 +10,37 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 
-/** Owner-addressed companion state and authenticated interaction payloads. */
+import java.util.UUID;
+
+/** Authenticated Shadow control and client-local apparition state. */
 public final class CompanionPackets {
-	private static final int MAX_DIALOGUE_LENGTH = 256;
+	private static final StreamCodec<RegistryFriendlyByteBuf, UUID> UUID_CODEC = StreamCodec.of(
+			(buf, value) -> {
+				buf.writeLong(value.getMostSignificantBits());
+				buf.writeLong(value.getLeastSignificantBits());
+			}, buf -> new UUID(buf.readLong(), buf.readLong()));
+	private static final StreamCodec<io.netty.buffer.ByteBuf, String> DIMENSION_CODEC =
+			ByteBufCodecs.stringUtf8(128);
 
 	private CompanionPackets() {
 	}
 
 	/** A complete client state; inactive records remove the local apparition. */
-	public record StatePayload(long sessionId, boolean active, boolean teleport,
-			double x, double y, double z, float yaw, String dialogue)
+	public record StatePayload(UUID ownerId, long sessionId, boolean active, boolean teleport,
+			String dimension, double x, double y, double z, float yaw)
 			implements CustomPacketPayload {
 		public static final Type<StatePayload> TYPE = new Type<>(PowersMod.id("companion_state"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, StatePayload> STREAM_CODEC =
 				StreamCodec.composite(
+						UUID_CODEC, StatePayload::ownerId,
 						ByteBufCodecs.LONG, StatePayload::sessionId,
 						ByteBufCodecs.BOOL, StatePayload::active,
 						ByteBufCodecs.BOOL, StatePayload::teleport,
+						DIMENSION_CODEC, StatePayload::dimension,
 						ByteBufCodecs.DOUBLE, StatePayload::x,
 						ByteBufCodecs.DOUBLE, StatePayload::y,
 						ByteBufCodecs.DOUBLE, StatePayload::z,
 						ByteBufCodecs.FLOAT, StatePayload::yaw,
-						ByteBufCodecs.STRING_UTF8, StatePayload::dialogue,
 						StatePayload::new);
 
 		@Override
@@ -40,7 +49,7 @@ public final class CompanionPackets {
 		}
 	}
 
-	/** The owner asks to speak to the exact private session they can see. */
+	/** The owner toggles its own apparition; arbitrary session IDs are ignored. */
 	public record InteractPayload(long sessionId) implements CustomPacketPayload {
 		public static final Type<InteractPayload> TYPE = new Type<>(PowersMod.id("companion_interact"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, InteractPayload> STREAM_CODEC =
@@ -65,11 +74,11 @@ public final class CompanionPackets {
 				}));
 	}
 
-	public static void sendState(ServerPlayer owner, long sessionId, boolean active,
-			boolean teleport, double x, double y, double z, float yaw, String dialogue) {
-		String safeDialogue = dialogue == null ? "" : dialogue.substring(
-				0, Math.min(MAX_DIALOGUE_LENGTH, dialogue.length()));
-		ServerPlayNetworking.send(owner, new StatePayload(sessionId, active, teleport,
-				x, y, z, yaw, safeDialogue));
+	public static void sendState(ServerPlayer recipient, UUID ownerId, long sessionId,
+			boolean active, boolean teleport, String dimension,
+			double x, double y, double z, float yaw) {
+		if (!ServerPlayNetworking.canSend(recipient, StatePayload.TYPE)) return;
+		ServerPlayNetworking.send(recipient, new StatePayload(ownerId, sessionId, active,
+				teleport, dimension, x, y, z, yaw));
 	}
 }

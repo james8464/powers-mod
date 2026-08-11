@@ -168,7 +168,6 @@ public final class PowersPackets {
 		ShadowSwordPackets.initialize();
 		CompanionPackets.initialize();
 		VesselControlPackets.initialize();
-		KnowledgePackets.initialize();
 		CelestialRuinPackets.initialize();
 
 		ServerPlayNetworking.registerGlobalReceiver(ActivateAbilityPayload.TYPE, PowersPackets::handleActivate);

@@ -1,7 +1,6 @@
 package com.powers;
 
 import com.powers.mind.BodyProxyManager;
-import com.powers.companion.PrivateCompanionManager;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.power.abilities.EnergyDrainAbility;
@@ -66,7 +65,6 @@ final class PowerCombatEvents {
 				TestActorPowerState.clear(entity.getUUID());
 				ForcefieldAbility.clear(entity.getUUID());
 			}
-			if (entity instanceof ServerPlayer player) PrivateCompanionManager.recordDeath(player);
 			DarknessQuestTracker.recordKill(entity, source);
 			SkillQuestTracker.recordKill(entity, source);
 		});
