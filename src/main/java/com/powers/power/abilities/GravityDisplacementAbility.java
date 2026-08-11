@@ -77,6 +77,10 @@ public final class GravityDisplacementAbility extends Ability {
 		SELECTED_MODES.put(player.getUUID(), GravityDisplacementRules.Mode.values()[Math.floorMod(option, 3)]);
 		return true;
 	}
+	/** Returns the server-owned selector index advertised to authenticated artifact menus. */
+	public static int selectedModeOption(UUID owner) {
+		return SELECTED_MODES.getOrDefault(owner, GravityDisplacementRules.Mode.ORBIT).ordinal();
+	}
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		UUID owner = player.getUUID();
