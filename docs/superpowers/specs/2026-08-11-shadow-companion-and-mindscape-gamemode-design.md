@@ -201,7 +201,7 @@ All status effects created by Shadow suppress vanilla potion particles and use t
 
 ## Tactical intelligence
 
-The combat planner evaluates a bounded candidate set every 10 ticks using:
+Combat uses two layers. Vanilla/Fabric goals provide cheap locomotion, looking, following, swimming, and immediate hazard avoidance. A server-side utility planner evaluates a bounded candidate set every 10 ticks and selects engagement range, movement intent, target, and power using:
 
 - explicit owner request and current stance;
 - target legality, allegiance, protection, consent, line of sight, distance, height, and movement;
@@ -211,7 +211,31 @@ The combat planner evaluates a bounded candidate set every 10 ticks using:
 
 An explicit legal owner request outranks automatic selection. Otherwise Shadow prioritizes: prevent lethal damage, intercept/project forcefield, reposition, disable high-threat enemies, attack clustered threats with safe area powers, attack single targets efficiently, then recover energy. It avoids firing through the owner or allies, does not spam world-scale powers for weak mobs, and cancels attacks immediately on `stop`.
 
+The planner explicitly selects one engagement mode before selecting a power:
+
+- `CLOSE`: pressure interrupted, fragile, or projectile-focused targets with melee, Thunderclap, Breezy Bash, Gravity Displacement, drain, and short-range control;
+- `SKIRMISH`: orbit at medium distance, mix beams/projectiles/control, and close briefly when the target is disabled;
+- `FAR`: maintain line of sight and use accurate beams, Lightning, Fireball, Starfall, Ice, summons, and defensive repositioning against dangerous melee or area bosses;
+- `RESCUE`: abandon damage positioning to shield, heal, extract, or draw pressure away from the owner;
+- `RECOVER`: break line of sight near safe Darkness, remove suppression when possible, and rebuild energy.
+
+Range decisions account for target reach, movement speed, current weapon/projectile behavior, airborne state, area attacks, previous successful hits, owner position, allies, terrain, and safe escape paths. Shadow predicts short projectile/beam intercepts from current velocity but does not simulate the whole world or use hidden client information.
+
 Automatic combat may target hostile mobs, an entity attacking the owner, or the owner's current hostile target. A player may be attacked only after an explicit owner request, with server PvP enabled, outside safe/protected regions, not allied/teamed/friendly, and after centralized consent/override policy succeeds. Shadow never treats all player-like targets as automatic consent.
+
+## Bounded adaptive learning
+
+Shadow improves from combat through a deterministic, owner-local contextual bandit layered over the hard utility planner. It is deliberately not a neural network, unrestricted reinforcement-learning process, background trainer, code generator, or remote combat service. Those approaches would make outcomes difficult to reproduce, expose gameplay to latency, permit behavioral poisoning, and consume far more server resources than the decision requires.
+
+`ShadowCombatContext` is a compact discrete key containing engagement mode, close/mid/far range, single/small-cluster/large-cluster pressure, owner danger band, Shadow energy band, suppression state, and target archetype (melee, ranged, flying, controller, boss, or mixed). A separately capped registry-type profile lets Shadow learn that a particular modded boss punishes close range without storing player UUIDs or unbounded entity history.
+
+For each observed context and eligible action, `BoundedCombatLearner` stores a sample count, exponentially decayed reward mean, reliability, and last-use counter. It retains at most 64 general contexts and 32 registry-type profiles, evicting the least recently used inactive entry. Counts saturate and values are finite/clamped. The complete state is small, versioned, owner-scoped, and persistent.
+
+After an action, a five-second credit window measures only authoritative outcomes attributable to that action: hostile damage/control, a neutralized threat, owner damage prevented, successful interception, energy efficiency, friendly damage, protected-terrain rejection, missed attacks, and self/owner danger. Reward is clamped to `[-1, 1]`; catastrophic safety errors receive `-1` and cannot be outweighed by damage. Repeated observations decay older evidence so Shadow can adapt when a modded enemy changes phase or tactics.
+
+Learning adjusts only the relative score of actions the hard planner already declares legal. The learned modifier is clamped to ±25%, and bounded UCB-style exploration contributes at most 5%. Exploration is disabled during owner-critical health, PvP, world-scale magic, boss lethal phases, amethyst shutdown, or server-budget pressure. It never changes energy costs, damage, permissions, targets, consent, protection, realm rules, or work caps. Explicit owner orders are executed when legal and still provide outcome evidence, while a spoken correction such as “fight from farther away” adds a bounded preference observation rather than rewriting policy.
+
+An update is O(1) when a credit window closes; selection reads only the already-filtered action candidates. No learning loop runs client-side, no model is sent over the network, and no scan is added to ordinary entity ticks. `/powers diagnose` reports context/profile counts, credit windows, decisions, reward clamps, and adaptive time, while an administrator reset command can clear one owner's learned combat state without clearing Shadow's conversational memory.
 
 ## Magic-system equivalence
 
@@ -239,6 +263,7 @@ The testing-player actor retains its explicit test auto-consent policy; Shadow d
 
 - Companion cognition is staggered; no server tick scans every Shadow simultaneously.
 - Each planner pulse uses spatial indexes and capped nearby candidates, with a bounded fallback scan only when an index misses.
+- Adaptive selection performs constant-bounded arithmetic over legal action candidates; learning updates only when one bounded outcome window completes.
 - Retrieval scans cap radius, chunks, item candidates, and duration; scouting never forces an unbounded path or chunk set.
 - Companion follow tickets are temporary and use the smallest safe shared footprint.
 - Powers send compact semantic visual packets expanded client-side; server particle work stops when the visual budget is exhausted.
@@ -268,10 +293,12 @@ Deterministic unit tests cover:
 4. item allow/deny tags, plain-stack sanitization, counts, costs, reservation/refund, and delivery;
 5. exact 26-action manifest, three uniques, and zero crystal powers;
 6. tactical scoring, friendly-fire rejection, explicit requests, energy choice, and work-budget refusal;
-7. energy refill/drain, amethyst, Pure Light, Darkness, cleanup, and persistence;
-8. player-like consent authority and separation from the testing actor;
-9. task lifecycle, timeouts, save/reload, source loss, death, logout, and duplicate reconciliation;
-10. authoritative diagnosis and remote-provider inability to create actions.
+7. close/skirmish/far/rescue/recover range selection, projectile intercepts, and boss-distance adaptation;
+8. adaptive reward attribution, clamp/decay, UCB bounds, exploration shutdown, LRU caps, persistence/versioning, deterministic replay, and administrator reset;
+9. energy refill/drain, amethyst, Pure Light, Darkness, cleanup, and persistence;
+10. player-like consent authority and separation from the testing actor;
+11. task lifecycle, timeouts, save/reload, source loss, death, logout, and duplicate reconciliation;
+12. authoritative diagnosis and remote-provider inability to create actions.
 
 Live GameTests cover:
 
@@ -284,7 +311,8 @@ Live GameTests cover:
 7. every manifest entry resolving to a real executor plus live representatives for melee, projectile, beam, field, toggle, movement, possession/projection, summon, spread, and apotheosis families;
 8. amethyst suppression, Darkness refill, Pure Light harm, spells, forcefields, anchors, energy drain, soul links, Time Freeze, and cleanup;
 9. autonomous owner defense, requested attack, stop, protected terrain, friendly players, PvP-off servers, consent denial/override, and no crystal casting;
-10. companion death during possession/projection and host death returning to the real body safely.
+10. close-range, ranged, flying, projectile-heavy, clustered, and multi-phase boss fights demonstrating tactical range changes and improved repeated decisions;
+11. companion death during possession/projection and host death returning to the real body safely.
 
 Client/resource verification covers wide/slim owner skins, empty hands/armour, private apparition, global reveal, animations, reduced motion, bespoke effect visuals, translations, sounds, and missing-texture audits. Dedicated-server boot, full JUnit/GameTest suites, resource validation, generated documentation, and the multiplayer soak suite must pass before completion.
 
@@ -300,6 +328,8 @@ README, interaction matrices, item catalogues, migration notes, changelog, and v
 - Shadow may retrieve or conjure only policy-approved plain items; Dark Crystal is the sole crystal exception and requires the full rite.
 - Exactly 23 innate and three unique Shadow Sword powers are executable; zero crystal powers are available.
 - Shadow owns and spends Darkness energy and is affected by amethyst, Light, Darkness, spells, fields, damage, protection, consent, and cleanup rules.
+- Shadow chooses close, skirmish, far, rescue, or recovery tactics from live combat context and improves bounded action preferences from authoritative outcomes.
+- Adaptive learning remains deterministic, owner-local, clamped, resettable, and constant-bounded; it never weakens hard gameplay or server-safety rules.
 - Max-rank cooldown removal remains intact while bounded planners and work budgets protect the server.
 - Hidden/revealed chat visibility, death/recall memory, source-item requirements, and realm confinement match the approved behavior.
 - All critical mechanics have deterministic and live coverage, performance budgets pass, documentation is current, and the final Git worktree is clean and synchronized.
@@ -309,3 +339,6 @@ README, interaction matrices, item catalogues, migration notes, changelog, and v
 - Rainbow Quest episode 194, introducing the relevant late-series Shadow material: <https://www.youtube.com/watch?v=dd4XvX1WsTg>
 - Rainbow Quest episode 195, continuing that storyline: <https://www.youtube.com/watch?v=zlxKWkDNa5E>
 - Community Shadow Sword summary used only to identify high-level themes such as Darkness construction, amplification, teleportation, and secrecy: <https://favremysabre.fandom.com/wiki/Shadow_Sword>
+- Fabric 26.2 custom-entity guidance used for the server-side goal and client-side rendering split: <https://docs.fabricmc.net/develop/entities/first-entity>
+- Arora, Dekel, and Tewari on the importance of bounded memory in adaptive online bandit settings: <https://arxiv.org/abs/1206.6400>
+- Guo, Wang, and Liu on reducing exploration when its operational cost is high: <https://www.ijcai.org/Proceedings/2019/336>
