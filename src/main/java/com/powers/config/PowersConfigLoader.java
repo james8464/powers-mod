@@ -103,8 +103,6 @@ public final class PowersConfigLoader {
 				integer(object, "wardRadius", defaults.wardRadius()),
 				integer(object, "maxParticlesPerTick", defaults.maxParticlesPerTick()),
 				integer(object, "teleportMaxChunkDistance", defaults.teleportMaxChunkDistance()),
-				integer(object, "spaceTimeRadius", defaults.spaceTimeRadius()),
-				integer(object, "chronoStopRadius", defaults.chronoStopRadius()),
 				integer(object, "rankRespecExperienceLevels", defaults.rankRespecExperienceLevels()),
 				integer(object, "adminPermissionLevel", defaults.adminPermissionLevel()), zones,
 				livingForces, dialogueProvider).sanitized();

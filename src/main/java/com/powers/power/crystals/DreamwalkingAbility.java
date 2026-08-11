@@ -13,7 +13,10 @@ import com.powers.power.Ability;
 import com.powers.power.PowerTargeting;
 import com.powers.power.AmethystDampening;
 import com.powers.power.MagicUseGate;
+import com.powers.power.abilities.VesselPossessionAbility;
 import com.powers.protection.PowerProtection;
+import com.powers.power.travel.SafeDestinationResolver;
+import com.powers.power.travel.TravelKind;
 import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -32,9 +35,9 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * dreamwalking - the blue crystal's power: with consent, watch through
- * another player's eyes for 2 minutes (2400 ticks) without altering their
- * health or making their vulnerable body safer.
+ * Dreamwalking uses the shared bounded vessel-control channel while keeping
+ * its own consent policy and a vulnerable physical body. Named security-camera
+ * viewing remains a separate view-only entry point below.
  */
 public class DreamwalkingAbility extends Ability {
 	private static final double BASE_RANGE = 32.0;
@@ -51,17 +54,13 @@ public class DreamwalkingAbility extends Ability {
 
 	@Override
 	public boolean isSelectionAction(ServerPlayer player) {
-		return ACTIVE.containsKey(player.getUUID());
+		return VesselPossessionAbility.isDreamwalking(player.getUUID());
 	}
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		// activating again while dreaming ends the current dream early
-		Dream current = ACTIVE.remove(player.getUUID());
-		if (current != null) {
-			end(current, player);
-			return true;
-		}
+		// Activating again while dreaming ends the current controlled session early.
+		if (VesselPossessionAbility.stopDreamwalking(player)) return true;
 		LivingEntity target = PowerTargeting.findLivingTarget(player, scaledRange(player, BASE_RANGE));
 		boolean suitable = target instanceof ServerPlayer || target instanceof Mob;
 		if (!suitable || target == player || target == null || !target.isAlive()
@@ -78,11 +77,11 @@ public class DreamwalkingAbility extends Ability {
 					"powers.packet.consent_denied", 1, host.getName().getString());
 			return false;
 		}
-		return beginRemoteView(player, target, scaledDuration(player, DURATION),
-				CastScalingContext.currentSource());
+		return VesselPossessionAbility.beginDreamwalk(
+				player, target, DURATION, CastScalingContext.currentSource());
 	}
 
-	/** Starts a named or aimed camera after all caller-specific payment and consent checks. */
+	/** Starts a named security camera after all caller-specific payment and consent checks. */
 	public static boolean beginRemoteView(ServerPlayer player, LivingEntity host, int durationTicks) {
 		return beginRemoteView(player, host, durationTicks, CastSource.CRYSTAL);
 	}
@@ -96,6 +95,12 @@ public class DreamwalkingAbility extends Ability {
 				|| player.level().getServer() != host.level().getServer()
 				|| ACTIVE.containsKey(player.getUUID()) || AmethystDampening.isDampened(host)
 				|| !PowerProtection.mayDreamwalk(player, host)) return false;
+		ServerLevel sourceLevel = (ServerLevel) player.level();
+		ServerLevel hostLevel = (ServerLevel) host.level();
+		boolean crossDimension = DreamwalkingRules.mustTravel(
+				sourceLevel.dimension(), hostLevel.dimension());
+		if (crossDimension && !SafeDestinationResolver.validatePreload(player, hostLevel,
+				host.position(), TravelKind.PROJECTION).allowed()) return false;
 		UUID sessionId = UUID.randomUUID();
 		if (!ParticipantPowerLock.acquire(sessionId, java.util.List.of(
 				player.getUUID(), host.getUUID()))) return false;
@@ -104,14 +109,10 @@ public class DreamwalkingAbility extends Ability {
 			return false;
 		}
 		MinecraftServer server = player.level().getServer();
-		ServerLevel sourceLevel = (ServerLevel) player.level();
-		ServerLevel hostLevel = (ServerLevel) host.level();
 		Vec3 bodyPosition = player.position();
 		Dream dream = new Dream(sessionId, host.getUUID(), host.level().dimension(), castSource,
 				server.getTickCount() + Math.clamp(durationTicks, 20, DURATION));
 		player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
-		boolean crossDimension = DreamwalkingRules.mustTravel(
-				sourceLevel.dimension(), hostLevel.dimension());
 		if (crossDimension) {
 			player.teleport(new TeleportTransition(hostLevel, host.position(), Vec3.ZERO,
 					host.getYRot(), host.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));

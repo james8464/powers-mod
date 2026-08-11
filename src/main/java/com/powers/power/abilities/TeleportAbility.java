@@ -2,13 +2,13 @@ package com.powers.power.abilities;
 
 import com.powers.PowersMod;
 import com.powers.config.PowersConfigLoader;
-import com.powers.fx.GodlyPunishment;
 import com.powers.fx.PowerFx;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
 import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
+import com.powers.mind.BodyReturnFallbackRules;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.progression.PowerScalingService;
@@ -81,7 +81,7 @@ public class TeleportAbility extends Ability {
 		SafeDestinationResolver.Result destination = SafeDestinationResolver.validate(
 				player, targetLevel, entry, TravelKind.PROJECTION);
 		if (!destination.allowed()) {
-			reportTravelFailure(player, player, entry, destination.failure());
+				TravelFailurePresenter.report(player, player, entry, destination.failure());
 			return false;
 		}
 		if (!BodyProxyManager.start(player, BodyProxyKind.MARKING)) return false;
@@ -136,7 +136,7 @@ public class TeleportAbility extends Ability {
 		SafeDestinationResolver.Result destination = SafeDestinationResolver.validate(
 				player, level, safe, TravelKind.POWER);
 		if (!destination.allowed()) {
-			reportTravelFailure(player, player, safe, destination.failure());
+				TravelFailurePresenter.report(player, player, safe, destination.failure());
 			restore(player, state);
 			return;
 		}
@@ -226,8 +226,14 @@ public class TeleportAbility extends Ability {
 
 	// puts a marking player back where they started, in the mode they started in
 	private static void restore(ServerPlayer player, MarkingState state) {
-		if (BodyProxyManager.hasSession(player, BodyProxyKind.MARKING)
-				&& BodyProxyManager.returnToBody(player)) return;
+		boolean hadAnchor = BodyProxyManager.hasSession(player, BodyProxyKind.MARKING);
+		boolean returned = hadAnchor && BodyProxyManager.returnToBody(player);
+		if (returned) return;
+		if (!BodyReturnFallbackRules.mayUseLegacyFallback(hadAnchor, returned)) {
+			player.setGameMode(GameType.SPECTATOR);
+			PowerMessages.send(player, "realm.powers.return_restricted", 4);
+			return;
+		}
 		MinecraftServer server = player.level().getServer();
 		ServerLevel originalLevel = server == null ? null : server.getLevel(state.originalDimension());
 		if (originalLevel != null) {
@@ -278,7 +284,7 @@ public class TeleportAbility extends Ability {
 		SafeDestinationResolver.Result destination = SafeDestinationResolver.validatePreload(
 				player, targetLevel, target, TravelKind.POWER);
 		if (!destination.allowed()) {
-			reportTravelFailure(caster, player, target, destination.failure());
+				TravelFailurePresenter.report(caster, player, target, destination.failure());
 			return false;
 		}
 		AsyncAbilityTransaction transaction = new AsyncAbilityTransaction(caster, data, this);
@@ -294,7 +300,7 @@ public class TeleportAbility extends Ability {
 				() -> {
 					ACTIVE_STORMS.finish(caster.getUUID());
 					transaction.fail();
-					reportTravelFailure(caster, player, target, DestinationFailure.UNLOADED_CHUNK);
+					TravelFailurePresenter.report(caster, player, target, DestinationFailure.UNLOADED_CHUNK);
 				});
 		if (!accepted) ACTIVE_STORMS.finish(caster.getUUID());
 		return accepted;
@@ -314,7 +320,7 @@ public class TeleportAbility extends Ability {
 				player, targetLevel, target, TravelKind.POWER);
 		if (!destination.allowed()) {
 			abortStorm(caster, player, transaction, false);
-			reportTravelFailure(caster, player, target, destination.failure());
+				TravelFailurePresenter.report(caster, player, target, destination.failure());
 			return;
 		}
 		boolean bodyStarted = player instanceof ServerPlayer subject
@@ -355,7 +361,7 @@ public class TeleportAbility extends Ability {
 					player, targetLevel, target, TravelKind.POWER);
 			if (!revalidated.allowed()) {
 				abortStorm(caster, player, transaction, bodyStarted);
-				reportTravelFailure(caster, player, target, revalidated.failure());
+					TravelFailurePresenter.report(caster, player, target, revalidated.failure());
 				return;
 			}
 			Vec3 departure = player.position();
@@ -400,34 +406,6 @@ public class TeleportAbility extends Ability {
 			if (power != null && POWER_ID.equals(power.id())) return true;
 		}
 		return false;
-	}
-
-	private static void reportTravelFailure(ServerPlayer caster, LivingEntity subject,
-			Vec3 target, DestinationFailure failure) {
-		ServerLevel origin = (ServerLevel) subject.level();
-		switch (failure) {
-			case ANCHOR -> {
-				if (subject instanceof ServerPlayer player) GodlyPunishment.chainBlock(origin, player);
-				else PowerFx.rune(origin, subject.position().add(0, 1, 0), 1.8, 0xB36BFF, 24, 0.0);
-				PowerMessages.send(caster, "ability.powers.anchored_teleport_blocked", 4);
-			}
-			case WARD -> {
-				PowerFx.clash(origin, subject.position().add(0, 1, 0), target.add(0, 1, 0),
-						0xFFD4FF, 0xB36BFF);
-				subject.hurtServer(origin, subject.damageSources().magic(), 20.0f);
-				if (subject instanceof ServerPlayer player) GodlyPunishment.strike(origin, player, 0xB36BFF, false);
-				PowerMessages.send(caster, "amethyst.powers.teleport_repelled", 5);
-			}
-			case REALM_RESTRICTED -> {
-				if (subject instanceof ServerPlayer player) GodlyPunishment.barrier(origin, player, 0x82CAFF);
-				else PowerFx.rune(origin, subject.position().add(0, 1, 0), 2.0, 0x82CAFF, 24, 0.0);
-				PowerMessages.send(caster, "ability.powers.no_entry", 4);
-			}
-			case OUT_OF_BOUNDS, UNLOADED_CHUNK -> PowerMessages.send(caster, "ability.powers.out_of_bounds", 3);
-			case SAFE_ZONE -> PowerMessages.send(caster, "ability.powers.no_entry", 4);
-			case COLLISION, HAZARD -> PowerMessages.send(caster, "ability.powers.solid_block", 3);
-			case NONE -> { }
-		}
 	}
 
 	private static boolean subjectMayContinue(LivingEntity subject) {

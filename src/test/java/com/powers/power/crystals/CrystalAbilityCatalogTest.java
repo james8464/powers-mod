@@ -15,13 +15,14 @@ class CrystalAbilityCatalogTest {
 		var bindings = CrystalAbilityCatalog.defaults();
 		assertEquals(Set.of("red_crystal", "orange_crystal", "yellow_crystal", "green_crystal",
 				"blue_crystal", "indigo_crystal", "violet_crystal", "rainbow_crystal",
-				"infected_rainbow_crystal", "light_crystal", "dark_crystal"), bindings.keySet());
+				"light_crystal", "dark_crystal"), bindings.keySet());
 		bindings.values().forEach(list -> assertFalse(list.isEmpty()));
 		Set<String> reachable = new HashSet<>();
 		bindings.values().forEach(reachable::addAll);
 		assertEquals(Set.of("inferno", "creativity_manifestation", "clone_swarm", "size_shift",
-				"space_time", "life_bloom", "dreamwalking", "middleworld",
+				"life_bloom", "dreamwalking", "middleworld",
 				"soul_link", "chrono_stop", "light_crystal", "dark_crystal"), reachable);
+		assertEquals(java.util.List.of("life_bloom"), bindings.get("green_crystal"));
 		assertEquals(java.util.List.of("middleworld"), bindings.get("indigo_crystal"));
 	}
 

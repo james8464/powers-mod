@@ -9,7 +9,6 @@ import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.MagicUseGate;
-import com.powers.progression.ScaledMagicValues;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -34,11 +33,15 @@ public class SizeShiftAbility extends Ability {
 	private static final int DURATION_TICKS = 400;
 	private static final int COOLDOWN_TICKS = 600;
 
-	// shrink -0.62 to 38% of normal size, grow +0.75 to 175%; the giant also gets full knockback resistance
+	// Yellow spans Minecraft's practical minimum and the approved tenfold form.
 	private static final AttributeModifier SHRINK_MODIFIER = new AttributeModifier(
-			PowersMod.id("size_shift_shrink"), -0.62, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+			PowersMod.id("size_shift_shrink"),
+			CrystalSizeShiftRules.modifierFor(CrystalSizeShiftRules.SMALL_SCALE),
+			AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 	private static final AttributeModifier GROW_MODIFIER = new AttributeModifier(
-			PowersMod.id("size_shift_grow"), 0.75, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+			PowersMod.id("size_shift_grow"),
+			CrystalSizeShiftRules.modifierFor(CrystalSizeShiftRules.GIANT_SCALE),
+			AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 	private static final AttributeModifier ANTI_KNOCKBACK = new AttributeModifier(
 			PowersMod.id("size_shift_knockback"), 1.0, AttributeModifier.Operation.ADD_VALUE);
 
@@ -59,9 +62,7 @@ public class SizeShiftAbility extends Ability {
 		LAST_SIZE.put(player.getUUID(), next);
 
 		ServerLevel level = (ServerLevel) player.level();
-		ScaledMagicValues values = scaling(player);
 		int duration = scaledDuration(player, DURATION_TICKS);
-		int potencyTier = values.potencyMultiplier() >= 1.25 ? 1 : 0;
 		AttributeInstance scale = player.getAttribute(Attributes.SCALE);
 		AttributeInstance knockback = player.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
 		removeOwnedModifiers(player);
@@ -70,9 +71,9 @@ public class SizeShiftAbility extends Ability {
 				scale.addOrUpdateTransientModifier(SHRINK_MODIFIER);
 			}
 			player.addEffect(PowerStatusEffects.hidden(MobEffects.SPEED,
-					duration, 3 + potencyTier, true, true));
+					duration, 5, true, true));
 			player.addEffect(PowerStatusEffects.hidden(MobEffects.JUMP_BOOST,
-					duration, 4 + potencyTier, true, true));
+					duration, 6, true, true));
 			player.addEffect(PowerStatusEffects.hidden(MobEffects.SLOW_FALLING,
 					duration, 0, true, true));
 			PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x00E5FF, 24, 0.8);
@@ -85,9 +86,9 @@ public class SizeShiftAbility extends Ability {
 				knockback.addOrUpdateTransientModifier(ANTI_KNOCKBACK);
 			}
 			player.addEffect(PowerStatusEffects.hidden(MobEffects.STRENGTH,
-					duration, 3 + potencyTier, true, true));
+					duration, 9, true, true));
 			player.addEffect(PowerStatusEffects.hidden(MobEffects.RESISTANCE,
-					duration, 1, true, true));
+					duration, 3, true, true));
 			PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0xFFD600, 30, 1.6);
 			PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.POOF, 30, 1.0, 0.3);
 		}

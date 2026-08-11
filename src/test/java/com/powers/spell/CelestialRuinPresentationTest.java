@@ -7,11 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CelestialRuinPresentationTest {
 	@Test
-	void detonationFlashHoldsThenFadesAcrossThreeSeconds() {
-		assertEquals(60, CelestialRuinPresentation.FLASH_TICKS);
-		assertEquals(255, CelestialRuinPresentation.flashAlpha(60));
-		assertEquals(255, CelestialRuinPresentation.flashAlpha(41));
-		assertTrue(CelestialRuinPresentation.flashAlpha(20) < 255);
+	void detonationFlashHoldsThenFadesAcrossTwentySeconds() {
+		assertEquals(400, CelestialRuinPresentation.FLASH_TICKS);
+		assertEquals(255, CelestialRuinPresentation.flashAlpha(400));
+		assertEquals(255, CelestialRuinPresentation.flashAlpha(341));
+		assertTrue(CelestialRuinPresentation.flashAlpha(200) < 255);
 		assertEquals(0, CelestialRuinPresentation.flashAlpha(0));
 	}
 
@@ -19,7 +19,7 @@ class CelestialRuinPresentationTest {
 	void beamPacketsRefreshBeforeTheirClientLeaseExpires() {
 		assertTrue(CelestialRuinPresentation.BEAM_LEASE_TICKS
 				> CelestialRuinPresentation.BEAM_REFRESH_TICKS);
-		assertTrue(CelestialRuinPresentation.BEAM_VIEW_RADIUS >= 1_024);
+		assertTrue(CelestialRuinPresentation.BEAM_VIEW_RADIUS >= 6_000);
 		assertTrue(CelestialRuinPresentation.clientBeamParticleCount() >= 64);
 		assertTrue(CelestialRuinPresentation.clientBeamParticleCount() <= 128);
 	}

@@ -9,18 +9,6 @@ import org.junit.jupiter.api.Test;
 
 class ArtifactDominionRulesTest {
 	@Test
-	void decreesScaleAgainstBossesButRespectHardPlayerAndMobCaps() {
-		assertEquals(42.0F, ArtifactDominionRules.decreeDamage(
-				ArtifactAlignment.DARKNESS, 100.0F, true, 10));
-		assertEquals(400.0F, ArtifactDominionRules.decreeDamage(
-				ArtifactAlignment.DARKNESS, 10000.0F, true, 10));
-		assertEquals(2000.0F, ArtifactDominionRules.decreeDamage(
-				ArtifactAlignment.DARKNESS, 10000.0F, false, 10));
-		assertEquals(38.0F, ArtifactDominionRules.decreeDamage(
-				ArtifactAlignment.LIGHT, 100.0F, true, 10));
-	}
-
-	@Test
 	void globalFieldAndGuardianCapsRemainFiniteAtCooldownFreeRank() {
 		assertTrue(ArtifactDominionRules.mayStartField(3, false));
 		assertFalse(ArtifactDominionRules.mayStartField(4, false));

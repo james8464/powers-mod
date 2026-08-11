@@ -7,7 +7,7 @@ Between levels 0 and 10 each value advances deterministically toward the capston
 | Innate | Level-10 damage / range / duration | Destruction | Capacity | Level 3 → 6 → 9 → 10 |
 | --- | --- | ---: | ---: | --- |
 | Size Morphing | 1.8× / 1.2× / 1.8× | 5 | 3× | Fine Control → Colossal Form → Density Mastery → World Titan |
-| Time Shift | 1.2× / 4× / 2.4× | 0 | 2.5× | Distant Step → Dimensional Sense → Mass Transit → World Stride |
+| Teleport | 1.2× / 4× / 2.4× | 0 | 2.5× | Distant Step → Dimensional Sense → Mass Transit → World Stride |
 | Flight | 2× / 2.2× / 4× | 3 | 3× | Sonic Ascent → Storm Wake → Sky Dominion → Heavenbreaker |
 | Starfall | 7× / 3.2× / 2.5× | 10 | 3× | Astral Echo → Moving Convergence → Crowned Storm → Firmament Fall |
 | Void Beam | 8× / 3.2× / 2.3× | 10 | 2.8× | Piercing Void → Abyssal Bore → Event Horizon → World Rend |

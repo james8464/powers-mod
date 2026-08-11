@@ -39,29 +39,18 @@ public class CreativityManifestationAbility extends Ability {
 		BlockState frame = Blocks.CONCRETE.pick(DyeColor.ORANGE).defaultBlockState();
 		BlockState glass = Blocks.STAINED_GLASS.pick(DyeColor.ORANGE).defaultBlockState();
 		int placed = 0;
-		for (int dx = -2; dx <= 2; dx++) {
-			for (int dz = -2; dz <= 2; dz++) {
-				if (Math.abs(dx) == 2 || Math.abs(dz) == 2) {
-					BlockPos pos = center.offset(dx, 0, dz);
-					if (level.getBlockState(pos).isAir() && PowerProtection.mayAffectBlock(player, level, pos)) {
-						level.setBlockAndUpdate(pos, frame);
-						placed++;
-					}
-				}
-			}
-		}
-		for (int dx = -1; dx <= 1; dx++) {
-			for (int dz = -1; dz <= 1; dz++) {
-				BlockPos pos = center.offset(dx, 1, dz);
-				if (level.getBlockState(pos).isAir() && PowerProtection.mayAffectBlock(player, level, pos)) {
-					level.setBlockAndUpdate(pos, glass);
-					placed++;
-				}
-			}
-		}
-		BlockPos light = center.above(2);
-		if (level.getBlockState(light).isAir() && PowerProtection.mayAffectBlock(player, level, light)) {
-			level.setBlockAndUpdate(light, Blocks.GLOWSTONE.defaultBlockState());
+		for (CreationChamberBlueprint.Placement placement
+				: CreationChamberBlueprint.placements()) {
+			var offset = placement.offset();
+			BlockPos pos = center.offset(offset.x(), offset.y(), offset.z());
+			if (!level.getBlockState(pos).isAir()
+					|| !PowerProtection.mayAffectBlock(player, level, pos)) continue;
+			BlockState state = switch (placement.role()) {
+				case FRAME -> frame;
+				case GLASS -> glass;
+				case LIGHT -> Blocks.GLOWSTONE.defaultBlockState();
+			};
+			level.setBlockAndUpdate(pos, state);
 			placed++;
 		}
 		if (placed == 0) return false;

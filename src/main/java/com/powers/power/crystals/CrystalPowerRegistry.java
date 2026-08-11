@@ -27,7 +27,8 @@ import java.util.UUID;
  * the crystal tier of powers - a rank above regular steve powers with
  * game-changing abilities that can turn a fight in an instant; never handed
  * out by the rainbow and never assigned randomly, the only way to hold one
- * is to craft the crystal itself
+ * is to obtain the crystal item through server-authored progression; recipes
+ * are intentionally deferred until the mod author supplies them
  */
 public final class CrystalPowerRegistry {
 	// crystal item -> the ability bound to it
@@ -67,7 +68,6 @@ public final class CrystalPowerRegistry {
 			case "indigo_crystal" -> PowersItems.INDIGO_CRYSTAL;
 			case "violet_crystal" -> PowersItems.VIOLET_CRYSTAL;
 			case "rainbow_crystal" -> PowersItems.RAINBOW_CRYSTAL;
-			case "infected_rainbow_crystal" -> PowersItems.INFECTED_RAINBOW_CRYSTAL;
 			case "light_crystal" -> PowersItems.LIGHT_CRYSTAL;
 			case "dark_crystal" -> PowersItems.DARK_CRYSTAL;
 			default -> throw new IllegalArgumentException("Unknown crystal binding: " + crystal);
@@ -80,7 +80,6 @@ public final class CrystalPowerRegistry {
 			case "creativity_manifestation" -> new CreativityManifestationAbility();
 			case "clone_swarm" -> new CloneSwarmAbility();
 			case "size_shift" -> new SizeShiftAbility();
-			case "space_time" -> new SpaceTimeAbility(true);
 			case "life_bloom" -> new LifeBloomAbility();
 			case "dreamwalking" -> new DreamwalkingAbility();
 			case "middleworld" -> new MiddleworldAbility();
@@ -157,7 +156,6 @@ public final class CrystalPowerRegistry {
 
 	/** Advances every ongoing crystal effect; called every server tick. */
 	public static void tick(MinecraftServer server) {
-		ChronoStopAbility.tickStops(server);
 		InfernoAbility.tickAll(server);
 		SoulLinkAbility.tickAll(server);
 	}

@@ -11,7 +11,7 @@ class FreezeOwnerTest {
 	@Test
 	void eachPowerGetsAStableDistinctOwnershipToken() {
 		UUID player = UUID.randomUUID();
-		assertEquals(FreezeOwner.token("space_time", player), FreezeOwner.token("space_time", player));
-		assertNotEquals(FreezeOwner.token("space_time", player), FreezeOwner.token("time_freeze", player));
+		assertEquals(FreezeOwner.token("chrono_stop", player), FreezeOwner.token("chrono_stop", player));
+		assertNotEquals(FreezeOwner.token("chrono_stop", player), FreezeOwner.token("time_freeze", player));
 	}
 }

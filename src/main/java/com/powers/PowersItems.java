@@ -42,8 +42,12 @@ public final class PowersItems {
 	public static final Item LIGHT_CRYSTAL = ModItemIds.register(LIGHT_CRYSTAL_KEY, CrystalItem::new, crystalProperties());
 	public static final ResourceKey<Item> DARK_CRYSTAL_KEY = ModItemIds.create("dark_crystal");
 	public static final Item DARK_CRYSTAL = ModItemIds.register(DARK_CRYSTAL_KEY, CrystalItem::new, crystalProperties());
-	public static final ResourceKey<Item> INFECTED_RAINBOW_CRYSTAL_KEY = ModItemIds.create("infected_rainbow_crystal");
-	public static final Item INFECTED_RAINBOW_CRYSTAL = ModItemIds.register(INFECTED_RAINBOW_CRYSTAL_KEY, CrystalItem::new, crystalProperties());
+	/** Hidden inert alias retained only so pre-release worlds do not lose old stacks. */
+	public static final ResourceKey<Item> LEGACY_INFECTED_RAINBOW_CRYSTAL_KEY =
+			ModItemIds.create("infected_rainbow_crystal");
+	public static final Item LEGACY_INFECTED_RAINBOW_CRYSTAL = ModItemIds.register(
+			LEGACY_INFECTED_RAINBOW_CRYSTAL_KEY, Item::new,
+			new Item.Properties().stacksTo(1).fireResistant());
 	public static final Item DARKNESS_CREATURE_SPAWN_EGG = spawnEgg(
 			"darkness_creature_spawn_egg", PowersEntities.DARKNESS_CREATURE);
 	public static final Item POWER_TEST_ACTOR_SPAWN_EGG = spawnEgg(
@@ -96,7 +100,6 @@ public final class PowersItems {
 					}
 					creativeTab.accept(LIGHT_CRYSTAL);
 					creativeTab.accept(DARK_CRYSTAL);
-					creativeTab.accept(INFECTED_RAINBOW_CRYSTAL);
 				});
 		CreativeModeTabEvents.modifyOutputEvent(SPAWN_EGGS_TAB)
 				.register(output -> {

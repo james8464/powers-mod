@@ -10,20 +10,26 @@ import org.junit.jupiter.api.Test;
 
 class ArtifactActionCatalogueTest {
 	@Test
-	void bothArtifactsRouteTheCompletePowerRosterWithoutDuplicateKeys() {
+	void shadowRoutesEverythingWhilePartisanUsesAStrictRadiantSubset() {
 		Set<String> crystalIds = new HashSet<>();
 		CrystalAbilityCatalog.defaults().values().forEach(crystalIds::addAll);
-		for (ArtifactAlignment alignment : ArtifactAlignment.values()) {
-			var actions = ArtifactActionCatalogue.forAlignment(alignment);
-			assertEquals(actions.size(), actions.stream().map(ArtifactActionDefinition::key).distinct().count());
-			assertEquals(23, actions.stream().filter(action -> action.category()
-					== ArtifactActionCategory.ROUTED_POWER).count());
-			assertTrue(actions.stream().noneMatch(action -> Set.of("cozy_campfire", "frost_nova",
-					"elemental_blast", "ground_slam", "shadow_step").contains(action.abilityId())));
-			assertEquals(crystalIds, actions.stream().filter(action -> action.category()
-					== ArtifactActionCategory.ROUTED_CRYSTAL).map(ArtifactActionDefinition::abilityId)
-					.collect(java.util.stream.Collectors.toSet()));
-		}
+		var shadow = ArtifactActionCatalogue.forAlignment(ArtifactAlignment.DARKNESS);
+		var partisan = ArtifactActionCatalogue.forAlignment(ArtifactAlignment.LIGHT);
+		for (var actions : java.util.List.of(shadow, partisan)) assertEquals(actions.size(),
+				actions.stream().map(ArtifactActionDefinition::key).distinct().count());
+		assertEquals(23, shadow.stream().filter(action -> action.category()
+				== ArtifactActionCategory.ROUTED_POWER).count());
+		assertEquals(crystalIds, shadow.stream().filter(action -> action.category()
+				== ArtifactActionCategory.ROUTED_CRYSTAL).map(ArtifactActionDefinition::abilityId)
+				.collect(java.util.stream.Collectors.toSet()));
+		assertEquals(Set.of("flight", "starfall", "lightning_strike", "thunderclap",
+				"energy_beam", "forcefield", "plant_healing_acceleration", "double_health"),
+				partisan.stream().filter(action -> action.category() == ArtifactActionCategory.ROUTED_POWER)
+						.map(ArtifactActionDefinition::abilityId).collect(java.util.stream.Collectors.toSet()));
+		assertEquals(Set.of("creativity_manifestation", "life_bloom", "light_crystal"),
+				partisan.stream().filter(action -> action.category() == ArtifactActionCategory.ROUTED_CRYSTAL)
+						.map(ArtifactActionDefinition::abilityId).collect(java.util.stream.Collectors.toSet()));
+		assertTrue(partisan.size() < shadow.size());
 	}
 
 	@Test
@@ -37,12 +43,12 @@ class ArtifactActionCatalogueTest {
 	}
 
 	@Test
-	void lightHasAllElevenAuthoredPartisanPowers() {
+	void lightKeepsEightCuratedPartisanRites() {
 		Set<String> ids = ArtifactActionCatalogue.forAlignment(ArtifactAlignment.LIGHT).stream()
 				.filter(action -> action.category() == ArtifactActionCategory.DOMINION)
 				.map(ArtifactActionDefinition::abilityId).collect(java.util.stream.Collectors.toSet());
-		assertEquals(Set.of("call_radiant", "consecrate_ground", "dawnstride", "covenant_chain",
-				"daybreak_wave", "heaven_gate", "banish_darkness", "divine_decree",
+		assertEquals(Set.of("call_radiant", "consecrate_ground", "covenant_chain",
+				"daybreak_wave", "heaven_gate",
 				"solar_firmament", "second_dawn", "host_heaven"), ids);
 	}
 

@@ -3,6 +3,11 @@ package com.powers.power.abilities;
 /** Pure target eligibility and consent classification for Vessel Possession. */
 public final class PossessionRules {
 	public static final int MAX_DURATION_TICKS = 600;
+	/** Identifies which permission and travel policy owns a shared remote-control session. */
+	public enum SessionKind {
+		POSSESSION,
+		DREAMWALK
+	}
 	/** Only real players and AI-controlled mobs can host a possession camera. */
 	public enum TargetKind {
 		PLAYER,
@@ -37,5 +42,20 @@ public final class PossessionRules {
 	/** A player cannot dominate another player whose active rank exceeds their own. */
 	public static boolean rankAllows(int casterRank, int targetRank) {
 		return casterRank >= 0 && targetRank >= 0 && casterRank >= targetRank;
+	}
+
+	/** Only Dreamwalking may carry the controller's mind to a host in another dimension. */
+	public static boolean allowsCrossDimension(SessionKind kind) {
+		return kind == SessionKind.DREAMWALK;
+	}
+
+	/** Dreamwalking retains its separately configurable consent channel. */
+	public static boolean usesDreamwalkProtection(SessionKind kind) {
+		return kind == SessionKind.DREAMWALK;
+	}
+
+	/** Both forms of mind control respect higher-rank player counterplay. */
+	public static boolean requiresRankCheck(SessionKind kind) {
+		return kind != null;
 	}
 }

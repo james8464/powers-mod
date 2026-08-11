@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * The fantasy weapon set (nongko's Fantasy Weapons textures and models),
- * registered as own items in the POWERS namespace with no recipes.
+ * registered as own items in the POWERS namespace with archetype loot sources.
  */
 public final class PowersWeapons {
 	private static final ResourceKey<CreativeModeTab> COMBAT_TAB =
@@ -143,6 +143,10 @@ public final class PowersWeapons {
 	public static List<String> ordinaryWeaponIds() {
 		return java.util.Arrays.stream(DEFS).map(WeaponDef::id)
 				.filter(id -> !id.equals("lycanbane") && !id.equals("heavenly_partisan")).toList();
+	}
+
+	public static List<String> allWeaponIds() {
+		return java.util.Arrays.stream(DEFS).map(WeaponDef::id).toList();
 	}
 
 	public static void initialize() {

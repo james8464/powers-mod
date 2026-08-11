@@ -12,9 +12,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MagicActionCatalogueTest {
 	private static final Map<MagicOrigin, Integer> EXPECTED_ORIGIN_COUNTS = Map.of(
-			MagicOrigin.INNATE, 22,
-			MagicOrigin.CRYSTAL, 12,
-			MagicOrigin.ARTIFACT, 16,
+			MagicOrigin.INNATE, 23,
+			MagicOrigin.CRYSTAL, 11,
+			MagicOrigin.ARTIFACT, 13,
 			MagicOrigin.SPELL, 21,
 			MagicOrigin.AMETHYST, 3,
 			MagicOrigin.REALM, 2);
@@ -26,8 +26,8 @@ class MagicActionCatalogueTest {
 		catalogue.definitions().forEach(definition ->
 				actualCounts.merge(definition.origin(), 1, Integer::sum));
 
-		assertEquals(76, catalogue.definitions().size());
-		assertEquals(76, catalogue.definitions().stream()
+		assertEquals(73, catalogue.definitions().size());
+		assertEquals(73, catalogue.definitions().stream()
 				.map(MagicActionDefinition::id).distinct().count());
 		assertEquals(EXPECTED_ORIGIN_COUNTS, actualCounts);
 		assertTrue(catalogue.definitions().stream().allMatch(MagicActionDefinition::isComplete));
@@ -41,13 +41,13 @@ class MagicActionCatalogueTest {
 				.collect(Collectors.toUnmodifiableSet());
 
 		assertTrue(actual.containsAll(Set.of(
-				"time_shift", "flight", "starfall", "void_beam", "fireball", "lightning_strike",
+				"size_morph", "time_shift", "flight", "starfall", "void_beam", "fireball", "lightning_strike",
 				"thunderclap", "speed_burst", "telekinesis", "energy_beam", "super_speed",
 				"breezy_bash", "invisibility", "time_freeze", "forcefield",
 				"gravity_displacement", "vessel_possession", "astral_projection", "energy_drain",
 				"ice_manipulation", "plant_healing_acceleration", "double_health",
 				"inferno", "clone_swarm", "creativity_manifestation", "size_shift", "life_bloom",
-				"space_time", "chrono_stop", "dreamwalking", "middleworld",
+				"chrono_stop", "dreamwalking", "middleworld",
 				"soul_link", "light_crystal", "dark_crystal",
 				"call_hollowed", "blight_ground", "nightfall_dominion",
 				"soul_compass", "tracking_mark", "weather_sigil", "celestial_ruin", "dimensional_anchor",
@@ -65,6 +65,10 @@ class MagicActionCatalogueTest {
 		assertTrue(catalogue.definition(new MagicActionId("annihilation_beam")) == null);
 		assertTrue(catalogue.definition(new MagicActionId("legion_eclipse")) == null);
 		assertTrue(catalogue.definition(new MagicActionId("portal_rift")) == null);
+		assertEquals(MagicOrigin.INNATE,
+				catalogue.definition(new MagicActionId("size_morph")).origin());
+		assertEquals(MagicOrigin.CRYSTAL,
+				catalogue.definition(new MagicActionId("size_shift")).origin());
 	}
 
 	@Test

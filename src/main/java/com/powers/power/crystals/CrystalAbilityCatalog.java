@@ -14,13 +14,12 @@ public final class CrystalAbilityCatalog {
 		bindings.put("red_crystal", List.of("inferno"));
 		bindings.put("orange_crystal", List.of("clone_swarm", "creativity_manifestation"));
 		bindings.put("yellow_crystal", List.of("size_shift"));
-		bindings.put("green_crystal", List.of("life_bloom", "space_time"));
+		bindings.put("green_crystal", List.of("life_bloom"));
 		bindings.put("blue_crystal", List.of("chrono_stop", "dreamwalking"));
 		bindings.put("indigo_crystal", List.of("middleworld"));
 		bindings.put("violet_crystal", List.of("soul_link"));
 		bindings.put("rainbow_crystal", List.of("inferno", "clone_swarm", "size_shift",
 				"life_bloom", "chrono_stop", "soul_link"));
-		bindings.put("infected_rainbow_crystal", List.of("inferno", "chrono_stop", "soul_link"));
 		bindings.put("light_crystal", List.of("light_crystal"));
 		bindings.put("dark_crystal", List.of("dark_crystal"));
 		return Map.copyOf(bindings);

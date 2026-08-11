@@ -13,8 +13,8 @@ public final class ArtifactFavouriteRules {
 			"innate/forcefield", "innate/flight", "unique/call_hollowed",
 			"unique/blight_ground", "unique/nightfall_dominion");
 	private static final List<String> LIGHT_DEFAULTS = List.of(
-			"innate/lightning_strike", "innate/fireball", "innate/time_shift",
-			"innate/forcefield", "innate/flight", "dominion/call_radiant",
+			"innate/lightning_strike", "innate/starfall", "innate/energy_beam",
+			"innate/forcefield", "innate/plant_healing_acceleration", "dominion/call_radiant",
 			"dominion/consecrate_ground", "dominion/host_heaven");
 
 	private ArtifactFavouriteRules() {

@@ -10,6 +10,7 @@ class ImportedItemRulesTest {
 	void textureCompositionLayersAreLegacyAliasesNotGameplayRunes() {
 		assertTrue(ImportedItemRules.isLegacyAssetLayer("artifact_runestone_back"));
 		assertTrue(ImportedItemRules.isLegacyAssetLayer("artifact_runestone_overlay_10"));
+		assertTrue(ImportedItemRules.isLegacyAssetLayer("device_miniportal_active"));
 		assertFalse(ImportedItemRules.isLegacyAssetLayer("artifact_runestone_inert"));
 		assertFalse(ImportedItemRules.isLegacyAssetLayer("artifact_runestone_dark_large"));
 	}

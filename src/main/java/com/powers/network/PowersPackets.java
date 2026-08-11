@@ -8,7 +8,7 @@ import com.powers.power.AbilityActivationService;
 import com.powers.power.Power;
 import com.powers.power.ActivationCooldowns;
 import com.powers.power.AmethystDampening;
-import com.powers.power.crystals.SpaceTimeAbility;
+import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.power.abilities.TeleportAbility;
 import com.powers.util.PowerMessages;
@@ -204,8 +204,8 @@ public final class PowersPackets {
 				AmethystDampening.punish(player);
 				return;
 			}
-			if (SpaceTimeAbility.isFrozen(player)) {
-				SpaceTimeAbility.reject(player);
+			if (EntityFreezeController.isFrozen(player)) {
+				EntityFreezeController.reject(player);
 				return;
 			}
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;

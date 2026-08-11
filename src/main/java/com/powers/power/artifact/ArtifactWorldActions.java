@@ -8,13 +8,9 @@ import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.power.PowerTargeting;
-import com.powers.power.travel.SafeDestinationResolver;
-import com.powers.power.travel.TravelKind;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
-import com.powers.util.LoadedChunks;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,14 +21,13 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.entity.EntityTypeTest;
-import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Comparator;
 import java.util.List;
 
-/** Server-authoritative implementations for the eleven opposed dominion rites. */
+/** Server-authoritative implementations for the retained artifact dominion rites. */
 public final class ArtifactWorldActions {
 	private static final double TARGET_RANGE = 96.0;
 
@@ -43,57 +38,27 @@ public final class ArtifactWorldActions {
 		return switch (action.abilityId()) {
 			case "call_hollowed", "call_radiant" -> ArtifactGuardianSummons.summon(
 					player, action.alignment(), 4, false, null, true) > 0;
-			case "blight_ground", "consecrate_ground" -> ground(player, action.alignment(), false);
-			case "umbral_step", "dawnstride" -> step(player, action.alignment());
-			case "night_chain", "covenant_chain" -> chain(player, action.alignment());
-			case "eclipse_wave", "daybreak_wave" -> wave(player, action.alignment());
-			case "abyss_gate", "heaven_gate" -> ArtifactGateManager.open(player, action.alignment());
-			case "devour_light", "banish_darkness" -> ground(player, action.alignment(), true);
-			case "black_decree", "divine_decree" -> decree(player, action.alignment());
-			case "event_horizon", "solar_firmament" -> field(player, action.alignment());
-			case "deathless_night", "second_dawn" -> ArtifactDeathWardManager.arm(player, action.alignment());
-			case "legion_eclipse", "host_heaven" -> host(player, action.alignment());
+			case "blight_ground", "consecrate_ground" -> ground(player, action.alignment());
+			case "covenant_chain" -> chain(player, action.alignment());
+			case "daybreak_wave" -> wave(player, action.alignment());
+			case "heaven_gate" -> ArtifactGateManager.open(player, action.alignment());
+			case "solar_firmament" -> field(player, action.alignment());
+			case "second_dawn" -> ArtifactDeathWardManager.arm(player, action.alignment());
+			case "host_heaven" -> host(player, action.alignment());
 			default -> false;
 		};
 	}
 
-	private static boolean ground(ServerPlayer player, ArtifactAlignment alignment, boolean opposedOnly) {
-		int queued = ArtifactGroundWorkQueue.enqueueDisc(player, alignment,
-				opposedOnly ? 9 : 6, opposedOnly, opposedOnly);
+	private static boolean ground(ServerPlayer player, ArtifactAlignment alignment) {
+		int queued = ArtifactGroundWorkQueue.enqueueDisc(player, alignment, 6);
 		if (queued <= 0) return false;
 		ServerLevel level = (ServerLevel) player.level();
 		int color = alignment == ArtifactAlignment.DARKNESS ? 0x3A0B52 : 0xFFF2B2;
-		PowerFx.rune(level, player.position(), opposedOnly ? 9.0 : 6.0,
-				color, opposedOnly ? 56 : 40, 0.0);
+		PowerFx.rune(level, player.position(), 6.0, color, 40, 0.0);
 		PowerFx.spiral(level, player.position(), 1.5, 4.0, color, 30, Math.PI / 8.0);
 		PowerFx.sound(level, player.position(), alignment == ArtifactAlignment.DARKNESS
 				? SoundEvents.RESPAWN_ANCHOR_CHARGE : SoundEvents.BEACON_POWER_SELECT,
 				1.2F, alignment == ArtifactAlignment.DARKNESS ? 0.6F : 1.45F);
-		return true;
-	}
-
-	private static boolean step(ServerPlayer player, ArtifactAlignment alignment) {
-		ServerLevel level = (ServerLevel) player.level();
-		Vec3 origin = player.position();
-		Vec3 look = player.getLookAngle();
-		Vec3 destination = null;
-		for (int distance = 24; distance >= 3; distance--) {
-			Vec3 candidate = origin.add(look.scale(distance));
-			if (!LoadedChunks.contains(level, BlockPos.containing(candidate))) continue;
-			if (SafeDestinationResolver.validate(player, level, candidate, TravelKind.POWER).allowed()) {
-				destination = candidate;
-				break;
-			}
-		}
-		if (destination == null) return false;
-		int color = alignment == ArtifactAlignment.DARKNESS ? 0x48105D : 0xFFF2B2;
-		PowerFx.beam(level, origin.add(0.0, 1.0, 0.0), destination.add(0.0, 1.0, 0.0),
-				alignment == ArtifactAlignment.DARKNESS ? ParticleTypes.REVERSE_PORTAL
-						: ParticleTypes.END_ROD, 32);
-		player.teleport(new TeleportTransition(level, destination, player.getDeltaMovement(),
-				player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
-		PowerFx.rune(level, origin, 1.4, color, 24, 0.0);
-		PowerFx.rune(level, destination, 1.4, color, 24, Math.PI);
 		return true;
 	}
 
@@ -170,11 +135,6 @@ public final class ArtifactWorldActions {
 		return !targets.isEmpty() || !projectiles.isEmpty();
 	}
 
-	private static boolean decree(ServerPlayer player, ArtifactAlignment alignment) {
-		LivingEntity target = PowerTargeting.findLivingTarget(player, TARGET_RANGE);
-		return eligible(player, target) && ArtifactDecreeManager.mark(player, target, alignment);
-	}
-
 	private static boolean field(ServerPlayer player, ArtifactAlignment alignment) {
 		Vec3 center = player.getEyePosition().add(player.getLookAngle().scale(12.0));
 		return ArtifactFieldManager.start(player, center, alignment);
@@ -183,7 +143,7 @@ public final class ArtifactWorldActions {
 	private static boolean host(ServerPlayer player, ArtifactAlignment alignment) {
 		int spawned = ArtifactGuardianSummons.summon(player, alignment, 2, true, null, true);
 		if (spawned == 0) return false;
-		ArtifactGroundWorkQueue.enqueueDisc(player, alignment, 10, false, false);
+		ArtifactGroundWorkQueue.enqueueDisc(player, alignment, 10);
 		ArtifactFieldManager.start(player, player.position(), alignment);
 		ServerLevel level = (ServerLevel) player.level();
 		PowerFx.beam(level, player.position(), player.position().add(0.0, 72.0, 0.0),

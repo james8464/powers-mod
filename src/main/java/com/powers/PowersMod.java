@@ -243,7 +243,10 @@ public class PowersMod implements ModInitializer {
 		boolean sleeping = player.isSleeping();
 		boolean wasSleeping = WAS_SLEEPING.getOrDefault(player.getUUID(), false);
 		WAS_SLEEPING.put(player.getUUID(), sleeping);
-		if (cadence.second()) {
+		// Advancement inspection is the heaviest per-player bookkeeping pass.
+		// Quest/deed completions refresh immediately at their event source, while
+		// ordinary external advancement/tag changes are reconciled every 5 seconds.
+		if (cadence.passiveRefresh()) {
 			SkillSystem.syncPathVisibility(player);
 			SkillSystem.refresh(player);
 		}

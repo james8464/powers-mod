@@ -20,6 +20,7 @@ class PlayerTickCadenceTest {
 		assertFalse(second.passiveRefresh());
 
 		assertTrue(PlayerTickCadence.at(100).passiveRefresh());
+		assertFalse(PlayerTickCadence.at(80).passiveRefresh());
 	}
 
 	@Test

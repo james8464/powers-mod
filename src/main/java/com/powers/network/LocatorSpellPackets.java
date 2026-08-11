@@ -8,7 +8,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.MagicUseGate;
-import com.powers.power.crystals.SpaceTimeAbility;
+import com.powers.power.state.EntityFreezeController;
 import com.powers.power.crystals.DreamwalkingAbility;
 import com.powers.magic.runtime.CastSource;
 import com.powers.progression.PowerScalingService;
@@ -76,8 +76,8 @@ final class LocatorSpellPackets {
 	private static void locate(ServerPlayer player, PowersPackets.LocateTargetPayload payload, long currentTick) {
 		if (!NONCES.consume(player.getUUID(), payload.nonce(), currentTick) || !holdsCelestialGrimoire(player)) return;
 		if (payload.targetName().isBlank() || payload.targetName().length() > 64) return;
-		if (SpaceTimeAbility.isFrozen(player)) {
-			SpaceTimeAbility.reject(player);
+		if (EntityFreezeController.isFrozen(player)) {
+			EntityFreezeController.reject(player);
 			return;
 		}
 

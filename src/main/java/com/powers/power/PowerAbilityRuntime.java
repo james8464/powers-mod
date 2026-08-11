@@ -15,13 +15,11 @@ import com.powers.power.abilities.TeleportAbility;
 import com.powers.power.abilities.TimeFreezeToggleAbility;
 import com.powers.power.abilities.VesselPossessionAbility;
 import com.powers.power.abilities.VoidBeamAbility;
-import com.powers.power.crystals.ChronoStopAbility;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.power.crystals.DreamwalkingAbility;
 import com.powers.power.crystals.InfernoAbility;
 import com.powers.power.crystals.SizeShiftAbility;
 import com.powers.power.crystals.SoulLinkAbility;
-import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.player.PlayerPowers;
@@ -78,14 +76,12 @@ public final class PowerAbilityRuntime {
 		VesselPossessionAbility.clear(player);
 		AstralProjectionAbility.clear(owner);
 		DreamwalkingAbility.clear(player);
-		ChronoStopAbility.clear(owner);
 		InfernoAbility.clear(owner);
 		SoulLinkAbility.clear(owner);
 		SizeShiftAbility.clear(player);
 		SpeedBurstAbility.clear(owner);
 		EnergyBeamAbility.clear(owner);
 		VoidBeamAbility.clear(owner);
-		SpaceTimeAbility.clear(owner);
 		EnergyDrainAbility.clear(owner);
 	}
 
@@ -113,11 +109,9 @@ public final class PowerAbilityRuntime {
 		VesselPossessionAbility.clearAll();
 		AstralProjectionAbility.clearAll();
 		EnergyDrainAbility.clearAll();
-		SpaceTimeAbility.clearAll();
 		CrystalPowerRegistry.clearAllSelections();
 		EntityFreezeController.clearAll();
 		DreamwalkingAbility.clearAll(server);
-		ChronoStopAbility.clearAll();
 		InfernoAbility.clearAll();
 		SoulLinkAbility.clearAll();
 		SizeShiftAbility.clearAll();
@@ -141,7 +135,6 @@ public final class PowerAbilityRuntime {
 		LightningStrikeAbility.tickAll(server);
 		StarfallAbility.tickAll(server);
 		SuperSpeedAbility.tickAll(server);
-		SpaceTimeAbility.tickAll(server);
 		DreamwalkingAbility.tickAll(server);
 		SizeShiftAbility.tickAll(server);
 	}

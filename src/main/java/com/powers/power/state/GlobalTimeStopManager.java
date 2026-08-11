@@ -26,6 +26,8 @@ import java.util.UUID;
  * projectiles, block entities and scheduled ticks in every dimension.</p>
  */
 public final class GlobalTimeStopManager {
+	private enum Source { INNATE, CRYSTAL }
+
 	private static final net.minecraft.resources.Identifier POWER_ID = PowersMod.id("time_freeze");
 	private static final Map<MinecraftServer, Stop> ACTIVE = new IdentityHashMap<>();
 	private static final Set<MinecraftServer> INTERNAL_CLOCK_WRITES =
@@ -36,6 +38,17 @@ public final class GlobalTimeStopManager {
 
 	/** Attempts to claim and freeze the global server clock for this player. */
 	public static boolean start(ServerPlayer owner) {
+		return start(owner, Source.INNATE, Long.MAX_VALUE);
+	}
+
+	/** Claims the same global clock for a fixed-duration crystal rite. */
+	public static boolean startCrystal(ServerPlayer owner, int durationTicks) {
+		long deadline = owner.level().getServer().getTickCount()
+				+ Math.clamp(durationTicks, 1, 1_200);
+		return start(owner, Source.CRYSTAL, deadline);
+	}
+
+	private static boolean start(ServerPlayer owner, Source source, long deadline) {
 		MinecraftServer server = owner.level().getServer();
 		if (!GlobalTimeStopRules.mayStart(ACTIVE.containsKey(server),
 				server.tickRateManager().isFrozen())) {
@@ -43,12 +56,14 @@ public final class GlobalTimeStopManager {
 					"ability.powers.time_freeze.clock_owned"));
 			return false;
 		}
-		ACTIVE.put(server, new Stop(owner.getUUID()));
+		Stop stop = new Stop(owner.getUUID(), source, deadline);
+		ACTIVE.put(server, stop);
 		setFrozenOwned(server, true);
 		for (ServerPlayer observer : server.getPlayerList().getPlayers()) {
 			PowerMessages.overlay(observer, Component.translatable(
 					"ability.powers.time_freeze.global_begin", owner.getDisplayName()));
-			TimeStopFx.globalBegin((ServerLevel) observer.level(), observer.position());
+			TimeStopFx.globalBegin((ServerLevel) observer.level(), observer.position(),
+					stop.source == Source.CRYSTAL);
 		}
 		return true;
 	}
@@ -58,6 +73,21 @@ public final class GlobalTimeStopManager {
 		release(owner.level().getServer(), owner.getUUID(), true);
 	}
 
+	/** Releases only a crystal-owned stop; innate toggles retain their own authority. */
+	public static void stopCrystal(ServerPlayer owner) {
+		Stop stop = ACTIVE.get(owner.level().getServer());
+		if (stop != null && stop.source == Source.CRYSTAL) {
+			release(owner.level().getServer(), owner.getUUID(), true);
+		}
+	}
+
+	public static boolean isCrystalOwnedBy(ServerPlayer player) {
+		if (player == null) return false;
+		Stop stop = ACTIVE.get(player.level().getServer());
+		return stop != null && stop.source == Source.CRYSTAL
+				&& stop.owner().equals(player.getUUID());
+	}
+
 	/** Advances lifecycle checks and sparse cross-dimensional clock visuals. */
 	public static void tick(MinecraftServer server) {
 		Stop stop = ACTIVE.get(server);
@@ -65,10 +95,12 @@ public final class GlobalTimeStopManager {
 		ServerPlayer owner = server.getPlayerList().getPlayer(stop.owner());
 		boolean online = owner != null;
 		boolean alive = online && owner.isAlive();
-		boolean toggleActive = online && ToggleKeyRules.anyOwnsAbility(
-				PlayerPowers.get(owner).getActiveToggles(), POWER_ID);
+		boolean authorityActive = online && (stop.source == Source.CRYSTAL
+				? server.getTickCount() < stop.deadline
+				: ToggleKeyRules.anyOwnsAbility(
+						PlayerPowers.get(owner).getActiveToggles(), POWER_ID));
 		boolean dampened = online && AmethystDampening.isDampened(owner);
-		if (GlobalTimeStopRules.shouldRelease(online, alive, toggleActive, dampened,
+		if (GlobalTimeStopRules.shouldRelease(online, alive, authorityActive, dampened,
 				server.tickRateManager().isFrozen(), stop.externallyMutated)) {
 			release(server, stop.owner(), true);
 			return;
@@ -76,7 +108,7 @@ public final class GlobalTimeStopManager {
 		if (server.getTickCount() % 20 == 0) {
 			for (ServerPlayer observer : server.getPlayerList().getPlayers()) {
 				TimeStopFx.globalSustain((ServerLevel) observer.level(), observer.position(),
-						server.getTickCount());
+						server.getTickCount(), stop.source == Source.CRYSTAL);
 			}
 		}
 	}
@@ -128,7 +160,7 @@ public final class GlobalTimeStopManager {
 			setFrozenOwned(server, false);
 		}
 		ServerPlayer owner = server.getPlayerList().getPlayer(expectedOwner);
-		if (owner != null) {
+		if (owner != null && stop.source == Source.INNATE) {
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(owner);
 			for (String toggleKey : java.util.List.copyOf(data.getActiveToggles())) {
 				if (ToggleKeyRules.ownsAbility(toggleKey, POWER_ID)) {
@@ -140,7 +172,8 @@ public final class GlobalTimeStopManager {
 		for (ServerPlayer observer : server.getPlayerList().getPlayers()) {
 			PowerMessages.overlay(observer, Component.translatable(
 					"ability.powers.time_freeze.global_release"));
-			TimeStopFx.globalRelease((ServerLevel) observer.level(), observer.position());
+			TimeStopFx.globalRelease((ServerLevel) observer.level(), observer.position(),
+					stop.source == Source.CRYSTAL);
 		}
 	}
 
@@ -155,10 +188,14 @@ public final class GlobalTimeStopManager {
 
 	private static final class Stop {
 		private final UUID owner;
+		private final Source source;
+		private final long deadline;
 		private boolean externallyMutated;
 
-		private Stop(UUID owner) {
+		private Stop(UUID owner, Source source, long deadline) {
 			this.owner = owner;
+			this.source = source;
+			this.deadline = deadline;
 		}
 
 		private UUID owner() {

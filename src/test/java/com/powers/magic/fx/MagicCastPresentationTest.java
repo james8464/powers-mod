@@ -60,7 +60,7 @@ class MagicCastPresentationTest {
 		MagicActionCatalogue catalogue = MagicActionCatalogue.defaults();
 
 		int flight = profile(catalogue, "flight").intensity();
-		int spaceTime = profile(catalogue, "space_time").intensity();
+		int spaceTime = profile(catalogue, "chrono_stop").intensity();
 		int realmForce = profile(catalogue, "darkness_block").intensity();
 		assertTrue(flight < spaceTime);
 		assertTrue(spaceTime < realmForce);

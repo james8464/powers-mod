@@ -1,5 +1,11 @@
 package com.powers.power.state;
 
+import com.powers.fx.PowerFx;
+import com.powers.util.PowerMessages;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
@@ -49,6 +55,16 @@ public final class EntityFreezeController {
 
 	public static boolean isFrozen(Entity entity) {
 		return OWNERS.isClaimed(entity.getUUID());
+	}
+
+	/** Gives one concise semantic cue when a locally frozen player attempts an action. */
+	public static void reject(ServerPlayer player) {
+		if (player == null || !(player.level() instanceof ServerLevel level)) return;
+		Vec3 position = player.position().add(0.0, 1.0, 0.0);
+		PowerFx.burst(level, position, ParticleTypes.END_ROD, 12, 0.5, 0.2);
+		PowerFx.coloredBurst(level, position, 0xBFEFFF, 16, 0.6);
+		PowerFx.sound(level, position, SoundEvents.AMETHYST_BLOCK_CHIME, 0.7F, 1.6F);
+		PowerMessages.send(player, "ability.powers.frozen", 4);
 	}
 
 	/**

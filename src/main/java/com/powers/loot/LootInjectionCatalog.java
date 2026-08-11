@@ -63,6 +63,7 @@ public final class LootInjectionCatalog {
 						"imported_food_beet", "imported_food_beans", "imported_food_chickpeas", "imported_food_lentils",
 						"imported_food_bread_big", "imported_food_mungbean", "imported_food_uradbean",
 						"imported_food_redbeans", "imported_food_sweetpod", "imported_food_stew_sweetpod")));
+		groups.addAll(ImportedSurvivalCatalog.groups());
 		groups.addAll(WeaponLootCatalog.groups(PowersWeapons.ordinaryWeaponIds()));
 		return List.copyOf(groups);
 	}

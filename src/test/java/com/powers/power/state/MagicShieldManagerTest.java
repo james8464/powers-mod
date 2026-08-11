@@ -3,6 +3,7 @@ package com.powers.power.state;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -47,5 +48,16 @@ class MagicShieldManagerTest {
 
 		assertTrue(impact.blocked());
 		assertTrue(impact.reflective());
+	}
+
+	@Test
+	void activeOwnerSnapshotIsBoundedByActualShieldsAndDropsExpiredEntries() {
+		MagicShieldManager manager = new MagicShieldManager();
+		UUID live = UUID.randomUUID();
+		UUID expired = UUID.randomUUID();
+		manager.raise(live, 20.0F, 100);
+		manager.raise(expired, 20.0F, 5);
+
+		assertEquals(Set.of(live), manager.activeOwners(5));
 	}
 }

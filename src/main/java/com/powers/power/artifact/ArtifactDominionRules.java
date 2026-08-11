@@ -12,13 +12,6 @@ public final class ArtifactDominionRules {
 	private ArtifactDominionRules() {
 	}
 
-	public static float decreeDamage(ArtifactAlignment alignment, float maximumHealth,
-			boolean playerTarget, int rank) {
-		float percent = alignment == ArtifactAlignment.DARKNESS ? 0.22F : 0.18F;
-		float raw = Math.max(0.0F, maximumHealth) * percent + Math.clamp(rank, 0, 10) * 2.0F;
-		return Math.min(playerTarget ? 400.0F : 2000.0F, raw);
-	}
-
 	public static boolean mayStartField(int activeFields, boolean replacingOwnerField) {
 		return replacingOwnerField || activeFields < MAX_FIELDS;
 	}

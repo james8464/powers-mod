@@ -6,6 +6,15 @@
 			"entries": [
 				{
 					"type": "minecraft:item",
+					"name": "powers:imported_device_miniportal"
+				}
+			]
+		},
+		{
+			"rolls": 1,
+			"entries": [
+				{
+					"type": "minecraft:item",
 					"name": "minecraft:nether_star"
 				}
 			]

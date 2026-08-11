@@ -7,6 +7,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
+import com.mojang.serialization.Codec;
 
 /** Registers hidden, persistent item-stack identity used by mythic artifacts. */
 public final class PowersDataComponents {
@@ -22,6 +23,10 @@ public final class PowersDataComponents {
 			BuiltInRegistries.DATA_COMPONENT_TYPE, PowersMod.id("travel_anchor"),
 			DataComponentType.<TravelAnchorData>builder().persistent(TravelAnchorData.CODEC)
 					.networkSynchronized(ByteBufCodecs.fromCodecWithRegistries(TravelAnchorData.CODEC)).build());
+	public static final DataComponentType<Integer> MINIPORTAL_CHARGES = Registry.register(
+			BuiltInRegistries.DATA_COMPONENT_TYPE, PowersMod.id("miniportal_charges"),
+			DataComponentType.<Integer>builder().persistent(Codec.intRange(0, 2))
+					.networkSynchronized(ByteBufCodecs.VAR_INT).build());
 
 	private PowersDataComponents() {
 	}

@@ -24,8 +24,6 @@ public record PowersConfig(
 		int wardRadius,
 		int maxParticlesPerTick,
 		int teleportMaxChunkDistance,
-		int spaceTimeRadius,
-		int chronoStopRadius,
 		int rankRespecExperienceLevels,
 		int adminPermissionLevel,
 		List<SafeZone> safeZones,
@@ -99,7 +97,7 @@ public record PowersConfig(
 	public static PowersConfig defaults() {
 		return new PowersConfig(CURRENT_SCHEMA_VERSION, true, false, false, false,
 				true, true, true, true, true, true, true, true, true,
-				20, 512, 8, 32, 64, 30, 2, List.of(), LivingForces.defaults(),
+				20, 512, 8, 30, 2, List.of(), LivingForces.defaults(),
 				DialogueProvider.defaults());
 	}
 
@@ -116,8 +114,6 @@ public record PowersConfig(
 				Math.max(1, Math.min(64, wardRadius)),
 				Math.max(32, Math.min(16_384, maxParticlesPerTick)),
 				Math.max(1, Math.min(128, teleportMaxChunkDistance)),
-				Math.max(4, Math.min(128, spaceTimeRadius)),
-				Math.max(4, Math.min(256, chronoStopRadius)),
 				Math.max(0, Math.min(1000, rankRespecExperienceLevels)),
 				Math.max(0, Math.min(4, adminPermissionLevel)), List.copyOf(zones),
 				(livingForces == null ? LivingForces.defaults() : livingForces).sanitized(),

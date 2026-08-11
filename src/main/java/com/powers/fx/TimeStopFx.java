@@ -73,35 +73,39 @@ public final class TimeStopFx {
 	 * high fractured halo make the global scope readable without filling the
 	 * camera with dense particles.
 	 */
-	public static void globalBegin(ServerLevel level, Vec3 observer) {
+	public static void globalBegin(ServerLevel level, Vec3 observer, boolean crystal) {
+		int color = crystal ? CRYSTAL_BLUE : TOGGLE_CYAN;
 		PowerFx.ring(level, observer.add(0.0, 0.08, 0.0), 5.0,
-				TOGGLE_CYAN, 32, 0.0);
+				color, crystal ? 44 : 32, 0.0);
 		PowerFx.rune(level, observer.add(0.0, 10.0, 0.0), 8.0,
 				FROZEN_WHITE, 40, Math.PI / 12.0);
 		PowerFx.spiral(level, observer.add(0.0, 0.2, 0.0), 1.0,
-				8.0, TOGGLE_CYAN, 18, 0.0);
+				8.0, color, crystal ? 28 : 18, 0.0);
 		PowerFx.sound(level, observer, PowersSounds.TIME_SUSPEND, 1.0F, 0.72F);
 		PowerFx.sound(level, observer, SoundEvents.BEACON_ACTIVATE, 0.6F, 1.65F);
 	}
 
 	/** Sparse once-per-second clock pulses visible to observers in every dimension. */
-	public static void globalSustain(ServerLevel level, Vec3 observer, long tick) {
+	public static void globalSustain(ServerLevel level, Vec3 observer, long tick,
+			boolean crystal) {
+		int color = crystal ? CRYSTAL_BLUE : TOGGLE_CYAN;
 		double phase = tick * 0.035;
 		PowerFx.ring(level, observer.add(0.0, 9.0, 0.0), 8.0,
 				FROZEN_WHITE, 32, phase);
 		PowerFx.ring(level, observer.add(0.0, 0.08, 0.0), 4.0,
-				TOGGLE_CYAN, 24, -phase * 1.7);
+				color, crystal ? 34 : 24, -phase * 1.7);
 		PowerFx.clarityBurst(level, observer.add(0.0, 6.0, 0.0),
 				PowersParticles.FRACTURE, 5, 1.6, 0.01);
 		PowerFx.sound(level, observer, PowersSounds.RUNE_HUM, 0.26F, 0.58F);
 	}
 
 	/** Reverses the global clock around each observer when ordinary time resumes. */
-	public static void globalRelease(ServerLevel level, Vec3 observer) {
+	public static void globalRelease(ServerLevel level, Vec3 observer, boolean crystal) {
+		int color = crystal ? CRYSTAL_BLUE : TOGGLE_CYAN;
 		PowerFx.ring(level, observer.add(0.0, 0.08, 0.0), 6.0,
 				FROZEN_WHITE, 36, Math.PI);
 		PowerFx.rune(level, observer.add(0.0, 8.0, 0.0), 6.0,
-				TOGGLE_CYAN, 32, -Math.PI / 9.0);
+				color, crystal ? 42 : 32, -Math.PI / 9.0);
 		PowerFx.clarityBurst(level, observer.add(0.0, 1.0, 0.0),
 				PowersParticles.FRACTURE, 12, 1.2, 0.08);
 		PowerFx.sound(level, observer, PowersSounds.TIME_RELEASE, 0.86F, 1.22F);

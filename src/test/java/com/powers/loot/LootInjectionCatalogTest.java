@@ -1,6 +1,8 @@
 package com.powers.loot;
 
 import com.powers.PowersWeapons;
+import com.powers.ImportedPackItems;
+import com.powers.ImportedItemRules;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -30,6 +32,11 @@ class LootInjectionCatalogTest {
 		assertTrue(obtainable.contains("imported_magic_essence_soul_dust"));
 		for (String weapon : PowersWeapons.ordinaryWeaponIds()) {
 			assertTrue(obtainable.contains("powers:" + weapon), weapon);
+		}
+		for (String imported : ImportedPackItems.importedIds()) {
+			if (!ImportedItemRules.isLegacyAssetLayer(imported)) {
+				assertTrue(obtainable.contains(imported), imported);
+			}
 		}
 		assertTrue(obtainable.stream().noneMatch("powers:lycanbane"::equals));
 		assertTrue(obtainable.stream().noneMatch("powers:heavenly_partisan"::equals));

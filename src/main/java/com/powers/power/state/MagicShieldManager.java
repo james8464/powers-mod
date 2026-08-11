@@ -2,6 +2,7 @@ package com.powers.power.state;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -67,6 +68,15 @@ public final class MagicShieldManager {
 		int before = shields.size();
 		shields.entrySet().removeIf(entry -> currentTick >= entry.getValue().expiresAt());
 		return before - shields.size();
+	}
+
+	/**
+	 * Returns a stable server-thread snapshot for ambience and diagnostics. This
+	 * keeps shield work proportional to raised wards instead of online players.
+	 */
+	public Set<UUID> activeOwners(long currentTick) {
+		expire(currentTick);
+		return Set.copyOf(shields.keySet());
 	}
 
 	/** Clears every shield at server shutdown. */

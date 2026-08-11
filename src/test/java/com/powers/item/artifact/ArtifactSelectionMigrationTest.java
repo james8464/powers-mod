@@ -59,4 +59,14 @@ class ArtifactSelectionMigrationTest {
 		assertEquals("innate/lightning_strike", ArtifactSelectionMigration.migrate(
 				ArtifactAlignment.DARKNESS, "removed/by_another_mod", 10));
 	}
+
+	@Test
+	void retiredPartisanRitesMigrateToTheirNearestCuratedSuccessors() {
+		assertEquals("innate/flight", ArtifactSelectionMigration.migrate(
+				ArtifactAlignment.LIGHT, "dominion/dawnstride", 10));
+		assertEquals("dominion/consecrate_ground", ArtifactSelectionMigration.migrate(
+				ArtifactAlignment.LIGHT, "dominion/banish_darkness", 10));
+		assertEquals("dominion/daybreak_wave", ArtifactSelectionMigration.migrate(
+				ArtifactAlignment.LIGHT, "dominion/divine_decree", 10));
+	}
 }

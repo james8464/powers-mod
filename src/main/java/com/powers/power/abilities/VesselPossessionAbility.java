@@ -1,6 +1,9 @@
 package com.powers.power.abilities;
 
 import com.powers.PowersMod;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
 import com.powers.mind.ParticipantPowerLock;
@@ -10,6 +13,9 @@ import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.MagicUseGate;
 import com.powers.power.PowerTargeting;
+import com.powers.power.Power;
+import com.powers.power.travel.SafeDestinationResolver;
+import com.powers.power.travel.TravelKind;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import com.powers.network.VesselControlPackets;
@@ -21,6 +27,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
@@ -28,19 +35,21 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Vessel Possession watches through a consenting player or suitable mob for
- * 10 seconds while the caster's vulnerable body remains behind.
+ * Vessel Possession controls a consenting player or suitable mob for a
+ * bounded interval while the caster's vulnerable body remains behind.
  */
 public class VesselPossessionAbility extends Ability {
+	private static final net.minecraft.resources.Identifier POWER_ID = PowersMod.id("vessel_possession");
 	// 10 seconds of possession
 	private static final int POSSESS_TICKS = 200;
 	private record Possession(UUID sessionId, ServerPlayer owner, LivingEntity target,
-			boolean targetOriginallyNoAi, long endsAt) {}
+			boolean targetOriginallyNoAi, PossessionRules.SessionKind kind,
+			CastSource castSource, long endsAt) {}
 	// one possession per owner uuid, cleaned up on disconnect and server stop so it can't leak
 	private static final Map<UUID, Possession> POSSESSING = new HashMap<>();
 
 	public VesselPossessionAbility() {
-		super(PowersMod.id("vessel_possession"),
+		super(POWER_ID,
 				Component.translatable("ability.powers.vessel_possession"),
 				600, false);
 	}
@@ -65,46 +74,87 @@ public class VesselPossessionAbility extends Ability {
 			PowerMessages.send(player, "amethyst.powers.target_protected", 4);
 			return false;
 		}
-		if (target instanceof ServerPlayer targetPlayer && !PossessionRules.rankAllows(
-				SkillSystem.effectiveLevel(player), SkillSystem.effectiveLevel(targetPlayer))) {
+		if (!rankAllowsControl(player, target, PossessionRules.SessionKind.POSSESSION)) {
 			PowerMessages.overlay(player, Component.translatable("ability.powers.possession_higher_rank"));
 			return false;
 		}
-		if (!mayPossess(player, target)) {
+		if (!mayControl(player, target, PossessionRules.SessionKind.POSSESSION)) {
 			if (target instanceof ServerPlayer targetPlayer) {
 				PowerMessages.sendImportant(player, "powers.packet.consent_denied", 1,
 						targetPlayer.getName().getString());
 			}
 			return false;
 		}
+		return beginControlledSession(player, target, scaledDuration(player, POSSESS_TICKS),
+				PossessionRules.SessionKind.POSSESSION, CastScalingContext.currentSource());
+	}
+
+	/** Starts the Blue Crystal's bounded full-control Dreamwalking session. */
+	public static boolean beginDreamwalk(ServerPlayer player, LivingEntity target,
+			int durationTicks, CastSource castSource) {
+		return beginControlledSession(player, target, durationTicks,
+				PossessionRules.SessionKind.DREAMWALK, castSource);
+	}
+
+	private static boolean beginControlledSession(ServerPlayer player, LivingEntity target,
+			int durationTicks, PossessionRules.SessionKind kind, CastSource castSource) {
+		if (player == null || target == null || kind == null || castSource == null
+				|| POSSESSING.containsKey(player.getUUID())) return false;
+		PossessionRules.TargetKind targetKind = target instanceof ServerPlayer
+				? PossessionRules.TargetKind.PLAYER
+				: target instanceof Mob ? PossessionRules.TargetKind.MOB : PossessionRules.TargetKind.OTHER;
+		if (!PossessionRules.isSuitable(targetKind, target == player, target.isAlive(),
+				target.isRemoved(), BodyProxyManager.isProxy(target))
+				|| AmethystDampening.isDampened(target)
+				|| !rankAllowsControl(player, target, kind) || !mayControl(player, target, kind)) return false;
+
+		ServerLevel sourceLevel = (ServerLevel) player.level();
+		ServerLevel targetLevel = (ServerLevel) target.level();
+		boolean crossDimension = sourceLevel != targetLevel;
+		if (crossDimension && (!PossessionRules.allowsCrossDimension(kind)
+				|| !SafeDestinationResolver.validatePreload(player, targetLevel,
+						target.position(), TravelKind.PROJECTION).allowed()
+				|| !SafeDestinationResolver.validate(player, targetLevel,
+						target.position(), TravelKind.PROJECTION).allowed())) return false;
+
 		UUID sessionId = UUID.randomUUID();
+		Vec3 bodyPosition = player.position();
 		if (!ParticipantPowerLock.acquire(sessionId, java.util.List.of(
 				player.getUUID(), target.getUUID()))) return false;
-		if (!BodyProxyManager.start(player, BodyProxyKind.POSSESSION)) {
+		BodyProxyKind bodyKind = kind == PossessionRules.SessionKind.DREAMWALK
+				? BodyProxyKind.DREAMWALK : BodyProxyKind.POSSESSION;
+		if (!BodyProxyManager.start(player, bodyKind)) {
 			ParticipantPowerLock.release(sessionId);
 			return false;
 		}
+		if (crossDimension) {
+			player.teleport(new TeleportTransition(targetLevel, target.position(), Vec3.ZERO,
+					target.getYRot(), target.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+			if (player.level() != targetLevel) {
+				ParticipantPowerLock.release(sessionId);
+				BodyProxyManager.returnToBody(player);
+				return false;
+			}
+		}
 
-		MinecraftServer server = ((ServerLevel) player.level()).getServer();
+		MinecraftServer server = targetLevel.getServer();
 		boolean targetOriginallyNoAi = target instanceof Mob mob && mob.isNoAi();
 		if (target instanceof Mob mob) mob.setNoAi(true);
 		POSSESSING.put(player.getUUID(), new Possession(sessionId, player, target,
-				targetOriginallyNoAi,
-				server.getTickCount() + PossessionRules.durationTicks(
-						scaledDuration(player, POSSESS_TICKS))));
-		// watch the world through the target's eyes
+				targetOriginallyNoAi, kind, castSource,
+				server.getTickCount() + PossessionRules.durationTicks(durationTicks)));
 		player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
 		player.setCamera(target);
 		VesselControlPackets.sendState(player, true);
-		ServerLevel level = (ServerLevel) player.level();
-		com.powers.fx.PowerFx.beam(level, player.getEyePosition(), target.getEyePosition(),
-				com.powers.fx.PowerFx.dust(0xBCA7FF, 0.9F), 14);
-		com.powers.fx.PowerFx.burst(level, target.position().add(0, 1, 0),
+		com.powers.fx.PowerFx.beam(targetLevel, player.getEyePosition(), target.getEyePosition(),
+				com.powers.fx.PowerFx.dust(kind == PossessionRules.SessionKind.DREAMWALK
+						? 0x7986CB : 0xBCA7FF, 0.9F), 14);
+		com.powers.fx.PowerFx.burst(targetLevel, target.position().add(0, 1, 0),
 				net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL, 18, 0.5, 0.01);
-		com.powers.fx.PowerFx.sound(level, target.position(),
+		com.powers.fx.PowerFx.sound(targetLevel, target.position(),
 				net.minecraft.sounds.SoundEvents.ENCHANTMENT_TABLE_USE, 0.8f, 0.6f);
-		com.powers.fx.PowerFx.rune(level, player.position(), 1.5, 0xC27CFF, 22, 0.0);
-		com.powers.fx.PowerFx.rune(level, target.position(), 1.5, 0x8FE9FF, 22, Math.PI);
+		com.powers.fx.PowerFx.rune(sourceLevel, bodyPosition, 1.5, 0xC27CFF, 22, 0.0);
+		com.powers.fx.PowerFx.rune(targetLevel, target.position(), 1.5, 0x8FE9FF, 22, Math.PI);
 		return true;
 	}
 
@@ -125,7 +175,9 @@ public class VesselPossessionAbility extends Ability {
 					|| !targetAvailable || now >= possession.endsAt()
 					|| !PossessionRules.sessionLocationValid(ownerIsCurrent, sameDimension)
 					|| AmethystDampening.isDampened(possession.target())
-					|| !mayPossess(possession.owner(), possession.target())) {
+					|| !rankAllowsControl(possession.owner(), possession.target(), possession.kind())
+					|| !mayControl(possession.owner(), possession.target(), possession.kind())
+					|| !ServerCastLifecycle.mayContinue(owner, possession.castSource(), ownsPower(owner))) {
 				// reset the owner's camera before dropping the possession
 				end(possession, owner);
 				it.remove();
@@ -163,6 +215,21 @@ public class VesselPossessionAbility extends Ability {
 		return false;
 	}
 
+	/** True only while the player owns a Blue Crystal control session. */
+	public static boolean isDreamwalking(UUID playerId) {
+		Possession possession = playerId == null ? null : POSSESSING.get(playerId);
+		return possession != null && possession.kind() == PossessionRules.SessionKind.DREAMWALK;
+	}
+
+	/** Ends a Blue Crystal control session without disturbing ordinary possession. */
+	public static boolean stopDreamwalking(ServerPlayer owner) {
+		Possession possession = owner == null ? null : POSSESSING.get(owner.getUUID());
+		if (possession == null || possession.kind() != PossessionRules.SessionKind.DREAMWALK) return false;
+		POSSESSING.remove(owner.getUUID());
+		end(possession, owner);
+		return true;
+	}
+
 	/** Applies one rate-limited input frame to the exact server-owned host. */
 	public static void applyControl(ServerPlayer owner, VesselControlPackets.InputPayload input) {
 		Possession possession = owner == null ? null : POSSESSING.get(owner.getUUID());
@@ -194,10 +261,33 @@ public class VesselPossessionAbility extends Ability {
 		else host.doHurtTarget((ServerLevel) host.level(), victim);
 	}
 
-	private static boolean mayPossess(ServerPlayer owner, LivingEntity target) {
+	private static boolean mayControl(ServerPlayer owner, LivingEntity target,
+			PossessionRules.SessionKind kind) {
+		if (PossessionRules.usesDreamwalkProtection(kind)) {
+			return target instanceof ServerPlayer playerTarget
+					? PowerProtection.mayDreamwalk(owner, playerTarget)
+					: PowerProtection.mayDreamwalk(owner, target);
+		}
 		return target instanceof ServerPlayer playerTarget
 				? PowerProtection.mayPossess(owner, playerTarget)
 				: PowerProtection.mayPossess(owner, target);
+	}
+
+	private static boolean rankAllowsControl(ServerPlayer owner, LivingEntity target,
+			PossessionRules.SessionKind kind) {
+		return !PossessionRules.requiresRankCheck(kind) || !(target instanceof ServerPlayer playerTarget)
+				|| PossessionRules.rankAllows(
+						SkillSystem.effectiveLevel(owner), SkillSystem.effectiveLevel(playerTarget));
+	}
+
+	private static boolean ownsPower(ServerPlayer player) {
+		if (player == null) return false;
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
+			Power power = data.getPower(slot);
+			if (power != null && POWER_ID.equals(power.id())) return true;
+		}
+		return false;
 	}
 
 	public static void clearAll() {
