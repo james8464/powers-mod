@@ -111,7 +111,8 @@ public final class PowerCommand {
 								.executes(PowerCommand::spawnFirstVessel)))
 				.then(Commands.literal("diagnose")
 						.requires(PowerCommand::isAdmin)
-						.executes(PowerDiagnosticsCommand::run))
+						.executes(PowerDiagnosticsCommand::run)
+						.then(Commands.literal("export").executes(PowerDiagnosticsCommand::export)))
 				.then(Commands.literal("ruin")
 						.requires(PowerCommand::isAdmin)
 							.then(Commands.literal("preview").executes(CelestialRuinCommand::preview))
@@ -260,7 +261,9 @@ public final class PowerCommand {
 				com.powers.network.PowersPackets.syncTo(player);
 			}
 		}
-		context.getSource().sendSuccess(() -> Component.literal("Reloaded POWERS configuration."), true);
+		String validation = PowersConfigLoader.validationReport().summary();
+		context.getSource().sendSuccess(() -> Component.literal(
+				"Reloaded POWERS configuration; validation " + validation + "."), true);
 		return 1;
 	}
 
