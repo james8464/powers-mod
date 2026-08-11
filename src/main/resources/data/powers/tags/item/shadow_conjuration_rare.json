@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:ancient_debris",
+    "minecraft:enchanted_golden_apple",
+    "minecraft:nether_star",
+    "minecraft:netherite_ingot",
+    "minecraft:totem_of_undying"
+  ]
+}

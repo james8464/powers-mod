@@ -17,6 +17,7 @@ import com.powers.util.LoadedChunks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -102,6 +103,7 @@ public final class PrivateCompanionManager {
 			rememberFailure(player, taskState.reason());
 			replyAndRemember(player, "", DIALOGUE.failure(taskState.reason()));
 		}
+		if (ShadowConjurationManager.active(ownerId)) tickConjuration(player, session);
 		boolean teleported = ShadowCompanionStore.get(player).stance() == ShadowStance.FOLLOW
 				&& followOwner(player, session);
 		syncApparition(player, session, teleported);
@@ -175,7 +177,12 @@ public final class PrivateCompanionManager {
 
 	private static void stop(ServerPlayer owner, ShadowRequest request) {
 		Session session = SESSIONS.get(owner.getUUID());
-		if (session != null) session.tasks.cancel("owner_stop");
+		if (session != null) {
+			session.tasks.cancel("owner_stop");
+			if (ShadowConjurationManager.active(owner.getUUID())) {
+				ShadowConjurationManager.interrupt(owner, session.body, "owner_stop");
+			}
+		}
 		ShadowCompanionStore.update(owner, state -> state.withStance(ShadowStance.FOLLOW));
 		replyAndRemember(owner, request.original(), DIALOGUE.accepted(request));
 	}
@@ -198,14 +205,75 @@ public final class PrivateCompanionManager {
 		ShadowCompanionStore.update(owner, state -> state.withStance(ShadowStance.TASK)
 				.withMemory(rememberReferent(state.memory(), request)));
 		replyAndRemember(owner, request.original(), DIALOGUE.accepted(request));
+		if (request.kind() == ShadowRequest.Kind.CONJURE_ITEM) {
+			executeConjuration(owner, session, request);
+		} else if (request.kind() == ShadowRequest.Kind.GET_ITEM) {
+			executeRetrieval(owner, session, request);
+		}
 	}
 
 	private static long taskLifetime(ShadowRequest.Kind kind) {
 		return switch (kind) {
 			case ATTACK, DEFEND -> 20L * 60L * 5L;
+			case CONJURE_ITEM -> ShadowConjurationRules.DARK_CRYSTAL_CHANNEL_TICKS + 200L;
 			case SCOUT, GET_ITEM -> 20L * 60L;
 			default -> 20L * 20L;
 		};
+	}
+
+	private static void executeConjuration(ServerPlayer owner, Session session,
+			ShadowRequest request) {
+		Identifier id = Identifier.tryParse(request.subject());
+		if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) {
+			finishTask(owner, session, false, "unknown_item");
+			return;
+		}
+		ShadowConjurationManager.Outcome outcome = ShadowConjurationManager.begin(owner,
+				session.body, BuiltInRegistries.ITEM.getValue(id), request.count());
+		if (!outcome.accepted()) {
+			finishTask(owner, session, false, outcome.reason());
+		} else if (!outcome.pending()) {
+			finishTask(owner, session, true, outcome.reason());
+		}
+	}
+
+	private static void executeRetrieval(ServerPlayer owner, Session session,
+			ShadowRequest request) {
+		Identifier id = Identifier.tryParse(request.subject());
+		if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) {
+			finishTask(owner, session, false, "unknown_item");
+			return;
+		}
+		var found = ShadowItemRetrieval.find((ServerLevel) session.body.level(),
+				session.body.position(), BuiltInRegistries.ITEM.getValue(id),
+				request.count(), owner.getUUID());
+		if (found.isEmpty()) {
+			finishTask(owner, session, false, "item_not_found_within_32_blocks");
+			return;
+		}
+		ShadowItemRetrieval.deliver(owner, found.get(), request.count());
+		finishTask(owner, session, true, "item_retrieved");
+	}
+
+	private static void tickConjuration(ServerPlayer owner, Session session) {
+		ShadowConjurationManager.Outcome outcome = ShadowConjurationManager.tick(owner, session.body);
+		if (outcome.pending()) return;
+		finishTask(owner, session, outcome.accepted(), outcome.reason());
+	}
+
+	private static void finishTask(ServerPlayer owner, Session session,
+			boolean success, String reason) {
+		ShadowTask.Result result = success ? session.tasks.complete(reason) : session.tasks.fail(reason);
+		ShadowCompanionStore.update(owner, state -> state.withStance(ShadowStance.FOLLOW)
+				.withMemory(success ? state.memory()
+						: state.memory().rememberFailure(reason)));
+		String line = success ? switch (reason) {
+			case "conjured" -> "It is shaped and delivered. Remember whose dark answered you.";
+			case "dark_crystal_conjured" -> "The Dark Crystal is yours. The abyss now knows your hand.";
+			case "item_retrieved" -> "I found the dropped item and placed it in your keeping.";
+			default -> "The task is complete.";
+		} : DIALOGUE.failure(result.reason());
+		replyAndRemember(owner, "", line);
 	}
 
 	/** G-key compatibility: summon or dismiss without creating a chat message. */
@@ -248,8 +316,7 @@ public final class PrivateCompanionManager {
 		}
 		BODY_OWNERS.put(body.getUUID(), owner.getUUID());
 		ShadowCompanionEntity resolved = body;
-		ShadowCompanionStore.update(owner, current -> current.withBodyId(resolved.getUUID())
-				.withStance(ShadowStance.FOLLOW));
+		ShadowCompanionStore.update(owner, current -> current.withBodyId(resolved.getUUID()));
 		return body;
 	}
 
@@ -364,6 +431,7 @@ public final class PrivateCompanionManager {
 				MagicLifecycleRules.Event.AVATAR_FATAL).outcome()
 				!= MagicLifecycleRules.Outcome.DISMISS_SHADOW) return false;
 		BODY_OWNERS.remove(body.getUUID());
+		ShadowConjurationManager.abandon(ownerId);
 		Session session = SESSIONS.remove(ownerId);
 		REQUESTED.remove(ownerId);
 		REVEALED.remove(ownerId);
@@ -384,6 +452,7 @@ public final class PrivateCompanionManager {
 		SESSIONS.remove(owner.getUUID(), session);
 		removeClientViewers(owner, session);
 		if (session.body != null) BODY_OWNERS.remove(session.body.getUUID());
+		ShadowConjurationManager.abandon(owner.getUUID());
 		ShadowCompanionStore.set(owner, ShadowManifestationRules.afterDeath(
 				ShadowCompanionStore.get(owner), owner.level().getGameTime()));
 		collapse((ServerLevel) owner.level(), position);
@@ -517,6 +586,9 @@ public final class PrivateCompanionManager {
 		}
 		removeClientViewers(owner, removed);
 		if (removed.body != null) {
+			if (ShadowConjurationManager.active(owner.getUUID())) {
+				ShadowConjurationManager.interrupt(owner, removed.body, "source_lost");
+			}
 			BODY_OWNERS.remove(removed.body.getUUID());
 			ShadowCompanionStore.update(owner, state -> state.withEnergy(removed.body.energy())
 					.withRevealed(false).withoutBody());
@@ -525,13 +597,21 @@ public final class PrivateCompanionManager {
 	}
 
 	public static void clear() {
-		for (Session session : List.copyOf(SESSIONS.values())) {
+		for (Map.Entry<UUID, Session> entry : Map.copyOf(SESSIONS).entrySet()) {
+			Session session = entry.getValue();
+			if (session.body != null && ShadowConjurationManager.active(entry.getKey())) {
+				ServerPlayer owner = session.body.level().getServer().getPlayerList()
+						.getPlayer(entry.getKey());
+				if (owner != null) ShadowConjurationManager.interrupt(owner, session.body,
+						"server_stopping");
+			}
 			if (session.body != null && !session.body.isRemoved()) session.body.discard();
 		}
 		REQUESTED.clear();
 		REVEALED.clear();
 		SESSIONS.clear();
 		BODY_OWNERS.clear();
+		ShadowConjurationManager.clear();
 		nameResolver = null;
 		com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
 		com.powers.knowledge.MagicAttemptJournal.global().clear();
