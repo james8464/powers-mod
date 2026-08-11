@@ -6,20 +6,24 @@ import net.minecraft.world.entity.LivingEntity;
 import java.util.UUID;
 
 /** Immutable target captured when a ritual begins, so channel completion cannot jump aim. */
-record SpellTarget(UUID entityId, BlockPos blockPos, boolean available) {
+record SpellTarget(UUID entityId, BlockPos blockPos, SpellFieldManager.DispelTarget field, boolean available) {
 	static SpellTarget none() {
-		return new SpellTarget(null, null, true);
+		return new SpellTarget(null, null, null, true);
 	}
 
 	static SpellTarget missing() {
-		return new SpellTarget(null, null, false);
+		return new SpellTarget(null, null, null, false);
 	}
 
 	static SpellTarget entity(LivingEntity target) {
-		return target == null ? missing() : new SpellTarget(target.getUUID(), null, true);
+		return target == null ? missing() : new SpellTarget(target.getUUID(), null, null, true);
 	}
 
 	static SpellTarget block(BlockPos target) {
-		return target == null ? missing() : new SpellTarget(null, target.immutable(), true);
+		return target == null ? missing() : new SpellTarget(null, target.immutable(), null, true);
+	}
+
+	static SpellTarget dispel(LivingEntity entity, SpellFieldManager.DispelTarget field) {
+		return new SpellTarget(entity == null ? null : entity.getUUID(), null, field, entity != null || field != null);
 	}
 }

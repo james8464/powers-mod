@@ -884,6 +884,7 @@
 	"spell.powers.grave_recall.none": "No death memory has been written for you yet.",
 	"spell.powers.grave_recall.dimension": "Last death dimension: %s",
 	"spell.powers.grave_recall.coordinates": "Last death coordinates: %s, %s, %s",
+	"spell.powers.grave_recall.bearing": "Compass bearing: %s",
 	"spell.powers.verdant_tending.changed": "Verdant Tending renewed %s blocks.",
 	"spell.powers.hearth_sanctuary.raised": "Hearth Sanctuary raised %s independent forcefields.",
 	"shadow.powers.failure_hint": "Shadow remembers the exact cause. Ask: shadow, why didn't that work?",

@@ -28,4 +28,13 @@ class SpellTargetRulesTest {
 		assertTrue(SpellTargetRules.mayPurify(false, true));
 		assertFalse(SpellTargetRules.mayPurify(false, false));
 	}
+
+	@Test
+	void dispelReleaseRevalidatesTheExactInspectedField() {
+		assertTrue(SpellTargetRules.dispelFieldRemainsValid(true, true, 100, 101, 16.0, 4.0));
+		assertFalse(SpellTargetRules.dispelFieldRemainsValid(false, true, 100, 101, 1.0, 4.0));
+		assertFalse(SpellTargetRules.dispelFieldRemainsValid(true, false, 100, 101, 1.0, 4.0));
+		assertFalse(SpellTargetRules.dispelFieldRemainsValid(true, true, 100, 100, 1.0, 4.0));
+		assertFalse(SpellTargetRules.dispelFieldRemainsValid(true, true, 100, 101, 17.0, 4.0));
+	}
 }

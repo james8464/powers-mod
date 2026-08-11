@@ -1,10 +1,12 @@
 package com.powers.player;
 
 import com.mojang.serialization.JsonOps;
+import com.google.gson.JsonParser;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LastDeathRecordTest {
 	@Test
@@ -12,6 +14,17 @@ class LastDeathRecordTest {
 		LastDeathRecord original = new LastDeathRecord("minecraft:the_nether", -13, 64, 209);
 		var encoded = LastDeathRecord.CODEC.encodeStart(JsonOps.INSTANCE, original).getOrThrow();
 		assertEquals(original, LastDeathRecord.CODEC.parse(JsonOps.INSTANCE, encoded).getOrThrow());
+	}
+
+	@Test
+	void codecPreservesRecordedTickUsedForExpiry() {
+		var encoded = JsonParser.parseString("""
+				{"dimension":"minecraft:overworld","x":1,"y":64,"z":2,"recorded_at":1200}
+				""");
+		LastDeathRecord decoded = LastDeathRecord.CODEC.parse(JsonOps.INSTANCE, encoded).getOrThrow();
+		var roundTrip = LastDeathRecord.CODEC.encodeStart(JsonOps.INSTANCE, decoded).getOrThrow();
+		assertTrue(roundTrip.getAsJsonObject().has("recorded_at"));
+		assertEquals(1200L, roundTrip.getAsJsonObject().get("recorded_at").getAsLong());
 	}
 
 	@Test
