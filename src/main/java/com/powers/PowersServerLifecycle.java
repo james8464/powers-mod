@@ -163,7 +163,6 @@ final class PowersServerLifecycle {
 		PhysicalMagicPresences.clear();
 		ConsentOverrideRuntime.clear();
 		OperatorAudit.clear();
-		com.powers.command.PermissionNodes.clear();
 		com.powers.knowledge.MagicAttemptJournal.global().clear();
 		com.powers.player.PlayerEnergyHistory.clear();
 		PersistentDimensionDiagnostics.clear();

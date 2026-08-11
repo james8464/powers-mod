@@ -23,6 +23,7 @@ import java.util.Set;
  * @param signature audiovisual identity
  * @param significance authored generic-presentation scale
  * @param genericCeremony whether the generic presentation is still required
+ * @param targetContract supported entity target/fallback contract
  */
 public record MagicActionDefinition(
 		MagicActionId id,
@@ -39,7 +40,8 @@ public record MagicActionDefinition(
 		int priority,
 		MagicSignature signature,
 		MagicSignificance significance,
-		boolean genericCeremony) {
+		boolean genericCeremony,
+		ActionTargetContract targetContract) {
 	/** Copies collections and rejects invalid registry data immediately. */
 	public MagicActionDefinition {
 		Objects.requireNonNull(id, "id");
@@ -49,6 +51,7 @@ public record MagicActionDefinition(
 		Objects.requireNonNull(intent, "intent");
 		Objects.requireNonNull(signature, "signature");
 		Objects.requireNonNull(significance, "significance");
+		Objects.requireNonNull(targetContract, "targetContract");
 		if (aspects.isEmpty()) {
 			throw new IllegalArgumentException("Magic action requires an aspect: " + id);
 		}
@@ -61,6 +64,7 @@ public record MagicActionDefinition(
 
 	/** Returns whether all required mechanical and presentation data is present. */
 	public boolean isComplete() {
-		return !aspects.isEmpty() && signature.isComplete() && significance != null;
+		return !aspects.isEmpty() && signature.isComplete() && significance != null
+				&& targetContract != null;
 	}
 }

@@ -229,7 +229,24 @@ public final class MagicActionCatalogue {
 				basePotency(origin, intent), baseRange(delivery), baseDuration(delivery), baseEnergy(origin, intent),
 				baseCooldown(origin, delivery), residueTicks(delivery), basePriority(origin),
 				new MagicSignature(primary, secondary, id.hashCode(), motif(first), sound(origin, first)),
-				significance, significance != MagicSignificance.NONE && !BESPOKE_PRESENTATION.contains(id)));
+				significance, significance != MagicSignificance.NONE && !BESPOKE_PRESENTATION.contains(id),
+				targetContract(id)));
+	}
+
+	private static ActionTargetContract targetContract(String id) {
+		if (Set.of("soul_link", "light_crystal", "dark_crystal").contains(id)) {
+			return ActionTargetContract.PLAYER_PARTICIPANT;
+		}
+		if (id.equals("energy_drain")) return ActionTargetContract.PLAYER_OR_MOB_FALLBACK;
+		if (Set.of("starfall", "void_beam", "fireball", "lightning_strike", "thunderclap",
+				"telekinesis", "energy_beam", "breezy_bash", "gravity_displacement",
+				"vessel_possession", "ice_manipulation", "plant_healing_acceleration", "inferno",
+				"life_bloom", "chrono_stop", "dreamwalking", "covenant_chain", "daybreak_wave",
+				"starbound_dark_lightning", "starbound_light_lightning", "dimensional_anchor",
+				"blood_reading", "ward_breaking_ritual", "dispel").contains(id)) {
+			return ActionTargetContract.ANY_LIVING;
+		}
+		return ActionTargetContract.NONE;
 	}
 
 	private static Map<String, MagicSignificance> significanceAssignments() {
