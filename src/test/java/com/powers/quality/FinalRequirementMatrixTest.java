@@ -25,11 +25,8 @@ class FinalRequirementMatrixTest {
 		assertTrue(rows.stream().filter(line -> line.contains("| Complete |"))
 				.noneMatch(line -> line.toLowerCase().matches(".*(?:remains open|not yet|outstanding).*")),
 				"a completed row cannot describe known outstanding work");
-		for (String requirement : List.of("R01", "R18", "R41", "R42")) {
-			assertTrue(rows.stream().anyMatch(line -> line.startsWith("| " + requirement + " ")
-					&& line.contains("| Partial |")),
-					"known open proof must remain visible for " + requirement);
-		}
+		assertTrue(rows.stream().allMatch(line -> line.contains("| Complete |")),
+				"the release matrix cannot retain implementation work after the final gate");
 
 		String matrix = String.join("\n", rows).toLowerCase();
 		for (String required : List.of("energy hud", "shadow sword", "realm", "grimoire",

@@ -67,6 +67,7 @@ public final class SkillSystem {
 	// the last name plate written for each player, so the rank prefix is only
 	// re-sent when it actually changes instead of every single refresh
 	private static final Map<UUID, Component> APPLIED_PREFIX = new HashMap<>();
+	private static final Map<UUID, AdvancementPathRules.Selection> APPLIED_PATH = new HashMap<>();
 
 	private SkillSystem() {
 	}
@@ -109,6 +110,9 @@ public final class SkillSystem {
 		data.rankProgress(false);
 		if (hasDarknessTag(player)) data.rankProgress(true);
 		applyRank(player);
+		// A newly completed deed changes the visible depth during this refresh;
+		// update immediately, while the path stamp makes ordinary calls free.
+		syncPathVisibility(player);
 	}
 
 	public static String rank(int level) {
@@ -185,6 +189,8 @@ public final class SkillSystem {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		AdvancementPathRules.Selection selection = AdvancementPathRules.select(
 				hasDarknessTag(player), data.skillLevel(), data.darknessLevel());
+		if (!AdvancementPathRules.needsSynchronization(
+				APPLIED_PATH.get(player.getUUID()), selection)) return;
 		if ("darkness_root".equals(selection.hiddenRoot())) {
 			revokePath(player, PowersMod.id("darkness_root"), SkillSystem::darknessId, DARKNESS_MAX_LEVEL);
 			awardPath(player, PowersMod.id("skill_root"), SkillSystem::skillId, selection.reachedLevel());
@@ -192,6 +198,7 @@ public final class SkillSystem {
 			revokePath(player, PowersMod.id("skill_root"), SkillSystem::skillId, MAX_LEVEL);
 			awardPath(player, PowersMod.id("darkness_root"), SkillSystem::darknessId, selection.reachedLevel());
 		}
+		APPLIED_PATH.put(player.getUUID(), selection);
 	}
 
 	private static void revokePath(ServerPlayer player, Identifier rootId,
@@ -306,12 +313,14 @@ public final class SkillSystem {
 	/** Forgets a player's cached name plate when they disconnect. */
 	public static void clear(UUID player) {
 		APPLIED_PREFIX.remove(player);
+		APPLIED_PATH.remove(player);
 		RankAttributeManager.forget(player);
 	}
 
 	/** Drops every cached name plate on shutdown so nothing leaks across restarts. */
 	public static void clearAll() {
 		APPLIED_PREFIX.clear();
+		APPLIED_PATH.clear();
 		RankAttributeManager.clearAll();
 	}
 }

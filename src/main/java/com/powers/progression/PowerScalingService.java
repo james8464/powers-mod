@@ -6,6 +6,10 @@ import com.powers.magic.MagicActionId;
 import com.powers.magic.runtime.CastAdjustment;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ScalingPolicy;
+import com.powers.item.ArtifactWeaponManager;
+import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.item.artifact.ArtifactScalingRules;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import net.minecraft.server.level.ServerPlayer;
@@ -63,11 +67,38 @@ public final class PowerScalingService {
 	/** Returns the scaled canonical values for a player and stable action ID. */
 	public static ScaledMagicValues forPlayer(ServerPlayer player, String actionId) {
 		MagicActionDefinition action = requireAction(actionId);
-		CastSource source = CastScalingContext.currentSource();
-		RankProfile activeProfile = source.appliesPlayerRank(true) ? profile(player) : RankProfile.EMPTY;
-		int activeLevel = source.appliesPlayerRank(true) ? SkillSystem.effectiveLevel(player) : 0;
-		ScaledMagicValues ranked = INSTANCE.scaleForSource(action, activeProfile, activeLevel, source);
+		var cast = CastScalingContext.currentCast();
+		boolean innateRank = cast.scalingPolicy() == ScalingPolicy.INNATE_RANK;
+		RankProfile activeProfile = innateRank ? profile(player) : RankProfile.EMPTY;
+		int activeLevel = innateRank ? SkillSystem.effectiveLevel(player) : 0;
+		ScaledMagicValues ranked = INSTANCE.scaleForSource(
+				action, activeProfile, activeLevel, cast.source());
+		if (cast.scalingPolicy() == ScalingPolicy.ARTIFACT) {
+			ranked = applyArtifact(player, action, ranked);
+		}
 		return applyInteraction(action, ranked, CastScalingContext.current());
+	}
+
+	/** Applies only the held relic's explicit baseline/apotheosis profile. */
+	private static ScaledMagicValues applyArtifact(ServerPlayer player,
+			MagicActionDefinition action, ScaledMagicValues baseline) {
+		ArtifactAlignment alignment = ArtifactWeaponManager.holds(player, ArtifactAlignment.DARKNESS)
+				? ArtifactAlignment.DARKNESS
+				: ArtifactWeaponManager.holds(player, ArtifactAlignment.LIGHT)
+						? ArtifactAlignment.LIGHT : null;
+		if (alignment == null) return baseline;
+		ArtifactScalingRules.Profile profile = ArtifactScalingRules.profile(
+				alignment, ArtifactWeaponManager.rank(player, alignment));
+		Set<String> variants = new LinkedHashSet<>(baseline.unlockedVariants());
+		variants.addAll(profile.variants());
+		return new ScaledMagicValues(
+				scaledInt(action.basePotency(), profile.potency()),
+				action.baseRange() * profile.range(),
+				scaledInt(action.baseDurationTicks(), profile.duration()),
+				baseline.energyCost(), baseline.cooldownTicks(),
+				baseline.interactionPriority() + (profile.apotheosis() ? 4 : 2),
+				Set.copyOf(variants), baseline.backlashMultiplier(),
+				profile.potency(), profile.range(), profile.duration());
 	}
 
 	/** Returns the authored innate-only profile for ability-specific capacity/destruction rules. */

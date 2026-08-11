@@ -55,7 +55,10 @@ public final class MagicActionCatalogue {
 	public static MagicActionCatalogue defaults() {
 		List<MagicActionDefinition> actions = new java.util.ArrayList<>();
 
-		// Innate powers: the identifiers match PowerRegistry and player attachments.
+		// Innate powers. Size Morph keeps its legacy saved power ID but has a
+		// distinct collision identity from the fixed-strength Yellow Crystal rite.
+		add(actions, "size_morph", MagicOrigin.INNATE, MagicDelivery.TOGGLE, MagicIntent.CONTROL,
+				MagicAspect.CREATION, MagicAspect.GRAVITY);
 		add(actions, "time_shift", MagicOrigin.INNATE, MagicDelivery.TRAVEL, MagicIntent.MOVEMENT,
 				MagicAspect.SPACE, MagicAspect.TIME);
 		add(actions, "flight", MagicOrigin.INNATE, MagicDelivery.TOGGLE, MagicIntent.MOVEMENT,
@@ -112,8 +115,6 @@ public final class MagicActionCatalogue {
 				MagicAspect.CREATION, MagicAspect.GRAVITY);
 		add(actions, "life_bloom", MagicOrigin.CRYSTAL, MagicDelivery.FIELD, MagicIntent.SUPPORT,
 				MagicAspect.LIFE, MagicAspect.LIGHT);
-		add(actions, "space_time", MagicOrigin.CRYSTAL, MagicDelivery.FIELD, MagicIntent.CONTROL,
-				MagicAspect.SPACE, MagicAspect.TIME);
 		add(actions, "chrono_stop", MagicOrigin.CRYSTAL, MagicDelivery.FIELD, MagicIntent.CONTROL,
 				MagicAspect.TIME, MagicAspect.FORCE);
 		add(actions, "dreamwalking", MagicOrigin.CRYSTAL, MagicDelivery.PROJECTION, MagicIntent.CONTROL,
@@ -139,18 +140,12 @@ public final class MagicActionCatalogue {
 				MagicAspect.LIGHT, MagicAspect.CREATION);
 		add(actions, "consecrate_ground", MagicOrigin.ARTIFACT, MagicDelivery.FIELD,
 				MagicIntent.WORLD_INTERACTION, MagicAspect.LIGHT, MagicAspect.CREATION);
-		add(actions, "dawnstride", MagicOrigin.ARTIFACT, MagicDelivery.TRAVEL, MagicIntent.MOVEMENT,
-				MagicAspect.LIGHT, MagicAspect.MOTION);
 		add(actions, "covenant_chain", MagicOrigin.ARTIFACT, MagicDelivery.CHANNEL, MagicIntent.SUPPORT,
 				MagicAspect.LIGHT, MagicAspect.LIFE, MagicAspect.PROTECTION);
 		add(actions, "daybreak_wave", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.SUPPORT,
 				MagicAspect.LIGHT, MagicAspect.LIFE, MagicAspect.FORCE);
 		add(actions, "heaven_gate", MagicOrigin.ARTIFACT, MagicDelivery.TRAVEL, MagicIntent.MOVEMENT,
 				MagicAspect.LIGHT, MagicAspect.SPACE);
-		add(actions, "banish_darkness", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.CONTROL,
-				MagicAspect.LIGHT, MagicAspect.SUPPRESSION);
-		add(actions, "divine_decree", MagicOrigin.ARTIFACT, MagicDelivery.CHANNEL, MagicIntent.HARM,
-				MagicAspect.LIGHT, MagicAspect.SOUL);
 		add(actions, "solar_firmament", MagicOrigin.ARTIFACT, MagicDelivery.FIELD, MagicIntent.DEFENCE,
 				MagicAspect.LIGHT, MagicAspect.FORCE, MagicAspect.PROTECTION);
 		add(actions, "second_dawn", MagicOrigin.ARTIFACT, MagicDelivery.AURA, MagicIntent.DEFENCE,
@@ -261,7 +256,7 @@ public final class MagicActionCatalogue {
 				"amethyst_item", "amethyst_block", "amethyst_ward",
 				"darkness_block", "pure_light_block");
 		assign(values, MagicSignificance.MINIMAL,
-				"fireball", "lightning_strike", "dawnstride",
+				"fireball", "lightning_strike",
 				"starbound_dark_lightning", "starbound_light_lightning");
 		assign(values, MagicSignificance.COSMIC,
 				"time_freeze", "chrono_stop", "celestial_ruin", "nightfall_dominion",
@@ -272,14 +267,14 @@ public final class MagicActionCatalogue {
 				"hex", "concealment_veil", "purification_circle", "root_binding",
 				"sanctuary_growth", "infernal_seal", "banishment_circle", "controlled_hellfire",
 				"ward_breaking_ritual", "counterspell", "dispel", "ritual_amplification",
-				"daybreak_wave", "heaven_gate", "banish_darkness", "divine_decree", "second_dawn");
+				"daybreak_wave", "heaven_gate", "second_dawn");
 		assign(values, MagicSignificance.STANDARD,
-				"time_shift", "flight", "starfall", "void_beam", "thunderclap", "speed_burst", "telekinesis",
+				"size_morph", "time_shift", "flight", "starfall", "void_beam", "thunderclap", "speed_burst", "telekinesis",
 				"energy_beam", "super_speed", "breezy_bash", "invisibility",
 				"forcefield", "gravity_displacement", "vessel_possession", "astral_projection",
 				"energy_drain", "ice_manipulation", "plant_healing_acceleration", "double_health",
 				"inferno", "clone_swarm", "creativity_manifestation", "size_shift", "life_bloom",
-				"space_time", "dreamwalking", "middleworld", "soul_link",
+				"dreamwalking", "middleworld", "soul_link",
 				"light_crystal", "dark_crystal", "call_hollowed", "blight_ground",
 				"call_radiant", "consecrate_ground", "covenant_chain");
 		return Map.copyOf(values);

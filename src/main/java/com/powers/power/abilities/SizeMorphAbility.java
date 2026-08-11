@@ -18,7 +18,12 @@ public final class SizeMorphAbility extends ToggleAbility {
 	private static final net.minecraft.resources.Identifier MODIFIER_ID = PowersMod.id("size_morph");
 
 	public SizeMorphAbility() {
-		super(PowersMod.id("size_shift"), Component.translatable("ability.powers.size_shift"));
+		super(PowersMod.id("size_shift"), Component.translatable("ability.powers.size_morph"));
+	}
+
+	@Override
+	public String magicActionId(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		return "size_morph";
 	}
 
 	@Override

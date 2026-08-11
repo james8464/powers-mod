@@ -34,11 +34,11 @@ class CelestialRuinRulesTest {
 	@Test
 	void detonationIsAtLeastTwentyTimesTheLivingForcePeakDamage() {
 		assertTrue(CelestialRuinRules.PEAK_DAMAGE >= 20_000.0f);
-		assertTrue(CelestialRuinRules.DAMAGE_RADIUS >= 2_048);
+		assertEquals(6_000, CelestialRuinRules.DAMAGE_RADIUS);
 		assertTrue(CelestialRuinRules.damage(0.0) >= 20_000.0f);
 		assertTrue(CelestialRuinRules.damage(1_000.0) >= 100.0f);
-		assertTrue(CelestialRuinRules.damage(2_047.0) > 0.0f);
-		assertEquals(0.0f, CelestialRuinRules.damage(2_048.0), 0.001f);
+		assertTrue(CelestialRuinRules.damage(5_999.0) > 0.0f);
+		assertEquals(0.0f, CelestialRuinRules.damage(6_000.0), 0.001f);
 	}
 
 	@Test
@@ -48,6 +48,13 @@ class CelestialRuinRulesTest {
 		assertEquals(320.0, bounds.maxY, 0.001);
 		assertEquals(12.5 - CelestialRuinRules.DAMAGE_RADIUS, bounds.minX, 0.001);
 		assertEquals(-8.5 + CelestialRuinRules.DAMAGE_RADIUS, bounds.maxZ, 0.001);
+	}
+
+	@Test
+	void shockwaveThrowsBodiesAcrossTheFullDamageRadius() {
+		assertTrue(CelestialRuinRules.knockback(0.0) >= 10.0);
+		assertTrue(CelestialRuinRules.knockback(5_999.0) > 0.0);
+		assertEquals(0.0, CelestialRuinRules.knockback(6_000.0), 0.0001);
 	}
 
 	@Test

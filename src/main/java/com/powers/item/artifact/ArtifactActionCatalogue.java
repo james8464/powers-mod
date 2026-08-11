@@ -17,6 +17,11 @@ public final class ArtifactActionCatalogue {
 			"super_speed", "breezy_bash", "invisibility", "time_freeze",
 			"forcefield", "gravity_displacement", "vessel_possession", "astral_projection",
 			"energy_drain", "ice_manipulation", "plant_healing_acceleration", "double_health");
+	private static final List<String> LIGHT_INNATE_IDS = List.of(
+			"flight", "starfall", "lightning_strike", "thunderclap", "energy_beam",
+			"forcefield", "plant_healing_acceleration", "double_health");
+	private static final List<String> LIGHT_CRYSTAL_IDS = List.of(
+			"creativity_manifestation", "life_bloom", "light_crystal");
 	private static final Map<ArtifactAlignment, List<ArtifactActionDefinition>> BY_ALIGNMENT = build();
 
 	private ArtifactActionCatalogue() {
@@ -41,9 +46,15 @@ public final class ArtifactActionCatalogue {
 				new EnumMap<>(ArtifactAlignment.class);
 		for (ArtifactAlignment alignment : ArtifactAlignment.values()) {
 			List<ArtifactActionDefinition> actions = new ArrayList<>();
-			for (String id : INNATE_IDS) actions.add(routed(alignment, id, ArtifactActionCategory.ROUTED_POWER));
-			CrystalAbilityCatalog.defaults().values().stream().flatMap(List::stream).distinct()
-					.forEach(id -> actions.add(routed(alignment, id, ArtifactActionCategory.ROUTED_CRYSTAL)));
+			List<String> innateIds = alignment == ArtifactAlignment.DARKNESS
+					? INNATE_IDS : LIGHT_INNATE_IDS;
+			for (String id : innateIds) actions.add(routed(alignment, id,
+					ArtifactActionCategory.ROUTED_POWER));
+			java.util.stream.Stream<String> crystalIds = alignment == ArtifactAlignment.DARKNESS
+					? CrystalAbilityCatalog.defaults().values().stream().flatMap(List::stream).distinct()
+					: LIGHT_CRYSTAL_IDS.stream();
+			crystalIds.forEach(id -> actions.add(routed(alignment, id,
+					ArtifactActionCategory.ROUTED_CRYSTAL)));
 			if (alignment == ArtifactAlignment.DARKNESS) addDarkness(actions);
 			else addLight(actions);
 			validateUnique(actions);
@@ -72,12 +83,9 @@ public final class ArtifactActionCatalogue {
 		addDominionSet(actions, ArtifactAlignment.LIGHT, List.of(
 				new Dominion("call_radiant", 1, 18, 400, MagicSignificance.STANDARD),
 				new Dominion("consecrate_ground", 2, 20, 240, MagicSignificance.STANDARD),
-				new Dominion("dawnstride", 3, 12, 100, MagicSignificance.MINIMAL),
 				new Dominion("covenant_chain", 4, 25, 360, MagicSignificance.STANDARD),
 				new Dominion("daybreak_wave", 5, 32, 500, MagicSignificance.RITUAL),
 				new Dominion("heaven_gate", 6, 40, 900, MagicSignificance.RITUAL),
-				new Dominion("banish_darkness", 7, 35, 600, MagicSignificance.RITUAL),
-				new Dominion("divine_decree", 8, 55, 1000, MagicSignificance.RITUAL),
 				new Dominion("solar_firmament", 8, 60, 1200, MagicSignificance.COSMIC),
 				new Dominion("second_dawn", 9, 80, 2400, MagicSignificance.RITUAL),
 				new Dominion("host_heaven", 10, 100, 3600, MagicSignificance.COSMIC)));

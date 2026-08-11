@@ -64,8 +64,8 @@ public final class ImportedArtifactItem extends Item {
 			case SOUL_VESSEL -> drainSoul(player);
 			case RITUAL_CATALYST -> primeRitual(player);
 			case HEART_RELIC -> awakenHeart(player);
-			case TRAVEL_RELIC -> texture.startsWith("device_miniportal")
-					? openMiniportal(player) : explain(player, "item.powers.relic.bind_first");
+			case TRAVEL_RELIC -> texture.equals("device_miniportal")
+					? openMiniportal(player, stack) : explain(player, "item.powers.relic.bind_first");
 			case COMMAND_RELIC -> commandGuardians(player);
 			case ARCANE_CATALYST -> explain(player, "item.powers.relic.crucible_catalyst");
 			case LORE_RELIC -> explain(player, "item.powers.relic.lore_fragment");
@@ -106,6 +106,23 @@ public final class ImportedArtifactItem extends Item {
 
 	public ImportedArtifactKind kind() {
 		return kind;
+	}
+
+	@Override
+	public boolean isBarVisible(ItemStack stack) {
+		return texture.equals("device_miniportal");
+	}
+
+	@Override
+	public int getBarWidth(ItemStack stack) {
+		return texture.equals("device_miniportal") ? MiniportalRules.barWidth(
+				MiniportalRules.charges(stack.get(PowersDataComponents.MINIPORTAL_CHARGES)))
+				: super.getBarWidth(stack);
+	}
+
+	@Override
+	public int getBarColor(ItemStack stack) {
+		return texture.equals("device_miniportal") ? 0xC99CFF : super.getBarColor(stack);
 	}
 
 	private boolean drainSoul(ServerPlayer player) {
@@ -181,7 +198,7 @@ public final class ImportedArtifactItem extends Item {
 		return explain(player, "item.powers.relic.anchor_bound");
 	}
 
-	private static boolean openMiniportal(ServerPlayer player) {
+	private static boolean openMiniportal(ServerPlayer player, ItemStack device) {
 		TravelAnchorData anchor = null;
 		for (ItemStack candidate : player.getInventory().getNonEquipmentItems()) {
 			TravelAnchorData stored = candidate.get(PowersDataComponents.TRAVEL_ANCHOR);
@@ -191,6 +208,14 @@ public final class ImportedArtifactItem extends Item {
 			}
 		}
 		if (anchor == null) return explain(player, "item.powers.relic.no_anchor");
+		int charges = MiniportalRules.charges(
+				device.get(PowersDataComponents.MINIPORTAL_CHARGES));
+		boolean sameDimension = anchor.dimension().equals(
+				player.level().dimension().identifier());
+		if (!sameDimension) return explain(player, "item.powers.relic.same_dimension");
+		if (!MiniportalRules.mayTravel(charges, true)) {
+			return explain(player, "item.powers.relic.miniportal_empty");
+		}
 		ServerLevel destination = player.level().getServer().getLevel(
 				ResourceKey.create(Registries.DIMENSION, anchor.dimension()));
 		if (destination == null) return false;
@@ -203,7 +228,12 @@ public final class ImportedArtifactItem extends Item {
 		return TravelChunkLoader.request(player.getUUID(), destination, requested, () -> {
 			ServerPlayer current = server.getPlayerList().getPlayer(player.getUUID());
 			if (current != null) AmethystDampening.update(current);
-			if (!DelayedTravelRules.travellerMayContinue(current == player,
+			int currentCharges = MiniportalRules.charges(
+					device.get(PowersDataComponents.MINIPORTAL_CHARGES));
+			if (!MiniportalRules.mayCommit(current == player,
+					player.isAlive() && !player.isRemoved(), player.level() == origin,
+					ownsExactStack(player, device), charges, currentCharges)
+					|| !DelayedTravelRules.travellerMayContinue(current == player,
 					player.isAlive() && !player.isRemoved(), player.isAlive() && !player.isRemoved(),
 					player.level() == origin, player.level() == origin,
 					AmethystDampening.isDampened(player), AmethystDampening.isDampened(player))
@@ -214,11 +244,20 @@ public final class ImportedArtifactItem extends Item {
 			}
 			player.teleport(new TeleportTransition(destination, position, Vec3.ZERO,
 					player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+			device.set(PowersDataComponents.MINIPORTAL_CHARGES,
+					MiniportalRules.afterSuccessfulTravel(charges));
 			PowerFx.spiral(destination, position, 1.0, 3.0, 0xC99C58, 24, 0.0);
 		}, () -> {
 			ServerPlayer current = server.getPlayerList().getPlayer(player.getUUID());
 			if (current == player) explain(player, "item.powers.relic.anchor_unreachable");
 		});
+	}
+
+	private static boolean ownsExactStack(ServerPlayer player, ItemStack expected) {
+		for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+			if (player.getInventory().getItem(slot) == expected) return true;
+		}
+		return player.getMainHandItem() == expected || player.getOffhandItem() == expected;
 	}
 
 	private static boolean transmute(ServerPlayer player, UseOnContext context) {

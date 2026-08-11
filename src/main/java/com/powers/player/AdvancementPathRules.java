@@ -19,4 +19,9 @@ public final class AdvancementPathRules {
 				? new Selection("darkness_root", "skill_root", darknessLevel)
 				: new Selection("skill_root", "darkness_root", skillLevel);
 	}
+
+	/** Avoids repeating advancement mutation and network work on every player pulse. */
+	public static boolean needsSynchronization(Selection previous, Selection current) {
+		return current != null && !current.equals(previous);
+	}
 }

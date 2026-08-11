@@ -11,13 +11,15 @@
 		"PlayerRankDisplayMixin",
 		"PossessedPlayerInputMixin",
 		"ProjectileDeflectionMixin",
+		"RealmPortalMixin",
 		"ServerTickRateManagerMixin",
 		"ServerPlayerRankDisplayMixin"
 	],
 	"client": [
 		"ArtifactScrollMixin",
 		"AvatarRendererMixin",
-		"LightRealmSkyMixin"
+		"LightRealmSkyMixin",
+		"RainbowCrystalVisualMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

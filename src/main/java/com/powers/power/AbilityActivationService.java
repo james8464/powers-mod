@@ -7,7 +7,6 @@ import com.powers.magic.runtime.CastSource;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillQuestTracker;
-import com.powers.power.crystals.SpaceTimeAbility;
 import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;

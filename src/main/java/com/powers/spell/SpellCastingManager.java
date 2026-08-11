@@ -7,7 +7,7 @@ import com.powers.network.PacketRateLimiter;
 import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.MagicUseGate;
-import com.powers.power.crystals.SpaceTimeAbility;
+import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.magic.runtime.PreparedMagicCast;
@@ -114,8 +114,8 @@ public final class SpellCastingManager {
 			failed(player, "spell.powers.already_channeling");
 			return false;
 		}
-		if (SpaceTimeAbility.isFrozen(player)) {
-			SpaceTimeAbility.reject(player);
+		if (EntityFreezeController.isFrozen(player)) {
+			EntityFreezeController.reject(player);
 			return false;
 		}
 		AmethystDampening.update(player);

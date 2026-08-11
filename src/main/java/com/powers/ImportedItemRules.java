@@ -12,6 +12,7 @@ public final class ImportedItemRules {
 		String texture = idOrTexture.startsWith(IMPORTED_PREFIX)
 				? idOrTexture.substring(IMPORTED_PREFIX.length()) : idOrTexture;
 		return texture.equals("artifact_runestone_back")
-				|| texture.startsWith("artifact_runestone_overlay_");
+				|| texture.startsWith("artifact_runestone_overlay_")
+				|| texture.equals("device_miniportal_active");
 	}
 }

@@ -29,6 +29,10 @@ public final class ArtifactSelectionMigration {
 			"dominion/black_decree", "dominion/event_horizon", "dominion/legion_eclipse");
 	private static final Set<String> RETIRED_SAFE_ALIASES = Set.of(
 			"dominion/umbral_step", "dominion/abyss_gate", "dominion/deathless_night");
+	private static final Map<String, String> RETIRED_LIGHT_ALIASES = Map.of(
+			"dominion/dawnstride", "innate/flight",
+			"dominion/banish_darkness", "dominion/consecrate_ground",
+			"dominion/divine_decree", "dominion/daybreak_wave");
 
 	private ArtifactSelectionMigration() {
 	}
@@ -42,7 +46,10 @@ public final class ArtifactSelectionMigration {
 			return rank >= 10 ? NIGHTFALL : CALL;
 		}
 		if (ArtifactActionCatalogue.find(alignment, storedKey) != null) return storedKey;
-		if (alignment != ArtifactAlignment.DARKNESS || storedKey == null) return FALLBACK;
+		if (alignment == ArtifactAlignment.LIGHT) {
+			return RETIRED_LIGHT_ALIASES.getOrDefault(storedKey, FALLBACK);
+		}
+		if (storedKey == null) return FALLBACK;
 		String utility = UTILITY_ALIASES.get(storedKey);
 		if (utility != null) return utility;
 		if (DESTRUCTIVE_ALIASES.contains(storedKey)) return rank >= 10 ? NIGHTFALL : CALL;

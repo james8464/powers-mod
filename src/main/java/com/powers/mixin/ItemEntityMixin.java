@@ -19,6 +19,7 @@ public abstract class ItemEntityMixin {
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void powers$keepCrystalAlive(CallbackInfo ci) {
 		ItemEntity self = (ItemEntity) (Object) this;
+		com.powers.item.MiniportalRechargeManager.tick(self);
 		if (!ProtectedMagicDropRules.isProtected(self.getItem())) {
 			return;
 		}

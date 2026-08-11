@@ -29,6 +29,7 @@ public final class InnatePowerLevels {
 
 	/** Returns a finite profile; invalid levels clamp and unknown IDs stay unranked. */
 	public static InnatePowerLevel forPower(String powerId, int requestedLevel) {
+		if ("size_morph".equals(powerId)) powerId = "size_shift";
 		Shape shape = SHAPES.get(powerId);
 		if (shape == null) return BASELINE;
 		int level = Math.clamp(requestedLevel, 0, 10);

@@ -1,7 +1,6 @@
 package com.powers.network;
 
 import com.powers.PowersMod;
-import com.powers.fx.ShadowSwordFx;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.item.artifact.ArtifactScrollRules;
 import com.powers.item.artifact.ArtifactFavouriteRules;

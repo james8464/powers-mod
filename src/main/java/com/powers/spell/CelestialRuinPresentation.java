@@ -4,20 +4,22 @@ package com.powers.spell;
 public final class CelestialRuinPresentation {
 	public static final int BEAM_REFRESH_TICKS = 20;
 	public static final int BEAM_LEASE_TICKS = 35;
-	public static final int BEAM_VIEW_RADIUS = 1_024;
+	public static final int BEAM_VIEW_RADIUS = 6_000;
 	public static final int BEAM_VERTICAL_SLICES = 4;
 	public static final int BEAM_PARTICLES_PER_SLICE = 16;
 	public static final int BEAM_BOUNDARY_PARTICLES = 24;
-	public static final int FLASH_TICKS = 60;
-	public static final int RINGING_TICKS = 100;
+	public static final int FLASH_TICKS = 400;
+	public static final int RINGING_TICKS = 500;
+	private static final int OPAQUE_TICKS = 60;
 
 	private CelestialRuinPresentation() {
 	}
 
 	public static int flashAlpha(int remainingTicks) {
 		if (remainingTicks <= 0) return 0;
-		if (remainingTicks > 40) return 255;
-		return Math.clamp((int) Math.round(255.0 * remainingTicks / 40.0), 0, 255);
+		int fadeTicks = FLASH_TICKS - OPAQUE_TICKS;
+		if (remainingTicks > fadeTicks) return 255;
+		return Math.clamp((int) Math.round(255.0 * remainingTicks / fadeTicks), 0, 255);
 	}
 
 	/** Exact local particle ceiling for one visible warning column per client tick. */

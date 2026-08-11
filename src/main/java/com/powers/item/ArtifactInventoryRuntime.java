@@ -13,7 +13,6 @@ import com.powers.power.artifact.ArtifactDeathWardManager;
 import com.powers.power.artifact.ArtifactDominionRules;
 import com.powers.power.artifact.ArtifactCovenantManager;
 import com.powers.power.artifact.ArtifactChainManager;
-import com.powers.power.artifact.ArtifactDecreeManager;
 import com.powers.power.artifact.ArtifactFieldManager;
 import com.powers.power.artifact.ArtifactGateManager;
 import com.powers.power.artifact.ArtifactGroundWorkQueue;
@@ -139,7 +138,6 @@ public final class ArtifactInventoryRuntime {
 	}
 
 	public static void tickServer(MinecraftServer server) {
-		ArtifactDecreeManager.tick(server);
 		ArtifactFieldManager.tick(server);
 		ArtifactGateManager.tick(server);
 		ArtifactGroundWorkQueue.tick(server);
@@ -150,7 +148,6 @@ public final class ArtifactInventoryRuntime {
 	public static void forget(ServerPlayer player) {
 		UUID playerId = player.getUUID();
 		LAST_GUARDIAN.values().forEach(map -> map.remove(playerId));
-		ArtifactDecreeManager.forget(playerId);
 		ArtifactFieldManager.forget(playerId);
 		ArtifactGateManager.forget(playerId);
 		ArtifactGroundWorkQueue.forget(playerId);
@@ -163,7 +160,6 @@ public final class ArtifactInventoryRuntime {
 
 	public static void clear() {
 		LAST_GUARDIAN.values().forEach(Map::clear);
-		ArtifactDecreeManager.clear();
 		ArtifactFieldManager.clear();
 		ArtifactGateManager.clear();
 		ArtifactGroundWorkQueue.clear();

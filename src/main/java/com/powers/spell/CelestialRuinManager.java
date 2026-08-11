@@ -268,8 +268,18 @@ public final class CelestialRuinManager {
 							.thenComparing(entity -> entity.getUUID().toString()));
 			for (LivingEntity entity : entities) {
 				if (PowerProtection.isSafeZone(level, entity.position())) continue;
-				float damage = CelestialRuinRules.damage(entity.position().distanceTo(epicenter));
+				double distance = entity.position().distanceTo(epicenter);
+				float damage = CelestialRuinRules.damage(distance);
 				if (damage > 0.0f) entity.hurtServer(level, PowerDamage.celestialRuin(level), damage);
+				double force = CelestialRuinRules.knockback(distance);
+				if (force > 0.0) {
+					Vec3 direction = entity.position().subtract(epicenter);
+					double horizontal = Math.hypot(direction.x, direction.z);
+					double x = horizontal < 1.0E-6 ? 0.0 : direction.x / horizontal;
+					double z = horizontal < 1.0E-6 ? 0.0 : direction.z / horizontal;
+					entity.push(x * force, Math.min(4.0, 0.6 + force * 0.18), z * force);
+					entity.hurtMarked = true;
+				}
 			}
 		}
 

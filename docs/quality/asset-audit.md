@@ -11,7 +11,7 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 | `blockstates/light_memory_obelisk.json` | blockstates | `62981c2f148e` | pass | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/pure_light.json` | blockstates | `c4375fe29f91` | pass | JSON decoded; references are covered by strict resource validation. |
 | `icon.png` | icon.png | `00ea24abeb49` | pass | PNG 128×128, alpha; reviewed in contact sheet. |
-| `lang/en_us.json` | lang | `774475b31176` | pass | JSON decoded; references are covered by strict resource validation. |
+| `lang/en_us.json` | lang | `ac3cb4a2af19` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward.json` | models | `ec18f4c15589` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward_powered.json` | models | `e82316d2c639` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/arcane_crucible.json` | models | `7590e3936646` | pass | JSON decoded; references are covered by strict resource validation. |
@@ -66,7 +66,7 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 | `textures/entity/test_actor.png` | textures | `a36cd91fd2f8` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
 | `textures/gui/advancements/backgrounds/radiant_path.png` | textures | `7d027877c130` | pass | PNG 256×256, alpha; reviewed in contact sheet. |
 | `textures/gui/advancements/backgrounds/shadow_path.png` | textures | `bdc8a02990ac` | pass | PNG 256×256, alpha; reviewed in contact sheet. |
-| `textures/gui/energy_symbols.png` | textures | `5ed2de41ec5a` | pass | PNG 27×45, alpha; reviewed in contact sheet. |
+| `textures/gui/energy_symbols.png` | textures | `3fb048e39b29` | pass | PNG 27×45, alpha; reviewed in contact sheet. |
 | `textures/gui/locator_panel.png` | textures | `3255f1e09f0c` | pass | PNG 240×224, alpha; reviewed in contact sheet. |
 | `textures/gui/power_slot.png` | textures | `0126f9ebefca` | pass | PNG 30×30, alpha; reviewed in contact sheet. |
 | `textures/gui/power_slot_active.png` | textures | `69c00eb92a5f` | pass | PNG 30×30, alpha; reviewed in contact sheet. |

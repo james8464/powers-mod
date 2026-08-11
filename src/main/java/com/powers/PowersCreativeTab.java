@@ -23,14 +23,18 @@ public final class PowersCreativeTab {
 						PowersItems.colorCrystals().values().forEach(output::accept);
 						output.accept(PowersItems.LIGHT_CRYSTAL);
 						output.accept(PowersItems.DARK_CRYSTAL);
-						output.accept(PowersItems.INFECTED_RAINBOW_CRYSTAL);
 						output.accept(PowersItems.DARKNESS_CREATURE_SPAWN_EGG);
 						output.accept(PowersItems.POWER_TEST_ACTOR_SPAWN_EGG);
 						output.accept(PowersItems.RADIANT_SENTINEL_SPAWN_EGG);
 						output.accept(PowersItems.FIRST_VESSEL_SPAWN_EGG);
+						output.accept(PowersItems.DARK_HERALD_SPAWN_EGG);
+						output.accept(PowersItems.LIGHT_HERALD_SPAWN_EGG);
 						output.accept(PowersBlocks.DARKNESS);
 						output.accept(PowersBlocks.PURE_LIGHT);
 						output.accept(PowersBlocks.AMETHYST_WARD);
+						output.accept(PowersBlocks.LIGHT_MEMORY_OBELISK);
+						output.accept(PowersBlocks.DARK_MEMORY_OBELISK);
+						output.accept(PowersBlocks.ARCANE_CRUCIBLE);
 						PowersWeapons.weapons().values().forEach(output::accept);
 						ImportedPackItems.items().entrySet().stream()
 								.filter(entry -> !ImportedItemRules.isLegacyAssetLayer(entry.getKey()))

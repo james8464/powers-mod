@@ -8,9 +8,9 @@ public final class CelestialRuinRules {
 	public static final int COUNTDOWN_TICKS = 1_200;
 	public static final int BEAM_RADIUS = 50;
 	public static final int BLAST_RADIUS = 120;
-	public static final int DAMAGE_RADIUS = 2_048;
+	public static final int DAMAGE_RADIUS = 6_000;
 	public static final float PEAK_DAMAGE = 50_000.0f;
-	public static final int BLOCKS_PER_TICK = 8_192;
+	public static final int BLOCKS_PER_TICK = 32_768;
 	public static final int ENTITY_LIMIT = 4_096;
 	public static final int AFTERSHOCK_RAYS = 96;
 	public static final int AFTERSHOCK_STEP_BLOCKS = 4;
@@ -40,6 +40,13 @@ public final class CelestialRuinRules {
 		}
 		double remaining = 1.0 - distance / DAMAGE_RADIUS;
 		return (float) (PEAK_DAMAGE * remaining * remaining);
+	}
+
+	/** Boss-scale outward impulse, still finite at the epicentre and zero at the boundary. */
+	public static double knockback(double distance) {
+		if (!Double.isFinite(distance) || distance < 0.0 || distance >= DAMAGE_RADIUS) return 0.0;
+		double remaining = 1.0 - distance / DAMAGE_RADIUS;
+		return 18.0 * Math.pow(remaining, 0.65);
 	}
 
 	/** Bounds the shockwave horizontally while covering the complete build height. */

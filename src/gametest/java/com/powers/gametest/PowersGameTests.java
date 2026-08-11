@@ -44,6 +44,10 @@ import com.powers.knowledge.KnowledgeService;
 import com.powers.power.abilities.CombatTerrainImpact;
 import com.powers.power.state.MagicShieldManager;
 import com.powers.power.ConcordCastManager;
+import com.powers.power.PowerRegistry;
+import com.powers.item.artifact.ArtifactActionCatalogue;
+import com.powers.magic.runtime.MagicRuntime;
+import com.powers.spell.SpellRegistry;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -566,6 +570,31 @@ public final class PowersGameTests {
 
 	@GameTest
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void blueDreamwalkingUsesTheSharedAuthenticatedControlChannel(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		caster.setGameMode(GameType.SURVIVAL);
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		PowerTestActor host = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 6));
+		host.setNoAi(false);
+		double before = host.getZ();
+
+		helper.assertTrue(VesselPossessionAbility.beginDreamwalk(caster, host, 600,
+				com.powers.magic.runtime.CastSource.CRYSTAL),
+				"Blue Dreamwalking rejected a valid mob host");
+		helper.assertTrue(VesselPossessionAbility.isDreamwalking(caster.getUUID()),
+				"Dreamwalking did not own the shared control session");
+		VesselPossessionAbility.applyControl(caster, new VesselControlPackets.InputPayload(
+				1.0F, 0.0F, false, false, 0.0F, 0.0F, 0, -1));
+		helper.assertTrue(host.getZ() > before, "Dreamwalking remained camera-only");
+		helper.assertTrue(VesselPossessionAbility.stopDreamwalking(caster),
+				"Dreamwalking could not be toggled off");
+		helper.assertFalse(host.isNoAi(), "Dreamwalking did not restore the host's AI");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void testingOverridesBypassEnergyAndPowerCooldowns(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		var data = com.powers.player.PlayerPowers.get(player);
@@ -645,6 +674,70 @@ public final class PowersGameTests {
 					"Time Shift did not move the test actor to the selected destination");
 			helper.succeed();
 		});
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
+	public void orangeCrystalEchoUsesItsOwnersPlayerIdentity(GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		com.powers.entity.EchoClone echo = helper.spawn(PowersEntities.ECHO_CLONE,
+				new BlockPos(2, 1, 2));
+		echo.configure(owner, 1_200);
+		DarknessCreature hostile = helper.spawn(PowersEntities.DARKNESS_CREATURE,
+				new BlockPos(4, 1, 2));
+		helper.assertTrue(echo.ownerProfile().id().equals(owner.getUUID()),
+				"Orange echo did not synchronize the owner's skin profile");
+		helper.assertTrue(echo.getMainHandItem().isEmpty() && echo.getOffhandItem().isEmpty(),
+				"Orange echo unexpectedly copied equipment");
+		helper.assertFalse(echo.canAttack(owner), "Orange echo could attack its owner");
+		helper.assertTrue(echo.canAttack(hostile), "Orange echo could not fight a hostile mob");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void droppedAmethystRestoresBothMiniportalCharges(GameTestHelper helper) {
+		net.minecraft.server.level.ServerLevel level = helper.getLevel();
+		Vec3 position = Vec3.atCenterOf(helper.absolutePos(new BlockPos(2, 2, 2)));
+		ItemStack portalStack = com.powers.ImportedPackItems.item(
+				"imported_device_miniportal").getDefaultInstance();
+		portalStack.set(PowersDataComponents.MINIPORTAL_CHARGES, 0);
+		var portal = new net.minecraft.world.entity.item.ItemEntity(level,
+				position.x, position.y, position.z, portalStack);
+		var shard = new net.minecraft.world.entity.item.ItemEntity(level,
+				position.x, position.y, position.z, new ItemStack(Items.AMETHYST_SHARD));
+		level.addFreshEntity(portal);
+		level.addFreshEntity(shard);
+		portal.tickCount = Math.floorMod(portal.getId(), 10);
+		com.powers.item.MiniportalRechargeManager.tick(portal);
+		helper.assertTrue(portal.getItem().get(PowersDataComponents.MINIPORTAL_CHARGES) == 2,
+				"Amethyst did not restore both Miniportal charges");
+		helper.assertTrue(shard.isRemoved() || shard.getItem().isEmpty(),
+				"Miniportal recharge did not consume exactly one shard");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void everyAdvertisedMagicRegistryResolvesInsideTheLiveServer(GameTestHelper helper) {
+		helper.assertTrue(PowerRegistry.getAll().size() == 23
+				&& PowerRegistry.getAll().stream().allMatch(power -> power.ability() != null),
+				"The live innate-power registry was incomplete");
+		helper.assertTrue(CrystalPowerRegistry.allAbilities().size() == 11
+				&& CrystalPowerRegistry.allAbilities().values().stream().noneMatch(java.util.Objects::isNull),
+				"The live crystal-action registry was incomplete");
+		long spells = SpellRegistry.defaults().definitions().stream()
+				.mapToLong(book -> book.spells().size()).sum();
+		helper.assertTrue(spells == 21, "The live grimoire registry did not contain all 21 spells");
+		for (ArtifactAlignment alignment : ArtifactAlignment.values()) {
+			helper.assertTrue(ArtifactWeaponManager.actions(alignment).size()
+					== ArtifactActionCatalogue.forAlignment(alignment).size()
+					&& ArtifactWeaponManager.actions(alignment).stream()
+							.allMatch(action -> action.ability() != null),
+					"An artifact route failed to resolve for " + alignment);
+		}
+		helper.assertTrue(MagicRuntime.catalogue().definitions().size() == 73
+				&& MagicRuntime.global().interactionCount() == 2_701,
+				"The exhaustive live magic-collision kernel was incomplete");
+		helper.succeed();
 	}
 
 }

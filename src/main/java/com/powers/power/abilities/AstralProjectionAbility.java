@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
+import com.powers.mind.BodyReturnFallbackRules;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.MagicUseGate;
@@ -107,17 +108,16 @@ public class AstralProjectionAbility extends Ability {
 
 	private static void end(ServerPlayer player, Projection projection) {
 		// bring the ghost back to the recorded origin, then restore game mode
-		ServerLevel destination = ((ServerLevel) player.level()).getServer().getLevel(projection.dimension());
+		boolean hadAnchor = BodyProxyManager.hasSession(player, BodyProxyKind.ASTRAL);
 		boolean returned = BodyProxyManager.returnToBody(player);
-		if (!returned && destination != null) {
-			player.teleport(new TeleportTransition(destination, projection.origin(), Vec3.ZERO,
-					player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
-			PowerFx.burst(destination, projection.origin().add(0, 1, 0), ParticleTypes.SOUL, 16, 0.8, 0.02);
-			PowerFx.sound(destination, projection.origin(), SoundEvents.AMETHYST_BLOCK_CHIME, 0.9f, 0.95f);
-		}
-		if (!returned) {
+		if (BodyReturnFallbackRules.mayUseLegacyFallback(hadAnchor, returned)) {
 			player.setGameMode(projection.gameMode());
-			BodyProxyManager.finish(player);
+		} else if (!returned) {
+			// Preserve the vulnerable anchor and spectator hold. The player may retry
+			// /powers return after satisfying realm requirements; an operator may use
+			// /powers recover for broken worlds.
+			player.setGameMode(GameType.SPECTATOR);
+			PowerMessages.send(player, "realm.powers.return_restricted", 4);
 		}
 		PowerMessages.send(player, "ability.powers.astral_ended", 3);
 	}

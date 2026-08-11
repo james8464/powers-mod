@@ -48,4 +48,14 @@ class PossessionRulesTest {
 		assertTrue(PossessionRules.rankAllows(6, 6));
 		assertFalse(PossessionRules.rankAllows(5, 6));
 	}
+
+	@Test
+	void dreamwalkingUsesTheSharedControlChannelWithoutInnateRankScaling() {
+		assertTrue(PossessionRules.allowsCrossDimension(PossessionRules.SessionKind.DREAMWALK));
+		assertTrue(PossessionRules.usesDreamwalkProtection(PossessionRules.SessionKind.DREAMWALK));
+		assertTrue(PossessionRules.requiresRankCheck(PossessionRules.SessionKind.DREAMWALK));
+		assertFalse(PossessionRules.allowsCrossDimension(PossessionRules.SessionKind.POSSESSION));
+		assertFalse(PossessionRules.usesDreamwalkProtection(PossessionRules.SessionKind.POSSESSION));
+		assertTrue(PossessionRules.requiresRankCheck(PossessionRules.SessionKind.POSSESSION));
+	}
 }

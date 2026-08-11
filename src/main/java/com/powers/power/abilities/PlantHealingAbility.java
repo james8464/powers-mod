@@ -55,8 +55,11 @@ public class PlantHealingAbility extends Ability {
 	private boolean healNearbyPlayers(ServerLevel level, ServerPlayer caster) {
 		float amount = scaledPotency(caster, 12.0F);
 		boolean healed = healOne(level, caster, caster, amount);
-		for (ServerPlayer target : level.getServer().getPlayerList().getPlayers()) {
-			if (target != caster) healed |= healOne(level, caster, target, amount);
+		for (ServerPlayer target : com.powers.util.BoundedEntityCandidates.ofClass(
+				level, ServerPlayer.class, caster.getBoundingBox().inflate(2.0), 16,
+				candidate -> candidate != caster && candidate.isAlive()
+						&& !candidate.isSpectator())) {
+			healed |= healOne(level, caster, target, amount);
 		}
 		if (!healed) return false;
 		com.powers.fx.PowerFx.ring(level, caster.position().add(0.0, 0.1, 0.0),

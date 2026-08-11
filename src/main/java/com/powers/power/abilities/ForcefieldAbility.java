@@ -36,19 +36,26 @@ public class ForcefieldAbility extends Ability {
 		float integrity = (float) (BASE_INTEGRITY * innateLevel(player).capacityMultiplier());
 		boolean reflective = scaled.unlockedVariants().contains("reflective_ward");
 		ServerLevel level = (ServerLevel) player.level();
+		// The caster is never displaced by a crowded entity-section prefix.
+		raiseWard(level, player, integrity, reflective);
 		for (LivingEntity protectedTarget : com.powers.util.BoundedEntityCandidates.living(
 				level, player.getBoundingBox().inflate(2.0), 16,
-				target -> target.isAlive() && !target.isSpectator()
+				target -> target != player && target.isAlive() && !target.isSpectator()
 						&& PlayerLikeTarget.isCompatible(target)
 						&& ForcefieldRules.withinSharingRadius(target.distanceToSqr(player)))) {
-			MagicShieldManager.global().raise(protectedTarget.getUUID(), integrity,
-					ForcefieldRules.expiryTick(), reflective);
-			com.powers.fx.PowerFx.rune(level, protectedTarget.position().add(0.0, 1.0, 0.0),
-					1.45, 0x40C4FF, 22, player.level().getGameTime() * 0.1);
+			raiseWard(level, protectedTarget, integrity, reflective);
 		}
 		com.powers.fx.PowerFx.sound(level,
 				player.position(), net.minecraft.sounds.SoundEvents.BEACON_ACTIVATE, 0.8f, 0.5f);
 		return true;
+	}
+
+	private static void raiseWard(ServerLevel level, LivingEntity target,
+			float integrity, boolean reflective) {
+		MagicShieldManager.global().raise(target.getUUID(), integrity,
+				ForcefieldRules.expiryTick(), reflective);
+		com.powers.fx.PowerFx.rune(level, target.position().add(0.0, 1.0, 0.0),
+				1.45, 0x40C4FF, 22, level.getGameTime() * 0.1);
 	}
 
 	public static boolean absorbDamage(LivingEntity target, DamageSource source, float amount) {
@@ -94,21 +101,31 @@ public class ForcefieldAbility extends Ability {
 
 	public static void tickAll(MinecraftServer server) {
 		long tick = server.getTickCount();
-		MagicShieldManager.global().expire(tick);
-		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-			if (!player.isAlive() || !MagicShieldManager.global().active(player.getUUID(), tick)) continue;
-			ServerLevel level = (ServerLevel) player.level();
-			if (tick % 10 == 0) {
-				int fracture = MagicShieldManager.global().fractureStage(player.getUUID(), tick);
-				double phase = tick * 0.04;
-				int color = fracture == 0 ? 0x40C4FF : fracture == 1 ? 0x8ADCF7 : 0xD6F5FF;
-				com.powers.fx.PowerFx.ring(level, player.position().add(0, 0.15, 0), 1.5, 0x40C4FF, 20, phase);
-				com.powers.fx.PowerFx.ring(level, player.position().add(0, 1.0, 0), 1.25, color, 20, -phase);
-				com.powers.fx.PowerFx.ring(level, player.position().add(0, 1.85, 0), 1.5, color, 20, phase);
-				if (fracture > 0) com.powers.fx.PowerFx.burst(level, player.position().add(0, 1, 0),
-						net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK, 2 + fracture * 2, 0.5, 0.03);
-			}
+		if (tick % 10 != 0) {
+			MagicShieldManager.global().expire(tick);
+			return;
 		}
+		for (UUID owner : MagicShieldManager.global().activeOwners(tick)) {
+			LivingEntity target = findLiving(server, owner);
+			if (target == null || !target.isAlive()) continue;
+			ServerLevel level = (ServerLevel) target.level();
+			int fracture = MagicShieldManager.global().fractureStage(owner, tick);
+			double phase = tick * 0.04;
+			int color = fracture == 0 ? 0x40C4FF : fracture == 1 ? 0x8ADCF7 : 0xD6F5FF;
+			com.powers.fx.PowerFx.ring(level, target.position().add(0, 0.15, 0), 1.5, 0x40C4FF, 20, phase);
+			com.powers.fx.PowerFx.ring(level, target.position().add(0, 1.0, 0), 1.25, color, 20, -phase);
+			com.powers.fx.PowerFx.ring(level, target.position().add(0, 1.85, 0), 1.5, color, 20, phase);
+			if (fracture > 0) com.powers.fx.PowerFx.burst(level, target.position().add(0, 1, 0),
+					net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK, 2 + fracture * 2, 0.5, 0.03);
+		}
+	}
+
+	private static LivingEntity findLiving(MinecraftServer server, UUID owner) {
+		for (ServerLevel level : server.getAllLevels()) {
+			Entity entity = level.getEntity(owner);
+			if (entity instanceof LivingEntity living) return living;
+		}
+		return null;
 	}
 
 	public static void clear(UUID player) {

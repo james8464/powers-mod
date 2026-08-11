@@ -12,8 +12,8 @@ import java.util.function.Supplier;
 public final class CastScalingContext {
 	private static final CastAdjustment NEUTRAL = new CastAdjustment(true, 1.0, 1.0, 1.0, List.of());
 	private static final ThreadLocal<CastAdjustment> CURRENT = ThreadLocal.withInitial(() -> NEUTRAL);
-	private static final ThreadLocal<CastSource> SOURCE =
-			ThreadLocal.withInitial(() -> CastSource.INNATE);
+	private static final CastContext INNATE = CastContext.forSource(CastSource.INNATE);
+	private static final ThreadLocal<CastContext> CAST = ThreadLocal.withInitial(() -> INNATE);
 
 	private CastScalingContext() {
 	}
@@ -25,20 +25,25 @@ public final class CastScalingContext {
 
 	/** Returns the authoritative invocation route bound to this server operation. */
 	public static CastSource currentSource() {
-		return SOURCE.get();
+		return CAST.get().source();
+	}
+
+	/** Returns the complete immutable cast/scaling decision for the active server operation. */
+	public static CastContext currentCast() {
+		return CAST.get();
 	}
 
 	/** Runs an operation with an explicit invocation route and restores nesting safely. */
 	public static <T> T withSource(CastSource source, Supplier<T> operation) {
 		Objects.requireNonNull(source, "source");
 		Objects.requireNonNull(operation, "operation");
-		CastSource previous = SOURCE.get();
-		SOURCE.set(source);
+		CastContext previous = CAST.get();
+		CAST.set(CastContext.forSource(source));
 		try {
 			return operation.get();
 		} finally {
-			if (previous == CastSource.INNATE) SOURCE.remove();
-			else SOURCE.set(previous);
+			if (previous == INNATE) CAST.remove();
+			else CAST.set(previous);
 		}
 	}
 

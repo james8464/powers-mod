@@ -1,7 +1,7 @@
 package com.powers.power;
 
 import com.powers.mind.ParticipantPowerLock;
-import com.powers.power.crystals.SpaceTimeAbility;
+import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.GlobalTimeStopManager;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -17,13 +17,13 @@ public final class MagicUseGate {
 		if (GlobalTimeStopManager.rejectIfStopped(player)) return false;
 		AmethystDampening.update(player);
 		Block reason = reason(false, AmethystDampening.isDampened(player),
-				SpaceTimeAbility.isFrozen(player));
+				EntityFreezeController.isFrozen(player));
 		if (reason == Block.AMETHYST) {
 			if (punishAmethyst) AmethystDampening.punish(player);
 			return false;
 		}
 		if (reason == Block.LOCAL_FREEZE) {
-			SpaceTimeAbility.reject(player);
+			EntityFreezeController.reject(player);
 			return false;
 		}
 		return true;
@@ -43,7 +43,7 @@ public final class MagicUseGate {
 	/** True for both the server-wide clock lock and a local crystal freeze. */
 	public static boolean timeLocked(ServerPlayer player) {
 		return player != null && (!GlobalTimeStopManager.mayAct(player)
-				|| SpaceTimeAbility.isFrozen(player));
+				|| EntityFreezeController.isFrozen(player));
 	}
 
 	static Block reason(boolean globalTimeStop, boolean amethyst, boolean localFreeze) {
