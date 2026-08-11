@@ -11,7 +11,7 @@
 - Fixed the rank-3 Cinderheart crash on block impacts by making the direct-target forcefield check null-safe.
 - Replaced generic rank percentages with 253 complete, power-specific authored level profiles and boss-scale capstones while preserving strict innate/spell/crystal/artifact source isolation.
 - Extended player Size Morphing save-safely to rank-gated `0.125×`, `2.5×`, `3×`, and `4×` forms; forcefield integrity and Double Health capacity now use their authored rank profiles.
-- Repainted both Labyrinth panels as alignment-specific carved-stone/blackstone pixel art and replaced misleading percentage tooltips with the transformations the selected title actually unlocks.
+- Repainted both Rank Maze panels as alignment-specific carved-stone/blackstone pixel art, gave the B-key screen a concise title, and replaced misleading percentage tooltips with the transformations the selected title actually unlocks.
 - Rebuilt the energy atlas as five crisp vanilla-scale empty/half/full glyph families and moved the ten-symbol hunger-aligned row above conditional air and mount-health rows.
 - Added a one-time persistent vanilla written-book guide and completed `/powers testing reset` plus testing-state diagnostics.
 - Rebuilt Teleport around vulnerable five-second origin/destination storms, unloaded-chunk loading, uniquely named players or mobs, bounded companion transfer, and duplicate-storm rejection; Middleworld is never exposed as an ordinary destination.
@@ -19,9 +19,15 @@
 - Upgraded Vessel Possession to server-authoritative movement, aim, jumping, crouching, hotbar, and attack control for consented players and ordinary mobs, with original mob AI restoration and higher-rank resistance.
 - Removed the obsolete Portal Rift crystal action. Indigo now owns only the persistent Middleworld journey, and Light/Dark crystals support a consent-safe crouching group journey of up to 16 players.
 - Made integrity wards follow the physical side of an active mind-body tether, so a shield still sacrifices itself against complete overkill without making the detached avatar damageable.
-- Increased the Celestial Ruin warning beam to a dense, client-bounded 100-block column visible from 1,024 blocks and extended its post-flash tinnitus fade while preserving the 2,048-block living shockwave.
+- Increased the Celestial Ruin warning beam to a dense, client-bounded 100-block column visible across 6,000 blocks and extended its whiteout/tinnitus sequence while the boss-scale living shockwave reaches the same 6,000-block radius.
 - Replaced borrowed spawn-egg references with four original self-contained egg textures and guarded every custom player-model base UV face against transparent/misaligned skins.
 - Prevented the Wild purification circle from healing unallied hostile mobs and allowed the Deep anchor spell to target the player-compatible test actor.
+- Replaced the custom Knowledge Book AI with the skin-matched, collisionless Shadow companion: explicit summon, doglike follow/teleport, consumed `shadow,` chat, owner-private replies, and global reveal/private hide commands.
+- Reduced the Shadow Sword to exactly three original rites while retaining every routed innate/crystal action, persistent eight-slot favourites, fast wheel/search library access, corrupted presentation, and rank-10 zero cooldowns.
+- Completed chromatic crystal cleanup: Orange produces skin-matched unarmed Echoes, Green keeps only Life Bloom, Blue owns global Chrono Stop plus controlled Dreamwalking, Yellow reaches 0.0625× through 10×, and Infected Rainbow is a hidden inert save alias rather than a second gameplay item.
+- Added guaranteed First Vessel Miniportal loot, two persistent same-dimension charges, exact-stack anchor binding, and dropped-amethyst recharge.
+- Assigned every imported relic and fantasy weapon a documented purpose and additive survival acquisition path without inventing deferred crystal recipes.
+- Finalized the 73-action/2,701-pair collision catalogue, 579 deterministic tests, 36 live GameTests, six-dimension dedicated-server boot, and 10/50/100-player synthetic workload proof.
 
 ## 1.0.1 - 2026-08-10
 
@@ -35,11 +41,11 @@
 - Made Celestial Ruin persist its countdown, dimension, caster, detonation phase, and exact destruction cursor through server restarts.
 - Added explicit catastrophic terrain and block-entity policy for Celestial Ruin while always purging Darkness and Pure Light.
 - Added real Fabric GameTests for live Darkness spreading and Darkness Creature faction targeting.
-- Expanded the canonical collision kernel to 82 actions and all 3,403 unordered pairs including same-action resonance.
+- Expanded the then-current canonical collision kernel to 82 actions and all 3,403 unordered pairs including same-action resonance; version 1.0.2 later removes retired actions and regenerates the final 73/2,701 catalogue.
 - Kept the survival HUD energy well as ten separate vanilla-aligned symbols directly above the hunger bar.
 - Added a non-pausing eight-favourite combat wheel, searchable invocation library, persistent artifact loadouts, dedicated rank-maze panels, and an enhanced five-state energy atlas.
 - Hid every power-owned status-effect cloud and replaced potion-like power visuals with bounded, colour-authored dust.
-- Strengthened Celestial Ruin to a 2,048-block living shockwave with 50,000 peak damage, persistent warning beam, whiteout, tinnitus, crater, and distant fire scars.
+- Strengthened Celestial Ruin to a large living shockwave with 50,000 peak damage, persistent warning beam, whiteout, tinnitus, crater, and distant fire scars; version 1.0.2 extends the final radius to 6,000 blocks.
 - Added shared integrity forcefields that absorb the complete overkill impact which breaks them.
 - Added schema-v2 migration so obsolete non-destructive terrain defaults do not silently survive upgrades; explicit v2 administrator opt-out remains supported.
 
