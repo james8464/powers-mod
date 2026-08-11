@@ -13,7 +13,7 @@ final class PlayerConsentAttachments {
 	private PlayerConsentAttachments() {
 	}
 
-	static AttachmentType<Boolean> type(PlayerPowers.ConsentKind kind) {
+	static AttachmentType<Boolean> type(com.powers.protection.ConsentKind kind) {
 		return switch (kind) {
 			case TELEPORT -> TELEPORT_CONSENT;
 			case LOCATOR -> LOCATOR_CONSENT;

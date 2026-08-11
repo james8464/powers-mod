@@ -43,11 +43,10 @@ public final class PowerProtection {
 	}
 
 	public static boolean mayForceMove(ServerPlayer caster, ServerPlayer target) {
-		if (caster == target) return true;
 		PowersConfig config = PowersConfigLoader.get();
-		if (isSafeZone((ServerLevel) target.level(), target.position())) return false;
-		if (!config.requireTeleportConsent() || config.hostileForcedMovement()) return true;
-		return PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.TELEPORT);
+		boolean ordinary = !config.requireTeleportConsent() || config.hostileForcedMovement()
+				|| PlayerPowers.get(target).allowsConsent(ConsentKind.TELEPORT);
+		return ConsentOverrideRuntime.authorize(caster, target, ConsentKind.TELEPORT, ordinary);
 	}
 
 	/** Entity-safe overload used by knockback, levitation and time powers. */
@@ -63,20 +62,21 @@ public final class PowerProtection {
 	}
 
 	public static boolean mayLocate(ServerPlayer caster, ServerPlayer target) {
-		if (caster == target || !PowersConfigLoader.get().requireLocatorConsent()) return true;
-		return PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.LOCATOR);
+		boolean ordinary = !PowersConfigLoader.get().requireLocatorConsent()
+				|| PlayerPowers.get(target).allowsConsent(ConsentKind.LOCATOR);
+		return ConsentOverrideRuntime.authorize(caster, target, ConsentKind.LOCATOR, ordinary);
 	}
 
 	public static boolean mayBringCompanion(ServerPlayer caster, ServerPlayer target) {
-		if (caster == target || !PowersConfigLoader.get().requireCompanionConsent()) return true;
-		return PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.COMPANION);
+		boolean ordinary = !PowersConfigLoader.get().requireCompanionConsent()
+				|| PlayerPowers.get(target).allowsConsent(ConsentKind.COMPANION);
+		return ConsentOverrideRuntime.authorize(caster, target, ConsentKind.COMPANION, ordinary);
 	}
 
 	public static boolean mayDreamwalk(ServerPlayer caster, ServerPlayer target) {
-		return ConsentProtectionRules.mayTarget(caster == target,
-				isSafeZone((ServerLevel) target.level(), target.position()),
-				PowersConfigLoader.get().requireDreamwalkConsent(),
-				PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.DREAMWALK));
+		boolean ordinary = !PowersConfigLoader.get().requireDreamwalkConsent()
+				|| PlayerPowers.get(target).allowsConsent(ConsentKind.DREAMWALK);
+		return ConsentOverrideRuntime.authorize(caster, target, ConsentKind.DREAMWALK, ordinary);
 	}
 
 	/** Keeps player consent while allowing named or aimed mobs outside safe zones. */
@@ -86,10 +86,9 @@ public final class PowerProtection {
 	}
 
 	public static boolean mayPossess(ServerPlayer caster, ServerPlayer target) {
-		return ConsentProtectionRules.mayTarget(caster == target,
-				isSafeZone((ServerLevel) target.level(), target.position()),
-				PowersConfigLoader.get().requirePossessionConsent(),
-				PlayerPowers.get(target).allowsConsent(PlayerPowers.ConsentKind.POSSESSION));
+		boolean ordinary = !PowersConfigLoader.get().requirePossessionConsent()
+				|| PlayerPowers.get(target).allowsConsent(ConsentKind.POSSESSION);
+		return ConsentOverrideRuntime.authorize(caster, target, ConsentKind.POSSESSION, ordinary);
 	}
 
 	/** Keeps player consent intact while allowing suitable mobs outside safe zones. */

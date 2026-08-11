@@ -73,11 +73,11 @@ public final class PowerCommand {
 								.requires(PowerCommand::isAdmin)
 								.executes(PowerCommand::rerollOther)))
 				.then(Commands.literal("consent")
-						.then(consentLiteral("teleport", PlayerPowers.ConsentKind.TELEPORT))
-						.then(consentLiteral("locator", PlayerPowers.ConsentKind.LOCATOR))
-						.then(consentLiteral("companion", PlayerPowers.ConsentKind.COMPANION))
-						.then(consentLiteral("dreamwalk", PlayerPowers.ConsentKind.DREAMWALK))
-						.then(consentLiteral("possession", PlayerPowers.ConsentKind.POSSESSION)))
+						.then(consentLiteral("teleport", com.powers.protection.ConsentKind.TELEPORT))
+						.then(consentLiteral("locator", com.powers.protection.ConsentKind.LOCATOR))
+						.then(consentLiteral("companion", com.powers.protection.ConsentKind.COMPANION))
+						.then(consentLiteral("dreamwalk", com.powers.protection.ConsentKind.DREAMWALK))
+						.then(consentLiteral("possession", com.powers.protection.ConsentKind.POSSESSION)))
 				.then(Commands.literal("reload")
 						.requires(PowerCommand::isAdmin)
 						.executes(PowerCommand::reloadConfig))
@@ -207,14 +207,14 @@ public final class PowerCommand {
 	}
 
 	private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> consentLiteral(
-			String name, PlayerPowers.ConsentKind kind) {
+			String name, com.powers.protection.ConsentKind kind) {
 		return Commands.literal(name)
 				.then(Commands.literal("allow").executes(context -> setConsent(context, kind, true)))
 				.then(Commands.literal("deny").executes(context -> setConsent(context, kind, false)));
 	}
 
 	private static int setConsent(CommandContext<CommandSourceStack> context,
-			PlayerPowers.ConsentKind kind, boolean allowed) throws CommandSyntaxException {
+			com.powers.protection.ConsentKind kind, boolean allowed) throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();
 		PlayerPowers.get(player).setConsent(kind, allowed);
 		context.getSource().sendSuccess(() -> Component.literal(kind.name().toLowerCase()

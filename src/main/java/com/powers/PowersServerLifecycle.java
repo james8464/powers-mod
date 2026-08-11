@@ -25,6 +25,7 @@ import com.powers.power.ConcordCastManager;
 import com.powers.power.PowerAbilityRuntime;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.power.travel.TravelChunkLoader;
+import com.powers.protection.ConsentOverrideRuntime;
 import com.powers.realm.RealmConfinementManager;
 import com.powers.realm.RealmEventManager;
 import com.powers.realm.RealmMindscapeManager;
@@ -141,6 +142,7 @@ final class PowersServerLifecycle {
 		NamedLivingTargetIndex.clearAll();
 		ServerRuntimeMetrics.clear();
 		PhysicalMagicPresences.clear();
+		ConsentOverrideRuntime.clear();
 	}
 
 	private static void tick(MinecraftServer server) {
