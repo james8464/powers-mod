@@ -14,7 +14,6 @@ import com.powers.power.PowerEnergy;
 import com.powers.util.PowerMessages;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.GameType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -246,27 +245,14 @@ public final class PlayerPowers {
 			target.setAttached(GUIDE_RECEIVED, Boolean.TRUE);
 		}
 
-		/**
-		 * The game mode this player held before entering a realm dimension, or
-		 * null when they were not in one. Stored by name so an unknown value
-		 * from an older save simply reads back as "no snapshot".
-		 */
-		public GameType previousGameMode() {
-			String name = target.getAttachedOrElse(PREVIOUS_GAMEMODE, "");
-			if (name.isEmpty()) {
-				return null;
-			}
-			for (GameType mode : GameType.values()) {
-				if (mode.getName().equals(name)) {
-					return mode;
-				}
-			}
-			return null;
+		/** Raw save-compatible value written by builds that forced mindscapes to Adventure. */
+		public String legacyPreviousGameModeName() {
+			return target.getAttachedOrElse(PREVIOUS_GAMEMODE, "");
 		}
 
-		/** Records (or, with null, forgets) the game mode to restore on leaving a realm. */
-		public void setPreviousGameMode(GameType mode) {
-			target.setAttached(PREVIOUS_GAMEMODE, mode == null ? "" : mode.getName());
+		/** Erases the retired snapshot after its one compatibility decision. */
+		public void clearLegacyPreviousGameMode() {
+			target.removeAttached(PREVIOUS_GAMEMODE);
 		}
 
 		public void setDarknessPrefixHidden(boolean hidden) {

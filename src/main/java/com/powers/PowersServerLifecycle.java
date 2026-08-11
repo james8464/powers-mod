@@ -59,6 +59,7 @@ final class PowersServerLifecycle {
 	}
 
 	private static void onJoin(ServerPlayer player) {
+		PlayerPowerTicker.migrateLegacyRealmGamemode(player);
 		if (!PowersConfigLoader.get().persistCooldowns()) {
 			PlayerPowers.get(player).clearCooldowns();
 		}
@@ -71,6 +72,7 @@ final class PowersServerLifecycle {
 	}
 
 	private static void afterRespawn(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
+		PlayerPowerTicker.migrateLegacyRealmGamemode(newPlayer);
 		MagicRuntime.global().clearOwner(oldPlayer.getUUID());
 		PowerAbilityRuntime.afterRespawn(newPlayer.level().getServer(), oldPlayer, newPlayer);
 		PlayerPowerTicker.forget(newPlayer.getUUID());
@@ -84,7 +86,6 @@ final class PowersServerLifecycle {
 		if (!alive) {
 			PowerAbilityRuntime.deactivateToggles(newPlayer);
 			ArtifactInventoryRuntime.stopAllToggles(newPlayer);
-			PlayerPowers.get(newPlayer).setPreviousGameMode(null);
 			RealmConfinementManager.restoreAfterDeath(oldPlayer, newPlayer);
 		}
 		SkillSystem.syncPathVisibility(newPlayer);
