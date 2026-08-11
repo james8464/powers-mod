@@ -1,6 +1,9 @@
 package com.powers.spell;
 
 import com.powers.PowersBlocks;
+import com.powers.audit.OperatorAudit;
+import com.powers.audit.OperatorAuditAction;
+import com.powers.audit.OperatorAuditResult;
 import com.powers.config.PowersConfig;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.CelestialRuinFx;
@@ -101,6 +104,8 @@ public final class CelestialRuinManager {
 		ServerLevel level = caster.level();
 		if (!canBegin(level, center) || PowerProtection.isSafeZone(level, Vec3.atCenterOf(center))
 				|| !PowerProtection.mayRitual(caster, level, center)) {
+			OperatorAudit.record(OperatorAuditAction.CATASTROPHIC_RITUAL,
+					OperatorAuditResult.DENIED, caster.getScoreboardName(), "world", "begin");
 			return false;
 		}
 		Ritual ritual = new Ritual(level, center.immutable(), caster.getUUID(),
@@ -110,6 +115,8 @@ public final class CelestialRuinManager {
 		persist(level.getServer());
 		CelestialRuinFx.begins(level, Vec3.atCenterOf(center), CelestialRuinRules.BEAM_RADIUS);
 		PowerMessages.sendImportant(caster, "spell.powers.celestial_ruin_begins", 3);
+		OperatorAudit.record(OperatorAuditAction.CATASTROPHIC_RITUAL,
+				OperatorAuditResult.SUCCESS, caster.getScoreboardName(), "world", "begin");
 		return true;
 	}
 

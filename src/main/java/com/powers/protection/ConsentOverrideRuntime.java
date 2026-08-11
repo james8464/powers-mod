@@ -1,6 +1,9 @@
 package com.powers.protection;
 
 import com.powers.ImportedPackItems;
+import com.powers.audit.OperatorAudit;
+import com.powers.audit.OperatorAuditAction;
+import com.powers.audit.OperatorAuditResult;
 import com.powers.fx.PowerFx;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
@@ -36,13 +39,23 @@ public final class ConsentOverrideRuntime {
 				self, safeZone, ordinaryConsent, hasJewel, enoughEnergy);
 		if (decision == ConsentOverrideRules.Decision.ALLOW_FREE) return true;
 		if (decision != ConsentOverrideRules.Decision.ALLOW_OVERRIDE) {
+			if (hasJewel && !ordinaryConsent) {
+				OperatorAudit.record(OperatorAuditAction.CONSENT_OVERRIDE,
+						OperatorAuditResult.DENIED, caster.getScoreboardName(),
+						target.getScoreboardName(), decision.name().toLowerCase(java.util.Locale.ROOT));
+			}
 			if (decision == ConsentOverrideRules.Decision.DENY_ENERGY) {
 				PowerMessages.overlay(caster, Component.translatable("artifact.powers.empyrean.no_energy"));
 			}
 			return false;
 		}
 		if (alreadyPaid) return true;
-		if (!data.consumeEnergy(ConsentOverrideRules.OVERRIDE_ENERGY_SURCHARGE)) return false;
+		if (!data.consumeEnergy(ConsentOverrideRules.OVERRIDE_ENERGY_SURCHARGE)) {
+			OperatorAudit.record(OperatorAuditAction.CONSENT_OVERRIDE,
+					OperatorAuditResult.FAILED, caster.getScoreboardName(),
+					target.getScoreboardName(), "energy_race");
+			return false;
+		}
 		PAYMENTS.recordPayment(tick, caster.getUUID(), target.getUUID(), kind);
 		PowersPackets.syncTo(caster);
 		ServerLevel level = (ServerLevel) caster.level();
@@ -52,8 +65,11 @@ public final class ConsentOverrideRuntime {
 		PowerFx.sound(level, caster.position(), SoundEvents.ENCHANTMENT_TABLE_USE, 0.9F, 0.62F);
 		PowerMessages.overlay(caster, Component.translatable("artifact.powers.empyrean.override",
 				target.getDisplayName(), kind.name().toLowerCase(java.util.Locale.ROOT)));
-		PowerMessages.overlay(target, Component.translatable("artifact.powers.empyrean.overridden",
-				caster.getDisplayName(), kind.name().toLowerCase(java.util.Locale.ROOT)));
+		ConsentOverrideNotice notice = ConsentOverrideNotice.forTarget(kind);
+		target.sendSystemMessage(Component.translatable(notice.translationKey(), caster.getDisplayName(),
+				notice.kind(), notice.energySurcharge()));
+		OperatorAudit.record(OperatorAuditAction.CONSENT_OVERRIDE, OperatorAuditResult.SUCCESS,
+				caster.getScoreboardName(), target.getScoreboardName(), notice.kind());
 		return true;
 	}
 

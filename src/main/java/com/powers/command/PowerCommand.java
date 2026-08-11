@@ -7,6 +7,9 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.powers.player.PlayerPowers;
 import com.powers.PowersEntities;
+import com.powers.audit.OperatorAudit;
+import com.powers.audit.OperatorAuditAction;
+import com.powers.audit.OperatorAuditResult;
 import com.powers.player.SkillSystem;
 import com.powers.config.PowersConfigLoader;
 import com.powers.mind.BodyProxyManager;
@@ -162,9 +165,13 @@ public final class PowerCommand {
 	private static int recoverBody(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		ServerPlayer player = EntityArgument.getPlayer(context, "player");
 		if (!BodyProxyManager.recoverToBody(player)) {
+			audit(context.getSource(), OperatorAuditAction.RECOVERY, OperatorAuditResult.DENIED,
+					player.getScoreboardName(), "no_anchor");
 			context.getSource().sendFailure(Component.literal("That player has no recoverable mind-body anchor."));
 			return 0;
 		}
+		audit(context.getSource(), OperatorAuditAction.RECOVERY, OperatorAuditResult.SUCCESS,
+				player.getScoreboardName(), "body_anchor");
 		context.getSource().sendSuccess(() -> Component.literal(
 				"Administratively recovered " + player.getName().getString() + "."), true);
 		return 1;
@@ -411,19 +418,30 @@ public final class PowerCommand {
 		String dimName = StringArgumentType.getString(context, "dimension");
 		Identifier id = Identifier.tryParse(dimName);
 		if (id == null) {
+			audit(context.getSource(), OperatorAuditAction.FORCED_TRAVEL, OperatorAuditResult.DENIED,
+					player.getScoreboardName(), "invalid_dimension");
 			context.getSource().sendFailure(Component.literal("Invalid dimension: " + dimName));
 			return 0;
 		}
 		ServerLevel target = player.level().getServer().getLevel(ResourceKey.create(Registries.DIMENSION, id));
 		if (target == null) {
+			audit(context.getSource(), OperatorAuditAction.FORCED_TRAVEL, OperatorAuditResult.DENIED,
+					player.getScoreboardName(), "unknown_dimension");
 			context.getSource().sendFailure(Component.literal("Unknown dimension: " + dimName));
 			return 0;
 		}
 		// land at the realm's fixed entry point near the origin
 		BodyProxyManager.finish(player);
 		player.teleportTo(target, 8.0, -58.0, 8.0, Set.of(), player.getYRot(), player.getXRot(), false);
+		audit(context.getSource(), OperatorAuditAction.FORCED_TRAVEL, OperatorAuditResult.SUCCESS,
+				player.getScoreboardName(), "dimension_travel");
 		context.getSource().sendSuccess(() -> Component.literal("Traveled to " + dimName)
 				.withStyle(ChatFormatting.GREEN), false);
 		return 1;
+	}
+
+	static void audit(CommandSourceStack source, OperatorAuditAction action,
+			OperatorAuditResult result, String subject, String detail) {
+		OperatorAudit.record(action, result, source.getDisplayName().getString(), subject, detail);
 	}
 }
