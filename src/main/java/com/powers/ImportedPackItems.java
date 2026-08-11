@@ -13,6 +13,9 @@ import com.powers.item.RuneTierRules;
 import com.powers.item.ImportedArtifactItem;
 import com.powers.item.ImportedArtifactKind;
 import com.powers.item.ImportedArtifactRules;
+import com.powers.item.ArtifactEnergyReservoir;
+import com.powers.item.ArtifactRole;
+import com.powers.item.ArtifactRoleCatalogue;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -53,6 +56,11 @@ public final class ImportedPackItems {
 			// dots become underscores so every id stays valid
 			String id = "imported_" + texture.replace('.', '_');
 			Item.Properties properties = new Item.Properties().stacksTo(64);
+			if (ArtifactRoleCatalogue.role(texture) == ArtifactRole.ENERGY_RESERVOIR) {
+				int initialEnergy = texture.contains("inert")
+						? 0 : ArtifactEnergyReservoir.capacity(texture);
+				properties.component(PowersDataComponents.STORED_ENERGY, initialEnergy);
+			}
 			java.util.function.Function<Item.Properties, Item> factory = Item::new;
 			if (texture.startsWith("food_")) {
 				// cooked, smoked, and stew foods restore more hunger

@@ -21,5 +21,7 @@ class CrucibleRuneRulesTest {
 		assertEquals(125, CrucibleRuneRules.xpFor("imported_artifact_malignember"));
 		assertEquals(175, CrucibleRuneRules.xpFor("imported_artifact_emperyeanjewel"));
 		assertEquals(35, CrucibleRuneRules.xpFor("imported_artifact_trilobite_fossil"));
+		assertEquals(30, CrucibleRuneRules.xpFor("imported_artifact_bowl_empty"));
+		assertEquals(25, CrucibleRuneRules.xpFor("imported_artifact_oldpage"));
 	}
 }

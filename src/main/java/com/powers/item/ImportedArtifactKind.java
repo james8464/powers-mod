@@ -4,7 +4,7 @@ package com.powers.item;
 public enum ImportedArtifactKind {
 	NONE,
 	ATTUNEMENT,
-	SOUL_VESSEL,
+	ENERGY_RESERVOIR,
 	RITUAL_CATALYST,
 	HEART_RELIC,
 	TRANSMUTER,

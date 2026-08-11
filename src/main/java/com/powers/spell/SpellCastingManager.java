@@ -17,6 +17,7 @@ import com.powers.progression.PowerScalingService;
 import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import com.powers.testing.TestingOverrides;
+import com.powers.item.ArtifactEnergyModifiers;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -87,7 +88,7 @@ public final class SpellCastingManager {
 		}
 		PreparedMagicCast magic = ServerMagicCasts.prepare(player, spell.id(), CastSource.SPELL);
 		if (!magic.allowed()) return;
-		int energyCost = spellEnergyCost(spell);
+		int energyCost = spellEnergyCost(player, spell);
 		if (!payAndCool(player, spell, energyCost)) return;
 		boolean amplified = consumeAmplification(player, spell.effect());
 		int channelTicks = SpellCastValues.from(PowerScalingService.unranked(spell.id()), amplified)
@@ -121,7 +122,7 @@ public final class SpellCastingManager {
 		if (spell.effect() != expectedEffect || !commonChecks(player, spell, true)) return false;
 		PreparedMagicCast magic = ServerMagicCasts.prepare(player, spell.id(), CastSource.SPELL);
 		if (!magic.allowed()) return false;
-		int energyCost = spellEnergyCost(spell);
+		int energyCost = spellEnergyCost(player, spell);
 		if (!payAndCool(player, spell, energyCost)) return false;
 		ServerMagicCasts.execute(magic, () -> Boolean.TRUE);
 		ServerMagicCasts.commit(magic, player);
@@ -154,8 +155,8 @@ public final class SpellCastingManager {
 		return true;
 	}
 
-	private static int spellEnergyCost(SpellDefinition spell) {
-		return spell.energyCost();
+	private static int spellEnergyCost(ServerPlayer player, SpellDefinition spell) {
+		return ArtifactEnergyModifiers.forPlayer(player, spell.id(), spell.energyCost());
 	}
 
 	private static boolean payAndCool(ServerPlayer player, SpellDefinition spell, int energyCost) {

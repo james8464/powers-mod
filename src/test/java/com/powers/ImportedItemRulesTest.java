@@ -13,5 +13,8 @@ class ImportedItemRulesTest {
 		assertTrue(ImportedItemRules.isLegacyAssetLayer("device_miniportal_active"));
 		assertFalse(ImportedItemRules.isLegacyAssetLayer("artifact_runestone_inert"));
 		assertFalse(ImportedItemRules.isLegacyAssetLayer("artifact_runestone_dark_large"));
+		assertTrue(ImportedItemRules.isHiddenCompatibilityItem("book_grimoire_infernal"));
+		assertTrue(ImportedItemRules.isHiddenCompatibilityItem("artifact_trilobitefossil"));
+		assertFalse(ImportedItemRules.isHiddenCompatibilityItem("magic_essence_soul_dust"));
 	}
 }

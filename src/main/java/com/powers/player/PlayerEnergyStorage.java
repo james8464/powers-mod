@@ -6,6 +6,7 @@ import com.powers.progression.PowerScalingService;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import net.minecraft.server.level.ServerPlayer;
 import com.powers.testing.TestingOverrides;
+import com.powers.item.ArtifactEnergyReservoir;
 
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_ENERGY;
 import static com.powers.player.PlayerPowerAttachments.ENERGY;
@@ -41,7 +42,12 @@ final class PlayerEnergyStorage {
 		if (amount <= 0) return true;
 		if (limitsDisabled(target)) return true;
 		int current = energy(target);
-		if (current < amount) return false;
+		if (current < amount) {
+			if (!(target instanceof ServerPlayer player)
+					|| !ArtifactEnergyReservoir.payShortfall(player, amount - current)) return false;
+			store(target, 0);
+			return true;
+		}
 		store(target, current - amount);
 		return true;
 	}

@@ -9,7 +9,7 @@ class ImportedArtifactRulesTest {
 	void registeredRelicFamiliesHaveExplicitGameplayRoles() {
 		assertEquals(ImportedArtifactKind.ATTUNEMENT,
 				ImportedArtifactRules.kind("artifact_diamond_ring"));
-		assertEquals(ImportedArtifactKind.SOUL_VESSEL,
+		assertEquals(ImportedArtifactKind.ENERGY_RESERVOIR,
 				ImportedArtifactRules.kind("artifact_soulmatrix"));
 		assertEquals(ImportedArtifactKind.RITUAL_CATALYST,
 				ImportedArtifactRules.kind("artifact_ritualdagger"));
@@ -36,10 +36,8 @@ class ImportedArtifactRulesTest {
 	}
 
 	@Test
-	void passiveAndSoulBudgetsAreFiniteAcrossStackCountsAndTiers() {
+	void passiveBudgetsAreFiniteAcrossStackCounts() {
 		assertEquals(0, ImportedArtifactRules.attunementEnergy(-4));
 		assertEquals(6, ImportedArtifactRules.attunementEnergy(99));
-		assertEquals(14, ImportedArtifactRules.soulDrain("artifact_soulstone_small"));
-		assertEquals(60, ImportedArtifactRules.soulDrain("artifact_soulmatrix"));
 	}
 }
