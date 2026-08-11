@@ -30,6 +30,7 @@ import static com.powers.player.PlayerPowerAttachments.DARKNESS_PREFIX_HIDDEN;
 import static com.powers.player.PlayerPowerAttachments.DIMENSIONAL_ANCHOR;
 import static com.powers.player.PlayerPowerAttachments.FLIGHT_SNAPSHOT;
 import static com.powers.player.PlayerPowerAttachments.GUIDE_RECEIVED;
+import static com.powers.player.PlayerPowerAttachments.LAST_DEATH;
 import static com.powers.player.PlayerPowerAttachments.MIND_BODY;
 import static com.powers.player.PlayerPowerAttachments.POWER_SLOTS;
 import static com.powers.player.PlayerPowerAttachments.PREVIOUS_GAMEMODE;
@@ -77,6 +78,19 @@ public final class PlayerPowers {
 		public List<String> realmMemories() {
 			return RealmMemoryStore.read(target);
 		}
+
+		/** Most recent recorded death, or null before this character has died. */
+		public LastDeathRecord lastDeath() {
+			return target.getAttached(LAST_DEATH);
+		}
+
+		/** Captures the current server-authoritative death point before respawn. */
+		public void recordDeath(ServerPlayer player) {
+			target.setAttached(LAST_DEATH, LastDeathRecord.at(
+					player.level().dimension().identifier().toString(),
+					player.getX(), player.getY(), player.getZ()));
+		}
+
 		public int selectedSpell(String grimoireKey, int spellCount) {
 			if (spellCount <= 0) return 0;
 			int selected = target.getAttachedOrElse(SPELL_SELECTIONS, Map.of()).getOrDefault(grimoireKey, 0);

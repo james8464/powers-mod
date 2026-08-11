@@ -10,6 +10,7 @@ import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.power.artifact.ArtifactDeathWardManager;
 import com.powers.power.artifact.ArtifactCovenantManager;
 import com.powers.player.DarknessQuestTracker;
+import com.powers.player.PlayerPowers;
 import com.powers.player.SkillQuestTracker;
 import com.powers.spell.SpellCastingManager;
 import com.powers.entity.PlayerLikeTarget;
@@ -61,6 +62,7 @@ final class PowerCombatEvents {
 					|| !ArtifactDeathWardManager.preventDeath(player, source);
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+			if (entity instanceof ServerPlayer player) PlayerPowers.get(player).recordDeath(player);
 			if (entity instanceof PlayerLikeTarget) {
 				TestActorPowerState.clear(entity.getUUID());
 				ForcefieldAbility.clear(entity.getUUID());

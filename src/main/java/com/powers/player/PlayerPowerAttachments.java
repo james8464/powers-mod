@@ -61,6 +61,8 @@ final class PlayerPowerAttachments {
 	static final AttachmentType<Boolean> POSSESSION_CONSENT = persistentBoolean("possession_consent");
 	static final AttachmentType<String> PREVIOUS_GAMEMODE = AttachmentRegistry.create(
 			PowersMod.id("previous_gamemode"), builder -> builder.persistent(Codec.STRING).copyOnDeath());
+	static final AttachmentType<LastDeathRecord> LAST_DEATH = AttachmentRegistry.create(
+			PowersMod.id("last_death"), builder -> builder.persistent(LastDeathRecord.CODEC).copyOnDeath());
 
 	private PlayerPowerAttachments() {
 	}

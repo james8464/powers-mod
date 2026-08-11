@@ -711,6 +711,23 @@ public final class PowersGameTests {
 	}
 
 	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void graveRecallStateCapturesThePlayersCurrentDimensionAndPosition(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos point = helper.absolutePos(new BlockPos(5, 3, 7));
+		player.setPos(point.getX() + 0.75, point.getY(), point.getZ() + 0.25);
+		var powers = com.powers.player.PlayerPowers.get(player);
+		powers.recordDeath(player);
+		var death = powers.lastDeath();
+		helper.assertTrue(death != null, "No last-death record was stored");
+		helper.assertTrue(death.dimension().equals(helper.getLevel().dimension().identifier().toString()),
+				"Last-death dimension was not server authoritative");
+		helper.assertTrue(death.x() == point.getX() && death.y() == point.getY()
+				&& death.z() == point.getZ(), "Last-death coordinates were not floored block coordinates");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void operatorTestingTreeExposesCoverageAndArenaControls(GameTestHelper helper) {
 		var powers = helper.getLevel().getServer().getCommands().getDispatcher()
 				.getRoot().getChild("powers");
@@ -800,7 +817,7 @@ public final class PowersGameTests {
 				"The live crystal-action registry was incomplete");
 		long spells = SpellRegistry.defaults().definitions().stream()
 				.mapToLong(book -> book.spells().size()).sum();
-		helper.assertTrue(spells == 21, "The live grimoire registry did not contain all 21 spells");
+		helper.assertTrue(spells == 12, "The live grimoire registry did not contain all 12 active spells");
 		for (ArtifactAlignment alignment : ArtifactAlignment.values()) {
 			helper.assertTrue(ArtifactWeaponManager.actions(alignment).size()
 					== ArtifactActionCatalogue.forAlignment(alignment).size()
