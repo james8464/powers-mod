@@ -7,5 +7,7 @@ public enum TravelKind {
 	PROJECTION,
 	COMPANION,
 	PLAYER_RETURN,
+	/** Internal fatal-mind path; never accepted from packets, powers, items, or commands. */
+	FATAL_SOUL_RETURN,
 	ADMIN_RECOVERY
 }

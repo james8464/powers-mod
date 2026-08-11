@@ -33,15 +33,15 @@ public final class SafeDestinationResolver {
 
 		BlockPos feet = BlockPos.containing(requested);
 		if (!LoadedChunks.contains(target, feet)) return new Result(DestinationFailure.UNLOADED_CHUNK, requested);
-		if (kind != TravelKind.PLAYER_RETURN && kind != TravelKind.ADMIN_RECOVERY
+		if (!recovery(kind)
 				&& AmethystDampening.findPoweredWard(target, feet).isPresent()) {
 			return new Result(DestinationFailure.WARD, requested);
 		}
-		if (kind != TravelKind.PLAYER_RETURN && kind != TravelKind.ADMIN_RECOVERY
+		if (!recovery(kind)
 				&& PowerProtection.isSafeZone(target, requested)) {
 			return new Result(DestinationFailure.SAFE_ZONE, requested);
 		}
-		if (kind != TravelKind.PLAYER_RETURN && kind != TravelKind.ADMIN_RECOVERY
+		if (!recovery(kind)
 				&& SpellFieldManager.blocksTravel(subject, target, requested)) {
 			return new Result(DestinationFailure.ANTI_PORTAL, requested);
 		}
@@ -81,7 +81,7 @@ public final class SafeDestinationResolver {
 					SkillSystem.hasDarknessTag(player), data.skillLevel(), data.darknessLevel());
 			if (realm != DestinationFailure.NONE) return new Result(realm, requested);
 		}
-		if (kind != TravelKind.PLAYER_RETURN && kind != TravelKind.ADMIN_RECOVERY
+		if (!recovery(kind)
 				&& DimensionalAnchorAbility.isAnchored(subject)
 				&& !target.dimension().equals(DimensionalAnchorAbility.anchorDimension(subject))) {
 			return new Result(DestinationFailure.ANCHOR, requested);
@@ -100,13 +100,16 @@ public final class SafeDestinationResolver {
 
 	static DestinationFailure realmFailure(String origin, String target, TravelKind kind,
 			boolean darknessTag, int normalLevel, int darknessLevel) {
-		if (kind == TravelKind.ADMIN_RECOVERY || origin.equals(target)) {
+		if (kind == TravelKind.ADMIN_RECOVERY || kind == TravelKind.FATAL_SOUL_RETURN
+				|| origin.equals(target)) {
 			return DestinationFailure.NONE;
 		}
 		boolean qualifiedDarkness = darknessTag && darknessLevel >= SkillSystem.DARKNESS_GATE_LEVEL;
-		if (RealmConfinementRules.requiredRespawnRealm(origin, darknessTag,
-				normalLevel, darknessLevel) != null) {
-			return DestinationFailure.REALM_RESTRICTED;
+		boolean fromMindscape = origin.equals("powers:dark_realm") || origin.equals("powers:light_realm");
+		if (fromMindscape) {
+			if (kind != TravelKind.PLAYER_RETURN) return DestinationFailure.REALM_RESTRICTED;
+			if (RealmConfinementRules.requiredRespawnRealm(origin, darknessTag,
+					normalLevel, darknessLevel) != null) return DestinationFailure.REALM_RESTRICTED;
 		}
 		if (target.equals("powers:middleworld") && kind != TravelKind.CRYSTAL) {
 			return DestinationFailure.REALM_RESTRICTED;
@@ -115,5 +118,10 @@ public final class SafeDestinationResolver {
 			return DestinationFailure.REALM_RESTRICTED;
 		}
 		return DestinationFailure.NONE;
+	}
+
+	private static boolean recovery(TravelKind kind) {
+		return kind == TravelKind.PLAYER_RETURN || kind == TravelKind.FATAL_SOUL_RETURN
+				|| kind == TravelKind.ADMIN_RECOVERY;
 	}
 }

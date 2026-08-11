@@ -1,7 +1,9 @@
 package com.powers.mind;
 
+import com.powers.PowersMod;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.PowerFx;
+import com.powers.magic.runtime.MagicLifecycleRules;
 import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
@@ -41,6 +43,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 /** Owns vulnerable, skin-matched bodies left behind by mind and spirit travel. */
 public final class BodyProxyManager {
@@ -126,18 +129,23 @@ public final class BodyProxyManager {
 		if (owner != null && PowerDamage.isPowerDamage(source) && AmethystDampening.isDampened(owner)) {
 			return false;
 		}
-		if (owner != null && MindBodyDamageRules.proxyDamageIsFatal(amount, owner.getHealth())
-				&& active.fatalResolved().compareAndSet(false, true)) {
-			resolveFatalDamage(active, owner, source, amount);
-			return false;
-		}
 		return true;
 	}
 
-	/** Detached avatars are only cameras/minds; all physical damage belongs to the frozen body. */
-	public static boolean avatarMayTakeDamage(ServerPlayer player) {
-		return MindBodyDamageRules.avatarMayTakeDamage(
-				player != null && PlayerPowers.get(player).mindBody() != null);
+	/** Cancels remote death while it is recalled and replayed at the physical body. */
+	public static boolean allowsAvatarDeath(ServerPlayer player, DamageSource source) {
+		Active active = player == null ? null : BY_OWNER.get(player.getUUID());
+		if (active == null) return true;
+		MindBodyState state = PlayerPowers.get(player).mindBody();
+		MagicLifecycleRules.Form form = state == null ? MagicLifecycleRules.Form.ASTRAL_AVATAR
+				: lifecycleForm(state.proxyKind());
+		if (MagicLifecycleRules.resolve(form, MagicLifecycleRules.Source.NONE,
+				MagicLifecycleRules.Event.AVATAR_FATAL).outcome()
+				!= MagicLifecycleRules.Outcome.RETURN_AND_DIE) return true;
+		if (active.fatalResolved().compareAndSet(false, true)) {
+			beginFatalReturn(player, source);
+		}
+		return false;
 	}
 
 	public static boolean allowsDeath(LivingEntity entity) {
@@ -154,31 +162,40 @@ public final class BodyProxyManager {
 		if (owner == null) return;
 		if (!owner.isAlive() || owner.isRemoved()) return;
 		float health = owner.getHealth() - damageTaken;
-		owner.setHealth(Math.max(0.0f, health));
 		active.body().setHealth(active.body().getMaxHealth());
 		PowerFx.coloredBurst((ServerLevel) active.body().level(), active.position().add(0, 1, 0),
 				0xBCA7FF, 8, 0.45);
-		if (health <= 0.0f) owner.die(source);
+		if (health <= 0.0F) {
+			if (active.fatalResolved().compareAndSet(false, true)) {
+				beginFatalReturn(owner, source);
+			}
+		} else {
+			owner.setHealth(health);
+		}
 	}
 
-	/** Returns the owner before applying a fatal physical-body hit, exactly once. */
-	private static void resolveFatalDamage(Active active, ServerPlayer owner,
-			DamageSource source, float amount) {
+	/** Returns first, then replays vanilla death outside the active damage callback. */
+	private static void beginFatalReturn(ServerPlayer owner, DamageSource source) {
 		owner.setCamera(null);
-		boolean returned = returnToBody(owner);
-		if (!returned) {
-			// Realm gates may legitimately refuse a player-controlled return. End
-			// the detached session before death so respawn confinement owns recovery.
-			finish(owner);
-			owner.die(source);
-			return;
-		}
-		owner.hurtServer((ServerLevel) owner.level(), source,
-				Math.max(amount, owner.getHealth()));
+		owner.setHealth(Math.max(1.0F, owner.getHealth()));
+		MinecraftServer server = owner.level().getServer();
+		returnToBody(owner, TravelKind.FATAL_SOUL_RETURN, returned -> {
+			if (!returned) finish(owner);
+			PowersMod.scheduleDelayed(server, 1, () -> {
+				if (owner.isRemoved()) return;
+				owner.setHealth(0.0F);
+				owner.die(source);
+			});
+		});
 	}
 
 	public static boolean returnToBody(ServerPlayer player) {
 		return returnToBody(player, TravelKind.PLAYER_RETURN);
+	}
+
+	/** Returns normally and reports completion after any bounded chunk request. */
+	public static boolean returnToBody(ServerPlayer player, Consumer<Boolean> completion) {
+		return returnToBody(player, TravelKind.PLAYER_RETURN, completion);
 	}
 
 	/** Operator-only recovery path; callers must enforce administrative permission. */
@@ -187,25 +204,38 @@ public final class BodyProxyManager {
 	}
 
 	private static boolean returnToBody(ServerPlayer player, TravelKind travelKind) {
+		return returnToBody(player, travelKind, null);
+	}
+
+	private static boolean returnToBody(ServerPlayer player, TravelKind travelKind,
+			Consumer<Boolean> completion) {
 		MindBodyState state = PlayerPowers.get(player).mindBody();
-		if (state == null) return false;
+		if (state == null) return completed(completion, false);
 		Identifier dimensionId = Identifier.tryParse(state.dimension());
-		if (dimensionId == null) return false;
+		if (dimensionId == null) return completed(completion, false);
 		MinecraftServer server = player.level().getServer();
 		ServerLevel target = server.getLevel(ResourceKey.create(Registries.DIMENSION, dimensionId));
-		if (target == null) return false;
+		if (target == null) return completed(completion, false);
 		Vec3 requested = new Vec3(state.x(), state.y(), state.z());
 		BlockPos requestedBlock = BlockPos.containing(requested);
 		if (!LoadedChunks.contains(target, requestedBlock)) {
 			UUID ownerId = player.getUUID();
 			return TravelChunkLoader.request(ownerId, target, requestedBlock,
-					() -> completeReturn(server, ownerId, target, state, requested, travelKind),
+					() -> completed(completion,
+							completeReturn(server, ownerId, target, state, requested, travelKind)),
 					() -> {
 						ServerPlayer owner = server.getPlayerList().getPlayer(ownerId);
 						if (owner != null) PowerMessages.send(owner, "ability.powers.no_room", 3);
+						completed(completion, false);
 					});
 		}
-		return completeReturn(server, player.getUUID(), target, state, requested, travelKind);
+		return completed(completion,
+				completeReturn(server, player.getUUID(), target, state, requested, travelKind));
+	}
+
+	private static boolean completed(Consumer<Boolean> completion, boolean result) {
+		if (completion != null) completion.accept(result);
+		return result;
 	}
 
 	private static boolean completeReturn(MinecraftServer server, UUID ownerId,
@@ -305,5 +335,15 @@ public final class BodyProxyManager {
 	private static GameType gameMode(String name) {
 		for (GameType mode : GameType.values()) if (mode.getName().equals(name)) return mode;
 		return null;
+	}
+
+	private static MagicLifecycleRules.Form lifecycleForm(BodyProxyKind kind) {
+		return switch (kind) {
+			case REALM -> MagicLifecycleRules.Form.REALM_AVATAR;
+			case ASTRAL -> MagicLifecycleRules.Form.ASTRAL_AVATAR;
+			case MARKING -> MagicLifecycleRules.Form.TELEPORT_MARKER;
+			case POSSESSION -> MagicLifecycleRules.Form.POSSESSION_CONTROLLER;
+			case DREAMWALK -> MagicLifecycleRules.Form.DREAMWALK_CONTROLLER;
+		};
 	}
 }

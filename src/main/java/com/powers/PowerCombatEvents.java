@@ -15,10 +15,10 @@ import com.powers.player.SkillQuestTracker;
 import com.powers.spell.SpellCastingManager;
 import com.powers.entity.PlayerLikeTarget;
 import com.powers.entity.TestActorPowerState;
+import com.powers.companion.PrivateCompanionManager;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageTypes;
 
 /** Registers damage policy, body-proxy mirroring, and cast interruption hooks. */
 final class PowerCombatEvents {
@@ -30,9 +30,6 @@ final class PowerCombatEvents {
 			if (BodyProxyManager.isProxy(entity)) {
 				return BodyProxyManager.allowsDamage(entity, source, amount);
 			}
-			if (entity instanceof ServerPlayer player
-					&& !BodyProxyManager.avatarMayTakeDamage(player)) return false;
-			if (source.is(DamageTypes.GENERIC_KILL) || source.is(DamageTypes.FELL_OUT_OF_WORLD)) return true;
 			if (GlobalTimeStopManager.isStopped(((ServerLevel) entity.level()).getServer())) {
 				if (!(source.getEntity() instanceof ServerPlayer actor)
 						|| !GlobalTimeStopManager.mayAct(actor)) return false;
@@ -57,10 +54,13 @@ final class PowerCombatEvents {
 		});
 		ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
 			if (!BodyProxyManager.allowsDeath(entity)) return false;
+			if (entity instanceof ServerPlayer player
+					&& !BodyProxyManager.allowsAvatarDeath(player, source)) return false;
 			return !(entity instanceof ServerPlayer player)
 					|| !ArtifactDeathWardManager.preventDeath(player, source);
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+			PrivateCompanionManager.afterDeath(entity);
 			if (entity instanceof ServerPlayer player) PlayerPowers.get(player).recordDeath(player);
 			if (entity instanceof PlayerLikeTarget) {
 				TestActorPowerState.clear(entity.getUUID());

@@ -56,6 +56,19 @@ public final class ArtifactInventoryRuntime {
 		}
 	}
 
+	/**
+	 * Constant-size ownership pass used even while global time is frozen. Item
+	 * removal must not preserve an artifact-routed flight or invisibility toggle.
+	 */
+	public static void reconcileOwnership(ServerPlayer player) {
+		for (ArtifactAlignment alignment : ArtifactAlignment.values()) {
+			if (!ArtifactWeaponManager.carries(player, alignment)
+					|| !ArtifactWeaponManager.authorized(player, alignment)) {
+				stopToggles(player, alignment);
+			}
+		}
+	}
+
 	private static void tickAuthorized(ServerPlayer player, ArtifactAlignment alignment, int tick) {
 		tickToggles(player, alignment, tick);
 		if (tick % 10 == 0) {

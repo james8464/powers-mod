@@ -1,0 +1,673 @@
+form,source,event,outcome,motif,mechanics
+PHYSICAL,NONE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+PHYSICAL,NONE,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+PHYSICAL,NONE,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+PHYSICAL,NONE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,NONE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,NONE,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,NONE,ENERGY_EXHAUSTED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,NONE,SUPPRESSED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,NONE,EXPIRED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,NONE,TARGET_UNAVAILABLE,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,NONE,DIMENSION_INVALID,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,NONE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+PHYSICAL,NONE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+PHYSICAL,NONE,MANUAL_END,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,INNATE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+PHYSICAL,INNATE,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+PHYSICAL,INNATE,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+PHYSICAL,INNATE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,INNATE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,INNATE,POWER_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+PHYSICAL,INNATE,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+PHYSICAL,INNATE,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+PHYSICAL,INNATE,EXPIRED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,INNATE,TARGET_UNAVAILABLE,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,INNATE,DIMENSION_INVALID,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,INNATE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+PHYSICAL,INNATE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+PHYSICAL,INNATE,MANUAL_END,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,CRYSTAL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+PHYSICAL,CRYSTAL,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+PHYSICAL,CRYSTAL,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+PHYSICAL,CRYSTAL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,CRYSTAL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,CRYSTAL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,CRYSTAL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+PHYSICAL,CRYSTAL,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+PHYSICAL,CRYSTAL,EXPIRED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,CRYSTAL,TARGET_UNAVAILABLE,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,CRYSTAL,DIMENSION_INVALID,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,CRYSTAL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+PHYSICAL,CRYSTAL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+PHYSICAL,CRYSTAL,MANUAL_END,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,SPELL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+PHYSICAL,SPELL,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+PHYSICAL,SPELL,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+PHYSICAL,SPELL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,SPELL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,SPELL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,SPELL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+PHYSICAL,SPELL,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+PHYSICAL,SPELL,EXPIRED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,SPELL,TARGET_UNAVAILABLE,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,SPELL,DIMENSION_INVALID,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,SPELL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+PHYSICAL,SPELL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+PHYSICAL,SPELL,MANUAL_END,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,SHADOW_SWORD,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+PHYSICAL,SHADOW_SWORD,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+PHYSICAL,SHADOW_SWORD,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+PHYSICAL,SHADOW_SWORD,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,SHADOW_SWORD,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+PHYSICAL,SHADOW_SWORD,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,SHADOW_SWORD,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+PHYSICAL,SHADOW_SWORD,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+PHYSICAL,SHADOW_SWORD,EXPIRED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,SHADOW_SWORD,TARGET_UNAVAILABLE,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,SHADOW_SWORD,DIMENSION_INVALID,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,SHADOW_SWORD,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+PHYSICAL,SHADOW_SWORD,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+PHYSICAL,SHADOW_SWORD,MANUAL_END,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,PARTISAN,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+PHYSICAL,PARTISAN,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+PHYSICAL,PARTISAN,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+PHYSICAL,PARTISAN,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,PARTISAN,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+PHYSICAL,PARTISAN,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,PARTISAN,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+PHYSICAL,PARTISAN,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+PHYSICAL,PARTISAN,EXPIRED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,PARTISAN,TARGET_UNAVAILABLE,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,PARTISAN,DIMENSION_INVALID,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+PHYSICAL,PARTISAN,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+PHYSICAL,PARTISAN,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+PHYSICAL,PARTISAN,MANUAL_END,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,NONE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+REALM_AVATAR,NONE,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+REALM_AVATAR,NONE,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+REALM_AVATAR,NONE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,NONE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,NONE,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,NONE,ENERGY_EXHAUSTED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,NONE,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,NONE,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,NONE,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,NONE,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,NONE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+REALM_AVATAR,NONE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+REALM_AVATAR,NONE,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,INNATE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+REALM_AVATAR,INNATE,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+REALM_AVATAR,INNATE,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+REALM_AVATAR,INNATE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,INNATE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,INNATE,POWER_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+REALM_AVATAR,INNATE,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+REALM_AVATAR,INNATE,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,INNATE,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,INNATE,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,INNATE,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,INNATE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+REALM_AVATAR,INNATE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+REALM_AVATAR,INNATE,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,CRYSTAL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+REALM_AVATAR,CRYSTAL,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+REALM_AVATAR,CRYSTAL,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+REALM_AVATAR,CRYSTAL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,CRYSTAL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,CRYSTAL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,CRYSTAL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+REALM_AVATAR,CRYSTAL,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,CRYSTAL,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,CRYSTAL,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,CRYSTAL,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,CRYSTAL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+REALM_AVATAR,CRYSTAL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+REALM_AVATAR,CRYSTAL,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,SPELL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+REALM_AVATAR,SPELL,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+REALM_AVATAR,SPELL,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+REALM_AVATAR,SPELL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,SPELL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,SPELL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,SPELL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+REALM_AVATAR,SPELL,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,SPELL,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,SPELL,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,SPELL,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,SPELL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+REALM_AVATAR,SPELL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+REALM_AVATAR,SPELL,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,SHADOW_SWORD,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+REALM_AVATAR,SHADOW_SWORD,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+REALM_AVATAR,SHADOW_SWORD,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+REALM_AVATAR,SHADOW_SWORD,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,SHADOW_SWORD,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+REALM_AVATAR,SHADOW_SWORD,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,SHADOW_SWORD,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+REALM_AVATAR,SHADOW_SWORD,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,SHADOW_SWORD,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,SHADOW_SWORD,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,SHADOW_SWORD,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,SHADOW_SWORD,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+REALM_AVATAR,SHADOW_SWORD,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+REALM_AVATAR,SHADOW_SWORD,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,PARTISAN,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+REALM_AVATAR,PARTISAN,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+REALM_AVATAR,PARTISAN,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+REALM_AVATAR,PARTISAN,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,PARTISAN,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+REALM_AVATAR,PARTISAN,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+REALM_AVATAR,PARTISAN,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+REALM_AVATAR,PARTISAN,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,PARTISAN,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,PARTISAN,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,PARTISAN,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+REALM_AVATAR,PARTISAN,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+REALM_AVATAR,PARTISAN,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+REALM_AVATAR,PARTISAN,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,NONE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+ASTRAL_AVATAR,NONE,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+ASTRAL_AVATAR,NONE,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+ASTRAL_AVATAR,NONE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,NONE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,NONE,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,NONE,ENERGY_EXHAUSTED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,NONE,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,NONE,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,NONE,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,NONE,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,NONE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+ASTRAL_AVATAR,NONE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+ASTRAL_AVATAR,NONE,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,INNATE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+ASTRAL_AVATAR,INNATE,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+ASTRAL_AVATAR,INNATE,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+ASTRAL_AVATAR,INNATE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,INNATE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,INNATE,POWER_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+ASTRAL_AVATAR,INNATE,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+ASTRAL_AVATAR,INNATE,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,INNATE,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,INNATE,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,INNATE,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,INNATE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+ASTRAL_AVATAR,INNATE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+ASTRAL_AVATAR,INNATE,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,CRYSTAL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+ASTRAL_AVATAR,CRYSTAL,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+ASTRAL_AVATAR,CRYSTAL,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+ASTRAL_AVATAR,CRYSTAL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,CRYSTAL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,CRYSTAL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,CRYSTAL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+ASTRAL_AVATAR,CRYSTAL,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,CRYSTAL,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,CRYSTAL,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,CRYSTAL,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,CRYSTAL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+ASTRAL_AVATAR,CRYSTAL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+ASTRAL_AVATAR,CRYSTAL,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,SPELL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+ASTRAL_AVATAR,SPELL,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+ASTRAL_AVATAR,SPELL,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+ASTRAL_AVATAR,SPELL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,SPELL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,SPELL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,SPELL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+ASTRAL_AVATAR,SPELL,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,SPELL,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,SPELL,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,SPELL,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,SPELL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+ASTRAL_AVATAR,SPELL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+ASTRAL_AVATAR,SPELL,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,SHADOW_SWORD,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+ASTRAL_AVATAR,SHADOW_SWORD,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+ASTRAL_AVATAR,SHADOW_SWORD,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+ASTRAL_AVATAR,SHADOW_SWORD,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,SHADOW_SWORD,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+ASTRAL_AVATAR,SHADOW_SWORD,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,SHADOW_SWORD,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+ASTRAL_AVATAR,SHADOW_SWORD,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,SHADOW_SWORD,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,SHADOW_SWORD,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,SHADOW_SWORD,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,SHADOW_SWORD,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+ASTRAL_AVATAR,SHADOW_SWORD,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+ASTRAL_AVATAR,SHADOW_SWORD,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,PARTISAN,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+ASTRAL_AVATAR,PARTISAN,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+ASTRAL_AVATAR,PARTISAN,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+ASTRAL_AVATAR,PARTISAN,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,PARTISAN,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+ASTRAL_AVATAR,PARTISAN,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+ASTRAL_AVATAR,PARTISAN,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+ASTRAL_AVATAR,PARTISAN,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,PARTISAN,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,PARTISAN,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,PARTISAN,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+ASTRAL_AVATAR,PARTISAN,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+ASTRAL_AVATAR,PARTISAN,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+ASTRAL_AVATAR,PARTISAN,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,NONE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+TELEPORT_MARKER,NONE,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+TELEPORT_MARKER,NONE,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+TELEPORT_MARKER,NONE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,NONE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,NONE,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,NONE,ENERGY_EXHAUSTED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,NONE,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,NONE,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,NONE,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,NONE,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,NONE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+TELEPORT_MARKER,NONE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+TELEPORT_MARKER,NONE,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,INNATE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+TELEPORT_MARKER,INNATE,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+TELEPORT_MARKER,INNATE,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+TELEPORT_MARKER,INNATE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,INNATE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,INNATE,POWER_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+TELEPORT_MARKER,INNATE,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+TELEPORT_MARKER,INNATE,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,INNATE,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,INNATE,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,INNATE,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,INNATE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+TELEPORT_MARKER,INNATE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+TELEPORT_MARKER,INNATE,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,CRYSTAL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+TELEPORT_MARKER,CRYSTAL,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+TELEPORT_MARKER,CRYSTAL,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+TELEPORT_MARKER,CRYSTAL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,CRYSTAL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,CRYSTAL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,CRYSTAL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+TELEPORT_MARKER,CRYSTAL,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,CRYSTAL,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,CRYSTAL,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,CRYSTAL,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,CRYSTAL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+TELEPORT_MARKER,CRYSTAL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+TELEPORT_MARKER,CRYSTAL,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,SPELL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+TELEPORT_MARKER,SPELL,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+TELEPORT_MARKER,SPELL,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+TELEPORT_MARKER,SPELL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,SPELL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,SPELL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,SPELL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+TELEPORT_MARKER,SPELL,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,SPELL,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,SPELL,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,SPELL,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,SPELL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+TELEPORT_MARKER,SPELL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+TELEPORT_MARKER,SPELL,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,SHADOW_SWORD,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+TELEPORT_MARKER,SHADOW_SWORD,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+TELEPORT_MARKER,SHADOW_SWORD,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+TELEPORT_MARKER,SHADOW_SWORD,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,SHADOW_SWORD,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+TELEPORT_MARKER,SHADOW_SWORD,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,SHADOW_SWORD,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+TELEPORT_MARKER,SHADOW_SWORD,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,SHADOW_SWORD,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,SHADOW_SWORD,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,SHADOW_SWORD,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,SHADOW_SWORD,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+TELEPORT_MARKER,SHADOW_SWORD,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+TELEPORT_MARKER,SHADOW_SWORD,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,PARTISAN,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+TELEPORT_MARKER,PARTISAN,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+TELEPORT_MARKER,PARTISAN,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+TELEPORT_MARKER,PARTISAN,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,PARTISAN,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+TELEPORT_MARKER,PARTISAN,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+TELEPORT_MARKER,PARTISAN,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+TELEPORT_MARKER,PARTISAN,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,PARTISAN,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,PARTISAN,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,PARTISAN,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+TELEPORT_MARKER,PARTISAN,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+TELEPORT_MARKER,PARTISAN,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+TELEPORT_MARKER,PARTISAN,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,NONE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+POSSESSION_CONTROLLER,NONE,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+POSSESSION_CONTROLLER,NONE,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+POSSESSION_CONTROLLER,NONE,VESSEL_FATAL,RETURN_WITH_WRATH,divine_wrath,A dead controlled vessel releases the living controller and invokes bounded divine wrath.
+POSSESSION_CONTROLLER,NONE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+POSSESSION_CONTROLLER,NONE,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+POSSESSION_CONTROLLER,NONE,ENERGY_EXHAUSTED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+POSSESSION_CONTROLLER,NONE,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,NONE,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,NONE,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,NONE,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,NONE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+POSSESSION_CONTROLLER,NONE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+POSSESSION_CONTROLLER,NONE,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,INNATE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+POSSESSION_CONTROLLER,INNATE,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+POSSESSION_CONTROLLER,INNATE,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+POSSESSION_CONTROLLER,INNATE,VESSEL_FATAL,RETURN_WITH_WRATH,divine_wrath,A dead controlled vessel releases the living controller and invokes bounded divine wrath.
+POSSESSION_CONTROLLER,INNATE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+POSSESSION_CONTROLLER,INNATE,POWER_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+POSSESSION_CONTROLLER,INNATE,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+POSSESSION_CONTROLLER,INNATE,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,INNATE,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,INNATE,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,INNATE,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,INNATE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+POSSESSION_CONTROLLER,INNATE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+POSSESSION_CONTROLLER,INNATE,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,CRYSTAL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+POSSESSION_CONTROLLER,CRYSTAL,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+POSSESSION_CONTROLLER,CRYSTAL,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+POSSESSION_CONTROLLER,CRYSTAL,VESSEL_FATAL,RETURN_WITH_WRATH,divine_wrath,A dead controlled vessel releases the living controller and invokes bounded divine wrath.
+POSSESSION_CONTROLLER,CRYSTAL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+POSSESSION_CONTROLLER,CRYSTAL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+POSSESSION_CONTROLLER,CRYSTAL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+POSSESSION_CONTROLLER,CRYSTAL,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,CRYSTAL,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,CRYSTAL,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,CRYSTAL,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,CRYSTAL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+POSSESSION_CONTROLLER,CRYSTAL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+POSSESSION_CONTROLLER,CRYSTAL,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,SPELL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+POSSESSION_CONTROLLER,SPELL,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+POSSESSION_CONTROLLER,SPELL,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+POSSESSION_CONTROLLER,SPELL,VESSEL_FATAL,RETURN_WITH_WRATH,divine_wrath,A dead controlled vessel releases the living controller and invokes bounded divine wrath.
+POSSESSION_CONTROLLER,SPELL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+POSSESSION_CONTROLLER,SPELL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+POSSESSION_CONTROLLER,SPELL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+POSSESSION_CONTROLLER,SPELL,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,SPELL,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,SPELL,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,SPELL,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,SPELL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+POSSESSION_CONTROLLER,SPELL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+POSSESSION_CONTROLLER,SPELL,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,SHADOW_SWORD,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+POSSESSION_CONTROLLER,SHADOW_SWORD,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+POSSESSION_CONTROLLER,SHADOW_SWORD,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+POSSESSION_CONTROLLER,SHADOW_SWORD,VESSEL_FATAL,RETURN_WITH_WRATH,divine_wrath,A dead controlled vessel releases the living controller and invokes bounded divine wrath.
+POSSESSION_CONTROLLER,SHADOW_SWORD,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+POSSESSION_CONTROLLER,SHADOW_SWORD,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+POSSESSION_CONTROLLER,SHADOW_SWORD,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+POSSESSION_CONTROLLER,SHADOW_SWORD,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,SHADOW_SWORD,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,SHADOW_SWORD,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,SHADOW_SWORD,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,SHADOW_SWORD,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+POSSESSION_CONTROLLER,SHADOW_SWORD,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+POSSESSION_CONTROLLER,SHADOW_SWORD,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,PARTISAN,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+POSSESSION_CONTROLLER,PARTISAN,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+POSSESSION_CONTROLLER,PARTISAN,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+POSSESSION_CONTROLLER,PARTISAN,VESSEL_FATAL,RETURN_WITH_WRATH,divine_wrath,A dead controlled vessel releases the living controller and invokes bounded divine wrath.
+POSSESSION_CONTROLLER,PARTISAN,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+POSSESSION_CONTROLLER,PARTISAN,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+POSSESSION_CONTROLLER,PARTISAN,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+POSSESSION_CONTROLLER,PARTISAN,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,PARTISAN,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,PARTISAN,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,PARTISAN,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+POSSESSION_CONTROLLER,PARTISAN,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+POSSESSION_CONTROLLER,PARTISAN,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+POSSESSION_CONTROLLER,PARTISAN,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,NONE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+DREAMWALK_CONTROLLER,NONE,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+DREAMWALK_CONTROLLER,NONE,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+DREAMWALK_CONTROLLER,NONE,VESSEL_FATAL,RETURN_WITH_WRATH,divine_wrath,A dead controlled vessel releases the living controller and invokes bounded divine wrath.
+DREAMWALK_CONTROLLER,NONE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+DREAMWALK_CONTROLLER,NONE,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+DREAMWALK_CONTROLLER,NONE,ENERGY_EXHAUSTED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+DREAMWALK_CONTROLLER,NONE,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,NONE,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,NONE,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,NONE,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,NONE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+DREAMWALK_CONTROLLER,NONE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+DREAMWALK_CONTROLLER,NONE,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,INNATE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+DREAMWALK_CONTROLLER,INNATE,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+DREAMWALK_CONTROLLER,INNATE,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+DREAMWALK_CONTROLLER,INNATE,VESSEL_FATAL,RETURN_WITH_WRATH,divine_wrath,A dead controlled vessel releases the living controller and invokes bounded divine wrath.
+DREAMWALK_CONTROLLER,INNATE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+DREAMWALK_CONTROLLER,INNATE,POWER_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+DREAMWALK_CONTROLLER,INNATE,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+DREAMWALK_CONTROLLER,INNATE,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,INNATE,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,INNATE,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,INNATE,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,INNATE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+DREAMWALK_CONTROLLER,INNATE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+DREAMWALK_CONTROLLER,INNATE,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,CRYSTAL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+DREAMWALK_CONTROLLER,CRYSTAL,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+DREAMWALK_CONTROLLER,CRYSTAL,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+DREAMWALK_CONTROLLER,CRYSTAL,VESSEL_FATAL,RETURN_WITH_WRATH,divine_wrath,A dead controlled vessel releases the living controller and invokes bounded divine wrath.
+DREAMWALK_CONTROLLER,CRYSTAL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+DREAMWALK_CONTROLLER,CRYSTAL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+DREAMWALK_CONTROLLER,CRYSTAL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+DREAMWALK_CONTROLLER,CRYSTAL,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,CRYSTAL,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,CRYSTAL,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,CRYSTAL,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,CRYSTAL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+DREAMWALK_CONTROLLER,CRYSTAL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+DREAMWALK_CONTROLLER,CRYSTAL,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,SPELL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+DREAMWALK_CONTROLLER,SPELL,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+DREAMWALK_CONTROLLER,SPELL,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+DREAMWALK_CONTROLLER,SPELL,VESSEL_FATAL,RETURN_WITH_WRATH,divine_wrath,A dead controlled vessel releases the living controller and invokes bounded divine wrath.
+DREAMWALK_CONTROLLER,SPELL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+DREAMWALK_CONTROLLER,SPELL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+DREAMWALK_CONTROLLER,SPELL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+DREAMWALK_CONTROLLER,SPELL,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,SPELL,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,SPELL,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,SPELL,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,SPELL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+DREAMWALK_CONTROLLER,SPELL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+DREAMWALK_CONTROLLER,SPELL,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,SHADOW_SWORD,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+DREAMWALK_CONTROLLER,SHADOW_SWORD,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+DREAMWALK_CONTROLLER,SHADOW_SWORD,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+DREAMWALK_CONTROLLER,SHADOW_SWORD,VESSEL_FATAL,RETURN_WITH_WRATH,divine_wrath,A dead controlled vessel releases the living controller and invokes bounded divine wrath.
+DREAMWALK_CONTROLLER,SHADOW_SWORD,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+DREAMWALK_CONTROLLER,SHADOW_SWORD,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+DREAMWALK_CONTROLLER,SHADOW_SWORD,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+DREAMWALK_CONTROLLER,SHADOW_SWORD,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,SHADOW_SWORD,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,SHADOW_SWORD,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,SHADOW_SWORD,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,SHADOW_SWORD,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+DREAMWALK_CONTROLLER,SHADOW_SWORD,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+DREAMWALK_CONTROLLER,SHADOW_SWORD,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,PARTISAN,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+DREAMWALK_CONTROLLER,PARTISAN,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+DREAMWALK_CONTROLLER,PARTISAN,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+DREAMWALK_CONTROLLER,PARTISAN,VESSEL_FATAL,RETURN_WITH_WRATH,divine_wrath,A dead controlled vessel releases the living controller and invokes bounded divine wrath.
+DREAMWALK_CONTROLLER,PARTISAN,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+DREAMWALK_CONTROLLER,PARTISAN,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+DREAMWALK_CONTROLLER,PARTISAN,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+DREAMWALK_CONTROLLER,PARTISAN,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,PARTISAN,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,PARTISAN,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,PARTISAN,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+DREAMWALK_CONTROLLER,PARTISAN,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+DREAMWALK_CONTROLLER,PARTISAN,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+DREAMWALK_CONTROLLER,PARTISAN,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SHADOW_HIDDEN,NONE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SHADOW_HIDDEN,NONE,AVATAR_FATAL,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,NONE,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SHADOW_HIDDEN,NONE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_HIDDEN,NONE,SOURCE_LOST,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,NONE,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_HIDDEN,NONE,ENERGY_EXHAUSTED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_HIDDEN,NONE,SUPPRESSED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_HIDDEN,NONE,EXPIRED,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,NONE,TARGET_UNAVAILABLE,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,NONE,DIMENSION_INVALID,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,NONE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_HIDDEN,NONE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_HIDDEN,NONE,MANUAL_END,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,INNATE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SHADOW_HIDDEN,INNATE,AVATAR_FATAL,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,INNATE,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SHADOW_HIDDEN,INNATE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_HIDDEN,INNATE,SOURCE_LOST,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,INNATE,POWER_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_HIDDEN,INNATE,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_HIDDEN,INNATE,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_HIDDEN,INNATE,EXPIRED,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,INNATE,TARGET_UNAVAILABLE,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,INNATE,DIMENSION_INVALID,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,INNATE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_HIDDEN,INNATE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_HIDDEN,INNATE,MANUAL_END,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,CRYSTAL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SHADOW_HIDDEN,CRYSTAL,AVATAR_FATAL,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,CRYSTAL,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SHADOW_HIDDEN,CRYSTAL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_HIDDEN,CRYSTAL,SOURCE_LOST,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,CRYSTAL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_HIDDEN,CRYSTAL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_HIDDEN,CRYSTAL,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_HIDDEN,CRYSTAL,EXPIRED,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,CRYSTAL,TARGET_UNAVAILABLE,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,CRYSTAL,DIMENSION_INVALID,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,CRYSTAL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_HIDDEN,CRYSTAL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_HIDDEN,CRYSTAL,MANUAL_END,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,SPELL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SHADOW_HIDDEN,SPELL,AVATAR_FATAL,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,SPELL,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SHADOW_HIDDEN,SPELL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_HIDDEN,SPELL,SOURCE_LOST,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,SPELL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_HIDDEN,SPELL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_HIDDEN,SPELL,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_HIDDEN,SPELL,EXPIRED,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,SPELL,TARGET_UNAVAILABLE,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,SPELL,DIMENSION_INVALID,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,SPELL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_HIDDEN,SPELL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_HIDDEN,SPELL,MANUAL_END,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,SHADOW_SWORD,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SHADOW_HIDDEN,SHADOW_SWORD,AVATAR_FATAL,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,SHADOW_SWORD,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SHADOW_HIDDEN,SHADOW_SWORD,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_HIDDEN,SHADOW_SWORD,SOURCE_LOST,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,SHADOW_SWORD,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_HIDDEN,SHADOW_SWORD,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_HIDDEN,SHADOW_SWORD,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_HIDDEN,SHADOW_SWORD,EXPIRED,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,SHADOW_SWORD,TARGET_UNAVAILABLE,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,SHADOW_SWORD,DIMENSION_INVALID,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,SHADOW_SWORD,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_HIDDEN,SHADOW_SWORD,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_HIDDEN,SHADOW_SWORD,MANUAL_END,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,PARTISAN,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SHADOW_HIDDEN,PARTISAN,AVATAR_FATAL,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,PARTISAN,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SHADOW_HIDDEN,PARTISAN,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_HIDDEN,PARTISAN,SOURCE_LOST,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,PARTISAN,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_HIDDEN,PARTISAN,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_HIDDEN,PARTISAN,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_HIDDEN,PARTISAN,EXPIRED,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,PARTISAN,TARGET_UNAVAILABLE,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,PARTISAN,DIMENSION_INVALID,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_HIDDEN,PARTISAN,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_HIDDEN,PARTISAN,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_HIDDEN,PARTISAN,MANUAL_END,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,NONE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SHADOW_REVEALED,NONE,AVATAR_FATAL,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,NONE,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SHADOW_REVEALED,NONE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_REVEALED,NONE,SOURCE_LOST,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,NONE,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_REVEALED,NONE,ENERGY_EXHAUSTED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_REVEALED,NONE,SUPPRESSED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_REVEALED,NONE,EXPIRED,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,NONE,TARGET_UNAVAILABLE,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,NONE,DIMENSION_INVALID,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,NONE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_REVEALED,NONE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_REVEALED,NONE,MANUAL_END,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,INNATE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SHADOW_REVEALED,INNATE,AVATAR_FATAL,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,INNATE,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SHADOW_REVEALED,INNATE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_REVEALED,INNATE,SOURCE_LOST,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,INNATE,POWER_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_REVEALED,INNATE,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_REVEALED,INNATE,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_REVEALED,INNATE,EXPIRED,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,INNATE,TARGET_UNAVAILABLE,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,INNATE,DIMENSION_INVALID,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,INNATE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_REVEALED,INNATE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_REVEALED,INNATE,MANUAL_END,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,CRYSTAL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SHADOW_REVEALED,CRYSTAL,AVATAR_FATAL,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,CRYSTAL,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SHADOW_REVEALED,CRYSTAL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_REVEALED,CRYSTAL,SOURCE_LOST,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,CRYSTAL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_REVEALED,CRYSTAL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_REVEALED,CRYSTAL,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_REVEALED,CRYSTAL,EXPIRED,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,CRYSTAL,TARGET_UNAVAILABLE,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,CRYSTAL,DIMENSION_INVALID,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,CRYSTAL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_REVEALED,CRYSTAL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_REVEALED,CRYSTAL,MANUAL_END,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,SPELL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SHADOW_REVEALED,SPELL,AVATAR_FATAL,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,SPELL,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SHADOW_REVEALED,SPELL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_REVEALED,SPELL,SOURCE_LOST,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,SPELL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_REVEALED,SPELL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_REVEALED,SPELL,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_REVEALED,SPELL,EXPIRED,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,SPELL,TARGET_UNAVAILABLE,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,SPELL,DIMENSION_INVALID,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,SPELL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_REVEALED,SPELL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_REVEALED,SPELL,MANUAL_END,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,SHADOW_SWORD,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SHADOW_REVEALED,SHADOW_SWORD,AVATAR_FATAL,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,SHADOW_SWORD,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SHADOW_REVEALED,SHADOW_SWORD,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_REVEALED,SHADOW_SWORD,SOURCE_LOST,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,SHADOW_SWORD,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_REVEALED,SHADOW_SWORD,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_REVEALED,SHADOW_SWORD,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_REVEALED,SHADOW_SWORD,EXPIRED,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,SHADOW_SWORD,TARGET_UNAVAILABLE,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,SHADOW_SWORD,DIMENSION_INVALID,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,SHADOW_SWORD,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_REVEALED,SHADOW_SWORD,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_REVEALED,SHADOW_SWORD,MANUAL_END,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,PARTISAN,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SHADOW_REVEALED,PARTISAN,AVATAR_FATAL,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,PARTISAN,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SHADOW_REVEALED,PARTISAN,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_REVEALED,PARTISAN,SOURCE_LOST,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,PARTISAN,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SHADOW_REVEALED,PARTISAN,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_REVEALED,PARTISAN,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SHADOW_REVEALED,PARTISAN,EXPIRED,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,PARTISAN,TARGET_UNAVAILABLE,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,PARTISAN,DIMENSION_INVALID,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
+SHADOW_REVEALED,PARTISAN,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_REVEALED,PARTISAN,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SHADOW_REVEALED,PARTISAN,MANUAL_END,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.

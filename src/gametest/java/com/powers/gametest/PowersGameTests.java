@@ -48,6 +48,7 @@ import com.powers.power.ConcordCastManager;
 import com.powers.power.PowerRegistry;
 import com.powers.item.artifact.ArtifactActionCatalogue;
 import com.powers.magic.runtime.MagicRuntime;
+import com.powers.magic.runtime.MagicRayCollisionRuntime;
 import com.powers.spell.SpellRegistry;
 import com.powers.spell.SpellCastingManager;
 import com.powers.spell.CartographerQuery;
@@ -185,27 +186,130 @@ public final class PowersGameTests {
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void shadowChatOwnsVisibilityAndFormerBookKnowledge(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
 		player.addTag(SkillSystem.DARKNESS_TAG);
 		player.getInventory().add(PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		com.powers.knowledge.MagicAttemptReporter.failure(player, "fireball",
+				com.powers.knowledge.MagicFailureReason.INSUFFICIENT_ENERGY,
+				java.util.Map.of("required", 40L, "available", 12L));
 		helper.assertTrue(PrivateCompanionManager.handleChat(player,
 				"shadow, reveal yourself"), "Explicit Shadow chat leaked into ordinary chat");
 		PrivateCompanionManager.tickPlayer(player, 0);
 		helper.assertTrue(PrivateCompanionManager.activeSessionCount() == 1,
 				"Shadow address did not create exactly one lightweight session");
+		helper.assertTrue(PrivateCompanionManager.activeRevealedBodyCount() == 1,
+				"Revealed Shadow did not create exactly one mortal server body");
 		helper.assertTrue(PrivateCompanionManager.isRevealed(player.getUUID()),
 				"Reveal command did not change global visibility");
 		var answer = KnowledgeService.answer(player, "How do the crystals work?");
 		helper.assertTrue(!answer.answer().isBlank() && KnowledgeService.entryCount() > 0,
 				"Shadow could not answer the former curated-book question offline");
-		PrivateCompanionManager.handleChat(player, "shadow, hide yourself");
-		helper.assertFalse(PrivateCompanionManager.isRevealed(player.getUUID()),
-				"Hide command left global visibility enabled");
-		PrivateCompanionManager.handleChat(player, "shadow, leave me");
-		helper.assertTrue(PrivateCompanionManager.activeSessionCount() == 0,
-				"Dismiss command leaked a Shadow session");
-		helper.assertFalse(PrivateCompanionManager.handleChat(player, "ordinary chat"),
-				"Unrelated signed chat was intercepted");
-		PrivateCompanionManager.clear();
+		helper.runAfterDelay(1, () -> {
+			var bodyId = PrivateCompanionManager.revealedBodyId(player.getUUID());
+			helper.assertTrue(bodyId.isPresent(),
+					"Revealed Shadow diagnostic count had no body identity");
+			var worldBody = helper.getLevel().getEntity(bodyId.orElseThrow());
+			helper.assertTrue(worldBody instanceof Mannequin,
+					"Revealed Shadow body identity was absent from the live world");
+			Mannequin body = (Mannequin) worldBody;
+			helper.assertTrue(body.getMainHandItem().isEmpty() && body.getOffhandItem().isEmpty(),
+					"Shadow copied equipment despite owning only the user's skin");
+			helper.assertTrue(body.hurtServer(helper.getLevel(), body.damageSources().generic(), 10_000.0F),
+					"Revealed Shadow body could not be killed");
+			helper.assertTrue(PrivateCompanionManager.activeSessionCount() == 0
+					&& PrivateCompanionManager.activeRevealedBodyCount() == 0,
+					"Killed Shadow leaked a session or body");
+			var remembered = KnowledgeService.answer(player, "Shadow, why did my fireball fail?");
+			helper.assertTrue(remembered.answer().contains("required 40 energy"),
+					"Shadow death erased player-keyed magic memories");
+			PrivateCompanionManager.handleChat(player, "shadow, reveal yourself");
+			PrivateCompanionManager.tickPlayer(player, 20);
+			helper.assertTrue(PrivateCompanionManager.activeRevealedBodyCount() == 1,
+					"Shadow Sword could not manifest a new remembered body");
+			PrivateCompanionManager.handleChat(player, "shadow, hide yourself");
+			helper.assertFalse(PrivateCompanionManager.isRevealed(player.getUUID())
+					|| PrivateCompanionManager.activeRevealedBodyCount() != 0,
+					"Hide command left the global mortal body visible");
+			PrivateCompanionManager.handleChat(player, "shadow, leave me");
+			helper.assertTrue(PrivateCompanionManager.activeSessionCount() == 0,
+					"Dismiss command leaked a Shadow session");
+			helper.assertFalse(PrivateCompanionManager.handleChat(player, "ordinary chat"),
+					"Unrelated signed chat was intercepted");
+			PrivateCompanionManager.clear();
+			helper.succeed();
+		});
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
+	public void crossingEnergyAndVoidRaysCreatePhysicalConsequences(GameTestHelper helper) {
+		MagicRayCollisionRuntime.clearAll();
+		ServerPlayer sun = helper.makeMockServerPlayerInLevel();
+		ServerPlayer voidCaster = helper.makeMockServerPlayerInLevel();
+		Vec3 center = Vec3.atCenterOf(helper.absolutePos(new BlockPos(5, 2, 5)));
+		sun.setPos(center.add(-5.0, 0.0, 0.0));
+		voidCaster.setPos(center.add(0.0, 0.0, -5.0));
+		PowerTestActor target = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(5, 2, 5));
+		target.setNoAi(true);
+		float before = target.getHealth();
+		long tick = helper.getLevel().getServer().getTickCount();
+		helper.assertTrue(MagicRayCollisionRuntime.publish(helper.getLevel(), "energy_beam",
+				sun.getUUID(), center.add(-4.0, 0.0, 0.0), center.add(4.0, 0.0, 0.0), tick).isEmpty(),
+				"First ray collided without another presence");
+		helper.assertTrue(MagicRayCollisionRuntime.publish(helper.getLevel(), "void_beam",
+				voidCaster.getUUID(), center.add(0.0, 0.0, -4.0), center.add(0.0, 0.0, 4.0), tick).isPresent(),
+				"Crossing physical rays did not collide");
+		helper.assertTrue(target.getHealth() < before,
+				"Beam collision pressure blast did not damage a nearby entity");
+		helper.assertTrue(helper.getLevel().getEntitiesOfClass(LightningBolt.class,
+				new net.minecraft.world.phys.AABB(center.add(-8, -4, -8), center.add(8, 8, 8))).size() >= 2,
+				"Beam collision did not strike both caster omens");
+		MagicRayCollisionRuntime.clearAll();
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
+	public void deadPossessedVesselReturnsItsControllerWithDivineWrath(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		caster.setGameMode(GameType.SURVIVAL);
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		caster.setYRot(0.0F);
+		caster.setXRot(0.0F);
+		PowerTestActor host = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 6));
+		host.setNoAi(false);
+		helper.assertTrue(new VesselPossessionAbility().activate(caster,
+				com.powers.player.PlayerPowers.get(caster)), "Possession setup failed");
+		int beforeEnergy = com.powers.player.PlayerPowers.get(caster).energy();
+		host.hurtServer(helper.getLevel(), host.damageSources().generic(), 10_000.0F);
+		VesselPossessionAbility.tickAll(helper.getLevel().getServer());
+		helper.assertTrue(caster.isAlive() && com.powers.player.PlayerPowers.get(caster).mindBody() == null,
+				"Dead vessel killed or stranded its controller");
+		helper.assertTrue(com.powers.player.PlayerPowers.get(caster).energy() < beforeEnergy
+				&& caster.hasEffect(MobEffects.WEAKNESS) && caster.hasEffect(MobEffects.DARKNESS),
+				"Dead vessel did not invoke energy-draining particle-hidden wrath");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
+	public void losingShadowSwordDeactivatesItsRoutedFlight(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		player.addTag(SkillSystem.DARKNESS_TAG);
+		ItemStack sword = PowersWeapons.weapon("lycanbane").getDefaultInstance();
+		player.getInventory().add(sword);
+		var flight = ArtifactWeaponManager.actions(ArtifactAlignment.DARKNESS).stream()
+				.filter(action -> action.definition().key().equals("innate/flight")).findFirst().orElseThrow();
+		String key = ArtifactWeaponManager.toggleKey(flight);
+		helper.assertTrue(flight.ability().activateToggleOn(player,
+				com.powers.player.PlayerPowers.get(player)), "Artifact flight setup failed");
+		com.powers.player.PlayerPowers.get(player).setToggleActive(player, key, true);
+		player.getInventory().clearContent();
+		com.powers.item.ArtifactInventoryRuntime.reconcileOwnership(player);
+		helper.assertFalse(com.powers.player.PlayerPowers.get(player).isToggleActive(key),
+				"Artifact-routed flight survived loss of its owning sword");
 		helper.succeed();
 	}
 
@@ -446,6 +550,63 @@ public final class PowersGameTests {
 		BodyProxyManager.finish(owner);
 		MagicShieldManager.global().clear();
 		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void fatalAstralDamageReturnsToThePhysicalBodyBeforeDeath(GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		owner.setGameMode(GameType.SURVIVAL);
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		owner.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		owner.setHealth(20.0F);
+		helper.assertTrue(BodyProxyManager.start(owner, BodyProxyKind.ASTRAL),
+				"Could not create an astral body for the fatal-return test");
+		owner.setPos(origin.getX() + 6.5, origin.getY() + 2.0, origin.getZ() + 0.5);
+		owner.setHealth(0.0F); // ALLOW_DEATH observes post-mitigation vanilla health.
+
+		helper.assertFalse(BodyProxyManager.allowsAvatarDeath(
+				owner, owner.damageSources().generic()),
+				"Fatal astral death was allowed to remain at the remote camera");
+		helper.assertTrue(com.powers.player.PlayerPowers.get(owner).mindBody() == null,
+				"Fatal astral death did not clear the physical-body session before replay");
+		helper.assertTrue(owner.position().distanceToSqr(Vec3.atBottomCenterOf(origin)) < 1.0,
+				"Fatal astral death did not recall the player to their physical body");
+		helper.assertTrue(BodyProxyManager.activeProxyCount() == 0,
+				"Fatal astral damage leaked a body proxy or forced-chunk ticket");
+		helper.runAfterDelay(2, () -> {
+			helper.assertFalse(owner.isAlive(),
+					"Recalled fatal damage was not replayed through vanilla death");
+			helper.succeed();
+		});
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void fatalPhysicalProxyDamageRecallsItsDetachedOwnerBeforeDeath(GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		owner.setGameMode(GameType.SURVIVAL);
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		owner.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		owner.setHealth(20.0F);
+		helper.assertTrue(BodyProxyManager.start(owner, BodyProxyKind.ASTRAL),
+				"Could not create a physical proxy for the fatal-body test");
+		Mannequin body = helper.getLevel().getEntitiesOfClass(Mannequin.class,
+				owner.getBoundingBox().inflate(2.0), BodyProxyManager::isProxy).getFirst();
+		owner.setPos(origin.getX() + 6.5, origin.getY() + 2.0, origin.getZ() + 0.5);
+
+		helper.assertTrue(body.hurtServer(helper.getLevel(), body.damageSources().generic(), 10_000.0F),
+				"Fatal post-mitigation body damage was rejected before lifecycle handling");
+		helper.assertTrue(com.powers.player.PlayerPowers.get(owner).mindBody() == null
+				&& owner.position().distanceToSqr(Vec3.atBottomCenterOf(origin)) < 1.0,
+				"A killed physical proxy did not recall its detached owner");
+		helper.assertTrue(BodyProxyManager.activeProxyCount() == 0,
+				"Killed physical proxy leaked its entity or forced-chunk ticket");
+		helper.runAfterDelay(2, () -> {
+			helper.assertFalse(owner.isAlive(),
+					"Fatal physical-body damage was not replayed through vanilla death");
+			helper.succeed();
+		});
 	}
 
 	@GameTest
@@ -819,11 +980,17 @@ public final class PowersGameTests {
 		BlockPos fire = new BlockPos(2, 1, 3);
 		helper.setBlock(crop, Blocks.WHEAT);
 		helper.setBlock(farmland, Blocks.FARMLAND);
+		// Farmland deterministically reverts to dirt when its fixture leaves a
+		// solid template block directly above it. Preserve the live-world
+		// precondition that Verdant Tending is intended to hydrate.
+		helper.setBlock(farmland.above(), Blocks.AIR);
 		helper.setBlock(fire, Blocks.FIRE);
 		SpellCastingManager.use(player, "book_grimoire_wild");
 		helper.runAfterDelay(50, () -> {
 			helper.assertFalse(helper.getBlockState(crop).equals(Blocks.WHEAT.defaultBlockState()),
 					"Verdant Tending did not grow a valid crop");
+			helper.assertTrue(helper.getBlockState(farmland).is(Blocks.FARMLAND),
+					"Verdant Tending fixture farmland reverted before verification");
 			helper.assertTrue(helper.getBlockState(farmland).getValue(
 					net.minecraft.world.level.block.FarmlandBlock.MOISTURE)
 					== net.minecraft.world.level.block.FarmlandBlock.MAX_MOISTURE,

@@ -8,6 +8,7 @@ import com.powers.force.FactionInvasionManager;
 import com.powers.force.ForceContainmentManager;
 import com.powers.force.LivingForceManager;
 import com.powers.magic.runtime.MagicRuntime;
+import com.powers.magic.runtime.MagicRayCollisionRuntime;
 import com.powers.mind.BodyProxyManager;
 import com.powers.power.ConcordCastManager;
 import com.powers.power.artifact.ArtifactFieldManager;
@@ -43,7 +44,10 @@ final class PowerDiagnosticsCommand {
 				CelestialRuinManager.activeRitualCount(server), celestialChunks + proxies + travelLoads * 9,
 				work.packets(), work.particles(), work.entityInspections());
 		for (String line : snapshot.lines()) send(context, line);
-		send(context, "shadow sessions: " + PrivateCompanionManager.activeSessionCount());
+		send(context, "physicalRays=" + MagicRayCollisionRuntime.activeSegmentCount()
+				+ "; rayCollisionsThisTick=" + MagicRayCollisionRuntime.collisionsThisTick()
+				+ "; shadowSessions=" + PrivateCompanionManager.activeSessionCount()
+				+ "; revealedShadowBodies=" + PrivateCompanionManager.activeRevealedBodyCount());
 		var containment = ForceContainmentManager.diagnostics();
 		var invasions = FactionInvasionManager.diagnostics();
 		var concord = ConcordCastManager.diagnostics();

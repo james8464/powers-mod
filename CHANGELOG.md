@@ -2,6 +2,11 @@
 
 ## 1.0.2 - 2026-08-11
 
+- Added a live Energy Beam/Void Beam intersection: both rays terminate at the first crossing, release a bounded no-grief pressure blast, mark both casters with visual lightning, and play one short celestial ring.
+- Defined and generated all 672 form/source/termination outcomes alongside the existing 2,080 action-pair matrix; fatal detached-avatar or physical-proxy damage now recalls and kills the physical player, while a dead controlled vessel returns its controller under Divine Wrath.
+- Made revealed Shadow a globally visible, skin-matched, equipment-free mortal body. Killing it dismisses only the manifestation; its diagnostic/lore memory survives and it can be summoned again.
+- Reconciled artifact ownership even during global Time Stop, so dropping the Shadow Sword or Partisan cannot preserve routed flight, invisibility, or companion state.
+- Hardened mindscape travel so player-controlled routes may move within the current Light/Dark realm but cannot leave it except through the qualified body-return path; fatal soul recall and operator recovery remain separate internal routes.
 - Replaced the active ritual roster with twelve practical spells: Soul Compass, Augury, Cartographer's Star, Celestial Ruin, Dimensional Anchor, Blood Reading, Grave Recall, Purification Circle, Verdant Tending, Hearth Sanctuary, Ward-Breaking Ritual, and Dispel. Infernal IDs remain hidden dormant aliases for save compatibility.
 - Removed retired spell amplification, veil, counterspell, weather, binding, essence-distillation, Infernal casting, and obsolete field-creation paths. Spells use only existing magic energy and remain isolated from innate rank scaling.
 - Added persistent exact last-death reporting, bounded world/biome/landmark search, independent three-block Hearth forcefields, and typed failure reporting for practical rituals.
@@ -27,14 +32,14 @@
 - Rebuilt the energy atlas as five crisp vanilla-scale empty/half/full glyph families and moved the ten-symbol hunger-aligned row above conditional air and mount-health rows.
 - Added a one-time persistent vanilla written-book guide and completed `/powers testing reset` plus testing-state diagnostics.
 - Rebuilt Teleport around vulnerable five-second origin/destination storms, unloaded-chunk loading, uniquely named players or mobs, bounded companion transfer, and duplicate-storm rejection; Middleworld is never exposed as an ordinary destination.
-- Made detached mind avatars immune while their physical mannequins remain fully vulnerable, including sacrificial fatal-hit return, exact operator recovery, persistent Middleworld origins, and atomic nested-session prevention.
+- Made detached mind avatars and their physical mannequins vulnerable fatal surfaces with recall-before-death, including sacrificial forcefield interception, exact operator recovery, persistent Middleworld origins, and atomic nested-session prevention.
 - Upgraded Vessel Possession to server-authoritative movement, aim, jumping, crouching, hotbar, and attack control for consented players and ordinary mobs, with original mob AI restoration and higher-rank resistance.
 - Removed the obsolete Portal Rift crystal action. Indigo now owns only the persistent Middleworld journey, and Light/Dark crystals support a consent-safe crouching group journey of up to 16 players.
 - Made integrity wards follow the physical side of an active mind-body tether, so a shield still sacrifices itself against complete overkill without making the detached avatar damageable.
 - Increased the Celestial Ruin warning beam to a dense, client-bounded 100-block column visible across 6,000 blocks and extended its whiteout/tinnitus sequence while the boss-scale living shockwave reaches the same 6,000-block radius.
 - Replaced borrowed spawn-egg references with four original self-contained egg textures and guarded every custom player-model base UV face against transparent/misaligned skins.
 - Prevented the Wild purification circle from healing unallied hostile mobs and allowed the Deep anchor spell to target the player-compatible test actor.
-- Replaced the custom Knowledge Book AI with the skin-matched, collisionless Shadow companion: explicit summon, doglike follow/teleport, consumed `shadow,` chat, owner-private replies, and global reveal/private hide commands.
+- Replaced the custom Knowledge Book AI with the skin-matched Shadow companion: explicit summon, doglike follow/teleport, consumed `shadow,` chat, owner-private replies, a collisionless hidden apparition, and a globally visible mortal revealed body.
 - Reduced the Shadow Sword to exactly three original rites while retaining every routed innate/crystal action, persistent eight-slot favourites, fast wheel/search library access, corrupted presentation, and rank-10 zero cooldowns.
 - Completed chromatic crystal cleanup: Orange produces skin-matched unarmed Echoes, Green keeps only Life Bloom, Blue owns global Chrono Stop plus controlled Dreamwalking, Yellow reaches 0.0625× through 10×, and Infected Rainbow is a hidden inert save alias rather than a second gameplay item.
 - Added guaranteed First Vessel Miniportal loot, two persistent same-dimension charges, exact-stack anchor binding, and dropped-amethyst recharge.

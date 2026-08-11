@@ -410,6 +410,7 @@
 	"power.powers.vessel_possession": "Vessel Possession",
 	"power.powers.vessel_possession.description": "Possess a permitted player or suitable mob while your vulnerable body remains behind.",
 	"ability.powers.vessel_possession": "Vessel Possession",
+	"ability.powers.vessel_wrath": "Wrath answers the vessel's death",
 	"ability.powers.possession_higher_rank": "That mind stands above your rank.",
 	"ability.powers.dimensional_anchor": "Dimensional Anchor",
 	"ability.powers.middleworld": "Middleworld Gateway",
