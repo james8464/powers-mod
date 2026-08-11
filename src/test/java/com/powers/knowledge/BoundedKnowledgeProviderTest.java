@@ -40,6 +40,20 @@ class BoundedKnowledgeProviderTest {
 		assertFalse(transport.prompt.contains("secret-value"));
 	}
 
+	@Test
+	void remotePromptAndAnswerPreserveAuthoritativeDiagnostics() {
+		FakeTransport transport = new FakeTransport();
+		transport.response = CompletableFuture.completedFuture(
+				"{\"choices\":[{\"message\":{\"content\":\"Try again later.\"}}]}");
+		BoundedKnowledgeProvider provider = new BoundedKnowledgeProvider(
+				settings(true), transport, "secret");
+		String diagnosis = "Your Fireball failed because it required 40 energy, but only 12 was available.";
+		KnowledgeQuery diagnostic = new KnowledgeQuery("Why did that fail?", 7, List.of(), diagnosis);
+		KnowledgeAnswer answer = provider.request(UUID.randomUUID(), diagnostic, offline(), 1_000).join();
+		assertTrue(transport.prompt.contains(diagnosis));
+		assertTrue(answer.answer().startsWith(diagnosis));
+	}
+
 	private static PowersConfig.DialogueProvider settings(boolean enabled) {
 		return new PowersConfig.DialogueProvider(enabled, "https://example.invalid/chat", "lore",
 				"POWERS_TEST_KEY", 2_500, 2, 30).sanitized();

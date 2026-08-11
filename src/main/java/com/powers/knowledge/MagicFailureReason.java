@@ -1,0 +1,24 @@
+package com.powers.knowledge;
+
+/** Stable, server-authored causes that Shadow may explain without guessing. */
+public enum MagicFailureReason {
+	NONE,
+	NO_TARGET,
+	INSUFFICIENT_ENERGY,
+	COOLDOWN,
+	AMETHYST,
+	SAFE_ZONE,
+	CONSENT,
+	RANK_LOCK,
+	ALIGNMENT_LOCK,
+	WRONG_DIMENSION,
+	OUT_OF_RANGE,
+	BLOCKED_LINE_OF_SIGHT,
+	CHANNEL_INTERRUPTED,
+	SERVER_BUDGET,
+	TIME_LOCKED,
+	MAGIC_COLLISION,
+	ALREADY_CHANNELING,
+	INVALID_INPUT,
+	EXECUTION_FAILED
+}

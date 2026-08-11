@@ -102,20 +102,28 @@ final class LocatorSpellPackets {
 		NamedTargetRules.Resolution<LivingEntity> resolution = findNamedTarget(
 				player.level().getServer(), payload.targetName());
 		if (resolution.status() == NamedTargetRules.Status.AMBIGUOUS) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "soul_compass",
+					com.powers.knowledge.MagicFailureReason.NO_TARGET);
 			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.ambiguous"));
 			return;
 		}
 		if (resolution.status() == NamedTargetRules.Status.SCAN_LIMIT) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "soul_compass",
+					com.powers.knowledge.MagicFailureReason.SERVER_BUDGET);
 			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.scan_limit"));
 			return;
 		}
 		LivingEntity target = resolution.target();
 		if (target == null) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "soul_compass",
+					com.powers.knowledge.MagicFailureReason.NO_TARGET);
 			PowerMessages.send(player, "grimoire.celestial.offline", 3);
 			return;
 		}
 		if (target instanceof ServerPlayer targetPlayer
 				&& !PowerProtection.mayLocate(player, targetPlayer)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "soul_compass",
+					com.powers.knowledge.MagicFailureReason.CONSENT);
 			PowerMessages.sendImportant(player, "grimoire.celestial.consent_denied", 1);
 			return;
 		}
@@ -124,12 +132,16 @@ final class LocatorSpellPackets {
 		Vec3 castPosition = player.position().add(0, 1, 0);
 		AmethystDampening.update(player);
 		if (AmethystDampening.isDampened(player)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "soul_compass",
+					com.powers.knowledge.MagicFailureReason.AMETHYST);
 			retaliate(player, level, castPosition, "grimoire.celestial.amethyst", 3);
 			return;
 		}
 		boolean ordinaryVeilAccess = hasOrdinaryRealmAccess(player, target);
 		boolean trueSight = PowerScalingService.hasVariant(player, "true_sight");
 		if (!RankVariantRules.mayPierceRealmVeil(ordinaryVeilAccess, trueSight)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "soul_compass",
+					com.powers.knowledge.MagicFailureReason.ALIGNMENT_LOCK);
 			String key = isLightRealm(target.level().dimension())
 					? "grimoire.celestial.light_gate" : "grimoire.celestial.dark_gate";
 			retaliate(player, level, castPosition, key, 3);

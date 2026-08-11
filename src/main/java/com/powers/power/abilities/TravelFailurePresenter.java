@@ -8,6 +8,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import com.powers.knowledge.MagicAttemptReporter;
+import com.powers.knowledge.MagicFailureReason;
 
 /** Presents the magical consequence of a rejected player-controlled journey. */
 final class TravelFailurePresenter {
@@ -17,6 +19,15 @@ final class TravelFailurePresenter {
 	/** Emits the bounded effect and concise feedback corresponding to a travel rejection. */
 	static void report(ServerPlayer caster, LivingEntity subject, Vec3 target, DestinationFailure failure) {
 		ServerLevel origin = (ServerLevel) subject.level();
+		MagicFailureReason diagnostic = switch (failure) {
+			case WARD -> MagicFailureReason.AMETHYST;
+			case SAFE_ZONE, ANCHOR -> MagicFailureReason.SAFE_ZONE;
+			case REALM_RESTRICTED -> MagicFailureReason.WRONG_DIMENSION;
+			case UNLOADED_CHUNK -> MagicFailureReason.SERVER_BUDGET;
+			case OUT_OF_BOUNDS, COLLISION, HAZARD, ANTI_PORTAL -> MagicFailureReason.INVALID_INPUT;
+			case NONE -> null;
+		};
+		if (diagnostic != null) MagicAttemptReporter.failure(caster, "teleport", diagnostic);
 		switch (failure) {
 			case ANCHOR -> {
 				if (subject instanceof ServerPlayer player) GodlyPunishment.chainBlock(origin, player);

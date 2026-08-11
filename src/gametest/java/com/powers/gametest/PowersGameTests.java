@@ -935,6 +935,24 @@ public final class PowersGameTests {
 
 	@GameTest
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void shadowExplainsTheExactLatestServerRecordedMagicFailure(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		com.powers.knowledge.MagicAttemptReporter.failure(player, "fireball",
+				com.powers.knowledge.MagicFailureReason.INSUFFICIENT_ENERGY,
+				java.util.Map.of("required", 40L, "available", 12L));
+
+		var answer = com.powers.knowledge.KnowledgeService.answer(player,
+				"Shadow, why did my fireball fail?");
+		helper.assertTrue(answer.answer().equals(
+				"Your Fireball failed because it required 40 energy, but only 12 was available."),
+				"Shadow replaced an authoritative magic diagnosis with a guess");
+		helper.assertTrue(answer.confidence() == 1.0,
+				"Authoritative magic diagnostics were not marked fully verified");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void graveRecallStateCapturesThePlayersCurrentDimensionAndPosition(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		BlockPos point = helper.absolutePos(new BlockPos(5, 3, 7));

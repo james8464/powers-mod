@@ -65,20 +65,33 @@ public class VesselPossessionAbility extends Ability {
 				: target instanceof Mob ? PossessionRules.TargetKind.MOB : PossessionRules.TargetKind.OTHER;
 		if (target == null || !PossessionRules.isSuitable(targetKind, target == player,
 				target.isAlive(), target.isRemoved(), BodyProxyManager.isProxy(target))) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "vessel_possession",
+					com.powers.knowledge.MagicFailureReason.NO_TARGET);
 			PowerMessages.send(player, "ability.powers.no_living_target", 4);
 			return false;
 		}
 		// Amethyst and consent remain player-only protections; mobs are still
 		// subject to safe zones through the entity overload below.
 		if (AmethystDampening.isDampened(target)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "vessel_possession",
+					com.powers.knowledge.MagicFailureReason.AMETHYST);
 			PowerMessages.send(player, "amethyst.powers.target_protected", 4);
 			return false;
 		}
 		if (!rankAllowsControl(player, target, PossessionRules.SessionKind.POSSESSION)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "vessel_possession",
+					com.powers.knowledge.MagicFailureReason.RANK_LOCK,
+					java.util.Map.of("current_rank", (long) SkillSystem.effectiveLevel(player),
+							"required_rank", target instanceof ServerPlayer targetPlayer
+									? (long) SkillSystem.effectiveLevel(targetPlayer) + 1L : 0L));
 			PowerMessages.overlay(player, Component.translatable("ability.powers.possession_higher_rank"));
 			return false;
 		}
 		if (!mayControl(player, target, PossessionRules.SessionKind.POSSESSION)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "vessel_possession",
+					target instanceof ServerPlayer
+							? com.powers.knowledge.MagicFailureReason.CONSENT
+							: com.powers.knowledge.MagicFailureReason.SAFE_ZONE);
 			if (target instanceof ServerPlayer targetPlayer) {
 				PowerMessages.sendImportant(player, "powers.packet.consent_denied", 1,
 						targetPlayer.getName().getString());

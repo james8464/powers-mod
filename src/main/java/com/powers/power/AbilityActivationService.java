@@ -17,6 +17,11 @@ import net.minecraft.world.level.Level;
 import com.powers.protection.PowerProtection;
 
 import java.util.function.Supplier;
+import com.powers.knowledge.MagicAttemptReporter;
+import com.powers.knowledge.MagicFailureReason;
+import com.powers.item.ArtifactEnergyReservoir;
+
+import java.util.Map;
 
 /**
  * Single server-authoritative pipeline shared by innate powers and artifacts.
@@ -57,7 +62,7 @@ public final class AbilityActivationService {
 	private static Result activateScoped(ServerPlayer player, Ability ability, String toggleKey,
 			Integer cooldownOverride, CastSource source) {
 		if (ability == null) return Result.FAILED;
-		if (!passesCasterChecks(player)) return Result.FAILED;
+		if (!passesCasterChecks(player, ability.id().getPath())) return Result.FAILED;
 		if (ability.requiresInput()) return Result.REQUIRES_INPUT;
 
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
@@ -78,7 +83,7 @@ public final class AbilityActivationService {
 	public static Result activateInput(ServerPlayer player, Ability ability, boolean bypassCooldown,
 			Supplier<Boolean> operation) {
 		if (ability == null || !ability.requiresInput() || operation == null
-				|| !passesCasterChecks(player)) return Result.FAILED;
+				|| !passesCasterChecks(player, ability == null ? "magic" : ability.id().getPath())) return Result.FAILED;
 		return CastScalingContext.withSource(CastSource.INNATE, () -> cast(player,
 				PlayerPowers.get(player), ability, bypassCooldown ? 0 : null,
 				CastSource.INNATE, operation));
@@ -89,8 +94,11 @@ public final class AbilityActivationService {
 			ResourceKey<Level> dimension, double x, double y, double z, boolean bypassCooldown) {
 		if (ability == null || !ability.requiresInput() || !Double.isFinite(x)
 				|| !Double.isFinite(y) || !Double.isFinite(z)) return Result.FAILED;
-		if (!passesCasterChecks(caster)) return Result.FAILED;
+		if (!passesCasterChecks(caster, ability.id().getPath())) return Result.FAILED;
 		if (!PowerProtection.mayForceMove(caster, subject)) {
+			MagicAttemptReporter.failure(caster, ability.id().getPath(),
+					subject instanceof ServerPlayer ? MagicFailureReason.CONSENT
+							: MagicFailureReason.SAFE_ZONE);
 			PowerMessages.sendImportant(caster, "powers.packet.consent_denied", 1,
 					subject.getName().getString());
 			return Result.FAILED;
@@ -111,10 +119,16 @@ public final class AbilityActivationService {
 	public static Result activateArtifactTeleport(ServerPlayer caster, LivingEntity subject, Ability ability,
 			ResourceKey<Level> dimension, double x, double y, double z, int cooldownTicks) {
 		if (ability == null || !ability.requiresInput() || !Double.isFinite(x)
-				|| !Double.isFinite(y) || !Double.isFinite(z) || !passesCasterChecks(caster)) {
+				|| !Double.isFinite(y) || !Double.isFinite(z)
+				|| !passesCasterChecks(caster, ability == null ? "magic" : ability.id().getPath())) {
 			return Result.FAILED;
 		}
-		if (!PowerProtection.mayForceMove(caster, subject)) return Result.FAILED;
+		if (!PowerProtection.mayForceMove(caster, subject)) {
+			MagicAttemptReporter.failure(caster, ability.id().getPath(),
+					subject instanceof ServerPlayer ? MagicFailureReason.CONSENT
+							: MagicFailureReason.SAFE_ZONE);
+			return Result.FAILED;
+		}
 		if (subject instanceof ServerPlayer player) AmethystDampening.update(player);
 		if (AmethystDampening.isDampened(subject)) return Result.FAILED;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(caster);
@@ -125,22 +139,33 @@ public final class AbilityActivationService {
 
 	private static Result cast(ServerPlayer player, PlayerPowers.PlayerPowersData data, Ability ability,
 			Integer cooldownOverride, CastSource source, Supplier<Boolean> operation) {
+		String actionId = ability.magicActionId(player, data);
 		int remaining = cooldownOverride != null && cooldownOverride == 0
 				? 0 : ActivationCooldowns.remainingTicks(player, ability);
 		if (ActivationCooldowns.blocks(remaining,
 				ability.mayReactivateDuringCooldown(player, data, remaining))) {
 			PowerMessages.send(player, "ability.powers.cooldown", 4, seconds(remaining));
+			MagicAttemptReporter.failure(player, actionId, MagicFailureReason.COOLDOWN,
+					Map.of("remaining_ticks", (long) remaining));
 			return Result.FAILED;
 		}
 		PreparedMagicCast magic = ServerMagicCasts.prepare(
-				player, ability.magicActionId(player, data), source);
-		if (!magic.allowed() || !data.spendEnergy(player, ability)) return Result.FAILED;
+				player, actionId, source);
+		if (!magic.allowed()) return Result.FAILED;
+		int energyCost = PowerEnergy.cost(player, ability);
+		long available = (long) data.energy() + ArtifactEnergyReservoir.totalStored(player);
+		if (!data.spendEnergy(player, ability)) {
+			MagicAttemptReporter.failure(player, actionId, MagicFailureReason.INSUFFICIENT_ENERGY,
+					Map.of("required", (long) energyCost, "available", available));
+			return Result.FAILED;
+		}
 		int cooldown = cooldownOverride == null
 				? ability.cooldownTicksFor(player, data) : cooldownOverride;
 		boolean activated = ServerMagicCasts.execute(magic,
 				() -> AbilityActivationContext.withCooldown(cooldownOverride, operation));
 		if (!activated) {
 			data.refundEnergy(ability);
+			MagicAttemptReporter.executionFailure(player, actionId);
 		} else {
 			ActivationCooldowns.start(player, ability, cooldown);
 			var presenceId = ServerMagicCasts.commit(magic, player);
@@ -152,8 +177,8 @@ public final class AbilityActivationService {
 		return activated ? Result.ACTIVATED : Result.FAILED;
 	}
 
-	private static boolean passesCasterChecks(ServerPlayer player) {
-		return MagicUseGate.passes(player, true);
+	private static boolean passesCasterChecks(ServerPlayer player, String actionId) {
+		return MagicUseGate.passes(player, true, actionId);
 	}
 
 	private static Result toggle(ServerPlayer player, PlayerPowers.PlayerPowersData data,
@@ -175,10 +200,15 @@ public final class AbilityActivationService {
 			}
 		}
 
-		PreparedMagicCast magic = ServerMagicCasts.prepare(
-				player, ability.magicActionId(player, data), source);
+		String actionId = ability.magicActionId(player, data);
+		PreparedMagicCast magic = ServerMagicCasts.prepare(player, actionId, source);
 		if (!magic.allowed()) return Result.FAILED;
+		int energyCost = PowerEnergy.cost(player, ability);
+		long available = (long) data.energy() + ArtifactEnergyReservoir.totalStored(player);
 		boolean paid = data.spendEnergy(player, ability);
+		if (!paid) MagicAttemptReporter.failure(player, actionId,
+				MagicFailureReason.INSUFFICIENT_ENERGY,
+				Map.of("required", (long) energyCost, "available", available));
 		boolean activated = paid && ServerMagicCasts.execute(magic, () -> ability.activateToggleOn(player, data));
 		if (activated) {
 			data.setToggleActive(player, toggleKey, true);
@@ -189,6 +219,7 @@ public final class AbilityActivationService {
 			PowerMessages.overlay(player, Component.translatable("ability.powers.toggle_on", ability.name()));
 		} else if (paid) {
 			data.refundEnergy(ability);
+			MagicAttemptReporter.executionFailure(player, actionId);
 		}
 		PowersPackets.syncTo(player);
 		return activated ? Result.ACTIVATED : Result.FAILED;

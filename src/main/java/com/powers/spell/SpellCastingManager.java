@@ -18,6 +18,9 @@ import com.powers.protection.PowerProtection;
 import com.powers.util.PowerMessages;
 import com.powers.testing.TestingOverrides;
 import com.powers.item.ArtifactEnergyModifiers;
+import com.powers.item.ArtifactEnergyReservoir;
+import com.powers.knowledge.MagicAttemptReporter;
+import com.powers.knowledge.MagicFailureReason;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -57,8 +60,10 @@ public final class SpellCastingManager {
 	}
 
 	public static void use(ServerPlayer player, String texture) {
-		if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.RITUAL)) return;
-		if (GlobalTimeStopManager.rejectIfStopped(player)) return;
+		if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.RITUAL)) {
+			MagicAttemptReporter.failure(player, "spell", MagicFailureReason.SERVER_BUDGET);
+			return;
+		}
 		GrimoireDefinition grimoire = REGISTRY.forTexture(texture);
 		if (grimoire == null) {
 			if (REGISTRY.isDormantTexture(texture)) {
@@ -83,6 +88,7 @@ public final class SpellCastingManager {
 		if (!commonChecks(player, spell, true)) return;
 		SpellTarget target = SpellEffects.acquireTarget(player, spell);
 		if (!target.available()) {
+			MagicAttemptReporter.failure(player, spell.id(), MagicFailureReason.NO_TARGET);
 			failed(player, "spell.powers.no_target");
 			return;
 		}
@@ -130,24 +136,18 @@ public final class SpellCastingManager {
 	}
 
 	private static boolean commonChecks(ServerPlayer player, SpellDefinition spell, boolean punishDampening) {
-		if (GlobalTimeStopManager.rejectIfStopped(player)) return false;
 		if (CHANNELS.containsKey(player.getUUID())) {
+			MagicAttemptReporter.failure(player, spell.id(), MagicFailureReason.ALREADY_CHANNELING);
 			failed(player, "spell.powers.already_channeling");
 			return false;
 		}
-		if (EntityFreezeController.isFrozen(player)) {
-			EntityFreezeController.reject(player);
-			return false;
-		}
-		AmethystDampening.update(player);
-		if (AmethystDampening.isDampened(player)) {
-			if (punishDampening) AmethystDampening.punish(player);
-			return false;
-		}
+		if (!MagicUseGate.passes(player, punishDampening, spell.id())) return false;
 		long remaining = TestingOverrides.cooldownsDisabled(player.getUUID()) ? 0L
 				: PlayerPowers.get(player).cooldownReadyAt(cooldownId(spell))
 						- player.level().getGameTime();
 		if (remaining > 0) {
+			MagicAttemptReporter.failure(player, spell.id(), MagicFailureReason.COOLDOWN,
+					Map.of("remaining_ticks", remaining));
 			PowerMessages.overlay(player, Component.translatable(
 					"spell.powers.cooldown", (remaining + 19) / 20));
 			return false;
@@ -162,6 +162,9 @@ public final class SpellCastingManager {
 	private static boolean payAndCool(ServerPlayer player, SpellDefinition spell, int energyCost) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		if (!data.consumeEnergy(energyCost)) {
+			long available = (long) data.energy() + ArtifactEnergyReservoir.totalStored(player);
+			MagicAttemptReporter.failure(player, spell.id(), MagicFailureReason.INSUFFICIENT_ENERGY,
+					Map.of("required", (long) energyCost, "available", available));
 			failed(player, "energy.powers.empty.1");
 			return false;
 		}
@@ -196,6 +199,8 @@ public final class SpellCastingManager {
 			iterator.remove();
 			boolean amplified = AMPLIFIED_UNTIL.remove(player.getUUID()) != null;
 			if (status == ChannelStatus.INTERRUPTED) {
+				MagicAttemptReporter.failure(player, session.spell().id(),
+						MagicFailureReason.CHANNEL_INTERRUPTED);
 				PlayerPowers.get(player).refundEnergy(session.energyCost() / 2);
 				PowersPackets.syncTo(player);
 				failed(player, "spell.powers.interrupted");
@@ -225,6 +230,7 @@ public final class SpellCastingManager {
 			data.clearCooldown(cooldownId(spell));
 			PowersPackets.syncTo(player);
 			failed(player, "spell.powers.failed");
+			MagicAttemptReporter.executionFailure(player, spell.id());
 			return;
 		}
 		ServerMagicCasts.commit(magic, player);

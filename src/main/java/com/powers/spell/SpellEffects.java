@@ -133,7 +133,11 @@ final class SpellEffects {
 
 	private static boolean trackingMark(ServerPlayer caster, LivingEntity target, int duration) {
 		if (target == null || AmethystDampening.isDampened(target)) return false;
-		if (target instanceof ServerPlayer player && !PowerProtection.mayLocate(caster, player)) return false;
+		if (target instanceof ServerPlayer player && !PowerProtection.mayLocate(caster, player)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(caster, "tracking_mark",
+					com.powers.knowledge.MagicFailureReason.CONSENT);
+			return false;
+		}
 		target.addEffect(PowerStatusEffects.hidden(MobEffects.GLOWING, duration, 0, true, true));
 		PowerFx.beam((ServerLevel) caster.level(), caster.getEyePosition(), target.position().add(0, 1, 0),
 				ParticleTypes.END_ROD, 18);
@@ -169,7 +173,11 @@ final class SpellEffects {
 
 	private static boolean bloodReading(ServerPlayer caster, LivingEntity target) {
 		if (target == null || target == caster) return false;
-		if (target instanceof ServerPlayer player && !PowerProtection.mayLocate(caster, player)) return false;
+		if (target instanceof ServerPlayer player && !PowerProtection.mayLocate(caster, player)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(caster, "blood_reading",
+					com.powers.knowledge.MagicFailureReason.CONSENT);
+			return false;
+		}
 		BloodReadingReport report = BloodReadingReport.create(target);
 		caster.sendSystemMessage(Component.translatable("spell.powers.blood_reading.vitals",
 				target.getDisplayName(), report.health(), report.maximumHealth(), report.healthPercent()));

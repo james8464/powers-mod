@@ -66,6 +66,8 @@ public class DimensionalAnchorAbility extends Ability {
 		LivingEntity target = PowerTargeting.findLivingTarget(player,
 				PowerScalingService.range(player, "dimensional_anchor", 32.0));
 		if (!PlayerLikeTarget.isCompatible(target)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "dimensional_anchor",
+					com.powers.knowledge.MagicFailureReason.NO_TARGET);
 			PowerMessages.send(player, "ability.powers.no_player_target", 4);
 			return false;
 		}

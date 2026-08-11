@@ -42,6 +42,10 @@ public final class KnowledgeService {
 	}
 
 	private static KnowledgeAnswer answerOffline(ServerPlayer player, KnowledgeQuery query) {
+		if (!query.authoritativeDiagnostic().isEmpty()) {
+			return new KnowledgeAnswer("recent_magic_diagnostic", query.authoritativeDiagnostic(), 1.0,
+					List.of("server-authoritative magic attempt journal"), List.of());
+		}
 		KnowledgeAnswer curated = INDEX.answer(query);
 		if (curated.confidence() >= 0.5) return curated;
 		KnowledgeAnswer recipe = recipeAnswer(player, query);
@@ -60,7 +64,9 @@ public final class KnowledgeService {
 		List<String> context = context(player);
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		int revealRank = Math.max(data.skillLevel(), data.darknessLevel());
-		return new KnowledgeQuery(question, revealRank, context);
+		String diagnostic = MagicAttemptJournal.global().latestFailure(player.getUUID(), question,
+				player.level().getGameTime()).map(MagicDiagnosticAnswer::text).orElse("");
+		return new KnowledgeQuery(question, revealRank, context, diagnostic);
 	}
 
 	public static int entryCount() {

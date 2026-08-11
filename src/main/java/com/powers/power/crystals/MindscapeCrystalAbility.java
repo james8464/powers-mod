@@ -98,11 +98,15 @@ abstract class MindscapeCrystalAbility extends Ability {
 		}
 		if (target instanceof ServerPlayer subject) {
 			if (!PowerProtection.mayForceMove(caster, subject)) {
+				com.powers.knowledge.MagicAttemptReporter.failure(caster, id().getPath(),
+						com.powers.knowledge.MagicFailureReason.CONSENT);
 				PowerMessages.sendImportant(caster, "powers.packet.consent_denied", 1,
 						subject.getName().getString());
 				return false;
 			}
 			if (AmethystDampening.isDampened(subject)) {
+				com.powers.knowledge.MagicAttemptReporter.failure(caster, id().getPath(),
+						com.powers.knowledge.MagicFailureReason.AMETHYST);
 				PowerMessages.send(caster, "amethyst.powers.target_protected", 4);
 				return false;
 			}

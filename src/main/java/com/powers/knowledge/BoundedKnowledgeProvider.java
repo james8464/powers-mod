@@ -111,8 +111,10 @@ public final class BoundedKnowledgeProvider {
 				.collect(java.util.stream.Collectors.joining(","));
 		return "Speak as Shadow, a concise ancient companion. Answer one Minecraft/POWERS question in at most 120 words. "
 				+ "Never invent recipes, commands, registry IDs, or implemented features. "
+				+ "If an authoritative diagnosis is supplied, repeat it verbatim before any advice. "
 				+ "Clearly say when uncertain. No coordinates, player identity, chat, IP, or world data is supplied. "
 				+ "Progression reveal rank=" + query.revealRank() + "; registry context=" + context
+				+ "; authoritative diagnosis=" + query.authoritativeDiagnostic()
 				+ "; question=" + question;
 	}
 
@@ -132,6 +134,11 @@ public final class BoundedKnowledgeProvider {
 					.replaceAll("\\s+", " ").strip();
 			if (safe.isEmpty()) return offline;
 			safe = safe.substring(0, Math.min(MAX_OUTPUT_CHARACTERS, safe.length()));
+			if (!query.authoritativeDiagnostic().isEmpty()
+					&& !safe.startsWith(query.authoritativeDiagnostic())) {
+				safe = query.authoritativeDiagnostic() + " " + safe;
+				safe = safe.substring(0, Math.min(MAX_OUTPUT_CHARACTERS, safe.length()));
+			}
 			return new KnowledgeAnswer("remote_fallback", safe, 0.55,
 					java.util.List.of("opt-in remote knowledge provider"),
 					query.contextRegistryIds());
