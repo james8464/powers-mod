@@ -67,11 +67,15 @@ public final class GameplayAcceptanceCatalogue {
 		entries.add(system("rank_maze", Proof.RESOURCE, "RankMazePresentationResourcesTest"));
 		entries.add(system("energy_hud", Proof.UNIT_RULES, "HudLayoutTest and HudMathTest"));
 		entries.add(system("shadow_companion", Proof.LIVE_BEHAVIOR,
-				"PowersGameTests#shadowChatOwnsVisibilityAndFormerBookKnowledge"));
+				"PowersGameTests#shadowChatOwnsVisibilityAndFormerBookKnowledge and #shadowExplainsTheExactLatestServerRecordedMagicFailure"));
+		entries.add(system("shadow_diagnostics", Proof.LIVE_BEHAVIOR,
+				"PowersGameTests#shadowExplainsTheExactLatestServerRecordedMagicFailure"));
+		entries.add(system("artifact_energy", Proof.LIVE_BEHAVIOR,
+				"PowersGameTests#soulstoneReservoirPaysEnergyShortfallsAtomically"));
 		entries.add(system("celestial_ruin", Proof.LIVE_BEHAVIOR,
 				"PowersGameTests#celestialRuinOverwhelmsTheFirstVesselsLayeredVitality"));
 		entries.add(system("magic_collisions", Proof.UNIT_RULES,
-				"MagicInteractionResolverTest exhaustive 2,701-pair matrix"));
+				"MagicInteractionResolverTest exhaustive 2,080-pair matrix"));
 		entries.add(system("multiplayer_soak", Proof.SOAK, "SyntheticMultiplayerSoakTest"));
 		return List.copyOf(entries);
 	}

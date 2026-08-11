@@ -22,7 +22,10 @@ def weapons() -> list[str]:
 
 
 def imported_role(texture: str) -> tuple[str, str, str]:
-    if texture == "device_miniportal_active" or texture == "artifact_runestone_back" or "runestone_overlay_" in texture:
+    if (texture == "device_miniportal_active" or texture == "artifact_runestone_back"
+            or "runestone_overlay_" in texture or texture in {
+                "book_grimoire_infernal", "book_grimoire_recolor_overlay_infernal",
+                "artifact_trilobitefossil"}):
         return "Compatibility asset alias", "Hidden; retained only for old saves and model composition", "Deferred/hidden"
     if texture.startswith("food_"):
         return "Provision", "Edible food; cooked and smoked forms restore more hunger", "Themed mob/block loot and village provision salvage; processed variants may also be cooked"
@@ -33,13 +36,30 @@ def imported_role(texture: str) -> tuple[str, str, str]:
     if "runestone" in texture:
         return "Runestone", "Finite tiered energy restoration and Arcane Crucible infusion", "Crafting upgrade chain plus dungeon, ancient-city, and trial rewards"
     if "ring" in texture or "amulet" in texture:
-        return "Attunement", "Passive energy restoration and resistance while carried", "Thematic archaeology and structure salvage"
+        rates = {
+            "artifact_corroded_copper_ring": 1, "artifact_plain_copper_ring": 1,
+            "artifact_emerald_ring": 2, "artifact_amulet": 2,
+            "artifact_diamond_ring": 3,
+        }
+        return "Attunement", f"Restores {rates.get(texture, 1)} energy per second; carried attunements jointly cap at 6 and grant bounded resistance", "Thematic archaeology and structure salvage"
     if "soulstone" in texture or "soulmatrix" in texture:
-        return "Soul vessel", "Bounded nonlethal soul drain; the Matrix also stores passive energy", "Nether-fortress and archaeology salvage"
+        capacities = {"small": 200, "medium": 400, "large": 800}
+        capacity = 1600 if "soulmatrix" in texture else next(
+            (value for size, value in capacities.items() if size in texture), 200)
+        initial = "starts empty" if "inert" in texture else "starts charged"
+        return "Energy reservoir", f"Stores {capacity} magic energy ({initial}); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls", "Nether-fortress and archaeology salvage"
     if "heart" in texture:
-        return "Heart relic", "Vitality, nature, or necromantic healing", "Settlement and archaeology salvage"
+        purpose = {
+            "artifact_beating_heart": "Active healing plus passive regeneration",
+            "artifact_woodheart": "Strong active healing plus passive regeneration",
+            "artifact_ghoul_heart": "Trades weaker healing for active and passive energy restoration",
+            "artifact_heart_mechanism": "Raises a timed clockwork absorption ward",
+        }.get(texture, "Specialised vitality restoration")
+        return "Heart relic", purpose, "Settlement and archaeology salvage"
+    if "bloodstone" in texture:
+        return "Death ward", "Arms one five-minute lethal-damage ward; the ward is consumed to prevent a legal death", "Thematic archaeology and structure salvage"
     if "ritualdagger" in texture:
-        return "Ritual catalyst", "Trades health to amplify the next grimoire ritual", "Woodland-mansion and archaeology salvage"
+        return "Energy catalyst", "Directly sacrifices 4 health to restore 80 magic energy", "Woodland-mansion and archaeology salvage"
     if "philosopherstone" in texture:
         return "Transmuter", "Controlled stone/deepslate/netherrack/end-stone transmutation", "Rare woodland-mansion and archaeology salvage"
     if "lodestone" in texture:
@@ -48,8 +68,18 @@ def imported_role(texture: str) -> tuple[str, str, str]:
         return "Travel relic", "Two safe same-dimension trips; dropped amethyst restores both charges", "Guaranteed First Vessel drop and rare ruined-portal salvage"
     if "flute" in texture:
         return "Command relic", "Recalls, heals, and aligns nearby player-shaped guardians", "Jungle-temple and archaeology salvage"
+    if "emperyeanjewel" in texture:
+        return "Consent seal", "Overrides every player-consent gate for one 40-energy surcharge; safe zones and server policy still win", "Rare stronghold and archaeology salvage"
+    if "malignember" in texture:
+        return "Destructive focus", "Reduces explicit destructive magic activation costs by 20%, never below 1", "Nether-fortress and archaeology salvage"
+    if texture in {"artifact_star", "artifact_star_animated", "artifact_ammolite"}:
+        return "Celestial focus", "Passively restores 1 energy per second and provides bounded Arcane Crucible infusion", "Thematic archaeology and structure salvage"
+    if "bowl" in texture or "smallpot" in texture or "dripping_orb" in texture:
+        return "Ritual container", "Provides a bounded Arcane Crucible infusion catalyst", "Thematic archaeology and structure salvage"
+    if "fossil" in texture:
+        return "Archaeology", "Provides a bounded archaeology-themed Arcane Crucible infusion", "Thematic archaeology and structure salvage"
     if texture.startswith("magic_essence_") or texture.startswith("blood_salts"):
-        return "Arcane catalyst", "Named spell-school and Arcane Crucible reagent", "Buried-treasure, fortress, and archaeology salvage"
+        return "Arcane energy dust", "A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource", "Buried-treasure, fortress, and archaeology salvage"
     return "Relic or lore catalyst", "Arcane Crucible reagent or memory fragment interpreted by Shadow", "Thematic archaeology and structure salvage"
 
 

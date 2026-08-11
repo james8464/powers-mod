@@ -111,11 +111,11 @@ This generated table names every registered gameplay item family, including hidd
 | `powers:wooden_bludgeon` | Wooden Bludgeon | Fantasy weapon | One of twelve named combat archetypes; tooltip identifies its proc | Low-chance archetype-themed chest or mob loot |
 | `powers:wooden_tonfa` | Wooden Tonfa | Fantasy weapon | One of twelve named combat archetypes; tooltip identifies its proc | Low-chance archetype-themed chest or mob loot |
 | `powers:zenith` | Zenith | Fantasy weapon | One of twelve named combat archetypes; tooltip identifies its proc | Low-chance archetype-themed chest or mob loot |
-| `powers:imported_artifact_ammolite` | Ammolite | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_amulet` | Amulet | Attunement | Passive energy restoration and resistance while carried | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_beating_heart` | Living Heart | Heart relic | Vitality, nature, or necromantic healing | Settlement and archaeology salvage |
+| `powers:imported_artifact_ammolite` | Ammolite | Celestial focus | Passively restores 1 energy per second and provides bounded Arcane Crucible infusion | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_amulet` | Amulet | Attunement | Restores 2 energy per second; carried attunements jointly cap at 6 and grant bounded resistance | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_beating_heart` | Living Heart | Heart relic | Active healing plus passive regeneration | Settlement and archaeology salvage |
 | `powers:imported_artifact_blackpearl` | Black Pearl | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_bloodstone` | Bloodstone | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_bloodstone` | Bloodstone | Death ward | Arms one five-minute lethal-damage ward; the ward is consumed to prevent a legal death | Thematic archaeology and structure salvage |
 | `powers:imported_artifact_bonefigurine` | Bone Figurine | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
 | `powers:imported_artifact_bound_runestone_active_1` | Bound Active 1 Runestone | Runestone | Finite tiered energy restoration and Arcane Crucible infusion | Crafting upgrade chain plus dungeon, ancient-city, and trial rewards |
 | `powers:imported_artifact_bound_runestone_active_2` | Bound Active 2 Runestone | Runestone | Finite tiered energy restoration and Arcane Crucible infusion | Crafting upgrade chain plus dungeon, ancient-city, and trial rewards |
@@ -123,25 +123,25 @@ This generated table names every registered gameplay item family, including hidd
 | `powers:imported_artifact_bound_runestone_inert_1` | Bound Inert 1 Runestone | Runestone | Finite tiered energy restoration and Arcane Crucible infusion | Crafting upgrade chain plus dungeon, ancient-city, and trial rewards |
 | `powers:imported_artifact_bound_runestone_inert_2` | Bound Inert 2 Runestone | Runestone | Finite tiered energy restoration and Arcane Crucible infusion | Crafting upgrade chain plus dungeon, ancient-city, and trial rewards |
 | `powers:imported_artifact_bound_runestone_inert_3` | Bound Inert 3 Runestone | Runestone | Finite tiered energy restoration and Arcane Crucible infusion | Crafting upgrade chain plus dungeon, ancient-city, and trial rewards |
-| `powers:imported_artifact_bowl` | Bowl | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_bowl` | Bowl | Ritual container | Provides a bounded Arcane Crucible infusion catalyst | Thematic archaeology and structure salvage |
 | `powers:imported_artifact_bullion` | Bullion | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
 | `powers:imported_artifact_coins` | Coins | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_corroded_copper_ring` | Corroded Copper Ring | Attunement | Passive energy restoration and resistance while carried | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_corroded_copper_ring` | Corroded Copper Ring | Attunement | Restores 1 energy per second; carried attunements jointly cap at 6 and grant bounded resistance | Thematic archaeology and structure salvage |
 | `powers:imported_artifact_dark_bone_figurine` | Dark Bone Figurine | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_diamond_ring` | Diamond Ring | Attunement | Passive energy restoration and resistance while carried | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_dripping_orb_1` | Dripping Orb 1 | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_dripping_orb_2` | Dripping Orb 2 | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_emerald_ring` | Emerald Ring | Attunement | Passive energy restoration and resistance while carried | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_emperyeanjewel` | Empyrean Jewel | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_diamond_ring` | Diamond Ring | Attunement | Restores 3 energy per second; carried attunements jointly cap at 6 and grant bounded resistance | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_dripping_orb_1` | Dripping Orb 1 | Ritual container | Provides a bounded Arcane Crucible infusion catalyst | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_dripping_orb_2` | Dripping Orb 2 | Ritual container | Provides a bounded Arcane Crucible infusion catalyst | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_emerald_ring` | Emerald Ring | Attunement | Restores 2 energy per second; carried attunements jointly cap at 6 and grant bounded resistance | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_emperyeanjewel` | Empyrean Jewel | Consent seal | Overrides every player-consent gate for one 40-energy surcharge; safe zones and server policy still win | Rare stronghold and archaeology salvage |
 | `powers:imported_artifact_flute` | Flute | Command relic | Recalls, heals, and aligns nearby player-shaped guardians | Jungle-temple and archaeology salvage |
-| `powers:imported_artifact_ghoul_heart` | Ghoul Heart | Heart relic | Vitality, nature, or necromantic healing | Settlement and archaeology salvage |
-| `powers:imported_artifact_heart_mechanism` | Clockwork Heart | Heart relic | Vitality, nature, or necromantic healing | Settlement and archaeology salvage |
+| `powers:imported_artifact_ghoul_heart` | Ghoul Heart | Heart relic | Trades weaker healing for active and passive energy restoration | Settlement and archaeology salvage |
+| `powers:imported_artifact_heart_mechanism` | Clockwork Heart | Heart relic | Raises a timed clockwork absorption ward | Settlement and archaeology salvage |
 | `powers:imported_artifact_lodestone` | Lodestone | Travel relic | Binds a safe same-dimension destination for a Miniportal | Desert-pyramid and archaeology salvage |
-| `powers:imported_artifact_malignember` | Malign Ember | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_malignember` | Malign Ember | Destructive focus | Reduces explicit destructive magic activation costs by 20%, never below 1 | Nether-fortress and archaeology salvage |
 | `powers:imported_artifact_oddstone` | Oddstone | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
 | `powers:imported_artifact_philosopherstone` | Philosopher's Stone | Transmuter | Controlled stone/deepslate/netherrack/end-stone transmutation | Rare woodland-mansion and archaeology salvage |
-| `powers:imported_artifact_plain_copper_ring` | Plain Copper Ring | Attunement | Passive energy restoration and resistance while carried | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_ritualdagger` | Ritual Dagger | Ritual catalyst | Trades health to amplify the next grimoire ritual | Woodland-mansion and archaeology salvage |
+| `powers:imported_artifact_plain_copper_ring` | Plain Copper Ring | Attunement | Restores 1 energy per second; carried attunements jointly cap at 6 and grant bounded resistance | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_ritualdagger` | Ritual Dagger | Energy catalyst | Directly sacrifices 4 health to restore 80 magic energy | Woodland-mansion and archaeology salvage |
 | `powers:imported_artifact_runestone_back` | Runestone | Compatibility asset alias | Hidden; retained only for old saves and model composition | Deferred/hidden |
 | `powers:imported_artifact_runestone_dark_inscribed_large` | Dark Inscribed Large Runestone | Runestone | Finite tiered energy restoration and Arcane Crucible infusion | Crafting upgrade chain plus dungeon, ancient-city, and trial rewards |
 | `powers:imported_artifact_runestone_dark_inscribed_medium` | Dark Inscribed Medium Runestone | Runestone | Finite tiered energy restoration and Arcane Crucible infusion | Crafting upgrade chain plus dungeon, ancient-city, and trial rewards |
@@ -164,31 +164,31 @@ This generated table names every registered gameplay item family, including hidd
 | `powers:imported_artifact_runestone_overlay_7` | 7 Runestone | Compatibility asset alias | Hidden; retained only for old saves and model composition | Deferred/hidden |
 | `powers:imported_artifact_runestone_overlay_8` | 8 Runestone | Compatibility asset alias | Hidden; retained only for old saves and model composition | Deferred/hidden |
 | `powers:imported_artifact_runestone_overlay_9` | 9 Runestone | Compatibility asset alias | Hidden; retained only for old saves and model composition | Deferred/hidden |
-| `powers:imported_artifact_smallpot` | Small Ritual Pot | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_soulmatrix` | Soul Matrix | Soul vessel | Bounded nonlethal soul drain; the Matrix also stores passive energy | Nether-fortress and archaeology salvage |
-| `powers:imported_artifact_soulstone_large` | Large Soulstone | Soul vessel | Bounded nonlethal soul drain; the Matrix also stores passive energy | Nether-fortress and archaeology salvage |
-| `powers:imported_artifact_soulstone_large_inert` | Large Inert Soulstone | Soul vessel | Bounded nonlethal soul drain; the Matrix also stores passive energy | Nether-fortress and archaeology salvage |
-| `powers:imported_artifact_soulstone_medium` | Medium Soulstone | Soul vessel | Bounded nonlethal soul drain; the Matrix also stores passive energy | Nether-fortress and archaeology salvage |
-| `powers:imported_artifact_soulstone_medium_inert` | Medium Inert Soulstone | Soul vessel | Bounded nonlethal soul drain; the Matrix also stores passive energy | Nether-fortress and archaeology salvage |
-| `powers:imported_artifact_soulstone_small` | Small Soulstone | Soul vessel | Bounded nonlethal soul drain; the Matrix also stores passive energy | Nether-fortress and archaeology salvage |
-| `powers:imported_artifact_soulstone_small_inert` | Small Inert Soulstone | Soul vessel | Bounded nonlethal soul drain; the Matrix also stores passive energy | Nether-fortress and archaeology salvage |
-| `powers:imported_artifact_star` | Star | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_star_animated` | Animated Star | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_trilobite_fossil` | Trilobite Fossil | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_trilobitefossil` | Trilobite Fossil | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_woodheart` | Heart of the Wildwood | Heart relic | Vitality, nature, or necromantic healing | Settlement and archaeology salvage |
-| `powers:imported_blood_salts_2` | Blood Salts | Arcane catalyst | Named spell-school and Arcane Crucible reagent | Buried-treasure, fortress, and archaeology salvage |
+| `powers:imported_artifact_smallpot` | Small Ritual Pot | Ritual container | Provides a bounded Arcane Crucible infusion catalyst | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_soulmatrix` | Soul Matrix | Energy reservoir | Stores 1600 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls | Nether-fortress and archaeology salvage |
+| `powers:imported_artifact_soulstone_large` | Large Soulstone | Energy reservoir | Stores 800 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls | Nether-fortress and archaeology salvage |
+| `powers:imported_artifact_soulstone_large_inert` | Large Inert Soulstone | Energy reservoir | Stores 800 magic energy (starts empty); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls | Nether-fortress and archaeology salvage |
+| `powers:imported_artifact_soulstone_medium` | Medium Soulstone | Energy reservoir | Stores 400 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls | Nether-fortress and archaeology salvage |
+| `powers:imported_artifact_soulstone_medium_inert` | Medium Inert Soulstone | Energy reservoir | Stores 400 magic energy (starts empty); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls | Nether-fortress and archaeology salvage |
+| `powers:imported_artifact_soulstone_small` | Small Soulstone | Energy reservoir | Stores 200 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls | Nether-fortress and archaeology salvage |
+| `powers:imported_artifact_soulstone_small_inert` | Small Inert Soulstone | Energy reservoir | Stores 200 magic energy (starts empty); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls | Nether-fortress and archaeology salvage |
+| `powers:imported_artifact_star` | Star | Celestial focus | Passively restores 1 energy per second and provides bounded Arcane Crucible infusion | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_star_animated` | Animated Star | Celestial focus | Passively restores 1 energy per second and provides bounded Arcane Crucible infusion | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_trilobite_fossil` | Trilobite Fossil | Archaeology | Provides a bounded archaeology-themed Arcane Crucible infusion | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_trilobitefossil` | Trilobite Fossil | Compatibility asset alias | Hidden; retained only for old saves and model composition | Deferred/hidden |
+| `powers:imported_artifact_woodheart` | Heart of the Wildwood | Heart relic | Strong active healing plus passive regeneration | Settlement and archaeology salvage |
+| `powers:imported_blood_salts_2` | Blood Salts | Arcane energy dust | A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource | Buried-treasure, fortress, and archaeology salvage |
 | `powers:imported_book_grimoire_abyssal` | The Abyssal Codex | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
 | `powers:imported_book_grimoire_blight` | The Blighted Testament | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
 | `powers:imported_book_grimoire_celestial` | The Celestial Grimoire | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
 | `powers:imported_book_grimoire_deep` | The Deepbound Grimoire | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
-| `powers:imported_book_grimoire_infernal` | The Infernal Ledger | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
+| `powers:imported_book_grimoire_infernal` | Dormant Infernal Ledger (Compatibility) | Compatibility asset alias | Hidden; retained only for old saves and model composition | Deferred/hidden |
 | `powers:imported_book_grimoire_recolor` | Unbound Grimoire | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
 | `powers:imported_book_grimoire_recolor_overlay_abyssal` | Abyssal Grimoire Leaf | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
 | `powers:imported_book_grimoire_recolor_overlay_blight` | Blighted Grimoire Leaf | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
 | `powers:imported_book_grimoire_recolor_overlay_celestial` | Celestial Grimoire Leaf | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
 | `powers:imported_book_grimoire_recolor_overlay_deep` | Deepbound Grimoire Leaf | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
-| `powers:imported_book_grimoire_recolor_overlay_infernal` | Infernal Grimoire Leaf | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
+| `powers:imported_book_grimoire_recolor_overlay_infernal` | Dormant Infernal Leaf (Compatibility) | Compatibility asset alias | Hidden; retained only for old saves and model composition | Deferred/hidden |
 | `powers:imported_book_grimoire_recolor_overlay_wild` | Wild Grimoire Leaf | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
 | `powers:imported_book_grimoire_wild` | The Verdant Canticle | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
 | `powers:imported_book_page_written` | Written Grimoire Page | Lore | Archaeological grimoire fragment interpreted by Shadow | Stronghold discovery |
@@ -263,6 +263,6 @@ This generated table names every registered gameplay item family, including hidd
 | `powers:imported_food_tomato` | Tomato | Provision | Edible food; cooked and smoked forms restore more hunger | Themed mob/block loot and village provision salvage; processed variants may also be cooked |
 | `powers:imported_food_uradbean` | Uradbean | Provision | Edible food; cooked and smoked forms restore more hunger | Themed mob/block loot and village provision salvage; processed variants may also be cooked |
 | `powers:imported_food_wisdomfruit` | Wisdomfruit | Provision | Edible food; cooked and smoked forms restore more hunger | Themed mob/block loot and village provision salvage; processed variants may also be cooked |
-| `powers:imported_magic_essence_blood_dust` | Blood Essence Dust | Arcane catalyst | Named spell-school and Arcane Crucible reagent | Buried-treasure, fortress, and archaeology salvage |
-| `powers:imported_magic_essence_sacred_dust` | Sacred Essence Dust | Arcane catalyst | Named spell-school and Arcane Crucible reagent | Buried-treasure, fortress, and archaeology salvage |
-| `powers:imported_magic_essence_soul_dust` | Soul Essence Dust | Arcane catalyst | Named spell-school and Arcane Crucible reagent | Buried-treasure, fortress, and archaeology salvage |
+| `powers:imported_magic_essence_blood_dust` | Blood Arcane Energy Dust | Arcane energy dust | A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource | Buried-treasure, fortress, and archaeology salvage |
+| `powers:imported_magic_essence_sacred_dust` | Sacred Arcane Energy Dust | Arcane energy dust | A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource | Buried-treasure, fortress, and archaeology salvage |
+| `powers:imported_magic_essence_soul_dust` | Soul Arcane Energy Dust | Arcane energy dust | A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource | Buried-treasure, fortress, and archaeology salvage |

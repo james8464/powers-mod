@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ItemCatalogueDocumentationTest {
 	@Test
@@ -24,5 +25,17 @@ class ItemCatalogueDocumentationTest {
 				"power_test_actor_spawn_egg", "first_vessel_spawn_egg")) {
 			assertTrue(document.contains("`powers:" + core + "`"), core);
 		}
+	}
+
+	@Test
+	void catalogueUsesOnlyImplementedEnergyArtifactTerminology() throws Exception {
+		String document = Files.readString(Path.of("docs/gameplay/item-catalogue.md"));
+		assertTrue(document.contains("Energy reservoir"));
+		assertTrue(document.contains("Overrides every player-consent gate"));
+		assertTrue(document.contains("five-minute lethal-damage ward"));
+		assertTrue(document.contains("Arcane energy dust"));
+		assertFalse(document.contains("Soul vessel"));
+		assertFalse(document.contains("amplify the next grimoire ritual"));
+		assertFalse(document.contains("Essence Dust"));
 	}
 }

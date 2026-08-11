@@ -53,7 +53,6 @@ final class PowerCombatEvents {
 			EnergyDrainAbility.markDamaged(entity);
 			if (source.getEntity() instanceof ServerPlayer attacker) {
 				InvisibilityToggleAbility.breakOnAttack(attacker);
-				SpellCastingManager.revealConcealment(attacker);
 			}
 		});
 		ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {

@@ -8,6 +8,8 @@
 
 **Tech Stack:** Java 25, Minecraft Java 26.2, Fabric Loader 0.19.3, Fabric API, Gradle/Loom, JUnit 6, Fabric GameTest, Mojang mappings.
 
+**Status:** Implemented and verified on 2026-08-11: 627 JUnit tests, 50 live GameTests, resource/generated-document/audit checks, six-dimension dedicated-server boot, client resource boot, and 10/50/100-player synthetic soak all passed.
+
 ## Global Constraints
 
 - Deep contains only Dimensional Anchor.

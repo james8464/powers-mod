@@ -40,4 +40,17 @@ class ImportedArtifactRulesTest {
 		assertEquals(0, ImportedArtifactRules.attunementEnergy(-4));
 		assertEquals(6, ImportedArtifactRules.attunementEnergy(99));
 	}
+
+	@Test
+	void attunementsAndHeartsHaveDistinctBoundedIdentities() {
+		assertEquals(1, ImportedArtifactRules.attunementEnergy("artifact_corroded_copper_ring"));
+		assertEquals(2, ImportedArtifactRules.attunementEnergy("artifact_emerald_ring"));
+		assertEquals(3, ImportedArtifactRules.attunementEnergy("artifact_diamond_ring"));
+		assertEquals(ImportedArtifactRules.HeartSpecialization.BLOOD_WARD,
+				ImportedArtifactRules.heartSpecialization("artifact_bloodstone"));
+		assertEquals(ImportedArtifactRules.HeartSpecialization.CLOCKWORK,
+				ImportedArtifactRules.heartSpecialization("artifact_heart_mechanism"));
+		assertEquals(ImportedArtifactRules.HeartSpecialization.WILDWOOD,
+				ImportedArtifactRules.heartSpecialization("artifact_woodheart"));
+	}
 }

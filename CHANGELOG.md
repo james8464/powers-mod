@@ -2,6 +2,12 @@
 
 ## 1.0.2 - 2026-08-11
 
+- Replaced the active ritual roster with twelve practical spells: Soul Compass, Augury, Cartographer's Star, Celestial Ruin, Dimensional Anchor, Blood Reading, Grave Recall, Purification Circle, Verdant Tending, Hearth Sanctuary, Ward-Breaking Ritual, and Dispel. Infernal IDs remain hidden dormant aliases for save compatibility.
+- Removed retired spell amplification, veil, counterspell, weather, binding, essence-distillation, field, and Infernal runtime paths. Spells use only existing magic energy and remain isolated from innate rank scaling.
+- Added persistent exact last-death reporting, bounded world/biome/landmark search, independent three-block Hearth forcefields, and typed failure reporting for practical rituals.
+- Made the Empyrean Jewel override every consent category for a fixed energy surcharge without bypassing safe zones, and converted soulstones/Soul Matrix into atomic energy reservoirs instead of soul/essence storage.
+- Gave attunements distinct bounded recovery, specialised all five heart relics, made Bloodstone a timed lethal-damage ward, retained Malignember's explicit destructive-cost reduction, and documented every imported item's implemented role or hidden compatibility status.
+- Added Shadow's private 16-attempt, five-minute server-authoritative failure journal, exact diagnostic answers, repetition hints, lifecycle clearing, and optional remote wording that cannot replace the recorded cause.
 - Split the former 409-line Fabric entrypoint into a stable facade, ordered content bootstrap, lifecycle owner and single-pass player ticker while preserving callback order and save behavior.
 - Removed four proven runtime-orphan source types and their orphan-only tests, and moved superseded implementation drafts out of the release tree while retaining their exact Git history.
 - Added production-type reachability, bootstrap-architecture and release-version gates; corrected the packaged mod identity from stale 1.0.0 metadata to 1.0.2.
@@ -33,7 +39,7 @@
 - Completed chromatic crystal cleanup: Orange produces skin-matched unarmed Echoes, Green keeps only Life Bloom, Blue owns global Chrono Stop plus controlled Dreamwalking, Yellow reaches 0.0625× through 10×, and Infected Rainbow is a hidden inert save alias rather than a second gameplay item.
 - Added guaranteed First Vessel Miniportal loot, two persistent same-dimension charges, exact-stack anchor binding, and dropped-amethyst recharge.
 - Assigned every imported relic and fantasy weapon a documented purpose and additive survival acquisition path without inventing deferred crystal recipes.
-- Finalized the 73-action/2,701-pair collision catalogue, 587 deterministic tests, 39 live GameTests, six-dimension dedicated-server boot, and 10/50/100-player synthetic workload proof.
+- Finalized the 64-action/2,080-pair collision catalogue and retained dedicated-server, GameTest, resource, client-smoke, and 10/50/100-player synthetic workload verification.
 
 ## 1.0.1 - 2026-08-10
 
@@ -47,7 +53,7 @@
 - Made Celestial Ruin persist its countdown, dimension, caster, detonation phase, and exact destruction cursor through server restarts.
 - Added explicit catastrophic terrain and block-entity policy for Celestial Ruin while always purging Darkness and Pure Light.
 - Added real Fabric GameTests for live Darkness spreading and Darkness Creature faction targeting.
-- Expanded the then-current canonical collision kernel to 82 actions and all 3,403 unordered pairs including same-action resonance; version 1.0.2 later removes retired actions and regenerates the final 73/2,701 catalogue.
+- Expanded the then-current canonical collision kernel to 82 actions and all 3,403 unordered pairs including same-action resonance; version 1.0.2 later removes retired actions and regenerates the final 64/2,080 catalogue.
 - Kept the survival HUD energy well as ten separate vanilla-aligned symbols directly above the hunger bar.
 - Added a non-pausing eight-favourite combat wheel, searchable invocation library, persistent artifact loadouts, dedicated rank-maze panels, and an enhanced five-state energy atlas.
 - Hid every power-owned status-effect cloud and replaced potion-like power visuals with bounded, colour-authored dust.
