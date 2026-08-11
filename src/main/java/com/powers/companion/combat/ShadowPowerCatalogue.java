@@ -13,15 +13,21 @@ import java.util.Set;
 public final class ShadowPowerCatalogue {
 	private static final List<String> UNIQUES = List.of(
 			"call_hollowed", "blight_ground", "nightfall_dominion");
+	private static volatile List<ShadowPowerAction> cached = List.of();
 
 	private ShadowPowerCatalogue() {
 	}
 
 	public static List<ShadowPowerAction> actions() {
+		int expected = PowerRegistry.getAll().size() + UNIQUES.size();
+		List<ShadowPowerAction> current = cached;
+		if (current.size() == expected && expected > UNIQUES.size()) return current;
 		List<ShadowPowerAction> result = new ArrayList<>(26);
 		for (Power power : PowerRegistry.getAll()) result.add(metadata(power.id().getPath()));
 		for (String unique : UNIQUES) result.add(metadata(unique));
-		return List.copyOf(result);
+		current = List.copyOf(result);
+		cached = current;
+		return current;
 	}
 
 	public static ShadowPowerAction find(String id) {

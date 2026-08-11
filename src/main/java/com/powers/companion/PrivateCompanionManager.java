@@ -18,6 +18,10 @@ import com.powers.companion.combat.ShadowPowerAction;
 import com.powers.companion.combat.ShadowPowerCatalogue;
 import com.powers.companion.combat.ShadowPowerExecutor;
 import com.powers.companion.combat.ShadowPowerRuntime;
+import com.powers.companion.combat.ShadowCombatController;
+import com.powers.companion.combat.ShadowRequestRange;
+import com.powers.network.NamedLivingTargetIndex;
+import com.powers.network.NamedTargetRules;
 import com.powers.util.LoadedChunks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -105,6 +109,16 @@ public final class PrivateCompanionManager {
 				.withBodyId(body.getUUID()));
 		ShadowMagicState.tick(player, body);
 		ShadowPowerRuntime.tick(player, body, player.level().getServer().getTickCount());
+		if (!ShadowConjurationManager.active(ownerId)) {
+			ShadowCompanionData combatData = ShadowCompanionStore.get(player);
+			var combat = ShadowCombatController.tick((ServerLevel) body.level(), body, player,
+					serverTick, session.id, combatData.preferredCombatRange(),
+					combatData.learnedCombat());
+			if (!combat.learnedState().isEmpty()) {
+				ShadowCompanionStore.update(player, state -> state.withLearnedCombat(
+						combat.learnedState()));
+			}
+		}
 		ShadowTask.Result taskState = session.tasks.tick(player.level().getGameTime());
 		if (taskState.state() == ShadowTask.State.FAILED) {
 			rememberFailure(player, taskState.reason());
@@ -220,7 +234,59 @@ public final class PrivateCompanionManager {
 			executePower(owner, session, request);
 		} else if (request.kind() == ShadowRequest.Kind.STOP_POWER) {
 			stopPower(owner, session, request);
+		} else if (request.kind() == ShadowRequest.Kind.RANGE_PREFERENCE) {
+			setRangePreference(owner, session, request);
+		} else if (request.kind() == ShadowRequest.Kind.ATTACK
+				|| request.kind() == ShadowRequest.Kind.DEFEND) {
+			executeCombatOrder(owner, session, request);
+		} else if (request.kind() == ShadowRequest.Kind.SCOUT) {
+			executeScout(owner, session);
 		}
+	}
+
+	private static void setRangePreference(ServerPlayer owner, Session session,
+			ShadowRequest request) {
+		ShadowRequestRange range = switch (request.range()) {
+			case CLOSE -> ShadowRequestRange.CLOSE;
+			case MID -> ShadowRequestRange.MID;
+			case FAR -> ShadowRequestRange.FAR;
+			case AUTO -> ShadowRequestRange.AUTO;
+		};
+		ShadowCompanionStore.update(owner, state -> state.withCombatRange(range));
+		finishTask(owner, session, true, "range_preference_updated");
+	}
+
+	private static void executeCombatOrder(ServerPlayer owner, Session session,
+			ShadowRequest request) {
+		LivingEntity target = null;
+		if (request.kind() == ShadowRequest.Kind.DEFEND) target = owner.getLastAttacker();
+		if (target == null && !request.subject().isBlank()
+				&& !request.subject().equals("owner")) {
+			var resolution = NamedLivingTargetIndex.resolve(owner.level().getServer(), request.subject());
+			if (resolution.status() == NamedTargetRules.Status.FOUND) target = resolution.target();
+			else if (resolution.status() == NamedTargetRules.Status.AMBIGUOUS) {
+				finishTask(owner, session, false, "ambiguous_target");
+				return;
+			}
+		}
+		if (target == null) target = PowerTargeting.findLivingTarget(owner, 128.0);
+		if (target == null || target == owner || target == session.body) {
+			finishTask(owner, session, false, "no_target");
+			return;
+		}
+		session.body.setTarget(target);
+		String targetName = target.getName().getString();
+		ShadowCompanionStore.update(owner, state -> state.withMemory(state.memory()
+				.rememberReferent(ShadowConversationMemory.ReferentType.ENTITY,
+						targetName)));
+		finishTask(owner, session, true, "combat_order_accepted");
+	}
+
+	private static void executeScout(ServerPlayer owner, Session session) {
+		Vec3 look = owner.getLookAngle();
+		Vec3 destination = owner.position().add(look.x * 24.0, 2.0, look.z * 24.0);
+		session.body.getNavigation().moveTo(destination.x, destination.y, destination.z, 1.25);
+		finishTask(owner, session, true, "scout_started");
 	}
 
 	private static void executePower(ServerPlayer owner, Session session, ShadowRequest request) {
@@ -465,6 +531,7 @@ public final class PrivateCompanionManager {
 				MagicLifecycleRules.Event.AVATAR_FATAL).outcome()
 				!= MagicLifecycleRules.Outcome.DISMISS_SHADOW) return false;
 		BODY_OWNERS.remove(body.getUUID());
+		ShadowCombatController.clearBody(body.getUUID());
 		ShadowConjurationManager.abandon(ownerId);
 		Session session = SESSIONS.remove(ownerId);
 		REQUESTED.remove(ownerId);
@@ -487,6 +554,7 @@ public final class PrivateCompanionManager {
 		SESSIONS.remove(owner.getUUID(), session);
 		removeClientViewers(owner, session);
 		if (session.body != null) BODY_OWNERS.remove(session.body.getUUID());
+		if (session.body != null) ShadowCombatController.clearBody(session.body.getUUID());
 		if (session.body != null) ShadowPowerRuntime.clearOwner(owner, session.body);
 		ShadowConjurationManager.abandon(owner.getUUID());
 		ShadowCompanionStore.set(owner, ShadowManifestationRules.afterDeath(
@@ -627,6 +695,7 @@ public final class PrivateCompanionManager {
 			}
 			ShadowPowerRuntime.clearOwner(owner, removed.body);
 			BODY_OWNERS.remove(removed.body.getUUID());
+			ShadowCombatController.clearBody(removed.body.getUUID());
 			com.powers.power.AmethystDampening.forget(removed.body);
 			ShadowCompanionStore.update(owner, state -> state.withEnergy(removed.body.energy())
 					.withRevealed(false).withoutBody());
@@ -652,6 +721,7 @@ public final class PrivateCompanionManager {
 		BODY_OWNERS.clear();
 		ShadowConjurationManager.clear();
 		ShadowPowerRuntime.clear();
+		ShadowCombatController.clear();
 		nameResolver = null;
 		com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
 		com.powers.knowledge.MagicAttemptJournal.global().clear();
