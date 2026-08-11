@@ -5,24 +5,34 @@ import java.util.Map;
 
 /** Pure cumulative thresholds for the ten deliberately difficult shadow rites. */
 public final class DarknessQuestRules {
-	private static final List<Map<DarknessDeed, Integer>> RITES = List.of(
-			Map.of(DarknessDeed.PASSIVE, 25),
-			Map.of(DarknessDeed.PASSIVE, 100),
-			Map.of(DarknessDeed.VILLAGER, 25, DarknessDeed.IRON_GOLEM, 5),
-			Map.of(DarknessDeed.VILLAGER, 50, DarknessDeed.WOLF, 25,
+	private static final List<List<QuestRoute<DarknessDeed>>> RITES = List.of(
+			routes(Map.of(DarknessDeed.PASSIVE, 25), Map.of(DarknessDeed.VILLAGER, 8)),
+			routes(Map.of(DarknessDeed.PASSIVE, 100),
+					Map.of(DarknessDeed.WOLF, 35, DarknessDeed.IRON_GOLEM, 2)),
+			routes(Map.of(DarknessDeed.VILLAGER, 25, DarknessDeed.IRON_GOLEM, 5),
+					Map.of(DarknessDeed.PASSIVE, 250, DarknessDeed.WOLF, 40)),
+			routes(Map.of(DarknessDeed.VILLAGER, 50, DarknessDeed.WOLF, 25,
 					DarknessDeed.BABY_VILLAGER, 5),
-			Map.of(DarknessDeed.VILLAGER, 75, DarknessDeed.WOLF, 50,
+					Map.of(DarknessDeed.PASSIVE, 400, DarknessDeed.IRON_GOLEM, 15)),
+			routes(Map.of(DarknessDeed.VILLAGER, 75, DarknessDeed.WOLF, 50,
 					DarknessDeed.BABY_VILLAGER, 10, DarknessDeed.IRON_GOLEM, 10),
-			Map.of(DarknessDeed.VILLAGER, 125, DarknessDeed.WOLF, 100,
+					Map.of(DarknessDeed.VILLAGER, 130, DarknessDeed.IRON_GOLEM, 25)),
+			routes(Map.of(DarknessDeed.VILLAGER, 125, DarknessDeed.WOLF, 100,
 					DarknessDeed.BABY_VILLAGER, 20, DarknessDeed.IRON_GOLEM, 15),
-			Map.of(DarknessDeed.VILLAGER, 200, DarknessDeed.WOLF, 175,
+					Map.of(DarknessDeed.PASSIVE, 800, DarknessDeed.WOLF, 250)),
+			routes(Map.of(DarknessDeed.VILLAGER, 200, DarknessDeed.WOLF, 175,
 					DarknessDeed.BABY_VILLAGER, 35, DarknessDeed.IRON_GOLEM, 20),
-			Map.of(DarknessDeed.VILLAGER, 300, DarknessDeed.WOLF, 250,
+					Map.of(DarknessDeed.VILLAGER, 325, DarknessDeed.IRON_GOLEM, 55)),
+			routes(Map.of(DarknessDeed.VILLAGER, 300, DarknessDeed.WOLF, 250,
 					DarknessDeed.BABY_VILLAGER, 50, DarknessDeed.IRON_GOLEM, 30),
-			Map.of(DarknessDeed.VILLAGER, 400, DarknessDeed.WOLF, 375,
+					Map.of(DarknessDeed.PASSIVE, 1_500, DarknessDeed.WOLF, 600)),
+			routes(Map.of(DarknessDeed.VILLAGER, 400, DarknessDeed.WOLF, 375,
 					DarknessDeed.BABY_VILLAGER, 75, DarknessDeed.IRON_GOLEM, 40),
-			Map.of(DarknessDeed.VILLAGER, 500, DarknessDeed.WOLF, 500,
-					DarknessDeed.BABY_VILLAGER, 100, DarknessDeed.IRON_GOLEM, 50));
+					Map.of(DarknessDeed.VILLAGER, 650, DarknessDeed.IRON_GOLEM, 100)),
+			routes(Map.of(DarknessDeed.VILLAGER, 500, DarknessDeed.WOLF, 500,
+					DarknessDeed.BABY_VILLAGER, 100, DarknessDeed.IRON_GOLEM, 50),
+					Map.of(DarknessDeed.PASSIVE, 3_000, DarknessDeed.WOLF, 1_200,
+							DarknessDeed.IRON_GOLEM, 150)));
 
 	private DarknessQuestRules() {
 	}
@@ -37,8 +47,24 @@ public final class DarknessQuestRules {
 		if (level < 1 || level > RITES.size()) {
 			return false;
 		}
-		return RITES.get(level - 1).entrySet().stream()
-				.allMatch(entry -> deeds.getOrDefault(entry.getKey(), 0) >= entry.getValue());
+		return completedRoute(level, deeds) != null;
+	}
+
+	/** Stable single winning route, even when a ledger satisfies both alternatives. */
+	public static String completedRoute(int level, Map<DarknessDeed, Integer> deeds) {
+		if (level < 1 || level > RITES.size()) return null;
+		return RITES.get(level - 1).stream().filter(route -> route.completed(deeds))
+				.map(QuestRoute::id).findFirst().orElse(null);
+	}
+
+	/** Immutable authored alternatives for UI, docs, and telemetry. */
+	public static List<QuestRoute<DarknessDeed>> routes(int level) {
+		return level < 1 || level > RITES.size() ? List.of() : RITES.get(level - 1);
+	}
+
+	private static List<QuestRoute<DarknessDeed>> routes(Map<DarknessDeed, Integer> atrocity,
+			Map<DarknessDeed, Integer> predation) {
+		return List.of(new QuestRoute<>("atrocity", atrocity), new QuestRoute<>("predation", predation));
 	}
 
 	/** Advances through consecutive completed rites but can never skip a gap. */

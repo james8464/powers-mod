@@ -172,6 +172,7 @@ public final class BreezyBashAbility extends Ability {
 			BreezyBashRules.CaptureDecision decision = captureDecision(
 					level, owner, target, clearPath);
 			if (decision == BreezyBashRules.CaptureDecision.CAPTURE) {
+				velocity = ControlResistance.adjustImpulse(velocity, ControlResistance.outcome(target));
 				TARGET_OWNERS.put(target.getUUID(), rite.owner);
 				rite.captured.add(target.getUUID());
 				target.setDeltaMovement(velocity);
@@ -245,6 +246,7 @@ public final class BreezyBashAbility extends Ability {
 			}
 			Vec3 slam = BreezyBashRules.slamVelocity(
 					target.getDeltaMovement(), rite.slamStrength);
+			slam = ControlResistance.adjustImpulse(slam, ControlResistance.outcome(target));
 			target.setDeltaMovement(slam);
 			target.hurtMarked = true;
 			target.fallDistance = 0.0F;

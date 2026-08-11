@@ -10,6 +10,7 @@ import com.powers.force.LivingForceManager;
 import com.powers.magic.runtime.MagicRuntime;
 import com.powers.magic.runtime.MagicRayCollisionRuntime;
 import com.powers.mind.BodyProxyManager;
+import com.powers.mind.PersistentDimensionDiagnostics;
 import com.powers.network.NamedLivingTargetIndex;
 import com.powers.power.AmethystDampening;
 import com.powers.power.ConcordCastManager;
@@ -85,6 +86,14 @@ final class PowerDiagnosticsCommand {
 			send(context, "ticket owner=" + ticket.owner() + "; dimension=" + ticket.dimension()
 					+ "; reason=" + ticket.reason() + "; deadline=" + ticket.deadline()
 					+ "; state=" + ticket.state());
+		}
+		var missingDimensions = PersistentDimensionDiagnostics.snapshot();
+		send(context, "missingDimensions=" + missingDimensions.issues().size()
+				+ "; droppedDistinct=" + missingDimensions.droppedDistinctKeys()
+				+ "; orphanedRuinEvents=" + CelestialRuinManager.orphanedRitualCount(server));
+		for (var issue : missingDimensions.issues()) {
+			send(context, "missingDimension feature=" + issue.feature() + "; id="
+					+ issue.dimension() + "; occurrences=" + issue.occurrences());
 		}
 		if (context.getSource().getEntity() instanceof ServerPlayer player) {
 			var testing = TestingOverrides.state(player.getUUID());

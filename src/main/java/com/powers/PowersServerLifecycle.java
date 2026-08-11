@@ -13,6 +13,7 @@ import com.powers.knowledge.KnowledgeRemoteProviderRuntime;
 import com.powers.magic.runtime.MagicRuntime;
 import com.powers.magic.runtime.PhysicalMagicPresences;
 import com.powers.mind.BodyProxyManager;
+import com.powers.mind.PersistentDimensionDiagnostics;
 import com.powers.network.MagicFxPackets;
 import com.powers.network.CompanionPackets;
 import com.powers.network.NamedLivingTargetIndex;
@@ -21,6 +22,7 @@ import com.powers.player.PlayerGuide;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
+import com.powers.power.abilities.ControlResistance;
 import com.powers.power.ConcordCastManager;
 import com.powers.power.PowerAbilityRuntime;
 import com.powers.power.state.GlobalTimeStopManager;
@@ -153,6 +155,8 @@ final class PowersServerLifecycle {
 		ServerRuntimeMetrics.clear();
 		PhysicalMagicPresences.clear();
 		ConsentOverrideRuntime.clear();
+		PersistentDimensionDiagnostics.clear();
+		ControlResistance.clear();
 	}
 
 	private static void tick(MinecraftServer server) {

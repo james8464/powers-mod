@@ -7,6 +7,7 @@ import com.powers.client.screen.PowerSelectionScreen;
 import com.powers.client.screen.TeleportInputScreen;
 import com.powers.client.screen.RankMazeScreen;
 import com.powers.client.screen.ShadowSwordScreen;
+import com.powers.client.screen.GrimoireIndexScreen;
 import com.powers.client.fx.ClientMagicFx;
 import com.powers.client.fx.ClientShapeFx;
 import com.powers.client.fx.ClientBeamFx;
@@ -25,6 +26,7 @@ import com.powers.network.ShadowSwordPackets;
 import com.powers.network.BodyProxyPackets;
 import com.powers.network.CompanionPackets;
 import com.powers.network.VesselControlPackets;
+import com.powers.network.GrimoirePackets;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import net.fabricmc.api.ClientModInitializer;
@@ -88,6 +90,9 @@ public class PowersClient implements ClientModInitializer {
 				(payload, context) -> context.client().execute(() ->
 						Minecraft.getInstance().gui.setScreen(
 								new CelestialLocatorScreen(payload.mode(), payload.nonce()))));
+		ClientPlayNetworking.registerGlobalReceiver(GrimoirePackets.OpenIndexPayload.TYPE,
+				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
+						new GrimoireIndexScreen(payload.grimoireKey(), payload.selected(), payload.entries()))));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenMenuPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
 						new ShadowSwordScreen(payload.alignment(), payload.selectedKey(), payload.rank(),

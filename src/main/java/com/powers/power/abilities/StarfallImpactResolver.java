@@ -258,6 +258,7 @@ final class StarfallImpactResolver {
 						level, target, caster.getUUID()),
 				EntityFreezeController.isFrozen(target), clearPath);
 		if (decision != StarfallRules.Counterplay.STRIKE) return decision;
+		velocity = ControlResistance.adjustImpulse(velocity, ControlResistance.outcome(target));
 		target.setDeltaMovement(velocity);
 		target.hurtMarked = true;
 		target.fallDistance = 0.0F;

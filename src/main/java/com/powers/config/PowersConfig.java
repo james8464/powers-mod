@@ -27,10 +27,23 @@ public record PowersConfig(
 		int rankRespecExperienceLevels,
 		int adminPermissionLevel,
 		List<SafeZone> safeZones,
+		TerrainScars terrainScars,
 		LivingForces livingForces,
 		DialogueProvider dialogueProvider) {
-	public static final int CURRENT_SCHEMA_VERSION = 2;
+	public static final int CURRENT_SCHEMA_VERSION = 3;
 	private static final int MAX_SAFE_ZONES = 256;
+
+	/** Server bounds for the guaranteed environmental signature of destructive innates. */
+	public record TerrainScars(int minimumTier, int maxBlocksPerCast) {
+		public static TerrainScars defaults() {
+			return new TerrainScars(0, 128);
+		}
+
+		public TerrainScars sanitized() {
+			return new TerrainScars(Math.clamp(minimumTier, 0, 10),
+					Math.clamp(maxBlocksPerCast, 1, 2_048));
+		}
+	}
 
 	/** Sanitized pacing and safety limits for spreading realm matter. */
 	public record LivingForces(boolean spreadingEnabled, int spreadAttempts, int auraRadius,
@@ -97,7 +110,7 @@ public record PowersConfig(
 	public static PowersConfig defaults() {
 		return new PowersConfig(CURRENT_SCHEMA_VERSION, true, false, false, false,
 				true, true, true, true, true, true, true, true, true,
-				20, 512, 8, 30, 2, List.of(), LivingForces.defaults(),
+				20, 512, 8, 30, 2, List.of(), TerrainScars.defaults(), LivingForces.defaults(),
 				DialogueProvider.defaults());
 	}
 
@@ -116,6 +129,7 @@ public record PowersConfig(
 				Math.max(1, Math.min(128, teleportMaxChunkDistance)),
 				Math.max(0, Math.min(1000, rankRespecExperienceLevels)),
 				Math.max(0, Math.min(4, adminPermissionLevel)), List.copyOf(zones),
+				(terrainScars == null ? TerrainScars.defaults() : terrainScars).sanitized(),
 				(livingForces == null ? LivingForces.defaults() : livingForces).sanitized(),
 				(dialogueProvider == null ? DialogueProvider.defaults() : dialogueProvider).sanitized());
 	}

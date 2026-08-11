@@ -45,19 +45,25 @@ public final class ThunderclapAbility extends Ability {
 		for (LivingEntity target : BoundedEntityCandidates.living(level, bounds, 160,
 				candidate -> eligible(player, candidate, range, horizontal),
 				Comparator.comparingDouble(player::distanceToSqr))) {
+			ControlResistance.Outcome control = ControlResistance.evaluate(
+					player, target, "thunderclap");
 			boolean mayHarm = PowerProtection.mayHarm(player, target)
 					&& !SpellFieldManager.isSanctuaryProtected(level, target);
 			if (mayHarm) {
 				target.hurtServer(level, PowerDamage.source(player), scaledPotency(player, 50.0F));
-				target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS,
-						scaledDuration(player, 80), 3, false, true));
-				target.addEffect(PowerStatusEffects.hidden(MobEffects.WEAKNESS,
-						scaledDuration(player, 80), 2, false, true));
+				int controlTicks = ControlResistance.adjustDuration(scaledDuration(player, 80), control);
+				if (controlTicks > 0) {
+					target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS,
+							controlTicks, 3, false, true));
+					target.addEffect(PowerStatusEffects.hidden(MobEffects.WEAKNESS,
+							controlTicks, 2, false, true));
+				}
 			}
 			if (PowerProtection.mayForceMove(player, target)
 					&& !SpellFieldManager.blocksForcedMovement(level, target, player.getUUID())) {
 				Vec3 push = target.position().subtract(player.position()).normalize()
 						.scale(2.2 * scaling(player).potencyMultiplier());
+				push = ControlResistance.adjustImpulse(push, control);
 				target.setDeltaMovement(push.x, Math.max(0.45, push.y + 0.35), push.z);
 				target.hurtMarked = true;
 			}

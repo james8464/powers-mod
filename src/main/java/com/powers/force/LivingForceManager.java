@@ -104,11 +104,11 @@ public final class LivingForceManager {
 		// Opposition remains active even when an administrator pauses conversion.
 		checkForClash(level, source, kind);
 		PowersConfig.LivingForces policy = PowersConfigLoader.get().livingForces();
-		if (!policy.spreadingEnabled() || PowerProtection.isSafeZone(level, Vec3.atCenterOf(source))) return;
+		if (!policy.spreadingEnabled() || !PowerProtection.mayAffectBlock(level, source)) return;
 		for (int attempt = 0; attempt < policy.spreadAttempts(); attempt++) {
 			BlockPos target = source.relative(Direction.getRandom(random));
 			if (!LoadedChunks.contains(level, target)
-					|| PowerProtection.isSafeZone(level, Vec3.atCenterOf(target))) continue;
+					|| !PowerProtection.mayAffectBlock(level, target)) continue;
 			BlockState state = level.getBlockState(target);
 			LivingForceKind targetKind = LivingForceKind.from(state);
 			if (targetKind != null) {
@@ -277,7 +277,7 @@ public final class LivingForceManager {
 		for (LivingEntity entity : candidates) {
 			double distance = entity.position().distanceTo(center);
 			double damage = LivingForceRules.clashDamage(distance, radius, PEAK_CLASH_DAMAGE);
-			if (damage <= 0.0 || PowerProtection.isSafeZone(level, entity.position())) continue;
+			if (damage <= 0.0 || !PowerProtection.mayPowerDamage(null, entity)) continue;
 			entity.hurtServer(level, entity.damageSources().magic(), (float) damage);
 			Vec3 direction = entity.position().subtract(center);
 			if (direction.lengthSqr() < 1.0E-6) direction = new Vec3(0.0, 1.0, 0.0);
@@ -344,7 +344,7 @@ public final class LivingForceManager {
 		LivingForceRules.Affinity affinity = LivingForceRules.affinity(darknessTagged, kind);
 		Vec3 center = entity.position().add(0.0, entity.getBbHeight() * 0.55, 0.0);
 		if (affinity == LivingForceRules.Affinity.WITHER) {
-			if (PowerProtection.isSafeZone(level, entity.position())
+			if (!PowerProtection.mayPowerDamage(null, entity)
 					|| SpellFieldManager.isSanctuaryProtected(level, entity)) {
 				PowerFx.rune(level, center, 0.7, 0x58C7FF, 8, level.getGameTime() * 0.08);
 				return;

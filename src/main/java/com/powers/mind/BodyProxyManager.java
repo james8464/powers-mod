@@ -217,11 +217,13 @@ public final class BodyProxyManager {
 				: server.getLevel(ResourceKey.create(Registries.DIMENSION, dimensionId));
 		boolean fallback = MissingDimensionRecoveryRules.useOverworldFallback(travelKind, target != null);
 		if (target == null && !fallback) {
+			PersistentDimensionDiagnostics.record("body", state.dimension());
 			PowersMod.LOGGER.error("Body return blocked because recorded dimension is unavailable: player={}, dimension={}; use /powers recoverbody as an operator",
 					player.getUUID(), state.dimension());
 			return completed(completion, false);
 		}
 		if (fallback) {
+			PersistentDimensionDiagnostics.record("body_recovery", state.dimension());
 			target = server.overworld();
 			PowersMod.LOGGER.warn("Administratively recovering body with deleted dimension to Overworld spawn: player={}, missing={}",
 					player.getUUID(), state.dimension());

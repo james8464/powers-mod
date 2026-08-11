@@ -3,6 +3,7 @@ package com.powers.power.abilities;
 import com.powers.PowersBlocks;
 import com.powers.fx.PowerFx;
 import com.powers.item.ArtifactWeaponManager;
+import com.powers.config.PowersConfigLoader;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.magic.runtime.CastSource;
 import com.powers.player.PlayerPowers;
@@ -26,8 +27,9 @@ public final class CombatTerrainImpact {
 
 	/** Resolves the authored terrain tier without leaking innate rank into spells or crystals. */
 	public static int tier(ServerPlayer player, CastSource source, String actionId) {
-		if (source == CastSource.INNATE) return InnatePowerLevels.forPower(
-				actionId, SkillSystem.effectiveLevel(player)).destructionTier();
+		if (source == CastSource.INNATE) return CombatTerrainRules.effectiveTier(
+				InnatePowerLevels.forPower(actionId, SkillSystem.effectiveLevel(player)).destructionTier(),
+				PowersConfigLoader.get().terrainScars().minimumTier());
 		if (source != CastSource.ARTIFACT) return 0;
 		if (ArtifactWeaponManager.holds(player, ArtifactAlignment.DARKNESS)
 				&& ArtifactWeaponManager.authorized(player, ArtifactAlignment.DARKNESS)) {
@@ -47,7 +49,7 @@ public final class CombatTerrainImpact {
 
 	/** Max-rank entity-safe crater used by Shadow and boss-scale actors. */
 	public static int craterLiving(ServerLevel level, LivingEntity caster, Vec3 center, int rank) {
-		int budget = CombatTerrainRules.craterBudget(rank);
+		int budget = budget(CombatTerrainRules.craterBudget(rank));
 		double radius = CombatTerrainRules.craterRadius(rank);
 		BlockPos origin = BlockPos.containing(center);
 		int removed = 0;
@@ -73,7 +75,7 @@ public final class CombatTerrainImpact {
 		if (horizontal.lengthSqr() < 1.0E-8) return 0;
 		horizontal = horizontal.normalize();
 		Vec3 side = new Vec3(-horizontal.z, 0.0, horizontal.x);
-		int budget = CombatTerrainRules.thunderclapBudget(rank);
+		int budget = budget(CombatTerrainRules.thunderclapBudget(rank));
 		int removed = 0;
 		for (int index = 0; index < budget * 2 && removed < budget; index++) {
 			double progress = (index + 1.0) / (budget * 2.0);
@@ -99,7 +101,7 @@ public final class CombatTerrainImpact {
 			int rank, int color) {
 		Vec3 delta = to.subtract(from);
 		if (delta.lengthSqr() < 1.0E-8) return 0;
-		int budget = CombatTerrainRules.rayBudget(rank);
+		int budget = budget(CombatTerrainRules.rayBudget(rank));
 		int removed = 0;
 		for (int index = 0; index < budget * 3 && removed < budget; index++) {
 			double fraction = 1.0 - index / (double) Math.max(1, budget * 3);
@@ -121,12 +123,14 @@ public final class CombatTerrainImpact {
 		return null;
 	}
 
+	private static int budget(int requested) {
+		return CombatTerrainRules.cappedBudget(requested,
+				PowersConfigLoader.get().terrainScars().maxBlocksPerCast());
+	}
+
 	private static boolean breakBlock(ServerLevel level, LivingEntity caster, BlockPos pos, int rank) {
 		BlockState state = level.getBlockState(pos);
-		if (state.isAir() || PowerProtection.blockDecision(
-				com.powers.config.PowersConfigLoader.get(),
-				PowerProtection.isSafeZone(level, Vec3.atCenterOf(pos)),
-				level.getBlockEntity(pos) != null) != com.powers.protection.ProtectionDecision.ALLOW
+		if (state.isAir() || !PowerProtection.mayAffectBlock(caster, level, pos)
 				|| state.is(Blocks.BEDROCK) || state.is(Blocks.END_PORTAL_FRAME)
 				|| state.is(Blocks.END_PORTAL) || state.is(Blocks.NETHER_PORTAL)
 				|| state.is(PowersBlocks.DARKNESS) || state.is(PowersBlocks.PURE_LIGHT)
@@ -148,8 +152,7 @@ public final class CombatTerrainImpact {
 			BlockPos sample = origin.offset((int) Math.round(Math.cos(angle) * radial), 0,
 					(int) Math.round(Math.sin(angle) * radial));
 			BlockPos ground = solidNear(level, sample, 3);
-			if (ground == null || PowerProtection.isSafeZone(level, Vec3.atCenterOf(ground))
-					|| level.getBlockEntity(ground) != null) continue;
+			if (ground == null || !PowerProtection.mayAffectBlock(caster, level, ground)) continue;
 			BlockState state = level.getBlockState(ground);
 			if (!com.powers.force.LivingForceRules.mayReplace(state.isAir(),
 					!state.getFluidState().isEmpty(), false,

@@ -4,6 +4,7 @@ import com.powers.PowersDataComponents;
 import com.powers.PowersMod;
 import com.powers.PowerStatusEffects;
 import com.powers.fx.PowerFx;
+import com.powers.mind.PersistentDimensionDiagnostics;
 import com.powers.player.PlayerPowers;
 import com.powers.power.MagicUseGate;
 import com.powers.power.AmethystDampening;
@@ -245,15 +246,18 @@ public final class ImportedArtifactItem extends Item {
 		if (anchor == null) return explain(player, "item.powers.relic.no_anchor");
 		int charges = MiniportalRules.charges(
 				device.get(PowersDataComponents.MINIPORTAL_CHARGES));
+		ServerLevel destination = player.level().getServer().getLevel(
+				ResourceKey.create(Registries.DIMENSION, anchor.dimension()));
+		if (destination == null) {
+			PersistentDimensionDiagnostics.record("miniportal", anchor.dimension().toString());
+			return explain(player, "item.powers.relic.anchor_unreachable");
+		}
 		boolean sameDimension = anchor.dimension().equals(
 				player.level().dimension().identifier());
 		if (!sameDimension) return explain(player, "item.powers.relic.same_dimension");
 		if (!MiniportalRules.mayTravel(charges, true)) {
 			return explain(player, "item.powers.relic.miniportal_empty");
 		}
-		ServerLevel destination = player.level().getServer().getLevel(
-				ResourceKey.create(Registries.DIMENSION, anchor.dimension()));
-		if (destination == null) return false;
 		BlockPos requested = anchor.position();
 		Vec3 position = Vec3.atBottomCenterOf(requested);
 		ServerLevel origin = (ServerLevel) player.level();

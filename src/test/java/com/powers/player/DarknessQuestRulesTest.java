@@ -41,4 +41,18 @@ class DarknessQuestRulesTest {
 		assertTrue(DarknessQuestRules.progressed(4, 5));
 		assertFalse(DarknessQuestRules.progressed(5, 5));
 	}
+
+	@Test
+	void everyRiteOffersTwoStableAlternativesWithoutDoubleAwarding() {
+		for (int level = 1; level <= 10; level++) {
+			assertEquals(2, DarknessQuestRules.routes(level).size());
+		}
+		Map<DarknessDeed, Integer> overqualified = Map.of(
+				DarknessDeed.PASSIVE, 10_000,
+				DarknessDeed.VILLAGER, 10_000,
+				DarknessDeed.WOLF, 10_000,
+				DarknessDeed.BABY_VILLAGER, 10_000,
+				DarknessDeed.IRON_GOLEM, 10_000);
+		assertEquals("atrocity", DarknessQuestRules.completedRoute(10, overqualified));
+	}
 }
