@@ -12,16 +12,14 @@ import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
 import com.powers.power.Power;
-import com.powers.power.PowerAbilityRuntime;
 import com.powers.power.PowerEnergy;
 import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.progression.PowerScalingService;
-import com.powers.realm.RealmDimensionRules;
+import com.powers.realm.LegacyRealmGamemodeRules;
 import com.powers.util.PowerMessages;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.level.GameType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +33,7 @@ final class PlayerPowerTicker {
 	}
 
 	static void tick(ServerPlayer player, int tick, PlayerTickCadence cadence) {
-		enforceRealmGamemode(player);
+		migrateLegacyRealmGamemode(player);
 		// The server-end callback still runs while Minecraft's global tick is frozen.
 		if (!GlobalTimeStopManager.mayAct(player)) {
 			ArtifactInventoryRuntime.reconcileOwnership(player);
@@ -86,22 +84,12 @@ final class PlayerPowerTicker {
 		WAS_SLEEPING.clear();
 	}
 
-	private static void enforceRealmGamemode(ServerPlayer player) {
-		if (PowerAbilityRuntime.usesDetachedBody(player.getUUID())) return;
-		boolean inRealm = RealmDimensionRules.isMindscape(
-				player.level().dimension().identifier().toString());
+	static void migrateLegacyRealmGamemode(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		GameType previous = data.previousGameMode();
-		if (inRealm) {
-			// Never snapshot forced adventure or a relog would erase the real mode.
-			if (previous == null && player.gameMode() != GameType.ADVENTURE) {
-				data.setPreviousGameMode(player.gameMode());
-			}
-			if (player.gameMode() != GameType.ADVENTURE) player.setGameMode(GameType.ADVENTURE);
-		} else if (previous != null) {
-			data.setPreviousGameMode(null);
-			if (player.gameMode() == GameType.ADVENTURE) player.setGameMode(previous);
-		}
+		var decision = LegacyRealmGamemodeRules.decide(
+				data.legacyPreviousGameModeName(), player.gameMode());
+		if (decision.clearSnapshot()) data.clearLegacyPreviousGameMode();
+		if (decision.restore() != null) player.setGameMode(decision.restore());
 	}
 
 	private static void tickToggles(ServerPlayer player, int serverTick) {
