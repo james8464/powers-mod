@@ -43,18 +43,26 @@ final class PlayerEnergyStorage {
 		if (limitsDisabled(target)) return true;
 		int current = energy(target);
 		if (current < amount) {
-			if (!(target instanceof ServerPlayer player)
-					|| !ArtifactEnergyReservoir.payShortfall(player, amount - current)) return false;
+			if (!(target instanceof ServerPlayer player)) return false;
+			int reservoirBefore = ArtifactEnergyReservoir.totalStored(player);
+			if (!ArtifactEnergyReservoir.payShortfall(player, amount - current)) return false;
 			store(target, 0);
+			PlayerEnergyHistory.record(player, EnergyHistorySource.PLAYER_POOL_COST, current, 0);
+			PlayerEnergyHistory.record(player, EnergyHistorySource.RESERVOIR_COST, reservoirBefore,
+					ArtifactEnergyReservoir.totalStored(player));
 			return true;
 		}
 		store(target, current - amount);
+		record(target, EnergyHistorySource.PLAYER_POOL_COST, current, current - amount);
 		return true;
 	}
 
 	static void refund(AttachmentTarget target, int amount) {
-		long updated = (long) energy(target) + Math.max(0L, (long) amount);
-		store(target, (int) Math.min(capacity(target), updated));
+		int before = energy(target);
+		long updated = (long) before + Math.max(0L, (long) amount);
+		int after = (int) Math.min(capacity(target), updated);
+		store(target, after);
+		record(target, EnergyHistorySource.REFUND, before, after);
 	}
 
 	static boolean regenerate(AttachmentTarget target, int amount) {
@@ -63,24 +71,40 @@ final class PlayerEnergyStorage {
 		int updated = Math.min(capacity(target), current + Math.max(0, amount));
 		if (updated == current) return false;
 		store(target, updated);
+		record(target, EnergyHistorySource.REGENERATION, current, updated);
 		return true;
 	}
 
 	static void restore(AttachmentTarget target) {
 		if (target instanceof ServerPlayer player && player.hasEffect(PowersEffects.EXHAUSTION)) return;
-		store(target, capacity(target));
+		int before = energy(target);
+		int after = capacity(target);
+		store(target, after);
+		record(target, EnergyHistorySource.SLEEP_RESTORE, before, after);
 	}
 
 	static void drain(AttachmentTarget target, int amount) {
-		if (amount > 0 && !limitsDisabled(target)) store(target, energy(target) - amount);
+		if (amount > 0 && !limitsDisabled(target)) {
+			int before = energy(target);
+			int after = Math.max(0, before - amount);
+			store(target, after);
+			record(target, EnergyHistorySource.DIRECT_DRAIN, before, after);
+		}
 	}
 
 	static void empty(AttachmentTarget target) {
-		if (!limitsDisabled(target)) store(target, 0);
+		if (!limitsDisabled(target)) {
+			int before = energy(target);
+			store(target, 0);
+			record(target, EnergyHistorySource.EMPTY, before, 0);
+		}
 	}
 
 	static void forceRestore(AttachmentTarget target) {
-		store(target, capacity(target));
+		int before = energy(target);
+		int after = capacity(target);
+		store(target, after);
+		record(target, EnergyHistorySource.OPERATOR_RESTORE, before, after);
 	}
 
 	static void store(AttachmentTarget target, int value) {
@@ -92,5 +116,12 @@ final class PlayerEnergyStorage {
 	private static boolean limitsDisabled(AttachmentTarget target) {
 		return target instanceof ServerPlayer player
 				&& TestingOverrides.energyDisabled(player.getUUID());
+	}
+
+	private static void record(AttachmentTarget target, EnergyHistorySource source,
+			int before, int after) {
+		if (target instanceof ServerPlayer player) {
+			PlayerEnergyHistory.record(player, source, before, after);
+		}
 	}
 }

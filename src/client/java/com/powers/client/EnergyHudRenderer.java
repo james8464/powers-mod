@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 
 /** Renders ten vanilla-scale full/half energy symbols above the hunger row. */
@@ -44,6 +45,24 @@ public final class EnergyHudRenderer {
 			graphics.blit(RenderPipelines.GUI_TEXTURED, SYMBOLS, x, bounds.y(), sourceX,
 					textureRow(mode) * SYMBOL_SIZE, SYMBOL_SIZE, SYMBOL_SIZE,
 					TEXTURE_WIDTH, TEXTURE_HEIGHT);
+		}
+		int mouseX = (int) (client.mouseHandler.xpos() * client.getWindow().getGuiScaledWidth()
+				/ client.getWindow().getScreenWidth());
+		int mouseY = (int) (client.mouseHandler.ypos() * client.getWindow().getGuiScaledHeight()
+				/ client.getWindow().getScreenHeight());
+		if (mouseX >= bounds.x() && mouseX < bounds.right()
+				&& mouseY >= bounds.y() && mouseY < bounds.bottom()) {
+			java.util.List<Component> tooltip = new java.util.ArrayList<>();
+			tooltip.add(Component.translatable("tooltip.powers.energy_history",
+					ClientPowerState.energyConsumed(), ClientPowerState.energyRestored()));
+			var sources = ClientPowerState.energySources();
+			var names = com.powers.player.EnergyHistorySource.values();
+			for (int index = 0; index < Math.min(sources.size(), names.length); index++) {
+				if (sources.get(index) > 0L) tooltip.add(Component.translatable(
+						"tooltip.powers.energy_source", names[index].name().toLowerCase(java.util.Locale.ROOT),
+						sources.get(index)));
+			}
+			graphics.setComponentTooltipForNextFrame(client.font, tooltip, mouseX, mouseY);
 		}
 	}
 

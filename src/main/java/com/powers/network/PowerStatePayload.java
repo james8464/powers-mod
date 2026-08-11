@@ -13,7 +13,7 @@ import java.util.Objects;
 /** Immutable server-authoritative snapshot used by the power HUD and rank maze. */
 public record PowerStatePayload(List<String> powerIds, List<String> activeToggles,
 		List<Integer> cooldownTicks, List<Integer> cooldownMaximums, List<Integer> reactivationTicks,
-		int energy, int energyCapacity, boolean canSeeDarkRealm, boolean darkness,
+		EnergySnapshot energySnapshot, boolean canSeeDarkRealm, boolean darkness,
 		boolean projection, int sizeMorphOption, RankSnapshot rank) implements CustomPacketPayload {
 	public static final CustomPacketPayload.Type<PowerStatePayload> TYPE =
 			new CustomPacketPayload.Type<>(PowersMod.id("power_state"));
@@ -29,10 +29,8 @@ public record PowerStatePayload(List<String> powerIds, List<String> activeToggle
 					PowerStatePayload::cooldownMaximums,
 					ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT),
 					PowerStatePayload::reactivationTicks,
-					ByteBufCodecs.VAR_INT,
-					PowerStatePayload::energy,
-					ByteBufCodecs.VAR_INT,
-					PowerStatePayload::energyCapacity,
+					EnergySnapshot.STREAM_CODEC,
+					PowerStatePayload::energySnapshot,
 					ByteBufCodecs.BOOL,
 					PowerStatePayload::canSeeDarkRealm,
 					ByteBufCodecs.BOOL,
@@ -52,6 +50,7 @@ public record PowerStatePayload(List<String> powerIds, List<String> activeToggle
 		cooldownTicks = List.copyOf(cooldownTicks);
 		cooldownMaximums = List.copyOf(cooldownMaximums);
 		reactivationTicks = normalizedTimers(reactivationTicks, powerIds.size());
+		energySnapshot = Objects.requireNonNull(energySnapshot, "energySnapshot");
 		rank = Objects.requireNonNull(rank, "rank");
 	}
 
@@ -72,10 +71,28 @@ public record PowerStatePayload(List<String> powerIds, List<String> activeToggle
 			boolean projection, int sizeMorphOption,
 			List<String> rankNodes, String rankFocus,
 			int rankDepth) {
-		this(powerIds, activeToggles, cooldownTicks, cooldownMaximums, reactivationTicks, energy, energyCapacity,
+		this(powerIds, activeToggles, cooldownTicks, cooldownMaximums, reactivationTicks,
+				new EnergySnapshot(energy, energyCapacity, 0L, 0L, List.of()),
 				canSeeDarkRealm, darkness, projection, sizeMorphOption,
 				new RankSnapshot(rankNodes, rankFocus, rankDepth));
 	}
+
+	public PowerStatePayload(List<String> powerIds, List<String> activeToggles,
+			List<Integer> cooldownTicks, List<Integer> cooldownMaximums, List<Integer> reactivationTicks,
+			int energy, int energyCapacity, boolean canSeeDarkRealm, boolean darkness,
+			boolean projection, int sizeMorphOption, List<String> rankNodes, String rankFocus,
+			int rankDepth, long consumed, long restored, List<Long> sources) {
+		this(powerIds, activeToggles, cooldownTicks, cooldownMaximums, reactivationTicks,
+				new EnergySnapshot(energy, energyCapacity, consumed, restored, sources),
+				canSeeDarkRealm, darkness, projection, sizeMorphOption,
+				new RankSnapshot(rankNodes, rankFocus, rankDepth));
+	}
+
+	public int energy() { return energySnapshot.energy(); }
+	public int energyCapacity() { return energySnapshot.capacity(); }
+	public long energyConsumed() { return energySnapshot.consumed(); }
+	public long energyRestored() { return energySnapshot.restored(); }
+	public List<Long> energySources() { return energySnapshot.sources(); }
 
 	public List<String> rankNodes() {
 		return rank.nodes();
@@ -109,6 +126,29 @@ public record PowerStatePayload(List<String> powerIds, List<String> activeToggle
 		public RankSnapshot {
 			nodes = List.copyOf(nodes);
 			focus = Objects.requireNonNull(focus, "focus");
+		}
+	}
+
+	/** Bounded energy state and aggregate history; no player identity is carried. */
+	public record EnergySnapshot(int energy, int capacity, long consumed, long restored,
+			List<Long> sources) {
+		private static final StreamCodec<RegistryFriendlyByteBuf, EnergySnapshot> STREAM_CODEC =
+				StreamCodec.composite(
+						ByteBufCodecs.VAR_INT, EnergySnapshot::energy,
+						ByteBufCodecs.VAR_INT, EnergySnapshot::capacity,
+						ByteBufCodecs.VAR_LONG, EnergySnapshot::consumed,
+						ByteBufCodecs.VAR_LONG, EnergySnapshot::restored,
+						ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_LONG),
+						EnergySnapshot::sources,
+						EnergySnapshot::new);
+
+		public EnergySnapshot {
+			energy = Math.max(0, energy);
+			capacity = Math.max(0, capacity);
+			consumed = Math.max(0L, consumed);
+			restored = Math.max(0L, restored);
+			sources = List.copyOf(sources.stream().limit(16).map(value ->
+					value == null ? 0L : Math.max(0L, value)).toList());
 		}
 	}
 

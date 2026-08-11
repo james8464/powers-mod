@@ -68,4 +68,23 @@ class PowerStatePayloadTest {
 
 		assertEquals(List.of(0, 0), payload.reactivationTicks());
 	}
+
+	@Test
+	void authoritativeEnergyHistorySurvivesNetworkRoundTrip() {
+		PowerStatePayload expected = new PowerStatePayload(
+				List.of(), List.of(), List.of(), List.of(), List.of(),
+				150, 250, false, false, false, 3, List.of(), "", 0,
+				45L, 6L, List.of(30L, 15L, 6L));
+		ByteBuf bytes = Unpooled.buffer();
+		try {
+			RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(bytes, RegistryAccess.EMPTY);
+			PowerStatePayload.STREAM_CODEC.encode(buffer, expected);
+			PowerStatePayload actual = PowerStatePayload.STREAM_CODEC.decode(buffer);
+			assertEquals(45L, actual.energyConsumed());
+			assertEquals(6L, actual.energyRestored());
+			assertEquals(List.of(30L, 15L, 6L), actual.energySources());
+		} finally {
+			bytes.release();
+		}
+	}
 }

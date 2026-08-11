@@ -25,6 +25,7 @@ import com.powers.realm.RealmLandmarkConstruction;
 import com.powers.spell.CelestialRuinManager;
 import com.powers.spell.SpellFieldManager;
 import com.powers.testing.TestingOverrides;
+import com.powers.player.PlayerEnergyHistory;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -47,6 +48,16 @@ final class PowerDiagnosticsCommand {
 			if (count.count() > 0) send(context, "operatorAudit action="
 					+ count.action().name().toLowerCase(java.util.Locale.ROOT) + "; result="
 					+ count.result().name().toLowerCase(java.util.Locale.ROOT) + "; count=" + count.count());
+		}
+		ServerPlayer inspectingPlayer = context.getSource().getPlayer();
+		if (inspectingPlayer != null) {
+			var energyHistory = PlayerEnergyHistory.snapshot(inspectingPlayer);
+			send(context, energyHistory.tooltip());
+			for (var value : energyHistory.breakdown()) {
+				if (value.amount() > 0) send(context, "energySource="
+						+ value.source().name().toLowerCase(java.util.Locale.ROOT)
+						+ "; amount=" + value.amount());
+			}
 		}
 		send(context, "physicalRays=" + MagicRayCollisionRuntime.activeSegmentCount()
 				+ "; rayCollisionsThisTick=" + MagicRayCollisionRuntime.collisionsThisTick()

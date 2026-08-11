@@ -15,6 +15,9 @@ public final class ClientPowerState {
 	private static List<Integer> reactivationTicks = List.of();
 	private static int energy;
 	private static int energyCapacity;
+	private static long energyConsumed;
+	private static long energyRestored;
+	private static List<Long> energySources = List.of();
 	private static boolean canSeeDarkRealm;
 	private static boolean darkness;
 	private static boolean projection;
@@ -39,6 +42,9 @@ public final class ClientPowerState {
 		reactivationTicks = payload.reactivationTicks();
 		energy = payload.energy();
 		energyCapacity = payload.energyCapacity();
+		energyConsumed = payload.energyConsumed();
+		energyRestored = payload.energyRestored();
+		energySources = payload.energySources();
 		canSeeDarkRealm = payload.canSeeDarkRealm();
 		darkness = payload.darkness();
 		projection = payload.projection();
@@ -57,6 +63,9 @@ public final class ClientPowerState {
 		reactivationTicks = List.of();
 		energy = 0;
 		energyCapacity = 0;
+		energyConsumed = 0L;
+		energyRestored = 0L;
+		energySources = List.of();
 		canSeeDarkRealm = false;
 		darkness = false;
 		projection = false;
@@ -134,6 +143,10 @@ public final class ClientPowerState {
 	public static int energyCapacity() {
 		return energyCapacity > 0 ? energyCapacity : com.powers.power.PowerEnergy.BASE_MAX;
 	}
+
+	public static long energyConsumed() { return energyConsumed; }
+	public static long energyRestored() { return energyRestored; }
+	public static List<Long> energySources() { return energySources; }
 
 	public static boolean isMarking() {
 		return markingSlot >= 0;
