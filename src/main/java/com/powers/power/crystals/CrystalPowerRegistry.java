@@ -1,5 +1,6 @@
 package com.powers.power.crystals;
 
+import com.powers.cooldown.CooldownPresentation;
 import com.powers.PowersItems;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -186,9 +187,8 @@ public final class CrystalPowerRegistry {
 		return activated;
 	}
 
-	// round ticks up so even 1 remaining tick shows as 1 second
 	private static String seconds(int ticks) {
-		return String.valueOf((ticks + 19) / 20);
+		return Long.toString(CooldownPresentation.wholeSeconds(ticks));
 	}
 
 	/** Advances every ongoing crystal effect; called every server tick. */

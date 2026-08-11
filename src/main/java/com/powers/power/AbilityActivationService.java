@@ -1,5 +1,6 @@
 package com.powers.power;
 
+import com.powers.cooldown.CooldownPresentation;
 import com.powers.magic.runtime.PreparedMagicCast;
 import com.powers.magic.runtime.ServerMagicCasts;
 import com.powers.magic.runtime.CastScalingContext;
@@ -273,6 +274,6 @@ public final class AbilityActivationService {
 	}
 
 	private static String seconds(int ticks) {
-		return String.valueOf((ticks + 19) / 20);
+		return Long.toString(CooldownPresentation.wholeSeconds(ticks));
 	}
 }

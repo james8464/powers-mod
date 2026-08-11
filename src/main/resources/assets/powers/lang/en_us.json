@@ -290,7 +290,7 @@
 	"screen.powers.artifact.light": "The Empyrean Testament",
 	"screen.powers.artifact.rank": "Artifact rank %s",
 	"screen.powers.artifact.tooltip": "%s • %s energy • Rank %s • %.1fs base cooldown",
-	"screen.powers.artifact.tooltip.live": "%s energy (you have %s) • Rank %s • %.1fs remaining / %.1fs recovery",
+	"screen.powers.artifact.tooltip.live": "%s energy (you have %s) • Rank %s • %ss remaining / %ss recovery",
 	"screen.powers.artifact.summary": "Rank %s  •  %s energy",
 	"screen.powers.artifact.row.cost": "%sE",
 	"screen.powers.artifact.row.locked": "LOCKED R%s",

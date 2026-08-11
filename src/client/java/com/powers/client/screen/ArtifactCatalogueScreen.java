@@ -1,5 +1,6 @@
 package com.powers.client.screen;
 
+import com.powers.cooldown.CooldownPresentation;
 import com.powers.client.AbilityGlyphRenderer;
 import com.powers.item.artifact.ArtifactActionDefinition;
 import com.powers.item.artifact.ArtifactAlignment;
@@ -215,7 +216,7 @@ public final class ArtifactCatalogueScreen extends Screen {
 				? Component.translatable("screen.powers.artifact.row.locked", action.requiredRank()).getString()
 				: state.active(action) ? Component.translatable("screen.powers.artifact.row.active").getString()
 				: state.cooldown(action) > 0 ? Component.translatable("screen.powers.artifact.row.cooldown",
-						(state.cooldown(action) + 19) / 20).getString()
+						CooldownPresentation.wholeSeconds(state.cooldown(action))).getString()
 				: Component.translatable("screen.powers.artifact.row.ready").getString();
 		return Component.empty().append("    ").append(state.actionName(action)).append("  ")
 				.append(Component.translatable("screen.powers.artifact.row.cost", state.cost(action)))

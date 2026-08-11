@@ -1,5 +1,6 @@
 package com.powers.spell;
 
+import com.powers.cooldown.CooldownPresentation;
 import com.powers.fx.PowerFx;
 import com.powers.item.GrimoireItem;
 import com.powers.network.PowersPackets;
@@ -145,7 +146,7 @@ public final class SpellCastingManager {
 			MagicAttemptReporter.failure(player, spell.id(), MagicFailureReason.COOLDOWN,
 					Map.of("remaining_ticks", remaining));
 			PowerMessages.overlay(player, Component.translatable(
-					"spell.powers.cooldown", (remaining + 19) / 20));
+					"spell.powers.cooldown", CooldownPresentation.wholeSeconds(remaining)));
 			return false;
 		}
 		return true;

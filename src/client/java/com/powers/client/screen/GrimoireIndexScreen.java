@@ -1,5 +1,6 @@
 package com.powers.client.screen;
 
+import com.powers.cooldown.CooldownPresentation;
 import com.powers.network.GrimoirePackets;
 import com.powers.spell.SpellIndexEntry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -100,7 +101,7 @@ public final class GrimoireIndexScreen extends Screen {
 
 	private static String ticks(int ticks) {
 		if (ticks == 0) return "instant";
-		return String.format(java.util.Locale.ROOT, "%.1fs", ticks / 20.0);
+		return CooldownPresentation.tenths(ticks) + "s";
 	}
 
 	private int panelX() {

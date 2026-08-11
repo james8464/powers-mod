@@ -1,5 +1,6 @@
 package com.powers.client;
 
+import com.powers.cooldown.CooldownPresentation;
 import com.powers.PowersMod;
 import com.powers.hud.HudMath;
 import com.powers.hud.HudLayout;
@@ -71,7 +72,7 @@ public final class PowerHudRenderer {
 			graphics.text(font, marker, centerX - font.width(marker) / 2,
 					centerY + 6, 0xFFFFE6A3, true);
 		} else if (remaining > 0) {
-			String seconds = String.valueOf((remaining + 19) / 20);
+			String seconds = Long.toString(CooldownPresentation.wholeSeconds(remaining));
 			graphics.text(font, seconds, centerX - font.width(seconds) / 2,
 					centerY + 6, 0xFFE7EBF2, true);
 		}
