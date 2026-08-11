@@ -3,6 +3,7 @@ package com.powers.spell;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,9 +21,13 @@ class SpellRegistryTest {
 			"book_grimoire_recolor_overlay_wild");
 
 	@Test
-	void everyRegisteredGrimoireResolvesToAUsableSpellList() {
+	void activeGrimoiresResolveAndInfernalCompatibilityTexturesAreDormant() {
 		SpellRegistry registry = SpellRegistry.defaults();
 		for (String grimoire : REGISTERED_GRIMOIRES) {
+			if (grimoire.contains("infernal")) {
+				assertTrue(registry.isDormantTexture(grimoire), grimoire);
+				continue;
+			}
 			GrimoireDefinition definition = registry.forTexture(grimoire);
 			assertNotNull(definition, grimoire);
 			assertFalse(definition.spells().isEmpty(), grimoire);
@@ -43,7 +48,17 @@ class SpellRegistryTest {
 				assertTrue(spell.channelTicks() >= 0, spell.id());
 			}
 		}
-		assertEquals(21, count);
+		assertEquals(12, count);
 		assertTrue(ids.contains("celestial_ruin"));
+		assertEquals(List.of("dimensional_anchor"), spellIds(
+				registry.forTexture("book_grimoire_deep")));
+		assertEquals(List.of("blood_reading", "grave_recall"), spellIds(
+				registry.forTexture("book_grimoire_blight")));
+		assertEquals(List.of("ward_breaking_ritual", "dispel"), spellIds(
+				registry.forTexture("book_grimoire_abyssal")));
+	}
+
+	private static List<String> spellIds(GrimoireDefinition definition) {
+		return definition.spells().stream().map(SpellDefinition::id).toList();
 	}
 }

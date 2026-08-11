@@ -54,7 +54,12 @@ public final class SpellCastingManager {
 		if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.RITUAL)) return;
 		if (GlobalTimeStopManager.rejectIfStopped(player)) return;
 		GrimoireDefinition grimoire = REGISTRY.forTexture(texture);
-		if (grimoire == null) return;
+		if (grimoire == null) {
+			if (REGISTRY.isDormantTexture(texture)) {
+				PowerMessages.overlay(player, Component.translatable("spell.powers.infernal_dormant"));
+			}
+			return;
+		}
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		if (player.isShiftKeyDown()) {
 			int selected = data.cycleSpell(grimoire.key(), grimoire.spells().size());
@@ -280,7 +285,11 @@ public final class SpellCastingManager {
 	}
 
 	private static SpellDefinition selectedSpell(ServerPlayer player, GrimoireDefinition grimoire) {
-		int selected = PlayerPowers.get(player).selectedSpell(grimoire.key(), grimoire.spells().size());
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		int raw = data.rawSelectedSpell(grimoire.key());
+		int migrated = SpellSelectionMigration.canonicalIndex(grimoire.key(), raw);
+		if (migrated != raw) data.setSelectedSpell(grimoire.key(), migrated);
+		int selected = Math.floorMod(migrated, grimoire.spells().size());
 		return grimoire.spells().get(selected);
 	}
 
