@@ -3,12 +3,28 @@ package com.powers.power.abilities;
 import net.minecraft.world.phys.Vec3;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Guards Cinderheart charge, lifetime, reflection, impact, and counter rules. */
 class FireballRulesTest {
+	@Test
+	void deliberateReleaseKeepsExactOwnershipAndStartsBoundedFlight() {
+		UUID owner = UUID.fromString("2d018d48-4c22-4932-a236-625005e4710c");
+		FireballRules.ReleaseState release = FireballRules.deliberateRelease(
+				owner, new Vec3(0.0, 0.0, 4.0));
+
+		assertTrue(release.launched());
+		assertEquals(owner, release.originalOwner());
+		assertEquals(owner, release.controller());
+		assertEquals(0, release.reflections());
+		assertEquals(new Vec3(0.0, 0.0, 1.5), release.velocity());
+		assertFalse(FireballRules.deliberateRelease(owner, Vec3.ZERO).launched());
+	}
+
 	@Test
 	void chargeTiersAreFiniteAndAncientMasteryUnlocksTheFourthSeal() {
 		assertEquals(3, FireballRules.maximumTier(false));

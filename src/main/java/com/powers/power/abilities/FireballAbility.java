@@ -66,10 +66,11 @@ public final class FireballAbility extends Ability {
 					FireballFx.extinguish(level, projectile.position(), existing.tier,
 							true, false, false);
 				}
-				removeState(existing, projectile, true);
-			} else {
-				return chargeExisting(player, projectile, existing);
-			}
+					removeState(existing, projectile, true);
+				} else {
+					if (player.isCrouching()) return releaseExisting(player, projectile, existing);
+					return chargeExisting(player, projectile, existing);
+				}
 		}
 		if (!player.isAlive() || BY_OWNER.size() >= MAX_ACTIVE_HEARTS) return false;
 
@@ -252,6 +253,30 @@ public final class FireballAbility extends Ability {
 			return;
 		}
 		FireballImpactResolver.resolve(level, projectile, heart, hit);
+	}
+
+	/** Releases a hovering heart while retaining the exact original owner. */
+	private static boolean releaseExisting(ServerPlayer player, LargeFireball projectile,
+			Cinderheart heart) {
+		if (heart.launched || !heart.originalOwner.equals(player.getUUID())) return false;
+		FireballRules.ReleaseState release = FireballRules.deliberateRelease(
+				heart.originalOwner, player.getLookAngle());
+		if (!release.launched() || !heart.originalOwner.equals(release.originalOwner())
+				|| !heart.originalOwner.equals(release.controller())) return false;
+		heart.launched = true;
+		heart.controller = release.controller();
+		heart.reflections = release.reflections();
+		heart.expiresAt = FireballRules.launchExpiry(
+				player.level().getServer().getTickCount());
+		heart.lastPosition = projectile.position();
+		projectile.setOwner(player);
+		projectile.setDeltaMovement(release.velocity());
+		projectile.hurtMarked = true;
+		ServerLevel level = (ServerLevel) player.level();
+		FireballFx.launch(level, projectile.position(), release.velocity(),
+				heart.tier, heart.ancientMastery);
+		PowerMessages.send(player, "ability.powers.fireball.launch", 3);
+		return true;
 	}
 
 	/** Adds one paid tier and refreshes only the bounded hover window. */

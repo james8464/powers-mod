@@ -134,8 +134,13 @@ public final class LightningStrikeFx {
 
 	/** Draws one main or Communion arc with readable attenuation. */
 	public static void chain(ServerLevel level, Vec3 from, Vec3 to,
-			int link, boolean soulFork) {
-		int color = soulFork ? 0xC8AFFF : link % 2 == 0 ? CYAN : GOLD;
+			int link, boolean soulFork, LightningStrikeRules.Conductance medium) {
+		int color = soulFork ? 0xC8AFFF : switch (medium) {
+			case WATER -> WATER_BLUE;
+			case BLOCK -> 0xD47A36;
+			case ARMOUR -> 0xC6D0D8;
+			case NONE -> 0x8A949C;
+		};
 		PowerFx.beam(level, from, to, ParticleTypes.ELECTRIC_SPARK,
 				soulFork ? 22 : Math.max(12, 22 - link * 2));
 		PowerFx.beam(level, from.add(0.0, 0.12, 0.0), to,

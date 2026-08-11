@@ -20,6 +20,14 @@ public final class LightningStrikeRules {
 		CROWN
 	}
 
+	/** Explicit body-local medium that may relay one bounded chain node. */
+	public enum Conductance {
+		NONE,
+		WATER,
+		BLOCK,
+		ARMOUR
+	}
+
 	/** Environment, protection, or physical result resolved before mutation. */
 	public enum Counterplay {
 		STRIKE,
@@ -74,6 +82,15 @@ public final class LightningStrikeRules {
 		int result = BASE_CHAIN_LIMIT + (empoweredImpact ? 1 : 0)
 				+ (ancientMastery ? 1 : 0);
 		return Math.min(MAX_CHAIN_LIMIT, result);
+	}
+
+	/** Classifies one body with stable water, contact, then armour priority. */
+	public static Conductance conductance(boolean wet, boolean conductiveBlock,
+			boolean conductiveArmour) {
+		if (wet) return Conductance.WATER;
+		if (conductiveBlock) return Conductance.BLOCK;
+		if (conductiveArmour) return Conductance.ARMOUR;
+		return Conductance.NONE;
 	}
 
 	/** Wardcraft grounds at most eight hostile projectiles during one warning. */
@@ -190,6 +207,22 @@ public final class LightningStrikeRules {
 		return 0.26;
 	}
 
+	/** Applies bounded medium metadata without changing the authored water values. */
+	public static double chainDamageMultiplier(int linkIndex, Conductance conductance) {
+		return chainDamageMultiplier(linkIndex) * conductanceDamageScale(conductance);
+	}
+
+	/** Returns the finite attenuation carried by one conductive medium. */
+	public static double conductanceDamageScale(Conductance conductance) {
+		if (conductance == null) return 0.0;
+		return switch (conductance) {
+			case WATER -> 1.0;
+			case BLOCK -> 0.90;
+			case ARMOUR -> 0.80;
+			case NONE -> 0.0;
+		};
+	}
+
 	/** Communion's one branch carries less than two-fifths primary damage. */
 	public static double forkDamageMultiplier() {
 		return 0.38;
@@ -206,9 +239,10 @@ public final class LightningStrikeRules {
 	}
 
 	/** Requires every chain node to be wet, loaded, unique, nearby, and unprotected. */
-	public static boolean chainEligible(boolean wet, boolean loaded, boolean seen,
+	public static boolean chainEligible(Conductance conductance, boolean loaded, boolean seen,
 			double distance, double maximumRange, Counterplay counterplay) {
-		return wet && loaded && !seen && Double.isFinite(distance) && distance >= 0.0
+		return conductance != null && conductance != Conductance.NONE
+				&& loaded && !seen && Double.isFinite(distance) && distance >= 0.0
 				&& Double.isFinite(maximumRange) && maximumRange > 0.0
 				&& distance <= maximumRange && counterplay == Counterplay.STRIKE;
 	}
