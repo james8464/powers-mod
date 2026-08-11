@@ -32,6 +32,12 @@ public final class ArtifactGuardianSummons {
 
 	public static int summon(ServerPlayer caster, ArtifactAlignment alignment,
 			int requested, boolean elite, LivingEntity forcedTarget, boolean owned) {
+		return summonLiving(caster, alignment, requested, elite, forcedTarget, owned);
+	}
+
+	/** Entity-safe entry used by a real Shadow body without inventing a fake player. */
+	public static int summonLiving(LivingEntity caster, ArtifactAlignment alignment,
+			int requested, boolean elite, LivingEntity forcedTarget, boolean owned) {
 		ServerLevel level = (ServerLevel) caster.level();
 		if (PowerProtection.isSafeZone(level, caster.position())) return 0;
 		Map<UUID, Set<UUID>> index = elite ? ELITE_BY_OWNER : NORMAL_BY_OWNER;
@@ -77,7 +83,7 @@ public final class ArtifactGuardianSummons {
 				elite ? 42 : 22, Math.PI / 8.0);
 	}
 
-	private static BlockPos radialSpawn(ServerLevel level, ServerPlayer caster, int attempt, int requested) {
+	private static BlockPos radialSpawn(ServerLevel level, LivingEntity caster, int attempt, int requested) {
 		double angle = (attempt + level.getRandom().nextDouble()) * Math.PI * 2.0
 				/ Math.max(1, requested);
 		int x = caster.getBlockX() + (int) Math.round(Math.cos(angle) * (3.0 + attempt % 3));

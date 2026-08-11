@@ -21,11 +21,11 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Comparator;
 
 /** Unsaved, terrain-safe fireball used by player-shaped darkness combatants. */
-final class DarknessFireballProjectile extends LargeFireball {
+public final class DarknessFireballProjectile extends LargeFireball {
 	private static final double RADIUS = 5.0;
 	private final boolean radiant;
 
-	DarknessFireballProjectile(ServerLevel level, LivingEntity owner, Vec3 direction) {
+	public DarknessFireballProjectile(ServerLevel level, LivingEntity owner, Vec3 direction) {
 		this(level, owner, direction, false);
 	}
 
