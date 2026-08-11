@@ -23,6 +23,7 @@ class ReleasePipelineContractTest {
 	@Test
 	void continuousIntegrationRunsEveryMandatoryReleaseLaneOnJava25() throws IOException {
 		String workflow = Files.readString(ROOT.resolve(".github/workflows/ci.yml"));
+		assertTrue(workflow.contains("actions/setup-java@v5"));
 		assertTrue(workflow.contains("java-version: '25'"));
 		for (String command : new String[] {
 				"./gradlew clean check", "./test.sh gametest", "server_smoke.py",
