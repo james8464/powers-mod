@@ -33,4 +33,30 @@ class ArtifactEnergyReservoirTest {
 		assertEquals(0, ArtifactEnergyReservoir.clamp("artifact_soulstone.small", -1));
 		assertEquals(200, ArtifactEnergyReservoir.clamp("artifact_soulstone.small", 999));
 	}
+
+	@Test
+	void transferPreviewIsExactAndAtomicInEitherDirection() {
+		assertEquals(new ArtifactEnergyReservoir.Transfer(true, 40, 160, 60),
+				ArtifactEnergyReservoir.transfer(100, 200, 100, 200, -60));
+		assertEquals(new ArtifactEnergyReservoir.Transfer(true, 180, 20, 80),
+				ArtifactEnergyReservoir.transfer(100, 200, 100, 200, 80));
+		assertEquals(new ArtifactEnergyReservoir.Transfer(false, 100, 100, 0),
+				ArtifactEnergyReservoir.transfer(100, 200, 100, 200, 201));
+	}
+
+	@Test
+	void pendingCastShortfallUsesAuthoritativeCombinedBalances() {
+		assertEquals(0, ArtifactEnergyReservoir.shortfall(90, 40, 80));
+		assertEquals(30, ArtifactEnergyReservoir.shortfall(90, 40, 160));
+	}
+
+	@Test
+	void serverPresetNeverAcceptsAClientAuthoredQuantity() {
+		assertEquals(new ArtifactEnergyReservoir.Transfer(true, 0, 190, 90),
+				ArtifactEnergyReservoir.transferStep(90, 200, 100, 200,
+						ArtifactEnergyReservoir.Direction.STORE));
+		assertEquals(new ArtifactEnergyReservoir.Transfer(true, 190, 0, 100),
+				ArtifactEnergyReservoir.transferStep(90, 200, 100, 200,
+						ArtifactEnergyReservoir.Direction.RELEASE));
+	}
 }

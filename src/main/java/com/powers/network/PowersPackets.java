@@ -179,6 +179,7 @@ public final class PowersPackets {
 		MagicFxPackets.initialize();
 		BodyProxyPackets.initialize();
 		ShadowSwordPackets.initialize();
+		RelicPackets.initialize();
 		CompanionPackets.initialize();
 		VesselControlPackets.initialize();
 		CelestialRuinPackets.initialize();

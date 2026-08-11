@@ -995,5 +995,20 @@
 	"item.powers.relic.no_anchor": "Carry a bound Lodestone beside the Miniportal.",
 	"item.powers.relic.anchor_unreachable": "The Miniportal cannot safely reach its remembered anchor.",
 	"item.powers.relic.same_dimension": "The Miniportal cannot cross dimensions; bind a Lodestone in this world.",
-	"item.powers.relic.miniportal_empty": "The Miniportal is empty. Drop it onto an amethyst shard to restore both charges."
+	"item.powers.relic.miniportal_empty": "The Miniportal is empty. Drop it onto an amethyst shard to restore both charges.",
+	"tooltip.powers.malignember.title": "Malignember — eligible destructive actions",
+	"tooltip.powers.malignember.action": "%s (saves %s energy at this authored cost)",
+	"tooltip.powers.ritual_dagger.rune": "◆ Blood Rune",
+	"tooltip.powers.ritual_dagger.preview": "Costs %s health → %s; restores %s energy (survival floor: %s)",
+	"tooltip.powers.reservoir.balance": "Main %s/%s · Reservoir %s/%s",
+	"tooltip.powers.reservoir.open": "Use to manage an authoritative transfer",
+	"tooltip.powers.miniportal.charges": "Charges %s/%s",
+	"tooltip.powers.miniportal.anchor": "Anchor: %s · %s (%s, %s, %s)",
+	"screen.powers.artifact.tooltip.malignember": "Malignember saved %s energy"
+	,"screen.powers.reservoir.title": "Reservoir Transfer"
+	,"screen.powers.reservoir.main": "Main energy: %s / %s"
+	,"screen.powers.reservoir.auxiliary": "Auxiliary energy: %s / %s"
+	,"screen.powers.reservoir.pending": "Slot 1 cast: %s energy · shortfall %s"
+	,"screen.powers.reservoir.store": "Store up to 100"
+	,"screen.powers.reservoir.release": "Release up to 100"
 }

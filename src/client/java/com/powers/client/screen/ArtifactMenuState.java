@@ -60,6 +60,11 @@ public record ArtifactMenuState(
 		return snapshot == null ? 0 : snapshot.cooldownTicks();
 	}
 
+	public int energySaved(ArtifactActionDefinition action) {
+		ArtifactActionSnapshot snapshot = snapshot(action);
+		return snapshot == null ? 0 : snapshot.energySaved();
+	}
+
 	public int cooldownMaximum(ArtifactActionDefinition action) {
 		ArtifactActionSnapshot snapshot = snapshot(action);
 		return snapshot == null ? action.baseCooldownTicks() : snapshot.cooldownMaximumTicks();
@@ -101,11 +106,15 @@ public record ArtifactMenuState(
 				? "power.powers." : "ability.powers.") + action.abilityId() + ".description";
 		Component description = Component.translatableWithFallback(descriptionKey,
 				humanize(action.abilityId()) + " invocation");
+		Component live = Component.translatable("screen.powers.artifact.tooltip.live",
+				cost(action), energy, action.requiredRank(), CooldownPresentation.tenths(cooldown(action)),
+				CooldownPresentation.tenths(cooldownMaximum(action)));
+		if (energySaved(action) > 0) live = live.copy().append("\n").append(
+				Component.translatable("screen.powers.artifact.tooltip.malignember",
+						energySaved(action)));
 		return Component.empty().append(sourceName(action.category())).append("\n")
 				.append(description).append("\n")
-				.append(Component.translatable("screen.powers.artifact.tooltip.live",
-						cost(action), energy, action.requiredRank(), CooldownPresentation.tenths(cooldown(action)),
-						CooldownPresentation.tenths(cooldownMaximum(action))));
+				.append(live);
 	}
 
 	public static Component sourceName(ArtifactActionCategory source) {

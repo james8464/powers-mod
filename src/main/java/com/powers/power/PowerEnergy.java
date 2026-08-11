@@ -76,6 +76,12 @@ public final class PowerEnergy {
 
 	/** Applies rank efficiency only to innate player powers, never crystals. */
 	public static int cost(ServerPlayer player, Ability ability) {
+		int resolved = costBeforeArtifact(player, ability);
+		return ArtifactEnergyModifiers.forPlayer(player, ability.id().getPath(), resolved);
+	}
+
+	/** Rank/source-adjusted cost before carried relic modifiers are applied. */
+	public static int costBeforeArtifact(ServerPlayer player, Ability ability) {
 		int resolved;
 		if (ability instanceof AlignedArtifactAbility artifact
 				&& artifact.definition().alignment() == ArtifactAlignment.DARKNESS
@@ -86,7 +92,7 @@ public final class PowerEnergy {
 					? PowerScalingService.energyCost(player, ability.id().getPath(), cost(ability))
 					: cost(ability);
 		}
-		return ArtifactEnergyModifiers.forPlayer(player, ability.id().getPath(), resolved);
+		return resolved;
 	}
 
 	/** per-tick drain while a toggle like flight stays on, zero for everything else */

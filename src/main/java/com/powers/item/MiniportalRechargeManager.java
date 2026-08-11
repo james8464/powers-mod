@@ -27,8 +27,9 @@ public final class MiniportalRechargeManager {
 				device.getBoundingBox().inflate(0.35), MAX_NEARBY_ITEMS,
 				entity -> entity != device && entity.isAlive()
 						&& entity.getItem().is(Items.AMETHYST_SHARD))) {
-			device.getItem().set(PowersDataComponents.MINIPORTAL_CHARGES,
-					MiniportalRules.afterRecharge());
+		int charges = MiniportalRules.afterRecharge();
+		device.getItem().set(PowersDataComponents.MINIPORTAL_CHARGES, charges);
+		MiniportalRules.applyVisual(device.getItem(), charges);
 			candidate.getItem().shrink(1);
 			if (candidate.getItem().isEmpty()) candidate.discard();
 			PowerFx.rune(level, device.position().add(0.0, 0.2, 0.0), 0.8,
