@@ -315,6 +315,10 @@ public final class SpellFieldManager {
 		return MAX_FIELD_WORK_PER_TICK;
 	}
 
+	public static ChunkSpatialIndex.Diagnostics spatialDiagnostics() {
+		return INDEX.diagnostics();
+	}
+
 	public static void clearAll() {
 		FIELDS.values().forEach(field -> PhysicalMagicPresences.remove(field.presence));
 		FIELDS.clear();

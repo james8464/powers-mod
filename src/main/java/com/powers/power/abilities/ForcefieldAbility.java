@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -70,6 +71,8 @@ public class ForcefieldAbility extends Ability {
 	/** Lets a detached physical body consume the shield owned by its remote mind. */
 	public static boolean absorbDamage(LivingEntity shieldOwner, LivingEntity visualTarget,
 			DamageSource source, float amount) {
+		if (!ForcefieldRules.interceptable(source.is(DamageTypes.GENERIC_KILL),
+				source.is(DamageTypes.FELL_OUT_OF_WORLD), amount)) return false;
 		long tick = visualTarget.level().getServer().getTickCount();
 		MagicShieldManager.Impact impact = MagicShieldManager.global().absorb(
 				shieldOwner.getUUID(), amount, tick);

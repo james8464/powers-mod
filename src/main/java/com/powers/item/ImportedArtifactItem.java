@@ -260,7 +260,7 @@ public final class ImportedArtifactItem extends Item {
 		var server = origin.getServer();
 		if (!SafeDestinationResolver.validatePreload(player, destination, position,
 				TravelKind.POWER).allowed()) return false;
-		return TravelChunkLoader.request(player.getUUID(), destination, requested, () -> {
+		return TravelChunkLoader.request(player.getUUID(), destination, requested, "miniportal", () -> {
 			ServerPlayer current = server.getPlayerList().getPlayer(player.getUUID());
 			if (current != null) AmethystDampening.update(current);
 			int currentCharges = MiniportalRules.charges(

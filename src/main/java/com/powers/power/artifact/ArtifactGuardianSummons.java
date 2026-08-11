@@ -131,6 +131,26 @@ public final class ArtifactGuardianSummons {
 		LOADED.clear();
 	}
 
+	/** Revokes loaded owned guardians immediately; unloaded ones fail closed on their next AI tick. */
+	public static void revokeOwner(net.minecraft.server.MinecraftServer server, UUID ownerId,
+			ArtifactAlignment alignment) {
+		for (ServerLevel level : server.getAllLevels()) {
+			for (UUID entityId : Set.copyOf(LOADED)) {
+				if (!(level.getEntity(entityId) instanceof AbstractPlayerLikeMob guardian)
+						|| !ownerId.equals(guardian.guardianOwner())) continue;
+				boolean radiant = guardian instanceof com.powers.entity.RadiantSentinel;
+				if ((alignment == ArtifactAlignment.LIGHT) != radiant) continue;
+				guardian.discard();
+				LOADED.remove(entityId);
+			}
+		}
+		for (Map<UUID, Set<UUID>> index : java.util.List.of(NORMAL_BY_OWNER, ELITE_BY_OWNER)) {
+			Set<UUID> owned = index.get(ownerId);
+			if (owned != null) owned.removeIf(id -> !LOADED.contains(id));
+			if (owned != null && owned.isEmpty()) index.remove(ownerId);
+		}
+	}
+
 	public static int indexedGuardianCount() {
 		return LOADED.size();
 	}

@@ -94,6 +94,11 @@ public final class ArtifactChainManager {
 		CHAINS.entrySet().removeIf(entry -> entry.getValue().targetId().equals(ownerOrTarget));
 	}
 
+	public static void forget(UUID ownerId, ArtifactAlignment alignment) {
+		Chain chain = CHAINS.get(ownerId);
+		if (chain != null && chain.alignment() == alignment) CHAINS.remove(ownerId, chain);
+	}
+
 	public static void clear() {
 		CHAINS.clear();
 	}

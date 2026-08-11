@@ -145,6 +145,11 @@ public final class ArtifactFieldManager {
 		remove(ownerId);
 	}
 
+	public static void forget(UUID ownerId, ArtifactAlignment alignment) {
+		Field field = FIELDS.get(ownerId);
+		if (field != null && field.alignment() == alignment) remove(ownerId);
+	}
+
 	/** True when one live aligned dominion contains the queried position. */
 	public static boolean contains(ServerLevel level, Vec3 position, ArtifactAlignment alignment) {
 		if (level == null || position == null || alignment == null) return false;
@@ -163,6 +168,10 @@ public final class ArtifactFieldManager {
 
 	public static int activeFieldCount() {
 		return FIELDS.size();
+	}
+
+	public static ChunkSpatialIndex.Diagnostics spatialDiagnostics() {
+		return INDEX.diagnostics();
 	}
 
 	private static void remove(UUID ownerId) {

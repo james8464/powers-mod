@@ -35,6 +35,7 @@ public final class MagicRayCollisionIndex {
 	private final Map<PairKey, Long> lastCollision = new HashMap<>();
 	private long budgetTick = Long.MIN_VALUE;
 	private int collisionsThisTick;
+	private final Map<UUID, Integer> ownerCollisionsThisTick = new HashMap<>();
 
 	/** Stores one segment and returns its first admissible physical collision. */
 	public Optional<Collision> submit(MagicRaySegment submitted) {
@@ -45,16 +46,20 @@ public final class MagicRayCollisionIndex {
 				submitted.dimension(), ignored -> new ArrayDeque<>());
 		prune(segments, now);
 		Optional<Collision> collision = Optional.empty();
-		if (collisionsThisTick < MagicRayCollisionRules.MAX_COLLISIONS_PER_TICK) {
+		if (collisionsThisTick < MagicRayCollisionRules.MAX_COLLISIONS_PER_TICK
+				&& hasOwnerBudget(submitted.owner())) {
 			for (Iterator<MagicRaySegment> iterator = segments.descendingIterator(); iterator.hasNext();) {
 				MagicRaySegment existing = iterator.next();
 				if (!MagicRayCollisionRules.mayCompare(submitted, existing, now)) continue;
+				if (!hasOwnerBudget(existing.owner())) continue;
 				PairKey key = PairKey.of(submitted, existing);
 				if (now - lastCollision.getOrDefault(key, Long.MIN_VALUE / 2) < PAIR_COOLDOWN_TICKS) continue;
 				Optional<Vec3> point = MagicRayCollisionRules.intersection(submitted, existing);
 				if (point.isEmpty()) continue;
 				lastCollision.put(key, now);
 				collisionsThisTick++;
+				ownerCollisionsThisTick.merge(submitted.owner(), 1, Integer::sum);
+				ownerCollisionsThisTick.merge(existing.owner(), 1, Integer::sum);
 				collision = Optional.of(new Collision(submitted, existing, point.get()));
 				break;
 			}
@@ -97,12 +102,19 @@ public final class MagicRayCollisionIndex {
 		lastCollision.clear();
 		budgetTick = Long.MIN_VALUE;
 		collisionsThisTick = 0;
+		ownerCollisionsThisTick.clear();
 	}
 
 	private void resetBudget(long now) {
 		if (budgetTick == now) return;
 		budgetTick = now;
 		collisionsThisTick = 0;
+		ownerCollisionsThisTick.clear();
+	}
+
+	private boolean hasOwnerBudget(UUID owner) {
+		return ownerCollisionsThisTick.getOrDefault(owner, 0)
+				< MagicRayCollisionRules.MAX_COLLISIONS_PER_OWNER_PER_TICK;
 	}
 
 	private static void prune(ArrayDeque<MagicRaySegment> segments, long now) {

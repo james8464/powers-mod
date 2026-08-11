@@ -28,4 +28,40 @@ class UniqueNameIndexTest {
 		index.remove("a");
 		assertEquals(List.of("b", "c"), index.candidates("eye", 2));
 	}
+
+	@Test
+	void formattingCompatibilityAndConfusablesCannotForgeUniqueness() {
+		UniqueNameIndex<String> index = new UniqueNameIndex<>();
+		index.upsert("plain", "Watcher");
+		index.upsert("formatted", "§5Ｗatcher\u200B");
+		index.upsert("confusable", "Wаtcher"); // Cyrillic small a.
+
+		assertEquals(List.of("confusable", "formatted"), index.candidates("watcher", 2));
+	}
+
+	@Test
+	void controlOnlyAndOversizedNamesAreNotIndexed() {
+		UniqueNameIndex<String> index = new UniqueNameIndex<>();
+		index.upsert("control", "\u0000\u200B§5");
+		index.upsert("huge", "x".repeat(257));
+		assertTrue(index.candidates("", 2).isEmpty());
+		assertTrue(index.candidates("x".repeat(257), 2).isEmpty());
+	}
+
+	@Test
+	void diagnosticsExposeCandidateAndStaleWork() {
+		UniqueNameIndex<String> index = new UniqueNameIndex<>();
+		index.upsert("one", "Watcher");
+		assertEquals(List.of("one"), index.candidates("watcher", 2));
+		assertTrue(index.candidates("missing", 2).isEmpty());
+		index.removeStale("one");
+
+		var diagnostics = index.diagnostics();
+		assertEquals(2, diagnostics.queries());
+		assertEquals(1, diagnostics.candidates());
+		assertEquals(1, diagnostics.misses());
+		assertEquals(1, diagnostics.staleRemovals());
+		assertEquals(0, diagnostics.entries());
+		assertTrue(diagnostics.estimatedBytes() >= 0);
+	}
 }

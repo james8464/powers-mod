@@ -62,7 +62,8 @@ public class MiddleworldAbility extends Ability {
 		AsyncAbilityTransaction transaction = new AsyncAbilityTransaction(player, data, this);
 		java.util.UUID playerId = player.getUUID();
 		CastSource castSource = CastScalingContext.currentSource();
-		return TravelChunkLoader.request(playerId, targetLevel, BlockPos.containing(dest), () -> {
+		return TravelChunkLoader.request(playerId, targetLevel, BlockPos.containing(dest),
+				"middleworld_crystal", () -> {
 			ServerPlayer traveler = targetLevel.getServer().getPlayerList().getPlayer(playerId);
 			if (traveler == null || !traveler.isAlive()
 					|| traveler.level() != sourceLevel || !MagicUseGate.ongoingAllowed(traveler)

@@ -124,7 +124,8 @@ abstract class MindscapeCrystalAbility extends Ability {
 			ServerLevel destinationLevel,
 			PlayerPowers.PlayerPowersData data, CastSource castSource) {
 		if (subjects.isEmpty()) return false;
-		Vec3 destinationPosition = new Vec3(8.5, destinationLevel.getMinY() + 1, 8.5);
+		Vec3 destinationPosition = new Vec3(8.5,
+				com.powers.realm.RealmTerrain.provisionalArrivalY(destinationLevel), 8.5);
 		ServerLevel sourceLevel = (ServerLevel) caster.level();
 		for (ServerPlayer subject : subjects) {
 			SafeDestinationResolver.Result preflight = SafeDestinationResolver.validatePreload(
@@ -144,6 +145,7 @@ abstract class MindscapeCrystalAbility extends Ability {
 		PowerMessages.overlay(caster, Component.translatable("ability.powers.realm_focusing",
 				destination.identifier().toString()));
 		return TravelChunkLoader.request(caster.getUUID(), destinationLevel, BlockPos.containing(destinationPosition),
+				"mindscape_crystal",
 				() -> startJourney(caster, subjects, sourceLevel, destinationLevel,
 						destinationPosition, permittedSeparation, castSource,
 						stormTicks, delay, transaction),

@@ -94,6 +94,10 @@ public final class ArtifactCovenantManager {
 		LINKS.entrySet().removeIf(entry -> entry.getValue().ownerId().equals(ownerOrAlly));
 	}
 
+	public static void forget(UUID ownerOrAlly, ArtifactAlignment alignment) {
+		if (alignment == ArtifactAlignment.LIGHT) forget(ownerOrAlly);
+	}
+
 	public static void clear() {
 		LINKS.clear();
 		TRANSFERRING.clear();

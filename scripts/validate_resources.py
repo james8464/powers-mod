@@ -256,8 +256,12 @@ def validate(root: Path) -> list[str]:
     biomes = root / "data" / "powers" / "worldgen" / "biome"
     for path in sorted(dimensions.glob("*.json")):
         data = parsed.get(path, {})
-        settings = data.get("generator", {}).get("settings", {}) if isinstance(data, dict) else {}
-        biome = settings.get("biome") if isinstance(settings, dict) else None
+        generator = data.get("generator", {}) if isinstance(data, dict) else {}
+        settings = generator.get("settings", {}) if isinstance(generator, dict) else {}
+        biome_source = generator.get("biome_source", {}) if isinstance(generator, dict) else {}
+        biome = (settings.get("biome") if isinstance(settings, dict) else None) or (
+            biome_source.get("biome") if isinstance(biome_source, dict) else None
+        )
         expected = f"powers:{path.stem}"
         if biome != expected:
             errors.append(f"{path}: expected a distinct {expected} biome, found {biome!r}")

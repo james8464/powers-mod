@@ -79,7 +79,8 @@ public final class CartographerSearch {
 		return RealmLayout.sites(kind).stream()
 				.filter(site -> matches(site, normalized))
 				.findFirst()
-				.map(site -> new Result(new BlockPos(site.x(), level.getMinY() + 1, site.z()),
+				.map(site -> new Result(new BlockPos(site.x(),
+						com.powers.realm.RealmTerrain.provisionalArrivalY(level), site.z()),
 						"powers:" + site.id()));
 	}
 

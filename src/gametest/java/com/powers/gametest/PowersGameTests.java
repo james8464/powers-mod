@@ -413,11 +413,13 @@ public final class PowersGameTests {
 				"Crucible rejected a valid conversion");
 		helper.assertTrue(crucible.isMutating(), "Crucible did not hold its ritual lock");
 		helper.runAfterDelay(45, () -> {
-			helper.assertTrue(crucible.getItem(ArcaneCrucibleBlockEntity.WEAPON_SLOT).isEmpty(),
-					"Crucible failed to consume the base weapon");
-			helper.assertTrue(player.getInventory().contains(stack ->
+			ItemStack output = crucible.getItem(ArcaneCrucibleBlockEntity.WEAPON_SLOT);
+			helper.assertTrue(output.getCount() == 1
+					&& output.has(PowersDataComponents.CRUCIBLE_WEAPON),
+					"Crucible did not commit exactly one persistent transformed weapon");
+			helper.assertFalse(player.getInventory().contains(stack ->
 					stack.has(PowersDataComponents.CRUCIBLE_WEAPON)),
-					"Crucible did not deliver exactly one transformed weapon");
+					"Crucible duplicated its output across two ownership boundaries");
 			helper.succeed();
 		});
 	}

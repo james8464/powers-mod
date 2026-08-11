@@ -295,6 +295,7 @@ public class TeleportAbility extends Ability {
 			return false;
 		}
 		boolean accepted = TravelChunkLoader.request(caster.getUUID(), targetLevel, BlockPos.containing(target),
+				"teleport_power",
 				() -> beginTeleport(caster, player, dimension, originLevel, targetLevel, target,
 						castSource, companionRadius, STORM_TICKS, TELEPORT_DELAY_TICKS, transaction),
 				() -> {

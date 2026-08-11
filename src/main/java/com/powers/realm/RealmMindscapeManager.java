@@ -62,7 +62,9 @@ public final class RealmMindscapeManager {
 		if (dx * dx + dz * dz <= RealmLayout.TETHER_RADIUS * RealmLayout.TETHER_RADIUS) return;
 		Vec3 from = player.position().add(0, 1, 0);
 		PowerFx.rune(level, from, 1.8, kind == RealmKind.LIGHT ? 0xFFFFFF : 0x2A143D, 20, 0);
-		player.teleportTo(level, RealmLayout.ENTRY_X, level.getMinY() + 1, RealmLayout.ENTRY_Z,
+		player.teleportTo(level, RealmLayout.ENTRY_X,
+				RealmTerrain.arrivalY(level, (int) RealmLayout.ENTRY_X, (int) RealmLayout.ENTRY_Z),
+				RealmLayout.ENTRY_Z,
 				Set.of(), player.getYRot(), player.getXRot(), false);
 		player.sendSystemMessage(Component.translatable("realm.powers.tether"));
 	}
@@ -74,7 +76,8 @@ public final class RealmMindscapeManager {
 			double dz = player.getZ() - (site.z() + 0.5);
 			if (dx * dx + dz * dz > 4.5 * 4.5 || !data.discoverRealmMemory(site.id())) continue;
 			int color = kind == RealmKind.LIGHT ? 0xFFF4C2 : 0x5B2C83;
-			Vec3 center = new Vec3(site.x() + 0.5, level.getMinY() + 2.0, site.z() + 0.5);
+			Vec3 center = new Vec3(site.x() + 0.5,
+					RealmTerrain.arrivalY(level, site.x(), site.z()) + 1.0, site.z() + 0.5);
 			PowerFx.rune(level, center, 3.2, color, 30, 0);
 			PowerFx.spiral(level, center, 1.0, 7.0, color, 28, 0);
 			PowerFx.burst(level, center, kind == RealmKind.LIGHT ? ParticleTypes.END_ROD : ParticleTypes.SOUL,

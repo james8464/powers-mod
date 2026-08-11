@@ -19,7 +19,7 @@ import java.util.Map;
  */
 final class PlayerPowerAttachments {
 	static final AttachmentType<List<String>> POWER_SLOTS = persistentStringList("power_slots");
-	static final AttachmentType<List<String>> ACTIVE_TOGGLES = persistentStringList("active_toggles");
+	static final AttachmentType<List<String>> ACTIVE_TOGGLES = sessionStringList("active_toggles");
 	static final AttachmentType<Integer> ENERGY = persistentInt("energy", PowerEnergy.BASE_MAX);
 	static final AttachmentType<Integer> DARKNESS_ENERGY =
 			persistentInt("darkness_energy", PowerEnergy.darknessMaxCapacity(0));
@@ -53,7 +53,7 @@ final class PlayerPowerAttachments {
 			builder -> builder.persistent(PlayerPowers.AnchorState.CODEC).copyOnDeath());
 	static final AttachmentType<MindBodyState> MIND_BODY = AttachmentRegistry.create(
 			PowersMod.id("mind_body"), builder -> builder.persistent(MindBodyState.CODEC).copyOnDeath());
-	static final AttachmentType<Integer> FLIGHT_SNAPSHOT = persistentInt("flight_snapshot", -1);
+	static final AttachmentType<Integer> FLIGHT_SNAPSHOT = sessionInt("flight_snapshot", -1);
 	static final AttachmentType<Boolean> TELEPORT_CONSENT = persistentBoolean("teleport_consent");
 	static final AttachmentType<Boolean> LOCATOR_CONSENT = persistentBoolean("locator_consent");
 	static final AttachmentType<Boolean> COMPANION_CONSENT = persistentBoolean("companion_consent");
@@ -72,6 +72,11 @@ final class PlayerPowerAttachments {
 				.initializer(ArrayList::new).persistent(Codec.STRING.listOf()).copyOnDeath());
 	}
 
+	/** Registers runtime state that must never survive reconnect or death. */
+	private static AttachmentType<List<String>> sessionStringList(String name) {
+		return AttachmentRegistry.create(PowersMod.id(name), builder -> builder.initializer(ArrayList::new));
+	}
+
 	private static AttachmentType<String> persistentString(String name) {
 		return AttachmentRegistry.create(PowersMod.id(name), builder -> builder
 				.initializer(() -> "").persistent(Codec.STRING).copyOnDeath());
@@ -80,6 +85,11 @@ final class PlayerPowerAttachments {
 	private static AttachmentType<Integer> persistentInt(String name, int initialValue) {
 		return AttachmentRegistry.create(PowersMod.id(name), builder -> builder
 				.initializer(() -> initialValue).persistent(Codec.INT).copyOnDeath());
+	}
+
+	/** Registers a runtime scalar without a codec or death-copy policy. */
+	private static AttachmentType<Integer> sessionInt(String name, int initialValue) {
+		return AttachmentRegistry.create(PowersMod.id(name), builder -> builder.initializer(() -> initialValue));
 	}
 
 	private static AttachmentType<Boolean> persistentBoolean(String name) {

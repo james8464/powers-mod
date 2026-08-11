@@ -6,6 +6,7 @@ import com.powers.force.LivingForceRules;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.protection.PowerProtection;
+import com.powers.util.FairOwnerWorkQueue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -14,14 +15,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.ArrayDeque;
 import java.util.UUID;
 
 /** Bounded queued block conversion used by both artifact ground rites. */
 public final class ArtifactGroundWorkQueue {
 	private static final int MAX_QUEUED = 4_096;
 	private static final int MAX_PER_TICK = 64;
-	private static final ArrayDeque<Work> QUEUE = new ArrayDeque<>();
+	private static final FairOwnerWorkQueue<Work> QUEUE =
+			new FairOwnerWorkQueue<>(MAX_QUEUED, Work::ownerId);
 
 	private record Work(UUID ownerId, ResourceKey<Level> dimension, BlockPos position,
 			ArtifactAlignment alignment) {
@@ -38,17 +39,15 @@ public final class ArtifactGroundWorkQueue {
 				if (dx * dx + dz * dz > radius * radius) continue;
 				BlockPos ground = findGround((ServerLevel) player.level(), origin.offset(dx, 0, dz));
 				if (ground == null) continue;
-				QUEUE.addLast(new Work(player.getUUID(), player.level().dimension(), ground.immutable(),
-						alignment));
-				accepted++;
+				if (QUEUE.offer(new Work(player.getUUID(), player.level().dimension(), ground.immutable(),
+						alignment))) accepted++;
 			}
 		}
 		return accepted;
 	}
 
 	public static void tick(MinecraftServer server) {
-		for (int processed = 0; processed < MAX_PER_TICK && !QUEUE.isEmpty(); processed++) {
-			Work work = QUEUE.removeFirst();
+		for (Work work : QUEUE.pollBatch(MAX_PER_TICK)) {
 			ServerPlayer owner = server.getPlayerList().getPlayer(work.ownerId());
 			ServerLevel level = server.getLevel(work.dimension());
 			if (owner == null || level == null || owner.level() != level
@@ -77,7 +76,11 @@ public final class ArtifactGroundWorkQueue {
 	}
 
 	public static void forget(UUID ownerId) {
-		QUEUE.removeIf(work -> work.ownerId().equals(ownerId));
+		QUEUE.removeOwner(ownerId);
+	}
+
+	public static void forget(UUID ownerId, ArtifactAlignment alignment) {
+		QUEUE.removeOwner(ownerId, work -> work.alignment() == alignment);
 	}
 
 	public static void clear() {

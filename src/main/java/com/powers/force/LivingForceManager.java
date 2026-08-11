@@ -33,6 +33,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -71,18 +72,18 @@ public final class LivingForceManager {
 	/** Registers chunk lifecycle hooks that rebuild and evict the spatial index. */
 	public static void initialize() {
 		ServerChunkEvents.CHUNK_LOAD.register((level, chunk, newlyGenerated) ->
-				chunk.findBlocks(state -> LivingForceKind.from(state) != null,
-						(pos, state) -> registerLoaded(level, pos, LivingForceKind.from(state))));
+				loadFrontier(level, chunk));
 		ServerChunkEvents.CHUNK_UNLOAD.register((level, chunk) ->
 				index(level).removeChunk(chunk.getPos().pack()));
 	}
 
 	static void register(ServerLevel level, BlockPos pos, LivingForceKind kind) {
-		if (kind != null) index(level).add(pos.asLong(), kind);
+		refreshFrontier(level, pos);
 	}
 
 	static void unregister(ServerLevel level, BlockPos pos) {
-		index(level).remove(pos.asLong());
+		refreshFrontier(level, pos);
+		for (Direction direction : Direction.values()) refreshFrontier(level, pos.relative(direction));
 	}
 
 	static void checkForClash(ServerLevel level, BlockPos source, LivingForceKind kind) {
@@ -151,12 +152,23 @@ public final class LivingForceManager {
 	public static Diagnostics diagnostics() {
 		int indexedBlocks = INDEXES.values().stream().mapToInt(LivingForceIndex::size).sum();
 		int clashes = ACTIVE_CLASHES.values().stream().mapToInt(List::size).sum();
+		long queries = INDEXES.values().stream().map(LivingForceIndex::diagnostics)
+				.mapToLong(LivingForceIndex.Diagnostics::queries).sum();
+		long candidates = INDEXES.values().stream().map(LivingForceIndex::diagnostics)
+				.mapToLong(LivingForceIndex.Diagnostics::candidates).sum();
+		long misses = INDEXES.values().stream().map(LivingForceIndex::diagnostics)
+				.mapToLong(LivingForceIndex.Diagnostics::misses).sum();
+		long stale = INDEXES.values().stream().map(LivingForceIndex::diagnostics)
+				.mapToLong(LivingForceIndex.Diagnostics::staleRemovals).sum();
+		long memory = INDEXES.values().stream().map(LivingForceIndex::diagnostics)
+				.mapToLong(LivingForceIndex.Diagnostics::estimatedBytes).sum();
 		return new Diagnostics(indexedBlocks, clashes, MAX_AURA_CANDIDATES_PER_LEVEL,
-				MAX_AURA_CANDIDATES_PER_PLAYER);
+				MAX_AURA_CANDIDATES_PER_PLAYER, queries, candidates, misses, stale, memory);
 	}
 
 	public record Diagnostics(int indexedBlocks, int activeClashes,
-			int auraCandidatesPerLevel, int auraCandidatesPerPlayer) {
+			int auraCandidatesPerLevel, int auraCandidatesPerPlayer, long queries,
+			long candidates, long misses, long staleRemovals, long estimatedBytes) {
 	}
 
 	/** Bounded loaded-only proximity query used by invasions and ceremonies. */
@@ -166,8 +178,81 @@ public final class LivingForceManager {
 	}
 
 	private static void registerLoaded(ServerLevel level, BlockPos pos, LivingForceKind kind) {
-		register(level, pos, kind);
+		if (kind != null) index(level).add(pos.asLong(), kind);
 		if (kind != null) checkForClash(level, pos, kind);
+	}
+
+	private static void loadFrontier(ServerLevel level, LevelChunk chunk) {
+		LivingForceFrontierSavedData saved = frontierData(level.getServer());
+		String dimension = dimensionId(level);
+		long chunkKey = chunk.getPos().pack();
+		if (saved.hasChunk(dimension, chunkKey)) {
+			Map<Long, LivingForceKind> repaired = new java.util.LinkedHashMap<>();
+			for (Map.Entry<Long, LivingForceKind> entry : saved.frontier(dimension, chunkKey).entrySet()) {
+				BlockPos position = BlockPos.of(entry.getKey());
+				LivingForceKind actual = LivingForceKind.from(level.getBlockState(position));
+				if (actual == null || !isFrontier(level, position, actual)) continue;
+				repaired.put(entry.getKey(), actual);
+				registerLoaded(level, position, actual);
+			}
+			saved.replaceChunk(dimension, chunkKey, repaired);
+			return;
+		}
+		Map<Long, LivingForceKind> discovered = new java.util.LinkedHashMap<>();
+		chunk.findBlocks(state -> LivingForceKind.from(state) != null, (position, state) -> {
+			LivingForceKind kind = LivingForceKind.from(state);
+			if (kind == null || !isFrontier(level, position, kind)) return;
+			discovered.put(position.asLong(), kind);
+			registerLoaded(level, position, kind);
+		});
+		saved.replaceChunk(dimension, chunkKey, discovered);
+	}
+
+	private static void refreshFrontier(ServerLevel level, BlockPos position) {
+		if (!LoadedChunks.contains(level, position)) return;
+		LivingForceKind kind = LivingForceKind.from(level.getBlockState(position));
+		boolean frontier = kind != null && isFrontier(level, position, kind);
+		if (frontier) index(level).add(position.asLong(), kind);
+		else index(level).remove(position.asLong());
+		LivingForceFrontierSavedData saved = frontierData(level.getServer());
+		saved.update(dimensionId(level),
+				net.minecraft.world.level.ChunkPos.pack(position.getX() >> 4, position.getZ() >> 4),
+				position.asLong(), frontier ? kind : null);
+		if (frontier) {
+			for (Direction direction : Direction.values()) {
+				BlockPos neighbor = position.relative(direction);
+				if (LoadedChunks.contains(level, neighbor)) refreshNeighbor(level, neighbor, saved);
+			}
+		}
+	}
+
+	private static void refreshNeighbor(ServerLevel level, BlockPos position,
+			LivingForceFrontierSavedData saved) {
+		LivingForceKind kind = LivingForceKind.from(level.getBlockState(position));
+		if (kind == null) return;
+		boolean frontier = isFrontier(level, position, kind);
+		if (frontier) index(level).add(position.asLong(), kind);
+		else index(level).remove(position.asLong());
+		saved.update(dimensionId(level),
+				net.minecraft.world.level.ChunkPos.pack(position.getX() >> 4, position.getZ() >> 4),
+				position.asLong(), frontier ? kind : null);
+	}
+
+	private static boolean isFrontier(ServerLevel level, BlockPos position, LivingForceKind kind) {
+		for (Direction direction : Direction.values()) {
+			BlockPos neighbor = position.relative(direction);
+			if (!LoadedChunks.contains(level, neighbor)
+					|| LivingForceKind.from(level.getBlockState(neighbor)) != kind) return true;
+		}
+		return false;
+	}
+
+	private static LivingForceFrontierSavedData frontierData(MinecraftServer server) {
+		return server.overworld().getDataStorage().computeIfAbsent(LivingForceFrontierSavedData.TYPE);
+	}
+
+	private static String dimensionId(ServerLevel level) {
+		return level.dimension().identifier().toString();
 	}
 
 	private static void requestClash(ServerLevel level, BlockPos center) {
@@ -248,7 +333,7 @@ public final class LivingForceManager {
 			BlockPos pos = BlockPos.of(packed);
 			if (!LoadedChunks.contains(level, pos)) continue;
 			if (level.getBlockState(pos).is(kind.block())) return true;
-			index.remove(packed);
+			index.removeStale(packed);
 		}
 		return false;
 	}

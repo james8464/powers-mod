@@ -59,11 +59,13 @@ public final class RealmConfinementManager {
 		ServerLevel realm = server.getLevel(realmKey);
 		ServerPlayer player = server.getPlayerList().getPlayer(playerId);
 		if (realm == null || player == null) return;
-		BlockPos entry = BlockPos.containing(RealmLayout.ENTRY_X, realm.getMinY() + 1, RealmLayout.ENTRY_Z);
-		TravelChunkLoader.request(playerId, realm, entry, () -> {
+		BlockPos entry = BlockPos.containing(RealmLayout.ENTRY_X,
+				RealmTerrain.provisionalArrivalY(realm), RealmLayout.ENTRY_Z);
+		TravelChunkLoader.request(playerId, realm, entry, "realm_confinement", () -> {
 			ServerPlayer captive = server.getPlayerList().getPlayer(playerId);
 			if (captive == null) return;
-			captive.teleportTo(realm, RealmLayout.ENTRY_X, realm.getMinY() + 1,
+			captive.teleportTo(realm, RealmLayout.ENTRY_X,
+					RealmTerrain.arrivalY(realm, (int) RealmLayout.ENTRY_X, (int) RealmLayout.ENTRY_Z),
 					RealmLayout.ENTRY_Z, Set.of(), captive.getYRot(), captive.getXRot(), false);
 			PowerFx.rune(realm, captive.position(), 2.0,
 					realmId.equals(PowersMod.id("dark_realm")) ? 0x2A143D : 0xFFFFFF, 28, Math.PI);

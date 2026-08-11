@@ -11,16 +11,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 
 /** Server-thread payment and presentation for Empyrean Jewel consent overrides. */
 public final class ConsentOverrideRuntime {
-	private record Payment(UUID caster, UUID target, ConsentKind kind) { }
-
-	private static final Set<Payment> PAID_THIS_TICK = new HashSet<>();
-	private static long paymentTick = Long.MIN_VALUE;
+	private static final ConsentPaymentLedger PAYMENTS = new ConsentPaymentLedger();
 
 	private ConsentOverrideRuntime() {
 	}
@@ -32,12 +26,12 @@ public final class ConsentOverrideRuntime {
 				(ServerLevel) target.level(), target.position());
 		boolean hasJewel = carriesEmpyreanJewel(caster);
 		long tick = caster.level().getServer().getTickCount();
-		resetLedgerAt(tick);
-		Payment payment = new Payment(caster.getUUID(), target.getUUID(), kind);
-		boolean alreadyPaid = PAID_THIS_TICK.contains(payment);
+		boolean alreadyPaid = !PAYMENTS.requiresPayment(
+				tick, caster.getUUID(), target.getUUID(), kind);
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(caster);
 		boolean enoughEnergy = alreadyPaid || TestingOverrides.energyDisabled(caster.getUUID())
-				|| data.energy() >= ConsentOverrideRules.OVERRIDE_ENERGY_SURCHARGE;
+				|| (long) data.energy() + com.powers.item.ArtifactEnergyReservoir.totalStored(caster)
+				>= ConsentOverrideRules.OVERRIDE_ENERGY_SURCHARGE;
 		ConsentOverrideRules.Decision decision = ConsentOverrideRules.decide(
 				self, safeZone, ordinaryConsent, hasJewel, enoughEnergy);
 		if (decision == ConsentOverrideRules.Decision.ALLOW_FREE) return true;
@@ -49,7 +43,7 @@ public final class ConsentOverrideRuntime {
 		}
 		if (alreadyPaid) return true;
 		if (!data.consumeEnergy(ConsentOverrideRules.OVERRIDE_ENERGY_SURCHARGE)) return false;
-		PAID_THIS_TICK.add(payment);
+		PAYMENTS.recordPayment(tick, caster.getUUID(), target.getUUID(), kind);
 		PowersPackets.syncTo(caster);
 		ServerLevel level = (ServerLevel) caster.level();
 		PowerFx.clash(level, caster.getEyePosition(), target.getEyePosition(), 0x7D3FB2, 0xE8C96A);
@@ -69,13 +63,6 @@ public final class ConsentOverrideRuntime {
 	}
 
 	public static void clear() {
-		PAID_THIS_TICK.clear();
-		paymentTick = Long.MIN_VALUE;
-	}
-
-	private static void resetLedgerAt(long tick) {
-		if (paymentTick == tick) return;
-		PAID_THIS_TICK.clear();
-		paymentTick = tick;
+		PAYMENTS.clear();
 	}
 }

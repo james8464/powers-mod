@@ -32,4 +32,21 @@ class AmethystWardIndexTest {
 		assertTrue(index.nearby(ward, 64).isEmpty());
 		assertEquals(0, index.size());
 	}
+
+	@Test
+	void diagnosticsExposeCandidatesMissesAndStaleRemovals() {
+		AmethystWardIndex index = new AmethystWardIndex();
+		BlockPos ward = new BlockPos(1, 64, 1);
+		index.add(ward);
+		assertEquals(1, index.nearby(ward, 8).size());
+		assertTrue(index.nearby(new BlockPos(500, 64, 500), 8).isEmpty());
+		index.removeStale(ward);
+
+		var diagnostics = index.diagnostics();
+		assertEquals(2, diagnostics.queries());
+		assertEquals(1, diagnostics.candidates());
+		assertEquals(1, diagnostics.misses());
+		assertEquals(1, diagnostics.staleRemovals());
+		assertTrue(diagnostics.estimatedBytes() >= 0);
+	}
 }

@@ -7,6 +7,7 @@
 		"FoodConsumeMixin",
 		"ItemEntityMixin",
 		"LargeFireballMixin",
+		"LevelBlockChangeMixin",
 		"MobMixin",
 		"PlayerRankDisplayMixin",
 		"PossessedPlayerInputMixin",

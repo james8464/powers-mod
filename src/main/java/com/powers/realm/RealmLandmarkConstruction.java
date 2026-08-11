@@ -29,11 +29,11 @@ public final class RealmLandmarkConstruction {
 				TASKS.remove(key);
 				continue;
 			}
-			BlockPos center = new BlockPos(site.x(), level.getMinY() + 1, site.z());
+			BlockPos center = new BlockPos(site.x(), RealmTerrain.provisionalArrivalY(level), site.z());
 			if (!LoadedChunks.contains(level, center)) continue;
 			TASKS.computeIfAbsent(key, ignored -> {
 				List<RealmBlockPlacement> blueprint = RealmLandmarkBlueprint.create(
-						kind, site, level.getMinY());
+						kind, site, RealmTerrain.floorY(level, site.x(), site.z()));
 				return new Task(dimension, site.id(), blueprint,
 						new RealmConstructionCursor(blueprint.size()));
 			});

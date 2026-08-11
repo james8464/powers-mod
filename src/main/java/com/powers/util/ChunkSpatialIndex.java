@@ -28,6 +28,15 @@ public final class ChunkSpatialIndex<K, V> {
 	private final Map<K, Entry<V>> entries = new LinkedHashMap<>();
 	private final Map<Cell, Set<K>> cells = new HashMap<>();
 	private final Map<K, Set<Cell>> memberships = new HashMap<>();
+	private long queries;
+	private long candidates;
+	private long misses;
+	private long staleRemovals;
+
+	/** Bounded operational counters; memory is an intentionally conservative estimate. */
+	public record Diagnostics(long queries, long candidates, long misses, long staleRemovals,
+			int entries, int cells, int memberships, long estimatedBytes) {
+	}
 
 	public ChunkSpatialIndex(int cellSize) {
 		if (cellSize < 1 || cellSize > 128) {
@@ -60,6 +69,8 @@ public final class ChunkSpatialIndex<K, V> {
 		for (Cell cell : cellsFor(dimension, x, z, radius)) {
 			candidates.addAll(cells.getOrDefault(cell, Set.of()));
 		}
+		queries++;
+		this.candidates += candidates.size();
 		List<V> result = new ArrayList<>();
 		for (K key : candidates) {
 			Entry<V> entry = entries.get(key);
@@ -69,6 +80,7 @@ public final class ChunkSpatialIndex<K, V> {
 			double dz = z - entry.z();
 			if (dx * dx + dz * dz <= combined * combined) result.add(entry.value());
 		}
+		if (result.isEmpty()) misses++;
 		return List.copyOf(result);
 	}
 
@@ -88,10 +100,21 @@ public final class ChunkSpatialIndex<K, V> {
 		return true;
 	}
 
+	/** Removes an entry rejected by authoritative world state and records the repair. */
+	public boolean removeStale(K key) {
+		boolean removed = remove(key);
+		if (removed) staleRemovals++;
+		return removed;
+	}
+
 	public void clear() {
 		entries.clear();
 		cells.clear();
 		memberships.clear();
+		queries = 0L;
+		candidates = 0L;
+		misses = 0L;
+		staleRemovals = 0L;
 	}
 
 	public int size() {
@@ -100,6 +123,14 @@ public final class ChunkSpatialIndex<K, V> {
 
 	public int cellCount() {
 		return cells.size();
+	}
+
+	public Diagnostics diagnostics() {
+		long membershipCount = memberships.values().stream().mapToLong(Set::size).sum();
+		long estimatedBytes = entries.size() * 96L + cells.size() * 80L
+				+ memberships.size() * 48L + membershipCount * 24L;
+		return new Diagnostics(queries, candidates, misses, staleRemovals,
+				entries.size(), cells.size(), memberships.size(), estimatedBytes);
 	}
 
 	private Set<Cell> cellsFor(String dimension, double x, double z, double radius) {

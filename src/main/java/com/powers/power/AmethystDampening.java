@@ -48,7 +48,6 @@ import java.util.Optional;
 public final class AmethystDampening {
 	// how close amethyst blocks need to be to suppress powers
 	private static final int RADIUS = 6;
-	private static final int BLOCK_SCAN_CACHE_TICKS = 10;
 	private static final int MAX_SUPPRESSED_WARDS_PER_DIMENSION = 4_096;
 	private static final int MAX_SUPPRESSION_TICKS = 72_000;
 
@@ -64,7 +63,7 @@ public final class AmethystDampening {
 	// than a brute-force sweep of the volume around each player
 	private static final Map<ResourceKey<Level>, AmethystWardIndex> POWERED_WARDS = new HashMap<>();
 	private static final Map<ResourceKey<Level>, Map<BlockPos, Long>> SUPPRESSED_WARDS = new HashMap<>();
-	private static final AmethystScanCache BLOCK_SCAN_CACHE = new AmethystScanCache();
+	private static final NaturalAmethystIndex NATURAL_AMETHYST = new NaturalAmethystIndex();
 
 	private AmethystDampening() {
 	}
@@ -78,7 +77,7 @@ public final class AmethystDampening {
 	public static boolean update(LivingEntity entity) {
 		if (!(entity.level() instanceof ServerLevel level)) return false;
 		boolean dampened = entity instanceof ServerPlayer player && hasAmethystItem(player)
-				|| nearAmethystCached(entity, level, entity.blockPosition())
+				|| NATURAL_AMETHYST.nearby(level, entity.blockPosition(), RADIUS)
 				|| findPoweredWard(level, entity.blockPosition()).isPresent();
 		if (dampened) {
 			// 30 ticks is plenty because this effect gets refreshed on every update
@@ -112,15 +111,7 @@ public final class AmethystDampening {
 		POWERED_WARDS.values().forEach(AmethystWardIndex::clear);
 		POWERED_WARDS.clear();
 		SUPPRESSED_WARDS.clear();
-		BLOCK_SCAN_CACHE.clear();
-	}
-
-	public static void forget(ServerPlayer player) {
-		forget((LivingEntity) player);
-	}
-
-	public static void forget(LivingEntity entity) {
-		if (entity != null) BLOCK_SCAN_CACHE.remove(entity.getUUID());
+		NATURAL_AMETHYST.clear();
 	}
 
 	/** A completed ward-breaking ritual grounds one powered ward temporarily. */
@@ -160,7 +151,7 @@ public final class AmethystDampening {
 			if (LoadedChunks.contains(level, pos)) {
 				BlockState state = level.getBlockState(pos);
 				if (!state.is(PowersBlocks.AMETHYST_WARD) || !AmethystWardBlock.isPowered(state)) {
-					wards.remove(pos);
+					wards.removeStale(pos);
 					continue;
 				}
 			}
@@ -177,8 +168,43 @@ public final class AmethystDampening {
 	/** Location-only suppression used by non-player tactical entities and rituals. */
 	public static boolean isDampenedAt(ServerLevel level, BlockPos position) {
 		return level != null && position != null
-				&& (nearAmethyst(level, position) || findPoweredWard(level, position).isPresent());
+				&& (NATURAL_AMETHYST.nearby(level, position, RADIUS)
+				|| findPoweredWard(level, position).isPresent());
 	}
+
+	/** Narrow block-change hook used only to maintain already materialized section indexes. */
+	public static void blockChanged(ServerLevel level, BlockPos position, BlockState state) {
+		NATURAL_AMETHYST.blockChanged(level, position, state);
+	}
+
+	/** Chunk lifecycle invalidation prevents stale natural-amethyst entries after external rewrites. */
+	public static void invalidateChunk(ServerLevel level, net.minecraft.world.level.ChunkPos chunk) {
+		NATURAL_AMETHYST.invalidateChunk(level, chunk);
+	}
+
+	public static NaturalAmethystIndex.Diagnostics naturalIndexDiagnostics() {
+		return NATURAL_AMETHYST.diagnostics();
+	}
+
+	/** Combined per-dimension ward counters for operator diagnostics. */
+	public static WardDiagnostics wardIndexDiagnostics() {
+		long queries = 0L, candidates = 0L, misses = 0L, stale = 0L, memory = 0L;
+		int entries = 0, chunks = 0;
+		for (AmethystWardIndex index : POWERED_WARDS.values()) {
+			AmethystWardIndex.Diagnostics value = index.diagnostics();
+			queries += value.queries();
+			candidates += value.candidates();
+			misses += value.misses();
+			stale += value.staleRemovals();
+			entries += value.entries();
+			chunks += value.chunks();
+			memory += value.estimatedBytes();
+		}
+		return new WardDiagnostics(queries, candidates, misses, stale, entries, chunks, memory);
+	}
+
+	public record WardDiagnostics(long queries, long candidates, long misses, long staleRemovals,
+			int entries, int chunks, long estimatedBytes) { }
 
 	/**
 	 * The sting for using powers while suppressed: 2.5 magic damage,
@@ -223,33 +249,4 @@ public final class AmethystDampening {
 		return !stack.isEmpty() && stack.is(AMETHYST_ITEMS);
 	}
 
-	// sweeps the cube around the player for a tagged amethyst block. still a
-	// volume scan, but a 13-cube of tag checks rather than a 41-cube of string
-	// comparisons, and it bails the moment it finds one
-	private static boolean nearAmethyst(ServerLevel level, BlockPos center) {
-		BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-		for (int dy = -RADIUS; dy <= RADIUS; dy++) {
-			for (int dx = -RADIUS; dx <= RADIUS; dx++) {
-				for (int dz = -RADIUS; dz <= RADIUS; dz++) {
-					cursor.set(center.getX() + dx, center.getY() + dy, center.getZ() + dz);
-					// skip unloaded chunks rather than forcing them to load
-					if (!LoadedChunks.contains(level, cursor)) continue;
-					if (level.getBlockState(cursor).is(AMETHYST_BLOCKS)) return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	private static boolean nearAmethystCached(LivingEntity entity, ServerLevel level, BlockPos center) {
-		String dimension = level.dimension().identifier().toString();
-		long now = level.getGameTime();
-		Boolean cached = BLOCK_SCAN_CACHE.get(entity.getUUID(), dimension,
-				center.getX(), center.getY(), center.getZ(), now);
-		if (cached != null) return cached;
-		boolean result = nearAmethyst(level, center);
-		BLOCK_SCAN_CACHE.put(entity.getUUID(), dimension, center.getX(), center.getY(), center.getZ(),
-				now + BLOCK_SCAN_CACHE_TICKS, result);
-		return result;
-	}
 }

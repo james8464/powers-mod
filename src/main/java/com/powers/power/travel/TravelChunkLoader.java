@@ -21,8 +21,11 @@ public final class TravelChunkLoader {
 	public static final int MAX_FOLLOWUP_TICKS = 60;
 	public static final Budget DEFAULT_BUDGET = new Budget(80, 200);
 	private static final int TICKET_RADIUS = 1;
+	private static final int MAX_ACTIVE_TICKETS = 64;
+	private static final int MAX_ACTIVE_PER_DIMENSION = 24;
 	private static final Map<UUID, Pending> PENDING = new HashMap<>();
 	private static final Map<UUID, Lease> READY_LEASES = new HashMap<>();
+	private static String lastRefusal = "none";
 
 	/* Keep Minecraft's bootstrapped TicketType lazy so pure policy tests can load this utility safely. */
 	private static final class TicketHolder {
@@ -64,26 +67,34 @@ public final class TravelChunkLoader {
 		private final BlockPos destination;
 		private final ChunkPos chunk;
 		private final long startedAt;
+		private final String reason;
 		private final Runnable ready;
 		private final Runnable failed;
 		private final RequestState state = new RequestState();
 		private ScheduledTaskQueue.TaskToken timeoutToken;
 
 		private Pending(UUID owner, ServerLevel level, BlockPos destination,
-				long startedAt, Runnable ready, Runnable failed) {
+				long startedAt, String reason, Runnable ready, Runnable failed) {
 			this.owner = owner;
 			this.level = level;
 			this.destination = destination.immutable();
 			this.chunk = ChunkPos.containing(destination);
 			this.startedAt = startedAt;
+			this.reason = reason;
 			this.ready = ready;
 			this.failed = failed;
 		}
 	}
 
-	private record Lease(UUID owner, ServerLevel level, ChunkPos chunk,
-			ScheduledTaskQueue.TaskToken releaseToken) {
+	private record Lease(UUID owner, ServerLevel level, ChunkPos chunk, String reason,
+			long deadline, ScheduledTaskQueue.TaskToken releaseToken) {
 	}
+
+	public record TicketDiagnostic(UUID owner, String dimension, String reason,
+			long deadline, String state) { }
+
+	public record Diagnostics(int active, int limit, int perDimensionLimit,
+			String lastRefusal, java.util.List<TicketDiagnostic> tickets) { }
 
 	private TravelChunkLoader() {
 	}
@@ -91,6 +102,12 @@ public final class TravelChunkLoader {
 	/** Starts or replaces the sole pending destination load owned by a player UUID. */
 	public static boolean request(UUID owner, ServerLevel level, BlockPos destination,
 			Runnable ready, Runnable timedOut) {
+		return request(owner, level, destination, "travel", ready, timedOut);
+	}
+
+	/** Starts a bounded request with an operator-visible, non-sensitive reason. */
+	public static boolean request(UUID owner, ServerLevel level, BlockPos destination,
+			String reason, Runnable ready, Runnable timedOut) {
 		Objects.requireNonNull(owner, "owner");
 		Objects.requireNonNull(level, "level");
 		Objects.requireNonNull(destination, "destination");
@@ -98,10 +115,20 @@ public final class TravelChunkLoader {
 		Objects.requireNonNull(timedOut, "timedOut");
 		MinecraftServer server = level.getServer();
 		if (server == null) return false;
+		boolean replacing = PENDING.containsKey(owner) || READY_LEASES.containsKey(owner);
+		int active = pendingRequestCount();
+		int inDimension = activeInDimension(level);
+		if (!mayAdmit(active, inDimension, replacing)) {
+			lastRefusal = "backpressure owner=" + owner + "; dimension="
+					+ level.dimension().identifier() + "; reason=" + safeReason(reason);
+			timedOut.run();
+			return false;
+		}
 		releaseLease(owner);
 		Pending previous = PENDING.get(owner);
 		if (previous != null) settle(previous, Resolution.REPLACED);
-		Pending pending = new Pending(owner, level, destination, server.getTickCount(), ready, timedOut);
+		Pending pending = new Pending(owner, level, destination, server.getTickCount(),
+				safeReason(reason), ready, timedOut);
 		PENDING.put(owner, pending);
 		pending.timeoutToken = PowersMod.scheduleDelayed(server, DEFAULT_BUDGET.waitTicks() + 1,
 				() -> settle(pending, Resolution.TIMEOUT));
@@ -138,11 +165,37 @@ public final class TravelChunkLoader {
 		PENDING.clear();
 		for (UUID owner : new ArrayList<>(READY_LEASES.keySet())) releaseLease(owner);
 		READY_LEASES.clear();
+		lastRefusal = "none";
 	}
 
 	/** Number of bounded, temporary destination-loading tickets. */
 	public static int pendingRequestCount() {
 		return PENDING.size() + READY_LEASES.size();
+	}
+
+	static boolean mayAdmit(int active, int inDimension, boolean replacing) {
+		return replacing || active < MAX_ACTIVE_TICKETS && inDimension < MAX_ACTIVE_PER_DIMENSION;
+	}
+
+	static String safeReason(String reason) {
+		String safe = reason == null ? "" : reason.codePoints()
+				.filter(codePoint -> !Character.isISOControl(codePoint))
+				.limit(48).collect(StringBuilder::new, StringBuilder::appendCodePoint,
+						StringBuilder::append).toString().trim();
+		return safe.isEmpty() ? "unknown" : safe;
+	}
+
+	/** Exact owner/reason/deadline snapshot for {@code /powers diagnose}. */
+	public static Diagnostics diagnostics() {
+		java.util.List<TicketDiagnostic> tickets = new java.util.ArrayList<>();
+		for (Pending pending : PENDING.values()) tickets.add(new TicketDiagnostic(pending.owner,
+				pending.level.dimension().identifier().toString(), pending.reason,
+				pending.startedAt + DEFAULT_BUDGET.waitTicks(), "loading"));
+		for (Lease lease : READY_LEASES.values()) tickets.add(new TicketDiagnostic(lease.owner(),
+				lease.level().dimension().identifier().toString(), lease.reason(), lease.deadline(), "ready"));
+		tickets.sort(java.util.Comparator.comparing(value -> value.owner().toString()));
+		return new Diagnostics(tickets.size(), MAX_ACTIVE_TICKETS, MAX_ACTIVE_PER_DIMENSION,
+				lastRefusal, java.util.List.copyOf(tickets));
 	}
 
 	/** Ready destinations retain their ticket while delayed storms and body creation finish. */
@@ -160,7 +213,8 @@ public final class TravelChunkLoader {
 					pending.level.getServer(), delay, () -> releaseLease(pending.owner));
 			if (token.accepted()) {
 				READY_LEASES.put(pending.owner,
-						new Lease(pending.owner, pending.level, pending.chunk, token));
+						new Lease(pending.owner, pending.level, pending.chunk, pending.reason,
+								pending.level.getServer().getTickCount() + delay, token));
 			} else {
 				removeTicket(pending.level, pending.chunk);
 			}
@@ -181,5 +235,12 @@ public final class TravelChunkLoader {
 
 	private static void removeTicket(ServerLevel level, ChunkPos chunk) {
 		level.getChunkSource().removeTicketWithRadius(TicketHolder.TRAVEL, chunk, TICKET_RADIUS);
+	}
+
+	private static int activeInDimension(ServerLevel level) {
+		int count = 0;
+		for (Pending pending : PENDING.values()) if (pending.level == level) count++;
+		for (Lease lease : READY_LEASES.values()) if (lease.level() == level) count++;
+		return count;
 	}
 }

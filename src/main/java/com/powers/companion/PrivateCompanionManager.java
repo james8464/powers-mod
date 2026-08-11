@@ -414,7 +414,6 @@ public final class PrivateCompanionManager {
 			ShadowPowerRuntime.clearOwner(owner, removed.body);
 			BODY_OWNERS.remove(removed.body.getUUID());
 			ShadowCombatController.clearBody(removed.body.getUUID());
-			com.powers.power.AmethystDampening.forget(removed.body);
 			ShadowCompanionStore.update(owner, state -> state.withEnergy(removed.body.energy())
 					.withRevealed(false).withoutBody());
 			if (!removed.body.isRemoved()) removed.body.discard();
