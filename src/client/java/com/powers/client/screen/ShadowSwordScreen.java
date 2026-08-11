@@ -5,6 +5,7 @@ import com.powers.item.artifact.ArtifactActionDefinition;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.artifact.ArtifactWheelRules;
 import com.powers.network.ShadowSwordPackets;
+import com.powers.power.abilities.SizeMorphRules;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -20,6 +21,7 @@ public final class ShadowSwordScreen extends Screen {
 	private final ArtifactMenuState state;
 	private List<String> favourites;
 	private int hovered = ArtifactWheelRules.NONE;
+	private int openTicks;
 
 	public ShadowSwordScreen(String alignment, String initialKey, int rank,
 			int sizeMorphOption, int energy,
@@ -38,6 +40,11 @@ public final class ShadowSwordScreen extends Screen {
 	@Override
 	public boolean isPauseScreen() {
 		return false;
+	}
+
+	@Override
+	public void tick() {
+		openTicks++;
 	}
 
 	@Override
@@ -123,12 +130,40 @@ public final class ShadowSwordScreen extends Screen {
 					glyphX, glyphY, color);
 			graphics.text(font, Integer.toString(slot + 1), glyphX - 14, glyphY - 13,
 					slot == hovered ? 0xFFFFFFFF : 0xFFAAA3B2, true);
+			if (action != null) drawLiveStatus(graphics, action, glyphX, glyphY);
 		}
 		int centerColor = hovered == ArtifactWheelRules.CENTER ? 0xE04B3A58 : 0xD01A1621;
 		AbilityGlyphRenderer.diamond(graphics, centerX, centerY, 22, centerColor);
 		AbilityGlyphRenderer.diamond(graphics, centerX, centerY, 19, 0xEE0D0B11);
 		graphics.centeredText(font, Component.translatable("screen.powers.artifact.wheel.catalogue"),
 				centerX, centerY - 4, hovered == ArtifactWheelRules.CENTER ? 0xFFFFFFFF : accent());
+	}
+
+	private void drawLiveStatus(GuiGraphicsExtractor graphics, ArtifactActionDefinition action,
+			int glyphX, int glyphY) {
+		ArtifactWheelRules.SegmentStatus status = ArtifactWheelRules.segmentStatus(
+				state.cost(action), ArtifactWheelRules.remainingCooldown(state.cooldown(action), openTicks),
+				state.cooldownMaximum(action),
+				state.active(action), state.locked(action), state.variant(action));
+		String name = font.plainSubstrByWidth(state.actionName(action).getString(), 36);
+		graphics.centeredText(font, name, glyphX, glyphY + 9,
+				status.locked() ? 0xFF77727C : 0xFFE8E2EC);
+		String variant = status.variant() >= 0 && SizeMorphRules.isValidOption(status.variant())
+				? " " + SizeMorphRules.scale(status.variant()) + "×" : "";
+		graphics.centeredText(font, status.cost() + "E" + variant, glyphX, glyphY + 18,
+				status.locked() ? 0xFF77727C : 0xFFBDB5C7);
+		int barLeft = glyphX - 12;
+		graphics.fill(barLeft, glyphY + 27, barLeft + 24, glyphY + 29, 0xB0201A26);
+		if (status.cooldownPips() > 0) {
+			graphics.fill(barLeft, glyphY + 27, barLeft + status.cooldownPips() * 3,
+					glyphY + 29, 0xFFE08A6A);
+		}
+		if (status.active()) {
+			graphics.text(font, "◆", glyphX + 10, glyphY - 14, 0xFF7CFFB2, true);
+		}
+		if (status.locked()) {
+			graphics.text(font, "×", glyphX - 3, glyphY - 4, 0xFFFF7777, true);
+		}
 	}
 
 	private void drawSegment(GuiGraphicsExtractor graphics, int centerX, int centerY,

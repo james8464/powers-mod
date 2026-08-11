@@ -1,5 +1,6 @@
 package com.powers.item.artifact;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
@@ -21,6 +22,30 @@ public final class ArtifactCatalogueRules {
 						|| normalize(action.abilityId()).contains(needle)
 						|| normalize(labelProvider.apply(action)).contains(needle))
 				.toList();
+	}
+
+	/** Filters the four player-facing tabs, preserving the player's order for favourites. */
+	public static List<ArtifactActionDefinition> filter(List<ArtifactActionDefinition> actions,
+			ArtifactCatalogueTab tab, List<String> favourites, String query,
+			Function<ArtifactActionDefinition, String> labelProvider) {
+		if (actions == null || tab == null || labelProvider == null) return List.of();
+		List<String> safeFavourites = favourites == null ? List.of() : favourites;
+		String needle = normalize(query);
+		List<ArtifactActionDefinition> filtered = actions.stream()
+				.filter(action -> switch (tab) {
+					case FAVOURITES -> safeFavourites.contains(action.key());
+					case INNATE -> action.category() == ArtifactActionCategory.ROUTED_POWER;
+					case CRYSTALS -> action.category() == ArtifactActionCategory.ROUTED_CRYSTAL;
+					case SWORD -> action.category() == ArtifactActionCategory.DOMINION;
+				})
+				.filter(action -> needle.isEmpty()
+						|| normalize(action.key()).contains(needle)
+						|| normalize(action.abilityId()).contains(needle)
+						|| normalize(labelProvider.apply(action)).contains(needle))
+				.toList();
+		return tab == ArtifactCatalogueTab.FAVOURITES ? filtered.stream()
+				.sorted(Comparator.comparingInt(action -> safeFavourites.indexOf(action.key())))
+				.toList() : filtered;
 	}
 
 	public static Layout layout(int screenWidth, int screenHeight) {

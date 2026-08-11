@@ -1,10 +1,10 @@
 package com.powers.client.screen;
 
 import com.powers.client.AbilityGlyphRenderer;
-import com.powers.item.artifact.ArtifactActionCategory;
 import com.powers.item.artifact.ArtifactActionDefinition;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.artifact.ArtifactCatalogueRules;
+import com.powers.item.artifact.ArtifactCatalogueTab;
 import com.powers.item.artifact.ArtifactFavouriteRules;
 import com.powers.network.ShadowSwordPackets;
 import com.powers.power.abilities.SizeMorphRules;
@@ -18,6 +18,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.IntStream;
 
 /** Responsive searchable catalogue and eight-slot quick-wheel editor. */
@@ -26,7 +27,7 @@ public final class ArtifactCatalogueScreen extends Screen {
 	private ArtifactCatalogueRules.Layout layout;
 	private List<String> favourites;
 	private ArtifactActionDefinition selected;
-	private ArtifactActionCategory category;
+	private ArtifactCatalogueTab tab = ArtifactCatalogueTab.FAVOURITES;
 	private EditBox searchBox;
 	private String query = "";
 	private int page;
@@ -67,12 +68,11 @@ public final class ArtifactCatalogueScreen extends Screen {
 
 		int tabY = top + 47;
 		int tabWidth = (layout.panelWidth() - 16 - 9) / 4;
-		addTab(null, left + 8, tabY, tabWidth,
-				Component.translatable("screen.powers.artifact.catalogue.tab.all"));
-		for (int index = 0; index < ArtifactActionCategory.values().length; index++) {
-			ArtifactActionCategory value = ArtifactActionCategory.values()[index];
-			addTab(value, left + 8 + (index + 1) * (tabWidth + 3), tabY, tabWidth,
-					ArtifactMenuState.sourceName(value));
+		for (int index = 0; index < ArtifactCatalogueTab.values().length; index++) {
+			ArtifactCatalogueTab value = ArtifactCatalogueTab.values()[index];
+			addTab(value, left + 8 + index * (tabWidth + 3), tabY, tabWidth,
+					Component.translatable("screen.powers.artifact.catalogue.tab."
+							+ value.name().toLowerCase(Locale.ROOT)));
 		}
 
 		List<ArtifactActionDefinition> filtered = filtered();
@@ -124,13 +124,13 @@ public final class ArtifactCatalogueScreen extends Screen {
 		}
 	}
 
-	private void addTab(ArtifactActionCategory value, int x, int y, int width, Component label) {
+	private void addTab(ArtifactCatalogueTab value, int x, int y, int width, Component label) {
 		Button button = addRenderableWidget(Button.builder(label, ignored -> {
-			category = value;
+			tab = value;
 			page = 0;
 			rebuildWidgets();
 		}).bounds(x, y, width, 18).build());
-		button.active = value != category;
+		button.active = value != tab;
 	}
 
 	private void addSelectionControls(int left, int y) {
@@ -150,7 +150,7 @@ public final class ArtifactCatalogueScreen extends Screen {
 	}
 
 	private List<ArtifactActionDefinition> filtered() {
-		return ArtifactCatalogueRules.filter(state.actions(), category, query,
+		return ArtifactCatalogueRules.filter(state.actions(), tab, favourites, query,
 				action -> state.actionName(action).getString());
 	}
 

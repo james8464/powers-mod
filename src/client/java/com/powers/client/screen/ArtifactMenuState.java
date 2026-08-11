@@ -74,6 +74,11 @@ public record ArtifactMenuState(
 		return snapshot == null ? rank < action.requiredRank() : snapshot.locked();
 	}
 
+	public int variant(ArtifactActionDefinition action) {
+		ArtifactActionSnapshot snapshot = snapshot(action);
+		return snapshot == null ? -1 : snapshot.variant();
+	}
+
 	public int optionFor(ArtifactActionDefinition action) {
 		if (action.abilityId().equals("size_shift")) return sizeMorphOption;
 		return -1;
