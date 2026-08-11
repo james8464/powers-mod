@@ -406,6 +406,8 @@
 	"ability.powers.time_freeze.global_begin": "%s has stopped time across every realm.",
 	"ability.powers.time_freeze.global_release": "The clocks of every realm begin moving again.",
 	"ability.powers.time_freeze.frozen": "You cannot act outside the stolen second.",
+	"ability.powers.time_freeze.forecast": "Time Freeze drains %s energy per second; your current energy safely sustains about %s seconds.",
+	"ability.powers.time_freeze.low_tps": "Server tick time is %s ms. Time Freeze remains available, but visible lag may increase.",
 	"power.powers.forcefield": "Forcefield",
 	"power.powers.forcefield.description": "Generate a protective shield that absorbs immense damage.",
 	"ability.powers.forcefield": "Forcefield",
