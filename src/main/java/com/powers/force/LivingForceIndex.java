@@ -63,7 +63,12 @@ final class LivingForceIndex {
 	}
 
 	List<Long> within(double x, double y, double z, double radius, LivingForceKind kind) {
-		if (radius < 0.0 || !Double.isFinite(radius)) return List.of();
+		return within(x, y, z, radius, kind, Integer.MAX_VALUE);
+	}
+
+	/** Range query that stops collecting once the caller's fixed work allowance is full. */
+	List<Long> within(double x, double y, double z, double radius, LivingForceKind kind, int limit) {
+		if (radius < 0.0 || !Double.isFinite(radius) || limit <= 0) return List.of();
 		int minChunkX = ((int) Math.floor(x - radius)) >> 4;
 		int maxChunkX = ((int) Math.floor(x + radius)) >> 4;
 		int minChunkZ = ((int) Math.floor(z - radius)) >> 4;
@@ -81,7 +86,10 @@ final class LivingForceIndex {
 					double dx = BlockPos.getX(position) + 0.5 - x;
 					double dy = BlockPos.getY(position) + 0.5 - y;
 					double dz = BlockPos.getZ(position) + 0.5 - z;
-					if (dx * dx + dy * dy + dz * dz <= radiusSquared) result.add(position);
+					if (dx * dx + dy * dy + dz * dz <= radiusSquared) {
+						result.add(position);
+						if (result.size() >= limit) return List.copyOf(result);
+					}
 				}
 			}
 		}

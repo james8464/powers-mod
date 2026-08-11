@@ -5,6 +5,8 @@ import com.powers.item.HeavenlyPartisanItem;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.artifact.ArtifactIdentity;
 import com.powers.forge.CrucibleEligibility;
+import com.powers.item.FantasyWeaponArchetype;
+import com.powers.item.FantasyWeaponItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
@@ -20,6 +22,7 @@ import net.minecraft.util.Unit;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.List;
 
 /**
  * The fantasy weapon set (nongko's Fantasy Weapons textures and models),
@@ -136,6 +139,12 @@ public final class PowersWeapons {
 		return Map.copyOf(WEAPONS);
 	}
 
+	/** Stable ordinary weapon IDs used by survival loot and release audits. */
+	public static List<String> ordinaryWeaponIds() {
+		return java.util.Arrays.stream(DEFS).map(WeaponDef::id)
+				.filter(id -> !id.equals("lycanbane") && !id.equals("heavenly_partisan")).toList();
+	}
+
 	public static void initialize() {
 		for (WeaponDef def : DEFS) {
 			WEAPONS.put(def.id(), register(def));
@@ -148,12 +157,15 @@ public final class PowersWeapons {
 
 	private static Item register(WeaponDef def) {
 		Item.Properties props = new Item.Properties();
+		FantasyWeaponArchetype archetype = FantasyWeaponArchetype.from(def.id());
+		float damage = isMythic(def.id()) ? def.damage() : archetype.damage();
+		float speed = isMythic(def.id()) ? def.speed() : archetype.speed();
 		switch (def.kind()) {
-			case SWORD -> props.sword(def.material(), def.damage(), def.speed());
-			case PICKAXE -> props.pickaxe(def.material(), def.damage(), def.speed());
-			case SHOVEL -> props.shovel(def.material(), def.damage(), def.speed());
+			case SWORD -> props.sword(def.material(), damage, speed);
+			case PICKAXE -> props.pickaxe(def.material(), damage, speed);
+			case SHOVEL -> props.shovel(def.material(), damage, speed);
 		}
-		if (def.id().equals("lycanbane") || def.id().equals("heavenly_partisan")) {
+		if (isMythic(def.id())) {
 			ArtifactAlignment alignment = def.id().equals("lycanbane")
 					? ArtifactAlignment.DARKNESS : ArtifactAlignment.LIGHT;
 			String identity = def.id().equals("lycanbane") ? "shadow_sword" : "heavenly_partisan";
@@ -168,11 +180,16 @@ public final class PowersWeapons {
 									? ChatFormatting.DARK_PURPLE : ChatFormatting.GOLD),
 					Component.translatable("item.powers.artifact.controls")
 							.withStyle(ChatFormatting.GRAY))));
-		}
+		} else props.component(DataComponents.LORE, new ItemLore(java.util.List.of(
+				Component.translatable(archetype.loreKey()).withStyle(ChatFormatting.GRAY))));
 		return ModItemIds.register(ModItemIds.create(def.id()), switch (def.id()) {
 			case "lycanbane" -> ShadowSwordItem::new;
 			case "heavenly_partisan" -> HeavenlyPartisanItem::new;
-			default -> Item::new;
+			default -> properties -> new FantasyWeaponItem(archetype, properties);
 		}, props);
+	}
+
+	private static boolean isMythic(String id) {
+		return id.equals("lycanbane") || id.equals("heavenly_partisan");
 	}
 }

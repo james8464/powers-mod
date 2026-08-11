@@ -1,5 +1,8 @@
 package com.powers.loot;
 
+import com.powers.PowersWeapons;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /** Additive drop catalogue; none of these entries replaces a vanilla table. */
@@ -8,7 +11,7 @@ public final class LootInjectionCatalog {
 	}
 
 	public static List<LootDropGroup> groups() {
-		return List.of(
+		List<LootDropGroup> groups = new ArrayList<>(List.of(
 				group("minecraft:chests/simple_dungeon", 0.22f, "imported_artifact_runestone_inert"),
 				group("minecraft:chests/abandoned_mineshaft", 0.14f, "imported_artifact_runestone_dark_tiny"),
 				group("minecraft:chests/ancient_city", 0.10f, "imported_artifact_runestone_frigid"),
@@ -59,7 +62,9 @@ public final class LootInjectionCatalog {
 						"imported_food_leek", "imported_food_radish", "imported_food_spinach", "imported_food_pepper",
 						"imported_food_beet", "imported_food_beans", "imported_food_chickpeas", "imported_food_lentils",
 						"imported_food_bread_big", "imported_food_mungbean", "imported_food_uradbean",
-						"imported_food_redbeans", "imported_food_sweetpod", "imported_food_stew_sweetpod"));
+						"imported_food_redbeans", "imported_food_sweetpod", "imported_food_stew_sweetpod")));
+		groups.addAll(WeaponLootCatalog.groups(PowersWeapons.ordinaryWeaponIds()));
+		return List.copyOf(groups);
 	}
 
 	private static LootDropGroup group(String table, float chance, String... items) {

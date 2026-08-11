@@ -1,7 +1,7 @@
 {
   "title": "Amethyst Suppression",
   "keywords": ["amethyst ward", "amethyst poisoned", "power suppression", "crystallisation", "counter magic"],
-  "answer": "Amethyst grounds magic. Carried amethyst dampens energy and potency; anchored amethyst blocks create indexed wards that can cancel travel, fields and hostile casts. Repeated exposure can poison the energy vessel. Strong opposed-force events may fracture a ward instead of silently passing through it, producing an audible and visible counter-sigil response.",
-  "sources": ["AmethystDampening", "AmethystWardIndex", "interaction catalogue"],
+  "answer": "Amethyst grounds magic. Carried amethyst dampens energy and potency; powered wards cancel travel, fields and hostile casts through a spatial index. Place solid amethyst blocks exactly two blocks north, south, east and west of a redstone-powered ward to begin a containment ceremony: it progressively crystallises Darkness or Pure Light in a six-block sphere under a 256-inspection global tick budget. Strong clashes can still fracture ordinary wards.",
+  "sources": ["AmethystDampening", "AmethystWardIndex", "ForceContainmentManager", "interaction catalogue"],
   "reveal_rank": 0
 }

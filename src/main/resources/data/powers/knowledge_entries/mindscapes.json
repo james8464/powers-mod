@@ -1,7 +1,7 @@
 {
   "title": "Light and Dark Mindscapes",
-  "keywords": ["light realm", "dark realm", "mindscape", "frozen body", "realm exit", "memory obelisk"],
-  "answer": "The Light and Dark realms are mindscapes. Entry leaves a player-shaped proxy body behind; that body remains vulnerable, mirrors damage and can kill the traveller. Realm memories and obelisks are lore sites, not unexplained waypoints. Leaving the Dark mindscape requires Darkness alignment and Darkness level 5; leaving the Light mindscape requires normal or Darkness skill level 5. Ordinary crystals, body return and player commands cannot bypass these gates.",
-  "sources": ["BodyProxyManager", "RealmMindscapeManager", "SafeDestinationResolver"],
+  "keywords": ["light realm", "dark realm", "mindscape", "frozen body", "realm exit", "memory obelisk", "herald", "archive", "labyrinth", "whiteout", "dark eclipse"],
+  "answer": "The Light and Dark realms are vulnerable mind-projections, not ordinary physical worlds. Each grows a First Archive, Labyrinth, Shrine, remembered settlement, hazardous Force Font and Herald Court under a fixed server work budget. The Hollow Court and Luminous Concord periodically manifest Dark Eclipse or Whiteout: Force Pressure intensifies with distance from the first thought, empowering aligned minds and draining intruders. Defeating a realm Herald is the non-circular survival path to its mythic artifact. Entry leaves a skin-matched body behind; damage mirrors and can kill the traveller. Leaving Darkness requires its tag and level 5; leaving Light requires level 5 in either ladder. Ordinary travel cannot bypass that gate.",
+  "sources": ["BodyProxyManager", "RealmLandmarkConstruction", "RealmEventManager", "RealmHeraldManager", "SafeDestinationResolver"],
   "reveal_rank": 0
 }

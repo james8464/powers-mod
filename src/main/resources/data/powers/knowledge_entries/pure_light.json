@@ -1,7 +1,7 @@
 {
   "title": "Pure Light",
   "keywords": ["pure light block", "light spread", "light aura", "radiant force", "whiteout"],
-  "answer": "Pure Light is Darkness's living opposite. It spreads through vulnerable terrain, rejects corrupted presences, strengthens aligned radiance, and violently annihilates adjacent Darkness. Its realm is a white-sky mindscape rather than an ordinary physical world. Amethyst can contain either force, but a direct Light–Darkness clash overwhelms ordinary wards.",
-  "sources": ["LivingForceManager", "realm dimension data", "interaction catalogue"],
+  "answer": "Pure Light is Darkness's living opposite and the Luminous Concord's weapon. It spreads through vulnerable terrain, grants particle-hidden regeneration and energy to uninfected beings, and withers Darkness-tagged intruders. Dawn Scars can manifest finite Radiant Sentinel patrols, while Whiteout greatly amplifies aligned radiance and Force Pressure. Its realm is a pure-white mindscape. Direct Light–Darkness contact overwhelms ordinary wards; a powered cardinal-amethyst ceremony progressively crystallises either force.",
+  "sources": ["LivingForceManager", "FactionInvasionManager", "RealmEventManager", "realm dimension data", "interaction catalogue"],
   "reveal_rank": 0
 }

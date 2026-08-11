@@ -1,0 +1,7 @@
+{
+  "title": "The Four Claims",
+  "keywords": ["lore", "cosmology", "factions", "hollow court", "luminous concord", "amethyst covenant", "archivists", "first vessel", "herald"],
+  "answer": "Four claims contest awakened reality. The Luminous Concord calls creation a pattern that must be perfected; its Pure Light can heal or erase with equal conviction. The Hollow Court calls identity a wound and offers Darkness as freedom through surrender. The Amethyst Covenant refuses both absolutes and builds containment rites from crystallised silence. The Archivists of the Between preserve memories neither force wants remembered, including the First Vessel's failed attempt to carry both. Realm Heralds are not gods but self-aware verdicts sent by the two great forces. Players choose routes through these claims without entering a permanently exclusive class.",
+  "sources": ["RealmEventManager", "RealmHerald", "ForceContainmentManager", "FirstVessel"],
+  "reveal_rank": 0
+}

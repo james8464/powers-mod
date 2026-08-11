@@ -159,6 +159,12 @@ public final class LivingForceManager {
 			int auraCandidatesPerLevel, int auraCandidatesPerPlayer) {
 	}
 
+	/** Bounded loaded-only proximity query used by invasions and ceremonies. */
+	public static boolean isNearForce(ServerLevel level, BlockPos center, int radius,
+			LivingForceKind kind) {
+		return isNearValidForce(level, index(level), Vec3.atCenterOf(center), radius, kind);
+	}
+
 	private static void registerLoaded(ServerLevel level, BlockPos pos, LivingForceKind kind) {
 		register(level, pos, kind);
 		if (kind != null) checkForClash(level, pos, kind);
@@ -220,30 +226,37 @@ public final class LivingForceManager {
 				budget.recordInspections(batch.inspected());
 				for (LivingEntity living : batch.candidates()) {
 					if (!visited.add(living.getUUID())) continue;
-					if (isNearValidDarkness(level, index, living, policy.auraRadius())) {
-						applyDarknessAffinity(level, living, policy);
+					for (LivingForceKind kind : LivingForceKind.values()) {
+						if (isNearValidForce(level, index, living, policy.auraRadius(), kind)) {
+							applyForceAffinity(level, living, policy, kind);
+						}
 					}
 				}
 			}
 		}
 	}
 
-	private static boolean isNearValidDarkness(ServerLevel level, LivingForceIndex index,
-			LivingEntity entity, int radius) {
+	private static boolean isNearValidForce(ServerLevel level, LivingForceIndex index,
+			LivingEntity entity, int radius, LivingForceKind kind) {
 		Vec3 center = entity.position().add(0.0, entity.getBbHeight() * 0.5, 0.0);
-		for (long packed : index.within(center.x, center.y, center.z, radius, LivingForceKind.DARKNESS)) {
+		return isNearValidForce(level, index, center, radius, kind);
+	}
+
+	private static boolean isNearValidForce(ServerLevel level, LivingForceIndex index,
+			Vec3 center, int radius, LivingForceKind kind) {
+		for (long packed : index.within(center.x, center.y, center.z, radius, kind, 32)) {
 			BlockPos pos = BlockPos.of(packed);
 			if (!LoadedChunks.contains(level, pos)) continue;
-			if (level.getBlockState(pos).is(LivingForceKind.DARKNESS.block())) return true;
+			if (level.getBlockState(pos).is(kind.block())) return true;
 			index.remove(packed);
 		}
 		return false;
 	}
 
-	private static void applyDarknessAffinity(ServerLevel level, LivingEntity entity,
-			PowersConfig.LivingForces policy) {
+	private static void applyForceAffinity(ServerLevel level, LivingEntity entity,
+			PowersConfig.LivingForces policy, LivingForceKind kind) {
 		boolean darknessTagged = entity.entityTags().contains(SkillSystem.DARKNESS_TAG);
-		LivingForceRules.Affinity affinity = LivingForceRules.affinity(darknessTagged, LivingForceKind.DARKNESS);
+		LivingForceRules.Affinity affinity = LivingForceRules.affinity(darknessTagged, kind);
 		Vec3 center = entity.position().add(0.0, entity.getBbHeight() * 0.55, 0.0);
 		if (affinity == LivingForceRules.Affinity.WITHER) {
 			if (PowerProtection.isSafeZone(level, entity.position())
@@ -253,7 +266,23 @@ public final class LivingForceManager {
 			}
 			entity.addEffect(PowerStatusEffects.hidden(
 					MobEffects.WITHER, 50, policy.witherAmplifier(), true, true));
-			PowerFx.darknessAura(level, center, false);
+			if (kind == LivingForceKind.DARKNESS) PowerFx.darknessAura(level, center, false);
+			else {
+				PowerFx.rune(level, center, 1.1, 0xFFF5C4, 14, level.getGameTime() * 0.1);
+				PowerFx.coloredBurst(level, center, 0xFFFFFF, 7, 0.7);
+			}
+			return;
+		}
+		if (affinity == LivingForceRules.Affinity.RADIANCE) {
+			entity.addEffect(PowerStatusEffects.hidden(MobEffects.REGENERATION, 50, 1, true, true));
+			if (entity instanceof ServerPlayer player && !AmethystDampening.isDampened(player)) {
+				PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+				if (data.regenerateEnergy(Math.max(1, policy.energyRefillPerSecond() / 2))) {
+					PowersPackets.syncTo(player);
+				}
+			}
+			PowerFx.rune(level, center, 1.15, 0xFFF5C4, 14, level.getGameTime() * 0.08);
+			PowerFx.coloredBurst(level, center, 0xFFFFFF, 5, 0.55);
 			return;
 		}
 		if (affinity != LivingForceRules.Affinity.REFILL) return;

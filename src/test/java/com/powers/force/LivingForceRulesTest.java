@@ -4,20 +4,20 @@ import org.junit.jupiter.api.Test;
 
 import static com.powers.force.LivingForceKind.DARKNESS;
 import static com.powers.force.LivingForceKind.PURE_LIGHT;
-import static com.powers.force.LivingForceRules.Affinity.NONE;
 import static com.powers.force.LivingForceRules.Affinity.REFILL;
 import static com.powers.force.LivingForceRules.Affinity.WITHER;
+import static com.powers.force.LivingForceRules.Affinity.RADIANCE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LivingForceRulesTest {
 	@Test
-	void darknessAffinityWithersOrdinaryEntitiesAndRefillsDarknessEntities() {
+	void bothLivingForcesProjectOpposedFactionAuras() {
 		assertEquals(WITHER, LivingForceRules.affinity(false, DARKNESS));
 		assertEquals(REFILL, LivingForceRules.affinity(true, DARKNESS));
-		assertEquals(NONE, LivingForceRules.affinity(false, PURE_LIGHT));
-		assertEquals(NONE, LivingForceRules.affinity(true, PURE_LIGHT));
+		assertEquals(RADIANCE, LivingForceRules.affinity(false, PURE_LIGHT));
+		assertEquals(WITHER, LivingForceRules.affinity(true, PURE_LIGHT));
 	}
 
 	@Test

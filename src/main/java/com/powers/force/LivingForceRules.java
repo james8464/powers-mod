@@ -8,7 +8,8 @@ public final class LivingForceRules {
 	public enum Affinity {
 		NONE,
 		WITHER,
-		REFILL
+		REFILL,
+		RADIANCE
 	}
 
 	private LivingForceRules() {
@@ -19,11 +20,13 @@ public final class LivingForceRules {
 		return !globallyStopped;
 	}
 
-	/** Resolves darkness-tag affinity; pure light currently has no passive aura. */
+	/** Darkness feeds its faction; Pure Light restores the uninfected and burns Darkness. */
 	public static Affinity affinity(boolean darknessTagged, LivingForceKind force) {
 		Objects.requireNonNull(force, "force");
-		if (force != LivingForceKind.DARKNESS) return Affinity.NONE;
-		return darknessTagged ? Affinity.REFILL : Affinity.WITHER;
+		if (force == LivingForceKind.DARKNESS) {
+			return darknessTagged ? Affinity.REFILL : Affinity.WITHER;
+		}
+		return darknessTagged ? Affinity.WITHER : Affinity.RADIANCE;
 	}
 
 	/** Returns whether two living forces mutually annihilate on contact. */

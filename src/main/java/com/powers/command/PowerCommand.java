@@ -10,10 +10,6 @@ import com.powers.PowersEntities;
 import com.powers.player.SkillSystem;
 import com.powers.config.PowersConfigLoader;
 import com.powers.mind.BodyProxyManager;
-import com.powers.diagnostics.RuntimeDiagnosticSnapshot;
-import com.powers.diagnostics.ServerRuntimeMetrics;
-import com.powers.force.LivingForceManager;
-import com.powers.magic.runtime.MagicRuntime;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
@@ -21,11 +17,6 @@ import com.powers.power.PowerAffinity;
 import com.powers.progression.RankGraph;
 import com.powers.progression.RankGraphRegistry;
 import com.powers.progression.RankNode;
-import com.powers.power.artifact.ArtifactFieldManager;
-import com.powers.power.artifact.ArtifactGuardianSummons;
-import com.powers.power.travel.TravelChunkLoader;
-import com.powers.spell.CelestialRuinManager;
-import com.powers.spell.SpellFieldManager;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -117,7 +108,7 @@ public final class PowerCommand {
 								.executes(PowerCommand::spawnFirstVessel)))
 				.then(Commands.literal("diagnose")
 						.requires(PowerCommand::isAdmin)
-						.executes(PowerCommand::diagnose))
+						.executes(PowerDiagnosticsCommand::run))
 				.then(TestingCommand.create())
 				.then(Commands.literal("travel")
 						.requires(PowerCommand::isAdmin)
@@ -125,37 +116,6 @@ public final class PowerCommand {
 								.executes(PowerCommand::travel))));
 	}
 
-	private static int diagnose(CommandContext<CommandSourceStack> context) {
-		var server = context.getSource().getServer();
-		var work = ServerRuntimeMetrics.snapshot(server);
-		var forces = LivingForceManager.diagnostics();
-		int proxies = BodyProxyManager.activeProxyCount();
-		int travelLoads = TravelChunkLoader.pendingRequestCount();
-		int celestialChunks = CelestialRuinManager.forcedChunkCount(server);
-		RuntimeDiagnosticSnapshot snapshot = new RuntimeDiagnosticSnapshot(
-				MagicRuntime.global().activePresenceCount(),
-				MagicRuntime.global().activePresenceCellCount(),
-				SpellFieldManager.activeFieldCount(), SpellFieldManager.maxFieldWorkPerTick(),
-				ArtifactFieldManager.activeFieldCount(), ArtifactGuardianSummons.indexedGuardianCount(),
-				forces.indexedBlocks(), forces.activeClashes(), forces.auraCandidatesPerLevel(),
-				forces.auraCandidatesPerPlayer(), proxies, travelLoads,
-				CelestialRuinManager.activeRitualCount(server),
-				celestialChunks + proxies + travelLoads * 9,
-				work.packets(), work.particles(), work.entityInspections());
-		for (String line : snapshot.lines()) {
-			context.getSource().sendSuccess(() -> Component.literal(line).withStyle(ChatFormatting.AQUA), false);
-		}
-		context.getSource().sendSuccess(() -> Component.literal("shadow sessions: "
-				+ com.powers.companion.PrivateCompanionManager.activeSessionCount()).withStyle(ChatFormatting.AQUA), false);
-		if (context.getSource().getEntity() instanceof ServerPlayer player) {
-			var testing = com.powers.testing.TestingOverrides.state(player.getUUID());
-			context.getSource().sendSuccess(() -> Component.literal(
-					"testing: energy=" + (testing.energyDisabled() ? "disabled" : "normal")
-							+ "; cooldowns=" + (testing.cooldownsDisabled() ? "disabled" : "normal"))
-					.withStyle(ChatFormatting.AQUA), false);
-		}
-		return 1;
-	}
 	private static int spawnFirstVessel(CommandContext<CommandSourceStack> context) {
 		CommandSourceStack source = context.getSource();
 		var boss = PowersEntities.FIRST_VESSEL.create(source.getLevel(),

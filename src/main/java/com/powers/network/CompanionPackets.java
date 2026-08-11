@@ -2,6 +2,7 @@ package com.powers.network;
 
 import com.powers.PowersMod;
 import com.powers.companion.PrivateCompanionManager;
+import com.powers.diagnostics.ServerRuntimeMetrics;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -10,10 +11,15 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 /** Authenticated Shadow control and client-local apparition state. */
 public final class CompanionPackets {
+	private static final int MAX_STATE_PACKETS_PER_TICK = 4_096;
+	private static final Map<net.minecraft.server.MinecraftServer, CompanionPacketBudget> BUDGETS =
+			new WeakHashMap<>();
 	private static final StreamCodec<RegistryFriendlyByteBuf, UUID> UUID_CODEC = StreamCodec.of(
 			(buf, value) -> {
 				buf.writeLong(value.getMostSignificantBits());
@@ -74,11 +80,38 @@ public final class CompanionPackets {
 				}));
 	}
 
-	public static void sendState(ServerPlayer recipient, UUID ownerId, long sessionId,
+	public static boolean sendState(ServerPlayer recipient, UUID ownerId, long sessionId,
 			boolean active, boolean teleport, String dimension,
 			double x, double y, double z, float yaw) {
-		if (!ServerPlayNetworking.canSend(recipient, StatePayload.TYPE)) return;
+		return sendState(recipient, ownerId, sessionId, active, teleport, dimension,
+				x, y, z, yaw, false);
+	}
+
+	/** Removal packets bypass the ordinary budget so no stale apparition survives. */
+	public static boolean sendCriticalState(ServerPlayer recipient, UUID ownerId, long sessionId,
+			boolean active, boolean teleport, String dimension,
+			double x, double y, double z, float yaw) {
+		return sendState(recipient, ownerId, sessionId, active, teleport, dimension,
+				x, y, z, yaw, true);
+	}
+
+	private static boolean sendState(ServerPlayer recipient, UUID ownerId, long sessionId,
+			boolean active, boolean teleport, String dimension,
+			double x, double y, double z, float yaw, boolean critical) {
+		if (!ServerPlayNetworking.canSend(recipient, StatePayload.TYPE)) return false;
+		var server = recipient.level().getServer();
+		long tick = server.getTickCount();
+		if (!critical && !BUDGETS.computeIfAbsent(server,
+				ignored -> new CompanionPacketBudget(MAX_STATE_PACKETS_PER_TICK)).claim(tick)) {
+			return false;
+		}
 		ServerPlayNetworking.send(recipient, new StatePayload(ownerId, sessionId, active,
 				teleport, dimension, x, y, z, yaw));
+		ServerRuntimeMetrics.recordPacket(server, tick);
+		return true;
+	}
+
+	public static void clearBudgets() {
+		BUDGETS.clear();
 	}
 }

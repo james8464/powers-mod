@@ -8,6 +8,7 @@ import com.powers.fx.GodlyPunishment;
 import com.powers.force.LivingForceManager;
 import com.powers.network.PowersPackets;
 import com.powers.network.MagicFxPackets;
+import com.powers.network.CompanionPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.player.PlayerTickCadence;
 import com.powers.progression.RankGraphRegistry;
@@ -164,6 +165,8 @@ public class PowersMod implements ModInitializer {
 			PrivateCompanionManager.forget(player);
 			com.powers.knowledge.KnowledgeRemoteProviderRuntime.forget(player.getUUID());
 			TravelChunkLoader.cancel(player.getUUID());
+			com.powers.power.ConcordCastManager.forget(player.getUUID());
+			com.powers.realm.RealmEventManager.forget(player.getUUID());
 			PowersPackets.forget(player);
 		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(BodyProxyManager::returnAll);
@@ -174,6 +177,9 @@ public class PowersMod implements ModInitializer {
 			SkillSystem.clearAll();
 			AmethystDampening.clearAll();
 			LivingForceManager.clearAll();
+			com.powers.force.ForceContainmentManager.clear();
+			com.powers.force.FactionInvasionManager.clear();
+			com.powers.power.ConcordCastManager.clear();
 			PowerAbilityRuntime.onServerStopped(server);
 			SpellCastingManager.clearAll();
 			SpellFieldManager.clearAll();
@@ -186,6 +192,7 @@ public class PowersMod implements ModInitializer {
 			com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
 			com.powers.fx.PowerFx.clearBudgets();
 			PowersPackets.clearSyncCache();
+			CompanionPackets.clearBudgets();
 			MagicFxPackets.clear();
 			TravelChunkLoader.clear();
 			com.powers.network.NamedLivingTargetIndex.clearAll();
@@ -209,6 +216,8 @@ public class PowersMod implements ModInitializer {
 			CelestialRuinManager.tick(server);
 			RealmMindscapeManager.tick(server);
 			LivingForceManager.tick(server);
+			com.powers.force.ForceContainmentManager.tick(server);
+			com.powers.force.FactionInvasionManager.tick(server);
 			PowerAbilityRuntime.tickTeleportMarking();
 			ServerMagicScheduler.tick(tick);
 		});
