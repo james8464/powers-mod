@@ -2,6 +2,7 @@
 
 ## 1.0.2 - 2026-08-11
 
+- Rewrote the README from authoritative registries and verification evidence into a concise complete player/operator manual, linked exhaustive per-item/per-rank/per-action/per-interaction appendices, and separated 264 unshipped guarantees, enhancements, expansions, defects, and research tasks into a prioritized acceptance-driven backlog.
 - Rebuilt Shadow as one persistent player-model magic participant with owner skin, global/private presentation, typed conversation tasks, bounded item retrieval/conjuration, its own Darkness energy and all 23 non-crystal innates plus exactly three sword rites.
 - Added server-only tactical Shadow combat: close, skirmish, ranged, rescue and recovery modes; capped targeting and firing-lane checks; real named executors; owner-local bounded contextual learning; diagnostics and an operator learning reset.
 - Removed routine Adventure-mode coercion from Light/Dark mindscape entry and successful confinement while retaining safe migration of legacy Adventure sessions and Spectator only for a failed locked recovery.
