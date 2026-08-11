@@ -45,7 +45,7 @@ This matrix maps the approved finalisation scope to implementation and repeatabl
 | R39 | First Vessel boss | Complete | 5,000 vitality, multiplayer snapshot scaling, 23-power-safe tactical adapters, phases, ritual, counterplay, loot/advancement, Miniportal guarantee, and live Celestial death proof |
 | R40 | Multiplayer performance and diagnostics | Complete | Spatial indexes, rotating queues, staggered pulses, fixed candidate/ticket/packet/particle limits, `/powers diagnose`, and deterministic 10/50/100-player soak |
 | R41 | Complete player documentation | Complete | README explains every power, spell, crystal, artifact, realm, item family, command, counter, acquisition state, configuration, limitation, and exact generated catalogues |
-| R42 | Game tests and release validation harness | Complete | 579 JUnit tests and 36 live Fabric GameTests pass; clean resources/manifests/docs, dedicated six-dimension server boot, client compilation/layout/resource gates, and development-client launch proof |
+| R42 | Game tests and release validation harness | Complete | 587 JUnit tests and 39 live Fabric GameTests pass; clean resources/manifests/docs, dedicated six-dimension server boot, client compilation/layout/resource gates, and development-client launch proof |
 
 ## Release interpretation
 

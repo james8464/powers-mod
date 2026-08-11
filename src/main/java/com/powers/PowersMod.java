@@ -1,408 +1,63 @@
 package com.powers;
 
-import com.powers.command.PowerCommand;
-import com.powers.mind.BodyProxyManager;
 import com.powers.magic.runtime.MagicRuntime;
-import com.powers.config.PowersConfigLoader;
-import com.powers.fx.GodlyPunishment;
-import com.powers.force.LivingForceManager;
-import com.powers.network.PowersPackets;
-import com.powers.network.MagicFxPackets;
-import com.powers.network.CompanionPackets;
-import com.powers.player.PlayerPowers;
-import com.powers.player.PlayerTickCadence;
-import com.powers.progression.RankGraphRegistry;
-import com.powers.progression.PowerScalingService;
-import com.powers.power.Ability;
-import com.powers.power.Power;
-import com.powers.power.PowerAbilityRuntime;
-import com.powers.power.PowerEnergy;
 import com.powers.power.PowerRegistry;
-import com.powers.power.AmethystDampening;
-import com.powers.power.state.PowerEntityState;
-import com.powers.power.travel.TravelChunkLoader;
-import com.powers.player.SkillSystem;
-import com.powers.power.crystals.CrystalPowerRegistry;
-import com.powers.util.PowerMessages;
 import com.powers.util.ScheduledTaskQueue;
-import com.powers.spell.SpellCastingManager;
-import com.powers.spell.SpellFieldManager;
-import com.powers.spell.CelestialRuinManager;
-import com.powers.realm.RealmMindscapeManager;
-import com.powers.realm.RealmConfinementManager;
-import com.powers.realm.RealmDimensionRules;
-import com.powers.loot.PowersLoot;
-import com.powers.item.ArtifactInventoryRuntime;
-import com.powers.item.ArtifactWeaponManager;
-import com.powers.forge.CrucibleWeaponRuntime;
-import com.powers.companion.PrivateCompanionManager;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-/**
- * Registers POWERS and coordinates its server lifecycle. Persistent player
- * state belongs to attachments; this class owns only per-session bookkeeping.
- */
-public class PowersMod implements ModInitializer {
+/** Stable Fabric entrypoint and compatibility facade for shared scheduling helpers. */
+public final class PowersMod implements ModInitializer {
 	public static final String MOD_ID = "powers";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	// Records which realm's weather a summoned storm echoes.
+	/** Realm palette echoed by a scheduled magical storm. */
 	public enum StormTheme { NONE, DARK, LIGHT }
-
-	// whether each player was asleep last tick, so waking up can refund energy
-	private static final Map<UUID, Boolean> WAS_SLEEPING = new HashMap<>();
 
 	@Override
 	public void onInitialize() {
-		PowersConfigLoader.initialize();
-		com.powers.knowledge.KnowledgeEntryReloadListener.initialize();
-		PowerEntityState.initialize();
-		RankGraphRegistry.initialize();
-		PowersEffects.initialize();
-		PowersSounds.initialize();
-		PowersParticles.initialize();
-		PowersDataComponents.initialize();
-		PowersEntities.initialize();
-		PowerRegistry.initialize();
-		PowersItems.initialize();
-		PowersWeapons.initialize();
-		PowersBlocks.initialize();
-		PowersBlockEntities.initialize();
-		PowersMenus.initialize();
-		LivingForceManager.initialize();
-		ImportedPackItems.initialize();
-		PowersLoot.initialize();
-		PowersCreativeTab.initialize();
-		CrystalPowerRegistry.initialize();
-		ArtifactWeaponManager.initialize();
-		CrucibleWeaponRuntime.initialize();
-		PowersPackets.initialize();
-		PowerCommand.register();
-		PowerCombatEvents.register();
-		ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, parameters) ->
-				!PrivateCompanionManager.handleChat(sender, message.signedContent()));
-		com.powers.entity.EntityRuntimeLifecycle.initialize();
+		PowersBootstrap.initialize();
+		PowersServerLifecycle.initialize();
 		LOGGER.info("Magic collision kernel loaded: {} actions, {} exhaustive interactions",
 				MagicRuntime.catalogue().definitions().size(), MagicRuntime.global().interactionCount());
-		// SkillSystem sets the player's visible display name. Vanilla signed chat
-		// therefore carries the rank without cancelling, stripping, or rebuilding
-		// the authenticated message as an unsigned system message.
-
-		// first join rolls three random powers that stick with the player for good
-		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-			ServerPlayer player = handler.getPlayer();
-			if (!PowersConfigLoader.get().persistCooldowns()) {
-				PlayerPowers.get(player).clearCooldowns();
-			}
-			BodyProxyManager.recoverOnJoin(player);
-			PlayerPowers.get(player).assignRandom(player, false);
-			com.powers.player.PlayerGuide.giveIfNeeded(player);
-			SkillSystem.syncPathVisibility(player);
-			SkillSystem.refresh(player);
-			PowersPackets.syncTo(player);
-		});
-		// A respawned player is a brand new entity. Rebuild runtime state, name
-		// plate and client HUD without reviving any automatic power effects.
-		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
-			MagicRuntime.global().clearOwner(oldPlayer.getUUID());
-			PowerAbilityRuntime.afterRespawn(newPlayer.level().getServer(), oldPlayer, newPlayer);
-			WAS_SLEEPING.remove(newPlayer.getUUID());
-			SkillSystem.clear(newPlayer.getUUID());
-			SpellCastingManager.clear(oldPlayer);
-			ArtifactInventoryRuntime.forget(oldPlayer);
-			CrucibleWeaponRuntime.forget(oldPlayer.getUUID());
-			TravelChunkLoader.cancel(oldPlayer.getUUID());
-			PowersPackets.forget(oldPlayer);
-			// Every respawn replaces the player entity, including a living End
-			// return. End the copied detached-body session on the replacement so
-			// it cannot block future projection, possession, or realm travel.
-			BodyProxyManager.discardOnDeath(newPlayer);
-			if (!alive) {
-				PowerAbilityRuntime.deactivateToggles(newPlayer);
-				ArtifactInventoryRuntime.stopAllToggles(newPlayer);
-				PlayerPowers.get(newPlayer).setPreviousGameMode(null);
-				RealmConfinementManager.restoreAfterDeath(oldPlayer, newPlayer);
-			}
-			SkillSystem.syncPathVisibility(newPlayer);
-			SkillSystem.refresh(newPlayer);
-			PowersPackets.syncTo(newPlayer);
-		});
-		// Drop ephemeral runtime state when someone leaves. Persistent cooldowns,
-		// anchors, and owned flag snapshots deliberately stay on the player.
-		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-			ServerPlayer player = handler.getPlayer();
-			if (!PowersConfigLoader.get().persistCooldowns()) {
-				PlayerPowers.get(player).clearCooldowns();
-			}
-			MagicRuntime.global().clearOwner(player.getUUID());
-			WAS_SLEEPING.remove(player.getUUID());
-			SkillSystem.clear(player.getUUID());
-			PowerAbilityRuntime.onDisconnect(server, player);
-			CrystalPowerRegistry.clearSelections(player.getUUID());
-			BodyProxyManager.returnToBody(player);
-			SpellCastingManager.clear(player);
-			AmethystDampening.forget(player);
-			ArtifactInventoryRuntime.forget(player);
-			CrucibleWeaponRuntime.forget(player.getUUID());
-			PrivateCompanionManager.forget(player);
-			com.powers.knowledge.KnowledgeRemoteProviderRuntime.forget(player.getUUID());
-			TravelChunkLoader.cancel(player.getUUID());
-			com.powers.power.ConcordCastManager.forget(player.getUUID());
-			com.powers.realm.RealmEventManager.forget(player.getUUID());
-			PowersPackets.forget(player);
-		});
-		ServerLifecycleEvents.SERVER_STOPPING.register(BodyProxyManager::returnAll);
-		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
-			MagicRuntime.global().clearAll();
-			ServerMagicScheduler.clear();
-			WAS_SLEEPING.clear();
-			SkillSystem.clearAll();
-			AmethystDampening.clearAll();
-			LivingForceManager.clearAll();
-			com.powers.force.ForceContainmentManager.clear();
-			com.powers.force.FactionInvasionManager.clear();
-			com.powers.power.ConcordCastManager.clear();
-			PowerAbilityRuntime.onServerStopped(server);
-			SpellCastingManager.clearAll();
-			SpellFieldManager.clearAll();
-			CelestialRuinManager.clearAll();
-			RealmMindscapeManager.clearAll();
-			ArtifactInventoryRuntime.clear();
-			CrucibleWeaponRuntime.clear();
-			PrivateCompanionManager.clear();
-			com.powers.companion.DialogueProviderRuntime.clear();
-			com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
-			com.powers.fx.PowerFx.clearBudgets();
-			PowersPackets.clearSyncCache();
-			CompanionPackets.clearBudgets();
-			MagicFxPackets.clear();
-			TravelChunkLoader.clear();
-			com.powers.network.NamedLivingTargetIndex.clearAll();
-			com.powers.diagnostics.ServerRuntimeMetrics.clear();
-			com.powers.magic.runtime.PhysicalMagicPresences.clear();
-		});
-
-		// Toggles re-assert themselves every few ticks, while time stops, storms,
-		// fields and delayed jobs advance through bounded lifecycle owners.
-		ServerTickEvents.END_SERVER_TICK.register(server -> {
-			int tick = server.getTickCount();
-			MagicRuntime.global().tick(tick);
-			com.powers.magic.runtime.PhysicalMagicPresences.tick(tick);
-			PlayerTickCoordinator.tick(server, tick);
-			ArtifactInventoryRuntime.tickServer(server);
-			PowerAbilityRuntime.tick(server);
-			CrystalPowerRegistry.tick(server);
-			BodyProxyManager.tickAll();
-			SpellCastingManager.tick(server);
-			SpellFieldManager.tick(server);
-			CelestialRuinManager.tick(server);
-			RealmMindscapeManager.tick(server);
-			LivingForceManager.tick(server);
-			com.powers.force.ForceContainmentManager.tick(server);
-			com.powers.force.FactionInvasionManager.tick(server);
-			PowerAbilityRuntime.tickTeleportMarking();
-			ServerMagicScheduler.tick(tick);
-		});
-
 		LOGGER.info("POWERS framework initialized with {} power(s)", PowerRegistry.getAll().size());
 	}
 
-	/** Performs all work for one player during the coordinator's single pass. */
-	static void tickPlayer(ServerPlayer player, int tick, PlayerTickCadence cadence) {
-		enforceRealmGamemode(player);
-		// Minecraft's global tick freeze does not prevent Fabric's server-end
-		// callback from running. Do not advance passives, artifacts, energy, or
-		// player-owned magic for anyone the active time stop has frozen.
-		if (!com.powers.power.state.GlobalTimeStopManager.mayAct(player)) return;
-		if (cadence.passiveRefresh()) {
-			PowersPackets.syncTo(player);
-		}
-		ArtifactInventoryRuntime.tickPlayer(player, tick);
-		com.powers.item.ImportedArtifactRuntime.tickPlayer(player, tick);
-		PrivateCompanionManager.tickPlayer(player, tick);
-		tickToggles(player, tick);
-		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		boolean sleeping = player.isSleeping();
-		boolean wasSleeping = WAS_SLEEPING.getOrDefault(player.getUUID(), false);
-		WAS_SLEEPING.put(player.getUUID(), sleeping);
-		// Advancement inspection is the heaviest per-player bookkeeping pass.
-		// Quest/deed completions refresh immediately at their event source, while
-		// ordinary external advancement/tag changes are reconciled every 5 seconds.
-		if (cadence.passiveRefresh()) {
-			SkillSystem.syncPathVisibility(player);
-			SkillSystem.refresh(player);
-		}
-		if (wasSleeping && !sleeping) {
-			data.restoreEnergy();
-			PowersPackets.syncTo(player);
-		} else if (cadence.second()) {
-			int regen = 1;
-			if (SkillSystem.hasDarknessTag(player)) {
-				boolean inDarkRealm = SkillSystem.isDarkRealm(player.level().dimension());
-				long timeOfDay = Math.floorMod(player.level().getDefaultClockTime(), 24000L);
-				boolean night = timeOfDay >= 13000L || timeOfDay < 2300L;
-				regen = PowerEnergy.darknessRegen(inDarkRealm || night);
-			}
-			if (data.regenerateEnergy(PowerScalingService.regeneration(player, regen))) {
-				PowersPackets.syncTo(player);
-			}
-		}
-		if (cadence.fiveTick()) {
-			if (cadence.second()) AmethystDampening.update(player);
-			drainExhaustionEnergy(player);
-		}
-		if (cadence.second()) drainToggleEnergy(player);
-	}
-
-	/** Starts a visual lightning storm at a spot, lasting {@code ticks} ticks. */
+	/** Starts a visual lightning storm at a fixed point. */
 	public static void startStorm(ServerLevel level, Vec3 position, int ticks) {
 		startStorm(level, position, null, ticks, 0, StormTheme.NONE);
 	}
 
-	/** A storm at a spot that builds up the given realm's signature particles. */
+	/** Starts a fixed storm using one realm's visual palette. */
 	public static void startStorm(ServerLevel level, Vec3 position, int ticks, StormTheme theme) {
 		startStorm(level, position, null, ticks, 0, theme);
 	}
 
-	/**
-	 * Starts a storm that chases the given player, or only follows during
-	 * the first {@code followTicks} ticks.
-	 */
-	public static void startStorm(ServerLevel level, Vec3 position, ServerPlayer follow, int ticks, int followTicks) {
+	/** Starts a storm that follows a player for a bounded number of ticks. */
+	public static void startStorm(ServerLevel level, Vec3 position,
+			ServerPlayer follow, int ticks, int followTicks) {
 		startStorm(level, position, follow, ticks, followTicks, StormTheme.NONE);
 	}
 
-	/**
-	 * A storm that also echoes the realm its traveler is bound for, so the
-	 * lightning beneath them builds up that realm's signature particles.
-	 */
-	public static void startStorm(ServerLevel level, Vec3 position, ServerPlayer follow, int ticks, int followTicks,
-			StormTheme theme) {
+	/** Starts a bounded, optionally following storm with an explicit realm palette. */
+	public static void startStorm(ServerLevel level, Vec3 position, ServerPlayer follow,
+			int ticks, int followTicks, StormTheme theme) {
 		ServerMagicScheduler.startStorm(level, position, follow, ticks, followTicks, theme);
 	}
 
-	/** Runs {@code action} once, {@code ticks} server ticks from now. */
+	/** Runs an action once after a bounded server-tick delay. */
 	public static ScheduledTaskQueue.TaskToken scheduleDelayed(
 			MinecraftServer server, int ticks, Runnable action) {
 		return ServerMagicScheduler.schedule(server, ticks, action);
 	}
 
-	/**
-	 * Realm dimensions pin players to adventure so the scenery survives, and
-	 * the old game mode comes back on the way out. The snapshot lives on the
-	 * player as a persistent attachment rather than in a map: a player who logs
-	 * out inside a realm used to come back, get adventure recorded as their
-	 * "previous" mode, and stay stuck in it for good.
-	 */
-	private static void enforceRealmGamemode(ServerPlayer player) {
-		if (PowerAbilityRuntime.usesDetachedBody(player.getUUID())) return;
-		boolean inRealm = RealmDimensionRules.isMindscape(
-				player.level().dimension().identifier().toString());
-		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		GameType previous = data.previousGameMode();
-		if (inRealm) {
-			// never snapshot adventure itself, or a relog inside the realm would
-			// overwrite the real mode with the one we forced on them
-			if (previous == null && player.gameMode() != GameType.ADVENTURE) {
-				data.setPreviousGameMode(player.gameMode());
-			}
-			if (player.gameMode() != GameType.ADVENTURE) {
-				player.setGameMode(GameType.ADVENTURE);
-			}
-		} else if (previous != null) {
-			data.setPreviousGameMode(null);
-			if (player.gameMode() == GameType.ADVENTURE) {
-				player.setGameMode(previous);
-			}
-		}
-	}
-
-	// steps the per-tick effect of every toggle the player has switched on
-	private static void tickToggles(ServerPlayer player, int serverTick) {
-		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
-			Power power = data.getPower(slot);
-			if (power == null) {
-				continue;
-			}
-			Ability ability = power.ability();
-			if (ability != null && ability.isToggle() && data.isToggleActive(power.id().toString())
-					&& serverTick % Math.max(1, ability.activeTickInterval()) == 0) {
-				ability.tickActive(player, data);
-			}
-		}
-	}
-
-	// toggles that can't be paid shut themselves off, and burning out triggers the backlash
-	private static void drainToggleEnergy(ServerPlayer player) {
-		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		boolean anyDrainedOut = false;
-		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
-			Power power = data.getPower(slot);
-			if (power == null || power.ability() == null || !power.ability().isToggle()
-					|| !data.isToggleActive(power.id().toString())) continue;
-			int cost = com.powers.power.PowerEnergy.ongoingCost(player, power.ability());
-			if (cost > 0 && !data.consumeEnergy(cost)) {
-				power.ability().activateToggleOff(player, data);
-				data.setToggleActive(player, power.id().toString(), false);
-				anyDrainedOut = true;
-			}
-		}
-		if (anyDrainedOut) {
-			energyBacklash(player);
-			PowersPackets.syncTo(player);
-		}
-	}
-
-	// the exhaustion effect eats the pool like hunger: every 5 ticks a chunk
-	// is stripped away, bigger at higher amplifier, so the HUD visibly crashes
-	// over a few seconds instead of zeroing out instantly
-	private static void drainExhaustionEnergy(ServerPlayer player) {
-		MobEffectInstance exhaustion = player.getEffect(PowersEffects.EXHAUSTION);
-		if (exhaustion == null) return;
-		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		int capacity = data.energyCapacity();
-		int drain = Math.max(1, capacity / 20) * (1 + exhaustion.getAmplifier());
-		int before = data.energy();
-		data.drainEnergy(drain);
-		if (data.energy() != before) {
-			PowersPackets.syncTo(player);
-		}
-	}
-
-	// letting a toggle burn out on an empty pool draws divine punishment:
-	// 70% of max health in magic damage, the full godly wrath sequence, and a
-	// lightning storm that chases the player, as if the gods themselves noticed
-	private static void energyBacklash(ServerPlayer player) {
-		ServerLevel level = (ServerLevel) player.level();
-
-		float damage = player.getMaxHealth() * 0.7f;
-		if (player.isAlive()) {
-			player.hurtServer(level, player.damageSources().magic(), damage);
-		}
-
-		GodlyPunishment.strike(level, player, 0xFFD700, true);
-		PowerMessages.sendImportant(player, "energy.powers.backlash", 6);
-	}
-
+	/** Creates one identifier in the stable POWERS namespace. */
 	public static Identifier id(String path) {
 		return Identifier.fromNamespaceAndPath(MOD_ID, path);
 	}

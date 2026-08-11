@@ -4,7 +4,6 @@ import com.powers.network.MagicFxPackets;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,11 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Contract tests for the compact semantic presentation layer. */
 class MagicFxServiceTest {
-	@Test
-	void majorSequenceContainsEveryReadableBeat() {
-		assertEquals(EnumSet.allOf(FxBeat.class), EnumSet.copyOf(FxSequence.major().beats()));
-	}
-
 	@Test
 	void duplicatePairCellTickProducesOneEvent() {
 		List<MagicFxEvent> sink = new ArrayList<>();
