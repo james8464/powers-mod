@@ -15,6 +15,7 @@ public final class MagicAttemptJournal {
 	private static final MagicAttemptJournal GLOBAL = new MagicAttemptJournal();
 	private final Map<UUID, Deque<MagicAttempt>> histories = new HashMap<>();
 	private final Map<UUID, HintState> hints = new HashMap<>();
+	private MagicAttempt lastFailure;
 	private record HintState(String actionId, MagicFailureReason reason, int repeats, long lastHintTick) { }
 
 	public static MagicAttemptJournal global() {
@@ -36,6 +37,7 @@ public final class MagicAttemptJournal {
 			hints.remove(owner);
 			return false;
 		}
+		lastFailure = attempt;
 		HintState prior = hints.get(owner);
 		int repeats = prior != null && prior.actionId().equals(attempt.actionId())
 				&& prior.reason() == attempt.reason() ? prior.repeats() + 1 : 1;
@@ -44,6 +46,11 @@ public final class MagicAttemptJournal {
 		hints.put(owner, new HintState(attempt.actionId(), attempt.reason(), repeats,
 				notify ? attempt.gameTick() : lastHint));
 		return notify;
+	}
+
+	/** Returns only the most recent typed failure; callers must not expose action or owner data. */
+	public Optional<MagicAttempt> latestGlobalFailure() {
+		return Optional.ofNullable(lastFailure);
 	}
 
 	/** Selects a named recent action, otherwise the newest failure, for diagnostic questions only. */
@@ -95,6 +102,7 @@ public final class MagicAttemptJournal {
 	public void clear() {
 		histories.clear();
 		hints.clear();
+		lastFailure = null;
 	}
 
 	private static boolean asksWhy(String value) {

@@ -1003,6 +1003,8 @@
 	"tooltip.powers.crucible.level": "Weapon Level %s · %s XP",
 	"tooltip.powers.crucible.lightning": "Right-click Lightning: %s damage · %s energy",
 	"tooltip.powers.crucible.unbound": "Awaiting an Animated Artifact Star",
+	"tooltip.powers.energy_history": "Energy history: spent %s, restored %s",
+	"tooltip.powers.energy_source": "%s: %s",
 	"tag.item.powers.arcane_crucible_base_weapons": "Arcane Crucible Base Weapons",
 	"grimoire.celestial.ambiguous": "Remote viewing refused: that loaded name is not unique.",
 	"grimoire.celestial.scan_limit": "Remote viewing paused: too many loaded entities to prove that name is unique.",

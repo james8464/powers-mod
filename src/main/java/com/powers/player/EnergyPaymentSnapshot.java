@@ -36,9 +36,15 @@ public final class EnergyPaymentSnapshot {
 
 	/** Restores exact pre-payment distribution, not merely the same total. */
 	public void restore(ServerPlayer player) {
+		int currentPlayerEnergy = PlayerEnergyStorage.energy(player);
+		int currentReservoirEnergy = ArtifactEnergyReservoir.totalStored(player);
 		PlayerEnergyStorage.store(player, playerEnergy);
 		for (Reservoir reservoir : reservoirs) {
 			ArtifactEnergyReservoir.setStored(reservoir.stack(), reservoir.energy());
 		}
+		PlayerEnergyHistory.record(player, EnergyHistorySource.TRANSACTION_ROLLBACK,
+				currentPlayerEnergy, playerEnergy);
+		PlayerEnergyHistory.record(player, EnergyHistorySource.TRANSACTION_ROLLBACK,
+				currentReservoirEnergy, ArtifactEnergyReservoir.totalStored(player));
 	}
 }

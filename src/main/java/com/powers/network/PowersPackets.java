@@ -3,6 +3,7 @@ package com.powers.network;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
+import com.powers.player.PlayerEnergyHistory;
 import com.powers.power.Ability;
 import com.powers.power.AbilityActivationService;
 import com.powers.power.Power;
@@ -313,6 +314,7 @@ public final class PowersPackets {
 			reactivations.add(ability == null || ability.isToggle()
 					? 0 : Math.max(0, ability.reactivationTicks(player, data)));
 		}
+		var energyHistory = PlayerEnergyHistory.snapshot(player);
 		PowerStatePayload payload = new PowerStatePayload(
 				data.getSlotIds(),
 				data.getActiveToggles(),
@@ -327,7 +329,11 @@ public final class PowersPackets {
 				data.getSizeMorphOption(),
 				rankProgress.completed().stream().sorted().toList(),
 				rankProgress.focus(),
-				darkness ? data.darknessLevel() : data.skillLevel());
+				darkness ? data.darknessLevel() : data.skillLevel(),
+				energyHistory.consumed(),
+				energyHistory.restored(),
+				energyHistory.breakdown().stream()
+						.map(com.powers.player.EnergyHistorySnapshot.Breakdown::amount).toList());
 		if (payload.equals(LAST_SENT_STATE.get(player.getUUID()))) return;
 		LAST_SENT_STATE.put(player.getUUID(), payload);
 		ServerPlayNetworking.send(player, payload);

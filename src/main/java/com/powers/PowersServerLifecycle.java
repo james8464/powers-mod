@@ -125,6 +125,7 @@ final class PowersServerLifecycle {
 		CrucibleWeaponRuntime.forget(player.getUUID());
 		PrivateCompanionManager.forget(player);
 		KnowledgeRemoteProviderRuntime.forget(player.getUUID());
+		com.powers.player.PlayerEnergyHistory.forget(player);
 		TravelChunkLoader.cancel(player.getUUID());
 		ConcordCastManager.forget(player.getUUID());
 		RealmEventManager.forget(player.getUUID());
@@ -162,6 +163,8 @@ final class PowersServerLifecycle {
 		PhysicalMagicPresences.clear();
 		ConsentOverrideRuntime.clear();
 		OperatorAudit.clear();
+		com.powers.knowledge.MagicAttemptJournal.global().clear();
+		com.powers.player.PlayerEnergyHistory.clear();
 		PersistentDimensionDiagnostics.clear();
 		ControlResistance.clear();
 	}
