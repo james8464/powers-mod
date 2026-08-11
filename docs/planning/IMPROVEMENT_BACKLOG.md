@@ -8,7 +8,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
-| COR-017 | Guarantee | P2 | Normalize all player-facing cooldown units and rounding. | HUD, action bar, Shadow explanation, catalogue, and command diagnostics agree to one tick. |
 | COR-018 | Guarantee | P2 | Add deterministic replay seeds for all random target, strike, scar, loot, and learning decisions. | A captured seed reproduces behavior and visuals without changing production randomness. |
 | COR-019 | Guarantee | P2 | Add explicit capability fallback for non-player living entities used by player-only mechanics. | Every action declares supported entity contract and returns a typed failure instead of casting/crashing. |
 | COR-020 | Guarantee | P2 | Audit every scheduled callback for stale entity, stale level, and stopped-server references. | Static/runtime audit proves UUID re-resolution, deadline, and cancellation ownership. |
@@ -39,8 +38,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | PWR-006 | Enhancement | P2 | Flight: momentum turns, sonic threshold, air-braking, water transition, and stamina-readable audio. | Movement is responsive under latency without creative flags or anti-cheat false positives. |
 | PWR-007 | Enhancement | P2 | Starfall: constellation presets and team-painted safe lanes. | Presets change geometry, not hidden damage, and warnings remain readable. |
 | PWR-008 | Enhancement | P2 | Void Beam: destructible bore material tiers and temporary gravity lens. | Protection-first ray tests prove bounded block and entity work. |
-| PWR-009 | Enhancement | P2 | Fireball: deliberate charge-release key path, catch/deflect timing, and ground streak continuity. | No accidental punch requirement; reflection attribution remains exact. |
-| PWR-010 | Enhancement | P2 | Lightning: chain conductance through water, copper, armour, and rods with clear grounding counterplay. | Deterministic conductor graph caps nodes and never uses harmful vanilla bolt side effects. |
 | PWR-011 | Enhancement | P2 | Thunderclap: terrain dust wave, glass/fragile-tag interaction, and directional echo in caves. | Damage, grief, and audio respect policy and obstruction. |
 | PWR-012 | Enhancement | P2 | Speed Burst: wall-run or ricochet branch with telegraphed collision normals. | No clipping, fall exploit, or forced-movement bypass. |
 | PWR-013 | Enhancement | P2 | Telekinesis: aim-held single-target manipulation, object orbit, and intentional projectile release. | Ownership, collision, reach, and consent remain server-owned. |
@@ -48,7 +45,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | PWR-015 | Enhancement | P2 | Super Speed: client camera/FOV comfort controls and path-aware wake LOD. | Reduced-motion mode removes camera distortion without gameplay advantage. |
 | PWR-016 | Enhancement | P2 | Breezy Bash: caster-directed landing zone and allied rescue mode. | Hostile control still needs consent/policy; rescue never teleports through walls. |
 | PWR-017 | Enhancement | P2 | Invisibility: light/shadow exposure meter, footprints, rain silhouettes, and Insight counterplay. | Counter cues are consistent, configurable, and do not reveal through walls. |
-| PWR-018 | Enhancement | P2 | Time Freeze: per-owner drain forecast and pre-freeze server warning at low TPS. | UI predicts safe duration and refuses freeze only under an explicit operator budget. |
 | PWR-019 | Enhancement | P2 | Forcefield: visible crack stages, ownership colour, repair/merge rules, and ally opt-out. | Integrity and sacrificial protection remain authoritative in all views. |
 | PWR-020 | Enhancement | P2 | Gravity Displacement: player-chosen pull/orbit/repel modes and stable boss resistance. | Mode selection is fast, bounded, and represented in artifact snapshots. |
 | PWR-021 | Enhancement | P2 | Vessel Possession: richer mob action adapters (doors, ranged use, special attack) without fabricating player inventories. | Each supported host type declares allowed controls and exact cleanup. |
@@ -130,14 +126,12 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | ART-007 | Enhancement | P2 | Expand Philosopher's Stone through datapack transmutation recipes with entropy cost. | Recipes are discoverable, protected, non-circular, and cannot duplicate value. |
 | ART-008 | Enhancement | P2 | Miniportal: named anchors, durability bar tooltip, and charged/empty model variants. | Still two charges, same dimension, async, and commit-after-arrival. |
 | ART-009 | Enhancement | P2 | Flute: formation/stance wheel and guardian status. | Commands affect only owned eligible guardians under caps. |
-| ART-010 | Enhancement | P2 | Empyrean Jewel: conspicuous consent-override ceremony and audit log for operators. | Target sees who overrode what; safe-zone/policy remains absolute. |
 | ART-011 | Enhancement | P2 | Malignember: display eligible destructive actions and actual saved energy. | Tooltip is registry-derived and never promises an ineligible discount. |
 | ART-012 | Enhancement | P2 | Give fossils/pages/jewels in-world archaeology clue chains instead of only XP values. | Each clue has source, interpretation, and non-circular reward. |
 | ART-013 | Enhancement | P2 | Expand Crucible output previews with retained/lost components and exact level curve. | Server snapshot drives all displayed data; stale preview cannot commit. |
 | ART-014 | Enhancement | P2 | Add alignment-specific weapon models/animations for the six conversion outputs. | All GUI/ground/first/third-person views pass asset QA. |
 | ART-015 | Enhancement | P2 | Add weapon-archetype mastery challenges and signature finishers. | Proc remains cooldown-bounded and no ordinary weapon eclipses mythics. |
 | ART-016 | Enhancement | P2 | Rebalance food affinity using tags so third-party foods opt into normal/foul/neutral behavior. | Unknown foods default neutral; no hidden starvation loop. |
-| ART-017 | Defect | P2 | Resolve Wisdom Fruit's sole naturally unobtainable status with an Archivist orchard or explicitly hide it. | Catalogue and `NATURALLY_UNOBTAINABLE_ITEMS.md` reach zero accidental entries. |
 | ART-018 | Expansion | P3 | Add an Archivist relic-restoration bench for damaged archaeology finds. | It complements rather than duplicates the Arcane Crucible. |
 | ART-019 | Expansion | P3 | Add set-bonus lore collections for non-combat relics. | Bonuses are utility/cosmetic, bounded, and visible before activation. |
 | ART-020 | Guarantee | P2 | Audit mythic artifact ownership in nested containers and inventory-component mods. | Policy explicitly supports or rejects each container with no ghost authorization. |
@@ -194,7 +188,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | SHD-009 | Enhancement | P2 | Learn from explicit owner feedback (`good`, `don't do that`) separately from combat reward. | Learning remains owner-local, capped, resettable, and cannot alter hard safety. |
 | SHD-010 | Enhancement | P2 | Add spatial memory of temporary owner-designated places, not global world surveillance. | Bounded named points, explicit delete, dimension-safe, and no forced loading. |
 | SHD-011 | Enhancement | P2 | Expand offline lore/registry knowledge to all 262 catalogue rows, 64 actions, ranks, realms, and interaction rules. | Generated knowledge coverage report reaches 100% with source links. |
-| SHD-012 | Enhancement | P2 | Add conversational continuity for pronouns and follow-up questions. | Resolution uses only 24-turn redacted memory and admits ambiguity. |
 | SHD-013 | Enhancement | P2 | Make Shadow's subtle ulterior Darkness agenda stateful but never deceptive about mechanics/safety. | Tone tests distinguish persuasion from fabricated facts. |
 | SHD-014 | Enhancement | P2 | Add spoken/visual combat callouts with frequency controls. | Critical warnings survive; chatter respects global/private and accessibility settings. |
 | SHD-015 | Enhancement | P2 | Add owner-visible Shadow energy/status HUD only while relevant. | No permanent clutter; server snapshot is authoritative. |
@@ -209,7 +202,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | --- | --- | --- | --- | --- |
 | UX-004 | Enhancement | P2 | Replace artifact catalogue pagination with virtual scroll, filters, and recent actions. | Any action is bindable in two interactions after search. |
 | UX-005 | Enhancement | P2 | Add hold-to-preview wheel aim and optional release-to-cast mode. | Default behavior remains safe; narration/keyboard parity. |
-| UX-006 | Enhancement | P2 | Add cooldown/energy insufficiency forecasts directly on wheel segments. | Numbers match server snapshots and update without per-frame packets. |
 | UX-007 | Enhancement | P2 | Add complete controller/gamepad navigation for all screens and selectors. | Every action is reachable without mouse and focus never traps. |
 | UX-008 | Guarantee | P2 | Complete narration labels, order, live-region throttling, and high-contrast focus for every custom screen. | Automated accessibility audit plus manual screen-reader pass. |
 | UX-009 | Enhancement | P2 | Add configurable reduced flashes, tinnitus, camera shake, FOV, and large-beam opacity. | Celestial Ruin remains mechanically readable with all comfort options enabled. |
@@ -247,16 +239,12 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
 | NET-004 | Enhancement | P2 | Add permissions-node integration alongside vanilla operator levels. | Server owners can separate diagnose, testing, travel, assign, recover, and boss controls. |
-| NET-005 | Enhancement | P2 | Add operator audit events for consent overrides, recovery, catastrophic rituals, testing mode, and forced travel. | Structured log identifies actor/action/result without secrets. |
-| NET-006 | Enhancement | P2 | Add `/powers diagnose export` redacted JSON snapshot. | Export is bounded, schema-versioned, and contains no chat/API key/private coordinates by default. |
 | NET-007 | Enhancement | P2 | Add per-world/dimension policy overrides. | Fallback order is deterministic and shown by diagnose. |
-| NET-008 | Enhancement | P2 | Add config validation report on reload rather than silently only clamping. | Operator sees original, sanitized value, reason, and active revision. |
 | NET-009 | Enhancement | P2 | Add formal public integration API for custom powers, cast sources, actions, presences, and protection. | API has lifecycle contract, examples, compatibility tests, and semantic versioning. |
 | NET-010 | Enhancement | P2 | Add datapack reload migration for action/menu keys without reconnect. | Active casts either finish on old revision or cancel safely; clients receive one revision. |
 | NET-011 | Guarantee | P2 | Validate behavior with common performance/render/voice/claim/inventory mods. | Published compatibility matrix names tested versions and known limitations. |
 | NET-012 | Enhancement | P3 | Add localization framework and first complete non-English translation. | No string concatenation blocks grammar; all UI/tooltips/subtitles localize. |
 | NET-013 | Enhancement | P3 | Add server presets: lore survival, PvP-balanced, cinematic testing, low-spec. | Presets are explicit diffs and never overwrite hand-edited config without confirmation. |
-| NET-014 | Guarantee | P2 | Add privacy review for Shadow global chat and remote dialogue provider. | Documentation and tests cover visibility, redaction, retention, and opt-in. |
 
 ## 14. Testing, observability, release, and documentation
 
@@ -267,14 +255,10 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | QA-006 | Guarantee | P1 | Add long-duration world soak with forced restart every few minutes. | No leaked ticket, index, field, summon, body, freeze, or Ruin state over 24 hours. |
 | QA-009 | Guarantee | P2 | Add network latency/loss/reorder simulation for menus, movement control, wheel binding, and FX. | State converges without double cast, ghost selection, or unsafe prediction. |
 | QA-010 | Guarantee | P2 | Add test worlds for claims, borders, low ceilings, void, fluids, mounts, passengers, portals, and modded dimensions. | Each critical action has at least one hostile-environment scenario. |
-| QA-011 | Enhancement | P2 | Add performance regression budgets to CI for allocations and deterministic workload units. | Significant regressions fail with subsystem attribution. |
 | QA-012 | Enhancement | P2 | Add crash-report sections for active POWERS sessions and last typed failure. | Report is useful, bounded, and redacted. |
-| QA-013 | Guarantee | P2 | Validate every README number/link against registries or a named verification source. | Documentation check catches count, version, command, and path drift. |
-| QA-014 | Guarantee | P2 | Generate the item/action/rank/interaction appendices in CI and fail dirty diffs. | Production registries and committed docs cannot diverge. |
 | QA-015 | Enhancement | P2 | Add in-game operator test dashboard summarizing coverage and recent failures. | Dashboard is read-only outside explicit testing actions and has negligible idle cost. |
 | QA-016 | Guarantee | P2 | Audit all comments for intent/invariants rather than line-by-line narration. | Source quality check rejects stale TODOs, misleading claims, and public APIs without contracts. |
 | QA-017 | Guarantee | P2 | Add resource-pack fallback and missing-asset tests. | Missing optional custom art degrades visibly and never crashes model baking. |
-| QA-018 | Guarantee | P2 | Add deterministic loot/recipe/tag data validation against vanilla and modded registries. | Invalid or circular entries fail before world load. |
 | QA-019 | Enhancement | P3 | Produce a concise operator handbook separate from the player README. | Includes install, config, backups, recovery, diagnostics, permissions, and catastrophe policy. |
 | QA-020 | Enhancement | P3 | Produce an in-game bestiary/ritual codex from the same generated data. | It contains no unearned spoilers and cannot drift from registries. |
 
