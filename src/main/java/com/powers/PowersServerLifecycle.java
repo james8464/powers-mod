@@ -1,6 +1,7 @@
 package com.powers;
 
 import com.powers.companion.DialogueProviderRuntime;
+import com.powers.audit.OperatorAudit;
 import com.powers.companion.PrivateCompanionManager;
 import com.powers.config.PowersConfigLoader;
 import com.powers.diagnostics.ServerRuntimeMetrics;
@@ -160,6 +161,7 @@ final class PowersServerLifecycle {
 		ServerRuntimeMetrics.clear();
 		PhysicalMagicPresences.clear();
 		ConsentOverrideRuntime.clear();
+		OperatorAudit.clear();
 		PersistentDimensionDiagnostics.clear();
 		ControlResistance.clear();
 	}

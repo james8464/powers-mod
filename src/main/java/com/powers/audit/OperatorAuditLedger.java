@@ -35,6 +35,13 @@ public final class OperatorAuditLedger {
 		return new OperatorAuditSnapshot(total, copy);
 	}
 
+	public synchronized void clear() {
+		for (var results : counts.values()) {
+			for (OperatorAuditResult result : OperatorAuditResult.values()) results.put(result, 0L);
+		}
+		total = 0L;
+	}
+
 	private static long increment(long value) {
 		return value == Long.MAX_VALUE ? value : value + 1L;
 	}

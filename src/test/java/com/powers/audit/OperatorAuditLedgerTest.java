@@ -24,4 +24,17 @@ class OperatorAuditLedgerTest {
 		assertEquals("", snapshot.counts().stream().map(OperatorAuditSnapshot.Count::toString)
 				.filter(text -> text.contains("Alice") || text.contains("Bob")).findFirst().orElse(""));
 	}
+
+	@Test
+	void clearPreventsCountsLeakingIntoTheNextServerSession() {
+		OperatorAuditLedger ledger = new OperatorAuditLedger();
+		ledger.record(new OperatorAuditEvent(OperatorAuditAction.TESTING_CONTROL,
+				OperatorAuditResult.SUCCESS, "operator", "player", "energy_disabled"));
+
+		ledger.clear();
+
+		assertEquals(0, ledger.snapshot().total());
+		assertEquals(0, ledger.snapshot().count(
+				OperatorAuditAction.TESTING_CONTROL, OperatorAuditResult.SUCCESS));
+	}
 }
