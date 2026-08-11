@@ -6,6 +6,8 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.ToggleKeyRules;
 import com.powers.util.PowerMessages;
+import com.powers.companion.PrivateCompanionManager;
+import com.powers.companion.ShadowCompanionEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -26,7 +28,7 @@ import java.util.UUID;
  * projectiles, block entities and scheduled ticks in every dimension.</p>
  */
 public final class GlobalTimeStopManager {
-	private enum Source { INNATE, CRYSTAL }
+	private enum Source { INNATE, CRYSTAL, SHADOW }
 
 	private static final net.minecraft.resources.Identifier POWER_ID = PowersMod.id("time_freeze");
 	private static final Map<MinecraftServer, Stop> ACTIVE = new IdentityHashMap<>();
@@ -56,7 +58,7 @@ public final class GlobalTimeStopManager {
 					"ability.powers.time_freeze.clock_owned"));
 			return false;
 		}
-		Stop stop = new Stop(owner.getUUID(), source, deadline);
+		Stop stop = new Stop(owner.getUUID(), source, deadline, null);
 		ACTIVE.put(server, stop);
 		setFrozenOwned(server, true);
 		for (ServerPlayer observer : server.getPlayerList().getPlayers()) {
@@ -68,9 +70,34 @@ public final class GlobalTimeStopManager {
 		return true;
 	}
 
+	/** A manifested Shadow freezes the clock for its owner and pays from its own pool. */
+	public static boolean startShadow(ServerPlayer owner, ShadowCompanionEntity shadow) {
+		MinecraftServer server = owner.level().getServer();
+		if (shadow == null || !shadow.isAlive() || shadow.ownerId() == null
+				|| !shadow.ownerId().equals(owner.getUUID())
+				|| !GlobalTimeStopRules.mayStart(ACTIVE.containsKey(server),
+				server.tickRateManager().isFrozen())) return false;
+		Stop stop = new Stop(owner.getUUID(), Source.SHADOW, Long.MAX_VALUE, shadow.getUUID());
+		ACTIVE.put(server, stop);
+		setFrozenOwned(server, true);
+		for (ServerPlayer observer : server.getPlayerList().getPlayers()) {
+			PowerMessages.overlay(observer, Component.translatable(
+					"ability.powers.time_freeze.global_begin", owner.getDisplayName()));
+			TimeStopFx.globalBegin((ServerLevel) observer.level(), observer.position(), false);
+		}
+		return true;
+	}
+
 	/** Releases time only when the requester owns this server's clock. */
 	public static void stop(ServerPlayer owner) {
 		release(owner.level().getServer(), owner.getUUID(), true);
+	}
+
+	public static void stopShadow(ServerPlayer owner) {
+		Stop stop = ACTIVE.get(owner.level().getServer());
+		if (stop != null && stop.source == Source.SHADOW) {
+			release(owner.level().getServer(), owner.getUUID(), true);
+		}
 	}
 
 	/** Releases only a crystal-owned stop; innate toggles retain their own authority. */
@@ -95,15 +122,26 @@ public final class GlobalTimeStopManager {
 		ServerPlayer owner = server.getPlayerList().getPlayer(stop.owner());
 		boolean online = owner != null;
 		boolean alive = online && owner.isAlive();
-		boolean authorityActive = online && (stop.source == Source.CRYSTAL
-				? server.getTickCount() < stop.deadline
-				: ToggleKeyRules.anyOwnsAbility(
-						PlayerPowers.get(owner).getActiveToggles(), POWER_ID));
-		boolean dampened = online && AmethystDampening.isDampened(owner);
+		ShadowCompanionEntity shadow = stop.source == Source.SHADOW && online
+				? PrivateCompanionManager.body(stop.owner()).orElse(null) : null;
+		boolean authorityActive = online && switch (stop.source) {
+			case CRYSTAL -> server.getTickCount() < stop.deadline;
+			case INNATE -> ToggleKeyRules.anyOwnsAbility(
+					PlayerPowers.get(owner).getActiveToggles(), POWER_ID);
+			case SHADOW -> shadow != null && shadow.isAlive()
+					&& shadow.getUUID().equals(stop.shadowBody)
+					&& shadow.energy() >= 300;
+		};
+		boolean dampened = online && (stop.source == Source.SHADOW
+				? shadow == null || AmethystDampening.isDampened(shadow)
+				: AmethystDampening.isDampened(owner));
 		if (GlobalTimeStopRules.shouldRelease(online, alive, authorityActive, dampened,
 				server.tickRateManager().isFrozen(), stop.externallyMutated)) {
 			release(server, stop.owner(), true);
 			return;
+		}
+		if (stop.source == Source.SHADOW && server.getTickCount() % 20 == 0) {
+			shadow.setEnergy(shadow.energy() - 300);
 		}
 		if (server.getTickCount() % 20 == 0) {
 			for (ServerPlayer observer : server.getPlayerList().getPlayers()) {
@@ -190,12 +228,14 @@ public final class GlobalTimeStopManager {
 		private final UUID owner;
 		private final Source source;
 		private final long deadline;
+		private final UUID shadowBody;
 		private boolean externallyMutated;
 
-		private Stop(UUID owner, Source source, long deadline) {
+		private Stop(UUID owner, Source source, long deadline, UUID shadowBody) {
 			this.owner = owner;
 			this.source = source;
 			this.deadline = deadline;
+			this.shadowBody = shadowBody;
 		}
 
 		private UUID owner() {

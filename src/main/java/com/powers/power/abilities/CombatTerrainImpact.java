@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 /** Bounded loaded-chunk terrain mutations shared by boss-scale innate attacks. */
@@ -41,6 +42,11 @@ public final class CombatTerrainImpact {
 
 	/** Removes a hard-capped crater around one loaded impact point. */
 	public static int crater(ServerLevel level, ServerPlayer caster, Vec3 center, int rank) {
+		return craterLiving(level, caster, center, rank);
+	}
+
+	/** Max-rank entity-safe crater used by Shadow and boss-scale actors. */
+	public static int craterLiving(ServerLevel level, LivingEntity caster, Vec3 center, int rank) {
 		int budget = CombatTerrainRules.craterBudget(rank);
 		double radius = CombatTerrainRules.craterRadius(rank);
 		BlockPos origin = BlockPos.containing(center);
@@ -86,6 +92,11 @@ public final class CombatTerrainImpact {
 	/** Burns a sparse block trail backward from a beam's terminal point. */
 	public static int rayScar(ServerLevel level, ServerPlayer caster, Vec3 from, Vec3 to,
 			int rank, int color) {
+		return rayScarLiving(level, caster, from, to, rank, color);
+	}
+
+	public static int rayScarLiving(ServerLevel level, LivingEntity caster, Vec3 from, Vec3 to,
+			int rank, int color) {
 		Vec3 delta = to.subtract(from);
 		if (delta.lengthSqr() < 1.0E-8) return 0;
 		int budget = CombatTerrainRules.rayBudget(rank);
@@ -110,9 +121,12 @@ public final class CombatTerrainImpact {
 		return null;
 	}
 
-	private static boolean breakBlock(ServerLevel level, ServerPlayer caster, BlockPos pos, int rank) {
+	private static boolean breakBlock(ServerLevel level, LivingEntity caster, BlockPos pos, int rank) {
 		BlockState state = level.getBlockState(pos);
-		if (state.isAir() || !PowerProtection.mayAffectBlock(caster, level, pos)
+		if (state.isAir() || PowerProtection.blockDecision(
+				com.powers.config.PowersConfigLoader.get(),
+				PowerProtection.isSafeZone(level, Vec3.atCenterOf(pos)),
+				level.getBlockEntity(pos) != null) != com.powers.protection.ProtectionDecision.ALLOW
 				|| state.is(Blocks.BEDROCK) || state.is(Blocks.END_PORTAL_FRAME)
 				|| state.is(Blocks.END_PORTAL) || state.is(Blocks.NETHER_PORTAL)
 				|| state.is(PowersBlocks.DARKNESS) || state.is(PowersBlocks.PURE_LIGHT)
@@ -122,5 +136,28 @@ public final class CombatTerrainImpact {
 		return Float.isFinite(hardness) && hardness >= 0.0F
 				&& hardness <= CombatTerrainRules.maximumHardness(rank)
 				&& level.destroyBlock(pos, false, caster);
+	}
+
+	/** Converts a capped disc into living Darkness without bypassing protection or loaded chunks. */
+	public static int blightDisc(ServerLevel level, LivingEntity caster, int radius, int budget) {
+		BlockPos origin = caster.blockPosition().below();
+		int converted = 0;
+		for (int index = 0; index < budget * 3 && converted < budget; index++) {
+			double radial = radius * Math.sqrt((index + 0.5) / (budget * 3.0));
+			double angle = index * 2.399963229728653;
+			BlockPos sample = origin.offset((int) Math.round(Math.cos(angle) * radial), 0,
+					(int) Math.round(Math.sin(angle) * radial));
+			BlockPos ground = solidNear(level, sample, 3);
+			if (ground == null || PowerProtection.isSafeZone(level, Vec3.atCenterOf(ground))
+					|| level.getBlockEntity(ground) != null) continue;
+			BlockState state = level.getBlockState(ground);
+			if (!com.powers.force.LivingForceRules.mayReplace(state.isAir(),
+					!state.getFluidState().isEmpty(), false,
+					state.is(com.powers.force.LivingForceManager.FORCE_SPREAD_IMMUNE),
+					state.getDestroySpeed(level, ground))) continue;
+			level.setBlock(ground, PowersBlocks.DARKNESS.defaultBlockState(), 3);
+			converted++;
+		}
+		return converted;
 	}
 }

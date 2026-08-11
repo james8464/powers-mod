@@ -13,6 +13,11 @@ import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
+import com.powers.power.PowerTargeting;
+import com.powers.companion.combat.ShadowPowerAction;
+import com.powers.companion.combat.ShadowPowerCatalogue;
+import com.powers.companion.combat.ShadowPowerExecutor;
+import com.powers.companion.combat.ShadowPowerRuntime;
 import com.powers.util.LoadedChunks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -99,6 +104,7 @@ public final class PrivateCompanionManager {
 				.withEnergy(body.energy()).withRevealed(revealed)
 				.withBodyId(body.getUUID()));
 		ShadowMagicState.tick(player, body);
+		ShadowPowerRuntime.tick(player, body, player.level().getServer().getTickCount());
 		ShadowTask.Result taskState = session.tasks.tick(player.level().getGameTime());
 		if (taskState.state() == ShadowTask.State.FAILED) {
 			rememberFailure(player, taskState.reason());
@@ -210,7 +216,34 @@ public final class PrivateCompanionManager {
 			executeConjuration(owner, session, request);
 		} else if (request.kind() == ShadowRequest.Kind.GET_ITEM) {
 			executeRetrieval(owner, session, request);
+		} else if (request.kind() == ShadowRequest.Kind.USE_POWER) {
+			executePower(owner, session, request);
+		} else if (request.kind() == ShadowRequest.Kind.STOP_POWER) {
+			stopPower(owner, session, request);
 		}
+	}
+
+	private static void executePower(ServerPlayer owner, Session session, ShadowRequest request) {
+		String id = request.subject().contains(":")
+				? request.subject().substring(request.subject().indexOf(':') + 1) : request.subject();
+		ShadowPowerAction action = ShadowPowerCatalogue.find(id);
+		if (action == null) {
+			finishTask(owner, session, false, "unknown_power");
+			return;
+		}
+		LivingEntity target = session.body.getTarget();
+		if (target == null || !target.isAlive()) target = PowerTargeting.findLivingTarget(owner, 128.0);
+		var result = ShadowPowerExecutor.execute((ServerLevel) session.body.level(), session.body,
+				target, action, new ShadowPowerExecutor.ExecutionContext(owner, true,
+						owner.level().getServer().getTickCount()));
+		finishTask(owner, session, result.success(), result.reason());
+	}
+
+	private static void stopPower(ServerPlayer owner, Session session, ShadowRequest request) {
+		String id = request.subject().contains(":")
+				? request.subject().substring(request.subject().indexOf(':') + 1) : request.subject();
+		ShadowPowerRuntime.stop(owner, session.body, id);
+		finishTask(owner, session, true, "power_stopped");
 	}
 
 	private static long taskLifetime(ShadowRequest.Kind kind) {
@@ -439,6 +472,7 @@ public final class PrivateCompanionManager {
 		ServerPlayer owner = entity.level().getServer().getPlayerList().getPlayer(ownerId);
 		if (owner != null) {
 			if (session != null) removeClientViewers(owner, session);
+			ShadowPowerRuntime.clearOwner(owner, body);
 			ShadowCompanionStore.set(owner, ShadowManifestationRules.afterDeath(
 					ShadowCompanionStore.get(owner), owner.level().getGameTime()));
 			collapse((ServerLevel) entity.level(), entity.position());
@@ -453,6 +487,7 @@ public final class PrivateCompanionManager {
 		SESSIONS.remove(owner.getUUID(), session);
 		removeClientViewers(owner, session);
 		if (session.body != null) BODY_OWNERS.remove(session.body.getUUID());
+		if (session.body != null) ShadowPowerRuntime.clearOwner(owner, session.body);
 		ShadowConjurationManager.abandon(owner.getUUID());
 		ShadowCompanionStore.set(owner, ShadowManifestationRules.afterDeath(
 				ShadowCompanionStore.get(owner), owner.level().getGameTime()));
@@ -590,6 +625,7 @@ public final class PrivateCompanionManager {
 			if (ShadowConjurationManager.active(owner.getUUID())) {
 				ShadowConjurationManager.interrupt(owner, removed.body, "source_lost");
 			}
+			ShadowPowerRuntime.clearOwner(owner, removed.body);
 			BODY_OWNERS.remove(removed.body.getUUID());
 			com.powers.power.AmethystDampening.forget(removed.body);
 			ShadowCompanionStore.update(owner, state -> state.withEnergy(removed.body.energy())
@@ -601,12 +637,13 @@ public final class PrivateCompanionManager {
 	public static void clear() {
 		for (Map.Entry<UUID, Session> entry : Map.copyOf(SESSIONS).entrySet()) {
 			Session session = entry.getValue();
+			ServerPlayer owner = session.body == null ? null : session.body.level().getServer()
+					.getPlayerList().getPlayer(entry.getKey());
 			if (session.body != null && ShadowConjurationManager.active(entry.getKey())) {
-				ServerPlayer owner = session.body.level().getServer().getPlayerList()
-						.getPlayer(entry.getKey());
 				if (owner != null) ShadowConjurationManager.interrupt(owner, session.body,
 						"server_stopping");
 			}
+			if (owner != null && session.body != null) ShadowPowerRuntime.clearOwner(owner, session.body);
 			if (session.body != null && !session.body.isRemoved()) session.body.discard();
 		}
 		REQUESTED.clear();
@@ -614,6 +651,7 @@ public final class PrivateCompanionManager {
 		SESSIONS.clear();
 		BODY_OWNERS.clear();
 		ShadowConjurationManager.clear();
+		ShadowPowerRuntime.clear();
 		nameResolver = null;
 		com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
 		com.powers.knowledge.MagicAttemptJournal.global().clear();
