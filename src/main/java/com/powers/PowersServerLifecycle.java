@@ -23,6 +23,7 @@ import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.ConcordCastManager;
 import com.powers.power.PowerAbilityRuntime;
+import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.power.travel.TravelChunkLoader;
 import com.powers.protection.ConsentOverrideRuntime;
@@ -54,6 +55,8 @@ final class PowersServerLifecycle {
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
 				onDisconnect(server, handler.getPlayer()));
 		ServerLifecycleEvents.SERVER_STOPPING.register(BodyProxyManager::returnAll);
+		ServerLifecycleEvents.SERVER_STOPPING.register(GlobalTimeStopManager::clearAll);
+		ServerLifecycleEvents.SERVER_STARTED.register(GlobalTimeStopManager::reconcileStartup);
 		ServerLifecycleEvents.SERVER_STOPPED.register(PowersServerLifecycle::onServerStopped);
 		ServerTickEvents.END_SERVER_TICK.register(PowersServerLifecycle::tick);
 	}

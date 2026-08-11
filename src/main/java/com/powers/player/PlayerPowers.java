@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.powers.network.PowersPackets;
 import com.powers.mind.MindBodyState;
+import com.powers.migration.SaveMigrationRules;
 import com.powers.progression.RankProgress;
 import com.powers.power.Power;
 import com.powers.power.PowerRegistry;
@@ -177,17 +178,18 @@ public final class PlayerPowers {
 		}
 		public List<String> getSlotIds() {
 			List<String> slots = target.getAttachedOrElse(POWER_SLOTS, List.of());
-			if (slots.size() != SLOT_COUNT) {
-				return List.of();
-			}
-			// slots pointing at powers that no longer exist (say, after a
-			// registry update) count as unassigned so the player re-rolls
-			for (String id : slots) {
-				if (!PowerRegistry.contains(id)) {
-					return List.of();
-				}
-			}
-			return List.copyOf(slots);
+			if (slots.isEmpty()) return List.of();
+			boolean canonical = slots.size() == SLOT_COUNT
+					&& slots.stream().distinct().count() == SLOT_COUNT
+					&& slots.stream().allMatch(PowerRegistry::contains);
+			if (canonical) return List.copyOf(slots);
+			if (!(target instanceof ServerPlayer player)) return List.of();
+			List<String> migrated = SaveMigrationRules.canonicalPowerSlots(
+					slots, PlayerPowerAffinity.allegiance(player));
+			target.setAttached(ACTIVE_TOGGLES, PowerToggleLifecycle.deactivateInnate(
+					player, this, List.copyOf(getActiveToggles())));
+			target.setAttached(POWER_SLOTS, migrated);
+			return migrated;
 		}
 
 		public boolean isDarknessUser() {

@@ -161,6 +161,11 @@ public abstract class Ability {
 			MagicPresenceId presenceId) {
 	}
 
+	/** Removes partial runtime work when a later transaction phase fails. */
+	public void rollbackFailedActivation(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		PowerAbilityRuntime.rollbackFailedActivation(player, id.getPath());
+	}
+
 	/** Returns the single canonical rank profile for this ability's action. */
 	protected final ScaledMagicValues scaling(ServerPlayer player) {
 		return CastScalingContext.currentSource().appliesPlayerRank(rankScaling)

@@ -19,6 +19,9 @@ class ArtifactAuthorizationRulesTest {
 	void energyIsAlwaysRequiredEvenAtAscendance() {
 		assertTrue(ArtifactAuthorizationRules.requiresEnergy(ArtifactAlignment.DARKNESS, 10));
 		assertTrue(ArtifactAuthorizationRules.requiresEnergy(ArtifactAlignment.LIGHT, 10));
+		assertTrue(ArtifactAuthorizationRules.requiresEnergy(ArtifactAlignment.DARKNESS, 0));
+		assertFalse(ArtifactAuthorizationRules.requiresEnergy(ArtifactAlignment.DARKNESS, -1));
+		assertFalse(ArtifactAuthorizationRules.requiresEnergy(null, 10));
 	}
 
 	@Test

@@ -42,13 +42,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /** Owns vulnerable, skin-matched bodies left behind by mind and spirit travel. */
 public final class BodyProxyManager {
 	private record Active(UUID ownerId, Mannequin body, Vec3 position,
-			ServerLevel level, ChunkPos chunk, BodySnapshot snapshot, AtomicBoolean fatalResolved) {
+			ServerLevel level, ChunkPos chunk, BodySnapshot snapshot, FatalResolutionGate fatalResolution) {
 	}
 	private static final TicketType BODY_TICKET = new TicketType(TicketType.NO_TIMEOUT,
 			TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
@@ -97,7 +96,7 @@ public final class BodyProxyManager {
 				BodyProxyTicketRules.radius());
 		BodySnapshot snapshot = BodySnapshot.capture(player);
 		Active active = new Active(player.getUUID(), body, player.position(), level, bodyChunk,
-				snapshot, new AtomicBoolean());
+				snapshot, new FatalResolutionGate());
 		BY_OWNER.put(player.getUUID(), active);
 		BY_BODY.put(body.getUUID(), active);
 		BodyProxyPackets.sendToTracking(body, snapshot);
@@ -142,7 +141,7 @@ public final class BodyProxyManager {
 		if (MagicLifecycleRules.resolve(form, MagicLifecycleRules.Source.NONE,
 				MagicLifecycleRules.Event.AVATAR_FATAL).outcome()
 				!= MagicLifecycleRules.Outcome.RETURN_AND_DIE) return true;
-		if (active.fatalResolved().compareAndSet(false, true)) {
+		if (active.fatalResolution().claim(FatalResolutionGate.Cause.AVATAR)) {
 			beginFatalReturn(player, source);
 		}
 		return false;
@@ -166,7 +165,7 @@ public final class BodyProxyManager {
 		PowerFx.coloredBurst((ServerLevel) active.body().level(), active.position().add(0, 1, 0),
 				0xBCA7FF, 8, 0.45);
 		if (health <= 0.0F) {
-			if (active.fatalResolved().compareAndSet(false, true)) {
+			if (active.fatalResolution().claim(FatalResolutionGate.Cause.BODY)) {
 				beginFatalReturn(owner, source);
 			}
 		} else {

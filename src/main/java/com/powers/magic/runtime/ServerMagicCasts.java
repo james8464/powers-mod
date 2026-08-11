@@ -76,9 +76,14 @@ public final class ServerMagicCasts {
 				PresenceAnchor.fixed(player.getX(), player.getY() + 1.0, player.getZ()),
 				player.level().getServer().getTickCount());
 		MagicPresenceId presenceId = runtime.commitCast(completed, prepared.adjustment());
-		emitCast((ServerLevel) player.level(), completed, presenceId, player, prepared.source());
-		MagicAttemptReporter.success(player, completed.definition().id().value());
-		return presenceId;
+		try {
+			emitCast((ServerLevel) player.level(), completed, presenceId, player, prepared.source());
+			MagicAttemptReporter.success(player, completed.definition().id().value());
+			return presenceId;
+		} catch (RuntimeException failure) {
+			runtime.removePresence(presenceId);
+			throw failure;
+		}
 	}
 
 	private static ServerLevel originalLevel(PreparedMagicCast prepared, ServerPlayer player) {

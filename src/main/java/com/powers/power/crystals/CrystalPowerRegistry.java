@@ -11,6 +11,10 @@ import com.powers.network.PowersPackets;
 import com.powers.magic.runtime.PreparedMagicCast;
 import com.powers.magic.runtime.ServerMagicCasts;
 import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.CastTransaction;
+import com.powers.magic.runtime.MagicPresenceId;
+import com.powers.magic.runtime.MagicRuntime;
+import com.powers.player.EnergyPaymentSnapshot;
 import com.powers.util.PowerMessages;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * the crystal tier of powers - a rank above regular steve powers with
@@ -138,24 +143,43 @@ public final class CrystalPowerRegistry {
 		PreparedMagicCast magic = ServerMagicCasts.prepare(player, actionId, CastSource.CRYSTAL);
 		if (!magic.allowed()) return false;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		// pay the energy up front, then give it back if the ability itself failed
 		int energyCost = com.powers.power.PowerEnergy.cost(player, energyAbility);
 		long available = (long) data.energy()
 				+ com.powers.item.ArtifactEnergyReservoir.totalStored(player);
-		if (!data.spendEnergy(player, energyAbility)) {
-			com.powers.knowledge.MagicAttemptReporter.failure(player, actionId,
-					com.powers.knowledge.MagicFailureReason.INSUFFICIENT_ENERGY,
-					java.util.Map.of("required", (long) energyCost, "available", available));
-			return false;
-		}
-		boolean activated = ServerMagicCasts.execute(magic, () -> ability.activate(player, data));
+		EnergyPaymentSnapshot energy = EnergyPaymentSnapshot.capture(player);
+		long previousCooldown = data.cooldownReadyAt(ability.id().toString());
+		AtomicReference<MagicPresenceId> presence = new AtomicReference<>();
+		CastTransaction.Result result = new CastTransaction()
+				.stage(CastTransaction.Phase.VALIDATION, () -> magic.allowed(), () -> { })
+				.stage(CastTransaction.Phase.COST, () -> data.spendEnergy(player, energyAbility),
+						() -> energy.restore(player))
+				.stage(CastTransaction.Phase.EFFECT,
+						() -> ServerMagicCasts.execute(magic, () -> ability.activate(player, data)),
+						() -> ability.rollbackFailedActivation(player, data))
+				.stage(CastTransaction.Phase.COOLDOWN, () -> {
+					ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
+					return true;
+				}, () -> ActivationCooldowns.restore(player, ability, previousCooldown))
+				.stage(CastTransaction.Phase.PRESENCE, () -> {
+					MagicPresenceId id = ServerMagicCasts.commit(magic, player);
+					presence.set(id);
+					ability.bindPhysicalPresence(player, data, id);
+					return true;
+				}, () -> {
+					MagicPresenceId id = presence.get();
+					if (id != null) MagicRuntime.global().removePresence(id);
+				})
+				.execute();
+		boolean activated = result.committed();
 		if (!activated) {
-			data.refundEnergy(energyAbility);
-			com.powers.knowledge.MagicAttemptReporter.executionFailure(player, actionId);
-			PowerMessages.send(player, "crystal.powers.unavailable", 4);
-		} else {
-			ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));
-			ServerMagicCasts.commit(magic, player);
+			if (result.failedPhase() == CastTransaction.Phase.COST) {
+				com.powers.knowledge.MagicAttemptReporter.failure(player, actionId,
+						com.powers.knowledge.MagicFailureReason.INSUFFICIENT_ENERGY,
+						java.util.Map.of("required", (long) energyCost, "available", available));
+			} else {
+				com.powers.knowledge.MagicAttemptReporter.executionFailure(player, actionId);
+				PowerMessages.send(player, "crystal.powers.unavailable", 4);
+			}
 		}
 		// push the updated energy and cooldown to the client
 		PowersPackets.syncTo(player);

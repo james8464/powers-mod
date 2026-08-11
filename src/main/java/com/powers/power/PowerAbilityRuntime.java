@@ -60,6 +60,35 @@ public final class PowerAbilityRuntime {
 		com.powers.testing.TestingOverrides.clear(player.getUUID());
 	}
 
+	/** Compensates partial ability work without clearing unrelated power families. */
+	public static void rollbackFailedActivation(ServerPlayer player, String abilityId) {
+		MinecraftServer server = player.level().getServer();
+		UUID owner = player.getUUID();
+		switch (abilityId) {
+			case "time_shift" -> {
+				TeleportAbility.clearMarking(player);
+				TeleportAbility.clearStorm(owner);
+			}
+			case "time_freeze" -> TimeFreezeToggleAbility.clear(server, owner);
+			case "forcefield" -> ForcefieldAbility.clear(owner);
+			case "gravity_displacement" -> GravityDisplacementAbility.clear(server, owner);
+			case "breezy_bash" -> BreezyBashAbility.clear(server, owner);
+			case "fireball" -> FireballAbility.clear(server, owner);
+			case "lightning_strike" -> LightningStrikeAbility.clear(server, owner);
+			case "starfall" -> StarfallAbility.clear(server, owner);
+			case "super_speed" -> SuperSpeedAbility.clear(server, owner);
+			case "vessel_possession" -> VesselPossessionAbility.clear(player);
+			case "astral_projection" -> AstralProjectionAbility.clear(owner);
+			case "speed_burst" -> SpeedBurstAbility.clear(owner);
+			case "energy_beam" -> EnergyBeamAbility.clear(owner);
+			case "void_beam" -> VoidBeamAbility.clear(owner);
+			case "energy_drain" -> EnergyDrainAbility.clear(owner);
+			default -> {
+				// Instant stateless abilities have nothing to compensate.
+			}
+		}
+	}
+
 	/** One complete lifecycle boundary prevents UUID-keyed casts leaking onto replacement entities. */
 	private static void clearPlayerState(MinecraftServer server, ServerPlayer player) {
 		UUID owner = player.getUUID();

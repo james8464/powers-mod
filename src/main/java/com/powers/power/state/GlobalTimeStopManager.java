@@ -60,6 +60,12 @@ public final class GlobalTimeStopManager {
 		}
 		Stop stop = new Stop(owner.getUUID(), source, deadline, null);
 		ACTIVE.put(server, stop);
+		if (!persist(server, stop)) {
+			ACTIVE.remove(server);
+			PowerMessages.overlay(owner, Component.literal(
+					"Time refused to stop because its ownership journal could not be saved."));
+			return false;
+		}
 		setFrozenOwned(server, true);
 		for (ServerPlayer observer : server.getPlayerList().getPlayers()) {
 			PowerMessages.overlay(observer, Component.translatable(
@@ -79,6 +85,10 @@ public final class GlobalTimeStopManager {
 				server.tickRateManager().isFrozen())) return false;
 		Stop stop = new Stop(owner.getUUID(), Source.SHADOW, Long.MAX_VALUE, shadow.getUUID());
 		ACTIVE.put(server, stop);
+		if (!persist(server, stop)) {
+			ACTIVE.remove(server);
+			return false;
+		}
 		setFrozenOwned(server, true);
 		for (ServerPlayer observer : server.getPlayerList().getPlayers()) {
 			PowerMessages.overlay(observer, Component.translatable(
@@ -181,6 +191,17 @@ public final class GlobalTimeStopManager {
 		if (stop != null) release(server, stop.owner(), false);
 	}
 
+	/** Clears a crash journal before players enter play and never steals an unjournalled admin freeze. */
+	public static void reconcileStartup(MinecraftServer server) {
+		TimeStopSavedData data = savedData(server);
+		if (!data.snapshot().active()) return;
+		ACTIVE.remove(server);
+		if (server.tickRateManager().isFrozen()) setFrozenOwned(server, false);
+		data.clear();
+		server.overworld().getDataStorage().saveAndJoin();
+		PowersMod.LOGGER.warn("Recovered a stale POWERS Time Stop ownership journal from a prior shutdown");
+	}
+
 	/** Called by the tick-manager mixin whenever code outside this manager writes freeze state. */
 	public static void observeClockWrite(MinecraftServer server) {
 		Stop stop = ACTIVE.get(server);
@@ -197,6 +218,7 @@ public final class GlobalTimeStopManager {
 				server.tickRateManager().isFrozen(), stop.externallyMutated)) {
 			setFrozenOwned(server, false);
 		}
+		clearPersisted(server);
 		ServerPlayer owner = server.getPlayerList().getPlayer(expectedOwner);
 		if (owner != null && stop.source == Source.INNATE) {
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(owner);
@@ -222,6 +244,33 @@ public final class GlobalTimeStopManager {
 		} finally {
 			INTERNAL_CLOCK_WRITES.remove(server);
 		}
+	}
+
+	private static boolean persist(MinecraftServer server, Stop stop) {
+		try {
+			TimeStopSavedData data = savedData(server);
+			data.activate(stop.owner().toString(), stop.source.name(), stop.deadline,
+					stop.shadowBody == null ? "" : stop.shadowBody.toString());
+			server.overworld().getDataStorage().saveAndJoin();
+			return true;
+		} catch (RuntimeException failure) {
+			PowersMod.LOGGER.error("Could not persist Time Stop ownership", failure);
+			return false;
+		}
+	}
+
+	private static void clearPersisted(MinecraftServer server) {
+		try {
+			TimeStopSavedData data = savedData(server);
+			data.clear();
+			server.overworld().getDataStorage().saveAndJoin();
+		} catch (RuntimeException failure) {
+			PowersMod.LOGGER.error("Could not clear Time Stop ownership journal", failure);
+		}
+	}
+
+	private static TimeStopSavedData savedData(MinecraftServer server) {
+		return server.overworld().getDataStorage().computeIfAbsent(TimeStopSavedData.TYPE);
 	}
 
 	private static final class Stop {

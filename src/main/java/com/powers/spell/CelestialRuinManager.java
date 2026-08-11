@@ -43,6 +43,7 @@ import java.util.WeakHashMap;
 /** Owns persistent, unloaded-chunk-safe Heavenfall countdowns and ruin waves. */
 public final class CelestialRuinManager {
 	private static final int MAX_ACTIVE_RITUALS = 2;
+	private static final int JOURNAL_WINDOW_TICKS = 20;
 	private static final int TICKET_TICKS = 4_000;
 	private static final int TICKET_RADIUS = CelestialRuinRules.BLAST_RADIUS / 16 + 2;
 	private static final int REMOVAL_FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_SUPPRESS_DROPS
@@ -75,7 +76,8 @@ public final class CelestialRuinManager {
 			return false;
 		}
 		Ritual ritual = new Ritual(level, center.immutable(), caster.getUUID(),
-				CelestialRuinRules.COUNTDOWN_TICKS, false, null, 0);
+				CelestialRuinRules.COUNTDOWN_TICKS, false, null, 0,
+				"", null, 0);
 		ACTIVE.computeIfAbsent(level.getServer(), ignored -> new ArrayList<>()).add(ritual);
 		persist(level.getServer());
 		CelestialRuinFx.begins(level, Vec3.atCenterOf(center), CelestialRuinRules.BEAM_RADIUS);
@@ -143,6 +145,8 @@ public final class CelestialRuinManager {
 			restored.add(new Ritual(level, center, caster,
 					Math.clamp(snapshot.countdownRemaining(), 0, CelestialRuinRules.COUNTDOWN_TICKS),
 					snapshot.detonated(), cursor, Math.clamp(snapshot.aftershockStep(), 0,
+							CelestialRuinRules.aftershockTotalSteps()), snapshot.pendingPhase(),
+					snapshot.pendingCursor(), Math.clamp(snapshot.pendingAftershockEnd(), 0,
 							CelestialRuinRules.aftershockTotalSteps())));
 		}
 		if (!restored.isEmpty()) ACTIVE.put(server, restored);
@@ -159,6 +163,12 @@ public final class CelestialRuinManager {
 		data(server).replace(snapshots);
 	}
 
+	/** Durably records the next destructive window before any world mutation. */
+	private static void checkpoint(MinecraftServer server) {
+		persist(server);
+		server.overworld().getDataStorage().saveAndJoin();
+	}
+
 	private static final class Ritual {
 		private final ServerLevel level;
 		private final BlockPos center;
@@ -167,10 +177,15 @@ public final class CelestialRuinManager {
 		private boolean detonated;
 		private BoundedSphereCursor destruction;
 		private int aftershockStep;
+		private String pendingPhase;
+		private BoundedSphereCursor.Snapshot pendingCursor;
+		private int pendingAftershockEnd;
 		private int ticketRadius = -1;
 
 		private Ritual(ServerLevel level, BlockPos center, UUID caster, int countdownRemaining,
-				boolean detonated, BoundedSphereCursor destruction, int aftershockStep) {
+				boolean detonated, BoundedSphereCursor destruction, int aftershockStep,
+				String pendingPhase, BoundedSphereCursor.Snapshot pendingCursor,
+				int pendingAftershockEnd) {
 			this.level = level;
 			this.center = center;
 			this.caster = caster;
@@ -178,6 +193,9 @@ public final class CelestialRuinManager {
 			this.detonated = detonated;
 			this.destruction = destruction;
 			this.aftershockStep = aftershockStep;
+			this.pendingPhase = pendingPhase == null ? "" : pendingPhase;
+			this.pendingCursor = pendingCursor;
+			this.pendingAftershockEnd = Math.max(aftershockStep, pendingAftershockEnd);
 		}
 
 		private boolean tick() {
@@ -194,9 +212,14 @@ public final class CelestialRuinManager {
 			}
 			if (!chunksReady()) return false;
 			if (!detonated) {
+				pendingPhase = "detonation";
+				checkpoint(level.getServer());
 				detonate();
 				destruction = new BoundedSphereCursor(CelestialRuinRules.BLAST_RADIUS);
 				detonated = true;
+				pendingPhase = "";
+				pendingCursor = destruction.snapshot();
+				checkpoint(level.getServer());
 			}
 			destroyBatch();
 			destroyAftershockBatch();
@@ -242,7 +265,8 @@ public final class CelestialRuinManager {
 					: destruction.snapshot();
 			return new CelestialRuinSavedData.Snapshot(level.dimension().identifier().toString(),
 					center.getX(), center.getY(), center.getZ(), caster.toString(), countdownRemaining,
-					detonated, cursor, aftershockStep);
+					detonated, cursor, aftershockStep, pendingPhase,
+					pendingCursor == null ? cursor : pendingCursor, pendingAftershockEnd);
 		}
 
 		private void warnCaster(int elapsed) {
@@ -284,6 +308,8 @@ public final class CelestialRuinManager {
 		}
 
 		private void destroyBatch() {
+			if (destruction.finished()) return;
+			prepareCraterWindow();
 			PowersConfig config = PowersConfigLoader.get();
 			BlockPos.MutableBlockPos target = new BlockPos.MutableBlockPos();
 			for (BoundedSphereCursor.Offset offset : destruction.take(CelestialRuinRules.BLOCKS_PER_TICK)) {
@@ -299,12 +325,27 @@ public final class CelestialRuinManager {
 					level.setBlock(target, Blocks.AIR.defaultBlockState(), REMOVAL_FLAGS);
 				}
 			}
+			if (destruction.snapshot().equals(pendingCursor)) {
+				pendingPhase = "";
+				checkpoint(level.getServer());
+			}
+		}
+
+		private void prepareCraterWindow() {
+			if ("crater".equals(pendingPhase) && pendingCursor != null) return;
+			BoundedSphereCursor preview = new BoundedSphereCursor(destruction.snapshot());
+			preview.take(CelestialRuinRules.BLOCKS_PER_TICK * JOURNAL_WINDOW_TICKS);
+			pendingCursor = preview.snapshot();
+			pendingPhase = "crater";
+			checkpoint(level.getServer());
 		}
 
 		/** Carves explosion-power-100-style streaks only through already loaded distant chunks. */
 		private void destroyAftershockBatch() {
+			if (aftershockStep >= CelestialRuinRules.aftershockTotalSteps()) return;
+			prepareAftershockWindow();
 			PowersConfig config = PowersConfigLoader.get();
-			int end = Math.min(CelestialRuinRules.aftershockTotalSteps(),
+			int end = Math.min(pendingAftershockEnd,
 					aftershockStep + CelestialRuinRules.AFTERSHOCK_WORK_PER_TICK);
 			for (; aftershockStep < end; aftershockStep++) {
 				CelestialRuinRules.AftershockOffset offset =
@@ -336,6 +377,17 @@ public final class CelestialRuinManager {
 					level.setBlock(fire, Blocks.FIRE.defaultBlockState(), Block.UPDATE_CLIENTS);
 				}
 			}
+			if (aftershockStep >= pendingAftershockEnd) {
+				checkpoint(level.getServer());
+			}
+		}
+
+		private void prepareAftershockWindow() {
+			if (pendingAftershockEnd > aftershockStep) return;
+			pendingAftershockEnd = Math.min(CelestialRuinRules.aftershockTotalSteps(),
+					aftershockStep + CelestialRuinRules.AFTERSHOCK_WORK_PER_TICK
+						* JOURNAL_WINDOW_TICKS);
+			checkpoint(level.getServer());
 		}
 	}
 }
