@@ -96,6 +96,13 @@ public final class ArcaneCrucibleScreen extends AbstractContainerScreen<ArcaneCr
 		}
 	}
 
+	@Override
+	protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+		graphics.text(font, title, titleLabelX, titleLabelY, 0xFFE6D5FF, false);
+		graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY,
+				0xFFC9BDD4, false);
+	}
+
 	private static void drawSlot(GuiGraphicsExtractor graphics, int x, int y, int color) {
 		graphics.fill(x - 2, y - 2, x + 20, y, color);
 		graphics.fill(x - 2, y + 18, x + 20, y + 20, color);

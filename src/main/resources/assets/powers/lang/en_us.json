@@ -176,6 +176,15 @@
 	"screen.powers.teleport.go": "Teleport",
 	"screen.powers.teleport.invalid": "Invalid coordinates!",
 	"screen.powers.locator.title": "Celestial Locator",
+	"screen.powers.locator.field": "Unique living target",
+	"screen.powers.locator.hint": "Player or named mob",
+	"screen.powers.locator.view": "View",
+	"screen.powers.locator.world_title": "Cartographer's Star",
+	"screen.powers.locator.world_field": "Biome or structure",
+	"screen.powers.locator.world_hint": "Registry ID or search name",
+	"screen.powers.locator.seek": "Seek",
+	"screen.powers.locator.world_help_1": "Searches progressively through loaded and distant terrain.",
+	"screen.powers.locator.world_help_2": "Energy is paid only when a destination is found.",
 	"screen.powers.locator.cancel": "Cancel",
 	"screen.powers.locator.empty": "No other soul answers the stars.",
 	"dimension.powers.dark_realm": "Dark Mindscape",
@@ -435,6 +444,7 @@
 	"ability.powers.possession_higher_rank": "That mind stands above your rank.",
 	"ability.powers.dimensional_anchor": "Dimensional Anchor",
 	"ability.powers.middleworld": "Middleworld Gateway",
+	"ability.powers.middleworld.short": "Middleworld",
 	"power.powers.ice_manipulation": "Ice Manipulation",
 	"power.powers.ice_manipulation.description": "Fire a freezing beam that turns water to ice, lava to obsidian, and encases foes in frost.",
 	"ability.powers.ice_manipulation": "Ice Manipulation",
@@ -1050,5 +1060,5 @@
 	"screen.powers.artifact.release_cast.on": "Artifact release-to-cast enabled",
 	"screen.powers.artifact.release_cast.off": "Artifact release-to-cast disabled",
 	"screen.powers.crystal_selector.title": "Sevenfold Convergence",
-	"screen.powers.crystal_selector.hint": "Choose with mouse, Tab/Enter, or keys 1–6"
+	"screen.powers.crystal_selector.hint": "Choose with mouse, Tab/Enter, or keys 1–7"
 }

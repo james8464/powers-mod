@@ -18,7 +18,6 @@ import java.util.List;
 
 /** Non-pausing eight-favourite artifact wheel backed by server-authored menu state. */
 public final class ShadowSwordScreen extends Screen {
-	private static final int GLYPH_RADIUS = 55;
 	private final ArtifactMenuState state;
 	private List<String> favourites;
 	private int hovered = ArtifactWheelRules.NONE;
@@ -56,7 +55,9 @@ public final class ShadowSwordScreen extends Screen {
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		if (event.button() != 0) return super.mouseClicked(event, doubleClick);
-		int target = ArtifactWheelRules.targetAt(width / 2, height / 2, event.x(), event.y());
+		ArtifactWheelRules.Layout layout = ArtifactWheelRules.layout(width, height);
+		int target = ArtifactWheelRules.targetAt(width / 2, wheelCenterY(), event.x(), event.y(),
+				layout.outerRadius());
 		if (target == ArtifactWheelRules.CENTER) {
 			openCatalogue();
 			return true;
@@ -112,27 +113,35 @@ public final class ShadowSwordScreen extends Screen {
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		int centerX = width / 2;
-		int centerY = height / 2;
-		hovered = ArtifactWheelRules.targetAt(centerX, centerY, mouseX, mouseY);
-		drawWheel(graphics, centerX, centerY);
-		graphics.centeredText(font, title, centerX, centerY - 101, accent());
-		graphics.centeredText(font, Component.translatable(ClientInteractionPreferences.releaseToCast()
-				? "screen.powers.artifact.wheel.hint_cast" : "screen.powers.artifact.wheel.hint"),
-				centerX, centerY + 92, 0xFFCAC4D3);
+		int centerY = wheelCenterY();
+		ArtifactWheelRules.Layout layout = ArtifactWheelRules.layout(width, height);
+		hovered = ArtifactWheelRules.targetAt(centerX, centerY, mouseX, mouseY,
+				layout.outerRadius());
+		drawWheel(graphics, centerX, centerY, layout);
+		int titleY = Math.max(8, centerY - layout.outerRadius() - 19);
+		graphics.centeredText(font, title, centerX, titleY, accent());
+		Component secondary = Component.translatable(ClientInteractionPreferences.releaseToCast()
+				? "screen.powers.artifact.wheel.hint_cast" : "screen.powers.artifact.wheel.hint");
+		if (!layout.showSegmentNames() && hovered >= 0) {
+			ArtifactActionDefinition action = state.action(favourites.get(hovered));
+			if (action != null) secondary = state.actionName(action);
+		}
+		graphics.centeredText(font, secondary, centerX, titleY + 13, 0xFFCAC4D3);
 		if (hovered >= 0) {
 			ArtifactActionDefinition action = state.action(favourites.get(hovered));
-			if (action != null) {
-				graphics.centeredText(font, state.actionName(action), centerX, centerY + 79, 0xFFFFFFFF);
+			if (action != null && layout.showSegmentNames()) {
+				graphics.centeredText(font, state.actionName(action), centerX, centerY + 19, 0xFFFFFFFF);
 			}
 		}
 	}
 
-	private void drawWheel(GuiGraphicsExtractor graphics, int centerX, int centerY) {
+	private void drawWheel(GuiGraphicsExtractor graphics, int centerX, int centerY,
+			ArtifactWheelRules.Layout layout) {
 		for (int slot = 0; slot < ArtifactWheelRules.SLOT_COUNT; slot++) {
-			drawSegment(graphics, centerX, centerY, slot, slot == hovered);
 			double angle = -Math.PI / 2.0 + slot * Math.PI * 2.0 / ArtifactWheelRules.SLOT_COUNT;
-			int glyphX = centerX + (int) Math.round(Math.cos(angle) * GLYPH_RADIUS);
-			int glyphY = centerY + (int) Math.round(Math.sin(angle) * GLYPH_RADIUS);
+			int glyphX = centerX + (int) Math.round(Math.cos(angle) * layout.glyphRadius());
+			int glyphY = centerY + (int) Math.round(Math.sin(angle) * layout.verticalGlyphRadius());
+			drawSegment(graphics, glyphX, glyphY, slot == hovered);
 			ArtifactActionDefinition action = state.action(favourites.get(slot));
 			int color = action == null || state.locked(action)
 					? 0xFF66616D : action.key().equals(state.selectedKey()) ? 0xFFFFFFFF : accent();
@@ -140,25 +149,29 @@ public final class ShadowSwordScreen extends Screen {
 					glyphX, glyphY, color);
 			graphics.text(font, Integer.toString(slot + 1), glyphX - 14, glyphY - 13,
 					slot == hovered ? 0xFFFFFFFF : 0xFFAAA3B2, true);
-			if (action != null) drawLiveStatus(graphics, action, glyphX, glyphY);
+			if (action != null) drawLiveStatus(graphics, action, glyphX, glyphY, layout);
 		}
-		int centerColor = hovered == ArtifactWheelRules.CENTER ? 0xE04B3A58 : 0xD01A1621;
-		AbilityGlyphRenderer.diamond(graphics, centerX, centerY, 22, centerColor);
-		AbilityGlyphRenderer.diamond(graphics, centerX, centerY, 19, 0xEE0D0B11);
+		int centerColor = hovered == ArtifactWheelRules.CENTER ? 0xE06E547E : 0xD01A1621;
+		graphics.fill(centerX - 31, centerY - 11, centerX + 31, centerY + 11, centerColor);
+		graphics.fill(centerX - 28, centerY - 8, centerX + 28, centerY + 8, 0xEE0D0B11);
 		graphics.centeredText(font, Component.translatable("screen.powers.artifact.wheel.catalogue"),
 				centerX, centerY - 4, hovered == ArtifactWheelRules.CENTER ? 0xFFFFFFFF : accent());
 	}
 
 	private void drawLiveStatus(GuiGraphicsExtractor graphics, ArtifactActionDefinition action,
-			int glyphX, int glyphY) {
+			int glyphX, int glyphY, ArtifactWheelRules.Layout layout) {
 		ArtifactWheelRules.SegmentStatus status = ArtifactWheelRules.segmentStatus(
 				state.cost(action), state.energy(),
 				ArtifactWheelRules.remainingCooldown(state.cooldown(action), openTicks),
 				state.cooldownMaximum(action),
 				state.active(action), state.locked(action), state.variant(action));
-		String name = font.plainSubstrByWidth(state.actionName(action).getString(), 36);
-		graphics.centeredText(font, name, glyphX, glyphY + 9,
-				status.locked() ? 0xFF77727C : 0xFFE8E2EC);
+		int costY = glyphY + 10;
+		if (layout.showSegmentNames()) {
+			String name = font.plainSubstrByWidth(state.actionName(action).getString(), layout.nameWidth());
+			graphics.centeredText(font, name, glyphX, glyphY + 9,
+					status.locked() ? 0xFF77727C : 0xFFE8E2EC);
+			costY = glyphY + 18;
+		}
 		String variant = switch (action.abilityId()) {
 			case "size_shift" -> status.variant() >= 0 && SizeMorphRules.isValidOption(status.variant())
 					? " " + SizeMorphRules.scale(status.variant()) + "×" : "";
@@ -171,14 +184,15 @@ public final class ShadowSwordScreen extends Screen {
 					}).getString() : "";
 			default -> "";
 		};
-		graphics.centeredText(font, status.cost() + "E" + variant, glyphX, glyphY + 18,
+		graphics.centeredText(font, status.cost() + "E" + variant, glyphX, costY,
 				status.locked() ? 0xFF77727C
 						: status.energySufficient() ? 0xFFBDB5C7 : 0xFFFF7777);
 		int barLeft = glyphX - 12;
-		graphics.fill(barLeft, glyphY + 27, barLeft + 24, glyphY + 29, 0xB0201A26);
+		int barY = costY + 9;
+		graphics.fill(barLeft, barY, barLeft + 24, barY + 2, 0xB0201A26);
 		if (status.cooldownPips() > 0) {
-			graphics.fill(barLeft, glyphY + 27, barLeft + status.cooldownPips() * 3,
-					glyphY + 29, 0xFFE08A6A);
+			graphics.fill(barLeft, barY, barLeft + status.cooldownPips() * 3,
+					barY + 2, 0xFFE08A6A);
 		}
 		if (status.active()) {
 			graphics.text(font, "◆", glyphX + 10, glyphY - 14, 0xFF7CFFB2, true);
@@ -188,18 +202,15 @@ public final class ShadowSwordScreen extends Screen {
 		}
 	}
 
-	private void drawSegment(GuiGraphicsExtractor graphics, int centerX, int centerY,
-			int slot, boolean highlighted) {
-		double centerAngle = -Math.PI / 2.0 + slot * Math.PI * 2.0 / ArtifactWheelRules.SLOT_COUNT;
-		int fill = highlighted ? 0xD06E547E : 0xB52A2231;
-		for (int radial = 29; radial <= ArtifactWheelRules.OUTER_RADIUS; radial += 4) {
-			for (int spoke = -3; spoke <= 3; spoke++) {
-				double angle = centerAngle + spoke * Math.PI / 32.0;
-				int x = centerX + (int) Math.round(Math.cos(angle) * radial);
-				int y = centerY + (int) Math.round(Math.sin(angle) * radial);
-				graphics.fill(x - 2, y - 2, x + 2, y + 2, fill);
-			}
-		}
+	private void drawSegment(GuiGraphicsExtractor graphics, int glyphX, int glyphY,
+			boolean highlighted) {
+		int fill = highlighted ? 0xE06E547E : 0xC02A2231;
+		graphics.fill(glyphX - 12, glyphY - 12, glyphX + 12, glyphY + 12, fill);
+		graphics.fill(glyphX - 10, glyphY - 10, glyphX + 10, glyphY + 10, 0xD00D0B11);
+	}
+
+	private int wheelCenterY() {
+		return height / 2 - Math.min(25, height / 12);
 	}
 
 	private int accent() {

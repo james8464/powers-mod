@@ -50,7 +50,8 @@ public final class GameplayAcceptanceCatalogue {
 				Proof.LIVE_REGISTRY, LIVE_REGISTRY)));
 
 		for (String entity : List.of("darkness_creature", "power_test_actor", "radiant_sentinel",
-				"dark_herald", "light_herald", "first_vessel", "echo_clone")) {
+				"dark_herald", "light_herald", "first_vessel", "echo_clone",
+				"shadow_companion")) {
 			entries.add(new Entry(Family.ENTITY, entity, Proof.LIVE_BEHAVIOR,
 					"PowersGameTests and LivingForceGameTests entity scenarios"));
 		}

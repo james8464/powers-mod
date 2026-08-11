@@ -35,6 +35,26 @@ public final class LivingForceGameTests {
 	}
 
 	@GameTest(maxTicks = 40)
+	public void pureLightRandomTickSpreadsIntoOrdinaryBlocks(GameTestHelper helper) {
+		BlockPos center = new BlockPos(1, 1, 1);
+		helper.setBlock(center, PowersBlocks.PURE_LIGHT);
+		for (var direction : net.minecraft.core.Direction.values()) {
+			helper.setBlock(center.relative(direction), Blocks.STONE);
+		}
+		for (int tick = 1; tick <= 12; tick++) {
+			helper.runAtTickTime(tick, () -> helper.randomTick(center));
+		}
+		helper.runAtTickTime(20, () -> {
+			long spread = java.util.Arrays.stream(net.minecraft.core.Direction.values())
+					.filter(direction -> helper.getBlockState(center.relative(direction))
+							.is(PowersBlocks.PURE_LIGHT))
+					.count();
+			helper.assertTrue(spread > 0, "Pure Light did not spread during repeated random ticks");
+			helper.succeed();
+		});
+	}
+
+	@GameTest(maxTicks = 40)
 	public void poweredAmethystCeremonyCrystallisesLivingForce(GameTestHelper helper) {
 		BlockPos ward = new BlockPos(8, 2, 8);
 		helper.setBlock(ward.below(), Blocks.REDSTONE_BLOCK);

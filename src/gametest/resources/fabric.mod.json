@@ -3,12 +3,16 @@
 	"id": "powers-gametest",
 	"version": "1.0.0",
 	"name": "POWERS Game Tests",
-	"environment": "server",
+	"environment": "*",
 	"entrypoints": {
 		"fabric-gametest": [
 			"com.powers.gametest.PowersGameTests",
 			"com.powers.gametest.LivingForceGameTests",
-			"com.powers.gametest.P1AcceptanceGameTests"
+			"com.powers.gametest.P1AcceptanceGameTests",
+			"com.powers.gametest.LiveActionAcceptanceGameTests"
+		],
+		"fabric-client-gametest": [
+			"com.powers.gametest.PowersClientGameTests"
 		]
 	},
 	"depends": {

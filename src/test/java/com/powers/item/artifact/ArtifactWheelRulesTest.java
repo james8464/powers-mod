@@ -3,6 +3,7 @@ package com.powers.item.artifact;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ArtifactWheelRulesTest {
 	@Test
@@ -64,5 +65,27 @@ class ArtifactWheelRulesTest {
 				ArtifactWheelRules.releaseAction(true, 340, 2));
 		assertEquals(ArtifactWheelRules.ReleaseAction.NONE,
 				ArtifactWheelRules.releaseAction(true, 65, 2));
+	}
+
+	@Test
+	void responsiveLayoutKeepsAdjacentSegmentLabelsDisjoint() {
+		ArtifactWheelRules.Layout standard = ArtifactWheelRules.layout(640, 360);
+		assertEquals(120, standard.outerRadius());
+		assertEquals(100, standard.glyphRadius());
+		assertEquals(82, standard.verticalGlyphRadius());
+		assertEquals(70, standard.nameWidth());
+		assertTrue(ArtifactWheelRules.adjacentGlyphDistance(standard)
+				> standard.nameWidth());
+
+		ArtifactWheelRules.Layout compact = ArtifactWheelRules.layout(320, 240);
+		assertEquals(95, compact.outerRadius());
+		assertEquals(75, compact.glyphRadius());
+		assertEquals(57, compact.verticalGlyphRadius());
+		assertTrue(ArtifactWheelRules.adjacentGlyphDistance(compact)
+				> compact.nameWidth());
+
+		ArtifactWheelRules.Layout highGuiScale = ArtifactWheelRules.layout(320, 180);
+		assertEquals(false, highGuiScale.showSegmentNames());
+		assertEquals(true, standard.showSegmentNames());
 	}
 }

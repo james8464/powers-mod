@@ -60,7 +60,8 @@ class GameplayAcceptanceCatalogueTest {
 		}
 		Set<String> entities = ids(GameplayAcceptanceCatalogue.Family.ENTITY);
 		assertEquals(Set.of("darkness_creature", "power_test_actor", "radiant_sentinel",
-				"dark_herald", "light_herald", "first_vessel", "echo_clone"), entities);
+				"dark_herald", "light_herald", "first_vessel", "echo_clone",
+				"shadow_companion"), entities);
 	}
 
 	private static Set<String> ids(GameplayAcceptanceCatalogue.Family family) {
