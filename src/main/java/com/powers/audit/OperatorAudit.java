@@ -19,4 +19,8 @@ public final class OperatorAudit {
 	public static OperatorAuditSnapshot snapshot() {
 		return LEDGER.snapshot();
 	}
+
+	public static void clear() {
+		LEDGER.clear();
+	}
 }

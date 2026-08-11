@@ -18,6 +18,7 @@ import net.minecraft.sounds.SoundEvents;
 /** Server-thread payment and presentation for Empyrean Jewel consent overrides. */
 public final class ConsentOverrideRuntime {
 	private static final ConsentPaymentLedger PAYMENTS = new ConsentPaymentLedger();
+	private static final ConsentAuditRateLimiter DENIED_AUDIT = new ConsentAuditRateLimiter(256, 100);
 
 	private ConsentOverrideRuntime() {
 	}
@@ -39,7 +40,8 @@ public final class ConsentOverrideRuntime {
 				self, safeZone, ordinaryConsent, hasJewel, enoughEnergy);
 		if (decision == ConsentOverrideRules.Decision.ALLOW_FREE) return true;
 		if (decision != ConsentOverrideRules.Decision.ALLOW_OVERRIDE) {
-			if (hasJewel && !ordinaryConsent) {
+			if (hasJewel && !ordinaryConsent && DENIED_AUDIT.shouldLog(tick,
+					caster.getUUID(), target.getUUID(), kind, decision)) {
 				OperatorAudit.record(OperatorAuditAction.CONSENT_OVERRIDE,
 						OperatorAuditResult.DENIED, caster.getScoreboardName(),
 						target.getScoreboardName(), decision.name().toLowerCase(java.util.Locale.ROOT));
@@ -80,5 +82,6 @@ public final class ConsentOverrideRuntime {
 
 	public static void clear() {
 		PAYMENTS.clear();
+		DENIED_AUDIT.clear();
 	}
 }
