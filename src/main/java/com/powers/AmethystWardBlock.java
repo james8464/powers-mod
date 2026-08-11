@@ -1,6 +1,7 @@
 package com.powers;
 
 import com.powers.power.AmethystDampening;
+import com.powers.force.ForceContainmentManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -62,6 +63,7 @@ public class AmethystWardBlock extends Block {
 		}
 		if (isPowered(serverLevel.getBlockState(pos))) {
 			AmethystDampening.addPoweredWard(serverLevel, pos);
+			ForceContainmentManager.request(serverLevel, pos);
 			serverLevel.scheduleTick(pos, this, 5);
 		} else {
 			AmethystDampening.removePoweredWard(serverLevel, pos);
@@ -84,6 +86,7 @@ public class AmethystWardBlock extends Block {
 		// re-assert membership on every beat so the index heals itself after a
 		// reload without anyone having to nudge the redstone
 		AmethystDampening.addPoweredWard(level, pos);
+		ForceContainmentManager.request(level, pos);
 		// This slow heartbeat only repairs the transient index after reloads.
 		// Visible particles are expanded locally in animateTick below.
 		level.scheduleTick(pos, this, INDEX_HEARTBEAT_TICKS);

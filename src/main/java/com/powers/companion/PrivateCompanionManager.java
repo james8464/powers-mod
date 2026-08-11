@@ -14,6 +14,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +28,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * to every player in the owner's current dimension.
  */
 public final class PrivateCompanionManager {
-	private static final int UPDATE_INTERVAL_TICKS = 4;
 	private static final AtomicLong NEXT_SESSION = new AtomicLong(1L);
 	private static final Set<UUID> REQUESTED = new HashSet<>();
 	private static final Set<UUID> REVEALED = new HashSet<>();
@@ -40,6 +40,8 @@ public final class PrivateCompanionManager {
 		private float yaw;
 		private boolean revealed;
 		private final Set<UUID> viewers = new HashSet<>();
+		private final Set<UUID> pendingTeleports = new HashSet<>();
+		private long viewerCursor;
 
 		private Session(long id, String dimension, Vec3 position, float yaw, boolean revealed) {
 			this.id = id;
@@ -75,7 +77,7 @@ public final class PrivateCompanionManager {
 			syncViewers(player, session, true);
 			return;
 		}
-		if (serverTick % UPDATE_INTERVAL_TICKS != 0) return;
+		if (!CompanionSyncRules.shouldUpdate(serverTick, session.id)) return;
 
 		String dimension = dimension(player);
 		Vec3 desired = desiredPosition(player);
@@ -178,26 +180,46 @@ public final class PrivateCompanionManager {
 	}
 
 	private static void syncViewers(ServerPlayer owner, Session session, boolean teleport) {
-		List<ServerPlayer> desired = session.revealed
-				? owner.level().players().stream().filter(player -> player.connection != null).toList()
-				: List.of(owner);
-		Set<UUID> desiredIds = desired.stream().map(ServerPlayer::getUUID)
-				.collect(java.util.stream.Collectors.toUnmodifiableSet());
+		List<ServerPlayer> desired = new ArrayList<>();
+		if (session.revealed) {
+			for (ServerPlayer player : owner.level().players()) {
+				if (player.connection != null) desired.add(player);
+			}
+		} else {
+			desired.add(owner);
+		}
+		Set<UUID> desiredIds = new HashSet<>();
+		for (ServerPlayer player : desired) desiredIds.add(player.getUUID());
+		if (teleport) session.pendingTeleports.addAll(session.viewers);
 		for (UUID previous : Set.copyOf(session.viewers)) {
 			if (desiredIds.contains(previous)) continue;
 			ServerPlayer recipient = owner.level().getServer().getPlayerList().getPlayer(previous);
 			if (recipient != null && recipient.connection != null) {
-				CompanionPackets.sendState(recipient, owner.getUUID(), session.id, false, true,
+				CompanionPackets.sendCriticalState(recipient, owner.getUUID(), session.id, false, true,
 						session.dimension, 0.0, 0.0, 0.0, 0.0F);
 			}
+			session.viewers.remove(previous);
+			session.pendingTeleports.remove(previous);
 		}
-		for (ServerPlayer recipient : desired) {
-			CompanionPackets.sendState(recipient, owner.getUUID(), session.id, true, teleport,
+		int allowance = Math.min(desired.size(),
+				CompanionSyncRules.viewerAllowance(SESSIONS.size()));
+		for (int offset = 0; offset < allowance; offset++) {
+			int index = CompanionSyncRules.rotatingIndex(session.viewerCursor + offset,
+					desired.size());
+			ServerPlayer recipient = desired.get(index);
+			UUID recipientId = recipient.getUUID();
+			boolean recipientTeleport = teleport
+					|| session.pendingTeleports.contains(recipientId)
+					|| !session.viewers.contains(recipientId);
+			if (CompanionPackets.sendState(recipient, owner.getUUID(), session.id, true,
+					recipientTeleport,
 					session.dimension, session.position.x, session.position.y,
-					session.position.z, session.yaw);
+					session.position.z, session.yaw)) {
+				session.viewers.add(recipientId);
+				session.pendingTeleports.remove(recipientId);
+			}
 		}
-		session.viewers.clear();
-		session.viewers.addAll(desiredIds);
+		session.viewerCursor += allowance;
 	}
 
 	private static void reply(ServerPlayer owner, String line) {
@@ -257,9 +279,10 @@ public final class PrivateCompanionManager {
 	private static void despawn(ServerPlayer owner) {
 		Session removed = SESSIONS.remove(owner.getUUID());
 		if (removed == null) return;
-		for (ServerPlayer recipient : owner.level().getServer().getPlayerList().getPlayers()) {
-			if (recipient.connection != null) {
-				CompanionPackets.sendState(recipient, owner.getUUID(), removed.id, false, true,
+		for (UUID viewer : removed.viewers) {
+			ServerPlayer recipient = owner.level().getServer().getPlayerList().getPlayer(viewer);
+			if (recipient != null && recipient.connection != null) {
+				CompanionPackets.sendCriticalState(recipient, owner.getUUID(), removed.id, false, true,
 						removed.dimension, 0.0, 0.0, 0.0, 0.0F);
 			}
 		}

@@ -114,6 +114,10 @@ public class PowersClient implements ClientModInitializer {
 				context -> new PlayerLikeMobRenderer(context, "test_actor"));
 		EntityRenderers.register(PowersEntities.RADIANT_SENTINEL,
 				context -> new PlayerLikeMobRenderer(context, "radiant_sentinel"));
+		EntityRenderers.register(PowersEntities.DARK_HERALD,
+				context -> new PlayerLikeMobRenderer(context, "dark_herald", 0.8F));
+		EntityRenderers.register(PowersEntities.LIGHT_HERALD,
+				context -> new PlayerLikeMobRenderer(context, "light_herald", 0.8F));
 		EntityRenderers.register(PowersEntities.FIRST_VESSEL,
 				context -> new PlayerLikeMobRenderer(context, "first_vessel", 0.65F));
 

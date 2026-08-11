@@ -17,10 +17,11 @@ public final class RealmLayout {
 				? new String[] {"might_1", "motion_1", "insight_1", "ward_2", "veil_2", "communion_2"}
 				: new String[] {"fang_1", "mist_1", "echo_1", "hex_2", "shroud_2", "hollow_2"};
 		int[][] points = {{36, 8}, {22, 32}, {-6, 32}, {-20, 8}, {-6, -16}, {22, -16}};
+		RealmLandmarkType[] landmarks = RealmLandmarkType.values();
 		java.util.ArrayList<MemorySite> sites = new java.util.ArrayList<>();
 		for (int index = 0; index < points.length; index++) {
 			sites.add(new MemorySite(prefix + "_memory_" + (index + 1),
-					points[index][0], points[index][1], paths[index]));
+					points[index][0], points[index][1], paths[index], landmarks[index]));
 		}
 		return List.copyOf(sites);
 	}

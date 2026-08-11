@@ -1,0 +1,25 @@
+{
+	"parent": "minecraft:adventure/root",
+	"display": {
+		"icon": { "id": "powers:lycanbane" },
+		"title": { "translate": "advancement.powers.dark_herald.title" },
+		"description": { "translate": "advancement.powers.dark_herald.description" },
+		"frame": "challenge",
+		"show_toast": true,
+		"announce_to_chat": true,
+		"hidden": false
+	},
+	"criteria": {
+		"defeat": {
+			"trigger": "minecraft:player_killed_entity",
+			"conditions": {
+				"entity": [{
+					"condition": "minecraft:entity_properties",
+					"entity": "this",
+					"predicate": { "minecraft:entity_type": "powers:dark_herald" }
+				}]
+			}
+		}
+	},
+	"rewards": { "experience": 2500 }
+}

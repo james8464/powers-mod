@@ -1,15 +1,12 @@
 package com.powers.realm;
 
 import com.powers.PowerStatusEffects;
-import com.powers.PowersBlocks;
 import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillQuestTracker;
 import com.powers.power.state.GlobalTimeStopManager;
-import com.powers.util.LoadedChunks;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -18,12 +15,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 /** Builds and animates the explorable memories inside both mental realms. */
@@ -33,15 +29,23 @@ public final class RealmMindscapeManager {
 
 	public static void tick(MinecraftServer server) {
 		if (server.getTickCount() % 5 != 0) return;
+		Map<ServerLevel, RealmKind> activeRealms = new LinkedHashMap<>();
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-			if (!GlobalTimeStopManager.mayAct(player)) continue;
 			RealmKind kind = kind(player);
 			if (kind == null) continue;
 			ServerLevel level = (ServerLevel) player.level();
-			ensureLandmarks(level, kind);
+			activeRealms.put(level, kind);
+			if (!GlobalTimeStopManager.mayAct(player)) continue;
+			RealmEventManager.tickPlayer(player, level, kind);
 			enforceTether(player, level, kind);
 			discoverMemories(player, level, kind);
 			ambient(player, level, kind, server.getTickCount());
+		}
+		for (Map.Entry<ServerLevel, RealmKind> entry : activeRealms.entrySet()) {
+			RealmLandmarkSavedData data = server.overworld().getDataStorage()
+					.computeIfAbsent(RealmLandmarkSavedData.TYPE);
+			RealmLandmarkConstruction.tick(entry.getKey(), entry.getValue(), data);
+			RealmHeraldManager.tick(entry.getKey(), entry.getValue());
 		}
 	}
 
@@ -50,45 +54,6 @@ public final class RealmMindscapeManager {
 		if (id.equals(PowersMod.id("light_realm"))) return RealmKind.LIGHT;
 		if (id.equals(PowersMod.id("dark_realm"))) return RealmKind.DARK;
 		return null;
-	}
-
-	private static void ensureLandmarks(ServerLevel level, RealmKind kind) {
-		RealmLandmarkSavedData data = level.getServer().overworld().getDataStorage()
-				.computeIfAbsent(RealmLandmarkSavedData.TYPE);
-		String dimension = level.dimension().identifier().toString();
-		Set<String> missing = Set.copyOf(data.missing(dimension,
-				RealmLayout.sites(kind).stream().map(MemorySite::id).toList()));
-		if (missing.isEmpty()) return;
-		int floorY = level.getMinY();
-		Block floor = kind == RealmKind.LIGHT ? PowersBlocks.PURE_LIGHT : PowersBlocks.DARKNESS;
-		Block obelisk = kind == RealmKind.LIGHT
-				? PowersBlocks.LIGHT_MEMORY_OBELISK : PowersBlocks.DARK_MEMORY_OBELISK;
-		Block accent = kind == RealmKind.LIGHT ? Blocks.GOLD_BLOCK : Blocks.CRYING_OBSIDIAN;
-		for (MemorySite site : RealmLayout.sites(kind)) {
-			if (!missing.contains(site.id())) continue;
-			BlockPos center = new BlockPos(site.x(), floorY + 1, site.z());
-			if (!LoadedChunks.contains(level, center)) continue;
-			for (int dx = -3; dx <= 3; dx++) {
-				for (int dz = -3; dz <= 3; dz++) {
-					int distance = dx * dx + dz * dz;
-					if (distance > 10) continue;
-					BlockPos floorPos = center.offset(dx, -1, dz);
-					Block pattern = distance == 9 || (Math.abs(dx) == Math.abs(dz) && distance <= 8)
-							? accent : floor;
-					if (!level.getBlockState(floorPos).is(pattern)) {
-						level.setBlockAndUpdate(floorPos, pattern.defaultBlockState());
-					}
-				}
-			}
-			if (!level.getBlockState(center).is(obelisk)) {
-				level.setBlockAndUpdate(center, obelisk.defaultBlockState());
-			}
-			for (BlockPos marker : List.of(center.north(3), center.south(3), center.east(3), center.west(3))) {
-				Block markerBlock = kind == RealmKind.LIGHT ? Blocks.END_ROD : Blocks.SOUL_LANTERN;
-				if (level.getBlockState(marker).isAir()) level.setBlockAndUpdate(marker, markerBlock.defaultBlockState());
-			}
-			data.complete(dimension, site.id());
-		}
 	}
 
 	private static void enforceTether(ServerPlayer player, ServerLevel level, RealmKind kind) {
@@ -115,6 +80,9 @@ public final class RealmMindscapeManager {
 			PowerFx.burst(level, center, kind == RealmKind.LIGHT ? ParticleTypes.END_ROD : ParticleTypes.SOUL,
 					24, 1.1, 0.08);
 			PowerFx.sound(level, center, SoundEvents.END_PORTAL_SPAWN, 0.8f, kind == RealmKind.LIGHT ? 1.4f : 0.55f);
+			player.sendSystemMessage(Component.translatable("realm.powers.landmark_discovered",
+					Component.translatable("realm.powers.landmark."
+							+ site.landmarkType().name().toLowerCase(java.util.Locale.ROOT))));
 			player.sendSystemMessage(Component.translatable(site.memoryKey()));
 			player.sendSystemMessage(Component.translatable("realm.powers.path_offer",
 					Component.translatable(site.pathKey()), site.offeredPath()));
@@ -149,6 +117,7 @@ public final class RealmMindscapeManager {
 	}
 
 	public static void clearAll() {
-		// SavedData owns landmark completion; no process-local construction cache remains.
+		RealmLandmarkConstruction.clear();
+		RealmEventManager.clear();
 	}
 }

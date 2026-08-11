@@ -15,9 +15,11 @@ import com.powers.entity.RadiantSentinel;
 import com.powers.entity.FirstVessel;
 import com.powers.entity.PowerTestActor;
 import com.powers.entity.TestActorPowerState;
+import com.powers.entity.RealmHerald;
 import com.powers.boss.FirstVesselPowerCatalogue;
 import com.powers.boss.FirstVesselRitual;
 import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.item.FantasyWeaponItem;
 import com.powers.player.SkillSystem;
 import com.powers.player.PlayerGuide;
 import com.powers.power.artifact.ArtifactDeathWardManager;
@@ -41,6 +43,7 @@ import com.powers.companion.PrivateCompanionManager;
 import com.powers.knowledge.KnowledgeService;
 import com.powers.power.abilities.CombatTerrainImpact;
 import com.powers.power.state.MagicShieldManager;
+import com.powers.power.ConcordCastManager;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -55,6 +58,7 @@ import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.decoration.Mannequin;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.effect.MobEffects;
 
 /** Small runtime suite for mechanics that pure unit tests cannot exercise. */
 public final class PowersGameTests {
@@ -86,6 +90,47 @@ public final class PowersGameTests {
 	}
 
 	@GameTest
+	@SuppressWarnings("removal")
+	public void twoAlignedInnateCastsCreateACombatConcord(GameTestHelper helper) {
+		ConcordCastManager.clear();
+		ServerPlayer first = helper.makeMockServerPlayerInLevel();
+		ServerPlayer second = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(5, 1, 5));
+		first.setPos(origin.getX(), origin.getY(), origin.getZ());
+		second.setPos(origin.getX() + 3.0, origin.getY(), origin.getZ());
+		DarknessCreature target = helper.spawn(PowersEntities.DARKNESS_CREATURE,
+				new BlockPos(6, 1, 7));
+		target.setNoAi(true);
+		var ability = new ForcefieldAbility();
+		helper.assertFalse(ConcordCastManager.record(first, ability),
+				"The first cast incorrectly concorded alone");
+		helper.assertTrue(ConcordCastManager.record(second, ability),
+				"A nearby aligned matching cast did not concord");
+		helper.assertTrue(first.hasEffect(MobEffects.ABSORPTION)
+				&& second.hasEffect(MobEffects.ABSORPTION), "Concord did not protect both casters");
+		helper.assertTrue(target.getHealth() < target.getMaxHealth(),
+				"Concord pulse did not damage the opposed faction");
+		ConcordCastManager.clear();
+		helper.succeed();
+	}
+
+	@GameTest
+	public void realmHeraldsAreBossCapableAndDefendOpposedFactions(GameTestHelper helper) {
+		RealmHerald dark = helper.spawn(PowersEntities.DARK_HERALD, new BlockPos(1, 1, 1));
+		RealmHerald light = helper.spawn(PowersEntities.LIGHT_HERALD, new BlockPos(5, 1, 1));
+		Player ordinary = helper.makeMockPlayer(GameType.SURVIVAL);
+		Player infected = helper.makeMockPlayer(GameType.SURVIVAL);
+		infected.addTag(SkillSystem.DARKNESS_TAG);
+		helper.assertTrue(dark.getMaxHealth() >= 1_024.0F && light.getMaxHealth() >= 1_024.0F,
+				"A realm Herald lacked boss-scale vitality");
+		helper.assertTrue(dark.canAttack(ordinary) && !dark.canAttack(infected),
+				"Dark Herald violated its faction boundary");
+		helper.assertTrue(light.canAttack(infected) && !light.canAttack(ordinary),
+				"Light Herald violated its faction boundary");
+		helper.succeed();
+	}
+
+	@GameTest
 	public void mythicArtifactsCarryUnbreakableRegisteredIdentity(GameTestHelper helper) {
 		var shadow = PowersWeapons.weapon("lycanbane").getDefaultInstance();
 		var partisan = PowersWeapons.weapon("heavenly_partisan").getDefaultInstance();
@@ -95,6 +140,21 @@ public final class PowersGameTests {
 				== ArtifactAlignment.DARKNESS, "Shadow Sword identity was missing");
 		helper.assertTrue(partisan.get(PowersDataComponents.ARTIFACT_IDENTITY).alignment()
 				== ArtifactAlignment.LIGHT, "Partisan identity was missing");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
+	public void ordinaryFantasyWeaponExecutesItsVisibleArchetype(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		PowerTestActor target = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(3, 1, 3));
+		target.setNoAi(true);
+		ItemStack winterthorn = PowersWeapons.weapon("winterthorn").getDefaultInstance();
+		helper.assertTrue(winterthorn.getItem() instanceof FantasyWeaponItem,
+				"Ordinary fantasy weapon remained a generic Item");
+		winterthorn.getItem().hurtEnemy(winterthorn, target, player);
+		helper.assertTrue(target.hasEffect(MobEffects.SLOWNESS)
+				&& target.hasEffect(MobEffects.WEAKNESS), "Frostbound proc did not execute live");
 		helper.succeed();
 	}
 

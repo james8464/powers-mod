@@ -1,7 +1,7 @@
 {
   "title": "Living Darkness",
-  "keywords": ["darkness block", "darkness spread", "darkness infection", "darkness energy", "wither aura"],
-  "answer": "Darkness is a living force, not decorative stone. Outside its mindscape it slowly replaces vulnerable nearby terrain. Unaligned living beings suffer a particle-hidden Wither aura; darkness-infected players instead regenerate darkness energy rapidly. Pure Light touching Darkness triggers a catastrophic opposed-force clash. Amethyst wards and the Celestial Ruin spell are the principal containment tools.",
-  "sources": ["LivingForceManager", "DarknessState", "interaction catalogue"],
+  "keywords": ["darkness block", "darkness spread", "darkness infection", "darkness energy", "wither aura", "dark eclipse", "hollow court", "eclipse scar"],
+  "answer": "Darkness is a living force claimed by the Hollow Court. Outside its mindscape it slowly replaces vulnerable terrain. Unaligned beings suffer a particle-hidden Wither aura; infected players regenerate darkness energy. An Eclipse Scar can call a finite Hollowed patrol against nearby outsiders. During a Dark Eclipse, aligned minds gain strength while Force Pressure drains intruders. Pure Light contact triggers a catastrophic clash. Celestial Ruin and a powered cardinal-amethyst ceremony are the strongest containment tools.",
+  "sources": ["LivingForceManager", "FactionInvasionManager", "RealmEventManager", "interaction catalogue"],
   "reveal_rank": 0
 }

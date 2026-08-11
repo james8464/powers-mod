@@ -11,7 +11,7 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 | `blockstates/light_memory_obelisk.json` | blockstates | `62981c2f148e` | pass | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/pure_light.json` | blockstates | `c4375fe29f91` | pass | JSON decoded; references are covered by strict resource validation. |
 | `icon.png` | icon.png | `00ea24abeb49` | pass | PNG 128×128, alpha; reviewed in contact sheet. |
-| `lang/en_us.json` | lang | `4501caf18065` | pass | JSON decoded; references are covered by strict resource validation. |
+| `lang/en_us.json` | lang | `774475b31176` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward.json` | models | `ec18f4c15589` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward_powered.json` | models | `e82316d2c639` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/arcane_crucible.json` | models | `7590e3936646` | pass | JSON decoded; references are covered by strict resource validation. |
@@ -58,8 +58,10 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 | `textures/block/device_brooding_forge_up_on.png` | textures | `b76c898fcf41` | pass | PNG 16×64, alpha; reviewed in contact sheet. |
 | `textures/block/device_brooding_forge_up_on.png.mcmeta` | textures | `eace6bdad2fa` | pass | JSON decoded; references are covered by strict resource validation. |
 | `textures/block/pure_light.png` | textures | `430c4a11827d` | pass | PNG 16×16, opaque; reviewed in contact sheet. |
+| `textures/entity/dark_herald.png` | textures | `e7622c91eed5` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
 | `textures/entity/darkness_player.png` | textures | `e0c5949f45e1` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
 | `textures/entity/first_vessel.png` | textures | `83245b548a10` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
+| `textures/entity/light_herald.png` | textures | `d35fbe1f2294` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
 | `textures/entity/radiant_sentinel.png` | textures | `2b3a8fdd3e0a` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
 | `textures/entity/test_actor.png` | textures | `a36cd91fd2f8` | pass | PNG 64×64, alpha; reviewed in contact sheet. |
 | `textures/gui/advancements/backgrounds/radiant_path.png` | textures | `7d027877c130` | pass | PNG 256×256, alpha; reviewed in contact sheet. |

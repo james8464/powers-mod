@@ -64,4 +64,13 @@ class LivingForceIndexTest {
 				index.chunksWith(DARKNESS).stream().sorted().toList());
 		assertEquals(List.of(ChunkPos.pack(2, 0)), index.chunksWith(PURE_LIGHT));
 	}
+
+	@Test
+	void boundedQueriesStopAfterTheirInspectionLimit() {
+		LivingForceIndex index = new LivingForceIndex();
+		for (int x = 0; x < 20; x++) index.add(BlockPos.asLong(x, 64, 0), DARKNESS);
+
+		assertEquals(3, index.within(8.5, 64.5, 0.5, 32.0, DARKNESS, 3).size());
+		assertTrue(index.within(8.5, 64.5, 0.5, 32.0, DARKNESS, 0).isEmpty());
+	}
 }

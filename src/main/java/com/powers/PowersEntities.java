@@ -5,6 +5,7 @@ import com.powers.entity.DarknessCreature;
 import com.powers.entity.PowerTestActor;
 import com.powers.entity.FirstVessel;
 import com.powers.entity.RadiantSentinel;
+import com.powers.entity.RealmHerald;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,6 +27,10 @@ public final class PowersEntities {
 			"power_test_actor", PowerTestActor::new, MobCategory.CREATURE);
 	public static final EntityType<RadiantSentinel> RADIANT_SENTINEL = register(
 			"radiant_sentinel", RadiantSentinel::new, MobCategory.CREATURE);
+	public static final EntityType<RealmHerald> DARK_HERALD = register(
+			"dark_herald", RealmHerald::new, MobCategory.MONSTER);
+	public static final EntityType<RealmHerald> LIGHT_HERALD = register(
+			"light_herald", RealmHerald::new, MobCategory.MONSTER);
 	public static final EntityType<FirstVessel> FIRST_VESSEL = register(
 			"first_vessel", FirstVessel::new, MobCategory.MONSTER);
 
@@ -39,6 +44,8 @@ public final class PowersEntities {
 				AbstractPlayerLikeMob.createAttributes());
 		FabricDefaultAttributeRegistry.register(RADIANT_SENTINEL,
 				AbstractPlayerLikeMob.createAttributes());
+		FabricDefaultAttributeRegistry.register(DARK_HERALD, RealmHerald.createAttributes());
+		FabricDefaultAttributeRegistry.register(LIGHT_HERALD, RealmHerald.createAttributes());
 		FabricDefaultAttributeRegistry.register(FIRST_VESSEL, FirstVessel.createAttributes());
 		SpawnPlacements.register(DARKNESS_CREATURE, SpawnPlacementTypes.ON_GROUND,
 				Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkAnyLightMonsterSpawnRules);

@@ -147,6 +147,7 @@ public final class AbilityActivationService {
 			var presenceId = ServerMagicCasts.commit(magic, player);
 			ability.bindPhysicalPresence(player, data, presenceId);
 			SkillQuestTracker.recordPowerUse(player, ability);
+			if (source == CastSource.INNATE) ConcordCastManager.record(player, ability);
 		}
 		PowersPackets.syncTo(player);
 		return activated ? Result.ACTIVATED : Result.FAILED;
@@ -185,6 +186,7 @@ public final class AbilityActivationService {
 			var presenceId = ServerMagicCasts.commit(magic, player);
 			ability.bindPhysicalPresence(player, data, presenceId);
 			SkillQuestTracker.recordPowerUse(player, ability);
+			if (source == CastSource.INNATE) ConcordCastManager.record(player, ability);
 			PowerMessages.overlay(player, Component.translatable("ability.powers.toggle_on", ability.name()));
 		} else if (paid) {
 			data.refundEnergy(ability);

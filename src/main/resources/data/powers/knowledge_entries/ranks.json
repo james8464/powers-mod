@@ -1,7 +1,7 @@
 {
   "title": "The Labyrinth of Names",
   "keywords": ["rank maze", "titles", "skill level", "darkness level", "rank scaling", "press b"],
-  "answer": "Press B to enter the alignment-specific rank maze. The maze is not a mutually exclusive class path: reachable nodes form branching routes, and attunement determines which unlocked title is active. Innate powers receive rank-specific reach, duration, strength and transformation rules. Spells and crystal powers deliberately do not scale from player rank; artifacts use only their explicit artifact or apotheosis modifiers.",
-  "sources": ["RankMazeScreen", "PowerScalingService", "rank datapack"],
+  "answer": "Press B to enter the alignment-specific rank maze. Reachable nodes form branching routes rather than mutually exclusive classes, and attunement chooses an earned title. Innate powers receive authored level-specific reach, duration, strength, destruction and transformations; spells and crystals never inherit rank, while artifacts use only explicit artifact/apotheosis rules. Two nearby aligned players who release the same innate power within two seconds form a Radiant or Umbral Concord: both regain energy and gain a finite shield while an opposed-faction shock pulse erupts. Each pair has a ten-second safety cooldown.",
+  "sources": ["RankMazeScreen", "PowerScalingService", "ConcordCastManager", "rank datapack"],
   "reveal_rank": 0
 }

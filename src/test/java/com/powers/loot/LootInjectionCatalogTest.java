@@ -1,5 +1,6 @@
 package com.powers.loot;
 
+import com.powers.PowersWeapons;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -16,7 +17,8 @@ class LootInjectionCatalogTest {
 		for (LootDropGroup group : groups) {
 			assertTrue(tables.add(group.tableId()), group.tableId());
 			assertTrue(group.chance() > 0 && group.chance() <= 1);
-			assertTrue(group.itemIds().stream().allMatch(id -> id.startsWith("imported_")));
+			assertTrue(group.itemIds().stream().allMatch(id -> id.startsWith("imported_")
+					|| id.startsWith("powers:")));
 		}
 		var obtainable = groups.stream().flatMap(group -> group.itemIds().stream()).toList();
 		assertTrue(obtainable.stream().noneMatch("minecraft:knowledge_book"::equals));
@@ -26,5 +28,10 @@ class LootInjectionCatalogTest {
 		assertTrue(obtainable.contains("imported_artifact_flute"));
 		assertTrue(obtainable.contains("imported_artifact_soulmatrix"));
 		assertTrue(obtainable.contains("imported_magic_essence_soul_dust"));
+		for (String weapon : PowersWeapons.ordinaryWeaponIds()) {
+			assertTrue(obtainable.contains("powers:" + weapon), weapon);
+		}
+		assertTrue(obtainable.stream().noneMatch("powers:lycanbane"::equals));
+		assertTrue(obtainable.stream().noneMatch("powers:heavenly_partisan"::equals));
 	}
 }

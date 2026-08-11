@@ -31,6 +31,33 @@ def test_actor_skin() -> Image.Image:
     return image
 
 
+def herald_skin(light: bool) -> Image.Image:
+    """Paint one fully opaque player UV with distinct force armour and eyes."""
+    base = (224, 218, 185, 255) if light else (12, 5, 18, 255)
+    shade = (164, 126, 42, 255) if light else (42, 15, 58, 255)
+    rune = (255, 255, 238, 255) if light else (181, 77, 225, 255)
+    eye = (113, 235, 255, 255) if light else (238, 74, 255, 255)
+    image = Image.new("RGBA", (64, 64), base)
+    draw = ImageDraw.Draw(image)
+    # Tile shading keeps every limb face visibly mapped instead of stretching one panel.
+    for y in range(0, 64, 8):
+        for x in range(0, 64, 8):
+            if (x // 8 + y // 8) % 2:
+                draw.rectangle((x, y, x + 7, y + 7), fill=shade)
+    # Head front (8..15, 8..15), torso front (20..27, 20..31), and limb-front runes.
+    draw.rectangle((9, 11, 11, 12), fill=eye)
+    draw.rectangle((13, 11, 15, 12), fill=eye)
+    for x, y in ((23, 21), (22, 22), (23, 22), (24, 22), (23, 23),
+                 (22, 24), (24, 24), (21, 25), (25, 25),
+                 (6, 21), (10, 53), (42, 21), (26, 53)):
+        draw.rectangle((x, y, x + 1, y + 1), fill=rune)
+    # Outer-layer crown and shoulder seams remain in their standard 64x64 UV regions.
+    draw.rectangle((40, 8, 47, 9), fill=rune)
+    draw.rectangle((40, 16, 47, 16), fill=eye)
+    draw.rectangle((20, 36, 27, 37), fill=rune)
+    return image
+
+
 def spawn_egg(base: str, shade: str, highlight: str, rune: str) -> Image.Image:
     """Paint one crisp vanilla-scale egg with an alignment rune instead of borrowing another mob."""
     image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
@@ -61,11 +88,16 @@ def main() -> None:
     ITEM_OUTPUT.mkdir(parents=True, exist_ok=True)
     darkness_skin().save(OUTPUT / "darkness_player.png", format="PNG", optimize=True)
     test_actor_skin().save(OUTPUT / "test_actor.png", format="PNG", optimize=True)
+
+    herald_skin(False).save(OUTPUT / "dark_herald.png", format="PNG", optimize=True)
+    herald_skin(True).save(OUTPUT / "light_herald.png", format="PNG", optimize=True)
     eggs = {
         "darkness_creature_spawn_egg": ("#13091d", "#030105", "#713d8c", "#d38cff"),
         "power_test_actor_spawn_egg": ("#27303d", "#10151d", "#62dffc", "#ffd05c"),
         "radiant_sentinel_spawn_egg": ("#fff3c4", "#b78d2e", "#ffffff", "#69dff7"),
         "first_vessel_spawn_egg": ("#24102e", "#08040d", "#8e5ab0", "#e7ddff"),
+        "dark_herald_spawn_egg": ("#210b2d", "#050108", "#7b3597", "#ec68ff"),
+        "light_herald_spawn_egg": ("#fff1b0", "#9f7424", "#ffffff", "#70eaff"),
     }
     for name, palette in eggs.items():
         spawn_egg(*palette).save(ITEM_OUTPUT / f"{name}.png", format="PNG", optimize=True)

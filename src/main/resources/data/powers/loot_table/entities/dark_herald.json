@@ -1,0 +1,23 @@
+{
+	"type": "minecraft:entity",
+	"pools": [
+		{
+			"rolls": 1,
+			"entries": [
+				{
+					"type": "minecraft:item",
+					"name": "powers:lycanbane"
+				}
+			]
+		},
+		{
+			"rolls": 1,
+			"entries": [
+				{
+					"type": "minecraft:item",
+					"name": "powers:imported_artifact_runestone_dark_inscribed_large"
+				}
+			]
+		}
+	]
+}
