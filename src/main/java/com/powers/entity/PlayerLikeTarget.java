@@ -8,11 +8,12 @@ public interface PlayerLikeTarget {
 	String testingUsername();
 
 	static boolean isCompatible(Object target) {
-		return target instanceof ServerPlayer || target instanceof PlayerLikeTarget;
+		return target instanceof ServerPlayer || target instanceof PlayerLikeTarget
+				|| target instanceof com.powers.companion.ShadowCompanionEntity;
 	}
 
 	static boolean alwaysConsents(Object target) {
-		return target instanceof PlayerLikeTarget;
+		return target instanceof PowerTestActor;
 	}
 
 	static String username(LivingEntity target) {

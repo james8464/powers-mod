@@ -4,7 +4,7 @@ import com.powers.PowerStatusEffects;
 import com.powers.PowersEffects;
 import com.powers.PowersMod;
 import com.powers.entity.PlayerLikeTarget;
-import com.powers.entity.TestActorPowerState;
+import com.powers.magic.participant.MagicParticipants;
 import com.powers.fx.PowerFx;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
@@ -129,12 +129,8 @@ public class EnergyDrainAbility extends Ability {
 			if (now >= ritual.state().finishesAt()) {
 				// full drain landed, hit the target with exhaustion
 				if (PlayerLikeTarget.isCompatible(target)) {
-					if (target instanceof ServerPlayer targetPlayer) {
-						PlayerPowers.get(targetPlayer).emptyEnergy();
-						PowersPackets.syncTo(targetPlayer);
-					} else {
-						TestActorPowerState.empty(target.getUUID());
-					}
+					MagicParticipants.resolve(target).ifPresent(participant -> participant.setEnergy(0));
+					if (target instanceof ServerPlayer targetPlayer) PowersPackets.syncTo(targetPlayer);
 					target.addEffect(PowerStatusEffects.hidden(PowersEffects.EXHAUSTION,
 							ritual.exhaustionTicks(), 0, false, true));
 				} else {
@@ -151,20 +147,16 @@ public class EnergyDrainAbility extends Ability {
 				continue;
 			}
 			if (PlayerLikeTarget.isCompatible(target)) {
-				int targetEnergy = target instanceof ServerPlayer targetPlayer
-						? PlayerPowers.get(targetPlayer).energy()
-						: TestActorPowerState.energy(target.getUUID());
+				var participant = MagicParticipants.resolve(target);
+				if (participant.isEmpty()) continue;
+				int targetEnergy = participant.get().energy();
 				if (targetEnergy <= 0) continue;
 				int ticksRemaining = (int) Math.max(1L, ritual.state().finishesAt() - now);
 				int requested = AbilityArithmetic.drainStep(targetEnergy, ticksRemaining);
-				int drained;
-				if (target instanceof ServerPlayer targetPlayer) {
-					PlayerPowers.get(targetPlayer).consumeEnergy(requested);
-					drained = requested;
-					PowersPackets.syncTo(targetPlayer);
-				} else {
-					drained = TestActorPowerState.drain(target.getUUID(), requested);
-				}
+				int before = participant.get().energy();
+				participant.get().consume(requested);
+				int drained = before - participant.get().energy();
+				if (target instanceof ServerPlayer targetPlayer) PowersPackets.syncTo(targetPlayer);
 				PlayerPowers.PlayerPowersData casterData = PlayerPowers.get(caster);
 				casterData.refundEnergy(Math.max(1, (int) Math.floor(drained * ritual.transferRatio())));
 				PowersPackets.syncTo(caster);

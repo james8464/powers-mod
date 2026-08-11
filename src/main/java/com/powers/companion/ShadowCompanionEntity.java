@@ -2,6 +2,7 @@ package com.powers.companion;
 
 import com.mojang.authlib.GameProfile;
 import com.powers.entity.AbstractPlayerLikeMob;
+import com.powers.entity.PlayerLikeTarget;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -19,7 +20,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import java.util.UUID;
 
 /** Real unarmed player-shaped body for one Darkness user's persistent Shadow. */
-public final class ShadowCompanionEntity extends AbstractPlayerLikeMob {
+public final class ShadowCompanionEntity extends AbstractPlayerLikeMob implements PlayerLikeTarget {
 	private static final String OWNER_KEY = "PowersShadowOwner";
 	private static final String ENERGY_KEY = "PowersShadowEnergy";
 	private static final String REVEALED_KEY = "PowersShadowRevealed";
@@ -57,6 +58,11 @@ public final class ShadowCompanionEntity extends AbstractPlayerLikeMob {
 
 	public UUID ownerId() {
 		return ownerId;
+	}
+
+	@Override
+	public String testingUsername() {
+		return getName().getString();
 	}
 
 	/** Profile synchronized to the renderer for the owner's current wide/slim skin. */

@@ -98,6 +98,7 @@ public final class PrivateCompanionManager {
 		ShadowCompanionStore.update(player, current -> current
 				.withEnergy(body.energy()).withRevealed(revealed)
 				.withBodyId(body.getUUID()));
+		ShadowMagicState.tick(player, body);
 		ShadowTask.Result taskState = session.tasks.tick(player.level().getGameTime());
 		if (taskState.state() == ShadowTask.State.FAILED) {
 			rememberFailure(player, taskState.reason());
@@ -590,6 +591,7 @@ public final class PrivateCompanionManager {
 				ShadowConjurationManager.interrupt(owner, removed.body, "source_lost");
 			}
 			BODY_OWNERS.remove(removed.body.getUUID());
+			com.powers.power.AmethystDampening.forget(removed.body);
 			ShadowCompanionStore.update(owner, state -> state.withEnergy(removed.body.energy())
 					.withRevealed(false).withoutBody());
 			if (!removed.body.isRemoved()) removed.body.discard();
