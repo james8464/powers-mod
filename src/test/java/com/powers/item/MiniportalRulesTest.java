@@ -2,6 +2,8 @@ package com.powers.item;
 
 import org.junit.jupiter.api.Test;
 
+import net.minecraft.resources.Identifier;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -49,5 +51,15 @@ class MiniportalRulesTest {
 		assertEquals(48, MiniportalRules.anchorName("x".repeat(80), "fallback").length());
 		assertTrue(MiniportalRules.chargedModel(1));
 		assertFalse(MiniportalRules.chargedModel(0));
+	}
+
+	@Test
+	void previewAndTravelShareFirstInventoryAnchorSelection() {
+		TravelAnchorData first = new TravelAnchorData(
+				Identifier.fromNamespaceAndPath("minecraft", "overworld"), 1, 2, 3, "Zulu");
+		TravelAnchorData alphabeticallyEarlier = new TravelAnchorData(
+				Identifier.fromNamespaceAndPath("minecraft", "overworld"), 4, 5, 6, "Alpha");
+		assertEquals(first, MiniportalRules.firstAnchor(
+				java.util.Arrays.asList(null, first, alphabeticallyEarlier)));
 	}
 }

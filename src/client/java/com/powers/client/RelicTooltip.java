@@ -15,8 +15,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Comparator;
-
 /** Adds live, bounded relic state without guessing server-owned balances. */
 final class RelicTooltip {
 	private RelicTooltip() {
@@ -74,10 +72,10 @@ final class RelicTooltip {
 				charges > 0 ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.RED));
 		var player = Minecraft.getInstance().player;
 		if (player == null) return;
-		TravelAnchorData anchor = player.getInventory().getNonEquipmentItems().stream()
+		TravelAnchorData anchor = MiniportalRules.firstAnchor(
+				player.getInventory().getNonEquipmentItems().stream()
 				.map(candidate -> candidate.get(PowersDataComponents.TRAVEL_ANCHOR))
-				.filter(java.util.Objects::nonNull)
-				.sorted(Comparator.comparing(TravelAnchorData::name)).findFirst().orElse(null);
+				.toList());
 		if (anchor != null) {
 			lines.add(Component.translatable("tooltip.powers.miniportal.anchor", anchor.name(),
 					anchor.dimension().getPath(), anchor.x(), anchor.y(), anchor.z())
