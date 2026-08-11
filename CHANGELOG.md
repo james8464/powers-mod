@@ -2,6 +2,9 @@
 
 ## 1.0.2 - 2026-08-11
 
+- Rebuilt Shadow as one persistent player-model magic participant with owner skin, global/private presentation, typed conversation tasks, bounded item retrieval/conjuration, its own Darkness energy and all 23 non-crystal innates plus exactly three sword rites.
+- Added server-only tactical Shadow combat: close, skirmish, ranged, rescue and recovery modes; capped targeting and firing-lane checks; real named executors; owner-local bounded contextual learning; diagnostics and an operator learning reset.
+- Removed routine Adventure-mode coercion from Light/Dark mindscape entry and successful confinement while retaining safe migration of legacy Adventure sessions and Spectator only for a failed locked recovery.
 - Added a live Energy Beam/Void Beam intersection: both rays terminate at the first crossing, release a bounded no-grief pressure blast, mark both casters with visual lightning, and play one short celestial ring.
 - Defined and generated all 672 form/source/termination outcomes alongside the existing 2,080 action-pair matrix; fatal detached-avatar or physical-proxy damage now recalls and kills the physical player, while a dead controlled vessel returns its controller under Divine Wrath.
 - Made revealed Shadow a globally visible, skin-matched, equipment-free mortal body. Killing it dismisses only the manifestation; its diagnostic/lore memory survives and it can be summoned again.

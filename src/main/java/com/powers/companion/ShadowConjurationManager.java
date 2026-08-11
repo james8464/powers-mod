@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +47,8 @@ public final class ShadowConjurationManager {
 		}
 	}
 
-	private record Rite(UUID bodyId, long startedAt, Reservation reservation) { }
+	private record Rite(UUID bodyId, long startedAt, Vec3 origin,
+			float startingHealth, Reservation reservation) { }
 	private static final Map<UUID, Rite> RITES = new HashMap<>();
 	private static long completedConjurations;
 
@@ -82,12 +84,14 @@ public final class ShadowConjurationManager {
 			ShadowConjurationRules.Decision decision) {
 		UUID ownerId = owner.getUUID();
 		if (RITES.containsKey(ownerId)) return new Outcome(false, true, "rite_already_active", 0, 0);
-		if (owner.getInventory().contains(new ItemStack(PowersItems.DARK_CRYSTAL))) {
+		if (!shadow.revealed()) return new Outcome(false, false, "rite_requires_reveal", 0, 0);
+		if (hasDarkCrystal(owner)) {
 			return new Outcome(false, false, "dark_crystal_already_carried", 0, 0);
 		}
 		Reservation reservation = new Reservation(decision.cost());
 		shadow.setEnergy(shadow.energy() - decision.cost());
-		RITES.put(ownerId, new Rite(shadow.getUUID(), owner.level().getGameTime(), reservation));
+		RITES.put(ownerId, new Rite(shadow.getUUID(), owner.level().getGameTime(),
+				shadow.position(), shadow.getHealth(), reservation));
 		return new Outcome(true, true, "dark_crystal_rite_started", decision.cost(), 1);
 	}
 
@@ -96,8 +100,10 @@ public final class ShadowConjurationManager {
 		if (rite == null) return new Outcome(false, false, "no_rite", 0, 0);
 		boolean bodyLost = !shadow.isAlive() || !shadow.getUUID().equals(rite.bodyId());
 		boolean dimensionMismatch = owner.level() != shadow.level();
+		boolean movedOrHurt = shadow.position().distanceToSqr(rite.origin()) > 2.25
+				|| shadow.getHealth() < rite.startingHealth() || shadow.hurtTime > 0;
 		if (interrupts(bodyLost, !owner.isAlive(), dimensionMismatch,
-				shadow.energy() > 0 || ShadowMagicState.actionsSuppressed(shadow))) {
+				shadow.energy() > 0 || ShadowMagicState.actionsSuppressed(shadow) || movedOrHurt)) {
 			return interrupt(owner, shadow, "rite_interrupted");
 		}
 		ServerLevel level = (ServerLevel) shadow.level();
@@ -113,7 +119,7 @@ public final class ShadowConjurationManager {
 		if (!riteComplete(rite.startedAt(), level.getGameTime())) {
 			return new Outcome(true, true, "channeling", 0, 0);
 		}
-		if (owner.getInventory().contains(new ItemStack(PowersItems.DARK_CRYSTAL))) {
+		if (hasDarkCrystal(owner)) {
 			return interrupt(owner, shadow, "duplicate_prevented");
 		}
 		RITES.remove(owner.getUUID());
@@ -154,6 +160,12 @@ public final class ShadowConjurationManager {
 
 	public static boolean riteComplete(long startedAt, long now) {
 		return now - startedAt >= ShadowConjurationRules.DARK_CRYSTAL_CHANNEL_TICKS;
+	}
+
+	private static boolean hasDarkCrystal(ServerPlayer owner) {
+		ItemStack crystal = new ItemStack(PowersItems.DARK_CRYSTAL);
+		return owner.getInventory().contains(crystal)
+				|| owner.getEnderChestInventory().countItem(PowersItems.DARK_CRYSTAL) > 0;
 	}
 
 	public static boolean interrupts(boolean bodyLost, boolean ownerDead,

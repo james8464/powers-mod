@@ -31,7 +31,7 @@ The lifecycle policy covers physical players, Light/Dark realm avatars, astral a
 - A fatal hit to an astral, teleport or mindscape avatar recalls the mind to the recorded physical body, removes its ticket/proxy exactly once, then performs ordinary death and respawn there.
 - A fatal hit to the frozen physical body follows the same recall-then-death sequence.
 - A controlled vessel dying does not kill its controller. It returns the controller and invokes particle-hidden Divine Wrath: bounded non-lethal damage, energy loss, Weakness, Slowness and Darkness with a celestial fracture ceremony.
-- A revealed Shadow is a globally visible, skin-matched, unequipped mortal mannequin. Killing it collapses only the current manifestation. Player-keyed diagnostic and lore memory survives, and a qualifying wielder may call Shadow again.
+- Shadow has one authoritative, skin-matched, unequipped player-model body. Hidden/revealed transitions change presentation and vulnerability without replacing it. Killing a revealed body collapses source-owned combat state while owner-keyed conversation, preferences and bounded learning survive for a later recall.
 - Disconnect, respawn, dimension failure and server stop release runtime-only sessions, indexes, modifiers, client apparitions and chunk tickets.
 
 ## Travel and dimensions
@@ -59,6 +59,8 @@ Persistent fields, projectiles, beams, force blocks, wards and realm matter publ
 Living-force spread, auras, Eclipse Scars, Whiteout/Dark Eclipse events, invasions, containment ceremonies, Heralds, landmarks and Celestial Ruin persist only the identifiers and coordinates required to resume safely. Chunk/entity scans use spatial indexes, rotating queues and hard tick caps rather than whole-world iteration.
 
 The Shadow Sword exposes routed innate/crystal actions plus exactly three unique invocations: Call the Hollowed, Blight Ground and Nightfall Dominion. The Heavenly Partisan uses its curated Light roster. Artifact attunements, soulstones, ritual implements, vitality relics, transmutation, travel relics, the flute, archaeological reagents and ordinary weapons have their purpose/acquisition status in the main README; deliberately deferred crystal recipes remain absent.
+
+Shadow itself is a full magic participant with a separate 1,850-point Darkness pool. It may use all 23 innate actions and the three Shadow Sword uniques but no crystal action. Its server-only planner evaluates at most 26 already-legal actions once per ten ticks, uses at most 64 hostile candidates and 16 firing-lane candidates, and casts at most once per twenty ticks. Owner-local contextual credit changes utility by at most ±25%, explores only within a 5% safe bound, stores at most 64 contexts/32 archetypes, and never bypasses energy, protection, suppression, terrain or workload policy.
 
 ## Resolution order for compound situations
 
