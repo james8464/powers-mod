@@ -25,6 +25,7 @@ import java.util.Set;
 
 import static com.powers.player.PlayerPowerAttachments.ACTIVE_TOGGLES;
 import static com.powers.player.PlayerPowerAttachments.COOLDOWNS;
+import static com.powers.player.PlayerPowerAttachments.CRYSTAL_SELECTIONS;
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_LEVEL;
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_PREFIX_HIDDEN;
 import static com.powers.player.PlayerPowerAttachments.DIMENSIONAL_ANCHOR;
@@ -94,6 +95,19 @@ public final class PlayerPowers {
 			if (spellCount <= 0) return 0;
 			int selected = target.getAttachedOrElse(SPELL_SELECTIONS, Map.of()).getOrDefault(grimoireKey, 0);
 			return Math.floorMod(selected, spellCount);
+		}
+
+		public int selectedCrystalMode(String crystalKey, int modeCount) {
+			if (modeCount <= 0) return 0;
+			return Math.floorMod(target.getAttachedOrElse(CRYSTAL_SELECTIONS, Map.of())
+					.getOrDefault(crystalKey, 0), modeCount);
+		}
+
+		public void setSelectedCrystalMode(String crystalKey, int selected) {
+			Map<String, Integer> updated = new HashMap<>(
+					target.getAttachedOrElse(CRYSTAL_SELECTIONS, Map.of()));
+			updated.put(crystalKey, Math.max(0, selected));
+			target.setAttached(CRYSTAL_SELECTIONS, updated);
 		}
 
 		/** Returns the stored page before catalogue migration. */

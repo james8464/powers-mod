@@ -1,6 +1,7 @@
 package com.powers.client.screen;
 
 import com.powers.client.AbilityGlyphRenderer;
+import com.powers.client.ClientInteractionPreferences;
 import com.powers.item.artifact.ArtifactActionDefinition;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.artifact.ArtifactWheelRules;
@@ -79,20 +80,28 @@ public final class ShadowSwordScreen extends Screen {
 
 	@Override
 	public boolean keyReleased(KeyEvent event) {
-		int released = ArtifactWheelRules.releasedSelection(event.key(), hovered);
-		if (released >= 0) {
-			choose(released);
+		ArtifactWheelRules.ReleaseAction release = ArtifactWheelRules.releaseAction(
+				ClientInteractionPreferences.releaseToCast(), event.key(), hovered);
+		if (release != ArtifactWheelRules.ReleaseAction.NONE) {
+			choose(hovered, release == ArtifactWheelRules.ReleaseAction.CAST);
 			return true;
 		}
 		return super.keyReleased(event);
 	}
 
 	private void choose(int slot) {
+		choose(slot, false);
+	}
+
+	private void choose(int slot, boolean cast) {
 		if (slot < 0 || slot >= favourites.size()) return;
 		ArtifactActionDefinition action = state.action(favourites.get(slot));
 		if (action == null || state.locked(action)) return;
-		ClientPlayNetworking.send(new ShadowSwordPackets.SelectPayload(
-				state.alignment().serializedName(), action.key(), state.optionFor(action)));
+		ClientPlayNetworking.send(cast
+				? new ShadowSwordPackets.CommitPayload(state.alignment().serializedName(),
+						action.key(), state.optionFor(action))
+				: new ShadowSwordPackets.SelectPayload(state.alignment().serializedName(),
+						action.key(), state.optionFor(action)));
 		onClose();
 	}
 
@@ -107,7 +116,8 @@ public final class ShadowSwordScreen extends Screen {
 		hovered = ArtifactWheelRules.targetAt(centerX, centerY, mouseX, mouseY);
 		drawWheel(graphics, centerX, centerY);
 		graphics.centeredText(font, title, centerX, centerY - 101, accent());
-		graphics.centeredText(font, Component.translatable("screen.powers.artifact.wheel.hint"),
+		graphics.centeredText(font, Component.translatable(ClientInteractionPreferences.releaseToCast()
+				? "screen.powers.artifact.wheel.hint_cast" : "screen.powers.artifact.wheel.hint"),
 				centerX, centerY + 92, 0xFFCAC4D3);
 		if (hovered >= 0) {
 			ArtifactActionDefinition action = state.action(favourites.get(hovered));

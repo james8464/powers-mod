@@ -9,6 +9,7 @@ import com.powers.client.screen.RankMazeScreen;
 import com.powers.client.screen.ShadowSwordScreen;
 import com.powers.client.screen.GrimoireIndexScreen;
 import com.powers.client.screen.ReservoirTransferScreen;
+import com.powers.client.screen.RainbowConvergenceScreen;
 import com.powers.client.fx.ClientMagicFx;
 import com.powers.client.fx.ClientShapeFx;
 import com.powers.client.fx.ClientBeamFx;
@@ -29,6 +30,7 @@ import com.powers.network.CompanionPackets;
 import com.powers.network.VesselControlPackets;
 import com.powers.network.GrimoirePackets;
 import com.powers.network.RelicPackets;
+import com.powers.network.CrystalSelectorPackets;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import net.fabricmc.api.ClientModInitializer;
@@ -45,6 +47,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 /** client entry point: registers the v/x/c slot keys, wires up the huds and the teleport screen */
@@ -56,11 +59,13 @@ public class PowersClient implements ClientModInitializer {
 	public static KeyMapping slotKey3;
 	public static KeyMapping rankMazeKey;
 	public static KeyMapping companionKey;
+	public static KeyMapping releaseCastToggleKey;
 
 	@Override
 	public void onInitializeClient() {
 		ClientProtocolHandshake.initialize();
 		ClientHudPreferences.initialize();
+		ClientInteractionPreferences.initialize();
 		MenuScreens.register(PowersMenus.ARCANE_CRUCIBLE, ArcaneCrucibleScreen::new);
 		CrucibleWeaponTooltip.register();
 		RelicTooltip.register();
@@ -74,6 +79,9 @@ public class PowersClient implements ClientModInitializer {
 				"key.powers.rank_maze", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, CATEGORY));
 		companionKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 				"key.powers.companion", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, CATEGORY));
+		releaseCastToggleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+				"key.powers.release_cast_toggle", InputConstants.Type.KEYSYM,
+				GLFW.GLFW_KEY_UNKNOWN, CATEGORY));
 		ClientPlayNetworking.registerGlobalReceiver(PowerStatePayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientPowerState.update(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.MagicFxPayload.TYPE,
@@ -112,6 +120,9 @@ public class PowersClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(RelicPackets.OpenReservoirPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
 						new ReservoirTransferScreen(payload))));
+		ClientPlayNetworking.registerGlobalReceiver(CrystalSelectorPackets.OpenPayload.TYPE,
+				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
+						new RainbowConvergenceScreen(payload.modes(), payload.selected()))));
 		ClientPlayNetworking.registerGlobalReceiver(CelestialRuinPackets.Payload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientCelestialRuinFx.handle(payload)));
 		// clear the cached state when you leave the server so the hud doesn't carry over old powers
@@ -204,6 +215,14 @@ public class PowersClient implements ClientModInitializer {
 			if (client.gui.screen() == null && client.player != null) {
 				PrivateCompanionClient.interact();
 			}
+		}
+		while (releaseCastToggleKey.consumeClick()) {
+			boolean enabled = ClientInteractionPreferences.toggleReleaseToCast();
+			Component message = Component.translatable(enabled
+					? "screen.powers.artifact.release_cast.on"
+					: "screen.powers.artifact.release_cast.off");
+			if (client.player != null) client.player.sendOverlayMessage(message);
+			client.getNarrator().saySystemNow(message);
 		}
 	}
 

@@ -55,4 +55,14 @@ class ArtifactWheelRulesTest {
 		assertEquals(0, ArtifactWheelRules.remainingCooldown(100, 140));
 		assertEquals(0, ArtifactWheelRules.remainingCooldown(-1, 5));
 	}
+
+	@Test
+	void releaseToCastIsExplicitlyOptInWhileSafeReleaseOnlySelects() {
+		assertEquals(ArtifactWheelRules.ReleaseAction.SELECT,
+				ArtifactWheelRules.releaseAction(false, 340, 2));
+		assertEquals(ArtifactWheelRules.ReleaseAction.CAST,
+				ArtifactWheelRules.releaseAction(true, 340, 2));
+		assertEquals(ArtifactWheelRules.ReleaseAction.NONE,
+				ArtifactWheelRules.releaseAction(true, 65, 2));
+	}
 }

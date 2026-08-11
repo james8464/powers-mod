@@ -1,0 +1,64 @@
+package com.powers.network;
+
+import com.powers.PowersItems;
+import com.powers.PowersMod;
+import com.powers.power.Ability;
+import com.powers.power.crystals.CrystalPowerRegistry;
+import com.powers.power.crystals.ModeCrystalAbility;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
+
+import java.util.List;
+
+/** Authenticated Rainbow convergence selector transport. */
+public final class CrystalSelectorPackets {
+	private static final StreamCodec<io.netty.buffer.ByteBuf, String> MODE_CODEC =
+			ByteBufCodecs.stringUtf8(64);
+
+	public record OpenPayload(List<String> modes, int selected) implements CustomPacketPayload {
+		public static final Type<OpenPayload> TYPE = new Type<>(PowersMod.id("open_crystal_selector"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, OpenPayload> STREAM_CODEC =
+				StreamCodec.composite(MODE_CODEC.apply(ByteBufCodecs.list(8)), OpenPayload::modes,
+						ByteBufCodecs.VAR_INT, OpenPayload::selected, OpenPayload::new);
+		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
+	}
+
+	public record SelectPayload(int selected) implements CustomPacketPayload {
+		public static final Type<SelectPayload> TYPE = new Type<>(PowersMod.id("select_crystal_mode"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, SelectPayload> STREAM_CODEC =
+				StreamCodec.composite(ByteBufCodecs.VAR_INT, SelectPayload::selected, SelectPayload::new);
+		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
+	}
+
+	private CrystalSelectorPackets() {
+	}
+
+	static void initialize() {
+		PayloadTypeRegistry.clientboundPlay().register(OpenPayload.TYPE, OpenPayload.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(SelectPayload.TYPE, SelectPayload.STREAM_CODEC);
+		ServerPlayNetworking.registerGlobalReceiver(SelectPayload.TYPE, (payload, context) ->
+				context.server().execute(() -> {
+					if (PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.ARTIFACT)) {
+						select(context.player(), payload.selected());
+					}
+				}));
+	}
+
+	public static void open(ServerPlayer player, ModeCrystalAbility convergence) {
+		ServerPlayNetworking.send(player,
+				new OpenPayload(convergence.modeIds(), convergence.selectedIndex(player)));
+	}
+
+	private static void select(ServerPlayer player, int selected) {
+		boolean holds = player.getMainHandItem().is(PowersItems.RAINBOW_CRYSTAL)
+				|| player.getOffhandItem().is(PowersItems.RAINBOW_CRYSTAL);
+		Ability ability = CrystalPowerRegistry.get(PowersItems.RAINBOW_CRYSTAL);
+		if (holds && ability instanceof ModeCrystalAbility convergence
+				&& convergence.radialSelector()) convergence.selectMode(player, selected);
+	}
+}

@@ -1017,5 +1017,11 @@
 	"hud.powers.shadow.stance.stay": "Staying",
 	"hud.powers.shadow.stance.guard": "Guarding",
 	"hud.powers.shadow.stance.task": "Tasking",
-	"hud.powers.shadow.stance.downed": "Downed"
+	"hud.powers.shadow.stance.downed": "Downed",
+	"key.powers.release_cast_toggle": "Toggle artifact release-to-cast",
+	"screen.powers.artifact.wheel.hint_cast": "Aim + release Shift to cast; click or 1–8 selects",
+	"screen.powers.artifact.release_cast.on": "Artifact release-to-cast enabled",
+	"screen.powers.artifact.release_cast.off": "Artifact release-to-cast disabled",
+	"screen.powers.crystal_selector.title": "Sevenfold Convergence",
+	"screen.powers.crystal_selector.hint": "Choose with mouse, Tab/Enter, or keys 1–6"
 }

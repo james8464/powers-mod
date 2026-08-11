@@ -75,6 +75,18 @@ public final class ShadowSwordPackets {
 		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
 	}
 
+	/** Selects and casts one release-confirmed favourite under server authority. */
+	public record CommitPayload(String alignment, String actionKey, int option)
+			implements CustomPacketPayload {
+		public static final Type<CommitPayload> TYPE = new Type<>(PowersMod.id("commit_artifact_wheel"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, CommitPayload> STREAM_CODEC =
+				StreamCodec.composite(ALIGNMENT_CODEC, CommitPayload::alignment,
+						ACTION_KEY_CODEC, CommitPayload::actionKey,
+						ByteBufCodecs.VAR_INT, CommitPayload::option, CommitPayload::new);
+
+		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
+	}
+
 	/** One bounded server-authoritative catalogue step requested by crouch-scroll. */
 	public record CyclePayload(String alignment, int direction) implements CustomPacketPayload {
 		public static final Type<CyclePayload> TYPE = new Type<>(PowersMod.id("cycle_artifact_action"));
@@ -125,6 +137,7 @@ public final class ShadowSwordPackets {
 		PayloadTypeRegistry.clientboundPlay().register(OpenMenuPayload.TYPE, OpenMenuPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(OpenTeleportPayload.TYPE, OpenTeleportPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SelectPayload.TYPE, SelectPayload.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(CommitPayload.TYPE, CommitPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(CyclePayload.TYPE, CyclePayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(
 				BindFavouritePayload.TYPE, BindFavouritePayload.STREAM_CODEC);
@@ -135,6 +148,15 @@ public final class ShadowSwordPackets {
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
 					if (alignment != null) ArtifactWeaponManager.select(
 							context.player(), alignment, payload.actionKey(), payload.option());
+					}
+				}));
+		ServerPlayNetworking.registerGlobalReceiver(CommitPayload.TYPE, (payload, context) ->
+				context.server().execute(() -> {
+					if (!PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.ARTIFACT)) return;
+					ArtifactAlignment alignment = parseAlignment(payload.alignment());
+					if (alignment != null && ArtifactWeaponManager.select(context.player(), alignment,
+							payload.actionKey(), payload.option())) {
+						ArtifactWeaponManager.activateSelected(context.player(), alignment);
 					}
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(CyclePayload.TYPE, (payload, context) ->

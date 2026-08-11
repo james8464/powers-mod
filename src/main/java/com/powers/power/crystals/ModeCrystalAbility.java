@@ -15,18 +15,19 @@ import java.util.UUID;
 /** One crystal surface that safely selects among several fully fledged abilities. */
 public final class ModeCrystalAbility extends Ability {
 	private final List<Ability> modes;
-	private final CrystalModeState state = new CrystalModeState();
+	private final String crystalPath;
 
 	public ModeCrystalAbility(String crystalPath, List<Ability> modes) {
 		super(PowersMod.id(crystalPath + "_convergence"),
 				Component.translatable("ability.powers." + crystalPath + "_convergence"),
 				0, false, false);
 		if (modes.isEmpty()) throw new IllegalArgumentException("A crystal needs at least one ability");
+		this.crystalPath = crystalPath;
 		this.modes = List.copyOf(modes);
 	}
 
 	private Ability selected(ServerPlayer player) {
-		return modes.get(state.current(player.getUUID(), modes.size()));
+		return modes.get(PlayerPowers.get(player).selectedCrystalMode(crystalPath, modes.size()));
 	}
 
 	/** Returns the canonical underlying action used for interaction resolution. */
@@ -51,7 +52,14 @@ public final class ModeCrystalAbility extends Ability {
 		// convergence itself is cooling down.
 		if (selected.isSelectionAction(player)) return selected.activate(player, data);
 		if (player.isCrouching()) {
-			Ability next = modes.get(state.advance(player.getUUID(), modes.size()));
+			if (radialSelector()) {
+				com.powers.network.CrystalSelectorPackets.open(player, this);
+				return true;
+			}
+			int nextIndex = (PlayerPowers.get(player).selectedCrystalMode(crystalPath, modes.size()) + 1)
+					% modes.size();
+			PlayerPowers.get(player).setSelectedCrystalMode(crystalPath, nextIndex);
+			Ability next = modes.get(nextIndex);
 			PowerMessages.overlay(player,
 					Component.translatable("crystal.powers.mode_selected", next.name()));
 			return true;
@@ -77,10 +85,30 @@ public final class ModeCrystalAbility extends Ability {
 	}
 
 	public void clear(UUID player) {
-		state.clear(player);
+		// Selections are persistent player data and intentionally survive reconnect.
 	}
 
 	public void clearAll() {
-		state.clearAll();
+		// Persistent selections are owned by player attachments.
+	}
+
+	public boolean radialSelector() {
+		return crystalPath.equals("rainbow_crystal");
+	}
+
+	public List<String> modeIds() {
+		return modes.stream().map(ability -> ability.id().getPath()).toList();
+	}
+
+	public int selectedIndex(ServerPlayer player) {
+		return PlayerPowers.get(player).selectedCrystalMode(crystalPath, modes.size());
+	}
+
+	public boolean selectMode(ServerPlayer player, int selected) {
+		if (!CrystalSelectorRules.validSelection(modes.size(), selected)) return false;
+		PlayerPowers.get(player).setSelectedCrystalMode(crystalPath, selected);
+		PowerMessages.overlay(player, Component.translatable(
+				"crystal.powers.mode_selected", modes.get(selected).name()));
+		return true;
 	}
 }
