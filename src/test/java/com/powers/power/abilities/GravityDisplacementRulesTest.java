@@ -17,6 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Guards bounded gravity geometry, counter priority, rank caps, and lifecycle boundaries. */
 class GravityDisplacementRulesTest {
+	@Test void authoredModesHaveStableSnapshotNames() {
+		assertEquals("pull", GravityDisplacementRules.Mode.PULL.snapshotName());
+		assertEquals("orbit", GravityDisplacementRules.Mode.ORBIT.snapshotName());
+		assertEquals("repel", GravityDisplacementRules.Mode.REPEL.snapshotName());
+	}
 	@Test
 	void captureCounterplayHasStablePrivacyFirstPriority() {
 		assertEquals(PROTECTED, GravityDisplacementRules.captureDecision(

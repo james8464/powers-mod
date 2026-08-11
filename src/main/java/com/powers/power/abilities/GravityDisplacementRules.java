@@ -4,6 +4,10 @@ import net.minecraft.world.phys.Vec3;
 
 /** Pure, finite rules for the server-owned Gravity Displacement orrery. */
 public final class GravityDisplacementRules {
+	public enum Mode {
+		PULL, ORBIT, REPEL;
+		public String snapshotName() { return name().toLowerCase(java.util.Locale.ROOT); }
+	}
 	private static final double MIN_LENGTH_SQUARED = 1.0E-12;
 	private static final int BASE_TARGET_LIMIT = 16;
 	private static final int VARIANT_TARGET_BONUS = 8;

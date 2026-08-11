@@ -60,4 +60,17 @@ class MagicShieldManagerTest {
 
 		assertEquals(Set.of(live), manager.activeOwners(5));
 	}
+
+	@Test void sameOwnerRecastsRepairAndMergeWithoutReplacingOwnership() {
+		MagicShieldManager manager = new MagicShieldManager();
+		UUID protectedPlayer = UUID.randomUUID();
+		UUID caster = UUID.randomUUID();
+		manager.raise(protectedPlayer, caster, 20.0F, 100, false);
+		manager.absorb(protectedPlayer, 12.0F, 1);
+		manager.raise(protectedPlayer, caster, 10.0F, 120, true);
+		var snapshot = manager.snapshot(protectedPlayer, 2).orElseThrow();
+		assertEquals(caster, snapshot.sourceOwner());
+		assertEquals(18.0F, snapshot.integrity());
+		assertTrue(snapshot.reflective());
+	}
 }

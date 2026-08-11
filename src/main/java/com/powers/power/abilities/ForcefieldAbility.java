@@ -43,8 +43,9 @@ public class ForcefieldAbility extends Ability {
 				level, player.getBoundingBox().inflate(2.0), 16,
 				target -> target != player && target.isAlive() && !target.isSpectator()
 						&& PlayerLikeTarget.isCompatible(target)
+						&& (!(target instanceof ServerPlayer ally) || !ally.isShiftKeyDown())
 						&& ForcefieldRules.withinSharingRadius(target.distanceToSqr(player)))) {
-			raiseWard(level, protectedTarget, integrity, reflective);
+		raiseWard(level, protectedTarget, player.getUUID(), integrity, reflective);
 		}
 		com.powers.fx.PowerFx.sound(level,
 				player.position(), net.minecraft.sounds.SoundEvents.BEACON_ACTIVATE, 0.8f, 0.5f);
@@ -53,7 +54,12 @@ public class ForcefieldAbility extends Ability {
 
 	private static void raiseWard(ServerLevel level, LivingEntity target,
 			float integrity, boolean reflective) {
-		MagicShieldManager.global().raise(target.getUUID(), integrity,
+		raiseWard(level, target, target.getUUID(), integrity, reflective);
+	}
+
+	private static void raiseWard(ServerLevel level, LivingEntity target, UUID sourceOwner,
+			float integrity, boolean reflective) {
+		MagicShieldManager.global().raise(target.getUUID(), sourceOwner, integrity,
 				ForcefieldRules.expiryTick(), reflective);
 		com.powers.fx.PowerFx.rune(level, target.position().add(0.0, 1.0, 0.0),
 				1.45, 0x40C4FF, 22, level.getGameTime() * 0.1);
@@ -118,9 +124,12 @@ public class ForcefieldAbility extends Ability {
 			if (target == null || !target.isAlive()) continue;
 			ServerLevel level = (ServerLevel) target.level();
 			int fracture = MagicShieldManager.global().fractureStage(owner, tick);
+			UUID sourceOwner = MagicShieldManager.global().snapshot(owner, tick)
+					.map(MagicShieldManager.ShieldSnapshot::sourceOwner).orElse(owner);
+			int ownerColor = 0x4080FF | ((sourceOwner.hashCode() & 0x3F) << 8);
 			double phase = tick * 0.04;
 			int color = fracture == 0 ? 0x40C4FF : fracture == 1 ? 0x8ADCF7 : 0xD6F5FF;
-			com.powers.fx.PowerFx.ring(level, target.position().add(0, 0.15, 0), 1.5, 0x40C4FF, 20, phase);
+			com.powers.fx.PowerFx.ring(level, target.position().add(0, 0.15, 0), 1.5, ownerColor, 20, phase);
 			com.powers.fx.PowerFx.ring(level, target.position().add(0, 1.0, 0), 1.25, color, 20, -phase);
 			com.powers.fx.PowerFx.ring(level, target.position().add(0, 1.85, 0), 1.5, color, 20, phase);
 			if (fracture > 0) com.powers.fx.PowerFx.burst(level, target.position().add(0, 1, 0),

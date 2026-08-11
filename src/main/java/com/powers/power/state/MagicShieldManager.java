@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Optional;
 
 /**
  * Owns finite personal ward integrity independently from potion effects. A
@@ -27,10 +28,23 @@ public final class MagicShieldManager {
 
 	/** Raises a shield carrying the original caster's authored reflection trait. */
 	public void raise(UUID owner, float integrity, long expiresAt, boolean reflective) {
+		raise(owner, owner, integrity, expiresAt, reflective);
+	}
+
+	/** Repairs a same-caster ward while preserving its target ownership and strongest traits. */
+	public void raise(UUID owner, UUID sourceOwner, float integrity, long expiresAt, boolean reflective) {
 		if (owner == null || !Float.isFinite(integrity) || integrity <= 0 || expiresAt < 0) {
 			throw new IllegalArgumentException("Invalid magical shield");
 		}
-		shields.put(owner, new ShieldState(integrity, integrity, expiresAt, reflective));
+		ShieldState current = shields.get(owner);
+		if (current != null && current.sourceOwner().equals(sourceOwner)) {
+			float maximum = Math.max(current.maximum(), integrity);
+			float repaired = Math.min(maximum, current.integrity() + integrity);
+			shields.put(owner, new ShieldState(sourceOwner, maximum, repaired,
+					Math.max(current.expiresAt(), expiresAt), current.reflective() || reflective));
+		} else {
+			shields.put(owner, new ShieldState(sourceOwner, integrity, integrity, expiresAt, reflective));
+		}
 	}
 
 	/** Consumes integrity for one positive finite impact. */
@@ -41,7 +55,7 @@ public final class MagicShieldManager {
 		float remaining = Math.max(0.0f, state.integrity() - damage);
 		boolean shattered = remaining <= 0;
 		if (shattered) shields.remove(owner);
-		else shields.put(owner, new ShieldState(state.maximum(), remaining,
+		else shields.put(owner, new ShieldState(state.sourceOwner(), state.maximum(), remaining,
 				state.expiresAt(), state.reflective()));
 		return new Impact(true, shattered, remaining,
 				fractureStage(state.maximum(), remaining), state.reflective());
@@ -50,6 +64,13 @@ public final class MagicShieldManager {
 	/** Returns whether a non-expired shield remains. */
 	public boolean active(UUID owner, long currentTick) {
 		return live(owner, currentTick) != null;
+	}
+
+	public Optional<ShieldSnapshot> snapshot(UUID owner, long currentTick) {
+		ShieldState state = live(owner, currentTick);
+		return state == null ? Optional.empty() : Optional.of(new ShieldSnapshot(state.sourceOwner(),
+				state.maximum(), state.integrity(), state.expiresAt(), state.reflective(),
+				fractureStage(state.maximum(), state.integrity())));
 	}
 
 	/** Returns 0 intact, 1 cracked, 2 fractured, or 3 absent. */
@@ -105,6 +126,9 @@ public final class MagicShieldManager {
 			int fractureStage, boolean reflective) {
 	}
 
-	private record ShieldState(float maximum, float integrity, long expiresAt, boolean reflective) {
+	public record ShieldSnapshot(UUID sourceOwner, float maximum, float integrity, long expiresAt,
+			boolean reflective, int fractureStage) { }
+
+	private record ShieldState(UUID sourceOwner, float maximum, float integrity, long expiresAt, boolean reflective) {
 	}
 }
