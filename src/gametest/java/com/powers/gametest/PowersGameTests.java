@@ -28,6 +28,8 @@ import com.powers.power.PowerDamage;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.abilities.FireballAbility;
+import com.powers.power.abilities.LightningConductanceRuntime;
+import com.powers.power.abilities.LightningStrikeRules;
 import com.powers.power.abilities.PlantHealingAbility;
 import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.power.abilities.EnergyDrainAbility;
@@ -832,6 +834,23 @@ public final class PowersGameTests {
 				Vec3.atCenterOf(impactPos), Direction.NORTH, impactPos, false));
 		helper.assertTrue(projectile.isRemoved(), "Resolved Cinderheart impact remained active");
 		TestingOverrides.clear(caster.getUUID());
+		helper.succeed();
+	}
+
+	@GameTest
+	public void lightningTagsGroundRodsButRelayCopper(GameTestHelper helper) {
+		BlockPos support = new BlockPos(4, 1, 4);
+		PowerTestActor target = helper.spawn(PowersEntities.POWER_TEST_ACTOR,
+				new BlockPos(4, 2, 4));
+		helper.setBlock(support, Blocks.LIGHTNING_ROD.asList().getFirst());
+		helper.assertTrue(LightningConductanceRuntime.classify(helper.getLevel(), target)
+				== LightningStrikeRules.Conductance.LIGHTNING_ROD,
+				"A tagged lightning rod did not safely ground body-local conduction");
+
+		helper.setBlock(support, Blocks.COPPER_BLOCK.asList().getFirst());
+		helper.assertTrue(LightningConductanceRuntime.classify(helper.getLevel(), target)
+				== LightningStrikeRules.Conductance.BLOCK,
+				"Tagged copper did not remain a conductive relay");
 		helper.succeed();
 	}
 

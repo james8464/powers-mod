@@ -1,7 +1,6 @@
 package com.powers.power.abilities;
 
 import com.powers.PowerStatusEffects;
-import com.powers.PowersMod;
 import com.powers.PowersBlocks;
 import com.powers.fx.LightningStrikeFx;
 import com.powers.mind.BodyProxyManager;
@@ -15,21 +14,16 @@ import com.powers.spell.SpellFieldManager;
 import com.powers.util.LoadedChunks;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
@@ -44,13 +38,6 @@ import java.util.UUID;
 
 /** Resolves loaded sky columns, protected bodies, and one finite conductive chain. */
 final class LightningStrikeImpactResolver {
-	private static final TagKey<Block> CONDUCTIVE_BLOCKS = TagKey.create(
-			Registries.BLOCK, PowersMod.id("lightning_conductors"));
-	private static final TagKey<Item> CONDUCTIVE_ARMOUR = TagKey.create(
-			Registries.ITEM, PowersMod.id("conductive_armor"));
-	private static final EquipmentSlot[] ARMOUR_SLOTS = {
-			EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD
-	};
 	private static final double SKY_HEIGHT = 28.0;
 	private static final int MAX_COUNTER_CUES = 8;
 	private static final int MAX_HIT_HISTORY = 64;
@@ -244,7 +231,8 @@ final class LightningStrikeImpactResolver {
 			}
 			if (tribunal.trueSight) reveal(level, target);
 			if (beat == LightningStrikeRules.Beat.PRIMARY && chainOrigin == null
-					&& conductance(level, target) != LightningStrikeRules.Conductance.NONE
+					&& LightningConductanceRuntime.classify(level, target)
+							!= LightningStrikeRules.Conductance.NONE
 					&& target.isAlive()) {
 				chainOrigin = target;
 			}
@@ -263,7 +251,8 @@ final class LightningStrikeImpactResolver {
 		for (int link = 0; link < limit; link++) {
 			LivingEntity next = nearestConductiveCandidate(level, caster, current, struck, range);
 			if (next == null) break;
-			LightningStrikeRules.Conductance medium = conductance(level, next);
+			LightningStrikeRules.Conductance medium =
+					LightningConductanceRuntime.classify(level, next);
 			LightningStrikeRules.Counterplay counter = bodyCounter(
 					level, caster, next, bodyCenter(current),
 					level.getServer().getTickCount(), true);
@@ -272,6 +261,11 @@ final class LightningStrikeImpactResolver {
 			if (!lineClear(level, bodyCenter(current), next)) {
 				LightningStrikeFx.terminal(level, bodyCenter(next),
 						LightningStrikeRules.Counterplay.OBSTRUCTED);
+				break;
+			}
+			if (medium == LightningStrikeRules.Conductance.LIGHTNING_ROD) {
+				LightningStrikeFx.terminal(level, bodyCenter(next),
+						LightningStrikeRules.Counterplay.GROUNDING_ROD);
 				break;
 			}
 			if (!LightningStrikeRules.chainEligible(medium, loaded,
@@ -318,12 +312,18 @@ final class LightningStrikeImpactResolver {
 			StormTribunal tribunal, LivingEntity origin, Set<UUID> struck, double range) {
 		LivingEntity target = nearestConductiveCandidate(level, caster, origin, struck, range);
 		if (target == null) return 0;
-		LightningStrikeRules.Conductance medium = conductance(level, target);
+		LightningStrikeRules.Conductance medium =
+				LightningConductanceRuntime.classify(level, target);
 		LightningStrikeRules.Counterplay counter = bodyCounter(level, caster, target,
 				bodyCenter(origin), level.getServer().getTickCount(), true);
 		if (!lineClear(level, bodyCenter(origin), target)) {
 			LightningStrikeFx.terminal(level, bodyCenter(target),
 					LightningStrikeRules.Counterplay.OBSTRUCTED);
+			return 0;
+		}
+		if (medium == LightningStrikeRules.Conductance.LIGHTNING_ROD) {
+			LightningStrikeFx.terminal(level, bodyCenter(target),
+					LightningStrikeRules.Counterplay.GROUNDING_ROD);
 			return 0;
 		}
 		if (!LightningStrikeRules.chainEligible(medium,
@@ -369,7 +369,8 @@ final class LightningStrikeImpactResolver {
 				LightningStrikeRules.chainCandidateLimit(),
 				candidate -> candidate.isAlive() && candidate != caster
 						&& !candidate.isSpectator()
-						&& conductance(level, candidate) != LightningStrikeRules.Conductance.NONE
+						&& LightningConductanceRuntime.classify(level, candidate)
+								!= LightningStrikeRules.Conductance.NONE
 						&& !struck.contains(candidate.getUUID())
 						&& candidate.distanceToSqr(origin) <= range * range
 						&& LoadedChunks.contains(level, candidate.blockPosition()),
@@ -377,28 +378,6 @@ final class LightningStrikeImpactResolver {
 						candidate.distanceToSqr(origin)).thenComparing(
 						candidate -> candidate.getUUID().toString()));
 		return candidates.isEmpty() ? null : candidates.getFirst();
-	}
-
-	/** Resolves water, fixed block contact, then explicitly tagged worn armour. */
-	private static LightningStrikeRules.Conductance conductance(
-			ServerLevel level, LivingEntity target) {
-		BlockPos feet = target.blockPosition();
-		boolean conductiveBlock = level.getBlockState(feet).is(CONDUCTIVE_BLOCKS)
-				|| level.getBlockState(feet.below()).is(CONDUCTIVE_BLOCKS)
-				|| level.getBlockState(feet.above()).is(CONDUCTIVE_BLOCKS)
-				|| level.getBlockState(feet.north()).is(CONDUCTIVE_BLOCKS)
-				|| level.getBlockState(feet.south()).is(CONDUCTIVE_BLOCKS)
-				|| level.getBlockState(feet.east()).is(CONDUCTIVE_BLOCKS)
-				|| level.getBlockState(feet.west()).is(CONDUCTIVE_BLOCKS);
-		boolean conductiveArmour = false;
-		for (EquipmentSlot slot : ARMOUR_SLOTS) {
-			if (target.getItemBySlot(slot).is(CONDUCTIVE_ARMOUR)) {
-				conductiveArmour = true;
-				break;
-			}
-		}
-		return LightningStrikeRules.conductance(
-				target.isInWater(), conductiveBlock, conductiveArmour);
 	}
 
 	/** Resolves body amethyst, crossed wards, Sanctuary, and personal shields. */

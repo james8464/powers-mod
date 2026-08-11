@@ -66,11 +66,11 @@ public final class FireballAbility extends Ability {
 					FireballFx.extinguish(level, projectile.position(), existing.tier,
 							true, false, false);
 				}
-					removeState(existing, projectile, true);
-				} else {
-					if (player.isCrouching()) return releaseExisting(player, projectile, existing);
-					return chargeExisting(player, projectile, existing);
-				}
+				removeState(existing, projectile, true);
+			} else {
+				if (player.isCrouching()) return releaseExisting(player, projectile, existing);
+				return chargeExisting(player, projectile, existing);
+			}
 		}
 		if (!player.isAlive() || BY_OWNER.size() >= MAX_ACTIVE_HEARTS) return false;
 

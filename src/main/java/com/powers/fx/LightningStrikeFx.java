@@ -137,6 +137,7 @@ public final class LightningStrikeFx {
 			int link, boolean soulFork, LightningStrikeRules.Conductance medium) {
 		int color = soulFork ? 0xC8AFFF : switch (medium) {
 			case WATER -> WATER_BLUE;
+			case LIGHTNING_ROD -> 0x9CA8AE;
 			case BLOCK -> 0xD47A36;
 			case ARMOUR -> 0xC6D0D8;
 			case NONE -> 0x8A949C;
@@ -164,6 +165,7 @@ public final class LightningStrikeFx {
 			case AMETHYST -> 0xB36BFF;
 			case SANCTUARY -> 0x8CFF98;
 			case KINETIC_WARD, FORCEFIELD -> 0x40C4FF;
+			case GROUNDING_ROD -> 0xD47A36;
 			case BODY_ANCHOR -> 0xBCA7FF;
 			case TIME_LOCK -> 0xE8FFFF;
 			case DARKNESS -> 0x250632;
@@ -184,6 +186,7 @@ public final class LightningStrikeFx {
 			case BODY_ANCHOR -> PowersSounds.SOUL_TETHER;
 			case TIME_LOCK -> PowersSounds.TIME_SUSPEND;
 			case SAFE_ZONE, SANCTUARY, KINETIC_WARD, FORCEFIELD -> PowersSounds.WARD_IMPACT;
+			case GROUNDING_ROD -> SoundEvents.COPPER_BULB_TURN_OFF;
 			case UNOWNED, UNLOADED, ROOF, OBSTRUCTED, RESISTED -> SoundEvents.BEACON_DEACTIVATE;
 			case STRIKE, WATER, PURE_LIGHT -> PowersSounds.INTERACTION_CLASH;
 		}, 0.82F, counterplay == LightningStrikeRules.Counterplay.DARKNESS

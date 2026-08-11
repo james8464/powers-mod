@@ -24,6 +24,7 @@ public final class LightningStrikeRules {
 	public enum Conductance {
 		NONE,
 		WATER,
+		LIGHTNING_ROD,
 		BLOCK,
 		ARMOUR
 	}
@@ -38,6 +39,7 @@ public final class LightningStrikeRules {
 		SANCTUARY,
 		KINETIC_WARD,
 		FORCEFIELD,
+		GROUNDING_ROD,
 		BODY_ANCHOR,
 		TIME_LOCK,
 		DARKNESS,
@@ -85,8 +87,10 @@ public final class LightningStrikeRules {
 	}
 
 	/** Classifies one body with stable water, contact, then armour priority. */
-	public static Conductance conductance(boolean wet, boolean conductiveBlock,
+	public static Conductance conductance(boolean wet, boolean groundingRod,
+			boolean conductiveBlock,
 			boolean conductiveArmour) {
+		if (groundingRod) return Conductance.LIGHTNING_ROD;
 		if (wet) return Conductance.WATER;
 		if (conductiveBlock) return Conductance.BLOCK;
 		if (conductiveArmour) return Conductance.ARMOUR;
@@ -217,6 +221,7 @@ public final class LightningStrikeRules {
 		if (conductance == null) return 0.0;
 		return switch (conductance) {
 			case WATER -> 1.0;
+			case LIGHTNING_ROD -> 0.0;
 			case BLOCK -> 0.90;
 			case ARMOUR -> 0.80;
 			case NONE -> 0.0;
@@ -242,6 +247,7 @@ public final class LightningStrikeRules {
 	public static boolean chainEligible(Conductance conductance, boolean loaded, boolean seen,
 			double distance, double maximumRange, Counterplay counterplay) {
 		return conductance != null && conductance != Conductance.NONE
+				&& conductance != Conductance.LIGHTNING_ROD
 				&& loaded && !seen && Double.isFinite(distance) && distance >= 0.0
 				&& Double.isFinite(maximumRange) && maximumRange > 0.0
 				&& distance <= maximumRange && counterplay == Counterplay.STRIKE;
