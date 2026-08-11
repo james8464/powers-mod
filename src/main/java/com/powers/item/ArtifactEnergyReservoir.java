@@ -9,10 +9,17 @@ import java.util.List;
 
 /** Persistent, deterministic auxiliary energy storage carried in Soulstones and the Soul Matrix. */
 public final class ArtifactEnergyReservoir {
+	public enum Direction { STORE, RELEASE }
+
+	private static final int TRANSFER_STEP = 100;
 	public record Debit(boolean paid, List<Integer> balances) {
 		public Debit {
 			balances = List.copyOf(balances);
 		}
+	}
+
+	/** Exact atomic balance result; positive requests move auxiliary energy to main. */
+	public record Transfer(boolean transferred, int mainEnergy, int auxiliaryEnergy, int moved) {
 	}
 
 	private ArtifactEnergyReservoir() {
@@ -28,6 +35,50 @@ public final class ArtifactEnergyReservoir {
 
 	public static int clamp(String texture, int energy) {
 		return Math.clamp(energy, 0, capacity(texture));
+	}
+
+	public static Transfer transfer(int mainEnergy, int mainCapacity,
+			int auxiliaryEnergy, int auxiliaryCapacity, int requested) {
+		int main = Math.clamp(mainEnergy, 0, Math.max(0, mainCapacity));
+		int auxiliary = Math.clamp(auxiliaryEnergy, 0, Math.max(0, auxiliaryCapacity));
+		if (requested == 0) return new Transfer(false, main, auxiliary, 0);
+		long magnitude = Math.abs((long) requested);
+		if (magnitude > Integer.MAX_VALUE) return new Transfer(false, main, auxiliary, 0);
+		int moved = (int) magnitude;
+		if (requested > 0) {
+			if (moved > auxiliary || moved > mainCapacity - main) {
+				return new Transfer(false, main, auxiliary, 0);
+			}
+			return new Transfer(true, main + moved, auxiliary - moved, moved);
+		}
+		if (moved > main || moved > auxiliaryCapacity - auxiliary) {
+			return new Transfer(false, main, auxiliary, 0);
+		}
+		return new Transfer(true, main - moved, auxiliary + moved, moved);
+	}
+
+	/** Computes a fixed server-owned transfer step; clients choose only direction. */
+	public static Transfer transferStep(int mainEnergy, int mainCapacity,
+			int auxiliaryEnergy, int auxiliaryCapacity, Direction direction) {
+		if (direction == null) {
+			return new Transfer(false, Math.clamp(mainEnergy, 0, Math.max(0, mainCapacity)),
+					Math.clamp(auxiliaryEnergy, 0, Math.max(0, auxiliaryCapacity)), 0);
+		}
+		int amount = direction == Direction.STORE
+				? Math.min(TRANSFER_STEP, Math.min(Math.max(0, mainEnergy),
+						Math.max(0, auxiliaryCapacity - auxiliaryEnergy)))
+				: Math.min(TRANSFER_STEP, Math.min(Math.max(0, auxiliaryEnergy),
+						Math.max(0, mainCapacity - mainEnergy)));
+		if (amount <= 0) return transfer(mainEnergy, mainCapacity,
+				auxiliaryEnergy, auxiliaryCapacity, 0);
+		return transfer(mainEnergy, mainCapacity, auxiliaryEnergy, auxiliaryCapacity,
+				direction == Direction.STORE ? -amount : amount);
+	}
+
+	public static int shortfall(int mainEnergy, int auxiliaryEnergy, int pendingCost) {
+		long available = Math.max(0, mainEnergy) + (long) Math.max(0, auxiliaryEnergy);
+		return (int) Math.min(Integer.MAX_VALUE,
+				Math.max(0L, Math.max(0, pendingCost) - available));
 	}
 
 	/** Computes a stable first-slot-first debit without mutating caller state. */

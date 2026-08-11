@@ -1,6 +1,15 @@
 {
 	"model": {
-		"type": "minecraft:model",
-		"model": "powers:item/imported_device_miniportal"
+		"type": "minecraft:condition",
+		"property": "minecraft:custom_model_data",
+		"index": 0,
+		"on_true": {
+			"type": "minecraft:model",
+			"model": "powers:item/imported_device_miniportal"
+		},
+		"on_false": {
+			"type": "minecraft:model",
+			"model": "powers:item/imported_device_miniportal_active"
+		}
 	}
 }

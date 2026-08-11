@@ -122,8 +122,11 @@ public final class ArtifactWeaponManager {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		List<Action> menuActions = actions(alignment);
 		List<ArtifactActionSnapshot> snapshots = menuActions.stream().map(action -> {
-			int cost = CastScalingContext.withSource(CastSource.ARTIFACT,
-					() -> PowerEnergy.cost(player, action.ability()));
+			int authoredCost = CastScalingContext.withSource(CastSource.ARTIFACT,
+					() -> PowerEnergy.costBeforeArtifact(player, action.ability()));
+			ArtifactEnergyModifiers.Quote quote = ArtifactEnergyModifiers.quote(
+					ArtifactEnergyModifiers.carries(player, ArtifactRole.DESTRUCTIVE_FOCUS),
+					action.ability().id().getPath(), authoredCost);
 			int maximum = action.ability().isToggle() ? 0 : cooldown(player, alignment, action);
 			int remaining = maximum <= 0 ? 0 : Math.min(maximum,
 					ActivationCooldowns.remainingTicks(player, action.ability()));
@@ -133,7 +136,7 @@ public final class ArtifactWeaponManager {
 			int variant = com.powers.item.artifact.ArtifactMenuRules.selectionVariant(
 					action.ability().id().getPath(), data.getSizeMorphOption());
 			return new ArtifactActionSnapshot(action.definition().key(), action.definition().category(),
-					cost, remaining, maximum, active, locked, variant);
+					quote.cost(), quote.saved(), remaining, maximum, active, locked, variant);
 		}).toList();
 		ShadowSwordPackets.openMenu(player, alignment, ArtifactSelectionState.selected(player, alignment),
 				rank(player, alignment), data.getSizeMorphOption(), data.energy(),

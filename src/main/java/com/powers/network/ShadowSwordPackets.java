@@ -220,6 +220,7 @@ public final class ShadowSwordPackets {
 		ACTION_KEY_CODEC.encode(buffer, snapshot.key());
 		buffer.writeVarInt(snapshot.category().ordinal());
 		buffer.writeVarInt(snapshot.cost());
+		buffer.writeVarInt(snapshot.energySaved());
 		buffer.writeVarInt(snapshot.cooldownTicks());
 		buffer.writeVarInt(snapshot.cooldownMaximumTicks());
 		buffer.writeBoolean(snapshot.active());
@@ -233,6 +234,7 @@ public final class ShadowSwordPackets {
 		ArtifactActionCategory[] categories = ArtifactActionCategory.values();
 		ArtifactActionCategory category = categories[Math.clamp(categoryIndex, 0, categories.length - 1)];
 		return new ArtifactActionSnapshot(key, category, buffer.readVarInt(), buffer.readVarInt(),
-				buffer.readVarInt(), buffer.readBoolean(), buffer.readBoolean(), buffer.readVarInt());
+				buffer.readVarInt(), buffer.readVarInt(), buffer.readBoolean(), buffer.readBoolean(),
+				buffer.readVarInt());
 	}
 }

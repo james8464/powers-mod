@@ -41,4 +41,13 @@ class MiniportalRulesTest {
 		assertEquals(7, MiniportalRules.barWidth(1));
 		assertEquals(0, MiniportalRules.barWidth(0));
 	}
+
+	@Test
+	void namedAnchorPresentationIsBoundedAndNeverBlank() {
+		assertEquals("Home", MiniportalRules.anchorName("  Home  ", "fallback"));
+		assertEquals("fallback", MiniportalRules.anchorName("   ", "fallback"));
+		assertEquals(48, MiniportalRules.anchorName("x".repeat(80), "fallback").length());
+		assertTrue(MiniportalRules.chargedModel(1));
+		assertFalse(MiniportalRules.chargedModel(0));
+	}
 }

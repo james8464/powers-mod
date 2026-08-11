@@ -8,6 +8,7 @@ import com.powers.client.screen.TeleportInputScreen;
 import com.powers.client.screen.RankMazeScreen;
 import com.powers.client.screen.ShadowSwordScreen;
 import com.powers.client.screen.GrimoireIndexScreen;
+import com.powers.client.screen.ReservoirTransferScreen;
 import com.powers.client.fx.ClientMagicFx;
 import com.powers.client.fx.ClientShapeFx;
 import com.powers.client.fx.ClientBeamFx;
@@ -27,6 +28,7 @@ import com.powers.network.BodyProxyPackets;
 import com.powers.network.CompanionPackets;
 import com.powers.network.VesselControlPackets;
 import com.powers.network.GrimoirePackets;
+import com.powers.network.RelicPackets;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import net.fabricmc.api.ClientModInitializer;
@@ -61,6 +63,7 @@ public class PowersClient implements ClientModInitializer {
 		ClientHudPreferences.initialize();
 		MenuScreens.register(PowersMenus.ARCANE_CRUCIBLE, ArcaneCrucibleScreen::new);
 		CrucibleWeaponTooltip.register();
+		RelicTooltip.register();
 		slotKey1 = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 				"key.powers.slot1", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, CATEGORY));
 		slotKey2 = KeyMappingHelper.registerKeyMapping(new KeyMapping(
@@ -103,6 +106,9 @@ public class PowersClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenTeleportPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
 						TeleportInputScreen.artifact(payload.alignment()))));
+		ClientPlayNetworking.registerGlobalReceiver(RelicPackets.OpenReservoirPayload.TYPE,
+				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
+						new ReservoirTransferScreen(payload))));
 		ClientPlayNetworking.registerGlobalReceiver(CelestialRuinPackets.Payload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientCelestialRuinFx.handle(payload)));
 		// clear the cached state when you leave the server so the hud doesn't carry over old powers

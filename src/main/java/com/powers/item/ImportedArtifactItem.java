@@ -14,12 +14,14 @@ import com.powers.power.travel.TravelChunkLoader;
 import com.powers.power.travel.TravelKind;
 import com.powers.protection.PowerProtection;
 import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.network.RelicPackets;
 import com.powers.power.artifact.ArtifactDeathWardManager;
 import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.PowerMessages;
 import com.powers.testing.TestingOverrides;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -65,7 +67,7 @@ public final class ImportedArtifactItem extends Item {
 				&& player.getCooldowns().isOnCooldown(stack)) return InteractionResult.SUCCESS;
 		boolean success = switch (kind) {
 			case ATTUNEMENT -> recharge(player, 24, 0xE6CF7B);
-			case ENERGY_RESERVOIR -> transferReservoir(player, stack);
+			case ENERGY_RESERVOIR -> RelicPackets.openReservoir(player, stack);
 			case RITUAL_CATALYST -> primeRitual(player);
 			case HEART_RELIC -> awakenHeart(player);
 			case TRAVEL_RELIC -> texture.equals("device_miniportal")
@@ -133,36 +135,15 @@ public final class ImportedArtifactItem extends Item {
 		return texture.equals("device_miniportal") ? 0xC99CFF : super.getBarColor(stack);
 	}
 
-	private static boolean transferReservoir(ServerPlayer player, ItemStack stack) {
-		ImportedArtifactItem relic = (ImportedArtifactItem) stack.getItem();
-		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		int stored = ArtifactEnergyReservoir.stored(stack);
-		int transfer;
-		if (player.isShiftKeyDown()) {
-			transfer = Math.min(100, Math.min(data.energy(),
-					ArtifactEnergyReservoir.capacity(relic.texture()) - stored));
-			if (transfer <= 0) return explain(player, "item.powers.relic.reservoir_cannot_store");
-			data.drainEnergy(transfer);
-			ArtifactEnergyReservoir.setStored(stack, stored + transfer);
-		} else {
-			transfer = Math.min(100, Math.min(stored, data.energyCapacity() - data.energy()));
-			if (transfer <= 0) return explain(player, "item.powers.relic.reservoir_cannot_release");
-			ArtifactEnergyReservoir.setStored(stack, stored - transfer);
-			data.refundEnergy(transfer);
-		}
-		com.powers.network.PowersPackets.syncTo(player);
-		PowerFx.rune((ServerLevel) player.level(), player.position().add(0.0, 1.0, 0.0),
-				1.2, 0x7B4BA3, 18, player.level().getGameTime() * 0.06);
-		return true;
-	}
-
 	private static boolean primeRitual(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		if (player.getHealth() <= 6.0F || data.energy() >= data.energyCapacity()) return false;
+		RitualDaggerRules.Preview preview = RitualDaggerRules.preview(
+				player.getHealth(), data.energy(), data.energyCapacity());
+		if (!preview.allowed()) return false;
 		// A ritual payment is not an incoming attack: armor, spawn invulnerability,
 		// forcefields, and other mods' damage cancellation must not turn it into free energy.
-		player.setHealth(player.getHealth() - 4.0F);
-		data.refundEnergy(80);
+		player.setHealth(preview.resultingHealth());
+		data.refundEnergy(preview.energyGain());
 		com.powers.network.PowersPackets.syncTo(player);
 		PowerFx.rune((ServerLevel) player.level(), player.position(), 1.8, 0x9D1735, 26, 0.0);
 		return true;
@@ -226,9 +207,13 @@ public final class ImportedArtifactItem extends Item {
 			return explain(player, "item.powers.relic.requires_lodestone");
 		}
 		BlockPos anchor = context.getClickedPos().relative(context.getClickedFace());
+		String fallback = player.level().dimension().identifier().getPath() + " "
+				+ anchor.getX() + ", " + anchor.getY() + ", " + anchor.getZ();
+		String requested = context.getItemInHand().has(DataComponents.CUSTOM_NAME)
+				? context.getItemInHand().getHoverName().getString() : fallback;
 		context.getItemInHand().set(PowersDataComponents.TRAVEL_ANCHOR,
 				new TravelAnchorData(player.level().dimension().identifier(),
-						anchor.getX(), anchor.getY(), anchor.getZ()));
+						anchor.getX(), anchor.getY(), anchor.getZ(), requested));
 		PowerFx.rune((ServerLevel) player.level(), Vec3.atBottomCenterOf(anchor), 1.4,
 				0xC99C58, 20, 0.0);
 		return explain(player, "item.powers.relic.anchor_bound");
@@ -283,8 +268,9 @@ public final class ImportedArtifactItem extends Item {
 			}
 			player.teleport(new TeleportTransition(destination, position, Vec3.ZERO,
 					player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
-			device.set(PowersDataComponents.MINIPORTAL_CHARGES,
-					MiniportalRules.afterSuccessfulTravel(charges));
+			int remaining = MiniportalRules.afterSuccessfulTravel(charges);
+			device.set(PowersDataComponents.MINIPORTAL_CHARGES, remaining);
+			MiniportalRules.applyVisual(device, remaining);
 			PowerFx.spiral(destination, position, 1.0, 3.0, 0xC99C58, 24, 0.0);
 		}, () -> {
 			ServerPlayer current = server.getPlayerList().getPlayer(player.getUUID());

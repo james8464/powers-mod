@@ -4,6 +4,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.component.CustomModelData;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import com.powers.item.CelestialGrimoireItem;
@@ -60,6 +62,11 @@ public final class ImportedPackItems {
 				int initialEnergy = texture.contains("inert")
 						? 0 : ArtifactEnergyReservoir.capacity(texture);
 				properties.component(PowersDataComponents.STORED_ENERGY, initialEnergy);
+			}
+			if (texture.equals("device_miniportal")) {
+				properties.component(PowersDataComponents.MINIPORTAL_CHARGES, 2)
+						.component(DataComponents.CUSTOM_MODEL_DATA,
+								new CustomModelData(List.of(), List.of(false), List.of(), List.of()));
 			}
 			java.util.function.Function<Item.Properties, Item> factory = Item::new;
 			if (texture.startsWith("food_")) {
