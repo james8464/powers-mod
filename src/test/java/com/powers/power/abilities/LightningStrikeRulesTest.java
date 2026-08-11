@@ -54,18 +54,23 @@ class LightningStrikeRulesTest {
 	@Test
 	void conductorClassificationIsExplicitAndRetainsTheNodeCap() {
 		assertEquals(LightningStrikeRules.Conductance.NONE,
-				LightningStrikeRules.conductance(false, false, false));
+				LightningStrikeRules.conductance(false, false, false, false));
 		assertEquals(LightningStrikeRules.Conductance.ARMOUR,
-				LightningStrikeRules.conductance(false, false, true));
+				LightningStrikeRules.conductance(false, false, false, true));
 		assertEquals(LightningStrikeRules.Conductance.BLOCK,
-				LightningStrikeRules.conductance(false, true, true));
+				LightningStrikeRules.conductance(false, false, true, true));
 		assertEquals(LightningStrikeRules.Conductance.WATER,
-				LightningStrikeRules.conductance(true, true, true));
+				LightningStrikeRules.conductance(true, false, true, true));
+		assertEquals(LightningStrikeRules.Conductance.LIGHTNING_ROD,
+				LightningStrikeRules.conductance(true, true, true, true));
 		assertEquals(5, LightningStrikeRules.chainLimit(true, true));
 		assertFalse(LightningStrikeRules.chainEligible(
 				LightningStrikeRules.Conductance.NONE, true, false, 2.0, 6.0, STRIKE));
 		assertTrue(LightningStrikeRules.chainEligible(
 				LightningStrikeRules.Conductance.BLOCK, true, false, 2.0, 6.0, STRIKE));
+		assertFalse(LightningStrikeRules.chainEligible(
+				LightningStrikeRules.Conductance.LIGHTNING_ROD,
+				true, false, 2.0, 6.0, STRIKE));
 	}
 
 	@Test
@@ -78,6 +83,8 @@ class LightningStrikeRulesTest {
 				0, LightningStrikeRules.Conductance.ARMOUR), 0.0001);
 		assertEquals(0.0, LightningStrikeRules.chainDamageMultiplier(
 				0, LightningStrikeRules.Conductance.NONE), 0.0001);
+		assertEquals(0.0, LightningStrikeRules.chainDamageMultiplier(
+				0, LightningStrikeRules.Conductance.LIGHTNING_ROD), 0.0001);
 	}
 
 	@Test
