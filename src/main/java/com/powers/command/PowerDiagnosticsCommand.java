@@ -1,7 +1,11 @@
 package com.powers.command;
 
 import com.mojang.brigadier.context.CommandContext;
+import com.powers.audit.OperatorAudit;
 import com.powers.companion.PrivateCompanionManager;
+import com.powers.config.PowersConfigLoader;
+import com.powers.diagnostics.DiagnosticExport;
+import com.powers.diagnostics.DiagnosticExportWriter;
 import com.powers.diagnostics.RuntimeDiagnosticSnapshot;
 import com.powers.diagnostics.ServerRuntimeMetrics;
 import com.powers.force.FactionInvasionManager;
@@ -25,6 +29,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.storage.LevelResource;
 
 /** Builds the bounded, non-sensitive administrator runtime report. */
 final class PowerDiagnosticsCommand {
@@ -33,20 +38,16 @@ final class PowerDiagnosticsCommand {
 
 	static int run(CommandContext<CommandSourceStack> context) {
 		var server = context.getSource().getServer();
-		var work = ServerRuntimeMetrics.snapshot(server);
-		var forces = LivingForceManager.diagnostics();
-		int proxies = BodyProxyManager.activeProxyCount();
-		int travelLoads = TravelChunkLoader.pendingRequestCount();
-		int celestialChunks = CelestialRuinManager.forcedChunkCount(server);
-		RuntimeDiagnosticSnapshot snapshot = new RuntimeDiagnosticSnapshot(
-				MagicRuntime.global().activePresenceCount(), MagicRuntime.global().activePresenceCellCount(),
-				SpellFieldManager.activeFieldCount(), SpellFieldManager.maxFieldWorkPerTick(),
-				ArtifactFieldManager.activeFieldCount(), ArtifactGuardianSummons.indexedGuardianCount(),
-				forces.indexedBlocks(), forces.activeClashes(), forces.auraCandidatesPerLevel(),
-				forces.auraCandidatesPerPlayer(), proxies, travelLoads,
-				CelestialRuinManager.activeRitualCount(server), celestialChunks + proxies + travelLoads * 9,
-				work.packets(), work.particles(), work.entityInspections());
+		RuntimeDiagnosticSnapshot snapshot = snapshot(server);
 		for (String line : snapshot.lines()) send(context, line);
+		send(context, "configValidation: " + PowersConfigLoader.validationReport().summary());
+		var audit = OperatorAudit.snapshot();
+		send(context, "operatorAudit: total=" + audit.total());
+		for (var count : audit.counts()) {
+			if (count.count() > 0) send(context, "operatorAudit action="
+					+ count.action().name().toLowerCase(java.util.Locale.ROOT) + "; result="
+					+ count.result().name().toLowerCase(java.util.Locale.ROOT) + "; count=" + count.count());
+		}
 		send(context, "physicalRays=" + MagicRayCollisionRuntime.activeSegmentCount()
 				+ "; rayCollisionsThisTick=" + MagicRayCollisionRuntime.collisionsThisTick()
 				+ "; shadowSessions=" + PrivateCompanionManager.activeSessionCount()
@@ -130,6 +131,38 @@ final class PowerDiagnosticsCommand {
 					+ "; cooldowns=" + (testing.cooldownsDisabled() ? "disabled" : "normal"));
 		}
 		return 1;
+	}
+
+	static int export(CommandContext<CommandSourceStack> context) {
+		var server = context.getSource().getServer();
+		DiagnosticExport document = DiagnosticExport.create(server.getTickCount(), snapshot(server),
+				OperatorAudit.snapshot(), PowersConfigLoader.validationReport());
+		DiagnosticExportWriter.Result result = DiagnosticExportWriter.write(
+				server.getWorldPath(LevelResource.ROOT), document);
+		if (!result.success()) {
+			context.getSource().sendFailure(Component.literal(
+					"Diagnostic export failed (" + result.failureReason() + ")."));
+			return 0;
+		}
+		context.getSource().sendSuccess(() -> Component.literal(
+				"Wrote redacted diagnostic aggregates to " + result.relativePath() + "."), false);
+		return 1;
+	}
+
+	private static RuntimeDiagnosticSnapshot snapshot(net.minecraft.server.MinecraftServer server) {
+		var work = ServerRuntimeMetrics.snapshot(server);
+		var forces = LivingForceManager.diagnostics();
+		int proxies = BodyProxyManager.activeProxyCount();
+		int travelLoads = TravelChunkLoader.pendingRequestCount();
+		int celestialChunks = CelestialRuinManager.forcedChunkCount(server);
+		return new RuntimeDiagnosticSnapshot(
+				MagicRuntime.global().activePresenceCount(), MagicRuntime.global().activePresenceCellCount(),
+				SpellFieldManager.activeFieldCount(), SpellFieldManager.maxFieldWorkPerTick(),
+				ArtifactFieldManager.activeFieldCount(), ArtifactGuardianSummons.indexedGuardianCount(),
+				forces.indexedBlocks(), forces.activeClashes(), forces.auraCandidatesPerLevel(),
+				forces.auraCandidatesPerPlayer(), proxies, travelLoads,
+				CelestialRuinManager.activeRitualCount(server), celestialChunks + proxies + travelLoads * 9,
+				work.packets(), work.particles(), work.entityInspections());
 	}
 
 	private static void send(CommandContext<CommandSourceStack> context, String line) {
