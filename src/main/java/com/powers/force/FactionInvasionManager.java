@@ -131,7 +131,7 @@ public final class FactionInvasionManager {
 			level.setBlock(target, kind.block().defaultBlockState(), Block.UPDATE_ALL);
 			LivingForceManager.register(level, target, kind);
 		}
-		PowerFx.burst(level, Vec3.atCenterOf(center), ParticleTypes.REVERSE_PORTAL, 8, 1.2, 0.02);
+		PowerFx.burst(level, Vec3.atCenterOf(center), com.powers.PowersParticles.ECLIPSE, 8, 1.2, 0.02);
 	}
 
 	private static void prune(MinecraftServer server) {

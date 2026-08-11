@@ -58,6 +58,7 @@ public class PowersClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		ClientProtocolHandshake.initialize();
+		ClientHudPreferences.initialize();
 		MenuScreens.register(PowersMenus.ARCANE_CRUCIBLE, ArcaneCrucibleScreen::new);
 		CrucibleWeaponTooltip.register();
 		slotKey1 = KeyMappingHelper.registerKeyMapping(new KeyMapping(

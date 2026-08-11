@@ -148,7 +148,7 @@ public final class ServerMagicCasts {
 				cue.glyphSeed(), cue.intensity()));
 		MagicReactionEffects.apply(level, event, midpoint);
 		if (event.resolution().outcome() == InteractionOutcome.TRANSFORM) {
-			PowerFx.burst(level, midpoint, ParticleTypes.CLOUD, 8 + cue.intensity() * 2, 0.5, 0.04);
+			PowerFx.burst(level, midpoint, com.powers.PowersParticles.RIBBON, 8 + cue.intensity() * 2, 0.5, 0.04);
 			PowerFx.sound(level, midpoint, SoundEvents.FIRE_EXTINGUISH, 0.9f, 0.75f);
 		} else if (event.resolution().blocksFirst()) {
 			PowerFx.cancelled(level, from, cue.primaryColor());
@@ -156,6 +156,11 @@ public final class ServerMagicCasts {
 				|| event.resolution().outcome() == InteractionOutcome.AMPLIFY) {
 			PowerFx.sound(level, midpoint, SoundEvents.ENCHANTMENT_TABLE_USE, 0.8f, 1.35f);
 		}
+	}
+
+	/** Emits a deduplicated physical-handle collision through the normal reaction vocabulary. */
+	static void emitPhysicalPresenceReaction(ServerLevel level, MagicReactionEvent event) {
+		emitReaction(level, event);
 	}
 
 	/** Emits an already-resolved physical ray collision at its true intersection. */

@@ -33,7 +33,8 @@ public final class EnergyHudRenderer {
 		int mountRows = client.player.getVehicle() instanceof LivingEntity mount
 				? Math.clamp((int) Math.ceil(mount.getMaxHealth() / 20.0), 1, 3) : 0;
 		HudLayout.Rect bounds = HudLayout.forScreen(client.getWindow().getGuiScaledWidth(),
-				client.getWindow().getGuiScaledHeight(), airRows, mountRows).energy();
+				client.getWindow().getGuiScaledHeight(), airRows, mountRows,
+				ClientHudPreferences.get()).energy();
 		int halfUnits = mode == HudEnergyMode.EMPTY ? 0 : HudMath.energyHalfUnits(energy, capacity);
 		int visibleSymbols = Math.min(10, Math.max(0, (bounds.width() + 7) / 8));
 		for (int symbol = 0; symbol < visibleSymbols; symbol++) {

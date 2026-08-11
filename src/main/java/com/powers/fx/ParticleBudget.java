@@ -24,8 +24,14 @@ public final class ParticleBudget {
 
 	/** Keeps remote silhouettes intact while thinning dense scatter around a viewer's camera. */
 	public static int viewerCount(int requested, double distanceSquared) {
+		return viewerCount(requested, distanceSquared, -1.0);
+	}
+
+	/** Excludes dense scatter directly over a near first-person reticle. */
+	public static int viewerCount(int requested, double distanceSquared, double viewDot) {
 		if (requested <= 0) return 0;
 		if (distanceSquared > FIRST_PERSON_CLARITY_RADIUS_SQUARED) return requested;
+		if (distanceSquared <= 2.25 && Double.isFinite(viewDot) && viewDot >= 0.72) return 1;
 		return Math.max(1, (int) Math.ceil(requested * 0.25));
 	}
 

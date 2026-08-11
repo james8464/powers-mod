@@ -54,7 +54,8 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 	@Override
 	protected final void registerGoals() {
 		goalSelector.addGoal(1, new FloatGoal(this));
-		goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.15, true));
+		goalSelector.addGoal(2, new GuardianTacticalGoal(this));
+		goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.15, true));
 		goalSelector.addGoal(6, new RandomStrollGoal(this, 0.9));
 		goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 16.0F));
 		goalSelector.addGoal(8, new RandomLookAroundGoal(this));

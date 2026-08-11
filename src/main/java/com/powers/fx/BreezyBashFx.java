@@ -56,7 +56,7 @@ public final class BreezyBashFx {
 				ancientMastery ? 26 : 18, phase);
 		PowerFx.ring(level, center.add(0.0, 1.8, 0.0), outer * 0.56, PALE,
 				ancientMastery ? 20 : 14, -phase * 1.2);
-		PowerFx.burst(level, center.add(0.0, 1.0, 0.0), ParticleTypes.CLOUD,
+		PowerFx.burst(level, center.add(0.0, 1.0, 0.0), com.powers.PowersParticles.RIBBON,
 				ancientMastery ? 5 : 3, outer * 0.30, 0.035);
 		if (age % 6 == 0) PowerFx.sound(level, center, PowersSounds.RUNE_HUM, 0.26F, 1.52F);
 	}
@@ -139,7 +139,7 @@ public final class BreezyBashFx {
 	/** Releases a body safely beneath a pale feather-like corona. */
 	public static void released(ServerLevel level, Vec3 point) {
 		PowerFx.ring(level, point, 0.64, PALE, 14, level.getGameTime() * 0.13);
-		PowerFx.burst(level, point, ParticleTypes.CLOUD, 9, 0.34, 0.07);
+		PowerFx.burst(level, point, com.powers.PowersParticles.RIBBON, 9, 0.34, 0.07);
 		PowerFx.burst(level, point, PowersParticles.MOTE, 7, 0.28, 0.04);
 	}
 
@@ -160,7 +160,7 @@ public final class BreezyBashFx {
 	public static void empty(ServerLevel level, Vec3 center) {
 		PowerFx.ring(level, center.add(0.0, 0.08, 0.0), 0.72, DEEP,
 				14, Math.PI);
-		PowerFx.burst(level, center.add(0.0, 0.5, 0.0), ParticleTypes.CLOUD,
+		PowerFx.burst(level, center.add(0.0, 0.5, 0.0), com.powers.PowersParticles.RIBBON,
 				10, 0.42, 0.05);
 		PowerFx.sound(level, center, SoundEvents.BEACON_DEACTIVATE, 0.48F, 1.25F);
 	}

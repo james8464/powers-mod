@@ -39,7 +39,7 @@ public final class GodlyPunishment {
 		PowerFx.spiral(level, pos, 1.6, 7.0, rgb, 42, 0.0);
 		PowerFx.burst(level, pos, ParticleTypes.EXPLOSION, 26, 2.4, 0.3);
 		PowerFx.coloredBurst(level, pos, rgb, 60, 1.6);
-		PowerFx.burst(level, pos.add(0, 3, 0), ParticleTypes.END_ROD, 34, 0.6, 0.35);
+		PowerFx.burst(level, pos.add(0, 3, 0), com.powers.PowersParticles.GLYPH, 34, 0.6, 0.35);
 		PowerFx.sound(level, pos, SoundEvents.BEACON_ACTIVATE, 1.0f, 0.5f);
 		PowerFx.sound(level, pos, SoundEvents.GENERIC_EXPLODE.value(), 1.4f, 0.5f);
 		PowerFx.sound(level, pos, SoundEvents.WITHER_SPAWN, 1.0f, 0.7f);
@@ -92,7 +92,7 @@ public final class GodlyPunishment {
 	/** a cold, dragging rejection, used when the dark realm refuses entry */
 	public static void voidReject(ServerLevel level, ServerPlayer player) {
 		Vec3 pos = player.position().add(0, 1, 0);
-		PowerFx.burst(level, pos, ParticleTypes.REVERSE_PORTAL, 22, 0.9, 0.05);
+		PowerFx.burst(level, pos, com.powers.PowersParticles.ECLIPSE, 22, 0.9, 0.05);
 		PowerFx.spiral(level, pos, 0.9, 2.8, 0x2E0854, 22, 0.0);
 		PowerFx.coloredBurst(level, pos, 0x4A235A, 18, 0.6);
 		PowerFx.sound(level, pos, SoundEvents.WITHER_AMBIENT, 0.9f, 0.5f);
@@ -111,7 +111,7 @@ public final class GodlyPunishment {
 	public static void barrier(ServerLevel level, ServerPlayer player, int rgb) {
 		Vec3 pos = player.position().add(0, 1, 0);
 		PowerFx.ring(level, pos.add(0, -0.3, 0), 2.5, rgb, 24, 0.0);
-		PowerFx.burst(level, pos, ParticleTypes.END_ROD, 16, 0.6, 0.25);
+		PowerFx.burst(level, pos, com.powers.PowersParticles.GLYPH, 16, 0.6, 0.25);
 		PowerFx.coloredBurst(level, pos, rgb, 20, 0.8);
 		PowerFx.sound(level, pos, SoundEvents.BEACON_DEACTIVATE, 0.8f, 1.1f);
 	}

@@ -71,8 +71,8 @@ public final class EnergyBeamFx {
 	public static void steam(ServerLevel level, Vec3 point) {
 		PowerFx.rune(level, point.add(0.0, 0.08, 0.0), 1.15, 0xBDEFFF,
 				24, level.getGameTime() * 0.11);
-		PowerFx.burst(level, point, ParticleTypes.CLOUD, 42, 1.35, 0.24);
-		PowerFx.burst(level, point, ParticleTypes.END_ROD, 18, 0.86, 0.12);
+		PowerFx.burst(level, point, com.powers.PowersParticles.RIBBON, 42, 1.35, 0.24);
+		PowerFx.burst(level, point, com.powers.PowersParticles.GLYPH, 18, 0.86, 0.12);
 		PowerFx.burst(level, point, PowersParticles.FRACTURE, 14, 0.72, 0.08);
 		PowerFx.sound(level, point, SoundEvents.FIRE_EXTINGUISH, 1.2F, 0.72F);
 		PowerFx.sound(level, point, PowersSounds.INTERACTION_CLASH, 0.8F, 1.32F);
@@ -136,7 +136,7 @@ public final class EnergyBeamFx {
 						? ParticleTypes.ELECTRIC_SPARK : PowersParticles.FRACTURE,
 				14, 0.52, 0.09);
 		if (counterplay == EnergyBeamRules.Counterplay.DARKNESS) {
-			PowerFx.burst(level, point, ParticleTypes.REVERSE_PORTAL, 18, 0.58, 0.08);
+			PowerFx.burst(level, point, com.powers.PowersParticles.ECLIPSE, 18, 0.58, 0.08);
 		}
 		PowerFx.sound(level, point, switch (counterplay) {
 			case AMETHYST -> PowersSounds.AMETHYST_FRACTURE;
@@ -164,7 +164,7 @@ public final class EnergyBeamFx {
 	public static void complete(ServerLevel level, Vec3 point, boolean ancientMastery) {
 		PowerFx.ring(level, point, ancientMastery ? 0.82 : 0.62, SUN_GOLD,
 				ancientMastery ? 22 : 16, -level.getGameTime() * 0.18);
-		PowerFx.burst(level, point, ParticleTypes.END_ROD,
+		PowerFx.burst(level, point, com.powers.PowersParticles.GLYPH,
 				ancientMastery ? 14 : 9, 0.46, 0.07);
 		PowerFx.sound(level, point, SoundEvents.BEACON_DEACTIVATE, 0.46F, 1.52F);
 	}

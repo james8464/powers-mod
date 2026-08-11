@@ -189,7 +189,7 @@ public final class ArtifactWeaponManager {
 					player.level().getGameTime() * 0.08);
 			PowerFx.spiral(level, player.position(), 0.9, 3.2, 0xFFFFFF, 24, 0.0);
 			PowerFx.burst(level, player.position().add(0.0, 1.0, 0.0),
-					ParticleTypes.END_ROD, 12, 0.55, 0.05);
+					com.powers.PowersParticles.GLYPH, 12, 0.55, 0.05);
 		}
 	}
 

@@ -169,6 +169,11 @@ public final class ActiveMagicIndex {
 		return cells.size();
 	}
 
+	/** Exact lookup used by the physical-handle bridge on the server thread. */
+	MagicPresence get(MagicPresenceId id) {
+		return presences.get(id);
+	}
+
 	private Set<CellKey> cellsFor(String dimension, PresenceAnchor anchor, double radius) {
 		int minX = floorCell(anchor.x() - radius);
 		int maxX = floorCell(anchor.x() + radius);

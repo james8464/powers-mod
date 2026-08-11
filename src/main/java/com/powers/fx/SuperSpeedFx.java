@@ -50,7 +50,7 @@ public final class SuperSpeedFx {
 				inWater ? ParticleTypes.BUBBLE : PowersParticles.RIBBON, segments);
 		PowerFx.beam(level, start.add(0.0, 0.18, 0.0), end.add(0.0, 0.18, 0.0),
 				PowersParticles.SPARK, Math.max(2, segments / 2));
-		PowerFx.burst(level, end, inWater ? ParticleTypes.SPLASH : ParticleTypes.CLOUD,
+		PowerFx.burst(level, end, inWater ? ParticleTypes.SPLASH : com.powers.PowersParticles.RIBBON,
 				inWater ? 7 : 3, inWater ? 0.38 : 0.18, inWater ? 0.14 : 0.045);
 		if (afterimage && age % 4 == 0) {
 			PowerFx.ring(level, from.add(0.0, 0.24, 0.0), 0.62, PALE,
@@ -68,7 +68,7 @@ public final class SuperSpeedFx {
 				enteredWater ? DEEP : CHRONAL, enteredWater ? 24 : 18,
 				level.getGameTime() * 0.2);
 		PowerFx.burst(level, center.add(0.0, 0.45, 0.0),
-				enteredWater ? ParticleTypes.SPLASH : ParticleTypes.CLOUD,
+				enteredWater ? ParticleTypes.SPLASH : com.powers.PowersParticles.RIBBON,
 				enteredWater ? 18 : 12, 0.58, enteredWater ? 0.18 : 0.09);
 		PowerFx.burst(level, center.add(0.0, 0.5, 0.0), PowersParticles.SPARK,
 				10, 0.36, 0.08);
@@ -91,7 +91,7 @@ public final class SuperSpeedFx {
 				PowersParticles.RIBBON, 12);
 		PowerFx.rune(level, to.add(0.0, 0.08, 0.0), 1.18, PALE, 22, Math.PI);
 		PowerFx.ring(level, from.add(0.0, 0.12, 0.0), 0.72, GOLD, 16, 0.0);
-		PowerFx.burst(level, to.add(0.0, 0.5, 0.0), ParticleTypes.REVERSE_PORTAL,
+		PowerFx.burst(level, to.add(0.0, 0.5, 0.0), com.powers.PowersParticles.ECLIPSE,
 				14, 0.42, 0.10);
 		PowerFx.sound(level, to, PowersSounds.TIME_RELEASE, 0.75F, 1.72F);
 	}
@@ -145,7 +145,7 @@ public final class SuperSpeedFx {
 		Vec3 midpoint = runner.add(observer).scale(0.5).add(0.0, 0.8, 0.0);
 		PowerFx.beam(level, observer.add(0.0, 0.8, 0.0), midpoint,
 				PowersParticles.MOTE, 6);
-		PowerFx.burst(level, observer.add(0.0, 0.8, 0.0), ParticleTypes.REVERSE_PORTAL,
+		PowerFx.burst(level, observer.add(0.0, 0.8, 0.0), com.powers.PowersParticles.ECLIPSE,
 				5, 0.24, 0.045);
 		PowerFx.ring(level, runner.add(0.0, 0.28, 0.0), 0.54 + index * 0.035,
 				index % 2 == 0 ? PALE : CHRONAL, 10, index * 0.62);

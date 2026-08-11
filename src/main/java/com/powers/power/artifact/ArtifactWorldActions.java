@@ -77,7 +77,7 @@ public final class ArtifactWorldActions {
 		}
 		PowerFx.beam(level, player.getEyePosition(), target.getEyePosition(),
 				alignment == ArtifactAlignment.DARKNESS ? ParticleTypes.SOUL_FIRE_FLAME
-						: ParticleTypes.END_ROD, 36);
+						: com.powers.PowersParticles.GLYPH, 36);
 		PowerFx.rune(level, target.position(), 2.2,
 				alignment == ArtifactAlignment.DARKNESS ? 0x48105D : 0xFFF2B2, 32, 0.0);
 		return true;
@@ -148,7 +148,7 @@ public final class ArtifactWorldActions {
 		ServerLevel level = (ServerLevel) player.level();
 		PowerFx.beam(level, player.position(), player.position().add(0.0, 72.0, 0.0),
 				alignment == ArtifactAlignment.DARKNESS ? ParticleTypes.SOUL_FIRE_FLAME
-						: ParticleTypes.END_ROD, 64);
+						: com.powers.PowersParticles.GLYPH, 64);
 		PowerFx.rune(level, player.position(), 14.0,
 				alignment == ArtifactAlignment.DARKNESS ? 0x21002E : 0xFFFFFF, 64, 0.0);
 		PowerFx.sound(level, player.position(), alignment == ArtifactAlignment.DARKNESS

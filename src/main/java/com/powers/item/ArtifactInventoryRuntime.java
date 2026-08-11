@@ -77,8 +77,8 @@ public final class ArtifactInventoryRuntime {
 		if (tick % 10 == 0) {
 			ServerLevel level = (ServerLevel) player.level();
 			PowerFx.burst(level, player.position().add(0.0, 1.0, 0.0),
-					alignment == ArtifactAlignment.DARKNESS ? ParticleTypes.REVERSE_PORTAL
-							: ParticleTypes.END_ROD,
+					alignment == ArtifactAlignment.DARKNESS ? com.powers.PowersParticles.ECLIPSE
+							: com.powers.PowersParticles.GLYPH,
 					ArtifactWeaponManager.rank(player, alignment) >= 10 ? 2 : 1, 0.25, 0.01);
 		}
 		if (tick % 20 != 0) return;

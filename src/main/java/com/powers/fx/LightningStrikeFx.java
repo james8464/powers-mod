@@ -120,7 +120,7 @@ public final class LightningStrikeFx {
 					28, radius * 0.45, 0.18);
 		}
 		if (medium == LightningStrikeRules.Counterplay.PURE_LIGHT) {
-			PowerFx.clarityBurst(level, point.add(0.0, 0.8, 0.0), ParticleTypes.END_ROD,
+			PowerFx.clarityBurst(level, point.add(0.0, 0.8, 0.0), com.powers.PowersParticles.GLYPH,
 					28, radius * 0.38, 0.16);
 			PowerFx.sound(level, point, PowersSounds.LIGHT_CHORUS, 1.1F, 1.42F);
 		}
@@ -212,7 +212,7 @@ public final class LightningStrikeFx {
 		PowerFx.ring(level, point.add(0.0, 0.14, 0.0), 0.56,
 				GOLD, 16, -Math.PI / 4.0);
 		PowerFx.clarityBurst(level, point, PowersParticles.GLYPH, 14, 0.48, 0.06);
-		PowerFx.clarityBurst(level, point, ParticleTypes.END_ROD, 10, 0.38, 0.08);
+		PowerFx.clarityBurst(level, point, com.powers.PowersParticles.GLYPH, 10, 0.38, 0.08);
 		PowerFx.sound(level, point, SoundEvents.AMETHYST_BLOCK_CHIME, 0.84F, 1.78F);
 	}
 

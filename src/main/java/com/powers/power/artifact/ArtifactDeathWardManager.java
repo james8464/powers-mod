@@ -56,7 +56,7 @@ public final class ArtifactDeathWardManager {
 		}
 		ServerLevel level = (ServerLevel) player.level();
 		PowerFx.burst(level, player.position().add(0.0, 1.0, 0.0),
-				ward.alignment() == ArtifactAlignment.DARKNESS ? ParticleTypes.REVERSE_PORTAL
+				ward.alignment() == ArtifactAlignment.DARKNESS ? com.powers.PowersParticles.ECLIPSE
 						: ParticleTypes.TOTEM_OF_UNDYING, 42, 1.1, 0.2);
 		PowerFx.rune(level, player.position(), 3.4,
 				ward.alignment() == ArtifactAlignment.DARKNESS ? 0x6C2383 : 0xFFF2B2, 44, Math.PI);

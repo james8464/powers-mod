@@ -49,7 +49,7 @@ public final class GuardianAlignmentField {
 		PowerFx.rune(level, guardian.position(), radius, color,
 				guardian.eliteGuardian() ? 36 : 24, level.getGameTime() * 0.08);
 		PowerFx.burst(level, guardian.position().add(0, 1, 0),
-				alignment == ArtifactAlignment.DARKNESS ? ParticleTypes.REVERSE_PORTAL : ParticleTypes.END_ROD,
+				alignment == ArtifactAlignment.DARKNESS ? com.powers.PowersParticles.ECLIPSE : com.powers.PowersParticles.GLYPH,
 				guardian.eliteGuardian() ? 12 : 7, 0.8, 0.04);
 	}
 }

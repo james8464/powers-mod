@@ -42,7 +42,7 @@ public final class CelestialRuinFx {
 			Vec3 from = center.add(Math.cos(angle) * radius, 0.5, Math.sin(angle) * radius);
 			Vec3 to = new Vec3(from.x,
 					Math.min(level.getMaxY() - 2.0, center.y + 126.0), from.z);
-			PowerFx.beam(level, from, to, ParticleTypes.END_ROD, 6);
+			PowerFx.beam(level, from, to, com.powers.PowersParticles.GLYPH, 6);
 		}
 		if (age % 20 == 0) {
 			PowerFx.sound(level, center, PowersSounds.RUNE_HUM,
@@ -65,7 +65,7 @@ public final class CelestialRuinFx {
 	public static void finished(ServerLevel level, Vec3 center, int blastRadius) {
 		CelestialRuinPackets.broadcast(level, center, CelestialRuinPackets.Phase.END, 0);
 		PowerFx.rune(level, center, Math.min(blastRadius, 48), 0x8DEBFF, 96, Math.PI);
-		PowerFx.burst(level, center, ParticleTypes.REVERSE_PORTAL, 64, 8.0, 0.25);
+		PowerFx.burst(level, center, com.powers.PowersParticles.ECLIPSE, 64, 8.0, 0.25);
 		PowerFx.sound(level, center, PowersSounds.RIFT_CLOSE, 4.0F, 0.4F);
 	}
 }

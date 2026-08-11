@@ -33,21 +33,35 @@ public record HudLayout(Rect energy, List<Rect> powerSlots) {
 	 * the hunger side. Values are row counts, not raw icon counts.
 	 */
 	public static HudLayout forScreen(int width, int height, int airRows, int mountRows) {
+		return forScreen(width, height, airRows, mountRows, HudPlacement.defaults());
+	}
+
+	/** Creates a clamped layout from a client preference without changing the vanilla default. */
+	public static HudLayout forScreen(int width, int height, int airRows, int mountRows,
+			HudPlacement placement) {
 		int safeWidth = Math.max(1, width);
 		int safeHeight = Math.max(1, height);
+		HudPlacement safePlacement = placement == null ? HudPlacement.defaults() : placement;
 		int energyWidth = Math.min(ENERGY_WIDTH, safeWidth);
 		int energyHeight = Math.min(ENERGY_HEIGHT, safeHeight);
 		int hungerX = safeWidth / 2 + HUNGER_LEFT_OFFSET;
-		int energyX = Math.max(0, Math.min(hungerX, safeWidth - energyWidth));
 		int conditionalRows = Math.clamp(Math.max(0, airRows) + Math.max(0, mountRows), 0, 4);
-		int energyY = Math.max(0, safeHeight - ENERGY_BOTTOM_OFFSET
-				- conditionalRows * CONDITIONAL_ROW_STEP);
+		int defaultY = safeHeight - ENERGY_BOTTOM_OFFSET - conditionalRows * CONDITIONAL_ROW_STEP;
+		int requestedX = switch (safePlacement.anchor()) {
+			case HUNGER -> hungerX + safePlacement.horizontalMargin();
+			case TOP_LEFT -> safePlacement.horizontalMargin();
+			case TOP_RIGHT -> safeWidth - energyWidth - safePlacement.horizontalMargin();
+		};
+		int requestedY = safePlacement.anchor() == HudPlacement.Anchor.HUNGER
+				? defaultY - safePlacement.verticalMargin() : safePlacement.verticalMargin();
+		int energyX = Math.clamp(requestedX, 0, Math.max(0, safeWidth - energyWidth));
+		int energyY = Math.clamp(requestedY, 0, Math.max(0, safeHeight - energyHeight));
 		Rect energy = new Rect(energyX, energyY,
 				energyWidth, energyHeight);
 
 		int slotSize = Math.min(POWER_SLOT_SIZE, Math.min(safeWidth, safeHeight));
 		int railHeight = slotSize * 3 + POWER_SLOT_GAP * 2;
-		int railX = Math.max(0, safeWidth - EDGE_MARGIN - slotSize);
+		int railX = Math.max(0, safeWidth - safePlacement.powerRailMargin() - slotSize);
 		int railTop = Math.max(0, safeHeight - 26 - railHeight);
 		return new HudLayout(energy, List.of(
 				new Rect(railX, railTop, slotSize, slotSize),

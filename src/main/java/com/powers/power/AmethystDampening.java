@@ -227,7 +227,7 @@ public final class AmethystDampening {
 		}
 		PowerFx.burst(level, pos, ParticleTypes.ELECTRIC_SPARK, 16, 0.5, 0.1);
 		PowerFx.coloredBurst(level, pos, 0xB36BFF, 22, 0.7);
-		PowerFx.burst(level, pos, ParticleTypes.END_ROD, 10, 0.4, 0.2);
+		PowerFx.burst(level, pos, com.powers.PowersParticles.GLYPH, 10, 0.4, 0.2);
 		PowerFx.sound(level, pos, SoundEvents.BEACON_DEACTIVATE, 0.8f, 1.1f);
 	}
 

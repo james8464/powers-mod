@@ -28,4 +28,12 @@ class ParticleBudgetTest {
 		assertEquals(20, ParticleBudget.viewerCount(20, 16.01));
 		assertEquals(0, ParticleBudget.viewerCount(0, 0.0));
 	}
+
+	@Test
+	void nearCameraForwardConePreservesTheReticle() {
+		assertEquals(1, ParticleBudget.viewerCount(40, 1.0, 0.95));
+		assertEquals(10, ParticleBudget.viewerCount(40, 1.0, -0.2));
+		assertEquals(10, ParticleBudget.viewerCount(40, 9.0, 0.95));
+		assertEquals(40, ParticleBudget.viewerCount(40, 25.0, 1.0));
+	}
 }

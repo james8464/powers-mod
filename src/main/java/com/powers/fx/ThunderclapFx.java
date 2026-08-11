@@ -19,7 +19,7 @@ public final class ThunderclapFx {
 			Vec3 center = origin.add(direction.scale(distance));
 			double radius = 1.5 + distance * 0.38;
 			PowerFx.ring(level, center, radius, 0xD7F8FF, 14 + band * 3, band * 0.35);
-			PowerFx.burst(level, center, ParticleTypes.CLOUD, 5 + band * 2, radius * 0.45, 0.22);
+			PowerFx.burst(level, center, com.powers.PowersParticles.RIBBON, 5 + band * 2, radius * 0.45, 0.22);
 			PowerFx.burst(level, center, PowersParticles.RIBBON, 3 + band, radius * 0.30, 0.10);
 		}
 	}

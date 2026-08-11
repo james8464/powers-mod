@@ -86,7 +86,7 @@ public final class PowerFx {
 
 	// the small "no" burst for a cancelled or refused cast
 	public static void cancelled(ServerLevel level, Vec3 pos, int rgb) {
-		burst(level, pos, ParticleTypes.REVERSE_PORTAL, 10, 0.35, 0.02);
+		burst(level, pos, com.powers.PowersParticles.ECLIPSE, 10, 0.35, 0.02);
 		coloredBurst(level, pos, rgb, 8, 0.25);
 		sound(level, pos, SoundEvents.BEACON_DEACTIVATE, 0.5f, 0.7f);
 	}
@@ -106,7 +106,7 @@ public final class PowerFx {
 		int primary = followUp ? 0xFFD166 : 0xD7F8FF;
 		int secondary = followUp ? 0xD7F8FF : 0x7DEBFF;
 		burst(level, center, ParticleTypes.ELECTRIC_SPARK, followUp ? 22 : 16, 0.48, 0.24);
-		burst(level, center, ParticleTypes.CLOUD, followUp ? 18 : 12, 0.38, 0.28);
+		burst(level, center, com.powers.PowersParticles.RIBBON, followUp ? 18 : 12, 0.38, 0.28);
 		burst(level, center, PowersParticles.SPARK, followUp ? 12 : 8, 0.34, 0.16);
 		coloredBurst(level, center, primary, followUp ? 18 : 12, 0.42);
 		Vec3 end = center.add(movement.scale(1.4));
@@ -127,7 +127,7 @@ public final class PowerFx {
 			beam(level, from.add(0.0, 0.45, 0.0), to.add(0.0, 0.45, 0.0),
 					PowersParticles.RIBBON, followUp ? 10 : 7);
 		}
-		burst(level, from.add(0.0, 0.35, 0.0), ParticleTypes.CLOUD, 3, 0.18, 0.06);
+		burst(level, from.add(0.0, 0.35, 0.0), com.powers.PowersParticles.RIBBON, 3, 0.18, 0.06);
 		burst(level, to.add(0.0, 0.45, 0.0), PowersParticles.SPARK,
 				followUp ? 4 : 2, 0.22, 0.08);
 		coloredBurst(level, to.add(0.0, 0.45, 0.0), color, followUp ? 4 : 2, 0.2);
@@ -190,7 +190,7 @@ public final class PowerFx {
 		beam(level, from, to, PowersParticles.ECLIPSE, Math.max(16, steps - 8));
 		beam(level, from, to, dust(0x6D32A8, ancientMastery ? 1.35F : 1.0F),
 				Math.max(12, steps - 12));
-		burst(level, from, ParticleTypes.REVERSE_PORTAL, ancientMastery ? 22 : 14, 0.42, 0.12);
+		burst(level, from, com.powers.PowersParticles.ECLIPSE, ancientMastery ? 22 : 14, 0.42, 0.12);
 		burst(level, to, PowersParticles.FRACTURE, empoweredImpact ? 26 : 18, 0.7, 0.16);
 		ring(level, to, empoweredImpact ? 1.6 : 1.25, 0x2A0C3D,
 				empoweredImpact ? 28 : 22, level.getGameTime() * 0.18);
@@ -205,7 +205,7 @@ public final class PowerFx {
 			boolean darkResurgence) {
 		int count = Math.max(0, Math.min(VoidBeamRules.MAX_PENETRATIONS - 1, index));
 		burst(level, point, PowersParticles.FRACTURE, 7 + count * 2, 0.34, 0.09);
-		burst(level, point, ParticleTypes.SOUL, darkResurgence ? 8 : 5, 0.28, 0.07);
+		burst(level, point, com.powers.PowersParticles.MOTE, darkResurgence ? 8 : 5, 0.28, 0.07);
 		ring(level, point, 0.48 + count * 0.08, darkResurgence ? 0x7C36C8 : 0x2A0C3D,
 				10 + count * 2, count * Math.PI / 5.0);
 	}
@@ -232,7 +232,7 @@ public final class PowerFx {
 		ring(level, point.add(0.0, 0.12, 0.0), 0.82, secondary, 18,
 				-level.getGameTime() * 0.18);
 		burst(level, point, counterplay == VoidBeamRules.Counterplay.AMETHYST
-				? ParticleTypes.ELECTRIC_SPARK : ParticleTypes.END_ROD, 18, 0.55, 0.11);
+				? ParticleTypes.ELECTRIC_SPARK : com.powers.PowersParticles.GLYPH, 18, 0.55, 0.11);
 		burst(level, point, PowersParticles.FRACTURE, 14, 0.48, 0.08);
 		sound(level, point, counterplay == VoidBeamRules.Counterplay.LIGHT
 				? PowersSounds.LIGHT_CHORUS
@@ -257,7 +257,7 @@ public final class PowerFx {
 
 	/** Collapses an expired or unloaded scar inward without touching terrain. */
 	public static void voidScarCollapse(ServerLevel level, Vec3 center, double radius) {
-		burst(level, center, ParticleTypes.REVERSE_PORTAL, 28, radius * 0.48, 0.18);
+		burst(level, center, com.powers.PowersParticles.ECLIPSE, 28, radius * 0.48, 0.18);
 		burst(level, center, PowersParticles.FRACTURE, 18, radius * 0.4, 0.09);
 		rune(level, center, Math.max(0.7, radius * 0.6), 0x7846B8, 20, Math.PI / 8.0);
 		sound(level, center, PowersSounds.RIFT_CLOSE, 0.9F, 0.58F);
@@ -285,7 +285,7 @@ public final class PowerFx {
 		ring(level, center, radius, 0xFFF4C7, points, phase);
 		ring(level, center.add(0, 0.12, 0), Math.max(0.5, radius - 0.55), 0x2A0C3D, points, -phase);
 		if (age % 4 == 0) {
-			burst(level, center, ParticleTypes.END_ROD, 8, Math.min(radius, 10.0), 0.05);
+			burst(level, center, com.powers.PowersParticles.GLYPH, 8, Math.min(radius, 10.0), 0.05);
 			burst(level, center, ParticleTypes.LARGE_SMOKE, 8, Math.min(radius, 10.0), 0.04);
 		}
 		if (age % 12 == 0) sound(level, center, PowersSounds.INTERACTION_CLASH, 3.0F, 0.65F);
@@ -294,7 +294,7 @@ public final class PowerFx {
 	/** Seals a completed clash with a final inward fracture and bass impact. */
 	public static void forceClashFinished(ServerLevel level, Vec3 center, int radius) {
 		burst(level, center, PowersParticles.FRACTURE, 32, Math.min(radius, 12.0), 0.12);
-		burst(level, center, ParticleTypes.REVERSE_PORTAL, 40, Math.min(radius, 10.0), 0.16);
+		burst(level, center, com.powers.PowersParticles.ECLIPSE, 40, Math.min(radius, 10.0), 0.16);
 		rune(level, center, Math.min(radius, 12.0), 0xBFA8FF, 56, Math.PI / 8.0);
 		sound(level, center, SoundEvents.RESPAWN_ANCHOR_DEPLETE.value(), 6.0F, 0.45F);
 	}
@@ -358,7 +358,7 @@ public final class PowerFx {
 		rune(world, feet.add(0.0, 1.0, 0.0), radius * 0.68, secondary, 20, -level * 0.13);
 		spiral(world, feet, radius * 0.7, 2.5, secondary, 36, level * 0.2);
 		burst(world, player.getEyePosition(), darkness ? ParticleTypes.SOUL_FIRE_FLAME
-				: ParticleTypes.END_ROD, 18, 0.65, 0.06);
+				: com.powers.PowersParticles.GLYPH, 18, 0.65, 0.06);
 		sound(world, feet, PowersSounds.RANK_AWAKEN, 1.5F, darkness ? 0.72F : 1.18F);
 	}
 

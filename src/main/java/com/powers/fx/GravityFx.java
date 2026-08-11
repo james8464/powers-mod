@@ -25,7 +25,7 @@ public final class GravityFx {
 				ancientMastery ? 24 : 18, -Math.PI / 8.0);
 		PowerFx.spiral(level, center.add(0.0, 0.05, 0.0), outer * 0.48,
 				ancientMastery ? 4.4 : 3.4, 0x8C66FF, ancientMastery ? 34 : 26, 0.0);
-		PowerFx.burst(level, center.add(0.0, 1.0, 0.0), ParticleTypes.REVERSE_PORTAL,
+		PowerFx.burst(level, center.add(0.0, 1.0, 0.0), com.powers.PowersParticles.ECLIPSE,
 				ancientMastery ? 30 : 22, outer * 0.32, 0.08);
 		PowerFx.burst(level, center.add(0.0, 0.6, 0.0), PowersParticles.GLYPH,
 				ancientMastery ? 18 : 12, outer * 0.25, 0.035);
@@ -45,7 +45,7 @@ public final class GravityFx {
 				ancientMastery ? 28 : 20, -phase * 1.25);
 		PowerFx.ring(level, center.add(0.0, 2.9, 0.0), outer * 0.32, 0xD9C7FF,
 				ancientMastery ? 22 : 16, phase * 1.6);
-		PowerFx.burst(level, center.add(0.0, 1.2, 0.0), ParticleTypes.REVERSE_PORTAL,
+		PowerFx.burst(level, center.add(0.0, 1.2, 0.0), com.powers.PowersParticles.ECLIPSE,
 				ancientMastery ? 6 : 4, outer * 0.22, 0.025);
 		if (age % 20 == 0) {
 			PowerFx.spiral(level, center.add(0.0, 0.1, 0.0), outer * 0.34, 3.2,
@@ -60,7 +60,7 @@ public final class GravityFx {
 		PowerFx.beam(level, center.add(0.0, 1.0, 0.0), target, PowersParticles.RIBBON,
 				ancientMastery ? 14 : 10);
 		PowerFx.burst(level, target, PowersParticles.GLYPH, ancientMastery ? 10 : 7, 0.35, 0.06);
-		PowerFx.burst(level, target, ParticleTypes.REVERSE_PORTAL,
+		PowerFx.burst(level, target, com.powers.PowersParticles.ECLIPSE,
 				ancientMastery ? 12 : 8, 0.42, 0.08);
 		PowerFx.ring(level, target, 0.62, 0x8C66FF, ancientMastery ? 16 : 12, 0.0);
 	}
@@ -130,7 +130,7 @@ public final class GravityFx {
 	public static void projectileCurve(ServerLevel level, Vec3 position, Vec3 velocity, long age) {
 		Vec3 tail = position.subtract(velocity.normalize().scale(0.9));
 		PowerFx.beam(level, tail, position, PowersParticles.RIBBON, 6);
-		PowerFx.burst(level, position, ParticleTypes.REVERSE_PORTAL, 3, 0.14, 0.035);
+		PowerFx.burst(level, position, com.powers.PowersParticles.ECLIPSE, 3, 0.14, 0.035);
 		PowerFx.coloredBurst(level, position, 0xB9E7FF, 2, 0.12);
 		if (age % 10 == 0) PowerFx.sound(level, position, PowersSounds.WARD_IMPACT, 0.28F, 1.6F);
 	}
@@ -148,7 +148,7 @@ public final class GravityFx {
 				empowered ? 5 : 2, 0.45, 0.0);
 		PowerFx.burst(level, center.add(0.0, 1.0, 0.0), PowersParticles.FRACTURE,
 				empowered ? 36 : 22, empowered ? 2.0 : 1.2, empowered ? 0.22 : 0.10);
-		PowerFx.burst(level, center.add(0.0, 1.0, 0.0), ParticleTypes.REVERSE_PORTAL,
+		PowerFx.burst(level, center.add(0.0, 1.0, 0.0), com.powers.PowersParticles.ECLIPSE,
 				ancientMastery ? 30 : 22, outer * 0.34, 0.16);
 		PowerFx.sound(level, center,
 				interrupted ? PowersSounds.AMETHYST_FRACTURE : PowersSounds.RIFT_CLOSE,

@@ -363,7 +363,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 			announceLore(level, "defeated");
 			PowerFx.rune(level, position(), 16.0, 0xE9D7FF, 64, 0.0);
 			PowerFx.spiral(level, position(), 8.0, 20.0, 0x3E104B, 64, 0.0);
-			PowerFx.burst(level, position().add(0, 1, 0), ParticleTypes.END_ROD,
+			PowerFx.burst(level, position().add(0, 1, 0), com.powers.PowersParticles.GLYPH,
 					32, 3.0, 0.16);
 			PowerFx.sound(level, position(), net.minecraft.sounds.SoundEvents.END_PORTAL_SPAWN,
 					3.0F, 0.55F);

@@ -66,6 +66,7 @@ public final class PowerProtection {
 	}
 
 	public static boolean mayForceMove(ServerPlayer caster, ServerPlayer target) {
+		if (isSafeZone((ServerLevel) target.level(), target.position())) return false;
 		if (!adaptersAllow(ProtectionAction.MOVEMENT, caster, target,
 				(ServerLevel) target.level(), target.blockPosition())) return false;
 		PowersConfig config = PowersConfigLoader.get();
@@ -162,6 +163,7 @@ public final class PowerProtection {
 	}
 
 	public static boolean mayPossess(ServerPlayer caster, ServerPlayer target) {
+		if (isSafeZone((ServerLevel) target.level(), target.position())) return false;
 		if (!adaptersAllow(ProtectionAction.MOVEMENT, caster, target,
 				(ServerLevel) target.level(), target.blockPosition())) return false;
 		boolean ordinary = !PowersConfigLoader.get().requirePossessionConsent()

@@ -137,7 +137,7 @@ public class DreamwalkingAbility extends Ability {
 			PowerFx.spiral(hostLevel, host.position(), 1.2, 2.4, 0x7986CB, 24, Math.PI);
 		} else {
 			PowerFx.beam(hostLevel, bodyPosition.add(0.0, player.getEyeHeight(), 0.0),
-					host.getEyePosition(), net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL, 18);
+					host.getEyePosition(), com.powers.PowersParticles.ECLIPSE, 18);
 		}
 		PowerFx.rune(hostLevel, host.position(), 1.1, 0x81D4FA, 20, Math.PI);
 		PowerFx.sound(hostLevel, host.position(), SoundEvents.ENCHANTMENT_TABLE_USE, 1.0f, 0.45f);

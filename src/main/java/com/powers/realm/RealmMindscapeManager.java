@@ -80,7 +80,7 @@ public final class RealmMindscapeManager {
 					RealmTerrain.arrivalY(level, site.x(), site.z()) + 1.0, site.z() + 0.5);
 			PowerFx.rune(level, center, 3.2, color, 30, 0);
 			PowerFx.spiral(level, center, 1.0, 7.0, color, 28, 0);
-			PowerFx.burst(level, center, kind == RealmKind.LIGHT ? ParticleTypes.END_ROD : ParticleTypes.SOUL,
+			PowerFx.burst(level, center, kind == RealmKind.LIGHT ? com.powers.PowersParticles.GLYPH : com.powers.PowersParticles.MOTE,
 					24, 1.1, 0.08);
 			PowerFx.sound(level, center, SoundEvents.END_PORTAL_SPAWN, 0.8f, kind == RealmKind.LIGHT ? 1.4f : 0.55f);
 			player.sendSystemMessage(Component.translatable("realm.powers.landmark_discovered",
@@ -106,11 +106,11 @@ public final class RealmMindscapeManager {
 		if (tick % 10 != 0) return;
 		Vec3 pos = player.position().add(0, 1, 0);
 		if (kind == RealmKind.LIGHT) {
-			PowerFx.burst(level, pos, ParticleTypes.END_ROD, 2, 5.5, 0.01);
+			PowerFx.burst(level, pos, com.powers.PowersParticles.GLYPH, 2, 5.5, 0.01);
 			PowerFx.coloredBurst(level, pos, 0xFFF5D6, 1, 4.0);
 		} else {
-			PowerFx.burst(level, pos, ParticleTypes.SOUL, 2, 5.0, 0.01);
-			PowerFx.burst(level, pos, ParticleTypes.REVERSE_PORTAL, 1, 4.0, 0.0);
+			PowerFx.burst(level, pos, com.powers.PowersParticles.MOTE, 2, 5.0, 0.01);
+			PowerFx.burst(level, pos, com.powers.PowersParticles.ECLIPSE, 1, 4.0, 0.0);
 		}
 		if (tick % 200 == 0) {
 			PowerFx.sound(level, pos, kind == RealmKind.LIGHT ? SoundEvents.AMETHYST_BLOCK_CHIME

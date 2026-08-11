@@ -82,7 +82,7 @@ public final class ArtifactCovenantManager {
 			ally.heal(shared);
 			owner.hurtServer((ServerLevel) owner.level(), source, shared);
 			PowerFx.beam((ServerLevel) ally.level(), ally.getEyePosition(), owner.getEyePosition(),
-					ParticleTypes.END_ROD, 18);
+					com.powers.PowersParticles.GLYPH, 18);
 		} finally {
 			TRANSFERRING.remove(ally.getUUID());
 			TRANSFERRING.remove(owner.getUUID());

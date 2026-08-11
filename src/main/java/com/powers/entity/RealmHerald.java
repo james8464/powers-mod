@@ -97,7 +97,7 @@ public final class RealmHerald extends AbstractPlayerLikeMob {
 		int color = realmKind() == RealmKind.LIGHT ? 0xFFF2A8 : 0x54206E;
 		PowerFx.beam(level, getEyePosition(), target.getEyePosition(),
 				realmKind() == RealmKind.LIGHT
-						? net.minecraft.core.particles.ParticleTypes.END_ROD
+						? com.powers.PowersParticles.GLYPH
 						: net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME, 24);
 		PowerFx.rune(level, target.position(), 3.4, color, 38, tickCount * 0.05);
 		PowerFx.spiral(level, target.position(), 0.8, 5.5, color, 30, 0.0);

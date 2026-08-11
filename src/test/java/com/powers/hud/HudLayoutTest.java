@@ -6,6 +6,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Pure bounds checks for the two overlay groups. */
@@ -58,5 +59,27 @@ class HudLayoutTest {
 		for (HudLayout.Rect slot : layout.powerSlots()) {
 			assertFalse(slot.intersects(hotbar), slot + " overlaps " + hotbar);
 		}
+	}
+
+	@Test
+	void configurableAnchorsAndMarginsClampInsideTheScreen() {
+		HudPlacement custom = new HudPlacement(HudPlacement.Anchor.TOP_LEFT, 7, 11, 13);
+		HudLayout layout = HudLayout.forScreen(320, 240, 0, 0, custom);
+		assertEquals(7, layout.energy().x());
+		assertEquals(11, layout.energy().y());
+		assertEquals(13, 320 - layout.powerSlots().getFirst().right());
+
+		HudLayout clamped = HudLayout.forScreen(160, 120, 0, 0,
+				new HudPlacement(HudPlacement.Anchor.TOP_RIGHT, 10_000, -10_000, 10_000));
+		for (HudLayout.Rect rect : clamped.elements()) {
+			assertTrue(rect.x() >= 0 && rect.y() >= 0);
+			assertTrue(rect.right() <= 160 && rect.bottom() <= 120);
+		}
+	}
+
+	@Test
+	void resetPlacementIsExactlyTheVanillaAlignedDefault() {
+		assertEquals(HudLayout.forScreen(427, 240),
+				HudLayout.forScreen(427, 240, 0, 0, HudPlacement.defaults()));
 	}
 }

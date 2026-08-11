@@ -4,6 +4,8 @@ import com.powers.PowersMod;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.PowerFx;
 import com.powers.magic.runtime.MagicLifecycleRules;
+import com.powers.magic.MagicActionId;
+import com.powers.magic.runtime.PhysicalMagicPresences;
 import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
@@ -100,6 +102,8 @@ public final class BodyProxyManager {
 				snapshot, new FatalResolutionGate());
 		BY_OWNER.put(player.getUUID(), active);
 		BY_BODY.put(body.getUUID(), active);
+		PhysicalMagicPresences.registerEntity(new MagicActionId("astral_projection"),
+				player.getUUID(), body, 0.9, Long.MAX_VALUE);
 		BodyProxyPackets.sendToTracking(body, snapshot);
 		PowerFx.rune(level, player.position(), 1.4, 0xBCA7FF, 20, 0.0);
 		return true;
@@ -125,10 +129,11 @@ public final class BodyProxyManager {
 		if (active == null) return true;
 		if (!PowersConfigLoader.get().projectionBodiesVulnerable()) return false;
 		ServerPlayer owner = active.level().getServer().getPlayerList().getPlayer(active.ownerId());
-		if (owner != null && ForcefieldAbility.absorbDamage(owner, entity, source, amount)) return false;
-		if (owner != null && PowerDamage.isPowerDamage(source) && AmethystDampening.isDampened(owner)) {
-			return false;
+		if (PowerDamage.isPowerDamage(source)) {
+			if (!com.powers.protection.PowerProtection.mayPowerDamage(source.getEntity(), entity)) return false;
+			if (owner != null && AmethystDampening.isDampened(owner)) return false;
 		}
+		if (owner != null && ForcefieldAbility.absorbDamage(owner, entity, source, amount)) return false;
 		return true;
 	}
 
@@ -278,6 +283,7 @@ public final class BodyProxyManager {
 		if (active != null) {
 			BY_BODY.remove(active.body().getUUID());
 			BodyProxyPackets.remove(active.body());
+			PhysicalMagicPresences.unload(active.body());
 			active.body().discard();
 			active.level().getChunkSource().removeTicketWithRadius(BODY_TICKET, active.chunk(),
 					BodyProxyTicketRules.radius());
@@ -328,6 +334,7 @@ public final class BodyProxyManager {
 		if (!BY_OWNER.remove(active.ownerId(), active)) return;
 		BY_BODY.remove(active.body().getUUID());
 		BodyProxyPackets.remove(active.body());
+		PhysicalMagicPresences.unload(active.body());
 		active.body().discard();
 		active.level().getChunkSource().removeTicketWithRadius(BODY_TICKET, active.chunk(),
 				BodyProxyTicketRules.radius());
