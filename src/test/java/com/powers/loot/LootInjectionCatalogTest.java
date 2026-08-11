@@ -12,6 +12,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LootInjectionCatalogTest {
 	@Test
+	void wisdomFruitHasOneLowRateArchivistRealmSource() {
+		var sources = LootInjectionCatalog.groups().stream()
+				.filter(group -> group.itemIds().contains("imported_food_wisdomfruit"))
+				.toList();
+
+		assertEquals(1, sources.size());
+		LootDropGroup source = sources.getFirst();
+		assertEquals("powers:chests/realm_memory", source.tableId());
+		assertEquals(0.035F, source.chance());
+		assertEquals(1, source.minCount());
+		assertEquals(1, source.maxCount());
+	}
+
+	@Test
 	void augmentsEveryFormerOverrideWithoutReplacingVanillaTables() {
 		var groups = LootInjectionCatalog.groups();
 		assertTrue(groups.size() >= 28);

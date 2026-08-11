@@ -221,7 +221,7 @@ The failure journal stores the latest 16 server-authoritative magic attempts for
 
 ## Relics, devices, weapons, food, and acquisition
 
-The registry currently contains 262 gameplay/block rows. The exact ID, family, implemented purpose, acquisition route, recipe status, and hidden/save-alias state of every row is maintained in [the exhaustive item catalogue](docs/gameplay/item-catalogue.md). Only Wisdom Fruit remains [temporarily naturally unobtainable](NATURALLY_UNOBTAINABLE_ITEMS.md); deliberately deferred crystal recipes are not classified as accidental gaps.
+The registry currently contains 262 gameplay/block rows. The exact ID, family, implemented purpose, acquisition route, recipe status, and hidden/save-alias state of every row is maintained in [the exhaustive item catalogue](docs/gameplay/item-catalogue.md). The [natural-acquisition audit](NATURALLY_UNOBTAINABLE_ITEMS.md) records no accidental gaps; deliberately deferred crystal recipes are not classified as accidental gaps.
 
 | Family | Purpose |
 | --- | --- |
