@@ -60,19 +60,20 @@ public final class PowerCommand {
 				.then(Commands.literal("slots")
 						.executes(PowerCommand::slotsSelf)
 						.then(Commands.argument("player", EntityArgument.player())
-								.requires(PowerCommand::isAdmin)
+								.requires(source -> PermissionNodes.allows(source, PermissionNode.ASSIGN))
 								.executes(PowerCommand::slotsOther)))
 				.then(Commands.literal("assign")
-						.requires(PowerCommand::isAdmin)
+						.requires(source -> PermissionNodes.allows(source, PermissionNode.ASSIGN))
 						.then(Commands.argument("player", EntityArgument.player())
 								.then(Commands.argument("power", StringArgumentType.word())
 										.then(Commands.argument("slot", IntegerArgumentType.integer(0, PlayerPowers.SLOT_COUNT - 1))
 												.executes(PowerCommand::assign)))))
 				.then(Commands.literal("reroll")
-						.requires(source -> isAdmin(source) || PowersConfigLoader.get().allowSelfReroll())
+						.requires(source -> PermissionNodes.allows(source, PermissionNode.ASSIGN)
+								|| PowersConfigLoader.get().allowSelfReroll())
 						.executes(PowerCommand::rerollSelf)
 						.then(Commands.argument("player", EntityArgument.player())
-								.requires(PowerCommand::isAdmin)
+								.requires(source -> PermissionNodes.allows(source, PermissionNode.ASSIGN))
 								.executes(PowerCommand::rerollOther)))
 				.then(Commands.literal("consent")
 						.then(consentLiteral("teleport", com.powers.protection.ConsentKind.TELEPORT))
@@ -81,12 +82,12 @@ public final class PowerCommand {
 						.then(consentLiteral("dreamwalk", com.powers.protection.ConsentKind.DREAMWALK))
 						.then(consentLiteral("possession", com.powers.protection.ConsentKind.POSSESSION)))
 				.then(Commands.literal("reload")
-						.requires(PowerCommand::isAdmin)
+						.requires(source -> PermissionNodes.allows(source, PermissionNode.DIAGNOSE))
 						.executes(PowerCommand::reloadConfig))
 				.then(Commands.literal("return")
 						.executes(PowerCommand::returnToBody))
 				.then(Commands.literal("recover")
-						.requires(PowerCommand::isAdmin)
+						.requires(source -> PermissionNodes.allows(source, PermissionNode.RECOVER))
 						.then(Commands.argument("player", EntityArgument.player())
 								.executes(PowerCommand::recoverBody)))
 				.then(Commands.literal("path")
@@ -105,26 +106,26 @@ public final class PowerCommand {
 						.then(Commands.literal("false")
 								.executes(PowerCommand::darkPrefixHide)))
 				.then(Commands.literal("boss")
-						.requires(PowerCommand::isAdmin)
+						.requires(source -> PermissionNodes.allows(source, PermissionNode.BOSS))
 						.then(Commands.literal("spawn")
 								.executes(PowerCommand::spawnFirstVessel)))
 				.then(Commands.literal("diagnose")
-						.requires(PowerCommand::isAdmin)
+						.requires(source -> PermissionNodes.allows(source, PermissionNode.DIAGNOSE))
 						.executes(PowerDiagnosticsCommand::run)
 						.then(Commands.literal("export").executes(PowerDiagnosticsCommand::export)))
 				.then(Commands.literal("ruin")
-						.requires(PowerCommand::isAdmin)
+						.requires(source -> PermissionNodes.allows(source, PermissionNode.BOSS))
 							.then(Commands.literal("preview").executes(CelestialRuinCommand::preview))
 							.then(Commands.literal("cancel").executes(CelestialRuinCommand::cancel)))
 				.then(Commands.literal("shadow")
-						.requires(PowerCommand::isAdmin)
+						.requires(source -> PermissionNodes.allows(source, PermissionNode.RECOVER))
 						.then(Commands.literal("learning")
 								.then(Commands.literal("reset")
 										.then(Commands.argument("player", EntityArgument.player())
 												.executes(PowerCommand::resetShadowLearning)))))
 				.then(TestingCommand.create())
 				.then(Commands.literal("travel")
-						.requires(PowerCommand::isAdmin)
+						.requires(source -> PermissionNodes.allows(source, PermissionNode.TRAVEL))
 						.then(Commands.argument("dimension", StringArgumentType.word())
 								.executes(PowerCommand::travel))));
 	}
@@ -265,6 +266,10 @@ public final class PowerCommand {
 	}
 
 	static boolean isAdmin(CommandSourceStack source) {
+		return hasVanillaAdmin(source);
+	}
+
+	static boolean hasVanillaAdmin(CommandSourceStack source) {
 		return switch (CommandPermissionRules.tier(PowersConfigLoader.get().adminPermissionLevel())) {
 			case 0 -> true;
 			case 1 -> source.permissions().hasPermission(

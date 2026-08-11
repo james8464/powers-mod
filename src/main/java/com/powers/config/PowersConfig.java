@@ -19,6 +19,7 @@ public record PowersConfig(
 		boolean requirePossessionConsent,
 		boolean projectionBodiesVulnerable,
 		boolean persistCooldowns,
+		boolean rankPrefixesEnabled,
 		boolean celestialRuinTerrainDamage,
 		boolean celestialRuinBlockEntityDamage,
 		int wardRadius,
@@ -109,7 +110,7 @@ public record PowersConfig(
 
 	public static PowersConfig defaults() {
 		return new PowersConfig(CURRENT_SCHEMA_VERSION, true, false, false, false,
-				true, true, true, true, true, true, true, true, true,
+				true, true, true, true, true, true, true, true, true, true,
 				20, 512, 8, 30, 2, List.of(), TerrainScars.defaults(), LivingForces.defaults(),
 				DialogueProvider.defaults());
 	}
@@ -122,7 +123,7 @@ public record PowersConfig(
 				allowBlockEntityDamage, allowSelfReroll,
 				hostileForcedMovement, requireTeleportConsent, requireLocatorConsent,
 				requireCompanionConsent, requireDreamwalkConsent, requirePossessionConsent,
-				projectionBodiesVulnerable, persistCooldowns,
+				projectionBodiesVulnerable, persistCooldowns, rankPrefixesEnabled,
 				celestialRuinTerrainDamage, celestialRuinBlockEntityDamage,
 				Math.max(1, Math.min(64, wardRadius)),
 				Math.max(32, Math.min(16_384, maxParticlesPerTick)),
