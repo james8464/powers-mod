@@ -424,7 +424,7 @@ The exact generated appendices are:
 
 ## Verification status
 
-Current automated evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md), not inferred from documentation hashes. The exact P0/P1 checkpoint proves 1,284 JUnit tests, 66 live Fabric GameTests, two isolated dedicated-server restart cycles, resource/asset validation, mutation/visual/save-migration gates, and the 10/50/100-player synthetic soak. The current-source client review, long profiles/soak, quest sample collection, and manual acceptance remain explicit human or elapsed-time gates and are never represented as automated proof.
+Current automated evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md) and [bounded P2 acceptance ledger](docs/verification/2026-08-11-bounded-p2-acceptance.md), not inferred from documentation hashes. The current combined checkpoint proves 1,312 JUnit tests, 67 live Fabric GameTests, two isolated dedicated-server restart cycles, resource/asset validation, mutation/visual/save-migration gates, and the allocation-aware 10/50/100-player synthetic soak. The current-source interactive client review, long profiles/soak, quest sample collection, and manual acceptance remain explicit human or elapsed-time gates and are never represented as automated proof.
 
 Useful checks:
 
