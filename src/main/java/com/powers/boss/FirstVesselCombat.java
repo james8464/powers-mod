@@ -64,7 +64,7 @@ public final class FirstVesselCombat {
 				projectile -> projectile.isAlive() && projectile.getOwner() != boss
 						&& !PowerProtection.isSafeZone(level, projectile.position()))) {
 			projectile.discard();
-			PowerFx.burst(level, projectile.position(), ParticleTypes.REVERSE_PORTAL,
+			PowerFx.burst(level, projectile.position(), com.powers.PowersParticles.ECLIPSE,
 					3, 0.2, 0.03);
 		}
 		for (LivingEntity target : candidates(level, boss, center, 24.0)) {
@@ -121,7 +121,7 @@ public final class FirstVesselCombat {
 			float damage, int color) {
 		harm(level, boss, target, damage);
 		PowerFx.beam(level, boss.getEyePosition(), target.getEyePosition(),
-				ParticleTypes.END_ROD, 34);
+				com.powers.PowersParticles.GLYPH, 34);
 		PowerFx.rune(level, target.position(), 1.7, color, 26, 0.0);
 		PowerFx.sound(level, boss.position(), SoundEvents.WARDEN_SONIC_BOOM, 1.4F, 0.62F);
 	}
@@ -171,7 +171,7 @@ public final class FirstVesselCombat {
 	private static void drain(ServerLevel level, FirstVessel boss, LivingEntity target) {
 		if (harm(level, boss, target, 56.0F)) recover(level, boss, 160.0F);
 		PowerFx.beam(level, target.getEyePosition(), boss.getEyePosition(),
-				ParticleTypes.REVERSE_PORTAL, 28);
+				com.powers.PowersParticles.ECLIPSE, 28);
 	}
 
 	private static void iceLance(ServerLevel level, FirstVessel boss, LivingEntity target) {
@@ -197,13 +197,13 @@ public final class FirstVesselCombat {
 
 	private static void veil(ServerLevel level, FirstVessel boss) {
 		boss.addEffect(PowerStatusEffects.hidden(MobEffects.INVISIBILITY, 100, 0, false, true));
-		PowerFx.burst(level, boss.position(), ParticleTypes.REVERSE_PORTAL, 18, 0.7, 0.06);
+		PowerFx.burst(level, boss.position(), com.powers.PowersParticles.ECLIPSE, 18, 0.7, 0.06);
 	}
 
 	private static void rush(ServerLevel level, FirstVessel boss, LivingEntity target) {
 		Vec3 direction = target.position().subtract(boss.position());
 		if (direction.lengthSqr() > 1.0E-6) boss.setDeltaMovement(direction.normalize().scale(2.2).add(0, 0.35, 0));
-		PowerFx.beam(level, boss.position(), target.position(), ParticleTypes.CLOUD, 18);
+		PowerFx.beam(level, boss.position(), target.position(), com.powers.PowersParticles.RIBBON, 18);
 	}
 
 	private static void step(ServerLevel level, FirstVessel boss, LivingEntity target, double radius) {

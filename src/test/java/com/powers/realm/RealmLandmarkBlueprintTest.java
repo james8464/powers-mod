@@ -1,35 +1,43 @@
 package com.powers.realm;
 
-import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeAll;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RealmLandmarkBlueprintTest {
-	@BeforeAll
-	static void bootstrapMinecraft() {
-		net.minecraft.SharedConstants.tryDetectVersion();
-		net.minecraft.server.Bootstrap.bootStrap();
+	@Test
+	void everyAuthoredLandmarkUsesDistinctBoundedTemplatePieces() {
+		Path root = Path.of(System.getProperty("user.dir"));
+		for (RealmKind kind : RealmKind.values()) {
+			for (MemorySite site : RealmLayout.sites(kind)) {
+				var pieces = RealmLandmarkTemplates.pieces(site.id());
+				assertFalse(pieces.isEmpty(), site.id());
+				assertTrue(pieces.stream().mapToInt(RealmLandmarkTemplates.Piece::blocks).sum()
+						<= RealmLandmarkTemplates.MAX_SITE_BLOCKS, site.id());
+				assertEquals(pieces.size(), new HashSet<>(pieces.stream()
+						.map(RealmLandmarkTemplates.Piece::template).toList()).size());
+				for (var piece : pieces) {
+					Path resource = root.resolve("src/main/resources/data/powers/structure/")
+							.resolve(piece.template().getPath() + ".nbt");
+					assertTrue(Files.isRegularFile(resource), resource.toString());
+				}
+			}
+		}
 	}
 
 	@Test
-	void everyAuthoredLandmarkIsDistinctBoundedAndContainsItsMemoryCore() {
-		for (RealmKind kind : RealmKind.values()) {
-			for (MemorySite site : RealmLayout.sites(kind)) {
-				var blueprint = RealmLandmarkBlueprint.preview(kind, site, -63);
-				assertFalse(blueprint.isEmpty(), site.id());
-				assertTrue(blueprint.size() <= RealmLandmarkBlueprint.MAX_PLACEMENTS, site.id());
-				assertEquals(site.x(), blueprint.getFirst().position().getX(), site.id());
-				assertEquals(site.z(), blueprint.getFirst().position().getZ(), site.id());
-				assertTrue(blueprint.stream().anyMatch(placement -> placement.position().getX() == site.x()
-						&& placement.position().getZ() == site.z()
-						&& placement.block() != Blocks.AIR), site.id());
-				assertTrue(blueprint.stream().map(RealmBlockPlacement::position).distinct().count()
-						== blueprint.size(), "duplicate placement in " + site.id());
-			}
+	void authoredSitesHaveLootPuzzlesAndProcessorLists() throws Exception {
+		Path data = Path.of(System.getProperty("user.dir"), "src/main/resources/data/powers");
+		assertTrue(Files.isRegularFile(data.resolve("loot_table/chests/realm_memory.json")));
+		for (String alignment : java.util.List.of("light", "dark")) {
+			Path processors = data.resolve("worldgen/processor_list/realm/" + alignment + ".json");
+			assertTrue(Files.readString(processors).contains("processor_type"));
 		}
 	}
 }

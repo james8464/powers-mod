@@ -84,7 +84,7 @@ public final class ArtifactChainManager {
 			if (server.getTickCount() % 10 == 0) {
 				PowerFx.beam(level, owner.getEyePosition(), target.getEyePosition(),
 						chain.alignment() == ArtifactAlignment.DARKNESS
-								? ParticleTypes.SOUL_FIRE_FLAME : ParticleTypes.END_ROD, 24);
+								? ParticleTypes.SOUL_FIRE_FLAME : com.powers.PowersParticles.GLYPH, 24);
 			}
 		}
 	}

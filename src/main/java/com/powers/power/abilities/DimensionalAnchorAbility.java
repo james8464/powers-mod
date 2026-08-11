@@ -103,7 +103,7 @@ public class DimensionalAnchorAbility extends Ability {
 		ServerLevel targetLevel = (ServerLevel) target.level();
 		PowerFx.rune(targetLevel, target.position().add(0, 1.0, 0), 1.6, 0x8A2BE2, 20, 0.5);
 		PowerFx.burst(targetLevel, target.position().add(0, 1.5, 0),
-				ParticleTypes.END_ROD, 12, 0.75, 0.05);
+				com.powers.PowersParticles.GLYPH, 12, 0.75, 0.05);
 		PowerFx.sound(targetLevel, target.position(), SoundEvents.BEACON_ACTIVATE, 0.8f, 1.1f);
 
 		if (target instanceof ServerPlayer targetPlayer) {

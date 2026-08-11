@@ -73,7 +73,7 @@ public final class ShadowConjurationManager {
 		ServerLevel level = (ServerLevel) shadow.level();
 		PowerFx.rune(level, shadow.position().add(0.0, 0.1, 0.0), 1.0,
 				0x49204F, 18, level.getGameTime() * 0.08);
-		PowerFx.burst(level, owner.getEyePosition(), ParticleTypes.REVERSE_PORTAL,
+		PowerFx.burst(level, owner.getEyePosition(), com.powers.PowersParticles.ECLIPSE,
 				12, 0.35, 0.01);
 		PowerFx.sound(level, shadow.position(), SoundEvents.SCULK_CATALYST_BLOOM, 0.65F, 0.65F);
 		completedConjurations++;
@@ -113,7 +113,7 @@ public final class ShadowConjurationManager {
 					elapsed / (double) ShadowConjurationRules.DARK_CRYSTAL_CHANNEL_TICKS);
 			PowerFx.rune(level, shadow.position(), radius, 0x2A0637, 32,
 					elapsed * 0.025);
-			PowerFx.burst(level, shadow.getEyePosition(), ParticleTypes.REVERSE_PORTAL,
+			PowerFx.burst(level, shadow.getEyePosition(), com.powers.PowersParticles.ECLIPSE,
 					Math.min(28, 8 + (int) (elapsed / 80L)), radius * 0.18, 0.01);
 		}
 		if (!riteComplete(rite.startedAt(), level.getGameTime())) {
@@ -127,7 +127,7 @@ public final class ShadowConjurationManager {
 		ItemStack crystal = new ItemStack(PowersItems.DARK_CRYSTAL);
 		if (!owner.addItem(crystal) && !crystal.isEmpty()) owner.drop(crystal, false);
 		PowerFx.rune(level, shadow.position(), 7.0, 0x130018, 64, 0.0);
-		PowerFx.burst(level, shadow.getEyePosition(), ParticleTypes.REVERSE_PORTAL, 48, 1.4, 0.03);
+		PowerFx.burst(level, shadow.getEyePosition(), com.powers.PowersParticles.ECLIPSE, 48, 1.4, 0.03);
 		PowerFx.sound(level, shadow.position(), SoundEvents.WARDEN_SONIC_BOOM, 1.2F, 0.45F);
 		completedConjurations++;
 		return new Outcome(true, false, "dark_crystal_conjured", 0, 1);

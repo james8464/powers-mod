@@ -145,7 +145,7 @@ final class ServerMagicScheduler {
 			} else if (theme == PowersMod.StormTheme.LIGHT) {
 				PowerFx.burst(level, position.add(0, 0.5, 0), ParticleTypes.TOTEM_OF_UNDYING, 2, 0.9, 0.12);
 				PowerFx.burst(level, position.add(0, 0.5, 0), ParticleTypes.FIREWORK, 3, 0.7, 0.1);
-				PowerFx.burst(level, position.add(0, 0.5, 0), ParticleTypes.END_ROD, 2, 0.5, 0.06);
+				PowerFx.burst(level, position.add(0, 0.5, 0), com.powers.PowersParticles.GLYPH, 2, 0.5, 0.06);
 			}
 		}
 

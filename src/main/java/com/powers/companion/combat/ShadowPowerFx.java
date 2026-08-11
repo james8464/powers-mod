@@ -25,7 +25,7 @@ public final class ShadowPowerFx {
 				action.workClass() == ShadowPowerAction.WorkClass.GLOBAL ? 5.0 : 1.5,
 				color, action.workClass() == ShadowPowerAction.WorkClass.GLOBAL ? 48 : 20,
 				level.getGameTime() * 0.06);
-		PowerFx.burst(level, shadow.getEyePosition(), ParticleTypes.REVERSE_PORTAL,
+		PowerFx.burst(level, shadow.getEyePosition(), com.powers.PowersParticles.ECLIPSE,
 				action.workClass() == ShadowPowerAction.WorkClass.GLOBAL ? 28 : 8, 0.45, 0.02);
 		if (target != null) PowerFx.coloredBurst(level, target.getEyePosition(), color, 8, 0.35);
 		PowerFx.sound(level, shadow.position(), PowersSounds.DARK_WHISPER,

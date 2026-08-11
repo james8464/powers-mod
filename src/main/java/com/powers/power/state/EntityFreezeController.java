@@ -61,7 +61,7 @@ public final class EntityFreezeController {
 	public static void reject(ServerPlayer player) {
 		if (player == null || !(player.level() instanceof ServerLevel level)) return;
 		Vec3 position = player.position().add(0.0, 1.0, 0.0);
-		PowerFx.burst(level, position, ParticleTypes.END_ROD, 12, 0.5, 0.2);
+		PowerFx.burst(level, position, com.powers.PowersParticles.GLYPH, 12, 0.5, 0.2);
 		PowerFx.coloredBurst(level, position, 0xBFEFFF, 16, 0.6);
 		PowerFx.sound(level, position, SoundEvents.AMETHYST_BLOCK_CHIME, 0.7F, 1.6F);
 		PowerMessages.send(player, "ability.powers.frozen", 4);

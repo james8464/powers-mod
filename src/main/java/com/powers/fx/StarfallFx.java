@@ -34,7 +34,7 @@ public final class StarfallFx {
 		PowerFx.burst(level, center.add(0.0, 7.0, 0.0), PowersParticles.GLYPH,
 				12 + strikes, Math.min(3.0, radius * 0.4), 0.05);
 		if (ancientMastery) {
-			PowerFx.burst(level, center.add(0.0, 9.0, 0.0), ParticleTypes.END_ROD,
+			PowerFx.burst(level, center.add(0.0, 9.0, 0.0), com.powers.PowersParticles.GLYPH,
 					18, Math.min(2.4, radius * 0.32), 0.035);
 		}
 		PowerFx.sound(level, center, SoundEvents.END_PORTAL_SPAWN, 1.05F, 1.42F);
@@ -133,7 +133,7 @@ public final class StarfallFx {
 				level.getGameTime() * 0.22);
 		PowerFx.ring(level, point.add(0.0, 0.16, 0.0), radius * 0.68,
 				GOLD, 30, -level.getGameTime() * 0.31);
-		PowerFx.burst(level, point.add(0.0, 0.8, 0.0), ParticleTypes.END_ROD,
+		PowerFx.burst(level, point.add(0.0, 0.8, 0.0), com.powers.PowersParticles.GLYPH,
 				28, radius * 0.38, 0.16);
 		PowerFx.sound(level, point, PowersSounds.LIGHT_CHORUS, 1.15F, 1.32F);
 	}
@@ -179,7 +179,7 @@ public final class StarfallFx {
 		PowerFx.ring(level, point.add(0.0, 0.16, 0.0), 0.55,
 				GOLD, 16, -Math.PI / 4.0);
 		PowerFx.burst(level, point, PowersParticles.GLYPH, 14, 0.48, 0.06);
-		PowerFx.burst(level, point, ParticleTypes.END_ROD, 10, 0.38, 0.08);
+		PowerFx.burst(level, point, com.powers.PowersParticles.GLYPH, 10, 0.38, 0.08);
 		PowerFx.sound(level, point, SoundEvents.AMETHYST_BLOCK_CHIME, 0.82F, 1.72F);
 	}
 
@@ -238,7 +238,7 @@ public final class StarfallFx {
 				Math.min(2.6, radius * 0.4), DEEP_INDIGO, completed ? 28 : 18, -Math.PI);
 		PowerFx.burst(level, center.add(0.0, 0.5, 0.0), amethyst
 				? ParticleTypes.ELECTRIC_SPARK : completed
-						? ParticleTypes.REVERSE_PORTAL : PowersParticles.FRACTURE,
+						? com.powers.PowersParticles.ECLIPSE : PowersParticles.FRACTURE,
 				completed ? 32 : 18, Math.min(1.8, radius * 0.28), 0.10);
 		PowerFx.sound(level, center, amethyst ? PowersSounds.AMETHYST_FRACTURE
 				: frozen ? PowersSounds.TIME_SUSPEND

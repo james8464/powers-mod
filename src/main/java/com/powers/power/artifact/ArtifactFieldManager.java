@@ -137,7 +137,7 @@ public final class ArtifactFieldManager {
 					field.alignment() == ArtifactAlignment.DARKNESS ? 0x6C2383 : 0xFFFFFF,
 					28, -phase);
 			PowerFx.burst(level, field.center(), field.alignment() == ArtifactAlignment.DARKNESS
-					? ParticleTypes.REVERSE_PORTAL : ParticleTypes.END_ROD, 10, 4.0, 0.05);
+					? com.powers.PowersParticles.ECLIPSE : com.powers.PowersParticles.GLYPH, 10, 4.0, 0.05);
 		}
 	}
 

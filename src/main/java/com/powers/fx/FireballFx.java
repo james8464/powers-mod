@@ -98,7 +98,7 @@ public final class FireballFx {
 		PowerFx.beam(level, point.subtract(direction.scale(1.2)),
 				point.add(direction.scale(1.8)), PowersParticles.RIBBON, 16 + tier * 2);
 		PowerFx.clarityBurst(level, point, ParticleTypes.FLAME, 20 + tier * 6, 0.48, 0.25);
-		PowerFx.clarityBurst(level, point, ParticleTypes.CLOUD, 8 + tier * 3, 0.36, 0.18);
+		PowerFx.clarityBurst(level, point, com.powers.PowersParticles.RIBBON, 8 + tier * 3, 0.36, 0.18);
 		PowerFx.sound(level, point, SoundEvents.FIREWORK_ROCKET_SHOOT,
 				0.9F + tier * 0.12F, ancientMastery ? 0.72F : 0.88F);
 		PowerFx.sound(level, point, PowersSounds.INTERACTION_CLASH, 0.55F, 1.32F);
@@ -184,7 +184,7 @@ public final class FireballFx {
 				28 + tier * 4, level.getGameTime() * 0.16);
 		PowerFx.ring(level, point.add(0.0, 0.12, 0.0), Math.min(3.8, radius * 0.72),
 				WHITE, 22 + tier * 3, -level.getGameTime() * 0.22);
-		PowerFx.clarityBurst(level, point.add(0.0, 0.5, 0.0), ParticleTypes.CLOUD,
+		PowerFx.clarityBurst(level, point.add(0.0, 0.5, 0.0), com.powers.PowersParticles.RIBBON,
 				28 + tier * 8, Math.min(2.2, radius * 0.48), 0.16);
 		PowerFx.clarityBurst(level, point.add(0.0, 0.5, 0.0), ParticleTypes.GUST,
 				8 + tier * 2, Math.min(1.5, radius * 0.32), 0.13);

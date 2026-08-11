@@ -52,7 +52,7 @@ public class InvisibilityToggleAbility extends ToggleAbility {
 				// Invisibility leaves a faint, readable magical residue; veil ranks
 				// reduce its frequency but never remove counterplay completely.
 				com.powers.fx.PowerFx.burst(level, player.position().add(0, 1, 0),
-						net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL, 2, 0.25, 0.01);
+						com.powers.PowersParticles.ECLIPSE, 2, 0.25, 0.01);
 			}
 		}
 	}

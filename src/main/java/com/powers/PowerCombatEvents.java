@@ -35,11 +35,12 @@ final class PowerCombatEvents {
 				if (!(source.getEntity() instanceof ServerPlayer actor)
 						|| !GlobalTimeStopManager.mayAct(actor)) return false;
 			}
+			if (PowerDamage.isPowerDamage(source)) {
+				if (!PowerProtection.mayPowerDamage(source.getEntity(), entity)) return false;
+				// Suppression prevents a forbidden impact from consuming shield integrity.
+				if (AmethystDampening.isDampened(entity)) return false;
+			}
 			if (ForcefieldAbility.absorbDamage(entity, source, amount)) return false;
-			if (PowerDamage.isPowerDamage(source)
-					&& !PowerProtection.mayPowerDamage(source.getEntity(), entity)) return false;
-			// Amethyst blocks power damage, not ordinary weapons or environmental harm.
-			if (AmethystDampening.isDampened(entity) && PowerDamage.isPowerDamage(source)) return false;
 			// Mindscape avatars keep their ordinary health while their proxy body is
 			// independently vulnerable; blanket realm immunity would neutralize realm mobs.
 			return true;

@@ -5,6 +5,7 @@ import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.protection.PowerProtection;
+import com.powers.protection.CrossSystemPrecedence;
 import com.powers.realm.RealmConfinementRules;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.LoadedChunks;
@@ -15,6 +16,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.block.Blocks;
+
+import java.util.EnumSet;
 
 /** Validates bounds, loaded chunks, collision, hazards, wards, and safe zones before travel. */
 public final class SafeDestinationResolver {
@@ -33,17 +36,27 @@ public final class SafeDestinationResolver {
 
 		BlockPos feet = BlockPos.containing(requested);
 		if (!LoadedChunks.contains(target, feet)) return new Result(DestinationFailure.UNLOADED_CHUNK, requested);
-		if (!recovery(kind)
-				&& AmethystDampening.findPoweredWard(target, feet).isPresent()) {
-			return new Result(DestinationFailure.WARD, requested);
-		}
-		if (!recovery(kind)
-				&& PowerProtection.isSafeZone(target, requested)) {
-			return new Result(DestinationFailure.SAFE_ZONE, requested);
-		}
-		if (!recovery(kind)
-				&& SpellFieldManager.blocksTravel(subject, target, requested)) {
-			return new Result(DestinationFailure.ANTI_PORTAL, requested);
+		if (!recovery(kind)) {
+			EnumSet<CrossSystemPrecedence.Guard> guards = EnumSet.noneOf(CrossSystemPrecedence.Guard.class);
+			if (PowerProtection.isSafeZone(target, requested)) guards.add(CrossSystemPrecedence.Guard.SAFE_ZONE);
+			if (AmethystDampening.findPoweredWard(target, feet).isPresent()) {
+				guards.add(CrossSystemPrecedence.Guard.AMETHYST);
+			}
+			if (SpellFieldManager.blocksTravel(subject, target, requested)) {
+				guards.add(CrossSystemPrecedence.Guard.ANTI_PORTAL_FIELD);
+			}
+			if (DimensionalAnchorAbility.isAnchored(subject)
+					&& !target.dimension().equals(DimensionalAnchorAbility.anchorDimension(subject))) {
+				guards.add(CrossSystemPrecedence.Guard.DIMENSIONAL_ANCHOR);
+			}
+			CrossSystemPrecedence.Guard guard = CrossSystemPrecedence.first(guards);
+			if (guard != null) return new Result(switch (guard) {
+				case SAFE_ZONE -> DestinationFailure.SAFE_ZONE;
+				case AMETHYST -> DestinationFailure.WARD;
+				case ANTI_PORTAL_FIELD -> DestinationFailure.ANTI_PORTAL;
+				case DIMENSIONAL_ANCHOR -> DestinationFailure.ANCHOR;
+				default -> DestinationFailure.REALM_RESTRICTED;
+			}, requested);
 		}
 		BlockPos head = feet.above();
 		if (!target.getFluidState(feet).isEmpty() || !target.getFluidState(head).isEmpty()) {
@@ -80,11 +93,6 @@ public final class SafeDestinationResolver {
 					player.level().dimension().identifier().toString(), target.dimension().identifier().toString(), kind,
 					SkillSystem.hasDarknessTag(player), data.skillLevel(), data.darknessLevel());
 			if (realm != DestinationFailure.NONE) return new Result(realm, requested);
-		}
-		if (!recovery(kind)
-				&& DimensionalAnchorAbility.isAnchored(subject)
-				&& !target.dimension().equals(DimensionalAnchorAbility.anchorDimension(subject))) {
-			return new Result(DestinationFailure.ANCHOR, requested);
 		}
 		if (!recovery(kind) && !PowerProtection.mayPortal(subject, target,
 				BlockPos.containing(requested))) {

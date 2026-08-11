@@ -97,7 +97,7 @@ public class AmethystWardBlock extends Block {
 		if (!isPowered(state)) return;
 		double angle = (level.getGameTime() + random.nextDouble() * 8.0) * 0.08;
 		double radius = 0.78 + random.nextDouble() * 0.16;
-		level.addParticle(ParticleTypes.END_ROD,
+		level.addParticle(com.powers.PowersParticles.GLYPH,
 				pos.getX() + 0.5 + Math.cos(angle) * radius,
 				pos.getY() + 0.35 + random.nextDouble() * 0.3,
 				pos.getZ() + 0.5 + Math.sin(angle) * radius,

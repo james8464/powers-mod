@@ -234,7 +234,7 @@ final class LocatorSpellPackets {
 			int messageVariants) {
 		PowerFx.cancelled(level, position, 0xFF8C6FD8);
 		PowerFx.coloredBurst(level, position, 0xFF4B2E50, 26, 1.0);
-		PowerFx.burst(level, position, ParticleTypes.REVERSE_PORTAL, 14, 0.5, 0.05);
+		PowerFx.burst(level, position, com.powers.PowersParticles.ECLIPSE, 14, 0.5, 0.05);
 		PowerFx.sound(level, position, SoundEvents.BEACON_DEACTIVATE, 1.0f, 0.8f);
 		player.addEffect(PowerStatusEffects.hidden(MobEffects.NAUSEA, 400, 0, false, true));
 		PowerMessages.send(player, messageKey, messageVariants);
@@ -245,7 +245,7 @@ final class LocatorSpellPackets {
 		PowerFx.sound(level, position, SoundEvents.EVOKER_CAST_SPELL, 1.0f, 0.9f);
 		PowerFx.rune(level, position, 2.2, CELESTIAL_COLOR, 26, 0.0);
 		PowerFx.spiral(level, position.add(0, 0.1, 0), 0.7, 3.4, CELESTIAL_COLOR, 20, 0.0);
-		PowerFx.burst(level, position, ParticleTypes.END_ROD, 24, 0.6, 0.04);
+		PowerFx.burst(level, position, com.powers.PowersParticles.GLYPH, 24, 0.6, 0.04);
 		if (trueSight) PowerFx.trueSightPiercing(level, position);
 
 		MinecraftServer server = level.getServer();
@@ -267,7 +267,7 @@ final class LocatorSpellPackets {
 		if (!ritualOwnerValid(player, level)) return;
 		PowerFx.beam(level, position, position.add(0, 36, 0),
 				PowerFx.dust(CELESTIAL_COLOR, 1.25F), 18);
-		PowerFx.burst(level, position.add(0, 0.2, 0), ParticleTypes.END_ROD, 18, 0.4, 0.05);
+		PowerFx.burst(level, position.add(0, 0.2, 0), com.powers.PowersParticles.GLYPH, 18, 0.4, 0.05);
 		PowerFx.sound(level, position, SoundEvents.CONDUIT_ACTIVATE, 1.0f, 1.15f);
 	}
 
@@ -283,12 +283,12 @@ final class LocatorSpellPackets {
 		}
 		PowerFx.rune(level, position, 3.0, GOLD_COLOR, 34, Math.PI);
 		PowerFx.coloredBurst(level, position.add(0, 1.2, 0), GOLD_COLOR, 40, 1.6);
-		PowerFx.burst(level, position.add(0, 1.2, 0), ParticleTypes.END_ROD, 26, 1.2, 0.06);
+		PowerFx.burst(level, position.add(0, 1.2, 0), com.powers.PowersParticles.GLYPH, 26, 1.2, 0.06);
 		PowerFx.sound(level, position, SoundEvents.ENDERMAN_TELEPORT, 1.0f, 1.4f);
 
 		if (target.isAlive() && !target.isRemoved()) {
 			PowerFx.coloredBurst(targetLevel, target.position().add(0, 1, 0), 0xFFFFFFFF, 10, 0.6);
-			PowerFx.burst(targetLevel, target.position().add(0, 1, 0), ParticleTypes.END_ROD, 8, 0.4, 0.04);
+			PowerFx.burst(targetLevel, target.position().add(0, 1, 0), com.powers.PowersParticles.GLYPH, 8, 0.4, 0.04);
 			if (trueSight) PowerFx.trueSightPiercing(targetLevel, target.position().add(0, 1, 0));
 		}
 

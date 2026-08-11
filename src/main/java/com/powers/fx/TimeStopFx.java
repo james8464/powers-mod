@@ -27,7 +27,7 @@ public final class TimeStopFx {
 		PowerFx.spiral(level, center.subtract(0.0, 0.45, 0.0), inner * 0.36,
 				2.4, color, crystal ? 20 : 14, 0.0);
 		PowerFx.clarityBurst(level, center.add(0.0, 1.0, 0.0),
-				ParticleTypes.REVERSE_PORTAL, crystal ? 20 : 12, 0.65, 0.015);
+				com.powers.PowersParticles.ECLIPSE, crystal ? 20 : 12, 0.65, 0.015);
 		PowerFx.sound(level, center, PowersSounds.TIME_SUSPEND,
 				crystal ? 1.15F : 0.82F, crystal ? 0.72F : 0.9F);
 		PowerFx.sound(level, center, SoundEvents.BEACON_POWER_SELECT,
@@ -44,7 +44,7 @@ public final class TimeStopFx {
 		PowerFx.ring(level, center.add(0.0, 0.16, 0.0), crystal ? 3.1 : 2.1,
 				FROZEN_WHITE, crystal ? 24 : 18, -phase * 1.4);
 		PowerFx.clarityBurst(level, center.add(0.0, 0.45, 0.0),
-				crystal ? PowersParticles.FRACTURE : ParticleTypes.SOUL,
+				crystal ? PowersParticles.FRACTURE : com.powers.PowersParticles.MOTE,
 				crystal ? 5 : 3, crystal ? 0.65 : 0.35, 0.018);
 		if (tick % 40 == 0) {
 			PowerFx.sound(level, center, PowersSounds.RUNE_HUM, 0.28F,
@@ -61,7 +61,7 @@ public final class TimeStopFx {
 		PowerFx.rune(level, center.add(0.0, 0.12, 0.0), crystal ? 3.0 : 2.0,
 				color, crystal ? 28 : 20, -Math.PI / 10.0);
 		PowerFx.clarityBurst(level, center.add(0.0, 0.75, 0.0),
-				ParticleTypes.REVERSE_PORTAL, crystal ? 18 : 10, 0.7, 0.12);
+				com.powers.PowersParticles.ECLIPSE, crystal ? 18 : 10, 0.7, 0.12);
 		PowerFx.clarityBurst(level, center.add(0.0, 0.55, 0.0),
 				PowersParticles.FRACTURE, crystal ? 14 : 8, 0.55, 0.08);
 		PowerFx.sound(level, center, PowersSounds.TIME_RELEASE,

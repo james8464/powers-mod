@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:chest",
+	"pools": [
+		{
+			"rolls": 2,
+			"entries": [
+				{ "type": "minecraft:item", "name": "powers:imported_book_page_written", "weight": 5 },
+				{ "type": "minecraft:item", "name": "powers:imported_artifact_runestone_dark_small", "weight": 4 },
+				{ "type": "minecraft:item", "name": "powers:imported_magic_essence_sacred_dust", "weight": 3 },
+				{ "type": "minecraft:item", "name": "minecraft:amethyst_shard", "weight": 6 }
+			]
+		}
+	]
+}

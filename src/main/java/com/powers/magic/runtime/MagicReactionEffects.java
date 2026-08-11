@@ -101,7 +101,7 @@ final class MagicReactionEffects {
 			entity.clearFire();
 			entity.addEffect(PowerStatusEffects.hidden(MobEffects.BLINDNESS, 30, 0, true, true));
 		}
-		PowerFx.burst(level, midpoint, ParticleTypes.CLOUD, 42, radius * 0.45, 0.025);
+		PowerFx.burst(level, midpoint, com.powers.PowersParticles.RIBBON, 42, radius * 0.45, 0.025);
 	}
 
 	private static void reveal(ServerLevel level, Vec3 midpoint, double radius) {
@@ -120,7 +120,7 @@ final class MagicReactionEffects {
 		for (Projectile projectile : BoundedEntityCandidates.ofClass(level, Projectile.class,
 				bounds(midpoint, radius), MAX_AFFECTED_ENTITIES * 4, Projectile::isAlive)) {
 			if (!PowerEntityState.isPowerProjectile(projectile)) continue;
-			PowerFx.burst(level, projectile.position(), ParticleTypes.REVERSE_PORTAL, 8, 0.2, 0.02);
+			PowerFx.burst(level, projectile.position(), com.powers.PowersParticles.ECLIPSE, 8, 0.2, 0.02);
 			projectile.discard();
 			if (++removed >= MAX_AFFECTED_ENTITIES) break;
 		}
@@ -146,7 +146,7 @@ final class MagicReactionEffects {
 		for (LivingEntity entity : living(level, midpoint, radius)) {
 			SoulLinkAbility.clearLinksTouching(entity.getUUID());
 		}
-		PowerFx.burst(level, midpoint, ParticleTypes.SOUL, 30, radius * 0.35, 0.08);
+		PowerFx.burst(level, midpoint, com.powers.PowersParticles.MOTE, 30, radius * 0.35, 0.08);
 	}
 
 	private static void cleanse(ServerLevel level, Vec3 midpoint, double radius) {

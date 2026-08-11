@@ -85,7 +85,7 @@ public class TelekinesisAbility extends Ability {
 		}
 		int impactParticles = Math.min(32, 14 + moved * 2 + intercepted);
 		PowerFx.coloredBurst(level, center.add(0, 1.2, 0), 0x9C27B0, impactParticles, 0.8);
-		PowerFx.burst(level, center.add(0, 1.0, 0), ParticleTypes.REVERSE_PORTAL, 10, 0.65, 0.05);
+		PowerFx.burst(level, center.add(0, 1.0, 0), com.powers.PowersParticles.ECLIPSE, 10, 0.65, 0.05);
 		PowerFx.rune(level, center, range * 0.45, 0xC27CFF, 24, player.tickCount * 0.08);
 		PowerFx.ring(level, center.add(0, 0.12, 0), range * 0.30, 0x8FE9FF, 20,
 				-player.tickCount * 0.11);

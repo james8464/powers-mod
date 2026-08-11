@@ -36,9 +36,13 @@ final class ServerFxTransport {
 		long tick = level.getServer().getTickCount();
 		int adaptiveCount = AdaptiveFxBudget.scaleCount(count, adaptiveScale(level), 1);
 		for (ServerPlayer viewer : nearby(level, position)) {
-			double distanceSquared = viewer.getEyePosition().distanceToSqr(position);
+			Vec3 eye = viewer.getEyePosition();
+			double distanceSquared = eye.distanceToSqr(position);
+			Vec3 offset = position.subtract(eye);
+			double viewDot = offset.lengthSqr() < 1.0E-8 ? 1.0
+					: viewer.getLookAngle().dot(offset.normalize());
 			int requested = protectFirstPerson
-					? ParticleBudget.viewerCount(adaptiveCount, distanceSquared) : adaptiveCount;
+					? ParticleBudget.viewerCount(adaptiveCount, distanceSquared, viewDot) : adaptiveCount;
 			int granted = budget.claim(tick, viewer.getUUID(), requested, distanceSquared);
 			if (granted <= 0) continue;
 			ServerRuntimeMetrics.recordParticles(level.getServer(), tick, granted);

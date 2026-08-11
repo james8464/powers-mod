@@ -86,7 +86,7 @@ public class MiddleworldAbility extends Ability {
 			}
 			transaction.succeed();
 			PowerFx.rune(targetLevel, dest, runeRadius, 0x80CBC4, 30, Math.PI);
-			PowerFx.burst(targetLevel, dest.add(0, 1, 0), ParticleTypes.REVERSE_PORTAL, 24, 0.7, 0.04);
+			PowerFx.burst(targetLevel, dest.add(0, 1, 0), com.powers.PowersParticles.ECLIPSE, 24, 0.7, 0.04);
 		}, () -> {
 			transaction.fail();
 			ServerPlayer traveler = targetLevel.getServer().getPlayerList().getPlayer(playerId);

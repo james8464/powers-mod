@@ -87,7 +87,7 @@ public final class RealmEventManager {
 				level.getGameTime() * 0.02);
 		PowerFx.spiral(level, center.subtract(0.0, 6.0, 0.0), 5.0, 24.0,
 				light ? 0xFFFFFF : 0x09000F, 36, level.getGameTime() * 0.02);
-		PowerFx.burst(level, center, light ? ParticleTypes.END_ROD : ParticleTypes.REVERSE_PORTAL,
+		PowerFx.burst(level, center, light ? com.powers.PowersParticles.GLYPH : com.powers.PowersParticles.ECLIPSE,
 				6, 7.0, 0.02);
 		if (level.getGameTime() % 200L == 0L) {
 			PowerFx.sound(level, center, light ? PowersSounds.LIGHT_CHORUS : PowersSounds.DARK_WHISPER,

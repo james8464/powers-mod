@@ -74,17 +74,18 @@ public final class MagicRuntime {
 		}
 		List<MagicPresence> nearby = index.nearby(cast.dimension(), cast.anchor().x(), cast.anchor().y(),
 				cast.anchor().z(), cast.queryRadius(), cast.gameTime());
-		List<InteractionResolution> resolutions = new ArrayList<>(nearby.size());
 		List<MagicReactionEvent> reactions = new ArrayList<>(nearby.size());
 		for (MagicPresence presence : nearby) {
 			var existingDefinition = catalogue.definition(presence.action());
 			if (existingDefinition == null) continue;
 			InteractionResolution resolution = resolver.resolve(cast.definition(), existingDefinition,
 					cast.interactionContext());
-			resolutions.add(resolution);
 			reactions.add(new MagicReactionEvent(cast, presence, resolution));
 		}
-		return new MagicCastPreview(CastAdjustment.combine(resolutions), reactions);
+		List<MagicReactionEvent> ordered = MagicInteractionArbitrator.orderEvents(reactions);
+		List<InteractionResolution> orderedResolutions = ordered.stream()
+				.map(MagicReactionEvent::resolution).toList();
+		return new MagicCastPreview(CastAdjustment.combine(orderedResolutions), ordered);
 	}
 
 	/** Emits a preview's reactions at most once per action pair, spatial cell, and tick. */
@@ -189,6 +190,17 @@ public final class MagicRuntime {
 	/** Allocated chunk-sized cells in the active-magic spatial index. */
 	public int activePresenceCellCount() {
 		return index.cellCount();
+	}
+
+	/** Exact physical presence lookup; returns null after cleanup or expiry. */
+	MagicPresence presence(MagicPresenceId id) {
+		return index.get(Objects.requireNonNull(id, "id"));
+	}
+
+	/** Bounded indexed physical overlap candidates for the live handle bridge. */
+	List<MagicPresence> nearbyPhysical(MagicPresence presence, double radius, long gameTime) {
+		return index.nearby(presence.dimension(), presence.anchor().x(), presence.anchor().y(),
+				presence.anchor().z(), radius, gameTime);
 	}
 
 	private static CueKey cueKey(MagicCastContext cast, MagicPresence presence) {

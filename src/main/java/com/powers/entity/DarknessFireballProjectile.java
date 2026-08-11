@@ -63,7 +63,7 @@ public final class DarknessFireballProjectile extends LargeFireball {
 				else target.igniteForSeconds(8.0F);
 			}
 		}
-		PowerFx.burst(level, center, radiant ? ParticleTypes.END_ROD
+		PowerFx.burst(level, center, radiant ? com.powers.PowersParticles.GLYPH
 				: ParticleTypes.SOUL_FIRE_FLAME, 28, 1.5, 0.12);
 		PowerFx.rune(level, center, RADIUS, radiant ? 0xFFE89B : 0x51113F,
 				28, level.getGameTime() * 0.08);

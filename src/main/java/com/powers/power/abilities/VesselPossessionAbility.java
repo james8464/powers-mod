@@ -163,7 +163,7 @@ public class VesselPossessionAbility extends Ability {
 				com.powers.fx.PowerFx.dust(kind == PossessionRules.SessionKind.DREAMWALK
 						? 0x7986CB : 0xBCA7FF, 0.9F), 14);
 		com.powers.fx.PowerFx.burst(targetLevel, target.position().add(0, 1, 0),
-				net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL, 18, 0.5, 0.01);
+				com.powers.PowersParticles.ECLIPSE, 18, 0.5, 0.01);
 		com.powers.fx.PowerFx.sound(targetLevel, target.position(),
 				net.minecraft.sounds.SoundEvents.ENCHANTMENT_TABLE_USE, 0.8f, 0.6f);
 		com.powers.fx.PowerFx.rune(sourceLevel, bodyPosition, 1.5, 0xC27CFF, 22, 0.0);

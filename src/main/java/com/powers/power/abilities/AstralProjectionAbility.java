@@ -59,7 +59,7 @@ public class AstralProjectionAbility extends Ability {
 		ACTIVE.put(player.getUUID(), projection);
 		player.setGameMode(GameType.SPECTATOR);
 		PowerFx.rune(level, player.position(), 1.8, 0x7C4DFF, 28, 0.0);
-		PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.SOUL, 24, 0.8, 0.03);
+		PowerFx.burst(level, player.position().add(0, 1, 0), com.powers.PowersParticles.MOTE, 24, 0.8, 0.03);
 		PowerFx.sound(level, player.position(), SoundEvents.AMETHYST_BLOCK_CHIME, 1.0f, 1.2f);
 		PowerMessages.send(player, "ability.powers.astral_started", 3);
 		return true;

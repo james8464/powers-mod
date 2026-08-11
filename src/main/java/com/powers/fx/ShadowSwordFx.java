@@ -28,7 +28,7 @@ public final class ShadowSwordFx {
 		PowerFx.rune(level, origin.add(0.0, 0.08, 0.0), 1.25, palette.primary(), 20, phase);
 		PowerFx.ring(level, origin.add(0.0, 1.05, 0.0), 0.72, palette.secondary(), 14, -phase);
 		PowerFx.burst(level, origin.add(0.0, 1.0, 0.0), PowersParticles.ECLIPSE, 8, 0.42, 0.025);
-		PowerFx.burst(level, origin.add(0.0, 1.0, 0.0), ParticleTypes.REVERSE_PORTAL, 6, 0.35, 0.01);
+		PowerFx.burst(level, origin.add(0.0, 1.0, 0.0), com.powers.PowersParticles.ECLIPSE, 6, 0.35, 0.01);
 		PowerFx.sound(level, origin, PowersSounds.DARK_WHISPER, 0.85F, 0.55F);
 	}
 
