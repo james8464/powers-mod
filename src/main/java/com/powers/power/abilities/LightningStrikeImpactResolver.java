@@ -46,30 +46,24 @@ final class LightningStrikeImpactResolver {
 	record StrikeSite(Vec3 sky, Vec3 point, BlockPos support,
 			LightningStrikeRules.Counterplay counterplay) {
 	}
-
 	/** One completed verdict with evidence for lifecycle and Veil effects. */
 	record ImpactResult(Vec3 point, int affected,
 			LightningStrikeRules.Counterplay counterplay) {
 	}
-
 	/** Direct-impact evidence needed to seed exactly one wet chain. */
 	private record DamageResult(int affected, LivingEntity chainOrigin,
 			Set<UUID> struck) {
 	}
-
 	private LightningStrikeImpactResolver() {
 	}
-
 	/** Locates the initial lawful endpoint without loading a chunk. */
 	static StrikeSite initialSite(ServerLevel level, ServerPlayer caster, Vec3 requested) {
 		return locate(level, caster, requested);
 	}
-
 	/** Returns the current loaded warning endpoint without mutating entities. */
 	static StrikeSite previewSite(ServerLevel level, ServerPlayer caster, Vec3 requested) {
 		return locate(level, caster, requested);
 	}
-
 	/** Refuses a cast aimed directly at a body protected before payment commits. */
 	static LightningStrikeRules.Counterplay initialBodyCounter(ServerLevel level,
 			ServerPlayer caster, LivingEntity target) {
@@ -77,7 +71,6 @@ final class LightningStrikeImpactResolver {
 		return bodyCounter(level, caster, target, caster.getEyePosition(),
 				level.getServer().getTickCount(), false);
 	}
-
 	/** Resolves one primary or Dominion verdict without harmful vanilla lightning. */
 	static ImpactResult resolve(ServerLevel level, ServerPlayer caster,
 			StormTribunal tribunal, Vec3 requested, LightningStrikeRules.Beat beat) {
