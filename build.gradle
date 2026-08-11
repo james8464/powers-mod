@@ -180,6 +180,37 @@ tasks.register("verifyScreenshots", Test) {
 	}
 }
 
+tasks.register("updateVisualGoldens", JavaExec) {
+	description = "Regenerates reviewed, deterministic client visual goldens."
+	group = "documentation"
+	dependsOn("testClasses")
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "com.powers.client.visual.VisualGoldenHarness"
+	args projectDir.absolutePath, "--update"
+}
+
+tasks.register("verifyVisualGoldens", JavaExec) {
+	description = "Fails when client visual assets or layout drift from reviewed goldens."
+	group = "verification"
+	dependsOn("testClasses")
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "com.powers.client.visual.VisualGoldenHarness"
+	args projectDir.absolutePath, "--check"
+}
+
+tasks.named("verifyScreenshots") {
+	dependsOn("verifyVisualGoldens")
+}
+
+tasks.register("generateLootDistributionReport", JavaExec) {
+	description = "Publishes deterministic additive-loot distribution evidence."
+	group = "documentation"
+	dependsOn("testClasses")
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "com.powers.loot.LootDistributionReport"
+	args projectDir.absolutePath
+}
+
 java {
 	withSourcesJar()
 

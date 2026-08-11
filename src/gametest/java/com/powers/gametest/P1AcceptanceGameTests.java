@@ -190,6 +190,20 @@ public final class P1AcceptanceGameTests {
 		});
 	}
 
+	@GameTest(padding = 128)
+	public void all262CataloguedItemsExistInTheLiveServerRegistry(GameTestHelper helper) {
+		var registered = net.minecraft.core.registries.BuiltInRegistries.ITEM.entrySet().stream()
+				.filter(entry -> entry.getKey().identifier().getNamespace().equals("powers"))
+				.toList();
+		helper.assertTrue(registered.size() == 262,
+				"Live POWERS item registry differs from the 262-row catalogue: " + registered.size());
+		for (var entry : registered) {
+			helper.assertFalse(entry.getValue().getDefaultInstance().isEmpty(),
+					"Registered item has no usable default stack: " + entry.getKey().identifier());
+		}
+		helper.succeed();
+	}
+
 	@GameTest(maxTicks = 120, padding = 128)
 	@SuppressWarnings("removal")
 	public void abyssalWardBreakingAndDispelMutateOnlyTheirLockedTargets(GameTestHelper helper) {

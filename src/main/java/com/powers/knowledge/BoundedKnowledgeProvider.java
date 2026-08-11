@@ -3,6 +3,7 @@ package com.powers.knowledge;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.powers.companion.DialogueTransport;
+import com.powers.companion.DialogueTextSanitizer;
 import com.powers.config.PowersConfig;
 
 import java.net.URI;
@@ -130,10 +131,8 @@ public final class BoundedKnowledgeProvider {
 			JsonObject root = JsonParser.parseString(body).getAsJsonObject();
 			String content = root.getAsJsonArray("choices").get(0).getAsJsonObject()
 					.getAsJsonObject("message").get("content").getAsString();
-			String safe = content.replaceAll("[\\p{Cntrl}&&[^\\n\\t]]", "")
-					.replaceAll("\\s+", " ").strip();
-			if (safe.isEmpty()) return offline;
-			safe = safe.substring(0, Math.min(MAX_OUTPUT_CHARACTERS, safe.length()));
+			String safe = DialogueTextSanitizer.sanitize(content,
+					MAX_OUTPUT_CHARACTERS, offline.answer());
 			if (!query.authoritativeDiagnostic().isEmpty()
 					&& !safe.startsWith(query.authoritativeDiagnostic())) {
 				safe = query.authoritativeDiagnostic() + " " + safe;

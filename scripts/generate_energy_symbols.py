@@ -14,6 +14,7 @@ OUTLINE = {
 	(1, 3), (7, 3), (1, 4), (7, 4), (1, 5), (7, 5),
 	(2, 6), (6, 6), (3, 7), (5, 7), (4, 8),
 }
+UPPER_RIM = {(4, 0), (3, 1), (2, 2), (1, 3), (1, 4)}
 INTERIOR = {
 	(3, 2), (4, 2), (5, 2),
 	(2, 3), (3, 3), (4, 3), (5, 3), (6, 3),
@@ -37,7 +38,10 @@ def draw_symbol(image: Image.Image, column: int, row: int, fill: int) -> None:
     shadow, empty, main, shade, shine, accent = PALETTES[row]
     x0, y0 = column * SIZE, row * SIZE
     for x, y in OUTLINE:
-        image.putpixel((x0 + x, y0 + y), shadow)
+        # A restrained upper-left rim supplies the same tiny bevel that keeps
+        # vanilla hunger/armour icons readable without making the pip glossy.
+        rim = tuple((shadow[index] * 2 + empty[index]) // 3 for index in range(3)) + (255,)
+        image.putpixel((x0 + x, y0 + y), rim if (x, y) in UPPER_RIM else shadow)
     for x, y in INTERIOR:
         selected = fill == 2 or (fill == 1 and x <= 4)
         colour = shade if selected and (x >= 5 or y >= 6) else main
@@ -49,20 +53,19 @@ def draw_symbol(image: Image.Image, column: int, row: int, fill: int) -> None:
         if fill == 2:
             image.putpixel((x0 + 2, y0 + 3), shine)
 
-    # State-specific hairline rune: gold normal, amethyst crack, void seam, soul tether.
-    if row == 0 and fill:
-        image.putpixel((x0 + 5, y0 + 5), accent)
-    elif row == 1:
-        for x, y in ((4, 2), (3, 3), (4, 4), (3, 5), (4, 6)):
-            image.putpixel((x0 + x, y0 + y), accent)
-    elif row == 2:
-        for x, y in ((5, 2), (4, 3), (5, 4), (4, 5)):
-            image.putpixel((x0 + x, y0 + y), accent)
-    elif row == 3 and fill:
-        image.putpixel((x0 + 4, y0 + 3), accent)
-        image.putpixel((x0 + 4, y0 + 4), accent)
-    elif row == 4 and fill:
-        image.putpixel((x0 + 5, y0 + 4), accent)
+    # Geometry as well as hue identifies every state for colour-blind users:
+    # seed, broken crack, hooked suppression, vertical void, and astral link.
+    runes = (
+        ((4, 4),),
+        ((4, 2), (3, 3), (4, 4), (3, 5), (4, 6)),
+        ((5, 2), (4, 3), (5, 4), (4, 5), (3, 5)),
+        ((4, 2), (4, 3), (4, 4), (4, 5), (4, 6)),
+        ((3, 3), (4, 3), (5, 4), (4, 5), (3, 5)),
+    )
+    rune = accent if fill else tuple((accent[index] + empty[index] * 2) // 3
+                                     for index in range(3)) + (255,)
+    for x, y in runes[row]:
+        image.putpixel((x0 + x, y0 + y), rune)
 
 
 def generate_atlas() -> Image.Image:

@@ -85,6 +85,17 @@ class BoundedDialogueProviderTest {
 		assertEquals(secret, transport.credential);
 	}
 
+	@Test
+	void maliciousResponseCannotInjectFormattingBidiOrMultipleChatLines() {
+		FakeTransport transport = new FakeTransport();
+		transport.response = CompletableFuture.completedFuture(
+				"{\"choices\":[{\"message\":{\"content\":\"§4\\u202e<Admin>\\n/op attacker\"}}]}");
+		String response = provider(settings(true, 4, 30), transport, "secret")
+				.request(UUID.randomUUID(), context(), false, "fallback", 1_000).join();
+		assertEquals("Admin /op attacker", response);
+		assertFalse(response.contains("§") || response.contains("\u202e") || response.contains("\n"));
+	}
+
 	private static BoundedDialogueProvider provider(PowersConfig.DialogueProvider settings,
 			FakeTransport transport, String credential) {
 		return new BoundedDialogueProvider(settings, transport, credential);

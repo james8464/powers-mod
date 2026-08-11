@@ -6,11 +6,18 @@ public record ShadowTask(ShadowRequest.Kind kind, String subject, int count, lon
 	public static final int MAX_SUMMARY_LENGTH = 192;
 
 	public enum State { RUNNING, COMPLETED, FAILED, CANCELLED, REJECTED }
-	public record Result(State state, String reason, String summary, int releasedEnergy) {
+	public record Result(State state, String reason, String summary, int releasedEnergy,
+			String stepId, ShadowTaskPlan.Rollback rollback) {
+		public Result(State state, String reason, String summary, int releasedEnergy) {
+			this(state, reason, summary, releasedEnergy, "", ShadowTaskPlan.Rollback.NONE);
+		}
+
 		public Result {
 			reason = bounded(reason, 64);
 			summary = bounded(summary, MAX_SUMMARY_LENGTH);
 			releasedEnergy = Math.max(0, releasedEnergy);
+			stepId = bounded(stepId, 64);
+			rollback = rollback == null ? ShadowTaskPlan.Rollback.NONE : rollback;
 		}
 		public boolean accepted() { return state != State.REJECTED; }
 	}

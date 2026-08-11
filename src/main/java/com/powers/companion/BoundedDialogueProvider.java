@@ -138,10 +138,6 @@ public final class BoundedDialogueProvider {
 	}
 
 	private static String sanitizeOutput(String value, String fallback) {
-		if (value == null) return fallback;
-		String safe = value.replaceAll("[\\p{Cntrl}&&[^\\n\\t]]", "")
-				.replaceAll("\\s+", " ").strip();
-		if (safe.isEmpty()) return fallback;
-		return safe.substring(0, Math.min(MAX_OUTPUT_CHARACTERS, safe.length()));
+		return DialogueTextSanitizer.sanitize(value, MAX_OUTPUT_CHARACTERS, fallback);
 	}
 }
