@@ -1,6 +1,7 @@
 package com.powers;
 
 import com.powers.command.PowerCommand;
+import com.powers.companion.ShadowCompanionStore;
 import com.powers.config.PowersConfigLoader;
 import com.powers.entity.EntityRuntimeLifecycle;
 import com.powers.force.LivingForceManager;
@@ -24,6 +25,7 @@ final class PowersBootstrap {
 		PowersConfigLoader.initialize();
 		KnowledgeEntryReloadListener.initialize();
 		PowerEntityState.initialize();
+		ShadowCompanionStore.initialize();
 		RankGraphRegistry.initialize();
 		PowersEffects.initialize();
 		PowersSounds.initialize();
