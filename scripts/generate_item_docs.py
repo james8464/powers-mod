@@ -27,6 +27,9 @@ def imported_role(texture: str) -> tuple[str, str, str]:
                 "book_grimoire_infernal", "book_grimoire_recolor_overlay_infernal",
                 "artifact_trilobitefossil"}):
         return "Compatibility asset alias", "Hidden; retained only for old saves and model composition", "Deferred/hidden"
+    if texture == "food_wisdomfruit":
+        return ("Provision", "Edible food; cooked and smoked forms restore more hunger",
+                "3.5% additive drop from Archivist realm-memory caches")
     if texture.startswith("food_"):
         return "Provision", "Edible food; cooked and smoked forms restore more hunger", "Themed mob/block loot and village provision salvage; processed variants may also be cooked"
     if texture.startswith("book_grimoire"):

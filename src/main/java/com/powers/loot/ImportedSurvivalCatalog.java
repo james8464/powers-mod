@@ -19,6 +19,7 @@ final class ImportedSurvivalCatalog {
 		for (String texture : ImportedPackItems.textureIds()) {
 			if (ImportedItemRules.isHiddenCompatibilityItem(texture)) continue;
 			String id = "imported_" + texture.replace('.', '_');
+			if (texture.equals("food_wisdomfruit")) continue;
 			if (texture.startsWith("food_")) provisions.add(id);
 			else if (texture.startsWith("book_")) grimoires.add(id);
 			else if (texture.contains("runestone")) runes.add(id);

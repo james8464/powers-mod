@@ -34,6 +34,7 @@ public final class LootInjectionCatalog {
 				group("minecraft:chests/buried_treasure", 0.12f,
 						"imported_magic_essence_soul_dust", "imported_magic_essence_sacred_dust",
 						"imported_artifact_blackpearl"),
+				group("powers:chests/realm_memory", 0.035f, "imported_food_wisdomfruit"),
 				group("minecraft:blocks/birch_leaves", 0.025f, "imported_food_silver_pear"),
 				group("minecraft:blocks/cherry_leaves", 0.025f, "imported_food_pantao"),
 				group("minecraft:blocks/jungle_leaves", 0.04f, "imported_food_fig", "imported_food_grapes",
