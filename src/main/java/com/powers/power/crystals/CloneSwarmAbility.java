@@ -44,10 +44,6 @@ public class CloneSwarmAbility extends Ability {
 			if (clone == null) {
 				continue;
 			}
-			// spread the clones evenly around the player, 1.5 blocks out
-			double angle = Math.PI * 2 * i / cloneCount;
-			clone.setPos(player.getX() + Math.cos(angle) * 1.5, player.getY() + 0.2,
-					player.getZ() + Math.sin(angle) * 1.5);
 			clone.configure(player, scaledDuration(player, CLONE_LIFE_TICKS));
 			PowerEntityState.markBanishableSummon(clone);
 			// tough fighters: 80 health, 18 attack damage, brisk speed
@@ -55,7 +51,8 @@ public class CloneSwarmAbility extends Ability {
 			clone.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(18.0 * potency);
 			clone.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.42);
 			clone.setHealth(clone.getMaxHealth());
-			if (!level.noBlockCollision(clone, clone.getBoundingBox()) || !level.addFreshEntity(clone)) {
+			if (!placeAroundCaster(level, player, clone, i, cloneCount)
+					|| !level.addFreshEntity(clone)) {
 				clone.discard();
 				continue;
 			}
@@ -71,5 +68,19 @@ public class CloneSwarmAbility extends Ability {
 				PowerFx.dust(0xFF8A3D, 1.1F), 22, 1.0, 0.0);
 		PowerFx.sound(level, player.position(), SoundEvents.EVOKER_CAST_SPELL, 1.0f, 1.2f);
 		return true;
+	}
+
+	/** Finds one of a small fixed set of collision-free points without scanning terrain. */
+	private static boolean placeAroundCaster(ServerLevel level, ServerPlayer player,
+			EchoClone clone, int index, int cloneCount) {
+		double baseAngle = Math.PI * 2 * index / cloneCount;
+		for (int attempt = 0; attempt < 8; attempt++) {
+			double angle = baseAngle + Math.PI * 2 * attempt / 8.0;
+			double radius = 1.5 + 0.5 * (attempt / 4);
+			clone.setPos(player.getX() + Math.cos(angle) * radius, player.getY() + 0.2,
+					player.getZ() + Math.sin(angle) * radius);
+			if (level.noBlockCollision(clone, clone.getBoundingBox())) return true;
+		}
+		return false;
 	}
 }

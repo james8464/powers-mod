@@ -40,28 +40,18 @@ public class LifeBloomAbility extends Ability {
 		Vec3 origin = player.position().add(0, 1, 0);
 		double radius = scaledRange(player, RADIUS);
 		int blessingDuration = scaledDuration(player, 600);
+		// Server player storage is maintained separately from ordinary sectioned
+		// entities on some runtimes. Bless the caster explicitly so Life Bloom can
+		// never omit its source, then inspect only nearby companions below.
+		bless(player, blessingDuration, level);
 		// the box reaches 20 blocks out from the caster in every direction
 		for (LivingEntity ally : BoundedEntityCandidates.living(level,
 				AABB.ofSize(origin, radius * 2, radius * 2, radius * 2),
 				256,
-				e -> e.isAlive() && CrystalTargeting.withinRadius(e.distanceToSqr(player), radius))) {
+				e -> e != player && e.isAlive()
+						&& CrystalTargeting.withinRadius(e.distanceToSqr(player), radius))) {
 			if (ally instanceof ServerPlayer orPlayer) {
-				// Cleanse ailments without deleting beneficial effects owned by
-				// potions, beacons, other mods, or an active POWERS toggle.
-				for (MobEffectInstance effect : java.util.List.copyOf(orPlayer.getActiveEffects())) {
-					if (effect.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) {
-						orPlayer.removeEffect(effect.getEffect());
-					}
-				}
-				orPlayer.heal(orPlayer.getMaxHealth());
-				// 600 ticks = 30 seconds of regen, absorption and saturation, enough to carry anyone through a fight
-				orPlayer.addEffect(PowerStatusEffects.hidden(MobEffects.REGENERATION,
-						blessingDuration, 4, true, true));
-				orPlayer.addEffect(PowerStatusEffects.hidden(MobEffects.ABSORPTION,
-						blessingDuration, 3, true, true));
-				orPlayer.addEffect(PowerStatusEffects.hidden(MobEffects.SATURATION,
-						blessingDuration, 0, true, true));
-				PowerFx.coloredBurst(level, orPlayer.position().add(0, 1, 0), 0x00C853, 12, 0.6);
+				bless(orPlayer, blessingDuration, level);
 			}
 		}
 		PowerFx.coloredBurst(level, origin, 0x00C853, 32, 2.0);
@@ -69,5 +59,20 @@ public class LifeBloomAbility extends Ability {
 		PowerFx.rune(level, origin, radius * 0.65, 0x78E06B, 36, 0.0);
 		PowerFx.sound(level, player.position(), SoundEvents.TOTEM_USE, 1.0f, 0.8f);
 		return true;
+	}
+
+	private static void bless(ServerPlayer player, int duration, ServerLevel level) {
+		// Cleanse ailments without deleting beneficial effects owned by potions,
+		// beacons, other mods, or an active POWERS toggle.
+		for (MobEffectInstance effect : java.util.List.copyOf(player.getActiveEffects())) {
+			if (effect.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) {
+				player.removeEffect(effect.getEffect());
+			}
+		}
+		player.heal(player.getMaxHealth());
+		player.addEffect(PowerStatusEffects.hidden(MobEffects.REGENERATION, duration, 4, true, true));
+		player.addEffect(PowerStatusEffects.hidden(MobEffects.ABSORPTION, duration, 3, true, true));
+		player.addEffect(PowerStatusEffects.hidden(MobEffects.SATURATION, duration, 0, true, true));
+		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x00C853, 12, 0.6);
 	}
 }

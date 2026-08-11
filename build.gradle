@@ -39,6 +39,11 @@ base {
 
 loom {
 	splitEnvironmentSourceSets()
+	if (providers.gradleProperty("powersRunDir").isPresent()) {
+		runs.named("server") {
+			runDirectory.set(file(providers.gradleProperty("powersRunDir").get()))
+		}
+	}
 
 	mods {
 		"powers" {
@@ -129,6 +134,11 @@ tasks.named("runGameTest") {
 	}
 }
 
+tasks.named("runServer") {
+	// Required by restart_soak.py and useful for ordinary dedicated-server administration.
+	standardInput = System.in
+}
+
 tasks.named("check") {
 	dependsOn("validatePowerResources")
 	dependsOn("auditJavaSources")
@@ -208,6 +218,15 @@ tasks.register("generateLootDistributionReport", JavaExec) {
 	dependsOn("testClasses")
 	classpath = sourceSets.test.runtimeClasspath
 	mainClass = "com.powers.loot.LootDistributionReport"
+	args projectDir.absolutePath
+}
+
+tasks.register("generateManualAcceptanceChecklist", JavaExec) {
+	description = "Regenerates the omission-visible manual gameplay checklist."
+	group = "documentation"
+	dependsOn("testClasses")
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "com.powers.testing.ManualAcceptanceChecklistReport"
 	args projectDir.absolutePath
 }
 

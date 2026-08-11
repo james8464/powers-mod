@@ -2,6 +2,10 @@
 
 ## 1.0.2 - 2026-08-11
 
+- Closed the automated P0/P1 stabilization programme with versioned save fixtures, transactional cast rollback, fatal body ordering, Time Freeze/Celestial Ruin recovery, artifact revocation, protocol negotiation, packet fuzzing, executable interaction/lifecycle matrices, mutation enforcement, live ritual/crystal/rank/collision GameTests, protection adapters, realm templates, tactical guardians, and deterministic visual goldens.
+- Added persistent anonymous Light/Dark quest-completion telemetry, an opt-in full-tick JFR profiler with p95/p99 and connected-player/work peaks, a manual 10/50/100 embedded-player profile scenario, and an isolated repeated-restart soak harness that cannot touch the normal development world.
+- Added hostile randomized arithmetic properties for energy, cooldowns, and reservoirs; proved POWERS attribute cleanup cannot remove foreign modifiers; expanded the ordinary crystal-use GameTest matrix; and fixed Green Life Bloom caster healing plus Orange Echo collision-safe three-clone placement.
+- Replaced remaining client generic magic placeholders with authored semantic particles and generated an omission-visible manual checklist for every action, item, entity, screen, and command.
 - Rewrote the README from authoritative registries and verification evidence into a concise complete player/operator manual, linked exhaustive per-item/per-rank/per-action/per-interaction appendices, and separated 264 unshipped guarantees, enhancements, expansions, defects, and research tasks into a prioritized acceptance-driven backlog.
 - Rebuilt Shadow as one persistent player-model magic participant with owner skin, global/private presentation, typed conversation tasks, bounded item retrieval/conjuration, its own Darkness energy and all 23 non-crystal innates plus exactly three sword rites.
 - Added server-only tactical Shadow combat: close, skirmish, ranged, rescue and recovery modes; capped targeting and firing-lane checks; real named executors; owner-local bounded contextual learning; diagnostics and an operator learning reset.

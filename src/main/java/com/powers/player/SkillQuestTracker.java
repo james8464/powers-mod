@@ -24,6 +24,8 @@ public final class SkillQuestTracker {
 	public static void recordKill(LivingEntity victim, DamageSource source) {
 		if (!(source.getEntity() instanceof ServerPlayer killer)
 				|| SkillSystem.hasDarknessTag(killer) || !PowerDamage.isPowerDamage(source)) return;
+		com.powers.progression.QuestCompletionTelemetry.noteActivity(killer,
+				com.powers.progression.QuestTelemetryLedger.Alignment.LIGHT);
 		Map<SkillDeed, Integer> totals = SkillDeedStore.increment(killer, SkillDeed.POWER_KILL);
 		if (isBoss(victim)) totals = SkillDeedStore.increment(killer, SkillDeed.BOSS_KILL);
 		evaluate(killer, totals);
@@ -35,12 +37,17 @@ public final class SkillQuestTracker {
 	}
 
 	private static void record(ServerPlayer player, SkillDeed deed) {
+		com.powers.progression.QuestCompletionTelemetry.noteActivity(player,
+				com.powers.progression.QuestTelemetryLedger.Alignment.LIGHT);
 		evaluate(player, SkillDeedStore.increment(player, deed));
 	}
 
 	private static void evaluate(ServerPlayer player, Map<SkillDeed, Integer> totals) {
 		int current = PlayerPowers.get(player).skillLevel();
 		int completed = SkillQuestRules.highestContiguousLevel(current, totals);
+		com.powers.progression.QuestCompletionTelemetry.completeRange(player,
+				com.powers.progression.QuestTelemetryLedger.Alignment.LIGHT,
+				current + 1, completed, level -> SkillQuestRules.completedRoute(level, totals));
 		for (int level = current + 1; level <= completed; level++) {
 			SkillSystem.awardSkillRite(player, level);
 		}

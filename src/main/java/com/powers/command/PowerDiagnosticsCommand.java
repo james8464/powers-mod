@@ -95,6 +95,7 @@ final class PowerDiagnosticsCommand {
 			send(context, "missingDimension feature=" + issue.feature() + "; id="
 					+ issue.dimension() + "; occurrences=" + issue.occurrences());
 		}
+		send(context, com.powers.progression.QuestCompletionTelemetry.diagnosticLine(server));
 		if (context.getSource().getEntity() instanceof ServerPlayer player) {
 			var testing = TestingOverrides.state(player.getUUID());
 			send(context, "testing: energy=" + (testing.energyDisabled() ? "disabled" : "normal")

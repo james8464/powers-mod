@@ -65,7 +65,11 @@ final class PowersServerLifecycle {
 				AmethystDampening.invalidateChunk(level, chunk.getPos()));
 		ServerChunkEvents.CHUNK_UNLOAD.register((level, chunk) ->
 				AmethystDampening.invalidateChunk(level, chunk.getPos()));
+		ServerTickEvents.START_SERVER_TICK.register(
+				com.powers.performance.ServerTickProfiler::startTick);
 		ServerTickEvents.END_SERVER_TICK.register(PowersServerLifecycle::tick);
+		ServerTickEvents.END_SERVER_TICK.register(
+				com.powers.performance.ServerTickProfiler::endTick);
 	}
 
 	private static void onJoin(ServerPlayer player) {
@@ -127,6 +131,7 @@ final class PowersServerLifecycle {
 	}
 
 	private static void onServerStopped(MinecraftServer server) {
+		com.powers.performance.ServerTickProfiler.cancel(server);
 		MagicRuntime.global().clearAll();
 		ServerMagicScheduler.clear();
 		PlayerPowerTicker.clear();
