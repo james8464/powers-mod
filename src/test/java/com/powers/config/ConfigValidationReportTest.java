@@ -17,22 +17,44 @@ class ConfigValidationReportTest {
 				  "wardRadius": 999,
 				  "maxParticlesPerTick": "not-a-number",
 				  "safeZones": "not-an-array",
-				  "dialogueProvider": {"timeoutMillis": 1}
+				  "dialogueProvider": {
+				    "timeoutMillis": 1,
+				    "credentialEnvironmentVariable": "secret-token-value"
+				  }
 				}
 				""");
 
 		assertEquals(64, parsed.config().wardRadius());
 		assertEquals(512, parsed.config().maxParticlesPerTick());
 		assertEquals(250, parsed.config().dialogueProvider().timeoutMillis());
-		assertTrue(parsed.report().entries().contains(new ConfigValidationReport.Entry(
-				"wardRadius", ConfigValidationReport.Kind.CLAMPED)));
-		assertTrue(parsed.report().entries().contains(new ConfigValidationReport.Entry(
-				"maxParticlesPerTick", ConfigValidationReport.Kind.DEFAULTED)));
-		assertTrue(parsed.report().entries().contains(new ConfigValidationReport.Entry(
-				"safeZones", ConfigValidationReport.Kind.DEFAULTED)));
-		assertTrue(parsed.report().entries().contains(new ConfigValidationReport.Entry(
-				"dialogueProvider.timeoutMillis", ConfigValidationReport.Kind.CLAMPED)));
+		ConfigValidationReport.Entry ward = entry(parsed.report(), "wardRadius");
+		assertEquals("999", ward.original());
+		assertEquals("64", ward.sanitized());
+		assertEquals("out_of_range", ward.reason());
+		ConfigValidationReport.Entry particles = entry(parsed.report(), "maxParticlesPerTick");
+		assertEquals("<invalid:string>", particles.original());
+		assertEquals("512", particles.sanitized());
+		assertEquals("invalid_type", particles.reason());
+		ConfigValidationReport.Entry timeout = entry(parsed.report(), "dialogueProvider.timeoutMillis");
+		assertEquals("1", timeout.original());
+		assertEquals("250", timeout.sanitized());
+		assertEquals("out_of_range", timeout.reason());
+		String operatorReport = String.join("\n", parsed.report().operatorLines());
+		assertTrue(operatorReport.contains("revision=" + parsed.report().revision()));
+		assertTrue(operatorReport.contains("safeZones"));
+		assertTrue(!operatorReport.contains("secret-token-value"));
 		assertTrue(parsed.report().summary().matches("revision=\\d+; adjustments=\\d+; retained=\\d+; dropped=\\d+"));
+	}
+
+	@Test
+	void nullSafeZoneEntriesDefaultSafelyWithoutCoordinatesInTheReport() {
+		PowersConfigLoader.ParseResult parsed = PowersConfigLoader.parseWithReport(
+				"{\"schemaVersion\":3,\"safeZones\":[null]}");
+
+		assertTrue(parsed.config().safeZones().isEmpty());
+		String report = parsed.report().entries().toString();
+		assertTrue(report.contains("safeZones"));
+		assertTrue(!report.contains("x=") && !report.contains("y=") && !report.contains("z="));
 	}
 
 	@Test
@@ -40,7 +62,7 @@ class ConfigValidationReportTest {
 		List<ConfigValidationReport.Entry> entries = new ArrayList<>();
 		for (int index = 0; index < 100; index++) {
 			entries.add(new ConfigValidationReport.Entry("field." + index,
-					ConfigValidationReport.Kind.DEFAULTED));
+					ConfigValidationReport.Kind.DEFAULTED, "<missing>", "default", "missing"));
 		}
 
 		ConfigValidationReport report = ConfigValidationReport.of(7, entries);
@@ -48,5 +70,11 @@ class ConfigValidationReportTest {
 		assertEquals(100, report.adjustments());
 		assertEquals(ConfigValidationReport.MAX_ENTRIES, report.entries().size());
 		assertEquals(100 - ConfigValidationReport.MAX_ENTRIES, report.dropped());
+	}
+
+	private static ConfigValidationReport.Entry entry(ConfigValidationReport report, String path) {
+		return report.entries().stream().filter(value -> value.path().equals(path))
+				.filter(value -> value.reason().equals("out_of_range") || value.reason().equals("invalid_type"))
+				.findFirst().orElseThrow();
 	}
 }

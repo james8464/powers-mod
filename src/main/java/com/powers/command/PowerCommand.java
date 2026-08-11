@@ -264,6 +264,9 @@ public final class PowerCommand {
 		String validation = PowersConfigLoader.validationReport().summary();
 		context.getSource().sendSuccess(() -> Component.literal(
 				"Reloaded POWERS configuration; validation " + validation + "."), true);
+		for (String line : PowersConfigLoader.validationReport().operatorLines()) {
+			context.getSource().sendSuccess(() -> Component.literal("Config adjusted: " + line), false);
+		}
 		return 1;
 	}
 
