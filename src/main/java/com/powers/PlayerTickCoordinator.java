@@ -14,7 +14,7 @@ final class PlayerTickCoordinator {
 		PlayerTickCadence cadence = PlayerTickCadence.at(tick);
 		if (cadence.fiveTick()) PowerAbilityRuntime.tickFrequent(server);
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-			PowersMod.tickPlayer(player, tick, cadence);
+			PlayerPowerTicker.tick(player, tick, cadence);
 		}
 	}
 }

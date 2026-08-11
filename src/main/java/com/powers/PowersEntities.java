@@ -20,7 +20,7 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.levelgen.Heightmap;
 
-/** Registers the two server-authoritative player-shaped testing/combat mobs. */
+/** Registers all server-authoritative player-shaped testing and combat mobs. */
 public final class PowersEntities {
 	public static final EntityType<DarknessCreature> DARKNESS_CREATURE = register(
 			"darkness_creature", DarknessCreature::new, MobCategory.MONSTER);

@@ -320,8 +320,12 @@ Administrative commands:
 - `/powers testing refill`
 - `/powers testing reset`
 - `/powers testing actor spawn [username]`
+- `/powers testing arena [spawn|clear]`
+- `/powers testing coverage`
 
 Testing mode is operator-only and affects only its executor. `on` temporarily disables both energy limits and gameplay cooldowns; the narrower branches change one limit, `refill` restores energy and clears saved cooldowns, and `reset` returns both overrides to normal. It covers innate powers, spells, crystals, artifacts, runes and ongoing energy drains at their shared server-authoritative boundaries. It does not bypass amethyst, protection, permissions, damage, targeting, realm gates or Time Stop. The switches are session-only and clear on disconnect/server stop; run `/powers testing reset` before returning to ordinary survival testing. `/powers diagnose` includes the executor's current testing flags.
+
+`/powers testing arena` replaces only nearby entities tagged as POWERS acceptance targets, then creates seven stationary, named targets: neutral/radiant/dark test actors, a zombie, an iron golem, a Hollowed and a Radiant Sentinel. `/powers testing coverage` prints the registry-synchronized acceptance inventory so a newly registered action cannot silently disappear from the verification catalogue.
 
 ## Configuration
 
@@ -373,16 +377,17 @@ For troubleshooting, first run `/powers reload` and inspect the server log for a
 ## Building and verification
 
 ```bash
-export JAVA_HOME='/path/to/java-25/Contents/Home'
-./gradlew clean check build
-./gradlew runGameTest
+./test.sh doctor
+./test.sh check
+./test.sh gametest
+./test.sh soak
 ```
 
-`check` includes 579 deterministic JUnit cases plus strict validation of JSON, duplicate keys, PNG headers/alpha/dimensions, Ogg/Vorbis streams, particle and sound references, models, translations, namespace safety, dimension biomes, exhaustive interaction-document drift, every production Java source, all non-item assets, and intentionally absent crystal recipes. `runGameTest` boots a real Fabric server and runs 36 registered live tests covering critical combat, artifacts, travel, bodies, creatures, realm forces, progression, testing tools, and catastrophic magic. The release JAR is written to `build/libs/`.
+The launcher resolves Java 25 from `POWERS_JAVA_HOME`, a valid `JAVA_HOME`, Minecraft's bundled macOS runtime, Homebrew, or `PATH`. `check` includes 587 deterministic JUnit cases plus strict validation of JSON, duplicate keys, PNG headers/alpha/dimensions, Ogg/Vorbis streams, particle and sound references, models, translations, namespace safety, dimension biomes, release metadata, production-source reachability, exhaustive interaction-document drift, every production Java source, all non-item assets, and intentionally absent crystal recipes. `gametest` boots a real Fabric server and runs 39 registered live tests covering critical combat, artifacts, travel, bodies, creatures, realm forces, progression, testing tools, catastrophic magic, crystal travel, and the historical Cinderheart block-impact crash. `soak` exercises the actual spatial indexes, rotating queues, lifecycle cleanup and global budgets for deterministic 10/50/100-player workloads. The release JAR is written to `build/libs/`.
 
 Automated tests validate rules, registries, resources, packet bounds, lifecycle cleanup, and dedicated-server behavior. A final manual playtest is still appropriate before deploying to a valuable multiplayer world, especially for subjective particle density, HUD scale at a player's chosen GUI scale, controls alongside other mods, and catastrophic terrain settings. Back up the world before enabling Celestial Ruin terrain damage or placing opposed living realm matter.
 
-For manual development runs, use `./test.sh client` or `./test.sh server`.
+For manual development runs, use `./test.sh client` or `./test.sh server`. The current source of architectural and historical truth is indexed in [`docs/development/history.md`](docs/development/history.md); superseded implementation drafts remain available in Git history rather than cluttering the release tree.
 
 ## Licence
 

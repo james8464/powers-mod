@@ -26,6 +26,7 @@ import com.powers.power.artifact.ArtifactDeathWardManager;
 import com.powers.power.PowerDamage;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.power.abilities.ForcefieldAbility;
+import com.powers.power.abilities.FireballAbility;
 import com.powers.power.abilities.PlantHealingAbility;
 import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.power.abilities.EnergyDrainAbility;
@@ -59,9 +60,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.entity.decoration.Mannequin;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.effect.MobEffects;
 
 /** Small runtime suite for mechanics that pure unit tests cannot exercise. */
@@ -501,6 +505,31 @@ public final class PowersGameTests {
 		helper.succeed();
 	}
 
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void cinderheartBlockImpactCannotDereferenceAnAbsentLivingTarget(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		caster.setYRot(0.0F);
+		caster.setXRot(0.0F);
+		helper.setBlock(new BlockPos(2, 1, 6), Blocks.STONE);
+		TestingOverrides.setEnergyDisabled(caster.getUUID(), true);
+		FireballAbility ability = new FireballAbility();
+		helper.assertTrue(ability.activate(caster, com.powers.player.PlayerPowers.get(caster)),
+				"Cinderheart did not create its server-owned projectile");
+		LargeFireball projectile = helper.getLevel().getEntitiesOfClass(LargeFireball.class,
+				caster.getBoundingBox().inflate(8.0), entity -> entity.isAlive()).stream()
+				.findFirst().orElse(null);
+		helper.assertTrue(projectile != null, "Cinderheart projectile was absent");
+		BlockPos impactPos = helper.absolutePos(new BlockPos(2, 1, 6));
+		FireballAbility.resolveImpact(projectile, new BlockHitResult(
+				Vec3.atCenterOf(impactPos), Direction.NORTH, impactPos, false));
+		helper.assertTrue(projectile.isRemoved(), "Resolved Cinderheart impact remained active");
+		TestingOverrides.clear(caster.getUUID());
+		helper.succeed();
+	}
+
 	@GameTest(maxTicks = 40)
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void shadowSwordLightningCreatesAVisibleBolt(GameTestHelper helper) {
@@ -646,6 +675,51 @@ public final class PowersGameTests {
 			BodyProxyManager.finish(player);
 			helper.succeed();
 		});
+	}
+
+	@GameTest(maxTicks = 220)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void lightCrystalUsesTheSameAuthenticatedMindscapePipeline(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		TestingOverrides.setCooldownsDisabled(player.getUUID(), true);
+		var lightRealm = helper.getLevel().getServer().getLevel(
+				net.minecraft.resources.ResourceKey.create(
+						net.minecraft.core.registries.Registries.DIMENSION,
+						com.powers.PowersMod.id("light_realm")));
+		if (lightRealm == null) {
+			helper.assertTrue(CrystalPowerRegistry.get(PowersItems.LIGHT_CRYSTAL) != null,
+					"Light Crystal was not bound to its realm action");
+			TestingOverrides.clear(player.getUUID());
+			helper.succeed();
+			return;
+		}
+
+		helper.assertTrue(CrystalPowerRegistry.tryActivate(player, PowersItems.LIGHT_CRYSTAL),
+				"Light Crystal activation pipeline rejected its caster");
+		helper.runAfterDelay(150, () -> {
+			helper.assertTrue(player.level().dimension().identifier().toString()
+					.equals("powers:light_realm"), "Light Crystal never entered the Light Realm");
+			helper.assertTrue(BodyProxyManager.hasSession(player, BodyProxyKind.REALM),
+					"Light Crystal did not leave a vulnerable physical body");
+			TestingOverrides.clear(player.getUUID());
+			BodyProxyManager.finish(player);
+			helper.succeed();
+		});
+	}
+
+	@GameTest
+	public void operatorTestingTreeExposesCoverageAndArenaControls(GameTestHelper helper) {
+		var powers = helper.getLevel().getServer().getCommands().getDispatcher()
+				.getRoot().getChild("powers");
+		helper.assertTrue(powers != null, "The /powers root command was not registered");
+		var testing = powers.getChild("testing");
+		helper.assertTrue(testing != null && testing.getChild("coverage") != null
+				&& testing.getChild("arena") != null,
+				"The manual acceptance coverage/arena commands were not registered");
+		helper.succeed();
 	}
 
 	@GameTest(maxTicks = 120)

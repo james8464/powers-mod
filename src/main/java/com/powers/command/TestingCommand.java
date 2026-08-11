@@ -8,16 +8,27 @@ import com.powers.PowersEntities;
 import com.powers.entity.PowerTestActor;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
+import com.powers.testing.GameplayAcceptanceCatalogue;
+import com.powers.testing.TestingArenaLayout;
 import com.powers.testing.TestingOverrides;
+import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /** Operator-only, session-scoped controls for rapid manual gameplay testing. */
 final class TestingCommand {
+	private static final String ARENA_TAG = "powers_testing_arena";
+	private static final double ARENA_CLEANUP_RADIUS = 24.0;
+
 	private TestingCommand() {
 	}
 
@@ -36,12 +47,86 @@ final class TestingCommand {
 						.then(Commands.literal("on").executes(context -> setCooldowns(context, true)))
 						.then(Commands.literal("off").executes(context -> setCooldowns(context, false))))
 				.then(Commands.literal("refill").executes(TestingCommand::refill))
+				.then(Commands.literal("coverage").executes(TestingCommand::coverage))
+				.then(Commands.literal("arena")
+						.executes(TestingCommand::spawnArena)
+						.then(Commands.literal("spawn").executes(TestingCommand::spawnArena))
+						.then(Commands.literal("clear").executes(TestingCommand::clearArena)))
 				.then(Commands.literal("actor")
 						.then(Commands.literal("spawn")
 								.executes(context -> spawnActor(context, null))
 								.then(Commands.argument("username", StringArgumentType.word())
 										.executes(context -> spawnActor(context,
 												StringArgumentType.getString(context, "username"))))));
+	}
+
+	private static int coverage(CommandContext<CommandSourceStack> context) {
+		int count = GameplayAcceptanceCatalogue.entries().size();
+		context.getSource().sendSuccess(() -> Component.literal("Acceptance catalogue — ")
+				.append(Component.literal(GameplayAcceptanceCatalogue.summary())
+						.withStyle(ChatFormatting.AQUA)), false);
+		return count;
+	}
+
+	private static int spawnArena(CommandContext<CommandSourceStack> context) {
+		clearArenaEntities(context.getSource());
+		var level = context.getSource().getLevel();
+		Vec3 origin = context.getSource().getPosition();
+		int spawned = 0;
+		for (TestingArenaLayout.Target target : TestingArenaLayout.targets()) {
+			LivingEntity entity = createArenaTarget(level, target);
+			if (entity == null) continue;
+			entity.setPos(origin.x + target.x(), origin.y, origin.z + target.z());
+			entity.addTag(ARENA_TAG);
+			entity.setCustomName(Component.literal(target.name()));
+			entity.setCustomNameVisible(true);
+			if (entity instanceof Mob mob) {
+				mob.setNoAi(true);
+				mob.setPersistenceRequired();
+			}
+			if (level.addFreshEntity(entity)) spawned++;
+		}
+		int result = spawned;
+		context.getSource().sendSuccess(() -> Component.literal("Spawned " + result
+				+ " bounded acceptance targets; use /powers testing arena clear when finished.")
+				.withStyle(ChatFormatting.AQUA), false);
+		return result;
+	}
+
+	private static int clearArena(CommandContext<CommandSourceStack> context) {
+		int removed = clearArenaEntities(context.getSource());
+		context.getSource().sendSuccess(() -> Component.literal("Cleared " + removed
+				+ " nearby acceptance targets.").withStyle(ChatFormatting.GRAY), false);
+		return removed;
+	}
+
+	private static int clearArenaEntities(CommandSourceStack source) {
+		Vec3 center = source.getPosition();
+		AABB bounds = AABB.ofSize(center, ARENA_CLEANUP_RADIUS * 2.0,
+				ARENA_CLEANUP_RADIUS * 2.0, ARENA_CLEANUP_RADIUS * 2.0);
+		var targets = BoundedEntityCandidates.living(source.getLevel(), bounds, 64,
+				entity -> entity.entityTags().contains(ARENA_TAG));
+		targets.forEach(LivingEntity::discard);
+		return targets.size();
+	}
+
+	private static LivingEntity createArenaTarget(net.minecraft.server.level.ServerLevel level,
+			TestingArenaLayout.Target target) {
+		LivingEntity entity = switch (target.kind()) {
+			case NEUTRAL_ACTOR, RADIANT_ACTOR, DARKNESS_ACTOR ->
+					PowersEntities.POWER_TEST_ACTOR.create(level, EntitySpawnReason.COMMAND);
+			case ZOMBIE -> EntityTypes.ZOMBIE.create(level, EntitySpawnReason.COMMAND);
+			case IRON_GOLEM -> EntityTypes.IRON_GOLEM.create(level, EntitySpawnReason.COMMAND);
+			case DARKNESS_CREATURE -> PowersEntities.DARKNESS_CREATURE.create(
+					level, EntitySpawnReason.COMMAND);
+			case RADIANT_SENTINEL -> PowersEntities.RADIANT_SENTINEL.create(
+					level, EntitySpawnReason.COMMAND);
+		};
+		if (entity instanceof PowerTestActor actor) actor.setTestingUsername(target.name());
+		if (target.kind() == TestingArenaLayout.TargetKind.DARKNESS_ACTOR && entity != null) {
+			entity.addTag(com.powers.player.SkillSystem.DARKNESS_TAG);
+		}
+		return entity;
 	}
 
 	private static int reset(CommandContext<CommandSourceStack> context)

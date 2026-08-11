@@ -87,6 +87,21 @@ tasks.register("verifyMagicDocs", JavaExec) {
 	args projectDir.absolutePath, "--check"
 }
 
+tasks.named("runGameTest") {
+	doFirst {
+		def gameTestRun = layout.buildDirectory.dir("run/gameTest").get().asFile
+		gameTestRun.mkdirs()
+		def properties = new File(gameTestRun, "server.properties")
+		if (!properties.exists()) {
+			properties.text = "online-mode=false\nlevel-name=world\n"
+		}
+		def eula = new File(gameTestRun, "eula.txt")
+		if (!eula.exists()) {
+			eula.text = "eula=true\n"
+		}
+	}
+}
+
 tasks.named("check") {
 	dependsOn("validatePowerResources")
 	dependsOn("auditJavaSources")

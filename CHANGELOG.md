@@ -2,6 +2,12 @@
 
 ## 1.0.2 - 2026-08-11
 
+- Split the former 409-line Fabric entrypoint into a stable facade, ordered content bootstrap, lifecycle owner and single-pass player ticker while preserving callback order and save behavior.
+- Removed four proven runtime-orphan source types and their orphan-only tests, and moved superseded implementation drafts out of the release tree while retaining their exact Git history.
+- Added production-type reachability, bootstrap-architecture and release-version gates; corrected the packaged mod identity from stale 1.0.0 metadata to 1.0.2.
+- Rebuilt `test.sh` as a location-independent Java-25 launcher with doctor, client, server, clean-check, GameTest and multiplayer-soak modes; GameTest now seeds its isolated EULA/properties without false error telemetry.
+- Added a registry-synchronized acceptance catalogue, operator coverage report and bounded seven-target test arena; extended the real-server suite with Light Crystal travel, operator command-tree and historical Cinderheart block-impact regression scenarios.
+- Expanded the deterministic 10/50/100-player soak to exercise live magic/field/ward/name spatial indexes, rotating work queues and exact cleanup in addition to packet, particle, entity-scan and chunk-ticket limits.
 - Removed the five retired innate powers (Cozy Campfire, Frost Nova, Elemental Blast, Ground Slam, and Shadow Step), their runtime managers, selectors, protocol state, boss/artifact adapters, translations, and collision entries.
 - Removed every automatically assigned innate passive and the unconditional player aura dust emitter; saved loadouts now migrate deterministically to valid allegiance-safe powers.
 - Reduced the canonical innate roster to 23 and regenerated its exhaustive interaction documentation and audit manifests.
@@ -27,7 +33,7 @@
 - Completed chromatic crystal cleanup: Orange produces skin-matched unarmed Echoes, Green keeps only Life Bloom, Blue owns global Chrono Stop plus controlled Dreamwalking, Yellow reaches 0.0625× through 10×, and Infected Rainbow is a hidden inert save alias rather than a second gameplay item.
 - Added guaranteed First Vessel Miniportal loot, two persistent same-dimension charges, exact-stack anchor binding, and dropped-amethyst recharge.
 - Assigned every imported relic and fantasy weapon a documented purpose and additive survival acquisition path without inventing deferred crystal recipes.
-- Finalized the 73-action/2,701-pair collision catalogue, 579 deterministic tests, 36 live GameTests, six-dimension dedicated-server boot, and 10/50/100-player synthetic workload proof.
+- Finalized the 73-action/2,701-pair collision catalogue, 587 deterministic tests, 39 live GameTests, six-dimension dedicated-server boot, and 10/50/100-player synthetic workload proof.
 
 ## 1.0.1 - 2026-08-10
 
