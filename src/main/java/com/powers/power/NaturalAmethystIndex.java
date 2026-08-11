@@ -10,36 +10,43 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /** Lazy loaded-section tag index for natural amethyst suppression blocks. */
 public final class NaturalAmethystIndex {
 	public record Diagnostics(long queries, long candidates, long misses, long sectionScans,
 			long staleRemovals, int sections, int positions, long estimatedBytes) { }
 
+	private static final class WorkCounters {
+		private long queries;
+		private long candidates;
+		private long misses;
+		private long sectionScans;
+		private long invalidations;
+	}
+
 	private final Map<ResourceKey<Level>, Map<Long, Set<BlockPos>>> dimensions = new HashMap<>();
-	private long queries;
-	private long candidates;
-	private long sectionScans;
-	private long invalidations;
-	private long misses;
+	private final Map<ResourceKey<Level>, WorkCounters> workByDimension = new HashMap<>();
 
 	public boolean nearby(ServerLevel level, BlockPos center, int radius) {
-		queries++;
+		WorkCounters work = workByDimension.computeIfAbsent(level.dimension(), ignored -> new WorkCounters());
+		work.queries++;
 		for (long key : sectionKeys(center.getX(), center.getY(), center.getZ(), radius)) {
-			Set<BlockPos> positions = section(level, key);
+			Set<BlockPos> positions = section(level, key, work);
 			for (BlockPos position : positions) {
-				candidates++;
+				work.candidates++;
 				if (Math.abs(position.getX() - center.getX()) <= radius
 						&& Math.abs(position.getY() - center.getY()) <= radius
 						&& Math.abs(position.getZ() - center.getZ()) <= radius) return true;
 			}
 		}
-		misses++;
+		work.misses++;
 		return false;
 	}
 
@@ -60,25 +67,53 @@ public final class NaturalAmethystIndex {
 		if (sections == null) return;
 		for (int sectionY = SectionPos.blockToSectionCoord(level.getMinY());
 				sectionY <= SectionPos.blockToSectionCoord(level.getMaxY() - 1); sectionY++) {
-			if (sections.remove(SectionPos.asLong(chunk.x(), sectionY, chunk.z())) != null) invalidations++;
+			if (sections.remove(SectionPos.asLong(chunk.x(), sectionY, chunk.z())) != null) {
+				workByDimension.computeIfAbsent(level.dimension(), ignored -> new WorkCounters())
+						.invalidations++;
+			}
 		}
 		if (sections.isEmpty()) dimensions.remove(level.dimension());
 	}
 
 	public Diagnostics diagnostics() {
-		int sections = dimensions.values().stream().mapToInt(Map::size).sum();
-		int positions = dimensions.values().stream().flatMap(map -> map.values().stream())
-				.mapToInt(Set::size).sum();
-		return new Diagnostics(queries, candidates, misses, sectionScans, invalidations,
-				sections, positions, sections * 80L + positions * 56L);
+		long queries = 0L, candidates = 0L, misses = 0L, scans = 0L, stale = 0L, memory = 0L;
+		int sections = 0, positions = 0;
+		for (Diagnostics value : diagnosticsByDimension().values()) {
+			queries += value.queries();
+			candidates += value.candidates();
+			misses += value.misses();
+			scans += value.sectionScans();
+			stale += value.staleRemovals();
+			sections += value.sections();
+			positions += value.positions();
+			memory += value.estimatedBytes();
+		}
+		return new Diagnostics(queries, candidates, misses, scans, stale, sections, positions, memory);
+	}
+
+	/** Per-dimension lazy-index work and footprint, keyed by registry dimension ID. */
+	public Map<String, Diagnostics> diagnosticsByDimension() {
+		Set<ResourceKey<Level>> keys = new HashSet<>(dimensions.keySet());
+		keys.addAll(workByDimension.keySet());
+		Map<String, Diagnostics> result = new TreeMap<>();
+		for (ResourceKey<Level> key : keys) {
+			WorkCounters work = workByDimension.getOrDefault(key, new WorkCounters());
+			Map<Long, Set<BlockPos>> indexed = dimensions.getOrDefault(key, Map.of());
+			int sections = indexed.size();
+			int positions = indexed.values().stream().mapToInt(Set::size).sum();
+			result.put(key.identifier().toString(), new Diagnostics(work.queries, work.candidates,
+					work.misses, work.sectionScans, work.invalidations, sections, positions,
+					sections * 80L + positions * 56L));
+		}
+		return Collections.unmodifiableMap(result);
 	}
 
 	public void clear() {
 		dimensions.clear();
-		queries = candidates = misses = sectionScans = invalidations = 0L;
+		workByDimension.clear();
 	}
 
-	private Set<BlockPos> section(ServerLevel level, long key) {
+	private Set<BlockPos> section(ServerLevel level, long key, WorkCounters work) {
 		Map<Long, Set<BlockPos>> sections = dimensions.computeIfAbsent(
 				level.dimension(), ignored -> new HashMap<>());
 		Set<BlockPos> cached = sections.get(key);
@@ -90,7 +125,7 @@ public final class NaturalAmethystIndex {
 		BlockPos origin = new BlockPos(sectionX << 4,
 				Math.clamp(sectionY << 4, level.getMinY(), level.getMaxY() - 1), sectionZ << 4);
 		if (LoadedChunks.contains(level, origin)) {
-			sectionScans++;
+			work.sectionScans++;
 			BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
 			int minY = Math.max(level.getMinY(), sectionY << 4);
 			int maxY = Math.min(level.getMaxY(), (sectionY + 1) << 4);

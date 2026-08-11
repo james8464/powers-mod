@@ -356,7 +356,7 @@ Testing commands are operator-only, executor-local, session-only, and never bypa
 /powers testing profile start <minutes> <expectedPlayers>
 ```
 
-The arena creates seven named acceptance targets: neutral/radiant/dark test actors, zombie, iron golem, Hollowed, and Radiant Sentinel. Coverage is derived from live registries so a newly added action cannot silently disappear from the manual test inventory. `/powers diagnose` reports fields, forced chunks, body proxies, Celestial events, spatial indexes, scan/work budgets, packets, particles, testing flags, and cleanup state.
+The arena creates seven named acceptance targets: neutral/radiant/dark test actors, zombie, iron golem, Hollowed, and Radiant Sentinel. Coverage is derived from live registries so a newly added action cannot silently disappear from the manual test inventory. `/powers diagnose` reports fields, forced chunks, body proxies, Celestial events, per-dimension spatial-index work and memory, scan/work budgets, packets, particles, testing flags, and cleanup state.
 
 Quest telemetry stores bounded, anonymous Light/Dark completion durations and route names; completed samples contain no player identity. Publication remains locked until each alignment/level has at least 20 samples. The opt-in profiler records full server ticks, connected-player counts, work-budget peaks, p95/p99 MSPT, and sampled allocations to `profiles/*.json` and `profiles/*.jfr`; it has no recording/allocation overhead while inactive.
 
@@ -422,7 +422,7 @@ The exact generated appendices are:
 
 ## Verification status
 
-Current automated evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md), not inferred from documentation hashes. The exact P0/P1 checkpoint proves 1,283 JUnit tests, 66 live Fabric GameTests, two isolated dedicated-server restart cycles, resource/asset validation, mutation/visual/save-migration gates, and the 10/50/100-player synthetic soak. The current-source client review, long profiles/soak, quest sample collection, and manual acceptance remain explicit human or elapsed-time gates and are never represented as automated proof.
+Current automated evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md), not inferred from documentation hashes. The exact P0/P1 checkpoint proves 1,284 JUnit tests, 66 live Fabric GameTests, two isolated dedicated-server restart cycles, resource/asset validation, mutation/visual/save-migration gates, and the 10/50/100-player synthetic soak. The current-source client review, long profiles/soak, quest sample collection, and manual acceptance remain explicit human or elapsed-time gates and are never represented as automated proof.
 
 Useful checks:
 

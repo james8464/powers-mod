@@ -324,6 +324,11 @@ public final class SpellFieldManager {
 		return INDEX.diagnostics();
 	}
 
+	/** Per-dimension spatial work counters for bounded operator diagnostics. */
+	public static java.util.Map<String, ChunkSpatialIndex.Diagnostics> spatialDiagnosticsByDimension() {
+		return INDEX.diagnosticsByDimension();
+	}
+
 	public static void clearAll() {
 		FIELDS.values().forEach(field -> PhysicalMagicPresences.remove(field.presence));
 		FIELDS.clear();

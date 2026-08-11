@@ -186,6 +186,11 @@ public final class AmethystDampening {
 		return NATURAL_AMETHYST.diagnostics();
 	}
 
+	/** Per-dimension natural-amethyst counters for operator diagnostics. */
+	public static Map<String, NaturalAmethystIndex.Diagnostics> naturalIndexDiagnosticsByDimension() {
+		return NATURAL_AMETHYST.diagnosticsByDimension();
+	}
+
 	/** Combined per-dimension ward counters for operator diagnostics. */
 	public static WardDiagnostics wardIndexDiagnostics() {
 		long queries = 0L, candidates = 0L, misses = 0L, stale = 0L, memory = 0L;
@@ -201,6 +206,18 @@ public final class AmethystDampening {
 			memory += value.estimatedBytes();
 		}
 		return new WardDiagnostics(queries, candidates, misses, stale, entries, chunks, memory);
+	}
+
+	/** Per-dimension powered-ward counters without scanning loaded blocks. */
+	public static Map<String, WardDiagnostics> wardIndexDiagnosticsByDimension() {
+		Map<String, WardDiagnostics> result = new java.util.TreeMap<>();
+		for (Map.Entry<ResourceKey<Level>, AmethystWardIndex> entry : POWERED_WARDS.entrySet()) {
+			AmethystWardIndex.Diagnostics value = entry.getValue().diagnostics();
+			result.put(entry.getKey().identifier().toString(), new WardDiagnostics(value.queries(),
+					value.candidates(), value.misses(), value.staleRemovals(), value.entries(),
+					value.chunks(), value.estimatedBytes()));
+		}
+		return java.util.Collections.unmodifiableMap(result);
 	}
 
 	public record WardDiagnostics(long queries, long candidates, long misses, long staleRemovals,

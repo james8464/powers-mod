@@ -54,4 +54,26 @@ class ChunkSpatialIndexTest {
 		assertEquals(1, diagnostics.entries());
 		assertTrue(diagnostics.estimatedBytes() > 0);
 	}
+
+	@Test
+	void diagnosticsAreAttributedToTheQueriedDimension() {
+		ChunkSpatialIndex<String, Integer> index = new ChunkSpatialIndex<>(16);
+		index.put("overworld", "minecraft:overworld", 0.0, 0.0, 2.0, 1);
+		index.put("nether", "minecraft:the_nether", 0.0, 0.0, 2.0, 2);
+
+		index.nearby("minecraft:overworld", 0.0, 0.0, 4.0);
+		index.nearby("minecraft:the_nether", 100.0, 100.0, 1.0);
+		index.removeStale("nether");
+
+		var dimensions = index.diagnosticsByDimension();
+		assertEquals(1, dimensions.get("minecraft:overworld").queries());
+		assertEquals(1, dimensions.get("minecraft:overworld").candidates());
+		assertEquals(0, dimensions.get("minecraft:overworld").misses());
+		assertEquals(1, dimensions.get("minecraft:overworld").entries());
+		assertEquals(1, dimensions.get("minecraft:the_nether").queries());
+		assertEquals(0, dimensions.get("minecraft:the_nether").candidates());
+		assertEquals(1, dimensions.get("minecraft:the_nether").misses());
+		assertEquals(1, dimensions.get("minecraft:the_nether").staleRemovals());
+		assertEquals(0, dimensions.get("minecraft:the_nether").entries());
+	}
 }

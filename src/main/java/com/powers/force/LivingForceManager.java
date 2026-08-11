@@ -41,6 +41,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.TreeMap;
 
 /** Owns loaded-force indexing and bounded server-side terrain spreading. */
 public final class LivingForceManager {
@@ -164,6 +166,36 @@ public final class LivingForceManager {
 				.mapToLong(LivingForceIndex.Diagnostics::estimatedBytes).sum();
 		return new Diagnostics(indexedBlocks, clashes, MAX_AURA_CANDIDATES_PER_LEVEL,
 				MAX_AURA_CANDIDATES_PER_PLAYER, queries, candidates, misses, stale, memory);
+	}
+
+	/** Per-dimension frontier and query counters without scanning world blocks. */
+	public static Map<String, Diagnostics> diagnosticsByDimension() {
+		Set<ServerLevel> levels = new HashSet<>(INDEXES.keySet());
+		levels.addAll(ACTIVE_CLASHES.keySet());
+		Map<String, Diagnostics> result = new TreeMap<>();
+		for (ServerLevel level : levels) {
+			LivingForceIndex.Diagnostics index = INDEXES.containsKey(level)
+					? INDEXES.get(level).diagnostics()
+					: new LivingForceIndex.Diagnostics(0, 0, 0, 0, 0, 0, 0);
+			int clashes = ACTIVE_CLASHES.getOrDefault(level, List.of()).size();
+			String dimension = dimensionId(level);
+			Diagnostics previous = result.get(dimension);
+			Diagnostics current = new Diagnostics(index.entries(), clashes,
+					MAX_AURA_CANDIDATES_PER_LEVEL, MAX_AURA_CANDIDATES_PER_PLAYER,
+					index.queries(), index.candidates(), index.misses(), index.staleRemovals(),
+					index.estimatedBytes());
+			result.put(dimension, previous == null ? current : combine(previous, current));
+		}
+		return Collections.unmodifiableMap(result);
+	}
+
+	private static Diagnostics combine(Diagnostics left, Diagnostics right) {
+		return new Diagnostics(left.indexedBlocks() + right.indexedBlocks(),
+				left.activeClashes() + right.activeClashes(), MAX_AURA_CANDIDATES_PER_LEVEL,
+				MAX_AURA_CANDIDATES_PER_PLAYER, left.queries() + right.queries(),
+				left.candidates() + right.candidates(), left.misses() + right.misses(),
+				left.staleRemovals() + right.staleRemovals(),
+				left.estimatedBytes() + right.estimatedBytes());
 	}
 
 	public record Diagnostics(int indexedBlocks, int activeClashes,
