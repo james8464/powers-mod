@@ -3,7 +3,7 @@
 ## 1.0.2 - 2026-08-11
 
 - Replaced the active ritual roster with twelve practical spells: Soul Compass, Augury, Cartographer's Star, Celestial Ruin, Dimensional Anchor, Blood Reading, Grave Recall, Purification Circle, Verdant Tending, Hearth Sanctuary, Ward-Breaking Ritual, and Dispel. Infernal IDs remain hidden dormant aliases for save compatibility.
-- Removed retired spell amplification, veil, counterspell, weather, binding, essence-distillation, field, and Infernal runtime paths. Spells use only existing magic energy and remain isolated from innate rank scaling.
+- Removed retired spell amplification, veil, counterspell, weather, binding, essence-distillation, Infernal casting, and obsolete field-creation paths. Spells use only existing magic energy and remain isolated from innate rank scaling.
 - Added persistent exact last-death reporting, bounded world/biome/landmark search, independent three-block Hearth forcefields, and typed failure reporting for practical rituals.
 - Made the Empyrean Jewel override every consent category for a fixed energy surcharge without bypassing safe zones, and converted soulstones/Soul Matrix into atomic energy reservoirs instead of soul/essence storage.
 - Gave attunements distinct bounded recovery, specialised all five heart relics, made Bloodstone a timed lethal-damage ward, retained Malignember's explicit destructive-cost reduction, and documented every imported item's implemented role or hidden compatibility status.
