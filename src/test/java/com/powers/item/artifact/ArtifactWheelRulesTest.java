@@ -37,16 +37,16 @@ class ArtifactWheelRulesTest {
 	@Test
 	void liveSegmentStatusKeepsEveryCombatDecisionVisible() {
 		ArtifactWheelRules.SegmentStatus ready = ArtifactWheelRules.segmentStatus(
-				12, 0, 80, false, false, -1);
-		assertEquals(new ArtifactWheelRules.SegmentStatus(12, 0, false, false, -1), ready);
+				12, 20, 0, 80, false, false, -1);
+		assertEquals(new ArtifactWheelRules.SegmentStatus(12, true, 0, false, false, -1), ready);
 
 		ArtifactWheelRules.SegmentStatus cooling = ArtifactWheelRules.segmentStatus(
-				30, 25, 40, true, false, 6);
-		assertEquals(new ArtifactWheelRules.SegmentStatus(30, 5, true, false, 6), cooling);
+				30, 12, 25, 40, true, false, 6);
+		assertEquals(new ArtifactWheelRules.SegmentStatus(30, false, 5, true, false, 6), cooling);
 
 		ArtifactWheelRules.SegmentStatus locked = ArtifactWheelRules.segmentStatus(
-				4, 200, 20, false, true, -1);
-		assertEquals(new ArtifactWheelRules.SegmentStatus(4, 8, false, true, -1), locked);
+				4, -1, 200, 20, false, true, -1);
+		assertEquals(new ArtifactWheelRules.SegmentStatus(4, false, 8, false, true, -1), locked);
 	}
 
 	@Test
