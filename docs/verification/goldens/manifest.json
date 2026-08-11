@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "hudCombinationsCheckedByHudLayoutTest": 8192,
+  "representativeGuiScales": [1, 2, 3, 4],
+  "conditions": ["extra_hearts", "mount", "air", "armour", "spectator", "reduced_motion", "five_energy_states"],
+  "sourceAssets": {
+    "textures/gui/energy_symbols.png": "62435ce1269566cbb49d6327ba11ec9cb46de6165e1f2f36256b1ca91d052421",
+    "textures/gui/teleport_panel.png": "ea40205aceabad4c2de64658f2dde6b51cdb9c88243c089950357aa87706067b",
+    "textures/gui/locator_panel.png": "3255f1e09f0c6416a8b2b8258cde190f68f3b8bb5b735cd21fb6d1ad6273393e",
+    "textures/gui/rank_maze/light_panel.png": "9ad24a6b8c5904c76176732c7779aae1f5464ebb69de8a66ea2e255127e6f978",
+    "textures/gui/rank_maze/dark_panel.png": "b12bd1b0e04158ad42d2126005237eeb1ae38a8d885c2f6e4d903adbc4fbea9a",
+    "textures/entity/first_vessel.png": "83245b548a10881d90211d23c3e1baeb8350589145ed10cb381c9a308ed13f9d",
+    "textures/entity/radiant_sentinel.png": "2b3a8fdd3e0a7e786d6254a8ddf7ff76252991cd1ee09810dbda500dc918b295",
+    "textures/item/first_vessel_spawn_egg.png": "23c8e22032788042a8ffa085dd8250b9b9ef1be411b2490e512418578f3c9944"
+  },
+  "goldens": {
+    "hud-representative-matrix.png": [2048, 1152],
+    "screen-surface-matrix.png": [1024, 1024],
+    "entity-uv-and-spawn-eggs.png": [768, 768],
+    "light-realm-sky-contract.png": [512, 256]
+  }
+}

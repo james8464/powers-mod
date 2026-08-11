@@ -1222,7 +1222,8 @@ public final class PowersGameTests {
 		var answer = com.powers.knowledge.KnowledgeService.answer(player,
 				"Shadow, why did my fireball fail?");
 		helper.assertTrue(answer.answer().equals(
-				"Your Fireball failed because it required 40 energy, but only 12 was available."),
+					"Your Fireball failed because it required 40 energy, but only 12 was available. "
+							+ "I recorded this at server tick " + player.level().getGameTime() + "."),
 				"Shadow replaced an authoritative magic diagnosis with a guess");
 		helper.assertTrue(answer.confidence() == 1.0,
 				"Authoritative magic diagnostics were not marked fully verified");

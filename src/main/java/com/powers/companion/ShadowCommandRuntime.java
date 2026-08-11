@@ -133,6 +133,9 @@ final class ShadowCommandRuntime {
 		ShadowCompanionStore.update(owner, state -> state.withStance(ShadowStance.TASK)
 				.withMemory(rememberReferent(state.memory(), request)));
 		ShadowCompanionMessaging.replyAndRemember(owner, request.original(), DIALOGUE.accepted(request));
+		// Validation and execution are separate authored stages. The executor below
+		// remains the only authority and owns every payment/rollback side effect.
+		session.tasks.advance();
 		switch (request.kind()) {
 			case CONJURE_ITEM -> executeConjuration(owner, session, request);
 			case GET_ITEM -> executeRetrieval(owner, session, request);

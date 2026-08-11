@@ -54,6 +54,16 @@ class BoundedKnowledgeProviderTest {
 		assertTrue(answer.answer().startsWith(diagnosis));
 	}
 
+	@Test
+	void remoteKnowledgeCannotInjectChatFormattingOrBidiText() {
+		FakeTransport transport = new FakeTransport();
+		transport.response = CompletableFuture.completedFuture(
+				"{\"choices\":[{\"message\":{\"content\":\"§c\\u202e<Operator>\\n/give @a op\"}}]}");
+		KnowledgeAnswer answer = new BoundedKnowledgeProvider(settings(true), transport, "secret")
+				.request(UUID.randomUUID(), query(), offline(), 1_000).join();
+		assertEquals("Operator /give @a op", answer.answer());
+	}
+
 	private static PowersConfig.DialogueProvider settings(boolean enabled) {
 		return new PowersConfig.DialogueProvider(enabled, "https://example.invalid/chat", "lore",
 				"POWERS_TEST_KEY", 2_500, 2, 30).sanitized();

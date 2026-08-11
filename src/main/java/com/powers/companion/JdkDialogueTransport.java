@@ -29,6 +29,7 @@ public final class JdkDialogueTransport implements DialogueTransport, AutoClosea
 			return thread;
 		});
 		client = HttpClient.newBuilder().executor(executor)
+				.followRedirects(HttpClient.Redirect.NEVER)
 				.connectTimeout(Duration.ofMillis(2_500)).build();
 	}
 

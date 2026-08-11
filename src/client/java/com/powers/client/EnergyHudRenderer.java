@@ -23,7 +23,8 @@ public final class EnergyHudRenderer {
 
 	public static void render(GuiGraphicsExtractor graphics) {
 		Minecraft client = Minecraft.getInstance();
-		if (client.player == null) return;
+		if (!com.powers.hud.HudVisibility.energy(client.player != null,
+				client.player != null && client.player.isSpectator(), false)) return;
 		int capacity = ClientPowerState.energyCapacity();
 		int energy = Math.max(0, Math.min(capacity, ClientPowerState.energy()));
 		HudEnergyMode mode = HudMath.mode(energy,

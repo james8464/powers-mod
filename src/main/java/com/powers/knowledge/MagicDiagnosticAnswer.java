@@ -18,7 +18,7 @@ public final class MagicDiagnosticAnswer {
 		long required = fact(attempt, "required");
 		long available = fact(attempt, "available");
 		long remaining = fact(attempt, "remaining_ticks");
-		return switch (attempt.reason()) {
+		String explanation = switch (attempt.reason()) {
 			case NONE -> "Your " + action + " succeeded.";
 			case NO_TARGET -> failed(action, "it could not find a valid target");
 			case INSUFFICIENT_ENERGY -> "Your " + action + " failed because it required "
@@ -43,6 +43,7 @@ public final class MagicDiagnosticAnswer {
 			case INVALID_INPUT -> failed(action, "its selected input was invalid");
 			case EXECUTION_FAILED -> failed(action, "its world conditions changed before it completed");
 		};
+		return explanation + " I recorded this at server tick " + attempt.gameTick() + ".";
 	}
 
 	private static String failed(String action, String cause) {
