@@ -12,6 +12,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 /** Toggles an owned max-health modifier while preserving unrelated modifiers. */
 public class DoubleHealthAbility extends ToggleAbility {
 	private static final net.minecraft.resources.Identifier MODIFIER_ID = PowersMod.id("double_health");
+	private static final java.util.Map<java.util.UUID, Long> LAST_HEAL = new java.util.HashMap<>();
 
 	public DoubleHealthAbility() {
 		super(PowersMod.id("double_health"), Component.translatable("ability.powers.double_health"));
@@ -19,9 +20,15 @@ public class DoubleHealthAbility extends ToggleAbility {
 
 	@Override
 	public boolean activateToggleOn(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		float oldMaximum = player.getMaxHealth();
 		applyModifier(player, innateLevel(player).capacityMultiplier());
-		// heal up to 20 so the jump in max health actually fills the bar
-		player.setHealth(Math.min(player.getMaxHealth(), player.getHealth() + scaledPotency(player, 20.0f)));
+		long now = player.level().getServer().getTickCount();
+		long last = LAST_HEAL.getOrDefault(player.getUUID(), Long.MIN_VALUE / 2);
+		if (DoubleHealthRules.mayHeal(last, now)) {
+			player.setHealth(player.getHealth() + DoubleHealthRules.healToCap(
+					player.getHealth(), oldMaximum, player.getMaxHealth()));
+			LAST_HEAL.put(player.getUUID(), now);
+		}
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 			com.powers.fx.PowerFx.spiral(level, player.position(), 0.8, 2.0, 0xFF1744, 20, 0);
 			com.powers.fx.PowerFx.rune(level, player.position(), 1.4, 0x78E06B, 22,

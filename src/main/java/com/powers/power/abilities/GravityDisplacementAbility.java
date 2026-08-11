@@ -65,11 +65,23 @@ public final class GravityDisplacementAbility extends Ability {
 	private static final double CLAIM_HYSTERESIS_SQUARED = 0.25;
 	private static final Map<UUID, GravityField> ACTIVE = new LinkedHashMap<>();
 	private static final Map<UUID, UUID> TARGET_OWNERS = new HashMap<>();
+	private static final Map<UUID, GravityDisplacementRules.Mode> SELECTED_MODES = new HashMap<>();
 
 	public GravityDisplacementAbility() {
 		super(PowersMod.id("gravity_displacement"),
 				net.minecraft.network.chat.Component.translatable("ability.powers.gravity_displacement"),
 				300, false);
+	}
+
+	@Override public int selectionOptionCount() { return 3; }
+	@Override public net.minecraft.network.chat.Component selectionOptionName(int option) {
+		return net.minecraft.network.chat.Component.literal(switch (Math.floorMod(option, 3)) {
+			case 0 -> "Pull"; case 1 -> "Orbit"; default -> "Repel";
+		});
+	}
+	@Override public boolean selectOption(ServerPlayer player, PlayerPowers.PlayerPowersData data, int option) {
+		SELECTED_MODES.put(player.getUUID(), GravityDisplacementRules.Mode.values()[Math.floorMod(option, 3)]);
+		return true;
 	}
 
 	@Override
@@ -87,6 +99,7 @@ public final class GravityDisplacementAbility extends Ability {
 		GravityField field = new GravityField(owner, level.dimension(),
 				CastScalingContext.currentSource(), player.position(), now,
 				now + duration, radius,
+				SELECTED_MODES.getOrDefault(owner, GravityDisplacementRules.Mode.ORBIT),
 				GravityDisplacementRules.targetLimit(empoweredImpact, ancientMastery),
 				empoweredImpact, ancientMastery, scaledPotency(player, 4.0F),
 				Math.min(1.5, 1.05 * scaling(player).potencyMultiplier()));
@@ -180,6 +193,7 @@ public final class GravityDisplacementAbility extends Ability {
 			if (decision == GravityDisplacementRules.CaptureDecision.CAPTURE
 					&& retained.size() < field.targetLimit) {
 				if (claimTarget(level, target, field)) {
+					field.resistanceSnapshots.remove(target.getUUID());
 					retained.add(target.getUUID());
 					if (field.captured.add(target.getUUID())) {
 						GravityFx.captured(level, field.center,
@@ -203,6 +217,9 @@ public final class GravityDisplacementAbility extends Ability {
 				GravityFx.resistance(level,
 						target.position().add(0.0, target.getBbHeight() * 0.5, 0.0), decision);
 				cues++;
+			}
+			if (decision != GravityDisplacementRules.CaptureDecision.CAPTURE) {
+				field.resistanceSnapshots.put(target.getUUID(), decision);
 			}
 		}
 
@@ -251,10 +268,17 @@ public final class GravityDisplacementAbility extends Ability {
 			}
 
 			long seed = id.getMostSignificantBits() ^ Long.rotateLeft(id.getLeastSignificantBits(), 17);
-			Vec3 desired = field.center.add(GravityDisplacementRules.orbitOffset(
-					seed, age, field.radius, Math.min(4.5, field.radius * 0.56)));
+			Vec3 desired = switch (field.mode) {
+				case PULL -> field.center.add(0.0, 1.0, 0.0);
+				case ORBIT -> field.center.add(GravityDisplacementRules.orbitOffset(
+						seed, age, field.radius, Math.min(4.5, field.radius * 0.56)));
+				case REPEL -> target.position().add(target.position().subtract(field.center)
+						.normalize().scale(3.0));
+			};
 			Vec3 velocity = GravityDisplacementRules.steeringVelocity(
-					target.position(), target.getDeltaMovement(), desired, STEERING_PULL, MAX_ORBIT_SPEED);
+					target.position(), target.getDeltaMovement(), desired,
+					field.mode == GravityDisplacementRules.Mode.PULL ? 0.34 : STEERING_PULL,
+					field.mode == GravityDisplacementRules.Mode.REPEL ? 1.15 : MAX_ORBIT_SPEED);
 			velocity = ControlResistance.adjustImpulse(velocity, ControlResistance.outcome(target));
 			if (!level.noBlockCollision(target, target.getBoundingBox().move(velocity))) {
 				velocity = new Vec3(velocity.x * 0.15, Math.max(0.12, velocity.y), velocity.z * 0.15);
@@ -393,6 +417,14 @@ public final class GravityDisplacementAbility extends Ability {
 		return false;
 	}
 
+	public static List<FieldSnapshot> snapshots() {
+		return ACTIVE.values().stream().map(field -> new FieldSnapshot(field.owner,
+				field.mode.snapshotName(), field.expiresAt, Map.copyOf(field.resistanceSnapshots))).toList();
+	}
+
+	public record FieldSnapshot(UUID owner, String mode, long deadline,
+			Map<UUID, GravityDisplacementRules.CaptureDecision> stableResistance) { }
+
 	/** Mutable state is deliberately private and owned by the server tick thread. */
 	private static final class GravityField {
 		private final UUID owner;
@@ -402,6 +434,7 @@ public final class GravityDisplacementAbility extends Ability {
 		private final long openedAt;
 		private final long expiresAt;
 		private final double radius;
+		private final GravityDisplacementRules.Mode mode;
 		private final int targetLimit;
 		private final boolean empoweredImpact;
 		private final boolean ancientMastery;
@@ -409,9 +442,10 @@ public final class GravityDisplacementAbility extends Ability {
 		private final double collapseForce;
 		private final Set<UUID> captured = new LinkedHashSet<>();
 		private final Map<UUID, Long> resistanceCues = new HashMap<>();
+		private final Map<UUID, GravityDisplacementRules.CaptureDecision> resistanceSnapshots = new HashMap<>();
 
 		private GravityField(UUID owner, ResourceKey<Level> dimension, CastSource castSource, Vec3 center,
-				long openedAt, long expiresAt, double radius, int targetLimit,
+				long openedAt, long expiresAt, double radius, GravityDisplacementRules.Mode mode, int targetLimit,
 				boolean empoweredImpact, boolean ancientMastery, float impactDamage,
 				double collapseForce) {
 			this.owner = owner;
@@ -421,6 +455,7 @@ public final class GravityDisplacementAbility extends Ability {
 			this.openedAt = openedAt;
 			this.expiresAt = expiresAt;
 			this.radius = radius;
+			this.mode = mode;
 			this.targetLimit = targetLimit;
 			this.empoweredImpact = empoweredImpact;
 			this.ancientMastery = ancientMastery;
