@@ -11,8 +11,13 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 /** Toggles an owned max-health modifier while preserving unrelated modifiers. */
 public class DoubleHealthAbility extends ToggleAbility {
+	public static final long HEAL_LOCK_TICKS = 200L;
 	private static final net.minecraft.resources.Identifier MODIFIER_ID = PowersMod.id("double_health");
 	private static final String HEAL_LOCK = "double_health_heal";
+	public static float healToCap(float health, float oldMaximum, float newMaximum) {
+		return Math.max(0.0F, Math.min(newMaximum - health, newMaximum - oldMaximum));
+	}
+	public static boolean mayHeal(long lastHealTick, long now) { return now - lastHealTick > HEAL_LOCK_TICKS; }
 
 	public DoubleHealthAbility() {
 		super(PowersMod.id("double_health"), Component.translatable("ability.powers.double_health"));
@@ -24,9 +29,9 @@ public class DoubleHealthAbility extends ToggleAbility {
 		applyModifier(player, innateLevel(player).capacityMultiplier());
 		long now = player.level().getServer().getTickCount();
 		if (now >= data.cooldownReadyAt(HEAL_LOCK)) {
-			player.setHealth(player.getHealth() + DoubleHealthRules.healToCap(
+			player.setHealth(player.getHealth() + healToCap(
 					player.getHealth(), oldMaximum, player.getMaxHealth()));
-			data.setCooldown(HEAL_LOCK, now + DoubleHealthRules.HEAL_LOCK_TICKS);
+			data.setCooldown(HEAL_LOCK, now + HEAL_LOCK_TICKS);
 		}
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 			for (int heart = 0; heart < 10; heart++) {

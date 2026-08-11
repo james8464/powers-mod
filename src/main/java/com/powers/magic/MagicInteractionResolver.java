@@ -46,7 +46,7 @@ public final class MagicInteractionResolver {
 						InteractionOutcome.DESTABILIZE, 0.65, 0.65,
 						0.0, 0.0, 0.55, 0.55, MagicAspect.STORM,
 						false, false,
-						new InteractionCue("annihilating_beam_clash", "beam_ring",
+						new InteractionCue("annihilating_beam_clash", "celestial_ring",
 								first.signature().primaryColor(), second.signature().primaryColor(),
 								31 * first.signature().glyphSeed() + second.signature().glyphSeed(), 5),
 						"Crossing Sunfire and Void rays collapse into a bounded pressure blast, "
@@ -273,7 +273,6 @@ public final class MagicInteractionResolver {
 
 	/** Gives collision families an audible identity instead of one generic cue. */
 	private static String soundFor(String motif) {
-		if (motif.equals("annihilating_beam_clash")) return "beam_ring";
 		if (motif.contains("amethyst")) return "amethyst_fracture";
 		if (motif.contains("rift") || motif.contains("anchor") || motif.contains("return")) return "rift_open";
 		if (motif.contains("soul") || motif.contains("severance")) return "soul_tether";

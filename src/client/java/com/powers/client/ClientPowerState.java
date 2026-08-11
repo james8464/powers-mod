@@ -22,6 +22,7 @@ public final class ClientPowerState {
 	private static List<String> rankNodes = List.of();
 	private static String rankFocus = "";
 	private static int rankDepth;
+	private static int doubleHealthPulseTicks;
 	public static int markingSlot = -1;
 	public static int markingTicks;
 
@@ -29,8 +30,10 @@ public final class ClientPowerState {
 	}
 
 	public static void update(PowerStatePayload payload) {
+		boolean wasDoubleHealth = activeToggles.contains("powers:double_health");
 		powerIds = payload.powerIds();
 		activeToggles = payload.activeToggles();
+		if (!wasDoubleHealth && activeToggles.contains("powers:double_health")) doubleHealthPulseTicks = 20;
 		cooldownTicks = payload.cooldownTicks();
 		cooldownMaximums = payload.cooldownMaximums();
 		reactivationTicks = payload.reactivationTicks();
@@ -61,6 +64,7 @@ public final class ClientPowerState {
 		rankNodes = List.of();
 		rankFocus = "";
 		rankDepth = 0;
+		doubleHealthPulseTicks = 0;
 		markingSlot = -1;
 		markingTicks = 0;
 	}
@@ -95,6 +99,7 @@ public final class ClientPowerState {
 	}
 
 	public static void tickCooldowns() {
+		if (doubleHealthPulseTicks > 0) doubleHealthPulseTicks--;
 		if (cooldownTicks.isEmpty()) return;
 		java.util.ArrayList<Integer> updated = new java.util.ArrayList<>(cooldownTicks.size());
 		for (int ticks : cooldownTicks) updated.add(Math.max(0, ticks - 1));
@@ -105,6 +110,8 @@ public final class ClientPowerState {
 			reactivationTicks = List.copyOf(reactivations);
 		}
 	}
+
+	public static int doubleHealthPulseTicks() { return doubleHealthPulseTicks; }
 
 	public static boolean darkness() {
 		return darkness;

@@ -148,7 +148,7 @@ final class SpellEffects {
 
 	private static boolean graveRecall(ServerPlayer caster) {
 		LastDeathRecord death = PlayerPowers.get(caster).lastDeath();
-		if (death == null || !GraveRecallRules.retained(death.recordedAt(), caster.level().getGameTime())) {
+		if (death == null || !death.retained(caster.level().getGameTime())) {
 			if (death != null) PlayerPowers.get(caster).clearLastDeath();
 			caster.sendSystemMessage(Component.translatable("spell.powers.grave_recall.none"));
 			return false;
@@ -157,8 +157,8 @@ final class SpellEffects {
 				death.dimension()));
 		caster.sendSystemMessage(Component.translatable("spell.powers.grave_recall.coordinates",
 				death.x(), death.y(), death.z()));
-		GraveRecallRules.bearing(caster.level().dimension().identifier().toString(), caster.getX(), caster.getZ(),
-				death.dimension(), death.x(), death.z()).ifPresent(bearing -> caster.sendSystemMessage(
+		death.bearing(caster.level().dimension().identifier().toString(), caster.getX(), caster.getZ())
+				.ifPresent(bearing -> caster.sendSystemMessage(
 				Component.translatable("spell.powers.grave_recall.bearing", Component.translatable(bearing))));
 		ServerLevel level = (ServerLevel) caster.level();
 		PowerFx.rune(level, caster.position().add(0.0, 0.08, 0.0), 2.0,

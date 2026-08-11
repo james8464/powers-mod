@@ -6,11 +6,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InteractionPresentationTest {
 	@Test void actionBarNamesCounterAndResonanceWithNonColourIcons() {
-		assertEquals("✕", InteractionPresentation.icon(InteractionOutcome.CANCEL));
-		assertEquals("◎", InteractionPresentation.icon(InteractionOutcome.RESONATE));
+		assertEquals("✕", MagicInteractionArbitrator.presentationIcon(InteractionOutcome.CANCEL));
+		assertEquals("◎", MagicInteractionArbitrator.presentationIcon(InteractionOutcome.RESONATE));
 		assertEquals("magic.powers.interaction.counter",
-				InteractionPresentation.translationKey(InteractionOutcome.REFLECT));
+				MagicInteractionArbitrator.presentationKey(InteractionOutcome.REFLECT));
 		assertEquals("magic.powers.interaction.resonance",
-				InteractionPresentation.translationKey(InteractionOutcome.AMPLIFY));
+				MagicInteractionArbitrator.presentationKey(InteractionOutcome.AMPLIFY));
 	}
 }

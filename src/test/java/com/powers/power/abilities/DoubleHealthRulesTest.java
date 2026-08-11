@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DoubleHealthRulesTest {
 	@Test void healingFillsOnlyTheNewRowsAndRapidRetoggleCannotHealAgain() {
-		assertEquals(20.0F, DoubleHealthRules.healToCap(10, 20, 40));
-		assertEquals(0.0F, DoubleHealthRules.healToCap(40, 20, 40));
-		assertFalse(DoubleHealthRules.mayHeal(100, 250));
-		assertTrue(DoubleHealthRules.mayHeal(100, 301));
+		assertEquals(20.0F, DoubleHealthAbility.healToCap(10, 20, 40));
+		assertEquals(0.0F, DoubleHealthAbility.healToCap(40, 20, 40));
+		assertFalse(DoubleHealthAbility.mayHeal(100, 250));
+		assertTrue(DoubleHealthAbility.mayHeal(100, 301));
 	}
 }
