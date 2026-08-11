@@ -50,7 +50,8 @@ final class SpellEffects {
 			case DISPEL -> {
 				LivingEntity optional = PowerTargeting.findLivingTarget(caster, range);
 				var field = SpellFieldManager.nearestDispelTarget(caster, range).orElse(null);
-				if (field != null) caster.sendSystemMessage(Component.literal("Dispel target: " + field.displayName()), true);
+				if (field != null) caster.sendSystemMessage(Component.translatable(
+						"spell.powers.dispel.inspect", field.displayName()), true);
 				yield SpellTarget.dispel(optional, field);
 			}
 			default -> SpellTarget.none();
@@ -158,7 +159,7 @@ final class SpellEffects {
 				death.x(), death.y(), death.z()));
 		GraveRecallRules.bearing(caster.level().dimension().identifier().toString(), caster.getX(), caster.getZ(),
 				death.dimension(), death.x(), death.z()).ifPresent(bearing -> caster.sendSystemMessage(
-				Component.translatable("spell.powers.grave_recall.bearing", bearing)));
+				Component.translatable("spell.powers.grave_recall.bearing", Component.translatable(bearing))));
 		ServerLevel level = (ServerLevel) caster.level();
 		PowerFx.rune(level, caster.position().add(0.0, 0.08, 0.0), 2.0,
 				0x67405B, 24, level.getGameTime() * -0.05);
