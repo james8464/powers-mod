@@ -51,7 +51,7 @@ class BoundedKnowledgeProviderTest {
 	}
 
 	private static KnowledgeAnswer offline() {
-		return new KnowledgeAnswer("unknown", "The book cannot verify that.", 0.2,
+		return new KnowledgeAnswer("unknown", "Shadow cannot verify that.", 0.2,
 				List.of("offline index"), List.of());
 	}
 

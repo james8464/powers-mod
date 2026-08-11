@@ -34,9 +34,9 @@ public final class KnowledgeIndex implements KnowledgeProvider {
 		if (visible == null) {
 			boolean withheld = matches.stream().anyMatch(match -> match.score() >= 3);
 			String answer = withheld
-					? "The book recognises this subject, but its pages have not yet opened to your rank."
-					: "The book could not verify an answer from loaded registries, recipes, or authored lore."
-						+ " It will not invent a recipe.";
+					? "I recognise that truth, but your rank cannot yet bear it."
+					: "I cannot verify that from loaded registries, recipes, or authored lore."
+						+ " I will not invent an answer.";
 			return new KnowledgeAnswer("", answer, 0.0, List.of("offline knowledge index"),
 					query.contextRegistryIds());
 		}

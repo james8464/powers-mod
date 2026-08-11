@@ -16,13 +16,10 @@ class LootInjectionCatalogTest {
 		for (LootDropGroup group : groups) {
 			assertTrue(tables.add(group.tableId()), group.tableId());
 			assertTrue(group.chance() > 0 && group.chance() <= 1);
-			assertTrue(group.itemIds().stream().allMatch(id -> id.startsWith("imported_")
-					|| id.equals("minecraft:knowledge_book")));
+			assertTrue(group.itemIds().stream().allMatch(id -> id.startsWith("imported_")));
 		}
-		assertTrue(groups.stream().filter(group -> group.tableId().equals(
-				"minecraft:chests/stronghold_library")).flatMap(group -> group.itemIds().stream())
-				.anyMatch("minecraft:knowledge_book"::equals));
 		var obtainable = groups.stream().flatMap(group -> group.itemIds().stream()).toList();
+		assertTrue(obtainable.stream().noneMatch("minecraft:knowledge_book"::equals));
 		assertTrue(obtainable.contains("imported_artifact_lodestone"));
 		assertTrue(obtainable.contains("imported_device_miniportal"));
 		assertTrue(obtainable.contains("imported_artifact_philosopherstone"));

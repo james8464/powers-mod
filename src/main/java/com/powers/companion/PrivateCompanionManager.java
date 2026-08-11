@@ -1,51 +1,52 @@
 package com.powers.companion;
 
-import com.powers.PowersBlocks;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.knowledge.KnowledgeAnswer;
+import com.powers.knowledge.KnowledgeService;
 import com.powers.network.CompanionPackets;
-import com.powers.entity.FirstVessel;
-import com.powers.player.ArtifactSelectionState;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
-import com.powers.util.BoundedEntityCandidates;
-import net.minecraft.core.BlockPos;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Owns lightweight server sessions for owner-private companion apparitions.
- * No companion entity exists on the server, so this has constant work per
- * eligible owner and cannot add mob AI, collision, tracking, or chunk tickets.
+ * Owns Shadow sessions without creating server entities, AI, hitboxes, or
+ * chunk tickets. Each authorised client renders a local player-shaped shell;
+ * hidden sessions are sent only to their owner and revealed sessions are sent
+ * to every player in the owner's current dimension.
  */
 public final class PrivateCompanionManager {
-	private static final int STABLE_ELIGIBILITY_TICKS = 40;
 	private static final int UPDATE_INTERVAL_TICKS = 4;
 	private static final AtomicLong NEXT_SESSION = new AtomicLong(1L);
-	private static final Map<UUID, Integer> ELIGIBILITY = new HashMap<>();
-	private static final java.util.Set<UUID> REQUESTED = new java.util.HashSet<>();
+	private static final Set<UUID> REQUESTED = new HashSet<>();
+	private static final Set<UUID> REVEALED = new HashSet<>();
 	private static final Map<UUID, Session> SESSIONS = new HashMap<>();
-	private static final Map<UUID, Integer> LAST_DEATH_AT = new HashMap<>();
-	private static final Map<UUID, Integer> LAST_RANK = new HashMap<>();
-	private static final Map<UUID, Integer> MILESTONE_AT = new HashMap<>();
-	private static final LoreDialogueEngine DIALOGUE = new LoreDialogueEngine();
 
 	private static final class Session {
 		private final long id;
 		private String dimension;
 		private Vec3 position;
 		private float yaw;
+		private boolean revealed;
+		private final Set<UUID> viewers = new HashSet<>();
 
-		private Session(long id, String dimension, Vec3 position, float yaw) {
+		private Session(long id, String dimension, Vec3 position, float yaw, boolean revealed) {
 			this.id = id;
 			this.dimension = dimension;
 			this.position = position;
 			this.yaw = yaw;
+			this.revealed = revealed;
 		}
 	}
 
@@ -54,30 +55,24 @@ public final class PrivateCompanionManager {
 
 	public static void tickPlayer(ServerPlayer player, int serverTick) {
 		UUID owner = player.getUUID();
-		int currentRank = PlayerPowers.get(player).darknessLevel();
-		Integer previousRank = LAST_RANK.put(owner, currentRank);
-		if (previousRank != null && currentRank > previousRank) MILESTONE_AT.put(owner, serverTick);
-		boolean eligible = PrivateCompanionRules.eligible(
-				SkillSystem.hasDarknessTag(player),
-				ArtifactWeaponManager.carries(player, ArtifactAlignment.DARKNESS),
-				player.isAlive() && !player.isRemoved(),
-				PlayerPowers.get(player).mindBody() != null, REQUESTED.contains(owner));
-		if (!eligible) {
-			ELIGIBILITY.remove(owner);
+		if (!eligible(player)) {
+			REQUESTED.remove(owner);
+			REVEALED.remove(owner);
+			despawn(player);
+			return;
+		}
+		if (!REQUESTED.contains(owner)) {
 			despawn(player);
 			return;
 		}
 
 		Session session = SESSIONS.get(owner);
 		if (session == null) {
-			int stableTicks = ELIGIBILITY.merge(owner, 1, Integer::sum);
-			if (stableTicks < STABLE_ELIGIBILITY_TICKS) return;
 			Vec3 position = desiredPosition(player);
 			session = new Session(NEXT_SESSION.getAndIncrement(), dimension(player),
-					position, player.getYRot());
+					position, player.getYRot(), REVEALED.contains(owner));
 			SESSIONS.put(owner, session);
-			CompanionPackets.sendState(player, session.id, true, true,
-					position.x, position.y, position.z, session.yaw, "");
+			syncViewers(player, session, true);
 			return;
 		}
 		if (serverTick % UPDATE_INTERVAL_TICKS != 0) return;
@@ -93,81 +88,145 @@ public final class PrivateCompanionManager {
 			session.position = session.position.lerp(desired, 0.55);
 		}
 		session.yaw = player.getYRot();
-		CompanionPackets.sendState(player, session.id, true, teleport,
-				session.position.x, session.position.y, session.position.z, session.yaw, "");
+		session.revealed = REVEALED.contains(owner);
+		syncViewers(player, session, teleport);
 	}
 
-	/** Validates the private session, distance, and view cone before speaking. */
-	public static void interact(ServerPlayer owner, long suppliedSession) {
-		if (suppliedSession == -1L) {
+	/**
+	 * Consumes an explicit Shadow address so it never appears as ordinary chat.
+	 * Returns false for all unrelated messages.
+	 */
+	public static boolean handleChat(ServerPlayer owner, String rawMessage) {
+		ShadowChatIntent intent = ShadowChatIntent.parse(rawMessage);
+		if (!intent.addressed()) return false;
+		if (!eligible(owner)) {
+			owner.sendSystemMessage(Component.literal(
+					"Shadow is silent. Darkness and the Shadow Sword must both recognise you.")
+					.withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+			return true;
+		}
+		switch (intent.action()) {
+			case EMPTY -> reply(owner, "Speak, and I will listen.");
+			case TOO_LONG -> reply(owner, "One thought at a time. Your question is too long.");
+			case SUMMON -> {
+				REQUESTED.add(owner.getUUID());
+				reply(owner, "I am beside you.");
+			}
+			case DISMISS -> {
+				REQUESTED.remove(owner.getUUID());
+				REVEALED.remove(owner.getUUID());
+				despawn(owner);
+				replyPrivate(owner, "I return to the blade.");
+			}
+			case REVEAL -> {
+				REQUESTED.add(owner.getUUID());
+				REVEALED.add(owner.getUUID());
+				setRevealed(owner, true);
+				reply(owner, "Let every witness see what follows you.");
+			}
+			case HIDE -> {
+				REQUESTED.add(owner.getUUID());
+				REVEALED.remove(owner.getUUID());
+				setRevealed(owner, false);
+				replyPrivate(owner, "Only you may see or hear me now.");
+			}
+			case QUESTION -> {
+				REQUESTED.add(owner.getUUID());
+				answer(owner, intent.message());
+			}
+			case NONE -> {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/** G-key compatibility: summon or dismiss without creating a chat message. */
+	public static void interact(ServerPlayer owner, long request) {
+		if (!eligible(owner)) return;
+		if (request == -1L) {
 			REQUESTED.add(owner.getUUID());
-			ELIGIBILITY.put(owner.getUUID(), STABLE_ELIGIBILITY_TICKS);
-			return;
-		}
-		if (suppliedSession == -2L) {
+			reply(owner, "I am beside you.");
+		} else if (request == -2L) {
 			REQUESTED.remove(owner.getUUID());
-			ELIGIBILITY.remove(owner.getUUID());
+			REVEALED.remove(owner.getUUID());
 			despawn(owner);
-			return;
+			replyPrivate(owner, "I return to the blade.");
 		}
+	}
+
+	private static void answer(ServerPlayer owner, String question) {
+		KnowledgeService.answerAsync(owner, question).thenAccept(answer ->
+				owner.level().getServer().execute(() -> {
+					if (owner.connection == null || owner.isRemoved()
+							|| !REQUESTED.contains(owner.getUUID())) return;
+					reply(owner, spokenAnswer(answer));
+				}));
+	}
+
+	private static String spokenAnswer(KnowledgeAnswer answer) {
+		String text = answer.answer().strip();
+		if (!text.isEmpty()) return text;
+		return "That truth has not yet left a trace I can verify.";
+	}
+
+	private static void setRevealed(ServerPlayer owner, boolean revealed) {
 		Session session = SESSIONS.get(owner.getUUID());
-		if (session == null || !session.dimension.equals(dimension(owner))) return;
-		Vec3 eyeToCompanion = session.position.add(0.0, 1.62, 0.0).subtract(owner.getEyePosition());
-		double distanceSquared = eyeToCompanion.lengthSqr();
-		double viewDot = distanceSquared < 1.0E-6 ? 1.0
-				: owner.getLookAngle().dot(eyeToCompanion.normalize());
-		if (!PrivateCompanionRules.mayInteract(suppliedSession, session.id,
-				distanceSquared, viewDot)) return;
-		LoreDialogueContext context = context(owner);
-		String fallback = DIALOGUE.line(owner.getUUID(), context, false);
-		DialogueProviderRuntime.request(owner.getUUID(), context, false, fallback)
-				.thenAccept(line -> owner.level().getServer().execute(() -> sendDialogueIfCurrent(
-						owner, suppliedSession, line)));
+		if (session == null) return;
+		session.revealed = revealed;
+		syncViewers(owner, session, true);
 	}
 
-	private static void sendDialogueIfCurrent(ServerPlayer owner, long suppliedSession, String line) {
-		if (owner.connection == null || owner.isRemoved()) return;
-		Session current = SESSIONS.get(owner.getUUID());
-		if (current == null || current.id != suppliedSession
-				|| !current.dimension.equals(dimension(owner))) return;
-		CompanionPackets.sendState(owner, current.id, true, false,
-				current.position.x, current.position.y, current.position.z, current.yaw, line);
-	}
-
-	private static LoreDialogueContext context(ServerPlayer player) {
-		PlayerPowers.PlayerPowersData powers = PlayerPowers.get(player);
-		int tick = player.level().getServer().getTickCount();
-		String realm = player.level().dimension().identifier().getPath();
-		String alignment = nearbyAlignment(player);
-		String action = ArtifactSelectionState.selected(player, ArtifactAlignment.DARKNESS);
-		boolean bossNearby = !BoundedEntityCandidates.ofClass(player.level(), FirstVessel.class,
-				player.getBoundingBox().inflate(64.0), 1, FirstVessel::isAlive).isEmpty();
-		boolean recentDeath = tick - LAST_DEATH_AT.getOrDefault(player.getUUID(), -100_000)
-				<= 20 * 120;
-		boolean milestone = tick - MILESTONE_AT.getOrDefault(player.getUUID(), -100_000)
-				<= 20 * 60;
-		return new LoreDialogueContext(realm,
-				player.getHealth() <= player.getMaxHealth() * 0.35F,
-				powers.energy() <= powers.energyCapacity() / 4,
-				powers.darknessLevel(), alignment, action,
-				recentDeath, bossNearby, milestone ? "rank_" + powers.darknessLevel() : "none");
-	}
-
-	/** Records only an owner timestamp; no death location or attacker is retained. */
-	public static void recordDeath(ServerPlayer player) {
-		LAST_DEATH_AT.put(player.getUUID(), player.level().getServer().getTickCount());
-	}
-
-	/** Samples a fixed 7-cube instead of searching arbitrary loaded chunks. */
-	private static String nearbyAlignment(ServerPlayer player) {
-		BlockPos center = player.blockPosition();
-		for (BlockPos pos : BlockPos.betweenClosed(center.offset(-3, -3, -3),
-				center.offset(3, 3, 3))) {
-			var block = player.level().getBlockState(pos).getBlock();
-			if (block == PowersBlocks.DARKNESS) return "darkness";
-			if (block == PowersBlocks.PURE_LIGHT) return "pure_light";
+	private static void syncViewers(ServerPlayer owner, Session session, boolean teleport) {
+		List<ServerPlayer> desired = session.revealed
+				? owner.level().players().stream().filter(player -> player.connection != null).toList()
+				: List.of(owner);
+		Set<UUID> desiredIds = desired.stream().map(ServerPlayer::getUUID)
+				.collect(java.util.stream.Collectors.toUnmodifiableSet());
+		for (UUID previous : Set.copyOf(session.viewers)) {
+			if (desiredIds.contains(previous)) continue;
+			ServerPlayer recipient = owner.level().getServer().getPlayerList().getPlayer(previous);
+			if (recipient != null && recipient.connection != null) {
+				CompanionPackets.sendState(recipient, owner.getUUID(), session.id, false, true,
+						session.dimension, 0.0, 0.0, 0.0, 0.0F);
+			}
 		}
-		return "none";
+		for (ServerPlayer recipient : desired) {
+			CompanionPackets.sendState(recipient, owner.getUUID(), session.id, true, teleport,
+					session.dimension, session.position.x, session.position.y,
+					session.position.z, session.yaw);
+		}
+		session.viewers.clear();
+		session.viewers.addAll(desiredIds);
+	}
+
+	private static void reply(ServerPlayer owner, String line) {
+		List<UUID> online = owner.level().getServer().getPlayerList().getPlayers().stream()
+				.map(ServerPlayer::getUUID).toList();
+		for (UUID id : PrivateCompanionRules.recipients(owner.getUUID(), online,
+				REVEALED.contains(owner.getUUID()))) {
+			ServerPlayer recipient = owner.level().getServer().getPlayerList().getPlayer(id);
+			if (recipient != null) sendReply(recipient, owner, line);
+		}
+	}
+
+	private static void replyPrivate(ServerPlayer owner, String line) {
+		sendReply(owner, owner, line);
+	}
+
+	private static void sendReply(ServerPlayer recipient, ServerPlayer owner, String line) {
+		Component prefix = Component.literal("Shadow of " + owner.getScoreboardName() + ": ")
+				.withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD);
+		recipient.sendSystemMessage(prefix.copy().append(
+				Component.literal(line).withStyle(ChatFormatting.GRAY)));
+	}
+
+	private static boolean eligible(ServerPlayer player) {
+		return PrivateCompanionRules.eligible(
+				SkillSystem.hasDarknessTag(player),
+				ArtifactWeaponManager.carries(player, ArtifactAlignment.DARKNESS),
+				player.isAlive() && !player.isRemoved(),
+				PlayerPowers.get(player).mindBody() != null, true);
 	}
 
 	private static Vec3 desiredPosition(ServerPlayer player) {
@@ -178,33 +237,38 @@ public final class PrivateCompanionManager {
 		return player.level().dimension().identifier().toString();
 	}
 
-	public static void forget(ServerPlayer player) {
-		ELIGIBILITY.remove(player.getUUID());
-		REQUESTED.remove(player.getUUID());
-		LAST_DEATH_AT.remove(player.getUUID());
-		LAST_RANK.remove(player.getUUID());
-		MILESTONE_AT.remove(player.getUUID());
-		despawn(player);
-		DIALOGUE.forget(player.getUUID());
-		DialogueProviderRuntime.forget(player.getUUID());
+	/** Bounded diagnostics for GameTests and {@code /powers diagnose}. */
+	public static int activeSessionCount() {
+		return SESSIONS.size();
 	}
 
-	private static void despawn(ServerPlayer player) {
-		Session removed = SESSIONS.remove(player.getUUID());
-		if (removed != null && player.connection != null) {
-			CompanionPackets.sendState(player, removed.id, false, true,
-					0.0, 0.0, 0.0, 0.0F, "");
+	/** Returns the current server-authoritative global visibility state. */
+	public static boolean isRevealed(UUID owner) {
+		return REVEALED.contains(owner);
+	}
+
+	public static void forget(ServerPlayer player) {
+		REQUESTED.remove(player.getUUID());
+		REVEALED.remove(player.getUUID());
+		despawn(player);
+		com.powers.knowledge.KnowledgeRemoteProviderRuntime.forget(player.getUUID());
+	}
+
+	private static void despawn(ServerPlayer owner) {
+		Session removed = SESSIONS.remove(owner.getUUID());
+		if (removed == null) return;
+		for (ServerPlayer recipient : owner.level().getServer().getPlayerList().getPlayers()) {
+			if (recipient.connection != null) {
+				CompanionPackets.sendState(recipient, owner.getUUID(), removed.id, false, true,
+						removed.dimension, 0.0, 0.0, 0.0, 0.0F);
+			}
 		}
 	}
 
 	public static void clear() {
-		ELIGIBILITY.clear();
 		REQUESTED.clear();
+		REVEALED.clear();
 		SESSIONS.clear();
-		LAST_DEATH_AT.clear();
-		LAST_RANK.clear();
-		MILESTONE_AT.clear();
-		DIALOGUE.clear();
-		DialogueProviderRuntime.clear();
+		com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
 	}
 }

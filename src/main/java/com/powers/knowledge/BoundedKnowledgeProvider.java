@@ -15,7 +15,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-/** Privacy, timeout, rate, concurrency, and output boundary for remote book fallback. */
+/** Privacy, timeout, rate, concurrency, and output boundary for Shadow's optional remote fallback. */
 public final class BoundedKnowledgeProvider {
 	private static final int MAX_OUTPUT_CHARACTERS = 1_024;
 	private final PowersConfig.DialogueProvider settings;
@@ -109,7 +109,7 @@ public final class BoundedKnowledgeProvider {
 		String context = query.contextRegistryIds().stream()
 				.map(BoundedKnowledgeProvider::registryField).limit(8)
 				.collect(java.util.stream.Collectors.joining(","));
-		return "Answer one Minecraft/POWERS question in at most 120 words. "
+		return "Speak as Shadow, a concise ancient companion. Answer one Minecraft/POWERS question in at most 120 words. "
 				+ "Never invent recipes, commands, registry IDs, or implemented features. "
 				+ "Clearly say when uncertain. No coordinates, player identity, chat, IP, or world data is supplied. "
 				+ "Progression reveal rank=" + query.revealRank() + "; registry context=" + context

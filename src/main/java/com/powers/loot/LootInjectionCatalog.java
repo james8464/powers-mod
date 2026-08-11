@@ -13,7 +13,7 @@ public final class LootInjectionCatalog {
 				group("minecraft:chests/abandoned_mineshaft", 0.14f, "imported_artifact_runestone_dark_tiny"),
 				group("minecraft:chests/ancient_city", 0.10f, "imported_artifact_runestone_frigid"),
 				group("minecraft:chests/stronghold_library", 0.12f,
-						"imported_artifact_runestone_dark_small", "minecraft:knowledge_book"),
+						"imported_artifact_runestone_dark_small"),
 				group("minecraft:chests/bastion_treasure", 0.08f,
 						"imported_artifact_runestone_dark_medium"),
 				group("minecraft:chests/end_city_treasure", 0.04f,

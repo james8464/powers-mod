@@ -1,2 +1,2 @@
-/** Offline, datapack-driven answers for the searchable vanilla Knowledge Book. */
+/** Offline, datapack-driven Minecraft and POWERS answers spoken by Shadow. */
 package com.powers.knowledge;

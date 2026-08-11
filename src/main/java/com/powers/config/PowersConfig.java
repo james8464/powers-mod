@@ -67,7 +67,7 @@ public record PowersConfig(
 		}
 	}
 
-	/** Disabled-by-default bounded endpoint for lore dialogue and low-confidence book fallback. */
+	/** Disabled-by-default bounded endpoint for boss dialogue and low-confidence Shadow fallback. */
 	public record DialogueProvider(boolean enabled, String endpoint, String model,
 			String credentialEnvironmentVariable, int timeoutMillis,
 			int maxGlobalRequests, int ownerCooldownSeconds) {

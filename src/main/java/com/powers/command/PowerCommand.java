@@ -145,6 +145,8 @@ public final class PowerCommand {
 		for (String line : snapshot.lines()) {
 			context.getSource().sendSuccess(() -> Component.literal(line).withStyle(ChatFormatting.AQUA), false);
 		}
+		context.getSource().sendSuccess(() -> Component.literal("shadow sessions: "
+				+ com.powers.companion.PrivateCompanionManager.activeSessionCount()).withStyle(ChatFormatting.AQUA), false);
 		if (context.getSource().getEntity() instanceof ServerPlayer player) {
 			var testing = com.powers.testing.TestingOverrides.state(player.getUUID());
 			context.getSource().sendSuccess(() -> Component.literal(
@@ -424,7 +426,6 @@ public final class PowerCommand {
 					.withStyle(ChatFormatting.GRAY));
 		}
 	}
-
 	/** teleports the executing player to a registered dimension like powers:dark_realm */
 	private static int travel(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();

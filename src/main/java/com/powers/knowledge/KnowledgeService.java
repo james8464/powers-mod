@@ -80,7 +80,7 @@ public final class KnowledgeService {
 		if (candidates.isEmpty()) return null;
 		return new KnowledgeAnswer("recipe", "Verified loaded recipe ID"
 				+ (candidates.size() == 1 ? ": " : "s: ") + String.join(", ", candidates)
-				+ ". The book reports only server-loaded recipe data and never guesses ingredients.",
+				+ ". I report only server-loaded recipe data and never guess ingredients.",
 				0.72, List.of("Minecraft RecipeManager"), candidates);
 	}
 

@@ -46,6 +46,6 @@ public final class KnowledgeEntryReloadListener extends SimpleReloadListener<Lis
 	@Override
 	protected void apply(List<KnowledgeEntry> loaded, PreparableReloadListener.SharedState state) {
 		KnowledgeService.replaceEntries(loaded);
-		PowersMod.LOGGER.info("Loaded {} Knowledge Book entries", loaded.size());
+		PowersMod.LOGGER.info("Loaded {} Shadow knowledge entries", loaded.size());
 	}
 }

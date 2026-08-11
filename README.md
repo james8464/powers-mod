@@ -213,13 +213,13 @@ Formerly decorative imported relics now have bounded server-owned roles:
 - The Philosopher's Stone performs controlled, energy-priced transmutation of stone, deepslate, netherrack, or end stone. It refuses protected blocks and block entities.
 - Use a Lodestone relic on a safe destination to bind its dimension and coordinates. A carried Miniportal asynchronously loads and returns to that anchor through the same border, realm, ward, anchor, collision, and hazard policy as other travel.
 - The Flute recalls, heals, and rebinds nearby player-shaped guardians to its wielder under the normal guardian caps.
-- Essences, blood salts, fossils, jewels, pearls, stones, ember fragments, and other archaeology reagents contribute documented Arcane Crucible XP tiers. Tattered pages and remaining lore relics are contextual clues for the Knowledge Book rather than fake weapons.
+- Essences, blood salts, fossils, jewels, pearls, stones, ember fragments, and other archaeology reagents contribute documented Arcane Crucible XP tiers. Tattered pages and remaining lore relics become contextual clues that Shadow can decipher rather than fake weapons.
 
 Representative relics are injected additively into dungeon, pyramid, temple, mansion, ruined-portal, fortress, buried-treasure, stronghold, ancient-city, bastion, and end-city loot. Their variants share the same family behavior. Crystals and deliberately deferred story items remain recipe-less.
 
-## Knowledge Book
+## Shadow knowledge
 
-Vanilla's normally command-only Knowledge Book opens a non-consuming searchable question screen with bounded history. The server answers offline from datapack `powers:knowledge_entries`, loaded item/block/entity registries, loaded recipe identifiers, progression visibility, and redacted context for the held item, targeted block/entity, biome, and dimension. Answers show confidence, sources, and registry IDs; unknown or hidden information is admitted rather than invented. Stronghold libraries can contain the book and award the Archivist advancement. The disabled-by-default OpenAI-compatible endpoint may answer only low-confidence non-recipe questions; it receives the text the player chose to type plus bounded registry context, while the server adds no identity, coordinates, chat, IPs, secrets, or raw world data. HTTPS/loopback validation, timeouts, concurrency, cooldowns, and offline fallback remain mandatory.
+The custom Knowledge Book interface, network protocol, advancement, and loot injection have been removed; vanilla Knowledge Books retain vanilla behaviour. A darkness-tagged Shadow Sword wielder instead addresses their Shadow through ordinary chat beginning exactly with `shadow, …`. Shadow answers offline from datapack `powers:knowledge_entries`, loaded item/block/entity registries, verified loaded recipe IDs, progression visibility, and redacted context for the held item, targeted block/entity, biome, and dimension. It admits uncertainty and never invents recipes. The optional OpenAI-compatible endpoint is disabled by default and may answer only low-confidence non-recipe questions; it receives the chosen question and bounded registry context, never identity, coordinates, chat history, IPs, secrets, or raw world data. HTTPS/loopback validation, timeouts, concurrency, cooldowns, and offline fallback remain mandatory.
 
 ## Arcane Crucible
 
@@ -233,11 +233,11 @@ Its three-stage path is:
 
 Datapacks can add base weapons to `#powers:arcane_crucible_base_weapons`. Java integrations can call `CrucibleEligibility.registerBaseWeapon(Predicate<ItemStack>)` or `registerExclusion(...)`. The Shadow Sword, Heavenly Partisan, stacks with mythic identity, and already converted weapons are hard exclusions even if another pack tags them. Crystals and story artifacts still receive no recipe.
 
-## Owner-private shadow companion
+## Shadow companion
 
-A darkness-tagged player carrying the Shadow Sword may press `G` to explicitly call an owner-private lore apparition; it never appears merely because the sword is held. It is client-rendered from a server-authoritative session rather than a tracked world mob: other clients receive no spawn, position, particle, sound, collision, pathfinding, target, or dialogue data. It follows at 5 Hz, privately steps behind the owner if separated by more than 20 blocks, and vanishes on dismissal, lost eligibility, logout, invalid dimension state, death/projection, or server stop.
+A darkness-tagged player carrying the Shadow Sword may press `G`, say `shadow, come to me`, or ask any `shadow, …` question to call Shadow explicitly. Merely holding the sword never spawns it. Shadow is a collisionless client-local `RemotePlayer` shell driven by a lightweight server session: it uses the wielder's live skin and correct slim/classic player model, carries no item or armour, follows at 5 Hz to a rear-side doglike position, and teleports through a custom eclipse effect beyond 12 blocks. It disappears on dismissal, lost eligibility, logout, death/projection, or server stop and never owns AI, a hitbox, save data, or chunk tickets.
 
-Press `G` again while near and facing the apparition to request a line; crouch-`G` dismisses it. The server authenticates the current session, distance, and view cone. The offline lore engine reacts to realm, low health/energy, darkness rank, nearby living forces, selected rite, recent death, a nearby First Vessel, and rank milestones without repeating its last topics.
+Shadow is private by default. `shadow, reveal yourself` reveals its avatar to every player in the wielder's dimension and broadcasts subsequent Shadow replies server-wide. `shadow, hide yourself` immediately removes it from other clients and makes replies owner-only again without hiding it from its owner. `shadow, leave me` dismisses it completely. All addressed messages are removed from ordinary signed chat and answered as clearly attributed server messages; unrelated chat remains untouched.
 
 An optional OpenAI-compatible text endpoint may replace only the wording. It is disabled by default, never receives UUIDs, names, chat, IPs, coordinates, or secrets, and cannot change gameplay. Credentials come only from the configured environment-variable name. Requests are asynchronous, capped at one per owner/four globally, limited to 2.5 seconds and 256 output characters, and always fall back to offline lore.
 
@@ -341,7 +341,7 @@ Important defaults:
 | `livingForces.clashRadius` | `48` | Realm-matter annihilation sphere radius |
 | `livingForces.clashChecksPerTick` | `4096` | Maximum in-sphere clash positions processed per tick |
 | `safeZones` | `[]` | Protected dimension-centred spheres |
-| `dialogueProvider.enabled` | `false` | Enables optional remote lore wording and low-confidence, non-recipe Knowledge Book fallback |
+| `dialogueProvider.enabled` | `false` | Enables optional remote boss dialogue and low-confidence, non-recipe Shadow answers |
 | `dialogueProvider.endpoint` | `""` | HTTPS or loopback HTTP OpenAI-compatible endpoint |
 | `dialogueProvider.model` | `""` | Provider model identifier |
 | `dialogueProvider.credentialEnvironmentVariable` | `POWERS_DIALOGUE_API_KEY` | Name of the server environment variable containing the credential |
