@@ -76,4 +76,14 @@ public final class ArtifactEnergyReservoir {
 		}
 		return true;
 	}
+
+	/** Total valid auxiliary energy visible to one cast, saturated for diagnostics. */
+	public static int totalStored(ServerPlayer player) {
+		long total = 0L;
+		for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+			total += stored(player.getInventory().getItem(slot));
+			if (total >= Integer.MAX_VALUE) return Integer.MAX_VALUE;
+		}
+		return (int) total;
+	}
 }

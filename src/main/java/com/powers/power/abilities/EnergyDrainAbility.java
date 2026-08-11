@@ -65,10 +65,14 @@ public class EnergyDrainAbility extends Ability {
 	public boolean activate(ServerPlayer caster, PlayerPowers.PlayerPowersData data) {
 		LivingEntity target = PowerTargeting.findLivingTarget(caster, scaledRange(caster, 32.0));
 		if (target == null || target == caster || !target.isAlive()) {
+			com.powers.knowledge.MagicAttemptReporter.failure(caster, "energy_drain",
+					com.powers.knowledge.MagicFailureReason.NO_TARGET);
 			PowerMessages.send(caster, "ability.powers.no_living_target", 4);
 			return false;
 		}
 		if (AmethystDampening.isDampened(target)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(caster, "energy_drain",
+					com.powers.knowledge.MagicFailureReason.AMETHYST);
 			PowerMessages.send(caster, "amethyst.powers.target_protected", 4);
 			return false;
 		}

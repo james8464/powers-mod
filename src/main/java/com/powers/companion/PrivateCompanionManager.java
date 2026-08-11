@@ -274,6 +274,7 @@ public final class PrivateCompanionManager {
 		REVEALED.remove(player.getUUID());
 		despawn(player);
 		com.powers.knowledge.KnowledgeRemoteProviderRuntime.forget(player.getUUID());
+		com.powers.knowledge.MagicAttemptJournal.global().forget(player.getUUID());
 	}
 
 	private static void despawn(ServerPlayer owner) {
@@ -293,5 +294,6 @@ public final class PrivateCompanionManager {
 		REVEALED.clear();
 		SESSIONS.clear();
 		com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
+		com.powers.knowledge.MagicAttemptJournal.global().clear();
 	}
 }

@@ -120,25 +120,38 @@ public final class CrystalPowerRegistry {
 		if (ability.isSelectionAction(player)) {
 			return ability.activate(player, PlayerPowers.get(player));
 		}
-		if (!MagicUseGate.passes(player, true)) return false;
-		// not ready yet - tell the player how long is left
-		if (!ActivationCooldowns.isReady(player, ability)) {
-			PowerMessages.send(player, "ability.powers.cooldown", 4,
-					seconds(ActivationCooldowns.remainingTicks(player, ability)));
-			return false;
-		}
 		String actionId = ability instanceof ModeCrystalAbility convergence
 				? convergence.selectedActionId(player) : ability.id().getPath();
+		if (!MagicUseGate.passes(player, true, actionId)) return false;
+		// not ready yet - tell the player how long is left
+		if (!ActivationCooldowns.isReady(player, ability)) {
+			int remaining = ActivationCooldowns.remainingTicks(player, ability);
+			com.powers.knowledge.MagicAttemptReporter.failure(player, actionId,
+					com.powers.knowledge.MagicFailureReason.COOLDOWN,
+					java.util.Map.of("remaining_ticks", (long) remaining));
+			PowerMessages.send(player, "ability.powers.cooldown", 4,
+					seconds(remaining));
+			return false;
+		}
 		Ability energyAbility = ability instanceof ModeCrystalAbility convergence
 				? convergence.selectedAbility(player) : ability;
 		PreparedMagicCast magic = ServerMagicCasts.prepare(player, actionId, CastSource.CRYSTAL);
 		if (!magic.allowed()) return false;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		// pay the energy up front, then give it back if the ability itself failed
-		if (!data.spendEnergy(player, energyAbility)) return false;
+		int energyCost = com.powers.power.PowerEnergy.cost(player, energyAbility);
+		long available = (long) data.energy()
+				+ com.powers.item.ArtifactEnergyReservoir.totalStored(player);
+		if (!data.spendEnergy(player, energyAbility)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, actionId,
+					com.powers.knowledge.MagicFailureReason.INSUFFICIENT_ENERGY,
+					java.util.Map.of("required", (long) energyCost, "available", available));
+			return false;
+		}
 		boolean activated = ServerMagicCasts.execute(magic, () -> ability.activate(player, data));
 		if (!activated) {
 			data.refundEnergy(energyAbility);
+			com.powers.knowledge.MagicAttemptReporter.executionFailure(player, actionId);
 			PowerMessages.send(player, "crystal.powers.unavailable", 4);
 		} else {
 			ActivationCooldowns.start(player, ability, ability.cooldownTicksFor(player, data));

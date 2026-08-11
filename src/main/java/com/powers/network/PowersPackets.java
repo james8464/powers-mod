@@ -286,6 +286,8 @@ public final class PowersPackets {
 				caster.level().getServer(), name);
 		if (resolution.status() == NamedTargetRules.Status.FOUND) return resolution.target();
 		PowerMessages.send(caster, "powers.packet.player_not_found", 3, name);
+		com.powers.knowledge.MagicAttemptReporter.failure(caster, "teleport",
+				com.powers.knowledge.MagicFailureReason.NO_TARGET);
 		return null;
 	}
 

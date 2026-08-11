@@ -25,6 +25,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.function.Supplier;
+import com.powers.knowledge.MagicAttemptReporter;
+import com.powers.knowledge.MagicFailureReason;
 
 /**
  * Minecraft adapter for the pure {@link MagicRuntime}. It derives identity,
@@ -57,6 +59,7 @@ public final class ServerMagicCasts {
 					event -> emitReaction((ServerLevel) player.level(), event));
 			PowerMessages.overlay(player,
 					Component.translatable("ability.powers.interaction_blocked"));
+			MagicAttemptReporter.failure(player, actionId, MagicFailureReason.MAGIC_COLLISION);
 		}
 		return prepared;
 	}
@@ -73,6 +76,7 @@ public final class ServerMagicCasts {
 				player.level().getServer().getTickCount());
 		MagicPresenceId presenceId = runtime.commitCast(completed, prepared.adjustment());
 		emitCast((ServerLevel) player.level(), completed, presenceId, player, prepared.source());
+		MagicAttemptReporter.success(player, completed.definition().id().value());
 		return presenceId;
 	}
 

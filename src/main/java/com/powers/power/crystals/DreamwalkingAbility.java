@@ -65,14 +65,22 @@ public class DreamwalkingAbility extends Ability {
 		boolean suitable = target instanceof ServerPlayer || target instanceof Mob;
 		if (!suitable || target == player || target == null || !target.isAlive()
 				|| BodyProxyManager.isProxy(target)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "dreamwalking",
+					com.powers.knowledge.MagicFailureReason.NO_TARGET);
 			PowerMessages.send(player, "ability.powers.no_living_target", 4);
 			return false;
 		}
 		if (AmethystDampening.isDampened(target)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "dreamwalking",
+					com.powers.knowledge.MagicFailureReason.AMETHYST);
 			PowerMessages.send(player, "amethyst.powers.target_protected", 4);
 			return false;
 		}
 		if (!PowerProtection.mayDreamwalk(player, target)) {
+			com.powers.knowledge.MagicAttemptReporter.failure(player, "dreamwalking",
+					target instanceof ServerPlayer
+							? com.powers.knowledge.MagicFailureReason.CONSENT
+							: com.powers.knowledge.MagicFailureReason.SAFE_ZONE);
 			if (target instanceof ServerPlayer host) PowerMessages.sendImportant(player,
 					"powers.packet.consent_denied", 1, host.getName().getString());
 			return false;
