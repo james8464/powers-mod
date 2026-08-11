@@ -1,7 +1,11 @@
 package com.powers.player;
 
+import com.powers.PowersItems;
+import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.spell.SpellCastingManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.Filterable;
@@ -21,16 +25,22 @@ public final class PlayerGuide {
 	public static void giveIfNeeded(ServerPlayer player) {
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		if (data.hasReceivedGuide()) return;
-		ItemStack guide = create();
+		ItemStack guide = create(player);
 		if (!player.addItem(guide)) player.drop(guide, false);
 		data.markGuideReceived();
 	}
 
 	/** Builds a resolved vanilla written book; no custom screen or packet is required. */
 	public static ItemStack create() {
+		return create(null);
+	}
+
+	/** Builds the concise guide with bindings resolved from current saved selections. */
+	public static ItemStack create(ServerPlayer player) {
 		ItemStack book = new ItemStack(Items.WRITTEN_BOOK);
 		book.set(DataComponents.WRITTEN_BOOK_CONTENT, new WrittenBookContent(
-				Filterable.passThrough(TITLE), "The Archivist", 0, pages(), true));
+				Filterable.passThrough(TITLE), "The Archivist", 0,
+				player == null ? pages() : pages(player), true));
 		return book;
 	}
 
@@ -52,6 +62,52 @@ public final class PlayerGuide {
 						+ "Sneak-use either to open its combat wheel. The Shadow can be addressed with messages beginning “shadow, …”."),
 				page("COUNTER-MAGIC\n\nForcefields absorb the complete hit that breaks them. Amethyst wards, "
 						+ "Hearth forcefields, powered wards, anchors, living Light, and living Darkness all collide differently."));
+	}
+
+	private static List<Filterable<Component>> pages(ServerPlayer player) {
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		List<String> spells = SpellCastingManager.registry().definitions().stream()
+				.map(book -> book.spells().get(data.selectedSpell(book.key(), book.spells().size())).id())
+				.toList();
+		List<String> crystals = player.getInventory().getNonEquipmentItems().stream()
+				.filter(PowersItems::isCrystal)
+				.map(stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath())
+				.distinct().limit(3).toList();
+		List<String> artifactFavourites = new java.util.ArrayList<>(
+				ArtifactSelectionState.favourites(player, ArtifactAlignment.DARKNESS));
+		artifactFavourites.addAll(ArtifactSelectionState.favourites(player, ArtifactAlignment.LIGHT));
+		java.util.ArrayList<Filterable<Component>> result = new java.util.ArrayList<>(pages());
+		result.add(1, page(bindingDiagram(data.getSlotIds(), spells, crystals, artifactFavourites)));
+		return List.copyOf(result);
+	}
+
+	static String bindingDiagram(List<String> powers, List<String> spells,
+			List<String> crystals, List<String> artifactFavourites) {
+		StringBuilder diagram = new StringBuilder("CURRENT BINDINGS\n\n");
+		String[] keys = {"V", "X", "C"};
+		for (int index = 0; index < Math.min(keys.length, powers.size()); index++) {
+			append(diagram, keys[index], powers.get(index));
+		}
+		if (!spells.isEmpty()) append(diagram, "Spell", spells.getFirst());
+		if (!crystals.isEmpty()) append(diagram, "Crystal", crystals.getFirst());
+		for (int index = 0; index < Math.min(8, artifactFavourites.size()); index++) {
+			if (!artifactFavourites.get(index).isBlank()) {
+				append(diagram, "Wheel " + (index + 1), artifactFavourites.get(index));
+			}
+		}
+		return diagram.toString();
+	}
+
+	private static void append(StringBuilder diagram, String binding, String action) {
+		diagram.append(binding).append(" → ").append(humanize(action)).append('\n');
+	}
+
+	private static String humanize(String value) {
+		if (value == null || value.isBlank()) return "Unbound";
+		return java.util.Arrays.stream(value.replace('/', '_').split("_"))
+				.filter(word -> !word.isBlank())
+				.map(word -> Character.toUpperCase(word.charAt(0)) + word.substring(1))
+				.collect(java.util.stream.Collectors.joining(" "));
 	}
 
 	private static Filterable<Component> page(String text) {

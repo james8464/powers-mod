@@ -1004,11 +1004,18 @@
 	"tooltip.powers.reservoir.open": "Use to manage an authoritative transfer",
 	"tooltip.powers.miniportal.charges": "Charges %s/%s",
 	"tooltip.powers.miniportal.anchor": "Anchor: %s · %s (%s, %s, %s)",
-	"screen.powers.artifact.tooltip.malignember": "Malignember saved %s energy"
-	,"screen.powers.reservoir.title": "Reservoir Transfer"
-	,"screen.powers.reservoir.main": "Main energy: %s / %s"
-	,"screen.powers.reservoir.auxiliary": "Auxiliary energy: %s / %s"
-	,"screen.powers.reservoir.pending": "Slot 1 cast: %s energy · shortfall %s"
-	,"screen.powers.reservoir.store": "Store up to 100"
-	,"screen.powers.reservoir.release": "Release up to 100"
+	"screen.powers.artifact.tooltip.malignember": "Malignember saved %s energy",
+	"screen.powers.reservoir.title": "Reservoir Transfer",
+	"screen.powers.reservoir.main": "Main energy: %s / %s",
+	"screen.powers.reservoir.auxiliary": "Auxiliary energy: %s / %s",
+	"screen.powers.reservoir.pending": "Slot 1 cast: %s energy · shortfall %s",
+	"screen.powers.reservoir.store": "Store up to 100",
+	"screen.powers.reservoir.release": "Release up to 100",
+	"hud.powers.shadow.status": "Shadow · %s · %s/%s",
+	"hud.powers.shadow.recall": "Shadow reforms in %ss",
+	"hud.powers.shadow.stance.follow": "Following",
+	"hud.powers.shadow.stance.stay": "Staying",
+	"hud.powers.shadow.stance.guard": "Guarding",
+	"hud.powers.shadow.stance.task": "Tasking",
+	"hud.powers.shadow.stance.downed": "Downed"
 }
