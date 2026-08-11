@@ -85,7 +85,8 @@ public class PowersClient implements ClientModInitializer {
 		// the celestial grimoire summons its target picker when the server vouches for the cast
 		ClientPlayNetworking.registerGlobalReceiver(PowersPackets.OpenLocatorScreenPayload.TYPE,
 				(payload, context) -> context.client().execute(() ->
-						Minecraft.getInstance().gui.setScreen(new CelestialLocatorScreen(payload.nonce()))));
+						Minecraft.getInstance().gui.setScreen(
+								new CelestialLocatorScreen(payload.mode(), payload.nonce()))));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenMenuPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
 						new ShadowSwordScreen(payload.alignment(), payload.selectedKey(), payload.rank(),

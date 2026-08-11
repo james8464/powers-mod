@@ -114,11 +114,22 @@ public final class PowersPackets {
 	}
 
 	// the server's go-ahead for the celestial grimoire: open the locator screen
-	public record OpenLocatorScreenPayload(UUID nonce) implements CustomPacketPayload {
+	public record OpenLocatorScreenPayload(com.powers.spell.CelestialSearchMode mode,
+			UUID nonce) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<OpenLocatorScreenPayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("open_locator"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, OpenLocatorScreenPayload> STREAM_CODEC =
-				StreamCodec.composite(UUID_CODEC, OpenLocatorScreenPayload::nonce, OpenLocatorScreenPayload::new);
+				StreamCodec.of((buffer, payload) -> {
+					buffer.writeVarInt(payload.mode().ordinal());
+					UUID_CODEC.encode(buffer, payload.nonce());
+				}, buffer -> {
+					int ordinal = buffer.readVarInt();
+					var modes = com.powers.spell.CelestialSearchMode.values();
+					if (ordinal < 0 || ordinal >= modes.length) {
+						throw new IllegalArgumentException("Unknown celestial search mode: " + ordinal);
+					}
+					return new OpenLocatorScreenPayload(modes[ordinal], UUID_CODEC.decode(buffer));
+				});
 
 		@Override
 		public Type<? extends CustomPacketPayload> type() {
@@ -142,8 +153,8 @@ public final class PowersPackets {
 		}
 	}
 
-	public static void openLocator(ServerPlayer player) {
-		LocatorSpellPackets.open(player);
+	public static void openLocator(ServerPlayer player, com.powers.spell.CelestialSearchMode mode) {
+		LocatorSpellPackets.open(player, mode);
 	}
 
 	private static final StreamCodec<RegistryFriendlyByteBuf, UUID> UUID_CODEC = StreamCodec.of(
