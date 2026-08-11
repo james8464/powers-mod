@@ -92,6 +92,10 @@ public final class PowerCommand {
 						.executes(PowerCommand::reloadConfig))
 				.then(Commands.literal("return")
 						.executes(PowerCommand::returnToBody))
+				.then(Commands.literal("recover")
+						.requires(PowerCommand::isAdmin)
+						.then(Commands.argument("player", EntityArgument.player())
+								.executes(PowerCommand::recoverBody)))
 				.then(Commands.literal("path")
 						.then(Commands.literal("list").executes(PowerCommand::pathList))
 						.then(Commands.literal("unlock")
@@ -150,7 +154,6 @@ public final class PowerCommand {
 		}
 		return 1;
 	}
-
 	private static int spawnFirstVessel(CommandContext<CommandSourceStack> context) {
 		CommandSourceStack source = context.getSource();
 		var boss = PowersEntities.FIRST_VESSEL.create(source.getLevel(),
@@ -166,7 +169,6 @@ public final class PowerCommand {
 				.withStyle(ChatFormatting.DARK_PURPLE), true);
 		return 1;
 	}
-
 	private static int returnToBody(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();
 		if (!BodyProxyManager.returnToBody(player)) {
@@ -176,7 +178,16 @@ public final class PowerCommand {
 		context.getSource().sendSuccess(() -> Component.literal("Your spirit returned to your body."), false);
 		return 1;
 	}
-
+	private static int recoverBody(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerPlayer player = EntityArgument.getPlayer(context, "player");
+		if (!BodyProxyManager.recoverToBody(player)) {
+			context.getSource().sendFailure(Component.literal("That player has no recoverable mind-body anchor."));
+			return 0;
+		}
+		context.getSource().sendSuccess(() -> Component.literal(
+				"Administratively recovered " + player.getName().getString() + "."), true);
+		return 1;
+	}
 	private static int pathList(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();
 		boolean darkness = SkillSystem.hasDarknessTag(player);
@@ -429,6 +440,7 @@ public final class PowerCommand {
 			return 0;
 		}
 		// land at the realm's fixed entry point near the origin
+		BodyProxyManager.finish(player);
 		player.teleportTo(target, 8.0, -58.0, 8.0, Set.of(), player.getYRot(), player.getXRot(), false);
 		context.getSource().sendSuccess(() -> Component.literal("Traveled to " + dimName)
 				.withStyle(ChatFormatting.GREEN), false);

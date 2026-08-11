@@ -1,6 +1,7 @@
 package com.powers.gametest;
 
 import com.powers.PowersEntities;
+import com.powers.PowersItems;
 import com.powers.PowersDataComponents;
 import com.powers.PowersWeapons;
 import com.powers.PowersBlocks;
@@ -27,7 +28,12 @@ import com.powers.power.abilities.PlantHealingAbility;
 import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.power.abilities.TeleportAbility;
+import com.powers.power.abilities.VesselPossessionAbility;
+import com.powers.network.VesselControlPackets;
 import com.powers.power.ActivationCooldowns;
+import com.powers.power.crystals.CrystalPowerRegistry;
+import com.powers.mind.BodyProxyKind;
+import com.powers.mind.BodyProxyManager;
 import com.powers.network.NamedLivingTargetIndex;
 import com.powers.network.NamedTargetRules;
 import com.powers.testing.TestingOverrides;
@@ -217,7 +223,7 @@ public final class PowersGameTests {
 				"First Vessel rejected ordinary damage");
 		helper.assertTrue(boss.effectiveHealth() < vitality && boss.isAlive(),
 				"First Vessel vitality layer did not absorb damage");
-		helper.assertTrue(FirstVesselPowerCatalogue.actions().size() == 28,
+		helper.assertTrue(FirstVesselPowerCatalogue.actions().size() == 23,
 				"First Vessel did not adapt every innate power");
 		helper.assertTrue(boss.canAttack(target), "First Vessel could not target a survival player");
 		helper.succeed();
@@ -288,12 +294,15 @@ public final class PowersGameTests {
 	public void crouchingPlantHealingRestoresPlayersInsideTwoBlocksOnly(GameTestHelper helper) {
 		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
 		ServerPlayer ally = helper.makeMockServerPlayerInLevel();
+		caster.setGameMode(GameType.SURVIVAL);
+		ally.setGameMode(GameType.SURVIVAL);
 		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
 		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
 		ally.setPos(origin.getX() + 2.5, origin.getY(), origin.getZ() + 0.5);
 		caster.setHealth(1.0F);
 		ally.setHealth(1.0F);
 		caster.setShiftKeyDown(true);
+		caster.setPose(net.minecraft.world.entity.Pose.CROUCHING);
 
 		helper.assertTrue(new PlantHealingAbility().activate(caster,
 				com.powers.player.PlayerPowers.get(caster)),
@@ -417,6 +426,30 @@ public final class PowersGameTests {
 
 	@GameTest
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void vesselPossessionControlsAndRestoresAMobHost(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		caster.setGameMode(GameType.SURVIVAL);
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		caster.setYRot(0.0F);
+		caster.setXRot(0.0F);
+		PowerTestActor host = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 6));
+		host.setNoAi(false);
+		double before = host.getZ();
+
+		helper.assertTrue(new VesselPossessionAbility().activate(caster,
+				com.powers.player.PlayerPowers.get(caster)), "Vessel Possession rejected a living mob");
+		helper.assertTrue(host.isNoAi(), "Possessed mob retained autonomous AI");
+		VesselPossessionAbility.applyControl(caster, new VesselControlPackets.InputPayload(
+				1.0F, 0.0F, false, false, 0.0F, 0.0F, 0, -1));
+		helper.assertTrue(host.getZ() > before, "Authenticated forward input did not move the host");
+		VesselPossessionAbility.clear(caster);
+		helper.assertFalse(host.isNoAi(), "Mob AI was not restored after possession");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void testingOverridesBypassEnergyAndPowerCooldowns(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		var data = com.powers.player.PlayerPowers.get(player);
@@ -432,6 +465,42 @@ public final class PowersGameTests {
 				"Testing mode still exposed an active cooldown");
 		TestingOverrides.clear(player.getUUID());
 		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 220)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void darkCrystalMovesItsCasterIntoTheMindscape(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		TestingOverrides.setCooldownsDisabled(player.getUUID(), true);
+		var darkRealm = helper.getLevel().getServer().getLevel(
+				net.minecraft.resources.ResourceKey.create(
+						net.minecraft.core.registries.Registries.DIMENSION,
+						com.powers.PowersMod.id("dark_realm")));
+		// Fabric's isolated GameTestServer intentionally creates only vanilla
+		// levels. Dedicated-server boot verification covers datapack dimensions;
+		// exercise the complete transfer here whenever the harness supplies it.
+		if (darkRealm == null) {
+			helper.assertTrue(CrystalPowerRegistry.get(PowersItems.DARK_CRYSTAL) != null,
+					"Dark Crystal was not bound to its realm action");
+			TestingOverrides.clear(player.getUUID());
+			helper.succeed();
+			return;
+		}
+
+		helper.assertTrue(CrystalPowerRegistry.tryActivate(player, PowersItems.DARK_CRYSTAL),
+				"Dark Crystal activation pipeline rejected its caster");
+		helper.runAfterDelay(150, () -> {
+			helper.assertTrue(player.level().dimension().identifier().toString()
+					.equals("powers:dark_realm"), "Dark Crystal never entered the Dark Realm");
+			helper.assertTrue(BodyProxyManager.hasSession(player, BodyProxyKind.REALM),
+					"Dark Crystal did not leave a vulnerable physical body");
+			TestingOverrides.clear(player.getUUID());
+			BodyProxyManager.finish(player);
+			helper.succeed();
+		});
 	}
 
 	@GameTest(maxTicks = 120)

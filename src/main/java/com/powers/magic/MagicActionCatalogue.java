@@ -118,8 +118,6 @@ public final class MagicActionCatalogue {
 				MagicAspect.TIME, MagicAspect.FORCE);
 		add(actions, "dreamwalking", MagicOrigin.CRYSTAL, MagicDelivery.PROJECTION, MagicIntent.CONTROL,
 				MagicAspect.MIND, MagicAspect.SOUL);
-		add(actions, "portal_rift", MagicOrigin.CRYSTAL, MagicDelivery.TRAVEL, MagicIntent.HARM,
-				MagicAspect.SPACE, MagicAspect.FORCE);
 		add(actions, "middleworld", MagicOrigin.CRYSTAL, MagicDelivery.TRAVEL, MagicIntent.MOVEMENT,
 				MagicAspect.SPACE, MagicAspect.MIND);
 		add(actions, "soul_link", MagicOrigin.CRYSTAL, MagicDelivery.CHANNEL, MagicIntent.CONTROL,
@@ -281,7 +279,7 @@ public final class MagicActionCatalogue {
 				"forcefield", "gravity_displacement", "vessel_possession", "astral_projection",
 				"energy_drain", "ice_manipulation", "plant_healing_acceleration", "double_health",
 				"inferno", "clone_swarm", "creativity_manifestation", "size_shift", "life_bloom",
-				"space_time", "dreamwalking", "portal_rift", "middleworld", "soul_link",
+				"space_time", "dreamwalking", "middleworld", "soul_link",
 				"light_crystal", "dark_crystal", "call_hollowed", "blight_ground",
 				"call_radiant", "consecrate_ground", "covenant_chain");
 		return Map.copyOf(values);

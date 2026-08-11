@@ -40,7 +40,7 @@ class ShadowSwordPacketsTest {
 			RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(bytes, RegistryAccess.EMPTY);
 			ShadowSwordPackets.TeleportPayload payload = new ShadowSwordPackets.TeleportPayload(
 					ArtifactAlignment.DARKNESS.serializedName(), 0, 80, 0,
-					net.minecraft.world.level.Level.OVERWORLD, "x".repeat(17));
+					net.minecraft.world.level.Level.OVERWORLD, "x".repeat(65));
 
 			assertThrows(RuntimeException.class,
 					() -> ShadowSwordPackets.TeleportPayload.STREAM_CODEC.encode(buffer, payload));

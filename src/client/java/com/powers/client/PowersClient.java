@@ -27,6 +27,7 @@ import com.powers.network.CelestialRuinPackets;
 import com.powers.network.ShadowSwordPackets;
 import com.powers.network.BodyProxyPackets;
 import com.powers.network.CompanionPackets;
+import com.powers.network.VesselControlPackets;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import net.fabricmc.api.ClientModInitializer;
@@ -92,6 +93,9 @@ public class PowersClient implements ClientModInitializer {
 				(payload, context) -> context.client().execute(() -> ClientBodySnapshots.handle(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(CompanionPackets.StatePayload.TYPE,
 				(payload, context) -> context.client().execute(() -> PrivateCompanionClient.handle(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(VesselControlPackets.StatePayload.TYPE,
+				(payload, context) -> context.client().execute(() ->
+						VesselControlClient.setActive(payload.active())));
 		// the celestial grimoire summons its target picker when the server vouches for the cast
 		ClientPlayNetworking.registerGlobalReceiver(PowersPackets.OpenLocatorScreenPayload.TYPE,
 				(payload, context) -> context.client().execute(() ->
@@ -118,6 +122,7 @@ public class PowersClient implements ClientModInitializer {
 			ClientMagicFx.reset();
 			ClientBodySnapshots.clear();
 			PrivateCompanionClient.clear();
+			VesselControlClient.setActive(false);
 			KnowledgeBookScreen.reset();
 			ClientCelestialRuinFx.reset();
 		});
@@ -170,6 +175,7 @@ public class PowersClient implements ClientModInitializer {
 		ClientCelestialRuinFx.tick();
 		ClientPowerState.tickCooldowns();
 		PrivateCompanionClient.tick();
+		VesselControlClient.tick(client);
 		// the marking window for a player teleport counts down here and closes itself
 		if (ClientPowerState.markingSlot >= 0) {
 			if (--ClientPowerState.markingTicks <= 0) {

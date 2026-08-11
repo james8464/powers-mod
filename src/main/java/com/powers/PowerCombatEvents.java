@@ -27,12 +27,16 @@ final class PowerCombatEvents {
 
 	static void register() {
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
+			if (BodyProxyManager.isProxy(entity)) {
+				return BodyProxyManager.allowsDamage(entity, source, amount);
+			}
+			if (entity instanceof ServerPlayer player
+					&& !BodyProxyManager.avatarMayTakeDamage(player)) return false;
 			if (source.is(DamageTypes.GENERIC_KILL) || source.is(DamageTypes.FELL_OUT_OF_WORLD)) return true;
 			if (GlobalTimeStopManager.isStopped(((ServerLevel) entity.level()).getServer())) {
 				if (!(source.getEntity() instanceof ServerPlayer actor)
 						|| !GlobalTimeStopManager.mayAct(actor)) return false;
 			}
-			if (BodyProxyManager.isProxy(entity)) return BodyProxyManager.allowsDamage(entity, source);
 			if (ForcefieldAbility.absorbDamage(entity, source, amount)) return false;
 			// Amethyst blocks power damage, not ordinary weapons or environmental harm.
 			if (AmethystDampening.isDampened(entity) && PowerDamage.isPowerDamage(source)) return false;

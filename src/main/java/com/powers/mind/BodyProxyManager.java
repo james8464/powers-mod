@@ -39,11 +39,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Owns vulnerable, skin-matched bodies left behind by mind and spirit travel. */
 public final class BodyProxyManager {
 	private record Active(UUID ownerId, Mannequin body, Vec3 position,
-			ServerLevel level, ChunkPos chunk, BodySnapshot snapshot) {
+			ServerLevel level, ChunkPos chunk, BodySnapshot snapshot, AtomicBoolean fatalResolved) {
 	}
 	private static final TicketType BODY_TICKET = new TicketType(TicketType.NO_TIMEOUT,
 			TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
@@ -91,7 +92,8 @@ public final class BodyProxyManager {
 		level.getChunkSource().addTicketWithRadius(BODY_TICKET, bodyChunk,
 				BodyProxyTicketRules.radius());
 		BodySnapshot snapshot = BodySnapshot.capture(player);
-		Active active = new Active(player.getUUID(), body, player.position(), level, bodyChunk, snapshot);
+		Active active = new Active(player.getUUID(), body, player.position(), level, bodyChunk,
+				snapshot, new AtomicBoolean());
 		BY_OWNER.put(player.getUUID(), active);
 		BY_BODY.put(body.getUUID(), active);
 		BodyProxyPackets.sendToTracking(body, snapshot);
@@ -114,12 +116,26 @@ public final class BodyProxyManager {
 		return active == null ? null : active.snapshot();
 	}
 
-	public static boolean allowsDamage(LivingEntity entity, DamageSource source) {
+	public static boolean allowsDamage(LivingEntity entity, DamageSource source, float amount) {
 		Active active = BY_BODY.get(entity.getUUID());
 		if (active == null) return true;
 		if (!PowersConfigLoader.get().projectionBodiesVulnerable()) return false;
 		ServerPlayer owner = active.level().getServer().getPlayerList().getPlayer(active.ownerId());
-		return owner == null || !(PowerDamage.isPowerDamage(source) && AmethystDampening.isDampened(owner));
+		if (owner != null && PowerDamage.isPowerDamage(source) && AmethystDampening.isDampened(owner)) {
+			return false;
+		}
+		if (owner != null && MindBodyDamageRules.proxyDamageIsFatal(amount, owner.getHealth())
+				&& active.fatalResolved().compareAndSet(false, true)) {
+			resolveFatalDamage(active, owner, source, amount);
+			return false;
+		}
+		return true;
+	}
+
+	/** Detached avatars are only cameras/minds; all physical damage belongs to the frozen body. */
+	public static boolean avatarMayTakeDamage(ServerPlayer player) {
+		return MindBodyDamageRules.avatarMayTakeDamage(
+				player != null && PlayerPowers.get(player).mindBody() != null);
 	}
 
 	public static boolean allowsDeath(LivingEntity entity) {
@@ -143,7 +159,32 @@ public final class BodyProxyManager {
 		if (health <= 0.0f) owner.die(source);
 	}
 
+	/** Returns the owner before applying a fatal physical-body hit, exactly once. */
+	private static void resolveFatalDamage(Active active, ServerPlayer owner,
+			DamageSource source, float amount) {
+		owner.setCamera(null);
+		boolean returned = returnToBody(owner);
+		if (!returned) {
+			// Realm gates may legitimately refuse a player-controlled return. End
+			// the detached session before death so respawn confinement owns recovery.
+			finish(owner);
+			owner.die(source);
+			return;
+		}
+		owner.hurtServer((ServerLevel) owner.level(), source,
+				Math.max(amount, owner.getHealth()));
+	}
+
 	public static boolean returnToBody(ServerPlayer player) {
+		return returnToBody(player, TravelKind.PLAYER_RETURN);
+	}
+
+	/** Operator-only recovery path; callers must enforce administrative permission. */
+	public static boolean recoverToBody(ServerPlayer player) {
+		return returnToBody(player, TravelKind.ADMIN_RECOVERY);
+	}
+
+	private static boolean returnToBody(ServerPlayer player, TravelKind travelKind) {
 		MindBodyState state = PlayerPowers.get(player).mindBody();
 		if (state == null) return false;
 		Identifier dimensionId = Identifier.tryParse(state.dimension());
@@ -156,20 +197,20 @@ public final class BodyProxyManager {
 		if (!LoadedChunks.contains(target, requestedBlock)) {
 			UUID ownerId = player.getUUID();
 			return TravelChunkLoader.request(ownerId, target, requestedBlock,
-					() -> completeReturn(server, ownerId, target, state, requested),
+					() -> completeReturn(server, ownerId, target, state, requested, travelKind),
 					() -> {
 						ServerPlayer owner = server.getPlayerList().getPlayer(ownerId);
 						if (owner != null) PowerMessages.send(owner, "ability.powers.no_room", 3);
 					});
 		}
-		return completeReturn(server, player.getUUID(), target, state, requested);
+		return completeReturn(server, player.getUUID(), target, state, requested, travelKind);
 	}
 
 	private static boolean completeReturn(MinecraftServer server, UUID ownerId,
-			ServerLevel target, MindBodyState state, Vec3 requested) {
+			ServerLevel target, MindBodyState state, Vec3 requested, TravelKind travelKind) {
 		ServerPlayer player = server.getPlayerList().getPlayer(ownerId);
 		if (player == null || !state.equals(PlayerPowers.get(player).mindBody())) return false;
-		Vec3 destination = findReturnSpot(player, target, requested);
+		Vec3 destination = findReturnSpot(player, target, requested, travelKind);
 		if (destination == null) return false;
 		player.setCamera(null);
 		player.teleport(new TeleportTransition(target, destination, Vec3.ZERO,
@@ -241,14 +282,15 @@ public final class BodyProxyManager {
 				BodyProxyTicketRules.radius());
 	}
 
-	private static Vec3 findReturnSpot(ServerPlayer player, ServerLevel target, Vec3 requested) {
+	private static Vec3 findReturnSpot(ServerPlayer player, ServerLevel target, Vec3 requested,
+			TravelKind travelKind) {
 		for (int dy = 0; dy <= 3; dy++) {
 			for (int radius = 0; radius <= 2; radius++) {
 				for (int dx = -radius; dx <= radius; dx++) {
 					for (int dz = -radius; dz <= radius; dz++) {
 						Vec3 candidate = requested.add(dx, dy, dz);
 						if (SafeDestinationResolver.validate(player, target, candidate,
-								TravelKind.PLAYER_RETURN).allowed()) {
+								travelKind).allowed()) {
 							return candidate;
 						}
 					}

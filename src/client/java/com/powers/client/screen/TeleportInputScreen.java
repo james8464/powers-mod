@@ -32,7 +32,7 @@ public final class TeleportInputScreen extends Screen {
 	private static final int PANEL_HEIGHT = 192;
 	private static final List<String> FALLBACK_DIMENSIONS = List.of(
 			"minecraft:overworld", "minecraft:the_nether", "minecraft:the_end",
-			"powers:dark_realm", "powers:light_realm", "powers:middleworld");
+			"powers:dark_realm", "powers:light_realm");
 
 	private final int slot;
 	private final String artifactAlignment;
@@ -73,7 +73,7 @@ public final class TeleportInputScreen extends Screen {
 		List<Integer> dimensionValues = java.util.stream.IntStream.range(0, available.size()).boxed().toList();
 
 		addRenderableWidget(CycleButton.<Integer>builder(this::modeName, () -> 0)
-				.withValues(artifactAlignment != null ? List.of(0, 1) : List.of(0, 1, 2)).displayOnlyValue()
+				.withValues(artifactAlignment == null ? List.of(0, 1) : List.of(0)).displayOnlyValue()
 				.create(left + 20, top + 32, 216, 20,
 						Component.translatable("screen.powers.teleport.mode"), (button, value) -> {
 							mode = value;
@@ -97,7 +97,7 @@ public final class TeleportInputScreen extends Screen {
 		targetNameField = addRenderableWidget(new EditBox(font, left + 20, top + 116, 216, 20,
 				Component.translatable("screen.powers.teleport.target")));
 		targetNameField.setHint(Component.translatable("screen.powers.teleport.target_hint"));
-		targetNameField.setMaxLength(16);
+		targetNameField.setMaxLength(64);
 		addRenderableWidget(Button.builder(Component.translatable("screen.powers.teleport.go"),
 				button -> confirm()).bounds(left + 68, top + 146, 120, 20).build());
 		updateModeWidgets();
@@ -125,22 +125,19 @@ public final class TeleportInputScreen extends Screen {
 	}
 
 	private Component modeName(int value) {
-		return Component.translatable(switch (value) {
-			case 0 -> "screen.powers.teleport.mode_self";
-			case 1 -> "screen.powers.teleport.mode_other";
-			default -> "screen.powers.teleport.mode_player";
-		});
+		return Component.translatable(value == 0
+				? "screen.powers.teleport.mode_self" : "screen.powers.teleport.mode_player");
 	}
 
 	private void updateModeWidgets() {
 		if (xField == null) return;
-		boolean coordinates = mode != 2;
+		boolean coordinates = mode == 0;
 		xField.visible = coordinates;
 		yField.visible = coordinates;
 		zField.visible = coordinates;
 		dimensionButton.visible = coordinates;
-		targetNameField.visible = mode != 0;
-		targetNameField.setY(panelY() + (mode == 2 ? 76 : 116));
+		targetNameField.visible = mode == 1;
+		targetNameField.setY(panelY() + 76);
 	}
 
 	private void confirm() {
@@ -151,7 +148,7 @@ public final class TeleportInputScreen extends Screen {
 			return;
 		}
 		try {
-			if (mode == 2) {
+			if (mode == 1) {
 				ClientPowerState.markingSlot = slot;
 				ClientPowerState.markingTicks = 200;
 				ClientPlayNetworking.send(new PowersPackets.TeleportRequestPayload(

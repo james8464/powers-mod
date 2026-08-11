@@ -10,6 +10,7 @@
 		"LargeFireballMixin",
 		"MobMixin",
 		"PlayerRankDisplayMixin",
+		"PossessedPlayerInputMixin",
 		"ProjectileDeflectionMixin",
 		"ServerTickRateManagerMixin",
 		"ServerPlayerRankDisplayMixin"

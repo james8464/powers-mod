@@ -40,4 +40,12 @@ class PossessionRulesTest {
 		assertFalse(PossessionRules.sessionLocationValid(false, true));
 		assertFalse(PossessionRules.sessionLocationValid(true, false));
 	}
+
+	@Test
+	void possessionHasAThirtySecondCeilingAndCannotOverpowerAHigherRankPlayer() {
+		assertTrue(PossessionRules.durationTicks(200) == 200);
+		assertTrue(PossessionRules.durationTicks(5_000) == 600);
+		assertTrue(PossessionRules.rankAllows(6, 6));
+		assertFalse(PossessionRules.rankAllows(5, 6));
+	}
 }

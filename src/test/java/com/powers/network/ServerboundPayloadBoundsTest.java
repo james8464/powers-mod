@@ -21,10 +21,10 @@ class ServerboundPayloadBoundsTest {
 	}
 
 	@Test
-	void teleportPlayerNamesAreBoundedToVanillaProfileLength() {
+	void teleportTargetNamesAreBoundedToAuthoredEntityNameLength() {
 		assertRejected(PowersPackets.TeleportRequestPayload.STREAM_CODEC,
 				new PowersPackets.TeleportRequestPayload(0, 0, 80, 0,
-						net.minecraft.world.level.Level.OVERWORLD, "x".repeat(17), true));
+						net.minecraft.world.level.Level.OVERWORLD, "x".repeat(65), true));
 	}
 
 	@Test

@@ -22,9 +22,11 @@ class TeleportDimensionMenuTest {
 	@Test
 	void filtersOnlyTheDarkRealmWhenTheServerStateHidesIt() {
 		List<String> visible = TeleportDimensionMenu.visibleIds(List.of(
-				"powers:dark_realm", "example:dark_realm", "powers:light_realm"), false);
+				"powers:dark_realm", "powers:middleworld", "example:dark_realm",
+				"powers:light_realm"), false);
 
 		assertFalse(visible.contains("powers:dark_realm"));
+		assertFalse(visible.contains("powers:middleworld"));
 		assertTrue(visible.contains("example:dark_realm"));
 	}
 }

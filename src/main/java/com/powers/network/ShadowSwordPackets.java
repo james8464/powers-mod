@@ -29,7 +29,7 @@ public final class ShadowSwordPackets {
 	private static final StreamCodec<io.netty.buffer.ByteBuf, String> ACTION_KEY_CODEC =
 			ByteBufCodecs.stringUtf8(64);
 	private static final StreamCodec<io.netty.buffer.ByteBuf, String> PLAYER_NAME_CODEC =
-			ByteBufCodecs.stringUtf8(16);
+			ByteBufCodecs.stringUtf8(64);
 	private static final StreamCodec<io.netty.buffer.ByteBuf, java.util.List<String>> ACTION_LIST_CODEC =
 			ACTION_KEY_CODEC.apply(ByteBufCodecs.list(ArtifactFavouriteRules.SLOT_COUNT));
 	private static final StreamCodec<RegistryFriendlyByteBuf, ArtifactActionSnapshot> ACTION_SNAPSHOT_CODEC =
@@ -187,7 +187,7 @@ public final class ShadowSwordPackets {
 		ArtifactAlignment alignment = parseAlignment(payload.alignment());
 		if (alignment == null || !ArtifactWeaponManager.holds(caster, alignment)
 				|| !ArtifactWeaponManager.authorized(caster, alignment)
-				|| payload.targetName().length() > 16 || !Double.isFinite(payload.x())
+				|| payload.targetName().length() > 64 || !Double.isFinite(payload.x())
 				|| !Double.isFinite(payload.y()) || !Double.isFinite(payload.z())) return;
 		ArtifactWeaponManager.Action action = ArtifactWeaponManager.selected(caster, alignment);
 		if (action == null || !action.ability().requiresInput()

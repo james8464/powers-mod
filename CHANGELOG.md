@@ -14,6 +14,10 @@
 - Repainted both Labyrinth panels as alignment-specific carved-stone/blackstone pixel art and replaced misleading percentage tooltips with the transformations the selected title actually unlocks.
 - Rebuilt the energy atlas as five crisp vanilla-scale empty/half/full glyph families and moved the ten-symbol hunger-aligned row above conditional air and mount-health rows.
 - Added a one-time persistent vanilla written-book guide and completed `/powers testing reset` plus testing-state diagnostics.
+- Rebuilt Teleport around vulnerable five-second origin/destination storms, unloaded-chunk loading, uniquely named players or mobs, bounded companion transfer, and duplicate-storm rejection; Middleworld is never exposed as an ordinary destination.
+- Made detached mind avatars immune while their physical mannequins remain fully vulnerable, including sacrificial fatal-hit return, exact operator recovery, persistent Middleworld origins, and atomic nested-session prevention.
+- Upgraded Vessel Possession to server-authoritative movement, aim, jumping, crouching, hotbar, and attack control for consented players and ordinary mobs, with original mob AI restoration and higher-rank resistance.
+- Removed the obsolete Portal Rift crystal action. Indigo now owns only the persistent Middleworld journey, and Light/Dark crystals support a consent-safe crouching group journey of up to 16 players.
 
 ## 1.0.1 - 2026-08-10
 

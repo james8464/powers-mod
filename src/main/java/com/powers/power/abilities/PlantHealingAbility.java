@@ -54,21 +54,26 @@ public class PlantHealingAbility extends Ability {
 
 	private boolean healNearbyPlayers(ServerLevel level, ServerPlayer caster) {
 		float amount = scaledPotency(caster, 12.0F);
-		boolean healed = false;
+		boolean healed = healOne(level, caster, caster, amount);
 		for (ServerPlayer target : level.getServer().getPlayerList().getPlayers()) {
-			if (target.level() != level || !target.isAlive() || target.isSpectator()
-					|| !PlantHealingRules.withinAura(target.distanceToSqr(caster))
-					|| target.getHealth() >= target.getMaxHealth()) continue;
-			target.heal(amount);
-			healed = true;
-			com.powers.fx.PowerFx.burst(level, target.position().add(0.0, 1.0, 0.0),
-					com.powers.fx.PowerFx.dust(0x72F58A, 0.9F), 8, 0.35, 0.01);
+			if (target != caster) healed |= healOne(level, caster, target, amount);
 		}
 		if (!healed) return false;
 		com.powers.fx.PowerFx.ring(level, caster.position().add(0.0, 0.1, 0.0),
 				2.0, 0x72F58A, 24, caster.tickCount * 0.08);
 		com.powers.fx.PowerFx.sound(level, caster.position(),
 				net.minecraft.sounds.SoundEvents.AMETHYST_BLOCK_CHIME, 1.0F, 1.35F);
+		return true;
+	}
+
+	private static boolean healOne(ServerLevel level, ServerPlayer caster,
+			ServerPlayer target, float amount) {
+		if (target.level() != level || !target.isAlive() || target.isSpectator()
+				|| !PlantHealingRules.withinAura(target.distanceToSqr(caster))
+				|| target.getHealth() >= target.getMaxHealth()) return false;
+		target.heal(amount);
+		com.powers.fx.PowerFx.burst(level, target.position().add(0.0, 1.0, 0.0),
+				com.powers.fx.PowerFx.dust(0x72F58A, 0.9F), 8, 0.35, 0.01);
 		return true;
 	}
 }
