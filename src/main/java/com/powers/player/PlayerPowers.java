@@ -84,11 +84,15 @@ public final class PlayerPowers {
 			return target.getAttached(LAST_DEATH);
 		}
 
+		public void clearLastDeath() {
+			target.removeAttached(LAST_DEATH);
+		}
+
 		/** Captures the current server-authoritative death point before respawn. */
 		public void recordDeath(ServerPlayer player) {
 			target.setAttached(LAST_DEATH, LastDeathRecord.at(
 					player.level().dimension().identifier().toString(),
-					player.getX(), player.getY(), player.getZ()));
+					player.getX(), player.getY(), player.getZ(), player.level().getGameTime()));
 		}
 
 		public int selectedSpell(String grimoireKey, int spellCount) {

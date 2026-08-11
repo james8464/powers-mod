@@ -46,6 +46,19 @@ public final class SpellFieldManager {
 	public record RayWardHit(Vec3 point, double distance, VoidBeamRules.Counterplay counterplay) {
 	}
 
+	/** Immutable server snapshot captured during Dispel inspection. */
+	public record DispelTarget(UUID owner, SpellFieldKind kind, String dimension,
+			Vec3 center, long expiresAt) {
+		public String displayName() {
+			return switch (kind) {
+				case ANTI_PORTAL -> "Anti-Portal Field";
+				case KINETIC_WARD -> "Kinetic Ward";
+				case SANCTUARY -> "Hearth Sanctuary";
+				case INFERNAL_SEAL -> "Infernal Seal";
+			};
+		}
+	}
+
 	private record FieldKey(UUID owner, SpellFieldKind kind) {
 	}
 
@@ -169,7 +182,7 @@ public final class SpellFieldManager {
 		});
 	}
 
-	public static boolean dispelNearest(ServerPlayer caster, double range) {
+	public static Optional<DispelTarget> nearestDispelTarget(ServerPlayer caster, double range) {
 		Field nearest = null;
 		double distance = range * range;
 		for (Field field : nearby((ServerLevel) caster.level(), caster.position(), Math.min(range, 256.0))) {
@@ -180,9 +193,21 @@ public final class SpellFieldManager {
 				nearest = field;
 			}
 		}
-		if (nearest == null) return false;
-		remove(new FieldKey(nearest.owner(), nearest.kind()));
-		PowerFx.cancelled((ServerLevel) caster.level(), nearest.center().add(0, 0.5, 0), 0x7455A8);
+		return nearest == null ? Optional.empty() : Optional.of(new DispelTarget(nearest.owner(), nearest.kind(),
+				dimensionId(nearest.dimension()), nearest.center(), nearest.expiresAt()));
+	}
+
+	public static boolean dispel(ServerPlayer caster, double range, DispelTarget target) {
+		if (target == null) return false;
+		FieldKey key = new FieldKey(target.owner(), target.kind());
+		Field live = FIELDS.get(key);
+		boolean valid = SpellTargetRules.dispelFieldRemainsValid(live != null
+				&& live.expiresAt() == target.expiresAt() && live.center().equals(target.center()),
+				dimensionId(caster.level().dimension()).equals(target.dimension()), caster.level().getGameTime(),
+				target.expiresAt(), target.center().distanceToSqr(caster.position()), range);
+		if (!valid) return false;
+		remove(key);
+		PowerFx.cancelled((ServerLevel) caster.level(), target.center().add(0, 0.5, 0), 0x7455A8);
 		return true;
 	}
 

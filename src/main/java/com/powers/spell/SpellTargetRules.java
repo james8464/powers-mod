@@ -17,4 +17,12 @@ public final class SpellTargetRules {
 	public static boolean mayPurify(boolean caster, boolean allied) {
 		return caster || allied;
 	}
+
+	public static boolean dispelFieldRemainsValid(boolean sameIdentity, boolean sameDimension,
+			long now, long expiresAt, double distanceSquared, double maximumRange) {
+		return sameIdentity && sameDimension && expiresAt > now
+				&& Double.isFinite(distanceSquared) && distanceSquared >= 0.0
+				&& Double.isFinite(maximumRange) && maximumRange >= 0.0
+				&& distanceSquared <= maximumRange * maximumRange;
+	}
 }

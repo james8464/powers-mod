@@ -21,6 +21,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import com.powers.util.BoundedEntityCandidates;
 
 /** Applies a temporary dimensional binding used to counter forced travel. */
 public class DimensionalAnchorAbility extends Ability {
@@ -66,6 +68,18 @@ public class DimensionalAnchorAbility extends Ability {
 		return null;
 	}
 
+	/** Exact target-owned state used by HUD/commands without maintaining a second anchor clock. */
+	public static AnchorSnapshot snapshot(LivingEntity target) {
+		ResourceKey<Level> dimension = anchorDimension(target);
+		if (dimension == null) return null;
+		long deadline = target instanceof ServerPlayer player
+				? PlayerPowers.get(player).dimensionalAnchor().expiresAt() : target.level().getGameTime() + 1L;
+		return new AnchorSnapshot(dimension.identifier().toString(), deadline,
+				DimensionalAnchorRules.remainingTicks(target.level().getGameTime(), deadline));
+	}
+
+	public record AnchorSnapshot(String dimensionId, long deadline, long remainingTicks) { }
+
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		LivingEntity target = PowerTargeting.findLivingTarget(player,
@@ -93,7 +107,11 @@ public class DimensionalAnchorAbility extends Ability {
 		int duration = ControlResistance.adjustDuration(
 				PowerScalingService.duration(player, "dimensional_anchor", ANCHOR_TICKS), control);
 		if (duration <= 0) return false;
-		long expiresAt = target.level().getGameTime() + duration;
+		long now = target.level().getGameTime();
+		long currentDeadline = target instanceof ServerPlayer targetPlayer
+				&& PlayerPowers.get(targetPlayer).dimensionalAnchor() != null
+				? PlayerPowers.get(targetPlayer).dimensionalAnchor().expiresAt() : now;
+		long expiresAt = DimensionalAnchorRules.renewedDeadline(now, currentDeadline, duration);
 		if (target instanceof ServerPlayer targetPlayer) {
 			PlayerPowers.get(targetPlayer).setDimensionalAnchor(dim.identifier().toString(), expiresAt);
 		} else {
@@ -105,12 +123,40 @@ public class DimensionalAnchorAbility extends Ability {
 		PowerFx.burst(targetLevel, target.position().add(0, 1.5, 0),
 				com.powers.PowersParticles.GLYPH, 12, 0.75, 0.05);
 		PowerFx.sound(targetLevel, target.position(), SoundEvents.BEACON_ACTIVATE, 0.8f, 1.1f);
+		PowerFx.beam(targetLevel, player.getEyePosition(), target.getEyePosition(),
+				PowerFx.dust(0x8A2BE2, 0.8F), 18);
+		PowerFx.ring(targetLevel, target.position().add(0, 0.08, 0), 4.0, 0x8A2BE2, 28,
+				targetLevel.getGameTime() * 0.04);
 
 		if (target instanceof ServerPlayer targetPlayer) {
 			PowerMessages.sendImportant(targetPlayer, "ability.powers.anchored", 3, dimName);
+			targetPlayer.sendSystemMessage(Component.literal("Dimensional anchor: "
+					+ DimensionalAnchorRules.remainingTicks(now, expiresAt) + " ticks remaining"), true);
 		}
 		PowerMessages.sendImportant(player, "ability.powers.anchor_applied", 3,
 				PlayerLikeTarget.username(target), dimName);
+
+		// The visible circle is functional: allied player-like participants inside it
+		// receive the same target-owned deadline, with every route still consulting
+		// that participant's single authoritative anchor attachment.
+		AABB circle = AABB.ofSize(target.position(), 8.0, 4.0, 8.0);
+		for (LivingEntity ally : BoundedEntityCandidates.living(targetLevel, circle, 16,
+				candidate -> candidate != target && candidate.isAlive() && target.isAlliedTo(candidate)
+						&& PlayerLikeTarget.isCompatible(candidate))) {
+			if (!com.powers.protection.PowerProtection.mayForceMove(player, ally)) continue;
+			if (ally instanceof ServerPlayer allyPlayer) {
+				PlayerPowers.AnchorState existing = PlayerPowers.get(allyPlayer).dimensionalAnchor();
+				long allyDeadline = DimensionalAnchorRules.renewedDeadline(now,
+						existing == null ? now : existing.expiresAt(), duration);
+				PlayerPowers.get(allyPlayer).setDimensionalAnchor(dim.identifier().toString(), allyDeadline);
+				allyPlayer.sendSystemMessage(Component.literal("Group anchor: "
+						+ DimensionalAnchorRules.remainingTicks(now, allyDeadline) + " ticks remaining"), true);
+			} else {
+				TestActorPowerState.anchor(ally.getUUID(), dim.identifier().toString(), expiresAt);
+			}
+			PowerFx.beam(targetLevel, target.getEyePosition(), ally.getEyePosition(),
+					PowerFx.dust(0x8A2BE2, 0.7F), 10);
+		}
 
 		return true;
 	}

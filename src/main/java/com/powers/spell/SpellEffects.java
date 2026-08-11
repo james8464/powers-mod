@@ -49,7 +49,9 @@ final class SpellEffects {
 			case WARD_BREAKING_RITUAL -> SpellTarget.block(wardTarget(caster, range));
 			case DISPEL -> {
 				LivingEntity optional = PowerTargeting.findLivingTarget(caster, range);
-				yield optional == null ? SpellTarget.none() : SpellTarget.entity(optional);
+				var field = SpellFieldManager.nearestDispelTarget(caster, range).orElse(null);
+				if (field != null) caster.sendSystemMessage(Component.literal("Dispel target: " + field.displayName()), true);
+				yield SpellTarget.dispel(optional, field);
 			}
 			default -> SpellTarget.none();
 		};
@@ -76,7 +78,7 @@ final class SpellEffects {
 					&& DimensionalAnchorAbility.apply(caster, target);
 			case PURIFICATION_CIRCLE -> purification(caster, values.purificationRadius(), values.potencyTier());
 			case WARD_BREAKING_RITUAL -> breakWard(caster, values, lockedTarget.blockPos());
-			case DISPEL -> dispel(caster, target, values.targetRange());
+			case DISPEL -> dispel(caster, target, values.targetRange(), lockedTarget.field());
 			case SOUL_COMPASS -> false;
 		};
 		if (success) {
@@ -145,7 +147,8 @@ final class SpellEffects {
 
 	private static boolean graveRecall(ServerPlayer caster) {
 		LastDeathRecord death = PlayerPowers.get(caster).lastDeath();
-		if (death == null) {
+		if (death == null || !GraveRecallRules.retained(death.recordedAt(), caster.level().getGameTime())) {
+			if (death != null) PlayerPowers.get(caster).clearLastDeath();
 			caster.sendSystemMessage(Component.translatable("spell.powers.grave_recall.none"));
 			return false;
 		}
@@ -153,6 +156,9 @@ final class SpellEffects {
 				death.dimension()));
 		caster.sendSystemMessage(Component.translatable("spell.powers.grave_recall.coordinates",
 				death.x(), death.y(), death.z()));
+		GraveRecallRules.bearing(caster.level().dimension().identifier().toString(), caster.getX(), caster.getZ(),
+				death.dimension(), death.x(), death.z()).ifPresent(bearing -> caster.sendSystemMessage(
+				Component.translatable("spell.powers.grave_recall.bearing", bearing)));
 		ServerLevel level = (ServerLevel) caster.level();
 		PowerFx.rune(level, caster.position().add(0.0, 0.08, 0.0), 2.0,
 				0x67405B, 24, level.getGameTime() * -0.05);
@@ -283,8 +289,9 @@ final class SpellEffects {
 		return SpellTargetRules.remainsValid(true, true, visible, start.distanceToSqr(end), range);
 	}
 
-	private static boolean dispel(ServerPlayer caster, LivingEntity target, double range) {
-		boolean field = SpellFieldManager.dispelNearest(caster, range);
+	private static boolean dispel(ServerPlayer caster, LivingEntity target, double range,
+			SpellFieldManager.DispelTarget inspectedField) {
+		boolean field = SpellFieldManager.dispel(caster, range, inspectedField);
 		if (target == null) return field;
 		if (target != caster && !caster.isAlliedTo(target) && !offensiveAllowed(caster, target)) return field;
 		for (MobEffectInstance instance : List.copyOf(target.getActiveEffects())) {
