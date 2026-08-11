@@ -15,6 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 /** Renders ten vanilla-scale full/half energy symbols above the hunger row. */
 public final class EnergyHudRenderer {
 	private static final Identifier SYMBOLS = PowersMod.id("textures/gui/energy_symbols.png");
+	private static final Identifier PROCEDURAL_SENTINEL = PowersMod.id("procedural/energy_symbols");
 	private static final int SYMBOL_SIZE = 9;
 	private static final int TEXTURE_WIDTH = 27;
 	private static final int TEXTURE_HEIGHT = 45;
@@ -39,7 +40,8 @@ public final class EnergyHudRenderer {
 				ClientHudPreferences.get()).energy();
 		int halfUnits = mode == HudEnergyMode.EMPTY ? 0 : HudMath.energyHalfUnits(energy, capacity);
 		int visibleSymbols = Math.min(10, Math.max(0, (bounds.width() + 7) / 8));
-		boolean atlasAvailable = client.getResourceManager().getResource(SYMBOLS).isPresent();
+		boolean atlasAvailable = com.powers.resource.OptionalAssetFallback.resolve(SYMBOLS,
+				PROCEDURAL_SENTINEL, id -> client.getResourceManager().getResource(id).isPresent()).equals(SYMBOLS);
 		for (int symbol = 0; symbol < visibleSymbols; symbol++) {
 			int fill = HudMath.energyFillColumn(halfUnits, symbol);
 			int x = HudLayout.energySymbolX(bounds, symbol);
