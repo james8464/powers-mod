@@ -6,9 +6,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import struct
+import zlib
 from pathlib import Path
-
-from PIL import Image, ImageDraw
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,11 +37,9 @@ def inspect(path: Path) -> tuple[str, str]:
     relative = path.relative_to(ASSETS).as_posix()
     suffix = path.suffix.lower()
     if suffix == ".png":
-        with Image.open(path) as image:
-            image.verify()
-        with Image.open(path) as image:
-            alpha = "alpha" if image.mode in {"RGBA", "LA", "P"} else "opaque"
-            return "pass", f"PNG {image.width}×{image.height}, {alpha}; reviewed in contact sheet."
+        width, height, color_type = inspect_png(path)
+        alpha = "alpha" if color_type in {3, 4, 6} else "opaque"
+        return "pass", f"PNG {width}×{height}, {alpha}; reviewed in contact sheet."
     if suffix == ".ogg":
         data = path.read_bytes()
         marker = data.find(b"\x01vorbis")
@@ -58,6 +56,51 @@ def inspect(path: Path) -> tuple[str, str]:
     if suffix == ".png" or path.name == "icon.png":
         return "pass", "Image decoded."
     return "intentional", f"Retained namespaced asset ({suffix or 'no extension'})."
+
+
+def inspect_png(path: Path) -> tuple[int, int, int]:
+    """Validate PNG chunk framing, checksums, and compressed pixels without Pillow."""
+    data = path.read_bytes()
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError(f"{path}: invalid PNG signature")
+    offset = 8
+    header: tuple[int, int, int] | None = None
+    compressed = bytearray()
+    ended = False
+    while offset + 12 <= len(data):
+        length = struct.unpack(">I", data[offset:offset + 4])[0]
+        chunk_type = data[offset + 4:offset + 8]
+        payload_start = offset + 8
+        payload_end = payload_start + length
+        checksum_end = payload_end + 4
+        if checksum_end > len(data):
+            raise ValueError(f"{path}: truncated PNG chunk")
+        payload = data[payload_start:payload_end]
+        expected_crc = struct.unpack(">I", data[payload_end:checksum_end])[0]
+        actual_crc = zlib.crc32(chunk_type + payload) & 0xFFFFFFFF
+        if actual_crc != expected_crc:
+            raise ValueError(f"{path}: invalid PNG chunk checksum")
+        if chunk_type == b"IHDR":
+            if header is not None or length != 13:
+                raise ValueError(f"{path}: invalid PNG header")
+            width, height, _, color_type, _, _, _ = struct.unpack(">IIBBBBB", payload)
+            if width <= 0 or height <= 0:
+                raise ValueError(f"{path}: invalid PNG dimensions")
+            header = width, height, color_type
+        elif chunk_type == b"IDAT":
+            compressed.extend(payload)
+        elif chunk_type == b"IEND":
+            ended = True
+            offset = checksum_end
+            break
+        offset = checksum_end
+    if header is None or not compressed or not ended or offset != len(data):
+        raise ValueError(f"{path}: incomplete PNG stream")
+    try:
+        zlib.decompress(bytes(compressed))
+    except zlib.error as error:
+        raise ValueError(f"{path}: corrupt PNG pixel stream") from error
+    return header
 
 
 def render_manifest(files: list[Path]) -> str:
@@ -92,6 +135,10 @@ def group_name(path: Path) -> str:
 
 def generate_contact_sheets(files: list[Path]) -> None:
     """Create paged nearest-neighbour previews without modifying source assets."""
+    try:
+        from PIL import Image, ImageDraw
+    except ModuleNotFoundError as error:
+        raise RuntimeError("Pillow is required only when regenerating contact sheets") from error
     SHEETS.mkdir(parents=True, exist_ok=True)
     groups: dict[str, list[Path]] = {}
     for path in files:
