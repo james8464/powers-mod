@@ -28,7 +28,8 @@ public final class MagicRayCollisionRuntime {
 		collision.ifPresent(value -> ServerMagicCasts.emitPhysicalRayReaction(level, value,
 				MagicRuntime.global().resolveInteraction(value.submitted().action(),
 						value.existing().action())));
-		return collision.map(MagicRayCollisionIndex.Collision::point);
+		if (collision.isPresent()) return collision.map(MagicRayCollisionIndex.Collision::point);
+		return PhysicalMagicPresences.collideRayWithFields(level, action, owner, start, end, gameTime);
 	}
 
 	public static void tick(long gameTime) {

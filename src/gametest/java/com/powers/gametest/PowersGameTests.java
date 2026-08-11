@@ -1086,9 +1086,11 @@ public final class PowersGameTests {
 		powers.setSelectedSpell("book_grimoire_wild", 1);
 		BlockPos crop = new BlockPos(4, 1, 3);
 		BlockPos farmland = new BlockPos(3, 0, 4);
+		BlockPos irrigation = new BlockPos(4, 0, 4);
 		BlockPos fire = new BlockPos(2, 1, 3);
 		helper.setBlock(crop, Blocks.WHEAT);
 		helper.setBlock(farmland, Blocks.FARMLAND);
+		helper.setBlock(irrigation, Blocks.WATER);
 		// Farmland deterministically reverts to dirt when its fixture leaves a
 		// solid template block directly above it. Preserve the live-world
 		// precondition that Verdant Tending is intended to hydrate.
