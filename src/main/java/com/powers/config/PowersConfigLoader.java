@@ -158,6 +158,7 @@ public final class PowersConfigLoader {
 				bool(object, "requirePossessionConsent", defaults.requirePossessionConsent(), "requirePossessionConsent", changes),
 				bool(object, "projectionBodiesVulnerable", defaults.projectionBodiesVulnerable(), "projectionBodiesVulnerable", changes),
 				bool(object, "persistCooldowns", defaults.persistCooldowns(), "persistCooldowns", changes),
+				bool(object, "rankPrefixesEnabled", defaults.rankPrefixesEnabled(), "rankPrefixesEnabled", changes),
 				bool(object, "celestialRuinTerrainDamage", defaults.celestialRuinTerrainDamage(), "celestialRuinTerrainDamage", changes),
 				bool(object, "celestialRuinBlockEntityDamage", defaults.celestialRuinBlockEntityDamage(), "celestialRuinBlockEntityDamage", changes),
 				integer(object, "wardRadius", defaults.wardRadius(), "wardRadius", changes),

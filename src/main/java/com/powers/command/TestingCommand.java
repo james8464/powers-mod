@@ -37,7 +37,7 @@ final class TestingCommand {
 
 	static LiteralArgumentBuilder<CommandSourceStack> create() {
 		return Commands.literal("testing")
-				.requires(PowerCommand::isAdmin)
+				.requires(source -> PermissionNodes.allows(source, PermissionNode.TESTING))
 				.executes(TestingCommand::status)
 				.then(Commands.literal("status").executes(TestingCommand::status))
 				.then(Commands.literal("on").executes(context -> setAll(context, true)))

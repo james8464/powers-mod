@@ -40,7 +40,7 @@ class PowersConfigTest {
 	@Test
 	void sanitizationClampsUnsafeNumericValues() {
 		PowersConfig invalid = new PowersConfig(-10, false, false, false, false, true, true, true,
-				true, true, true, true, true, true, -5, 0, 0, 5000, 99, java.util.List.of(),
+				true, true, true, true, true, true, true, -5, 0, 0, 5000, 99, java.util.List.of(),
 				new PowersConfig.TerrainScars(-50, 99_999),
 				new PowersConfig.LivingForces(true, -1, -2, -3, -4, 1000, 1),
 				new PowersConfig.DialogueProvider(true, " endpoint ", " model ", "bad variable!",
@@ -112,7 +112,7 @@ class PowersConfigTest {
 				defaults.requireTeleportConsent(), defaults.requireLocatorConsent(),
 				defaults.requireCompanionConsent(), defaults.requireDreamwalkConsent(),
 				defaults.requirePossessionConsent(), defaults.projectionBodiesVulnerable(),
-				defaults.persistCooldowns(), defaults.celestialRuinTerrainDamage(),
+				defaults.persistCooldowns(), defaults.rankPrefixesEnabled(), defaults.celestialRuinTerrainDamage(),
 				defaults.celestialRuinBlockEntityDamage(), defaults.wardRadius(),
 				defaults.maxParticlesPerTick(), defaults.teleportMaxChunkDistance(),
 				defaults.rankRespecExperienceLevels(), defaults.adminPermissionLevel(), zones,

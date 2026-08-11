@@ -42,6 +42,8 @@ public abstract class PlayerRankDisplayMixin implements RankDisplayData {
 
 	@Inject(method = "getDisplayName", at = @At("RETURN"), cancellable = true)
 	private void powers$decorateDisplayName(CallbackInfoReturnable<Component> cir) {
-		cir.setReturnValue(RankNameFormatter.decorate(powers$getRankPrefix(), cir.getReturnValue()));
+		cir.setReturnValue(RankNameFormatter.decorate(
+				com.powers.config.PowersConfigLoader.get().rankPrefixesEnabled(),
+				powers$getRankPrefix(), cir.getReturnValue()));
 	}
 }

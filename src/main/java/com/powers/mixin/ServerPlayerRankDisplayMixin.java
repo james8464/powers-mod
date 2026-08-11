@@ -21,6 +21,7 @@ public abstract class ServerPlayerRankDisplayMixin {
 			vanillaName = PlayerTeam.formatNameForTeam(player.getTeam(), player.getName());
 		}
 		Component prefix = ((RankDisplayData) player).powers$getRankPrefix();
-		cir.setReturnValue(RankNameFormatter.decorate(prefix, vanillaName));
+		cir.setReturnValue(RankNameFormatter.decorate(
+				com.powers.config.PowersConfigLoader.get().rankPrefixesEnabled(), prefix, vanillaName));
 	}
 }
