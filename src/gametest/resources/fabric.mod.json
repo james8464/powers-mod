@@ -10,7 +10,7 @@
 			"com.powers.gametest.LivingForceGameTests",
 			"com.powers.gametest.P1AcceptanceGameTests",
 			"com.powers.gametest.LiveActionAcceptanceGameTests",
-			"com.powers.gametest.MultiplayerInteractionGameTests"
+			"com.powers.gametest.MultiplayerInteractionGameTests"${connectedProfileEntrypoint}
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests"
