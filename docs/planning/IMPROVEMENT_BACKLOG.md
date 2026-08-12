@@ -171,7 +171,7 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | SHD-008 | Enhancement | P2 | Teach combat planner encounter roles: peel, interrupt, rescue, suppress, execute, disengage. | Role choice is inspectable, bounded, friendly-fire safe, and preference-aware. |
 | SHD-009 | Enhancement | P2 | Learn from explicit owner feedback (`good`, `don't do that`) separately from combat reward. | Learning remains owner-local, capped, resettable, and cannot alter hard safety. |
 | SHD-010 | Enhancement | P2 | Add spatial memory of temporary owner-designated places, not global world surveillance. | Bounded named points, explicit delete, dimension-safe, and no forced loading. |
-| SHD-011 | Enhancement | P2 | Expand offline lore/registry knowledge to all 262 catalogue rows, 64 actions, ranks, realms, and interaction rules. | Generated knowledge coverage report reaches 100% with source links. |
+| SHD-011 | Enhancement | P2 | Expand offline lore/registry knowledge to all 260 catalogue rows, 64 actions, ranks, realms, and interaction rules. | Generated knowledge coverage report reaches 100% with source links. |
 | SHD-013 | Enhancement | P2 | Make Shadow's subtle ulterior Darkness agenda stateful but never deceptive about mechanics/safety. | Tone tests distinguish persuasion from fabricated facts. |
 | SHD-014 | Enhancement | P2 | Add spoken/visual combat callouts with frequency controls. | Critical warnings survive; chatter respects global/private and accessibility settings. |
 | SHD-016 | Research | P2 | Evaluate a local small-language-model provider for optional private dialogue. | Benchmarks cover latency, memory, moderation, redaction, CPU/RAM, and offline fallback. |

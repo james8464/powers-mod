@@ -19,8 +19,6 @@ This generated table names every registered gameplay item family, including hidd
 | `powers:pure_light` | Pure Light | Living force | Spreading Pure Light realm matter | Light Realm generation, consecration, and invasion scars |
 | `powers:amethyst_ward` | Amethyst Power Ward | Counterplay | Powered dampening and force-containment ceremony | Crafting recipe |
 | `powers:arcane_crucible` | Arcane Crucible | Forge | Atomic staged magical weapon conversion | Crafting recipe |
-| `powers:light_memory_obelisk` | Radiant Memory Obelisk | Realm structure | Light memory landmark core | Generated in the Light Realm; not a survival drop |
-| `powers:dark_memory_obelisk` | Hollow Memory Obelisk | Realm structure | Dark memory landmark core | Generated in the Dark Realm; not a survival drop |
 | `powers:darkness_creature_spawn_egg` | Darkness Creature Spawn Egg | Testing tool | Spawns Darkness Creature for controlled testing | Creative/operator testing only |
 | `powers:power_test_actor_spawn_egg` | Power Test Actor Spawn Egg | Testing tool | Spawns Power Test Actor for controlled testing | Creative/operator testing only |
 | `powers:radiant_sentinel_spawn_egg` | Radiant Sentinel Spawn Egg | Testing tool | Spawns Radiant Sentinel for controlled testing | Creative/operator testing only |

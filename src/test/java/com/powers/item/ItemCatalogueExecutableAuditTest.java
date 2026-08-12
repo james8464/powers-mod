@@ -19,11 +19,11 @@ class ItemCatalogueExecutableAuditTest {
 	private static final Path ROOT = Path.of(System.getProperty("user.dir"));
 
 	@Test
-	void all262RowsHaveUniqueRegistryModelTranslationPurposeAndAcquisitionContracts() throws Exception {
+	void all260RowsHaveUniqueRegistryModelTranslationPurposeAndAcquisitionContracts() throws Exception {
 		List<String> rows = Files.readAllLines(ROOT.resolve("docs/gameplay/item-catalogue.md")).stream()
 				.filter(line -> line.startsWith("| `powers:"))
 				.toList();
-		assertEquals(262, rows.size(), "catalogue row count drifted from the live registry contract");
+		assertEquals(260, rows.size(), "catalogue row count drifted from the live registry contract");
 		JsonObject language = JsonParser.parseString(Files.readString(ROOT.resolve(
 				"src/main/resources/assets/powers/lang/en_us.json"))).getAsJsonObject();
 		Set<String> ids = new HashSet<>();

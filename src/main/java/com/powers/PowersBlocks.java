@@ -50,26 +50,6 @@ public final class PowersBlocks {
 			.randomTicks()
 			.lightLevel((state) -> 15));
 
-	public static final ResourceKey<Block> LIGHT_MEMORY_OBELISK_KEY = key("light_memory_obelisk");
-	public static final Block LIGHT_MEMORY_OBELISK = register(LIGHT_MEMORY_OBELISK_KEY,
-			BlockBehaviour.Properties.of()
-					.mapColor(MapColor.QUARTZ)
-					.strength(-1.0F, 3600000.0F)
-					.noLootTable()
-					.noOcclusion()
-					.sound(SoundType.AMETHYST)
-					.lightLevel(state -> 15));
-
-	public static final ResourceKey<Block> DARK_MEMORY_OBELISK_KEY = key("dark_memory_obelisk");
-	public static final Block DARK_MEMORY_OBELISK = register(DARK_MEMORY_OBELISK_KEY,
-			BlockBehaviour.Properties.of()
-					.mapColor(MapColor.COLOR_BLACK)
-					.strength(-1.0F, 3600000.0F)
-					.noLootTable()
-					.noOcclusion()
-					.sound(SoundType.SCULK)
-					.lightLevel(state -> 4));
-
 	public static final ResourceKey<Block> AMETHYST_WARD_KEY = key("amethyst_ward");
 	// redstone-powered ward; while powered it dampens powers, and glows brighter to show it's on
 	public static final Block AMETHYST_WARD = register(AMETHYST_WARD_KEY,
@@ -115,8 +95,6 @@ public final class PowersBlocks {
 					creativeTab.accept(DARKNESS);
 					creativeTab.accept(PURE_LIGHT);
 					creativeTab.accept(AMETHYST_WARD);
-					creativeTab.accept(LIGHT_MEMORY_OBELISK);
-					creativeTab.accept(DARK_MEMORY_OBELISK);
 					creativeTab.accept(ARCANE_CRUCIBLE);
 				});
 	}

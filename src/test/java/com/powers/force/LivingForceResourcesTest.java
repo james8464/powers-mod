@@ -25,8 +25,7 @@ class LivingForceResourcesTest {
 
 		for (String required : Set.of("#powers:amethyst", "minecraft:gold_block",
 				"minecraft:crying_obsidian", "minecraft:end_rod",
-				"minecraft:soul_lantern", "powers:light_memory_obelisk",
-				"powers:dark_memory_obelisk")) {
+				"minecraft:soul_lantern", "minecraft:sea_lantern")) {
 			assertTrue(identifiers.contains(required), () -> "Missing force immunity: " + required);
 		}
 	}

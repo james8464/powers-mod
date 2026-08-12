@@ -92,7 +92,7 @@
 - Added persistent 28-node light and darkness title mazes without mutually exclusive player classes.
 - Added 20 original ritual spells across six functional grimoires, including counterspell and Dimensional Anchor.
 - Activated every crystal, including multi-mode chromatic, Rainbow, and Infected Rainbow convergences with swap-proof cooldowns.
-- Built Light and Dark Realm memory sites, lore rewards, custom obelisks, ambient magic, and a distinct Middleworld biome.
+- Built Light and Dark Realm memory sites, lore rewards, ambient magic, and a distinct Middleworld biome.
 - Rebuilt the HUD as authored rune medallions and a five-state ancient energy reliquary, with responsive teleport and celestial-locator rituals.
 - Added the interactive Labyrinth of Names screen, synchronized title perks, server-validated awaken/attune actions, and rank ceremonies.
 - Added spreading Darkness and Pure Light, darkness-tag affinity restoration, hostile Wither auras, and a staged power-100-equivalent mutual-annihilation clash.

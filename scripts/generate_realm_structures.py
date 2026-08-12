@@ -32,11 +32,11 @@ def palette(alignment: str) -> dict[str, str]:
     if alignment == "light":
         return {"floor": "powers:pure_light", "wall": "minecraft:quartz_bricks",
                 "accent": "minecraft:gold_block", "lamp": "minecraft:sea_lantern",
-                "shelves": "minecraft:chiseled_bookshelf", "core": "powers:light_memory_obelisk",
+                "shelves": "minecraft:chiseled_bookshelf", "core": "minecraft:sea_lantern",
                 "hazard": "minecraft:powder_snow"}
     return {"floor": "powers:darkness", "wall": "minecraft:polished_blackstone_bricks",
             "accent": "minecraft:crying_obsidian", "lamp": "minecraft:soul_lantern",
-            "shelves": "minecraft:bookshelf", "core": "powers:dark_memory_obelisk",
+            "shelves": "minecraft:bookshelf", "core": "minecraft:crying_obsidian",
             "hazard": "minecraft:magma_block"}
 
 
