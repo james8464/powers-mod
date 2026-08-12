@@ -265,7 +265,17 @@ public final class CelestialRuinManager {
 				countdownRemaining--;
 				if (countdownRemaining > 0) return false;
 			}
-			if (!chunksReady()) return false;
+			boolean chunksReady = chunksReady();
+			if (!chunksReady) {
+				if (CelestialRuinStagingRules.shouldSustainWarning(
+						countdownRemaining, detonated, false) && level.getGameTime() % 10 == 0) {
+					int holdAge = CelestialRuinRules.COUNTDOWN_TICKS
+							+ (int) (level.getGameTime() % 200L);
+					CelestialRuinFx.beam(level, Vec3.atCenterOf(center),
+							CelestialRuinRules.BEAM_RADIUS, holdAge);
+				}
+				return false;
+			}
 			if (!detonated) {
 				pendingPhase = "detonation";
 				checkpoint(level.getServer());

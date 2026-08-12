@@ -5,8 +5,8 @@ public final class CelestialRuinPresentation {
 	public static final int BEAM_REFRESH_TICKS = 20;
 	public static final int BEAM_LEASE_TICKS = 35;
 	public static final int BEAM_VIEW_RADIUS = 6_000;
-	public static final int BEAM_VERTICAL_SLICES = 4;
-	public static final int BEAM_PARTICLES_PER_SLICE = 16;
+	public static final int BEAM_VERTICAL_SLICES = 12;
+	public static final int BEAM_PARTICLES_PER_SLICE = 8;
 	public static final int BEAM_BOUNDARY_PARTICLES = 24;
 	public static final int FLASH_TICKS = 400;
 	public static final int RINGING_TICKS = 500;

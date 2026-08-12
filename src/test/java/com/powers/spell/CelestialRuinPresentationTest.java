@@ -2,10 +2,25 @@ package com.powers.spell;
 
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CelestialRuinPresentationTest {
+	@Test
+	void distantColumnUsesTheAlwaysVisibleParticlePath() throws Exception {
+		String source = Files.readString(Path.of(System.getProperty("user.dir"),
+				"src/client/java/com/powers/client/fx/ClientCelestialRuinFx.java"));
+		assertFalse(source.contains("client.level.addParticle("),
+				"ordinary client particles are culled beyond 32 blocks");
+		assertEquals(3, source.split("addAlwaysVisibleParticle\\(", -1).length - 1);
+		assertEquals(3, source.split("true,", -1).length - 1,
+				"always-visible particles must also override vanilla's 32-block limiter");
+	}
+
 	@Test
 	void detonationFlashHoldsThenFadesAcrossTwentySeconds() {
 		assertEquals(400, CelestialRuinPresentation.FLASH_TICKS);
@@ -20,6 +35,8 @@ class CelestialRuinPresentationTest {
 		assertTrue(CelestialRuinPresentation.BEAM_LEASE_TICKS
 				> CelestialRuinPresentation.BEAM_REFRESH_TICKS);
 		assertTrue(CelestialRuinPresentation.BEAM_VIEW_RADIUS >= 6_000);
+		assertTrue(CelestialRuinPresentation.BEAM_VERTICAL_SLICES >= 10,
+				"a four-band ring stack is not a sky-height column");
 		assertTrue(CelestialRuinPresentation.clientBeamParticleCount() >= 64);
 		assertTrue(CelestialRuinPresentation.clientBeamParticleCount() <= 128);
 	}

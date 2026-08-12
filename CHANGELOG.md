@@ -2,6 +2,7 @@
 
 ## 1.0.2 - 2026-08-11
 
+- Kept Celestial Ruin's full-height omen visible through progressive impact-chunk preparation, bypassed vanilla's 32-block particle limiter for distant observers, and completed every numbered warning/failure translation so live messages cannot leak raw keys.
 - Made Cartographer's Star teach its accepted query grammar, wrap its guidance within the locator panel, and translate every success/failure result instead of leaking raw language keys.
 - Moved the first Astral Projection frame just beyond and above its vulnerable body proxy so the owner no longer begins inside the mannequin skin.
 - Added a real rendered-client acceptance harness with live Light/Dark Crystal journeys, body recovery, 19 HUD/screen/realm captures, compact layouts, and checked operator commands; expanded the live server suite to 69 GameTests and published an honest 429-identity campaign report.
