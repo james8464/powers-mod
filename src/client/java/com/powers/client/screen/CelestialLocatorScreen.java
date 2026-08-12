@@ -97,11 +97,21 @@ public final class CelestialLocatorScreen extends Screen {
 		if (empty) graphics.centeredText(font, Component.translatable("screen.powers.locator.empty"),
 				width / 2, panelY() + 118, 0xFF9C91AF);
 		if (mode == CelestialSearchMode.WORLD) {
-			graphics.centeredText(font, Component.translatable("screen.powers.locator.world_help_1"),
-					width / 2, panelY() + 82, 0xFFD8D2E2);
-			graphics.centeredText(font, Component.translatable("screen.powers.locator.world_help_2"),
-					width / 2, panelY() + 100, 0xFF9C91AF);
+			int y = drawWrappedCentered(graphics,
+					Component.translatable("screen.powers.locator.world_help_1"),
+					panelY() + 76, 0xFFD8D2E2);
+			drawWrappedCentered(graphics,
+					Component.translatable("screen.powers.locator.world_help_2"),
+					y + 4, 0xFF9C91AF);
 		}
+	}
+
+	private int drawWrappedCentered(GuiGraphicsExtractor graphics, Component text, int y, int color) {
+		for (var line : font.split(text, PANEL_WIDTH - 40)) {
+			graphics.centeredText(font, line, width / 2, y, color);
+			y += 10;
+		}
+		return y;
 	}
 
 	private int panelX() {
