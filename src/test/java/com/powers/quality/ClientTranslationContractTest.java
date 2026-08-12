@@ -18,8 +18,7 @@ class ClientTranslationContractTest {
 	@Test
 	void everyLiteralClientTranslationKeyExists() throws Exception {
 		Path root = Path.of(System.getProperty("user.dir"));
-		var language = JsonParser.parseString(Files.readString(root.resolve(
-				"src/main/resources/assets/powers/lang/en_us.json"))).getAsJsonObject();
+		var language = language(root);
 		var missing = new TreeSet<String>();
 		try (var files = Files.walk(root.resolve("src/client/java"))) {
 			for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
@@ -31,5 +30,39 @@ class ClientTranslationContractTest {
 			}
 		}
 		assertTrue(missing.isEmpty(), () -> "Missing client translations: " + missing);
+	}
+
+	@Test
+	void everyLiteralServerTranslationKeyExists() throws Exception {
+		Path root = Path.of(System.getProperty("user.dir"));
+		var language = language(root);
+		var missing = new TreeSet<String>();
+		try (var files = Files.walk(root.resolve("src/main/java"))) {
+			for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
+				var matcher = LITERAL.matcher(Files.readString(file));
+				while (matcher.find()) {
+					String key = matcher.group(1);
+					if (!language.has(key)) missing.add(key);
+				}
+			}
+		}
+		assertTrue(missing.isEmpty(), () -> "Missing server translations: " + missing);
+	}
+
+	@Test
+	void cartographerScreenTeachesTheAcceptedQueryGrammar() throws Exception {
+		Path root = Path.of(System.getProperty("user.dir"));
+		var language = language(root);
+		String help = language.get("screen.powers.locator.world_help_1").getAsString();
+		String hint = language.get("screen.powers.locator.world_hint").getAsString();
+		assertTrue(help.contains("biome <id>"), help);
+		assertTrue(help.contains("structure <id>"), help);
+		assertTrue(help.contains("landmark <name>"), help);
+		assertTrue(hint.length() <= 22, "Locator hint exceeds its 148px edit box: " + hint);
+	}
+
+	private static com.google.gson.JsonObject language(Path root) throws Exception {
+		return JsonParser.parseString(Files.readString(root.resolve(
+				"src/main/resources/assets/powers/lang/en_us.json"))).getAsJsonObject();
 	}
 }
