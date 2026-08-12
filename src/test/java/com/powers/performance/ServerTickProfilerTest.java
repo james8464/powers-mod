@@ -21,4 +21,21 @@ class ServerTickProfilerTest {
 	void emptyProfilesHaveZeroPercentiles() {
 		assertEquals(0.0, ServerTickProfiler.percentileMs(List.of(), 0.95));
 	}
+
+	@Test
+	void realTimeHarnessUsesACumulativeTwentyTpsDeadlineWithoutDrift() {
+		assertEquals(1_000_000_000L,
+				ServerTickProfiler.profileDeadlineNanos(1_000_000_000L, 0));
+		assertEquals(1_050_000_000L,
+				ServerTickProfiler.profileDeadlineNanos(1_000_000_000L, 1));
+		assertEquals(1_100_000_000L,
+				ServerTickProfiler.profileDeadlineNanos(1_000_000_000L, 2));
+	}
+
+	@Test
+	void duplicateLifecycleCallbacksCannotSampleOneLogicalTickTwice() {
+		assertEquals(true, ServerTickProfiler.isNewLogicalTick(41L, 42L));
+		assertEquals(false, ServerTickProfiler.isNewLogicalTick(42L, 42L));
+		assertEquals(false, ServerTickProfiler.isNewLogicalTick(43L, 42L));
+	}
 }
