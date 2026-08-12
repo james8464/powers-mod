@@ -43,7 +43,7 @@ The HUD places three rune medallions at the right edge and ten separate nine-pix
 
 ## Authoritative casting rules
 
-Every cast resolves targeting, consent, protection, amethyst, safe-zone, realm, collision, and workload policy before committing energy and cooldown. A rejected activation refunds its offered cost and leaves no magic residue.
+Every cast resolves its applicable targeting, protection, amethyst, safe-zone, realm, and workload policy before committing energy and cooldown. Ordinary hostile actions retain their consent and collision rules. Authored travel routes are the deliberate exception: they automatically carry a bounded nearby living cohort without consent, and entered coordinates are used exactly without searching for a collision-free or hazard-free landing. A rejected activation refunds its offered cost and leaves no magic residue.
 
 | Cast source | Rank scaling |
 | --- | --- |
@@ -61,7 +61,7 @@ Random assignment guarantees one allegiance-exclusive option and never duplicate
 | Power | Implemented behavior |
 | --- | --- |
 | Size Morphing | Selectable player scale from `0.25×`–`2×` initially; `2.5×` at rank 4, `0.125×` at rank 6, `3×` at rank 7, and `4×` at rank 10. Upkeep increases with distance from normal size. |
-| Teleport | Server-advertised dimension/coordinate or unique named-player/mob targeting; asynchronously tickets unloaded destinations, validates safe arrival, and runs a vulnerable five-second origin/destination storm. Companion travel and consent are enforced. Middleworld is not an ordinary target. |
+| Teleport | Server-advertised dimension/coordinate or unique named-player/mob targeting with asynchronous destination tickets and a vulnerable five-second origin/destination storm. Entered coordinates are honoured exactly—even inside blocks, fluids, or hazardous terrain—while finite coordinates, world bounds, protections, anchors, and realm confinement remain authoritative. The caster automatically carries up to 15 living players, mobs, or a nearby Shadow within two blocks, preserving offsets and asking no consent. Middleworld is not an ordinary target. |
 | Flight | Server-owned survival propulsion with directional rise/descent and faster sprint flight; never creative flight. |
 | Starfall | A finite warned Astral Convergence: deterministic strikes, roof/water/force reactions, repeat-hit caps, bounded scars, and rank branches for more strikes, moving focus, revelation, diversion, echoes, and dominion. |
 | Void Beam | A telegraphed live-aim penetrating ray with diminishing later hits, rank bores, distinct force/ward/amethyst terminals, and a finite terrain-safe void scar. |
@@ -158,11 +158,11 @@ There are ten usable crystal items exposing 11 distinct actions. Multi-mode crys
 | Yellow | **Size Shift:** alternates fixed 20-second `0.0625×` miniature and `10×` titan forms with corresponding movement/combat changes; separate from innate Size Morphing. |
 | Green | **Life Bloom:** fully heals and cleanses living allies in 20 blocks. |
 | Blue | **Chrono Stop:** toggles true global tick freeze, shows owner/deadline state plus a temporal-fracture edge, and auto-releases after one minute without upkeep. **Dreamwalking:** controls one uniquely named consented player or mob for up to 30 seconds through the vulnerable body channel. |
-| Indigo | **Middleworld:** persisted vulnerable mind travel to the muted Between; use again to return to the exact validated origin. |
+| Indigo | **Middleworld:** persisted vulnerable group mind travel to the muted Between; use again to return each traveller to its recorded origin. |
 | Violet | **Soul Link:** binds up to eight nearby souls for ten seconds, renders its topology, and mirrors later wounds under an independently visible remaining-damage cap per target without recursive or forcefield double-counting. |
 | Rainbow | Six-mode convergence: Inferno, Clone Swarm, Size Shift, Life Bloom, Chrono Stop, or Soul Link. Crouch-use opens a non-pausing narrated radial selector backed only by a server-validated mode index. A Darkness holder receives the same item's corrupted model; the legacy infected item is a hidden inert save alias. |
-| Light | Vulnerable self/consented-target travel to the Light Realm. Crouch-use can take the caster plus up to 15 nearby eligible consenting players to distinct safe arrivals. |
-| Dark | Equivalent vulnerable group travel to the Dark Realm under corrupted presentation. |
+| Light | Vulnerable group travel to the Light Realm for the caster and up to 15 living players, mobs, or Shadow bodies within two blocks. No consent or special group mode is required; each player receives an independent vulnerable body session and ordinary mobs retain a bounded return origin. |
+| Dark | Equivalent automatic vulnerable group travel to the Dark Realm under corrupted presentation. |
 
 ## Mythic artifacts and combat UI
 
@@ -213,7 +213,7 @@ Shadow is one server-authoritative, owner-skinned player-model body with no copi
 
 Recognized tasks include follow, stay, guard/protect, stop, attack/fight a uniquely named target, use/cast a named power, close/skirmish/ranged preference, retrieve dropped items, conjure approved items, scout, explain a failed cast, reveal, hide, summon, and dismiss. It retrieves at most 64 candidates within 32 blocks and bounds task duration.
 
-Shadow has its own 1,850-point Darkness well, natural Darkness/Pure Light/amethyst reactions, safe-zone and consent policy, and max-Darkness access to all 23 entity-safe innates plus the three sword invocations—never crystal abilities. Its planner evaluates at most 64 targets every ten ticks, casts at most once per 20 ticks, checks friendly fire and firing lanes, and selects close, skirmish, ranged, rescue, or recovery behavior. Owner-local contextual learning is capped at 64 contexts and 32 target profiles, adjusts choices by at most ±25%, explores safely at no more than 5%, and can be reset by an operator.
+Shadow has its own 1,850-point Darkness well, natural Darkness/Pure Light/amethyst reactions, safe-zone combat policy, and max-Darkness access to all 23 entity-safe innates plus the three sword invocations—never crystal abilities. As embodied Darkness, Shadow's own travel is exempt from consent, route, and mindscape-departure restrictions: when within a travel cohort it follows across dimensions, its authoritative body is rebound after Minecraft replaces the entity, and it may return from the Dark Realm without a vulnerable proxy. Its planner evaluates at most 64 targets every ten ticks, casts at most once per 20 ticks, checks friendly fire and firing lanes, and selects close, skirmish, ranged, rescue, or recovery behavior. Owner-local contextual learning is capped at 64 contexts and 32 target profiles, adjusts choices by at most ±25%, explores safely at no more than 5%, and can be reset by an operator.
 
 Conjuration permits ordinary approved materials and supplies, but forbids admin blocks, spawn eggs, the Shadow Sword, Partisan, and all crystals except the Dark Crystal. A Dark Crystal requires a full 1,850 energy, revealed stationary Shadow, a 60-second interruptible channel, and no duplicate in the player's inventory or ender chest.
 
@@ -230,9 +230,9 @@ The registry currently contains 260 gameplay/block rows. The exact ID, family, i
 | Ritual Dagger | Its tooltip previews exact health cost, survival floor and energy gain. Use sacrifices four real health above that floor for 80 energy; armour, forcefields, and cancelled damage cannot make it free. |
 | Five heart relics | Living Heart healing/regeneration; Wildwood stronger healing; Ghoul healing plus energy; Clockwork timed absorption; Bloodstone five-minute single lethal-damage ward. |
 | Philosopher's Stone | Protected 30-energy transmutation: stone/cobble to iron ore, deepslate variants, netherrack to quartz, end stone to amethyst. |
-| Lodestone / Miniportal | Bind a named safe same-dimension anchor; charged/empty model and durability tooltip expose two-charge state. Async return uses the first valid inventory anchor and normal travel rules. Empty Miniportal plus a dropped amethyst shard restores both charges. |
+| Lodestone / Miniportal | Bind a named same-dimension anchor; charged/empty model and durability tooltip expose two-charge state. Async return uses the first valid inventory anchor exactly and automatically carries the bounded nearby living cohort without consent. Empty Miniportal plus a dropped amethyst shard restores both charges. |
 | Flute | Recalls, heals, and rebinds nearby player-shaped guardians under owner/global caps. |
-| Empyrean Jewel | Pays one 40-energy surcharge to override every player-consent gate—teleport/forced movement, locator, companion, Dreamwalking, possession—without bypassing protections or safe zones. The target receives a conspicuous permanent chat notice and the attempt enters the bounded operator audit. |
+| Empyrean Jewel | Pays one 40-energy surcharge to override consent-gated hostile forced movement, locator viewing, Dreamwalking, or possession without bypassing protections or safe zones. Automatic group-travel routes no longer need or charge for an override. The target receives a conspicuous permanent chat notice and the attempt enters the bounded operator audit. |
 | Malignember | Its registry-derived tooltip lists every eligible destructive action and each artifact snapshot reports the actual saved energy. It reduces only those costs by 20%, never below one and never through rank scaling. |
 | Stars, dusts, salts, fossils, jewels, stones, vessels, pages | Bounded Crucible XP/catalyst tiers, archaeology, and contextual Shadow lore; no essence economy. |
 
@@ -266,13 +266,13 @@ The powered Ward suppresses magic in a configurable default 20-block radius. Nat
 
 POWERS adds `powers:light_realm`, `powers:dark_realm`, and `powers:middleworld`.
 
-Light and Dark are mindscapes, not invulnerability dimensions. Entry leaves a vulnerable owner-skinned body at the exact physical origin while the player's normal game mode is preserved. Damage to that body mirrors to the player; fatal body or avatar damage recalls and kills the physical player. Astral projection, possession, Dreamwalking, named-target travel, Middleworld, and mindscapes share one mutually exclusive session channel and lifecycle cleanup. A controlled host's death returns the controller with Divine Wrath instead of killing the controller.
+Light and Dark are mindscapes, not invulnerability dimensions. Crystal entry automatically captures the caster and up to 15 living entities within two blocks without consent. Each player leaves an independent vulnerable owner-skinned body at the exact physical origin while retaining normal game mode; ordinary mobs use a bounded origin record; Shadow travels as its real persistent body. Damage to a player's body mirrors to that player, and fatal body or avatar damage recalls and kills the physical player. Astral projection, possession, Dreamwalking, named-target travel, Middleworld, and mindscapes share one mutually exclusive session channel and lifecycle cleanup. A controlled host's death returns the controller with Divine Wrath instead of killing the controller.
 
 Each force realm progressively constructs six protected persistent sites—Archive, Labyrinth, Shrine, Settlement, Font, and Herald Court—at a fixed hex around the first thought. Construction spends at most 128 edits per five-tick pulse. Force Pressure grows at 24/48/72-block tiers from entry; alignment restores/resists while intrusion drains and applies Weakness, Slowness, or Wither. Every 12-minute cycle ends in a two-minute Whiteout or Dark Eclipse. Courts respawn their defeated Herald after 20 minutes.
 
 The Light Realm has a pure white sky without sun, moon, stars, or black void; the Dark Realm is an enclosed hostile thoughtscape; Middleworld has a muted Between biome. The realms preserve the Luminous Concord, Hollow Court, Amethyst Covenant, and Archivists of the Between cosmology through sites, bosses, item clues, and Shadow knowledge.
 
-Ordinary player-controlled travel may move inside the current mindscape but cannot leave it directly; the mind must return to its body. Dark departure requires the `darkness` tag and Darkness level 5. Light departure requires level 5 in either progression. `/powers recover` is a separate operator-only corruption recovery route. Confinement uses bounded retries and enters a diagnosed locked Spectator holding state only when every safe recovery attempt fails; it is never an ordinary travel shortcut.
+Ordinary player-controlled travel may move inside the current mindscape but cannot leave it directly; the mind must return to its body. Dark departure requires the `darkness` tag and Darkness level 5. Light departure requires level 5 in either progression. Shadow alone is exempt because it is the travelling embodiment rather than a projected mind. `/powers recover` is a separate operator-only corruption recovery route. Confinement uses bounded retries and enters a diagnosed locked Spectator holding state only when every recovery attempt fails; it is never an ordinary travel shortcut.
 
 ## Entities, guardians, and bosses
 
@@ -295,7 +295,7 @@ Spawn eggs exist for Darkness Creature, Power Test Actor, Radiant Sentinel, Firs
 
 ## Protection, consent, bodies, and lifecycle
 
-Five independent consent categories cover teleport/forced movement, locator viewing, companion transport, Dreamwalking, and possession. The Empyrean Jewel may pay to override consent only; it cannot override safe zones, protected terrain, realm confinement, world border, collision, anchors, amethyst, or operator policy.
+Consent remains authoritative for hostile forced movement, locator viewing, Dreamwalking, and possession. Deliberate travel routes—Teleport, realm crystals, Miniportal return, and artifact gates—never ask consent: they carry at most 16 living entities total from the caster's two-block cohort. The Empyrean Jewel may pay to override the remaining consent gates only; it cannot override safe zones, protected terrain, ordinary-player realm confinement, world borders, anchors, amethyst, or operator policy.
 
 Safe zones are dimension/position/radius records and protect damage, hostile movement, terrain, fields, and destructive rituals. Forcefields sacrifice themselves before overkill. Dimensional Anchor stops travel. Powered wards suppress casts. Time Freeze has explicit owner/external state arbitration. All toggle and artifact-owned states terminate on death, logout, power loss, item loss, lost authorization, dimension/session failure, or server stop. This remains true while global ticks are frozen.
 
@@ -373,9 +373,9 @@ The server file uses schema version 2. Values are sanitized at load; `/powers re
 | `allowBlockEntityDamage` | `false` | Ordinary magic may affect block entities. |
 | `allowSelfReroll` | `false` | Non-operators may reroll their own innate loadout. |
 | `hostileForcedMovement` | `false` | Hostile player displacement without consent. |
-| `requireTeleportConsent` | `true` | Teleport/forced-movement consent gate. |
+| `requireTeleportConsent` | `true` | Hostile forced-movement consent gate; authored group-travel routes ignore it. |
 | `requireLocatorConsent` | `true` | Player remote-view/locator consent gate. |
-| `requireCompanionConsent` | `true` | Companion transport consent gate. |
+| `requireCompanionConsent` | `true` | Save-compatible legacy companion-consent policy; bounded group travel is automatic. |
 | `requireDreamwalkConsent` | `true` | Dreamwalking consent gate. |
 | `requirePossessionConsent` | `true` | Possession consent gate. |
 | `projectionBodiesVulnerable` | `true` | Detached physical bodies mirror damage. |
