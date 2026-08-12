@@ -5,6 +5,7 @@ import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelKind;
+import com.powers.power.travel.TravelCohort;
 import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
@@ -71,8 +72,10 @@ public final class ArtifactGateManager {
 					: owner.distanceToSqr(gate.exit()) <= 2.25 ? gate.entrance() : null;
 			if (destination == null || !SafeDestinationResolver.validate(
 					owner, level, destination, TravelKind.POWER).allowed()) continue;
+			TravelCohort.Snapshot cohort = TravelCohort.capture(level, owner, owner);
 			owner.teleport(new TeleportTransition(level, destination, Vec3.ZERO,
 					owner.getYRot(), owner.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+			TravelCohort.move(cohort, level, destination);
 			RECENT_TRAVEL.put(owner.getUUID(), (long) server.getTickCount() + 20L);
 		}
 	}

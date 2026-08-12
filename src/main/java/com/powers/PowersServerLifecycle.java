@@ -29,6 +29,7 @@ import com.powers.power.PowerAbilityRuntime;
 import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.power.travel.TravelChunkLoader;
+import com.powers.power.travel.MindscapeMobReturnTracker;
 import com.powers.protection.ConsentOverrideRuntime;
 import com.powers.realm.RealmConfinementManager;
 import com.powers.realm.RealmEventManager;
@@ -158,6 +159,7 @@ final class PowersServerLifecycle {
 		CompanionPackets.clearBudgets();
 		MagicFxPackets.clear();
 		TravelChunkLoader.clear();
+		MindscapeMobReturnTracker.clear();
 		NamedLivingTargetIndex.clearAll();
 		ServerRuntimeMetrics.clear();
 		PhysicalMagicPresences.clear();

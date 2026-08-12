@@ -1,0 +1,109 @@
+package com.powers.power.travel;
+
+import com.powers.companion.ShadowCompanionEntity;
+import com.powers.util.LoadedChunks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
+
+/** Bounded origins for ordinary mobs carried into a mindscape by a crystal. */
+public final class MindscapeMobReturnTracker {
+	public static final int MAX_TRACKED = 256;
+
+	public enum TrackDecision {
+		TRACK,
+		SKIP_DEAD,
+		SKIP_PLAYER,
+		SKIP_SHADOW
+	}
+
+	private record Origin(ServerLevel level, Vec3 position, float yRot, float xRot) {
+	}
+
+	private static final Map<UUID, Origin> ORIGINS = new LinkedHashMap<>();
+
+	private MindscapeMobReturnTracker() {
+	}
+
+	public static TrackDecision trackDecision(boolean alive, boolean player, boolean shadow) {
+		if (!alive) return TrackDecision.SKIP_DEAD;
+		if (player) return TrackDecision.SKIP_PLAYER;
+		if (shadow) return TrackDecision.SKIP_SHADOW;
+		return TrackDecision.TRACK;
+	}
+
+	public static boolean track(LivingEntity entity) {
+		if (entity == null || trackDecision(entity.isAlive() && !entity.isRemoved(),
+				entity instanceof ServerPlayer, entity instanceof ShadowCompanionEntity) != TrackDecision.TRACK) {
+			return false;
+		}
+		while (ORIGINS.size() >= MAX_TRACKED) {
+			UUID eldest = ORIGINS.keySet().iterator().next();
+			ORIGINS.remove(eldest);
+		}
+		ORIGINS.put(entity.getUUID(), new Origin((ServerLevel) entity.level(), entity.position(),
+				entity.getYRot(), entity.getXRot()));
+		return true;
+	}
+
+	public static boolean tracked(LivingEntity entity) {
+		return entity != null && ORIGINS.containsKey(entity.getUUID());
+	}
+
+	/** Returns immediately when loaded, otherwise owns one bounded asynchronous chunk request. */
+	public static boolean returnToOrigin(LivingEntity entity) {
+		if (entity == null) return false;
+		Origin origin = ORIGINS.get(entity.getUUID());
+		if (origin == null) return false;
+		BlockPos block = BlockPos.containing(origin.position());
+		if (LoadedChunks.contains(origin.level(), block)) return complete(entity, origin);
+		UUID entityId = entity.getUUID();
+		MinecraftServer server = origin.level().getServer();
+		return TravelChunkLoader.request(entityId, origin.level(), block, "mindscape_mob_return",
+				() -> {
+					LivingEntity current = find(server, entityId);
+					if (current != null) complete(current, origin);
+				}, () -> { });
+	}
+
+	public static void forget(LivingEntity entity) {
+		if (entity != null) ORIGINS.remove(entity.getUUID());
+	}
+
+	public static int trackedCount() {
+		return ORIGINS.size();
+	}
+
+	public static void clear() {
+		ORIGINS.clear();
+	}
+
+	private static boolean complete(LivingEntity entity, Origin origin) {
+		if (!entity.isAlive() || entity.isRemoved()) {
+			ORIGINS.remove(entity.getUUID());
+			return false;
+		}
+		Entity moved = entity.teleport(new TeleportTransition(origin.level(), origin.position(), Vec3.ZERO,
+				origin.yRot(), origin.xRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+		if (moved == null) return false;
+		ORIGINS.remove(entity.getUUID());
+		return true;
+	}
+
+	private static LivingEntity find(MinecraftServer server, UUID entityId) {
+		for (ServerLevel level : server.getAllLevels()) {
+			Entity entity = level.getEntity(entityId);
+			if (entity instanceof LivingEntity living) return living;
+		}
+		return null;
+	}
+}
