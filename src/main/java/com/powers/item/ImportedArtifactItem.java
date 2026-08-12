@@ -12,6 +12,7 @@ import com.powers.power.abilities.DelayedTravelRules;
 import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelChunkLoader;
 import com.powers.power.travel.TravelKind;
+import com.powers.power.travel.TravelCohort;
 import com.powers.protection.PowerProtection;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.network.RelicPackets;
@@ -258,13 +259,15 @@ public final class ImportedArtifactItem extends Item {
 					player.isAlive() && !player.isRemoved(), player.isAlive() && !player.isRemoved(),
 					player.level() == origin, player.level() == origin,
 					AmethystDampening.isDampened(player), AmethystDampening.isDampened(player))
-					|| !SafeDestinationResolver.validate(player, destination, position,
+					|| !SafeDestinationResolver.validateExact(player, destination, position,
 							TravelKind.POWER).allowed()) {
 				if (current == player) explain(player, "item.powers.relic.anchor_unreachable");
 				return;
 			}
+			TravelCohort.Snapshot cohort = TravelCohort.capture(origin, player, player);
 			player.teleport(new TeleportTransition(destination, position, Vec3.ZERO,
 					player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+			TravelCohort.move(cohort, destination, position);
 			int remaining = MiniportalRules.afterSuccessfulTravel(charges);
 			device.set(PowersDataComponents.MINIPORTAL_CHARGES, remaining);
 			MiniportalRules.applyVisual(device, remaining);

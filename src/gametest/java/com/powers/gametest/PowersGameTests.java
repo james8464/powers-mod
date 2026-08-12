@@ -229,10 +229,10 @@ public final class PowersGameTests {
 		helper.assertTrue(PrivateCompanionManager.handleChat(player,
 				"shadow, reveal yourself"), "Explicit Shadow chat leaked into ordinary chat");
 		PrivateCompanionManager.tickPlayer(player, 0);
-		helper.assertTrue(PrivateCompanionManager.activeSessionCount() == 1,
-				"Shadow address did not create exactly one lightweight session");
-		helper.assertTrue(PrivateCompanionManager.activeRevealedBodyCount() == 1,
-				"Revealed Shadow did not create exactly one mortal server body");
+		helper.assertTrue(PrivateCompanionManager.body(player.getUUID()).isPresent(),
+				"Shadow address did not create this owner's lightweight session");
+		helper.assertTrue(PrivateCompanionManager.revealedBodyId(player.getUUID()).isPresent(),
+				"Revealed Shadow did not create this owner's mortal server body");
 		helper.assertTrue(PrivateCompanionManager.isRevealed(player.getUUID()),
 				"Reveal command did not change global visibility");
 		var answer = KnowledgeService.answer(player, "How do the crystals work?");
@@ -258,8 +258,8 @@ public final class PowersGameTests {
 					.equals(body.getUUID()), "Revealing Shadow replaced its authoritative body");
 			helper.assertTrue(body.hurtServer(helper.getLevel(), body.damageSources().generic(), 10_000.0F),
 					"Revealed Shadow body could not be killed");
-			helper.assertTrue(PrivateCompanionManager.activeSessionCount() == 0
-					&& PrivateCompanionManager.activeRevealedBodyCount() == 0,
+			helper.assertTrue(PrivateCompanionManager.body(player.getUUID()).isEmpty()
+					&& PrivateCompanionManager.revealedBodyId(player.getUUID()).isEmpty(),
 					"Killed Shadow leaked a session or body");
 			var remembered = KnowledgeService.answer(player, "Shadow, why did my fireball fail?");
 			helper.assertTrue(remembered.answer().contains("required 40 energy"),
@@ -267,14 +267,14 @@ public final class PowersGameTests {
 			helper.runAfterDelay(102, () -> {
 				PrivateCompanionManager.handleChat(player, "shadow, reveal yourself");
 				PrivateCompanionManager.tickPlayer(player, 120);
-				helper.assertTrue(PrivateCompanionManager.activeRevealedBodyCount() == 1,
+				helper.assertTrue(PrivateCompanionManager.revealedBodyId(player.getUUID()).isPresent(),
 						"Shadow Sword could not manifest a new remembered body after its delay");
 				PrivateCompanionManager.handleChat(player, "shadow, hide yourself");
 				helper.assertFalse(PrivateCompanionManager.isRevealed(player.getUUID())
-						|| PrivateCompanionManager.activeRevealedBodyCount() != 0,
+						|| PrivateCompanionManager.revealedBodyId(player.getUUID()).isPresent(),
 						"Hide command left the global mortal body visible");
 				PrivateCompanionManager.handleChat(player, "shadow, leave me");
-				helper.assertTrue(PrivateCompanionManager.activeSessionCount() == 0,
+				helper.assertTrue(PrivateCompanionManager.body(player.getUUID()).isEmpty(),
 						"Dismiss command leaked a Shadow session");
 				helper.assertFalse(PrivateCompanionManager.handleChat(player, "ordinary chat"),
 						"Unrelated signed chat was intercepted");
@@ -1031,6 +1031,55 @@ public final class PowersGameTests {
 			TestingOverrides.clear(player.getUUID());
 			BodyProxyManager.finish(player);
 			helper.succeed();
+		});
+	}
+
+	@GameTest(maxTicks = 220)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void realmCrystalCarriesNearbyMobAndPersistentShadowThenReturnsThem(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		caster.addTag(SkillSystem.DARKNESS_TAG);
+		caster.getInventory().add(PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		PrivateCompanionManager.handleChat(caster, "shadow, reveal yourself");
+		PrivateCompanionManager.tickPlayer(caster, 0);
+		ShadowCompanionEntity shadow = PrivateCompanionManager.body(caster.getUUID()).orElseThrow();
+		shadow.setPos(caster.getX() + 0.5, caster.getY(), caster.getZ());
+		var mob = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE, new BlockPos(2, 1, 3));
+		mob.setNoAi(true);
+		java.util.UUID mobId = mob.getUUID();
+		var netherKey = net.minecraft.world.level.Level.NETHER;
+		var nether = helper.getLevel().getServer().getLevel(netherKey);
+		helper.assertTrue(nether != null, "GameTest server did not expose the Nether");
+		var ability = new com.powers.power.crystals.MindscapeCrystalAbility(
+				"middleworld", netherKey, com.powers.PowersMod.StormTheme.DARK, 0x301040, 0.6F) { };
+
+		helper.assertTrue(com.powers.magic.runtime.CastScalingContext.withSource(
+				com.powers.magic.runtime.CastSource.CRYSTAL,
+				() -> ability.activate(caster, com.powers.player.PlayerPowers.get(caster))),
+				"Shared crystal journey rejected a valid nearby living cohort");
+		helper.runAfterDelay(100, () -> {
+			helper.assertTrue(caster.level() == nether
+					&& BodyProxyManager.hasSession(caster, BodyProxyKind.REALM),
+					"Crystal did not move its caster with a vulnerable body session");
+			helper.assertTrue(nether.getEntity(mobId) != null
+					&& com.powers.power.travel.MindscapeMobReturnTracker.tracked(
+							(net.minecraft.world.entity.LivingEntity) nether.getEntity(mobId)),
+					"Crystal did not move and track the nearby living mob");
+			helper.assertTrue(PrivateCompanionManager.body(caster.getUUID())
+					.map(body -> body.level() == nether).orElse(false),
+					"Crystal did not rebind persistent Shadow after dimensional travel");
+			helper.assertTrue(ability.activate(caster, com.powers.player.PlayerPowers.get(caster)),
+					"Group crystal return was rejected");
+			helper.runAfterDelay(50, () -> {
+				helper.assertTrue(caster.level() == helper.getLevel(),
+						"Caster did not return to the vulnerable body");
+				helper.assertTrue(helper.getLevel().getEntity(mobId) != null,
+						"Nearby tracked mob did not return to its recorded origin");
+				PrivateCompanionManager.handleChat(caster, "shadow, leave me");
+				helper.succeed();
+			});
 		});
 	}
 
