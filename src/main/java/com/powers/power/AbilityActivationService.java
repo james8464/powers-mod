@@ -18,7 +18,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
-import com.powers.protection.PowerProtection;
 
 import java.util.function.Supplier;
 import com.powers.knowledge.MagicAttemptReporter;
@@ -101,14 +100,6 @@ public final class AbilityActivationService {
 		if (ability == null || !ability.requiresInput() || !Double.isFinite(x)
 				|| !Double.isFinite(y) || !Double.isFinite(z)) return Result.FAILED;
 		if (!passesCasterChecks(caster, ability.id().getPath())) return Result.FAILED;
-		if (!PowerProtection.mayForceMove(caster, subject)) {
-			MagicAttemptReporter.failure(caster, ability.id().getPath(),
-					subject instanceof ServerPlayer ? MagicFailureReason.CONSENT
-							: MagicFailureReason.SAFE_ZONE);
-			PowerMessages.sendImportant(caster, "powers.packet.consent_denied", 1,
-					subject.getName().getString());
-			return Result.FAILED;
-		}
 		if (subject instanceof ServerPlayer player) AmethystDampening.update(player);
 		if (AmethystDampening.isDampened(subject)) {
 			PowerMessages.send(caster, "amethyst.powers.target_protected", 4);
@@ -127,12 +118,6 @@ public final class AbilityActivationService {
 		if (ability == null || !ability.requiresInput() || !Double.isFinite(x)
 				|| !Double.isFinite(y) || !Double.isFinite(z)
 				|| !passesCasterChecks(caster, ability == null ? "magic" : ability.id().getPath())) {
-			return Result.FAILED;
-		}
-		if (!PowerProtection.mayForceMove(caster, subject)) {
-			MagicAttemptReporter.failure(caster, ability.id().getPath(),
-					subject instanceof ServerPlayer ? MagicFailureReason.CONSENT
-							: MagicFailureReason.SAFE_ZONE);
 			return Result.FAILED;
 		}
 		if (subject instanceof ServerPlayer player) AmethystDampening.update(player);
