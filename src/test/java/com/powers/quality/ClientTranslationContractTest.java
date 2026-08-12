@@ -14,6 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ClientTranslationContractTest {
 	private static final Pattern LITERAL = Pattern.compile(
 			"Component\\.translatable(?:WithFallback)?\\(\\\"([^\\\"]+)\\\"\\s*[,)]");
+	private static final Pattern NUMBERED_MESSAGE = Pattern.compile(
+			"PowerMessages\\.(?:send|sendImportant)\\(\\s*[^,]+,\\s*\\\"([^\\\"]+)\\\"\\s*,\\s*(\\d+)");
 
 	@Test
 	void everyLiteralClientTranslationKeyExists() throws Exception {
@@ -47,6 +49,25 @@ class ClientTranslationContractTest {
 			}
 		}
 		assertTrue(missing.isEmpty(), () -> "Missing server translations: " + missing);
+	}
+
+	@Test
+	void everyNumberedPowerMessageHasEveryAdvertisedVariant() throws Exception {
+		Path root = Path.of(System.getProperty("user.dir"));
+		var language = language(root);
+		var missing = new TreeSet<String>();
+		try (var files = Files.walk(root.resolve("src/main/java"))) {
+			for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
+				var matcher = NUMBERED_MESSAGE.matcher(Files.readString(file));
+				while (matcher.find()) {
+					for (int index = 1; index <= Integer.parseInt(matcher.group(2)); index++) {
+						String key = matcher.group(1) + "." + index;
+						if (!language.has(key)) missing.add(key);
+					}
+				}
+			}
+		}
+		assertTrue(missing.isEmpty(), () -> "Missing numbered message translations: " + missing);
 	}
 
 	@Test

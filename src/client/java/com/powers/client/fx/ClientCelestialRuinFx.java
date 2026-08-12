@@ -96,17 +96,18 @@ public final class ClientCelestialRuinFx {
 				double angle = index * 2.399963 + clientTick * 0.025 + slice * 0.37;
 				double x = column.center.x + Math.cos(angle) * radius;
 				double z = column.center.z + Math.sin(angle) * radius;
-				client.level.addParticle(index % 4 == 0 ? white : warm,
+				client.level.addAlwaysVisibleParticle(index % 4 == 0 ? white : warm, true,
 						x, y, z, 0.0, 0.02, 0.0);
-				if (slice == 1 && index % 2 == 0) client.level.addParticle(PowersParticles.MOTE,
-						x, y, z, 0.0, 0.01, 0.0);
+				if (slice == 1 && index % 2 == 0) client.level.addAlwaysVisibleParticle(
+						PowersParticles.MOTE, true, x, y, z, 0.0, 0.01, 0.0);
 			}
 		}
 		double boundaryY = Math.clamp(client.player.getY() + 0.5, minY, maxY);
 		for (int index = 0; index < CelestialRuinPresentation.BEAM_BOUNDARY_PARTICLES; index++) {
 			double angle = Math.PI * 2.0 * index
 					/ CelestialRuinPresentation.BEAM_BOUNDARY_PARTICLES + clientTick * 0.018;
-			client.level.addParticle(white, column.center.x + Math.cos(angle) * pulse,
+			client.level.addAlwaysVisibleParticle(white, true,
+					column.center.x + Math.cos(angle) * pulse,
 					boundaryY, column.center.z + Math.sin(angle) * pulse, 0.0, 0.025, 0.0);
 		}
 	}
