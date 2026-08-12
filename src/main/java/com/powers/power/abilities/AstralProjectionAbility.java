@@ -53,16 +53,27 @@ public class AstralProjectionAbility extends Ability {
 		}
 
 		ServerLevel level = (ServerLevel) player.level();
+		Vec3 origin = player.position();
 		if (!BodyProxyManager.start(player, BodyProxyKind.ASTRAL)) return false;
-		Projection projection = new Projection(player, level.dimension(), player.position(), player.gameMode(),
+		Projection projection = new Projection(player, level.dimension(), origin, player.gameMode(),
 				level.getServer().getTickCount() + scaledDuration(player, DURATION), scaledRange(player, RADIUS));
 		ACTIVE.put(player.getUUID(), projection);
 		player.setGameMode(GameType.SPECTATOR);
-		PowerFx.rune(level, player.position(), 1.8, 0x7C4DFF, 28, 0.0);
-		PowerFx.burst(level, player.position().add(0, 1, 0), com.powers.PowersParticles.MOTE, 24, 0.8, 0.03);
-		PowerFx.sound(level, player.position(), SoundEvents.AMETHYST_BLOCK_CHIME, 1.0f, 1.2f);
+		player.teleport(new TeleportTransition(level,
+				initialSpiritPosition(origin, player.getLookAngle()), Vec3.ZERO,
+				player.getYRot(), player.getXRot(), TeleportTransition.DO_NOTHING));
+		PowerFx.rune(level, origin, 1.8, 0x7C4DFF, 28, 0.0);
+		PowerFx.burst(level, origin.add(0, 1, 0), com.powers.PowersParticles.MOTE, 24, 0.8, 0.03);
+		PowerFx.sound(level, origin, SoundEvents.AMETHYST_BLOCK_CHIME, 1.0f, 1.2f);
 		PowerMessages.send(player, "ability.powers.astral_started", 3);
 		return true;
+	}
+
+	/** Starts the camera beyond and above the vulnerable body instead of inside its skin. */
+	static Vec3 initialSpiritPosition(Vec3 origin, Vec3 look) {
+		Vec3 horizontal = new Vec3(look.x, 0.0, look.z);
+		if (horizontal.lengthSqr() < 1.0E-8) horizontal = new Vec3(0.0, 0.0, 1.0);
+		return origin.add(horizontal.normalize().scale(1.25)).add(0.0, 0.65, 0.0);
 	}
 
 	public static boolean isActive(UUID player) {

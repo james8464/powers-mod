@@ -2,6 +2,7 @@
 
 ## 1.0.2 - 2026-08-11
 
+- Moved the first Astral Projection frame just beyond and above its vulnerable body proxy so the owner no longer begins inside the mannequin skin.
 - Added a real rendered-client acceptance harness with live Light/Dark Crystal journeys, body recovery, 19 HUD/screen/realm captures, compact layouts, and checked operator commands; expanded the live server suite to 69 GameTests and published an honest 429-identity campaign report.
 - Corrected Rainbow Crystal's missing seventh Middleworld mode, high-GUI-scale artifact-wheel crowding, untranslated Locator prompts, low-contrast Crucible labels, the omitted Shadow acceptance entry, and false-positive dedicated-server/checklist evidence.
 - Completed the 25-item Queue 1 pass: practical spell inspection/feedback, authoritative crystal and power state, relic previews/transfers, accessible artifact/Rainbow selectors, Shadow/energy diagnostics, permissions integration, compatibility contracts, resource fallbacks, and bounded collision presentation.
