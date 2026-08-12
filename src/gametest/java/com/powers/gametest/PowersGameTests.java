@@ -1358,6 +1358,11 @@ public final class PowersGameTests {
 		PowerTestActor actor = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(3, 1, 2));
 		actor.setTestingUsername("WarpTarget");
 		actor.setNoAi(true);
+		// This case deliberately places the actor inside a solid destination to prove
+		// exact-coordinate travel bypasses safety adjustment. Disable post-teleport
+		// collision resolution so the later assertion measures the selected landing
+		// coordinate rather than the entity being ejected from that solid block.
+		actor.noPhysics = true;
 		var nearbyMob = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE,
 				new BlockPos(2, 1, 3));
 		nearbyMob.setNoAi(true);
