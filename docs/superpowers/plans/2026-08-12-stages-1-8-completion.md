@@ -24,7 +24,7 @@
 ### Stage 1 — release evidence and immediate stabilisation
 
 - [ ] `QA-001`: prepare the signed release envelope; close it only after every other Stage 1 row and the final repository gate passes.
-- [ ] `PERF-001`: run 10/50/100 connected-player profiles for 30 minutes each; publish JFR, p95/p99, limits, revision, and environment.
+- [x] `PERF-001`: run 10/50/100 connected-player profiles for 30 minutes each; publish JFR, p95/p99, limits, revision, and environment. Evidence: `docs/verification/evidence/2026-08-12-perf-001/`.
 - [ ] `QA-005`: execute and sign every generated manual action/item/entity/screen/command row against one exact build.
 - [ ] `QA-006`: run and inspect the full 24-hour forced-restart soak.
 - [ ] `PRG-001`: gather/publish real multiplayer quest telemetry for all 20 alignment/level rows and apply justified, migrated threshold changes if evidence requires them.
