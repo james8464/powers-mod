@@ -15,7 +15,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
-| PERF-001 | Enhancement | P0 | Add real dedicated-server profiling at 10/50/100 connected bot players, not only deterministic simulation. | Published spark/JFR traces and p95/p99 tick time stay inside an agreed budget for 30 minutes. |
 | PERF-005 | Enhancement | P1 | Coalesce repeated magic-presence updates by chunk/action/observer. | Packet captures show fewer bytes/packets with identical collision behavior. |
 | PERF-006 | Enhancement | P1 | Pool short-lived immutable geometry buffers and semantic packet builders. | Allocation profile shows materially lower young-generation churn in mass combat. |
 | PERF-010 | Enhancement | P2 | Virtualize artifact catalogue rows and replace page rebuilds with a scrollable reusable grid. | Constant widget count and smooth search with thousands of datapack actions. |

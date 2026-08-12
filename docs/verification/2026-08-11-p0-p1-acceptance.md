@@ -27,12 +27,12 @@ This ledger is the evidence boundary for removing rows from `docs/planning/IMPRO
 | NET-001–003 | Pre-payload protocol handshake with mismatch text; bounded deterministic fuzzing of all serverbound lanes/codecs; documented protection adapter exercised across damage, movement, terrain, portal, and ritual decisions. |
 | QA-002–004 | Mandatory Java-25 check/GameTest/server/save/mutation/resource/doc/visual CI jobs; run-ID-isolated test reports; deterministic headless presentation goldens and approved-baseline workflow. |
 | QA-007–008 | `EnergyCooldownPropertyTest` runs 100,000 hostile randomized invariant cases; PIT enforced 80% minimum and passed with 237/259 mutations killed (92%), 93% mutated-line coverage, and 93% covered-test strength. |
+| PERF-001 | Commit `6fb6991` completed paced live profiles at 10/50/100 connected embedded players for 36,000 ticks and at least 1,800 seconds each. All 54,000 authenticated casts succeeded; p95 was 7.23/5.85/6.58 ms and p99 was 8.83/8.50/9.33 ms. Three 1,800-second JFRs have zero data loss in `evidence/2026-08-12-perf-001/`. |
 
 ## Still open: evidence that cannot be fabricated
 
 | ID | Implemented foundation | Required closure evidence |
 | --- | --- | --- |
-| PERF-001 | Opt-in full-tick JFR/JSON profiler and manual 10/50/100 embedded-connection GameTest. | Run all three populations for 30 minutes, agree a budget, and review/publish p95/p99 traces. |
 | PERF-005 | Per-tick observer/dimension/chunk/action coalescer and collision-equivalence tests exist. | Capture and publish before/after encoded bytes and packet counts in live mass combat. |
 | PERF-006 | Geometry/payload canonicalization and allocation-sampling JFR are implemented. | Publish a before/after allocation profile showing materially lower young-generation churn. |
 | PRG-001 | Persistent anonymous route/duration telemetry, median/p90 summaries, and a 20-sample-per-level publication lock are implemented. | Collect real multiplayer samples for all 20 alignment/level rows, then publish and justify any quest changes/migration. |

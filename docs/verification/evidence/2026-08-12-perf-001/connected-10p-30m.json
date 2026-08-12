@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "label": "10p-30m",
+  "expected_players": 10,
+  "connected_players_end": 10,
+  "ticks": 36000,
+  "wall_seconds": 1800.001242417,
+  "p95_mspt": 7.231125,
+  "p99_mspt": 8.825208,
+  "attempted_actions": 18000,
+  "successful_actions": 18000,
+  "peak_particles_per_tick": 512,
+  "peak_packets_per_tick": 0,
+  "peak_entity_inspections_per_tick": 30,
+  "jfr": "connected-10p-30m.jfr"
+}
