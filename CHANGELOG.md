@@ -2,6 +2,7 @@
 
 ## 1.0.2 - 2026-08-11
 
+- Registered the complete persistent player-attachment schema during Fabric bootstrap, before any saved player is decoded; ranks, energy, spell/crystal selections, and artifact loadouts now survive full client/server restarts instead of being discarded as unknown attachment types.
 - Kept Celestial Ruin's full-height omen visible through progressive impact-chunk preparation, bypassed vanilla's 32-block particle limiter for distant observers, and completed every numbered warning/failure translation so live messages cannot leak raw keys.
 - Made Cartographer's Star teach its accepted query grammar, wrap its guidance within the locator panel, and translate every success/failure result instead of leaking raw language keys.
 - Moved the first Astral Projection frame just beyond and above its vulnerable body proxy so the owner no longer begins inside the mannequin skin.
