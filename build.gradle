@@ -144,6 +144,9 @@ tasks.register("testPythonScripts", Exec) {
 }
 
 tasks.named("runGameTest") {
+	if (providers.gradleProperty("gameTestFilter").isPresent()) {
+		systemProperty "fabric-api.gametest.filter", providers.gradleProperty("gameTestFilter").get()
+	}
 	doFirst {
 		def gameTestRun = layout.buildDirectory.dir("run/gameTest").get().asFile
 		gameTestRun.mkdirs()

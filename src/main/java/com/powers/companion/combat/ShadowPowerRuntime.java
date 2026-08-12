@@ -121,6 +121,10 @@ public final class ShadowPowerRuntime {
 		if (ids.contains("size_shift")) shadow.getAttribute(Attributes.SCALE).setBaseValue(1.0);
 		if (ids.contains("flight")) shadow.setNoGravity(false);
 		if (ids.contains("invisibility")) shadow.removeEffect(MobEffects.INVISIBILITY);
+		if (ids.contains("double_health")) {
+			shadow.removeEffect(MobEffects.ABSORPTION);
+			shadow.removeEffect(MobEffects.RESISTANCE);
+		}
 		if (ids.contains("nightfall_dominion")) {
 			shadow.removeEffect(MobEffects.STRENGTH);
 			shadow.removeEffect(MobEffects.RESISTANCE);

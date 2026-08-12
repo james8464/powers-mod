@@ -52,8 +52,14 @@ final class PowersServerLifecycle {
 	}
 
 	static void initialize() {
-		ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, parameters) ->
-				!PrivateCompanionManager.handleChat(sender, message.signedContent()));
+		ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, parameters) -> {
+			String content = message.signedContent();
+			if (!PrivateCompanionManager.handleChat(sender, content)) {
+				com.powers.companion.ShadowChatRuntime.observe(sender, content);
+				return true;
+			}
+			return false;
+		});
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
 				onJoin(handler.getPlayer()));
 		ServerPlayerEvents.AFTER_RESPAWN.register(PowersServerLifecycle::afterRespawn);
