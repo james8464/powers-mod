@@ -37,19 +37,22 @@ executed live, for 4,096 production-adapter invocations in total.
 6. The realm-cohort fixture could be collision-pushed at the shared landing site by other concurrent
    GameTests. Its test mob is now non-physical, preserving the production travel path while removing
    unrelated fixture interference; the full 76-test batch then passed.
+7. The Time Shift fixture could be collision-ejected from its deliberately solid exact destination
+   after a correct teleport. Its actor is now non-physical so the assertion measures raw destination
+   preservation rather than later vanilla collision resolution.
 
 ## Final verification
 
 | Gate | Result |
 | --- | --- |
 | JVM/unit and contract suite | 1,371 passed, 0 failed. |
-| Dedicated live GameTests | 76 passed, 0 failed in 39.95 seconds. |
+| Dedicated live GameTests | 76 passed, 0 failed in 36.53 seconds; the focused Time Shift regression also passed three consecutive fresh runs. |
 | Client GameTests | Passed after a real Minecraft 26.2 client, OpenGL renderer, resource reload, integrated server, GUI, commands, and clean shutdown. |
 | Interaction coverage inside live suite | 4,096 ordered semantic casts, 1,069 supported physical collision pairs, 26 Shadow powers, three simultaneous Shadow owners, and three-speaker overlapping chat. |
 | Resources and generated docs | `validatePowerResources`, `verifyMagicDocs`, `verifyItemDocs`, and `verifyRankDocs` passed. |
 | Visual gates | `verifyScreenshots`, `verifyVisualGoldens`, and `auditNonItemAssets` passed. |
 | Performance/validator gates | `syntheticSoak` and all seven Python validation tests passed. |
-| Final repository gate | Clean `./test.sh check` passed in 1 minute 8 seconds, including source/asset audits, all 76 live tests, all JVM/Python tests, resources, generated docs, and access-widener validation. |
+| Final repository gate | Clean `./test.sh check` passed in 1 minute 11 seconds, including source/asset audits, all 76 live tests, all JVM/Python tests, resources, generated docs, and access-widener validation. |
 
 The client log contains platform shader/anisotropic warnings from the Apple OpenGL compatibility
 layer and an offline Realms authentication warning from the Fabric test identity. Neither failed a
