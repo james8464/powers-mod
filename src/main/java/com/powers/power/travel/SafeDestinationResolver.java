@@ -2,6 +2,7 @@ package com.powers.power.travel;
 
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
+import com.powers.companion.ShadowCompanionEntity;
 import com.powers.power.AmethystDampening;
 import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.protection.PowerProtection;
@@ -21,6 +22,11 @@ import java.util.EnumSet;
 
 /** Validates bounds, loaded chunks, collision, hazards, wards, and safe zones before travel. */
 public final class SafeDestinationResolver {
+	public enum DestinationMode {
+		SAFE_LANDING,
+		EXACT
+	}
+
 	public record Result(DestinationFailure failure, Vec3 destination) {
 		public boolean allowed() {
 			return failure == DestinationFailure.NONE;
@@ -31,12 +37,23 @@ public final class SafeDestinationResolver {
 	}
 
 	public static Result validate(LivingEntity subject, ServerLevel target, Vec3 requested, TravelKind kind) {
+		return validate(subject, target, requested, kind, DestinationMode.SAFE_LANDING);
+	}
+
+	/** Validates route policy without treating solid, fluid, or unsupported coordinates as errors. */
+	public static Result validateExact(LivingEntity subject, ServerLevel target, Vec3 requested,
+			TravelKind kind) {
+		return validate(subject, target, requested, kind, DestinationMode.EXACT);
+	}
+
+	private static Result validate(LivingEntity subject, ServerLevel target, Vec3 requested,
+			TravelKind kind, DestinationMode mode) {
 		Result preflight = validatePreload(subject, target, requested, kind);
 		if (!preflight.allowed()) return preflight;
 
 		BlockPos feet = BlockPos.containing(requested);
 		if (!LoadedChunks.contains(target, feet)) return new Result(DestinationFailure.UNLOADED_CHUNK, requested);
-		if (!recovery(kind)) {
+		if (!recovery(kind) && !(subject instanceof ShadowCompanionEntity)) {
 			EnumSet<CrossSystemPrecedence.Guard> guards = EnumSet.noneOf(CrossSystemPrecedence.Guard.class);
 			if (PowerProtection.isSafeZone(target, requested)) guards.add(CrossSystemPrecedence.Guard.SAFE_ZONE);
 			if (AmethystDampening.findPoweredWard(target, feet).isPresent()) {
@@ -58,6 +75,7 @@ public final class SafeDestinationResolver {
 				default -> DestinationFailure.REALM_RESTRICTED;
 			}, requested);
 		}
+		if (!environmentalSafetyRequired(mode)) return new Result(DestinationFailure.NONE, requested);
 		BlockPos head = feet.above();
 		if (!target.getFluidState(feet).isEmpty() || !target.getFluidState(head).isEmpty()) {
 			return new Result(DestinationFailure.HAZARD, requested);
@@ -79,6 +97,10 @@ public final class SafeDestinationResolver {
 		return new Result(DestinationFailure.NONE, requested);
 	}
 
+	static boolean environmentalSafetyRequired(DestinationMode mode) {
+		return mode == DestinationMode.SAFE_LANDING;
+	}
+
 	/** Runs every policy check that is safe before a remote destination chunk has loaded. */
 	public static Result validatePreload(LivingEntity subject, ServerLevel target, Vec3 requested, TravelKind kind) {
 		var border = target.getWorldBorder();
@@ -94,7 +116,8 @@ public final class SafeDestinationResolver {
 					SkillSystem.hasDarknessTag(player), data.skillLevel(), data.darknessLevel());
 			if (realm != DestinationFailure.NONE) return new Result(realm, requested);
 		}
-		if (!recovery(kind) && !PowerProtection.mayPortal(subject, target,
+		if (!(subject instanceof ShadowCompanionEntity) && !recovery(kind)
+				&& !PowerProtection.mayPortal(subject, target,
 				BlockPos.containing(requested))) {
 			return new Result(DestinationFailure.SAFE_ZONE, requested);
 		}

@@ -251,6 +251,31 @@ public final class PrivateCompanionManager {
 		return true;
 	}
 
+	/**
+	 * Moves Shadow through a travel route while preserving the authoritative session reference.
+	 * Minecraft replaces cross-dimensional entities, so callers must not teleport Shadow directly.
+	 */
+	public static boolean travelBody(ShadowCompanionEntity body, ServerLevel targetLevel, Vec3 destination) {
+		if (body == null || targetLevel == null || destination == null || body.isRemoved()
+				|| !body.isAlive() || !Double.isFinite(destination.x)
+				|| !Double.isFinite(destination.y) || !Double.isFinite(destination.z)) return false;
+		UUID ownerId = BODY_OWNERS.getOrDefault(body.getUUID(), body.ownerId());
+		Session session = ownerId == null ? null : SESSIONS.get(ownerId);
+		if (session == null || session.body != body) return false;
+		if (body.level() == targetLevel) {
+			body.setPos(destination);
+			body.setDeltaMovement(Vec3.ZERO);
+			return true;
+		}
+		Entity moved = body.teleport(new TeleportTransition(targetLevel, destination, Vec3.ZERO,
+				body.getYRot(), body.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+		if (!(moved instanceof ShadowCompanionEntity movedShadow)) return false;
+		BODY_OWNERS.remove(body.getUUID());
+		session.body = movedShadow;
+		BODY_OWNERS.put(movedShadow.getUUID(), ownerId);
+		return true;
+	}
+
 	private static void setRevealed(ServerPlayer owner, boolean revealed) {
 		Session session = SESSIONS.get(owner.getUUID());
 		if (session != null && session.body != null) {
