@@ -30,7 +30,12 @@ public final class TravelCohort {
 	}
 
 	public static Snapshot capture(ServerLevel level, ServerPlayer caster, LivingEntity principal) {
-		Vec3 origin = caster.position();
+		return captureAt(level, caster, principal, caster.position());
+	}
+
+	/** Captures around a recorded physical origin, used while the caster is scouting remotely. */
+	public static Snapshot captureAt(ServerLevel level, ServerPlayer caster, LivingEntity principal,
+			Vec3 origin) {
 		List<Member> companions = new ArrayList<>(TravelCohortRules.MAX_SIZE - 1);
 		AABB search = new AABB(origin, origin).inflate(
 				TravelCohortRules.RADIUS, TravelCohortRules.RADIUS, TravelCohortRules.RADIUS);

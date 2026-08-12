@@ -1287,11 +1287,16 @@ public final class PowersGameTests {
 		PowerTestActor actor = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(3, 1, 2));
 		actor.setTestingUsername("WarpTarget");
 		actor.setNoAi(true);
+		var nearbyMob = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE,
+				new BlockPos(2, 1, 3));
+		nearbyMob.setNoAi(true);
+		Vec3 mobOffset = nearbyMob.position().subtract(caster.position());
 		var data = com.powers.player.PlayerPowers.get(caster);
 		data.setSlots(caster, java.util.List.of(
 				"powers:time_shift", "powers:flight", "powers:forcefield"));
 		BlockPos destination = helper.absolutePos(new BlockPos(7, 1, 7));
-		helper.setBlock(new BlockPos(7, 0, 7), Blocks.STONE);
+		// Exact coordinate travel deliberately accepts a solid destination.
+		helper.setBlock(new BlockPos(7, 1, 7), Blocks.STONE);
 		TeleportAbility ability = new TeleportAbility();
 		helper.assertTrue(com.powers.power.AbilityActivationService.activateTeleport(
 				caster, actor, ability, helper.getLevel().dimension(),
@@ -1300,8 +1305,11 @@ public final class PowersGameTests {
 				"Time Shift rejected a player-compatible test actor");
 		helper.runAfterDelay(75, () -> {
 			helper.assertTrue(actor.position().distanceToSqr(
-					new Vec3(destination.getX() + 0.5, destination.getY(), destination.getZ() + 0.5)) < 1.0,
-					"Time Shift did not move the test actor to the selected destination");
+					new Vec3(destination.getX(), destination.getY(), destination.getZ())) < 0.01,
+					"Time Shift changed or rejected the exact selected destination");
+			helper.assertTrue(nearbyMob.position().distanceToSqr(
+					new Vec3(destination.getX(), destination.getY(), destination.getZ()).add(mobOffset)) < 0.01,
+					"Time Shift did not carry a nearby living mob with the caster");
 			helper.succeed();
 		});
 	}
