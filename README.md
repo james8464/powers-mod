@@ -207,7 +207,7 @@ The Light Herald always drops the Partisan and Sacred Arcane Energy Dust.
 
 ## Shadow companion
 
-A Darkness player carrying the Shadow Sword can press `G`, say `shadow, come`, or address any message beginning `shadow,`. Holding the sword alone never creates the old unwanted entity behind the player.
+A Darkness player carrying the Shadow Sword can press `G`, say `shadow, come`, or address any message beginning `shadow,`. Holding the sword alone never creates the old unwanted entity behind the player. Shadow continuously reads a bounded 60-second, 64-line, speaker-labelled view of public chat, even when several conversations overlap. Addressing it opens a 45-second owner-local dialogue focus: the owner's ordinary unprefixed follow-ups remain visible as normal public chat but can receive natural Shadow replies. Unprefixed chat can never authorize powers, combat, items, travel, or other actions; those still require an explicit `shadow,` command. A ten-tick reply cadence and 12-line answer snapshot bound work, while UUID-labelled speakers and owner-local persistent turns prevent equal names or simultaneous conversations from crossing.
 
 Shadow is one server-authoritative, owner-skinned player-model body with no copied armour, held items, or inventory rendering. Hidden mode is owner-only, collisionless, invulnerable, and ticket-free. `shadow, reveal yourself` exposes that same mortal body and its replies globally; `shadow, hide yourself` restores privacy. Killing a revealed Shadow clears combat, tasks, energy state, and manifestation but preserves owner-keyed memory and bounded learning; the sword may recall it after 100 ticks with 25% energy.
 

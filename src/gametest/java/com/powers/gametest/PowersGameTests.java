@@ -1048,6 +1048,10 @@ public final class PowersGameTests {
 		shadow.setPos(caster.getX() + 0.5, caster.getY(), caster.getZ());
 		var mob = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE, new BlockPos(2, 1, 3));
 		mob.setNoAi(true);
+		// Realm-arrival tests share one fixed crystal landing zone. Keep this fixture
+		// from being collision-pushed by unrelated concurrent mock players so the
+		// assertion measures cohort travel, not incidental entity crowding.
+		mob.noPhysics = true;
 		java.util.UUID mobId = mob.getUUID();
 		var netherKey = net.minecraft.world.level.Level.NETHER;
 		var nether = helper.getLevel().getServer().getLevel(netherKey);
@@ -1075,16 +1079,29 @@ public final class PowersGameTests {
 			helper.assertTrue(PrivateCompanionManager.body(caster.getUUID())
 					.map(body -> body.level() == nether).orElse(false),
 					"Crystal did not rebind persistent Shadow after dimensional travel");
+			var returnCohort = com.powers.power.travel.TravelCohort.capture(nether, caster, caster);
+			helper.assertTrue(returnCohort.companions().stream()
+					.anyMatch(member -> member.entity().getUUID().equals(mobId)),
+					"Return cohort could not see the tracked mob near its caster");
 			helper.assertTrue(ability.activate(caster, com.powers.player.PlayerPowers.get(caster)),
 					"Group crystal return was rejected");
-			helper.runAfterDelay(50, () -> {
+			helper.runAfterDelay(10, () -> helper.succeedWhen(() -> {
 				helper.assertTrue(caster.level() == helper.getLevel(),
 						"Caster did not return to the vulnerable body");
+				var stranded = nether.getEntity(mobId);
+				var returnedZombies = helper.getLevel().getEntitiesOfClass(
+						net.minecraft.world.entity.monster.zombie.Zombie.class,
+						net.minecraft.world.phys.AABB.ofSize(
+								net.minecraft.world.phys.Vec3.atCenterOf(origin), 16.0, 16.0, 16.0));
 				helper.assertTrue(helper.getLevel().getEntity(mobId) != null,
-						"Nearby tracked mob did not return to its recorded origin");
+						"Nearby tracked mob did not return to its recorded origin; nether="
+								+ (stranded == null ? "missing" : stranded.position())
+								+ ", tracked=" + (stranded instanceof net.minecraft.world.entity.LivingEntity living
+								&& com.powers.power.travel.MindscapeMobReturnTracker.tracked(living))
+								+ ", returned=" + returnedZombies.stream().map(entity ->
+								entity.getUUID() + "@" + entity.position()).toList());
 				PrivateCompanionManager.handleChat(caster, "shadow, leave me");
-				helper.succeed();
-			});
+			}));
 		});
 	}
 

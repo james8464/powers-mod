@@ -40,6 +40,7 @@ final class ShadowCommandRuntime {
 					.withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
 			return true;
 		}
+		ShadowChatContext.markAddressed(owner, owner.level().getServer().getTickCount());
 		if (PrivateCompanionManager.isRevealed(owner.getUUID())) {
 			ShadowCompanionMessaging.broadcastAddress(owner, request.original());
 		}
@@ -292,6 +293,14 @@ final class ShadowCommandRuntime {
 			powers.put(id, id);
 			powers.put(power.id().getPath().replace('_', ' '), id);
 			powers.putIfAbsent(power.name().getString(), id);
+		}
+		// Sword-exclusive invocations share the same spoken-name route as innate powers.
+		// They have no PowerRegistry entry because only Shadow may execute them.
+		for (ShadowPowerAction action : ShadowPowerCatalogue.actions()) {
+			String id = action.id();
+			powers.putIfAbsent(id, id);
+			powers.putIfAbsent(id.replace('_', ' '), id);
+			powers.putIfAbsent("powers:" + id, id);
 		}
 		Map<String, String> items = new HashMap<>();
 		BuiltInRegistries.ITEM.keySet().forEach(id -> {

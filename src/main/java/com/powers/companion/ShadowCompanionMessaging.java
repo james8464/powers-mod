@@ -15,7 +15,7 @@ final class ShadowCompanionMessaging {
 	}
 
 	static void answer(ServerPlayer owner, String question) {
-		KnowledgeService.answerAsync(owner, question).thenAccept(answer ->
+		KnowledgeService.answerAsync(owner, ShadowChatContext.contextualize(owner, question)).thenAccept(answer ->
 				owner.level().getServer().execute(() -> {
 					if (owner.connection == null || owner.isRemoved()
 							|| !PrivateCompanionManager.requested(owner.getUUID())) return;

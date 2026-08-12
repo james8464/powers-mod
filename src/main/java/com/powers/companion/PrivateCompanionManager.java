@@ -397,6 +397,7 @@ public final class PrivateCompanionManager {
 		despawn(player);
 		com.powers.knowledge.KnowledgeRemoteProviderRuntime.forget(player.getUUID());
 		com.powers.knowledge.MagicAttemptJournal.global().forget(player.getUUID());
+		ShadowChatContext.forget(player.getUUID());
 	}
 
 	private static void despawn(ServerPlayer owner) {
@@ -442,6 +443,7 @@ public final class PrivateCompanionManager {
 		ShadowCombatController.clear();
 		ShadowCommandRuntime.clear();
 		ShadowStatusSync.clear();
+		ShadowChatContext.clear();
 		com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
 		com.powers.knowledge.MagicAttemptJournal.global().clear();
 	}

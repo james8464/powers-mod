@@ -9,7 +9,8 @@
 			"com.powers.gametest.PowersGameTests",
 			"com.powers.gametest.LivingForceGameTests",
 			"com.powers.gametest.P1AcceptanceGameTests",
-			"com.powers.gametest.LiveActionAcceptanceGameTests"
+			"com.powers.gametest.LiveActionAcceptanceGameTests",
+			"com.powers.gametest.MultiplayerInteractionGameTests"
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests"
