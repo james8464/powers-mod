@@ -20,7 +20,7 @@ class PracticalMagicDocumentationTest {
 			assertTrue(readme.contains(spell), spell);
 		}
 		assertTrue(readme.contains("latest 16 server-authoritative magic attempts"));
-		assertTrue(readme.contains("override every player-consent gate"));
+		assertTrue(readme.contains("override consent-gated"));
 		assertTrue(readme.contains("hidden, inert compatibility aliases"));
 		assertFalse(readme.contains("Those 23 innate actions, 21 grimoire spells"));
 	}

@@ -11,16 +11,12 @@ import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.companion.combat.ShadowPowerRuntime;
 import com.powers.companion.combat.ShadowCombatController;
-import com.powers.util.LoadedChunks;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.portal.TeleportTransition;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
@@ -223,32 +219,15 @@ public final class PrivateCompanionManager {
 	}
 
 	private static boolean followOwner(ServerPlayer owner, Session session) {
-		ShadowCompanionEntity body = session.body;
-		Vec3 desired = PrivateCompanionRules.followPoint(owner.position(), owner.getLookAngle());
-		boolean changedDimension = body.level() != owner.level();
-		boolean tooFar = changedDimension || ShadowCompanionRules.shouldTeleport(
-				body.position().distanceToSqr(desired));
-		if (!tooFar) return false;
-		ServerLevel destinationLevel = (ServerLevel) owner.level();
-		BlockPos destinationBlock = BlockPos.containing(desired);
-		if (!LoadedChunks.contains(destinationLevel, destinationBlock)) return false;
-		AABB landing = body.getBoundingBox().move(desired.subtract(body.position()));
-		if (!destinationLevel.getWorldBorder().isWithinBounds(landing)
-				|| !destinationLevel.noBlockCollision(body, landing)) {
-			desired = owner.position();
+		ShadowCompanionEntity previous = session.body;
+		ShadowTravelRuntime.FollowResult result = ShadowTravelRuntime.follow(owner, previous);
+		if (result.body() == null) return false;
+		if (result.body() != previous) {
+			BODY_OWNERS.remove(previous.getUUID());
+			session.body = result.body();
+			BODY_OWNERS.put(result.body().getUUID(), owner.getUUID());
 		}
-		if (changedDimension) {
-			Entity moved = body.teleport(new TeleportTransition(destinationLevel, desired, Vec3.ZERO,
-					owner.getYRot(), owner.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
-			if (!(moved instanceof ShadowCompanionEntity movedShadow)) return false;
-			BODY_OWNERS.remove(body.getUUID());
-			session.body = movedShadow;
-			BODY_OWNERS.put(movedShadow.getUUID(), owner.getUUID());
-		} else {
-			body.setPos(desired);
-			body.setDeltaMovement(Vec3.ZERO);
-		}
-		return true;
+		return result.moved();
 	}
 
 	/**
@@ -256,20 +235,14 @@ public final class PrivateCompanionManager {
 	 * Minecraft replaces cross-dimensional entities, so callers must not teleport Shadow directly.
 	 */
 	public static boolean travelBody(ShadowCompanionEntity body, ServerLevel targetLevel, Vec3 destination) {
-		if (body == null || targetLevel == null || destination == null || body.isRemoved()
-				|| !body.isAlive() || !Double.isFinite(destination.x)
-				|| !Double.isFinite(destination.y) || !Double.isFinite(destination.z)) return false;
+		if (body == null) return false;
 		UUID ownerId = BODY_OWNERS.getOrDefault(body.getUUID(), body.ownerId());
 		Session session = ownerId == null ? null : SESSIONS.get(ownerId);
 		if (session == null || session.body != body) return false;
-		if (body.level() == targetLevel) {
-			body.setPos(destination);
-			body.setDeltaMovement(Vec3.ZERO);
-			return true;
-		}
-		Entity moved = body.teleport(new TeleportTransition(targetLevel, destination, Vec3.ZERO,
-				body.getYRot(), body.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
-		if (!(moved instanceof ShadowCompanionEntity movedShadow)) return false;
+		ShadowCompanionEntity movedShadow = ShadowTravelRuntime.move(body, targetLevel,
+				destination, body.getYRot(), body.getXRot());
+		if (movedShadow == null) return false;
+		if (movedShadow == body) return true;
 		BODY_OWNERS.remove(body.getUUID());
 		session.body = movedShadow;
 		BODY_OWNERS.put(movedShadow.getUUID(), ownerId);

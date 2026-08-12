@@ -1,6 +1,6 @@
 # Consent-Free Group Travel Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Make every supported teleport route carry nearby living entities without consent, honour exact entered coordinates, and safely include persistent Shadow companions.
 
@@ -32,11 +32,11 @@
 - Produces: `TravelCohort.capture(ServerLevel, ServerPlayer, LivingEntity)`, `TravelCohort.move(...)`, and `SafeDestinationResolver.validateExact(...)`.
 - `TravelCohort` stores `LivingEntity` plus relative `Vec3`, revalidates against the caster origin, and delegates Shadow replacement rebinding to `PrivateCompanionManager.travelBody(...)`.
 
-- [ ] **Step 1: Write failing pure tests** for radius boundary, cap, dead/proxy exclusion policy, exact validation selection, and Shadow authority.
-- [ ] **Step 2: Run focused tests and verify RED** with missing shared interfaces.
-- [ ] **Step 3: Implement the minimum shared cohort and exact-route interfaces.**
-- [ ] **Step 4: Run focused tests and source compilation until GREEN.**
-- [ ] **Step 5: Commit** the independently working travel foundation.
+- [x] **Step 1: Write failing pure tests** for radius boundary, cap, dead/proxy exclusion policy, exact validation selection, and Shadow authority.
+- [x] **Step 2: Run focused tests and verify RED** with missing shared interfaces.
+- [x] **Step 3: Implement the minimum shared cohort and exact-route interfaces.**
+- [x] **Step 4: Run focused tests and source compilation until GREEN.**
+- [x] **Step 5: Commit** the independently working travel foundation.
 
 ### Task 2: Time Shift and artifact route integration
 
@@ -51,11 +51,11 @@
 - Consumes: `TravelCohort.capture/move` and `SafeDestinationResolver.validateExact`.
 - Produces: consent-free direct and Shadow Sword routed teleport, exact coordinate arrival, and automatic nearby living-entity movement.
 
-- [ ] **Step 1: Add RED contract and GameTests** proving denied-consent players plus mobs still move and solid entered coordinates remain exact.
-- [ ] **Step 2: Remove teleport-only consent checks and replace both legacy companion paths with `TravelCohort`.**
-- [ ] **Step 3: Remove the safe-mark search and use the exact marked coordinate after policy validation.**
-- [ ] **Step 4: Run focused unit tests and all travel GameTests until GREEN.**
-- [ ] **Step 5: Commit** Time Shift integration.
+- [x] **Step 1: Add RED contract and GameTests** proving denied-consent players plus mobs still move and solid entered coordinates remain exact.
+- [x] **Step 2: Remove teleport-only consent checks and replace both legacy companion paths with `TravelCohort`.**
+- [x] **Step 3: Remove the safe-mark search and use the exact marked coordinate after policy validation.**
+- [x] **Step 4: Run focused unit tests and all travel GameTests until GREEN.**
+- [x] **Step 5: Commit** Time Shift integration.
 
 ### Task 3: Crystal group entry and return
 
@@ -71,11 +71,11 @@
 - Consumes: `TravelCohort` and existing `BodyProxyManager` return APIs.
 - Produces: automatic nearby-player/mob/Shadow crystal entry, independent player bodies, tracked mob returns, and lifecycle cleanup.
 
-- [ ] **Step 1: Add RED unit/GameTests** for all living traveller types, per-player body sessions, return, Shadow, cap, and distance boundary.
-- [ ] **Step 2: Implement the bounded mob-origin tracker and server-stop cleanup.**
-- [ ] **Step 3: Replace aimed-player/crouch consent branches in all three realm crystals with one automatic cohort flow.**
-- [ ] **Step 4: Run crystal tests, travel GameTests, and dedicated-server boot until GREEN.**
-- [ ] **Step 5: Commit** crystal integration.
+- [x] **Step 1: Add RED unit/GameTests** for all living traveller types, per-player body sessions, return, Shadow, cap, and distance boundary.
+- [x] **Step 2: Implement the bounded mob-origin tracker and server-stop cleanup.**
+- [x] **Step 3: Replace aimed-player/crouch consent branches in all three realm crystals with one automatic cohort flow.**
+- [x] **Step 4: Run crystal tests, travel GameTests, and dedicated-server boot until GREEN.**
+- [x] **Step 5: Commit** crystal integration.
 
 ### Task 4: Documentation, audits, and release verification
 
@@ -87,7 +87,7 @@
 **Interfaces:**
 - Produces: user-facing rules that match verified runtime behaviour and a clean quality gate.
 
-- [ ] **Step 1: Update README travel, consent, mindscape-body, and Shadow sections.**
-- [ ] **Step 2: Regenerate all repository-owned documentation and exact audit manifests.**
-- [ ] **Step 3: Run clean build, full JUnit, all GameTests, resource/docs/audit checks, dedicated-server boot, and client startup smoke.**
-- [ ] **Step 4: Inspect the diff, commit, push `main`, verify GitHub CI, and confirm a clean synchronized tree.**
+- [x] **Step 1: Update README travel, consent, mindscape-body, and Shadow sections.**
+- [x] **Step 2: Regenerate all repository-owned documentation and exact audit manifests.**
+- [x] **Step 3: Run clean build, full JUnit, all GameTests, resource/docs/audit checks, dedicated-server boot, and client startup smoke.**
+- [x] **Step 4: Inspect the diff, commit, push `main`, verify GitHub CI, and confirm a clean synchronized tree.**

@@ -1052,6 +1052,11 @@ public final class PowersGameTests {
 		var netherKey = net.minecraft.world.level.Level.NETHER;
 		var nether = helper.getLevel().getServer().getLevel(netherKey);
 		helper.assertTrue(nether != null, "GameTest server did not expose the Nether");
+		// This live transfer test runs beside up to 49 other tests. Preload only the
+		// authored arrival chunk so its assertion measures group travel rather than
+		// contention in the separately tested bounded asynchronous loader.
+		int arrivalY = com.powers.realm.RealmTerrain.provisionalArrivalY(nether);
+		nether.getChunkAt(new BlockPos(8, arrivalY, 8));
 		var ability = new com.powers.power.crystals.MindscapeCrystalAbility(
 				"middleworld", netherKey, com.powers.PowersMod.StormTheme.DARK, 0x301040, 0.6F) { };
 

@@ -62,16 +62,24 @@ public final class MindscapeMobReturnTracker {
 	/** Returns immediately when loaded, otherwise owns one bounded asynchronous chunk request. */
 	public static boolean returnToOrigin(LivingEntity entity) {
 		if (entity == null) return false;
-		Origin origin = ORIGINS.get(entity.getUUID());
-		if (origin == null) return false;
-		BlockPos block = BlockPos.containing(origin.position());
-		if (LoadedChunks.contains(origin.level(), block)) return complete(entity, origin);
 		UUID entityId = entity.getUUID();
+		Origin origin = ORIGINS.get(entityId);
+		if (origin == null) return false;
+		// Cross-dimensional teleports replace non-player entity instances. Resolve the
+		// live instance before both the immediate and asynchronously loaded paths so a
+		// rollback cannot discard the origin merely because its caller held the old body.
 		MinecraftServer server = origin.level().getServer();
+		LivingEntity current = find(server, entityId);
+		if (current == null) {
+			ORIGINS.remove(entityId);
+			return false;
+		}
+		BlockPos block = BlockPos.containing(origin.position());
+		if (LoadedChunks.contains(origin.level(), block)) return complete(current, origin);
 		return TravelChunkLoader.request(entityId, origin.level(), block, "mindscape_mob_return",
 				() -> {
-					LivingEntity current = find(server, entityId);
-					if (current != null) complete(current, origin);
+					LivingEntity loadedEntity = find(server, entityId);
+					if (loadedEntity != null) complete(loadedEntity, origin);
 				}, () -> { });
 	}
 
