@@ -191,15 +191,27 @@ public final class P1AcceptanceGameTests {
 	}
 
 	@GameTest(padding = 128)
-	public void all262CataloguedItemsExistInTheLiveServerRegistry(GameTestHelper helper) {
+	public void all260CataloguedItemsExistInTheLiveServerRegistry(GameTestHelper helper) {
 		var registered = net.minecraft.core.registries.BuiltInRegistries.ITEM.entrySet().stream()
 				.filter(entry -> entry.getKey().identifier().getNamespace().equals("powers"))
 				.toList();
-		helper.assertTrue(registered.size() == 262,
-				"Live POWERS item registry differs from the 262-row catalogue: " + registered.size());
+		helper.assertTrue(registered.size() == 260,
+				"Live POWERS item registry differs from the 260-row catalogue: " + registered.size());
 		for (var entry : registered) {
 			helper.assertFalse(entry.getValue().getDefaultInstance().isEmpty(),
 					"Registered item has no usable default stack: " + entry.getKey().identifier());
+		}
+		helper.succeed();
+	}
+
+	@GameTest(padding = 128)
+	public void removedMemoryObelisksAreAbsentFromLiveRegistries(GameTestHelper helper) {
+		for (String path : java.util.List.of("light_memory_obelisk", "dark_memory_obelisk")) {
+			var id = com.powers.PowersMod.id(path);
+			helper.assertFalse(net.minecraft.core.registries.BuiltInRegistries.BLOCK.containsKey(id),
+					"Removed Memory Obelisk block remains registered: " + id);
+			helper.assertFalse(net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(id),
+					"Removed Memory Obelisk item remains registered: " + id);
 		}
 		helper.succeed();
 	}

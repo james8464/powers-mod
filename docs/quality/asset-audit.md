@@ -6,19 +6,15 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 |---|---|---|---|---|
 | `blockstates/amethyst_ward.json` | blockstates | `4c823ebbcfa9` | pass | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/arcane_crucible.json` | blockstates | `29dec835b131` | pass | JSON decoded; references are covered by strict resource validation. |
-| `blockstates/dark_memory_obelisk.json` | blockstates | `23f6c99a807e` | pass | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/darkness.json` | blockstates | `9a3e8bb90dd6` | pass | JSON decoded; references are covered by strict resource validation. |
-| `blockstates/light_memory_obelisk.json` | blockstates | `62981c2f148e` | pass | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/pure_light.json` | blockstates | `c4375fe29f91` | pass | JSON decoded; references are covered by strict resource validation. |
 | `icon.png` | icon.png | `00ea24abeb49` | pass | PNG 128×128, alpha; reviewed in contact sheet. |
-| `lang/en_us.json` | lang | `e60540318737` | pass | JSON decoded; references are covered by strict resource validation. |
+| `lang/en_us.json` | lang | `a441b9fb2128` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward.json` | models | `ec18f4c15589` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward_powered.json` | models | `e82316d2c639` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/arcane_crucible.json` | models | `7590e3936646` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/arcane_crucible_active.json` | models | `5474925830ba` | pass | JSON decoded; references are covered by strict resource validation. |
-| `models/block/dark_memory_obelisk.json` | models | `5061ea4c6337` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/darkness.json` | models | `9ac7f87cddf9` | pass | JSON decoded; references are covered by strict resource validation. |
-| `models/block/light_memory_obelisk.json` | models | `8f76171ed38c` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/pure_light.json` | models | `52939669700e` | pass | JSON decoded; references are covered by strict resource validation. |
 | `particles/eclipse.json` | particles | `e9b7e1861661` | pass | JSON decoded; references are covered by strict resource validation. |
 | `particles/fracture.json` | particles | `913af2001863` | pass | JSON decoded; references are covered by strict resource validation. |

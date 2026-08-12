@@ -32,8 +32,6 @@ public final class PowersCreativeTab {
 						output.accept(PowersBlocks.DARKNESS);
 						output.accept(PowersBlocks.PURE_LIGHT);
 						output.accept(PowersBlocks.AMETHYST_WARD);
-						output.accept(PowersBlocks.LIGHT_MEMORY_OBELISK);
-						output.accept(PowersBlocks.DARK_MEMORY_OBELISK);
 						output.accept(PowersBlocks.ARCANE_CRUCIBLE);
 						PowersWeapons.weapons().values().forEach(output::accept);
 						ImportedPackItems.items().entrySet().stream()

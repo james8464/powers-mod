@@ -38,7 +38,7 @@ class ManualAcceptanceChecklistTest {
 		for (GameplayAcceptanceCatalogue.Entry entry : GameplayAcceptanceCatalogue.entries()) {
 			assertTrue(text.contains("`" + entry.id() + "`"), entry.id());
 		}
-		assertEquals(262, text.lines().filter(line -> line.startsWith("| item | `powers:")).count());
+		assertEquals(260, text.lines().filter(line -> line.startsWith("| item | `powers:")).count());
 		assertEquals(23, text.lines().filter(line -> line.startsWith("| innate | ")).count());
 		assertEquals(11, text.lines().filter(line -> line.startsWith("| screen | ")).count());
 		assertEquals(32, text.lines().filter(line -> line.startsWith("| command | ")).count());

@@ -41,36 +41,17 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | spell | `hearth_sanctuary` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | spell | `ward_breaking_ritual` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | spell | `dispel` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `chrono_stop` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `soul_link` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/call_radiant` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/consecrate_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/covenant_chain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/daybreak_wave` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/heaven_gate` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/solar_firmament` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/second_dawn` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/host_heaven` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/time_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
@@ -94,20 +75,39 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | artifact | `darkness/innate/ice_manipulation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/chrono_stop` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/soul_link` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/unique/call_hollowed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/unique/blight_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/unique/nightfall_dominion` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/call_radiant` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/consecrate_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/covenant_chain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/daybreak_wave` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/heaven_gate` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/solar_firmament` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/second_dawn` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/host_heaven` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | entity | `darkness_creature` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
 | entity | `power_test_actor` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
 | entity | `radiant_sentinel` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
@@ -145,8 +145,6 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | item | `powers:pure_light` | ItemCatalogueExecutableAuditTest; Spreading Pure Light realm matter; Light Realm generation, consecration, and invasion scars | CONTRACT PASS; MANUAL LIVE PENDING |  |
 | item | `powers:amethyst_ward` | ItemCatalogueExecutableAuditTest; Powered dampening and force-containment ceremony; Crafting recipe | CONTRACT PASS; MANUAL LIVE PENDING |  |
 | item | `powers:arcane_crucible` | ItemCatalogueExecutableAuditTest; Atomic staged magical weapon conversion; Crafting recipe | CONTRACT PASS; MANUAL LIVE PENDING |  |
-| item | `powers:light_memory_obelisk` | ItemCatalogueExecutableAuditTest; Light memory landmark core; Generated in the Light Realm; not a survival drop | CONTRACT PASS; MANUAL LIVE PENDING |  |
-| item | `powers:dark_memory_obelisk` | ItemCatalogueExecutableAuditTest; Dark memory landmark core; Generated in the Dark Realm; not a survival drop | CONTRACT PASS; MANUAL LIVE PENDING |  |
 | item | `powers:darkness_creature_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns Darkness Creature for controlled testing; Creative/operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
 | item | `powers:power_test_actor_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns Power Test Actor for controlled testing; Creative/operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
 | item | `powers:radiant_sentinel_spawn_egg` | ItemCatalogueExecutableAuditTest; Spawns Radiant Sentinel for controlled testing; Creative/operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
@@ -436,4 +434,4 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | command | `/powers testing arena <spawn\|clear>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
 | command | `/powers testing actor spawn [username]` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
 
-Total registered rows: **429**.
+Total registered rows: **427**.

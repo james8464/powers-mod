@@ -112,8 +112,6 @@ def render() -> str:
         "pure_light": ("Living force", "Spreading Pure Light realm matter", "Light Realm generation, consecration, and invasion scars"),
         "amethyst_ward": ("Counterplay", "Powered dampening and force-containment ceremony", "Crafting recipe"),
         "arcane_crucible": ("Forge", "Atomic staged magical weapon conversion", "Crafting recipe"),
-        "light_memory_obelisk": ("Realm structure", "Light memory landmark core", "Generated in the Light Realm; not a survival drop"),
-        "dark_memory_obelisk": ("Realm structure", "Dark memory landmark core", "Generated in the Dark Realm; not a survival drop"),
     }
     for item, (family, purpose, acquisition) in blocks.items():
         rows.append(row(f"powers:{item}", LANG.get(f"block.powers.{item}", item), family, purpose, acquisition))

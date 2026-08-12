@@ -221,7 +221,7 @@ The failure journal stores the latest 16 server-authoritative magic attempts for
 
 ## Relics, devices, weapons, food, and acquisition
 
-The registry currently contains 262 gameplay/block rows. The exact ID, family, implemented purpose, acquisition route, recipe status, and hidden/save-alias state of every row is maintained in [the exhaustive item catalogue](docs/gameplay/item-catalogue.md). The [natural-acquisition audit](NATURALLY_UNOBTAINABLE_ITEMS.md) records no accidental gaps; deliberately deferred crystal recipes are not classified as accidental gaps.
+The registry currently contains 260 gameplay/block rows. The exact ID, family, implemented purpose, acquisition route, recipe status, and hidden/save-alias state of every row is maintained in [the exhaustive item catalogue](docs/gameplay/item-catalogue.md). The [natural-acquisition audit](NATURALLY_UNOBTAINABLE_ITEMS.md) records no accidental gaps; deliberately deferred crystal recipes are not classified as accidental gaps.
 
 | Family | Purpose |
 | --- | --- |
@@ -252,7 +252,7 @@ Datapacks may add `#powers:arcane_crucible_base_weapons`; Java integrations can 
 
 ## Blocks and living forces
 
-POWERS registers Darkness, Pure Light, Light/Dark Memory Obelisks, Amethyst Ward, and Arcane Crucible blocks.
+POWERS registers Darkness, Pure Light, Amethyst Ward, and Arcane Crucible blocks.
 
 Darkness and Pure Light are unbreakable living matter. Random ticks attempt two adjacent conversions by default, replacing only loaded, unprotected, vulnerable, fluid-free, non-block-entity terrain. Spread requires no kills. Mindscape palette, infrastructure, amethyst, unbreakable blocks, protection callbacks, and datapack immunity contain it.
 
@@ -270,7 +270,7 @@ Light and Dark are mindscapes, not invulnerability dimensions. Entry leaves a vu
 
 Each force realm progressively constructs six protected persistent sites—Archive, Labyrinth, Shrine, Settlement, Font, and Herald Court—at a fixed hex around the first thought. Construction spends at most 128 edits per five-tick pulse. Force Pressure grows at 24/48/72-block tiers from entry; alignment restores/resists while intrusion drains and applies Weakness, Slowness, or Wither. Every 12-minute cycle ends in a two-minute Whiteout or Dark Eclipse. Courts respawn their defeated Herald after 20 minutes.
 
-The Light Realm has a pure white sky without sun, moon, stars, or black void; the Dark Realm is an enclosed hostile thoughtscape; Middleworld has a muted Between biome. The realms preserve the Luminous Concord, Hollow Court, Amethyst Covenant, and Archivists of the Between cosmology through sites, obelisks, bosses, item clues, and Shadow knowledge.
+The Light Realm has a pure white sky without sun, moon, stars, or black void; the Dark Realm is an enclosed hostile thoughtscape; Middleworld has a muted Between biome. The realms preserve the Luminous Concord, Hollow Court, Amethyst Covenant, and Archivists of the Between cosmology through sites, bosses, item clues, and Shadow knowledge.
 
 Ordinary player-controlled travel may move inside the current mindscape but cannot leave it directly; the mind must return to its body. Dark departure requires the `darkness` tag and Darkness level 5. Light departure requires level 5 in either progression. `/powers recover` is a separate operator-only corruption recovery route. Confinement uses bounded retries and enters a diagnosed locked Spectator holding state only when every safe recovery attempt fails; it is never an ordinary travel shortcut.
 
