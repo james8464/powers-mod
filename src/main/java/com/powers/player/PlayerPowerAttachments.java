@@ -69,6 +69,11 @@ final class PlayerPowerAttachments {
 	private PlayerPowerAttachments() {
 	}
 
+	/** Forces this schema class to initialize while Fabric is still registering content. */
+	static void initialize() {
+		// Static field initialization above performs every AttachmentRegistry registration.
+	}
+
 	private static AttachmentType<List<String>> persistentStringList(String name) {
 		return AttachmentRegistry.create(PowersMod.id(name), builder -> builder
 				.initializer(ArrayList::new).persistent(Codec.STRING.listOf()).copyOnDeath());
