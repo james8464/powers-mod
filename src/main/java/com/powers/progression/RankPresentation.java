@@ -2,6 +2,8 @@ package com.powers.progression;
 
 /** Human-readable descriptions of the mechanics that maze branches actually unlock. */
 public final class RankPresentation {
+	private static final float MINIMUM_READABLE_SCALE = 0.55F;
+
 	private RankPresentation() {
 	}
 
@@ -22,5 +24,12 @@ public final class RankPresentation {
 			case "abyss" -> "Dark Resurgence · Darkness amplification at low energy";
 			default -> "Connected title · unlocks a new route through the Labyrinth";
 		};
+	}
+
+	/** Fits one label inside its lane while retaining a legible lower bound. */
+	public static float readableScale(int availableWidth, int measuredWidth) {
+		if (availableWidth <= 0 || measuredWidth <= 0) return 1.0F;
+		return Math.clamp(availableWidth / (float) measuredWidth,
+				MINIMUM_READABLE_SCALE, 1.0F);
 	}
 }

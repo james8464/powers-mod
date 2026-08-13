@@ -55,6 +55,14 @@ final class ServerMagicScheduler {
 		return replacesOwnerStorm || activeStorms < MAX_STORMS;
 	}
 
+	/** Keeps decorative lightning around, rather than inside, a traveller's camera. */
+	static Vec3 stormBoltOffset(int age) {
+		int safeAge = Math.max(0, age);
+		double radius = 7.5 + (safeAge % 4);
+		double angle = safeAge * Math.PI * 0.4;
+		return new Vec3(Math.cos(angle) * radius, 0.0, Math.sin(angle) * radius);
+	}
+
 	private static int findStorm(UUID owner) {
 		for (int index = 0; index < STORMS.size(); index++) {
 			if (owner.equals(STORMS.get(index).followId)) return index;
@@ -154,7 +162,8 @@ final class ServerMagicScheduler {
 			if (bolt == null) return;
 			bolt.setVisualOnly(true);
 			bolt.setSilent(!firstBolt);
-			bolt.setPos(position.x, position.y, position.z);
+			Vec3 boltPosition = position.add(stormBoltOffset(totalTicks - remaining));
+			bolt.setPos(boltPosition.x, boltPosition.y, boltPosition.z);
 			level.addFreshEntity(bolt);
 			firstBolt = false;
 		}

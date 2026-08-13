@@ -20,4 +20,11 @@ class RankPresentationTest {
 		assertTrue(RankPresentation.summary(legacy).contains("Innate tier 4"));
 		assertTrue(!RankPresentation.summary(legacy).contains("%"));
 	}
+
+	@Test
+	void readableScaleFitsLongLabelsWithoutVanishing() {
+		assertEquals(1.0F, RankPresentation.readableScale(70, 60));
+		assertEquals(0.7F, RankPresentation.readableScale(70, 100));
+		assertEquals(0.55F, RankPresentation.readableScale(40, 200));
+	}
 }

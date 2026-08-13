@@ -122,17 +122,11 @@ public final class ShadowSwordScreen extends Screen {
 		graphics.centeredText(font, title, centerX, titleY, accent());
 		Component secondary = Component.translatable(ClientInteractionPreferences.releaseToCast()
 				? "screen.powers.artifact.wheel.hint_cast" : "screen.powers.artifact.wheel.hint");
-		if (!layout.showSegmentNames() && hovered >= 0) {
+		if (hovered >= 0) {
 			ArtifactActionDefinition action = state.action(favourites.get(hovered));
 			if (action != null) secondary = state.actionName(action);
 		}
 		graphics.centeredText(font, secondary, centerX, titleY + 13, 0xFFCAC4D3);
-		if (hovered >= 0) {
-			ArtifactActionDefinition action = state.action(favourites.get(hovered));
-			if (action != null && layout.showSegmentNames()) {
-				graphics.centeredText(font, state.actionName(action), centerX, centerY + 19, 0xFFFFFFFF);
-			}
-		}
 	}
 
 	private void drawWheel(GuiGraphicsExtractor graphics, int centerX, int centerY,
@@ -165,13 +159,12 @@ public final class ShadowSwordScreen extends Screen {
 				ArtifactWheelRules.remainingCooldown(state.cooldown(action), openTicks),
 				state.cooldownMaximum(action),
 				state.active(action), state.locked(action), state.variant(action));
-		int costY = glyphY + 10;
-		if (layout.showSegmentNames()) {
-			String name = font.plainSubstrByWidth(state.actionName(action).getString(), layout.nameWidth());
-			graphics.centeredText(font, name, glyphX, glyphY + 9,
-					status.locked() ? 0xFF77727C : 0xFFE8E2EC);
-			costY = glyphY + 18;
-		}
+		String fullName = state.actionName(action).getString();
+		String name = font.width(fullName) <= layout.nameWidth() ? fullName
+				: ArtifactWheelRules.compactLabel(fullName, Math.max(4, layout.nameWidth() / 6));
+		graphics.centeredText(font, name, glyphX, glyphY + 9,
+				status.locked() ? 0xFF77727C : 0xFFE8E2EC);
+		int costY = glyphY + 18;
 		String variant = switch (action.abilityId()) {
 			case "size_shift" -> status.variant() >= 0 && SizeMorphRules.isValidOption(status.variant())
 					? " " + SizeMorphRules.scale(status.variant()) + "×" : "";

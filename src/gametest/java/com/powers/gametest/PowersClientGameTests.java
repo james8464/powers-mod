@@ -2,6 +2,7 @@ package com.powers.gametest;
 
 import com.powers.PowersItems;
 import com.powers.client.ClientPowerState;
+import com.powers.client.fx.ClientMagicFx;
 import com.powers.client.screen.ArtifactCatalogueScreen;
 import com.powers.client.screen.ArcaneCrucibleScreen;
 import com.powers.client.screen.CelestialLocatorScreen;
@@ -60,6 +61,7 @@ public final class PowersClientGameTests implements FabricClientGameTest {
             });
             context.takeScreenshot("powers-client-world-smoke");
             verifyCrystalTravel(context, singleplayer);
+			quiesceVisuals(context);
             captureHudStates(context);
             captureScreens(context);
             captureRemainingScreens(context);
@@ -67,6 +69,16 @@ public final class PowersClientGameTests implements FabricClientGameTest {
             smokeOperatorCommands(singleplayer);
         }
     }
+
+	private static void quiesceVisuals(ClientGameTestContext context) {
+		for (int tick = 0; tick < 35; tick++) {
+			context.runOnClient(client -> {
+				ClientMagicFx.reset();
+				client.particleEngine.clearParticles();
+			});
+			context.waitTick();
+		}
+	}
 
     private static void smokeOperatorCommands(TestSingleplayerContext singleplayer) {
         for (String command : List.of(
