@@ -19,7 +19,7 @@ class AcceptanceClientScriptTest {
 				"70\tattack\tCombatTarget",
 				"75\tgrimoire\tbook_grimoire_wild 2",
 				"80\tcrystal\t4",
-				"85\tartifact\tdarkness unique/blight_ground 0",
+				"85\tartifact\tdarkness unique/blight_ground -1",
 				"90\tchat\tshadow, reveal yourself",
 				"100\tscreenshot\tforcefield-break"));
 
@@ -50,6 +50,6 @@ class AcceptanceClientScriptTest {
 		assertThrows(IllegalArgumentException.class,
 				() -> AcceptanceClientScript.parse(List.of("20\tcrystal\t256")));
 		assertThrows(IllegalArgumentException.class,
-				() -> AcceptanceClientScript.parse(List.of("20\tartifact\tdarkness action -1")));
+				() -> AcceptanceClientScript.parse(List.of("20\tartifact\tdarkness action -2")));
 	}
 }

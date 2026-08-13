@@ -86,7 +86,7 @@ public final class AcceptanceClientScript {
 					throw malformed(lineNumber, "artifact needs alignment, action and option");
 				}
 				validateIdentifier(values[1], lineNumber, "action");
-				parseBoundedInteger(values[2], 0, 255, lineNumber, "option");
+				parseBoundedInteger(values[2], -1, 255, lineNumber, "option");
 			}
 			case COMMAND, CHAT -> { }
 		}
