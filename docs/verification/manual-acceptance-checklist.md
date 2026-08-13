@@ -10,18 +10,18 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | innate | `time_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | innate | `flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | innate | `starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `void_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `void_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/observer-beam-counter.png; Enemy activated Void Beam concurrently with Energy Beam; the independent observer captured the resulting physical interaction. |
 | innate | `fireball` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | innate | `lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/enemy-thunderclap.png; A hostile client cast the pressure wave; the observer/client logs record its presentation and the affected ally's real death lifecycle. |
 | innate | `speed_burst` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | innate | `telekinesis` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/caster-beam-counter.png; Caster activated the production beam entrypoint; the cast produced authored Counter geometry, impact fire and terrain scars. |
 | innate | `super_speed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | innate | `breezy_bash` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | innate | `invisibility` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | innate | `time_freeze` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/observer-forcefield.png; A real client activated the field beside an ally; the independent observer captured its shared presentation. |
 | innate | `gravity_displacement` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | innate | `vessel_possession` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | innate | `astral_projection` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
@@ -41,36 +41,17 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | spell | `hearth_sanctuary` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | spell | `ward_breaking_ritual` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | spell | `dispel` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `chrono_stop` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0001_powers-dark-realm-live.png; Live activation entered powers:dark_realm with a vulnerable body proxy and returned cleanly. |
+| crystal | `life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0002_powers-light-realm-live.png; Live activation entered powers:light_realm with a vulnerable body proxy and returned cleanly. |
 | crystal | `soul_link` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0002_powers-light-realm-live.png; Live activation entered powers:light_realm with a vulnerable body proxy and returned cleanly. |
-| artifact | `light/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/call_radiant` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/consecrate_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/covenant_chain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/daybreak_wave` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/heaven_gate` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/solar_firmament` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/second_dawn` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/host_heaven` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0001_powers-dark-realm-live.png; Live activation entered powers:dark_realm with a vulnerable body proxy and returned cleanly. |
+| crystal | `creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/time_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
@@ -94,28 +75,47 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | artifact | `darkness/innate/ice_manipulation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/chrono_stop` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/soul_link` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/unique/call_hollowed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/unique/blight_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/unique/nightfall_dominion` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/call_radiant` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/consecrate_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/covenant_chain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/daybreak_wave` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/heaven_gate` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/solar_firmament` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/second_dawn` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/host_heaven` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | entity | `darkness_creature` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
-| entity | `power_test_actor` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
+| entity | `power_test_actor` | PowersGameTests and LivingForceGameTests entity scenarios | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/logs/server.log; The named CombatTarget actor spawned, accepted live player and Shadow targeting, moved under combat and died to ancient-power damage. |
 | entity | `radiant_sentinel` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
 | entity | `dark_herald` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
 | entity | `light_herald` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
 | entity | `first_vessel` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
 | entity | `echo_clone` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
-| entity | `shadow_companion` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
+| entity | `shadow_companion` | PowersGameTests and LivingForceGameTests entity scenarios | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/enemy-shadow-dialogue.png; Shadow revealed globally, remained a healthy visible player-model entity and its dialogue reached independent clients. |
 | system | `light_realm` | RealmResourcesTest and dedicated-server boot | RESOURCE CONTRACT PASS |  |
 | system | `dark_realm` | PowersGameTests#darkCrystalMovesItsCasterIntoTheMindscape | AUTOMATED BEHAVIOR PASS |  |
 | system | `middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
@@ -124,11 +124,11 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | system | `amethyst` | LivingForceGameTests#poweredAmethystCeremonyCrystallisesLivingForce | AUTOMATED BEHAVIOR PASS |  |
 | system | `rank_maze` | RankMazePresentationResourcesTest | RESOURCE CONTRACT PASS |  |
 | system | `energy_hud` | HudLayoutTest and HudMathTest | AUTOMATED RULE PASS |  |
-| system | `shadow_companion` | PowersGameTests#shadowChatOwnsVisibilityAndFormerBookKnowledge and #shadowExplainsTheExactLatestServerRecordedMagicFailure | AUTOMATED BEHAVIOR PASS |  |
-| system | `shadow_diagnostics` | PowersGameTests#shadowExplainsTheExactLatestServerRecordedMagicFailure | AUTOMATED BEHAVIOR PASS |  |
+| system | `shadow_companion` | PowersGameTests#shadowChatOwnsVisibilityAndFormerBookKnowledge and #shadowExplainsTheExactLatestServerRecordedMagicFailure | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/logs/server.log; A real player revealed Shadow, held a contextual conversation and requested Lightning Strike; diagnostics retained one healthy session/body without leaked tickets. |
+| system | `shadow_diagnostics` | PowersGameTests#shadowExplainsTheExactLatestServerRecordedMagicFailure | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/ally-shadow-dialogue.png; Shadow explained the relevant amethyst/ward mechanics and then authorised and completed a requested legal combat action. |
 | system | `artifact_energy` | PowersGameTests#soulstoneReservoirPaysEnergyShortfallsAtomically | AUTOMATED BEHAVIOR PASS |  |
 | system | `celestial_ruin` | PowersGameTests#celestialRuinOverwhelmsTheFirstVesselsLayeredVitality | AUTOMATED BEHAVIOR PASS |  |
-| system | `magic_collisions` | MagicInteractionResolverTest exhaustive 2,080-pair matrix | AUTOMATED RULE PASS |  |
+| system | `magic_collisions` | MagicInteractionResolverTest exhaustive 2,080-pair matrix | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/observer-beam-counter.png; Opposing real-client beam activity produced a visible Counter event without a server crash; origin-local geometry was exercised. |
 | system | `multiplayer_soak` | SyntheticMultiplayerSoakTest | AUTOMATED SOAK PASS |  |
 | item | `powers:rainbow_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |
 | item | `powers:red_crystal` | ItemCatalogueExecutableAuditTest; Selects the crystal powers documented in README; Story acquisition intentionally deferred; no crafting recipe; operator testing only | CONTRACT PASS; MANUAL LIVE PENDING |  |

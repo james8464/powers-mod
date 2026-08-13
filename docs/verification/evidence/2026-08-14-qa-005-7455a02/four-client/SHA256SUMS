@@ -1,0 +1,17 @@
+b7737692465f2040c8b8c4c7357ade23eaac87ac7bab593046e4bfb4bd5160f5  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/README.md
+0f3791705e2e3e5080e1e96d51afaebd11a1d75b1ef9a5065bc168360ed6ce3a  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/logs/ally.log
+5c6ce48ef53c3e77a63bcf9fde2ed25773ff3dc0c4f73b83e109b4c1f2f27763  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/logs/caster.log
+a6cfb30d2a8d9648f6146025ba1f80bdfe46f472112f112992c1001321c5acda  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/logs/enemy.log
+d63253fa42eaa6bcb8f37974da2adb608604a840d60d0d13e607a180163dd1d9  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/logs/observer.log
+e58e9302d28420f60c53a8b59ecfbc1384f4d9836b39b38081f71ac2056d4383  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/logs/server.log
+4c1d2a9834d8582850ecb28ca5d0a7cd82a841b0e8f6e91b2bb442f9ffcaf997  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/ally-shadow-dialogue.png
+c4aaa8242eb0a73dc92397ebba0655c4a97a5dd1a9edee0659f3948c02a41b5f  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/caster-beam-counter.png
+3d6fde4916566f13190cd0b070ac49cc10473ce6e3e01ff21cc2fe257c5db039  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/caster-forcefield.png
+68461c4c1143dbac9a31f6886190c86928a56b7e8d3c10183a73e8ea2b32efdb  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/enemy-shadow-dialogue.png
+4feb256c899705251fe98d824449220c6c31b3e7adda6fb0c9e83f5d59cd89c5  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/enemy-thunderclap.png
+372d530fbb3720acf8c94d7c5a837450f5f8e1840d062fdd74f3ea532f0188cf  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/observer-beam-counter.png
+bdbe2d0cde9adbf03c4a0c7b699e4048b8c6ec9e89dae5d221b68f0348fcfe2b  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/observer-forcefield.png
+33ecf299226bec4bedd69fbead597e4f425300736ba583dd5be117a87c7347bb  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/scripts/ally.tsv
+e992a95be6c5e92264a78b699794ec33aced37e66278813443bb45decf7a4cf9  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/scripts/caster.tsv
+b98dca1285038250e1c221e2671d5515ed18f7fd14a4e9f3219a470a3089e2da  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/scripts/enemy.tsv
+40ba2e3f507372a252e2841c6a113df507fa2e94edd524c3102b86a224883972  docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/scripts/observer.tsv
