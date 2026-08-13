@@ -2,6 +2,9 @@ package com.powers.client.acceptance;
 
 import com.powers.PowersMod;
 import com.powers.network.PowersPackets;
+import com.powers.network.CrystalSelectorPackets;
+import com.powers.network.GrimoirePackets;
+import com.powers.network.ShadowSwordPackets;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
@@ -11,6 +14,8 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -86,12 +91,46 @@ public final class AcceptanceClientAgent {
 				ClientPlayNetworking.send(new PowersPackets.SelectAbilityOptionPayload(
 						Integer.parseInt(values[0]), Integer.parseInt(values[1])));
 			}
+			case USE -> {
+				if (client.gameMode != null && client.player != null) {
+					client.gameMode.useItem(client.player, InteractionHand.MAIN_HAND);
+				}
+			}
+			case ATTACK -> attackNamed(client, step.argument());
+			case GRIMOIRE -> {
+				String[] values = step.argument().split(" ");
+				ClientPlayNetworking.send(new GrimoirePackets.SelectSpellPayload(
+						values[0], Integer.parseInt(values[1])));
+			}
+			case CRYSTAL -> ClientPlayNetworking.send(new CrystalSelectorPackets.SelectPayload(
+					Integer.parseInt(step.argument())));
+			case ARTIFACT -> {
+				String[] values = step.argument().split(" ");
+				ClientPlayNetworking.send(new ShadowSwordPackets.CommitPayload(
+						values[0], values[1], Integer.parseInt(values[2])));
+			}
 			case RESPAWN -> connection.send(new ServerboundClientCommandPacket(
 					ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
 			case SCREENSHOT -> Screenshot.grab(client, false);
 		}
 		PowersMod.LOGGER.info("QA client role={} executed {} [{}] at connected tick {}",
 				CONFIG.role(), step.operation(), step.argument(), connectedTicks);
+	}
+
+	private static void attackNamed(Minecraft client, String name) {
+		if (client.level == null || client.player == null || client.gameMode == null) return;
+		LivingEntity target = null;
+		for (var entity : client.level.entitiesForRendering()) {
+			if (entity instanceof LivingEntity living
+					&& living.getName().getString().equalsIgnoreCase(name)) {
+				target = living;
+				break;
+			}
+		}
+		if (target != null) {
+			client.gameMode.attack(client.player, target);
+			client.player.swing(InteractionHand.MAIN_HAND);
+		}
 	}
 
 	private static void connect(Minecraft client) {
