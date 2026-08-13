@@ -17,7 +17,6 @@ import com.powers.util.PowerMessages;
 import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -261,21 +260,12 @@ public final class CelestialRuinManager {
 					CelestialRuinFx.beam(level, Vec3.atCenterOf(center),
 							CelestialRuinRules.BEAM_RADIUS, elapsed);
 				}
-				warnCaster(elapsed);
+				CelestialRuinWarningRuntime.warnCaster(level, caster, elapsed);
 				countdownRemaining--;
 				if (countdownRemaining > 0) return false;
 			}
-			boolean chunksReady = chunksReady();
-			if (!chunksReady) {
-				if (CelestialRuinStagingRules.shouldSustainWarning(
-						countdownRemaining, detonated, false) && level.getGameTime() % 10 == 0) {
-					int holdAge = CelestialRuinRules.COUNTDOWN_TICKS
-							+ (int) (level.getGameTime() % 200L);
-					CelestialRuinFx.beam(level, Vec3.atCenterOf(center),
-							CelestialRuinRules.BEAM_RADIUS, holdAge);
-				}
-				return false;
-			}
+			if (CelestialRuinWarningRuntime.awaitingChunks(
+					level, center, countdownRemaining, detonated, chunksReady())) return false;
 			if (!detonated) {
 				pendingPhase = "detonation";
 				checkpoint(level.getServer());
@@ -332,18 +322,6 @@ public final class CelestialRuinManager {
 					center.getX(), center.getY(), center.getZ(), caster.toString(), countdownRemaining,
 					detonated, cursor, aftershockStep, pendingPhase,
 					pendingCursor == null ? cursor : pendingCursor, pendingAftershockEnd);
-		}
-
-		private void warnCaster(int elapsed) {
-			int remainingSeconds = (CelestialRuinRules.COUNTDOWN_TICKS - elapsed + 19) / 20;
-			if (remainingSeconds != 60 && remainingSeconds != 30 && remainingSeconds != 10
-					&& remainingSeconds > 5) return;
-			if (elapsed % 20 != 0) return;
-			ServerPlayer player = level.getServer().getPlayerList().getPlayer(caster);
-			if (player != null) {
-				PowerMessages.overlay(player, Component.translatable(
-						"spell.powers.celestial_ruin_countdown", remainingSeconds));
-			}
 		}
 
 		private void detonate() {

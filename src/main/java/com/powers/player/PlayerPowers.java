@@ -56,11 +56,6 @@ public final class PlayerPowers {
 	private PlayerPowers() {
 	}
 
-	/** Registers persistent player data before Fabric begins decoding saved players. */
-	public static void initialize() {
-		PlayerPowerAttachments.initialize();
-	}
-
 	public static PlayerPowersData get(AttachmentTarget target) {
 		return new PlayerPowersData(target);
 	}

@@ -10,7 +10,7 @@ import com.powers.item.ArtifactWeaponManager;
 import com.powers.knowledge.KnowledgeEntryReloadListener;
 import com.powers.loot.PowersLoot;
 import com.powers.network.PowersPackets;
-import com.powers.player.PlayerPowers;
+import com.powers.player.PlayerPowerSchema;
 import com.powers.player.SkillSystem;
 import com.powers.power.PowerRegistry;
 import com.powers.power.crystals.CrystalPowerRegistry;
@@ -23,7 +23,7 @@ final class PowersBootstrap {
 	}
 
 	static void initialize() {
-		PlayerPowers.initialize();
+		PlayerPowerSchema.initialize();
 		PowersConfigLoader.initialize();
 		com.powers.command.PermissionNodes.installFabricAdapterIfPresent();
 		KnowledgeEntryReloadListener.initialize();

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 
 /** Lazy loaded-section tag index for natural amethyst suppression blocks. */
 public final class NaturalAmethystIndex {
@@ -35,6 +36,11 @@ public final class NaturalAmethystIndex {
 	private final Map<ResourceKey<Level>, WorkCounters> workByDimension = new HashMap<>();
 
 	public boolean nearby(ServerLevel level, BlockPos center, int radius) {
+		return nearby(level, center, radius, ignored -> true);
+	}
+
+	/** Queries the same bounded index while allowing callers to mask temporary exceptions. */
+	boolean nearby(ServerLevel level, BlockPos center, int radius, Predicate<BlockPos> accepted) {
 		WorkCounters work = workByDimension.computeIfAbsent(level.dimension(), ignored -> new WorkCounters());
 		work.queries++;
 		for (long key : sectionKeys(center.getX(), center.getY(), center.getZ(), radius)) {
@@ -43,7 +49,8 @@ public final class NaturalAmethystIndex {
 				work.candidates++;
 				if (Math.abs(position.getX() - center.getX()) <= radius
 						&& Math.abs(position.getY() - center.getY()) <= radius
-						&& Math.abs(position.getZ() - center.getZ()) <= radius) return true;
+						&& Math.abs(position.getZ() - center.getZ()) <= radius
+						&& accepted.test(position)) return true;
 			}
 		}
 		work.misses++;

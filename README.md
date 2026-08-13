@@ -260,7 +260,7 @@ Within the default eight-block aura, Darkness gives `darkness` players 24 energy
 
 Contact between Darkness and Pure Light begins an extreme staged eclipse: up to 256 nearby living entities are damaged and thrown, then both forces—not unrelated blocks—are erased radially through a default 48-block sphere under a 4,096-check/tick global budget. A powered Amethyst Ward with solid amethyst exactly two blocks north, south, east, and west instead crystallizes loaded force through a six-block sphere under one 256-position/tick containment budget.
 
-The powered Ward suppresses magic in a configurable default 20-block radius. Natural/tagged amethyst suppresses within six blocks; power use near it inflicts hidden-particle Amethyst Poisoning and 2.5 magic damage. Ward Breaking can suppress a powered Ward temporarily. Carried amethyst artifacts also suppress their own procs.
+The powered Ward suppresses magic in a configurable default 20-block radius. Natural/tagged amethyst suppresses within six blocks; power use near it inflicts hidden-particle Amethyst Poisoning and 2.5 magic damage. Ward Breaking suppresses a powered Ward temporarily and excludes that ward from natural-amethyst poisoning for the same lease. Carried amethyst artifacts also suppress their own procs.
 
 ## Dimensions, mind travel, and confinement
 

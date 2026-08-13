@@ -1,93 +1,174 @@
-# Stages 1–8 Completion Implementation Plan
+# Selected Stages 1–8 Completion Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:executing-plans` and complete one acceptance row at a time. Every behavioral change follows RED → GREEN → focused live Minecraft proof → affected suite → commit.
+> Execute directly on `main`, one accepted work unit at a time. Each behavioural unit requires observed RED, focused GREEN, a production-entrypoint GameTest, affected regression proof, documentation/evidence, backlog removal, and a cohesive commit.
 
-**Goal:** Fully implement and prove stages 1–8 of the ordered `docs/planning/IMPROVEMENT_BACKLOG.md` delivery programme while leaving every Stage 9/P3 expansion untouched.
+## Scope and order
 
-**Architecture:** Preserve the existing server-authoritative action, protection, persistence, spatial-index, semantic-FX, and generated-document boundaries. Add the smallest focused rule/runtime surface needed for each acceptance condition; compose related duplicate rows into one implementation only when they share the same authoritative state owner (notably `PERF-010`/`UX-004`).
+The selected programme contains 72 backlog rows. Work proceeds strictly from Stage 1 through Stage 8; Stage 9/P3 work is excluded. `QA-001` opens in Stage 1 and closes only after the final Stage 8 release-candidate commit.
 
-**Tech stack:** Minecraft Java Edition 26.2, Fabric Loader 0.19.3, Fabric API 0.156.0+26.2, Java 25, Gradle/Fabric Loom, JUnit 6, Fabric GameTest, deterministic screenshot contracts, JFR, Python validation harnesses.
+The existing server-authoritative action, protection, persistence, spatial-index, semantic-FX, and generated-document boundaries remain authoritative. New work extends those owners rather than creating parallel state.
 
-## Global constraints
+Locked invariants:
 
-- Do not implement Stage 9/P3 rows.
-- Do not add recipes for crystals or other deliberately deferred story items.
-- Keep `main` as the sole branch and preserve save-compatible registrations/aliases.
-- No rank scaling for spells/crystals; artifacts use only their explicit policies.
-- Realm confinement, protection precedence, frozen-body vulnerability, ten-symbol energy HUD, and rank-10 Shadow Sword cooldown removal remain locked.
-- Every completion claim must satisfy the row's own acceptance condition; harness presence is not execution evidence.
-- Automated embedded connections are valid for repeatable multiplayer behavior, but human/visual acceptance rows require actual client observation and recorded evidence.
-- Update README/generated catalogues, migration notes, interaction documentation, manual ledger, and audit manifests in the same cohesive commit.
+- Preserve deferred crystal/story-item recipes and stable registered IDs.
+- Preserve the ten-symbol vanilla-style energy HUD directly above hunger.
+- Preserve server-authoritative casting, realm confinement, vulnerable frozen bodies, artifact-only scaling policy, and rank-10 Shadow Sword cooldown removal.
+- Preserve completed ranks and raw progression during migrations.
+- Excluded work does not authorise removal of already-working behaviour.
+- Never treat harness existence, a hash audit, or an unasserted command as gameplay proof.
 
-## Execution ledger
+## Preflight recovery
+
+- [x] Preserve the original dirty worktree and QA evidence in `.git/codex-backups/20260813-stage-preflight/`.
+- [x] Remove 80,496 mechanically inserted generic comments while retaining intentional Ward/QA changes.
+- [x] Stop the orphaned development server cleanly.
+- [x] Fix Ward-Breaking so a suppressed powered amethyst ward is not simultaneously treated as natural amethyst.
+- [x] Prove the Ward fix fails when reverted and passes when restored.
+- [x] Split oversized mixed responsibilities from `PlayerPowers` and `CelestialRuinManager`.
+- [x] Prevent opt-in connected profiling metadata from leaking into ordinary GameTests.
+- [x] Reset only the generated GameTest world before each run.
+- [x] Pass 1,381 deterministic tests and all generated/resource audits.
+- [x] Pass all 76 ordinary live GameTests from a fresh world.
+
+## Selected work ledger
 
 ### Stage 1 — release evidence and immediate stabilisation
 
-- [ ] `QA-001`: prepare the signed release envelope; close it only after every other Stage 1 row and the final repository gate passes.
-- [x] `PERF-001`: run 10/50/100 connected-player profiles for 30 minutes each; publish JFR, p95/p99, limits, revision, and environment. Evidence: `docs/verification/evidence/2026-08-12-perf-001/`.
-- [ ] `QA-005`: execute and sign every generated manual action/item/entity/screen/command row against one exact build.
-- [ ] `QA-006`: run and inspect the full 24-hour forced-restart soak.
-- [ ] `PRG-001`: gather/publish real multiplayer quest telemetry for all 20 alignment/level rows and apply justified, migrated threshold changes if evidence requires them.
-- [ ] `PERF-005`: capture live before/after packet count and encoded bytes with collision equivalence.
-- [ ] `PERF-006`: capture live before/after allocation profiles and prove materially lower young-generation churn.
-- [ ] `VFX-003`: record/review Lightning and Fireball first-person captures at every rank and correct any aim-obscuring presentation.
+- [ ] `QA-001`: exact-build signed release envelope; close last.
+- [ ] `PERF-001`: rerun 10/50/100-player 36,000-tick and 1,800-second profiles; distinguish real clients from embedded server actors.
+- [ ] `QA-005`: complete every generated manual acceptance row on one exact build with four Fabric clients where relevant.
+- [ ] `QA-006`: complete a restart/reconnect soak for 24 uninterrupted hours; any failure restarts acceptance after repair.
+- [ ] `PRG-001`: gather ten Light and ten Darkness human-cadence samples and publish median/p90 for all thresholds.
+- [ ] `PERF-005`: observer/dimension/chunk/action/phase visual coalescing, with at least 25% fewer packets/bytes and unchanged collisions.
+- [ ] `PERF-006`: JFR-directed geometry/payload allocation reduction, at least 20% lower allocation and no greater than 5% p99 regression.
 
-### Stage 2 — correctness, performance, networking, and test infrastructure
+Stage 2 may start only after every row above except the deliberately open `QA-001` envelope is accepted.
 
-- [ ] `COR-020`, `COR-018`.
-- [ ] `PERF-011`, `PERF-012`, `PERF-014`, `PERF-016`, `PERF-017`, `PERF-015`, `PERF-013`.
-- [ ] `NET-007`, `NET-010`, `NET-011`, `NET-009`.
-- [ ] `QA-009`, `QA-010`, `QA-016`, `QA-015`.
+### Stage 2 — correctness, performance, networking, and infrastructure
 
-### Stage 3 — UI, accessibility, visuals, and audio
+- [ ] `COR-020`: delayed work stores stable identity/deadline/cancellation ownership, never stale entity/level references.
+- [ ] `PERF-012`: shared read-only per-level/chunk/tick perception snapshots; at least 30% fewer mixed-AI inspections.
+- [ ] `PERF-014`: compact long-lived summon persistence and exactly-once derived-index rebuild.
+- [ ] `PERF-016`: implement fair per-dimension/provider scheduling only if catastrophic-load evidence exceeds the locked starvation or 10% p99 gate; otherwise record measured-and-declined.
+- [ ] `PERF-015`: measure semantic-FX packet shape/compression from 64 B–8 KiB before choosing it.
+- [ ] `PERF-013`: recognisable near/mid/far semantic-FX LOD without simplifying event geometry or identity.
+- [ ] `NET-007`: deterministic global → world → dimension policy resolution with absolute protection denial and diagnosed source.
+- [ ] `NET-009`: versioned `com.powers.api.v1` integration API plus compiled example/compatibility mod.
+- [ ] `NET-010`: atomic revisioned action reload, captured active casts, stale menu rejection, and alias migration.
+- [ ] `NET-011`: pinned 26.2 compatibility matrix for Sodium, Lithium, Simple Voice Chat, ClaimMod, and Inventory Extended/CompactStorage.
+- [ ] `QA-009`: testing-only mod-packet delay/loss/duplication/reorder injector and convergence proof.
+- [ ] `QA-010`: live hostile-environment fixtures for claims, borders, ceilings, void, fluids, mounts/passengers, portals, and a synthetic dimension.
+- [ ] `QA-016`: intent/invariant comments and stronger source-quality rejection of noise, stale TODOs, misleading claims, undocumented public contracts, and mixed-responsibility classes.
 
-- [ ] `PERF-010` and `UX-004` as one virtualised catalogue implementation.
-- [ ] `UX-007`, `UX-008`, `UX-009`.
-- [ ] `VFX-011`, `VFX-009`, `VFX-004`, `VFX-005`, `VFX-006`, `VFX-007`, `VFX-010`.
+### Stage 3 — UI and magical presentation
 
-### Stage 4 — cross-system interactions and counterplay
+- [ ] `PERF-010` + `UX-004`: one fixed-widget virtual scrolling catalogue with search, filters, favourites, recents, direct binding, stable revisions, narration, and a 10,000-action fixture.
+- [ ] `VFX-011`: non-item texture/model transform, UV, mipmap, alpha, atlas, spawn-egg, HUD, boss, and screen contact-sheet audit.
+- [ ] `VFX-009`: dedicated ancient-white Light Realm sky renderer with Sodium-safe boundary and static fallback.
+- [ ] `VFX-004`: protected, no-drop, reversible material-aware scar service under hard budgets.
+- [ ] `VFX-005`: unique long-distance silhouettes for every rank-10 transformation.
+- [ ] `VFX-006`: synchronised bounded casting poses for player-like magical entities without a heavy animation dependency.
+- [ ] `VFX-007`: authored near/mid/far sound layers, obstruction falloff, subtitles, mixing, and reduced-tinnitus support.
 
-- [ ] `INT-008`, `INT-009`, `INT-010`, `INT-011`, `INT-006`, `INT-007`, `INT-012`, `INT-013`, `INT-014`.
+### Stage 4 — cross-system interactions
 
-### Stage 5 — innate-power depth
+- [ ] `INT-008`: lease-based temporal ownership over vanilla tick freeze; preserve external freeze and distinguish frozen/control clocks.
+- [ ] `INT-009`: one authoritative mind-session owner and complete death/return/confinement matrix.
+- [ ] `INT-010`: data-driven allegiance across players, Shadow, artifacts, forces, bosses, food, amethyst, and parties.
+- [ ] `INT-011`: forcefield → Soul Link → health damage ordering with overkill sacrifice and numerical debug accounting.
+- [ ] `INT-007`: finite thermal transition table reused by every fire/ice/water/snow/plant/realm interaction.
+- [ ] `INT-012`: bounded Dimensional Anchor stabilisation for local bodies and legal existing portals/gates only.
+- [ ] `INT-014`: readable, optional Herald/First Vessel reactions to opposing artifacts and complementary casts.
 
-- [ ] `PWR-004`, `PWR-005`, `PWR-006`, `PWR-007`, `PWR-008`, `PWR-011`, `PWR-012`, `PWR-013`, `PWR-014`, `PWR-015`, `PWR-016`, `PWR-017`, `PWR-021`, `PWR-022`, `PWR-023`, `PWR-024`, `PWR-025`.
+### Stage 5 — selected innate-power improvements
 
-### Stage 6 — grimoire and crystal depth
+- [ ] `PWR-004`: safe vanilla-scale transitions, collision preview/fallback, mount rejection, reach/drain HUD, and mass knockback.
+- [ ] `PWR-006`: server-authoritative momentum flight, braking, water transition, sonic presentation, tilt, and latency proof without creative flags.
+- [ ] `PWR-011`: destructive directional Thunderclap at every rank under protection and terrain budgets.
+- [ ] `PWR-014`: discrete authoritative Energy Beam damage with interpolated visuals and temporary scorching.
+- [ ] `PWR-015`: client-only comfort FOV/camera controls and reduced-motion wake LOD.
+- [ ] `PWR-022`: Astral body direction/dimension/distance indicator only; never force-load.
+- [ ] `PWR-023`: interruptible visible Energy Drain tether with boss-percent and absolute conversion caps.
+- [ ] `PWR-024`: safe Ice melt/bridge/brittle-armour lifecycle through the shared thermal table.
 
-- [ ] `SPL-003`, `SPL-004`, `SPL-005`, `SPL-007`, `SPL-009`, `SPL-011`, `SPL-012`, `SPL-013`, `SPL-014`.
-- [ ] `CRY-003`, `CRY-004`, `CRY-005`, `CRY-006`, `CRY-007`, `CRY-008`, `CRY-010`, `CRY-011`, `CRY-014`.
+### Stage 6 — selected spells and crystals
 
-### Stage 7 — progression, artifacts, Crucible, and Shadow
+- [ ] `SPL-004`: loaded-state Augury forecasts with explicit uncertainty.
+- [ ] `SPL-005`: temporary Cartographer breadcrumbs and a persistent discovered-site journal without forced search loading.
+- [ ] `SPL-007`: bounded 6,000-block Celestial Ruin atmosphere, flash/ringing, fallout, damage falloff, and distant scars.
+- [ ] `SPL-009`: bounded recent Blood Reading facts without hidden/private data.
+- [ ] `SPL-011`: energy-only cleanse/link-sever/corruption-relief modes; Amethyst Poisoning remains non-cleansable.
+- [ ] `CRY-003`: persistent per-player crystal-mode discovery and legacy migration.
+- [ ] `CRY-006`: atomically preflighted datapack blueprints plus the approved entity-/loot-stripped vanilla templates.
+- [ ] `CRY-007`: Yellow Size Shift reuses the common safe-scale service and exact mount rejection.
 
-- [ ] `PRG-003`, `PRG-004`, `PRG-005`, `PRG-006`, `PRG-008`, `PRG-009`, `PRG-010`.
-- [ ] `ART-003`, `ART-006`, `ART-007`, `ART-009`, `ART-012`, `ART-013`, `ART-014`, `ART-015`, `ART-016`, `ART-020`.
-- [ ] `SHD-011`, `SHD-013`, `SHD-008`, `SHD-009`, `SHD-010`, `SHD-006`, `SHD-007`, `SHD-014`, `SHD-020`, `SHD-016`.
+### Stage 7 — progression, artifacts, and Shadow
 
-### Stage 8 — realms, factions, structures, mobs, and bosses
+- [ ] `PRG-003`: deterministic once-per-encounter boss contribution credit for meaningful damage/support/control.
+- [ ] `PRG-004`: all 56 nodes have an executable named numerical mechanic and generated profile proof.
+- [ ] `PRG-009`: runestones stack to 64, have no cooldown, and are consumed only on a successful energy restore.
+- [ ] `ART-003`: bounded strongest-per-school ring/amulet attunements.
+- [ ] `ART-006`: exactly one villager heart drop; alignment-specific eating; strongest-heart-only passive; distinct relic presentation.
+- [ ] `ART-014`: Light/Dark models and animations for all six named conversion weapons and every item transform.
+- [ ] `ART-016`: tag-first food affinity; unknown third-party food is neutral.
+- [ ] `ART-020`: only top-level authorised ownership powers mythics; nested/unknown containers fail closed.
+- [ ] `SHD-011`: generated 100% Shadow knowledge coverage with source links.
+- [ ] `SHD-013`: bounded persistent three-phase Darkness agenda that never lies about mechanics or safety.
+- [ ] `SHD-008`: inspectable combat roles with absolute safety/energy/amethyst/work-budget rules.
+- [ ] `SHD-009`: capped owner-local explicit feedback learning with reset and immutable safety rules.
+- [ ] `SHD-010`: at most 16 named owner places; loaded-only navigation and no forced chunks.
+- [ ] `SHD-014`: throttled private/global warnings for intrusion, danger, and combat state.
+- [ ] `SHD-016`: default-off redacted localhost Ollama dialogue research; deterministic code remains sole action authority.
 
-- [ ] `WRLD-003`, `WRLD-004`, `WRLD-005`, `WRLD-006`, `WRLD-007`, `WRLD-008`, `WRLD-009`, `WRLD-010`, `WRLD-011`, `WRLD-012`, `WRLD-013`, `WRLD-014`, `WRLD-015`.
-- [ ] `MOB-003`, `MOB-004`, `MOB-005`, `MOB-006`, `MOB-007`, `MOB-008`, `MOB-014`, `MOB-015`.
+### Stage 8 — selected realm and boss expansion
 
-## Per-row execution protocol
+- [ ] `WRLD-008` + `MOB-006`: persistent three-phase Herald Courts with reversible hazards, capped summons, scaling, loot, and unconditional recovery exits.
+- [ ] `WRLD-015`: bounded Middleworld libraries, roads, dream weather, and one lightweight neutral Archivist per loaded outpost; no teleport hub.
+- [ ] `MOB-007`: accessible wind-up for every lethal First Vessel action and phase/channel boss-bar text.
+- [ ] `MOB-014`: generated every-action response matrix against both Heralds and First Vessel, plus batched live execution.
+- [ ] `MOB-015`: configurable player-like testing actors while reserving truly player-only flows for connected clients.
 
-1. Re-read the authoritative backlog row and inspect production/runtime evidence.
-2. Write the smallest failing unit/contract test for each pure invariant and run it to the expected RED.
-3. Implement the smallest cohesive production change; do not introduce parallel state owners.
-4. Run focused GREEN tests and affected regression suites.
-5. Add or extend a Fabric GameTest that reaches the real server-authoritative entrypoint; run it alone, then in the full live suite.
-6. For client/visual work, run the actual development client, interact through the GUI, capture/review evidence, then run visual/resource contracts.
-7. For profiling/long-duration rows, execute the specified wall-clock run and inspect every generated report; do not replace duration with simulated ticks.
-8. Update documentation and exact audit manifests, run `git diff --check`, and commit the accepted row/cohesive pair.
-9. Remove the row from `IMPROVEMENT_BACKLOG.md` only after its acceptance evidence exists and is linked from the acceptance ledger.
-10. Move to the next row only after fresh proof is green.
+## Decisions ledger
+
+These rows are intentionally excluded, not accidentally omitted:
+
+- Stage 1: `VFX-003`.
+- Stage 2: `COR-018`, `PERF-011`, `PERF-017`, `QA-015`.
+- Stage 3: `UX-007`, `UX-008`, `UX-009`, `VFX-010`.
+- Stage 4: `INT-006`, `INT-013`.
+- Stage 5: `PWR-005`, `PWR-007`, `PWR-008`, `PWR-012`, `PWR-013`, `PWR-016`, `PWR-017`, `PWR-021`, `PWR-025`.
+- Stage 6: `SPL-003`, `SPL-012`, `SPL-013`, `SPL-014`, `CRY-004`, `CRY-005`, `CRY-008`, `CRY-010`, `CRY-011`, `CRY-014`.
+- Stage 7: `PRG-005`, `PRG-006`, `PRG-008`, `PRG-010`, `ART-007`, `ART-009`, `ART-012`, `ART-013`, `ART-015`, `SHD-006`, `SHD-007`, `SHD-020`.
+- Stage 8: `WRLD-003`–`WRLD-007`, `WRLD-009`–`WRLD-014`, `MOB-003`, `MOB-004`, `MOB-005`, `MOB-008`. `WRLD-006` is explicitly declined because a persistent NPC schedule subsystem is disproportionate.
+- Stage 9/P3: all rows.
+
+Interpretations fixed by the owner:
+
+- Nonexistent `PERF-103` means `PERF-013`.
+- `PWR-022` means the Astral return indicator only.
+- `PRG-009` is replaced by consumable single-use runestones.
+- `PERF-012`, `NET-011`, `PWR-004`, `PWR-015`, and `INT-014` are in scope.
+- `PERF-016` uses the measurement gate above; a below-threshold result closes it as measured-and-declined.
+
+## Per-unit protocol
+
+1. Re-read the authoritative backlog row and inspect its production state.
+2. Add the smallest deterministic failing test and observe the expected RED.
+3. Implement through the current authoritative owner.
+4. Run focused GREEN and affected deterministic suites.
+5. Exercise the production entrypoint in an isolated Fabric GameTest, then run the complete live suite.
+6. Use actual clients for UI, rendering, sound, networking, multiplayer, and manual behaviour.
+7. Update README, catalogues, migration notes, changelog, interaction docs, audit manifests, and exact evidence.
+8. Remove the backlog row only after its acceptance proof exists.
+9. Commit the cohesive unit on `main`; push only after its stage gate is green.
 
 ## Final acceptance
 
-- [ ] Reconcile every Stage 1–8 ID against code, live evidence, documentation, and backlog removal.
-- [ ] Run `./gradlew clean check pitest verifyScreenshots verifyVisualGoldens saveMigrationCorpus syntheticSoak --rerun-tasks --no-daemon`.
-- [ ] Run the complete Fabric GameTest and client GameTest suites.
-- [ ] Boot a dedicated server, reload resources/datapacks, save, stop, and inspect logs.
-- [ ] Run the final connected-player performance scenarios and restart-soak leak check on the release commit.
-- [ ] Complete the signed manual playthrough on the release commit.
-- [ ] Confirm only `main` exists, the worktree is clean, local/remote commit IDs match, and GitHub Actions is green.
+- [ ] Regenerate the complete `QA-005` checklist on the final commit.
+- [ ] Rerun final 10/50/100-player 30-minute profiles and the complete 24-hour restart soak.
+- [ ] Pass `./gradlew clean check pitest verifyScreenshots verifyVisualGoldens saveMigrationCorpus syntheticSoak --rerun-tasks --no-daemon`.
+- [ ] Pass complete Fabric server/client GameTests, dedicated-server reload/save/restart, compatibility, packet-fault, and four-client campaign gates.
+- [ ] Verify asset, sound, resource, documentation, migration, source-quality, and exact-audit manifests.
+- [ ] Build the final JAR/report, publish GitHub Actions provenance with `actions/attest@v4`, and verify it using `gh attestation verify`.
+- [ ] Confirm only `main` exists, the worktree is clean, local/remote SHAs match, and GitHub Actions is green.
+- [ ] Remove `QA-001` only after every statement above is proven on the same final commit.
