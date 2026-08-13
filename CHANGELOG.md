@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Prevented Energy and Void beams from crashing a dedicated server when protection, a ward, or
+  another terminal counters the ray exactly at the caster's eye position; origin-local counters now
+  resolve normally without publishing impossible zero-length collision geometry.
 - Added an explicit development-only four-client acceptance runner that replays real commands,
   chat, innate activation/selection packets, and labelled render captures from strictly validated
   tick scripts; added a fail-closed evidence ledger so generated manual results cannot cite missing

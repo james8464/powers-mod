@@ -46,6 +46,16 @@ class MagicRayCollisionRulesTest {
 		assertEquals(32, MagicRayCollisionRules.MAX_COLLISIONS_PER_TICK);
 	}
 
+	@Test
+	void aRayCounteredAtItsOriginIsAValidNoGeometryOutcome() {
+		Vec3 origin = new Vec3(4.5, 65.0, -2.5);
+
+		assertFalse(MagicRaySegment.hasUsableGeometry(origin, origin));
+		assertFalse(MagicRaySegment.hasUsableGeometry(origin,
+				new Vec3(Double.NaN, 65.0, -2.5)));
+		assertTrue(MagicRaySegment.hasUsableGeometry(origin, origin.add(0.0, 0.0, 0.01)));
+	}
+
 	private static MagicRaySegment segment(UUID owner, String action, Vec3 start, Vec3 end, long tick) {
 		return new MagicRaySegment(owner, action, "minecraft:overworld", start, end, tick);
 	}

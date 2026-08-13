@@ -47,6 +47,18 @@ public final class P1AcceptanceGameTests {
 	public P1AcceptanceGameTests() {
 	}
 
+	@GameTest(maxTicks = 40)
+	@SuppressWarnings("removal")
+	public void beamCounteredAtCasterOriginSkipsEmptyCollisionGeometry(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		Vec3 origin = caster.getEyePosition();
+
+		helper.assertFalse(MagicRayCollisionRuntime.publish(helper.getLevel(), "energy_beam",
+				caster.getUUID(), origin, origin, helper.getLevel().getServer().getTickCount()).isPresent(),
+				"An origin-local beam counter should not publish empty collision geometry");
+		helper.succeed();
+	}
+
 	@GameTest(padding = 128)
 	@SuppressWarnings("removal")
 	public void everyPhysicalCollisionFamilyReachesTheLiveResolverExactlyOnce(GameTestHelper helper) {
