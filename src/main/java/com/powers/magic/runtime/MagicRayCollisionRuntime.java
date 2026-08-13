@@ -22,6 +22,7 @@ public final class MagicRayCollisionRuntime {
 		if (definition == null || definition.delivery() != MagicDelivery.BEAM) {
 			throw new IllegalArgumentException("Only registered beam actions may publish ray geometry");
 		}
+		if (!MagicRaySegment.hasUsableGeometry(start, end)) return Optional.empty();
 		MagicRaySegment segment = new MagicRaySegment(owner, action,
 				level.dimension().identifier().toString(), start, end, gameTime);
 		Optional<MagicRayCollisionIndex.Collision> collision = INDEX.submit(segment);
