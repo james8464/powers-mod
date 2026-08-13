@@ -1,8 +1,8 @@
 # Manual gameplay acceptance checklist
 
-Build ID: `________________`  Tester: `________________`  Date: `________________`
+Per-row build IDs and evidence are recorded below; unchecked rows remain pending.
 
-This generated register makes omissions visible. Automated/resource evidence is prefilled; the release tester must replace every `MANUAL LIVE PENDING` row and record a build ID.
+This generated register makes omissions visible. Automated/resource evidence is prefilled; the release tester must replace every `MANUAL LIVE PENDING` row with evidence-backed PASS or FAIL.
 
 | Family | Identity | Current evidence | Manual result | Notes / screenshot / log |
 | --- | --- | --- | --- | --- |
@@ -47,11 +47,30 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | crystal | `dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0001_powers-dark-realm-live.png; Live activation entered powers:dark_realm with a vulnerable body proxy and returned cleanly. |
 | crystal | `inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `soul_link` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0002_powers-light-realm-live.png; Live activation entered powers:light_realm with a vulnerable body proxy and returned cleanly. |
+| artifact | `light/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/call_radiant` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/consecrate_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/covenant_chain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/daybreak_wave` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/heaven_gate` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/solar_firmament` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/second_dawn` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/host_heaven` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/time_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
@@ -89,25 +108,6 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | artifact | `darkness/unique/call_hollowed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/unique/blight_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/unique/nightfall_dominion` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/call_radiant` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/consecrate_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/covenant_chain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/daybreak_wave` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/heaven_gate` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/solar_firmament` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/second_dawn` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/host_heaven` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | entity | `darkness_creature` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
 | entity | `power_test_actor` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
 | entity | `radiant_sentinel` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
@@ -390,15 +390,15 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | item | `powers:imported_magic_essence_blood_dust` | ItemCatalogueExecutableAuditTest; A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource; Buried-treasure, fortress, and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
 | item | `powers:imported_magic_essence_sacred_dust` | ItemCatalogueExecutableAuditTest; A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource; Buried-treasure, fortress, and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
 | item | `powers:imported_magic_essence_soul_dust` | ItemCatalogueExecutableAuditTest; A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource; Buried-treasure, fortress, and archaeology salvage | CONTRACT PASS; MANUAL LIVE PENDING |  |
-| screen | `power selection` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
-| screen | `artifact combat wheel` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
-| screen | `artifact library` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
-| screen | `rank maze light` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
-| screen | `rank maze darkness` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
-| screen | `grimoire index` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
-| screen | `arcane crucible` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
-| screen | `locator` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
-| screen | `teleport` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
+| screen | `power selection` | verifyScreenshots visual golden | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0014_powers-power-option.png; Readable Size Morphing option and action control. |
+| screen | `artifact combat wheel` | verifyScreenshots visual golden | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0009_powers-shadow-combat-wheel.png; Eight disjoint combat slots; complete or recognisable labels, costs, and glyphs. |
+| screen | `artifact library` | verifyScreenshots visual golden | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0010_powers-shadow-library.png; Search, tabs, results, status tooltip, and eight bindings are readable. |
+| screen | `rank maze light` | verifyScreenshots visual golden | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0007_powers-rank-maze-light.png; Correct Light artwork; all 28 node names and selected mechanic remain readable. |
+| screen | `rank maze darkness` | verifyScreenshots visual golden | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0008_powers-rank-maze-dark.png; Correct Darkness artwork; all 28 node names and selected mechanic remain readable. |
+| screen | `grimoire index` | verifyScreenshots visual golden | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0013_powers-grimoire-index.png; Spell index, practical explanation, cost, recovery, and counters are readable. |
+| screen | `arcane crucible` | verifyScreenshots visual golden | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0016_powers-arcane-crucible.png; Slots, direction controls, transmute action, and inventory remain distinguishable. |
+| screen | `locator` | verifyScreenshots visual golden | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0012_powers-celestial-locator.png; Target prompt, result region, and cancel action fit the panel. |
+| screen | `teleport` | verifyScreenshots visual golden | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0011_powers-teleport-menu.png; Coordinate fields and full namespaced dimension remain readable with a tooltip. |
 | screen | `advancement light` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
 | screen | `advancement darkness` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
 | command | `/powers list` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |

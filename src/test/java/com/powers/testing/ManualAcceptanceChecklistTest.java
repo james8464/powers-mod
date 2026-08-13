@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -46,5 +47,21 @@ class ManualAcceptanceChecklistTest {
 				&& line.contains("AUTOMATED PASS")));
 		assertFalse(text.lines().anyMatch(line -> line.startsWith("| item | `powers:")
 				&& line.contains("AUTOMATED PASS")));
+	}
+
+	@Test
+	void resultLedgerRejectsDuplicateAndEvidenceFreeClaims() {
+		var valid = ManualAcceptanceResultLedger.parse(List.of(
+				"screen\trank maze light\tPASS\te1c656a\tevidence/light.png\treadable"));
+		assertEquals("PASS (e1c656a)", valid.get(new ManualAcceptanceResultLedger.Key(
+				"screen", "rank maze light")).displayStatus());
+
+		org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+				() -> ManualAcceptanceResultLedger.parse(List.of(
+						"screen\trank maze light\tPASS\te1c656a\tevidence/light.png\tfirst",
+						"screen\trank maze light\tPASS\te1c656a\tevidence/other.png\tduplicate")));
+		org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+				() -> ManualAcceptanceResultLedger.parse(List.of(
+						"screen\trank maze light\tPASS\te1c656a\t\tmissing evidence")));
 	}
 }

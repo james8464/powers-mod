@@ -14,6 +14,7 @@ import com.powers.client.fx.ClientMagicFx;
 import com.powers.client.fx.ClientShapeFx;
 import com.powers.client.fx.ClientBeamFx;
 import com.powers.client.fx.ClientCelestialRuinFx;
+import com.powers.client.acceptance.AcceptanceClientAgent;
 import com.powers.client.body.ClientBodySnapshots;
 import com.powers.client.fx.particle.ArcaneParticle;
 import com.powers.PowersParticles;
@@ -186,6 +187,7 @@ public class PowersClient implements ClientModInitializer {
 	}
 
 	private static void tick(Minecraft client) {
+		AcceptanceClientAgent.tick(client);
 		ClientMagicFx.tick();
 		ClientCelestialRuinFx.tick();
 		ClientPowerState.tickCooldowns();

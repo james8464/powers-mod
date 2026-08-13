@@ -1,0 +1,12 @@
+family	identity	outcome	build	evidence	notes
+crystal	dark_crystal	PASS	e1c656a	docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0001_powers-dark-realm-live.png	Live activation entered powers:dark_realm with a vulnerable body proxy and returned cleanly.
+crystal	light_crystal	PASS	e1c656a	docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0002_powers-light-realm-live.png	Live activation entered powers:light_realm with a vulnerable body proxy and returned cleanly.
+screen	power selection	PASS	e1c656a	docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0014_powers-power-option.png	Readable Size Morphing option and action control.
+screen	artifact combat wheel	PASS	e1c656a	docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0009_powers-shadow-combat-wheel.png	Eight disjoint combat slots; complete or recognisable labels, costs, and glyphs.
+screen	artifact library	PASS	e1c656a	docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0010_powers-shadow-library.png	Search, tabs, results, status tooltip, and eight bindings are readable.
+screen	rank maze light	PASS	e1c656a	docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0007_powers-rank-maze-light.png	Correct Light artwork; all 28 node names and selected mechanic remain readable.
+screen	rank maze darkness	PASS	e1c656a	docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0008_powers-rank-maze-dark.png	Correct Darkness artwork; all 28 node names and selected mechanic remain readable.
+screen	grimoire index	PASS	e1c656a	docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0013_powers-grimoire-index.png	Spell index, practical explanation, cost, recovery, and counters are readable.
+screen	arcane crucible	PASS	e1c656a	docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0016_powers-arcane-crucible.png	Slots, direction controls, transmute action, and inventory remain distinguishable.
+screen	locator	PASS	e1c656a	docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0012_powers-celestial-locator.png	Target prompt, result region, and cancel action fit the panel.
+screen	teleport	PASS	e1c656a	docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0011_powers-teleport-menu.png	Coordinate fields and full namespaced dimension remain readable with a tooltip.
