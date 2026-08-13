@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
+import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -85,6 +86,8 @@ public final class AcceptanceClientAgent {
 				ClientPlayNetworking.send(new PowersPackets.SelectAbilityOptionPayload(
 						Integer.parseInt(values[0]), Integer.parseInt(values[1])));
 			}
+			case RESPAWN -> connection.send(new ServerboundClientCommandPacket(
+					ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
 			case SCREENSHOT -> Screenshot.grab(client, false);
 		}
 		PowersMod.LOGGER.info("QA client role={} executed {} [{}] at connected tick {}",

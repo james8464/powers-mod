@@ -6,7 +6,7 @@ import java.util.Locale;
 
 /** Strict, deterministic instruction format for development multiplayer acceptance clients. */
 public final class AcceptanceClientScript {
-	public enum Operation { COMMAND, CHAT, ACTIVATE, SELECT, SCREENSHOT }
+	public enum Operation { COMMAND, CHAT, ACTIVATE, SELECT, RESPAWN, SCREENSHOT }
 
 	public record Step(int tick, Operation operation, String argument) {
 		public Step {
@@ -54,7 +54,7 @@ public final class AcceptanceClientScript {
 				.anyMatch(character -> Character.isISOControl(character) && character != '\t')) {
 			throw malformed(lineNumber, "invalid argument");
 		}
-		switch (operation) {
+			switch (operation) {
 			case ACTIVATE -> parseBoundedInteger(argument, 0, 2, lineNumber, "slot");
 			case SELECT -> {
 				String[] values = argument.split(" ");
@@ -66,6 +66,9 @@ public final class AcceptanceClientScript {
 				if (!argument.matches("[a-zA-Z0-9_-]{1,80}")) {
 					throw malformed(lineNumber, "unsafe screenshot label");
 				}
+			}
+			case RESPAWN -> {
+				if (!argument.equals("now")) throw malformed(lineNumber, "respawn argument must be now");
 			}
 			case COMMAND, CHAT -> { }
 		}

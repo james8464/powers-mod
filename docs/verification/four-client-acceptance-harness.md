@@ -12,6 +12,7 @@ Each non-comment row is `connectedTick<TAB>operation<TAB>argument`. Supported op
 | `chat` | message | Sends signed-chat-compatible player dialogue. |
 | `activate` | slot `0`–`2` | Sends the normal serverbound innate activation packet. |
 | `select` | `slot option` | Sends the normal serverbound ability-option packet. |
+| `respawn` | `now` | Sends the vanilla perform-respawn client packet. |
 | `screenshot` | safe evidence label | Captures the rendered client and records the label in its log. |
 
 Rows must be ordered by tick. Invalid operations, slot ranges, control characters, oversized
