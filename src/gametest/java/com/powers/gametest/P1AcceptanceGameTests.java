@@ -24,6 +24,7 @@ import com.powers.spell.SpellEffect;
 import com.powers.spell.SpellFieldKind;
 import com.powers.spell.SpellFieldManager;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
@@ -35,6 +36,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.UUID;
 
@@ -295,16 +297,35 @@ public final class P1AcceptanceGameTests {
 	@SuppressWarnings("removal")
 	public void abyssalWardBreakingAndDispelMutateOnlyTheirLockedTargets(GameTestHelper helper) {
 		ServerPlayer breaker = helper.makeMockServerPlayerInLevel();
-		Vec3 origin = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(2, 1, 2)));
-		breaker.snapTo(origin, 0.0F, 0.0F);
-		BlockPos ward = new BlockPos(2, 2, 5);
+		// Both positions stay on the padded side of the template so its enclosure
+		// cannot intercept the real 32-block spell ray.
+		Vec3 origin = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(2, 1, 55)));
+		breaker.snapTo(origin, 180.0F, 0.0F);
+		BlockPos ward = new BlockPos(2, 2, 30);
+		BlockPos absoluteWard = helper.absolutePos(ward);
 		helper.setBlock(ward, PowersBlocks.AMETHYST_WARD.defaultBlockState()
 				.setValue(BlockStateProperties.POWER, 15));
-		helper.setBlock(new BlockPos(3, 2, 5), Blocks.REDSTONE_BLOCK);
+		helper.setBlock(new BlockPos(3, 2, 30), Blocks.REDSTONE_BLOCK);
+		breaker.lookAt(EntityAnchorArgument.Anchor.EYES, Vec3.atCenterOf(absoluteWard));
+		breaker.setOldPosAndRot();
+		var wardHit = breaker.pick(32.0, 0.0F, false);
+		helper.assertTrue(wardHit instanceof BlockHitResult blockHit
+				&& blockHit.getBlockPos().equals(absoluteWard),
+				"Ward fixture aim missed: type=" + wardHit.getType()
+						+ ", block=" + (wardHit instanceof BlockHitResult blockHit
+						? blockHit.getBlockPos() : "none")
+						+ ", location=" + wardHit.getLocation() + ", expected=" + absoluteWard
+						+ ", player=" + breaker.position() + ", eye=" + breaker.getEyePosition(0.0F)
+						+ ", view=" + breaker.getViewVector(0.0F)
+						+ ", yaw=" + breaker.getYRot() + ", pitch=" + breaker.getXRot());
 		breaker.setItemInHand(InteractionHand.MAIN_HAND,
 				ImportedPackItems.item("imported_book_grimoire_abyssal").getDefaultInstance());
 		PlayerPowers.get(breaker).setSelectedSpell("book_grimoire_abyssal", 0);
 		SpellCastingManager.use(breaker, "book_grimoire_abyssal");
+		helper.assertTrue(SpellCastingManager.isChanneling(breaker.getUUID()),
+				"Ward-Breaking Ritual did not begin its authored spell channel: "
+						+ com.powers.knowledge.KnowledgeService.answer(breaker,
+						"why did ward breaking fail?").answer());
 
 		ServerPlayer fieldOwner = helper.makeMockServerPlayerInLevel();
 		// Keep Dispel outside the powered ward's suppression radius. The spell is
@@ -326,8 +347,11 @@ public final class P1AcceptanceGameTests {
 			helper.assertTrue(AmethystWardBlock.isPowered(helper.getBlockState(ward)),
 					"Ward fixture lost power during its ritual");
 			helper.assertTrue(com.powers.power.AmethystDampening.findPoweredWard(
-					helper.getLevel(), ward).isEmpty(),
+					helper.getLevel(), absoluteWard).isEmpty(),
 					"Ward-Breaking Ritual did not suppress its locked powered ward");
+			breaker.snapTo(Vec3.atBottomCenterOf(absoluteWard).add(0.0, 0.0, 1.0), 0.0F, 0.0F);
+			helper.assertFalse(com.powers.power.AmethystDampening.update(breaker),
+					"suppressed ward still poisoned its caster through the natural-amethyst index");
 			helper.assertFalse(SpellFieldManager.hasField(fieldOwner.getUUID(), SpellFieldKind.KINETIC_WARD),
 					"Dispel did not remove the nearest legal field: "
 							+ com.powers.knowledge.KnowledgeService.answer(dispeller,

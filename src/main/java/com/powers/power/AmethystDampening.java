@@ -77,7 +77,7 @@ public final class AmethystDampening {
 	public static boolean update(LivingEntity entity) {
 		if (!(entity.level() instanceof ServerLevel level)) return false;
 		boolean dampened = entity instanceof ServerPlayer player && hasAmethystItem(player)
-				|| NATURAL_AMETHYST.nearby(level, entity.blockPosition(), RADIUS)
+				|| naturalAmethystNearby(level, entity.blockPosition())
 				|| findPoweredWard(level, entity.blockPosition()).isPresent();
 		if (dampened) {
 			// 30 ticks is plenty because this effect gets refreshed on every update
@@ -168,8 +168,29 @@ public final class AmethystDampening {
 	/** Location-only suppression used by non-player tactical entities and rituals. */
 	public static boolean isDampenedAt(ServerLevel level, BlockPos position) {
 		return level != null && position != null
-				&& (NATURAL_AMETHYST.nearby(level, position, RADIUS)
+				&& (naturalAmethystNearby(level, position)
 				|| findPoweredWard(level, position).isPresent());
+	}
+
+	private static boolean naturalAmethystNearby(ServerLevel level, BlockPos center) {
+		return NATURAL_AMETHYST.nearby(level, center, RADIUS,
+				position -> !isSuppressedWard(level, position));
+	}
+
+	/** A ward-breaking ritual masks the ward in both indexes for the same bounded lease. */
+	private static boolean isSuppressedWard(ServerLevel level, BlockPos position) {
+		Map<BlockPos, Long> suppressed = SUPPRESSED_WARDS.get(level.dimension());
+		if (suppressed == null) return false;
+		long expiry = suppressed.getOrDefault(position, 0L);
+		if (expiry <= level.getGameTime()) {
+			if (expiry != 0L) suppressed.remove(position);
+			if (suppressed.isEmpty()) SUPPRESSED_WARDS.remove(level.dimension());
+			return false;
+		}
+		if (level.getBlockState(position).is(PowersBlocks.AMETHYST_WARD)) return true;
+		suppressed.remove(position);
+		if (suppressed.isEmpty()) SUPPRESSED_WARDS.remove(level.dimension());
+		return false;
 	}
 
 	/** Narrow block-change hook used only to maintain already materialized section indexes. */

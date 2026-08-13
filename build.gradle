@@ -148,6 +148,7 @@ tasks.register("testPythonScripts", Exec) {
 // metadata and selects only that test, so routine verification stays bounded.
 def connectedProfileEnabled = providers.gradleProperty("powersConnectedProfile").isPresent()
 tasks.named("processGametestResources") {
+	inputs.property("connectedProfileEnabled", connectedProfileEnabled)
 	filesMatching("fabric.mod.json") {
 		expand connectedProfileEntrypoint: connectedProfileEnabled
 				? ',\n\t\t\t"com.powers.gametest.ConnectedBotProfileGameTests"'
@@ -168,6 +169,7 @@ tasks.named("runGameTest") {
 	}
 	doFirst {
 		def gameTestRun = layout.buildDirectory.dir("run/gameTest").get().asFile
+		delete(new File(gameTestRun, "world"))
 		gameTestRun.mkdirs()
 		def properties = new File(gameTestRun, "server.properties")
 		if (!properties.exists()) {

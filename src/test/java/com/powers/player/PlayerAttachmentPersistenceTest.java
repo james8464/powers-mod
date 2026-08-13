@@ -40,12 +40,12 @@ class PlayerAttachmentPersistenceTest {
 		Path root = Path.of(System.getProperty("user.dir"));
 		String bootstrap = Files.readString(root.resolve(
 				"src/main/java/com/powers/PowersBootstrap.java"));
-		String facade = Files.readString(root.resolve(
-				"src/main/java/com/powers/player/PlayerPowers.java"));
+		String schema = Files.readString(root.resolve(
+				"src/main/java/com/powers/player/PlayerPowerSchema.java"));
 
-		assertTrue(bootstrap.contains("PlayerPowers.initialize()"),
+		assertTrue(bootstrap.contains("PlayerPowerSchema.initialize()"),
 				"persistent attachment types must exist before the first player save is decoded");
-		assertTrue(facade.contains("PlayerPowerAttachments.initialize()"),
-				"the public player-state facade must force the package-private schema to load");
+		assertTrue(schema.contains("PlayerPowerAttachments.initialize()"),
+				"the schema bootstrap must force every attachment registration to load");
 	}
 }

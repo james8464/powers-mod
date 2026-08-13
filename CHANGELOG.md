@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Corrected Ward-Breaking so a temporarily suppressed powered Amethyst Ward cannot continue poisoning its caster through the natural-amethyst index; added a production-entrypoint regression and revert-based mutation proof.
+- Made ordinary GameTests reproducible by invalidating conditional test metadata when the connected-profile flag changes and resetting only the generated GameTest world before each launch.
+- Extracted player attachment schema registration and Celestial Ruin warning presentation into focused owners without changing saved data or ritual behaviour.
+- Recorded the owner-approved selected Stage 1–8 programme, exclusions, measurement gates, and final release-evidence requirements.
+
 ## 1.0.2 - 2026-08-11
 
 - Registered the complete persistent player-attachment schema during Fabric bootstrap, before any saved player is decoded; ranks, energy, spell/crystal selections, and artifact loadouts now survive full client/server restarts instead of being discarded as unknown attachment types.

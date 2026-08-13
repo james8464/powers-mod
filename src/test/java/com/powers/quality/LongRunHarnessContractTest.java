@@ -31,8 +31,10 @@ class LongRunHarnessContractTest {
 		String build = Files.readString(Path.of("build.gradle"));
 		String metadata = Files.readString(Path.of("src/gametest/resources/fabric.mod.json"));
 		assertTrue(build.contains("powersConnectedProfile"));
+		assertTrue(build.contains("inputs.property(\"connectedProfileEnabled\""));
 		assertTrue(build.contains("powersProfileTicks"));
 		assertTrue(build.contains("connected_bot_profile_game_tests_connected_ten_fifty_and_hundred_player_profiles"));
+		assertTrue(build.contains("delete(new File(gameTestRun, \"world\"))"));
 		assertTrue(metadata.contains("${connectedProfileEntrypoint}"));
 		assertTrue(source.contains("manualOnly = false"));
 		assertTrue(source.contains("PROFILE_TICKS = 36_000"));
