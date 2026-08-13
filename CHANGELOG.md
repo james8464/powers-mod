@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added an explicit development-only four-client acceptance runner that replays real commands,
+  chat, innate activation/selection packets, and labelled render captures from strictly validated
+  tick scripts; added a fail-closed evidence ledger so generated manual results cannot cite missing
+  files, unknown rows, duplicate outcomes, or unsupported statuses.
 - Corrected QA-005 visual acceptance defects: rank-maze titles now fit without clipping, Shadow's combat wheel keeps recognisable names at normal and compact scales, automated captures drain prior realm FX, and arrival lightning surrounds rather than intersects the traveller's camera.
 - Corrected Ward-Breaking so a temporarily suppressed powered Amethyst Ward cannot continue poisoning its caster through the natural-amethyst index; added a production-entrypoint regression and revert-based mutation proof.
 - Made ordinary GameTests reproducible by invalidating conditional test metadata when the connected-profile flag changes and resetting only the generated GameTest world before each launch.

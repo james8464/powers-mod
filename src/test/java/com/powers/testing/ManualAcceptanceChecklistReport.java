@@ -3,7 +3,10 @@ package com.powers.testing;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /** Generates the omission-visible operator checklist from authoritative catalogues. */
 public final class ManualAcceptanceChecklistReport {
@@ -16,6 +19,8 @@ public final class ManualAcceptanceChecklistReport {
 		net.minecraft.server.Bootstrap.bootStrap();
 		com.powers.power.PowerRegistry.initialize();
 		Path root = Path.of(arguments[0]);
+		Map<ManualAcceptanceResultLedger.Key, ManualAcceptanceResultLedger.Result> results =
+				ManualAcceptanceResultLedger.load(root);
 		List<Row> rows = new ArrayList<>();
 		for (GameplayAcceptanceCatalogue.Entry entry : GameplayAcceptanceCatalogue.entries()) {
 			rows.add(new Row(entry.family().name().toLowerCase(), entry.id(),
@@ -40,16 +45,27 @@ public final class ManualAcceptanceChecklistReport {
 			rows.add(new Row("command", command, "PowerCommand/TestingCommand registration",
 					"MANUAL LIVE PENDING"));
 		}
+		Set<ManualAcceptanceResultLedger.Key> registered = new HashSet<>();
+		for (Row row : rows) registered.add(new ManualAcceptanceResultLedger.Key(row.family(), row.id()));
+		for (ManualAcceptanceResultLedger.Key key : results.keySet()) {
+			if (!registered.contains(key)) throw new IllegalArgumentException(
+					"Acceptance ledger references an unknown checklist row: " + key);
+		}
 		StringBuilder output = new StringBuilder("# Manual gameplay acceptance checklist\n\n")
-				.append("Build ID: `________________`  Tester: `________________`  Date: `________________`\n\n")
+				.append("Per-row build IDs and evidence are recorded below; unchecked rows remain pending.\n\n")
 				.append("This generated register makes omissions visible. Automated/resource evidence is prefilled; ")
-				.append("the release tester must replace every `MANUAL LIVE PENDING` row and record a build ID.\n\n")
+				.append("the release tester must replace every `MANUAL LIVE PENDING` row with evidence-backed PASS or FAIL.\n\n")
 				.append("| Family | Identity | Current evidence | Manual result | Notes / screenshot / log |\n")
 				.append("| --- | --- | --- | --- | --- |\n");
 		for (Row row : rows) {
+			ManualAcceptanceResultLedger.Result result = results.get(
+					new ManualAcceptanceResultLedger.Key(row.family(), row.id()));
+			String status = result == null ? row.status() : result.displayStatus();
+			String notes = result == null ? "" : result.evidence()
+					+ (result.notes().isEmpty() ? "" : "; " + result.notes());
 			output.append("| ").append(cell(row.family())).append(" | `")
 					.append(cell(row.id())).append("` | ").append(cell(row.evidence()))
-					.append(" | ").append(row.status()).append(" |  |\n");
+					.append(" | ").append(cell(status)).append(" | ").append(cell(notes)).append(" |\n");
 		}
 		output.append("\nTotal registered rows: **").append(rows.size()).append("**.\n");
 		Files.writeString(root.resolve("docs/verification/manual-acceptance-checklist.md"), output);
