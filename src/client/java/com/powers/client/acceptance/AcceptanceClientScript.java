@@ -6,7 +6,10 @@ import java.util.Locale;
 
 /** Strict, deterministic instruction format for development multiplayer acceptance clients. */
 public final class AcceptanceClientScript {
-	public enum Operation { COMMAND, CHAT, ACTIVATE, SELECT, RESPAWN, SCREENSHOT }
+	public enum Operation {
+		COMMAND, CHAT, ACTIVATE, SELECT, USE, ATTACK, GRIMOIRE, CRYSTAL, ARTIFACT,
+		RESPAWN, SCREENSHOT
+	}
 
 	public record Step(int tick, Operation operation, String argument) {
 		public Step {
@@ -54,7 +57,7 @@ public final class AcceptanceClientScript {
 				.anyMatch(character -> Character.isISOControl(character) && character != '\t')) {
 			throw malformed(lineNumber, "invalid argument");
 		}
-			switch (operation) {
+		switch (operation) {
 			case ACTIVATE -> parseBoundedInteger(argument, 0, 2, lineNumber, "slot");
 			case SELECT -> {
 				String[] values = argument.split(" ");
@@ -70,7 +73,36 @@ public final class AcceptanceClientScript {
 			case RESPAWN -> {
 				if (!argument.equals("now")) throw malformed(lineNumber, "respawn argument must be now");
 			}
+			case USE -> {
+				if (!argument.equals("main")) throw malformed(lineNumber, "use argument must be main");
+			}
+			case ATTACK -> validateIdentifier(argument, lineNumber, "target");
+			case GRIMOIRE -> validatePair(argument, 0, 15, lineNumber, "spell");
+			case CRYSTAL -> parseBoundedInteger(argument, 0, 255, lineNumber, "mode");
+			case ARTIFACT -> {
+				String[] values = argument.split(" ");
+				if (values.length != 3 || !(values[0].equals("light")
+						|| values[0].equals("darkness"))) {
+					throw malformed(lineNumber, "artifact needs alignment, action and option");
+				}
+				validateIdentifier(values[1], lineNumber, "action");
+				parseBoundedInteger(values[2], 0, 255, lineNumber, "option");
+			}
 			case COMMAND, CHAT -> { }
+		}
+	}
+
+	private static void validatePair(String argument, int minimum, int maximum,
+			int lineNumber, String numericField) {
+		String[] values = argument.split(" ");
+		if (values.length != 2) throw malformed(lineNumber, "expected identifier and " + numericField);
+		validateIdentifier(values[0], lineNumber, "identifier");
+		parseBoundedInteger(values[1], minimum, maximum, lineNumber, numericField);
+	}
+
+	private static void validateIdentifier(String value, int lineNumber, String field) {
+		if (!value.matches("[a-zA-Z0-9_.:/-]{1,64}")) {
+			throw malformed(lineNumber, "unsafe " + field);
 		}
 	}
 
