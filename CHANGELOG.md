@@ -6,7 +6,7 @@
   another terminal counters the ray exactly at the caster's eye position; origin-local counters now
   resolve normally without publishing impossible zero-length collision geometry.
 - Added an explicit development-only four-client acceptance runner that replays real commands,
-  chat, innate activation/selection packets, and labelled render captures from strictly validated
+  chat, innate activation/selection and vanilla respawn packets, and labelled render captures from strictly validated
   tick scripts; added a fail-closed evidence ledger so generated manual results cannot cite missing
   files, unknown rows, duplicate outcomes, or unsupported statuses.
 - Corrected QA-005 visual acceptance defects: rank-maze titles now fit without clipping, Shadow's combat wheel keeps recognisable names at normal and compact scales, automated captures drain prior realm FX, and arrival lightning surrounds rather than intersects the traveller's camera.
