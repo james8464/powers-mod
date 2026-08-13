@@ -60,7 +60,8 @@ public final class RankMazeScreen extends Screen {
 			boxes.put(box.id(), box);
 			RankNode node = graph.node(box.id());
 			if (node == null) continue;
-			RankNodeButton button = new RankNodeButton(left + box.x(), top + box.y(), box.height(), node);
+			RankNodeButton button = new RankNodeButton(left + box.x(), top + box.y(),
+					box.width(), box.height(), node);
 			button.setTooltip(Tooltip.create(Component.literal(node.title() + " — " + perkSummary(node))));
 			addRenderableWidget(button);
 		}
@@ -130,10 +131,20 @@ public final class RankMazeScreen extends Screen {
 									: Component.translatable("screen.powers.rank.locked").getString();
 			graphics.centeredText(font, Component.literal(selected.title() + " — " + status),
 					width / 2, panelY() + 180, 0xFFFFFFFF);
-			String summary = font.plainSubstrByWidth(perkSummary(selected), PANEL_WIDTH - 18);
-			graphics.centeredText(font, Component.literal(summary), width / 2,
-					panelY() + 191, 0xFFC7C2D2);
+			drawScaledCentered(graphics, perkSummary(selected), width / 2,
+					panelY() + 191, PANEL_WIDTH - 18, 0xFFC7C2D2);
 		}
+	}
+
+	private void drawScaledCentered(GuiGraphicsExtractor graphics, String text, int centerX,
+			int y, int availableWidth, int color) {
+		float scale = RankPresentation.readableScale(availableWidth, font.width(text));
+		var pose = graphics.pose();
+		pose.pushMatrix();
+		pose.translate(centerX, y);
+		pose.scale(scale, scale);
+		graphics.centeredText(font, Component.literal(text), 0, 0, color);
+		pose.popMatrix();
 	}
 
 	private String perkSummary(RankNode node) {
@@ -161,8 +172,8 @@ public final class RankMazeScreen extends Screen {
 	private final class RankNodeButton extends Button {
 		private final RankNode node;
 
-		private RankNodeButton(int x, int y, int height, RankNode node) {
-			super(x, y, 42, height, Component.literal(node.title()), button -> select(node), DEFAULT_NARRATION);
+		private RankNodeButton(int x, int y, int width, int height, RankNode node) {
+			super(x, y, width, height, Component.literal(node.title()), button -> select(node), DEFAULT_NARRATION);
 			this.node = node;
 		}
 
@@ -176,9 +187,9 @@ public final class RankMazeScreen extends Screen {
 			if (isHoveredOrFocused()) border = 0xFFFFFFFF;
 			graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), fill);
 			graphics.outline(getX(), getY(), getWidth(), getHeight(), border);
-			String shortTitle = font.plainSubstrByWidth(node.title(), 35);
-			graphics.centeredText(font, Component.literal(shortTitle), getX() + getWidth() / 2,
-					getY() + 1, earned || available ? 0xFFFFFFFF : 0xFF8D909A);
+			drawScaledCentered(graphics, node.title(), getX() + getWidth() / 2,
+					getY() + 1, getWidth() - 7,
+					earned || available ? 0xFFFFFFFF : 0xFF8D909A);
 		}
 	}
 }

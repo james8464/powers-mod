@@ -33,10 +33,10 @@ public final class ArtifactWheelRules {
 	/** Fits the information-rich wheel inside both standard and compact GUI canvases. */
 	public static Layout layout(int width, int height) {
 		int outer = Math.clamp(Math.min(width, height) / 2 - 25, 72, 120);
-		int glyph = Math.max(45, outer - 20);
-		int verticalGlyph = Math.max(42, glyph - 18);
-		int nameWidth = outer >= 110 ? 70 : 48;
-		boolean showSegmentNames = height >= 210
+		int glyph = Math.max(45, outer - 6);
+		int verticalGlyph = Math.max(42, outer - 38);
+		int nameWidth = outer >= 110 ? 86 : 62;
+		boolean showSegmentNames = width >= 520 && height >= 300
 				&& 2.0 * glyph * Math.sin(Math.PI / SLOT_COUNT) > nameWidth;
 		return new Layout(outer, glyph, verticalGlyph, nameWidth, showSegmentNames);
 	}
@@ -80,6 +80,21 @@ public final class ArtifactWheelRules {
 	/** Advances an authenticated cooldown snapshot without letting client time underflow it. */
 	public static int remainingCooldown(int initialTicks, int elapsedTicks) {
 		return Math.max(0, Math.max(0, initialTicks) - Math.max(0, elapsedTicks));
+	}
+
+	/** Chooses a recognisable whole-word label for space-constrained combat wheels. */
+	public static String compactLabel(String label, int maximumCharacters) {
+		if (label == null || label.isBlank()) return "?";
+		int limit = Math.max(1, maximumCharacters);
+		String trimmed = label.trim();
+		if (trimmed.length() <= limit) return trimmed;
+		String best = "";
+		for (String word : trimmed.split("\\s+")) {
+			if (word.equalsIgnoreCase("the") || word.equalsIgnoreCase("of")) continue;
+			if (word.length() <= limit && word.length() > best.length()) best = word;
+		}
+		if (!best.isEmpty()) return best;
+		return limit == 1 ? "…" : trimmed.substring(0, limit - 1) + "…";
 	}
 
 	/** All status information needed for a quick combat decision without opening the library. */

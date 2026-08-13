@@ -30,6 +30,21 @@ class RankMazeLayoutTest {
 		assertEquals(graph.nodes().size(), layout.nodes().size());
 	}
 
+	@Test
+	void denseBandsReserveReadableNodeWidth() {
+		RankGraph graph = new RankGraph(List.of(
+				new RankNode("root", 0, "origin", "Unawakened", List.of(), true),
+				new RankNode("one", 1, "ward", "Mist-Struck", List.of("root"), false),
+				new RankNode("two", 1, "rift", "Gravebound", List.of("root"), false),
+				new RankNode("three", 1, "crown", "Blackened", List.of("root"), false),
+				new RankNode("four", 1, "storm", "Night-Touched", List.of("root"), false)));
+
+		RankMazeLayout layout = RankMazeLayout.arrange(graph, 280, 166);
+		for (RankMazeLayout.NodeBox box : layout.nodes()) {
+			assertFalse(box.width() < 60, "rank labels need a readable minimum width: " + box.id());
+		}
+	}
+
 	private static RankGraph graph() {
 		return new RankGraph(List.of(
 				new RankNode("root", 0, "origin", "Root", List.of(), true),

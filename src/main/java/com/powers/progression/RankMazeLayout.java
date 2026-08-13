@@ -8,7 +8,8 @@ import java.util.Map;
 
 /** Pure deterministic rank-graph layout used by the textured maze screen. */
 public record RankMazeLayout(List<NodeBox> nodes, List<Edge> edges, int width, int height) {
-	private static final int NODE_WIDTH = 42;
+	private static final int MAXIMUM_NODE_WIDTH = 72;
+	private static final int MINIMUM_NODE_WIDTH = 24;
 	private static final int NODE_HEIGHT = 10;
 	private static final int MARGIN = 12;
 
@@ -31,10 +32,11 @@ public record RankMazeLayout(List<NodeBox> nodes, List<Edge> edges, int width, i
 			int y = MARGIN + depth * Math.max(1,
 					(safeHeight - MARGIN * 2 - NODE_HEIGHT) / Math.max(1, maxDepth));
 			int spacing = (safeWidth - MARGIN * 2) / Math.max(1, band.size());
+			int nodeWidth = Math.clamp(spacing - 4, MINIMUM_NODE_WIDTH, MAXIMUM_NODE_WIDTH);
 			for (int index = 0; index < band.size(); index++) {
 				RankNode node = band.get(index);
-				int x = MARGIN + index * spacing + (spacing - NODE_WIDTH) / 2;
-				NodeBox box = new NodeBox(node.id(), Math.max(MARGIN, x), y, NODE_WIDTH, NODE_HEIGHT);
+				int x = MARGIN + index * spacing + (spacing - nodeWidth) / 2;
+				NodeBox box = new NodeBox(node.id(), Math.max(MARGIN, x), y, nodeWidth, NODE_HEIGHT);
 				boxes.add(box);
 				byId.put(node.id(), box);
 			}
