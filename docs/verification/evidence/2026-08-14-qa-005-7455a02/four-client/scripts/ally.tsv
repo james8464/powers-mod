@@ -1,0 +1,5 @@
+600	command	powers testing on
+840	screenshot	ally-shared-forcefield
+1040	screenshot	ally-beam-collision
+1100	respawn	now
+1360	screenshot	ally-shadow-visible

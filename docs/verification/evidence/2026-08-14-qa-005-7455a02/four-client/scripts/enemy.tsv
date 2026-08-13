@@ -1,0 +1,6 @@
+600	command	powers testing on
+880	activate	0
+920	screenshot	enemy-thunderclap-impact
+1000	activate	1
+1040	screenshot	enemy-beam-collision
+1360	screenshot	enemy-shadow-visible

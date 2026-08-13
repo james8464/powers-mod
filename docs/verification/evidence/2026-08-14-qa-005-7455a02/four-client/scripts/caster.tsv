@@ -1,0 +1,11 @@
+600	command	powers testing on
+800	activate	0
+840	screenshot	caster-shared-forcefield
+1000	activate	1
+1040	screenshot	caster-beam-collision
+1100	respawn	now
+1140	command	powers testing on
+1180	chat	shadow, reveal yourself
+1240	chat	shadow, why would amethyst stop my last spell?
+1300	chat	shadow, use lightning strike
+1360	screenshot	caster-shadow-conversation
