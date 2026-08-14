@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added a deterministic quest-balance campaign for ten real Light and ten real Darkness client sessions, with human-equivalent deed cadence, authoritative progression tracking, anonymous median/p90 publication, and a ten-independent-sample gate for every rank threshold.
+
 - Allowed the opt-in connected-player profiler to select one accepted population at a time, enabling reproducible parallel 10/50/100-player evidence runs from immutable copies of the same commit without changing their workloads or budgets.
 - Counted real-client activation results at the server-authoritative packet boundary so rendered-client profiles can prove successful casts instead of inferring them from presentation output.
 - Required connected-player profiles to satisfy both the exact tick-sample count and full wall-clock duration, retaining exactly 36,000 samples while a real server crosses the final subsecond boundary.

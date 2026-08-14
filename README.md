@@ -358,13 +358,15 @@ Testing commands are operator-only, executor-local, session-only, and never bypa
 /powers testing arena [spawn|clear]
 /powers testing coverage
 /powers testing quest-telemetry
+/powers testing quest-campaign start light|dark
+/powers testing quest-campaign status|clear
 /powers testing profile [status]
 /powers testing profile start <minutes> <expectedPlayers>
 ```
 
 The arena creates seven named acceptance targets: neutral/radiant/dark test actors, zombie, iron golem, Hollowed, and Radiant Sentinel. Coverage is derived from live registries so a newly added action cannot silently disappear from the manual test inventory. `/powers diagnose` reports fields, forced chunks, body proxies, Celestial events, per-dimension spatial-index work and memory, scan/work budgets, packets, particles, testing flags, cleanup state, config-validation counts, bounded privileged-action audit totals, and the executor's last 32 authoritative energy transactions reconciled by source. Crash reports add only bounded aggregate POWERS session counts and the latest typed failure reason/tick—never names, chat, IDs, coordinates, or remote content. `/powers diagnose export` atomically writes aggregate-only schema-v1 JSON to the world's `powers/diagnostics/latest.json`; it excludes chat, names, UUIDs, precise player coordinates, credentials, and remote-provider content.
 
-Quest telemetry stores bounded, anonymous Light/Dark completion durations and route names; completed samples contain no player identity. Publication remains locked until each alignment/level has at least 20 samples. The opt-in profiler records full server ticks, connected-player counts, authoritative network-cast success, work-budget peaks, p95/p99 MSPT, and sampled allocations to `profiles/*.json` and `profiles/*.jfr`; a run closes only after both its exact tick-sample count and corresponding wall duration are complete, and it has no recording/allocation overhead while inactive.
+Quest telemetry stores bounded, anonymous Light/Dark completion durations and route names; completed samples contain no player identity. Publication remains locked until each alignment/level has at least ten independent samples. The operator-only quest campaign command is an evidence tool: it accepts exactly ten fresh, purpose-named connected clients and replays server-authoritative deeds at documented human-equivalent game-tick cadences; it never inserts telemetry rows directly. The opt-in profiler records full server ticks, connected-player counts, authoritative network-cast success, work-budget peaks, p95/p99 MSPT, and sampled allocations to `profiles/*.json` and `profiles/*.jfr`; a run closes only after both its exact tick-sample count and corresponding wall duration are complete, and it has no recording/allocation overhead while inactive.
 
 ## Configuration
 

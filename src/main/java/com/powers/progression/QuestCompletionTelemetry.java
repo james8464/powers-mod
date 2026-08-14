@@ -9,7 +9,8 @@ import java.util.function.IntFunction;
 
 /** Server-thread facade for persistent, anonymous Light/Dark quest telemetry. */
 public final class QuestCompletionTelemetry {
-	public static final int PUBLICATION_SAMPLE_MINIMUM = 20;
+	/** Approved independent-session sample floor for every alignment/level threshold. */
+	public static final int PUBLICATION_SAMPLE_MINIMUM = 10;
 
 	private QuestCompletionTelemetry() {
 	}

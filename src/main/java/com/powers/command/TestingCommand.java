@@ -12,6 +12,7 @@ import com.powers.entity.PowerTestActor;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.testing.GameplayAcceptanceCatalogue;
+import com.powers.testing.QuestTelemetryCampaignScenario;
 import com.powers.testing.RestartSoakScenario;
 import com.powers.testing.TestingArenaLayout;
 import com.powers.testing.TestingOverrides;
@@ -63,6 +64,18 @@ final class TestingCommand {
 						.then(soakPhase("rollover", SoakPhase.ROLLOVER)))
 				.then(Commands.literal("quest-telemetry")
 						.executes(TestingCommand::questTelemetry))
+				.then(Commands.literal("quest-campaign")
+						.then(Commands.literal("start")
+								.then(Commands.literal("light")
+										.executes(context -> startQuestCampaign(context,
+												com.powers.progression.QuestTelemetryLedger.Alignment.LIGHT)))
+								.then(Commands.literal("dark")
+										.executes(context -> startQuestCampaign(context,
+												com.powers.progression.QuestTelemetryLedger.Alignment.DARK))))
+						.then(Commands.literal("status")
+								.executes(TestingCommand::questCampaignStatus))
+						.then(Commands.literal("clear")
+								.executes(TestingCommand::clearQuestCampaign)))
 				.then(Commands.literal("profile")
 						.executes(TestingCommand::profileStatus)
 						.then(Commands.literal("status").executes(TestingCommand::profileStatus))
@@ -135,6 +148,37 @@ final class TestingCommand {
 			source.sendSuccess(() -> Component.literal(row).withStyle(ChatFormatting.GRAY), false);
 		}
 		return 1;
+	}
+
+	private static int startQuestCampaign(CommandContext<CommandSourceStack> context,
+			com.powers.progression.QuestTelemetryLedger.Alignment alignment) {
+		QuestTelemetryCampaignScenario.Result result = QuestTelemetryCampaignScenario.startConnected(
+				context.getSource().getServer(), alignment);
+		return reportQuestCampaign(context, "START", result);
+	}
+
+	private static int questCampaignStatus(CommandContext<CommandSourceStack> context) {
+		return reportQuestCampaign(context, "STATUS", QuestTelemetryCampaignScenario.status(
+				context.getSource().getServer()));
+	}
+
+	private static int clearQuestCampaign(CommandContext<CommandSourceStack> context) {
+		QuestTelemetryCampaignScenario.clear(context.getSource().getServer());
+		return reportQuestCampaign(context, "CLEAR",
+				new QuestTelemetryCampaignScenario.Result(true, "cleared"));
+	}
+
+	private static int reportQuestCampaign(CommandContext<CommandSourceStack> context,
+			String phase, QuestTelemetryCampaignScenario.Result result) {
+		String marker = "POWERS_QUEST_CAMPAIGN_" + phase + " passed=" + result.passed()
+				+ " detail=" + result.detail();
+		com.powers.PowersMod.LOGGER.info(marker);
+		if (result.passed()) {
+			context.getSource().sendSuccess(() -> Component.literal(marker), false);
+		} else {
+			context.getSource().sendFailure(Component.literal(marker));
+		}
+		return result.commandResult();
 	}
 
 	private static int profileStart(CommandContext<CommandSourceStack> context) {
