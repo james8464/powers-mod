@@ -94,6 +94,30 @@ All three remaining Important findings (canonical owner keys, rejection-time own
 - Untracked `.codex-tmp/`, `.lwjgl/`, and QA-005 screenshots remain untouched and unstaged. No branch, worktree, push, or unrelated change was used.
 - Concern: the live transport assertion uses reflection solely in GameTest code to observe Minecraft's private in-memory connection/channel; it is runtime-proven on the locked Minecraft 26.2 target but will intentionally fail loudly if those internals change on a future Minecraft upgrade.
 
+## Review correction round 3 (2026-08-14)
+
+All three remaining Important findings are addressed: cold-start aliases can target installed external actions, failed reload proof crosses the real registered resource boundary, and artifact invalidation no longer closes an innate teleport screen.
+
+### Observed RED
+
+- Cold-start lifecycle RED: after adding the literal datapack alias `net010_pack_extension -> example_resonant_field`, `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review3-red-cold-start ./gradlew runGameTest '-PgameTestFilter=powers-gametest:action_registry_reload_game_tests_successful_and_failed_reload_are_atomic' --no-daemon` failed initial server loading with `Action registry validation rejected the prepared reload`. The registered listener applied before `PowersApiRuntime.startServer` registered the NET-009 external definition.
+- Screen-owner RED: after specifying artifact and innate teleport owners in `ClientActionRefreshTest`, `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review3-red-client ./gradlew test --tests com.powers.client.ClientActionRefreshTest --no-daemon` failed compilation because `TeleportInputScreen.OwnerSurface` did not exist.
+
+### Fix and production proof
+
+- The registered listener still performs bounded parsing during cold resource loading, but stages the immutable alias map until `SERVER_STARTING`. `PowersApiRuntime.startServer` first registers all installed `powers:v1` extensions; `completeInitialRegistration` then validates and atomically publishes the single catalogue snapshot. Any failure leaves the previous snapshot object/revision intact and aborts startup. Later reloads validate and publish directly in listener apply. `SERVER_STOPPED` resets only this lifecycle staging state for the next server epoch.
+- The real GameTest datapack now retains both the built-in alias and `net010_pack_extension -> example_resonant_field`. Cold-start logs prove two aliases were staged and then published with 110 canonical keys after extension registration.
+- The failed reload proof replaces the generated GameTest resource with a cyclic document, invokes the real `server.reloadResources(...)` boundary, observes a failed future, and asserts the exact accepted snapshot object and revision remain current. The generated resource is restored before the test completes.
+- `TeleportInputScreen` now carries an explicit immutable `OwnerSurface`: its ordinary slot constructor is `INNATE`, while artifact factories are `ARTIFACT`. `ClientActionRefresh` closes artifact-owned teleport instances only; an innate teleport remains open. Shadow Sword, crystal, and grimoire routing remains unchanged.
+
+### GREEN, aggregate gate, and self-review
+
+- Focused JVM GREEN: `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review3-focused-final ./gradlew test --tests com.powers.client.ClientActionRefreshTest --tests com.powers.magic.ActionRegistryReloadListenerTest --tests com.powers.magic.ActionRegistrySnapshotTest --tests com.powers.api.v1.PowersApiV1Test --no-daemon` passed.
+- Focused live GREEN: `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review3-live-final ./gradlew runGameTest '-PgameTestFilter=powers-gametest:action_registry_reload_game_tests_*' --no-daemon` passed all 6/6 required NET-010 GameTests, including cold startup, real successful reload, real failed reload, external-action retention, packet rejection, cast completion/cancellation, and persisted-owner migration.
+- After regenerating `docs/quality/code-audit.md`, the single aggregate gate `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review3-final-check ./gradlew check --no-daemon` passed 1,517 JVM tests, 114/114 required Fabric GameTests, 27 Python tests, all compilation, Java/non-item audits, resource validation, and item/magic/rank documentation verification.
+- Self-review covered startup/reload/stop ordering, synchronized staging, atomic failed-publication behavior, extension registration/removal, generated-resource restoration, and every teleport construction path. `git diff --check` is clean. Untracked `.codex-tmp/`, `.lwjgl/`, and QA-005 evidence remain untouched and unstaged.
+- Concern: the failed-reload GameTest temporarily edits only Gradle's generated GameTest resource and restores it in the reload callback. An external hard kill during that narrow window could leave that generated build copy invalid until the next `processGametestResources`; source resources and production state are never modified.
+
 ## Review correction round 1 (2026-08-14)
 
 All three Important review findings are addressed.

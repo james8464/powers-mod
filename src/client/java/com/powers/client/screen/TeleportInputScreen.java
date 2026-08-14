@@ -24,6 +24,8 @@ import java.util.List;
 
 /** Responsive, texture-backed destination ritual for time-shift travel. */
 public final class TeleportInputScreen extends Screen {
+	public enum OwnerSurface { INNATE, ARTIFACT }
+
 	private record DimEntry(String id, Component label) {
 	}
 
@@ -38,6 +40,7 @@ public final class TeleportInputScreen extends Screen {
 	private final String artifactAlignment;
 	private final long actionRevision;
 	private final String artifactActionKey;
+	private final OwnerSurface ownerSurface;
 	private List<DimEntry> available = List.of();
 	private EditBox xField;
 	private EditBox yField;
@@ -49,16 +52,17 @@ public final class TeleportInputScreen extends Screen {
 	private Component error;
 
 	public TeleportInputScreen(int slot) {
-		this(slot, null, 0L, "");
+		this(slot, null, 0L, "", OwnerSurface.INNATE);
 	}
 
 	private TeleportInputScreen(int slot, String artifactAlignment, long actionRevision,
-			String artifactActionKey) {
+			String artifactActionKey, OwnerSurface ownerSurface) {
 		super(Component.translatable("screen.powers.teleport"));
 		this.slot = slot;
 		this.artifactAlignment = artifactAlignment;
 		this.actionRevision = actionRevision;
 		this.artifactActionKey = artifactActionKey;
+		this.ownerSurface = ownerSurface;
 	}
 
 	public static TeleportInputScreen shadowSword() {
@@ -71,7 +75,11 @@ public final class TeleportInputScreen extends Screen {
 	}
 
 	public static TeleportInputScreen artifact(long revision, String alignment, String actionKey) {
-		return new TeleportInputScreen(-1, alignment, revision, actionKey);
+		return new TeleportInputScreen(-1, alignment, revision, actionKey, OwnerSurface.ARTIFACT);
+	}
+
+	public OwnerSurface ownerSurface() {
+		return ownerSurface;
 	}
 
 	@Override

@@ -72,7 +72,10 @@ final class PowersServerLifecycle {
 		ServerLifecycleEvents.SERVER_STOPPING.register(GlobalTimeStopManager::clearAll);
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> PowersApiRuntime.global().stopServer());
 		ServerLifecycleEvents.SERVER_STARTED.register(com.powers.util.ServerCallbackGate::bind);
-		ServerLifecycleEvents.SERVER_STARTING.register(PowersApiRuntime.global()::startServer);
+		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+			PowersApiRuntime.global().startServer(server);
+			com.powers.magic.ActionRegistryReloadListener.completeInitialRegistration();
+		});
 		ServerLifecycleEvents.SERVER_STARTED.register(PowersApiRuntime.global()::serverStarted);
 		ServerLifecycleEvents.SERVER_STARTED.register(GlobalTimeStopManager::reconcileStartup);
 		ServerLifecycleEvents.SERVER_STOPPED.register(PowersServerLifecycle::onServerStopped);
@@ -152,6 +155,7 @@ final class PowersServerLifecycle {
 	}
 
 	private static void onServerStopped(MinecraftServer server) {
+		com.powers.magic.ActionRegistryReloadListener.serverStopped();
 		com.powers.performance.ServerTickProfiler.cancel(server);
 		com.powers.testing.RestartSoakScenario.clear(server);
 		com.powers.testing.QuestTelemetryCampaignScenario.clear(server);
