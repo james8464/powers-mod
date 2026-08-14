@@ -21,6 +21,8 @@ import java.util.Map;
 /** Server-data reload entrypoint for bounded retired action and menu key aliases. */
 public final class ActionRegistryReloadListener extends SimpleReloadListener<List<ActionRegistryReloadListener.Document>> {
 	private static final FileToIdConverter CONVERTER = FileToIdConverter.json("powers_actions");
+	private static Map<String, String> pendingInitialAliases;
+	private static boolean serverRegistrationComplete;
 
 	public record Document(String id, JsonObject json) { }
 
@@ -49,10 +51,42 @@ public final class ActionRegistryReloadListener extends SimpleReloadListener<Lis
 
 	@Override
 	protected void apply(List<Document> documents, PreparableReloadListener.SharedState state) {
+		Map<String, String> aliases = parseDocuments(documents);
+		synchronized (ActionRegistryReloadListener.class) {
+			if (!serverRegistrationComplete) {
+				pendingInitialAliases = aliases;
+				PowersMod.LOGGER.info("Staged {} initial action aliases until extension registration",
+						aliases.size());
+				return;
+			}
+		}
 		MagicActionCatalogue catalogue = com.powers.magic.runtime.MagicRuntime.catalogue();
-		if (!reloadDocuments(catalogue, documents)) {
+		if (!catalogue.reloadAliases(aliases)) {
 			throw new IllegalStateException("Action registry validation rejected the prepared reload");
 		}
+		logPublished(catalogue);
+	}
+
+	/** Publishes the cold-start resource snapshot after installed extensions register. */
+	public static synchronized void completeInitialRegistration() {
+		if (serverRegistrationComplete) return;
+		MagicActionCatalogue catalogue = com.powers.magic.runtime.MagicRuntime.catalogue();
+		Map<String, String> aliases = pendingInitialAliases == null ? Map.of() : pendingInitialAliases;
+		if (!catalogue.reloadAliases(aliases)) {
+			throw new IllegalStateException("Initial action registry validation failed after extension registration");
+		}
+		pendingInitialAliases = null;
+		serverRegistrationComplete = true;
+		logPublished(catalogue);
+	}
+
+	/** Reopens cold-start staging for the next server epoch in this process. */
+	public static synchronized void serverStopped() {
+		serverRegistrationComplete = false;
+		pendingInitialAliases = null;
+	}
+
+	private static void logPublished(MagicActionCatalogue catalogue) {
 		PowersMod.LOGGER.info("Published action registry revision {} with {} canonical keys and {} aliases",
 				catalogue.snapshot().revision(), catalogue.snapshot().validation().canonicalKeyCount(),
 				catalogue.snapshot().aliases().size());

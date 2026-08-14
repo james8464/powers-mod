@@ -17,6 +17,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /** Live production-owner coverage for NET-010 reload, stale submission, casts, and migration. */
@@ -37,13 +39,51 @@ public final class ActionRegistryReloadGameTests {
 							"NET-009 external action was omitted from the resource-reloaded snapshot");
 					helper.assertTrue("fireball".equals(accepted.resolve("net010_pack_fire").value()),
 							"Real datapack alias did not pass through the registered parser/apply path");
-					helper.assertTrue(!ActionRegistryReloadListener.reloadDocuments(catalogue, List.of(document(
-							"failed", "{\"aliases\":{\"net010_a\":\"net010_b\",\"net010_b\":\"net010_a\"}}"))),
-							"Cyclic reload was accepted");
-					helper.assertTrue(catalogue.snapshot() == accepted, "Failed reload partially published");
-					helper.succeed();
+					verifyRegisteredFailedReload(helper, server, catalogue, accepted);
 				}));
 		});
+	}
+
+	private static void verifyRegisteredFailedReload(GameTestHelper helper,
+			net.minecraft.server.MinecraftServer server,
+			com.powers.magic.MagicActionCatalogue catalogue,
+			com.powers.magic.ActionRegistrySnapshot accepted) {
+		try {
+			var resource = ActionRegistryReloadGameTests.class.getClassLoader()
+					.getResource("data/powers/powers_actions/net010_live.json");
+			if (resource == null || !"file".equals(resource.getProtocol())) {
+				throw new AssertionError("Live GameTest action resource is not writable");
+			}
+			Path path = Path.of(resource.toURI());
+			String valid = Files.readString(path);
+			Files.writeString(path,
+					"{\"aliases\":{\"net010_cycle_a\":\"net010_cycle_b\","
+							+ "\"net010_cycle_b\":\"net010_cycle_a\"}}");
+			server.reloadResources(server.getPackRepository().getSelectedIds())
+					.whenComplete((ignored, failure) -> {
+						Throwable restoreFailure = null;
+						try {
+							Files.writeString(path, valid);
+						} catch (java.io.IOException error) {
+							restoreFailure = error;
+						}
+						Throwable finalRestoreFailure = restoreFailure;
+						server.execute(() -> {
+							if (finalRestoreFailure != null) {
+								throw new AssertionError("Could not restore live GameTest resource",
+										finalRestoreFailure);
+							}
+							helper.assertTrue(failure != null,
+									"Registered Fabric reload future accepted a cyclic resource");
+							helper.assertTrue(catalogue.snapshot() == accepted
+									&& catalogue.snapshot().revision() == accepted.revision(),
+									"Failed registered reload changed snapshot identity or revision");
+							helper.succeed();
+						});
+					});
+		} catch (java.io.IOException | java.net.URISyntaxException error) {
+			throw new AssertionError("Could not prepare invalid live action resource", error);
+		}
 	}
 
 	@GameTest

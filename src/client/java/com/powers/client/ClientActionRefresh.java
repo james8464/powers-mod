@@ -12,14 +12,21 @@ public final class ClientActionRefresh {
 	}
 
 	public static boolean shouldClose(String surface, Screen current) {
+		if (current instanceof TeleportInputScreen teleport) {
+			return shouldClose(surface, teleport.ownerSurface());
+		}
 		return current != null && shouldClose(surface, current.getClass());
+	}
+
+	static boolean shouldClose(String surface, TeleportInputScreen.OwnerSurface ownerSurface) {
+		return "artifact".equals(surface)
+				&& ownerSurface == TeleportInputScreen.OwnerSurface.ARTIFACT;
 	}
 
 	static boolean shouldClose(String surface, Class<? extends Screen> current) {
 		if (surface == null || current == null) return false;
 		return switch (surface) {
-			case "artifact" -> ShadowSwordScreen.class.isAssignableFrom(current)
-					|| TeleportInputScreen.class.isAssignableFrom(current);
+			case "artifact" -> ShadowSwordScreen.class.isAssignableFrom(current);
 			case "crystal" -> RainbowConvergenceScreen.class.isAssignableFrom(current);
 			case "grimoire" -> GrimoireIndexScreen.class.isAssignableFrom(current);
 			default -> false;

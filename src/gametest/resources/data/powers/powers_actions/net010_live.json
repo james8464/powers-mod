@@ -1,5 +1,6 @@
 {
   "aliases": {
-    "net010_pack_fire": "fireball"
+    "net010_pack_fire": "fireball",
+    "net010_pack_extension": "example_resonant_field"
   }
 }
