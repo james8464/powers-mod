@@ -1,11 +1,14 @@
 package com.powers.client.acceptance;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AcceptanceClientScriptTest {
 	@Test
@@ -98,5 +101,15 @@ class AcceptanceClientScriptTest {
 
 		assertEquals("advancements on", steps.getFirst().argument());
 		assertEquals("advancements off", steps.getLast().argument());
+	}
+
+	@Test
+	void advancementPressQueuesTheVanillaClickConsumedByTheClientLoop() {
+		var mapping = new KeyMapping("key.powers.acceptance_test",
+				InputConstants.Type.KEYSYM, 299, KeyMapping.Category.MISC);
+
+		AcceptanceKeyInput.apply(mapping, "advancements", true);
+
+		assertTrue(mapping.consumeClick());
 	}
 }
