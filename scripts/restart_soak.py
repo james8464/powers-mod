@@ -183,6 +183,32 @@ def stop_process_group(process: subprocess.Popen[object], timeout: int = 20) -> 
         process.wait(timeout=timeout)
 
 
+def materialize_client_arguments(arguments_file: Path, timeout_seconds: int = 90) -> None:
+    """Ask Loom's real run task to create its lazy argfile in a fresh worktree."""
+    SOAK_ROOT.mkdir(parents=True, exist_ok=True)
+    bootstrap_log = SOAK_ROOT / "client-launch-bootstrap.log"
+    with bootstrap_log.open("wb") as output:
+        process = subprocess.Popen(
+            ["./gradlew", "runClient", "--rerun", "--no-daemon", "--console=plain"],
+            cwd=ROOT, env=os.environ.copy(), stdout=output, stderr=subprocess.STDOUT,
+            start_new_session=True,
+        )
+        try:
+            deadline = time.monotonic() + max(1, timeout_seconds)
+            while time.monotonic() < deadline:
+                if arguments_file.is_file() and arguments_file.stat().st_size > 0:
+                    time.sleep(0.1)
+                    break
+                if process.poll() is not None:
+                    break
+                time.sleep(0.05)
+        finally:
+            stop_process_group(process)
+    if not arguments_file.is_file() or arguments_file.stat().st_size == 0:
+        raise RuntimeError(
+            f"Loom did not create client launch input {arguments_file}; see {bootstrap_log}")
+
+
 def prepare_client_launch() -> tuple[Path, Path, Path]:
     """Compile the exact development client once before the acceptance clock starts."""
     subprocess.run(
@@ -195,6 +221,8 @@ def prepare_client_launch() -> tuple[Path, Path, Path]:
         shutil.which("java") or "")
     launch = ROOT / ".gradle" / "loom-cache" / "launch.cfg"
     arguments_file = ROOT / "build" / "loom-cache" / "argFiles" / "runClient"
+    if not arguments_file.is_file():
+        materialize_client_arguments(arguments_file)
     for required in (java, launch, arguments_file):
         if not required.is_file():
             raise RuntimeError(f"Missing client launch input: {required}")

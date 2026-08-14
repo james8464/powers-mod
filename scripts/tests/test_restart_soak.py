@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import importlib.util
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -41,6 +43,26 @@ class RestartSoakPolicyTest(unittest.TestCase):
             commands[0])
         self.assertIn("minecraft:air", commands[1])
         self.assertIn("minecraft:stone", commands[2])
+
+    def test_fresh_worktree_bootstraps_looms_client_argument_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "build" / "loom-cache" / "argFiles" / "runClient"
+            fake_process = mock.Mock(pid=41)
+            fake_process.poll.return_value = None
+
+            def launch(*_args, **_kwargs):
+                target.parent.mkdir(parents=True)
+                target.write_text("-cp\nclasses", encoding="utf-8")
+                return fake_process
+
+            with mock.patch.object(SOAK.subprocess, "Popen", side_effect=launch) as popen, \
+                    mock.patch.object(SOAK, "stop_process_group") as stop:
+                SOAK.materialize_client_arguments(target, timeout_seconds=1)
+
+            command = popen.call_args.args[0]
+            self.assertIn("runClient", command)
+            self.assertIn("--rerun", command)
+            stop.assert_called_once_with(fake_process)
 
     def test_duration_is_an_exact_number_of_complete_cycles(self):
         self.assertEqual(288, SOAK.required_cycle_count(24 * 3600, 300))
