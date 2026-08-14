@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "serverTick": 45584,
+  "runtime": {
+    "activeMagic": 41,
+    "magicCells": 20,
+    "spellFields": 0,
+    "spellFieldWorkCap": 32,
+    "artifactFields": 0,
+    "guardians": 0,
+    "forceBlocks": 0,
+    "forceClashes": 0,
+    "auraLevelCap": 4096,
+    "auraPlayerCap": 512,
+    "proxies": 0,
+    "travelRequests": 0,
+    "celestialEvents": 0,
+    "forcedChunks": 0,
+    "packets": 0,
+    "particles": 0,
+    "entityInspections": 0
+  },
+  "operatorAudit": {
+    "total": 10,
+    "counts": [
+      {
+        "action": "CONSENT_OVERRIDE",
+        "result": "SUCCESS",
+        "count": 0
+      },
+      {
+        "action": "CONSENT_OVERRIDE",
+        "result": "DENIED",
+        "count": 0
+      },
+      {
+        "action": "CONSENT_OVERRIDE",
+        "result": "FAILED",
+        "count": 0
+      },
+      {
+        "action": "RECOVERY",
+        "result": "SUCCESS",
+        "count": 0
+      },
+      {
+        "action": "RECOVERY",
+        "result": "DENIED",
+        "count": 0
+      },
+      {
+        "action": "RECOVERY",
+        "result": "FAILED",
+        "count": 0
+      },
+      {
+        "action": "FORCED_TRAVEL",
+        "result": "SUCCESS",
+        "count": 0
+      },
+      {
+        "action": "FORCED_TRAVEL",
+        "result": "DENIED",
+        "count": 0
+      },
+      {
+        "action": "FORCED_TRAVEL",
+        "result": "FAILED",
+        "count": 0
+      },
+      {
+        "action": "TESTING_CONTROL",
+        "result": "SUCCESS",
+        "count": 10
+      },
+      {
+        "action": "TESTING_CONTROL",
+        "result": "DENIED",
+        "count": 0
+      },
+      {
+        "action": "TESTING_CONTROL",
+        "result": "FAILED",
+        "count": 0
+      },
+      {
+        "action": "CATASTROPHIC_RITUAL",
+        "result": "SUCCESS",
+        "count": 0
+      },
+      {
+        "action": "CATASTROPHIC_RITUAL",
+        "result": "DENIED",
+        "count": 0
+      },
+      {
+        "action": "CATASTROPHIC_RITUAL",
+        "result": "FAILED",
+        "count": 0
+      }
+    ]
+  },
+  "configValidation": {
+    "revision": 1,
+    "adjustments": 0,
+    "retained": 0,
+    "dropped": 0
+  }
+}
