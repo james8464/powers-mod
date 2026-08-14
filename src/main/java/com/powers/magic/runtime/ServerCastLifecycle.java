@@ -10,13 +10,13 @@ public final class ServerCastLifecycle {
 	}
 
 	public static boolean mayContinue(ServerPlayer player, CastSource source, boolean innateOwned) {
-		boolean darknessHeld = ArtifactWeaponManager.holds(player, ArtifactAlignment.DARKNESS);
-		boolean lightHeld = ArtifactWeaponManager.holds(player, ArtifactAlignment.LIGHT);
-		boolean artifactHeld = darknessHeld || lightHeld;
-		boolean artifactAuthorized = darknessHeld
+		boolean darknessCarried = ArtifactWeaponManager.carries(player, ArtifactAlignment.DARKNESS);
+		boolean lightCarried = ArtifactWeaponManager.carries(player, ArtifactAlignment.LIGHT);
+		boolean artifactOwned = darknessCarried || lightCarried;
+		boolean artifactAuthorized = darknessCarried
 				&& ArtifactWeaponManager.authorized(player, ArtifactAlignment.DARKNESS)
-				|| lightHeld && ArtifactWeaponManager.authorized(player, ArtifactAlignment.LIGHT);
+				|| lightCarried && ArtifactWeaponManager.authorized(player, ArtifactAlignment.LIGHT);
 		return CastLifecycleOwnership.mayContinue(
-				source, innateOwned, artifactHeld, artifactAuthorized);
+				source, innateOwned, artifactOwned, artifactAuthorized);
 	}
 }

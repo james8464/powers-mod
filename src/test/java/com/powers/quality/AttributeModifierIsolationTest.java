@@ -55,4 +55,14 @@ class AttributeModifierIsolationTest {
 		assertFalse(flight.contains("getAbilities().mayfly"));
 		assertFalse(flight.contains("flying ="));
 	}
+
+	@Test
+	void authorisedPropulsionResetsOnlyTheOwningPlayersVanillaFloatingCounter() throws Exception {
+		String flight = Files.readString(Path.of(
+				"src/main/java/com/powers/power/abilities/FlightAbility.java"));
+		assertTrue(flight.contains("player.connection.resetFlyingTicks()"),
+				"active server propulsion must not trigger vanilla's allow-flight kick");
+		assertFalse(flight.contains("setFlightAllowed"),
+				"the power must not weaken the server-wide anti-flight policy");
+	}
 }

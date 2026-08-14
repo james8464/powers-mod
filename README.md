@@ -62,7 +62,7 @@ Random assignment guarantees one allegiance-exclusive option and never duplicate
 | --- | --- |
 | Size Morphing | Selectable player scale from `0.25×`–`2×` initially; `2.5×` at rank 4, `0.125×` at rank 6, `3×` at rank 7, and `4×` at rank 10. Upkeep increases with distance from normal size. |
 | Teleport | Server-advertised dimension/coordinate or unique named-player/mob targeting with asynchronous destination tickets and a vulnerable five-second origin/destination storm. Entered coordinates are honoured exactly—even inside blocks, fluids, or hazardous terrain—while finite coordinates, world bounds, protections, anchors, and realm confinement remain authoritative. The caster automatically carries up to 15 living players, mobs, or a nearby Shadow within two blocks, preserving offsets and asking no consent. Middleworld is not an ordinary target. |
-| Flight | Server-owned survival propulsion with directional rise/descent and faster sprint flight; never creative flight. |
+| Flight | Server-owned survival propulsion with directional rise/descent and faster sprint flight; never creative flight. While authorised propulsion is active it resets only that connection's vanilla floating counter, so a normal `allow-flight=false` server does not kick the caster. |
 | Starfall | A finite warned Astral Convergence: deterministic strikes, roof/water/force reactions, repeat-hit caps, bounded scars, and rank branches for more strikes, moving focus, revelation, diversion, echoes, and dominion. |
 | Void Beam | A telegraphed live-aim penetrating ray with diminishing later hits, rank bores, distinct force/ward/amethyst terminals, and a finite terrain-safe void scar. |
 | Fireball | One server-owned chargeable Cinderheart per caster; recast charges and crouch-use deliberately releases it without changing ownership. Punch catch/deflection remains finite, and impact creates bounded terrain/fire instead of vanilla explosion grief. |
@@ -174,6 +174,7 @@ Crouch-right-click the Shadow Sword or Heavenly Partisan for a non-pausing eight
 
 - A non-Darkness carrier cannot use it, receives hidden-particle Blindness II and Wither III, and periodically provokes lightning-marked Hollowed protectors.
 - A Darkness wielder receives very fast rank-based energy restoration; rank 10 gains up to 900 energy/second through apotheosis.
+- Starting an invocation requires the artifact in hand. A multi-tick or toggled invocation remains authorised while that artifact stays in a top-level inventory slot; moving it into a nested container, dropping it, losing alignment, dying, or disconnecting ends the state safely.
 - It routes every one of the 23 innates and all 11 crystal actions using corrupted presentation and artifact—not innate—scaling.
 - Darkness level 10 ignores existing artifact cooldowns and starts no new gameplay cooldown. Energy, validation, safe zones, amethyst, and workload budgets remain.
 - Its default wheel is Lightning, Fireball, Teleport, Forcefield, Flight, Call the Hollowed, Blight Ground, and Nightfall Dominion.
@@ -190,7 +191,7 @@ The Dark Herald always drops the sword and a large inscribed runestone. A rank-1
 
 ### Heavenly Partisan
 
-The indestructible **Heavenly Partisan** is Pure Light's counterpart. Darkness carriers cannot use it, are revealed and damaged by radiant judgement, and call lightning-arriving Radiant Sentinels. It routes Flight, Starfall, Lightning, Thunderclap, Energy Beam, Forcefield, Plant Healing, Double Health, Creativity, Life Bloom, and Light-Realm travel. Rank 10 reduces cooldowns by 60% and strengthens support/regeneration; it never inherits innate scaling.
+The indestructible **Heavenly Partisan** is Pure Light's counterpart. Darkness carriers cannot use it, are revealed and damaged by radiant judgement, and call lightning-arriving Radiant Sentinels. It routes Flight, Starfall, Lightning, Thunderclap, Energy Beam, Forcefield, Plant Healing, Double Health, Creativity, Life Bloom, and Light-Realm travel. Its multi-tick invocations use the same top-level-inventory ownership rule as the Shadow Sword. Rank 10 reduces cooldowns by 60% and strengthens support/regeneration; it never inherits innate scaling.
 
 | Dominion | Rank | Effect |
 | --- | ---: | --- |

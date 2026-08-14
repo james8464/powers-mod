@@ -44,6 +44,11 @@ public class FlightAbility extends ToggleAbility {
 	@Override
 	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		if (!player.gameMode().isCreative() && !player.isSpectator()) {
+			// Propulsion is an authorised server-side movement source. Reset only
+			// this connection's vanilla floating counter while the toggle is active;
+			// the server-wide allow-flight policy and vanilla ability flags remain
+			// untouched for every other player.
+			player.connection.resetFlyingTicks();
 			var input = player.getLastClientInput();
 			FlightRules.Motion motion = FlightRules.motion(player.getYRot(), input.forward(), input.backward(),
 					input.left(), input.right(), input.jump(), input.shift(), input.sprint(),

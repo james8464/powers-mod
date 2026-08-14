@@ -15,6 +15,7 @@ class AcceptanceClientScriptTest {
 				"10\trespawn\tnow",
 				"20\tcommand\tpowers testing on",
 				"30\tkey\tforward on",
+				"35\tlook\t0 -8.5",
 				"40\tactivate\t0",
 				"60\tselect\t0 3",
 				"65\tuse\tmain",
@@ -23,16 +24,20 @@ class AcceptanceClientScriptTest {
 				"80\tcrystal\t4",
 				"85\tartifact\tdarkness unique/blight_ground -1",
 				"86\tteleport\t0 32.5 101 -48.5 minecraft:overworld",
+				"87\tartifact_teleport\tdarkness 48.5 101 -64.5 minecraft:overworld self",
 				"88\tlocator\tSoulWitness",
 				"90\tchat\tshadow, reveal yourself",
 				"100\tscreenshot\tforcefield-break"));
 
-		assertEquals(15, steps.size());
+		assertEquals(17, steps.size());
 		assertEquals(AcceptanceClientScript.Operation.CLOSE, steps.getFirst().operation());
 		assertEquals(AcceptanceClientScript.Operation.KEY, steps.get(3).operation());
-		assertEquals(AcceptanceClientScript.Operation.ACTIVATE, steps.get(4).operation());
-		assertEquals(AcceptanceClientScript.Operation.TELEPORT, steps.get(11).operation());
-		assertEquals(AcceptanceClientScript.Operation.LOCATOR, steps.get(12).operation());
+		assertEquals(AcceptanceClientScript.Operation.LOOK, steps.get(4).operation());
+		assertEquals(AcceptanceClientScript.Operation.ACTIVATE, steps.get(5).operation());
+		assertEquals(AcceptanceClientScript.Operation.TELEPORT, steps.get(12).operation());
+		assertEquals(AcceptanceClientScript.Operation.ARTIFACT_TELEPORT,
+				steps.get(13).operation());
+		assertEquals(AcceptanceClientScript.Operation.LOCATOR, steps.get(14).operation());
 		assertEquals("forcefield-break", steps.getLast().argument());
 	}
 
@@ -61,6 +66,12 @@ class AcceptanceClientScriptTest {
 				() -> AcceptanceClientScript.parse(List.of("20\tartifact\tdarkness action -2")));
 		assertThrows(IllegalArgumentException.class,
 				() -> AcceptanceClientScript.parse(List.of(
+						"20\tartifact_teleport\tdarkness NaN 64 0 minecraft:overworld self")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of(
+						"20\tartifact_teleport\tneutral 0 64 0 minecraft:overworld self")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of(
 						"20\tteleport\t0 NaN 64 0 minecraft:overworld")));
 		assertThrows(IllegalArgumentException.class,
 				() -> AcceptanceClientScript.parse(List.of(
@@ -73,5 +84,9 @@ class AcceptanceClientScriptTest {
 				() -> AcceptanceClientScript.parse(List.of("20\tkey\tattack on")));
 		assertThrows(IllegalArgumentException.class,
 				() -> AcceptanceClientScript.parse(List.of("20\tkey\tforward maybe")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("20\tlook\t0 -91")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("20\tlook\tNaN 0")));
 	}
 }

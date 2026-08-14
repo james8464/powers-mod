@@ -28,6 +28,7 @@ import com.powers.power.PowerDamage;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.abilities.FireballAbility;
+import com.powers.power.abilities.AstralProjectionAbility;
 import com.powers.power.abilities.LightningConductanceRuntime;
 import com.powers.power.abilities.LightningStrikeRules;
 import com.powers.power.abilities.PlantHealingAbility;
@@ -910,21 +911,29 @@ public final class PowersGameTests {
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void shadowSwordLightningCreatesAVisibleBolt(GameTestHelper helper) {
 		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
-		var origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		var origin = helper.absolutePos(new BlockPos(2, 64, 2));
 		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		caster.setNoGravity(true);
 		caster.setYRot(0.0F);
 		caster.setXRot(0.0F);
 		caster.addTag(SkillSystem.DARKNESS_TAG);
 		com.powers.player.PlayerPowers.get(caster).setDarknessLevel(caster, 10);
 		caster.setItemInHand(InteractionHand.MAIN_HAND,
 				PowersWeapons.weapon("lycanbane").getDefaultInstance());
-		var target = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 6));
+		helper.setBlock(new BlockPos(2, 63, 6), Blocks.STONE);
+		var target = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 64, 6));
 		target.setNoAi(true);
+		target.setNoGravity(true);
+		float targetHealthBefore = target.getHealth();
 		helper.assertTrue(ArtifactWeaponManager.select(caster, ArtifactAlignment.DARKNESS,
 				"innate/lightning_strike", -1), "Shadow Sword rejected Lightning");
 		helper.assertTrue(ArtifactWeaponManager.activateSelected(caster, ArtifactAlignment.DARKNESS)
 				== com.powers.power.AbilityActivationService.Result.ACTIVATED,
 				"Shadow Sword Lightning activation pipeline failed");
+		helper.runAfterDelay(2, () -> {
+			caster.getInventory().setItem(1, caster.getMainHandItem().copy());
+			caster.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+		});
 		boolean[] observedBolt = {false};
 		for (int delay = 7; delay <= 12; delay++) {
 			helper.runAfterDelay(delay, () -> observedBolt[0] |= !helper.getLevel().getEntitiesOfClass(
@@ -932,6 +941,79 @@ public final class PowersGameTests {
 		}
 		helper.runAfterDelay(13, () -> {
 			helper.assertTrue(observedBolt[0], "Shadow Sword Lightning did not create a visible bolt");
+			helper.assertTrue(target.getHealth() < targetHealthBefore,
+					"Shadow Sword Lightning marked its target but dealt no damage");
+			helper.succeed();
+		});
+	}
+
+	@GameTest(maxTicks = 70)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void heavenlyPartisanEnergyBeamDamagesItsAimedTarget(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		var origin = helper.absolutePos(new BlockPos(2, 4, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		caster.setNoGravity(true);
+		caster.setYRot(0.0F);
+		caster.setXRot(0.0F);
+		com.powers.player.PlayerPowers.get(caster).setSkillLevel(caster, 10);
+		caster.setItemInHand(InteractionHand.MAIN_HAND,
+				PowersWeapons.weapon("heavenly_partisan").getDefaultInstance());
+		var target = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 4, 8));
+		target.setNoAi(true);
+		target.setNoGravity(true);
+		float targetHealthBefore = target.getHealth();
+		helper.assertTrue(ArtifactWeaponManager.select(caster, ArtifactAlignment.LIGHT,
+				"innate/energy_beam", -1), "Heavenly Partisan rejected Energy Beam");
+		helper.assertTrue(ArtifactWeaponManager.activateSelected(caster, ArtifactAlignment.LIGHT)
+				== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+				"Heavenly Partisan Energy Beam activation pipeline failed");
+		helper.runAfterDelay(50, () -> {
+			helper.assertTrue(target.getHealth() < targetHealthBefore,
+					"Heavenly Partisan Energy Beam channel dealt no damage");
+			helper.succeed();
+		});
+	}
+
+	@GameTest(maxTicks = 20, setupTicks = 10)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void artifactAstralProjectionRequiresInventoryOwnership(GameTestHelper helper) {
+		AstralProjectionAbility.clearAll(helper.getLevel().getServer());
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		var origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		helper.setBlock(new BlockPos(2, 0, 2), Blocks.STONE);
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		caster.setGameMode(GameType.SURVIVAL);
+		caster.addTag(SkillSystem.DARKNESS_TAG);
+		com.powers.player.PlayerPowers.get(caster).setDarknessLevel(caster, 10);
+		GameType originalMode = caster.gameMode();
+		caster.setItemInHand(InteractionHand.MAIN_HAND,
+				PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		helper.assertTrue(ArtifactWeaponManager.select(caster, ArtifactAlignment.DARKNESS,
+				"innate/astral_projection", -1), "Shadow Sword rejected Astral Projection");
+		helper.assertTrue(ArtifactWeaponManager.activateSelected(caster, ArtifactAlignment.DARKNESS)
+				== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+				"Artifact Astral Projection did not start");
+		helper.assertTrue(AstralProjectionAbility.isActive(caster.getUUID()),
+				"Artifact Astral Projection was not registered");
+
+		helper.runAfterDelay(2, () -> {
+			caster.getInventory().setItem(1, caster.getMainHandItem().copy());
+			caster.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+		});
+		helper.runAfterDelay(4, () -> helper.assertTrue(
+				AstralProjectionAbility.isActive(caster.getUUID()),
+				"Artifact Astral Projection ended when the sword remained in inventory"));
+		helper.runAfterDelay(6, () -> caster.getInventory().clearContent());
+		helper.runAfterDelay(9, () -> {
+			helper.assertFalse(AstralProjectionAbility.isActive(caster.getUUID()),
+					"Artifact Astral Projection survived loss of its owning sword");
+			helper.assertFalse(BodyProxyManager.hasSession(caster, BodyProxyKind.ASTRAL),
+					"Ended artifact projection leaked its vulnerable body session");
+			helper.assertTrue(caster.gameMode() == originalMode,
+					"Ended artifact projection restored " + caster.gameMode()
+							+ " instead of " + originalMode);
+			AstralProjectionAbility.clearAll(helper.getLevel().getServer());
 			helper.succeed();
 		});
 	}

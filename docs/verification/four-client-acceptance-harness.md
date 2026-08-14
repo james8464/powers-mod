@@ -17,7 +17,9 @@ Each non-comment row is `connectedTick<TAB>operation<TAB>argument`. Supported op
 | `grimoire` | `book-key spell-index` | Sends the normal held-grimoire selection packet; a later `use` performs the cast. |
 | `crystal` | mode index | Sends the normal held-Rainbow selector packet; a later `use` performs the crystal action. |
 | `artifact` | `alignment action-key option` | Sends the normal server-validated combat-wheel commit packet. |
+| `artifact_teleport` | `alignment action-key option x y z dimension` | Sends the exact server-validated artifact-coordinate payload used by the destination screen. |
 | `teleport` | `slot x y z dimension` | Sends the same validated destination payload as the rendered Time Shift menu. |
+| `look` | `yaw pitch` | Sets the real client's camera and published player rotation; yaw is `-180..180` and pitch is `-90..90`. |
 | `respawn` | `now` | Sends the vanilla perform-respawn client packet. |
 | `close` | `screen` | Closes the current rendered screen through its normal close callback. |
 | `locator` | target or world query | Fills the rendered celestial-locator field and submits through that screen's server-issued nonce. |

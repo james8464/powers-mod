@@ -6,10 +6,10 @@ public final class CastLifecycleOwnership {
 	}
 
 	public static boolean mayContinue(CastSource source, boolean innateOwned,
-			boolean artifactHeld, boolean artifactAuthorized) {
+			boolean artifactOwned, boolean artifactAuthorized) {
 		return switch (source) {
 			case INNATE -> innateOwned;
-			case ARTIFACT -> artifactHeld && artifactAuthorized;
+			case ARTIFACT -> artifactOwned && artifactAuthorized;
 			case CRYSTAL, SPELL -> true;
 		};
 	}

@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CastLifecycleOwnershipTest {
 	@Test
-	void innateAndArtifactChannelsRetainOnlyTheirActualAuthority() {
+	void innateAndArtifactChannelsRetainOnlyTheirActualOwnership() {
 		assertTrue(CastLifecycleOwnership.mayContinue(
 				CastSource.INNATE, true, false, false));
 		assertFalse(CastLifecycleOwnership.mayContinue(
