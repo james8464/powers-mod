@@ -38,4 +38,18 @@ class PowerProtectionAdaptersTest {
 		assertFalse(PowerProtectionAdapters.allows(new ProtectionQuery(
 				ProtectionAction.RITUAL, null, BlockPos.ZERO, null, null)));
 	}
+
+	@Test
+	void blockWorkPolicyIdentityIsBoundedAndTracksTheProviderSet() {
+		long builtInOnly = PowerProtectionAdapters.blockWorkPolicyId();
+		PowerProtectionAdapters.register("later", 1, query -> true);
+		PowerProtectionAdapters.register("first", 100, query -> true);
+		long twoProviders = PowerProtectionAdapters.blockWorkPolicyId();
+
+		assertFalse(builtInOnly == twoProviders);
+		PowerProtectionAdapters.clearForTests();
+		PowerProtectionAdapters.register("first", 100, query -> true);
+		PowerProtectionAdapters.register("later", 1, query -> true);
+		assertTrue(twoProviders == PowerProtectionAdapters.blockWorkPolicyId());
+	}
 }

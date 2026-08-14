@@ -15,7 +15,7 @@
 			"com.powers.gametest.DelayedCallbackGameTests",
 			"com.powers.entity.PerceptionSnapshotGameTests",
 			"com.powers.entity.SummonPersistenceGameTests",
-			"com.powers.gametest.MultiplayerInteractionGameTests"${connectedProfileEntrypoint}${restartSoakEntrypoint}
+			"com.powers.gametest.MultiplayerInteractionGameTests"${connectedProfileEntrypoint}${restartSoakEntrypoint}${perf016BenchmarkEntrypoint}
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests"

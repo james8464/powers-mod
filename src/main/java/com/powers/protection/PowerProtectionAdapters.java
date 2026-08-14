@@ -45,6 +45,20 @@ public final class PowerProtectionAdapters {
 		return ENTRIES.stream().map(Entry::id).toList();
 	}
 
+	/** Bounded deterministic identity of the unanimous block-protection policy snapshot. */
+	public static long blockWorkPolicyId() {
+		long hash = 0xcbf29ce484222325L;
+		for (Entry entry : ENTRIES) {
+			for (int index = 0; index < entry.id().length(); index++) {
+				hash ^= entry.id().charAt(index);
+				hash *= 0x100000001b3L;
+			}
+			hash ^= 0xff;
+			hash *= 0x100000001b3L;
+		}
+		return hash;
+	}
+
 	static void clearForTests() {
 		ENTRIES.clear();
 	}

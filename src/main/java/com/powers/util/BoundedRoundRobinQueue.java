@@ -32,6 +32,13 @@ public final class BoundedRoundRobinQueue<T> {
 		return List.copyOf(result);
 	}
 
+	/** Removes one head entry in constant time, or returns {@code null} when empty. */
+	public T poll() {
+		T value = queue.pollFirst();
+		if (value != null) present.remove(value);
+		return value;
+	}
+
 	public boolean remove(T value) {
 		if (!present.remove(value)) return false;
 		queue.remove(value);
