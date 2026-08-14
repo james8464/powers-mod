@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added server-authoritative near/mid/far semantic-FX LOD for beams, runes, spirals, Herald ceremonies, First Vessel rituals, and Celestial Ruin; distant observers retain event geometry and signature audio without near-field particle density, client distance culling is overridden only for authorised cues, and overlapping Ruin ringing remains bounded and independent.
+
 - Added exact Minecraft 26.2 frame/compression measurement for semantic Magic/Beam/Shape bursts and ordered bounded batching only when it reduces wire bytes; the normal 256-byte threshold saves 55.524% at 256 B and 79.489% at 8 KiB while preserving immediate lead cues, connection/dimension lifecycle safety, and physical collision authority.
 
 - Replaced first-dimension force-containment scheduling with a hard-capped fair dimension/policy queue: request ingestion is O(1), ceremony validation and transformations share the 256-slot budget, workloads above capacity rotate without long gaps, and protection adapters remain fail-closed.
