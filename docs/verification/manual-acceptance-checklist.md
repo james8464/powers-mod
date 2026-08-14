@@ -6,29 +6,29 @@ This generated register makes omissions visible. Automated/resource evidence is 
 
 | Family | Identity | Current evidence | Manual result | Notes / screenshot / log |
 | --- | --- | --- | --- | --- |
-| innate | `size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `time_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (956ad4f) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/size-half-retained.png; Server scale changed to 0.5, remained 0.5 after allegiance/loadout reconciliation, then returned to 1.0 on toggle-off. |
+| innate | `time_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (956ad4f) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/time-shift-arrival.png; A real client requested an unloaded destination through the authenticated menu payload; caster and nearby TravelMate arrived at x=192.5 and diagnostics reported no leaked travel ticket or proxy. |
+| innate | `flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (3491749) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/flight.png; Held forward, sprint, and ascent inputs drove the real survival player's server-authoritative flight motion, then toggle-off removed the owned state. |
+| innate | `starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (956ad4f) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/starfall-strikes.png; The fixed-allegiance slot completed its convergence against FinalTarget and reduced authoritative health from 100 to 98.81566. |
 | innate | `void_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/observer-beam-counter.png; Enemy activated Void Beam concurrently with Energy Beam; the independent observer captured the resulting physical interaction. |
-| innate | `fireball` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `fireball` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (86a45d1) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/fireball.png; Charge plus deliberate crouch-release launched the authored fireball and reduced RetryTarget health from 100 to 96.493256. |
+| innate | `lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (3491749) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/lightning-strike.png; The production lightning entrypoint locked a live player-like target and rendered the tribunal strike without a cooldown gate. |
 | innate | `thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/enemy-thunderclap.png; A hostile client cast the pressure wave; the observer/client logs record its presentation and the affected ally's real death lifecycle. |
-| innate | `speed_burst` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `telekinesis` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `speed_burst` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (3491749) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/speed-burst.png; Activation moved the real survival player along the aimed path and the authoritative position/motion query changed. |
+| innate | `telekinesis` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (3491749) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/telekinesis.png; A live nearby player-like target received non-zero server motion through the production targeting route. |
 | innate | `energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/caster-beam-counter.png; Caster activated the production beam entrypoint; the cast produced authored Counter geometry, impact fire and terrain scars. |
-| innate | `super_speed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `breezy_bash` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `invisibility` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `time_freeze` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `super_speed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (3491749) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/super-speed.png; Held movement and sprint inputs produced real survival movement while the authored wake was visible. |
+| innate | `breezy_bash` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (3491749) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/breezy-bash.png; The production capture/release route imparted server motion to a nearby player-like target. |
+| innate | `invisibility` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (3491749) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/invisibility.png; Toggle-on created its hidden-particle owned effect and toggle-off removed it in the authoritative entity-data query. |
+| innate | `time_freeze` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (956ad4f) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/time-freeze-owned.png; Vanilla tick query reported frozen while the lease was owned and running normally after the second activation; the 40 energy/second warning was visible. |
 | innate | `forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/screenshots/observer-forcefield.png; A real client activated the field beside an ally; the independent observer captured its shared presentation. |
-| innate | `gravity_displacement` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `vessel_possession` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `astral_projection` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `energy_drain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `ice_manipulation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| innate | `double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| innate | `gravity_displacement` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (86a45d1) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/gravity-repel.png; Repel mode moved the nearby target and produced authoritative z motion of 0.830769. |
+| innate | `vessel_possession` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (86a45d1) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/vessel-controlled.png; The caster entered spectator control with one body proxy/ticket, drove RetryTarget from z=4.5 to z=11.496, then returned in survival with zero residue. |
+| innate | `astral_projection` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (3491749) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/astral-projection.png; A real client created the vulnerable physical proxy, projected, returned through the production route, and diagnostics cleared the proxy and ticket. |
+| innate | `energy_drain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (86a45d1) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/energy-drain.png; The Darkness-exclusive tether applied powers:exhaustion for 580 ticks with show_particles:0 to a live player-like target. |
+| innate | `ice_manipulation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (86a45d1) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/ice-manipulation.png; The close eye-line hit reduced health to 94.56, applied 120 frozen ticks, and authored Weakness/Slowness with show_particles:0. |
+| innate | `plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (86a45d1) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/plant-growth.png; The real aimed cast advanced prepared age-zero wheat; an authoritative block predicate emitted PLANT_GROWN. |
+| innate | `double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (86a45d1) | docs/verification/evidence/2026-08-14-qa-005-956ad4f/innates/screenshots/double-health.png; Maximum health changed exactly 20 to 40 on activation and 40 to 20 on toggle-off. |
 | spell | `soul_compass` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (5fcb142) | docs/verification/evidence/2026-08-14-qa-005-5fcb142/celestial-locators/soul-compass-result.png; A real locator screen resolved one uniquely named loaded mob, entered remote view with a vulnerable proxy, then disconnected cleanly with zero proxy or ticket residue. |
 | spell | `augury` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (6879fd4) | docs/verification/evidence/2026-08-14-qa-005-6879fd4/practical-spells/screenshots/augury.png; A real client completed the channel and received authoritative weather, moon phase, and loaded-force counts. |
 | spell | `cartographers_star` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (5fcb142) | docs/verification/evidence/2026-08-14-qa-005-5fcb142/celestial-locators/cartographers-star-result.png; After the detached-view reconnect, the same player returned in Creative with no mind-body state and the real locator screen reported the loaded plains biome without forced loading. |
@@ -41,36 +41,17 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | spell | `hearth_sanctuary` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (d4fcbb0) | docs/verification/evidence/2026-08-14-qa-005-d4fcbb0/client-interactions/screenshots/spell-hearth-sanctuary.png; Wild Grimoire selection plus vanilla item use reached the production spell handler and raised one independent forcefield. |
 | spell | `ward_breaking_ritual` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (b0e3f2c) | docs/verification/evidence/2026-08-14-qa-005-b0e3f2c/targeted-spells/screenshots/ward-breaking.png; After a 25-block cast, the still-powered level-15 ward no longer poisoned the caster at six blocks. |
 | spell | `dispel` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (b0e3f2c) | docs/verification/evidence/2026-08-14-qa-005-b0e3f2c/targeted-spells/screenshots/dispel.png; Dispel removed a live Resistance effect; the authoritative follow-up query found no active effects. |
-| crystal | `size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| crystal | `life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (d4fcbb0) | docs/verification/evidence/2026-08-14-qa-005-d4fcbb0/client-interactions/screenshots/crystal-life-bloom.png; Rainbow Crystal mode 3 plus vanilla item use applied three expected blessings; captured NBT records show_particles:0b for every effect. |
 | crystal | `chrono_stop` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0001_powers-dark-realm-live.png; Live activation entered powers:dark_realm with a vulnerable body proxy and returned cleanly. |
 | crystal | `inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (d4fcbb0) | docs/verification/evidence/2026-08-14-qa-005-d4fcbb0/client-interactions/screenshots/crystal-life-bloom.png; Rainbow Crystal mode 3 plus vanilla item use applied three expected blessings; captured NBT records show_particles:0b for every effect. |
 | crystal | `soul_link` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | crystal | `light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0002_powers-light-realm-live.png; Live activation entered powers:light_realm with a vulnerable body proxy and returned cleanly. |
-| artifact | `light/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/call_radiant` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/consecrate_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/covenant_chain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/daybreak_wave` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/heaven_gate` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/solar_firmament` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/second_dawn` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/host_heaven` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/time_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
@@ -94,20 +75,39 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | artifact | `darkness/innate/ice_manipulation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/chrono_stop` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/soul_link` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/unique/call_hollowed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/unique/blight_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (d4fcbb0) | docs/verification/evidence/2026-08-14-qa-005-d4fcbb0/client-interactions/screenshots/artifact-blight-ground.png; Shadow Sword production commit selected and activated Blight Ground; an authoritative block predicate confirmed powers:darkness beneath the caster. |
 | artifact | `darkness/unique/nightfall_dominion` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/call_radiant` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/consecrate_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/covenant_chain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/daybreak_wave` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/heaven_gate` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/solar_firmament` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/second_dawn` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/host_heaven` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | entity | `darkness_creature` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
 | entity | `power_test_actor` | PowersGameTests and LivingForceGameTests entity scenarios | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/logs/server.log; The named CombatTarget actor spawned, accepted live player and Shadow targeting, moved under combat and died to ancient-power damage. |
 | entity | `radiant_sentinel` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |

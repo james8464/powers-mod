@@ -1,0 +1,193 @@
+# Real-client innate batch on exact commit 3491749. All target queries are server-authoritative.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	gamemode survival @s
+110	COMMAND	effect give @s minecraft:resistance 999999 255 true
+120	COMMAND	fill -24 100 -24 24 100 24 minecraft:stone
+130	COMMAND	tp @s 0.5 101 0.5 0 0
+
+# Size Morphing: server-validated 0.5x option and toggle cleanup.
+160	COMMAND	powers assign @s size_shift 0
+180	SELECT	0 1
+200	ACTIVATE	0
+220	COMMAND	attribute @s minecraft:scale get
+240	SCREENSHOT	size-shift-half
+260	ACTIVATE	0
+280	COMMAND	attribute @s minecraft:scale get
+
+# Flight: actual forward, sprint, and ascent client inputs drive server propulsion.
+320	COMMAND	powers assign @s flight 0
+340	ACTIVATE	0
+350	KEY	forward on
+350	KEY	sprint on
+350	KEY	jump on
+400	SCREENSHOT	flight-moving
+420	COMMAND	data get entity @s Pos
+430	COMMAND	data get entity @s Motion
+440	KEY	jump off
+450	KEY	forward off
+450	KEY	sprint off
+470	ACTIVATE	0
+490	COMMAND	data get entity @s active_effects
+
+# Starfall locks a live player-like target and resolves its authored storm.
+520	COMMAND	tp @s 0.5 101 0.5 0 0
+530	COMMAND	powers testing actor spawn InnateTarget
+540	COMMAND	tp @e[name=InnateTarget,limit=1] 0.5 101 12.5
+550	COMMAND	data merge entity @e[name=InnateTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+560	COMMAND	powers assign @s starfall 0
+580	ACTIVATE	0
+610	SCREENSHOT	starfall
+700	COMMAND	data get entity @e[name=InnateTarget,limit=1] Health
+
+# Fireball charges then launches through the real reactivation path.
+730	COMMAND	kill @e[name=InnateTarget]
+740	COMMAND	powers testing actor spawn InnateTarget
+750	COMMAND	tp @e[name=InnateTarget,limit=1] 0.5 101 12.5
+760	COMMAND	data merge entity @e[name=InnateTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+770	COMMAND	powers assign @s fireball 0
+790	ACTIVATE	0
+830	ACTIVATE	0
+850	SCREENSHOT	fireball-launch
+900	COMMAND	data get entity @e[name=InnateTarget,limit=1] Health
+
+# Lightning tribunal locks and strikes the same loaded target.
+930	COMMAND	kill @e[name=InnateTarget]
+940	COMMAND	powers testing actor spawn InnateTarget
+950	COMMAND	tp @e[name=InnateTarget,limit=1] 0.5 101 12.5
+960	COMMAND	data merge entity @e[name=InnateTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+970	COMMAND	powers assign @s lightning_strike 0
+990	ACTIVATE	0
+1020	SCREENSHOT	lightning-tribunal
+1120	COMMAND	data get entity @e[name=InnateTarget,limit=1] Health
+
+# Speed Burst moves the real survival player along the aimed path.
+1150	COMMAND	tp @s 0.5 101 0.5 0 0
+1160	COMMAND	powers assign @s speed_burst 0
+1180	ACTIVATE	0
+1200	SCREENSHOT	speed-burst
+1220	COMMAND	data get entity @s Pos
+1230	COMMAND	data get entity @s Motion
+
+# Telekinesis flings a bounded nearby target.
+1260	COMMAND	tp @s 0.5 101 0.5 0 0
+1270	COMMAND	kill @e[name=InnateTarget]
+1280	COMMAND	powers testing actor spawn InnateTarget
+1290	COMMAND	tp @e[name=InnateTarget,limit=1] 0.5 101 5.5
+1300	COMMAND	data merge entity @e[name=InnateTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+1310	COMMAND	powers assign @s telekinesis 0
+1330	ACTIVATE	0
+1350	SCREENSHOT	telekinesis
+1370	COMMAND	data get entity @e[name=InnateTarget,limit=1] Motion
+
+# Super Speed receives genuine held movement input.
+1400	COMMAND	tp @s 0.5 101 0.5 0 0
+1410	COMMAND	powers assign @s super_speed 0
+1430	ACTIVATE	0
+1440	KEY	forward on
+1440	KEY	sprint on
+1490	SCREENSHOT	super-speed
+1510	COMMAND	data get entity @s Pos
+1520	KEY	forward off
+1520	KEY	sprint off
+
+# Breezy Bash captures and releases a nearby target.
+1550	COMMAND	tp @s 0.5 101 0.5 0 0
+1560	COMMAND	kill @e[name=InnateTarget]
+1570	COMMAND	powers testing actor spawn InnateTarget
+1580	COMMAND	tp @e[name=InnateTarget,limit=1] 0.5 101 5.5
+1590	COMMAND	data merge entity @e[name=InnateTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+1600	COMMAND	powers assign @s breezy_bash 0
+1620	ACTIVATE	0
+1640	SCREENSHOT	breezy-bash
+1660	COMMAND	data get entity @e[name=InnateTarget,limit=1] Motion
+
+# Invisibility owns a hidden-particle effect and removes it on toggle-off.
+1690	COMMAND	powers assign @s invisibility 0
+1710	ACTIVATE	0
+1730	COMMAND	data get entity @s active_effects
+1750	SCREENSHOT	invisibility
+1770	ACTIVATE	0
+1790	COMMAND	data get entity @s active_effects
+
+# Gravity Repel captures then pushes the nearby actor.
+1820	COMMAND	tp @s 0.5 101 0.5 0 0
+1830	COMMAND	kill @e[name=InnateTarget]
+1840	COMMAND	powers testing actor spawn InnateTarget
+1850	COMMAND	tp @e[name=InnateTarget,limit=1] 0.5 101 5.5
+1860	COMMAND	data merge entity @e[name=InnateTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+1870	COMMAND	powers assign @s gravity_displacement 0
+1890	SELECT	0 2
+1910	ACTIVATE	0
+1930	SCREENSHOT	gravity-repel
+1950	COMMAND	data get entity @e[name=InnateTarget,limit=1] Motion
+
+# Ice Manipulation applies damage, hidden effects, and frozen ticks.
+2030	COMMAND	tp @s 0.5 101 0.5 0 0
+2040	COMMAND	kill @e[name=InnateTarget]
+2050	COMMAND	powers testing actor spawn InnateTarget
+2060	COMMAND	tp @e[name=InnateTarget,limit=1] 0.5 101 12.5
+2070	COMMAND	data merge entity @e[name=InnateTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+2080	COMMAND	powers assign @s ice_manipulation 0
+2100	ACTIVATE	0
+2120	SCREENSHOT	ice-manipulation
+2140	COMMAND	data get entity @e[name=InnateTarget,limit=1] Health
+2150	COMMAND	data get entity @e[name=InnateTarget,limit=1] TicksFrozen
+2160	COMMAND	data get entity @e[name=InnateTarget,limit=1] active_effects
+
+# Energy Drain uses the Darkness-exclusive innate route and a live tether.
+2190	COMMAND	tag @s add darkness
+2200	COMMAND	kill @e[name=InnateTarget]
+2210	COMMAND	powers testing actor spawn InnateTarget
+2220	COMMAND	tp @e[name=InnateTarget,limit=1] 0.5 101 12.5
+2230	COMMAND	data merge entity @e[name=InnateTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+2240	COMMAND	powers assign @s energy_drain 0
+2260	ACTIVATE	0
+2290	SCREENSHOT	energy-drain
+2350	COMMAND	data get entity @e[name=InnateTarget,limit=1] Health
+2360	COMMAND	data get entity @e[name=InnateTarget,limit=1] active_effects
+
+# Vessel Possession enters and exits a mob-compatible controlled session.
+2390	COMMAND	kill @e[name=InnateTarget]
+2400	COMMAND	powers testing actor spawn InnateTarget
+2410	COMMAND	tp @e[name=InnateTarget,limit=1] 0.5 101 12.5
+2420	COMMAND	data merge entity @e[name=InnateTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+2430	COMMAND	powers assign @s vessel_possession 0
+2450	ACTIVATE	0
+2480	SCREENSHOT	vessel-possession
+2500	COMMAND	powers diagnose
+2520	ACTIVATE	0
+2550	SCREENSHOT	vessel-return
+
+# Astral Projection creates one vulnerable proxy, then returns with no residue.
+2580	COMMAND	powers assign @s astral_projection 0
+2600	ACTIVATE	0
+2630	SCREENSHOT	astral-projection
+2650	COMMAND	powers diagnose
+2670	ACTIVATE	0
+2700	COMMAND	data get entity @s playerGameType
+2710	COMMAND	powers diagnose
+
+# Plant Healing advances a real age-zero crop.
+2740	COMMAND	tag @s remove darkness
+2750	COMMAND	setblock 0 100 3 minecraft:farmland
+2760	COMMAND	setblock 0 101 3 minecraft:wheat[age=0]
+2770	COMMAND	powers assign @s plant_healing_acceleration 0
+2780	COMMAND	tp @s 0.5 101 0.5 0 15
+2800	ACTIVATE	0
+2820	SCREENSHOT	plant-growth
+2840	COMMAND	execute unless block 0 101 3 minecraft:wheat[age=0] run say PLANT_GROWN
+
+# Double Health remains in saved slot 2 and restores its modifier on toggle-off.
+2870	ACTIVATE	1
+2890	COMMAND	attribute @s minecraft:max_health get
+2910	SCREENSHOT	double-health
+2930	ACTIVATE	1
+2950	COMMAND	attribute @s minecraft:max_health get
+
+# Time Freeze remains in saved slot 3; the client emergency input unfreezes it.
+2980	ACTIVATE	2
+3010	SCREENSHOT	time-freeze
+3060	ACTIVATE	2
+3090	COMMAND	tick query
+3110	SCREENSHOT	time-freeze-released

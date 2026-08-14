@@ -1,0 +1,126 @@
+# Corrected real-client campaign for previously ambiguous innate observations.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	gamemode survival @s
+110	COMMAND	effect give @s minecraft:resistance 999999 255 true
+120	COMMAND	fill -24 100 -24 24 100 24 minecraft:stone
+130	COMMAND	tp @s 0.5 101 0.5 0 0
+140	COMMAND	tag @s remove darkness
+
+# Size Morphing: immediate authoritative on/off attributes.
+160	COMMAND	powers assign @s size_shift 0
+180	SELECT	0 1
+200	ACTIVATE	0
+205	COMMAND	attribute @s minecraft:scale get
+215	SCREENSHOT	size-on
+230	ACTIVATE	0
+235	COMMAND	attribute @s minecraft:scale get
+
+# Starfall: close unobstructed target and full convergence resolution.
+270	COMMAND	kill @e[name=RetryTarget]
+280	COMMAND	powers testing actor spawn RetryTarget
+290	COMMAND	tp @e[name=RetryTarget,limit=1] 0.5 101 5.5
+300	COMMAND	data merge entity @e[name=RetryTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+310	COMMAND	powers assign @s starfall 0
+330	ACTIVATE	0
+350	SCREENSHOT	starfall-omen
+450	COMMAND	data get entity @e[name=RetryTarget,limit=1] Health
+460	SCREENSHOT	starfall-impact
+
+# Fireball: crouch is the deliberate release gesture, rather than another charge.
+480	COMMAND	tp @s 0.5 101 0.5 0 0
+490	COMMAND	kill @e[name=RetryTarget]
+500	COMMAND	powers testing actor spawn RetryTarget
+510	COMMAND	tp @e[name=RetryTarget,limit=1] 0.5 101 8.5
+520	COMMAND	data merge entity @e[name=RetryTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+530	COMMAND	powers assign @s fireball 0
+550	ACTIVATE	0
+570	KEY	sneak on
+580	ACTIVATE	0
+590	KEY	sneak off
+610	SCREENSHOT	fireball-released
+690	COMMAND	execute unless entity @e[name=RetryTarget,limit=1] run say FIREBALL_KILLED_TARGET
+700	COMMAND	data get entity @e[name=RetryTarget,limit=1] Health
+
+# Gravity Repel: capture position before and during the active field.
+720	COMMAND	tp @s 0.5 101 0.5 0 0
+730	COMMAND	kill @e[name=RetryTarget]
+740	COMMAND	powers testing actor spawn RetryTarget
+750	COMMAND	tp @e[name=RetryTarget,limit=1] 0.5 101 4.5
+760	COMMAND	data merge entity @e[name=RetryTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+770	COMMAND	powers assign @s gravity_displacement 0
+780	SELECT	0 2
+790	COMMAND	data get entity @e[name=RetryTarget,limit=1] Pos
+800	ACTIVATE	0
+810	COMMAND	data get entity @e[name=RetryTarget,limit=1] Pos
+820	COMMAND	data get entity @e[name=RetryTarget,limit=1] Motion
+830	SCREENSHOT	gravity-repel
+
+# Ice Manipulation: close eye-line hit with damage, frozen ticks, and hidden effects.
+920	COMMAND	tp @s 0.5 101 0.5 0 0
+930	COMMAND	kill @e[name=RetryTarget]
+940	COMMAND	powers testing actor spawn RetryTarget
+950	COMMAND	tp @e[name=RetryTarget,limit=1] 0.5 101 4.5
+960	COMMAND	data merge entity @e[name=RetryTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+970	COMMAND	powers assign @s ice_manipulation 0
+990	ACTIVATE	0
+1000	COMMAND	data get entity @e[name=RetryTarget,limit=1] Health
+1010	COMMAND	data get entity @e[name=RetryTarget,limit=1] TicksFrozen
+1020	COMMAND	data get entity @e[name=RetryTarget,limit=1] active_effects
+1030	SCREENSHOT	ice-hit
+
+# Energy Drain is the deterministic Darkness-exclusive slot after reconciliation.
+1050	COMMAND	tp @s 0.5 101 0.5 0 0
+1060	COMMAND	tag @s add darkness
+1080	COMMAND	powers slots
+1090	COMMAND	kill @e[name=RetryTarget]
+1100	COMMAND	powers testing actor spawn RetryTarget
+1110	COMMAND	tp @e[name=RetryTarget,limit=1] 0.5 101 4.5
+1120	COMMAND	data merge entity @e[name=RetryTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+1140	ACTIVATE	2
+1160	SCREENSHOT	energy-drain-tether
+1200	COMMAND	data get entity @e[name=RetryTarget,limit=1] active_effects
+
+# Vessel Possession: enter, drive the real host, and allow bounded automatic return.
+1230	COMMAND	tp @s 0.5 101 0.5 0 0
+1240	COMMAND	kill @e[name=RetryTarget]
+1250	COMMAND	powers testing actor spawn RetryTarget
+1260	COMMAND	tp @e[name=RetryTarget,limit=1] 0.5 101 4.5
+1270	COMMAND	data merge entity @e[name=RetryTarget,limit=1] {NoAI:0b,PersistenceRequired:1b}
+1280	COMMAND	powers assign @s vessel_possession 0
+1300	ACTIVATE	0
+1320	COMMAND	data get entity @s playerGameType
+1330	COMMAND	powers diagnose
+1340	KEY	forward on
+1380	KEY	forward off
+1390	COMMAND	data get entity @e[name=RetryTarget,limit=1] Pos
+1400	SCREENSHOT	vessel-controlled
+1520	COMMAND	data get entity @s playerGameType
+1530	COMMAND	powers diagnose
+1540	SCREENSHOT	vessel-returned
+
+# Plant Healing: exact ray angle to an age-zero crop three blocks away.
+1570	COMMAND	tag @s remove darkness
+1580	COMMAND	setblock 0 100 3 minecraft:farmland
+1590	COMMAND	setblock 0 101 3 minecraft:wheat[age=0]
+1600	COMMAND	powers assign @s plant_healing_acceleration 0
+1610	COMMAND	tp @s 0.5 101 0.5 0 28
+1630	ACTIVATE	0
+1640	COMMAND	execute unless block 0 101 3 minecraft:wheat[age=0] run say PLANT_GROWN
+1660	SCREENSHOT	plant-grown
+
+# Double Health: 2x baseline, then exact cleanup.
+1690	COMMAND	powers slots
+1700	ACTIVATE	1
+1710	COMMAND	attribute @s minecraft:max_health get
+1720	SCREENSHOT	double-health-on
+1740	ACTIVATE	1
+1750	COMMAND	attribute @s minecraft:max_health get
+
+# Time Freeze: production slot, global freeze, then owner emergency release.
+1780	COMMAND	powers assign @s time_freeze 0
+1800	ACTIVATE	0
+1820	SCREENSHOT	time-frozen
+1860	ACTIVATE	0
+1880	COMMAND	tick query
+1890	SCREENSHOT	time-released

@@ -1,0 +1,41 @@
+# Exact-build final proof for allegiance-retained toggles and Starfall.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	gamemode survival @s
+110	COMMAND	effect give @s minecraft:resistance 999999 255 true
+120	COMMAND	fill -24 100 -24 24 100 24 minecraft:stone
+130	COMMAND	tp @s 0.5 101 0.5 0 0
+140	COMMAND	tag @s remove darkness
+160	COMMAND	powers assign @s starfall 2
+180	COMMAND	powers slots
+
+# Starfall uses the fixed allegiance slot and remains loaded for its whole convergence.
+200	COMMAND	kill @e[name=FinalTarget]
+210	COMMAND	powers testing actor spawn FinalTarget
+220	COMMAND	tp @e[name=FinalTarget,limit=1] 0.5 101 5.5
+230	COMMAND	data merge entity @e[name=FinalTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+250	ACTIVATE	2
+270	COMMAND	powers diagnose
+280	SCREENSHOT	starfall-omen
+330	SCREENSHOT	starfall-strikes
+410	COMMAND	data get entity @e[name=FinalTarget,limit=1] Health
+
+# Size Morphing occupies another slot, so allegiance refresh must preserve its toggle.
+440	COMMAND	powers assign @s size_shift 0
+460	SELECT	0 1
+480	ACTIVATE	0
+500	COMMAND	attribute @s minecraft:scale get
+520	SCREENSHOT	size-half-retained
+560	COMMAND	attribute @s minecraft:scale get
+580	ACTIVATE	0
+600	COMMAND	attribute @s minecraft:scale get
+
+# Time Freeze retains ownership across the same refresh and releases on the second press.
+640	COMMAND	powers assign @s time_freeze 0
+660	ACTIVATE	0
+680	COMMAND	tick query
+700	SCREENSHOT	time-freeze-owned
+740	ACTIVATE	0
+760	COMMAND	tick query
+780	SCREENSHOT	time-freeze-released
+800	COMMAND	powers diagnose

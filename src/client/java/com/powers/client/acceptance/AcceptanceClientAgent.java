@@ -15,8 +15,12 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -109,6 +113,14 @@ public final class AcceptanceClientAgent {
 				String[] values = step.argument().split(" ");
 				ClientPlayNetworking.send(new ShadowSwordPackets.CommitPayload(
 						values[0], values[1], Integer.parseInt(values[2])));
+			}
+			case TELEPORT -> {
+				String[] values = step.argument().split(" ");
+				Identifier dimension = Identifier.parse(values[4]);
+				ClientPlayNetworking.send(new PowersPackets.TeleportRequestPayload(
+						Integer.parseInt(values[0]), Double.parseDouble(values[1]),
+						Double.parseDouble(values[2]), Double.parseDouble(values[3]),
+						ResourceKey.create(Registries.DIMENSION, dimension), "", false));
 			}
 			case RESPAWN -> connection.send(new ServerboundClientCommandPacket(
 					ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
