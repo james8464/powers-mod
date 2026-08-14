@@ -1,0 +1,5 @@
+600	command	gamemode creative
+620	command	powers consent teleport allow
+640	command	tp AnchorTarget 0 101 5 180 0
+820	screenshot	anchor-target-received
+860	command	powers diagnose
