@@ -31,12 +31,12 @@ This ledger is the evidence boundary for removing rows from `docs/planning/IMPRO
 | QA-005 | The regenerated current 427-row checklist has an evidence-backed PASS for every action, artifact action, item, entity, system, screen, and command that requires live acceptance. Exact-build real-client campaigns include four-client combat/dialogue, all crystal and artifact paths, all 260 item identities, Middleworld entry/return, and alignment-exclusive advancement views. No `MANUAL LIVE PENDING` row remains. |
 | PRG-001 | Commit `751b3bc` completed ten real Light and ten real Darkness Fabric-client sessions through the authoritative quest trackers. All 20 rows contain ten samples; median cumulative completion was 8.17h Light/7.50h Darkness and p90 was 9.33h/8.47h. Evidence-driven Darkness threshold changes preserve completed ranks and raw deed progress. Exact results and rationale are in `evidence/2026-08-14-prg-001-751b3bc/`. |
 | PERF-005 | Commit `b2bff00` coalesces only semantic visual sustain updates by tick, observer, dimension, chunk, action, and phase; physical collisions and lifecycle state remain authoritative and uncoalesced. A real Fabric client received 1 of 64 duplicate semantic packets and 59 of 3,776 encoded payload-body bytes, reducing both by 98.438%. The dedicated collision GameTest and all 85 live GameTests passed on the same commit. Exact reports, key log lines, and checksums are in `evidence/2026-08-14-perf-005-b2bff00/`. |
+| PERF-006 | The exact 25,600-operation, 64-observer, 48-point mass-combat profile fell from 7,587.795 to 95.653 allocated bytes per operation (98.739% lower) and p99 fell from 8,458 to 3,292 ns (61.078% faster). Retained geometry stayed bounded at 16 entries, retained payloads fell from 1,024 to zero, both Java 25 JFRs have zero data loss, and all 86 Fabric GameTests passed on accepted commit `9d2d31a`. Exact JSON, JFR, summaries, and checksums are in `evidence/2026-08-14-perf-006-9d2d31a/`. |
 
 ## Still open: evidence that cannot be fabricated
 
 | ID | Implemented foundation | Required closure evidence |
 | --- | --- | --- |
-| PERF-006 | Geometry/payload canonicalization and allocation-sampling JFR are implemented. | Publish a before/after allocation profile showing materially lower young-generation churn. |
 | VFX-003 | First-person exclusion/cone budgeting for Lightning and Fireball is implemented and unit-tested. | Record and review first-person captures at every rank in live gameplay. |
 | QA-001 | Automated release pipeline, evidence templates, and prior client/server smoke reports exist. | Finish the current-tree client smoke, long soaks, performance runs, and signed manual acceptance before a release tag. |
 | QA-006 | Isolated repeated-restart harness defaults to 24 hours and publishes clean-state JSON; a two-cycle smoke passed. | Complete the full 24-hour run and review every cycle for ticket/index/field/summon/body/freeze/Ruin leaks. |
@@ -52,6 +52,5 @@ This ledger is the evidence boundary for removing rows from `docs/planning/IMPRO
 ```
 
 The 24-hour restart soak and signed final release envelope remain deliberately outside completion
-claims. `VFX-003` was explicitly excluded from the selected programme, while `PERF-006` remains an
-open measured-allocation gate. QA-005's completed checklist is runtime evidence, not a substitute
-for elapsed-time gates.
+claims. `VFX-003` was explicitly excluded from the selected programme. QA-005's completed checklist
+is runtime evidence, not a substitute for elapsed-time gates.

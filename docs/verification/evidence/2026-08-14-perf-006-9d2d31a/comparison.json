@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "workload": {
+    "operations": 25600,
+    "viewers_per_operation": 64,
+    "points_per_operation": 48
+  },
+  "baseline_commit": "ba573a094bc2435f59b9dc273352beea42130412",
+  "optimized_commit": "9d2d31a79de6c8e6d39f1c58ec7fb2c7e47b54d0",
+  "allocation_reduction_percent": 98.73938344407038,
+  "p99_change_percent": -61.07826909434855,
+  "gates": {
+    "allocation_reduction_at_least_20_percent": true,
+    "p99_regression_no_more_than_5_percent": true,
+    "retained_memory_bounded": true,
+    "jfr_data_loss_zero": true,
+    "all_86_gametests_passed": true
+  },
+  "accepted": true
+}
+

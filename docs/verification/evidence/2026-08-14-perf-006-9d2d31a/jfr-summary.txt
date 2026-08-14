@@ -1,0 +1,10 @@
+baseline-ba573a0.jfr
+jdk.ObjectAllocationSample                120          1765
+jdk.ThreadAllocationStatistics             29           260
+jdk.DataLoss                                0             0
+
+optimized-9d2d31a.jfr
+jdk.ObjectAllocationSample                 57           821
+jdk.ThreadAllocationStatistics             29           260
+jdk.DataLoss                                0             0
+

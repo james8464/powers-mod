@@ -40,7 +40,7 @@ Locked invariants:
 - [ ] `QA-006`: complete a restart/reconnect soak for 24 uninterrupted hours; any failure restarts acceptance after repair.
 - [x] `PRG-001`: gather ten Light and ten Darkness human-cadence samples and publish median/p90 for all thresholds.
 - [x] `PERF-005`: observer/dimension/chunk/action/phase visual coalescing, with at least 25% fewer packets/bytes and unchanged collisions.
-- [ ] `PERF-006`: JFR-directed geometry/payload allocation reduction, at least 20% lower allocation and no greater than 5% p99 regression.
+- [x] `PERF-006`: JFR-directed geometry/payload allocation reduction, at least 20% lower allocation and no greater than 5% p99 regression.
 
 Stage 2 may start only after every row above except the deliberately open `QA-001` envelope is accepted.
 

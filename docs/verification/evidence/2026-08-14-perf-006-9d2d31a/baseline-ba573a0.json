@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "label": "baseline-ba573a0",
+  "commit": "ba573a094bc2435f59b9dc273352beea42130412",
+  "java": "25.0.4",
+  "operations": 25600,
+  "viewers_per_operation": 64,
+  "points_per_operation": 48,
+  "allocated_bytes": 194247544,
+  "allocated_bytes_per_operation": 7587.795,
+  "p99_nanos_per_operation": 8458,
+  "geometry_entries": 16,
+  "payload_entries": 1024,
+  "blackhole": 0
+}
