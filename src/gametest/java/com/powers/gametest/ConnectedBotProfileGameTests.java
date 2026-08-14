@@ -31,7 +31,7 @@ public final class ConnectedBotProfileGameTests {
 	@SuppressWarnings("removal")
 	public void connectedTenFiftyAndHundredPlayerProfiles(GameTestHelper helper) {
 		int profileTicks = requestedTicks();
-		List<Integer> populations = List.of(10, 50, 100);
+		List<Integer> populations = requestedPopulations();
 		List<ServerPlayer> bots = new ArrayList<>(100);
 		int[] attempts = new int[populations.size()];
 		int[] successes = new int[populations.size()];
@@ -114,6 +114,16 @@ public final class ConnectedBotProfileGameTests {
 	private static int requestedTicks() {
 		return Math.clamp(Integer.getInteger("powers.profile.ticks", PROFILE_TICKS),
 				200, PROFILE_TICKS);
+	}
+
+	private static List<Integer> requestedPopulations() {
+		int population = Integer.getInteger("powers.profile.population", 0);
+		if (population == 0) return List.of(10, 50, 100);
+		if (population != 10 && population != 50 && population != 100) {
+			throw new IllegalArgumentException(
+					"powers.profile.population must be 10, 50, or 100");
+		}
+		return List.of(population);
 	}
 
 	private static String profileLabel(int players, int ticks) {

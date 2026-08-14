@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Allowed the opt-in connected-player profiler to select one accepted population at a time, enabling reproducible parallel 10/50/100-player evidence runs from immutable copies of the same commit without changing their workloads or budgets.
+
 - Closed QA-005's current 427-row live acceptance register: all 260 items, every action and artifact route, Middleworld, both alignment-exclusive advancement screens, entities, commands, and systems now carry exact-build PASS evidence; the development client replays vanilla click-style keys so UI captures exercise Minecraft's real screen path.
 - Kept artifact-started multi-tick powers alive while their authorised Shadow Sword or Heavenly Partisan remains in top-level inventory, and made item removal, lost alignment, death, logout, or shutdown end them safely without retaining player/world references.
 - Made server-owned survival Flight compatible with vanilla `allow-flight=false` without creative-flight flags, added exact client-camera direction and artifact-coordinate travel to the acceptance harness, and expanded the live suite to 83 GameTests with artifact Astral Projection and aimed Partisan combat coverage.

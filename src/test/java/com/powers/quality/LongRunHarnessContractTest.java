@@ -33,6 +33,8 @@ class LongRunHarnessContractTest {
 		assertTrue(build.contains("powersConnectedProfile"));
 		assertTrue(build.contains("inputs.property(\"connectedProfileEnabled\""));
 		assertTrue(build.contains("powersProfileTicks"));
+		assertTrue(build.contains("powersProfilePopulation"));
+		assertTrue(build.contains("powers.profile.population"));
 		assertTrue(build.contains("connected_bot_profile_game_tests_connected_ten_fifty_and_hundred_player_profiles"));
 		assertTrue(build.contains("delete(new File(gameTestRun, \"world\"))"));
 		assertTrue(metadata.contains("${connectedProfileEntrypoint}"));
@@ -48,6 +50,7 @@ class LongRunHarnessContractTest {
 		assertTrue(profiler.contains("attempted_actions"));
 		assertTrue(profiler.contains("successful_actions"));
 		assertTrue(source.contains("List.of(10, 50, 100)"));
+		assertTrue(source.contains("requestedPopulations()"));
 		assertTrue(profiler.contains("p95Mspt"));
 		assertTrue(profiler.contains("p99Mspt"));
 	}

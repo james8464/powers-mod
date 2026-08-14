@@ -164,6 +164,10 @@ tasks.named("runGameTest") {
 			systemProperty "powers.profile.ticks",
 					providers.gradleProperty("powersProfileTicks").get()
 		}
+		if (providers.gradleProperty("powersProfilePopulation").isPresent()) {
+			systemProperty "powers.profile.population",
+					providers.gradleProperty("powersProfilePopulation").get()
+		}
 	} else if (providers.gradleProperty("gameTestFilter").isPresent()) {
 		systemProperty "fabric-api.gametest.filter", providers.gradleProperty("gameTestFilter").get()
 	}
