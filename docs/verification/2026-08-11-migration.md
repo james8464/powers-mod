@@ -9,5 +9,6 @@ Back up an existing world before first launch. POWERS migrations preserve valid 
 - Existing Miniportals without charge data initialize safely within the new zero-to-two charge component contract. Rebinding stores exact dimension and coordinates; a dropped amethyst shard restores both charges.
 - Configuration schema v1 rewrites atomically to v2. Only the obsolete generated `allowTerrainDamage: false` default becomes `true`; an administrator's explicit v2 opt-out remains unchanged.
 - Realm-return and body states are revalidated at use. Corrupt/missing destinations use bounded recovery and operator diagnostics; ordinary players cannot use migration as a Light/Dark departure bypass.
+- Legacy finite guardians migrate owner UUID, remaining lifetime, and elite tier into the compact schema on first load. Positive remaining lifetime becomes a bounded absolute deadline, zero expires immediately, `-1` remains a natural creature, and malformed owner/task/archetype combinations expire fail-closed. Derived target, navigation, attribute, and cap-index state is rebuilt rather than copied.
 
 After migration, run `/powers diagnose` and `/powers testing reset`. If a player is trapped by corrupt historic realm data, an operator may use the explicit administrative travel/recovery route.
