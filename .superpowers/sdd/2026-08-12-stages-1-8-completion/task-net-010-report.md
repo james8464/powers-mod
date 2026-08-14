@@ -57,3 +57,32 @@ DONE. The production catalogue now publishes one immutable, monotonic, atomic ac
 - Re-ran source audit after extracting persistence mechanics; `PlayerPowers.java` is within the reviewed boundary and the generated manifest matches production sources.
 - Untracked `.codex-tmp/`, `.lwjgl/`, and QA-005 screenshots were preserved and excluded from staging.
 - Concerns: none. The GameTest server emitted its existing transient `Can't keep up` warning during the broad run, but all required tests completed successfully.
+
+## Review correction round 1 (2026-08-14)
+
+All three Important review findings are addressed.
+
+### Observed RED
+
+- Qualified resolver/service RED: `POWERS_TEST_RUN_ID=net010-review1-red-unit ./gradlew test --tests com.powers.magic.ActionRegistrySnapshotTest --tests com.powers.network.ActionSubmissionServiceTest --no-daemon` failed compilation because `resolveKey` and the ordered submission service did not exist.
+- Registered-handler reachability RED: `POWERS_TEST_RUN_ID=net010-review1-red-routing ./gradlew test --tests com.powers.network.ActionSubmissionHandlerContractTest --no-daemon` failed because none of the three packet owners called the service.
+- Qualified submission RED: `POWERS_TEST_RUN_ID=net010-review1-red-qualified-submit ./gradlew test --tests com.powers.magic.ActionRegistrySnapshotTest --no-daemon` rejected the literal canonical key `innate/fireball`.
+- Live-production RED: `POWERS_TEST_RUN_ID=net010-review1-red-live ./gradlew compileGametestJava --no-daemon` failed because the registered reload parser/publisher and live channel snapshot were not reachable by the GameTest.
+- Refresh protocol RED: `POWERS_TEST_RUN_ID=net010-review1-red-refresh-payload ./gradlew test --tests com.powers.network.ActionPayloadRevisionTest --no-daemon` failed compilation because no explicit authoritative invalidation payload existed.
+
+### Fix and owner audit
+
+- `ActionRegistrySnapshot.resolveKey` is now the one canonical string resolver. It preserves `innate/`, `crystal/`, `unique/`, and `dominion/` namespaces, validates the suffix as a typed action, and retains bounded, acyclic, unknown-target and collision rejection. `resolve` remains the typed built-in/external action adapter.
+- `ArtifactSelectionMigration` no longer strips prefixes. The real `ArtifactSelectionState` selected and favourite owners persist full canonical menu keys; its live test covers every supported prefix literally. The real `PlayerPowers` spell and crystal stable-key owners also migrate and rewrite aliases loaded through the production listener/parser.
+- `ActionSubmissionService` orders revision/key validation, then live context validation, then limiter, then mutation. Invalid submissions invoke exactly one supplied authoritative refresh. Shadow select, commit, cycle, bind and teleport plus grimoire and crystal handlers all call it; context covers held item/alignment or grimoire, authorization/rank, action membership, selection option/slot/direction, convergence mode, teleport subject/input/dimension coordinates, and current selected action.
+- Full menus are resent when the current owner remains available. If the owner disappeared or changed, the explicit `RefreshPayload` carries the current revision and closes the stale client surface. Limiter lanes, payment, cooldown, mutation and cast are not reached on invalid context.
+- Live GameTests now call `ActionRegistryReloadListener.reloadDocuments`, the same parser and atomic publication method used by the registered Fabric reload listener. They prove failed-reload identity retention, NET-009 external action inclusion, one refresh/zero side effects through the production submission service, and a real Augury channel completing with its captured `SpellCastTransaction` snapshot after reload.
+
+### GREEN and correction note
+
+- Focused JVM/service/handler/payload tests passed under `net010-review1-green-unit`, `net010-review1-green-routing`, and `net010-review1-green-refresh`; the affected magic/network/artifact/spell/source-quality suite passed under `net010-review1-affected`.
+- Authoritative focused live command: `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review1-live-final ./gradlew runGameTest '-PgameTestFilter=powers-gametest:action_registry_reload_game_tests_*' --no-daemon`; 5/5 passed. The earlier report's filter without `_*` selected no tests in this environment and is superseded by this quoted wildcard command.
+- The first broad review run reported one GameTest failure without retaining its identity after later runs. An immediate independent full-batch reproduction under `net010-review1-repro` passed 110/110, so no speculative production change was made; the final gates below are authoritative.
+- Broad production reachability RED: the first review `check` passed 110/110 GameTests, then failed 1/1,515 JVM tests because the standalone `ActionSubmissionValidation` was only test-reached after handler centralization. `ActionSubmissionService` now delegates its revision/key gate to that production validator; `net010-review1-reachability-green` passed reachability, resolver, and service tests.
+- Final aggregate GREEN: `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review1-final-check2 ./gradlew check --no-daemon` passed 1,515 JVM tests, 110/110 required Fabric GameTests, 27 Python tests, compilation, audits, resources, and documentation gates.
+- Independent full live `net010-review1-final-live-all` encountered the pre-existing unrelated `fx_coalescing_game_tests_event_scale_lod_reaches_near_mid_and_far_observers` timing assertion after the aggregate gate had passed. The isolated retry `net010-review1-unrelated-fx-retry` passed 1/1. NET-010 focused live remained 5/5 and the separate all-live reproduction remained 110/110.

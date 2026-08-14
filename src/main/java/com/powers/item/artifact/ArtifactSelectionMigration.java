@@ -61,12 +61,10 @@ public final class ArtifactSelectionMigration {
 
 	private static String registryAlias(ArtifactAlignment alignment, String storedKey) {
 		if (storedKey == null) return null;
-		int separator = storedKey.indexOf('/');
-		String retiredId = separator < 0 ? storedKey : storedKey.substring(separator + 1);
-		var resolved = com.powers.magic.runtime.MagicRuntime.catalogue().snapshot().resolve(retiredId);
-		if (resolved == null || resolved.value().equals(retiredId)) return null;
+		String resolved = com.powers.magic.runtime.MagicRuntime.catalogue().snapshot().resolveKey(storedKey);
+		if (resolved == null || resolved.equals(storedKey)) return null;
 		return ArtifactActionCatalogue.forAlignment(alignment).stream()
-				.filter(action -> action.abilityId().equals(resolved.value()))
+				.filter(action -> action.key().equals(resolved))
 				.map(ArtifactActionDefinition::key).findFirst().orElse(null);
 	}
 }

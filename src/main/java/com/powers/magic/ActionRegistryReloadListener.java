@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Server-data reload entrypoint for bounded retired action and menu key aliases. */
-public final class ActionRegistryReloadListener extends SimpleReloadListener<Map<String, String>> {
+public final class ActionRegistryReloadListener extends SimpleReloadListener<List<ActionRegistryReloadListener.Document>> {
 	private static final FileToIdConverter CONVERTER = FileToIdConverter.json("powers_actions");
 
 	public record Document(String id, JsonObject json) { }
@@ -30,7 +30,7 @@ public final class ActionRegistryReloadListener extends SimpleReloadListener<Map
 	}
 
 	@Override
-	protected Map<String, String> prepare(PreparableReloadListener.SharedState state) {
+	protected List<Document> prepare(PreparableReloadListener.SharedState state) {
 		ResourceManager manager = state.resourceManager();
 		List<Document> documents = new ArrayList<>();
 		CONVERTER.listMatchingResources(manager).entrySet().stream()
@@ -44,17 +44,23 @@ public final class ActionRegistryReloadListener extends SimpleReloadListener<Map
 								+ entry.getKey() + ": " + error.getMessage(), error);
 					}
 				});
-		return parseDocuments(documents);
+		return List.copyOf(documents);
 	}
 
 	@Override
-	protected void apply(Map<String, String> aliases, PreparableReloadListener.SharedState state) {
+	protected void apply(List<Document> documents, PreparableReloadListener.SharedState state) {
 		MagicActionCatalogue catalogue = com.powers.magic.runtime.MagicRuntime.catalogue();
-		if (!catalogue.reloadAliases(aliases)) {
+		if (!reloadDocuments(catalogue, documents)) {
 			throw new IllegalStateException("Action registry validation rejected the prepared reload");
 		}
 		PowersMod.LOGGER.info("Published action registry revision {} with {} canonical keys and {} aliases",
-				catalogue.snapshot().revision(), catalogue.snapshot().definitions().size(), aliases.size());
+				catalogue.snapshot().revision(), catalogue.snapshot().definitions().size(),
+				catalogue.snapshot().aliases().size());
+	}
+
+	/** Runs the exact parser and atomic publication path used by the registered Fabric listener. */
+	public static boolean reloadDocuments(MagicActionCatalogue catalogue, List<Document> documents) {
+		return catalogue.reloadAliases(parseDocuments(documents));
 	}
 
 	static Map<String, String> parseDocuments(List<Document> documents) {

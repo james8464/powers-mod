@@ -8,11 +8,11 @@ import com.powers.item.artifact.ArtifactActionCategory;
 import com.powers.item.artifact.ArtifactActionSnapshot;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.magic.runtime.MagicRuntime;
-import com.powers.magic.ActionSubmissionValidation;
 import com.powers.item.artifact.ArtifactActionCatalogue;
+import com.powers.item.artifact.ArtifactSelectionRules;
+import com.powers.item.ShadowSwordSelectionRules;
 import com.powers.player.ArtifactSelectionState;
 import com.powers.power.AbilityActivationService;
-import com.powers.util.PowerMessages;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.registries.Registries;
@@ -159,65 +159,58 @@ public final class ShadowSwordPackets {
 		ServerPlayNetworking.registerGlobalReceiver(SelectPayload.TYPE, (payload, context) ->
 				ServerPlayCallback.execute(context, player -> {
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
-					if (!current(payload.revision(), alignment, payload.actionKey())) {
-						if (alignment != null) ArtifactWeaponManager.openMenu(player, alignment);
-						return;
-					}
-					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) {
-					if (alignment != null) ArtifactWeaponManager.select(
-							player, alignment, payload.actionKey(), payload.option());
-					}
+					ActionSubmissionService.submit(MagicRuntime.catalogue().snapshot(), request(payload),
+							() -> validSelectionContext(player, alignment,
+									payload.actionKey(), payload.option()),
+							() -> refreshArtifact(player, alignment),
+							() -> PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT),
+							() -> ArtifactWeaponManager.select(player, alignment,
+									payload.actionKey(), payload.option()));
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(CommitPayload.TYPE, (payload, context) ->
 				ServerPlayCallback.execute(context, player -> {
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
-					if (!current(payload.revision(), alignment, payload.actionKey())) {
-						if (alignment != null) ArtifactWeaponManager.openMenu(player, alignment);
-						return;
-					}
-					if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) return;
-					if (alignment != null && ArtifactWeaponManager.select(player, alignment,
-							payload.actionKey(), payload.option())) {
-						ArtifactWeaponManager.activateSelected(player, alignment);
-					}
+					ActionSubmissionService.submit(MagicRuntime.catalogue().snapshot(), request(payload),
+							() -> validSelectionContext(player, alignment,
+									payload.actionKey(), payload.option()),
+							() -> refreshArtifact(player, alignment),
+							() -> PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT), () -> {
+								if (ArtifactWeaponManager.select(player, alignment,
+										payload.actionKey(), payload.option())) {
+									ArtifactWeaponManager.activateSelected(player, alignment);
+								}
+							});
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(CyclePayload.TYPE, (payload, context) ->
 				ServerPlayCallback.execute(context, player -> {
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
-					if (!current(payload.revision(), alignment, payload.actionKey())) {
-						if (alignment != null) ArtifactWeaponManager.openMenu(player, alignment);
-						return;
-					}
-					if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)
-							|| !ArtifactScrollRules.validDirection(payload.direction())) return;
-					if (alignment == null || !ArtifactWeaponManager.holds(player, alignment)
-							|| !ArtifactWeaponManager.authorized(player, alignment)) return;
-					ArtifactWeaponManager.Action selected = ArtifactWeaponManager.selected(
-							player, alignment);
-					String next = ArtifactFavouriteRules.cycle(
-							ArtifactSelectionState.favourites(player, alignment),
-							selected == null ? null : selected.definition().key(), payload.direction());
-					if (next != null) ArtifactWeaponManager.select(player, alignment, next, -1);
+					ArtifactWeaponManager.Action selected = alignment == null ? null
+							: ArtifactWeaponManager.selected(player, alignment);
+					ActionSubmissionService.submit(MagicRuntime.catalogue().snapshot(), request(payload),
+							() -> validArtifactContext(player, alignment, payload.actionKey())
+									&& ArtifactScrollRules.validDirection(payload.direction())
+									&& selected != null && selected.definition().key().equals(payload.actionKey()),
+							() -> refreshArtifact(player, alignment),
+							() -> PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT), () -> {
+								String next = ArtifactFavouriteRules.cycle(
+										ArtifactSelectionState.favourites(player, alignment),
+										selected.definition().key(), payload.direction());
+								if (next != null) ArtifactWeaponManager.select(player, alignment, next, -1);
+							});
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(BindFavouritePayload.TYPE, (payload, context) ->
 				ServerPlayCallback.execute(context, player -> {
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
-					if (!current(payload.revision(), alignment, payload.actionKey())) {
-						if (alignment != null) ArtifactWeaponManager.openMenu(player, alignment);
-						return;
-					}
-					if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) return;
-					if (alignment == null || !ArtifactWeaponManager.holds(player, alignment)
-							|| !ArtifactWeaponManager.authorized(player, alignment)) return;
-					ArtifactSelectionState.bindFavourite(player, alignment,
-							payload.slot(), payload.actionKey());
+					ActionSubmissionService.submit(MagicRuntime.catalogue().snapshot(), request(payload),
+							() -> validBindableContext(player, alignment, payload.actionKey())
+									&& payload.slot() >= 0 && payload.slot() < ArtifactFavouriteRules.SLOT_COUNT,
+							() -> refreshArtifact(player, alignment),
+							() -> PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT),
+							() -> ArtifactSelectionState.bindFavourite(player, alignment,
+									payload.slot(), payload.actionKey()));
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(TeleportPayload.TYPE, (payload, context) ->
-				ServerPlayCallback.execute(context, player -> {
-					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.TRAVEL)) {
-						handleTeleport(player, payload);
-					}
-				}));
+				ServerPlayCallback.execute(context, player -> handleTeleport(player, payload)));
 	}
 
 	public static void openMenu(ServerPlayer player, ArtifactAlignment alignment,
@@ -230,13 +223,6 @@ public final class ShadowSwordPackets {
 				energy, java.util.List.copyOf(favourites), java.util.List.copyOf(actions)));
 	}
 
-	private static boolean current(long revision, ArtifactAlignment alignment, String actionKey) {
-		var action = alignment == null ? null : ArtifactActionCatalogue.find(alignment, actionKey);
-		return action != null && ActionSubmissionValidation.validate(
-				MagicRuntime.catalogue().snapshot(), revision, action.abilityId())
-				== ActionSubmissionValidation.ACCEPT;
-	}
-
 	public static void openTeleport(ServerPlayer player, ArtifactAlignment alignment) {
 		ArtifactWeaponManager.Action selected = ArtifactWeaponManager.selected(player, alignment);
 		if (selected == null) return;
@@ -247,33 +233,84 @@ public final class ShadowSwordPackets {
 
 	private static void handleTeleport(ServerPlayer caster, TeleportPayload payload) {
 		ArtifactAlignment alignment = parseAlignment(payload.alignment());
-		if (!current(payload.revision(), alignment, payload.actionKey())) {
-			if (alignment != null) ArtifactWeaponManager.openMenu(caster, alignment);
-			return;
-		}
-		if (alignment == null || !ArtifactWeaponManager.holds(caster, alignment)
-				|| !ArtifactWeaponManager.authorized(caster, alignment)
-				|| payload.targetName().length() > 64 || !Double.isFinite(payload.x())
-				|| !Double.isFinite(payload.y()) || !Double.isFinite(payload.z())) return;
-		ArtifactWeaponManager.Action action = ArtifactWeaponManager.selected(caster, alignment);
-		if (action == null || !action.definition().key().equals(payload.actionKey())
-				|| !action.ability().requiresInput()
-				|| ArtifactWeaponManager.rank(caster, alignment)
-				< action.definition().requiredRank()) return;
+		ArtifactWeaponManager.Action action = alignment == null ? null
+				: ArtifactWeaponManager.selected(caster, alignment);
 		ServerPlayer subject = payload.targetName().isBlank() ? caster
 				: caster.level().getServer().getPlayerList().getPlayers().stream()
 						.filter(player -> player.getName().getString().equalsIgnoreCase(payload.targetName()))
 						.findFirst().orElse(null);
-		if (subject == null) {
-			PowerMessages.send(caster, "powers.packet.player_not_found", 3, payload.targetName());
-			return;
+		ActionSubmissionService.submit(MagicRuntime.catalogue().snapshot(), request(payload),
+				() -> validArtifactContext(caster, alignment, payload.actionKey()) && action != null
+						&& action.definition().key().equals(payload.actionKey())
+						&& action.ability().requiresInput()
+						&& ArtifactWeaponManager.rank(caster, alignment) >= action.definition().requiredRank()
+						&& payload.targetName().length() <= 64 && Double.isFinite(payload.x())
+						&& Double.isFinite(payload.y()) && Double.isFinite(payload.z()) && subject != null,
+				() -> refreshArtifact(caster, alignment),
+				() -> PacketRateLimiter.allow(caster, PacketRateLimiter.Lane.TRAVEL), () -> {
+					int cooldown = ArtifactWeaponManager.cooldown(caster, alignment, action);
+					if (AbilityActivationService.activateArtifactTeleport(caster, subject, action.ability(),
+							payload.dimension(), payload.x(), payload.y(), payload.z(), cooldown)
+							== AbilityActivationService.Result.ACTIVATED) {
+						ArtifactWeaponManager.castFx(caster, alignment, action);
+					}
+				});
+	}
+
+	private static boolean validArtifactContext(ServerPlayer player, ArtifactAlignment alignment,
+			String actionKey) {
+		return alignment != null && ArtifactActionCatalogue.find(alignment, actionKey) != null
+				&& ArtifactWeaponManager.holds(player, alignment)
+				&& ArtifactWeaponManager.authorized(player, alignment);
+	}
+
+	private static boolean validSelectionContext(ServerPlayer player, ArtifactAlignment alignment,
+			String actionKey, int option) {
+		if (!validBindableContext(player, alignment, actionKey)) return false;
+		ArtifactWeaponManager.Action action = ArtifactWeaponManager.action(alignment, actionKey);
+		return action != null && ShadowSwordSelectionRules.validOption(
+				option, action.ability().selectionOptionCount());
+	}
+
+	private static boolean validBindableContext(ServerPlayer player, ArtifactAlignment alignment,
+			String actionKey) {
+		if (!validArtifactContext(player, alignment, actionKey)) return false;
+		ArtifactWeaponManager.Action action = ArtifactWeaponManager.action(alignment, actionKey);
+		return action != null && ArtifactSelectionRules.maySelect(action.definition(), alignment,
+				ArtifactWeaponManager.rank(player, alignment));
+	}
+
+	private static void refreshArtifact(ServerPlayer player, ArtifactAlignment requested) {
+		ArtifactAlignment current = requested;
+		if (current == null || !ArtifactWeaponManager.holds(player, current)) {
+			current = ArtifactWeaponManager.alignment(player.getMainHandItem());
+			if (current == null) current = ArtifactWeaponManager.alignment(player.getOffhandItem());
 		}
-		int cooldown = ArtifactWeaponManager.cooldown(caster, alignment, action);
-		if (AbilityActivationService.activateArtifactTeleport(caster, subject, action.ability(),
-				payload.dimension(), payload.x(), payload.y(), payload.z(), cooldown)
-				== AbilityActivationService.Result.ACTIVATED) {
-			ArtifactWeaponManager.castFx(caster, alignment, action);
+		if (current != null && ArtifactWeaponManager.authorized(player, current)) {
+			ArtifactWeaponManager.openMenu(player, current);
+		} else {
+			ActionSubmissionService.refresh(player, "artifact");
 		}
+	}
+
+	private static ActionSubmissionService.Request request(SelectPayload payload) {
+		return new ActionSubmissionService.Request(payload.revision(), payload.actionKey());
+	}
+
+	private static ActionSubmissionService.Request request(CommitPayload payload) {
+		return new ActionSubmissionService.Request(payload.revision(), payload.actionKey());
+	}
+
+	private static ActionSubmissionService.Request request(CyclePayload payload) {
+		return new ActionSubmissionService.Request(payload.revision(), payload.actionKey());
+	}
+
+	private static ActionSubmissionService.Request request(BindFavouritePayload payload) {
+		return new ActionSubmissionService.Request(payload.revision(), payload.actionKey());
+	}
+
+	private static ActionSubmissionService.Request request(TeleportPayload payload) {
+		return new ActionSubmissionService.Request(payload.revision(), payload.actionKey());
 	}
 
 	private static ArtifactAlignment parseAlignment(String value) {

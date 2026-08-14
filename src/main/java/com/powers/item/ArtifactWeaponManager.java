@@ -66,13 +66,19 @@ public final class ArtifactWeaponManager {
 	}
 
 	public static Action selected(ServerPlayer player, ArtifactAlignment alignment) {
-		return find(alignment, ArtifactSelectionState.selected(player, alignment));
+		return action(alignment, ArtifactSelectionState.selected(player, alignment));
+	}
+
+	/** Resolves one canonical menu key to its live ability adapter. */
+	public static Action action(ArtifactAlignment alignment, String key) {
+		return actions(alignment).stream().filter(candidate -> candidate.definition().key().equals(key))
+				.findFirst().orElse(null);
 	}
 
 	public static boolean select(ServerPlayer player, ArtifactAlignment alignment,
 			String key, int option) {
 		if (!holds(player, alignment) || !authorized(player, alignment)) return false;
-		Action action = find(alignment, key);
+		Action action = action(alignment, key);
 		int rank = rank(player, alignment);
 		if (action == null || !ArtifactSelectionRules.maySelect(action.definition(), alignment, rank)
 				|| !ShadowSwordSelectionRules.validOption(option, action.ability().selectionOptionCount())) {
@@ -201,11 +207,6 @@ public final class ArtifactWeaponManager {
 
 	private static boolean isAlignment(ItemStack stack, ArtifactAlignment alignment) {
 		return stack.getItem() instanceof MythicArtifactItem artifact && artifact.alignment() == alignment;
-	}
-
-	private static Action find(ArtifactAlignment alignment, String key) {
-		return actions(alignment).stream().filter(action -> action.definition().key().equals(key))
-				.findFirst().orElse(null);
 	}
 
 	private static Ability resolve(ArtifactActionDefinition definition) {

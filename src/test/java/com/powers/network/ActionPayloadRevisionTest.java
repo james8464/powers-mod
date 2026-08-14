@@ -19,4 +19,12 @@ class ActionPayloadRevisionTest {
 		assertEquals(7L, crystal.revision());
 		assertEquals("fireball", crystal.actionKey());
 	}
+
+	@Test
+	void contextLossHasAnExplicitAuthoritativeRefreshPayload() {
+		var refresh = new ActionSubmissionService.RefreshPayload(9L, "grimoire");
+
+		assertEquals(9L, refresh.revision());
+		assertEquals("grimoire", refresh.surface());
+	}
 }

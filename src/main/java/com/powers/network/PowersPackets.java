@@ -168,6 +168,7 @@ public final class PowersPackets {
 
 	public static void initialize() {
 		ProtocolHandshakePackets.initialize();
+		ActionSubmissionService.initialize();
 		GrimoirePackets.initialize();
 		PayloadTypeRegistry.serverboundPlay().register(ActivateAbilityPayload.TYPE, ActivateAbilityPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(
