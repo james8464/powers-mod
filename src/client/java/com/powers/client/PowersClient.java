@@ -127,23 +127,35 @@ public class PowersClient implements ClientModInitializer {
 						Minecraft.getInstance().gui.setScreen(
 								new CelestialLocatorScreen(payload.mode(), payload.nonce()))));
 		ClientPlayNetworking.registerGlobalReceiver(GrimoirePackets.OpenIndexPayload.TYPE,
-				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
-						new GrimoireIndexScreen(payload.grimoireKey(), payload.selected(), payload.entries()))));
+				(payload, context) -> context.client().execute(() -> {
+					ClientActionRegistry.accept(payload.revision());
+					Minecraft.getInstance().gui.setScreen(new GrimoireIndexScreen(payload.revision(),
+							payload.grimoireKey(), payload.selected(), payload.entries()));
+				}));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenMenuPayload.TYPE,
-				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
-						new ShadowSwordScreen(payload.alignment(), payload.selectedKey(), payload.rank(),
+				(payload, context) -> context.client().execute(() -> {
+					ClientActionRegistry.acceptArtifact(payload.revision(), payload.selectedKey());
+					Minecraft.getInstance().gui.setScreen(
+						new ShadowSwordScreen(payload.revision(), payload.alignment(), payload.selectedKey(), payload.rank(),
 								payload.sizeMorphOption(), payload.energy(),
 								payload.favourites(),
-								payload.actions()))));
+								payload.actions()));
+				}));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenTeleportPayload.TYPE,
-				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
-						TeleportInputScreen.artifact(payload.alignment()))));
+				(payload, context) -> context.client().execute(() -> {
+					ClientActionRegistry.acceptArtifact(payload.revision(), payload.actionKey());
+					Minecraft.getInstance().gui.setScreen(TeleportInputScreen.artifact(
+							payload.revision(), payload.alignment(), payload.actionKey()));
+				}));
 		ClientPlayNetworking.registerGlobalReceiver(RelicPackets.OpenReservoirPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
 						new ReservoirTransferScreen(payload))));
 		ClientPlayNetworking.registerGlobalReceiver(CrystalSelectorPackets.OpenPayload.TYPE,
-				(payload, context) -> context.client().execute(() -> Minecraft.getInstance().gui.setScreen(
-						new RainbowConvergenceScreen(payload.modes(), payload.selected()))));
+				(payload, context) -> context.client().execute(() -> {
+					ClientActionRegistry.accept(payload.revision());
+					Minecraft.getInstance().gui.setScreen(new RainbowConvergenceScreen(
+							payload.revision(), payload.modes(), payload.selected()));
+				}));
 		ClientPlayNetworking.registerGlobalReceiver(CelestialRuinPackets.Payload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientCelestialRuinFx.handle(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(EventAudioPackets.Payload.TYPE,
@@ -151,6 +163,7 @@ public class PowersClient implements ClientModInitializer {
 		// clear the cached state when you leave the server so the hud doesn't carry over old powers
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			ClientPowerState.reset();
+			ClientActionRegistry.reset();
 			ClientMagicFx.reset();
 			ClientBodySnapshots.clear();
 			PrivateCompanionClient.clear();

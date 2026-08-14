@@ -28,7 +28,8 @@ public abstract class ArtifactScrollMixin {
 		int direction = ArtifactScrollRules.direction(vertical);
 		if (direction == 0 || !ClientPlayNetworking.canSend(ShadowSwordPackets.CyclePayload.TYPE)) return;
 		ClientPlayNetworking.send(new ShadowSwordPackets.CyclePayload(
-				artifact.alignment().serializedName(), direction));
+				com.powers.client.ClientActionRegistry.revision(), artifact.alignment().serializedName(),
+				com.powers.client.ClientActionRegistry.artifactActionKey(), direction));
 		callback.cancel();
 	}
 

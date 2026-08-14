@@ -23,11 +23,11 @@ public final class ShadowSwordScreen extends Screen {
 	private int hovered = ArtifactWheelRules.NONE;
 	private int openTicks;
 
-	public ShadowSwordScreen(String alignment, String initialKey, int rank,
+	public ShadowSwordScreen(long revision, String alignment, String initialKey, int rank,
 			int sizeMorphOption, int energy,
 			List<String> favourites,
 			List<com.powers.item.artifact.ArtifactActionSnapshot> snapshots) {
-		this(ArtifactMenuState.fromPacket(alignment, initialKey, rank,
+		this(ArtifactMenuState.fromPacket(revision, alignment, initialKey, rank,
 				sizeMorphOption, energy, favourites, snapshots));
 	}
 
@@ -99,9 +99,9 @@ public final class ShadowSwordScreen extends Screen {
 		ArtifactActionDefinition action = state.action(favourites.get(slot));
 		if (action == null || state.locked(action)) return;
 		ClientPlayNetworking.send(cast
-				? new ShadowSwordPackets.CommitPayload(state.alignment().serializedName(),
+				? new ShadowSwordPackets.CommitPayload(state.revision(), state.alignment().serializedName(),
 						action.key(), state.optionFor(action))
-				: new ShadowSwordPackets.SelectPayload(state.alignment().serializedName(),
+				: new ShadowSwordPackets.SelectPayload(state.revision(), state.alignment().serializedName(),
 						action.key(), state.optionFor(action)));
 		onClose();
 	}

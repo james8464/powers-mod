@@ -317,7 +317,7 @@ public final class PowersClientGameTests implements FabricClientGameTest {
             throw new AssertionError("Rainbow selector must expose exactly seven forces");
         }
         capture(context, "powers-rainbow-sevenfold",
-                () -> new RainbowConvergenceScreen(rainbowModes, 5), RainbowConvergenceScreen.class);
+				() -> new RainbowConvergenceScreen(0L, rainbowModes, 5), RainbowConvergenceScreen.class);
 
         setClientState(context, false, 100, 100, List.of());
         capture(context, "powers-rank-maze-light", RankMazeScreen::new, RankMazeScreen.class);
@@ -329,7 +329,7 @@ public final class PowersClientGameTests implements FabricClientGameTest {
                 ArtifactActionCatalogue.forAlignment(ArtifactAlignment.DARKNESS), 10,
                 "innate/lightning_strike");
         capture(context, "powers-shadow-combat-wheel",
-                () -> new ShadowSwordScreen("darkness", "innate/lightning_strike", 10,
+				() -> new ShadowSwordScreen(0L, "darkness", "innate/lightning_strike", 10,
                         SizeMorphRules.normalOption(), 100, favourites, snapshots),
                 ShadowSwordScreen.class);
         capture(context, "powers-shadow-library",
@@ -349,7 +349,7 @@ public final class PowersClientGameTests implements FabricClientGameTest {
         var celestial = SpellRegistry.defaults().forTexture("book_grimoire_celestial");
         List<SpellIndexEntry> spells = celestial.spells().stream().map(SpellIndexEntry::from).toList();
         capture(context, "powers-grimoire-index",
-                () -> new GrimoireIndexScreen(celestial.key(), 0, spells), GrimoireIndexScreen.class);
+				() -> new GrimoireIndexScreen(0L, celestial.key(), 0, spells), GrimoireIndexScreen.class);
         capture(context, "powers-power-option",
                 () -> new PowerSelectionScreen(0, PowerRegistry.get("size_shift").ability(),
                         SizeMorphRules.normalOption()), PowerSelectionScreen.class);
@@ -372,13 +372,13 @@ public final class PowersClientGameTests implements FabricClientGameTest {
         context.waitTick();
         List<String> modes = CrystalAbilityCatalog.defaults().get("rainbow_crystal");
         capture(context, "powers-rainbow-sevenfold-compact",
-                () -> new RainbowConvergenceScreen(modes, 0), RainbowConvergenceScreen.class);
+				() -> new RainbowConvergenceScreen(0L, modes, 0), RainbowConvergenceScreen.class);
         List<ArtifactActionSnapshot> snapshots = artifactSnapshots();
         List<String> favourites = ArtifactFavouriteRules.defaults(
                 ArtifactActionCatalogue.forAlignment(ArtifactAlignment.DARKNESS), 10,
                 "innate/lightning_strike");
         capture(context, "powers-shadow-combat-wheel-compact",
-                () -> new ShadowSwordScreen("darkness", "innate/lightning_strike", 10,
+				() -> new ShadowSwordScreen(0L, "darkness", "innate/lightning_strike", 10,
                         SizeMorphRules.normalOption(), 100, favourites, snapshots),
                 ShadowSwordScreen.class);
     }

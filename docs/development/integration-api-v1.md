@@ -1,5 +1,7 @@
 # POWERS integration API v1
 
+External registrations join the same immutable action snapshot used by built-ins and datapack aliases. Registration and lifecycle removal publish a new monotonic revision atomically; callers that captured a prior `PreparedMagicCast` retain its exact definition/revision rather than consulting a partially changed registry. Datapack alias reload does not bypass the v1 registration, protection, payment, cooldown, targeting, or work-budget contracts.
+
 `com.powers.api.v1` is the stable server-only integration boundary. Its semantic version is `1.0`:
 minor releases may add methods/types, while removing or changing an existing binary signature requires
 a new major package/version. It deliberately contains no `net.minecraft.client` references.

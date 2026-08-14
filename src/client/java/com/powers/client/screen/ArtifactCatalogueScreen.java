@@ -182,7 +182,7 @@ public final class ArtifactCatalogueScreen extends Screen {
 		if (selected == null || state.locked(selected)) return;
 		favourites = ArtifactFavouriteRules.assign(favourites, slot, selected.key());
 		ClientPlayNetworking.send(new ShadowSwordPackets.BindFavouritePayload(
-				state.alignment().serializedName(), slot, selected.key()));
+				state.revision(), state.alignment().serializedName(), slot, selected.key()));
 		rebuildWidgets();
 	}
 
@@ -194,7 +194,7 @@ public final class ArtifactCatalogueScreen extends Screen {
 			default -> -1;
 		};
 		ClientPlayNetworking.send(new ShadowSwordPackets.SelectPayload(
-				state.alignment().serializedName(), selected.key(), option));
+				state.revision(), state.alignment().serializedName(), selected.key(), option));
 		minecraft.gui.setScreen(null);
 	}
 

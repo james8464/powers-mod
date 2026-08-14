@@ -18,6 +18,7 @@
 			"com.powers.entity.SummonPersistenceGameTests",
 			"com.powers.gametest.MultiplayerInteractionGameTests",
 			"com.powers.gametest.ApiCompatibilityGameTests"${connectedProfileEntrypoint}${restartSoakEntrypoint}${perf016BenchmarkEntrypoint}
+			,"com.powers.gametest.ActionRegistryReloadGameTests"
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests"

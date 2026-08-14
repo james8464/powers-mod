@@ -39,7 +39,7 @@ public final class MagicActionCatalogue {
 			Map.entry(MagicAspect.CREATION, 0xFF9D42),
 			Map.entry(MagicAspect.SUPPRESSION, 0xB36BFF));
 
-	private final Map<MagicActionId, MagicActionDefinition> definitions;
+	private volatile ActionRegistrySnapshot snapshot;
 	private final Set<MagicActionId> builtInIds;
 
 	private MagicActionCatalogue(Collection<MagicActionDefinition> definitions) {
@@ -49,7 +49,7 @@ public final class MagicActionCatalogue {
 				throw new IllegalArgumentException("Duplicate magic action: " + definition.id());
 			}
 		}
-		this.definitions = indexed;
+		this.snapshot = ActionRegistrySnapshot.validated(0L, indexed.values(), Map.of());
 		this.builtInIds = Set.copyOf(indexed.keySet());
 	}
 
@@ -204,31 +204,65 @@ public final class MagicActionCatalogue {
 
 	/** Returns the definition for an action or {@code null} when the ID is unknown. */
 	public synchronized MagicActionDefinition definition(MagicActionId id) {
-		return definitions.get(Objects.requireNonNull(id, "id"));
+		return snapshot.definition(Objects.requireNonNull(id, "id"));
 	}
 
 	/** Returns all definitions in stable registration order. */
 	public synchronized Collection<MagicActionDefinition> definitions() {
-		return List.copyOf(definitions.values());
+		return snapshot.orderedDefinitions();
+	}
+
+	/** Returns the canonical immutable snapshot captured by menus and active casts. */
+	public ActionRegistrySnapshot snapshot() {
+		return snapshot;
+	}
+
+	/** Validates every alias before atomically publishing the next monotonic revision. */
+	public synchronized boolean reloadAliases(Map<String, String> aliases) {
+		ActionRegistrySnapshot current = snapshot;
+		try {
+			snapshot = ActionRegistrySnapshot.validated(Math.addExact(current.revision(), 1L),
+					current.orderedDefinitions(), aliases);
+			return true;
+		} catch (IllegalArgumentException | ArithmeticException invalid) {
+			return false;
+		}
 	}
 
 	/** Adds one externally owned definition to this canonical production catalogue. */
 	public synchronized boolean registerExternal(MagicActionDefinition definition) {
 		Objects.requireNonNull(definition, "definition");
-		if (definition.origin() != MagicOrigin.EXTENSION || definitions.containsKey(definition.id())) return false;
-		definitions.put(definition.id(), definition);
+		ActionRegistrySnapshot current = snapshot;
+		if (definition.origin() != MagicOrigin.EXTENSION || current.definition(definition.id()) != null) return false;
+		List<MagicActionDefinition> updated = new java.util.ArrayList<>(current.orderedDefinitions());
+		updated.add(definition);
+		snapshot = ActionRegistrySnapshot.validated(current.revision() + 1L, updated, current.aliases());
 		return true;
 	}
 
 	/** Removes one external definition at the owning server lifecycle boundary. */
 	public synchronized boolean unregisterExternal(MagicActionId id) {
 		Objects.requireNonNull(id, "id");
-		return !builtInIds.contains(id) && definitions.remove(id) != null;
+		ActionRegistrySnapshot current = snapshot;
+		if (builtInIds.contains(id) || current.definition(id) == null) return false;
+		List<MagicActionDefinition> updated = current.orderedDefinitions().stream()
+				.filter(definition -> !definition.id().equals(id)).toList();
+		Map<String, String> retainedAliases = current.aliases().entrySet().stream()
+				.filter(entry -> !id.equals(current.resolve(entry.getKey())))
+				.collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+						(first, second) -> first, LinkedHashMap::new));
+		try {
+			snapshot = ActionRegistrySnapshot.validated(current.revision() + 1L, updated, retainedAliases);
+		} catch (IllegalArgumentException invalid) {
+			return false;
+		}
+		return true;
 	}
 
 	/** Returns the immutable subset owned by the requested origin. */
 	public synchronized List<MagicActionDefinition> byOrigin(MagicOrigin origin) {
-		return definitions.values().stream().filter(definition -> definition.origin() == origin).toList();
+		return snapshot.orderedDefinitions().stream()
+				.filter(definition -> definition.origin() == origin).toList();
 	}
 
 	private static void add(List<MagicActionDefinition> actions, String id, MagicOrigin origin,

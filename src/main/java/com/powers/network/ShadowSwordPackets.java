@@ -7,6 +7,9 @@ import com.powers.item.artifact.ArtifactFavouriteRules;
 import com.powers.item.artifact.ArtifactActionCategory;
 import com.powers.item.artifact.ArtifactActionSnapshot;
 import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.magic.runtime.MagicRuntime;
+import com.powers.magic.ActionSubmissionValidation;
+import com.powers.item.artifact.ArtifactActionCatalogue;
 import com.powers.player.ArtifactSelectionState;
 import com.powers.power.AbilityActivationService;
 import com.powers.util.PowerMessages;
@@ -36,12 +39,13 @@ public final class ShadowSwordPackets {
 	private static final StreamCodec<RegistryFriendlyByteBuf, java.util.List<ArtifactActionSnapshot>>
 			SNAPSHOT_LIST_CODEC = ACTION_SNAPSHOT_CODEC.apply(ByteBufCodecs.list(128));
 
-	public record OpenMenuPayload(String alignment, String selectedKey, int rank,
+	public record OpenMenuPayload(long revision, String alignment, String selectedKey, int rank,
 			int sizeMorphOption, int energy, java.util.List<String> favourites,
 			java.util.List<ArtifactActionSnapshot> actions) implements CustomPacketPayload {
 		public static final Type<OpenMenuPayload> TYPE = new Type<>(PowersMod.id("open_shadow_sword"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, OpenMenuPayload> STREAM_CODEC =
 				StreamCodec.composite(
+						ByteBufCodecs.VAR_LONG, OpenMenuPayload::revision,
 						ALIGNMENT_CODEC, OpenMenuPayload::alignment,
 						ACTION_KEY_CODEC, OpenMenuPayload::selectedKey,
 						ByteBufCodecs.VAR_INT, OpenMenuPayload::rank,
@@ -54,19 +58,22 @@ public final class ShadowSwordPackets {
 		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
 	}
 
-	public record OpenTeleportPayload(String alignment) implements CustomPacketPayload {
+	public record OpenTeleportPayload(long revision, String alignment, String actionKey) implements CustomPacketPayload {
 		public static final Type<OpenTeleportPayload> TYPE = new Type<>(PowersMod.id("open_shadow_teleport"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, OpenTeleportPayload> STREAM_CODEC =
-				StreamCodec.composite(ALIGNMENT_CODEC, OpenTeleportPayload::alignment,
+				StreamCodec.composite(ByteBufCodecs.VAR_LONG, OpenTeleportPayload::revision,
+						ALIGNMENT_CODEC, OpenTeleportPayload::alignment,
+						ACTION_KEY_CODEC, OpenTeleportPayload::actionKey,
 						OpenTeleportPayload::new);
 
 		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
 	}
 
-	public record SelectPayload(String alignment, String actionKey, int option) implements CustomPacketPayload {
+	public record SelectPayload(long revision, String alignment, String actionKey, int option) implements CustomPacketPayload {
 		public static final Type<SelectPayload> TYPE = new Type<>(PowersMod.id("select_shadow_sword"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, SelectPayload> STREAM_CODEC =
 				StreamCodec.composite(
+						ByteBufCodecs.VAR_LONG, SelectPayload::revision,
 						ALIGNMENT_CODEC, SelectPayload::alignment,
 						ACTION_KEY_CODEC, SelectPayload::actionKey,
 						ByteBufCodecs.VAR_INT, SelectPayload::option,
@@ -76,11 +83,12 @@ public final class ShadowSwordPackets {
 	}
 
 	/** Selects and casts one release-confirmed favourite under server authority. */
-	public record CommitPayload(String alignment, String actionKey, int option)
+	public record CommitPayload(long revision, String alignment, String actionKey, int option)
 			implements CustomPacketPayload {
 		public static final Type<CommitPayload> TYPE = new Type<>(PowersMod.id("commit_artifact_wheel"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, CommitPayload> STREAM_CODEC =
-				StreamCodec.composite(ALIGNMENT_CODEC, CommitPayload::alignment,
+				StreamCodec.composite(ByteBufCodecs.VAR_LONG, CommitPayload::revision,
+						ALIGNMENT_CODEC, CommitPayload::alignment,
 						ACTION_KEY_CODEC, CommitPayload::actionKey,
 						ByteBufCodecs.VAR_INT, CommitPayload::option, CommitPayload::new);
 
@@ -88,11 +96,13 @@ public final class ShadowSwordPackets {
 	}
 
 	/** One bounded server-authoritative catalogue step requested by crouch-scroll. */
-	public record CyclePayload(String alignment, int direction) implements CustomPacketPayload {
+	public record CyclePayload(long revision, String alignment, String actionKey, int direction) implements CustomPacketPayload {
 		public static final Type<CyclePayload> TYPE = new Type<>(PowersMod.id("cycle_artifact_action"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, CyclePayload> STREAM_CODEC =
 				StreamCodec.composite(
+						ByteBufCodecs.VAR_LONG, CyclePayload::revision,
 						ALIGNMENT_CODEC, CyclePayload::alignment,
+						ACTION_KEY_CODEC, CyclePayload::actionKey,
 						ByteBufCodecs.VAR_INT, CyclePayload::direction,
 						CyclePayload::new);
 
@@ -100,12 +110,13 @@ public final class ShadowSwordPackets {
 	}
 
 	/** Persists one direct library-to-wheel binding after server validation. */
-	public record BindFavouritePayload(String alignment, int slot, String actionKey)
+	public record BindFavouritePayload(long revision, String alignment, int slot, String actionKey)
 			implements CustomPacketPayload {
 		public static final Type<BindFavouritePayload> TYPE =
 				new Type<>(PowersMod.id("bind_artifact_favourite"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, BindFavouritePayload> STREAM_CODEC =
 				StreamCodec.composite(
+						ByteBufCodecs.VAR_LONG, BindFavouritePayload::revision,
 						ALIGNMENT_CODEC, BindFavouritePayload::alignment,
 						ByteBufCodecs.VAR_INT, BindFavouritePayload::slot,
 						ACTION_KEY_CODEC, BindFavouritePayload::actionKey,
@@ -114,12 +125,15 @@ public final class ShadowSwordPackets {
 		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
 	}
 
-	public record TeleportPayload(String alignment, double x, double y, double z, ResourceKey<Level> dimension,
+	public record TeleportPayload(long revision, String alignment, String actionKey,
+			double x, double y, double z, ResourceKey<Level> dimension,
 			String targetName) implements CustomPacketPayload {
 		public static final Type<TeleportPayload> TYPE = new Type<>(PowersMod.id("shadow_sword_teleport"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, TeleportPayload> STREAM_CODEC =
 				StreamCodec.composite(
+						ByteBufCodecs.VAR_LONG, TeleportPayload::revision,
 						ALIGNMENT_CODEC, TeleportPayload::alignment,
+						ACTION_KEY_CODEC, TeleportPayload::actionKey,
 						ByteBufCodecs.DOUBLE, TeleportPayload::x,
 						ByteBufCodecs.DOUBLE, TeleportPayload::y,
 						ByteBufCodecs.DOUBLE, TeleportPayload::z,
@@ -144,16 +158,24 @@ public final class ShadowSwordPackets {
 		PayloadTypeRegistry.serverboundPlay().register(TeleportPayload.TYPE, TeleportPayload.STREAM_CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(SelectPayload.TYPE, (payload, context) ->
 				ServerPlayCallback.execute(context, player -> {
-					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) {
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
+					if (!current(payload.revision(), alignment, payload.actionKey())) {
+						if (alignment != null) ArtifactWeaponManager.openMenu(player, alignment);
+						return;
+					}
+					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) {
 					if (alignment != null) ArtifactWeaponManager.select(
 							player, alignment, payload.actionKey(), payload.option());
 					}
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(CommitPayload.TYPE, (payload, context) ->
 				ServerPlayCallback.execute(context, player -> {
-					if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) return;
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
+					if (!current(payload.revision(), alignment, payload.actionKey())) {
+						if (alignment != null) ArtifactWeaponManager.openMenu(player, alignment);
+						return;
+					}
+					if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) return;
 					if (alignment != null && ArtifactWeaponManager.select(player, alignment,
 							payload.actionKey(), payload.option())) {
 						ArtifactWeaponManager.activateSelected(player, alignment);
@@ -161,9 +183,13 @@ public final class ShadowSwordPackets {
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(CyclePayload.TYPE, (payload, context) ->
 				ServerPlayCallback.execute(context, player -> {
+					ArtifactAlignment alignment = parseAlignment(payload.alignment());
+					if (!current(payload.revision(), alignment, payload.actionKey())) {
+						if (alignment != null) ArtifactWeaponManager.openMenu(player, alignment);
+						return;
+					}
 					if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)
 							|| !ArtifactScrollRules.validDirection(payload.direction())) return;
-					ArtifactAlignment alignment = parseAlignment(payload.alignment());
 					if (alignment == null || !ArtifactWeaponManager.holds(player, alignment)
 							|| !ArtifactWeaponManager.authorized(player, alignment)) return;
 					ArtifactWeaponManager.Action selected = ArtifactWeaponManager.selected(
@@ -175,8 +201,12 @@ public final class ShadowSwordPackets {
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(BindFavouritePayload.TYPE, (payload, context) ->
 				ServerPlayCallback.execute(context, player -> {
-					if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) return;
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
+					if (!current(payload.revision(), alignment, payload.actionKey())) {
+						if (alignment != null) ArtifactWeaponManager.openMenu(player, alignment);
+						return;
+					}
+					if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) return;
 					if (alignment == null || !ArtifactWeaponManager.holds(player, alignment)
 							|| !ArtifactWeaponManager.authorized(player, alignment)) return;
 					ArtifactSelectionState.bindFavourite(player, alignment,
@@ -196,22 +226,38 @@ public final class ShadowSwordPackets {
 			java.util.List<String> favourites,
 			java.util.List<ArtifactActionSnapshot> actions) {
 		ServerPlayNetworking.send(player, new OpenMenuPayload(
-				alignment.serializedName(), selectedKey, rank, sizeMorphOption,
+				MagicRuntime.catalogue().snapshot().revision(), alignment.serializedName(), selectedKey, rank, sizeMorphOption,
 				energy, java.util.List.copyOf(favourites), java.util.List.copyOf(actions)));
 	}
 
+	private static boolean current(long revision, ArtifactAlignment alignment, String actionKey) {
+		var action = alignment == null ? null : ArtifactActionCatalogue.find(alignment, actionKey);
+		return action != null && ActionSubmissionValidation.validate(
+				MagicRuntime.catalogue().snapshot(), revision, action.abilityId())
+				== ActionSubmissionValidation.ACCEPT;
+	}
+
 	public static void openTeleport(ServerPlayer player, ArtifactAlignment alignment) {
-		ServerPlayNetworking.send(player, new OpenTeleportPayload(alignment.serializedName()));
+		ArtifactWeaponManager.Action selected = ArtifactWeaponManager.selected(player, alignment);
+		if (selected == null) return;
+		ServerPlayNetworking.send(player, new OpenTeleportPayload(
+				MagicRuntime.catalogue().snapshot().revision(), alignment.serializedName(),
+				selected.definition().key()));
 	}
 
 	private static void handleTeleport(ServerPlayer caster, TeleportPayload payload) {
 		ArtifactAlignment alignment = parseAlignment(payload.alignment());
+		if (!current(payload.revision(), alignment, payload.actionKey())) {
+			if (alignment != null) ArtifactWeaponManager.openMenu(caster, alignment);
+			return;
+		}
 		if (alignment == null || !ArtifactWeaponManager.holds(caster, alignment)
 				|| !ArtifactWeaponManager.authorized(caster, alignment)
 				|| payload.targetName().length() > 64 || !Double.isFinite(payload.x())
 				|| !Double.isFinite(payload.y()) || !Double.isFinite(payload.z())) return;
 		ArtifactWeaponManager.Action action = ArtifactWeaponManager.selected(caster, alignment);
-		if (action == null || !action.ability().requiresInput()
+		if (action == null || !action.definition().key().equals(payload.actionKey())
+				|| !action.ability().requiresInput()
 				|| ArtifactWeaponManager.rank(caster, alignment)
 				< action.definition().requiredRank()) return;
 		ServerPlayer subject = payload.targetName().isBlank() ? caster

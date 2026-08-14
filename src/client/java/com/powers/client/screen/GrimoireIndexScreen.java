@@ -17,13 +17,15 @@ public final class GrimoireIndexScreen extends Screen {
 	private static final int PANEL_WIDTH = 344;
 	private static final int PANEL_HEIGHT = 224;
 	private final String grimoireKey;
+	private final long revision;
 	private final List<SpellIndexEntry> entries;
 	private final List<Button> rows = new ArrayList<>();
 	private int preview;
 
-	public GrimoireIndexScreen(String grimoireKey, int selected, List<SpellIndexEntry> entries) {
+	public GrimoireIndexScreen(long revision, String grimoireKey, int selected, List<SpellIndexEntry> entries) {
 		super(Component.translatable("screen.powers.grimoire.title"));
 		this.grimoireKey = grimoireKey;
+		this.revision = revision;
 		this.entries = List.copyOf(entries);
 		this.preview = Math.clamp(selected, 0, Math.max(0, entries.size() - 1));
 	}
@@ -52,7 +54,8 @@ public final class GrimoireIndexScreen extends Screen {
 	}
 
 	private void select() {
-		ClientPlayNetworking.send(new GrimoirePackets.SelectSpellPayload(grimoireKey, preview));
+		ClientPlayNetworking.send(new GrimoirePackets.SelectSpellPayload(
+				revision, grimoireKey, entries.get(preview).id()));
 		onClose();
 	}
 

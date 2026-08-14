@@ -27,11 +27,15 @@ public final class ArtifactSelectionState {
 	}
 
 	public static boolean select(ServerPlayer player, ArtifactAlignment alignment, String key) {
-		if (key == null || key.length() > 96 || ArtifactActionCatalogue.find(alignment, key) == null) return false;
+		if (key == null || key.length() > 96) return false;
+		int rank = alignment == ArtifactAlignment.DARKNESS
+				? PlayerPowers.get(player).darknessLevel() : PlayerPowers.get(player).skillLevel();
+		String canonical = ArtifactSelectionMigration.migrate(alignment, key, rank);
+		if (ArtifactActionCatalogue.find(alignment, canonical) == null) return false;
 		if (alignment == ArtifactAlignment.DARKNESS) {
-			player.setAttached(PlayerPowerAttachments.SHADOW_SWORD_SELECTION, key);
+			player.setAttached(PlayerPowerAttachments.SHADOW_SWORD_SELECTION, canonical);
 		} else {
-			player.setAttached(PlayerPowerAttachments.HEAVENLY_PARTISAN_SELECTION, key);
+			player.setAttached(PlayerPowerAttachments.HEAVENLY_PARTISAN_SELECTION, canonical);
 		}
 		return true;
 	}
@@ -52,13 +56,14 @@ public final class ArtifactSelectionState {
 	/** Server-validates and persists one direct library-to-wheel binding. */
 	public static boolean bindFavourite(ServerPlayer player, ArtifactAlignment alignment,
 			int slot, String key) {
-		var definition = ArtifactActionCatalogue.find(alignment, key);
 		int rank = alignment == ArtifactAlignment.DARKNESS
 				? PlayerPowers.get(player).darknessLevel() : PlayerPowers.get(player).skillLevel();
+		String canonical = ArtifactSelectionMigration.migrate(alignment, key, rank);
+		var definition = ArtifactActionCatalogue.find(alignment, canonical);
 		if (slot < 0 || slot >= ArtifactFavouriteRules.SLOT_COUNT || definition == null
 				|| !ArtifactSelectionRules.maySelect(definition, alignment, rank)) return false;
 		setFavourites(player, alignment,
-				ArtifactFavouriteRules.assign(favourites(player, alignment), slot, key));
+				ArtifactFavouriteRules.assign(favourites(player, alignment), slot, canonical));
 		return true;
 	}
 

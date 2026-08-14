@@ -2,6 +2,8 @@ package com.powers.network;
 
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
+import com.powers.magic.runtime.MagicRuntime;
+import com.powers.magic.ActionSubmissionValidation;
 import com.powers.spell.GrimoireDefinition;
 import com.powers.spell.SpellCastingManager;
 import com.powers.spell.SpellIndexEntry;
@@ -24,7 +26,7 @@ public final class GrimoirePackets {
 	private static final int MAX_ENTRIES = 16;
 
 	/** Complete compact book snapshot; only canonical registry data crosses the network. */
-	public record OpenIndexPayload(String grimoireKey, int selected,
+	public record OpenIndexPayload(long revision, String grimoireKey, int selected,
 			List<SpellIndexEntry> entries) implements CustomPacketPayload {
 		public static final Type<OpenIndexPayload> TYPE = new Type<>(PowersMod.id("open_grimoire_index"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, OpenIndexPayload> STREAM_CODEC =
@@ -44,13 +46,15 @@ public final class GrimoirePackets {
 	}
 
 	/** Untrusted row selection; the server re-resolves the held canonical book. */
-	public record SelectSpellPayload(String grimoireKey, int selected) implements CustomPacketPayload {
+	public record SelectSpellPayload(long revision, String grimoireKey, String spellId) implements CustomPacketPayload {
 		public static final Type<SelectSpellPayload> TYPE = new Type<>(PowersMod.id("select_grimoire_spell"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, SelectSpellPayload> STREAM_CODEC =
 				StreamCodec.of((buffer, payload) -> {
+					buffer.writeVarLong(payload.revision());
 					buffer.writeUtf(payload.grimoireKey(), MAX_BOOK_KEY);
-					buffer.writeVarInt(payload.selected());
-				}, buffer -> new SelectSpellPayload(buffer.readUtf(MAX_BOOK_KEY), buffer.readVarInt()));
+					buffer.writeUtf(payload.spellId(), MAX_SPELL_ID);
+				}, buffer -> new SelectSpellPayload(buffer.readVarLong(), buffer.readUtf(MAX_BOOK_KEY),
+						buffer.readUtf(MAX_SPELL_ID)));
 
 		@Override
 		public Type<? extends CustomPacketPayload> type() {
@@ -72,22 +76,33 @@ public final class GrimoirePackets {
 	/** Opens a canonical snapshot for one held grimoire. */
 	public static void open(ServerPlayer player, GrimoireDefinition grimoire) {
 		List<SpellIndexEntry> entries = grimoire.spells().stream().map(SpellIndexEntry::from).toList();
-		int selected = PlayerPowers.get(player).selectedSpell(grimoire.key(), entries.size());
-		ServerPlayNetworking.send(player, new OpenIndexPayload(grimoire.key(), selected, entries));
+		int selected = PlayerPowers.get(player).selectedSpell(grimoire.key(),
+				entries.stream().map(SpellIndexEntry::id).toList());
+		ServerPlayNetworking.send(player, new OpenIndexPayload(
+				MagicRuntime.catalogue().snapshot().revision(), grimoire.key(), selected, entries));
 	}
 
 	private static void select(ServerPlayer player, SelectSpellPayload payload) {
-		if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.SELECTION)) return;
-		if (payload.selected() < 0 || payload.selected() >= MAX_ENTRIES) return;
 		GrimoireDefinition held = SpellCastingManager.heldDefinition(player);
-		if (held == null || !held.key().equals(payload.grimoireKey())
-				|| payload.selected() >= held.spells().size()) return;
-		PlayerPowers.get(player).setSelectedSpell(held.key(), payload.selected());
+		if (held == null) return;
+		if (ActionSubmissionValidation.validate(MagicRuntime.catalogue().snapshot(),
+				payload.revision(), payload.spellId()) != ActionSubmissionValidation.ACCEPT) {
+			open(player, held);
+			return;
+		}
+		if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.SELECTION)) return;
+		int selected = java.util.stream.IntStream.range(0, held.spells().size())
+				.filter(index -> held.spells().get(index).id().equals(payload.spellId()))
+				.findFirst().orElse(-1);
+		if (!held.key().equals(payload.grimoireKey()) || selected < 0) return;
+		PlayerPowers.get(player).setSelectedSpell(held.key(), selected);
+		PlayerPowers.get(player).setSelectedSpellKey(held.key(), payload.spellId());
 		PowerMessages.overlay(player, Component.translatable("spell.powers.selected",
-				Component.translatable("spell.powers." + held.spells().get(payload.selected()).id())));
+				Component.translatable("spell.powers." + held.spells().get(selected).id())));
 	}
 
 	private static void encodeIndex(RegistryFriendlyByteBuf buffer, OpenIndexPayload payload) {
+		buffer.writeVarLong(payload.revision());
 		buffer.writeUtf(payload.grimoireKey(), MAX_BOOK_KEY);
 		buffer.writeVarInt(payload.selected());
 		buffer.writeVarInt(payload.entries().size());
@@ -101,6 +116,7 @@ public final class GrimoirePackets {
 	}
 
 	private static OpenIndexPayload decodeIndex(RegistryFriendlyByteBuf buffer) {
+		long revision = buffer.readVarLong();
 		String key = buffer.readUtf(MAX_BOOK_KEY);
 		int selected = buffer.readVarInt();
 		int count = buffer.readVarInt();
@@ -116,6 +132,6 @@ public final class GrimoirePackets {
 			entries.add(new SpellIndexEntry(id, energy, cooldown, channel, range,
 					base + "purpose." + id, base + "target." + id, base + "counter." + id));
 		}
-		return new OpenIndexPayload(key, selected, entries);
+		return new OpenIndexPayload(revision, key, selected, entries);
 	}
 }

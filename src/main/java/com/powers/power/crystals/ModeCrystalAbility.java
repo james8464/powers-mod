@@ -27,7 +27,7 @@ public final class ModeCrystalAbility extends Ability {
 	}
 
 	private Ability selected(ServerPlayer player) {
-		return modes.get(PlayerPowers.get(player).selectedCrystalMode(crystalPath, modes.size()));
+		return modes.get(PlayerPowers.get(player).selectedCrystalMode(crystalPath, modeIds()));
 	}
 
 	/** Returns the canonical underlying action used for interaction resolution. */
@@ -57,8 +57,9 @@ public final class ModeCrystalAbility extends Ability {
 				return true;
 			}
 			int nextIndex = CrystalModeState.advance(
-					PlayerPowers.get(player).selectedCrystalMode(crystalPath, modes.size()), modes.size());
+					PlayerPowers.get(player).selectedCrystalMode(crystalPath, modeIds()), modes.size());
 			PlayerPowers.get(player).setSelectedCrystalMode(crystalPath, nextIndex);
+			PlayerPowers.get(player).setSelectedCrystalModeKey(crystalPath, modes.get(nextIndex).id().getPath());
 			Ability next = modes.get(nextIndex);
 			PowerMessages.overlay(player,
 					Component.translatable("crystal.powers.mode_selected", next.name()));
@@ -101,12 +102,13 @@ public final class ModeCrystalAbility extends Ability {
 	}
 
 	public int selectedIndex(ServerPlayer player) {
-		return PlayerPowers.get(player).selectedCrystalMode(crystalPath, modes.size());
+		return PlayerPowers.get(player).selectedCrystalMode(crystalPath, modeIds());
 	}
 
 	public boolean selectMode(ServerPlayer player, int selected) {
 		if (!CrystalSelectorRules.validSelection(modes.size(), selected)) return false;
 		PlayerPowers.get(player).setSelectedCrystalMode(crystalPath, selected);
+		PlayerPowers.get(player).setSelectedCrystalModeKey(crystalPath, modes.get(selected).id().getPath());
 		PowerMessages.overlay(player, Component.translatable(
 				"crystal.powers.mode_selected", modes.get(selected).name()));
 		return true;

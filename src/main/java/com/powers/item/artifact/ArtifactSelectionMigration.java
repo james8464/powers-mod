@@ -46,6 +46,8 @@ public final class ArtifactSelectionMigration {
 			return rank >= 10 ? NIGHTFALL : CALL;
 		}
 		if (ArtifactActionCatalogue.find(alignment, storedKey) != null) return storedKey;
+		String registryMigrated = registryAlias(alignment, storedKey);
+		if (registryMigrated != null) return registryMigrated;
 		if (alignment == ArtifactAlignment.LIGHT) {
 			return RETIRED_LIGHT_ALIASES.getOrDefault(storedKey, FALLBACK);
 		}
@@ -55,5 +57,16 @@ public final class ArtifactSelectionMigration {
 		if (DESTRUCTIVE_ALIASES.contains(storedKey)) return rank >= 10 ? NIGHTFALL : CALL;
 		if (RETIRED_SAFE_ALIASES.contains(storedKey)) return CALL;
 		return FALLBACK;
+	}
+
+	private static String registryAlias(ArtifactAlignment alignment, String storedKey) {
+		if (storedKey == null) return null;
+		int separator = storedKey.indexOf('/');
+		String retiredId = separator < 0 ? storedKey : storedKey.substring(separator + 1);
+		var resolved = com.powers.magic.runtime.MagicRuntime.catalogue().snapshot().resolve(retiredId);
+		if (resolved == null || resolved.value().equals(retiredId)) return null;
+		return ArtifactActionCatalogue.forAlignment(alignment).stream()
+				.filter(action -> action.abilityId().equals(resolved.value()))
+				.map(ArtifactActionDefinition::key).findFirst().orElse(null);
 	}
 }

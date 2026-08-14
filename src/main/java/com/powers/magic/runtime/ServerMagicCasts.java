@@ -43,7 +43,8 @@ public final class ServerMagicCasts {
 	 * cooldown. The supplied ID must come from a server registry, never a packet.
 	 */
 	public static PreparedMagicCast prepare(ServerPlayer player, String actionId, CastSource source) {
-		MagicActionDefinition definition = MagicRuntime.catalogue().definition(new MagicActionId(actionId));
+		var registrySnapshot = MagicRuntime.catalogue().snapshot();
+		MagicActionDefinition definition = registrySnapshot.definition(new MagicActionId(actionId));
 		if (definition == null) {
 			throw new IllegalArgumentException("Unregistered server magic action: " + actionId);
 		}
@@ -54,7 +55,7 @@ public final class ServerMagicCasts {
 				InteractionContext.DEFAULT);
 		MagicRuntime runtime = MagicRuntime.global();
 		MagicCastPreview preview = runtime.previewCast(context);
-		PreparedMagicCast prepared = new PreparedMagicCast(context, preview, source);
+		PreparedMagicCast prepared = new PreparedMagicCast(context, preview, source, registrySnapshot);
 		if (!prepared.allowed()) {
 			runtime.emitBlockingReactions(preview,
 					event -> emitReaction((ServerLevel) player.level(), event));
