@@ -11,6 +11,7 @@ class AcceptanceClientScriptTest {
 	@Test
 	void parsesACompleteOrderedClientScenario() {
 		var steps = AcceptanceClientScript.parse(List.of(
+				"5\tclose\tscreen",
 				"10\trespawn\tnow",
 				"20\tcommand\tpowers testing on",
 				"40\tactivate\t0",
@@ -24,9 +25,10 @@ class AcceptanceClientScriptTest {
 				"90\tchat\tshadow, reveal yourself",
 				"100\tscreenshot\tforcefield-break"));
 
-		assertEquals(12, steps.size());
-		assertEquals(AcceptanceClientScript.Operation.ACTIVATE, steps.get(2).operation());
-		assertEquals(AcceptanceClientScript.Operation.LOCATOR, steps.get(9).operation());
+		assertEquals(13, steps.size());
+		assertEquals(AcceptanceClientScript.Operation.CLOSE, steps.getFirst().operation());
+		assertEquals(AcceptanceClientScript.Operation.ACTIVATE, steps.get(3).operation());
+		assertEquals(AcceptanceClientScript.Operation.LOCATOR, steps.get(10).operation());
 		assertEquals("forcefield-break", steps.getLast().argument());
 	}
 
@@ -55,5 +57,7 @@ class AcceptanceClientScriptTest {
 				() -> AcceptanceClientScript.parse(List.of("20\tartifact\tdarkness action -2")));
 		assertThrows(IllegalArgumentException.class,
 				() -> AcceptanceClientScript.parse(List.of("20\tlocator\t" + "x".repeat(65))));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("20\tclose\twindow")));
 	}
 }

@@ -8,7 +8,7 @@ import java.util.Locale;
 public final class AcceptanceClientScript {
 	public enum Operation {
 		COMMAND, CHAT, ACTIVATE, SELECT, USE, ATTACK, GRIMOIRE, CRYSTAL, ARTIFACT,
-		RESPAWN, LOCATOR, SCREENSHOT
+		RESPAWN, CLOSE, LOCATOR, SCREENSHOT
 	}
 
 	public record Step(int tick, Operation operation, String argument) {
@@ -90,6 +90,10 @@ public final class AcceptanceClientScript {
 			}
 			case LOCATOR -> {
 				if (argument.length() > 64) throw malformed(lineNumber, "locator input is too long");
+			}
+			case CLOSE -> {
+				if (!argument.equals("screen")) throw malformed(lineNumber,
+						"close argument must be screen");
 			}
 			case COMMAND, CHAT -> { }
 		}
