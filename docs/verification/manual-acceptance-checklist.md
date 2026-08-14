@@ -41,36 +41,17 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | spell | `hearth_sanctuary` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (d4fcbb0) | docs/verification/evidence/2026-08-14-qa-005-d4fcbb0/client-interactions/screenshots/spell-hearth-sanctuary.png; Wild Grimoire selection plus vanilla item use reached the production spell handler and raised one independent forcefield. |
 | spell | `ward_breaking_ritual` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (b0e3f2c) | docs/verification/evidence/2026-08-14-qa-005-b0e3f2c/targeted-spells/screenshots/ward-breaking.png; After a 25-block cast, the still-powered level-15 ward no longer poisoned the caster at six blocks. |
 | spell | `dispel` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (b0e3f2c) | docs/verification/evidence/2026-08-14-qa-005-b0e3f2c/targeted-spells/screenshots/dispel.png; Dispel removed a live Resistance effect; the authoritative follow-up query found no active effects. |
+| crystal | `dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0001_powers-dark-realm-live.png; Live activation entered powers:dark_realm with a vulnerable body proxy and returned cleanly. |
+| crystal | `inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (aaf08ac) | docs/verification/evidence/2026-08-14-qa-005-aaf08ac/crystals/screenshots/inferno-live.png; Production use reduced a 100-health player-like target to 96.63999 health, set 159 fire ticks, and rendered its authored fire presentation. |
+| crystal | `clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (aaf08ac) | docs/verification/evidence/2026-08-14-qa-005-aaf08ac/crystals/screenshots/clone-swarm.png; Production use spawned exactly three bounded Echo Clone entities; the sampled clone had 80 health and all three cleaned up. |
 | crystal | `size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (aaf08ac) | docs/verification/evidence/2026-08-14-qa-005-aaf08ac/crystals/screenshots/yellow-size-shift.png; Yellow Crystal changed the real survival player's scale to 0.0625 and every supporting status effect recorded show_particles:0b. |
 | crystal | `life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (d4fcbb0) | docs/verification/evidence/2026-08-14-qa-005-d4fcbb0/client-interactions/screenshots/crystal-life-bloom.png; Rainbow Crystal mode 3 plus vanilla item use applied three expected blessings; captured NBT records show_particles:0b for every effect. |
 | crystal | `chrono_stop` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (aaf08ac) | docs/verification/evidence/2026-08-14-qa-005-aaf08ac/crystals/screenshots/chrono-stop-owned.png; The Blue Crystal acquired the vanilla tick-freeze lease; tick query reported frozen, then the second production activation released it and tick query reported normal operation. |
-| crystal | `dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (aaf08ac) | docs/verification/evidence/2026-08-14-qa-005-aaf08ac/crystals/screenshots/dreamwalking-returned.png; The selected second Blue mode entered spectator control with one vulnerable proxy and forced chunk, moved DreamHost through real input, then spectator right-click restored survival and zero residue. |
-| crystal | `clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (aaf08ac) | docs/verification/evidence/2026-08-14-qa-005-aaf08ac/crystals/screenshots/clone-swarm.png; Production use spawned exactly three bounded Echo Clone entities; the sampled clone had 80 health and all three cleaned up. |
-| crystal | `creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (aaf08ac) | docs/verification/evidence/2026-08-14-qa-005-aaf08ac/crystals/screenshots/creativity-manifestation.png; Sneak-use selected the second Orange mode and ordinary use placed the creation chamber; authoritative block predicates found its glowstone and orange-concrete frame. |
-| crystal | `dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0001_powers-dark-realm-live.png; Live activation entered powers:dark_realm with a vulnerable body proxy and returned cleanly. |
-| crystal | `inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (aaf08ac) | docs/verification/evidence/2026-08-14-qa-005-aaf08ac/crystals/screenshots/inferno-live.png; Production use reduced a 100-health player-like target to 96.63999 health, set 159 fire ticks, and rendered its authored fire presentation. |
 | crystal | `soul_link` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (aaf08ac) | docs/verification/evidence/2026-08-14-qa-005-aaf08ac/crystals/screenshots/soul-link-mirror.png; After linking two player-like targets, 8 direct damage to SoulA reduced SoulB from 100 to 94.56 without recursive transfer. |
 | crystal | `middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (aaf08ac) | docs/verification/evidence/2026-08-14-qa-005-aaf08ac/crystals/screenshots/middleworld-cohort-return.png; Indigo transported the caster and a nearby cow into Middleworld; after the cow was moved more than two blocks away, return recalled both to their exact Overworld origins and diagnostics reported zero proxies, loads, or forced chunks. |
 | crystal | `light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0002_powers-light-realm-live.png; Live activation entered powers:light_realm with a vulnerable body proxy and returned cleanly. |
-| artifact | `light/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/call_radiant` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/consecrate_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/covenant_chain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/daybreak_wave` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/heaven_gate` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/solar_firmament` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/second_dawn` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `light/dominion/host_heaven` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| crystal | `dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (aaf08ac) | docs/verification/evidence/2026-08-14-qa-005-aaf08ac/crystals/screenshots/dreamwalking-returned.png; The selected second Blue mode entered spectator control with one vulnerable proxy and forced chunk, moved DreamHost through real input, then spectator right-click restored survival and zero residue. |
+| crystal | `creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (aaf08ac) | docs/verification/evidence/2026-08-14-qa-005-aaf08ac/crystals/screenshots/creativity-manifestation.png; Sneak-use selected the second Orange mode and ordinary use placed the creation chamber; authoritative block predicates found its glowstone and orange-concrete frame. |
 | artifact | `darkness/innate/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/time_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
@@ -94,20 +75,39 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | artifact | `darkness/innate/ice_manipulation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/size_shift` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/chrono_stop` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/clone_swarm` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/dark_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
-| artifact | `darkness/crystal/inferno` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/soul_link` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/middleworld` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/dreamwalking` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `darkness/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/unique/call_hollowed` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | artifact | `darkness/unique/blight_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | PASS (d4fcbb0) | docs/verification/evidence/2026-08-14-qa-005-d4fcbb0/client-interactions/screenshots/artifact-blight-ground.png; Shadow Sword production commit selected and activated Blight Ground; an authoritative block predicate confirmed powers:darkness beneath the caster. |
 | artifact | `darkness/unique/nightfall_dominion` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/flight` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/starfall` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/lightning_strike` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/thunderclap` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/energy_beam` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/forcefield` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/plant_healing_acceleration` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/innate/double_health` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/creativity_manifestation` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/life_bloom` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/crystal/light_crystal` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/call_radiant` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/consecrate_ground` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/covenant_chain` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/daybreak_wave` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/heaven_gate` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/solar_firmament` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/second_dawn` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
+| artifact | `light/dominion/host_heaven` | PowersGameTests#everyAdvertisedMagicRegistryResolvesInsideTheLiveServer | MANUAL LIVE PENDING |  |
 | entity | `darkness_creature` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
 | entity | `power_test_actor` | PowersGameTests and LivingForceGameTests entity scenarios | PASS (7455a02) | docs/verification/evidence/2026-08-14-qa-005-7455a02/four-client/logs/server.log; The named CombatTarget actor spawned, accepted live player and Shadow targeting, moved under combat and died to ancient-power damage. |
 | entity | `radiant_sentinel` | PowersGameTests and LivingForceGameTests entity scenarios | AUTOMATED BEHAVIOR PASS |  |
@@ -401,37 +401,37 @@ This generated register makes omissions visible. Automated/resource evidence is 
 | screen | `teleport` | verifyScreenshots visual golden | PASS (e1c656a) | docs/verification/evidence/2026-08-14-qa-005-e1c656a/client-render/0011_powers-teleport-menu.png; Coordinate fields and full namespaced dimension remain readable with a tooltip. |
 | screen | `advancement light` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
 | screen | `advancement darkness` | verifyScreenshots visual golden | GOLDEN CONTRACT PASS; MANUAL LIVE PENDING |  |
-| command | `/powers list` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers slots [player]` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers assign <player> <power> <slot>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers reroll [player]` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers consent <kind> <allow\|deny>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers reload` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers return` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers recover <player>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers path list` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers path unlock <node>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers path focus <node>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers path respec` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers darkprefix [true\|false]` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers boss spawn` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers diagnose` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers ruin preview` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers ruin cancel` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers shadow learning reset <player>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers travel <dimension>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers testing status` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers testing on` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers testing off` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers testing reset` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers testing energy <on\|off>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers testing cooldowns <on\|off>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers testing refill` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers testing coverage` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers testing quest-telemetry` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers testing profile [status]` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers testing profile start <minutes> <expectedPlayers>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers testing arena <spawn\|clear>` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
-| command | `/powers testing actor spawn [username]` | PowerCommand/TestingCommand registration | MANUAL LIVE PENDING |  |
+| command | `/powers list` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Returned the complete authoritative 23-power registry to a connected client. |
+| command | `/powers slots [player]` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Both self-default and explicit-self forms returned the three saved slots; the post-mutation query reflected the changed loadout. |
+| command | `/powers assign <player> <power> <slot>` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Duplicate assignment was rejected, then three legal assignments changed slot one and the slots query ended on Fireball. |
+| command | `/powers reroll [player]` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Explicit-self reroll succeeded and the next slots query showed a changed three-power loadout. |
+| command | `/powers consent <kind> <allow\|deny>` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Teleport consent was persisted through deny and allow states with exact acknowledgement. |
+| command | `/powers reload` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Configuration reloaded atomically at validation revision 2 with zero retained, dropped, or sanitised values. |
+| command | `/powers return` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/body-travel-server.log.gz; A real Indigo Middleworld body session returned through the ordinary player route and left no proxy, load, or forced-chunk residue. |
+| command | `/powers recover <player>` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/body-travel-server.log.gz; Administrator recovery returned the explicit player from a second live Middleworld body session and emitted a successful recovery audit event. |
+| command | `/powers path list` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Reported the current focus and unlockable nodes before and after respec. |
+| command | `/powers path unlock <node>` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Unlocked and focused insight_1 as Star-Listener on a live rank-10 Light path. |
+| command | `/powers path focus <node>` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Changed the live focused title to insight_1. |
+| command | `/powers path respec` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Reset branch titles while preserving earned rank depth; the next list reported legacy_10 and first-tier unlocks. |
+| command | `/powers darkprefix [true\|false]` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; A rank-10 Darkness player hid and revealed the true Darkness title with distinct acknowledgements. |
+| command | `/powers boss spawn` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Spawned the First Vessel, passed an authoritative nearby-entity predicate, then cleaned the entity up. |
+| command | `/powers diagnose` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Reported live magic, force, proxy, ticket, budget, audit, energy, spatial-index, telemetry, and testing state; final leak counts were zero. |
+| command | `/powers ruin preview` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Returned a no-mutation Heavenfall dry run with exact center, crater/shockwave footprints, entity count, and protection decisions. |
+| command | `/powers ruin cancel` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/ruin-cancel-client.log; A protected-spawn denial was followed by a positive distant cast: diagnostics changed celestialEvents from 1 to 0 after cancellation. |
+| command | `/powers shadow learning reset <player>` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Reset bounded Shadow combat learning for the explicit player while preserving conversation memory. |
+| command | `/powers travel <dimension>` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/body-travel-server.log.gz; Namespaced Nether and Overworld IDs loaded asynchronously, placed the player on realm terrain, audited success, and released every temporary ticket. |
+| command | `/powers testing status` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Reported the exact live energy and cooldown override state. |
+| command | `/powers testing on` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Disabled both limits, confirmed the state, and recorded the privileged control audit. |
+| command | `/powers testing off` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Restored both normal limits and confirmed the state. |
+| command | `/powers testing reset` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Cleared stored testing overrides and reported both systems normal. |
+| command | `/powers testing energy <on\|off>` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Toggled energy enforcement independently in both directions while cooldowns remained disabled. |
+| command | `/powers testing cooldowns <on\|off>` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Toggled cooldown enforcement independently in both directions while energy remained disabled. |
+| command | `/powers testing refill` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Refilled energy, cleared saved cooldowns, and appeared in the subsequent energy-history diagnostic. |
+| command | `/powers testing coverage` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Reported authoritative acceptance counts for innate, spell, crystal, artifact, entity, and system families. |
+| command | `/powers testing quest-telemetry` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Reported sample readiness plus all twenty Light/Dark level buckets without fabricating absent samples. |
+| command | `/powers testing profile [status]` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/profiles/connected-1p-1m.json; Both alias and explicit status forms reported inactive, active 40/1200, and completed states for one connected client. |
+| command | `/powers testing profile start <minutes> <expectedPlayers>` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/profiles/connected-1p-1m.jfr; Produced a non-empty JFR and JSON for exactly 1,200 ticks; p95 was 8.635 ms and p99 9.964 ms. |
+| command | `/powers testing arena <spawn\|clear>` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Spawned seven bounded targets, passed a live presence predicate, cleared seven, then passed an absence predicate. |
+| command | `/powers testing actor spawn [username]` | PowerCommand/TestingCommand registration | PASS (7052ead) | docs/verification/evidence/2026-08-14-qa-005-7052ead/commands/logs/remaining-client.log; Spawned CommandActor with the requested username, passed a typed named-entity predicate, and was cleanly killed. |
 
 Total registered rows: **427**.

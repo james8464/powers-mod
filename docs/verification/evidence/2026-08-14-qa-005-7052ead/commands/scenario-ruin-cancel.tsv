@@ -1,0 +1,12 @@
+# Exact 7052ead positive Celestial Ruin staging and cancellation proof.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	setblock 300 69 305 minecraft:stone
+120	COMMAND	tp @s 300 75 300 0 45
+150	COMMAND	item replace entity @s weapon.mainhand with powers:imported_book_grimoire_celestial
+170	GRIMOIRE	book_grimoire_celestial 3
+190	USE	main
+420	COMMAND	powers diagnose
+440	COMMAND	powers ruin cancel
+460	COMMAND	powers diagnose
+480	SCREENSHOT	ruin-cancelled

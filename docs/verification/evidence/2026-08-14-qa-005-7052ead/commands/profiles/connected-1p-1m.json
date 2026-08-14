@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "label": "1p-1m",
+  "expected_players": 1,
+  "connected_players_end": 1,
+  "ticks": 1200,
+  "wall_seconds": 59.872596042,
+  "p95_mspt": 8.635125,
+  "p99_mspt": 9.963542,
+  "attempted_actions": 0,
+  "successful_actions": 0,
+  "peak_particles_per_tick": 0,
+  "peak_packets_per_tick": 0,
+  "peak_entity_inspections_per_tick": 0,
+  "jfr": "connected-1p-1m.jfr"
+}

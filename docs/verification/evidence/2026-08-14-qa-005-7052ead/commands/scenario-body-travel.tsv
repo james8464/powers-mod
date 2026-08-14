@@ -1,0 +1,25 @@
+# Exact 7052ead live acceptance for body routes, force-heavy realm reload and admin travel.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	gamemode survival @s
+120	COMMAND	effect give @s minecraft:resistance 999999 255 true
+150	COMMAND	item replace entity @s weapon.mainhand with powers:indigo_crystal
+170	USE	main
+280	COMMAND	execute if dimension powers:middleworld run say RETURN_SESSION_ENTERED
+300	COMMAND	powers return
+440	COMMAND	execute if dimension minecraft:overworld run say PLAYER_RETURN_SUCCEEDED
+460	COMMAND	powers diagnose
+500	COMMAND	item replace entity @s weapon.mainhand with powers:indigo_crystal
+520	USE	main
+630	COMMAND	execute if dimension powers:middleworld run say RECOVERY_SESSION_ENTERED
+650	COMMAND	powers recover @s
+790	COMMAND	execute if dimension minecraft:overworld run say ADMIN_RECOVERY_SUCCEEDED
+810	COMMAND	powers diagnose
+850	COMMAND	powers travel minecraft:the_nether
+970	COMMAND	execute if dimension minecraft:the_nether run say ADMIN_TRAVEL_NETHER
+990	COMMAND	data get entity @s Pos
+1020	COMMAND	powers travel minecraft:overworld
+1140	COMMAND	execute if dimension minecraft:overworld run say ADMIN_TRAVEL_OVERWORLD
+1160	COMMAND	data get entity @s Pos
+1180	COMMAND	powers diagnose
+1200	SCREENSHOT	command-body-travel-final
