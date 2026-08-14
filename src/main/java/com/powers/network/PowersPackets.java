@@ -186,6 +186,7 @@ public final class PowersPackets {
 		CompanionPackets.initialize();
 		VesselControlPackets.initialize();
 		CelestialRuinPackets.initialize();
+		EventAudioPackets.initialize();
 
 		ServerPlayNetworking.registerGlobalReceiver(ActivateAbilityPayload.TYPE, PowersPackets::handleActivate);
 		ServerPlayNetworking.registerGlobalReceiver(

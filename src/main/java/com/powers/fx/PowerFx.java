@@ -3,6 +3,7 @@ package com.powers.fx;
 import com.powers.PowersParticles;
 import com.powers.PowersSounds;
 import com.powers.power.abilities.VoidBeamRules;
+import com.powers.network.EventAudioPackets;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
@@ -21,6 +22,20 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class PowerFx {
 	private PowerFx() {
+	}
+
+	/** Bounded live delivery totals used by diagnostics and production-entrypoint tests. */
+	public record LodSnapshot(long nearDeliveries, long midDeliveries, long farDeliveries,
+			long nearSamples, long midSamples, long farSamples,
+			long nearAudio, long midAudio, long farAudio) {
+	}
+
+	public static void resetLodMetrics(net.minecraft.server.MinecraftServer server) {
+		ServerFxTransport.resetLodMetrics(server);
+	}
+
+	public static LodSnapshot lodSnapshot(net.minecraft.server.MinecraftServer server) {
+		return ServerFxTransport.lodSnapshot(server);
 	}
 
 	/** puffs a cloud of particles around a point */
@@ -58,6 +73,12 @@ public final class PowerFx {
 		ServerFxTransport.beam(level, from, to, particle, steps);
 	}
 
+	/** Sends a rare boss/realm beam to distant observers with its endpoints and palette intact. */
+	public static void eventBeam(ServerLevel level, Vec3 from, Vec3 to,
+			ParticleOptions particle, int steps) {
+		ServerFxTransport.eventBeam(level, from, to, particle, steps);
+	}
+
 	/** draws a flat magic circle; the phase makes it look like it slowly rotates */
 	public static void ring(ServerLevel level, Vec3 center, double radius, int rgb, int points, double phase) {
 		sendShape(level, center, radius, 0.0, rgb, points, phase, ShapeFxKind.RING);
@@ -74,6 +95,27 @@ public final class PowerFx {
 		sendShape(level, center, radius, height, rgb, points, phase, ShapeFxKind.SPIRAL);
 	}
 
+	/** Preserves a rare event's complete ring silhouette while thinning distant samples. */
+	public static void eventRing(ServerLevel level, Vec3 center, double radius,
+			int rgb, int points, double phase) {
+		ServerFxTransport.eventShape(level, center, radius, 0.0,
+				rgb, points, phase, ShapeFxKind.RING);
+	}
+
+	/** Preserves a rare event's rune families while thinning distant samples. */
+	public static void eventRune(ServerLevel level, Vec3 center, double radius,
+			int rgb, int points, double phase) {
+		ServerFxTransport.eventShape(level, center, radius, radius * 0.4,
+				rgb, points, phase, ShapeFxKind.RUNE);
+	}
+
+	/** Preserves a rare event's full vertical span while thinning distant samples. */
+	public static void eventSpiral(ServerLevel level, Vec3 center, double radius, double height,
+			int rgb, int points, double phase) {
+		ServerFxTransport.eventShape(level, center, radius, height,
+				rgb, points, phase, ShapeFxKind.SPIRAL);
+	}
+
 	private static void sendShape(ServerLevel level, Vec3 center, double radius, double height,
 			int rgb, int points, double phase, ShapeFxKind kind) {
 		ServerFxTransport.shape(level, center, radius, height, rgb, points, phase, kind);
@@ -82,6 +124,13 @@ public final class PowerFx {
 	/** plays a sound to everyone around a point */
 	public static void sound(ServerLevel level, Vec3 pos, SoundEvent sound, float volume, float pitch) {
 		level.playSound(null, pos.x, pos.y, pos.z, sound, SoundSource.PLAYERS, volume, pitch);
+	}
+
+	/** Adds a quiet local layer only for observers beyond a rare event's positional sound range. */
+	public static void eventSound(ServerLevel level, Vec3 pos, EventAudioPackets.Cue cue,
+			float positionalVolume, float pitch) {
+		sound(level, pos, cue.sound(), positionalVolume, pitch);
+		ServerFxTransport.eventAudio(level, pos, cue, positionalVolume, pitch);
 	}
 
 	// the small "no" burst for a cancelled or refused cast

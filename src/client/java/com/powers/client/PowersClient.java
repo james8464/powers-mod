@@ -14,6 +14,7 @@ import com.powers.client.fx.ClientMagicFx;
 import com.powers.client.fx.ClientShapeFx;
 import com.powers.client.fx.ClientBeamFx;
 import com.powers.client.fx.ClientCelestialRuinFx;
+import com.powers.client.fx.ClientEventAudio;
 import com.powers.client.acceptance.AcceptanceClientAgent;
 import com.powers.client.body.ClientBodySnapshots;
 import com.powers.client.fx.particle.ArcaneParticle;
@@ -25,6 +26,7 @@ import com.powers.network.PowerStatePayload;
 import com.powers.network.PowersPackets;
 import com.powers.network.MagicFxPackets;
 import com.powers.network.CelestialRuinPackets;
+import com.powers.network.EventAudioPackets;
 import com.powers.network.ShadowSwordPackets;
 import com.powers.network.BodyProxyPackets;
 import com.powers.network.CompanionPackets;
@@ -144,6 +146,8 @@ public class PowersClient implements ClientModInitializer {
 						new RainbowConvergenceScreen(payload.modes(), payload.selected()))));
 		ClientPlayNetworking.registerGlobalReceiver(CelestialRuinPackets.Payload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientCelestialRuinFx.handle(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(EventAudioPackets.Payload.TYPE,
+				(payload, context) -> context.client().execute(() -> ClientEventAudio.handle(payload)));
 		// clear the cached state when you leave the server so the hud doesn't carry over old powers
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			ClientPowerState.reset();
@@ -152,6 +156,7 @@ public class PowersClient implements ClientModInitializer {
 			PrivateCompanionClient.clear();
 			VesselControlClient.setActive(false);
 			ClientCelestialRuinFx.reset();
+			ClientEventAudio.resetMetrics();
 		});
 
 		registerParticles();

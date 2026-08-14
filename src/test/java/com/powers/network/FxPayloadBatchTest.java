@@ -33,4 +33,27 @@ class FxPayloadBatchTest {
 		assertNotSame(first, batch.forCount(36));
 		assertSame(first, batch.forCount(48));
 	}
+
+	@Test
+	void eventScalePayloadVariantsCarryOnlyTheExplicitDistanceOverride() {
+		FxPayloadBatch.Beam beam = FxPayloadBatch.beam(11L, BeamFxStyle.ELECTRIC,
+				0.0, 64.0, 0.0, 12.0, 64.0, 0.0, 0x7DEBFF);
+		FxPayloadBatch.Shape shape = FxPayloadBatch.shape(12L, ShapeFxKind.RUNE,
+				1.0, 2.0, 3.0, 4.0, 1.5, 0xB36BFF, 0.25);
+
+		assertEquals(false, beam.forCount(16, false).overrideDistanceLimiter());
+		assertEquals(true, beam.forCount(16, true).overrideDistanceLimiter());
+		assertEquals(false, shape.forCount(24, false).overrideDistanceLimiter());
+		assertEquals(true, shape.forCount(24, true).overrideDistanceLimiter());
+	}
+
+	@Test
+	void distanceOverrideDoesNotAliasTheOrdinaryCanonicalVariant() {
+		FxPayloadBatch.Shape shape = FxPayloadBatch.shape(13L, ShapeFxKind.RING,
+				0.0, 0.0, 0.0, 8.0, 0.0, 0xFFFFFF, 0.0);
+		var ordinary = shape.forCount(24, false);
+		var distant = shape.forCount(24, true);
+		assertNotSame(ordinary, distant);
+		assertSame(ordinary, shape.forCount(24, false));
+	}
 }

@@ -24,6 +24,7 @@ import java.util.WeakHashMap;
 
 /** Owns the compact clientbound protocol for semantic magic presentation. */
 public final class MagicFxPackets {
+	private static final double MAGIC_GEOMETRY_MAX_EXTENT = 8.0;
 	private static final Map<ServerLevel, MagicFxService> SERVICES = new WeakHashMap<>();
 	private static final FxPacketCoalescer COALESCER = new FxPacketCoalescer(32_768);
 
@@ -33,7 +34,8 @@ public final class MagicFxPackets {
 	/** Compact cast or interaction cue; clients generate deterministic geometry locally. */
 	public record MagicFxPayload(MagicFxKind kind, long eventId, String motif, String sound,
 			double x, double y, double z, int primaryColor, int secondaryColor,
-			int glyphSeed, int intensity, int genericBeatCount) implements CustomPacketPayload {
+			int glyphSeed, int intensity, int genericBeatCount,
+			boolean overrideDistanceLimiter) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<MagicFxPayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("magic_fx"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, MagicFxPayload> STREAM_CODEC =
@@ -52,19 +54,32 @@ public final class MagicFxPackets {
 			buffer.writeInt(payload.glyphSeed);
 			buffer.writeVarInt(payload.intensity);
 			buffer.writeVarInt(payload.genericBeatCount);
+			buffer.writeBoolean(payload.overrideDistanceLimiter);
 		}
 
 		private static MagicFxPayload decode(RegistryFriendlyByteBuf buffer) {
 			return new MagicFxPayload(MagicFxKind.fromNetworkId(buffer.readVarInt()), buffer.readVarLong(),
 					ByteBufCodecs.STRING_UTF8.decode(buffer), ByteBufCodecs.STRING_UTF8.decode(buffer),
 					buffer.readDouble(), buffer.readDouble(), buffer.readDouble(), buffer.readInt(),
-					buffer.readInt(), buffer.readInt(), buffer.readVarInt(), buffer.readVarInt());
+					buffer.readInt(), buffer.readInt(), buffer.readVarInt(), buffer.readVarInt(),
+					buffer.readBoolean());
 		}
 
 		public MagicFxPayload(MagicFxEvent event) {
+			this(event, false);
+		}
+
+		public MagicFxPayload(MagicFxEvent event, boolean overrideDistanceLimiter) {
 			this(event.kind(), event.eventId(), event.motif(), event.sound(), event.x(), event.y(), event.z(),
 					event.primaryColor(), event.secondaryColor(), event.glyphSeed(), event.intensity(),
-					event.genericBeatCount());
+					event.genericBeatCount(), overrideDistanceLimiter);
+		}
+
+		public MagicFxPayload(MagicFxKind kind, long eventId, String motif, String sound,
+				double x, double y, double z, int primaryColor, int secondaryColor,
+				int glyphSeed, int intensity, int genericBeatCount) {
+			this(kind, eventId, motif, sound, x, y, z, primaryColor, secondaryColor,
+					glyphSeed, intensity, genericBeatCount, false);
 		}
 
 		@Override
@@ -76,7 +91,7 @@ public final class MagicFxPackets {
 	/** One compact line cue; the client creates every point locally. */
 	public record BeamFxPayload(long eventId, BeamFxStyle style,
 			double fromX, double fromY, double fromZ, double toX, double toY, double toZ,
-			int count, int color) implements CustomPacketPayload {
+			int count, int color, boolean overrideDistanceLimiter) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<BeamFxPayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("beam_fx"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, BeamFxPayload> STREAM_CODEC =
@@ -103,13 +118,21 @@ public final class MagicFxPackets {
 			buffer.writeDouble(payload.toZ);
 			buffer.writeVarInt(payload.count);
 			buffer.writeInt(payload.color);
+			buffer.writeBoolean(payload.overrideDistanceLimiter);
 		}
 
 		private static BeamFxPayload decode(RegistryFriendlyByteBuf buffer) {
 			return new BeamFxPayload(buffer.readVarLong(), BeamFxStyle.fromNetworkId(buffer.readVarInt()),
 					buffer.readDouble(), buffer.readDouble(), buffer.readDouble(),
 					buffer.readDouble(), buffer.readDouble(), buffer.readDouble(),
-					buffer.readVarInt(), buffer.readInt());
+					buffer.readVarInt(), buffer.readInt(), buffer.readBoolean());
+		}
+
+		public BeamFxPayload(long eventId, BeamFxStyle style,
+				double fromX, double fromY, double fromZ, double toX, double toY, double toZ,
+				int count, int color) {
+			this(eventId, style, fromX, fromY, fromZ, toX, toY, toZ,
+					count, color, false);
 		}
 
 		@Override
@@ -121,7 +144,8 @@ public final class MagicFxPackets {
 	/** One budgeted circle, rune, or spiral; every point is expanded by its recipient. */
 	public record ShapeFxPayload(long eventId, ShapeFxKind kind,
 			double x, double y, double z, double radius, double height,
-			int count, int color, double phase) implements CustomPacketPayload {
+			int count, int color, double phase,
+			boolean overrideDistanceLimiter) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<ShapeFxPayload> TYPE =
 				new CustomPacketPayload.Type<>(PowersMod.id("shape_fx"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, ShapeFxPayload> STREAM_CODEC =
@@ -151,6 +175,7 @@ public final class MagicFxPackets {
 			buffer.writeVarInt(payload.count);
 			buffer.writeInt(payload.color);
 			buffer.writeDouble(payload.phase);
+			buffer.writeBoolean(payload.overrideDistanceLimiter);
 		}
 
 		private static ShapeFxPayload decode(RegistryFriendlyByteBuf buffer) {
@@ -158,7 +183,13 @@ public final class MagicFxPackets {
 					ShapeFxKind.fromNetworkId(buffer.readVarInt()),
 					buffer.readDouble(), buffer.readDouble(), buffer.readDouble(),
 					buffer.readDouble(), buffer.readDouble(), buffer.readVarInt(),
-					buffer.readInt(), buffer.readDouble());
+					buffer.readInt(), buffer.readDouble(), buffer.readBoolean());
+		}
+
+		public ShapeFxPayload(long eventId, ShapeFxKind kind,
+				double x, double y, double z, double radius, double height,
+				int count, int color, double phase) {
+			this(eventId, kind, x, y, z, radius, height, count, color, phase, false);
 		}
 
 		@Override
@@ -334,10 +365,14 @@ public final class MagicFxPackets {
 	}
 
 	private static void send(ServerLevel level, MagicFxEvent event) {
-		MagicFxPayload payload = new MagicFxPayload(event);
+		MagicFxPayload ordinary = new MagicFxPayload(event, false);
+		MagicFxPayload distant = new MagicFxPayload(event, true);
 		for (ServerPlayer observer : level.players()) {
-			if (observer.position().distanceToSqr(event.x(), event.y(), event.z()) > 128.0 * 128.0) continue;
+			double distanceSquared = observer.position().distanceToSqr(event.x(), event.y(), event.z());
+			if (distanceSquared > 256.0 * 256.0) continue;
 			if (!ServerPlayNetworking.canSend(observer, MagicFxPayload.TYPE)) continue;
+			MagicFxPayload payload = Math.sqrt(distanceSquared) + MAGIC_GEOMETRY_MAX_EXTENT > 32.0
+					? distant : ordinary;
 			long tick = level.getServer().getTickCount();
 			if (COALESCER.allow(tick, observer.getUUID(), level.dimension().identifier().toString(),
 					((int) Math.floor(event.x())) >> 4, ((int) Math.floor(event.z())) >> 4,
@@ -365,18 +400,18 @@ public final class MagicFxPackets {
 		return varIntBytes(payload.kind().networkId()) + varLongBytes(payload.eventId())
 				+ stringBytes(payload.motif()) + stringBytes(payload.sound())
 				+ Double.BYTES * 3 + Integer.BYTES * 3
-				+ varIntBytes(payload.intensity()) + varIntBytes(payload.genericBeatCount());
+				+ varIntBytes(payload.intensity()) + varIntBytes(payload.genericBeatCount()) + 1;
 	}
 
 	static int encodedBodyBytes(BeamFxPayload payload) {
 		return varLongBytes(payload.eventId()) + varIntBytes(payload.style().networkId())
-				+ Double.BYTES * 6 + varIntBytes(payload.count()) + Integer.BYTES;
+				+ Double.BYTES * 6 + varIntBytes(payload.count()) + Integer.BYTES + 1;
 	}
 
 	static int encodedBodyBytes(ShapeFxPayload payload) {
 		return varLongBytes(payload.eventId()) + varIntBytes(payload.kind().networkId())
 				+ Double.BYTES * 5 + varIntBytes(payload.count())
-				+ Integer.BYTES + Double.BYTES;
+				+ Integer.BYTES + Double.BYTES + 1;
 	}
 
 	private static int stringBytes(String value) {

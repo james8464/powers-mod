@@ -25,4 +25,15 @@ class ViewerSpatialIndexTest {
 		assertEquals(0, index.size());
 		assertEquals(0, index.nearby(-17.0, -17.0, 1.0).size());
 	}
+
+	@Test
+	void rareEventRangeUsesBoundedViewerScanBeyondOrdinaryCellRadius() {
+		ViewerSpatialIndex<String> index = new ViewerSpatialIndex<>(16);
+		index.put("near", 32.0, 0.0);
+		index.put("event-far", 1_800.0, 0.0);
+		index.put("outside", 2_049.0, 0.0);
+
+		assertEquals(Set.of("near", "event-far"),
+				Set.copyOf(index.nearby(0.0, 0.0, 2_048.0)));
+	}
 }

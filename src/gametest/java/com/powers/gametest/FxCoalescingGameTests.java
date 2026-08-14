@@ -9,6 +9,7 @@ import com.powers.magic.runtime.MagicPresenceHandle;
 import com.powers.magic.runtime.PhysicalMagicPresences;
 import com.powers.magic.runtime.PresenceAnchor;
 import com.powers.network.FxPacketCoalescer;
+import com.powers.network.EventAudioPackets;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -81,5 +82,39 @@ public final class FxCoalescingGameTests {
 			PhysicalMagicPresences.remove(second);
 		}
 		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 60)
+	@SuppressWarnings("removal")
+	public void eventScaleLodReachesNearMidAndFarObservers(GameTestHelper helper) {
+		Vec3 center = Vec3.atCenterOf(helper.absolutePos(new BlockPos(4, 2, 4)));
+		ServerPlayer observer = helper.makeMockServerPlayerInLevel();
+		observer.teleportTo(center.x + 32.0, center.y, center.z);
+		PowerFx.resetLodMetrics(helper.getLevel().getServer());
+		helper.runAfterDelay(2, () -> {
+			PowerFx.eventRune(helper.getLevel(), center, 12.0, 0xFFF2A8, 64, 0.25);
+			observer.teleportTo(center.x + 144.0, center.y, center.z);
+		});
+		helper.runAfterDelay(3, () ->
+				PowerFx.eventRune(helper.getLevel(), center, 12.0, 0xFFF2A8, 64, 0.25));
+		helper.runAfterDelay(4, () -> observer.teleportTo(center.x + 1_800.0, center.y, center.z));
+		helper.runAfterDelay(5, () -> {
+			PowerFx.eventRune(helper.getLevel(), center, 12.0, 0xFFF2A8, 64, 0.25);
+			PowerFx.eventSound(helper.getLevel(), center,
+					EventAudioPackets.Cue.LIGHT_HERALD, 3.0F, 0.65F);
+			var snapshot = PowerFx.lodSnapshot(helper.getLevel().getServer());
+			helper.assertTrue(snapshot.nearDeliveries() >= 1,
+					"Near observer did not receive the full event silhouette");
+			helper.assertTrue(snapshot.midDeliveries() >= 1,
+					"Mid observer did not receive the reduced-density event silhouette");
+			helper.assertTrue(snapshot.farDeliveries() >= 1,
+					"Far observer did not receive the bounded event silhouette");
+			helper.assertTrue(snapshot.nearSamples() > 0 && snapshot.midSamples() > 0
+					&& snapshot.farSamples() > 0,
+					"One visible tier consumed no bounded presentation budget");
+			helper.assertTrue(snapshot.farAudio() == 1,
+					"Far observer did not receive exactly one restrained event-audio layer");
+			helper.succeed();
+		});
 	}
 }

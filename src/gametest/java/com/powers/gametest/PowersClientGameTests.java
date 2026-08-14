@@ -4,6 +4,8 @@ import com.powers.PowersItems;
 import com.powers.client.ClientPowerState;
 import com.powers.client.ClientSemanticFxMetrics;
 import com.powers.client.fx.ClientMagicFx;
+import com.powers.client.fx.ClientEventAudio;
+import com.powers.client.fx.ClientCelestialRuinFx;
 import com.powers.client.screen.ArtifactCatalogueScreen;
 import com.powers.client.screen.ArcaneCrucibleScreen;
 import com.powers.client.screen.CelestialLocatorScreen;
@@ -24,6 +26,10 @@ import com.powers.network.PowerStatePayload;
 import com.powers.network.RelicPackets;
 import com.powers.network.MagicFxPackets;
 import com.powers.fx.BeamFxStyle;
+import com.powers.fx.PowerFx;
+import com.powers.network.EventAudioPackets;
+import com.powers.network.CelestialRuinPackets;
+import com.powers.fx.FxLodTier;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
 import com.powers.power.PowerRegistry;
@@ -64,6 +70,9 @@ public final class PowersClientGameTests implements FabricClientGameTest {
             });
             context.takeScreenshot("powers-client-world-smoke");
 			verifySemanticFxBatching(context, singleplayer);
+			verifyDistantSemanticRendering(context, singleplayer);
+			verifyDistantEventAudio(context, singleplayer);
+			verifyOverlappingRuinRinging(context, singleplayer);
             verifyCrystalTravel(context, singleplayer);
 			quiesceVisuals(context);
             captureHudStates(context);
@@ -108,6 +117,65 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 				throw new AssertionError("Semantic FX delivery order changed: " + controlled);
 			}
 		});
+	}
+
+	private static void verifyOverlappingRuinRinging(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer) {
+		context.runOnClient(client -> ClientCelestialRuinFx.reset());
+		singleplayer.getServer().runOnServer(server -> {
+			var player = server.getPlayerList().getPlayers().getFirst();
+			net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player,
+					new CelestialRuinPackets.Payload(CelestialRuinPackets.Phase.DETONATE,
+							player.getX() + 16.0, player.getY(), player.getZ(), 0, FxLodTier.NEAR));
+			net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player,
+					new CelestialRuinPackets.Payload(CelestialRuinPackets.Phase.DETONATE,
+							player.getX() + 1_800.0, player.getY(), player.getZ(), 0, FxLodTier.FAR));
+		});
+		context.waitFor(client -> ClientCelestialRuinFx.activeRingingCount() == 2);
+	}
+
+	private static void verifyDistantSemanticRendering(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer) {
+		context.runOnClient(client -> {
+			client.particleEngine.clearParticles();
+			ClientSemanticFxMetrics.reset();
+		});
+		singleplayer.getServer().runOnServer(server -> {
+			var player = server.getPlayerList().getPlayers().getFirst();
+			PowerFx.rune(player.level(), player.position().add(144.0, 0.0, 0.0),
+					8.0, 0xB36BFF, 48, 0.25);
+		});
+		context.waitFor(client -> !ClientSemanticFxMetrics.snapshot().recentEventIds().isEmpty()
+				&& particleCount(client.particleEngine.countParticles()) > 0);
+
+		context.runOnClient(client -> {
+			client.particleEngine.clearParticles();
+			ClientSemanticFxMetrics.reset();
+		});
+		singleplayer.getServer().runOnServer(server -> {
+			var player = server.getPlayerList().getPlayers().getFirst();
+			PowerFx.eventRune(player.level(), player.position().add(1_800.0, 0.0, 0.0),
+					12.0, 0xFFF2A8, 64, 0.5);
+		});
+		context.waitFor(client -> !ClientSemanticFxMetrics.snapshot().recentEventIds().isEmpty()
+				&& particleCount(client.particleEngine.countParticles()) > 0);
+	}
+
+	private static int particleCount(String diagnostic) {
+		java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(\\d+)(?!.*\\d)")
+				.matcher(diagnostic == null ? "" : diagnostic);
+		return matcher.find() ? Integer.parseInt(matcher.group(1)) : 0;
+	}
+
+	private static void verifyDistantEventAudio(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer) {
+		context.runOnClient(client -> ClientEventAudio.resetMetrics());
+		singleplayer.getServer().runOnServer(server -> {
+			var player = server.getPlayerList().getPlayers().getFirst();
+			PowerFx.eventSound(player.level(), player.position().add(1_800.0, 0.0, 0.0),
+					EventAudioPackets.Cue.LIGHT_HERALD, 3.0F, 0.65F);
+		});
+		context.waitFor(client -> ClientEventAudio.handledCount() == 1);
 	}
 
 	private static void quiesceVisuals(ClientGameTestContext context) {

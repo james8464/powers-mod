@@ -58,9 +58,13 @@ public final class FxPayloadBatch {
 
 		/** Returns a canonical packet for this event and clamped observer budget. */
 		public MagicFxPackets.BeamFxPayload forCount(int count) {
+			return forCount(count, false);
+		}
+
+		public MagicFxPackets.BeamFxPayload forCount(int count, boolean overrideDistanceLimiter) {
 			int bounded = Math.clamp(count, 1, 64);
-			if (newest != null && newest.count() == bounded) return newest;
-			if (previous != null && previous.count() == bounded) {
+			if (matches(newest, bounded, overrideDistanceLimiter)) return newest;
+			if (matches(previous, bounded, overrideDistanceLimiter)) {
 				MagicFxPackets.BeamFxPayload match = previous;
 				previous = newest;
 				newest = match;
@@ -68,8 +72,15 @@ public final class FxPayloadBatch {
 			}
 			previous = newest;
 			newest = new MagicFxPackets.BeamFxPayload(eventId, style,
-					fromX, fromY, fromZ, toX, toY, toZ, bounded, color);
+					fromX, fromY, fromZ, toX, toY, toZ, bounded, color,
+					overrideDistanceLimiter);
 			return newest;
+		}
+
+		private static boolean matches(MagicFxPackets.BeamFxPayload payload,
+				int count, boolean overrideDistanceLimiter) {
+			return payload != null && payload.count() == count
+					&& payload.overrideDistanceLimiter() == overrideDistanceLimiter;
 		}
 	}
 
@@ -106,9 +117,13 @@ public final class FxPayloadBatch {
 
 		/** Returns a canonical packet for this event and clamped observer budget. */
 		public MagicFxPackets.ShapeFxPayload forCount(int count) {
+			return forCount(count, false);
+		}
+
+		public MagicFxPackets.ShapeFxPayload forCount(int count, boolean overrideDistanceLimiter) {
 			int bounded = Math.clamp(count, 1, 640);
-			if (newest != null && newest.count() == bounded) return newest;
-			if (previous != null && previous.count() == bounded) {
+			if (matches(newest, bounded, overrideDistanceLimiter)) return newest;
+			if (matches(previous, bounded, overrideDistanceLimiter)) {
 				MagicFxPackets.ShapeFxPayload match = previous;
 				previous = newest;
 				newest = match;
@@ -116,8 +131,15 @@ public final class FxPayloadBatch {
 			}
 			previous = newest;
 			newest = new MagicFxPackets.ShapeFxPayload(eventId, kind,
-					x, y, z, radius, height, bounded, color, phase);
+					x, y, z, radius, height, bounded, color, phase,
+					overrideDistanceLimiter);
 			return newest;
+		}
+
+		private static boolean matches(MagicFxPackets.ShapeFxPayload payload,
+				int count, boolean overrideDistanceLimiter) {
+			return payload != null && payload.count() == count
+					&& payload.overrideDistanceLimiter() == overrideDistanceLimiter;
 		}
 	}
 

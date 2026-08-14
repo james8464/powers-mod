@@ -51,10 +51,13 @@ public final class ClientShapeFx {
 
 	private static void add(Minecraft client, MagicFxPackets.ShapeFxPayload payload,
 			ParticleOptions particle, double angle, double radius, double y) {
-		client.level.addParticle(particle,
-				payload.x() + Math.cos(angle) * radius,
-				payload.y() + y,
-				payload.z() + Math.sin(angle) * radius,
-				0.0, 0.0, 0.0);
+		double x = payload.x() + Math.cos(angle) * radius;
+		double z = payload.z() + Math.sin(angle) * radius;
+		if (payload.overrideDistanceLimiter()) {
+			client.level.addAlwaysVisibleParticle(particle, true,
+					x, payload.y() + y, z, 0.0, 0.0, 0.0);
+		} else {
+			client.level.addParticle(particle, x, payload.y() + y, z, 0.0, 0.0, 0.0);
+		}
 	}
 }

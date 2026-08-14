@@ -82,13 +82,24 @@ public final class ClientMagicFx {
 			double y = origin.y + frame.verticalOffset() + transformed.y();
 			double z = origin.z + transformed.z();
 			double velocity = frame.velocityScale();
-			client.level.addParticle(sprite, x, y, z, transformed.x() * 0.006 * velocity,
+			add(client, payload, sprite, x, y, z, transformed.x() * 0.006 * velocity,
 					0.008 * velocity, transformed.z() * 0.006 * velocity);
 			if (index % 4 == 0) {
 				int color = index % 8 == 0 ? payload.primaryColor() : payload.secondaryColor();
 				ParticleOptions tint = new DustParticleOptions(color & 0xFFFFFF, 0.85F);
-				client.level.addParticle(tint, x, y, z, 0.0, 0.004, 0.0);
+				add(client, payload, tint, x, y, z, 0.0, 0.004, 0.0);
 			}
+		}
+	}
+
+	private static void add(Minecraft client, MagicFxPackets.MagicFxPayload payload,
+			ParticleOptions particle, double x, double y, double z,
+			double velocityX, double velocityY, double velocityZ) {
+		if (payload.overrideDistanceLimiter()) {
+			client.level.addAlwaysVisibleParticle(particle, true,
+					x, y, z, velocityX, velocityY, velocityZ);
+		} else {
+			client.level.addParticle(particle, x, y, z, velocityX, velocityY, velocityZ);
 		}
 	}
 

@@ -28,8 +28,9 @@ class FxGeometryTest {
 
 	@Test
 	void distanceAndIntensityRespectTheClientBudget() {
-		assertTrue(FxGeometry.budget(90.0, 1, 1.0) <= 12);
-		assertEquals(0, FxGeometry.budget(200.0, 5, 1.0));
+		assertEquals(14, FxGeometry.budget(90.0, 1, 1.0));
+		assertEquals(12, FxGeometry.budget(200.0, 5, 1.0));
+		assertEquals(0, FxGeometry.budget(257.0, 5, 1.0));
 		assertTrue(FxGeometry.budget(4.0, 5, 1.0) <= 96);
 	}
 

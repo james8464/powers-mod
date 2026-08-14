@@ -23,7 +23,12 @@ public final class ClientBeamFx {
 		int count = Math.max(1, (int) Math.round(payload.count() * FxAccessibility.effectScale(client)));
 		for (int index = 1; index <= count; index++) {
 			Vec3 point = from.add(delta.scale(index / (double) count));
-			client.level.addParticle(particle, point.x, point.y, point.z, 0.0, 0.0, 0.0);
+			if (payload.overrideDistanceLimiter()) {
+				client.level.addAlwaysVisibleParticle(particle, true,
+						point.x, point.y, point.z, 0.0, 0.0, 0.0);
+			} else {
+				client.level.addParticle(particle, point.x, point.y, point.z, 0.0, 0.0, 0.0);
+			}
 		}
 	}
 

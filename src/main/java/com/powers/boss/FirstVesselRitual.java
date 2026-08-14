@@ -2,9 +2,9 @@ package com.powers.boss;
 
 import com.powers.PowersBlocks;
 import com.powers.PowersEntities;
-import com.powers.PowersSounds;
 import com.powers.entity.FirstVessel;
 import com.powers.fx.PowerFx;
+import com.powers.network.EventAudioPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.util.BoundedEntityCandidates;
@@ -62,11 +62,11 @@ public final class FirstVesselRitual {
 				Blocks.AIR.defaultBlockState()));
 		LIGHT_OFFSETS.forEach(offset -> level.setBlockAndUpdate(altar.offset(offset),
 				Blocks.AIR.defaultBlockState()));
-		PowerFx.rune(level, center, 12.0, 0xE4D6FF, 64, 0.0);
-		PowerFx.spiral(level, center, 6.0, 16.0, 0x54205F, 56, 0.0);
+		PowerFx.eventRune(level, center, 12.0, 0xE4D6FF, 64, 0.0);
+		PowerFx.eventSpiral(level, center, 6.0, 16.0, 0x54205F, 56, 0.0);
 		PowerFx.burst(level, center.add(0, 1, 0),
 				com.powers.PowersParticles.ECLIPSE, 48, 3.5, 0.18);
-		PowerFx.sound(level, center, PowersSounds.DARK_WHISPER, 4.0F, 0.35F);
+		PowerFx.eventSound(level, center, EventAudioPackets.Cue.DARK_EVENT, 4.0F, 0.35F);
 		PowerMessages.overlay(player, Component.translatable("boss.powers.first_vessel.ritual_complete"));
 		return true;
 	}

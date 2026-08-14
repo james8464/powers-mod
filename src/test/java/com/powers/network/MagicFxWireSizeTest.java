@@ -33,9 +33,9 @@ class MagicFxWireSizeTest {
 		var shape = new MagicFxPackets.ShapeFxPayload(1L, ShapeFxKind.RING,
 				0.0, 1.0, 2.0, 3.0, 0.0, 24, 0xABCDEF, 0.5);
 
-		assertEquals(57, MagicFxPackets.encodedBodyBytes(magic));
-		assertEquals(55, MagicFxPackets.encodedBodyBytes(beam));
-		assertEquals(55, MagicFxPackets.encodedBodyBytes(shape));
+		assertEquals(58, MagicFxPackets.encodedBodyBytes(magic));
+		assertEquals(56, MagicFxPackets.encodedBodyBytes(beam));
+		assertEquals(56, MagicFxPackets.encodedBodyBytes(shape));
 	}
 
 	@Test
