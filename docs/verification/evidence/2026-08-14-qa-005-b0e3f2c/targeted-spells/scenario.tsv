@@ -1,0 +1,37 @@
+# Corrected isolated target and ward cases rejected by the broad practical-spell run.
+300	command	powers testing on
+320	command	gamemode creative
+340	command	tp SpellTargeter 0 101 0 0 0
+360	command	fill -8 100 -8 48 100 32 minecraft:stone
+380	command	fill -8 101 -8 48 109 32 minecraft:air
+400	command	summon powers:power_test_actor 0 101 5
+420	command	data merge entity @e[type=powers:power_test_actor,sort=nearest,limit=1] {NoAI:1b}
+440	command	item replace entity SpellTargeter weapon.mainhand with powers:imported_book_grimoire_deep
+460	grimoire	book_grimoire_deep 0
+480	use	main
+560	screenshot	spell-dimensional-anchor
+580	command	kill @e[type=powers:power_test_actor,sort=nearest,limit=1]
+600	command	tp SpellTargeter 10 101 0 0 5
+620	command	summon minecraft:cow 10 101 5 {NoAI:true,PersistenceRequired:true,Health:10.0f}
+640	command	item replace entity SpellTargeter weapon.mainhand with powers:imported_book_grimoire_blight
+660	grimoire	book_grimoire_blight 0
+680	use	main
+740	screenshot	spell-blood-reading
+760	command	kill @e[type=minecraft:cow,sort=nearest,limit=1]
+780	command	tp SpellTargeter 20 101 0 0 1
+800	command	setblock 20 101 25 minecraft:redstone_block
+820	command	setblock 20 102 25 powers:amethyst_ward
+840	command	item replace entity SpellTargeter weapon.mainhand with powers:imported_book_grimoire_abyssal
+860	grimoire	book_grimoire_abyssal 0
+880	use	main
+1000	command	tp SpellTargeter 20 101 19 180 0
+1020	command	data get entity SpellTargeter active_effects
+1040	screenshot	spell-ward-breaking
+1060	command	tp SpellTargeter 40 101 0 0 5
+1080	command	summon minecraft:cow 40 101 5 {NoAI:true,PersistenceRequired:true,active_effects:[{id:"minecraft:resistance",duration:1200}]}
+1100	command	item replace entity SpellTargeter weapon.mainhand with powers:imported_book_grimoire_abyssal
+1120	grimoire	book_grimoire_abyssal 1
+1140	use	main
+1200	command	data get entity @e[type=minecraft:cow,sort=nearest,limit=1] active_effects
+1220	screenshot	spell-dispel
+1260	command	powers diagnose
