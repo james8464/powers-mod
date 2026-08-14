@@ -303,6 +303,15 @@ tasks.register("perf006AllocationProfile", JavaExec) {
 	}
 }
 
+tasks.register("perf015CompressionProfile", JavaExec) {
+	description = "Measures Minecraft-style semantic-FX compression from 64 bytes through 8 KiB."
+	group = "verification"
+	dependsOn("testClasses")
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "com.powers.network.FxCompressionProfile"
+	args layout.buildDirectory.file("perf-015-compression/profile.json").get().asFile.absolutePath
+}
+
 tasks.register("updateVisualGoldens", JavaExec) {
 	description = "Regenerates reviewed, deterministic client visual goldens."
 	group = "documentation"

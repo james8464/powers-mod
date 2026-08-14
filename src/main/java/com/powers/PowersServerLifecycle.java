@@ -209,5 +209,6 @@ final class PowersServerLifecycle {
 		FactionInvasionManager.tick(server);
 		PowerAbilityRuntime.tickTeleportMarking(server);
 		ServerMagicScheduler.tick(server);
+		MagicFxPackets.flush(server);
 	}
 }
