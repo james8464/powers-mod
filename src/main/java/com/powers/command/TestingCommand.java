@@ -1,7 +1,7 @@
 package com.powers.command;
 
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -9,8 +9,11 @@ import com.powers.PowersEntities;
 import com.powers.audit.OperatorAuditAction;
 import com.powers.audit.OperatorAuditResult;
 import com.powers.entity.PowerTestActor;
+import com.powers.fx.BeamFxStyle;
+import com.powers.network.MagicFxPackets;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
+import com.powers.testing.FxCoalescingCapture;
 import com.powers.testing.GameplayAcceptanceCatalogue;
 import com.powers.testing.QuestTelemetryCampaignScenario;
 import com.powers.testing.RestartSoakScenario;
@@ -83,7 +86,10 @@ final class TestingCommand {
 								.then(Commands.argument("minutes", IntegerArgumentType.integer(1, 180))
 										.then(Commands.argument("expectedPlayers",
 												IntegerArgumentType.integer(0, 1_000))
-												.executes(TestingCommand::profileStart)))))
+										.executes(TestingCommand::profileStart)))))
+				.then(Commands.literal("fx-capture")
+						.then(Commands.argument("duplicates", IntegerArgumentType.integer(4, 4_096))
+								.executes(TestingCommand::captureDuplicateFx)))
 				.then(Commands.literal("arena")
 						.executes(TestingCommand::spawnArena)
 						.then(Commands.literal("spawn").executes(TestingCommand::spawnArena))
@@ -94,6 +100,32 @@ final class TestingCommand {
 								.then(Commands.argument("username", StringArgumentType.word())
 										.executes(context -> spawnActor(context,
 												StringArgumentType.getString(context, "username"))))));
+	}
+
+	private static int captureDuplicateFx(CommandContext<CommandSourceStack> context)
+			throws CommandSyntaxException {
+		ServerPlayer observer = context.getSource().getPlayerOrException();
+		int duplicates = IntegerArgumentType.getInteger(context, "duplicates");
+		Vec3 from = observer.getEyePosition().add(observer.getLookAngle().scale(1.5));
+		Vec3 to = from.add(observer.getLookAngle().scale(12.0));
+		long eventId = Integer.toUnsignedLong(java.util.Objects.hash(
+				observer.level().getServer().getTickCount(), observer.getUUID(), duplicates));
+		var payload = new MagicFxPackets.BeamFxPayload(eventId, BeamFxStyle.ELECTRIC,
+				from.x, from.y, from.z, to.x, to.y, to.z, 24, 0xB8F4FF);
+		MagicFxPackets.resetFxTrafficMetrics();
+		for (int index = 0; index < duplicates; index++) {
+			MagicFxPackets.sendBeam(observer, payload);
+		}
+		FxCoalescingCapture result = FxCoalescingCapture.evaluate(
+				MagicFxPackets.fxTrafficSnapshot());
+		com.powers.PowersMod.LOGGER.info(result.marker());
+		if (result.passed()) {
+			context.getSource().sendSuccess(() -> Component.literal(result.marker())
+					.withStyle(ChatFormatting.AQUA), false);
+			return 1;
+		}
+		context.getSource().sendFailure(Component.literal(result.marker()));
+		return 0;
 	}
 
 	private static LiteralArgumentBuilder<CommandSourceStack> soakPhase(String literal,

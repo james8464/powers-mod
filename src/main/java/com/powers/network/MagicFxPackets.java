@@ -16,6 +16,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -173,12 +174,13 @@ public final class MagicFxPackets {
 
 	/** Sends an already budgeted beam only to its intended observer. */
 	public static void sendBeam(ServerPlayer observer, BeamFxPayload payload) {
+		if (!ServerPlayNetworking.canSend(observer, BeamFxPayload.TYPE)) return;
 		long tick = observer.level().getServer().getTickCount();
 		int chunkX = ((int) Math.floor((payload.fromX() + payload.toX()) * 0.5)) >> 4;
 		int chunkZ = ((int) Math.floor((payload.fromZ() + payload.toZ()) * 0.5)) >> 4;
 		if (COALESCER.allow(tick, observer.getUUID(), observer.level().dimension().identifier().toString(),
-				chunkX, chunkZ, "beam:" + payload.style().name())
-				&& ServerPlayNetworking.canSend(observer, BeamFxPayload.TYPE)) {
+				chunkX, chunkZ, "beam:" + payload.style().name(), "sustain",
+				encodedBodyBytes(payload))) {
 			ServerPlayNetworking.send(observer, payload);
 			ServerRuntimeMetrics.recordPacket(observer.level().getServer(), tick);
 		}
@@ -186,11 +188,11 @@ public final class MagicFxPackets {
 
 	/** Sends an already budgeted semantic shape only to its intended observer. */
 	public static void sendShape(ServerPlayer observer, ShapeFxPayload payload) {
+		if (!ServerPlayNetworking.canSend(observer, ShapeFxPayload.TYPE)) return;
 		long tick = observer.level().getServer().getTickCount();
 		if (COALESCER.allow(tick, observer.getUUID(), observer.level().dimension().identifier().toString(),
 				((int) Math.floor(payload.x())) >> 4, ((int) Math.floor(payload.z())) >> 4,
-				"shape:" + payload.kind().name())
-				&& ServerPlayNetworking.canSend(observer, ShapeFxPayload.TYPE)) {
+				"shape:" + payload.kind().name(), "sustain", encodedBodyBytes(payload))) {
 			ServerPlayNetworking.send(observer, payload);
 			ServerRuntimeMetrics.recordPacket(observer.level().getServer(), tick);
 		}
@@ -217,18 +219,69 @@ public final class MagicFxPackets {
 		return PAYLOADS.intern(payload);
 	}
 
+	/** Starts an isolated transport capture without disturbing payload or level caches. */
+	public static void resetFxTrafficMetrics() {
+		COALESCER.clear();
+	}
+
+	public static FxPacketCoalescer.TrafficSnapshot fxTrafficSnapshot() {
+		return COALESCER.trafficSnapshot();
+	}
+
 	private static void send(ServerLevel level, MagicFxEvent event) {
 		MagicFxPayload payload = new MagicFxPayload(event);
 		for (ServerPlayer observer : level.players()) {
 			if (observer.position().distanceToSqr(event.x(), event.y(), event.z()) > 128.0 * 128.0) continue;
+			if (!ServerPlayNetworking.canSend(observer, MagicFxPayload.TYPE)) continue;
 			long tick = level.getServer().getTickCount();
 			if (COALESCER.allow(tick, observer.getUUID(), level.dimension().identifier().toString(),
 					((int) Math.floor(event.x())) >> 4, ((int) Math.floor(event.z())) >> 4,
-					"magic:" + event.kind().name() + ":" + event.motif())
-					&& ServerPlayNetworking.canSend(observer, MagicFxPayload.TYPE)) {
+					"magic:" + event.motif(), event.kind().name().toLowerCase(java.util.Locale.ROOT),
+					encodedBodyBytes(payload))) {
 				ServerPlayNetworking.send(observer, payload);
 				ServerRuntimeMetrics.recordPacket(level.getServer(), tick);
 			}
 		}
+	}
+
+	static int encodedBodyBytes(MagicFxPayload payload) {
+		return varIntBytes(payload.kind().networkId()) + varLongBytes(payload.eventId())
+				+ stringBytes(payload.motif()) + stringBytes(payload.sound())
+				+ Double.BYTES * 3 + Integer.BYTES * 3
+				+ varIntBytes(payload.intensity()) + varIntBytes(payload.genericBeatCount());
+	}
+
+	static int encodedBodyBytes(BeamFxPayload payload) {
+		return varLongBytes(payload.eventId()) + varIntBytes(payload.style().networkId())
+				+ Double.BYTES * 6 + varIntBytes(payload.count()) + Integer.BYTES;
+	}
+
+	static int encodedBodyBytes(ShapeFxPayload payload) {
+		return varLongBytes(payload.eventId()) + varIntBytes(payload.kind().networkId())
+				+ Double.BYTES * 5 + varIntBytes(payload.count())
+				+ Integer.BYTES + Double.BYTES;
+	}
+
+	private static int stringBytes(String value) {
+		int bytes = value.getBytes(StandardCharsets.UTF_8).length;
+		return varIntBytes(bytes) + bytes;
+	}
+
+	private static int varIntBytes(int value) {
+		int bytes = 1;
+		while ((value & ~0x7F) != 0) {
+			bytes++;
+			value >>>= 7;
+		}
+		return bytes;
+	}
+
+	private static int varLongBytes(long value) {
+		int bytes = 1;
+		while ((value & ~0x7FL) != 0L) {
+			bytes++;
+			value >>>= 7;
+		}
+		return bytes;
 	}
 }
