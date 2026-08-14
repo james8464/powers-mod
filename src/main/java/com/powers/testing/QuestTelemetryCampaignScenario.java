@@ -39,7 +39,8 @@ public final class QuestTelemetryCampaignScenario {
 		}
 	}
 
-	private record Actor(UUID player, QuestTelemetryCampaignPlan.Profile profile) { }
+	private record Actor(UUID player, QuestTelemetryCampaignPlan.Profile profile,
+			boolean previouslyInvulnerable) { }
 
 	private static final class State {
 		private final QuestTelemetryLedger.Alignment alignment;
@@ -94,7 +95,8 @@ public final class QuestTelemetryCampaignScenario {
 				player.removeTag(SkillSystem.DARKNESS_TAG);
 			}
 			QuestCompletionTelemetry.noteActivity(player, alignment);
-			actors.add(new Actor(player.getUUID(), profiles.get(index)));
+			actors.add(new Actor(player.getUUID(), profiles.get(index), player.isInvulnerable()));
+			player.setInvulnerable(true);
 		}
 		ACTIVE.put(server, new State(alignment, List.copyOf(actors), server.getTickCount(),
 				equivalentTicksPerServerTick));
@@ -150,7 +152,12 @@ public final class QuestTelemetryCampaignScenario {
 	}
 
 	public static void clear(MinecraftServer server) {
-		ACTIVE.remove(server);
+		State state = ACTIVE.remove(server);
+		if (state == null) return;
+		for (Actor actor : state.actors) {
+			ServerPlayer player = server.getPlayerList().getPlayer(actor.player);
+			if (player != null) player.setInvulnerable(actor.previouslyInvulnerable);
+		}
 	}
 
 	private static void replay(ServerPlayer player, QuestTelemetryLedger.Alignment alignment,

@@ -142,6 +142,10 @@ def launch_clients(alignment: str, inputs: tuple[Path, Path, Path]) \
     for username in client_names(alignment):
         directory = OUTPUT / "clients" / username
         directory.mkdir(parents=True, exist_ok=True)
+        (directory / "options.txt").write_text(
+            "maxFps:10\nrenderDistance:2\nsimulationDistance:2\n"
+            "entityDistanceScaling:0.5\nparticles:2\ngraphicsMode:fast\n",
+            encoding="utf-8")
         log_handle = (OUTPUT / "client-logs" / f"{username}.log").open("wb")
         process = subprocess.Popen(
             client_command(*inputs, directory, username), cwd=ROOT,
@@ -183,10 +187,11 @@ def run_phase(alignment: str, server: subprocess.Popen[str], source: queue.Queue
                 "wall_seconds": round(time.monotonic() - started, 3),
                 "human_equivalent_ticks": PHASE_TICKS[alignment]}
     finally:
+        if server.poll() is None:
+            send(server, "powers testing quest-campaign clear")
+            time.sleep(1.0)
+            drain(source, lines, log)
         stop_clients(clients)
-        send(server, "powers testing quest-campaign clear")
-        time.sleep(1.0)
-        drain(source, lines, log)
 
 
 def main() -> int:
@@ -198,7 +203,8 @@ def main() -> int:
     (runtime / "eula.txt").write_text("eula=true\n", encoding="utf-8")
     (runtime / "server.properties").write_text(
         f"online-mode=false\nserver-port={CAMPAIGN_PORT}\nlevel-name=world\nmax-players=20\nview-distance=4\n"
-        "simulation-distance=4\n", encoding="utf-8")
+        "simulation-distance=4\ndifficulty=peaceful\nspawn-monsters=false\nspawn-animals=false\n",
+        encoding="utf-8")
     inputs = prepare_launch()
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     process = subprocess.Popen(
