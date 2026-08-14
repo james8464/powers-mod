@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ServerTickProfilerTest {
 	@Test
@@ -37,5 +39,23 @@ class ServerTickProfilerTest {
 		assertEquals(true, ServerTickProfiler.isNewLogicalTick(41L, 42L));
 		assertEquals(false, ServerTickProfiler.isNewLogicalTick(42L, 42L));
 		assertEquals(false, ServerTickProfiler.isNewLogicalTick(43L, 42L));
+	}
+
+	@Test
+	void completionRequiresBothTheExactSampleCountAndFullWallDuration() {
+		long thirtyMinutes = 1_800_000_000_000L;
+		assertFalse(ServerTickProfiler.profileComplete(36_000, 36_000,
+				thirtyMinutes - 1L));
+		assertFalse(ServerTickProfiler.profileComplete(35_999, 36_000,
+				thirtyMinutes));
+		assertTrue(ServerTickProfiler.profileComplete(36_000, 36_000,
+				thirtyMinutes));
+	}
+
+	@Test
+	void samplingStopsAtTheRequestedCountWhileWallTimeCatchesUp() {
+		assertTrue(ServerTickProfiler.shouldSample(35_999, 36_000));
+		assertFalse(ServerTickProfiler.shouldSample(36_000, 36_000));
+		assertFalse(ServerTickProfiler.shouldSample(36_001, 36_000));
 	}
 }

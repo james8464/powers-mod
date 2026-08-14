@@ -88,21 +88,27 @@ public final class ServerTickProfiler {
 		session.tickStarted = System.nanoTime();
 	}
 
-	/** Captures the end boundary and publishes evidence after the requested duration. */
+	/** Captures one sample and publishes only after both sample and wall-time targets. */
 	public static void endTick(MinecraftServer server) {
 		Session session = SESSIONS.get(server);
 		if (session == null || session.tickStarted == 0L
 				|| !isNewLogicalTick(session.sampledTick, session.logicalTick)) return;
 		session.sampledTick = session.logicalTick;
-		long elapsed = Math.max(0L, System.nanoTime() - session.tickStarted);
-		session.durations.add(elapsed);
-		var work = ServerRuntimeMetrics.snapshot(server);
-		session.peakParticles = Math.max(session.peakParticles, work.particles());
-		session.peakPackets = Math.max(session.peakPackets, work.packets());
-		session.peakInspections = Math.max(session.peakInspections, work.entityInspections());
+		if (shouldSample(session.durations.size(), session.requestedTicks)) {
+			long elapsed = Math.max(0L, System.nanoTime() - session.tickStarted);
+			session.durations.add(elapsed);
+			var work = ServerRuntimeMetrics.snapshot(server);
+			session.peakParticles = Math.max(session.peakParticles, work.particles());
+			session.peakPackets = Math.max(session.peakPackets, work.packets());
+			session.peakInspections = Math.max(session.peakInspections,
+					work.entityInspections());
+		}
 		if (session.paceRealTime) waitUntil(profileDeadlineNanos(
 				session.startedAt, session.durations.size()));
-		if (session.durations.size() >= session.requestedTicks) finish(server, session);
+		long wallNanos = Math.max(0L, System.nanoTime() - session.startedAt);
+		if (profileComplete(session.durations.size(), session.requestedTicks, wallNanos)) {
+			finish(server, session);
+		}
 	}
 
 	/** Records one real server-authoritative action attempted by the profiling workload. */
@@ -138,6 +144,18 @@ public final class ServerTickProfiler {
 	/** Cumulative 20 TPS deadline; cumulative pacing prevents per-tick drift. */
 	public static long profileDeadlineNanos(long startedAt, int sampledTicks) {
 		return startedAt + (long) Math.max(0, sampledTicks) * TARGET_TICK_NANOS;
+	}
+
+	/** Prevents extra tick samples while a real server reaches the wall-time boundary. */
+	public static boolean shouldSample(int sampledTicks, int requestedTicks) {
+		return sampledTicks < requestedTicks;
+	}
+
+	/** Requires complete tick evidence and the corresponding real-time observation window. */
+	public static boolean profileComplete(int sampledTicks, int requestedTicks,
+			long wallNanos) {
+		long targetWallNanos = (long) Math.max(0, requestedTicks) * TARGET_TICK_NANOS;
+		return sampledTicks >= requestedTicks && wallNanos >= targetWallNanos;
 	}
 
 	/** True only once when a monotonically increasing logical server tick arrives. */
