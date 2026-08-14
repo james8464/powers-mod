@@ -1,0 +1,61 @@
+# Exact-build practical-spell acceptance using production grimoire selection and vanilla item use.
+300	command	powers testing on
+320	command	gamemode creative
+340	command	tp SpellCaster 0 101 0 0 0
+360	command	fill -16 100 -16 80 100 16 minecraft:stone
+380	command	fill -16 101 -8 80 109 8 minecraft:air
+400	command	item replace entity SpellCaster weapon.mainhand with powers:imported_book_grimoire_celestial
+420	grimoire	book_grimoire_celestial 1
+440	use	main
+500	screenshot	spell-augury
+520	command	summon powers:power_test_actor 0 101 5
+540	command	item replace entity SpellCaster weapon.mainhand with powers:imported_book_grimoire_deep
+560	grimoire	book_grimoire_deep 0
+580	use	main
+660	screenshot	spell-dimensional-anchor
+680	command	kill @e[type=powers:power_test_actor,distance=..16]
+700	command	tp SpellCaster 10 101 0 0 0
+720	command	summon minecraft:cow 10 101 5 {NoAI:true,PersistenceRequired:true,Health:10.0f}
+740	command	item replace entity SpellCaster weapon.mainhand with powers:imported_book_grimoire_blight
+760	grimoire	book_grimoire_blight 0
+780	use	main
+840	screenshot	spell-blood-reading
+860	command	kill SpellCaster
+900	respawn	now
+960	command	powers testing on
+980	command	gamemode creative
+1000	command	item replace entity SpellCaster weapon.mainhand with powers:imported_book_grimoire_blight
+1020	grimoire	book_grimoire_blight 1
+1040	use	main
+1080	screenshot	spell-grave-recall
+1100	command	effect give SpellCaster minecraft:poison 60 2 true
+1120	command	item replace entity SpellCaster weapon.mainhand with powers:imported_book_grimoire_wild
+1140	grimoire	book_grimoire_wild 0
+1160	use	main
+1240	command	data get entity SpellCaster active_effects
+1260	screenshot	spell-purification-circle
+1280	command	tp SpellCaster 20 101 0 0 0
+1300	command	setblock 21 100 0 minecraft:farmland[moisture=0]
+1320	command	setblock 21 101 0 minecraft:wheat[age=0]
+1340	command	item replace entity SpellCaster weapon.mainhand with powers:imported_book_grimoire_wild
+1360	grimoire	book_grimoire_wild 1
+1380	use	main
+1460	command	data get block 21 101 0
+1480	screenshot	spell-verdant-tending
+1500	command	tp SpellCaster 40 101 0 0 0
+1520	command	setblock 40 101 12 minecraft:redstone_block
+1540	command	setblock 40 102 12 powers:amethyst_ward
+1560	command	item replace entity SpellCaster weapon.mainhand with powers:imported_book_grimoire_abyssal
+1580	grimoire	book_grimoire_abyssal 0
+1600	use	main
+1720	command	tp SpellCaster 40 101 6 180 0
+1740	command	data get entity SpellCaster active_effects
+1760	screenshot	spell-ward-breaking
+1780	command	tp SpellCaster 60 101 0 0 0
+1800	command	summon minecraft:cow 60 101 5 {NoAI:true,PersistenceRequired:true,active_effects:[{id:"minecraft:resistance",duration:1200}]}
+1820	command	item replace entity SpellCaster weapon.mainhand with powers:imported_book_grimoire_abyssal
+1840	grimoire	book_grimoire_abyssal 1
+1860	use	main
+1920	command	data get entity @e[type=minecraft:cow,sort=nearest,limit=1] active_effects
+1940	screenshot	spell-dispel
+1980	command	powers diagnose
