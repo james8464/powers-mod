@@ -2,6 +2,7 @@ package com.powers.power.artifact;
 
 import com.powers.PowersEntities;
 import com.powers.entity.AbstractPlayerLikeMob;
+import com.powers.entity.LongLivedSummonRecord;
 import com.powers.fx.PowerFx;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.protection.PowerProtection;
@@ -26,6 +27,8 @@ public final class ArtifactGuardianSummons {
 	private static final Map<UUID, Set<UUID>> NORMAL_BY_OWNER = new HashMap<>();
 	private static final Map<UUID, Set<UUID>> ELITE_BY_OWNER = new HashMap<>();
 	private static final Set<UUID> LOADED = new HashSet<>();
+	private static long lifecycleIndexRebuilds;
+	private static long runtimeRebinds;
 
 	private ArtifactGuardianSummons() {
 	}
@@ -41,7 +44,9 @@ public final class ArtifactGuardianSummons {
 		ServerLevel level = (ServerLevel) caster.level();
 		if (PowerProtection.isSafeZone(level, caster.position())) return 0;
 		Map<UUID, Set<UUID>> index = elite ? ELITE_BY_OWNER : NORMAL_BY_OWNER;
-		Set<UUID> existing = index.computeIfAbsent(caster.getUUID(), ignored -> new HashSet<>());
+		UUID ownerId = owned ? caster.getUUID() : null;
+		Set<UUID> existing = ownerId == null ? Set.of()
+				: index.computeIfAbsent(ownerId, ignored -> new HashSet<>());
 		int allowed = ArtifactDominionRules.guardiansToSpawn(requested, existing.size(), elite);
 		allowed = Math.min(allowed, Math.max(0,
 				ArtifactDominionRules.MAX_LOADED_GUARDIANS - LOADED.size()));
@@ -56,11 +61,11 @@ public final class ArtifactGuardianSummons {
 			guardian.setPos(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5);
 			guardian.finalizeSpawn(level, level.getCurrentDifficultyAt(spawnPos),
 					EntitySpawnReason.MOB_SUMMONED, null);
-			guardian.configureGuardian(owned ? caster.getUUID() : null,
+			guardian.configureGuardian(ownerId,
 					elite ? ELITE_LIFETIME : NORMAL_LIFETIME, elite);
 			if (forcedTarget != null) guardian.setTarget(forcedTarget);
 			if (!level.addFreshEntity(guardian) || guardian.isRemoved()) continue;
-			existing.add(guardian.getUUID());
+			if (ownerId != null) existing.add(guardian.getUUID());
 			var lightning = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
 			if (lightning != null) {
 				lightning.setVisualOnly(true);
@@ -70,7 +75,7 @@ public final class ArtifactGuardianSummons {
 			arrival(level, guardian, alignment, elite);
 			spawned++;
 		}
-		if (existing.isEmpty()) index.remove(caster.getUUID());
+		if (ownerId != null && existing.isEmpty()) index.remove(ownerId);
 		return spawned;
 	}
 
@@ -98,9 +103,27 @@ public final class ArtifactGuardianSummons {
 		return null;
 	}
 
+	/** Atomically replaces derived membership when a loaded guardian changes owner or tier. */
+	public static void rebindLoaded(AbstractPlayerLikeMob guardian, Runnable authoritativeMutation) {
+		boolean loaded = guardian.level() instanceof ServerLevel level
+				&& level.getEntity(guardian.getUUID()) == guardian;
+		if (loaded) untrackLoaded(guardian);
+		authoritativeMutation.run();
+		if (loaded && !guardian.isRemoved()) trackLoaded(guardian, false);
+	}
+
 	/** Rebuilds loaded-session caps after chunk loads and server restarts. */
 	public static void trackLoaded(AbstractPlayerLikeMob guardian) {
-		if (!guardian.temporaryGuardian() || LOADED.contains(guardian.getUUID())) return;
+		trackLoaded(guardian, true);
+	}
+
+	private static void trackLoaded(AbstractPlayerLikeMob guardian, boolean lifecycleLoad) {
+		LongLivedSummonRecord record = guardian.summonRecord();
+		if (record == null || LOADED.contains(guardian.getUUID())) return;
+		if (record.expiredAt(guardian.level().getGameTime())) {
+			guardian.discard();
+			return;
+		}
 		UUID owner = guardian.guardianOwner();
 		Map<UUID, Set<UUID>> index = guardian.eliteGuardian() ? ELITE_BY_OWNER : NORMAL_BY_OWNER;
 		Set<UUID> owned = owner == null ? null : index.computeIfAbsent(owner, ignored -> new HashSet<>());
@@ -112,6 +135,8 @@ public final class ArtifactGuardianSummons {
 			return;
 		}
 		LOADED.add(guardian.getUUID());
+		if (lifecycleLoad) lifecycleIndexRebuilds++;
+		else runtimeRebinds++;
 		if (owned != null) owned.add(guardian.getUUID());
 	}
 
@@ -129,6 +154,8 @@ public final class ArtifactGuardianSummons {
 		NORMAL_BY_OWNER.clear();
 		ELITE_BY_OWNER.clear();
 		LOADED.clear();
+		lifecycleIndexRebuilds = 0;
+		runtimeRebinds = 0;
 	}
 
 	/** Revokes loaded owned guardians immediately; unloaded ones fail closed on their next AI tick. */
@@ -153,5 +180,26 @@ public final class ArtifactGuardianSummons {
 
 	public static int indexedGuardianCount() {
 		return LOADED.size();
+	}
+
+	/** Read-only diagnostic for one finite summon without exposing mutable index state. */
+	public static boolean isIndexed(UUID guardianId) {
+		return LOADED.contains(guardianId);
+	}
+
+	/** Read-only owner-tier count used by diagnostics and live cap verification. */
+	public static int ownedGuardianCount(UUID ownerId, boolean elite) {
+		Set<UUID> owned = (elite ? ELITE_BY_OWNER : NORMAL_BY_OWNER).get(ownerId);
+		return owned == null ? 0 : owned.size();
+	}
+
+	/** Monotonic session diagnostic proving one derived-index insert per accepted entity load. */
+	public static long lifecycleIndexRebuildCount() {
+		return lifecycleIndexRebuilds;
+	}
+
+	/** Runtime natural conversion or owner/tier rebinds, separate from load reconstruction. */
+	public static long runtimeRebindCount() {
+		return runtimeRebinds;
 	}
 }

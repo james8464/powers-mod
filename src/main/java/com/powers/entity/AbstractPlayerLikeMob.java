@@ -6,6 +6,7 @@ import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.power.artifact.ArtifactGuardianSummons;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import net.minecraft.core.particles.ParticleTypes;
@@ -27,14 +28,19 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
 /** Shared player-scale movement, attributes, and bounded lightning/fireball attacks. */
 public abstract class AbstractPlayerLikeMob extends Monster {
-	private UUID guardianOwner;
-	private int guardianLifetime = -1;
-	private boolean eliteGuardian;
+	private static final double NORMAL_GUARDIAN_HEALTH = 100.0;
+	private static final double NORMAL_GUARDIAN_ARMOR = 12.0;
+	private static final double NORMAL_GUARDIAN_DAMAGE = 16.0;
+	private static final double ELITE_GUARDIAN_HEALTH = 240.0;
+	private static final double ELITE_GUARDIAN_ARMOR = 22.0;
+	private static final double ELITE_GUARDIAN_DAMAGE = 34.0;
+	private @Nullable LongLivedSummonRecord summonRecord;
 
 	protected AbstractPlayerLikeMob(EntityType<? extends Monster> type, Level level) {
 		super(type, level);
@@ -42,9 +48,9 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 
 	public static AttributeSupplier.Builder createAttributes() {
 		return Monster.createMonsterAttributes()
-				.add(Attributes.MAX_HEALTH, 100.0)
-				.add(Attributes.ARMOR, 12.0)
-				.add(Attributes.ATTACK_DAMAGE, 16.0)
+				.add(Attributes.MAX_HEALTH, NORMAL_GUARDIAN_HEALTH)
+				.add(Attributes.ARMOR, NORMAL_GUARDIAN_ARMOR)
+				.add(Attributes.ATTACK_DAMAGE, NORMAL_GUARDIAN_DAMAGE)
 				.add(Attributes.ATTACK_SPEED, 4.0)
 				.add(Attributes.MOVEMENT_SPEED, 0.32)
 				.add(Attributes.FOLLOW_RANGE, 48.0)
@@ -65,30 +71,46 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 	protected abstract void registerTargetGoals();
 
 	/** Configures a bounded owned summon; natural realm creatures remain unowned. */
-	public final void configureGuardian(UUID ownerId, int lifetimeTicks, boolean elite) {
-		guardianOwner = ownerId;
-		guardianLifetime = GuardianFactionRules.normalizeLifetime(Math.max(1, lifetimeTicks));
-		eliteGuardian = elite;
-		setPersistenceRequired();
-		if (elite) {
-			getAttribute(Attributes.MAX_HEALTH).setBaseValue(240.0);
-			getAttribute(Attributes.ARMOR).setBaseValue(22.0);
-			getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(34.0);
-			setHealth(getMaxHealth());
-		}
+	public final void configureGuardian(@Nullable UUID ownerId, int lifetimeTicks, boolean elite) {
+		ArtifactGuardianSummons.rebindLoaded(this, () -> {
+			summonRecord = LongLivedSummonRecord.create(getUUID(), ownerId,
+					ownerId == null ? LongLivedSummonRecord.Task.INVADE
+							: LongLivedSummonRecord.Task.GUARD,
+					elite ? LongLivedSummonRecord.Archetype.ELITE
+							: LongLivedSummonRecord.Archetype.NORMAL,
+					level().getGameTime(), lifetimeTicks);
+			setPersistenceRequired();
+			applyGuardianArchetype(elite, true);
+		});
 	}
 
-	public final UUID guardianOwner() {
-		return guardianOwner;
+	private void applyGuardianArchetype(boolean elite, boolean refillElite) {
+		getAttribute(Attributes.MAX_HEALTH).setBaseValue(
+				elite ? ELITE_GUARDIAN_HEALTH : NORMAL_GUARDIAN_HEALTH);
+		getAttribute(Attributes.ARMOR).setBaseValue(
+				elite ? ELITE_GUARDIAN_ARMOR : NORMAL_GUARDIAN_ARMOR);
+		getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(
+				elite ? ELITE_GUARDIAN_DAMAGE : NORMAL_GUARDIAN_DAMAGE);
+		setHealth(refillElite && elite ? getMaxHealth() : Math.min(getHealth(), getMaxHealth()));
+	}
+
+	public final @Nullable UUID guardianOwner() {
+		return summonRecord == null ? null : summonRecord.ownerId();
 	}
 
 	public final boolean eliteGuardian() {
-		return eliteGuardian;
+		return summonRecord != null
+				&& summonRecord.archetype() == LongLivedSummonRecord.Archetype.ELITE;
 	}
 
 	/** True for finite artifact summons; natural realm creatures are not globally capped. */
 	public final boolean temporaryGuardian() {
-		return guardianLifetime > 0;
+		return summonRecord != null;
+	}
+
+	/** Exposes the immutable persisted contract without exposing derived guardian indexes. */
+	public final @Nullable LongLivedSummonRecord summonRecord() {
+		return summonRecord;
 	}
 
 	protected boolean radiantCombat() {
@@ -103,8 +125,8 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 	@Override
 	protected void customServerAiStep(ServerLevel level) {
 		super.customServerAiStep(level);
-		if (guardianLifetime > 0) {
-			guardianLifetime--;
+		if (summonRecord != null) {
+			UUID guardianOwner = summonRecord.ownerId();
 			var owner = guardianOwner == null ? null
 					: level.getServer().getPlayerList().getPlayer(guardianOwner);
 			ArtifactAlignment alignment = radiantCombat()
@@ -112,12 +134,12 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 			boolean ownerPresent = guardianOwner == null || owner != null && owner.level() == level
 					&& ArtifactWeaponManager.carries(owner, alignment)
 					&& ArtifactWeaponManager.authorized(owner, alignment);
-			if (GuardianFactionRules.shouldExpire(guardianLifetime, ownerPresent)) {
+			if (summonRecord.expiredAt(level.getGameTime()) || !ownerPresent) {
 				discard();
 				return;
 			}
 		}
-		if (guardianOwner != null && GuardianFieldRules.pulseAt(tickCount, eliteGuardian)) {
+		if (guardianOwner() != null && GuardianFieldRules.pulseAt(tickCount, eliteGuardian())) {
 			GuardianAlignmentField.pulse(level, this, radiantCombat()
 					? com.powers.item.artifact.ArtifactAlignment.LIGHT
 					: com.powers.item.artifact.ArtifactAlignment.DARKNESS);
@@ -172,22 +194,27 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 	@Override
 	protected void addAdditionalSaveData(ValueOutput output) {
 		super.addAdditionalSaveData(output);
-		if (guardianOwner != null) output.putString("PowersGuardianOwner", guardianOwner.toString());
-		output.putInt("PowersGuardianLifetime", guardianLifetime);
-		output.putBoolean("PowersEliteGuardian", eliteGuardian);
+		if (summonRecord != null) summonRecord.write(output);
 	}
 
 	@Override
 	protected void readAdditionalSaveData(ValueInput input) {
 		super.readAdditionalSaveData(input);
-		String owner = input.getStringOr("PowersGuardianOwner", "");
-		try {
-			guardianOwner = owner.isBlank() ? null : UUID.fromString(owner);
-		} catch (IllegalArgumentException ignored) {
-			guardianOwner = null;
-		}
-		guardianLifetime = GuardianFactionRules.normalizeLifetime(
-				input.getIntOr("PowersGuardianLifetime", -1));
-		eliteGuardian = input.getBooleanOr("PowersEliteGuardian", false);
+		long gameTime = level().getGameTime();
+		summonRecord = LongLivedSummonRecord.read(input, getUUID(), gameTime).orElseGet(() -> {
+			int legacyLifetime = GuardianFactionRules.normalizeLifetime(
+					input.getIntOr("PowersGuardianLifetime", -1));
+			if (legacyLifetime < 0) return null;
+			String encodedOwner = input.getStringOr("PowersGuardianOwner", "");
+			UUID ownerId;
+			try {
+				ownerId = encodedOwner.isBlank() ? null : UUID.fromString(encodedOwner);
+			} catch (IllegalArgumentException ignored) {
+				ownerId = null;
+			}
+			return LongLivedSummonRecord.fromLegacy(getUUID(), ownerId, legacyLifetime,
+					input.getBooleanOr("PowersEliteGuardian", false), gameTime);
+		});
+		if (summonRecord != null) applyGuardianArchetype(eliteGuardian(), false);
 	}
 }
