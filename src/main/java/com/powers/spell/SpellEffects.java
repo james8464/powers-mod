@@ -126,7 +126,7 @@ final class SpellEffects {
 
 	private static boolean bloodReading(ServerPlayer caster, LivingEntity target) {
 		if (target == null || target == caster) return false;
-		if (target instanceof ServerPlayer player && !PowerProtection.mayLocate(caster, player)) {
+		if (!PowerProtection.mayLocate(caster, target)) {
 			com.powers.knowledge.MagicAttemptReporter.failure(caster, "blood_reading",
 					com.powers.knowledge.MagicFailureReason.CONSENT);
 			return false;

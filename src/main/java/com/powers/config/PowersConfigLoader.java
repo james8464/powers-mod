@@ -13,7 +13,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /** Loads, validates, and atomically replaces the server's JSON configuration. */
@@ -57,6 +59,26 @@ public final class PowersConfigLoader {
 			PowersMod.LOGGER.error("Keeping the last valid POWERS configuration: {}", error.getMessage());
 			return false;
 		}
+	}
+
+	/** Installs parsed policy only for development GameTests and restores it on close. */
+	static synchronized AutoCloseable installForGameTest(String json) {
+		if (!FabricLoader.getInstance().isDevelopmentEnvironment()) {
+			throw new IllegalStateException("GameTest configuration is unavailable in production");
+		}
+		PowersConfig previousConfig = current;
+		ConfigValidationReport previousReport = validationReport;
+		ParseResult installed = parseWithReport(json);
+		current = installed.config();
+		validationReport = installed.report();
+		return () -> {
+			synchronized (PowersConfigLoader.class) {
+				if (current == installed.config()) {
+					current = previousConfig;
+					validationReport = previousReport;
+				}
+			}
+		};
 	}
 
 	static PowersConfig parse(String json) {
@@ -145,6 +167,7 @@ public final class PowersConfigLoader {
 						"dialogueProvider.maxGlobalRequests", changes),
 				integer(dialogueObject, "ownerCooldownSeconds", dialogueDefaults.ownerCooldownSeconds(),
 						"dialogueProvider.ownerCooldownSeconds", changes));
+		PowerPolicyOverrides policyOverrides = parsePolicyOverrides(object, changes);
 		PowersConfig raw = new PowersConfig(
 				PowersConfig.CURRENT_SCHEMA_VERSION,
 				allowTerrainDamage,
@@ -166,10 +189,98 @@ public final class PowersConfigLoader {
 				integer(object, "teleportMaxChunkDistance", defaults.teleportMaxChunkDistance(), "teleportMaxChunkDistance", changes),
 				integer(object, "rankRespecExperienceLevels", defaults.rankRespecExperienceLevels(), "rankRespecExperienceLevels", changes),
 				integer(object, "adminPermissionLevel", defaults.adminPermissionLevel(), "adminPermissionLevel", changes), zones,
-				terrainScars, livingForces, dialogueProvider);
+				terrainScars, livingForces, dialogueProvider, policyOverrides);
 		PowersConfig sanitized = raw.sanitized();
 		recordClamps(raw, sanitized, changes);
 		return new ParseResult(sanitized, ConfigValidationReport.of(REVISION.incrementAndGet(), changes));
+	}
+
+	private static PowerPolicyOverrides parsePolicyOverrides(JsonObject root,
+			List<ConfigValidationReport.Entry> changes) {
+		if (!root.has("policyOverrides")) {
+			changes.add(new ConfigValidationReport.Entry("policyOverrides",
+					ConfigValidationReport.Kind.DEFAULTED, "<missing>", "0 scoped policies", "missing"));
+			return PowerPolicyOverrides.empty();
+		}
+		if (!root.get("policyOverrides").isJsonObject()) {
+			changes.add(new ConfigValidationReport.Entry("policyOverrides",
+					ConfigValidationReport.Kind.DEFAULTED, invalidMarker(root, "policyOverrides"),
+					"0 scoped policies", "invalid_type"));
+			return PowerPolicyOverrides.empty();
+		}
+		JsonObject container = root.getAsJsonObject("policyOverrides");
+		return new PowerPolicyOverrides(
+				parsePolicyScope(container, "worlds", false, changes),
+				parsePolicyScope(container, "dimensions", true, changes));
+	}
+
+	private static Map<String, PowerPolicyPatch> parsePolicyScope(JsonObject container,
+			String scope, boolean dimension, List<ConfigValidationReport.Entry> changes) {
+		if (!container.has(scope)) return Map.of();
+		if (!container.get(scope).isJsonObject()) {
+			changes.add(new ConfigValidationReport.Entry("policyOverrides." + scope,
+					ConfigValidationReport.Kind.DEFAULTED, invalidMarker(container, scope),
+					"0 policies", "invalid_type"));
+			return Map.of();
+		}
+		Map<String, PowerPolicyPatch> accepted = new LinkedHashMap<>();
+		int examined = 0;
+		for (Map.Entry<String, com.google.gson.JsonElement> entry
+				: container.getAsJsonObject(scope).entrySet()) {
+			examined++;
+			if (examined > PowerPolicyOverrides.MAX_PER_SCOPE) continue;
+			boolean validKey = dimension
+					? PowerPolicyOverrides.validDimensionKey(entry.getKey())
+					: PowerPolicyOverrides.validWorldKey(entry.getKey());
+			if (!validKey || !entry.getValue().isJsonObject()) {
+				changes.add(new ConfigValidationReport.Entry("policyOverrides." + scope + ".<invalid-entry>",
+						ConfigValidationReport.Kind.DEFAULTED, "<redacted-entry>", "<ignored>",
+						validKey ? "invalid_type" : "invalid_key"));
+				continue;
+			}
+			PowerPolicyPatch patch = parsePolicyPatch(entry.getValue().getAsJsonObject(),
+					"policyOverrides." + scope + ".<entry>", changes);
+			if (!patch.isEmpty()) {
+				accepted.put(dimension ? entry.getKey().strip() : entry.getKey(), patch);
+			}
+		}
+		if (examined > PowerPolicyOverrides.MAX_PER_SCOPE) {
+			changes.add(new ConfigValidationReport.Entry("policyOverrides." + scope,
+					ConfigValidationReport.Kind.CLAMPED, examined + " policies",
+					PowerPolicyOverrides.MAX_PER_SCOPE + " policies", "bounded_count"));
+		}
+		return accepted;
+	}
+
+	private static PowerPolicyPatch parsePolicyPatch(JsonObject object, String path,
+			List<ConfigValidationReport.Entry> changes) {
+		return new PowerPolicyPatch(
+				optionalBoolean(object, "allowTerrainDamage", path, changes),
+				optionalBoolean(object, "allowBlockEntityDamage", path, changes),
+				optionalBoolean(object, "hostileForcedMovement", path, changes),
+				optionalBoolean(object, "requireTeleportConsent", path, changes),
+				optionalBoolean(object, "requireLocatorConsent", path, changes),
+				optionalBoolean(object, "requireCompanionConsent", path, changes),
+				optionalBoolean(object, "requireDreamwalkConsent", path, changes),
+				optionalBoolean(object, "requirePossessionConsent", path, changes),
+				optionalBoolean(object, "projectionBodiesVulnerable", path, changes),
+				optionalBoolean(object, "celestialRuinTerrainDamage", path, changes),
+				optionalBoolean(object, "celestialRuinBlockEntityDamage", path, changes));
+	}
+
+	private static Boolean optionalBoolean(JsonObject object, String key, String path,
+			List<ConfigValidationReport.Entry> changes) {
+		if (!object.has(key)) return null;
+		try {
+			if (object.get(key).isJsonPrimitive()
+					&& object.getAsJsonPrimitive(key).isBoolean()) return object.get(key).getAsBoolean();
+		} catch (RuntimeException ignored) {
+			// The value-free validation report below owns malformed input.
+		}
+		changes.add(new ConfigValidationReport.Entry(path + "." + key,
+				ConfigValidationReport.Kind.DEFAULTED, invalidMarker(object, key), "<unset>",
+				"invalid_type"));
+		return null;
 	}
 
 	private static boolean bool(JsonObject object, String key, boolean fallback, String path,

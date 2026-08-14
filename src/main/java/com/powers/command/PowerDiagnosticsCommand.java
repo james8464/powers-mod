@@ -5,6 +5,7 @@ import com.powers.audit.OperatorAudit;
 import com.powers.ai.PerceptionSnapshotService;
 import com.powers.companion.PrivateCompanionManager;
 import com.powers.config.PowersConfigLoader;
+import com.powers.config.PowerPolicyDiagnostics;
 import com.powers.diagnostics.DiagnosticExport;
 import com.powers.diagnostics.DiagnosticExportWriter;
 import com.powers.diagnostics.RuntimeDiagnosticSnapshot;
@@ -120,6 +121,7 @@ final class PowerDiagnosticsCommand {
 					forceIndex.candidates(), forceIndex.misses(), forceIndex.staleRemovals(), 0L,
 					forceIndex.estimatedBytes()));
 		}
+		for (String line : PowerPolicyDiagnostics.lines(server)) send(context, line);
 		send(context, "travelTickets=" + ticketDiagnostics.active() + "/" + ticketDiagnostics.limit()
 				+ "; perDimensionLimit=" + ticketDiagnostics.perDimensionLimit()
 				+ "; lastRefusal=" + ticketDiagnostics.lastRefusal());

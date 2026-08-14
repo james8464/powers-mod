@@ -30,8 +30,9 @@ public record PowersConfig(
 		List<SafeZone> safeZones,
 		TerrainScars terrainScars,
 		LivingForces livingForces,
-		DialogueProvider dialogueProvider) {
-	public static final int CURRENT_SCHEMA_VERSION = 3;
+		DialogueProvider dialogueProvider,
+		PowerPolicyOverrides policyOverrides) {
+	public static final int CURRENT_SCHEMA_VERSION = 4;
 	private static final int MAX_SAFE_ZONES = 256;
 
 	/** Server bounds for the guaranteed environmental signature of destructive innates. */
@@ -112,7 +113,7 @@ public record PowersConfig(
 		return new PowersConfig(CURRENT_SCHEMA_VERSION, true, false, false, false,
 				true, true, true, true, true, true, true, true, true, true,
 				20, 512, 8, 30, 2, List.of(), TerrainScars.defaults(), LivingForces.defaults(),
-				DialogueProvider.defaults());
+				DialogueProvider.defaults(), PowerPolicyOverrides.empty());
 	}
 
 	public PowersConfig sanitized() {
@@ -132,6 +133,20 @@ public record PowersConfig(
 				Math.max(0, Math.min(4, adminPermissionLevel)), List.copyOf(zones),
 				(terrainScars == null ? TerrainScars.defaults() : terrainScars).sanitized(),
 				(livingForces == null ? LivingForces.defaults() : livingForces).sanitized(),
-				(dialogueProvider == null ? DialogueProvider.defaults() : dialogueProvider).sanitized());
+				(dialogueProvider == null ? DialogueProvider.defaults() : dialogueProvider).sanitized(),
+				policyOverrides == null ? PowerPolicyOverrides.empty() : policyOverrides);
+	}
+
+	/** Returns an immutable copy used by reload and pure resolution tests. */
+	public PowersConfig withPolicyOverrides(PowerPolicyOverrides replacements) {
+		return new PowersConfig(schemaVersion, allowTerrainDamage, allowBlockEntityDamage,
+				allowSelfReroll, hostileForcedMovement, requireTeleportConsent,
+				requireLocatorConsent, requireCompanionConsent, requireDreamwalkConsent,
+				requirePossessionConsent, projectionBodiesVulnerable, persistCooldowns,
+				rankPrefixesEnabled, celestialRuinTerrainDamage,
+				celestialRuinBlockEntityDamage, wardRadius, maxParticlesPerTick,
+				teleportMaxChunkDistance, rankRespecExperienceLevels, adminPermissionLevel,
+				safeZones, terrainScars, livingForces, dialogueProvider,
+				replacements == null ? PowerPolicyOverrides.empty() : replacements);
 	}
 }

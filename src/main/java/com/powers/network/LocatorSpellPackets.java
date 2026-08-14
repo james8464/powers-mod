@@ -120,8 +120,7 @@ final class LocatorSpellPackets {
 			PowerMessages.send(player, "grimoire.celestial.offline", 3);
 			return;
 		}
-		if (target instanceof ServerPlayer targetPlayer
-				&& !PowerProtection.mayLocate(player, targetPlayer)) {
+		if (!PowerProtection.mayLocate(player, target)) {
 			com.powers.knowledge.MagicAttemptReporter.failure(player, "soul_compass",
 					com.powers.knowledge.MagicFailureReason.CONSENT);
 			PowerMessages.sendImportant(player, "grimoire.celestial.consent_denied", 1);

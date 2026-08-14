@@ -2,6 +2,7 @@ package com.powers.protection;
 
 import com.powers.config.PowersConfig;
 import com.powers.config.PowersConfigLoader;
+import com.powers.config.ResolvedPowerPolicy;
 import com.powers.player.PlayerPowers;
 import com.powers.magic.participant.MagicConsentAuthority;
 import com.powers.magic.participant.MagicParticipants;
@@ -35,20 +36,33 @@ public final class PowerProtection {
 
 	/** Entity-safe terrain decision used by Shadow, guardians, and player powers. */
 	public static ProtectionDecision blockDecision(LivingEntity caster, ServerLevel level, BlockPos pos) {
-		PowersConfig config = PowersConfigLoader.get();
-		ProtectionDecision builtIn = blockDecision(config, isSafeZone(level, Vec3.atCenterOf(pos)),
+		ResolvedPowerPolicy policy = ResolvedPowerPolicy.resolve(level);
+		ProtectionDecision builtIn = blockDecision(policy, isSafeZone(level, Vec3.atCenterOf(pos)),
 				level.getBlockEntity(pos) != null);
 		if (builtIn != ProtectionDecision.ALLOW) return builtIn;
-		return adapterAllows(ProtectionAction.TERRAIN,
-				caster == null ? null : caster.getUUID(), null, level, pos)
-				? ProtectionDecision.ALLOW : ProtectionDecision.DENY_ADAPTER;
+		boolean adapterAllows = adapterAllows(ProtectionAction.TERRAIN,
+				caster == null ? null : caster.getUUID(), null, level, pos);
+		return blockDecision(policy, false, false, adapterAllows);
 	}
 
 	public static ProtectionDecision blockDecision(PowersConfig config, boolean safeZone, boolean blockEntity) {
-		if (!config.allowTerrainDamage()) return ProtectionDecision.DENY_TERRAIN;
 		if (safeZone) return ProtectionDecision.DENY_SAFE_ZONE;
+		if (!config.allowTerrainDamage()) return ProtectionDecision.DENY_TERRAIN;
 		if (blockEntity && !config.allowBlockEntityDamage()) return ProtectionDecision.DENY_BLOCK_ENTITY;
 		return ProtectionDecision.ALLOW;
+	}
+
+	public static ProtectionDecision blockDecision(ResolvedPowerPolicy policy,
+			boolean safeZone, boolean blockEntity) {
+		return blockDecision(policy, safeZone, blockEntity, true);
+	}
+
+	public static ProtectionDecision blockDecision(ResolvedPowerPolicy policy,
+			boolean safeZone, boolean blockEntity, boolean adapterAllows) {
+		if (safeZone) return ProtectionDecision.DENY_SAFE_ZONE;
+		if (!policy.allowTerrainDamage()) return ProtectionDecision.DENY_TERRAIN;
+		if (blockEntity && !policy.allowBlockEntityDamage()) return ProtectionDecision.DENY_BLOCK_ENTITY;
+		return adapterAllows ? ProtectionDecision.ALLOW : ProtectionDecision.DENY_ADAPTER;
 	}
 
 	public static boolean mayAffectBlock(ServerPlayer caster, ServerLevel level, BlockPos pos) {
@@ -69,8 +83,8 @@ public final class PowerProtection {
 		if (isSafeZone((ServerLevel) target.level(), target.position())) return false;
 		if (!adaptersAllow(ProtectionAction.MOVEMENT, caster, target,
 				(ServerLevel) target.level(), target.blockPosition())) return false;
-		PowersConfig config = PowersConfigLoader.get();
-		boolean ordinary = !config.requireTeleportConsent() || config.hostileForcedMovement()
+		ResolvedPowerPolicy policy = ResolvedPowerPolicy.resolve((ServerLevel) target.level());
+		boolean ordinary = !policy.requireTeleportConsent() || policy.hostileForcedMovement()
 				|| PlayerPowers.get(target).allowsConsent(ConsentKind.TELEPORT);
 		return ConsentOverrideRuntime.authorize(caster, target, ConsentKind.TELEPORT, ordinary)
 				&& controlAllowed(caster, target);
@@ -135,19 +149,47 @@ public final class PowerProtection {
 	}
 
 	public static boolean mayLocate(ServerPlayer caster, ServerPlayer target) {
-		boolean ordinary = !PowersConfigLoader.get().requireLocatorConsent()
+		ServerLevel level = (ServerLevel) target.level();
+		if (isSafeZone(level, target.position())
+				|| !adaptersAllow(ProtectionAction.OBSERVE, caster, target,
+						level, target.blockPosition())) return false;
+		boolean ordinary = !ResolvedPowerPolicy.resolve(level).requireLocatorConsent()
 				|| PlayerPowers.get(target).allowsConsent(ConsentKind.LOCATOR);
 		return ConsentOverrideRuntime.authorize(caster, target, ConsentKind.LOCATOR, ordinary);
 	}
 
+	/** Applies observation protection to named mobs as well as consent-aware players. */
+	public static boolean mayLocate(ServerPlayer caster, LivingEntity target) {
+		if (target instanceof ServerPlayer player) return mayLocate(caster, player);
+		ServerLevel level = (ServerLevel) target.level();
+		if (caster == target || isSafeZone(level, target.position())
+				|| !adaptersAllow(ProtectionAction.OBSERVE, caster, target,
+						level, target.blockPosition())) return false;
+		var participant = MagicParticipants.resolve(target);
+		if (participant.isEmpty()
+				|| participant.get().consentAuthority() == MagicConsentAuthority.ALWAYS_ALLOW_TESTS) {
+			return true;
+		}
+		return participant.get().consentOwner()
+				.map(owner -> owner == caster || mayLocate(caster, owner)).orElse(true);
+	}
+
 	public static boolean mayBringCompanion(ServerPlayer caster, ServerPlayer target) {
-		boolean ordinary = !PowersConfigLoader.get().requireCompanionConsent()
+		ServerLevel level = (ServerLevel) target.level();
+		if (isSafeZone(level, target.position())
+				|| !adaptersAllow(ProtectionAction.MOVEMENT, caster, target,
+						level, target.blockPosition())) return false;
+		boolean ordinary = !ResolvedPowerPolicy.resolve(level).requireCompanionConsent()
 				|| PlayerPowers.get(target).allowsConsent(ConsentKind.COMPANION);
 		return ConsentOverrideRuntime.authorize(caster, target, ConsentKind.COMPANION, ordinary);
 	}
 
 	public static boolean mayDreamwalk(ServerPlayer caster, ServerPlayer target) {
-		boolean ordinary = !PowersConfigLoader.get().requireDreamwalkConsent()
+		ServerLevel level = (ServerLevel) target.level();
+		if (isSafeZone(level, target.position())
+				|| !adaptersAllow(ProtectionAction.OBSERVE, caster, target,
+						level, target.blockPosition())) return false;
+		boolean ordinary = !ResolvedPowerPolicy.resolve(level).requireDreamwalkConsent()
 				|| PlayerPowers.get(target).allowsConsent(ConsentKind.DREAMWALK);
 		return ConsentOverrideRuntime.authorize(caster, target, ConsentKind.DREAMWALK, ordinary);
 	}
@@ -155,7 +197,10 @@ public final class PowerProtection {
 	/** Keeps player consent while allowing named or aimed mobs outside safe zones. */
 	public static boolean mayDreamwalk(ServerPlayer caster, LivingEntity target) {
 		if (target instanceof ServerPlayer player) return mayDreamwalk(caster, player);
-		if (caster == target || isSafeZone((ServerLevel) target.level(), target.position())) return false;
+		ServerLevel level = (ServerLevel) target.level();
+		if (caster == target || isSafeZone(level, target.position())
+				|| !adaptersAllow(ProtectionAction.OBSERVE, caster, target,
+						level, target.blockPosition())) return false;
 		var participant = MagicParticipants.resolve(target);
 		if (participant.isEmpty()
 				|| participant.get().consentAuthority() == MagicConsentAuthority.ALWAYS_ALLOW_TESTS) return true;
@@ -166,7 +211,8 @@ public final class PowerProtection {
 		if (isSafeZone((ServerLevel) target.level(), target.position())) return false;
 		if (!adaptersAllow(ProtectionAction.MOVEMENT, caster, target,
 				(ServerLevel) target.level(), target.blockPosition())) return false;
-		boolean ordinary = !PowersConfigLoader.get().requirePossessionConsent()
+		boolean ordinary = !ResolvedPowerPolicy.resolve((ServerLevel) target.level())
+				.requirePossessionConsent()
 				|| PlayerPowers.get(target).allowsConsent(ConsentKind.POSSESSION);
 		return ConsentOverrideRuntime.authorize(caster, target, ConsentKind.POSSESSION, ordinary)
 				&& controlAllowed(caster, target);

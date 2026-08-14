@@ -1,7 +1,7 @@
 package com.powers.mind;
 
 import com.powers.PowersMod;
-import com.powers.config.PowersConfigLoader;
+import com.powers.config.ResolvedPowerPolicy;
 import com.powers.fx.PowerFx;
 import com.powers.fx.GodlyPunishment;
 import com.powers.magic.runtime.MagicLifecycleRules;
@@ -129,7 +129,8 @@ public final class BodyProxyManager {
 	public static boolean allowsDamage(LivingEntity entity, DamageSource source, float amount) {
 		Active active = BY_BODY.get(entity.getUUID());
 		if (active == null) return true;
-		if (!PowersConfigLoader.get().projectionBodiesVulnerable()) return false;
+		if (!ResolvedPowerPolicy.resolve(active.level())
+				.projectionBodiesVulnerable()) return false;
 		ServerPlayer owner = active.level().getServer().getPlayerList().getPlayer(active.ownerId());
 		if (PowerDamage.isPowerDamage(source)) {
 			if (!com.powers.protection.PowerProtection.mayPowerDamage(source.getEntity(), entity)) return false;

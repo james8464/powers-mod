@@ -2,6 +2,7 @@ package com.powers.spell;
 
 import com.powers.config.PowersConfig;
 import com.powers.config.PowersConfigLoader;
+import com.powers.config.ResolvedPowerPolicy;
 import com.powers.protection.PowerProtection;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
@@ -34,13 +35,13 @@ public final class CelestialRuinPreviewService {
 			double reach = zone.radius() + CelestialRuinRules.DAMAGE_RADIUS;
 			if (dx * dx + dz * dz <= reach * reach) protectedRegions++;
 		}
-		PowersConfig config = PowersConfigLoader.get();
+		ResolvedPowerPolicy policy = ResolvedPowerPolicy.resolve(level);
 		return new CelestialRuinPreview(dimension, center.immutable(),
 				CelestialRuinStagingRules.squareChunkFootprint(CelestialRuinRules.BLAST_RADIUS),
 				CelestialRuinStagingRules.squareChunkFootprint(CelestialRuinRules.DAMAGE_RADIUS),
 				candidates.size(), candidates.size() >= CelestialRuinRules.ENTITY_LIMIT,
-				protectedRegions, config.celestialRuinTerrainDamage(),
-				config.celestialRuinBlockEntityDamage(),
+				protectedRegions, policy.celestialRuinTerrainDamage(),
+				policy.celestialRuinBlockEntityDamage(),
 				level.getWorldBorder().isWithinBounds(center)
 						&& !PowerProtection.isSafeZone(level, epicenter));
 	}
