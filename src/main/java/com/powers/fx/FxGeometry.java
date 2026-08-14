@@ -128,4 +128,78 @@ public final class FxGeometry {
 			return Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z);
 		}
 	}
+
+	/**
+	 * Reusable primitive result for a configured frame transform. Client render code owns one
+	 * buffer per render thread, avoiding two temporary {@link Point} records for every particle.
+	 */
+	public static final class TransformBuffer {
+		private FxOrientation orientation = FxOrientation.NATIVE;
+		private double scale = 1.0;
+		private double cosine = 1.0;
+		private double sine;
+		private double x;
+		private double y;
+		private double z;
+
+		/** Configures one frame; subsequent point applications allocate no result objects. */
+		public TransformBuffer configure(double scale, FxOrientation orientation,
+				double angleRadians) {
+			if (!Double.isFinite(scale) || scale < 0.0) {
+				throw new IllegalArgumentException("FX geometry scale must be finite and non-negative");
+			}
+			if (orientation == null || orientation == FxOrientation.AUTO) {
+				throw new IllegalArgumentException("FX orientation must already be resolved");
+			}
+			if (!Double.isFinite(angleRadians)) {
+				throw new IllegalArgumentException("FX angle must be finite");
+			}
+			this.orientation = orientation;
+			this.scale = scale;
+			this.cosine = orientation == FxOrientation.BILLBOARD ? Math.cos(angleRadians) : 1.0;
+			this.sine = orientation == FxOrientation.BILLBOARD ? Math.sin(angleRadians) : 0.0;
+			return this;
+		}
+
+		/** Replaces the primitive result with one transformed local-space point. */
+		public TransformBuffer apply(Point point) {
+			if (point == null || !point.finite()) {
+				throw new IllegalArgumentException("FX point must be finite");
+			}
+			double scaledX = point.x() * scale;
+			double scaledY = point.y() * scale;
+			double scaledZ = point.z() * scale;
+			switch (orientation) {
+				case NATIVE -> {
+					x = scaledX;
+					y = scaledY;
+					z = scaledZ;
+				}
+				case GROUND -> {
+					x = scaledX;
+					y = scaledZ;
+					z = scaledY;
+				}
+				case BILLBOARD -> {
+					x = scaledX * cosine - scaledZ * sine;
+					y = scaledY;
+					z = scaledX * sine + scaledZ * cosine;
+				}
+				case AUTO -> throw new IllegalStateException("Automatic orientation cannot be applied");
+			}
+			return this;
+		}
+
+		public double x() {
+			return x;
+		}
+
+		public double y() {
+			return y;
+		}
+
+		public double z() {
+			return z;
+		}
+	}
 }

@@ -25,6 +25,8 @@ public final class ClientMagicFx {
 	private static final int MAX_PENDING_EVENTS = 32;
 	private static final Set<Long> RECENT_EVENTS = new LinkedHashSet<>();
 	private static final List<PendingFx> PENDING = new ArrayList<>();
+	private static final ThreadLocal<FxGeometry.TransformBuffer> TRANSFORM_BUFFER =
+			ThreadLocal.withInitial(FxGeometry.TransformBuffer::new);
 
 	private ClientMagicFx() {
 	}
@@ -72,15 +74,16 @@ public final class ClientMagicFx {
 		double billboardAngle = Math.atan2(-(viewer.x - origin.x), viewer.z - origin.z);
 		var points = FxGeometry.points(motif, payload.glyphSeed(), payload.intensity(), budget);
 		SimpleParticleType sprite = particleFor(motif);
+		FxGeometry.TransformBuffer transformed = TRANSFORM_BUFFER.get()
+				.configure(frame.geometryScale(), orientation, billboardAngle);
 		for (int index = 0; index < points.size(); index++) {
-			FxGeometry.Point scaled = FxGeometry.scale(points.get(index), frame.geometryScale());
-			FxGeometry.Point point = FxGeometry.transform(scaled, orientation, billboardAngle);
-			double x = origin.x + point.x();
-			double y = origin.y + frame.verticalOffset() + point.y();
-			double z = origin.z + point.z();
+			transformed.apply(points.get(index));
+			double x = origin.x + transformed.x();
+			double y = origin.y + frame.verticalOffset() + transformed.y();
+			double z = origin.z + transformed.z();
 			double velocity = frame.velocityScale();
-			client.level.addParticle(sprite, x, y, z, point.x() * 0.006 * velocity,
-					0.008 * velocity, point.z() * 0.006 * velocity);
+			client.level.addParticle(sprite, x, y, z, transformed.x() * 0.006 * velocity,
+					0.008 * velocity, transformed.z() * 0.006 * velocity);
 			if (index % 4 == 0) {
 				int color = index % 8 == 0 ? payload.primaryColor() : payload.secondaryColor();
 				ParticleOptions tint = new DustParticleOptions(color & 0xFFFFFF, 0.85F);
@@ -92,6 +95,7 @@ public final class ClientMagicFx {
 	public static void reset() {
 		RECENT_EVENTS.clear();
 		PENDING.clear();
+		TRANSFORM_BUFFER.remove();
 	}
 
 	private static synchronized boolean remember(long eventId) {

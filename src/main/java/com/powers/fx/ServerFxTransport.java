@@ -2,6 +2,7 @@ package com.powers.fx;
 
 import com.powers.config.PowersConfigLoader;
 import com.powers.diagnostics.ServerRuntimeMetrics;
+import com.powers.network.FxPayloadBatch;
 import com.powers.network.MagicFxPackets;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.MinecraftServer;
@@ -60,12 +61,13 @@ final class ServerFxTransport {
 		BeamFxStyle style = BeamFxStyle.from(particle);
 		int color = BeamFxStyle.color(particle);
 		long eventId = Integer.toUnsignedLong(Objects.hash(tick, from, to, style, color));
+		FxPayloadBatch.Beam payloads = FxPayloadBatch.beam(eventId, style,
+				from.x, from.y, from.z, to.x, to.y, to.z, color);
 		for (ServerPlayer viewer : nearby(level, midpoint)) {
 			int granted = claim(budget, tick, viewer, midpoint, requested);
 			if (granted <= 0) continue;
 			ServerRuntimeMetrics.recordParticles(level.getServer(), tick, granted);
-			MagicFxPackets.sendBeam(viewer, MagicFxPackets.pooled(new MagicFxPackets.BeamFxPayload(
-					eventId, style, from.x, from.y, from.z, to.x, to.y, to.z, granted, color)));
+			MagicFxPackets.sendBeam(viewer, payloads.forCount(granted));
 		}
 	}
 
@@ -79,12 +81,13 @@ final class ServerFxTransport {
 		long tick = level.getServer().getTickCount();
 		long eventId = Integer.toUnsignedLong(Objects.hash(tick, center, radius,
 				height, rgb, phase, kind));
+		FxPayloadBatch.Shape payloads = FxPayloadBatch.shape(eventId, kind,
+				center.x, center.y, center.z, radius, height, rgb, phase);
 		for (ServerPlayer viewer : nearby(level, center)) {
 			int granted = claim(budget, tick, viewer, center, requested);
 			if (granted <= 0) continue;
 			ServerRuntimeMetrics.recordParticles(level.getServer(), tick, granted);
-			MagicFxPackets.sendShape(viewer, MagicFxPackets.pooled(new MagicFxPackets.ShapeFxPayload(
-					eventId, kind, center.x, center.y, center.z, radius, height, granted, rgb, phase)));
+			MagicFxPackets.sendShape(viewer, payloads.forCount(granted));
 		}
 	}
 
