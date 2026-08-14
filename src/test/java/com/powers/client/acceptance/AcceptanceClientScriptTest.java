@@ -20,11 +20,13 @@ class AcceptanceClientScriptTest {
 				"75\tgrimoire\tbook_grimoire_wild 2",
 				"80\tcrystal\t4",
 				"85\tartifact\tdarkness unique/blight_ground -1",
+				"88\tlocator\tSoulWitness",
 				"90\tchat\tshadow, reveal yourself",
 				"100\tscreenshot\tforcefield-break"));
 
-		assertEquals(11, steps.size());
+		assertEquals(12, steps.size());
 		assertEquals(AcceptanceClientScript.Operation.ACTIVATE, steps.get(2).operation());
+		assertEquals(AcceptanceClientScript.Operation.LOCATOR, steps.get(9).operation());
 		assertEquals("forcefield-break", steps.getLast().argument());
 	}
 
@@ -51,5 +53,7 @@ class AcceptanceClientScriptTest {
 				() -> AcceptanceClientScript.parse(List.of("20\tcrystal\t256")));
 		assertThrows(IllegalArgumentException.class,
 				() -> AcceptanceClientScript.parse(List.of("20\tartifact\tdarkness action -2")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("20\tlocator\t" + "x".repeat(65))));
 	}
 }

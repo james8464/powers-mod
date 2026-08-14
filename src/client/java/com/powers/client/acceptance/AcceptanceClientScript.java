@@ -8,7 +8,7 @@ import java.util.Locale;
 public final class AcceptanceClientScript {
 	public enum Operation {
 		COMMAND, CHAT, ACTIVATE, SELECT, USE, ATTACK, GRIMOIRE, CRYSTAL, ARTIFACT,
-		RESPAWN, SCREENSHOT
+		RESPAWN, LOCATOR, SCREENSHOT
 	}
 
 	public record Step(int tick, Operation operation, String argument) {
@@ -87,6 +87,9 @@ public final class AcceptanceClientScript {
 				}
 				validateIdentifier(values[1], lineNumber, "action");
 				parseBoundedInteger(values[2], -1, 255, lineNumber, "option");
+			}
+			case LOCATOR -> {
+				if (argument.length() > 64) throw malformed(lineNumber, "locator input is too long");
 			}
 			case COMMAND, CHAT -> { }
 		}
