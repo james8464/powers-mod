@@ -1,0 +1,23 @@
+# Second exact-build pass: preserve the production cast, then observe from the side.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	fill -16 90 -16 16 90 16 minecraft:stone
+110	COMMAND	fill 116 112 -4 124 112 4 minecraft:tinted_glass
+130	COMMAND	tp @s 0.5 91 0.5 0 90
+150	COMMAND	kill @e[type=powers:first_vessel]
+170	COMMAND	item replace entity @s weapon.mainhand with powers:imported_book_grimoire_celestial
+190	GRIMOIRE	book_grimoire_celestial 3
+210	USE	main
+230	SCREENSHOT	channel
+440	COMMAND	summon powers:first_vessel 5 91 0
+450	COMMAND	data merge entity @e[type=powers:first_vessel,limit=1] {NoAI:1b}
+460	COMMAND	tp @s 120.5 113 0.5 90 11
+480	COMMAND	data get entity @e[type=powers:first_vessel,limit=1] Health
+520	SCREENSHOT	warning-side
+850	SCREENSHOT	column-side
+1250	SCREENSHOT	late-column-side
+1480	SCREENSHOT	pre-impact-side
+1540	SCREENSHOT	whiteout-side
+1600	SCREENSHOT	impact-side
+1660	COMMAND	data get entity @e[type=powers:first_vessel,limit=1] Health
+1720	SCREENSHOT	aftermath-side

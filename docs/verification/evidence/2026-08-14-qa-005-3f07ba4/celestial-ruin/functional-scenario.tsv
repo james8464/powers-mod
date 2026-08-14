@@ -1,0 +1,21 @@
+# Exact rendered-client Celestial Ruin acceptance on a motionless platform.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	fill -16 90 -16 16 90 16 minecraft:stone
+120	COMMAND	tp @s 0.5 91 0.5 0 90
+140	COMMAND	kill @e[type=powers:first_vessel]
+160	COMMAND	item replace entity @s weapon.mainhand with powers:imported_book_grimoire_celestial
+180	GRIMOIRE	book_grimoire_celestial 3
+200	USE	main
+220	SCREENSHOT	channel
+430	COMMAND	powers diagnose
+450	COMMAND	summon powers:first_vessel 5 91 0
+470	COMMAND	data get entity @e[type=powers:first_vessel,limit=1] Health
+500	SCREENSHOT	persistent-warning
+850	SCREENSHOT	atmosphere-column
+1460	COMMAND	data get entity @e[type=powers:first_vessel,limit=1] Health
+1500	SCREENSHOT	pre-impact
+1580	SCREENSHOT	impact-whiteout
+1640	COMMAND	data get entity @e[type=powers:first_vessel,limit=1] Health
+1680	COMMAND	powers diagnose
+1720	SCREENSHOT	aftermath
