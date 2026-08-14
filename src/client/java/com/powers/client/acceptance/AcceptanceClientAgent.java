@@ -122,10 +122,26 @@ public final class AcceptanceClientAgent {
 							CONFIG.role(), step.argument());
 				}
 			}
+			case KEY -> setMovementKey(client, step.argument());
 			case SCREENSHOT -> Screenshot.grab(client, false);
 		}
 		PowersMod.LOGGER.info("QA client role={} executed {} [{}] at connected tick {}",
 				CONFIG.role(), step.operation(), step.argument(), connectedTicks);
+	}
+
+	private static void setMovementKey(Minecraft client, String argument) {
+		String[] values = argument.split(" ");
+		var key = switch (values[0]) {
+			case "forward" -> client.options.keyUp;
+			case "back" -> client.options.keyDown;
+			case "left" -> client.options.keyLeft;
+			case "right" -> client.options.keyRight;
+			case "jump" -> client.options.keyJump;
+			case "sneak" -> client.options.keyShift;
+			case "sprint" -> client.options.keySprint;
+			default -> throw new IllegalArgumentException("Unsupported acceptance movement key");
+		};
+		key.setDown(values[1].equals("on"));
 	}
 
 	private static void attackNamed(Minecraft client, String name) {

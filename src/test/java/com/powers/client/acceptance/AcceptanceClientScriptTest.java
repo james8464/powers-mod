@@ -14,6 +14,7 @@ class AcceptanceClientScriptTest {
 				"5\tclose\tscreen",
 				"10\trespawn\tnow",
 				"20\tcommand\tpowers testing on",
+				"30\tkey\tforward on",
 				"40\tactivate\t0",
 				"60\tselect\t0 3",
 				"65\tuse\tmain",
@@ -25,10 +26,11 @@ class AcceptanceClientScriptTest {
 				"90\tchat\tshadow, reveal yourself",
 				"100\tscreenshot\tforcefield-break"));
 
-		assertEquals(13, steps.size());
+		assertEquals(14, steps.size());
 		assertEquals(AcceptanceClientScript.Operation.CLOSE, steps.getFirst().operation());
-		assertEquals(AcceptanceClientScript.Operation.ACTIVATE, steps.get(3).operation());
-		assertEquals(AcceptanceClientScript.Operation.LOCATOR, steps.get(10).operation());
+		assertEquals(AcceptanceClientScript.Operation.KEY, steps.get(3).operation());
+		assertEquals(AcceptanceClientScript.Operation.ACTIVATE, steps.get(4).operation());
+		assertEquals(AcceptanceClientScript.Operation.LOCATOR, steps.get(11).operation());
 		assertEquals("forcefield-break", steps.getLast().argument());
 	}
 
@@ -59,5 +61,9 @@ class AcceptanceClientScriptTest {
 				() -> AcceptanceClientScript.parse(List.of("20\tlocator\t" + "x".repeat(65))));
 		assertThrows(IllegalArgumentException.class,
 				() -> AcceptanceClientScript.parse(List.of("20\tclose\twindow")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("20\tkey\tattack on")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("20\tkey\tforward maybe")));
 	}
 }
