@@ -51,6 +51,20 @@ class QuestTelemetryLedgerTest {
 	}
 
 	@Test
+	void publicationRequiresTheApprovedTenIndependentSamplesPerThreshold() {
+		assertEquals(10, QuestCompletionTelemetry.PUBLICATION_SAMPLE_MINIMUM);
+		QuestTelemetryLedger ledger = new QuestTelemetryLedger(16);
+		for (int index = 0; index < 10; index++) {
+			UUID player = new UUID(1L, index);
+			ledger.noteActivity(player, QuestTelemetryLedger.Alignment.LIGHT, 0L);
+			ledger.complete(player, QuestTelemetryLedger.Alignment.LIGHT, 1,
+					"pilgrimage", 1_000L + index);
+		}
+		assertTrue(ledger.summary(QuestTelemetryLedger.Alignment.LIGHT, 1)
+				.sufficient(QuestCompletionTelemetry.PUBLICATION_SAMPLE_MINIMUM));
+	}
+
+	@Test
 	void malformedRowsAreIgnoredAndClockRegressionCannotCreateNegativeDuration() {
 		QuestTelemetryLedger ledger = QuestTelemetryLedger.decode(8,
 				List.of("broken", UUID.randomUUID() + ";LIGHT;500"),

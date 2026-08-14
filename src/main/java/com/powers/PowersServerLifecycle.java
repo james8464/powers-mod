@@ -142,6 +142,7 @@ final class PowersServerLifecycle {
 	private static void onServerStopped(MinecraftServer server) {
 		com.powers.performance.ServerTickProfiler.cancel(server);
 		com.powers.testing.RestartSoakScenario.clear(server);
+		com.powers.testing.QuestTelemetryCampaignScenario.clear(server);
 		MagicRuntime.global().clearAll();
 		ServerMagicScheduler.clear();
 		PlayerPowerTicker.clear();
@@ -180,6 +181,7 @@ final class PowersServerLifecycle {
 
 	private static void tick(MinecraftServer server) {
 		int tick = server.getTickCount();
+		com.powers.testing.QuestTelemetryCampaignScenario.tick(server);
 		MagicRuntime.global().tick(tick);
 		PhysicalMagicPresences.tick(tick);
 		PlayerTickCoordinator.tick(server, tick);
