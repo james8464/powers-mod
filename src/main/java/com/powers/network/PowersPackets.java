@@ -1,6 +1,7 @@
 package com.powers.network;
 
 import com.powers.PowersMod;
+import com.powers.performance.ServerTickProfiler;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.player.PlayerEnergyHistory;
@@ -204,7 +205,10 @@ public final class PowersPackets {
 			if (power == null) return;
 			Ability ability = power.ability();
 			if (ability != null && !ability.requiresInput()) {
-				AbilityActivationService.activate(player, ability, power.id().toString());
+				var result = AbilityActivationService.activate(
+						player, ability, power.id().toString());
+				ServerTickProfiler.recordAction(context.server(),
+						result == AbilityActivationService.Result.ACTIVATED);
 			}
 		});
 	}

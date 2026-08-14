@@ -28,6 +28,8 @@ class LongRunHarnessContractTest {
 				"src/gametest/java/com/powers/gametest/ConnectedBotProfileGameTests.java"));
 		String profiler = Files.readString(Path.of(
 				"src/main/java/com/powers/performance/ServerTickProfiler.java"));
+		String packets = Files.readString(Path.of(
+				"src/main/java/com/powers/network/PowersPackets.java"));
 		String build = Files.readString(Path.of("build.gradle"));
 		String metadata = Files.readString(Path.of("src/gametest/resources/fabric.mod.json"));
 		assertTrue(build.contains("powersConnectedProfile"));
@@ -49,6 +51,7 @@ class LongRunHarnessContractTest {
 		assertTrue(profiler.contains("wall_seconds"));
 		assertTrue(profiler.contains("attempted_actions"));
 		assertTrue(profiler.contains("successful_actions"));
+		assertTrue(packets.contains("ServerTickProfiler.recordAction"));
 		assertTrue(source.contains("List.of(10, 50, 100)"));
 		assertTrue(source.contains("requestedPopulations()"));
 		assertTrue(profiler.contains("p95Mspt"));
