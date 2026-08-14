@@ -112,6 +112,9 @@ public final class AcceptanceClientAgent {
 			}
 			case RESPAWN -> connection.send(new ServerboundClientCommandPacket(
 					ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
+			case CLOSE -> {
+				if (client.gui.screen() != null) client.gui.screen().onClose();
+			}
 			case LOCATOR -> {
 				if (!(client.gui.screen() instanceof CelestialLocatorScreen locator)
 						|| !locator.submitAcceptanceTarget(step.argument())) {

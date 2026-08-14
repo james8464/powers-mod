@@ -18,6 +18,7 @@ Each non-comment row is `connectedTick<TAB>operation<TAB>argument`. Supported op
 | `crystal` | mode index | Sends the normal held-Rainbow selector packet; a later `use` performs the crystal action. |
 | `artifact` | `alignment action-key option` | Sends the normal server-validated combat-wheel commit packet. |
 | `respawn` | `now` | Sends the vanilla perform-respawn client packet. |
+| `close` | `screen` | Closes the current rendered screen through its normal close callback. |
 | `locator` | target or world query | Fills the rendered celestial-locator field and submits through that screen's server-issued nonce. |
 | `screenshot` | safe evidence label | Captures the rendered client and records the label in its log. |
 
