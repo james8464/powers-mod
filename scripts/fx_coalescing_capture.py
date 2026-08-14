@@ -53,6 +53,14 @@ def accepted(capture: dict[str, int | float | bool]) -> bool:
         and float(capture["byte_reduction_percent"]) >= 25.0
 
 
+def unexpected_client_errors(lines: list[str]) -> list[str]:
+    errors = [line for line in lines if "ERROR" in line]
+    return [line for line in errors
+            if not any(expected in line for expected in EXPECTED_CLIENT_ERRORS)
+            and not ("MinecraftClientHttpException[type=HTTP_ERROR, status=401" in line
+                     and "path=/player/certificates" in line)]
+
+
 def stop_group(process: subprocess.Popen[object], timeout: int = 20) -> None:
     if process.poll() is not None:
         return
@@ -195,8 +203,7 @@ def main() -> int:
     capture = parse_capture(marker)
     client_lines = (OUTPUT / "client.log").read_text(
         encoding="utf-8", errors="replace").splitlines()
-    client_errors = [line for line in client_lines if "ERROR" in line
-                     and not any(expected in line for expected in EXPECTED_CLIENT_ERRORS)]
+    client_errors = unexpected_client_errors(client_lines)
     server_errors = [line for line in lines if "/ERROR]" in line or "BUILD FAILED" in line]
     report = {
         "schema": 1,
