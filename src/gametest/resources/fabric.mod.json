@@ -19,7 +19,7 @@
 			"com.powers.gametest.MultiplayerInteractionGameTests",
 			"com.powers.gametest.ApiCompatibilityGameTests"${connectedProfileEntrypoint}${restartSoakEntrypoint}${perf016BenchmarkEntrypoint}
 			,"com.powers.gametest.ActionRegistryReloadGameTests"
-			,"com.powers.player.ActionSubmissionPacketGameTests"
+			,"com.powers.player.ActionSubmissionPacketGameTests"${compatibilityEntrypoint}
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests"

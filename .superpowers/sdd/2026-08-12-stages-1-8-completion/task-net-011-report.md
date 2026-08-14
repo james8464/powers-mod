@@ -2,118 +2,97 @@
 
 ## Outcome
 
-Implemented an exact-artifact compatibility manifest and isolated assembly harness, exercised each requested fixture with real Fabric processes, published a bounded compatibility matrix and privacy-safe evidence ledger, and did not add a production dependency or redistribute a third-party binary. ClaimMod, Inventory Extended nested ownership, microphone audio, and the future enhanced Light Realm sky are explicitly limited rather than represented as supported.
+Fix round 1 resolves the independent-review defects in the NET-011 harness and evidence. The owned isolated complete-stack task passed all 115 required GameTests; Inventory Extended's added slots are now described truthfully as top-level inventory; and full sanitized logs, receipts, checksums, plus eight visually inspected Sodium frames are committed. No third-party binary or production dependency is committed.
 
-## Authoritative artifact research
+The matrix remains bounded: ClaimMod-specific integration is unsupported, microphone/audio is unclaimed, nested containers remain dormant, and the future enhanced VFX-009 Light Realm renderer is not claimed. NET-011 is closed because its compatibility guarantee now has exact versions, real-process proof and explicit limitations; VFX-009 remains the separate owner of enhanced-sky implementation.
 
-Research was performed on 2026-08-14 against official Modrinth project/version pages and the official `api.modrinth.com/v2` project/version metadata. Exact file sizes and hashes were then checked locally by the harness.
+## Authoritative artifacts
 
-| Artifact | Upstream release | Project/version | Bytes | SHA-256 | License / handling |
-| --- | --- | --- | ---: | --- | --- |
-| Sodium 0.9.1 | https://modrinth.com/mod/sodium/version/2Yom1N68 | `AANobbMI` / `2Yom1N68` | 1,834,384 | `de406c7a0ca5e748dfbe44740278400882a44e3109e2584b243ec02d4003344b` | PolyForm Shield 1.0.0; local cache only |
-| Lithium 0.25.3 | https://modrinth.com/mod/lithium/version/f7vZ0VWU | `gvQqBUqZ` / `f7vZ0VWU` | 912,850 | `fdde92e238e8075f89ad7f701f2a3d5854af88ba9a67657184a4407b104ac563` | LGPL-3.0-only |
-| Simple Voice Chat 2.6.22 | https://modrinth.com/plugin/simple-voice-chat/version/DKSq5wO6 | `9eGKb6K1` / `DKSq5wO6` | 5,576,838 | `1b6a8c6c41d6d7edaa10543ac623a70b0c60f22f34567969b6999c345aa277b2` | All Rights Reserved; local cache only |
-| ClaimMod 1.0.5 | https://modrinth.com/mod/claimmod/version/3q3p5GRT | `XoTGYdpA` / `3q3p5GRT` | 466,936 | `2e1166cb6c1f02f328422b7a3b1ac848100ca12191391537063f8aea3996934e` | All Rights Reserved; local cache only |
-| Inventory Extended 1.1.2 | https://modrinth.com/mod/inventory-extended/version/b0CvTRNk | `ovStb4Jg` / `b0CvTRNk` | 82,228 | `7cdbe2079d5e8be9c5faba8b03dbccc1ddccb7f99ec48987079cc9bd8e235bc6` | Apache-2.0; preserve notices |
+Official Modrinth project/version APIs and release pages were checked on 2026-08-14. The strict manifest ties both source and CDN paths to these exact IDs.
 
-All selected artifacts are stable Fabric releases explicitly tagged for Minecraft 26.2. Sodium had a newer alpha, but the latest stable release was intentionally pinned. ClaimMod's official metadata advertises server-required/client-unsupported and provides no source or published integration API; the fixture is therefore server-only and its POWERS protection integration is an unsupported boundary.
+| Artifact | Project/version | Bytes | SHA-256 | License / handling |
+| --- | --- | ---: | --- | --- |
+| Sodium 0.9.1 | [`AANobbMI` / `2Yom1N68`](https://modrinth.com/mod/AANobbMI/version/2Yom1N68) | 1,834,384 | `de406c7a0ca5e748dfbe44740278400882a44e3109e2584b243ec02d4003344b` | PolyForm Shield 1.0.0; local cache only |
+| Lithium 0.25.3 | [`gvQqBUqZ` / `f7vZ0VWU`](https://modrinth.com/mod/gvQqBUqZ/version/f7vZ0VWU) | 912,850 | `fdde92e238e8075f89ad7f701f2a3d5854af88ba9a67657184a4407b104ac563` | LGPL-3.0-only |
+| Simple Voice Chat 2.6.22 | [`9eGKb6K1` / `DKSq5wO6`](https://modrinth.com/plugin/9eGKb6K1/version/DKSq5wO6) | 5,576,838 | `1b6a8c6c41d6d7edaa10543ac623a70b0c60f22f34567969b6999c345aa277b2` | All Rights Reserved; local cache only |
+| ClaimMod 1.0.5 | [`XoTGYdpA` / `3q3p5GRT`](https://modrinth.com/mod/XoTGYdpA/version/3q3p5GRT) | 466,936 | `2e1166cb6c1f02f328422b7a3b1ac848100ca12191391537063f8aea3996934e` | All Rights Reserved; local cache only |
+| Inventory Extended 1.1.2 | [`ovStb4Jg` / `b0CvTRNk`](https://modrinth.com/mod/ovStb4Jg/version/b0CvTRNk) | 82,228 | `7cdbe2079d5e8be9c5faba8b03dbccc1ddccb7f99ec48987079cc9bd8e235bc6` | Apache-2.0; preserve notices |
 
-## TDD record
+Sodium's newer alpha was not substituted for the latest stable release. ClaimMod's official Modrinth metadata says server required/client unsupported, while the pinned JAR declares `environment: "*"` and contains `main` plus `client` entrypoints. That packaging contradiction is documented; it is not treated as an adapter contract.
 
-RED was observed before the harness existed:
+## TDD and debugging record
 
-```text
-python3 -B -m unittest scripts.tests.test_compatibility_harness -v
-```
+Observed REDs before implementation:
 
-Result: 3/3 tests failed because `scripts/compatibility_harness.py` could not be opened (exit 2). Tests required hash mismatch rejection, side-aware isolated assembly, and required authoritative source metadata.
+- Harness hardening: 12 assertions failed for absent `--allowed-root`, permissive IDs/types/size/hash/URLs, Modrinth ID mismatch, unsafe/symlink run directories, incomplete receipts and absent sanitizer. Minimal implementation produced 6/6 GREEN.
+- Sanitizer phase-boundary regression: a new assertion showed `[23:32:19]` was incorrectly redacted as IPv6. The IPv6 rule was narrowed to compression or valid hextet counts; the test then passed and all evidence logs were regenerated.
+- Registry-reload GameTest: two repeatable 113/114 runs failed `invalid_continuation_cancels_exactly_once_without_completion`, while its focused run passed. Investigation showed the test compared net energy across four ticks and suite phase crossed passive regeneration at `tick % 20`. The replacement asserts authoritative ledger semantics: initial `PLAYER_POOL_COST`, cancellation cost computed as pool/reservoir cost minus `TRANSACTION_ROLLBACK`, exact net 11, distinct forced `REGENERATION`, and unchanged transaction deltas on the later tick. Focused GREEN preceded the single final aggregate.
+- Inventory Extended live test: first RED exposed the pinned mixin's actual 70 entries versus the assumed 68; the next RED corrected a mistaken assertion about vanilla mayfly ownership. Final test proves 43 vanilla + 27 added entries, authorization from added slot 36, removal/revocation, and POWERS toggle/snapshot cleanup.
+- Acceptance scripting: a real client RED showed synthetic key down did not open Rank Maze. A bounded click path plus parsing test made it GREEN. A second visual RED showed clearing chat in the screenshot operation occurred after framebuffer capture; an explicit prior `CLEAN ui` operation and unit coverage fixed it.
 
-Minimal implementation added manifest schema checks, exact size/SHA-256 validation, side/profile selection, isolated JAR copies, EULA/properties seeding, and a run receipt. Focused GREEN:
-
-```text
-python3 -B -m unittest scripts.tests.test_compatibility_harness -v
-```
-
-Result: 3/3 passed. An intermediate first GREEN attempt exposed a test-fixture mistake: the tampered bytes had changed size, exercising size rejection before hash rejection. The fixture was corrected to same-length tampering; production behavior was unchanged.
+Focused commands/results:
 
 ```text
-JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew verifyCompatibilityArtifacts --no-daemon --console=plain
+python3 -B -m unittest scripts.tests.test_compatibility_harness
+# 6 tests, PASS
+
+./gradlew test --tests com.powers.quality.LauncherContractTest --tests com.powers.client.acceptance.AcceptanceClientScriptTest
+# PASS
+
+./gradlew runGameTest -PgameTestFilter=powers-gametest:action_registry_reload_game_tests_invalid_continuation_cancels_exactly_once_without_completion
+# 1/1 PASS
+
+./gradlew runCompatibilityGameTest -PgameTestFilter=powers-gametest:compatibility_inventory_game_tests_inventory_extended_added_slot_authorizes_then_revokes
+# 1/1 PASS with exact pinned complete profile
 ```
 
-Result: PASS, all five pinned files verified from ignored `.compatibility-cache/net-011/`.
+## Owned harness and runtime proof
 
-## Runtime evidence
+`runCompatibilityGameTest` depends on `prepareCompatibilityGameTest`, which verifies hashes and assembles `complete/server` under `build/compatibility-runs/complete-gametest`. Its receipt records exact file/version/project IDs, byte sizes, hashes, URLs, channels, sides, licenses and retrieval dates. Ordinary `runGameTest` deletes its own `mods/`, so ignored manually staged JARs cannot pollute it.
 
-Each fixture used an isolated `build/compatibility-runs/<profile>-<side>` game directory and was run sequentially alongside, without signalling, the QA-006 side-worktree soak. Dedicated servers used ports 25611–25615. The complete server used 25615; voice used UDP 24454. Raw logs remain ignored to avoid identities, UUIDs, IPs and world-private data. Privacy-safe exact markers and the full result ledger are committed at `docs/verification/evidence/2026-08-14-net-011/`.
+The harness validates schema, safe IDs/profile membership, exact non-boolean positive sizes, lowercase SHA-256, HTTPS/no-credential URLs, project/version path linkage for Modrinth pages and CDN downloads, release dates/channels, filenames, artifact symlinks, and run-directory containment/equality/symlink escape. Assembly only removes `.jar` files inside the validated child `mods/` directory.
 
-The harness command pattern was:
+Final complete-stack command (the only post-fix high-load run):
 
 ```text
-python3 -B scripts/compatibility_harness.py assemble --manifest config/compatibility/net-011.json --cache .compatibility-cache/net-011 --profile <profile> --side <side> --run-dir build/compatibility-runs/<profile>-<side>
-JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew runServer --no-daemon --console=plain -PpowersRunDir=$PWD/build/compatibility-runs/<profile>-server
-JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew runClient --no-daemon --console=plain -PpowersRunDir=$PWD/build/compatibility-runs/<profile>-client --args='<unique development identity / optional quick-play target>'
+JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew runCompatibilityGameTest --console=plain
 ```
 
-Client logs for Minecraft 26.2 development launches were written relative to the Gradle process working directory, not `--gameDir`. Each was copied immediately after that exact uniquely named process exited into its isolated profile (`client-latest.log`; final combined run `client-green-latest.log`). The receipt, unique username, timestamp, and exact mod list provide run attribution; no stale root-log inference is used.
+Result: PASS in 45 s. Fabric loaded 51 mods and reported `115 tests are now running`, then `All 115 required tests passed :)`. A retained `Can't keep up` warning reported 18.990 s/379 ticks; ledger-based assertions remained correct. QA-006 was never signalled or interrupted.
 
-Per-fixture results:
+The three pre-fix full logs and focused pass are committed alongside the final log. They establish that the old failure was deterministic suite-order/tick-phase coupling, not merely a host stall. The client-GameTest extension-launch defect remains precisely scoped to test-mod topology: that launch omitted the example-extension target keys and was not used as compatibility evidence.
 
-- Sodium client: PASS for Fabric/mixin load, Sodium Apple M3 Pro OpenGL initialization, POWERS resource reload and block/item/GUI model/atlas bake. Static Light Realm joined in combined run. Enhanced/reduced-motion visual acceptance is unavailable/untested.
-- Lithium client/server: PASS for load, resource bake, dedicated boot, six-dimension save and clean stop.
-- Simple Voice Chat client/server: PASS for load and UDP networking. Combined client received secret/authentication/connection check while POWERS registry, travel, and activation traffic proceeded. Microphone permission was denied; no voice was recorded and audio is not claimed.
-- ClaimMod server: PASS for load/config/messages/claim load/save/clean stop; LIMITED overall because no published adapter exists. Claim-denial precedence is not claimed.
-- Inventory Extended client/server: PASS for load/resources/boot/save/stop; LIMITED overall because only POWERS's existing top-level ownership contract is proven and nested/unknown extended slots have no adapter.
-- Combined remote pair: PASS for exact compatible mod lists, remote join, resources/models/atlases, Sodium renderer, voice authentication, POWERS testing controls, Speed Burst assignment and client activation submission, datapack/registry reload revision 2, Light Realm travel, save, ClaimMod save, disconnect and clean stop. This is one representative innate payload; the ledger does not inflate it into every action family.
+## Runtime matrix truth
 
-Complete-stack server-side GameTests were additionally run with exact Lithium, Voice Chat, ClaimMod and Inventory Extended JARs in `build/run/gameTest/mods`:
+- Sodium: real pinned macOS client, exact isolated game directories and process-role markers. Normal and reduced-motion runs both loaded Sodium and produced clean unpaused static-white Light Realm, ten energy symbols/power rail, and Rank Maze frames. Double Health provides identifiable current semantic FX; the reduced configuration (`particles: minimal`, screen effect scale zero) visibly reduces its particle overlay. The eight selected frames were visually inspected; automatic toast frames and illegible beam frames were excluded.
+- Lithium: complete-stack server tests cover ticks, scheduled work, Time Freeze, teleport/body/realm, save/reload and action lifecycles.
+- Simple Voice Chat: UDP start, secret/authentication/connection check, and simultaneous POWERS payload/FX traffic pass. macOS microphone permission was denied; no audio was recorded or claimed.
+- ClaimMod: load/config/zero claims/save/stop coexistence passes. No source/integration API or POWERS adapter exists, so ClaimMod-specific denial/scar/destruction/teleport/observe semantics remain unsupported. NET-007's generic absolute-denial/fail-closed contract is still tested.
+- Inventory Extended: its mixin extends `PlayerInventory` to 70 entries. Those 27 added entries are top-level and therefore authorized by POWERS; they are not dormant. Removal revokes authorization and reconciles POWERS-owned toggles. Nested/unknown containers remain dormant.
 
-```text
-JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home POWERS_TEST_RUN_ID=net011-complete-stack ./gradlew runGameTest --no-daemon --console=plain
-```
+## Evidence and warning attribution
 
-First result: FAIL, 113/114 passed. The host reported a 17.706 s / 354-tick stall and `action_registry_reload_game_tests_invalid_continuation_cancels_exactly_once_without_completion` missed its tick-4 half-payment assertion.
+Committed under `docs/verification/evidence/2026-08-14-net-011/`:
 
-```text
-JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home POWERS_TEST_RUN_ID=net011-stack-repro ./gradlew runGameTest --no-daemon --console=plain -PgameTestFilter=powers-gametest:action_registry_reload_game_tests_invalid_continuation_cancels_exactly_once_without_completion
-```
+- complete sanitized logs for all pre-fix failures, focused pass, final 115/115, normal/reduced Sodium clients and visual server;
+- exact receipts for the final GameTest and visual processes;
+- exactly eight privacy-safe inspected PNGs;
+- machine-readable `runtime-results.tsv` and deterministic `SHA256SUMS`.
 
-Result: PASS, 1/1 with the identical four-mod stack, despite a smaller 2.390 s / 47-tick startup stall. No speculative code change was made. One controlled full rerun result is recorded below.
+The sanitizer redacts IPv4/ports, IPv6/loopback/ports, localhost endpoints, UUIDs, home paths, seeds, named identities and secrets while preserving timestamps and diagnostic severity. Retained warnings/errors are attributable: offline dev authentication produces Mojang/Realms 401s; Voice Chat debug/offline mode and microphone denial bound the audio claim; vanilla shader unused-attribute warnings did not prevent rendering; the final host stall did not fail any test. No renderer mixin conflict/resource failure appears.
 
-An exploratory `runClientGameTest` was not used as compatibility proof. Its observed Fabric loader list contained POWERS and the test mod but neither the staged third-party JARs nor `powers-example-extension`; the integrated server then staged the two `net010_live.json` aliases and rejected them because their example-extension target keys were absent. World loading consequently timed out. This precisely scopes the failure to the client-GameTest/test-mod launch topology and the attempt's pre-launch directory deletion, not to a tested third-party combination. No durable raw client-GameTest log survived the later Loom run-directory deletion, so this observation is not a machine-result row and was not rerun. Real isolated clients provide the GUI/renderer evidence required here.
+## Verification, changed files, and concerns
 
-## Warning and failure attribution
+Final gates:
 
-- A first Lithium server launch collided with QA-006 on default port 25565 and exposed POWERS's existing failed-start diagnostics NPE because no overworld existed. The isolated profile was moved to 25611 and passed; QA-006 was never interrupted.
-- The complete server raw log contains an earlier offline `/op` profile lookup 404 and rejected pre-operator client commands. Final successful server-console choreography follows in the same log.
-- Development offline identities cause Mojang/Realms 401 errors; these do not occur in resource/model/network code paths.
-- Voice Chat reports debug/offline encryption warnings because Fabric development mode and `online-mode=false` are intentional. Microphone denial bounds the claim to networking.
-- Vanilla shader-linker unused-attribute warnings and macOS's one-time `gldCopyBufferSubData` message appeared across render runs; resources baked and frames continued. No mixin conflict or resource failure occurred.
-- A 114-test complete-stack attempt had one timing-sensitive failure under a recorded host stall; focused reproduction passed. The controlled rerun is the final full-stack gate.
+- harness Python tests: 6/6 PASS;
+- affected JVM tests: PASS;
+- final owned complete-stack GameTests: 115/115 PASS;
+- aggregate `./gradlew check -x runGameTest`: PASS after regenerating the Java source audit; 33 Python tests and all resource/docs/audit/JVM gates passed. GameTests were excluded here to preserve the one controlled post-fix full-stack run above;
+- privacy scan, resource/docs/audit checks, exact staged-file review: recorded before commit.
 
-## Compatibility decisions
+Changed areas: Gradle isolated launch contract; strict compatibility manifest/harness/tests; registry ledger regression; pinned Inventory Extended live GameTest; acceptance clean/key scripting; matrix/report/evidence/visuals; Java source audit; NET-011 plan/backlog closure. VFX-009 remains open and owns the enhanced renderer.
 
-- No third-party mod became an implementation or production dependency.
-- No reflection adapter was invented for ClaimMod. Existing NET-007/NET-009 public protection boundaries remain the only supported integration route.
-- Unknown and nested inventory storage is fail-closed/dormant. Adding broad container traversal would violate bounded ownership and belongs to a separately specified adapter/task.
-- The current static Light Realm sky is compatible with Sodium. Enhanced sky and reduced-motion acceptance remain VFX-009, so NET-011 does not relabel future work as proof.
+Commit: populated after cohesive direct-main commit.
 
-## Verification gates
-
-Final entries are populated from fresh commands before commit:
-
-- focused Python harness: PASS, 30/30 repository Python tests including 3 NET-011 tests
-- artifact verification: PASS, 5/5 exact files
-- affected JVM/common/client/GameTest compilation and resource/docs/audits: PASS (`test`, `compileJava`, `compileClientJava`, `compileGametestJava`, all six validation/audit/doc tasks)
-- all ordinary Fabric GameTests: PENDING
-- controlled full compatibility-stack GameTest rerun: FAIL, 113/114; same NET-010 tick-4 assertion after a 16.738 s / 334-tick host stall. No further high-load rerun was made while QA-006 remained active.
-- aggregate `./gradlew check`: FAIL because this repository's `check` depends on `runGameTest`; it reproduced 113/114 with the same exact assertion after a 15.831 s / 316-tick host stall. Its compile/audit prerequisites passed before the failure.
-
-## Changed files and commit
-
-Changed: `.gitignore`, `build.gradle`, `config/compatibility/net-011.json`, `scripts/compatibility_harness.py`, `scripts/net011-compatibility-client.tsv`, `scripts/tests/test_compatibility_harness.py`, compatibility matrix/evidence, platform compatibility docs, changelog, and this report. The plan checkbox and backlog row were deliberately left open.
-
-Commit: `HEAD` (cohesive NET-011 commit; exact SHA returned after commit).
-
-## Self-review and concerns
-
-The manifest/harness is deliberately small and absent-safe. It validates exact metadata, size, hash, side and profile before copying; generated run configs and downloads are ignored. Runtime claims are tied to real processes and explicit evidence lines. The implementation and bounded matrix are ready to commit, but NET-011's literal all-GameTests-green completion gate is **not met**: all three full-stack executions ended 113/114 on the same tick-4 assertion during 15.8–17.7-second host stalls, while the test passed 1/1 alone under the identical stack. The plan checkbox and backlog row therefore remain open. The primary breadth limitation is that one combined real-client innate payload plus the server GameTest surface is not direct visual/manual execution of every spell/crystal/artifact with every mod. ClaimMod integration, nested Inventory Extended ownership, voice audio, enhanced/reduced-motion sky, and subjective screenshot review remain unproven. The client-GameTest launch topology's absent example extension is also unresolved and is not attributed to the compatibility fixtures.
+Concerns: the current static renderer is proven but VFX-009 enhanced sky is not; ClaimMod has no supported adapter; microphone audio is untested; nested containers remain deliberately dormant. These are explicit matrix limits, not inferred successes.
