@@ -1,0 +1,1 @@
+build/perf-005-fx-capture/client.log:151:[15:18:33] [Render thread/INFO] (Minecraft) [System] [CHAT] POWERS_FX_CAPTURE passed=true attemptedPackets=64 deliveredPackets=1 attemptedBytes=3776 deliveredBytes=59 packetReduction=98.438 byteReduction=98.438

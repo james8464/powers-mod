@@ -416,6 +416,8 @@ Back up a world before enabling or testing Celestial Ruin terrain/block-entity d
 
 The separately attributed CI soak exercises 10/50/100 simulated players and asserts packet, particle, scan, field, queue, forced-chunk, tactical-decision, and Java-25 per-thread allocation budgets. `./test.sh restart-soak` runs an isolated 24-hour repeated-restart harness by default and writes `build/restart-soak/restart-soak-report.json`; it never opens the ordinary `run/world`. The opt-in connected-bot GameTest profiles 10, 50, and 100 embedded connections for 30 minutes each and publishes JFR/JSON evidence. Pass `-PpowersProfilePopulation=10`, `50`, or `100` to run one population in an isolated exact-build archive; omitting it retains the sequential three-population run. The accepted exact-build embedded and ten-rendered-client results are recorded in [the PERF-001 evidence report](docs/verification/evidence/2026-08-14-perf-001/README.md).
 
+Repeated semantic sustain visuals are coalesced once per tick by observer, dimension, chunk, action, and phase. Physical collisions and lifecycle transitions never use this path, and a saturated coalescer fails open instead of suppressing new effects. On exact commit `b2bff00`, a real Fabric client capture reduced a duplicate-heavy burst from 64 to 1 packet and from 3,776 to 59 encoded payload-body bytes (98.438% for both) while the dedicated collision proof and all 85 GameTests passed. The exact report and logs are in [the PERF-005 evidence bundle](docs/verification/evidence/2026-08-14-perf-005-b2bff00/README.md).
+
 ## Datapack and integration surfaces
 
 Datapacks can extend recipes, loot, tags, `powers:knowledge_entries`, Crucible eligibility, living-force immunity, artifact conjuration policy, and authored data registries without replacing server validation. Java integrations may register Crucible predicates. Save migrations preserve legacy artifact keys, inactive grimoire IDs, hidden item aliases, rank/loadout state, cooldowns, body sessions, landmarks, Shadow memory/learning, and Celestial Ruin events where supported.
@@ -433,7 +435,7 @@ The exact generated appendices are:
 
 ## Verification status
 
-Current evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md), [bounded P2 ledger](docs/verification/2026-08-11-bounded-p2-acceptance.md), [Queue 1 ledger](docs/verification/2026-08-11-queue-1-acceptance.md), [connected-player profile bundle](docs/verification/evidence/2026-08-14-perf-001/README.md), and [quest telemetry bundle](docs/verification/evidence/2026-08-14-prg-001-751b3bc/README.md), not inferred from documentation hashes. The 24-hour restart soak remains an explicit elapsed-time gate and is not represented as complete.
+Current evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md), [bounded P2 ledger](docs/verification/2026-08-11-bounded-p2-acceptance.md), [Queue 1 ledger](docs/verification/2026-08-11-queue-1-acceptance.md), [connected-player profile bundle](docs/verification/evidence/2026-08-14-perf-001/README.md), [quest telemetry bundle](docs/verification/evidence/2026-08-14-prg-001-751b3bc/README.md), and [semantic-FX coalescing bundle](docs/verification/evidence/2026-08-14-perf-005-b2bff00/README.md), not inferred from documentation hashes. The 24-hour restart soak remains an explicit elapsed-time gate and is not represented as complete.
 
 Useful checks:
 

@@ -15,7 +15,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
-| PERF-005 | Enhancement | P1 | Coalesce repeated magic-presence updates by chunk/action/observer. | Packet captures show fewer bytes/packets with identical collision behavior. |
 | PERF-006 | Enhancement | P1 | Pool short-lived immutable geometry buffers and semantic packet builders. | Allocation profile shows materially lower young-generation churn in mass combat. |
 | PERF-010 | Enhancement | P2 | Virtualize artifact catalogue rows and replace page rebuilds with a scrollable reusable grid. | Constant widget count and smooth search with thousands of datapack actions. |
 | PERF-011 | Enhancement | P2 | Cache rank profiles and translated menu snapshots by revision. | No per-frame/per-cast reconstruction when rank/config/registry revision is unchanged. |
