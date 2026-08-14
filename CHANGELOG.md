@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Replaced delayed entity/level captures with UUID-, dimension-, deadline-, owner-, and lifecycle-epoch continuations across travel, mind/body return, realm crystals, locator phases, storms, remote dialogue, and queued network packets; logout, respawn, missing dimensions, replacement, reload, and shutdown now cancel or re-resolve safely, with inspectable diagnostics and 88 live GameTests.
+
 - Reused primitive semantic-geometry transforms and per-event observer payload variants, reducing the exact PERF-006 mass-combat workload from 7,587.795 to 95.653 allocated bytes per operation (98.739%) while p99 improved by 61.078%, with bounded retention, zero JFR data loss, and all 86 GameTests green.
 
 - Coalesced duplicate semantic sustain visuals by tick, observer, dimension, chunk, action, and phase while leaving collision and lifecycle state authoritative; an exact-build real-client capture reduced both packets and encoded payload-body bytes by 98.438%, with all 85 GameTests green.

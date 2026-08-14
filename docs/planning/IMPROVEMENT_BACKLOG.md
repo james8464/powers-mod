@@ -9,7 +9,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
 | COR-018 | Guarantee | P2 | Add deterministic replay seeds for all random target, strike, scar, loot, and learning decisions. | A captured seed reproduces behavior and visuals without changing production randomness. |
-| COR-020 | Guarantee | P2 | Audit every scheduled callback for stale entity, stale level, and stopped-server references. | Static/runtime audit proves UUID re-resolution, deadline, and cancellation ownership. |
 
 ## 2. Performance and scalability
 
