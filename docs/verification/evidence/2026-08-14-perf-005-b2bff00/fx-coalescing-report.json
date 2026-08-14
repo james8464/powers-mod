@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "commit": "b2bff008444fda536e0ca696ef3d6659f2508d59",
+  "minecraft": "26.2",
+  "fabric_clients": 1,
+  "connected_client": "FxCapture",
+  "collision_gametest_passed": true,
+  "traffic": {
+    "passed": true,
+    "attempted_packets": 64,
+    "delivered_packets": 1,
+    "attempted_bytes": 3776,
+    "delivered_bytes": 59,
+    "packet_reduction_percent": 98.438,
+    "byte_reduction_percent": 98.438
+  },
+  "server_error_lines": [],
+  "unexpected_client_error_lines": [],
+  "wall_seconds": 43.793,
+  "passed": true
+}

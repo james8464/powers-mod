@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Coalesced duplicate semantic sustain visuals by tick, observer, dimension, chunk, action, and phase while leaving collision and lifecycle state authoritative; an exact-build real-client capture reduced both packets and encoded payload-body bytes by 98.438%, with all 85 GameTests green.
+
 - Added a deterministic quest-balance campaign for ten real Light and ten real Darkness client sessions, with human-equivalent deed cadence, authoritative progression tracking, anonymous median/p90 publication, and a ten-independent-sample gate for every rank threshold.
 - Accepted the exact-build PRG-001 campaign across 20 real Fabric clients: median cumulative progression is 8.17 hours Light and 7.50 hours Darkness, with p90 at 9.33/8.47 hours and no live median interval below five minutes.
 - Rebalanced compressed Darkness milestones at levels 1 and 3–5, taught the predictor that villager children advance both relevant deeds, and preserved every saved completed rank and raw deed counter.

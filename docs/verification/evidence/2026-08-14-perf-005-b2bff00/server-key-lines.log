@@ -1,0 +1,3 @@
+build/perf-005-fx-capture/server.log:111:[15:18:28] [Server thread/INFO] (Minecraft) [Dormant] FxCapture joined the game
+build/perf-005-fx-capture/server.log:113:[15:18:33] [Server thread/INFO] (powers) POWERS_FX_CAPTURE passed=true attemptedPackets=64 deliveredPackets=1 attemptedBytes=3776 deliveredBytes=59 packetReduction=98.438 byteReduction=98.438
+build/run/gameTest/logs/latest.log:388:[15:19:42] [Server thread/INFO] (Minecraft) All 85 required tests passed :)
