@@ -8,6 +8,7 @@ import com.powers.force.LivingForceManager;
 import com.powers.forge.CrucibleWeaponRuntime;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.knowledge.KnowledgeEntryReloadListener;
+import com.powers.magic.ActionRegistryReloadListener;
 import com.powers.loot.PowersLoot;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowerSchema;
@@ -27,6 +28,7 @@ final class PowersBootstrap {
 		PowersConfigLoader.initialize();
 		com.powers.command.PermissionNodes.installFabricAdapterIfPresent();
 		KnowledgeEntryReloadListener.initialize();
+		ActionRegistryReloadListener.initialize();
 		PowerEntityState.initialize();
 		ShadowCompanionStore.initialize();
 		RankGraphRegistry.initialize();

@@ -12,7 +12,7 @@ public final class ClientAcceptanceScreens {
     public static ArtifactCatalogueScreen artifactCatalogue(String alignment, String selectedKey,
             int rank, int sizeMorphOption, int energy, List<String> favourites,
             List<ArtifactActionSnapshot> snapshots) {
-        return new ArtifactCatalogueScreen(ArtifactMenuState.fromPacket(alignment, selectedKey,
+		return new ArtifactCatalogueScreen(ArtifactMenuState.fromPacket(0L, alignment, selectedKey,
                 rank, sizeMorphOption, energy, favourites, snapshots));
     }
 }

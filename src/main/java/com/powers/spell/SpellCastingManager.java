@@ -254,7 +254,8 @@ public final class SpellCastingManager {
 		int raw = data.rawSelectedSpell(grimoire.key());
 		int migrated = SpellSelectionMigration.canonicalIndex(grimoire.key(), raw);
 		if (migrated != raw) data.setSelectedSpell(grimoire.key(), migrated);
-		int selected = Math.floorMod(migrated, grimoire.spells().size());
+		int selected = data.selectedSpell(grimoire.key(),
+				grimoire.spells().stream().map(SpellDefinition::id).toList());
 		return grimoire.spells().get(selected);
 	}
 

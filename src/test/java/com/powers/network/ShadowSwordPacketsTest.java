@@ -24,7 +24,7 @@ class ShadowSwordPacketsTest {
 		try {
 			RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(bytes, RegistryAccess.EMPTY);
 			ShadowSwordPackets.SelectPayload payload = new ShadowSwordPackets.SelectPayload(
-					ArtifactAlignment.DARKNESS.serializedName(), "x".repeat(65), 0);
+					7L, ArtifactAlignment.DARKNESS.serializedName(), "x".repeat(65), 0);
 
 			assertThrows(RuntimeException.class,
 					() -> ShadowSwordPackets.SelectPayload.STREAM_CODEC.encode(buffer, payload));
@@ -39,7 +39,7 @@ class ShadowSwordPacketsTest {
 		try {
 			RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(bytes, RegistryAccess.EMPTY);
 			ShadowSwordPackets.TeleportPayload payload = new ShadowSwordPackets.TeleportPayload(
-					ArtifactAlignment.DARKNESS.serializedName(), 0, 80, 0,
+					7L, ArtifactAlignment.DARKNESS.serializedName(), "innate/time_shift", 0, 80, 0,
 					net.minecraft.world.level.Level.OVERWORLD, "x".repeat(65));
 
 			assertThrows(RuntimeException.class,

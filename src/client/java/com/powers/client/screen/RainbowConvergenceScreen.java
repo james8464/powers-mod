@@ -15,11 +15,13 @@ import java.util.List;
 /** Combat-safe six-force Rainbow selector using the artifact glyph language. */
 public final class RainbowConvergenceScreen extends Screen {
 	private final List<String> modes;
+	private final long revision;
 	private final int selected;
 
-	public RainbowConvergenceScreen(List<String> modes, int selected) {
+	public RainbowConvergenceScreen(long revision, List<String> modes, int selected) {
 		super(Component.translatable("screen.powers.crystal_selector.title"));
 		this.modes = List.copyOf(modes);
+		this.revision = revision;
 		this.selected = Math.clamp(selected, 0, Math.max(0, modes.size() - 1));
 	}
 
@@ -56,7 +58,7 @@ public final class RainbowConvergenceScreen extends Screen {
 	}
 
 	private void choose(int slot) {
-		ClientPlayNetworking.send(new CrystalSelectorPackets.SelectPayload(slot));
+		ClientPlayNetworking.send(new CrystalSelectorPackets.SelectPayload(revision, modes.get(slot)));
 		onClose();
 	}
 

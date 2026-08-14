@@ -25,7 +25,6 @@ import java.util.Set;
 
 import static com.powers.player.PlayerPowerAttachments.ACTIVE_TOGGLES;
 import static com.powers.player.PlayerPowerAttachments.COOLDOWNS;
-import static com.powers.player.PlayerPowerAttachments.CRYSTAL_SELECTIONS;
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_LEVEL;
 import static com.powers.player.PlayerPowerAttachments.DARKNESS_PREFIX_HIDDEN;
 import static com.powers.player.PlayerPowerAttachments.DIMENSIONAL_ANCHOR;
@@ -37,7 +36,6 @@ import static com.powers.player.PlayerPowerAttachments.POWER_SLOTS;
 import static com.powers.player.PlayerPowerAttachments.PREVIOUS_GAMEMODE;
 import static com.powers.player.PlayerPowerAttachments.SKILL_LEVEL;
 import static com.powers.player.PlayerPowerAttachments.SIZE_MORPH_OPTION;
-import static com.powers.player.PlayerPowerAttachments.SPELL_SELECTIONS;
 
 /**
  * Persistent per-player power slots, toggles, energy, and skill levels.
@@ -96,43 +94,47 @@ public final class PlayerPowers {
 		}
 
 		public int selectedSpell(String grimoireKey, int spellCount) {
-			if (spellCount <= 0) return 0;
-			int selected = target.getAttachedOrElse(SPELL_SELECTIONS, Map.of()).getOrDefault(grimoireKey, 0);
-			return Math.floorMod(selected, spellCount);
+			return StableActionSelectionStore.selectedSpell(target, grimoireKey, spellCount);
+		}
+
+		/** Resolves a stable saved spell ID through the current registry, falling back to legacy pages. */
+		public int selectedSpell(String grimoireKey, List<String> spellIds) {
+			return StableActionSelectionStore.selectedSpell(target, grimoireKey, spellIds);
 		}
 
 		public int selectedCrystalMode(String crystalKey, int modeCount) {
-			if (modeCount <= 0) return 0;
-			return com.powers.power.crystals.CrystalModeState.current(
-					target.getAttachedOrElse(CRYSTAL_SELECTIONS, Map.of())
-							.getOrDefault(crystalKey, 0), modeCount);
+			return StableActionSelectionStore.selectedCrystal(target, crystalKey, modeCount);
+		}
+
+		/** Resolves a stable saved crystal action ID through aliases, preserving legacy index saves. */
+		public int selectedCrystalMode(String crystalKey, List<String> modeIds) {
+			return StableActionSelectionStore.selectedCrystal(target, crystalKey, modeIds);
 		}
 
 		public void setSelectedCrystalMode(String crystalKey, int selected) {
-			Map<String, Integer> updated = new HashMap<>(
-					target.getAttachedOrElse(CRYSTAL_SELECTIONS, Map.of()));
-			updated.put(crystalKey, Math.max(0, selected));
-			target.setAttached(CRYSTAL_SELECTIONS, updated);
+			StableActionSelectionStore.setCrystal(target, crystalKey, selected);
+		}
+
+		public void setSelectedCrystalModeKey(String crystalKey, String actionId) {
+			StableActionSelectionStore.setCrystal(target, crystalKey, actionId);
 		}
 
 		/** Returns the stored page before catalogue migration. */
 		public int rawSelectedSpell(String grimoireKey) {
-			return target.getAttachedOrElse(SPELL_SELECTIONS, Map.of()).getOrDefault(grimoireKey, 0);
+			return StableActionSelectionStore.rawSpell(target, grimoireKey);
 		}
 
 		/** Stores one canonical spell page after migration or explicit selection. */
 		public void setSelectedSpell(String grimoireKey, int selected) {
-			Map<String, Integer> updated = new HashMap<>(
-					target.getAttachedOrElse(SPELL_SELECTIONS, Map.of()));
-			updated.put(grimoireKey, Math.max(0, selected));
-			target.setAttached(SPELL_SELECTIONS, updated);
+			StableActionSelectionStore.setSpell(target, grimoireKey, selected);
+		}
+
+		public void setSelectedSpellKey(String grimoireKey, String actionId) {
+			StableActionSelectionStore.setSpell(target, grimoireKey, actionId);
 		}
 
 		public int cycleSpell(String grimoireKey, int spellCount) {
-			if (spellCount <= 0) return 0;
-			int selected = (selectedSpell(grimoireKey, spellCount) + 1) % spellCount;
-			setSelectedSpell(grimoireKey, selected);
-			return selected;
+			return StableActionSelectionStore.cycleSpell(target, grimoireKey, spellCount);
 		}
 		public long cooldownReadyAt(String abilityId) {
 			return target.getAttachedOrElse(COOLDOWNS, Map.of()).getOrDefault(abilityId, 0L);

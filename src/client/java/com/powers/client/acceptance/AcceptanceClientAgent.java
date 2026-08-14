@@ -107,20 +107,23 @@ public final class AcceptanceClientAgent {
 			case GRIMOIRE -> {
 				String[] values = step.argument().split(" ");
 				ClientPlayNetworking.send(new GrimoirePackets.SelectSpellPayload(
-						values[0], Integer.parseInt(values[1])));
+						com.powers.client.ClientActionRegistry.revision(), values[0], values[1]));
 			}
 			case CRYSTAL -> ClientPlayNetworking.send(new CrystalSelectorPackets.SelectPayload(
-					Integer.parseInt(step.argument())));
+					com.powers.client.ClientActionRegistry.revision(), step.argument()));
 			case ARTIFACT -> {
 				String[] values = step.argument().split(" ");
 				ClientPlayNetworking.send(new ShadowSwordPackets.CommitPayload(
+						com.powers.client.ClientActionRegistry.revision(),
 						values[0], values[1], Integer.parseInt(values[2])));
 			}
 			case ARTIFACT_TELEPORT -> {
 				String[] values = step.argument().split(" ");
 				Identifier dimension = Identifier.parse(values[4]);
 				ClientPlayNetworking.send(new ShadowSwordPackets.TeleportPayload(
-						values[0], Double.parseDouble(values[1]), Double.parseDouble(values[2]),
+						com.powers.client.ClientActionRegistry.revision(), values[0],
+						com.powers.client.ClientActionRegistry.artifactActionKey(),
+						Double.parseDouble(values[1]), Double.parseDouble(values[2]),
 						Double.parseDouble(values[3]),
 						ResourceKey.create(Registries.DIMENSION, dimension),
 						values[5].equals("self") ? "" : values[5]));

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added NET-010 atomic action-registry reloads: one immutable monotonic snapshot now owns built-in/external definitions and bounded acyclic datapack aliases; artifact, grimoire, and Rainbow submissions carry revisions and canonical keys, stale requests refresh without mutation, active casts capture their starting revision, and stable saved artifact/favourite/spell/crystal keys migrate while legacy index saves retain deterministic defaults.
+
 - Added the semantically versioned server-only `com.powers.api.v1` integration surface with deterministic bounded Fabric discovery, canonical action/presence/protection ownership, authoritative cast contexts, exception-isolated lifecycle hooks, server-thread enforcement, stop-boundary cleanup, and an independently compiled live example extension.
 - Hardened API v1 with one-shot exact-live-player presence authority, safe-zone/protection/collision/payment/cooldown/work-budget enforcement, transactional per-extension and epoch caps, pre-callback discovery bounds, and lifecycle hooks aligned to Fabric's actual started/stopping events.
 

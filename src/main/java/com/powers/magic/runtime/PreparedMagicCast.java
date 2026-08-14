@@ -1,5 +1,7 @@
 package com.powers.magic.runtime;
 
+import com.powers.magic.ActionRegistrySnapshot;
+
 import java.util.Objects;
 
 /**
@@ -13,13 +15,17 @@ import java.util.Objects;
  * @param preview side-effect-free collision adjustments and pending reactions
  */
 public record PreparedMagicCast(MagicCastContext context, MagicCastPreview preview,
-		CastSource source) {
+		CastSource source, ActionRegistrySnapshot registrySnapshot) {
 	/** Validates the immutable transaction handle. */
 	public PreparedMagicCast {
 		Objects.requireNonNull(context, "context");
 		Objects.requireNonNull(preview, "preview");
 		Objects.requireNonNull(source, "source");
+		Objects.requireNonNull(registrySnapshot, "registrySnapshot");
 	}
+
+	/** Revision captured before any payment, cooldown, or channel lifecycle begins. */
+	public long registryRevision() { return registrySnapshot.revision(); }
 
 	/** Returns whether payment and execution may proceed. */
 	public boolean allowed() {

@@ -36,6 +36,8 @@ public final class TeleportInputScreen extends Screen {
 
 	private final int slot;
 	private final String artifactAlignment;
+	private final long actionRevision;
+	private final String artifactActionKey;
 	private List<DimEntry> available = List.of();
 	private EditBox xField;
 	private EditBox yField;
@@ -47,13 +49,16 @@ public final class TeleportInputScreen extends Screen {
 	private Component error;
 
 	public TeleportInputScreen(int slot) {
-		this(slot, null);
+		this(slot, null, 0L, "");
 	}
 
-	private TeleportInputScreen(int slot, String artifactAlignment) {
+	private TeleportInputScreen(int slot, String artifactAlignment, long actionRevision,
+			String artifactActionKey) {
 		super(Component.translatable("screen.powers.teleport"));
 		this.slot = slot;
 		this.artifactAlignment = artifactAlignment;
+		this.actionRevision = actionRevision;
+		this.artifactActionKey = artifactActionKey;
 	}
 
 	public static TeleportInputScreen shadowSword() {
@@ -61,7 +66,12 @@ public final class TeleportInputScreen extends Screen {
 	}
 
 	public static TeleportInputScreen artifact(String alignment) {
-		return new TeleportInputScreen(-1, alignment);
+		return artifact(com.powers.client.ClientActionRegistry.revision(), alignment,
+				com.powers.client.ClientActionRegistry.artifactActionKey());
+	}
+
+	public static TeleportInputScreen artifact(long revision, String alignment, String actionKey) {
+		return new TeleportInputScreen(-1, alignment, revision, actionKey);
 	}
 
 	@Override
@@ -167,7 +177,8 @@ public final class TeleportInputScreen extends Screen {
 				ResourceKey<Level> key = ResourceKey.create(Registries.DIMENSION, id);
 				if (artifactAlignment != null) {
 					ClientPlayNetworking.send(new ShadowSwordPackets.TeleportPayload(
-							artifactAlignment, x, y, z, key, mode == 1 ? target : ""));
+							actionRevision, artifactAlignment, artifactActionKey,
+							x, y, z, key, mode == 1 ? target : ""));
 				} else {
 					ClientPlayNetworking.send(new PowersPackets.TeleportRequestPayload(
 							slot, x, y, z, key, mode == 1 ? target : "", false));

@@ -54,7 +54,7 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
 - [x] `PERF-013`: recognisable near/mid/far semantic-FX LOD without simplifying event geometry or identity.
 - [x] `NET-007`: deterministic global → world → dimension policy resolution with absolute protection denial and diagnosed source.
 - [x] `NET-009`: versioned `com.powers.api.v1` integration API plus compiled example/compatibility mod.
-- [ ] `NET-010`: atomic revisioned action reload, captured active casts, stale menu rejection, and alias migration.
+- [x] `NET-010`: atomic revisioned action reload, captured active casts, stale menu rejection, and alias migration.
 - [ ] `NET-011`: pinned 26.2 compatibility matrix for Sodium, Lithium, Simple Voice Chat, ClaimMod, and Inventory Extended/CompactStorage.
 - [ ] `QA-009`: testing-only mod-packet delay/loss/duplication/reorder injector and convergence proof.
 - [ ] `QA-010`: live hostile-environment fixtures for claims, borders, ceilings, void, fluids, mounts/passengers, portals, and a synthetic dimension.

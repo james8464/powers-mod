@@ -15,6 +15,7 @@ import java.util.Locale;
 
 /** Immutable server-authored live data shared by the quick wheel and full catalogue. */
 public record ArtifactMenuState(
+		long revision,
 		ArtifactAlignment alignment,
 		String selectedKey,
 		int rank,
@@ -33,16 +34,16 @@ public record ArtifactMenuState(
 				? sizeMorphOption : SizeMorphRules.normalOption();
 	}
 
-	public static ArtifactMenuState fromPacket(String alignment, String selectedKey, int rank,
+	public static ArtifactMenuState fromPacket(long revision, String alignment, String selectedKey, int rank,
 			int sizeMorphOption, int energy, List<String> favourites,
 			List<ArtifactActionSnapshot> snapshots) {
 		ArtifactAlignment parsed = ArtifactAlignment.fromSerialized(alignment);
-		return new ArtifactMenuState(parsed, selectedKey, rank, sizeMorphOption,
+		return new ArtifactMenuState(revision, parsed, selectedKey, rank, sizeMorphOption,
 				energy, favourites, ArtifactActionCatalogue.forAlignment(parsed), snapshots);
 	}
 
 	public ArtifactMenuState withFavourites(List<String> updated) {
-		return new ArtifactMenuState(alignment, selectedKey, rank, sizeMorphOption,
+		return new ArtifactMenuState(revision, alignment, selectedKey, rank, sizeMorphOption,
 				energy, updated, actions, snapshots);
 	}
 

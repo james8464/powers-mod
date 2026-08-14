@@ -46,6 +46,10 @@ final class PlayerPowerAttachments {
 			"spell_selections", Codec.unboundedMap(Codec.STRING, Codec.INT));
 	static final AttachmentType<Map<String, Integer>> CRYSTAL_SELECTIONS = persistentMap(
 			"crystal_selections", Codec.unboundedMap(Codec.STRING, Codec.INT));
+	static final AttachmentType<Map<String, String>> SPELL_SELECTION_KEYS = persistentMap(
+			"spell_selection_keys", Codec.unboundedMap(Codec.STRING, Codec.STRING));
+	static final AttachmentType<Map<String, String>> CRYSTAL_SELECTION_KEYS = persistentMap(
+			"crystal_selection_keys", Codec.unboundedMap(Codec.STRING, Codec.STRING));
 	static final AttachmentType<Map<String, Integer>> DARKNESS_DEEDS = persistentMap(
 			"darkness_deeds", Codec.unboundedMap(Codec.STRING, Codec.INT));
 	static final AttachmentType<Map<String, Integer>> SKILL_DEEDS = persistentMap(
