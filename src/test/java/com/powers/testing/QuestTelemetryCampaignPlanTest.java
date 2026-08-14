@@ -3,6 +3,7 @@ package com.powers.testing;
 import com.powers.progression.QuestTelemetryLedger;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,17 +26,21 @@ class QuestTelemetryCampaignPlanTest {
 
 	@Test
 	void everyThresholdHasANondecreasingExpectedCompletionTime() {
+		var violations = new ArrayList<String>();
 		for (QuestTelemetryLedger.Alignment alignment : QuestTelemetryLedger.Alignment.values()) {
 			for (var profile : QuestTelemetryCampaignPlan.profiles(alignment)) {
 				long previous = 0L;
 				for (int level = 1; level <= 10; level++) {
 					long completion = profile.expectedCompletionTick(alignment, level);
-					assertTrue(completion >= previous,
-							alignment + " level " + level + " regressed below its prerequisite");
+					if (completion - previous < 6_000L) {
+						violations.add(alignment + " sample " + profile.sample() + " level " + level);
+					}
 					previous = completion;
 				}
 			}
 		}
+		assertTrue(violations.isEmpty(),
+				"Thresholds can complete less than five minutes after prerequisites: " + violations);
 	}
 
 	@Test
