@@ -184,8 +184,10 @@ public final class ShadowSwordPackets {
 		ServerPlayNetworking.registerGlobalReceiver(CyclePayload.TYPE, (payload, context) ->
 				ServerPlayCallback.execute(context, player -> {
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
+					String selectedKey = alignment == null ? null
+							: ArtifactSelectionState.peekSelected(player, alignment);
 					ArtifactWeaponManager.Action selected = alignment == null ? null
-							: ArtifactWeaponManager.selected(player, alignment);
+							: ArtifactWeaponManager.action(alignment, selectedKey);
 					ActionSubmissionService.submit(MagicRuntime.catalogue().snapshot(), request(payload),
 							() -> validArtifactContext(player, alignment, payload.actionKey())
 									&& ArtifactScrollRules.validDirection(payload.direction())
@@ -234,7 +236,8 @@ public final class ShadowSwordPackets {
 	private static void handleTeleport(ServerPlayer caster, TeleportPayload payload) {
 		ArtifactAlignment alignment = parseAlignment(payload.alignment());
 		ArtifactWeaponManager.Action action = alignment == null ? null
-				: ArtifactWeaponManager.selected(caster, alignment);
+				: ArtifactWeaponManager.action(alignment,
+						ArtifactSelectionState.peekSelected(caster, alignment));
 		ServerPlayer subject = payload.targetName().isBlank() ? caster
 				: caster.level().getServer().getPlayerList().getPlayers().stream()
 						.filter(player -> player.getName().getString().equalsIgnoreCase(payload.targetName()))
@@ -281,16 +284,7 @@ public final class ShadowSwordPackets {
 	}
 
 	private static void refreshArtifact(ServerPlayer player, ArtifactAlignment requested) {
-		ArtifactAlignment current = requested;
-		if (current == null || !ArtifactWeaponManager.holds(player, current)) {
-			current = ArtifactWeaponManager.alignment(player.getMainHandItem());
-			if (current == null) current = ArtifactWeaponManager.alignment(player.getOffhandItem());
-		}
-		if (current != null && ArtifactWeaponManager.authorized(player, current)) {
-			ArtifactWeaponManager.openMenu(player, current);
-		} else {
-			ActionSubmissionService.refresh(player, "artifact");
-		}
+		ActionSubmissionService.refresh(player, "artifact");
 	}
 
 	private static ActionSubmissionService.Request request(SelectPayload payload) {

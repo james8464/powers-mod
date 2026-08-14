@@ -14,11 +14,16 @@ public final class ArtifactSelectionState {
 	private ArtifactSelectionState() {
 	}
 
-	public static String selected(ServerPlayer player, ArtifactAlignment alignment) {
+	/** Reads the persisted selection without migration or attachment writes. */
+	public static String peekSelected(ServerPlayer player, ArtifactAlignment alignment) {
 		String fallback = "innate/lightning_strike";
-		String stored = alignment == ArtifactAlignment.DARKNESS
+		return alignment == ArtifactAlignment.DARKNESS
 				? player.getAttachedOrElse(PlayerPowerAttachments.SHADOW_SWORD_SELECTION, fallback)
 				: player.getAttachedOrElse(PlayerPowerAttachments.HEAVENLY_PARTISAN_SELECTION, fallback);
+	}
+
+	public static String selected(ServerPlayer player, ArtifactAlignment alignment) {
+		String stored = peekSelected(player, alignment);
 		int rank = alignment == ArtifactAlignment.DARKNESS
 				? PlayerPowers.get(player).darknessLevel() : PlayerPowers.get(player).skillLevel();
 		String migrated = ArtifactSelectionMigration.migrate(alignment, stored, rank);

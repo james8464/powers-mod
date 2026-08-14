@@ -7,34 +7,43 @@ import com.powers.magic.runtime.MagicRuntime;
 import com.powers.network.ActionSubmissionService;
 import com.powers.player.ArtifactSelectionState;
 import com.powers.player.PlayerPowers;
+import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.spell.SpellCastingManager;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /** Live production-owner coverage for NET-010 reload, stale submission, casts, and migration. */
 public final class ActionRegistryReloadGameTests {
-	@GameTest
+	@GameTest(maxTicks = 200)
 	public void successfulAndFailedReloadAreAtomic(GameTestHelper helper) {
-		var catalogue = MagicRuntime.catalogue();
-		long before = catalogue.snapshot().revision();
-		helper.assertTrue(ActionRegistryReloadListener.reloadDocuments(catalogue, List.of(document(
-				"success", "{\"aliases\":{\"net010_old_fire\":\"fireball\","
-						+ "\"net010_old_extension\":\"example_resonant_field\"}}"))),
-				"Valid reload was rejected");
-		var accepted = catalogue.snapshot();
-		helper.assertTrue(accepted.revision() == before + 1L, "Revision did not increase once");
-		helper.assertTrue(accepted.definition(new MagicActionId("example_resonant_field")) != null
-				&& accepted.resolve("net010_old_extension").value().equals("example_resonant_field"),
-				"NET-009 external action was omitted from the reloaded snapshot");
-		helper.assertTrue(!ActionRegistryReloadListener.reloadDocuments(catalogue, List.of(document(
-				"failed", "{\"aliases\":{\"net010_a\":\"net010_b\",\"net010_b\":\"net010_a\"}}"))),
-				"Cyclic reload was accepted");
-		helper.assertTrue(catalogue.snapshot() == accepted, "Failed reload partially published");
-		helper.succeed();
+		helper.runAfterDelay(10, () -> {
+			var catalogue = MagicRuntime.catalogue();
+			long before = catalogue.snapshot().revision();
+			var server = helper.getLevel().getServer();
+			server.reloadResources(server.getPackRepository().getSelectedIds()).whenComplete((ignored, failure) ->
+				server.execute(() -> {
+					if (failure != null) throw new AssertionError("Registered Fabric reload failed", failure);
+					var accepted = catalogue.snapshot();
+					helper.assertTrue(accepted.revision() == before + 1L,
+							"Registered listener did not publish exactly one revision");
+					helper.assertTrue(accepted.definition(new MagicActionId("example_resonant_field")) != null,
+							"NET-009 external action was omitted from the resource-reloaded snapshot");
+					helper.assertTrue("fireball".equals(accepted.resolve("net010_pack_fire").value()),
+							"Real datapack alias did not pass through the registered parser/apply path");
+					helper.assertTrue(!ActionRegistryReloadListener.reloadDocuments(catalogue, List.of(document(
+							"failed", "{\"aliases\":{\"net010_a\":\"net010_b\",\"net010_b\":\"net010_a\"}}"))),
+							"Cyclic reload was accepted");
+					helper.assertTrue(catalogue.snapshot() == accepted, "Failed reload partially published");
+					helper.succeed();
+				}));
+		});
 	}
 
 	@GameTest
@@ -60,28 +69,63 @@ public final class ActionRegistryReloadGameTests {
 
 	@GameTest(maxTicks = 80)
 	@SuppressWarnings("removal")
-	public void activeCastSnapshotSurvivesReload(GameTestHelper helper) {
+	public void activeCastSnapshotSurvivesReloadAndCompletesAuthoredEffect(GameTestHelper helper) {
 		var catalogue = MagicRuntime.catalogue();
 		var player = helper.makeMockServerPlayerInLevel();
+		Vec3 origin = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(2, 1, 2)));
+		player.snapTo(origin, 0.0F, 0.0F);
+		var target = helper.spawn(com.powers.PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 6));
+		target.setNoAi(true);
 		player.setItemInHand(InteractionHand.MAIN_HAND, com.powers.ImportedPackItems.item(
-				"imported_book_grimoire_celestial").getDefaultInstance());
-		PlayerPowers.get(player).setSelectedSpell("book_grimoire_celestial", 1);
-		SpellCastingManager.use(player, "book_grimoire_celestial");
+				"imported_book_grimoire_deep").getDefaultInstance());
+		SpellCastingManager.use(player, "book_grimoire_deep");
 		helper.assertTrue(SpellCastingManager.isChanneling(player.getUUID()),
-				"Real Augury channel did not start");
+				"Real Dimensional Anchor channel did not start");
 		var captured = SpellCastingManager.activeRegistrySnapshot(player.getUUID());
 		helper.assertTrue(captured != null && ActionRegistryReloadListener.reloadDocuments(catalogue,
-				List.of(document("cast", "{\"aliases\":{\"net010_retired_augury\":\"augury\"}}"))),
+				List.of(document("cast", "{\"aliases\":{\"net010_retired_anchor\":\"dimensional_anchor\"}}"))),
 				"Valid reload was rejected");
 		helper.assertTrue(SpellCastingManager.activeRegistrySnapshot(player.getUUID()) == captured
 				&& captured.revision() < catalogue.snapshot().revision(),
 				"Live channel replaced its captured registry snapshot");
-		helper.runAfterDelay(30, () -> {
+		helper.runAfterDelay(60, () -> {
 			helper.assertFalse(SpellCastingManager.isChanneling(player.getUUID()),
 					"Captured channel did not reach one terminal completion");
-			helper.assertTrue(PlayerPowers.get(player).cooldownReadyAt("spell:augury")
-						> player.level().getGameTime(), "Captured channel did not commit under its original definition");
+			helper.assertTrue(DimensionalAnchorAbility.isAnchored(target),
+					"Captured channel did not execute its authored completion effect");
 			helper.succeed();
+		});
+	}
+
+	@GameTest(maxTicks = 30, padding = 128)
+	@SuppressWarnings("removal")
+	public void invalidContinuationCancelsExactlyOnceWithoutCompletion(GameTestHelper helper) {
+		var player = helper.makeMockServerPlayerInLevel();
+		Vec3 origin = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(2, 1, 2)));
+		player.snapTo(origin, 0.0F, 0.0F);
+		var target = helper.spawn(com.powers.PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 6));
+		target.setNoAi(true);
+		player.setItemInHand(InteractionHand.MAIN_HAND, com.powers.ImportedPackItems.item(
+				"imported_book_grimoire_deep").getDefaultInstance());
+		int before = PlayerPowers.get(player).energy();
+		SpellCastingManager.use(player, "book_grimoire_deep");
+		helper.assertTrue(SpellCastingManager.isChanneling(player.getUUID()), "Channel did not begin");
+		player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+		helper.runAfterDelay(4, () -> {
+			helper.assertFalse(SpellCastingManager.isChanneling(player.getUUID()),
+					"Owner loss did not cancel the channel");
+			helper.assertTrue(PlayerPowers.get(player).energy() == before - 11,
+					"Cancellation did not retain exactly one half-payment");
+			helper.assertFalse(DimensionalAnchorAbility.isAnchored(target),
+					"Cancelled channel executed its authored effect");
+			int cancelledEnergy = PlayerPowers.get(player).energy();
+			helper.runAfterDelay(5, () -> {
+				helper.assertTrue(PlayerPowers.get(player).energy() == cancelledEnergy,
+						"Invalid continuation was cancelled more than once");
+				helper.assertFalse(DimensionalAnchorAbility.isAnchored(target),
+						"Cancelled channel completed later");
+				helper.succeed();
+			});
 		});
 	}
 
