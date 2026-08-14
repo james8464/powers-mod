@@ -27,12 +27,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /** Production server-epoch owner behind {@link PowersApiV1}; extension code should use the interface. */
 public final class PowersApiRuntime implements PowersApiV1 {
@@ -55,7 +57,7 @@ public final class PowersApiRuntime implements PowersApiV1 {
 		@Override public CastSource source() { return CastSource.EXTENSION; }
 	}
 	private record Candidate(String id, PowersExtension extension) { }
-	private record OwnedPresence(String extensionId, MagicPresenceHandle handle) { }
+	private record OwnedPresence(String extensionId, MagicPresenceHandle handle, long expiresAt) { }
 	private static final int MAX_EXTENSIONS = 256;
 	private static final int MAX_ACTIONS_PER_EXTENSION = 64;
 	private static final int MAX_ACTIONS_PER_EPOCH = 512;
@@ -74,6 +76,7 @@ public final class PowersApiRuntime implements PowersApiV1 {
 	private final List<LifecycleHook> hooks = new ArrayList<>();
 	private final Map<PresenceHandle, OwnedPresence> presences = new LinkedHashMap<>();
 	private final Map<String, Integer> presenceCounts = new LinkedHashMap<>();
+	private final TreeMap<Long, Set<PresenceHandle>> presenceExpiries = new TreeMap<>();
 	private final Map<java.util.UUID, Integer> presenceWork = new LinkedHashMap<>();
 	private MinecraftServer server;
 	private Thread ownerThread;
@@ -259,6 +262,7 @@ public final class PowersApiRuntime implements PowersApiV1 {
 						net.minecraft.core.BlockPos.containing(point))) {
 			throw new IllegalStateException("Presence denied by authoritative policy");
 		}
+		pruneExpiredPresences(now);
 		if (presences.size() >= MAX_PRESENCES_PER_EPOCH
 				|| presenceCounts.getOrDefault(authorized.extensionId, 0) >= MAX_PRESENCES_PER_EXTENSION) {
 			throw new IllegalStateException("Presence work limit reached");
@@ -297,18 +301,16 @@ public final class PowersApiRuntime implements PowersApiV1 {
 			data.setCooldown(cooldownKey, now + definition.baseCooldownTicks());
 		}
 		PresenceHandle handle = new PresenceHandle(internal.presenceId().value());
-		presences.put(handle, new OwnedPresence(authorized.extensionId, internal));
+		presences.put(handle, new OwnedPresence(authorized.extensionId, internal, presence.expiresAt()));
 		presenceCounts.merge(authorized.extensionId, 1, Integer::sum);
+		presenceExpiries.computeIfAbsent(presence.expiresAt(), ignored -> new LinkedHashSet<>()).add(handle);
 		return handle;
 	}
 
 	@Override public boolean removePresence(PresenceHandle handle) {
 		checkThread();
-		OwnedPresence owned = presences.remove(handle);
-		if (owned == null) return false;
-		presenceCounts.computeIfPresent(owned.extensionId(), (ignored, count) -> count <= 1 ? null : count - 1);
-		PhysicalMagicPresences.remove(owned.handle());
-		return true;
+		if (server != null) pruneExpiredPresences(server.getTickCount());
+		return releasePresence(handle);
 	}
 
 	/** Emits stop hooks, removes all external state, and closes the server epoch. */
@@ -319,7 +321,7 @@ public final class PowersApiRuntime implements PowersApiV1 {
 		for (OwnedPresence presence : presences.values()) PhysicalMagicPresences.remove(presence.handle());
 		for (String id : protections) PowerProtectionAdapters.unregister(id);
 		for (MagicActionId id : actions.keySet()) MagicRuntime.catalogue().unregisterExternal(id);
-		presences.clear(); presenceCounts.clear(); presenceWork.clear();
+		presences.clear(); presenceCounts.clear(); presenceExpiries.clear(); presenceWork.clear();
 		protections.clear(); actions.clear(); hooks.clear(); extensions.clear();
 		registrationOpen = false; started = false; server = null; ownerThread = null;
 	}
@@ -356,6 +358,30 @@ public final class PowersApiRuntime implements PowersApiV1 {
 				|| actorWork >= MAX_PRESENCE_WORK_PER_PLAYER_TICK) return false;
 		presenceWorkTotal++;
 		presenceWork.put(actor, actorWork + 1);
+		return true;
+	}
+
+	/** Reclaims only elapsed active buckets; work is bounded by the live-presence caps, not history. */
+	private void pruneExpiredPresences(long now) {
+		for (PresenceHandle handle : presenceExpiries.headMap(now, true).values().stream()
+				.flatMap(Collection::stream).toList()) {
+			OwnedPresence owned = presences.get(handle);
+			if (owned != null && owned.expiresAt() <= now) releasePresence(handle);
+		}
+		presenceExpiries.headMap(now, true).clear();
+	}
+
+	private boolean releasePresence(PresenceHandle handle) {
+		OwnedPresence owned = presences.remove(handle);
+		if (owned == null) return false;
+		Set<PresenceHandle> bucket = presenceExpiries.get(owned.expiresAt());
+		if (bucket != null) {
+			bucket.remove(handle);
+			if (bucket.isEmpty()) presenceExpiries.remove(owned.expiresAt());
+		}
+		presenceCounts.computeIfPresent(owned.extensionId(),
+				(ignored, count) -> count <= 1 ? null : count - 1);
+		PhysicalMagicPresences.remove(owned.handle());
 		return true;
 	}
 
