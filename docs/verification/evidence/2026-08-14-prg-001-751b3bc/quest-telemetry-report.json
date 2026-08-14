@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "commit": "751b3bcecc5f5c13199e8079fe0b902918630f14",
+  "minecraft": "26.2",
+  "fabric_clients": 20,
+  "sessions_per_alignment": 10,
+  "cadence_basis": "server game ticks at authored human-equivalent intervals",
+  "wall_seconds": 1547.985,
+  "phases": [
+    {
+      "alignment": "LIGHT",
+      "clients": [
+        "QuestLight1",
+        "QuestLight2",
+        "QuestLight3",
+        "QuestLight4",
+        "QuestLight5",
+        "QuestLight6",
+        "QuestLight7",
+        "QuestLight8",
+        "QuestLight9",
+        "QuestLight10"
+      ],
+      "wall_seconds": 729.889,
+      "human_equivalent_ticks": 700000
+    },
+    {
+      "alignment": "DARK",
+      "clients": [
+        "QuestDark1",
+        "QuestDark2",
+        "QuestDark3",
+        "QuestDark4",
+        "QuestDark5",
+        "QuestDark6",
+        "QuestDark7",
+        "QuestDark8",
+        "QuestDark9",
+        "QuestDark10"
+      ],
+      "wall_seconds": 690.181,
+      "human_equivalent_ticks": 635000
+    }
+  ],
+  "rows": [
+    {
+      "alignment": "DARK",
+      "level": 1,
+      "samples": 10,
+      "median_ticks": 8820,
+      "p90_ticks": 10080,
+      "routes": ["predation"]
+    },
+    {
+      "alignment": "DARK",
+      "level": 2,
+      "samples": 10,
+      "median_ticks": 28980,
+      "p90_ticks": 32620,
+      "routes": ["predation"]
+    },
+    {
+      "alignment": "DARK",
+      "level": 3,
+      "samples": 10,
+      "median_ticks": 11200,
+      "p90_ticks": 13300,
+      "routes": ["atrocity"]
+    },
+    {
+      "alignment": "DARK",
+      "level": 4,
+      "samples": 10,
+      "median_ticks": 7920,
+      "p90_ticks": 8960,
+      "routes": ["atrocity"]
+    },
+    {
+      "alignment": "DARK",
+      "level": 5,
+      "samples": 10,
+      "median_ticks": 12740,
+      "p90_ticks": 14240,
+      "routes": ["atrocity"]
+    },
+    {
+      "alignment": "DARK",
+      "level": 6,
+      "samples": 10,
+      "median_ticks": 38420,
+      "p90_ticks": 42800,
+      "routes": ["atrocity"]
+    },
+    {
+      "alignment": "DARK",
+      "level": 7,
+      "samples": 10,
+      "median_ticks": 81000,
+      "p90_ticks": 91500,
+      "routes": ["atrocity"]
+    },
+    {
+      "alignment": "DARK",
+      "level": 8,
+      "samples": 10,
+      "median_ticks": 81000,
+      "p90_ticks": 91500,
+      "routes": ["atrocity"]
+    },
+    {
+      "alignment": "DARK",
+      "level": 9,
+      "samples": 10,
+      "median_ticks": 135000,
+      "p90_ticks": 152500,
+      "routes": ["atrocity"]
+    },
+    {
+      "alignment": "DARK",
+      "level": 10,
+      "samples": 10,
+      "median_ticks": 135000,
+      "p90_ticks": 152500,
+      "routes": ["atrocity"]
+    },
+    {
+      "alignment": "LIGHT",
+      "level": 1,
+      "samples": 10,
+      "median_ticks": 8280,
+      "p90_ticks": 9120,
+      "routes": ["pilgrimage"]
+    },
+    {
+      "alignment": "LIGHT",
+      "level": 2,
+      "samples": 10,
+      "median_ticks": 8280,
+      "p90_ticks": 9120,
+      "routes": ["pilgrimage"]
+    },
+    {
+      "alignment": "LIGHT",
+      "level": 3,
+      "samples": 10,
+      "median_ticks": 12840,
+      "p90_ticks": 15360,
+      "routes": ["pilgrimage"]
+    },
+    {
+      "alignment": "LIGHT",
+      "level": 4,
+      "samples": 10,
+      "median_ticks": 19600,
+      "p90_ticks": 22400,
+      "routes": ["pilgrimage"]
+    },
+    {
+      "alignment": "LIGHT",
+      "level": 5,
+      "samples": 10,
+      "median_ticks": 34300,
+      "p90_ticks": 39200,
+      "routes": ["pilgrimage"]
+    },
+    {
+      "alignment": "LIGHT",
+      "level": 6,
+      "samples": 10,
+      "median_ticks": 49000,
+      "p90_ticks": 56000,
+      "routes": ["pilgrimage"]
+    },
+    {
+      "alignment": "LIGHT",
+      "level": 7,
+      "samples": 10,
+      "median_ticks": 63700,
+      "p90_ticks": 72800,
+      "routes": ["pilgrimage"]
+    },
+    {
+      "alignment": "LIGHT",
+      "level": 8,
+      "samples": 10,
+      "median_ticks": 83300,
+      "p90_ticks": 95200,
+      "routes": ["pilgrimage"]
+    },
+    {
+      "alignment": "LIGHT",
+      "level": 9,
+      "samples": 10,
+      "median_ticks": 112700,
+      "p90_ticks": 128800,
+      "routes": ["pilgrimage"]
+    },
+    {
+      "alignment": "LIGHT",
+      "level": 10,
+      "samples": 10,
+      "median_ticks": 196000,
+      "p90_ticks": 224000,
+      "routes": ["pilgrimage"]
+    }
+  ],
+  "server_error_lines": [],
+  "expected_offline_client_error_count": 20,
+  "unexpected_client_error_lines": [],
+  "error_lines": [],
+  "passed": true
+}

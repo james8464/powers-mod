@@ -29,6 +29,7 @@ This ledger is the evidence boundary for removing rows from `docs/planning/IMPRO
 | QA-007–008 | `EnergyCooldownPropertyTest` runs 100,000 hostile randomized invariant cases; PIT enforced 80% minimum and passed with 237/259 mutations killed (92%), 93% mutated-line coverage, and 93% covered-test strength. |
 | PERF-001 | Commit `9d69a92` completed isolated 10/50/100 embedded-player profiles and a separate ten-rendered-client network profile for exactly 36,000 ticks and at least 1,800 seconds each. All 63,003 server-authoritative casts succeeded; the worst p95/p99 was 18.640/30.635 ms, and all four JFRs report zero data loss. Exact JSON, JFR, logs, configurations, screenshots, checksums, and rejected-attempt records are in `evidence/2026-08-14-perf-001/`. |
 | QA-005 | The regenerated current 427-row checklist has an evidence-backed PASS for every action, artifact action, item, entity, system, screen, and command that requires live acceptance. Exact-build real-client campaigns include four-client combat/dialogue, all crystal and artifact paths, all 260 item identities, Middleworld entry/return, and alignment-exclusive advancement views. No `MANUAL LIVE PENDING` row remains. |
+| PRG-001 | Commit `751b3bc` completed ten real Light and ten real Darkness Fabric-client sessions through the authoritative quest trackers. All 20 rows contain ten samples; median cumulative completion was 8.17h Light/7.50h Darkness and p90 was 9.33h/8.47h. Evidence-driven Darkness threshold changes preserve completed ranks and raw deed progress. Exact results and rationale are in `evidence/2026-08-14-prg-001-751b3bc/`. |
 
 ## Still open: evidence that cannot be fabricated
 
@@ -36,7 +37,6 @@ This ledger is the evidence boundary for removing rows from `docs/planning/IMPRO
 | --- | --- | --- |
 | PERF-005 | Per-tick observer/dimension/chunk/action coalescer and collision-equivalence tests exist. | Capture and publish before/after encoded bytes and packet counts in live mass combat. |
 | PERF-006 | Geometry/payload canonicalization and allocation-sampling JFR are implemented. | Publish a before/after allocation profile showing materially lower young-generation churn. |
-| PRG-001 | Persistent anonymous route/duration telemetry, median/p90 summaries, and a 20-sample-per-level publication lock are implemented. | Collect real multiplayer samples for all 20 alignment/level rows, then publish and justify any quest changes/migration. |
 | VFX-003 | First-person exclusion/cone budgeting for Lightning and Fireball is implemented and unit-tested. | Record and review first-person captures at every rank in live gameplay. |
 | QA-001 | Automated release pipeline, evidence templates, and prior client/server smoke reports exist. | Finish the current-tree client smoke, long soaks, performance runs, and signed manual acceptance before a release tag. |
 | QA-006 | Isolated repeated-restart harness defaults to 24 hours and publishes clean-state JSON; a two-cycle smoke passed. | Complete the full 24-hour run and review every cycle for ticket/index/field/summon/body/freeze/Ruin leaks. |

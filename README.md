@@ -115,9 +115,9 @@ Light's canonical sequence is Dormant, Unawakened, Spark, Awakened, Adept, Weave
 | ---: | --- | --- |
 | 1 | 100 / 10 / – / – | 25 / – / – / – / – |
 | 2 | 300 / 50 / – / – | 100 / – / – / – / – |
-| 3 | 750 / 150 / – / – | – / 25 / – / – / 5 |
-| 4 | 1,500 / 300 / 1 / – | – / 50 / 25 / 5 / – |
-| 5 | 2,500 / 500 / 2 / 1 | – / 75 / 50 / 10 / 10 |
+| 3 | 750 / 150 / – / – | – / 60 / – / – / 8 |
+| 4 | 1,500 / 300 / 1 / – | – / 70 / 40 / 10 / – |
+| 5 | 2,500 / 500 / 2 / 1 | – / 85 / 60 / 12 / 11 |
 | 6 | 4,000 / 800 / 3 / 2 | – / 125 / 100 / 20 / 15 |
 | 7 | 6,000 / 1,200 / 4 / 4 | – / 200 / 175 / 35 / 20 |
 | 8 | 8,500 / 1,800 / 5 / 7 | – / 300 / 250 / 50 / 30 |
@@ -368,6 +368,8 @@ The arena creates seven named acceptance targets: neutral/radiant/dark test acto
 
 Quest telemetry stores bounded, anonymous Light/Dark completion durations and route names; completed samples contain no player identity. Publication remains locked until each alignment/level has at least ten independent samples. The operator-only quest campaign command is an evidence tool: it accepts exactly ten fresh, purpose-named connected clients and replays server-authoritative deeds at documented human-equivalent game-tick cadences; it never inserts telemetry rows directly. The opt-in profiler records full server ticks, connected-player counts, authoritative network-cast success, work-budget peaks, p95/p99 MSPT, and sampled allocations to `profiles/*.json` and `profiles/*.jfr`; a run closes only after both its exact tick-sample count and corresponding wall duration are complete, and it has no recording/allocation overhead while inactive.
 
+The accepted PRG-001 campaign used 20 real Fabric clients on commit `751b3bc`. Median cumulative progression was 8.17 hours for Light and 7.50 hours for Darkness; p90 was 9.33 and 8.47 hours. Every live rank interval exceeded five minutes. The complete 20-row publication and balance rationale are in [the PRG-001 evidence bundle](docs/verification/evidence/2026-08-14-prg-001-751b3bc/README.md).
+
 ## Configuration
 
 The server file uses schema version 2. Values are sanitized at load; `/powers reload` reapplies policy and reports each bounded original-to-sanitized delta, reason, and active revision. Credentials, free-form strings, and safe-zone coordinates are represented only by redacted summaries.
@@ -431,7 +433,7 @@ The exact generated appendices are:
 
 ## Verification status
 
-Current automated evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md), [bounded P2 ledger](docs/verification/2026-08-11-bounded-p2-acceptance.md), and [Queue 1 ledger](docs/verification/2026-08-11-queue-1-acceptance.md), not inferred from documentation hashes. The exact fresh Queue 1 counts are recorded only after the final combined verification run. Long profiles, the 24-hour restart soak, and quest sample collection remain explicit elapsed-time gates and are never represented as automated proof.
+Current evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md), [bounded P2 ledger](docs/verification/2026-08-11-bounded-p2-acceptance.md), [Queue 1 ledger](docs/verification/2026-08-11-queue-1-acceptance.md), [connected-player profile bundle](docs/verification/evidence/2026-08-14-perf-001/README.md), and [quest telemetry bundle](docs/verification/evidence/2026-08-14-prg-001-751b3bc/README.md), not inferred from documentation hashes. The 24-hour restart soak remains an explicit elapsed-time gate and is not represented as complete.
 
 Useful checks:
 
