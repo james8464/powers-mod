@@ -28,18 +28,19 @@ public final class FxCoalescingGameTests {
 		ServerPlayer observer = helper.makeMockServerPlayerInLevel();
 		Vec3 center = Vec3.atCenterOf(helper.absolutePos(new BlockPos(4, 2, 4)));
 		observer.teleportTo(center.x, center.y, center.z);
-		ServerRuntimeMetrics.clear();
+		helper.runAfterDelay(1, () -> {
+			ServerRuntimeMetrics.clear();
+			PowerFx.beam(helper.getLevel(), center, center.add(12.0, 0.0, 0.0),
+					ParticleTypes.ELECTRIC_SPARK, 48);
+			PowerFx.rune(helper.getLevel(), center, 3.0, 0xB36BFF, 48, 0.25);
 
-		PowerFx.beam(helper.getLevel(), center, center.add(12.0, 0.0, 0.0),
-				ParticleTypes.ELECTRIC_SPARK, 48);
-		PowerFx.rune(helper.getLevel(), center, 3.0, 0xB36BFF, 48, 0.25);
-
-		var work = ServerRuntimeMetrics.snapshot(helper.getLevel().getServer());
-		helper.assertTrue(work.particles() > 0,
-				"Production semantic beam/shape fan-out did not claim viewer work");
-		helper.assertTrue(work.particles() <= 128,
-				"Semantic fan-out bypassed the per-viewer visual budget");
-		helper.succeed();
+			var work = ServerRuntimeMetrics.snapshot(helper.getLevel().getServer());
+			helper.assertTrue(work.particles() > 0,
+					"Production semantic beam/shape fan-out did not claim viewer work");
+			helper.assertTrue(work.particles() <= 128,
+					"Semantic fan-out bypassed the per-viewer visual budget");
+			helper.succeed();
+		});
 	}
 
 	@GameTest(maxTicks = 20)
