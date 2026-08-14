@@ -26,6 +26,8 @@ public final class QuestTelemetryCampaignGameTests {
 		helper.assertTrue(QuestTelemetryCampaignScenario.start(players,
 				QuestTelemetryLedger.Alignment.LIGHT, 10_000).passed(),
 				"Campaign rejected ten connected server players");
+		helper.assertTrue(players.stream().allMatch(ServerPlayer::isInvulnerable),
+				"Campaign did not isolate its idle evidence clients from world damage");
 		helper.runAfterDelay(8, () -> {
 			for (ServerPlayer player : players) {
 				helper.assertTrue(PlayerPowers.get(player).skillLevel() >= 1,
@@ -36,6 +38,8 @@ public final class QuestTelemetryCampaignGameTests {
 					>= QuestCompletionTelemetry.PUBLICATION_SAMPLE_MINIMUM,
 					"Campaign did not publish ten independent level-one samples");
 			QuestTelemetryCampaignScenario.clear(helper.getLevel().getServer());
+			helper.assertTrue(players.stream().noneMatch(ServerPlayer::isInvulnerable),
+					"Campaign did not restore player vulnerability during cleanup");
 			helper.succeed();
 		});
 	}
