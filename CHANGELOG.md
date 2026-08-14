@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added the semantically versioned server-only `com.powers.api.v1` integration surface with deterministic bounded Fabric discovery, canonical action/presence/protection ownership, authoritative cast contexts, exception-isolated lifecycle hooks, server-thread enforcement, stop-boundary cleanup, and an independently compiled live example extension.
+- Hardened API v1 with one-shot exact-live-player presence authority, safe-zone/protection/collision/payment/cooldown/work-budget enforcement, transactional per-extension and epoch caps, pre-callback discovery bounds, and lifecycle hooks aligned to Fabric's actual started/stopping events.
 
 - Added deterministic field-by-field global → exact-world → dimension power-policy overrides with bounded schema-v4 loading, effective-source diagnostics, and absolute safe-zone/external-protection precedence; observation protection now covers named mobs as well as players and old exhaustive-switch adapters fail closed across the new action boundary.
 

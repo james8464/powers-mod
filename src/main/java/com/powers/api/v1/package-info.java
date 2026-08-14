@@ -2,7 +2,9 @@
  * POWERS public integration API 1.0. All mutation methods are server-thread-only.
  * Extensions register through the {@code powers:v1} Fabric entrypoint during SERVER_STARTING;
  * registrations close before SERVER_STARTED and are removed after SERVER_STOPPING. Invalid,
- * duplicate, or late registrations never replace live state. Protection is unanimous and fails
- * closed on any exception or linkage failure. The package contains no client-only references.
+ * duplicate, late, or limit-reaching registrations never replace live state. Physical presences
+ * require one-shot exact-live-player cast authority and pass canonical policy, payment, cooldown,
+ * collision, and work bounds. Protection is unanimous and fails closed on any exception or linkage
+ * failure. The package contains no client-only references.
  */
 package com.powers.api.v1;
