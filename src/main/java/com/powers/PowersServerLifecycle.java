@@ -141,6 +141,7 @@ final class PowersServerLifecycle {
 
 	private static void onServerStopped(MinecraftServer server) {
 		com.powers.performance.ServerTickProfiler.cancel(server);
+		com.powers.testing.RestartSoakScenario.clear(server);
 		MagicRuntime.global().clearAll();
 		ServerMagicScheduler.clear();
 		PlayerPowerTicker.clear();

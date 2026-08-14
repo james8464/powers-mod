@@ -147,17 +147,25 @@ tasks.register("testPythonScripts", Exec) {
 // GameTest registration. Opting in adds its entrypoint to the processed test-mod
 // metadata and selects only that test, so routine verification stays bounded.
 def connectedProfileEnabled = providers.gradleProperty("powersConnectedProfile").isPresent()
+def restartSoakEnabled = providers.gradleProperty("powersRestartSoak").isPresent()
 tasks.named("processGametestResources") {
 	inputs.property("connectedProfileEnabled", connectedProfileEnabled)
+	inputs.property("restartSoakEnabled", restartSoakEnabled)
 	filesMatching("fabric.mod.json") {
 		expand connectedProfileEntrypoint: connectedProfileEnabled
 				? ',\n\t\t\t"com.powers.gametest.ConnectedBotProfileGameTests"'
-				: ''
+				: '',
+				restartSoakEntrypoint: restartSoakEnabled
+						? ',\n\t\t\t"com.powers.gametest.RestartSoakGameTests"'
+						: ''
 	}
 }
 
 tasks.named("runGameTest") {
-	if (connectedProfileEnabled) {
+	if (restartSoakEnabled) {
+		systemProperty "fabric-api.gametest.filter",
+				"powers-gametest:restart_soak_game_tests_seeds_settles_and_persists_every_runtime_owner"
+	} else if (connectedProfileEnabled) {
 		systemProperty "fabric-api.gametest.filter",
 				"powers-gametest:connected_bot_profile_game_tests_connected_ten_fifty_and_hundred_player_profiles"
 		if (providers.gradleProperty("powersProfileTicks").isPresent()) {
