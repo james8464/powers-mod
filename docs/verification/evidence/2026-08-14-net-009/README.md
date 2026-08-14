@@ -49,3 +49,20 @@ over-limit action/protection/hook extensions roll back transactionally, `SERVER_
 actual Fabric started boundary, and cast authority is an opaque one-shot token bound to the exact live
 player-list instance and current server epoch. Registration families and live API presences have both
 per-extension and per-epoch hard caps.
+
+## Review fix round 2 and final acceptance
+
+- RED: the production GameTest filled the 128-presence extension allowance over bounded work ticks,
+  allowed every physical presence to expire naturally, then reproduced a false permanent
+  `Presence work limit reached` rejection.
+- GREEN: `POWERS_TEST_RUN_ID=net009-review2-green ./gradlew test --tests com.powers.api.v1.PowersApiV1Test compileGametestJava --no-daemon`
+  passed 9/9 API tests, and the isolated expiry/cap/handle GameTest passed 1/1.
+- Independent scoped re-review found the natural-expiry capacity leak addressed with no new
+  Critical, Important, or Minor findings. Active API leases use a bounded expiry index; stale
+  handles cannot alias or remove newer presences.
+- Root final gate on implementation commit `c59fed8`:
+  `POWERS_TEST_RUN_ID=net009-root-final ./gradlew check --no-daemon` passed in 1m16s with
+  1,483 JVM tests, all 105 required Fabric GameTests, 27 Python tests, independent extension/common/
+  client/GameTest compilation, both audits, resource validation, and generated documentation.
+
+Accepted implementation commits: `7a63114`, `c615dba`, and `c59fed8`.
