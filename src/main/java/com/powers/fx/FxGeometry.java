@@ -12,7 +12,6 @@ import java.util.Map;
 public final class FxGeometry {
 	public static final int MAX_POINTS = 96;
 	public static final int MAX_POOLED_GEOMETRIES = 256;
-	private static final double MAX_DISTANCE = 128.0;
 	private record GeometryKey(FxMotif motif, int phaseSeed, int intensity, int count) { }
 	private static final Map<GeometryKey, List<Point>> POOL = new LinkedHashMap<>(64, 0.75F, true) {
 		@Override
@@ -63,10 +62,11 @@ public final class FxGeometry {
 
 	/** Applies intensity, distance, and accessibility scale to the hard point cap. */
 	public static int budget(double distance, int intensity, double effectScale) {
-		if (!Double.isFinite(distance) || distance >= MAX_DISTANCE || effectScale <= 0.0) return 0;
-		double distanceFactor = distance <= 24.0 ? 1.0 : Math.max(0.1, 1.0 - (distance - 24.0) / 112.0);
+		if (!Double.isFinite(distance) || effectScale <= 0.0) return 0;
 		int base = 12 + Math.clamp(intensity, 1, 5) * 16;
-		return Math.clamp((int) Math.round(base * distanceFactor * Math.clamp(effectScale, 0.0, 1.0)), 0, MAX_POINTS);
+		var lod = FxLodPolicy.decide(distance, base, FxLodScope.LOCAL, FxShapeFamily.MAGIC);
+		return Math.clamp((int) Math.round(lod.particleCount()
+				* Math.clamp(effectScale, 0.0, 1.0)), 0, MAX_POINTS);
 	}
 
 	/** Applies a choreography radius to a finite local-space point. */

@@ -1,5 +1,6 @@
 package com.powers.spell;
 
+import com.powers.fx.FxLodTier;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -42,6 +43,21 @@ class CelestialRuinPresentationTest {
 	}
 
 	@Test
+	void distanceTiersRetainTheFullColumnBoundaryWhileReducingDensity() {
+		var near = CelestialRuinPresentation.columnDensity(FxLodTier.NEAR);
+		var mid = CelestialRuinPresentation.columnDensity(FxLodTier.MID);
+		var far = CelestialRuinPresentation.columnDensity(FxLodTier.FAR);
+		assertEquals(124, near.particleCount());
+		assertEquals(50, mid.particleCount());
+		assertEquals(25, far.particleCount());
+		assertEquals(24, near.boundaryParticles());
+		assertEquals(16, mid.boundaryParticles());
+		assertEquals(12, far.boundaryParticles());
+		assertTrue(far.verticalSlices() >= 6,
+				"far observers still need a sky-height event silhouette");
+	}
+
+	@Test
 	void tinnitusOutlastsTheOpaqueFlashAndFadesCleanly() {
 		assertTrue(CelestialRuinPresentation.RINGING_TICKS
 				> CelestialRuinPresentation.FLASH_TICKS);
@@ -49,5 +65,13 @@ class CelestialRuinPresentationTest {
 				CelestialRuinPresentation.RINGING_TICKS), 0.001F);
 		assertTrue(CelestialRuinPresentation.ringingVolume(20) < 0.5F);
 		assertEquals(0.0F, CelestialRuinPresentation.ringingVolume(0), 0.001F);
+	}
+
+	@Test
+	void detonationAudioUsesARestrainedObserverTierGain() {
+		assertEquals(1.0F, CelestialRuinPresentation.audioGain(FxLodTier.NEAR));
+		assertEquals(0.55F, CelestialRuinPresentation.audioGain(FxLodTier.MID));
+		assertEquals(0.28F, CelestialRuinPresentation.audioGain(FxLodTier.FAR));
+		assertEquals(0.0F, CelestialRuinPresentation.audioGain(FxLodTier.HIDDEN));
 	}
 }

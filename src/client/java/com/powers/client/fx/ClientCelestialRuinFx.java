@@ -11,13 +11,15 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /** Renders enormous Heavenfall columns and the local flash without server particle floods. */
 public final class ClientCelestialRuinFx {
 	private static final Map<Long, Column> COLUMNS = new HashMap<>();
+	private static final int MAX_RINGING_EVENTS = 4;
+	private static final Map<Long, Ringing> RINGING_EVENTS = new LinkedHashMap<>();
 	private static int flashTicks;
-	private static int ringingTicks;
 	private static net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> flashDimension;
 	private static int clientTick;
 
@@ -35,15 +37,20 @@ public final class ClientCelestialRuinFx {
 		}
 		if (payload.phase() == CelestialRuinPackets.Phase.DETONATE) {
 			flashTicks = CelestialRuinPresentation.FLASH_TICKS;
-			ringingTicks = CelestialRuinPresentation.RINGING_TICKS;
 			flashDimension = dimension;
+			while (RINGING_EVENTS.size() >= MAX_RINGING_EVENTS) {
+				RINGING_EVENTS.remove(RINGING_EVENTS.keySet().iterator().next());
+			}
+			RINGING_EVENTS.put(key, new Ringing(CelestialRuinPresentation.RINGING_TICKS,
+					payload.lod(), dimension));
 			if (client.player != null) {
-				client.player.playSound(PowersSounds.CELESTIAL_RING, 1.0F, 1.0F);
+				client.player.playSound(PowersSounds.CELESTIAL_RING,
+						CelestialRuinPresentation.audioGain(payload.lod()), 1.0F);
 			}
 			return;
 		}
 		COLUMNS.put(key, new Column(new Vec3(payload.x(), payload.y(), payload.z()),
-				CelestialRuinPresentation.BEAM_LEASE_TICKS, payload.age(), dimension));
+				CelestialRuinPresentation.BEAM_LEASE_TICKS, payload.age(), dimension, payload.lod()));
 	}
 
 	public static void tick() {
@@ -51,24 +58,16 @@ public final class ClientCelestialRuinFx {
 		Minecraft client = Minecraft.getInstance();
 		if (client.level == null || client.player == null) {
 			COLUMNS.clear();
+			RINGING_EVENTS.clear();
 			flashTicks = 0;
-			ringingTicks = 0;
 			flashDimension = null;
 			return;
 		}
 		if (flashDimension != null && !flashDimension.equals(client.level.dimension())) {
 			flashTicks = 0;
-			ringingTicks = 0;
 			flashDimension = null;
 		} else if (flashTicks > 0) flashTicks--;
-		if (ringingTicks > 0) {
-			ringingTicks--;
-			if (ringingTicks > 0 && ringingTicks % 20 == 0) {
-				client.player.playSound(PowersSounds.CELESTIAL_RING,
-						CelestialRuinPresentation.ringingVolume(ringingTicks),
-						1.18F + (CelestialRuinPresentation.RINGING_TICKS - ringingTicks) * 0.002F);
-			}
-		}
+		tickRinging(client);
 		for (Iterator<Column> iterator = COLUMNS.values().iterator(); iterator.hasNext();) {
 			Column column = iterator.next();
 			if (!column.dimension.equals(client.level.dimension()) || --column.lease <= 0) {
@@ -82,15 +81,41 @@ public final class ClientCelestialRuinFx {
 		}
 	}
 
+	private static void tickRinging(Minecraft client) {
+		float strongestVolume = 0.0F;
+		float strongestPitch = 1.0F;
+		for (Iterator<Ringing> iterator = RINGING_EVENTS.values().iterator(); iterator.hasNext();) {
+			Ringing ringing = iterator.next();
+			if (!ringing.dimension.equals(client.level.dimension()) || --ringing.remainingTicks <= 0) {
+				iterator.remove();
+				continue;
+			}
+			if (ringing.remainingTicks % 20 != 0) continue;
+			float volume = CelestialRuinPresentation.ringingVolume(ringing.remainingTicks)
+					* CelestialRuinPresentation.audioGain(ringing.lod);
+			if (volume <= strongestVolume) continue;
+			strongestVolume = volume;
+			strongestPitch = 1.18F + (CelestialRuinPresentation.RINGING_TICKS
+					- ringing.remainingTicks) * 0.002F;
+		}
+		if (strongestVolume > 0.0F) {
+			client.player.playSound(PowersSounds.CELESTIAL_RING, strongestVolume, strongestPitch);
+		}
+	}
+
 	private static void spawnColumn(Minecraft client, Column column) {
 		DustParticleOptions warm = new DustParticleOptions(0xFFF3C4, 3.5F);
 		DustParticleOptions white = new DustParticleOptions(0xFFFFFF, 4.0F);
 		int minY = client.level.getMinY() + 1;
 		int maxY = client.level.getMaxY() - 2;
+		var density = CelestialRuinPresentation.columnDensity(column.lod);
+		if (density.particleCount() == 0) return;
 		double pulse = 48.0 + Math.sin((clientTick + column.age) * 0.08) * 2.0;
-		for (int slice = 0; slice < CelestialRuinPresentation.BEAM_VERTICAL_SLICES; slice++) {
-			double y = Math.clamp(client.player.getY() - 36.0 + slice * 24.0, minY, maxY);
-			for (int index = 0; index < CelestialRuinPresentation.BEAM_PARTICLES_PER_SLICE; index++) {
+		double verticalSpan = 264.0;
+		for (int slice = 0; slice < density.verticalSlices(); slice++) {
+			double progress = slice / (double) Math.max(1, density.verticalSlices() - 1);
+			double y = Math.clamp(client.player.getY() - 36.0 + progress * verticalSpan, minY, maxY);
+			for (int index = 0; index < density.particlesPerSlice(); index++) {
 				double fraction = ((index * 37L + slice * 53L + clientTick * 3L) & 127) / 127.0;
 				double radius = pulse * Math.sqrt(fraction);
 				double angle = index * 2.399963 + clientTick * 0.025 + slice * 0.37;
@@ -103,9 +128,9 @@ public final class ClientCelestialRuinFx {
 			}
 		}
 		double boundaryY = Math.clamp(client.player.getY() + 0.5, minY, maxY);
-		for (int index = 0; index < CelestialRuinPresentation.BEAM_BOUNDARY_PARTICLES; index++) {
+		for (int index = 0; index < density.boundaryParticles(); index++) {
 			double angle = Math.PI * 2.0 * index
-					/ CelestialRuinPresentation.BEAM_BOUNDARY_PARTICLES + clientTick * 0.018;
+					/ density.boundaryParticles() + clientTick * 0.018;
 			client.level.addAlwaysVisibleParticle(white, true,
 					column.center.x + Math.cos(angle) * pulse,
 					boundaryY, column.center.z + Math.sin(angle) * pulse, 0.0, 0.025, 0.0);
@@ -120,10 +145,15 @@ public final class ClientCelestialRuinFx {
 
 	public static void reset() {
 		COLUMNS.clear();
+		RINGING_EVENTS.clear();
 		flashTicks = 0;
-		ringingTicks = 0;
 		flashDimension = null;
 		clientTick = 0;
+	}
+
+	/** Bounded receiver state used by the real-client overlapping-event proof. */
+	public static int activeRingingCount() {
+		return RINGING_EVENTS.size();
 	}
 
 	private static long key(int dimension, double x, double y, double z) {
@@ -134,13 +164,29 @@ public final class ClientCelestialRuinFx {
 		private final Vec3 center;
 		private final int age;
 		private final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension;
+		private final com.powers.fx.FxLodTier lod;
 		private int lease;
 
 		private Column(Vec3 center, int lease, int age,
-				net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension) {
+				net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension,
+				com.powers.fx.FxLodTier lod) {
 			this.center = center;
 			this.lease = lease;
 			this.age = age;
+			this.dimension = dimension;
+			this.lod = lod;
+		}
+	}
+
+	private static final class Ringing {
+		private int remainingTicks;
+		private final com.powers.fx.FxLodTier lod;
+		private final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension;
+
+		private Ringing(int remainingTicks, com.powers.fx.FxLodTier lod,
+				net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension) {
+			this.remainingTicks = remainingTicks;
+			this.lod = lod;
 			this.dimension = dimension;
 		}
 	}
