@@ -64,7 +64,7 @@ public final class CrystalSelectorPackets {
 				new ActionSubmissionService.Request(payload.revision(), payload.actionKey()),
 				() -> holds && convergence != null && convergence.radialSelector() && selected >= 0,
 				() -> {
-					if (convergence != null) open(player, convergence);
+					if (holds && convergence != null && convergence.radialSelector()) open(player, convergence);
 					else ActionSubmissionService.refresh(player, "crystal");
 				},
 				() -> PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT),

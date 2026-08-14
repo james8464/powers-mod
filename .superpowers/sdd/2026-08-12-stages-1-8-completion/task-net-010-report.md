@@ -58,6 +58,42 @@ DONE. The production catalogue now publishes one immutable, monotonic, atomic ac
 - Untracked `.codex-tmp/`, `.lwjgl/`, and QA-005 screenshots were preserved and excluded from staging.
 - Concerns: none. The GameTest server emitted its existing transient `Can't keep up` warning during the broad run, but all required tests completed successfully.
 
+## Review correction round 2 (2026-08-14)
+
+All three remaining Important findings (canonical owner keys, rejection-time owner mutation/crystal invalidation, and truthful live entrypoint proof) are addressed.
+
+### Observed RED
+
+- Canonical-owner RED: `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review2-red-qualified ./gradlew test --tests com.powers.magic.ActionRegistrySnapshotTest --no-daemon` ran 8 tests and failed the 2 new literal tests: impossible `unique/fireball`, `crystal/fireball`, and `dominion/augury` keys resolved and were accepted alias targets.
+- Registered-packet RED: `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review2-red-packets2 ./gradlew runGameTest '-PgameTestFilter=powers-gametest:action_submission_packet_game_tests_*' --no-daemon` reached all 3 registered receivers through `ServerboundCustomPayloadPacket`. Stale cycle and teleport both migrated the raw attachment before validation; crystal owner loss emitted a full `OpenPayload` rather than the required explicit invalidation.
+- Client-surface RED: `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review2-red-client ./gradlew test --tests com.powers.client.ClientActionRefreshTest --no-daemon` failed compilation because no surface-aware refresh router existed.
+- The first real datapack fixture intentionally exposed lifecycle ordering: `net010-review2-live-reload-cast` failed initial server resource loading because a datapack alias targeted the NET-009 external action before extension registration. The final fixture aliases a built-in action; the post-start registered reload proves the external definition remains in the same published snapshot.
+
+### Fix and owner/handler audit
+
+- `ActionRegistrySnapshot` now owns an immutable `menuKeys` set in addition to typed definitions, aliases, revision, and validation counts. `MagicActionCatalogue` derives that set from the real immutable `ArtifactActionCatalogue` at every publish boundary. Qualified resolution accepts only the 45 actually owned innate/crystal/unique/dominion keys; arbitrary namespace/action cross-products cannot be canonical or alias targets. Unqualified built-in and external IDs retain their typed `MagicActionId` contract, alias depth/count/cycle/collision checks, and atomic failed-reload identity retention.
+- `ArtifactSelectionState.peekSelected` is the non-mutating persisted-selection read used by cycle and teleport before `ActionSubmissionService`. Rejected packets now emit one explicit artifact invalidation instead of reopening a menu whose owner path save-migrates attachments. Live stale tests retain the exact retired raw attachment, energy, cooldown deadline, position/action state, and complete limiter capacity.
+- Crystal rejection resends a full selector only while the player still holds a radial Rainbow convergence owner. Owner/item loss sends exactly one `RefreshPayload("crystal")`. `ClientActionRefresh` closes only the matching crystal, artifact/teleport, or grimoire screen and leaves unrelated surfaces open.
+- Handler audit reconfirmed all seven revisioned routes: Shadow Sword/Partisan select, commit, cycle, favourite bind, and teleport; grimoire selection; and crystal selection. Each enters `ActionSubmissionService`, whose order remains revision/key, live owner/context, limiter, then mutation. Cycle/teleport have no mutating pre-read; all rejection callbacks now have one transport outcome. Client senders continue to send the captured revision and canonical key.
+- Persisted-owner coverage remains complete: `PlayerPowers` spell and crystal stable selections use the unqualified canonical resolver; `ArtifactSelectionState` selected attachment and favourites use qualified aliases without namespace loss and retain their reconciliation/deduplication rules. The live owner test exercises literal `innate/`, `crystal/`, `unique/`, and `dominion/` migration.
+
+### Truthful production proof and GREEN
+
+- `ActionRegistryReloadGameTests.successfulAndFailedReloadAreAtomic` now invokes `server.reloadResources(...)` against `data/powers/powers_actions/net010_live.json`, reaching the registered Fabric listener prepare/parser/apply path. It proves one revision publication, real alias visibility, failed-publication object identity, and retention of the NET-009 `example_resonant_field` definition.
+- `ActionSubmissionPacketGameTests` injects real custom payload packets through `ServerGamePacketListenerImpl.handleCustomPayload` and observes actual `ClientboundCustomPayloadPacket` writes at the mock player's Netty connection. This replaces source-string reachability proof and validates exactly one typed refresh at the network boundary.
+- The active-cast test now completes a real Dimensional Anchor channel under its captured snapshot and asserts the authored anchored-target effect. The cancellation test removes the held grimoire, asserts exactly one half-energy interruption, no authored effect, no later charge, and no later completion.
+- Focused JVM GREEN: `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review2-focused-final ./gradlew test --tests com.powers.magic.ActionRegistrySnapshotTest --tests com.powers.magic.ActionRegistryReloadListenerTest --tests com.powers.network.ActionSubmissionServiceTest --tests com.powers.network.ActionPayloadRevisionTest --tests com.powers.network.ShadowSwordPacketsTest --tests com.powers.client.ClientActionRefreshTest --no-daemon` passed.
+- Registered-packet live GREEN: `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review2-live-packets-final ./gradlew runGameTest '-PgameTestFilter=powers-gametest:action_submission_packet_game_tests_*' --no-daemon` passed 3/3.
+- Reload/cast/migration live GREEN: `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review2-live-reload-final ./gradlew runGameTest '-PgameTestFilter=powers-gametest:action_registry_reload_game_tests_*' --no-daemon` passed 6/6.
+- The first aggregate invocation stopped before compilation/tests because the generated Java audit correctly detected the added classes. After `python3 scripts/audit_java_sources.py`, `JAVA_HOME='/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home' POWERS_TEST_RUN_ID=net010-review2-final-check2 ./gradlew check --no-daemon` passed 1,517 JVM tests, 114/114 required Fabric GameTests, 27 Python tests, common/client/example/GameTest compilation, resource validation, source/non-item audits, and item/magic/rank documentation verification.
+
+### Self-review and concerns
+
+- Reviewed the complete diff for canonical-key ownership, volatile snapshot publication, registered-listener reachability, receiver ordering, owner-loss behavior, client surface routing, cast terminal states, and exact QA-artifact exclusion. `git diff --check` is clean.
+- The removed `ActionSubmissionHandlerContractTest` only counted source strings; its production claim is superseded by registered packet and outbound-transport GameTests plus the focused service tests.
+- Untracked `.codex-tmp/`, `.lwjgl/`, and QA-005 screenshots remain untouched and unstaged. No branch, worktree, push, or unrelated change was used.
+- Concern: the live transport assertion uses reflection solely in GameTest code to observe Minecraft's private in-memory connection/channel; it is runtime-proven on the locked Minecraft 26.2 target but will intentionally fail loudly if those internals change on a future Minecraft upgrade.
+
 ## Review correction round 1 (2026-08-14)
 
 All three Important review findings are addressed.

@@ -1,5 +1,7 @@
 package com.powers.magic;
 
+import com.powers.item.artifact.ArtifactActionCatalogue;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -49,7 +51,7 @@ public final class MagicActionCatalogue {
 				throw new IllegalArgumentException("Duplicate magic action: " + definition.id());
 			}
 		}
-		this.snapshot = ActionRegistrySnapshot.validated(0L, indexed.values(), Map.of());
+		this.snapshot = ActionRegistrySnapshot.validated(0L, indexed.values(), canonicalMenuKeys(), Map.of());
 		this.builtInIds = Set.copyOf(indexed.keySet());
 	}
 
@@ -222,7 +224,7 @@ public final class MagicActionCatalogue {
 		ActionRegistrySnapshot current = snapshot;
 		try {
 			snapshot = ActionRegistrySnapshot.validated(Math.addExact(current.revision(), 1L),
-					current.orderedDefinitions(), aliases);
+					current.orderedDefinitions(), canonicalMenuKeys(), aliases);
 			return true;
 		} catch (IllegalArgumentException | ArithmeticException invalid) {
 			return false;
@@ -236,7 +238,8 @@ public final class MagicActionCatalogue {
 		if (definition.origin() != MagicOrigin.EXTENSION || current.definition(definition.id()) != null) return false;
 		List<MagicActionDefinition> updated = new java.util.ArrayList<>(current.orderedDefinitions());
 		updated.add(definition);
-		snapshot = ActionRegistrySnapshot.validated(current.revision() + 1L, updated, current.aliases());
+		snapshot = ActionRegistrySnapshot.validated(current.revision() + 1L, updated,
+				canonicalMenuKeys(), current.aliases());
 		return true;
 	}
 
@@ -252,11 +255,18 @@ public final class MagicActionCatalogue {
 				.collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
 						(first, second) -> first, LinkedHashMap::new));
 		try {
-			snapshot = ActionRegistrySnapshot.validated(current.revision() + 1L, updated, retainedAliases);
+			snapshot = ActionRegistrySnapshot.validated(current.revision() + 1L, updated,
+					canonicalMenuKeys(), retainedAliases);
 		} catch (IllegalArgumentException invalid) {
 			return false;
 		}
 		return true;
+	}
+
+	private static Set<String> canonicalMenuKeys() {
+		return ArtifactActionCatalogue.all().stream()
+				.map(com.powers.item.artifact.ArtifactActionDefinition::key)
+				.collect(java.util.stream.Collectors.toUnmodifiableSet());
 	}
 
 	/** Returns the immutable subset owned by the requested origin. */

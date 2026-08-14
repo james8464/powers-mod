@@ -136,7 +136,10 @@ public class PowersClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(ActionSubmissionService.RefreshPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> {
 					ClientActionRegistry.accept(payload.revision());
-					Minecraft.getInstance().gui.setScreen(null);
+					Minecraft minecraft = Minecraft.getInstance();
+					if (ClientActionRefresh.shouldClose(payload.surface(), minecraft.gui.screen())) {
+						minecraft.gui.setScreen(null);
+					}
 				}));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenMenuPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> {

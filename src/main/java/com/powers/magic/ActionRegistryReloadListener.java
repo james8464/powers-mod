@@ -54,7 +54,7 @@ public final class ActionRegistryReloadListener extends SimpleReloadListener<Lis
 			throw new IllegalStateException("Action registry validation rejected the prepared reload");
 		}
 		PowersMod.LOGGER.info("Published action registry revision {} with {} canonical keys and {} aliases",
-				catalogue.snapshot().revision(), catalogue.snapshot().definitions().size(),
+				catalogue.snapshot().revision(), catalogue.snapshot().validation().canonicalKeyCount(),
 				catalogue.snapshot().aliases().size());
 	}
 

@@ -65,6 +65,30 @@ class ActionRegistrySnapshotTest {
 	}
 
 	@Test
+	void onlyQualifiedKeysOwnedByThePublishedMenuCatalogueAreCanonical() {
+		MagicActionCatalogue catalogue = MagicActionCatalogue.defaults();
+
+		assertEquals("innate/fireball", catalogue.snapshot().resolveKey("innate/fireball"));
+		assertEquals("crystal/inferno", catalogue.snapshot().resolveKey("crystal/inferno"));
+		assertEquals("unique/call_hollowed", catalogue.snapshot().resolveKey("unique/call_hollowed"));
+		assertEquals("dominion/host_heaven", catalogue.snapshot().resolveKey("dominion/host_heaven"));
+		assertEquals(null, catalogue.snapshot().resolveKey("unique/fireball"));
+		assertEquals(null, catalogue.snapshot().resolveKey("crystal/fireball"));
+		assertEquals(null, catalogue.snapshot().resolveKey("dominion/augury"));
+	}
+
+	@Test
+	void aliasTargetsMustTerminateAtARealQualifiedOwnerKey() {
+		MagicActionCatalogue catalogue = MagicActionCatalogue.defaults();
+		ActionRegistrySnapshot before = catalogue.snapshot();
+
+		assertFalse(catalogue.reloadAliases(Map.of("retired_unique", "unique/fireball")));
+		assertFalse(catalogue.reloadAliases(Map.of("retired_crystal", "crystal/fireball")));
+		assertFalse(catalogue.reloadAliases(Map.of("retired_dominion", "dominion/augury")));
+		assertSame(before, catalogue.snapshot());
+	}
+
+	@Test
 	void qualifiedCanonicalKeysRemainCollisionAndCycleSafe() {
 		MagicActionCatalogue catalogue = MagicActionCatalogue.defaults();
 		ActionRegistrySnapshot before = catalogue.snapshot();
