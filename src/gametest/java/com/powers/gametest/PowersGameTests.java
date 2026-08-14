@@ -1147,6 +1147,14 @@ public final class PowersGameTests {
 		// contention in the separately tested bounded asynchronous loader.
 		int arrivalY = com.powers.realm.RealmTerrain.provisionalArrivalY(nether);
 		nether.getChunkAt(new BlockPos(8, arrivalY, 8));
+		int platformY = 200;
+		for (int x = 4; x <= 12; x++) {
+			for (int z = 4; z <= 12; z++) {
+				nether.setBlockAndUpdate(new BlockPos(x, platformY, z), Blocks.STONE.defaultBlockState());
+				nether.setBlockAndUpdate(new BlockPos(x, platformY + 1, z), Blocks.AIR.defaultBlockState());
+				nether.setBlockAndUpdate(new BlockPos(x, platformY + 2, z), Blocks.AIR.defaultBlockState());
+			}
+		}
 		var ability = new com.powers.power.crystals.MindscapeCrystalAbility(
 				"middleworld", netherKey, com.powers.PowersMod.StormTheme.DARK, 0x301040, 0.6F) { };
 
@@ -1157,7 +1165,11 @@ public final class PowersGameTests {
 		helper.runAfterDelay(100, () -> {
 			helper.assertTrue(caster.level() == nether
 					&& BodyProxyManager.hasSession(caster, BodyProxyKind.REALM),
-					"Crystal did not move its caster with a vulnerable body session");
+					"Crystal did not move its caster with a vulnerable body session: caster="
+							+ caster.getUUID() + ", level=" + caster.level().dimension().identifier()
+							+ ", mindBody=" + com.powers.player.PlayerPowers.get(caster).mindBody()
+							+ ", proxies=" + BodyProxyManager.activeProxyCount()
+							+ ", travel=" + com.powers.power.travel.TravelChunkLoader.diagnostics());
 			helper.assertTrue(nether.getEntity(mobId) != null
 					&& com.powers.power.travel.MindscapeMobReturnTracker.tracked(
 							(net.minecraft.world.entity.LivingEntity) nether.getEntity(mobId)),
@@ -1188,6 +1200,50 @@ public final class PowersGameTests {
 								entity.getUUID() + "@" + entity.position()).toList());
 				PrivateCompanionManager.handleChat(caster, "shadow, leave me");
 			}));
+		});
+	}
+
+	@GameTest(maxTicks = 80)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void realmJourneyReturnsOwnedMobAfterItLeavesTheCasterRadius(GameTestHelper helper) {
+		ServerPlayer bodyChunkObserver = helper.makeMockServerPlayerInLevel();
+		ServerPlayer realmObserver = helper.makeMockServerPlayerInLevel();
+		java.util.UUID journeyOwner = java.util.UUID.randomUUID();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		bodyChunkObserver.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		var mob = helper.spawn(net.minecraft.world.entity.EntityTypes.COW, new BlockPos(2, 1, 3));
+		java.util.UUID mobId = mob.getUUID();
+		var nether = helper.getLevel().getServer().getLevel(net.minecraft.world.level.Level.NETHER);
+		helper.assertTrue(nether != null, "GameTest server did not expose the Nether");
+		nether.getChunkAt(new BlockPos(8, 80, 8));
+		realmObserver.teleport(new net.minecraft.world.level.portal.TeleportTransition(
+				nether, new net.minecraft.world.phys.Vec3(8.5, 80.0, 8.5),
+				net.minecraft.world.phys.Vec3.ZERO, 0.0F, 0.0F,
+				net.minecraft.world.level.portal.TeleportTransition.PLAY_PORTAL_SOUND));
+		helper.assertTrue(com.powers.power.travel.MindscapeMobReturnTracker.track(
+				journeyOwner, mob), "Mindscape journey did not record its carried mob");
+		var moved = mob.teleport(new net.minecraft.world.level.portal.TeleportTransition(
+				nether, new net.minecraft.world.phys.Vec3(8.5, 80.0, 8.5),
+				net.minecraft.world.phys.Vec3.ZERO, 0.0F, 0.0F,
+				net.minecraft.world.level.portal.TeleportTransition.PLAY_PORTAL_SOUND));
+		helper.assertTrue(moved instanceof net.minecraft.world.entity.LivingEntity,
+				"Fixture could not move its mob into the remote realm");
+		helper.runAfterDelay(2, () -> {
+			var travelled = (net.minecraft.world.entity.LivingEntity) nether.getEntity(mobId);
+			helper.assertTrue(travelled != null, "Remote realm did not register the travelled mob");
+			travelled.setPos(14.5, 84.0, 8.5);
+			helper.assertTrue(com.powers.power.travel.MindscapeMobReturnTracker.tracked(travelled),
+					"Remote body lost its recorded journey ownership");
+			helper.assertTrue(com.powers.power.travel.MindscapeMobReturnTracker.trackedCount(
+					journeyOwner) == 1, "Journey mob was not indexed under its caster");
+			helper.assertTrue(com.powers.power.travel.MindscapeMobReturnTracker.returnOwned(
+					journeyOwner) == 1, "Caster return did not recall its separated journey mob");
+			helper.succeedWhen(() -> {
+				var returned = helper.getLevel().getEntity(mobId);
+				helper.assertTrue(returned != null && returned.position().distanceToSqr(
+						net.minecraft.world.phys.Vec3.atBottomCenterOf(origin.offset(0, 0, 1))) < 1.0,
+						"Separated journey mob did not return to its recorded body location");
+			});
 		});
 	}
 

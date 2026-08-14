@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed realm-crystal mob lifecycle ownership so terrain or movement cannot strand a carried mob outside the two-block return recapture radius; body return, death, and stale-session cleanup now recall every loaded mob owned by that journey.
 - Fixed Blue Crystal Dreamwalking's spectator-mode exit: right-click now sends a dedicated authenticated release request, restores the physical body and original game mode, and cannot release another player's session.
 - Completed rendered-client acceptance for all innate powers, including distant consent-free cohort travel, retained toggle reconciliation, a real two-times Double Health baseline, and ownership-safe Time Freeze release. The development-only acceptance script can now submit the exact validated destination payload used by the Time Shift screen.
 

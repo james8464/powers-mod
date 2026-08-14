@@ -136,6 +136,11 @@ public final class TravelChunkLoader {
 			settle(pending, Resolution.TIMEOUT);
 			return false;
 		}
+		if (LoadedChunks.contains(level, destination)) {
+			level.getChunkSource().addTicketWithRadius(TicketHolder.TRAVEL, pending.chunk, TICKET_RADIUS);
+			settle(pending, Resolution.READY);
+			return true;
+		}
 		try {
 			level.getChunkSource().addTicketAndLoadWithRadius(TicketHolder.TRAVEL, pending.chunk, TICKET_RADIUS)
 					.whenComplete((ignored, error) -> server.execute(() -> {

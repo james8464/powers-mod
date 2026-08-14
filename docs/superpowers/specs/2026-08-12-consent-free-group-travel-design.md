@@ -23,8 +23,8 @@ The Light/Dark/Middleworld fixed realm arrivals retain their generated realm arr
 ## Mindscape lifecycle
 
 - Every captured player entering a mindscape receives an independent vulnerable `REALM` body session.
-- Captured non-player living entities record a bounded, server-memory origin and can return when a nearby crystal return is triggered. Stale/dead records are discarded.
-- Returning with a crystal attempts the caster's normal body return, nearby player body returns, and nearby tracked-mob returns.
+- Captured non-player living entities record a bounded, caster-owned server-memory origin. They return with the owning journey even when realm terrain or movement has separated them from the caster; stale/dead records are discarded.
+- Returning with a crystal attempts the caster's normal body return, nearby player body returns, and every loaded tracked-mob return owned by that caster. Body death, recovery, and stale-session cleanup use the same owned return path.
 - Shadow never receives a proxy or ordinary mob-origin record. Its real companion body moves with the group.
 
 ## Shadow authority
@@ -38,4 +38,3 @@ Shadow may cross into or out of any dimension, including the Dark Realm, without
 - Existing bounded asynchronous chunk tickets remain in use.
 - A principal-player failure rolls back newly started body sessions. Companion failure never duplicates or deletes an entity.
 - All transient mob-origin and cohort state is cleared on server shutdown.
-

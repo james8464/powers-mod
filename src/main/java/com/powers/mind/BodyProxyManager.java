@@ -12,6 +12,7 @@ import com.powers.power.PowerDamage;
 import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.state.PowerEntityState;
 import com.powers.power.travel.SafeDestinationResolver;
+import com.powers.power.travel.MindscapeMobReturnTracker;
 import com.powers.power.travel.TravelKind;
 import com.powers.power.travel.WorldBoundaryRules;
 import com.powers.power.travel.TravelChunkLoader;
@@ -288,6 +289,7 @@ public final class BodyProxyManager {
 	public static void finish(ServerPlayer player) {
 		Active active = BY_OWNER.remove(player.getUUID());
 		if (active != null) {
+			MindscapeMobReturnTracker.returnOwned(player.getUUID());
 			BY_BODY.remove(active.body().getUUID());
 			BodyProxyPackets.remove(active.body());
 			PhysicalMagicPresences.unload(active.body());
@@ -339,6 +341,7 @@ public final class BodyProxyManager {
 
 	private static void finishStale(Active active) {
 		if (!BY_OWNER.remove(active.ownerId(), active)) return;
+		MindscapeMobReturnTracker.returnOwned(active.ownerId());
 		BY_BODY.remove(active.body().getUUID());
 		BodyProxyPackets.remove(active.body());
 		PhysicalMagicPresences.unload(active.body());
