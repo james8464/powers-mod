@@ -3,6 +3,7 @@ package com.powers.spell;
 import com.powers.magic.runtime.MagicPresenceId;
 import com.powers.magic.runtime.MagicRuntime;
 import com.powers.magic.runtime.PreparedMagicCast;
+import com.powers.magic.ActionRegistrySnapshot;
 import com.powers.magic.runtime.ServerMagicCasts;
 import com.powers.player.EnergyPaymentSnapshot;
 import com.powers.player.PlayerPowers;
@@ -87,6 +88,10 @@ final class SpellCastTransaction {
 
 	int energyCost() {
 		return energyCost;
+	}
+
+	ActionRegistrySnapshot registrySnapshot() {
+		return magic.registrySnapshot();
 	}
 
 	private String cooldownId() {

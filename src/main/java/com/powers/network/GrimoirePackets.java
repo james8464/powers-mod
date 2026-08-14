@@ -3,7 +3,6 @@ package com.powers.network;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.magic.runtime.MagicRuntime;
-import com.powers.magic.ActionSubmissionValidation;
 import com.powers.spell.GrimoireDefinition;
 import com.powers.spell.SpellCastingManager;
 import com.powers.spell.SpellIndexEntry;
@@ -84,21 +83,22 @@ public final class GrimoirePackets {
 
 	private static void select(ServerPlayer player, SelectSpellPayload payload) {
 		GrimoireDefinition held = SpellCastingManager.heldDefinition(player);
-		if (held == null) return;
-		if (ActionSubmissionValidation.validate(MagicRuntime.catalogue().snapshot(),
-				payload.revision(), payload.spellId()) != ActionSubmissionValidation.ACCEPT) {
-			open(player, held);
-			return;
-		}
-		if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.SELECTION)) return;
-		int selected = java.util.stream.IntStream.range(0, held.spells().size())
+		int selected = held == null ? -1 : java.util.stream.IntStream.range(0, held.spells().size())
 				.filter(index -> held.spells().get(index).id().equals(payload.spellId()))
 				.findFirst().orElse(-1);
-		if (!held.key().equals(payload.grimoireKey()) || selected < 0) return;
-		PlayerPowers.get(player).setSelectedSpell(held.key(), selected);
-		PlayerPowers.get(player).setSelectedSpellKey(held.key(), payload.spellId());
-		PowerMessages.overlay(player, Component.translatable("spell.powers.selected",
-				Component.translatable("spell.powers." + held.spells().get(selected).id())));
+		ActionSubmissionService.submit(MagicRuntime.catalogue().snapshot(),
+				new ActionSubmissionService.Request(payload.revision(), payload.spellId()),
+				() -> held != null && held.key().equals(payload.grimoireKey()) && selected >= 0,
+				() -> {
+					if (held != null) open(player, held);
+					else ActionSubmissionService.refresh(player, "grimoire");
+				},
+				() -> PacketRateLimiter.allow(player, PacketRateLimiter.Lane.SELECTION), () -> {
+					PlayerPowers.get(player).setSelectedSpell(held.key(), selected);
+					PlayerPowers.get(player).setSelectedSpellKey(held.key(), payload.spellId());
+					PowerMessages.overlay(player, Component.translatable("spell.powers.selected",
+							Component.translatable("spell.powers." + held.spells().get(selected).id())));
+				});
 	}
 
 	private static void encodeIndex(RegistryFriendlyByteBuf buffer, OpenIndexPayload payload) {

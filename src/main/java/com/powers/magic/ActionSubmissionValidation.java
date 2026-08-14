@@ -8,7 +8,7 @@ public enum ActionSubmissionValidation {
 	public static ActionSubmissionValidation validate(ActionRegistrySnapshot snapshot,
 			long submittedRevision, String canonicalKey) {
 		if (snapshot == null || submittedRevision != snapshot.revision()) return REFRESH;
-		MagicActionId resolved = snapshot.resolve(canonicalKey);
-		return resolved != null && resolved.value().equals(canonicalKey) ? ACCEPT : REFRESH;
+		String resolved = snapshot.resolveKey(canonicalKey);
+		return resolved != null && resolved.equals(canonicalKey) ? ACCEPT : REFRESH;
 	}
 }

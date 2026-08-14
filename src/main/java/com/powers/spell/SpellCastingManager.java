@@ -10,6 +10,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.MagicUseGate;
 import com.powers.magic.runtime.PreparedMagicCast;
+import com.powers.magic.ActionRegistrySnapshot;
 import com.powers.magic.runtime.ServerMagicCasts;
 import com.powers.magic.runtime.CastSource;
 import com.powers.progression.PowerScalingService;
@@ -54,6 +55,12 @@ public final class SpellCastingManager {
 	/** Returns whether the player currently owns a live ritual channel. */
 	public static boolean isChanneling(UUID playerId) {
 		return CHANNELS.containsKey(playerId);
+	}
+
+	/** Returns the immutable action snapshot owned by one live ritual channel. */
+	public static ActionRegistrySnapshot activeRegistrySnapshot(UUID playerId) {
+		Session session = CHANNELS.get(playerId);
+		return session == null ? null : session.transaction().registrySnapshot();
 	}
 
 	public static void use(ServerPlayer player, String texture) {

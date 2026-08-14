@@ -6,7 +6,6 @@ import com.powers.power.Ability;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.power.crystals.ModeCrystalAbility;
 import com.powers.magic.runtime.MagicRuntime;
-import com.powers.magic.ActionSubmissionValidation;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -46,11 +45,7 @@ public final class CrystalSelectorPackets {
 		PayloadTypeRegistry.clientboundPlay().register(OpenPayload.TYPE, OpenPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SelectPayload.TYPE, SelectPayload.STREAM_CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(SelectPayload.TYPE, (payload, context) ->
-				ServerPlayCallback.execute(context, player -> {
-					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) {
-						select(player, payload);
-					}
-				}));
+				ServerPlayCallback.execute(context, player -> select(player, payload)));
 	}
 
 	public static void open(ServerPlayer player, ModeCrystalAbility convergence) {
@@ -63,14 +58,16 @@ public final class CrystalSelectorPackets {
 		boolean holds = player.getMainHandItem().is(PowersItems.RAINBOW_CRYSTAL)
 				|| player.getOffhandItem().is(PowersItems.RAINBOW_CRYSTAL);
 		Ability ability = CrystalPowerRegistry.get(PowersItems.RAINBOW_CRYSTAL);
-		if (holds && ability instanceof ModeCrystalAbility convergence && convergence.radialSelector()) {
-			if (ActionSubmissionValidation.validate(MagicRuntime.catalogue().snapshot(),
-					payload.revision(), payload.actionKey()) != ActionSubmissionValidation.ACCEPT) {
-				open(player, convergence);
-				return;
-			}
-			int selected = convergence.modeIds().indexOf(payload.actionKey());
-			if (selected >= 0) convergence.selectMode(player, selected);
-		}
+		ModeCrystalAbility convergence = ability instanceof ModeCrystalAbility mode ? mode : null;
+		int selected = convergence == null ? -1 : convergence.modeIds().indexOf(payload.actionKey());
+		ActionSubmissionService.submit(MagicRuntime.catalogue().snapshot(),
+				new ActionSubmissionService.Request(payload.revision(), payload.actionKey()),
+				() -> holds && convergence != null && convergence.radialSelector() && selected >= 0,
+				() -> {
+					if (convergence != null) open(player, convergence);
+					else ActionSubmissionService.refresh(player, "crystal");
+				},
+				() -> PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT),
+				() -> convergence.selectMode(player, selected));
 	}
 }

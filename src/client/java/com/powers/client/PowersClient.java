@@ -34,6 +34,7 @@ import com.powers.network.VesselControlPackets;
 import com.powers.network.GrimoirePackets;
 import com.powers.network.RelicPackets;
 import com.powers.network.CrystalSelectorPackets;
+import com.powers.network.ActionSubmissionService;
 import com.powers.power.Ability;
 import com.powers.power.Power;
 import net.fabricmc.api.ClientModInitializer;
@@ -131,6 +132,11 @@ public class PowersClient implements ClientModInitializer {
 					ClientActionRegistry.accept(payload.revision());
 					Minecraft.getInstance().gui.setScreen(new GrimoireIndexScreen(payload.revision(),
 							payload.grimoireKey(), payload.selected(), payload.entries()));
+				}));
+		ClientPlayNetworking.registerGlobalReceiver(ActionSubmissionService.RefreshPayload.TYPE,
+				(payload, context) -> context.client().execute(() -> {
+					ClientActionRegistry.accept(payload.revision());
+					Minecraft.getInstance().gui.setScreen(null);
 				}));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenMenuPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> {
