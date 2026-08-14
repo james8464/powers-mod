@@ -1,0 +1,9 @@
+target_bytes,compression_threshold,entry_count,individual_wire_bytes,batch_wire_bytes,selected,savings_percent,decision_p95_nanos,decode_p95_nanos,round_trip
+64,256,1,99,110,false,-11.111,3375,2041,true
+128,256,2,176,171,true,2.841,3000,2083,true
+256,256,4,353,157,true,55.524,12500,1875,true
+512,256,8,684,233,true,65.936,17375,917,true
+1024,256,15,1270,367,true,71.102,32584,2792,true
+2048,256,31,2639,634,true,75.976,59208,2584,true
+4096,256,61,5179,1131,true,78.162,142458,6375,true
+8192,256,122,10336,2120,true,79.489,328416,9292,true

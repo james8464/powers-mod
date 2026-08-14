@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added exact Minecraft 26.2 frame/compression measurement for semantic Magic/Beam/Shape bursts and ordered bounded batching only when it reduces wire bytes; the normal 256-byte threshold saves 55.524% at 256 B and 79.489% at 8 KiB while preserving immediate lead cues, connection/dimension lifecycle safety, and physical collision authority.
+
 - Replaced first-dimension force-containment scheduling with a hard-capped fair dimension/policy queue: request ingestion is O(1), ceremony validation and transformations share the 256-slot budget, workloads above capacity rotate without long gaps, and protection adapters remain fail-closed.
 
 - Replaced long-lived guardian save state with a four-key owner/task/archetype/absolute-expiry record backed by vanilla entity UUIDs; derived caps now rebuild exactly once per accepted load, loaded owner/tier changes rebind atomically, malformed data expires fail-closed, and unowned invaders cannot pollute caster-owned limits.
