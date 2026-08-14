@@ -1,0 +1,813 @@
+[07:26:22] [main/INFO] (FabricLoader/GameProvider) Loading Minecraft 26.2 with Fabric Loader 0.19.3
+[07:26:22] [main/INFO] (FabricLoader/Mappings) Mappings not present!
+[07:26:22] [main/INFO] (FabricLoader) Loading 51 mods:
+	- fabric-api 0.156.0+26.2
+	- fabric-api-base 2.0.4+ece063239e
+	- fabric-api-lookup-api-v1 2.0.17+11e1c9a39e
+	- fabric-biome-api-v1 18.0.6+c7bd5b8e9e
+	- fabric-block-api-v1 3.0.3+ec56b6019e
+	- fabric-block-getter-api-v2 2.0.7+ec56b6019e
+	- fabric-client-gametest-api-v1 6.0.0+515ac5339e
+	- fabric-command-api-v2 3.1.0+00cb03469e
+	- fabric-content-registries-v0 11.3.0+d0a699d09e
+	- fabric-convention-tags-v2 4.7.0+1f023a9e9e
+	- fabric-crash-report-info-v1 1.0.5+086d547a9e
+	- fabric-creative-tab-api-v1 5.0.14+d871b99e9e
+	- fabric-data-attachment-api-v1 2.2.18+515ac5339e
+	- fabric-data-generation-api-v1 25.5.0+aed122aa9e
+	- fabric-debug-api-v1 1.0.2+c792624d9e
+	- fabric-dimensions-v1 5.1.11+515ac5339e
+	- fabric-entity-events-v1 5.0.5+06488ac19e
+	- fabric-events-interaction-v0 5.2.7+515ac5339e
+	- fabric-game-rule-api-v1 4.0.8+46a6d00c9e
+	- fabric-gametest-api-v1 4.0.21+4a7fa0819e
+	- fabric-item-api-v1 14.4.0+49a69a7b9e
+	- fabric-key-mapping-api-v1 2.0.5+e2bdee789e
+	- fabric-lifecycle-events-v1 4.1.3+4575b05f9e
+	- fabric-loot-api-v3 3.0.17+06488ac19e
+	- fabric-menu-api-v1 2.0.16+086d547a9e
+	- fabric-message-api-v1 7.0.7+086d547a9e
+	- fabric-model-loading-api-v1 8.0.16+c80601bb9e
+	- fabric-networking-api-v1 6.3.3+72073ef09e
+	- fabric-object-builder-api-v1 24.1.0+6fcd5f039e
+	- fabric-particles-v1 5.0.18+d1756aa99e
+	- fabric-permission-api-v1 1.0.4+536fad2f9e
+	- fabric-recipe-api-v1 9.0.20+11e1c9a39e
+	- fabric-registry-sync-v0 7.1.0+c7bd5b8e9e
+	- fabric-renderer-api-v1 14.1.3+2b0d8a229e
+	- fabric-renderer-indigo 9.1.3+2b0d8a229e
+	- fabric-rendering-fluids-v1 6.0.4+06488ac19e
+	- fabric-rendering-v1 25.3.2+515ac5339e
+	- fabric-resource-conditions-api-v1 6.1.0+10e9a28b9e
+	- fabric-resource-loader-v0 3.3.20+4fc5413f9e
+	- fabric-resource-loader-v1 2.0.13+9edec1269e
+	- fabric-screen-api-v1 5.1.0+48e3c0b09e
+	- fabric-serialization-api-v1 2.0.4+11a26f319e
+	- fabric-sound-api-v1 2.0.5+11a26f319e
+	- fabric-tag-api-v1 2.1.4+515ac5339e
+	- fabric-transfer-api-v1 8.0.12+11dbb7d79e
+	- fabric-transitive-access-wideners-v1 8.1.4+67c847259e
+	- fabricloader 0.19.3
+	- java 25
+	- minecraft 26.2
+	- mixinextras 0.5.4
+	- powers 1.0.2
+[07:26:22] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/Users/james/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.3+mixin.0.8.7/41c4a3984a80f4679e759fb9f495587acc5cdac7/sponge-mixin-0.17.3+mixin.0.8.7.jar Service=Knot/Fabric Env=CLIENT
+[07:26:22] [main/INFO] (FabricLoader/Mixin) Compatibility level set to JAVA_25
+[07:26:22] [main/INFO] (FabricLoader/MixinExtras|Service) Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.4).
+[07:26:23] [Datafixer Bootstrap #0/INFO] (Minecraft) 295 Datafixer optimizations took 165 milliseconds
+[07:26:25] [Render thread/INFO] (Minecraft) Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[07:26:25] [Render thread/INFO] (Minecraft) Setting user: ItemAuditor
+[07:26:25] [Render thread/INFO] (powers) Loaded rank mazes: 28 light nodes, 28 darkness nodes
+[07:26:26] [Render thread/INFO] (powers) Magic collision kernel loaded: 64 actions, 2080 exhaustive interactions
+[07:26:26] [Render thread/INFO] (powers) POWERS framework initialized with 23 power(s)
+[07:26:26] [Render thread/INFO] (Indigo) [Indigo] Registering Indigo renderer!
+[07:26:26] [Download-2/ERROR] (Minecraft) Failed to fetch user properties
+com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+	at knot//com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:70)
+	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:173)
+	at knot//net.minecraft.client.Minecraft.lambda$new$1(Minecraft.java:418)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+Caused by: MinecraftClientHttpException[type=HTTP_ERROR, status=401, response=ErrorResponse[path=/player/attributes, error=null, errorMessage=null, details=null]]
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.buildHttpException(MinecraftClient.java:170)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:147)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.getWithEtag(MinecraftClient.java:81)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:65)
+	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:123)
+	... 5 more
+[07:26:26] [Render thread/INFO] (Minecraft) Backend library: LWJGL version 3.4.1-snapshot
+[07:26:26] [Render thread/INFO] (Minecraft) Using graphics backend OpenGL, using drivers: 4.1 Metal - 90.5
+[07:26:26] [Render thread/INFO] (Minecraft) Using graphics device: Apple M3 Pro (Apple)
+[07:26:26] [Render thread/INFO] (Minecraft) Using graphics device extensions: GL_ARB_draw_indirect, GL_EXT_texture_filter_anisotropic
+[07:26:27] [Download-2/INFO] (Minecraft) Could not authorize you against Realms server: java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC
+[07:26:27] [Download-2/ERROR] (Minecraft) Failed to fetch Realms feature flags
+com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC'
+	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:509)
+	at knot//com.mojang.realmsclient.client.RealmsClient.fetchFeatureFlags(RealmsClient.java:159)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[07:26:27] [Render thread/INFO] (Minecraft) Reloading ResourceManager: vanilla, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-getter-api-v2, fabric-client-gametest-api-v1, fabric-command-api-v2, fabric-content-registries-v0, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-creative-tab-api-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-debug-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-gametest-api-v1, fabric-item-api-v1, fabric-key-mapping-api-v1, fabric-lifecycle-events-v1, fabric-loot-api-v3, fabric-menu-api-v1, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-permission-api-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-rendering-fluids-v1, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-resource-loader-v1, fabric-screen-api-v1, fabric-serialization-api-v1, fabric-sound-api-v1, fabric-tag-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, powers
+[07:26:27] [Worker-Main-2/INFO] (Minecraft) Found unifont_all_no_pua-17.0.01.hex, loading
+[07:26:27] [Worker-Main-5/INFO] (Minecraft) Found unifont_pua-17.0.01.hex, loading
+[07:26:27] [Worker-Main-2/INFO] (Minecraft) Found unifont_jp_patch-17.0.01.hex, loading
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'Normal' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/rendertype_crumbling and FS minecraft:core/rendertype_crumbling. Log output: WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/rendertype_beacon_beam and FS minecraft:core/rendertype_beacon_beam. Log output: WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/animate_sprite and FS minecraft:core/animate_sprite_blit. Log output: WARNING: Output of vertex shader 'fAnimationProgress' not read by fragment shader
+
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'Normal' to match BindAttributeLocation request.
+
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'Normal' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/rendertype_beacon_beam and FS minecraft:core/rendertype_beacon_beam. Log output: WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[07:26:28] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/rendertype_entity_shadow and FS minecraft:core/rendertype_entity_shadow. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'Normal' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[07:26:28] [Render thread/INFO] (Minecraft) OpenAL initialized on device MacBook Pro Speakers
+[07:26:28] [Render thread/INFO] (Minecraft) Sound engine started
+[07:26:28] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[07:26:28] [Render thread/INFO] (Minecraft) Created: 128x128x0 minecraft:textures/atlas/decorated_pot.png-atlas
+[07:26:28] [Render thread/INFO] (Minecraft) Created: 2048x1024x0 minecraft:textures/atlas/armor_trims.png-atlas
+[07:26:28] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[07:26:28] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/shield_patterns.png-atlas
+[07:26:28] [Render thread/INFO] (Minecraft) Created: 2048x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[07:26:28] [Render thread/INFO] (Minecraft) Created: 512x512x0 minecraft:textures/atlas/chest.png-atlas
+[07:26:28] [Render thread/INFO] (Minecraft) Created: 256x128x0 minecraft:textures/atlas/celestials.png-atlas
+[07:26:28] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/banner_patterns.png-atlas
+[07:26:28] [Render thread/INFO] (Minecraft) Created: 2048x2048x0 minecraft:textures/atlas/items.png-atlas
+[07:26:28] [Render thread/INFO] (Minecraft) Created: 1024x1024x0 minecraft:textures/atlas/gui.png-atlas
+[07:26:28] [Render thread/INFO] (Minecraft) Created: 128x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[07:26:28] [Render thread/INFO] (Minecraft) Created: 512x512x0 minecraft:textures/atlas/shulker_boxes.png-atlas
+[07:26:29] [Render thread/INFO] (Minecraft) Connecting to 127.0.0.1, 25565
+[07:26:29] [Download-1/ERROR] (Minecraft) Failed to retrieve profile key pair
+MinecraftClientHttpException[type=HTTP_ERROR, status=401, response=ErrorResponse[path=/player/certificates, error=null, errorMessage=null, details=null]]
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.buildHttpException(MinecraftClient.java:170)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:147)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.post(MinecraftClient.java:89)
+	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.getKeyPair(YggdrasilUserApiService.java:62)
+	at knot//net.minecraft.client.multiplayer.AccountProfileKeyPairManager.fetchProfileKeyPair(AccountProfileKeyPairManager.java:119)
+	at knot//net.minecraft.client.multiplayer.AccountProfileKeyPairManager.lambda$readOrFetchProfileKeyPair$0(AccountProfileKeyPairManager.java:72)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[07:26:31] [Render thread/INFO] (Minecraft) Loaded 5 advancements
+[07:26:31] [Render thread/INFO] (Minecraft) Resizing Dynamic Transforms UBO, capacity limit of 2 reached during a single frame. New capacity will be 4.
+[07:26:31] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted loaded 295 scripted steps
+[07:26:31] [Render thread/INFO] (Minecraft) Resizing Dynamic Transforms UBO, capacity limit of 4 reached during a single frame. New capacity will be 8.
+[07:26:31] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 2 reached during a single frame. New capacity will be 8.
+[07:26:31] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[07:26:31] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 16 reached during a single frame. New capacity will be 32.
+[07:26:31] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 32 reached during a single frame. New capacity will be 64.
+[07:26:31] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 64 reached during a single frame. New capacity will be 128.
+[07:26:31] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 128 reached during a single frame. New capacity will be 256.
+[07:26:32] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted connected as ItemAuditor to 127.0.0.1:25565
+[07:26:32] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 256 reached during a single frame. New capacity will be 512.
+[07:26:34] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed CLOSE [screen] at connected tick 60
+[07:26:35] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [powers testing on] at connected tick 80
+[07:26:35] [Render thread/INFO] (Minecraft) [System] [CHAT] Testing limits — energy: DISABLED, cooldowns: DISABLED
+[07:26:36] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [gamemode creative @s] at connected tick 100
+[07:26:36] [Render thread/INFO] (Minecraft) [System] [CHAT] Set own game mode to Creative Mode
+[07:26:36] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:rainbow_crystal] at connected tick 103
+[07:26:36] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Rainbow Crystal]
+[07:26:36] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:red_crystal] at connected tick 106
+[07:26:36] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Red Crystal]
+[07:26:36] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:orange_crystal] at connected tick 109
+[07:26:36] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Orange Crystal]
+[07:26:36] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:yellow_crystal] at connected tick 112
+[07:26:36] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Yellow Crystal]
+[07:26:36] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:green_crystal] at connected tick 115
+[07:26:36] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Green Crystal]
+[07:26:36] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:blue_crystal] at connected tick 118
+[07:26:36] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Blue Crystal]
+[07:26:37] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted captured its connected-world evidence
+[07:26:37] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:indigo_crystal] at connected tick 121
+[07:26:37] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Indigo Crystal]
+[07:26:37] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.26.37.png
+[07:26:37] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:violet_crystal] at connected tick 124
+[07:26:37] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Violet Crystal]
+[07:26:37] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:light_crystal] at connected tick 127
+[07:26:37] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Light Crystal]
+[07:26:37] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-1] at connected tick 139
+[07:26:38] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.26.37_2.png
+[07:26:39] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:dark_crystal] at connected tick 162
+[07:26:39] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dark Crystal]
+[07:26:39] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:infected_rainbow_crystal] at connected tick 165
+[07:26:39] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Legacy Fractured Crystal]
+[07:26:39] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:darkness] at connected tick 168
+[07:26:39] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [item.powers.darkness]
+[07:26:39] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:pure_light] at connected tick 171
+[07:26:39] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [item.powers.pure_light]
+[07:26:39] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:amethyst_ward] at connected tick 174
+[07:26:39] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [item.powers.amethyst_ward]
+[07:26:39] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:arcane_crucible] at connected tick 177
+[07:26:39] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [item.powers.arcane_crucible]
+[07:26:40] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:darkness_creature_spawn_egg] at connected tick 180
+[07:26:40] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Darkness Creature Spawn Egg]
+[07:26:40] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:power_test_actor_spawn_egg] at connected tick 183
+[07:26:40] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Power Test Actor Spawn Egg]
+[07:26:40] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:radiant_sentinel_spawn_egg] at connected tick 186
+[07:26:40] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Radiant Sentinel Spawn Egg]
+[07:26:40] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-2] at connected tick 198
+[07:26:41] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.26.40.png
+[07:26:42] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:first_vessel_spawn_egg] at connected tick 221
+[07:26:42] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [First Vessel Spawn Egg]
+[07:26:42] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:dark_herald_spawn_egg] at connected tick 224
+[07:26:42] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dark Herald Spawn Egg]
+[07:26:42] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:light_herald_spawn_egg] at connected tick 227
+[07:26:42] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Light Herald Spawn Egg]
+[07:26:42] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:amethyst_greatblade] at connected tick 230
+[07:26:42] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Amethyst Greatblade]
+[07:26:42] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:amethyst_greatpick] at connected tick 233
+[07:26:42] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Amethyst Greatpick]
+[07:26:42] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:amethyst_greatshovel] at connected tick 236
+[07:26:42] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Amethyst Greatshovel]
+[07:26:42] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:ancient_greatslab] at connected tick 239
+[07:26:42] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Ancient Greatslab]
+[07:26:43] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:azure_dagger] at connected tick 242
+[07:26:43] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Azure Dagger]
+[07:26:43] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:azure_greataxe] at connected tick 245
+[07:26:43] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Azure Greataxe]
+[07:26:43] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-3] at connected tick 257
+[07:26:43] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.26.43.png
+[07:26:45] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:azure_greatsword] at connected tick 280
+[07:26:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Azure Greatsword]
+[07:26:45] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:azure_pickaxe] at connected tick 283
+[07:26:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Azure Pickaxe]
+[07:26:45] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:azure_sabre] at connected tick 286
+[07:26:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Azure Sabre]
+[07:26:45] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:azure_scythe] at connected tick 289
+[07:26:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Azure Scythe]
+[07:26:45] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:azure_shovel] at connected tick 292
+[07:26:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Azure Shovel]
+[07:26:45] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:berserkers_cleaver] at connected tick 295
+[07:26:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Berserker's Cleaver]
+[07:26:45] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:berserkers_greataxe] at connected tick 298
+[07:26:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Berserker's Greataxe]
+[07:26:46] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:black_iron_clobberer] at connected tick 301
+[07:26:46] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Black Iron Clobberer]
+[07:26:46] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:black_iron_greataxe] at connected tick 304
+[07:26:46] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Black Iron Greataxe]
+[07:26:46] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-4] at connected tick 316
+[07:26:46] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.26.46.png
+[07:26:47] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:black_iron_greatsword] at connected tick 339
+[07:26:47] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Black Iron Greatsword]
+[07:26:48] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:calamity_blade] at connected tick 342
+[07:26:48] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Calamity Blade]
+[07:26:48] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:claymore] at connected tick 345
+[07:26:48] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Claymore]
+[07:26:48] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:crescent_greataxe] at connected tick 348
+[07:26:48] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Crescent Greataxe]
+[07:26:48] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:crimson_cleaver] at connected tick 351
+[07:26:48] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Crimson Cleaver]
+[07:26:48] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:crystal_frostblade] at connected tick 354
+[07:26:48] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Crystal Frostblade]
+[07:26:48] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:crystal_frostscythe] at connected tick 357
+[07:26:48] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Crystal Frostscythe]
+[07:26:49] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:demonic_sword] at connected tick 360
+[07:26:49] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Demonic Sword]
+[07:26:49] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:demons_blood_blade] at connected tick 363
+[07:26:49] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Demon's Blood Blade]
+[07:26:49] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-5] at connected tick 375
+[07:26:49] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.26.49.png
+[07:26:50] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:demons_blood_pick] at connected tick 398
+[07:26:50] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Demon's Blood Pick]
+[07:26:51] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:demons_blood_shovel] at connected tick 401
+[07:26:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Demon's Blood Shovel]
+[07:26:51] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:demonslayers_greatsword] at connected tick 404
+[07:26:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Demonslayer's Greatsword]
+[07:26:51] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:dragon_sword] at connected tick 407
+[07:26:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dragon Sword]
+[07:26:51] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:emerald_greatcleaver] at connected tick 410
+[07:26:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Emerald Greatcleaver]
+[07:26:51] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:ethereal_frostblade] at connected tick 413
+[07:26:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Ethereal Frostblade]
+[07:26:51] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:flamberge] at connected tick 416
+[07:26:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Flamberge]
+[07:26:51] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:gilded_phoenix_greataxe] at connected tick 419
+[07:26:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Gilded Phoenix Greataxe]
+[07:26:52] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:gloomsteel_greataxe] at connected tick 422
+[07:26:52] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Gloomsteel Greataxe]
+[07:26:52] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-6] at connected tick 434
+[07:26:52] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.26.52.png
+[07:26:53] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:gloomsteel_katana] at connected tick 457
+[07:26:53] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Gloomsteel Katana]
+[07:26:54] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:gloomsteel_knife] at connected tick 460
+[07:26:54] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Gloomsteel Knife]
+[07:26:54] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:grand_claymore] at connected tick 463
+[07:26:54] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Grand Claymore]
+[07:26:54] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:heavenly_partisan] at connected tick 466
+[07:26:54] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Heavenly Partisan]
+[07:26:54] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:iron_battle_axe] at connected tick 469
+[07:26:54] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Iron Battle Axe]
+[07:26:54] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:iron_broadsword] at connected tick 472
+[07:26:54] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Iron Broadsword]
+[07:26:54] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:iron_dagger] at connected tick 475
+[07:26:54] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Iron Dagger]
+[07:26:54] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:iron_greataxe] at connected tick 478
+[07:26:54] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Iron Greataxe]
+[07:26:55] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:iron_halberd] at connected tick 481
+[07:26:55] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Iron Halberd]
+[07:26:55] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-7] at connected tick 493
+[07:26:55] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.26.55.png
+[07:26:56] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:iron_hay_sickle] at connected tick 516
+[07:26:56] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Iron Scythe]
+[07:26:56] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:iron_mace] at connected tick 519
+[07:26:56] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Iron Mace]
+[07:26:57] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:iron_polearm] at connected tick 522
+[07:26:57] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Iron Polearm]
+[07:26:57] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:iron_sai] at connected tick 525
+[07:26:57] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Iron Sai]
+[07:26:57] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:lycanbane] at connected tick 528
+[07:26:57] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Shadow Sword]
+[07:26:57] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:moonlight] at connected tick 531
+[07:26:57] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Moonlight]
+[07:26:57] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:nature_sword] at connected tick 534
+[07:26:57] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Nature Sword]
+[07:26:57] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:nocturne] at connected tick 537
+[07:26:57] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Nocturne]
+[07:26:58] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:oculus] at connected tick 540
+[07:26:58] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Oculus]
+[07:26:58] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-8] at connected tick 552
+[07:26:58] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.26.58.png
+[07:26:59] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:phantomguard_greatsword] at connected tick 575
+[07:26:59] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Phantomguard Greatsword]
+[07:26:59] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:phantomguard_partisan] at connected tick 578
+[07:26:59] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Phantomguard Partisan]
+[07:27:00] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:piercer] at connected tick 581
+[07:27:00] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Piercer]
+[07:27:00] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:ravenous_blade] at connected tick 584
+[07:27:00] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Ravenous Blade]
+[07:27:00] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:revenants_darkscepter] at connected tick 587
+[07:27:00] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Revenant's Darkscepter]
+[07:27:00] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:revenants_gravecleaver] at connected tick 590
+[07:27:00] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Revenant's Gravecleaver]
+[07:27:00] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:revenants_gravescepter] at connected tick 593
+[07:27:00] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Revenant's Gravescepter]
+[07:27:00] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:runic_piercer] at connected tick 596
+[07:27:00] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Runic Piercer]
+[07:27:00] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:sacrificial_cleaver] at connected tick 599
+[07:27:00] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Sacrificial Cleaver]
+[07:27:01] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-9] at connected tick 611
+[07:27:01] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.01.png
+[07:27:02] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:skeleton_axe] at connected tick 634
+[07:27:02] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Skeleton Axe]
+[07:27:02] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:solstice] at connected tick 637
+[07:27:02] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Solstice]
+[07:27:03] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:spider_sword] at connected tick 640
+[07:27:03] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Spider Sword]
+[07:27:03] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:talonbrand] at connected tick 643
+[07:27:03] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Talonbrand]
+[07:27:03] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:talonpick] at connected tick 646
+[07:27:03] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Talonpick]
+[07:27:03] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:talonshovel] at connected tick 649
+[07:27:03] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Talonshovel]
+[07:27:03] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:treacherous_axe] at connected tick 652
+[07:27:03] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Treacherous Axe]
+[07:27:03] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:treacherous_bludgeon] at connected tick 655
+[07:27:03] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Treacherous Bludgeon]
+[07:27:03] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:treacherous_cleaver] at connected tick 658
+[07:27:03] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Treacherous Cleaver]
+[07:27:04] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-10] at connected tick 670
+[07:27:04] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.04.png
+[07:27:05] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:uchigatana] at connected tick 693
+[07:27:05] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Uchigatana]
+[07:27:05] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:vaelith] at connected tick 696
+[07:27:05] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Vaelith]
+[07:27:05] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:valhakyra] at connected tick 699
+[07:27:05] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Valhakyra]
+[07:27:06] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:vengeance_blade] at connected tick 702
+[07:27:06] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Vengeance Blade]
+[07:27:06] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:vesper] at connected tick 705
+[07:27:06] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Vesper]
+[07:27:06] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:vindicator] at connected tick 708
+[07:27:06] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Vindicator]
+[07:27:06] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:viridian_greataxe] at connected tick 711
+[07:27:06] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Viridian Greataxe]
+[07:27:06] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:viridian_pickaxe] at connected tick 714
+[07:27:06] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Viridian Pickaxe]
+[07:27:06] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:viridian_shovel] at connected tick 717
+[07:27:06] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Viridian Shovel]
+[07:27:07] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-11] at connected tick 729
+[07:27:07] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.07.png
+[07:27:08] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:void_oculus] at connected tick 752
+[07:27:08] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Void Oculus]
+[07:27:08] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:windreaper] at connected tick 755
+[07:27:08] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Windreaper]
+[07:27:08] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:winterthorn] at connected tick 758
+[07:27:08] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Winterthorn]
+[07:27:09] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:wooden_bludgeon] at connected tick 761
+[07:27:09] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Wooden Bludgeon]
+[07:27:09] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:wooden_tonfa] at connected tick 764
+[07:27:09] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Wooden Tonfa]
+[07:27:09] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:zenith] at connected tick 767
+[07:27:09] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Zenith]
+[07:27:09] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_artifact_ammolite] at connected tick 770
+[07:27:09] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Ammolite]
+[07:27:09] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_artifact_amulet] at connected tick 773
+[07:27:09] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Amulet]
+[07:27:09] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_artifact_beating_heart] at connected tick 776
+[07:27:09] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Living Heart]
+[07:27:10] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-12] at connected tick 788
+[07:27:10] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.10.png
+[07:27:11] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_artifact_blackpearl] at connected tick 811
+[07:27:11] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Black Pearl]
+[07:27:11] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_artifact_bloodstone] at connected tick 814
+[07:27:11] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Bloodstone]
+[07:27:11] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_artifact_bonefigurine] at connected tick 817
+[07:27:11] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Bone Figurine]
+[07:27:12] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_artifact_bound_runestone_active_1] at connected tick 820
+[07:27:12] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Bound Active 1 Runestone]
+[07:27:12] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_artifact_bound_runestone_active_2] at connected tick 823
+[07:27:12] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Bound Active 2 Runestone]
+[07:27:12] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_artifact_bound_runestone_active_3] at connected tick 826
+[07:27:12] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Bound Active 3 Runestone]
+[07:27:12] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_artifact_bound_runestone_inert_1] at connected tick 829
+[07:27:12] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Bound Inert 1 Runestone]
+[07:27:12] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_artifact_bound_runestone_inert_2] at connected tick 832
+[07:27:12] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Bound Inert 2 Runestone]
+[07:27:12] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_artifact_bound_runestone_inert_3] at connected tick 835
+[07:27:12] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Bound Inert 3 Runestone]
+[07:27:13] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-13] at connected tick 847
+[07:27:13] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.13.png
+[07:27:14] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_artifact_bowl] at connected tick 870
+[07:27:14] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Bowl]
+[07:27:14] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_artifact_bullion] at connected tick 873
+[07:27:14] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Bullion]
+[07:27:14] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_artifact_coins] at connected tick 876
+[07:27:14] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Coins]
+[07:27:14] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_artifact_corroded_copper_ring] at connected tick 879
+[07:27:14] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Corroded Copper Ring]
+[07:27:15] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_artifact_dark_bone_figurine] at connected tick 882
+[07:27:15] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dark Bone Figurine]
+[07:27:15] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_artifact_diamond_ring] at connected tick 885
+[07:27:15] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Diamond Ring]
+[07:27:15] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_artifact_dripping_orb_1] at connected tick 888
+[07:27:15] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dripping Orb 1]
+[07:27:15] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_artifact_dripping_orb_2] at connected tick 891
+[07:27:15] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dripping Orb 2]
+[07:27:15] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_artifact_emerald_ring] at connected tick 894
+[07:27:15] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Emerald Ring]
+[07:27:16] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-14] at connected tick 906
+[07:27:16] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.16.png
+[07:27:17] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_artifact_emperyeanjewel] at connected tick 929
+[07:27:17] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Empyrean Jewel]
+[07:27:17] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_artifact_flute] at connected tick 932
+[07:27:17] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Flute]
+[07:27:17] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_artifact_ghoul_heart] at connected tick 935
+[07:27:17] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Ghoul Heart]
+[07:27:17] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_artifact_heart_mechanism] at connected tick 938
+[07:27:17] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Clockwork Heart]
+[07:27:18] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_artifact_lodestone] at connected tick 941
+[07:27:18] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Lodestone]
+[07:27:18] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_artifact_malignember] at connected tick 944
+[07:27:18] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Malign Ember]
+[07:27:18] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_artifact_oddstone] at connected tick 947
+[07:27:18] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Oddstone]
+[07:27:18] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_artifact_philosopherstone] at connected tick 950
+[07:27:18] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Philosopher's Stone]
+[07:27:18] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_artifact_plain_copper_ring] at connected tick 953
+[07:27:18] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Plain Copper Ring]
+[07:27:19] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-15] at connected tick 965
+[07:27:19] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.19.png
+[07:27:20] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_artifact_ritualdagger] at connected tick 988
+[07:27:20] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Ritual Dagger]
+[07:27:20] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_artifact_runestone_back] at connected tick 991
+[07:27:20] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Runestone]
+[07:27:20] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_artifact_runestone_dark_inscribed_large] at connected tick 994
+[07:27:20] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dark Inscribed Large Runestone]
+[07:27:20] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_artifact_runestone_dark_inscribed_medium] at connected tick 997
+[07:27:20] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dark Inscribed Medium Runestone]
+[07:27:21] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_artifact_runestone_dark_inscribed_small] at connected tick 1000
+[07:27:21] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dark Inscribed Small Runestone]
+[07:27:21] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_artifact_runestone_dark_inscribed_tiny] at connected tick 1003
+[07:27:21] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dark Inscribed Tiny Runestone]
+[07:27:21] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_artifact_runestone_dark_large] at connected tick 1006
+[07:27:21] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dark Large Runestone]
+[07:27:21] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_artifact_runestone_dark_medium] at connected tick 1009
+[07:27:21] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dark Medium Runestone]
+[07:27:21] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_artifact_runestone_dark_small] at connected tick 1012
+[07:27:21] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dark Small Runestone]
+[07:27:22] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-16] at connected tick 1024
+[07:27:22] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.22.png
+[07:27:23] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_artifact_runestone_dark_tiny] at connected tick 1047
+[07:27:23] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dark Tiny Runestone]
+[07:27:23] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_artifact_runestone_frigid] at connected tick 1050
+[07:27:23] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Frigid Runestone]
+[07:27:23] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_artifact_runestone_inert] at connected tick 1053
+[07:27:23] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Inert Runestone]
+[07:27:23] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_artifact_runestone_overlay_0] at connected tick 1056
+[07:27:23] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [0 Runestone]
+[07:27:23] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_artifact_runestone_overlay_1] at connected tick 1059
+[07:27:23] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [1 Runestone]
+[07:27:24] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_artifact_runestone_overlay_10] at connected tick 1062
+[07:27:24] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [10 Runestone]
+[07:27:24] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_artifact_runestone_overlay_2] at connected tick 1065
+[07:27:24] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [2 Runestone]
+[07:27:24] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_artifact_runestone_overlay_3] at connected tick 1068
+[07:27:24] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [3 Runestone]
+[07:27:24] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_artifact_runestone_overlay_4] at connected tick 1071
+[07:27:24] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [4 Runestone]
+[07:27:25] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-17] at connected tick 1083
+[07:27:25] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.25.png
+[07:27:26] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_artifact_runestone_overlay_5] at connected tick 1106
+[07:27:26] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [5 Runestone]
+[07:27:26] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_artifact_runestone_overlay_6] at connected tick 1109
+[07:27:26] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [6 Runestone]
+[07:27:26] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_artifact_runestone_overlay_7] at connected tick 1112
+[07:27:26] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [7 Runestone]
+[07:27:26] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_artifact_runestone_overlay_8] at connected tick 1115
+[07:27:26] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [8 Runestone]
+[07:27:26] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_artifact_runestone_overlay_9] at connected tick 1118
+[07:27:26] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [9 Runestone]
+[07:27:27] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_artifact_smallpot] at connected tick 1121
+[07:27:27] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Small Ritual Pot]
+[07:27:27] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_artifact_soulmatrix] at connected tick 1124
+[07:27:27] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Soul Matrix]
+[07:27:27] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_artifact_soulstone_large] at connected tick 1127
+[07:27:27] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Large Soulstone]
+[07:27:27] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_artifact_soulstone_large_inert] at connected tick 1130
+[07:27:27] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Large Inert Soulstone]
+[07:27:28] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-18] at connected tick 1142
+[07:27:28] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.28.png
+[07:27:29] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_artifact_soulstone_medium] at connected tick 1165
+[07:27:29] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Medium Soulstone]
+[07:27:29] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_artifact_soulstone_medium_inert] at connected tick 1168
+[07:27:29] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Medium Inert Soulstone]
+[07:27:29] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_artifact_soulstone_small] at connected tick 1171
+[07:27:29] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Small Soulstone]
+[07:27:29] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_artifact_soulstone_small_inert] at connected tick 1174
+[07:27:29] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Small Inert Soulstone]
+[07:27:29] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_artifact_star] at connected tick 1177
+[07:27:29] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Star]
+[07:27:30] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_artifact_star_animated] at connected tick 1180
+[07:27:30] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Animated Star]
+[07:27:30] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_artifact_trilobite_fossil] at connected tick 1183
+[07:27:30] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Trilobite Fossil]
+[07:27:30] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_artifact_trilobitefossil] at connected tick 1186
+[07:27:30] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Trilobite Fossil]
+[07:27:30] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_artifact_woodheart] at connected tick 1189
+[07:27:30] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Heart of the Wildwood]
+[07:27:31] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-19] at connected tick 1201
+[07:27:31] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.31.png
+[07:27:32] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_blood_salts_2] at connected tick 1224
+[07:27:32] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Blood Salts]
+[07:27:32] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_book_grimoire_abyssal] at connected tick 1227
+[07:27:32] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [The Abyssal Codex]
+[07:27:32] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_book_grimoire_blight] at connected tick 1230
+[07:27:32] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [The Blighted Testament]
+[07:27:32] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_book_grimoire_celestial] at connected tick 1233
+[07:27:32] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [The Celestial Grimoire]
+[07:27:32] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_book_grimoire_deep] at connected tick 1236
+[07:27:32] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [The Deepbound Grimoire]
+[07:27:32] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_book_grimoire_infernal] at connected tick 1239
+[07:27:33] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dormant Infernal Ledger (Compatibility)]
+[07:27:33] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_book_grimoire_recolor] at connected tick 1242
+[07:27:33] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Unbound Grimoire]
+[07:27:33] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_book_grimoire_recolor_overlay_abyssal] at connected tick 1245
+[07:27:33] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Abyssal Grimoire Leaf]
+[07:27:33] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_book_grimoire_recolor_overlay_blight] at connected tick 1248
+[07:27:33] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Blighted Grimoire Leaf]
+[07:27:34] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-20] at connected tick 1260
+[07:27:34] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.34.png
+[07:27:35] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_book_grimoire_recolor_overlay_celestial] at connected tick 1283
+[07:27:35] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Celestial Grimoire Leaf]
+[07:27:35] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_book_grimoire_recolor_overlay_deep] at connected tick 1286
+[07:27:35] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Deepbound Grimoire Leaf]
+[07:27:35] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_book_grimoire_recolor_overlay_infernal] at connected tick 1289
+[07:27:35] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Dormant Infernal Leaf (Compatibility)]
+[07:27:35] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_book_grimoire_recolor_overlay_wild] at connected tick 1292
+[07:27:35] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Wild Grimoire Leaf]
+[07:27:35] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_book_grimoire_wild] at connected tick 1295
+[07:27:35] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [The Verdant Canticle]
+[07:27:35] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_book_page_written] at connected tick 1298
+[07:27:35] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Written Grimoire Page]
+[07:27:36] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_book_tattered] at connected tick 1301
+[07:27:36] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Tattered Grimoire]
+[07:27:36] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_device_miniportal] at connected tick 1304
+[07:27:36] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Miniportal]
+[07:27:36] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_device_miniportal_active] at connected tick 1307
+[07:27:36] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Active Miniportal]
+[07:27:36] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-21] at connected tick 1319
+[07:27:37] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.37.png
+[07:27:38] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_food_apple_green] at connected tick 1342
+[07:27:38] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Green Apple]
+[07:27:38] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_food_apple_wormy] at connected tick 1345
+[07:27:38] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Worm-Eaten Apple]
+[07:27:38] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_food_apple_wormy_2] at connected tick 1348
+[07:27:38] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Rotten Worm-Eaten Apple]
+[07:27:38] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_food_bacon_cooked] at connected tick 1351
+[07:27:38] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Cooked Bacon]
+[07:27:38] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_food_bacon_raw] at connected tick 1354
+[07:27:38] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Raw Bacon]
+[07:27:38] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_food_beans] at connected tick 1357
+[07:27:38] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Beans]
+[07:27:39] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_food_beet] at connected tick 1360
+[07:27:39] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Beet]
+[07:27:39] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_food_billberry] at connected tick 1363
+[07:27:39] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Billberry]
+[07:27:39] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_food_blackberry] at connected tick 1366
+[07:27:39] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Blackberry]
+[07:27:39] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-22] at connected tick 1378
+[07:27:40] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.39.png
+[07:27:41] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_food_blueberries] at connected tick 1401
+[07:27:41] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Blueberries]
+[07:27:41] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_food_bread_big] at connected tick 1404
+[07:27:41] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Large Loaf]
+[07:27:41] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_food_cabbage] at connected tick 1407
+[07:27:41] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Cabbage]
+[07:27:41] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_food_chickpeas] at connected tick 1410
+[07:27:41] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Chickpeas]
+[07:27:41] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_food_coconut_normal] at connected tick 1413
+[07:27:41] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Coconut]
+[07:27:41] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_food_coconut_opened] at connected tick 1416
+[07:27:41] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Opened Coconut]
+[07:27:41] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_food_coconut_straw] at connected tick 1419
+[07:27:41] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Coconut with Straw]
+[07:27:42] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_food_cranberries] at connected tick 1422
+[07:27:42] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Cranberries]
+[07:27:42] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_food_fig] at connected tick 1425
+[07:27:42] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Fig]
+[07:27:42] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-23] at connected tick 1437
+[07:27:43] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.42.png
+[07:27:44] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_food_fish_fillet_cooked] at connected tick 1460
+[07:27:44] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Cooked Fish Fillet]
+[07:27:44] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_food_fish_fillet_raw] at connected tick 1463
+[07:27:44] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Raw Fish Fillet]
+[07:27:44] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_food_fish_fillet_smoked] at connected tick 1466
+[07:27:44] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Smoked Fish Fillet]
+[07:27:44] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_food_fisherberries] at connected tick 1469
+[07:27:44] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Fisherberries]
+[07:27:44] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_food_garlic] at connected tick 1472
+[07:27:44] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Garlic]
+[07:27:44] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_food_grapes] at connected tick 1475
+[07:27:44] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Grapes]
+[07:27:44] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_food_jerky] at connected tick 1478
+[07:27:44] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Jerky]
+[07:27:45] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_food_leek] at connected tick 1481
+[07:27:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Leek]
+[07:27:45] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_food_lentils] at connected tick 1484
+[07:27:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Lentils]
+[07:27:45] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-24] at connected tick 1496
+[07:27:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.45.png
+[07:27:46] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_food_lettuce] at connected tick 1519
+[07:27:47] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Lettuce]
+[07:27:47] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_food_muckroot] at connected tick 1522
+[07:27:47] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Muckroot]
+[07:27:47] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_food_mulberries] at connected tick 1525
+[07:27:47] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Mulberries]
+[07:27:47] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_food_mungbean] at connected tick 1528
+[07:27:47] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Mungbean]
+[07:27:47] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_food_onion] at connected tick 1531
+[07:27:47] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Onion]
+[07:27:47] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_food_pantao] at connected tick 1534
+[07:27:47] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Pantao]
+[07:27:47] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_food_pepper] at connected tick 1537
+[07:27:47] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Pepper]
+[07:27:48] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_food_prickleberries] at connected tick 1540
+[07:27:48] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Prickleberries]
+[07:27:48] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_food_radish] at connected tick 1543
+[07:27:48] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Radish]
+[07:27:48] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-25] at connected tick 1555
+[07:27:48] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.48.png
+[07:27:49] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_food_raspberries] at connected tick 1578
+[07:27:49] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Raspberries]
+[07:27:50] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_food_redbeans] at connected tick 1581
+[07:27:50] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Redbeans]
+[07:27:50] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_food_salmon_fillet_cooked] at connected tick 1584
+[07:27:50] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Cooked Salmon Fillet]
+[07:27:50] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_food_salmon_fillet_raw] at connected tick 1587
+[07:27:50] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Raw Salmon Fillet]
+[07:27:50] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_food_salmon_fillet_smoked] at connected tick 1590
+[07:27:50] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Smoked Salmon Fillet]
+[07:27:50] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_food_sausage_cooked] at connected tick 1593
+[07:27:50] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Cooked Sausage]
+[07:27:50] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_food_sausage_raw] at connected tick 1596
+[07:27:50] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Raw Sausage]
+[07:27:50] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_food_silver_pear] at connected tick 1599
+[07:27:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Silver Pear]
+[07:27:51] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_food_slab_beef_cooked] at connected tick 1602
+[07:27:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Cooked Beef Slab]
+[07:27:51] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-26] at connected tick 1614
+[07:27:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.51.png
+[07:27:52] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_food_slab_beef_raw] at connected tick 1637
+[07:27:52] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Raw Beef Slab]
+[07:27:53] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_food_slab_beef_salted] at connected tick 1640
+[07:27:53] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Salted Beef Slab]
+[07:27:53] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_food_slab_cheval_cooked] at connected tick 1643
+[07:27:53] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Cooked Cheval Slab]
+[07:27:53] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_food_slab_cheval_raw] at connected tick 1646
+[07:27:53] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Raw Cheval Slab]
+[07:27:53] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_food_slab_cheval_salted] at connected tick 1649
+[07:27:53] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Salted Cheval Slab]
+[07:27:53] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_food_slab_mooshroom_cooked] at connected tick 1652
+[07:27:53] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Cooked Mooshroom Slab]
+[07:27:53] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_food_slab_mooshroom_raw] at connected tick 1655
+[07:27:53] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Raw Mooshroom Slab]
+[07:27:53] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_food_slab_pork_cooked] at connected tick 1658
+[07:27:53] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Cooked Pork Slab]
+[07:27:54] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_food_slab_pork_raw] at connected tick 1661
+[07:27:54] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Raw Pork Slab]
+[07:27:54] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-27] at connected tick 1673
+[07:27:54] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.54.png
+[07:27:55] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_food_slab_pork_salted] at connected tick 1696
+[07:27:55] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Salted Pork Slab]
+[07:27:55] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_food_slice_cantaloupe] at connected tick 1699
+[07:27:56] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Slice Cantaloupe]
+[07:27:56] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_food_slice_honeydew] at connected tick 1702
+[07:27:56] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Slice Honeydew]
+[07:27:56] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_food_slice_hornedmelon] at connected tick 1705
+[07:27:56] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Slice Hornedmelon]
+[07:27:56] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_food_slice_squash] at connected tick 1708
+[07:27:56] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Slice Squash]
+[07:27:56] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_food_slice_wintermelon] at connected tick 1711
+[07:27:56] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Slice Wintermelon]
+[07:27:56] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_food_spinach] at connected tick 1714
+[07:27:56] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Spinach]
+[07:27:56] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_food_stew_sweetpod] at connected tick 1717
+[07:27:56] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Sweetpod Stew]
+[07:27:57] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.8 with powers:imported_food_strawberries] at connected tick 1720
+[07:27:57] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Strawberries]
+[07:27:57] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-28] at connected tick 1732
+[07:27:57] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.27.57.png
+[07:27:58] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.0 with powers:imported_food_sunberries] at connected tick 1755
+[07:27:58] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Sunberries]
+[07:27:58] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.1 with powers:imported_food_sweetpod] at connected tick 1758
+[07:27:58] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Sweetpod]
+[07:27:59] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.2 with powers:imported_food_tomato] at connected tick 1761
+[07:27:59] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Tomato]
+[07:27:59] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.3 with powers:imported_food_uradbean] at connected tick 1764
+[07:27:59] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Uradbean]
+[07:27:59] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.4 with powers:imported_food_wisdomfruit] at connected tick 1767
+[07:27:59] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Wisdomfruit]
+[07:27:59] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.5 with powers:imported_magic_essence_blood_dust] at connected tick 1770
+[07:27:59] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Blood Arcane Energy Dust]
+[07:27:59] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.6 with powers:imported_magic_essence_sacred_dust] at connected tick 1773
+[07:27:59] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Sacred Arcane Energy Dust]
+[07:27:59] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [item replace entity @s hotbar.7 with powers:imported_magic_essence_soul_dust] at connected tick 1776
+[07:27:59] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Dormant] ItemAuditor with [Soul Arcane Energy Dust]
+[07:28:00] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-batch-29] at connected tick 1788
+[07:28:00] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.28.00.png
+[07:28:01] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [clear @s] at connected tick 1808
+[07:28:01] [Render thread/INFO] (Minecraft) [System] [CHAT] Removed 9 item(s) from player [Dormant] ItemAuditor
+[07:28:02] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed COMMAND [powers diagnose] at connected tick 1828
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] magic=0/0 cells; spellFields=0 (cap/tick 32); artifactFields=0
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] forces=0; clashes=0; auraCaps=512/player,4096/level; guardians=0
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] proxies=0; travelLoads=0; celestialEvents=0; forcedChunks=0
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] lastTick: packets=0; particles=0; entityInspections=0
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] configValidation: revision=0; adjustments=0; retained=0; dropped=0
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] operatorAudit: total=1
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] operatorAudit action=testing_control; result=success; count=1
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] Energy history: spent=0 restored=0 net=0
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] physicalRays=0; rayCollisionsThisTick=0; shadowSessions=0; revealedShadowBodies=0
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] shadowBodies=0 (hidden=0, revealed=0); tasks=0; energy=0; rites=0; toggles=0; casts=0; conjurations=0; planner=0; contexts=0; targetProfiles=0; creditWindows=0; forcedChunks=0; leaks=0
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] realmBuilds=0; containment=0 (cap/tick 256); invasions=0/64; concord=0/0
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=minecraft:overworld; q=121; candidates=0; misses=121; stale=12; fallbackScans=16; memory~=320B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=minecraft:overworld; q=13; candidates=0; misses=13; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] travelTickets=0/64; perDimensionLimit=24; lastRefusal=none
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] missingDimensions=0; droppedDistinct=0; orphanedRuinEvents=0
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] questTelemetrySamples=0; publicationReadyLevels=0/20; minimumPerLevel=20
+[07:28:02] [Render thread/INFO] (Minecraft) [System] [CHAT] testing: energy=disabled; cooldowns=disabled
+[07:28:03] [Render thread/INFO] (powers) QA client role=exact-f076572-item-catalogue-accepted executed SCREENSHOT [item-catalogue-complete] at connected tick 1848
+[07:28:03] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_07.28.03.png

@@ -1,0 +1,324 @@
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	gamemode creative @s
+# batch 1
+103	COMMAND	item replace entity @s hotbar.0 with powers:rainbow_crystal
+106	COMMAND	item replace entity @s hotbar.1 with powers:red_crystal
+109	COMMAND	item replace entity @s hotbar.2 with powers:orange_crystal
+112	COMMAND	item replace entity @s hotbar.3 with powers:yellow_crystal
+115	COMMAND	item replace entity @s hotbar.4 with powers:green_crystal
+118	COMMAND	item replace entity @s hotbar.5 with powers:blue_crystal
+121	COMMAND	item replace entity @s hotbar.6 with powers:indigo_crystal
+124	COMMAND	item replace entity @s hotbar.7 with powers:violet_crystal
+127	COMMAND	item replace entity @s hotbar.8 with powers:light_crystal
+139	SCREENSHOT	item-batch-1
+# batch 2
+162	COMMAND	item replace entity @s hotbar.0 with powers:dark_crystal
+165	COMMAND	item replace entity @s hotbar.1 with powers:infected_rainbow_crystal
+168	COMMAND	item replace entity @s hotbar.2 with powers:darkness
+171	COMMAND	item replace entity @s hotbar.3 with powers:pure_light
+174	COMMAND	item replace entity @s hotbar.4 with powers:amethyst_ward
+177	COMMAND	item replace entity @s hotbar.5 with powers:arcane_crucible
+180	COMMAND	item replace entity @s hotbar.6 with powers:darkness_creature_spawn_egg
+183	COMMAND	item replace entity @s hotbar.7 with powers:power_test_actor_spawn_egg
+186	COMMAND	item replace entity @s hotbar.8 with powers:radiant_sentinel_spawn_egg
+198	SCREENSHOT	item-batch-2
+# batch 3
+221	COMMAND	item replace entity @s hotbar.0 with powers:first_vessel_spawn_egg
+224	COMMAND	item replace entity @s hotbar.1 with powers:dark_herald_spawn_egg
+227	COMMAND	item replace entity @s hotbar.2 with powers:light_herald_spawn_egg
+230	COMMAND	item replace entity @s hotbar.3 with powers:amethyst_greatblade
+233	COMMAND	item replace entity @s hotbar.4 with powers:amethyst_greatpick
+236	COMMAND	item replace entity @s hotbar.5 with powers:amethyst_greatshovel
+239	COMMAND	item replace entity @s hotbar.6 with powers:ancient_greatslab
+242	COMMAND	item replace entity @s hotbar.7 with powers:azure_dagger
+245	COMMAND	item replace entity @s hotbar.8 with powers:azure_greataxe
+257	SCREENSHOT	item-batch-3
+# batch 4
+280	COMMAND	item replace entity @s hotbar.0 with powers:azure_greatsword
+283	COMMAND	item replace entity @s hotbar.1 with powers:azure_pickaxe
+286	COMMAND	item replace entity @s hotbar.2 with powers:azure_sabre
+289	COMMAND	item replace entity @s hotbar.3 with powers:azure_scythe
+292	COMMAND	item replace entity @s hotbar.4 with powers:azure_shovel
+295	COMMAND	item replace entity @s hotbar.5 with powers:berserkers_cleaver
+298	COMMAND	item replace entity @s hotbar.6 with powers:berserkers_greataxe
+301	COMMAND	item replace entity @s hotbar.7 with powers:black_iron_clobberer
+304	COMMAND	item replace entity @s hotbar.8 with powers:black_iron_greataxe
+316	SCREENSHOT	item-batch-4
+# batch 5
+339	COMMAND	item replace entity @s hotbar.0 with powers:black_iron_greatsword
+342	COMMAND	item replace entity @s hotbar.1 with powers:calamity_blade
+345	COMMAND	item replace entity @s hotbar.2 with powers:claymore
+348	COMMAND	item replace entity @s hotbar.3 with powers:crescent_greataxe
+351	COMMAND	item replace entity @s hotbar.4 with powers:crimson_cleaver
+354	COMMAND	item replace entity @s hotbar.5 with powers:crystal_frostblade
+357	COMMAND	item replace entity @s hotbar.6 with powers:crystal_frostscythe
+360	COMMAND	item replace entity @s hotbar.7 with powers:demonic_sword
+363	COMMAND	item replace entity @s hotbar.8 with powers:demons_blood_blade
+375	SCREENSHOT	item-batch-5
+# batch 6
+398	COMMAND	item replace entity @s hotbar.0 with powers:demons_blood_pick
+401	COMMAND	item replace entity @s hotbar.1 with powers:demons_blood_shovel
+404	COMMAND	item replace entity @s hotbar.2 with powers:demonslayers_greatsword
+407	COMMAND	item replace entity @s hotbar.3 with powers:dragon_sword
+410	COMMAND	item replace entity @s hotbar.4 with powers:emerald_greatcleaver
+413	COMMAND	item replace entity @s hotbar.5 with powers:ethereal_frostblade
+416	COMMAND	item replace entity @s hotbar.6 with powers:flamberge
+419	COMMAND	item replace entity @s hotbar.7 with powers:gilded_phoenix_greataxe
+422	COMMAND	item replace entity @s hotbar.8 with powers:gloomsteel_greataxe
+434	SCREENSHOT	item-batch-6
+# batch 7
+457	COMMAND	item replace entity @s hotbar.0 with powers:gloomsteel_katana
+460	COMMAND	item replace entity @s hotbar.1 with powers:gloomsteel_knife
+463	COMMAND	item replace entity @s hotbar.2 with powers:grand_claymore
+466	COMMAND	item replace entity @s hotbar.3 with powers:heavenly_partisan
+469	COMMAND	item replace entity @s hotbar.4 with powers:iron_battle_axe
+472	COMMAND	item replace entity @s hotbar.5 with powers:iron_broadsword
+475	COMMAND	item replace entity @s hotbar.6 with powers:iron_dagger
+478	COMMAND	item replace entity @s hotbar.7 with powers:iron_greataxe
+481	COMMAND	item replace entity @s hotbar.8 with powers:iron_halberd
+493	SCREENSHOT	item-batch-7
+# batch 8
+516	COMMAND	item replace entity @s hotbar.0 with powers:iron_hay_sickle
+519	COMMAND	item replace entity @s hotbar.1 with powers:iron_mace
+522	COMMAND	item replace entity @s hotbar.2 with powers:iron_polearm
+525	COMMAND	item replace entity @s hotbar.3 with powers:iron_sai
+528	COMMAND	item replace entity @s hotbar.4 with powers:lycanbane
+531	COMMAND	item replace entity @s hotbar.5 with powers:moonlight
+534	COMMAND	item replace entity @s hotbar.6 with powers:nature_sword
+537	COMMAND	item replace entity @s hotbar.7 with powers:nocturne
+540	COMMAND	item replace entity @s hotbar.8 with powers:oculus
+552	SCREENSHOT	item-batch-8
+# batch 9
+575	COMMAND	item replace entity @s hotbar.0 with powers:phantomguard_greatsword
+578	COMMAND	item replace entity @s hotbar.1 with powers:phantomguard_partisan
+581	COMMAND	item replace entity @s hotbar.2 with powers:piercer
+584	COMMAND	item replace entity @s hotbar.3 with powers:ravenous_blade
+587	COMMAND	item replace entity @s hotbar.4 with powers:revenants_darkscepter
+590	COMMAND	item replace entity @s hotbar.5 with powers:revenants_gravecleaver
+593	COMMAND	item replace entity @s hotbar.6 with powers:revenants_gravescepter
+596	COMMAND	item replace entity @s hotbar.7 with powers:runic_piercer
+599	COMMAND	item replace entity @s hotbar.8 with powers:sacrificial_cleaver
+611	SCREENSHOT	item-batch-9
+# batch 10
+634	COMMAND	item replace entity @s hotbar.0 with powers:skeleton_axe
+637	COMMAND	item replace entity @s hotbar.1 with powers:solstice
+640	COMMAND	item replace entity @s hotbar.2 with powers:spider_sword
+643	COMMAND	item replace entity @s hotbar.3 with powers:talonbrand
+646	COMMAND	item replace entity @s hotbar.4 with powers:talonpick
+649	COMMAND	item replace entity @s hotbar.5 with powers:talonshovel
+652	COMMAND	item replace entity @s hotbar.6 with powers:treacherous_axe
+655	COMMAND	item replace entity @s hotbar.7 with powers:treacherous_bludgeon
+658	COMMAND	item replace entity @s hotbar.8 with powers:treacherous_cleaver
+670	SCREENSHOT	item-batch-10
+# batch 11
+693	COMMAND	item replace entity @s hotbar.0 with powers:uchigatana
+696	COMMAND	item replace entity @s hotbar.1 with powers:vaelith
+699	COMMAND	item replace entity @s hotbar.2 with powers:valhakyra
+702	COMMAND	item replace entity @s hotbar.3 with powers:vengeance_blade
+705	COMMAND	item replace entity @s hotbar.4 with powers:vesper
+708	COMMAND	item replace entity @s hotbar.5 with powers:vindicator
+711	COMMAND	item replace entity @s hotbar.6 with powers:viridian_greataxe
+714	COMMAND	item replace entity @s hotbar.7 with powers:viridian_pickaxe
+717	COMMAND	item replace entity @s hotbar.8 with powers:viridian_shovel
+729	SCREENSHOT	item-batch-11
+# batch 12
+752	COMMAND	item replace entity @s hotbar.0 with powers:void_oculus
+755	COMMAND	item replace entity @s hotbar.1 with powers:windreaper
+758	COMMAND	item replace entity @s hotbar.2 with powers:winterthorn
+761	COMMAND	item replace entity @s hotbar.3 with powers:wooden_bludgeon
+764	COMMAND	item replace entity @s hotbar.4 with powers:wooden_tonfa
+767	COMMAND	item replace entity @s hotbar.5 with powers:zenith
+770	COMMAND	item replace entity @s hotbar.6 with powers:imported_artifact_ammolite
+773	COMMAND	item replace entity @s hotbar.7 with powers:imported_artifact_amulet
+776	COMMAND	item replace entity @s hotbar.8 with powers:imported_artifact_beating_heart
+788	SCREENSHOT	item-batch-12
+# batch 13
+811	COMMAND	item replace entity @s hotbar.0 with powers:imported_artifact_blackpearl
+814	COMMAND	item replace entity @s hotbar.1 with powers:imported_artifact_bloodstone
+817	COMMAND	item replace entity @s hotbar.2 with powers:imported_artifact_bonefigurine
+820	COMMAND	item replace entity @s hotbar.3 with powers:imported_artifact_bound_runestone_active_1
+823	COMMAND	item replace entity @s hotbar.4 with powers:imported_artifact_bound_runestone_active_2
+826	COMMAND	item replace entity @s hotbar.5 with powers:imported_artifact_bound_runestone_active_3
+829	COMMAND	item replace entity @s hotbar.6 with powers:imported_artifact_bound_runestone_inert_1
+832	COMMAND	item replace entity @s hotbar.7 with powers:imported_artifact_bound_runestone_inert_2
+835	COMMAND	item replace entity @s hotbar.8 with powers:imported_artifact_bound_runestone_inert_3
+847	SCREENSHOT	item-batch-13
+# batch 14
+870	COMMAND	item replace entity @s hotbar.0 with powers:imported_artifact_bowl
+873	COMMAND	item replace entity @s hotbar.1 with powers:imported_artifact_bullion
+876	COMMAND	item replace entity @s hotbar.2 with powers:imported_artifact_coins
+879	COMMAND	item replace entity @s hotbar.3 with powers:imported_artifact_corroded_copper_ring
+882	COMMAND	item replace entity @s hotbar.4 with powers:imported_artifact_dark_bone_figurine
+885	COMMAND	item replace entity @s hotbar.5 with powers:imported_artifact_diamond_ring
+888	COMMAND	item replace entity @s hotbar.6 with powers:imported_artifact_dripping_orb_1
+891	COMMAND	item replace entity @s hotbar.7 with powers:imported_artifact_dripping_orb_2
+894	COMMAND	item replace entity @s hotbar.8 with powers:imported_artifact_emerald_ring
+906	SCREENSHOT	item-batch-14
+# batch 15
+929	COMMAND	item replace entity @s hotbar.0 with powers:imported_artifact_emperyeanjewel
+932	COMMAND	item replace entity @s hotbar.1 with powers:imported_artifact_flute
+935	COMMAND	item replace entity @s hotbar.2 with powers:imported_artifact_ghoul_heart
+938	COMMAND	item replace entity @s hotbar.3 with powers:imported_artifact_heart_mechanism
+941	COMMAND	item replace entity @s hotbar.4 with powers:imported_artifact_lodestone
+944	COMMAND	item replace entity @s hotbar.5 with powers:imported_artifact_malignember
+947	COMMAND	item replace entity @s hotbar.6 with powers:imported_artifact_oddstone
+950	COMMAND	item replace entity @s hotbar.7 with powers:imported_artifact_philosopherstone
+953	COMMAND	item replace entity @s hotbar.8 with powers:imported_artifact_plain_copper_ring
+965	SCREENSHOT	item-batch-15
+# batch 16
+988	COMMAND	item replace entity @s hotbar.0 with powers:imported_artifact_ritualdagger
+991	COMMAND	item replace entity @s hotbar.1 with powers:imported_artifact_runestone_back
+994	COMMAND	item replace entity @s hotbar.2 with powers:imported_artifact_runestone_dark_inscribed_large
+997	COMMAND	item replace entity @s hotbar.3 with powers:imported_artifact_runestone_dark_inscribed_medium
+1000	COMMAND	item replace entity @s hotbar.4 with powers:imported_artifact_runestone_dark_inscribed_small
+1003	COMMAND	item replace entity @s hotbar.5 with powers:imported_artifact_runestone_dark_inscribed_tiny
+1006	COMMAND	item replace entity @s hotbar.6 with powers:imported_artifact_runestone_dark_large
+1009	COMMAND	item replace entity @s hotbar.7 with powers:imported_artifact_runestone_dark_medium
+1012	COMMAND	item replace entity @s hotbar.8 with powers:imported_artifact_runestone_dark_small
+1024	SCREENSHOT	item-batch-16
+# batch 17
+1047	COMMAND	item replace entity @s hotbar.0 with powers:imported_artifact_runestone_dark_tiny
+1050	COMMAND	item replace entity @s hotbar.1 with powers:imported_artifact_runestone_frigid
+1053	COMMAND	item replace entity @s hotbar.2 with powers:imported_artifact_runestone_inert
+1056	COMMAND	item replace entity @s hotbar.3 with powers:imported_artifact_runestone_overlay_0
+1059	COMMAND	item replace entity @s hotbar.4 with powers:imported_artifact_runestone_overlay_1
+1062	COMMAND	item replace entity @s hotbar.5 with powers:imported_artifact_runestone_overlay_10
+1065	COMMAND	item replace entity @s hotbar.6 with powers:imported_artifact_runestone_overlay_2
+1068	COMMAND	item replace entity @s hotbar.7 with powers:imported_artifact_runestone_overlay_3
+1071	COMMAND	item replace entity @s hotbar.8 with powers:imported_artifact_runestone_overlay_4
+1083	SCREENSHOT	item-batch-17
+# batch 18
+1106	COMMAND	item replace entity @s hotbar.0 with powers:imported_artifact_runestone_overlay_5
+1109	COMMAND	item replace entity @s hotbar.1 with powers:imported_artifact_runestone_overlay_6
+1112	COMMAND	item replace entity @s hotbar.2 with powers:imported_artifact_runestone_overlay_7
+1115	COMMAND	item replace entity @s hotbar.3 with powers:imported_artifact_runestone_overlay_8
+1118	COMMAND	item replace entity @s hotbar.4 with powers:imported_artifact_runestone_overlay_9
+1121	COMMAND	item replace entity @s hotbar.5 with powers:imported_artifact_smallpot
+1124	COMMAND	item replace entity @s hotbar.6 with powers:imported_artifact_soulmatrix
+1127	COMMAND	item replace entity @s hotbar.7 with powers:imported_artifact_soulstone_large
+1130	COMMAND	item replace entity @s hotbar.8 with powers:imported_artifact_soulstone_large_inert
+1142	SCREENSHOT	item-batch-18
+# batch 19
+1165	COMMAND	item replace entity @s hotbar.0 with powers:imported_artifact_soulstone_medium
+1168	COMMAND	item replace entity @s hotbar.1 with powers:imported_artifact_soulstone_medium_inert
+1171	COMMAND	item replace entity @s hotbar.2 with powers:imported_artifact_soulstone_small
+1174	COMMAND	item replace entity @s hotbar.3 with powers:imported_artifact_soulstone_small_inert
+1177	COMMAND	item replace entity @s hotbar.4 with powers:imported_artifact_star
+1180	COMMAND	item replace entity @s hotbar.5 with powers:imported_artifact_star_animated
+1183	COMMAND	item replace entity @s hotbar.6 with powers:imported_artifact_trilobite_fossil
+1186	COMMAND	item replace entity @s hotbar.7 with powers:imported_artifact_trilobitefossil
+1189	COMMAND	item replace entity @s hotbar.8 with powers:imported_artifact_woodheart
+1201	SCREENSHOT	item-batch-19
+# batch 20
+1224	COMMAND	item replace entity @s hotbar.0 with powers:imported_blood_salts_2
+1227	COMMAND	item replace entity @s hotbar.1 with powers:imported_book_grimoire_abyssal
+1230	COMMAND	item replace entity @s hotbar.2 with powers:imported_book_grimoire_blight
+1233	COMMAND	item replace entity @s hotbar.3 with powers:imported_book_grimoire_celestial
+1236	COMMAND	item replace entity @s hotbar.4 with powers:imported_book_grimoire_deep
+1239	COMMAND	item replace entity @s hotbar.5 with powers:imported_book_grimoire_infernal
+1242	COMMAND	item replace entity @s hotbar.6 with powers:imported_book_grimoire_recolor
+1245	COMMAND	item replace entity @s hotbar.7 with powers:imported_book_grimoire_recolor_overlay_abyssal
+1248	COMMAND	item replace entity @s hotbar.8 with powers:imported_book_grimoire_recolor_overlay_blight
+1260	SCREENSHOT	item-batch-20
+# batch 21
+1283	COMMAND	item replace entity @s hotbar.0 with powers:imported_book_grimoire_recolor_overlay_celestial
+1286	COMMAND	item replace entity @s hotbar.1 with powers:imported_book_grimoire_recolor_overlay_deep
+1289	COMMAND	item replace entity @s hotbar.2 with powers:imported_book_grimoire_recolor_overlay_infernal
+1292	COMMAND	item replace entity @s hotbar.3 with powers:imported_book_grimoire_recolor_overlay_wild
+1295	COMMAND	item replace entity @s hotbar.4 with powers:imported_book_grimoire_wild
+1298	COMMAND	item replace entity @s hotbar.5 with powers:imported_book_page_written
+1301	COMMAND	item replace entity @s hotbar.6 with powers:imported_book_tattered
+1304	COMMAND	item replace entity @s hotbar.7 with powers:imported_device_miniportal
+1307	COMMAND	item replace entity @s hotbar.8 with powers:imported_device_miniportal_active
+1319	SCREENSHOT	item-batch-21
+# batch 22
+1342	COMMAND	item replace entity @s hotbar.0 with powers:imported_food_apple_green
+1345	COMMAND	item replace entity @s hotbar.1 with powers:imported_food_apple_wormy
+1348	COMMAND	item replace entity @s hotbar.2 with powers:imported_food_apple_wormy_2
+1351	COMMAND	item replace entity @s hotbar.3 with powers:imported_food_bacon_cooked
+1354	COMMAND	item replace entity @s hotbar.4 with powers:imported_food_bacon_raw
+1357	COMMAND	item replace entity @s hotbar.5 with powers:imported_food_beans
+1360	COMMAND	item replace entity @s hotbar.6 with powers:imported_food_beet
+1363	COMMAND	item replace entity @s hotbar.7 with powers:imported_food_billberry
+1366	COMMAND	item replace entity @s hotbar.8 with powers:imported_food_blackberry
+1378	SCREENSHOT	item-batch-22
+# batch 23
+1401	COMMAND	item replace entity @s hotbar.0 with powers:imported_food_blueberries
+1404	COMMAND	item replace entity @s hotbar.1 with powers:imported_food_bread_big
+1407	COMMAND	item replace entity @s hotbar.2 with powers:imported_food_cabbage
+1410	COMMAND	item replace entity @s hotbar.3 with powers:imported_food_chickpeas
+1413	COMMAND	item replace entity @s hotbar.4 with powers:imported_food_coconut_normal
+1416	COMMAND	item replace entity @s hotbar.5 with powers:imported_food_coconut_opened
+1419	COMMAND	item replace entity @s hotbar.6 with powers:imported_food_coconut_straw
+1422	COMMAND	item replace entity @s hotbar.7 with powers:imported_food_cranberries
+1425	COMMAND	item replace entity @s hotbar.8 with powers:imported_food_fig
+1437	SCREENSHOT	item-batch-23
+# batch 24
+1460	COMMAND	item replace entity @s hotbar.0 with powers:imported_food_fish_fillet_cooked
+1463	COMMAND	item replace entity @s hotbar.1 with powers:imported_food_fish_fillet_raw
+1466	COMMAND	item replace entity @s hotbar.2 with powers:imported_food_fish_fillet_smoked
+1469	COMMAND	item replace entity @s hotbar.3 with powers:imported_food_fisherberries
+1472	COMMAND	item replace entity @s hotbar.4 with powers:imported_food_garlic
+1475	COMMAND	item replace entity @s hotbar.5 with powers:imported_food_grapes
+1478	COMMAND	item replace entity @s hotbar.6 with powers:imported_food_jerky
+1481	COMMAND	item replace entity @s hotbar.7 with powers:imported_food_leek
+1484	COMMAND	item replace entity @s hotbar.8 with powers:imported_food_lentils
+1496	SCREENSHOT	item-batch-24
+# batch 25
+1519	COMMAND	item replace entity @s hotbar.0 with powers:imported_food_lettuce
+1522	COMMAND	item replace entity @s hotbar.1 with powers:imported_food_muckroot
+1525	COMMAND	item replace entity @s hotbar.2 with powers:imported_food_mulberries
+1528	COMMAND	item replace entity @s hotbar.3 with powers:imported_food_mungbean
+1531	COMMAND	item replace entity @s hotbar.4 with powers:imported_food_onion
+1534	COMMAND	item replace entity @s hotbar.5 with powers:imported_food_pantao
+1537	COMMAND	item replace entity @s hotbar.6 with powers:imported_food_pepper
+1540	COMMAND	item replace entity @s hotbar.7 with powers:imported_food_prickleberries
+1543	COMMAND	item replace entity @s hotbar.8 with powers:imported_food_radish
+1555	SCREENSHOT	item-batch-25
+# batch 26
+1578	COMMAND	item replace entity @s hotbar.0 with powers:imported_food_raspberries
+1581	COMMAND	item replace entity @s hotbar.1 with powers:imported_food_redbeans
+1584	COMMAND	item replace entity @s hotbar.2 with powers:imported_food_salmon_fillet_cooked
+1587	COMMAND	item replace entity @s hotbar.3 with powers:imported_food_salmon_fillet_raw
+1590	COMMAND	item replace entity @s hotbar.4 with powers:imported_food_salmon_fillet_smoked
+1593	COMMAND	item replace entity @s hotbar.5 with powers:imported_food_sausage_cooked
+1596	COMMAND	item replace entity @s hotbar.6 with powers:imported_food_sausage_raw
+1599	COMMAND	item replace entity @s hotbar.7 with powers:imported_food_silver_pear
+1602	COMMAND	item replace entity @s hotbar.8 with powers:imported_food_slab_beef_cooked
+1614	SCREENSHOT	item-batch-26
+# batch 27
+1637	COMMAND	item replace entity @s hotbar.0 with powers:imported_food_slab_beef_raw
+1640	COMMAND	item replace entity @s hotbar.1 with powers:imported_food_slab_beef_salted
+1643	COMMAND	item replace entity @s hotbar.2 with powers:imported_food_slab_cheval_cooked
+1646	COMMAND	item replace entity @s hotbar.3 with powers:imported_food_slab_cheval_raw
+1649	COMMAND	item replace entity @s hotbar.4 with powers:imported_food_slab_cheval_salted
+1652	COMMAND	item replace entity @s hotbar.5 with powers:imported_food_slab_mooshroom_cooked
+1655	COMMAND	item replace entity @s hotbar.6 with powers:imported_food_slab_mooshroom_raw
+1658	COMMAND	item replace entity @s hotbar.7 with powers:imported_food_slab_pork_cooked
+1661	COMMAND	item replace entity @s hotbar.8 with powers:imported_food_slab_pork_raw
+1673	SCREENSHOT	item-batch-27
+# batch 28
+1696	COMMAND	item replace entity @s hotbar.0 with powers:imported_food_slab_pork_salted
+1699	COMMAND	item replace entity @s hotbar.1 with powers:imported_food_slice_cantaloupe
+1702	COMMAND	item replace entity @s hotbar.2 with powers:imported_food_slice_honeydew
+1705	COMMAND	item replace entity @s hotbar.3 with powers:imported_food_slice_hornedmelon
+1708	COMMAND	item replace entity @s hotbar.4 with powers:imported_food_slice_squash
+1711	COMMAND	item replace entity @s hotbar.5 with powers:imported_food_slice_wintermelon
+1714	COMMAND	item replace entity @s hotbar.6 with powers:imported_food_spinach
+1717	COMMAND	item replace entity @s hotbar.7 with powers:imported_food_stew_sweetpod
+1720	COMMAND	item replace entity @s hotbar.8 with powers:imported_food_strawberries
+1732	SCREENSHOT	item-batch-28
+# batch 29
+1755	COMMAND	item replace entity @s hotbar.0 with powers:imported_food_sunberries
+1758	COMMAND	item replace entity @s hotbar.1 with powers:imported_food_sweetpod
+1761	COMMAND	item replace entity @s hotbar.2 with powers:imported_food_tomato
+1764	COMMAND	item replace entity @s hotbar.3 with powers:imported_food_uradbean
+1767	COMMAND	item replace entity @s hotbar.4 with powers:imported_food_wisdomfruit
+1770	COMMAND	item replace entity @s hotbar.5 with powers:imported_magic_essence_blood_dust
+1773	COMMAND	item replace entity @s hotbar.6 with powers:imported_magic_essence_sacred_dust
+1776	COMMAND	item replace entity @s hotbar.7 with powers:imported_magic_essence_soul_dust
+1788	SCREENSHOT	item-batch-29
+1808	COMMAND	clear @s
+1828	COMMAND	powers diagnose
+1848	SCREENSHOT	item-catalogue-complete
