@@ -5,6 +5,7 @@
 - Allowed the opt-in connected-player profiler to select one accepted population at a time, enabling reproducible parallel 10/50/100-player evidence runs from immutable copies of the same commit without changing their workloads or budgets.
 - Counted real-client activation results at the server-authoritative packet boundary so rendered-client profiles can prove successful casts instead of inferring them from presentation output.
 - Required connected-player profiles to satisfy both the exact tick-sample count and full wall-clock duration, retaining exactly 36,000 samples while a real server crosses the final subsecond boundary.
+- Accepted fresh exact-build 10/50/100 embedded-player and ten-rendered-client 30-minute profiles: 63,003/63,003 authoritative casts, worst p95/p99 18.640/30.635 ms, and zero JFR data loss.
 
 - Closed QA-005's current 427-row live acceptance register: all 260 items, every action and artifact route, Middleworld, both alignment-exclusive advancement screens, entities, commands, and systems now carry exact-build PASS evidence; the development client replays vanilla click-style keys so UI captures exercise Minecraft's real screen path.
 - Kept artifact-started multi-tick powers alive while their authorised Shadow Sword or Heavenly Partisan remains in top-level inventory, and made item removal, lost alignment, death, logout, or shutdown end them safely without retaining player/world references.
