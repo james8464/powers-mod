@@ -179,7 +179,7 @@ public final class AcceptanceClientAgent {
 			case "advancements" -> client.options.keyAdvancements;
 			default -> throw new IllegalArgumentException("Unsupported acceptance key");
 		};
-		key.setDown(values[1].equals("on"));
+		AcceptanceKeyInput.apply(key, values[0], values[1].equals("on"));
 	}
 
 	private static void attackNamed(Minecraft client, String name) {
