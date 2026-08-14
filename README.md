@@ -341,6 +341,8 @@ Operator commands:
 /powers travel <namespaced-dimension>  # for example minecraft:the_nether
 ```
 
+Administrator travel resolves the registered dimension, loads only its fixed entry chunk through a bounded temporary ticket, and arrives at the terrain surface without retaining a body proxy. It is an audited recovery control rather than an ordinary player escape route.
+
 Optional Fabric Permissions API providers may grant the independent nodes `powers.command.diagnose`, `powers.command.testing`, `powers.command.travel`, `powers.command.assign`, `powers.command.recover`, and `powers.command.boss`; without a provider, the configured vanilla operator tier remains authoritative.
 
 Testing commands are operator-only, executor-local, session-only, and never bypass protection, amethyst, targeting, realm gates, damage, permissions, or Time Stop:

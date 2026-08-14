@@ -24,11 +24,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
@@ -127,7 +123,7 @@ public final class PowerCommand {
 				.then(Commands.literal("travel")
 						.requires(source -> PermissionNodes.allows(source, PermissionCommandRoutes.forControl("travel")))
 						.then(Commands.argument("dimension", dimensionArgument())
-								.executes(PowerCommand::travel))));
+								.executes(PowerTravelCommand::run))));
 	}
 
 	static StringArgumentType dimensionArgument() { return StringArgumentType.greedyString(); }
@@ -418,32 +414,5 @@ public final class PowerCommand {
 			player.sendSystemMessage(Component.literal("Your true darkness title is revealed.")
 					.withStyle(ChatFormatting.GRAY));
 		}
-	}
-	/** teleports the executing player to a registered dimension like powers:dark_realm */
-	private static int travel(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-		ServerPlayer player = context.getSource().getPlayerOrException();
-		String dimName = StringArgumentType.getString(context, "dimension");
-		Identifier id = Identifier.tryParse(dimName);
-		if (id == null) {
-			OperatorCommandAudit.record(context.getSource(), OperatorAuditAction.FORCED_TRAVEL, OperatorAuditResult.DENIED,
-					player.getScoreboardName(), "invalid_dimension");
-			context.getSource().sendFailure(Component.literal("Invalid dimension: " + dimName));
-			return 0;
-		}
-		ServerLevel target = player.level().getServer().getLevel(ResourceKey.create(Registries.DIMENSION, id));
-		if (target == null) {
-			OperatorCommandAudit.record(context.getSource(), OperatorAuditAction.FORCED_TRAVEL, OperatorAuditResult.DENIED,
-					player.getScoreboardName(), "unknown_dimension");
-			context.getSource().sendFailure(Component.literal("Unknown dimension: " + dimName));
-			return 0;
-		}
-		// land at the realm's fixed entry point near the origin
-		BodyProxyManager.finish(player);
-		player.teleportTo(target, 8.0, -58.0, 8.0, Set.of(), player.getYRot(), player.getXRot(), false);
-		OperatorCommandAudit.record(context.getSource(), OperatorAuditAction.FORCED_TRAVEL, OperatorAuditResult.SUCCESS,
-				player.getScoreboardName(), "dimension_travel");
-		context.getSource().sendSuccess(() -> Component.literal("Traveled to " + dimName)
-				.withStyle(ChatFormatting.GREEN), false);
-		return 1;
 	}
 }
