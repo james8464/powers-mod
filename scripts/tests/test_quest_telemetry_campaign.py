@@ -39,6 +39,20 @@ class QuestTelemetryCampaignHarnessTest(unittest.TestCase):
         self.assertIn("powers.qa.role=quest-telemetry", rendered)
         self.assertIn("powers.qa.server=127.0.0.1:25566", rendered)
 
+    def test_client_options_use_valid_minimum_distances(self):
+        options = CAMPAIGN.client_options()
+        self.assertIn("renderDistance:2\n", options)
+        self.assertIn("simulationDistance:5\n", options)
+
+    def test_only_offline_profile_key_errors_are_expected(self):
+        expected, unexpected = CAMPAIGN.classify_client_errors([
+            "[Download-1/ERROR] (Minecraft) Failed to retrieve profile key pair",
+            "[Render thread/ERROR] (powers) Packet handler crashed",
+        ])
+        self.assertEqual(1, len(expected))
+        self.assertEqual(1, len(unexpected))
+        self.assertIn("Packet handler crashed", unexpected[0])
+
 
 if __name__ == "__main__":
     unittest.main()

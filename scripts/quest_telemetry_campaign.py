@@ -22,11 +22,28 @@ READY_MARKER = "Done ("
 CAMPAIGN_PORT = 25_566
 PHASE_TICKS = {"LIGHT": 700_000, "DARK": 635_000}
 ROW = re.compile(r"\b(LIGHT|DARK);(10|[1-9]);(\d+);(\d+);(\d+);([a-z0-9_,.-]+)")
+CLIENT_ERROR = re.compile(r"(?:^|\])[^\n]*\bERROR\b")
+EXPECTED_OFFLINE_CLIENT_ERRORS = ("Failed to retrieve profile key pair",)
 
 
 def client_names(alignment: str) -> list[str]:
     prefix = "QuestLight" if alignment.upper() == "LIGHT" else "QuestDark"
     return [f"{prefix}{index}" for index in range(1, 11)]
+
+
+def client_options() -> str:
+    return (
+        "maxFps:10\nrenderDistance:2\nsimulationDistance:5\n"
+        "entityDistanceScaling:0.5\nparticles:2\ngraphicsMode:fast\n"
+    )
+
+
+def classify_client_errors(lines: list[str]) -> tuple[list[str], list[str]]:
+    errors = [line for line in lines if CLIENT_ERROR.search(line)]
+    expected = [line for line in errors
+                if any(marker in line for marker in EXPECTED_OFFLINE_CLIENT_ERRORS)]
+    unexpected = [line for line in errors if line not in expected]
+    return expected, unexpected
 
 
 def client_command(java: Path, launch: Path, arguments_file: Path,
@@ -142,13 +159,10 @@ def launch_clients(alignment: str, inputs: tuple[Path, Path, Path]) \
     for username in client_names(alignment):
         directory = OUTPUT / "clients" / username
         directory.mkdir(parents=True, exist_ok=True)
-        (directory / "options.txt").write_text(
-            "maxFps:10\nrenderDistance:2\nsimulationDistance:2\n"
-            "entityDistanceScaling:0.5\nparticles:2\ngraphicsMode:fast\n",
-            encoding="utf-8")
+        (directory / "options.txt").write_text(client_options(), encoding="utf-8")
         log_handle = (OUTPUT / "client-logs" / f"{username}.log").open("wb")
         process = subprocess.Popen(
-            client_command(*inputs, directory, username), cwd=ROOT,
+            client_command(*inputs, directory, username), cwd=directory,
             stdout=log_handle, stderr=subprocess.STDOUT, start_new_session=True)
         launched.append((process, log_handle))
     return launched
@@ -237,13 +251,22 @@ def main() -> int:
     finally:
         stop_group(process)
     rows = parse_telemetry_rows(lines)
-    errors = [line for line in lines if "/ERROR]" in line or "BUILD FAILED" in line]
+    server_errors = [line for line in lines if "/ERROR]" in line or "BUILD FAILED" in line]
+    client_lines = []
+    for client_log in sorted((OUTPUT / "client-logs").glob("*.log")):
+        client_lines.extend(client_log.read_text(encoding="utf-8", errors="replace").splitlines())
+    expected_client_errors, unexpected_client_errors = classify_client_errors(client_lines)
+    errors = server_errors + unexpected_client_errors
     report = {
         "schema": 1, "commit": commit, "minecraft": "26.2",
         "fabric_clients": 20, "sessions_per_alignment": 10,
         "cadence_basis": "server game ticks at authored human-equivalent intervals",
         "wall_seconds": round(time.monotonic() - started, 3), "phases": phases,
-        "rows": [rows[key] for key in sorted(rows)], "error_lines": errors,
+        "rows": [rows[key] for key in sorted(rows)],
+        "server_error_lines": server_errors,
+        "expected_offline_client_error_count": len(expected_client_errors),
+        "unexpected_client_error_lines": unexpected_client_errors,
+        "error_lines": errors,
         "passed": process.returncode == 0 and not errors and publication_ready(rows),
     }
     report_path = OUTPUT / "quest-telemetry-report.json"
