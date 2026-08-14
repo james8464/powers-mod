@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Published a reproducible Minecraft 26.2 Fabric compatibility matrix with exact stable Sodium, Lithium, Simple Voice Chat, ClaimMod, and Inventory Extended artifacts, SHA-256 verification, isolated runtime assembly, real client/server evidence, and explicit unsupported/untested boundaries.
+
 - Added NET-010 atomic action-registry reloads: one immutable monotonic snapshot now owns built-in/external definitions and bounded acyclic datapack aliases; artifact, grimoire, and Rainbow submissions carry revisions and canonical keys, stale requests refresh without mutation, active casts capture their starting revision, and stable saved artifact/favourite/spell/crystal keys migrate while legacy index saves retain deterministic defaults.
 
 - Added the semantically versioned server-only `com.powers.api.v1` integration surface with deterministic bounded Fabric discovery, canonical action/presence/protection ownership, authoritative cast contexts, exception-isolated lifecycle hooks, server-thread enforcement, stop-boundary cleanup, and an independently compiled live example extension.

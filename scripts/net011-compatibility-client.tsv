@@ -1,0 +1,4 @@
+# Combined-stack real-client smoke; console pre-seeds state before the live payload.
+60	CLOSE	screen
+300	ACTIVATE	0
+420	SCREENSHOT	net011-complete

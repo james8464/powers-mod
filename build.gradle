@@ -52,6 +52,9 @@ configurations {
 loom {
 	splitEnvironmentSourceSets()
 	if (providers.gradleProperty("powersRunDir").isPresent()) {
+		runs.named("client") {
+			runDirectory.set(file(providers.gradleProperty("powersRunDir").get()))
+		}
 		runs.named("server") {
 			runDirectory.set(file(providers.gradleProperty("powersRunDir").get()))
 		}
@@ -158,6 +161,40 @@ tasks.register("testPythonScripts", Exec) {
 	group = "verification"
 	description = "Runs deterministic generator and resource-validator fixture tests."
 	commandLine "python3", "-B", "-m", "unittest", "discover", "-s", "scripts/tests", "-p", "test_*.py"
+}
+
+def compatibilityManifest = layout.projectDirectory.file("config/compatibility/net-011.json")
+def compatibilityCache = providers.gradleProperty("powersCompatibilityCache")
+		.orElse(layout.projectDirectory.dir(".compatibility-cache/net-011").asFile.absolutePath)
+def compatibilityProfile = providers.gradleProperty("powersCompatibilityProfile").orElse("complete")
+def compatibilitySide = providers.gradleProperty("powersCompatibilitySide").orElse("server")
+def compatibilityRunDir = providers.gradleProperty("powersCompatibilityRunDir")
+		.orElse(layout.buildDirectory.dir("compatibility-runs").get().asFile.absolutePath)
+
+tasks.register("verifyCompatibilityArtifacts", Exec) {
+	group = "verification"
+	description = "Verifies NET-011 pinned compatibility artifacts from the ignored local cache."
+	commandLine "python3", "-B", "scripts/compatibility_harness.py", "verify",
+			"--manifest", compatibilityManifest.asFile.absolutePath,
+			"--cache", compatibilityCache.get()
+}
+
+tasks.register("prepareCompatibilityRun", Exec) {
+	group = "verification"
+	description = "Assembles one isolated NET-011 Fabric client or server run directory."
+	def target = providers.provider {
+		new File(compatibilityRunDir.get(), "${compatibilityProfile.get()}-${compatibilitySide.get()}")
+	}
+	commandLine "python3", "-B", "scripts/compatibility_harness.py", "assemble",
+			"--manifest", compatibilityManifest.asFile.absolutePath,
+			"--cache", compatibilityCache.get(),
+			"--profile", compatibilityProfile.get(),
+			"--side", compatibilitySide.get(),
+			"--run-dir", target.get().absolutePath
+	doLast {
+		logger.lifecycle("Use -PpowersRunDir={} with run{} for this isolated profile.",
+				target.get().absolutePath, compatibilitySide.get().capitalize())
+	}
 }
 
 // The 90-minute connected-player profile is intentionally absent from ordinary
