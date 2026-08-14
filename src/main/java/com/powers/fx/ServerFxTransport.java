@@ -81,7 +81,8 @@ final class ServerFxTransport {
 					: viewer.getLookAngle().dot(offset.normalize());
 			int requested = protectFirstPerson
 					? ParticleBudget.viewerCount(adaptiveCount, distanceSquared, viewDot) : adaptiveCount;
-			int granted = budget.claim(tick, viewer.getUUID(), requested, distanceSquared);
+			int granted = budget.claim(tick, viewer.getUUID(), viewer.getId(),
+					requested, distanceSquared);
 			if (granted <= 0) continue;
 			ServerRuntimeMetrics.recordParticles(level.getServer(), tick, granted);
 			level.sendParticles(viewer, particle, false, false, position.x, position.y, position.z,
@@ -208,7 +209,7 @@ final class ServerFxTransport {
 		double distanceSquared = viewer.getEyePosition().distanceToSqr(position);
 		var lod = FxLodPolicy.decide(Math.sqrt(distanceSquared), requested, scope, family);
 		if (!lod.visible()) return 0;
-		int granted = budget.claim(tick, viewer.getUUID(),
+		int granted = budget.claim(tick, viewer.getUUID(), viewer.getId(),
 				ParticleBudget.viewerCount(lod.particleCount(), distanceSquared), distanceSquared);
 		if (granted > 0) LOD_METRICS.computeIfAbsent(viewer.level().getServer(),
 				ignored -> new LodCounters()).record(lod.tier(), granted);

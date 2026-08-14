@@ -14,7 +14,7 @@ public final class ViewerParticleBudget {
 	private final int serverLimit;
 	private final int viewerLimit;
 	private final double rangeSquared;
-	private final Map<UUID, Integer> viewerUse = new HashMap<>();
+	private final Map<ViewerIdentity, Integer> viewerUse = new HashMap<>();
 	private long tick = Long.MIN_VALUE;
 	private int serverUse;
 
@@ -29,15 +29,22 @@ public final class ViewerParticleBudget {
 
 	/** Returns the number that may actually be sent to this recipient. */
 	public int claim(long currentTick, UUID viewer, int requested, double distanceSquared) {
+		return claim(currentTick, viewer, 0, requested, distanceSquared);
+	}
+
+	/** Distinguishes simultaneous connections even when a test or proxy reuses a profile UUID. */
+	public int claim(long currentTick, UUID viewer, int sessionId,
+			int requested, double distanceSquared) {
 		Objects.requireNonNull(viewer, "viewer");
 		resetIfNeeded(currentTick);
 		if (requested <= 0 || !Double.isFinite(distanceSquared) || distanceSquared > rangeSquared) return 0;
-		int usedByViewer = viewerUse.getOrDefault(viewer, 0);
+		ViewerIdentity identity = new ViewerIdentity(viewer, sessionId);
+		int usedByViewer = viewerUse.getOrDefault(identity, 0);
 		int granted = Math.min(requested,
 				Math.min(serverLimit - serverUse, viewerLimit - usedByViewer));
 		if (granted <= 0) return 0;
 		serverUse += granted;
-		viewerUse.put(viewer, usedByViewer + granted);
+		viewerUse.put(identity, usedByViewer + granted);
 		return granted;
 	}
 
@@ -53,7 +60,9 @@ public final class ViewerParticleBudget {
 	}
 
 	int viewerUsed(UUID viewer) {
-		return viewerUse.getOrDefault(viewer, 0);
+		return viewerUse.entrySet().stream()
+				.filter(entry -> entry.getKey().profileId().equals(viewer))
+				.mapToInt(Map.Entry::getValue).sum();
 	}
 
 	int serverLimit() {
@@ -63,4 +72,6 @@ public final class ViewerParticleBudget {
 	int viewerLimit() {
 		return viewerLimit;
 	}
+
+	private record ViewerIdentity(UUID profileId, int sessionId) { }
 }
