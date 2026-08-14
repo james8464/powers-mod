@@ -52,4 +52,13 @@ class PowerProtectionAdaptersTest {
 		PowerProtectionAdapters.register("later", 1, query -> true);
 		assertTrue(twoProviders == PowerProtectionAdapters.blockWorkPolicyId());
 	}
+
+	@Test
+	void unknownActionLinkageFailuresFromOlderAdaptersFailClosed() {
+		PowerProtectionAdapters.register("legacy_exhaustive_switch", 10,
+				query -> { throw new IncompatibleClassChangeError("new enum constant"); });
+
+		assertFalse(PowerProtectionAdapters.allows(new ProtectionQuery(
+				ProtectionAction.OBSERVE, null, BlockPos.ZERO, null, null)));
+	}
 }

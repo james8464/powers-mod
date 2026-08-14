@@ -4,8 +4,7 @@ import com.powers.PowersBlocks;
 import com.powers.audit.OperatorAudit;
 import com.powers.audit.OperatorAuditAction;
 import com.powers.audit.OperatorAuditResult;
-import com.powers.config.PowersConfig;
-import com.powers.config.PowersConfigLoader;
+import com.powers.config.ResolvedPowerPolicy;
 import com.powers.fx.CelestialRuinFx;
 import com.powers.mind.PersistentDimensionDiagnostics;
 import com.powers.protection.PowerProtection;
@@ -353,7 +352,7 @@ public final class CelestialRuinManager {
 		private void destroyBatch() {
 			if (destruction.finished()) return;
 			prepareCraterWindow();
-			PowersConfig config = PowersConfigLoader.get();
+			ResolvedPowerPolicy policy = ResolvedPowerPolicy.resolve(level);
 			BlockPos.MutableBlockPos target = new BlockPos.MutableBlockPos();
 			for (BoundedSphereCursor.Offset offset : destruction.take(CelestialRuinRules.BLOCKS_PER_TICK)) {
 				target.set(center.getX() + offset.x(), center.getY() + offset.y(), center.getZ() + offset.z());
@@ -364,8 +363,8 @@ public final class CelestialRuinManager {
 				boolean livingForce = state.is(PowersBlocks.DARKNESS) || state.is(PowersBlocks.PURE_LIGHT);
 				boolean hasBlockEntity = level.getBlockEntity(target) != null;
 				if (!state.isAir() && CelestialRuinRules.shouldDestroy(livingForce,
-						config.celestialRuinTerrainDamage(), hasBlockEntity,
-						config.celestialRuinBlockEntityDamage())) {
+						policy.celestialRuinTerrainDamage(), hasBlockEntity,
+						policy.celestialRuinBlockEntityDamage())) {
 					level.setBlock(target, Blocks.AIR.defaultBlockState(), REMOVAL_FLAGS);
 				}
 			}
@@ -388,7 +387,7 @@ public final class CelestialRuinManager {
 		private void destroyAftershockBatch() {
 			if (aftershockStep >= CelestialRuinRules.aftershockTotalSteps()) return;
 			prepareAftershockWindow();
-			PowersConfig config = PowersConfigLoader.get();
+			ResolvedPowerPolicy policy = ResolvedPowerPolicy.resolve(level);
 			int end = Math.min(pendingAftershockEnd,
 					aftershockStep + CelestialRuinRules.AFTERSHOCK_WORK_PER_TICK);
 			for (; aftershockStep < end; aftershockStep++) {
@@ -409,13 +408,13 @@ public final class CelestialRuinManager {
 					BlockState state = level.getBlockState(target);
 					if (!state.isAir() && CelestialRuinRules.shouldDestroy(
 							state.is(PowersBlocks.DARKNESS) || state.is(PowersBlocks.PURE_LIGHT),
-							config.celestialRuinTerrainDamage(), level.getBlockEntity(target) != null,
-							config.celestialRuinBlockEntityDamage())) {
+							policy.celestialRuinTerrainDamage(), level.getBlockEntity(target) != null,
+							policy.celestialRuinBlockEntityDamage())) {
 						level.setBlock(target, Blocks.AIR.defaultBlockState(), REMOVAL_FLAGS);
 					}
 				}
 				BlockPos fire = new BlockPos(column.getX(), surfaceY - depth + 1, column.getZ());
-				if (CelestialRuinRules.shouldIgnite(config.celestialRuinTerrainDamage(), false)
+				if (CelestialRuinRules.shouldIgnite(policy.celestialRuinTerrainDamage(), false)
 						&& PowerProtection.mayAffectBlock(level, fire)
 						&& level.getBlockState(fire).isAir()
 						&& Blocks.FIRE.defaultBlockState().canSurvive(level, fire)) {

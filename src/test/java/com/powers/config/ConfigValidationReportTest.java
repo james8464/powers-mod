@@ -72,6 +72,56 @@ class ConfigValidationReportTest {
 		assertEquals(100 - ConfigValidationReport.MAX_ENTRIES, report.dropped());
 	}
 
+	@Test
+	void parsesWorldAndDimensionPolicyPatchesWithoutFlatteningTheirOrigins() {
+		PowersConfigLoader.ParseResult parsed = PowersConfigLoader.parseWithReport("""
+				{
+				  "schemaVersion": 4,
+				  "policyOverrides": {
+				    "worlds": {
+				      "acceptance world": {
+				        "allowTerrainDamage": false,
+				        "requireLocatorConsent": false
+				      }
+				    },
+				    "dimensions": {
+				      "minecraft:the_nether": {
+				        "allowTerrainDamage": true
+				      }
+				    }
+				  }
+				}
+				""");
+
+		ResolvedPowerPolicy policy = ResolvedPowerPolicy.resolve(
+				parsed.config(), "acceptance world", "minecraft:the_nether");
+		assertTrue(policy.allowTerrainDamage());
+		assertEquals(ResolvedPowerPolicy.Scope.DIMENSION,
+				policy.source(ResolvedPowerPolicy.Field.ALLOW_TERRAIN_DAMAGE).scope());
+		assertEquals(ResolvedPowerPolicy.Scope.WORLD,
+				policy.source(ResolvedPowerPolicy.Field.REQUIRE_LOCATOR_CONSENT).scope());
+	}
+
+	@Test
+	void malformedPolicyPatchesFailClosedAndAreReportedWithoutRawValues() {
+		PowersConfigLoader.ParseResult parsed = PowersConfigLoader.parseWithReport("""
+				{
+				  "schemaVersion": 4,
+				  "policyOverrides": {
+				    "dimensions": {
+				      "NOT A DIMENSION": {"allowTerrainDamage": true},
+				      "minecraft:overworld": {"allowTerrainDamage": "yes"}
+				    }
+				  }
+				}
+				""");
+
+		assertTrue(parsed.config().policyOverrides().dimensions().isEmpty());
+		String report = String.join("\n", parsed.report().operatorLines());
+		assertTrue(report.contains("policyOverrides.dimensions"));
+		assertTrue(!report.contains("NOT A DIMENSION") && !report.contains("yes"));
+	}
+
 	private static ConfigValidationReport.Entry entry(ConfigValidationReport report, String path) {
 		return report.entries().stream().filter(value -> value.path().equals(path))
 				.filter(value -> value.reason().equals("out_of_range") || value.reason().equals("invalid_type"))

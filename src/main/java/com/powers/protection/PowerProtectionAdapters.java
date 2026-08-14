@@ -31,13 +31,18 @@ public final class PowerProtectionAdapters {
 		for (Entry entry : ENTRIES) {
 			try {
 				if (!entry.adapter().allows(query)) return false;
-			} catch (RuntimeException failure) {
+			} catch (RuntimeException | LinkageError failure) {
 				PowersMod.LOGGER.error("Protection adapter {} failed closed for {}",
 						entry.id(), query.action(), failure);
 				return false;
 			}
 		}
 		return true;
+	}
+
+	/** Removes one provider by identity for integration lifecycle cleanup. */
+	public static boolean unregister(String id) {
+		return id != null && ENTRIES.removeIf(entry -> entry.id().equals(id));
 	}
 
 	/** Stable provider IDs for diagnostics without leaking claim contents. */

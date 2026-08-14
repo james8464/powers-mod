@@ -44,7 +44,7 @@ class PowersConfigTest {
 				new PowersConfig.TerrainScars(-50, 99_999),
 				new PowersConfig.LivingForces(true, -1, -2, -3, -4, 1000, 1),
 				new PowersConfig.DialogueProvider(true, " endpoint ", " model ", "bad variable!",
-						99_999, 999, 1));
+						99_999, 999, 1), PowerPolicyOverrides.empty());
 
 		PowersConfig sanitized = invalid.sanitized();
 		assertEquals(PowersConfig.CURRENT_SCHEMA_VERSION, sanitized.schemaVersion());
@@ -117,7 +117,8 @@ class PowersConfigTest {
 				defaults.maxParticlesPerTick(), defaults.teleportMaxChunkDistance(),
 				defaults.rankRespecExperienceLevels(), defaults.adminPermissionLevel(), zones,
 				defaults.terrainScars(),
-				defaults.livingForces(), defaults.dialogueProvider()).sanitized();
+				defaults.livingForces(), defaults.dialogueProvider(),
+				PowerPolicyOverrides.empty()).sanitized();
 
 		assertEquals(256, sanitized.safeZones().size());
 		PowersConfig.SafeZone first = sanitized.safeZones().getFirst();
