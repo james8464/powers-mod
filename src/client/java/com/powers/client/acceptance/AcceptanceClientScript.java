@@ -8,7 +8,7 @@ import java.util.Locale;
 public final class AcceptanceClientScript {
 	public enum Operation {
 		COMMAND, CHAT, ACTIVATE, SELECT, USE, ATTACK, GRIMOIRE, CRYSTAL, ARTIFACT,
-		RESPAWN, CLOSE, LOCATOR, SCREENSHOT
+		RESPAWN, CLOSE, LOCATOR, KEY, SCREENSHOT
 	}
 
 	public record Step(int tick, Operation operation, String argument) {
@@ -90,6 +90,16 @@ public final class AcceptanceClientScript {
 			}
 			case LOCATOR -> {
 				if (argument.length() > 64) throw malformed(lineNumber, "locator input is too long");
+			}
+			case KEY -> {
+				String[] values = argument.split(" ");
+				if (values.length != 2 || !(values[1].equals("on") || values[1].equals("off"))
+						|| !(values[0].equals("forward") || values[0].equals("back")
+						|| values[0].equals("left") || values[0].equals("right")
+						|| values[0].equals("jump") || values[0].equals("sneak")
+						|| values[0].equals("sprint"))) {
+					throw malformed(lineNumber, "key needs a supported movement name and on/off state");
+				}
 			}
 			case CLOSE -> {
 				if (!argument.equals("screen")) throw malformed(lineNumber,
