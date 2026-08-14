@@ -40,6 +40,22 @@ class RestartSoakPolicyTest(unittest.TestCase):
         self.assertEqual(30, SOAK.rollover_lead_seconds(300))
         self.assertEqual(5, SOAK.rollover_lead_seconds(10))
 
+    def test_each_cycle_waits_for_its_full_wall_clock_boundary(self):
+        self.assertEqual(18.0, SOAK.cycle_boundary_wait_seconds(100.0, 382.0, 300))
+        self.assertEqual(0.0, SOAK.cycle_boundary_wait_seconds(100.0, 405.0, 300))
+
+    def test_release_cannot_pass_before_the_requested_wall_duration(self):
+        self.assertFalse(SOAK.acceptance_passed("", 288, 288, 86_399.99, 86_400.0))
+        self.assertTrue(SOAK.acceptance_passed("", 288, 288, 86_400.0, 86_400.0))
+        self.assertFalse(SOAK.acceptance_passed("failed", 288, 288, 86_500.0, 86_400.0))
+
+    def test_connected_workload_is_summed_from_observed_intervals(self):
+        cycles = [
+            {"connected_workload_seconds": 269.5},
+            {"connected_workload_seconds": 270.25},
+        ]
+        self.assertEqual(539.75, SOAK.total_connected_seconds(cycles))
+
     def test_acceptance_requires_every_lifecycle_marker_and_expected_exit(self):
         result = {
             "ready": True,

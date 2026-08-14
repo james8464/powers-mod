@@ -59,6 +59,24 @@ def rollover_lead_seconds(cycle_seconds: int) -> int:
     return min(30, max(5, cycle_seconds // 2))
 
 
+def cycle_boundary_wait_seconds(started: float, now: float, cycle_seconds: int) -> float:
+    """Keep successful restart cycles on their declared wall-clock cadence."""
+    return max(0.0, started + cycle_seconds - now)
+
+
+def acceptance_passed(failure: str, completed_cycles: int, requested_cycles: int,
+                      elapsed_seconds: float, required_seconds: float) -> bool:
+    """Never accept a nominal cycle count before its full wall duration elapsed."""
+    return (not failure and completed_cycles == requested_cycles
+            and elapsed_seconds >= required_seconds)
+
+
+def total_connected_seconds(cycles: list[dict[str, object]]) -> float:
+    """Report measured client workload instead of inferring it from cycle labels."""
+    return round(sum(float(cycle.get("connected_workload_seconds", 0.0))
+                     for cycle in cycles), 3)
+
+
 def cycle_passed(result: dict[str, object]) -> bool:
     """Evaluate one cycle without allowing an expected SIGTERM to mask missing proof."""
     required = (
@@ -126,6 +144,8 @@ def checked_settings(args: argparse.Namespace) -> tuple[float, int, int, int]:
         duration, args.cycle_seconds)
     if cycles < 1 or cycles > 10_000:
         raise ValueError("--cycles must be between 1 and 10000")
+    if args.cycles is not None:
+        duration = cycles * args.cycle_seconds
     return duration, args.cycle_seconds, args.boot_timeout, cycles
 
 
@@ -213,6 +233,7 @@ def one_cycle(runtime: Path, cycle_seconds: int, boot_timeout: int, index: int,
     pre_shutdown_sent = False
     shutdown_sent = False
     client_left = False
+    workload_ended_at: float | None = None
     client_logs = SOAK_ROOT / "client-logs"
     server_logs = SOAK_ROOT / "server-logs"
     client_logs.mkdir(parents=True, exist_ok=True)
@@ -275,6 +296,7 @@ def one_cycle(runtime: Path, cycle_seconds: int, boot_timeout: int, index: int,
             saved = any("Saved the game" in line for line in lines)
             if pre_shutdown_sent and second_status and saved and not shutdown_sent:
                 if client is not None:
+                    workload_ended_at = time.monotonic()
                     stop_process_group(client)
                 if mode == "clean":
                     send(process, "stop")
@@ -294,7 +316,6 @@ def one_cycle(runtime: Path, cycle_seconds: int, boot_timeout: int, index: int,
         output = "\n".join(lines)
         result: dict[str, object] = {
             "cycle": index,
-            "seconds": round(time.monotonic() - started, 3),
             "shutdown_mode": mode,
             "exit_code": exit_code,
             "ready": ready_at is not None,
@@ -310,11 +331,17 @@ def one_cycle(runtime: Path, cycle_seconds: int, boot_timeout: int, index: int,
                             or "[ServerMain/ERROR]" in line],
             "server_log": str(server_log.relative_to(ROOT)),
             "client_log": str(client_log.relative_to(ROOT)),
+            "connected_workload_seconds": round(max(0.0,
+                    (workload_ended_at or time.monotonic()) - (connected_at or time.monotonic())), 3),
         }
         result["client_ability_actions"] = client_log.read_text(
             encoding="utf-8", errors="replace").count("executed ACTIVATE")
         result["passed"] = cycle_passed(result) and result["clean_diagnostics"] is True
         server_log.write_text(output + "\n", encoding="utf-8")
+        boundary_wait = cycle_boundary_wait_seconds(started, time.monotonic(), cycle_seconds)
+        if boundary_wait > 0.0:
+            time.sleep(boundary_wait)
+        result["seconds"] = round(time.monotonic() - started, 3)
         return result
     finally:
         if client is not None:
@@ -372,6 +399,7 @@ def main() -> int:
         acceptance_window = accepted_window_start(acceptance_window, False, time.time())
 
     completed_cycles = sum(result.get("passed") is True for result in cycles)
+    elapsed_seconds = round(time.monotonic() - began, 3)
     report = {
         "schema": 2,
         "git_commit": subprocess.run(
@@ -381,11 +409,12 @@ def main() -> int:
         "cycle_seconds": cycle_seconds,
         "requested_cycles": requested_cycles,
         "completed_cycles": completed_cycles,
-        "connected_workload_seconds": completed_cycles * cycle_seconds,
-        "elapsed_seconds": round(time.monotonic() - began, 3),
+        "connected_workload_seconds": total_connected_seconds(cycles),
+        "elapsed_seconds": elapsed_seconds,
         "acceptance_window_started_epoch": acceptance_window,
         "cycles": cycles,
-        "passed": not failure and completed_cycles == requested_cycles,
+        "passed": acceptance_passed(failure, completed_cycles, requested_cycles,
+                                    elapsed_seconds, duration_seconds),
         "failure": failure,
         "runtime": str(runtime.relative_to(ROOT)),
     }
