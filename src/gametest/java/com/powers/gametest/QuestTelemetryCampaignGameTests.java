@@ -7,6 +7,7 @@ import com.powers.testing.QuestTelemetryCampaignScenario;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Difficulty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public final class QuestTelemetryCampaignGameTests {
 	@GameTest(maxTicks = 40)
 	@SuppressWarnings("removal")
 	public void connectedPlayersProduceIndependentAuthoritativeQuestSamples(GameTestHelper helper) {
+		helper.getLevel().getServer().setDifficulty(Difficulty.PEACEFUL, true);
 		List<ServerPlayer> players = new ArrayList<>();
 		for (int index = 0; index < QuestCompletionTelemetry.PUBLICATION_SAMPLE_MINIMUM; index++) {
 			players.add(helper.makeMockServerPlayerInLevel());

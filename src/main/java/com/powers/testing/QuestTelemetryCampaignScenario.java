@@ -16,6 +16,8 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.npc.villager.Villager;
 
 import java.util.ArrayList;
@@ -170,7 +172,7 @@ public final class QuestTelemetryCampaignScenario {
 					() -> SkillQuestTracker.recordKill(victim(player, EntityTypes.COW),
 							PowerDamage.source(player)));
 			repeat(profile, "boss_kill", previous, current,
-					() -> SkillQuestTracker.recordKill(victim(player, EntityTypes.WARDEN),
+					() -> SkillQuestTracker.recordKill(bossVictim(player),
 							PowerDamage.source(player)));
 			repeat(profile, "light_memory", previous, current,
 					() -> SkillQuestTracker.recordLightMemory(player));
@@ -206,6 +208,17 @@ public final class QuestTelemetryCampaignScenario {
 		ServerLevel level = (ServerLevel) player.level();
 		LivingEntity victim = type.create(level, EntitySpawnReason.COMMAND);
 		if (victim == null) throw new IllegalStateException("Could not create quest deed fixture");
+		return victim;
+	}
+
+	private static LivingEntity bossVictim(ServerPlayer player) {
+		LivingEntity victim = victim(player, EntityTypes.COW);
+		AttributeInstance maximumHealth = victim.getAttribute(Attributes.MAX_HEALTH);
+		if (maximumHealth == null) {
+			throw new IllegalStateException("Quest deed fixture has no maximum-health attribute");
+		}
+		maximumHealth.setBaseValue(200.0);
+		victim.setHealth(victim.getMaxHealth());
 		return victim;
 	}
 
