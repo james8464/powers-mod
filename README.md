@@ -24,6 +24,16 @@ From the repository root:
 ./test.sh check      # clean build, unit tests, audits, and resource validation
 ```
 
+## Integration API
+
+Server-side extensions may implement `com.powers.api.v1.PowersExtension` and expose it through the
+Fabric entrypoint key `powers:v1`. API version `1.0` registers semantic actions into the canonical
+collision catalogue, fixed physical presences into the live spatial runtime, unanimous fail-closed
+protection services, authoritative cast contexts, and server lifecycle hooks. Registration is
+deterministic and closes before `SERVER_STARTED`; all mutation is server-thread-only and every
+extension registration is removed at server stop. See [API v1 integration](docs/development/integration-api-v1.md)
+and the independently compiled `src/exampleExtension` compatibility mod.
+
 ## First awakening and controls
 
 Each persistent player receives three distinct allegiance-compatible innate powers on first join and one non-duplicating vanilla written guide, **POWERS: First Awakening**. A full inventory drops the guide safely at the player instead of losing it.

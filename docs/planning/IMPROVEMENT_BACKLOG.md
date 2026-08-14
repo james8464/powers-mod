@@ -206,7 +206,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
-| NET-009 | Enhancement | P2 | Add formal public integration API for custom powers, cast sources, actions, presences, and protection. | API has lifecycle contract, examples, compatibility tests, and semantic versioning. |
 | NET-010 | Enhancement | P2 | Add datapack reload migration for action/menu keys without reconnect. | Active casts either finish on old revision or cancel safely; clients receive one revision. |
 | NET-011 | Guarantee | P2 | Validate behavior with common performance/render/voice/claim/inventory mods. | Published compatibility matrix names tested versions and known limitations. |
 | NET-012 | Enhancement | P3 | Add localization framework and first complete non-English translation. | No string concatenation blocks grammar; all UI/tooltips/subtitles localize. |

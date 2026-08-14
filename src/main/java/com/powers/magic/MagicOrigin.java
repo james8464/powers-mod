@@ -7,5 +7,7 @@ public enum MagicOrigin {
 	ARTIFACT,
 	SPELL,
 	AMETHYST,
-	REALM
+	REALM,
+	/** Third-party action registered through the versioned server API. */
+	EXTENSION
 }

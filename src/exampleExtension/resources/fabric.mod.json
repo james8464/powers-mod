@@ -1,0 +1,16 @@
+{
+	"schemaVersion": 1,
+	"id": "powers-example-extension",
+	"version": "1.0.0",
+	"name": "POWERS API v1 Example Extension",
+	"environment": "server",
+	"entrypoints": {
+		"powers:v1": ["com.powers.example.ExamplePowersExtension"]
+	},
+	"depends": {
+		"powers": ">=1.0.2",
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.2",
+		"java": ">=25"
+	}
+}

@@ -37,6 +37,18 @@ base {
 	archivesName = project.archives_base_name
 }
 
+sourceSets {
+	exampleExtension {
+		java.srcDir "src/exampleExtension/java"
+		compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+		runtimeClasspath += output + compileClasspath
+	}
+}
+
+configurations {
+	exampleExtensionImplementation.extendsFrom implementation
+}
+
 loom {
 	splitEnvironmentSourceSets()
 	if (providers.gradleProperty("powersRunDir").isPresent()) {
@@ -70,6 +82,11 @@ dependencies {
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	testImplementation "org.junit.jupiter:junit-jupiter:6.0.3"
 	testRuntimeOnly "org.junit.platform:junit-platform-launcher:6.0.3"
+	gametestImplementation sourceSets.exampleExtension.output
+}
+
+tasks.named("compileGametestJava") {
+	dependsOn tasks.named("compileExampleExtensionJava")
 }
 
 processResources {
