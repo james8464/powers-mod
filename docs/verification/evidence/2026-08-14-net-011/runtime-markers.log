@@ -1,0 +1,19 @@
+# Selected exact privacy-safe markers; source line numbers refer to ignored raw logs.
+claimmod-server/logs/latest.log:59 [22:34:36] [main/INFO] (claimmod) ClaimMod initializing...
+claimmod-server/logs/latest.log:62 [22:34:36] [main/INFO] (claimmod) ClaimMod initialized successfully.
+claimmod-server/logs/latest.log:88 [22:34:39] [Server thread/INFO] (Minecraft) Done (1.559s)! For help, type "help"
+claimmod-server/logs/latest.log:105 [22:34:55] [Server thread/INFO] (claimmod) ClaimMod claim data saved.
+lithium-server/logs/latest.log:57 [22:33:18] [main/INFO] (Lithium) Loaded configuration file for Lithium: 171 options available, 0 override(s) found.
+lithium-server/logs/latest.log:84 [22:33:24] [Server thread/INFO] (Minecraft) Done (1.699s)! For help, type "help"
+sodium-client/client-latest.log:58 [22:36:45] [main/INFO] (Sodium) Loaded configuration file for Sodium: 36 options available, 0 override(s) found
+sodium-client/client-latest.log:101 [22:36:51] [Render thread/INFO] (Sodium-GlSurface) OpenGL Renderer: Apple M3 Pro
+complete-client/client-green-latest.log:3 [22:41:22] [main/INFO] (FabricLoader) Loading 56 mods:
+complete-client/client-green-latest.log:168 [22:41:30] [Render thread/INFO] (Minecraft) Created: 2048x2048x4 minecraft:textures/atlas/blocks.png-atlas
+complete-client/client-green-latest.log:172 [22:41:30] [Render thread/INFO] (Minecraft) Created: 2048x2048x0 minecraft:textures/atlas/items.png-atlas
+complete-client/client-green-latest.log:173 [22:41:30] [Render thread/INFO] (Minecraft) Created: 1024x1024x0 minecraft:textures/atlas/gui.png-atlas
+complete-client/client-green-latest.log:212 [22:41:34] [VoiceChatConnectionThread/INFO] (voicechat) [voicechat/ClientVoicechatConnection] Server acknowledged connection check
+complete-client/client-green-latest.log:218 [22:41:34] [Render thread/INFO] (Minecraft) [System] [CHAT] [Simple Voice Chat] No permission to access your microphone. Please open System Settings > Privacy & Security and check the access options there
+complete-client/client-green-latest.log:226 [22:41:42] [Render thread/INFO] (Minecraft) [System] [CHAT] Traveled to powers:light_realm
+complete-server/logs/latest.log:197 [22:41:41] [Server thread/INFO] (powers) Published action registry revision 2 with 109 canonical keys and 0 aliases
+complete-server/logs/latest.log:260 [22:41:41] [Server thread/INFO] (Minecraft) Saved the game
+complete-server/logs/latest.log:269 [22:41:59] [Server thread/INFO] (claimmod) ClaimMod claim data saved.

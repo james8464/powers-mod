@@ -4,6 +4,10 @@
 /.worktrees/
 /dist/
 /logs/
+/.compatibility-cache/
+/config/lithium.properties
+/config/sodium-mixins.properties
+/config/voicechat/
 .DS_Store
 *.iml
 .idea/
