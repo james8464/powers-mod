@@ -1,0 +1,12 @@
+# Dismiss first-join onboarding, then submit Cartographer's Star through the rendered screen.
+80	CLOSE	screen
+100	COMMAND	powers testing on
+105	COMMAND	fill -3 148 -7 3 153 3 air
+110	COMMAND	tp @s 0 150 0 0 0
+120	COMMAND	item replace entity @s weapon.mainhand with powers:imported_book_grimoire_celestial
+130	GRIMOIRE	book_grimoire_celestial 2
+150	SCREENSHOT	cartographers-star-selected
+180	USE	main
+190	SCREENSHOT	cartographers-star-screen
+200	LOCATOR	biome minecraft:plains
+240	SCREENSHOT	cartographers-star-result
