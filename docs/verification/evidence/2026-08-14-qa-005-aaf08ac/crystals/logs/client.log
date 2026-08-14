@@ -1,0 +1,554 @@
+Picked up JAVA_TOOL_OPTIONS: -Dpowers.qa.role=crystals-aaf08ac-op -Dpowers.qa.server=127.0.0.1:25565 -Dpowers.qa.script=/tmp/powers-crystals-aaf08ac.tsv
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :
+Fabric Loom: 1.17.19
+
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :compileClientJava UP-TO-DATE
+> Task :processClientResources UP-TO-DATE
+> Task :clientClasses UP-TO-DATE
+> Task :deleteGameTestRunDir
+> Task :acceptGameTestEula
+> Task :generateLog4jConfig UP-TO-DATE
+> Task :generateDLIConfig UP-TO-DATE
+> Task :configureLaunch
+> Task :downloadAssets UP-TO-DATE
+> Task :configureClientLaunch
+
+> Task :runClient
+Picked up JAVA_TOOL_OPTIONS: -Dpowers.qa.role=crystals-aaf08ac-op -Dpowers.qa.server=127.0.0.1:25565 -Dpowers.qa.script=/tmp/powers-crystals-aaf08ac.tsv
+[34m[03:40:37][m [32m[main/INFO][m [36m(FabricLoader/GameProvider)[m [0mLoading Minecraft 26.2 with Fabric Loader 0.19.3
+[m[34m[03:40:37][m [32m[main/INFO][m [36m(FabricLoader/Mappings)[m [0mMappings not present!
+[m[34m[03:40:37][m [32m[main/INFO][m [36m(FabricLoader)[m [0mLoading 51 mods:
+	- fabric-api 0.156.0+26.2
+	- fabric-api-base 2.0.4+ece063239e
+	- fabric-api-lookup-api-v1 2.0.17+11e1c9a39e
+	- fabric-biome-api-v1 18.0.6+c7bd5b8e9e
+	- fabric-block-api-v1 3.0.3+ec56b6019e
+	- fabric-block-getter-api-v2 2.0.7+ec56b6019e
+	- fabric-client-gametest-api-v1 6.0.0+515ac5339e
+	- fabric-command-api-v2 3.1.0+00cb03469e
+	- fabric-content-registries-v0 11.3.0+d0a699d09e
+	- fabric-convention-tags-v2 4.7.0+1f023a9e9e
+	- fabric-crash-report-info-v1 1.0.5+086d547a9e
+	- fabric-creative-tab-api-v1 5.0.14+d871b99e9e
+	- fabric-data-attachment-api-v1 2.2.18+515ac5339e
+	- fabric-data-generation-api-v1 25.5.0+aed122aa9e
+	- fabric-debug-api-v1 1.0.2+c792624d9e
+	- fabric-dimensions-v1 5.1.11+515ac5339e
+	- fabric-entity-events-v1 5.0.5+06488ac19e
+	- fabric-events-interaction-v0 5.2.7+515ac5339e
+	- fabric-game-rule-api-v1 4.0.8+46a6d00c9e
+	- fabric-gametest-api-v1 4.0.21+4a7fa0819e
+	- fabric-item-api-v1 14.4.0+49a69a7b9e
+	- fabric-key-mapping-api-v1 2.0.5+e2bdee789e
+	- fabric-lifecycle-events-v1 4.1.3+4575b05f9e
+	- fabric-loot-api-v3 3.0.17+06488ac19e
+	- fabric-menu-api-v1 2.0.16+086d547a9e
+	- fabric-message-api-v1 7.0.7+086d547a9e
+	- fabric-model-loading-api-v1 8.0.16+c80601bb9e
+	- fabric-networking-api-v1 6.3.3+72073ef09e
+	- fabric-object-builder-api-v1 24.1.0+6fcd5f039e
+	- fabric-particles-v1 5.0.18+d1756aa99e
+	- fabric-permission-api-v1 1.0.4+536fad2f9e
+	- fabric-recipe-api-v1 9.0.20+11e1c9a39e
+	- fabric-registry-sync-v0 7.1.0+c7bd5b8e9e
+	- fabric-renderer-api-v1 14.1.3+2b0d8a229e
+	- fabric-renderer-indigo 9.1.3+2b0d8a229e
+	- fabric-rendering-fluids-v1 6.0.4+06488ac19e
+	- fabric-rendering-v1 25.3.2+515ac5339e
+	- fabric-resource-conditions-api-v1 6.1.0+10e9a28b9e
+	- fabric-resource-loader-v0 3.3.20+4fc5413f9e
+	- fabric-resource-loader-v1 2.0.13+9edec1269e
+	- fabric-screen-api-v1 5.1.0+48e3c0b09e
+	- fabric-serialization-api-v1 2.0.4+11a26f319e
+	- fabric-sound-api-v1 2.0.5+11a26f319e
+	- fabric-tag-api-v1 2.1.4+515ac5339e
+	- fabric-transfer-api-v1 8.0.12+11dbb7d79e
+	- fabric-transitive-access-wideners-v1 8.1.4+67c847259e
+	- fabricloader 0.19.3
+	- java 25
+	- minecraft 26.2
+	- mixinextras 0.5.4
+	- powers 1.0.2
+[m[34m[03:40:37][m [32m[main/INFO][m [36m(FabricLoader/Mixin)[m [0mSpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/Users/james/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.3+mixin.0.8.7/41c4a3984a80f4679e759fb9f495587acc5cdac7/sponge-mixin-0.17.3+mixin.0.8.7.jar Service=Knot/Fabric Env=CLIENT
+[m[34m[03:40:37][m [32m[main/INFO][m [36m(FabricLoader/Mixin)[m [0mCompatibility level set to JAVA_25
+[m[34m[03:40:38][m [32m[main/INFO][m [36m(FabricLoader/MixinExtras|Service)[m [0mInitializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.4).
+[m[34m[03:40:38][m [32m[Datafixer Bootstrap #0/INFO][m [36m(Minecraft)[m [0m295 Datafixer optimizations took 155 milliseconds
+[m[34m[03:40:40][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mEnvironment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[m[34m[03:40:40][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mSetting user: CrystalCaster
+[m[34m[03:40:40][m [32m[Render thread/INFO][m [36m(powers)[m [0mLoaded rank mazes: 28 light nodes, 28 darkness nodes
+[m[34m[03:40:40][m [32m[Render thread/INFO][m [36m(powers)[m [0mMagic collision kernel loaded: 64 actions, 2080 exhaustive interactions
+[m[34m[03:40:40][m [32m[Render thread/INFO][m [36m(powers)[m [0mPOWERS framework initialized with 23 power(s)
+[m[34m[03:40:41][m [32m[Render thread/INFO][m [36m(Indigo)[m [0m[Indigo] Registering Indigo renderer!
+[m[34m[03:40:41][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mBackend library: LWJGL version 3.4.1-snapshot
+[m[34m[03:40:41][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mUsing graphics backend OpenGL, using drivers: 4.1 Metal - 90.5
+[m[34m[03:40:41][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mUsing graphics device: Apple M3 Pro (Apple)
+[m[34m[03:40:41][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mUsing graphics device extensions: GL_ARB_draw_indirect, GL_EXT_texture_filter_anisotropic
+[m[34m[03:40:41][m [32m[Download-2/INFO][m [36m(Minecraft)[m [0mCould not authorize you against Realms server: java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC
+[m[34m[03:40:42][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mReloading ResourceManager: vanilla, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-getter-api-v2, fabric-client-gametest-api-v1, fabric-command-api-v2, fabric-content-registries-v0, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-creative-tab-api-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-debug-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-gametest-api-v1, fabric-item-api-v1, fabric-key-mapping-api-v1, fabric-lifecycle-events-v1, fabric-loot-api-v3, fabric-menu-api-v1, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-permission-api-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-rendering-fluids-v1, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-resource-loader-v1, fabric-screen-api-v1, fabric-serialization-api-v1, fabric-sound-api-v1, fabric-tag-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, powers
+[mUNSUPPORTED (log once): gldCopyBufferSubData: NEEDS IMPLEMENTATION
+[34m[03:40:42][m [32m[Worker-Main-6/INFO][m [36m(Minecraft)[m [0mFound unifont_all_no_pua-17.0.01.hex, loading
+[m[34m[03:40:42][m [32m[Worker-Main-2/INFO][m [36m(Minecraft)[m [0mFound unifont_pua-17.0.01.hex, loading
+[m[34m[03:40:42][m [32m[Worker-Main-6/INFO][m [36m(Minecraft)[m [0mFound unifont_jp_patch-17.0.01.hex, loading
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/rendertype_beacon_beam and FS minecraft:core/rendertype_beacon_beam. Log output: WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/rendertype_beacon_beam and FS minecraft:core/rendertype_beacon_beam. Log output: WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'Normal' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/rendertype_entity_shadow and FS minecraft:core/rendertype_entity_shadow. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'Normal' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/animate_sprite and FS minecraft:core/animate_sprite_blit. Log output: WARNING: Output of vertex shader 'fAnimationProgress' not read by fragment shader
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'Normal' to match BindAttributeLocation request.
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'Normal' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mInfo log when linking program containing VS minecraft:core/rendertype_crumbling and FS minecraft:core/rendertype_crumbling. Log output: WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mOpenAL initialized on device MacBook Pro Speakers
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mSound engine started
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mCreated: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mCreated: 128x128x0 minecraft:textures/atlas/decorated_pot.png-atlas
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mCreated: 2048x1024x0 minecraft:textures/atlas/armor_trims.png-atlas
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mCreated: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mCreated: 1024x512x0 minecraft:textures/atlas/shield_patterns.png-atlas
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mCreated: 2048x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mCreated: 512x512x0 minecraft:textures/atlas/chest.png-atlas
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mCreated: 256x128x0 minecraft:textures/atlas/celestials.png-atlas
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mCreated: 1024x512x0 minecraft:textures/atlas/banner_patterns.png-atlas
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mCreated: 2048x2048x0 minecraft:textures/atlas/items.png-atlas
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mCreated: 1024x1024x0 minecraft:textures/atlas/gui.png-atlas
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mCreated: 128x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mCreated: 512x512x0 minecraft:textures/atlas/shulker_boxes.png-atlas
+[m[34m[03:40:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mConnecting to 127.0.0.1, 25565
+[m[34m[03:40:43][m [31m[Download-1/ERROR][m [36m(Minecraft)[m [31mFailed to retrieve profile key pair
+[m
+MinecraftClientHttpException[type=HTTP_ERROR, status=401, response=ErrorResponse[path=/player/certificates, error=null, errorMessage=null, details=null]]
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.buildHttpException(MinecraftClient.java:170)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:147)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.post(MinecraftClient.java:89)
+	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.getKeyPair(YggdrasilUserApiService.java:62)
+	at knot//net.minecraft.client.multiplayer.AccountProfileKeyPairManager.fetchProfileKeyPair(AccountProfileKeyPairManager.java:119)
+	at knot//net.minecraft.client.multiplayer.AccountProfileKeyPairManager.lambda$readOrFetchProfileKeyPair$0(AccountProfileKeyPairManager.java:72)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[34m[03:40:45][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mLoaded 5 advancements
+[m[34m[03:40:45][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op loaded 95 scripted steps
+[m[34m[03:40:46][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mResizing Dynamic Transforms UBO, capacity limit of 2 reached during a single frame. New capacity will be 4.
+[m[34m[03:40:46][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mResizing Dynamic Transforms UBO, capacity limit of 4 reached during a single frame. New capacity will be 8.
+[m[34m[03:40:46][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mResizing Dynamic Transforms UBO, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[m[34m[03:40:46][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mResizing Chunk Sections UBO, capacity limit of 2 reached during a single frame. New capacity will be 4.
+[m[34m[03:40:46][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mResizing Chunk Sections UBO, capacity limit of 4 reached during a single frame. New capacity will be 8.
+[m[34m[03:40:46][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mResizing Chunk Sections UBO, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[m[34m[03:40:46][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mResizing Chunk Sections UBO, capacity limit of 16 reached during a single frame. New capacity will be 32.
+[m[34m[03:40:46][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mResizing Chunk Sections UBO, capacity limit of 32 reached during a single frame. New capacity will be 64.
+[m[34m[03:40:46][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mResizing Chunk Sections UBO, capacity limit of 64 reached during a single frame. New capacity will be 128.
+[m[34m[03:40:46][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mResizing Chunk Sections UBO, capacity limit of 128 reached during a single frame. New capacity will be 256.
+[m[34m[03:40:46][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op connected as CrystalCaster to 127.0.0.1:25565
+[m[34m[03:40:46][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mResizing Chunk Sections UBO, capacity limit of 256 reached during a single frame. New capacity will be 512.
+[m[34m[03:40:48][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed CLOSE [screen] at connected tick 60
+[m[34m[03:40:49][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [powers testing on] at connected tick 80
+[m[34m[03:40:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Testing limits — energy: DISABLED, cooldowns: DISABLED
+[m[34m[03:40:50][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [gamemode survival @s] at connected tick 100
+[m[34m[03:40:51][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [effect give @s minecraft:resistance 999999 255 true] at connected tick 110
+[m[34m[03:40:51][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Applied effect Resistance to [Dormant] CrystalCaster
+[m[34m[03:40:51][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tp @s 0.5 101 0.5 0 0] at connected tick 120
+[m[34m[03:40:51][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op captured its connected-world evidence
+[m[34m[03:40:51][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Teleported [Dormant] CrystalCaster to 0.500000, 101.000000, 0.500000
+[m[34m[03:40:51][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Saved screenshot as 2026-08-14_03.40.51.png
+[m[34m[03:40:52][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [fill -16 100 -16 16 100 16 minecraft:stone] at connected tick 140
+[m[34m[03:40:52][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tp @s 0.5 101 0.5 0 0] at connected tick 140
+[m[34m[03:40:52][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Successfully filled 1089 block(s)
+[m[34m[03:40:52][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Teleported [Dormant] CrystalCaster to 0.500000, 101.000000, 0.500000
+[m[34m[03:40:53][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [powers testing actor spawn InfernoTarget] at connected tick 150
+[m[34m[03:40:53][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Spawned test actor: InfernoTarget
+[m[34m[03:40:53][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tp @e[name=InfernoTarget,limit=1] 0.5 101 5.5] at connected tick 160
+[m[34m[03:40:53][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Teleported InfernoTarget to 0.500000, 101.000000, 5.500000
+[m[34m[03:40:54][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data merge entity @e[name=InfernoTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}] at connected tick 170
+[m[34m[03:40:54][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Modified entity data of InfernoTarget
+[m[34m[03:40:54][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [item replace entity @s weapon.mainhand with powers:red_crystal] at connected tick 180
+[m[34m[03:40:54][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Replaced a slot on [Dormant] CrystalCaster with [Red Crystal]
+[m[34m[03:40:55][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed USE [main] at connected tick 200
+[m[34m[03:40:57][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data get entity @e[name=InfernoTarget,limit=1] Health] at connected tick 240
+[m[34m[03:40:57][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] InfernoTarget has the following entity data: 96.63999f
+[m[34m[03:40:58][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data get entity @e[name=InfernoTarget,limit=1] Fire] at connected tick 250
+[m[34m[03:40:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] InfernoTarget has the following entity data: 159s
+[m[34m[03:40:58][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed SCREENSHOT [inferno-live] at connected tick 260
+[m[34m[03:40:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Saved screenshot as 2026-08-14_03.40.58.png
+[m[34m[03:41:00][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [kill @e[name=InfernoTarget]] at connected tick 300
+[m[34m[03:41:00][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Killed InfernoTarget
+[m[34m[03:41:00][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0mLoaded 47 advancements
+[m[34m[03:41:02][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tp @s 8.5 101 0.5 0 0] at connected tick 330
+[m[34m[03:41:02][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Teleported [Dormant] CrystalCaster to 8.500000, 101.000000, 0.500000
+[m[34m[03:41:02][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [item replace entity @s weapon.mainhand with powers:orange_crystal] at connected tick 340
+[m[34m[03:41:02][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Replaced a slot on [Dormant] CrystalCaster with [Orange Crystal]
+[m[34m[03:41:03][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed USE [main] at connected tick 360
+[m[34m[03:41:05][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [execute if entity @e[type=powers:echo_clone,distance=..10] run say CLONE_SWARM_PRESENT] at connected tick 400
+[m[34m[03:41:05][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] [[Dormant] CrystalCaster] CLONE_SWARM_PRESENT
+[m[34m[03:41:06][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data get entity @e[type=powers:echo_clone,distance=..10,limit=1] Health] at connected tick 410
+[m[34m[03:41:06][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] CrystalCaster's Echo has the following entity data: 80.0f
+[m[34m[03:41:06][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed SCREENSHOT [clone-swarm] at connected tick 420
+[m[34m[03:41:06][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Saved screenshot as 2026-08-14_03.41.06.png
+[m[34m[03:41:07][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [kill @e[type=powers:echo_clone]] at connected tick 440
+[m[34m[03:41:07][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Killed 3 entities
+[m[34m[03:41:09][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tp @s -8.5 106 0.5 0 90] at connected tick 470
+[m[34m[03:41:09][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Teleported [Dormant] CrystalCaster to -8.500000, 106.000000, 0.500000
+[m[34m[03:41:09][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed KEY [sneak on] at connected tick 480
+[m[34m[03:41:10][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed USE [main] at connected tick 490
+[m[34m[03:41:10][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed KEY [sneak off] at connected tick 500
+[m[34m[03:41:12][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed USE [main] at connected tick 530
+[m[34m[03:41:14][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [execute if block -9 103 0 minecraft:glowstone run say CREATION_CHAMBER_PRESENT] at connected tick 570
+[m[34m[03:41:14][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] [[Dormant] CrystalCaster] CREATION_CHAMBER_PRESENT
+[m[34m[03:41:14][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [execute if block -7 101 0 minecraft:orange_concrete run say CREATION_FRAME_PRESENT] at connected tick 580
+[m[34m[03:41:14][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] [[Dormant] CrystalCaster] CREATION_FRAME_PRESENT
+[m[34m[03:41:15][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed SCREENSHOT [creativity-manifestation] at connected tick 590
+[m[34m[03:41:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Saved screenshot as 2026-08-14_03.41.15.png
+[m[34m[03:41:16][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tp @s 0.5 101 0.5 0 0] at connected tick 620
+[m[34m[03:41:16][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Teleported [Dormant] CrystalCaster to 0.500000, 101.000000, 0.500000
+[m[34m[03:41:17][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [item replace entity @s weapon.mainhand with powers:yellow_crystal] at connected tick 630
+[m[34m[03:41:17][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Replaced a slot on [Dormant] CrystalCaster with [Yellow Crystal]
+[m[34m[03:41:18][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed USE [main] at connected tick 650
+[m[34m[03:41:19][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [attribute @s minecraft:scale get] at connected tick 680
+[m[34m[03:41:19][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] The value of attribute Scale for entity CrystalCaster is 0.0625
+[m[34m[03:41:20][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data get entity @s active_effects] at connected tick 690
+[m[34m[03:41:20][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] [Dormant] CrystalCaster has the following entity data: [{duration: 360, show_icon: 1b, amplifier: 6b, ambient: 1b, id: "minecraft:jump_boost", show_particles: 0b}, {duration: 360, show_icon: 1b, ambient: 1b, id: "minecraft:slow_falling", show_particles: 0b}, {duration: 19999400, show_icon: 0b, amplifier: -1b, id: "minecraft:resistance", show_particles: 0b}, {duration: 360, show_icon: 1b, amplifier: 5b, ambient: 1b, id: "minecraft:speed", show_particles: 0b}]
+[m[34m[03:41:20][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed SCREENSHOT [yellow-size-shift] at connected tick 700
+[m[34m[03:41:20][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Saved screenshot as 2026-08-14_03.41.20.png
+[m[34m[03:41:22][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tp @s 0.5 101 0.5 0 0] at connected tick 730
+[m[34m[03:41:22][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Teleported [Dormant] CrystalCaster to 0.500000, 101.000000, 0.500000
+[m[34m[03:41:22][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [powers testing actor spawn SoulA] at connected tick 740
+[m[34m[03:41:22][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Spawned test actor: SoulA
+[m[34m[03:41:23][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [powers testing actor spawn SoulB] at connected tick 750
+[m[34m[03:41:23][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Spawned test actor: SoulB
+[m[34m[03:41:23][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tp @e[name=SoulA,limit=1] 0.5 101 4.5] at connected tick 760
+[m[34m[03:41:23][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Teleported SoulA to 0.500000, 101.000000, 4.500000
+[m[34m[03:41:24][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tp @e[name=SoulB,limit=1] 3.5 101 4.5] at connected tick 770
+[m[34m[03:41:24][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Teleported SoulB to 3.500000, 101.000000, 4.500000
+[m[34m[03:41:24][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data merge entity @e[name=SoulA,limit=1] {NoAI:1b,PersistenceRequired:1b}] at connected tick 780
+[m[34m[03:41:24][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Modified entity data of SoulA
+[m[34m[03:41:25][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data merge entity @e[name=SoulB,limit=1] {NoAI:1b,PersistenceRequired:1b}] at connected tick 790
+[m[34m[03:41:25][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Modified entity data of SoulB
+[m[34m[03:41:25][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [item replace entity @s weapon.mainhand with powers:violet_crystal] at connected tick 800
+[m[34m[03:41:25][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Replaced a slot on [Dormant] CrystalCaster with [Violet Crystal]
+[m[34m[03:41:26][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed USE [main] at connected tick 820
+[m[34m[03:41:28][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data get entity @e[name=SoulA,limit=1] Health] at connected tick 850
+[m[34m[03:41:28][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] SoulA has the following entity data: 100.0f
+[m[34m[03:41:28][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data get entity @e[name=SoulB,limit=1] Health] at connected tick 860
+[m[34m[03:41:28][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] SoulB has the following entity data: 100.0f
+[m[34m[03:41:29][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [damage @e[name=SoulA,limit=1] 8 minecraft:generic] at connected tick 870
+[m[34m[03:41:29][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Applied 8.0 damage to SoulA
+[m[34m[03:41:30][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data get entity @e[name=SoulA,limit=1] Health] at connected tick 900
+[m[34m[03:41:30][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] SoulA has the following entity data: 92.0f
+[m[34m[03:41:31][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data get entity @e[name=SoulB,limit=1] Health] at connected tick 910
+[m[34m[03:41:31][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] SoulB has the following entity data: 94.56f
+[m[34m[03:41:31][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed SCREENSHOT [soul-link-mirror] at connected tick 920
+[m[34m[03:41:31][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Saved screenshot as 2026-08-14_03.41.31.png
+[m[34m[03:41:32][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [kill @e[name=SoulA]] at connected tick 940
+[m[34m[03:41:32][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [kill @e[name=SoulB]] at connected tick 940
+[m[34m[03:41:32][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Killed SoulA
+[m[34m[03:41:32][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Killed SoulB
+[m[34m[03:41:34][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tp @s 0.5 101 0.5 0 0] at connected tick 970
+[m[34m[03:41:34][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Teleported [Dormant] CrystalCaster to 0.500000, 101.000000, 0.500000
+[m[34m[03:41:34][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [item replace entity @s weapon.mainhand with powers:blue_crystal] at connected tick 980
+[m[34m[03:41:34][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Replaced a slot on [Dormant] CrystalCaster with [Blue Crystal]
+[m[34m[03:41:35][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed USE [main] at connected tick 1000
+[m[34m[03:41:35][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] The world holds its breath — time freezes!
+[m[34m[03:41:37][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tick query] at connected tick 1030
+[m[34m[03:41:37][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] The game is frozen
+[m[34m[03:41:37][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Target tick rate: 20.0 per second.\nAverage time per tick: 3.2ms (Target: 50.0ms)
+[m[34m[03:41:37][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Percentiles: P50: 4.2ms P95: 4.9ms P99: 5.0ms. Sample: 100
+[m[34m[03:41:37][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed SCREENSHOT [chrono-stop-owned] at connected tick 1040
+[m[34m[03:41:37][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Saved screenshot as 2026-08-14_03.41.37.png
+[m[34m[03:41:39][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed USE [main] at connected tick 1070
+[m[34m[03:41:39][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] The frozen moment shatters — time resumes.
+[m[34m[03:41:40][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tick query] at connected tick 1100
+[m[34m[03:41:40][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] The game is running normally
+[m[34m[03:41:40][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Target tick rate: 20.0 per second.\nAverage time per tick: 1.7ms (Target: 50.0ms)
+[m[34m[03:41:40][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Percentiles: P50: 0.5ms P95: 4.9ms P99: 5.5ms. Sample: 100
+[m[34m[03:41:41][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed SCREENSHOT [chrono-stop-released] at connected tick 1110
+[m[34m[03:41:41][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Saved screenshot as 2026-08-14_03.41.41.png
+[m[34m[03:41:42][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [powers testing actor spawn DreamHost] at connected tick 1140
+[m[34m[03:41:42][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Spawned test actor: DreamHost
+[m[34m[03:41:43][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tp @e[name=DreamHost,limit=1] 0.5 101 4.5] at connected tick 1150
+[m[34m[03:41:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Teleported DreamHost to 0.500000, 101.000000, 4.500000
+[m[34m[03:41:43][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data merge entity @e[name=DreamHost,limit=1] {NoAI:1b,PersistenceRequired:1b}] at connected tick 1160
+[m[34m[03:41:43][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Modified entity data of DreamHost
+[m[34m[03:41:44][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed KEY [sneak on] at connected tick 1180
+[m[34m[03:41:45][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed USE [main] at connected tick 1190
+[m[34m[03:41:45][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed KEY [sneak off] at connected tick 1200
+[m[34m[03:41:47][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed USE [main] at connected tick 1230
+[m[34m[03:41:48][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data get entity @s playerGameType] at connected tick 1260
+[m[34m[03:41:48][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] [Dormant] CrystalCaster has the following entity data: 3
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [powers diagnose] at connected tick 1270
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] magic=2/49 cells; spellFields=0 (cap/tick 32); artifactFields=0
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] forces=0; clashes=0; auraCaps=512/player,4096/level; guardians=0
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] proxies=1; travelLoads=0; celestialEvents=0; forcedChunks=1
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] lastTick: packets=0; particles=0; entityInspections=0
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] configValidation: revision=0; adjustments=0; retained=0; dropped=0
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] operatorAudit: total=1
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] operatorAudit action=testing_control; result=success; count=1
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Energy history: spent=0 restored=0 net=0
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] physicalRays=0; rayCollisionsThisTick=0; shadowSessions=0; revealedShadowBodies=0
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] shadowBodies=0 (hidden=0, revealed=0); tasks=0; energy=0; rites=0; toggles=0; casts=0; conjurations=0; planner=0; contexts=0; targetProfiles=0; creditWindows=0; forcedChunks=0; leaks=0
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] realmBuilds=0; containment=0 (cap/tick 256); invasions=0/64; concord=0/0
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=minecraft:overworld; q=255; candidates=0; misses=255; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=minecraft:overworld; q=153; candidates=0; misses=153; stale=2; fallbackScans=12; memory~=800B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=170B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=minecraft:overworld; q=15; candidates=0; misses=15; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] travelTickets=0/64; perDimensionLimit=24; lastRefusal=none
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] missingDimensions=0; droppedDistinct=0; orphanedRuinEvents=0
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] questTelemetrySamples=0; publicationReadyLevels=0/20; minimumPerLevel=20
+[m[34m[03:41:49][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] testing: energy=disabled; cooldowns=disabled
+[m[34m[03:41:50][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed KEY [forward on] at connected tick 1290
+[m[34m[03:41:53][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed KEY [forward off] at connected tick 1350
+[m[34m[03:41:53][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data get entity @e[name=DreamHost,limit=1] Pos] at connected tick 1360
+[m[34m[03:41:53][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] DreamHost has the following entity data: [-0.5688049275071211d, 101.0d, 14.94546102510255d]
+[m[34m[03:41:54][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed SCREENSHOT [dreamwalking-controlled] at connected tick 1370
+[m[34m[03:41:54][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Saved screenshot as 2026-08-14_03.41.54.png
+[m[34m[03:41:55][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed USE [main] at connected tick 1400
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [data get entity @s playerGameType] at connected tick 1450
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] [Dormant] CrystalCaster has the following entity data: 0
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [powers diagnose] at connected tick 1460
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] magic=0/0 cells; spellFields=0 (cap/tick 32); artifactFields=0
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] forces=0; clashes=0; auraCaps=512/player,4096/level; guardians=0
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] proxies=0; travelLoads=0; celestialEvents=0; forcedChunks=0
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] lastTick: packets=0; particles=0; entityInspections=0
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] configValidation: revision=0; adjustments=0; retained=0; dropped=0
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] operatorAudit: total=1
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] operatorAudit action=testing_control; result=success; count=1
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Energy history: spent=0 restored=0 net=0
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] physicalRays=0; rayCollisionsThisTick=0; shadowSessions=0; revealedShadowBodies=0
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] shadowBodies=0 (hidden=0, revealed=0); tasks=0; energy=0; rites=0; toggles=0; casts=0; conjurations=0; planner=0; contexts=0; targetProfiles=0; creditWindows=0; forcedChunks=0; leaks=0
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] realmBuilds=0; containment=0 (cap/tick 256); invasions=0/64; concord=0/0
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=minecraft:overworld; q=255; candidates=0; misses=255; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=minecraft:overworld; q=162; candidates=0; misses=162; stale=2; fallbackScans=16; memory~=1120B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=170B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=minecraft:overworld; q=16; candidates=0; misses=16; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] travelTickets=0/64; perDimensionLimit=24; lastRefusal=none
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] missingDimensions=0; droppedDistinct=0; orphanedRuinEvents=0
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] questTelemetrySamples=0; publicationReadyLevels=0/20; minimumPerLevel=20
+[m[34m[03:41:58][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] testing: energy=disabled; cooldowns=disabled
+[m[34m[03:41:59][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed SCREENSHOT [dreamwalking-returned] at connected tick 1470
+[m[34m[03:41:59][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Saved screenshot as 2026-08-14_03.41.59.png
+[m[34m[03:42:00][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [tp @s 8.5 101 0.5 0 0] at connected tick 1500
+[m[34m[03:42:00][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Teleported [Dormant] CrystalCaster to 8.500000, 101.000000, 0.500000
+[m[34m[03:42:01][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [summon minecraft:cow 8.5 101 1.5 {CustomName:'"RealmMate"',Tags:["qa_realm_mate"],NoAI:1b,Invulnerable:1b,PersistenceRequired:1b}] at connected tick 1510
+[m[34m[03:42:01][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Summoned new "RealmMate"
+[m[34m[03:42:01][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [item replace entity @s weapon.mainhand with powers:indigo_crystal] at connected tick 1520
+[m[34m[03:42:01][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Replaced a slot on [Dormant] CrystalCaster with [Indigo Crystal]
+[m[34m[03:42:02][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed USE [main] at connected tick 1540
+[m[34m[03:42:07][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [execute if dimension powers:middleworld run say MIDDLEWORLD_ENTERED] at connected tick 1630
+[m[34m[03:42:07][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] [[Dormant] CrystalCaster] MIDDLEWORLD_ENTERED
+[m[34m[03:42:07][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [execute in powers:middleworld if entity @e[tag=qa_realm_mate,limit=1] run say REALM_MATE_ENTERED] at connected tick 1640
+[m[34m[03:42:07][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] [[Dormant] CrystalCaster] REALM_MATE_ENTERED
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [powers diagnose] at connected tick 1650
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] magic=1/2 cells; spellFields=0 (cap/tick 32); artifactFields=0
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] forces=160000; clashes=0; auraCaps=512/player,4096/level; guardians=0
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] proxies=1; travelLoads=0; celestialEvents=0; forcedChunks=1
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] lastTick: packets=0; particles=0; entityInspections=0
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] configValidation: revision=0; adjustments=0; retained=0; dropped=0
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] operatorAudit: total=1
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] operatorAudit action=testing_control; result=success; count=1
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Energy history: spent=0 restored=0 net=0
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] physicalRays=0; rayCollisionsThisTick=0; shadowSessions=0; revealedShadowBodies=0
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] shadowBodies=0 (hidden=0, revealed=0); tasks=0; energy=0; rites=0; toggles=0; casts=0; conjurations=0; planner=0; contexts=0; targetProfiles=0; creditWindows=0; forcedChunks=0; leaks=0
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] realmBuilds=0; containment=0 (cap/tick 256); invasions=0/64; concord=0/0
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=minecraft:overworld; q=264; candidates=0; misses=264; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=minecraft:overworld; q=169; candidates=0; misses=169; stale=2; fallbackScans=16; memory~=1120B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=minecraft:overworld; q=17; candidates=0; misses=17; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=powers:middleworld; q=9; candidates=0; misses=9; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=powers:middleworld; q=4; candidates=0; misses=4; stale=0; fallbackScans=2; memory~=160B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=174B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=powers:middleworld; q=16; candidates=11672; misses=8; stale=0; fallbackScans=0; memory~=7740000B
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] travelTickets=0/64; perDimensionLimit=24; lastRefusal=none
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] missingDimensions=0; droppedDistinct=0; orphanedRuinEvents=0
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] questTelemetrySamples=0; publicationReadyLevels=0/20; minimumPerLevel=20
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] testing: energy=disabled; cooldowns=disabled
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed SCREENSHOT [middleworld-cohort-arrival] at connected tick 1660
+[m[34m[03:42:08][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Saved screenshot as 2026-08-14_03.42.08.png
+[m[34m[03:42:09][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [execute in powers:middleworld as @e[tag=qa_realm_mate,limit=1] at @s run tp @s ~6 ~4 ~] at connected tick 1670
+[m[34m[03:42:09][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Teleported "RealmMate" to 13.500000, -59.000000, 7.500000
+[m[34m[03:42:09][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [execute in powers:middleworld run data get entity @e[tag=qa_realm_mate,limit=1] Pos] at connected tick 1680
+[m[34m[03:42:09][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] "RealmMate" has the following entity data: [13.5d, -59.0d, 7.5d]
+[m[34m[03:42:10][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed USE [main] at connected tick 1700
+[m[34m[03:42:13][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [execute if dimension minecraft:overworld run say MIDDLEWORLD_RETURNED] at connected tick 1760
+[m[34m[03:42:13][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] [[Dormant] CrystalCaster] MIDDLEWORLD_RETURNED
+[m[34m[03:42:14][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [execute in minecraft:overworld if entity @e[tag=qa_realm_mate,limit=1] run say REALM_MATE_RETURNED] at connected tick 1770
+[m[34m[03:42:14][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] [[Dormant] CrystalCaster] REALM_MATE_RETURNED
+[m[34m[03:42:14][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [execute in minecraft:overworld run data get entity @e[tag=qa_realm_mate,limit=1] Pos] at connected tick 1780
+[m[34m[03:42:14][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] "RealmMate" has the following entity data: [8.5d, 101.0d, 1.5d]
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed COMMAND [powers diagnose] at connected tick 1790
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] magic=0/0 cells; spellFields=0 (cap/tick 32); artifactFields=0
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] forces=0; clashes=0; auraCaps=512/player,4096/level; guardians=0
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] proxies=0; travelLoads=0; celestialEvents=0; forcedChunks=0
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] lastTick: packets=0; particles=0; entityInspections=0
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] configValidation: revision=0; adjustments=0; retained=0; dropped=0
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] operatorAudit: total=1
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] operatorAudit action=testing_control; result=success; count=1
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Energy history: spent=0 restored=0 net=0
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] physicalRays=0; rayCollisionsThisTick=0; shadowSessions=0; revealedShadowBodies=0
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] shadowBodies=0 (hidden=0, revealed=0); tasks=0; energy=0; rites=0; toggles=0; casts=0; conjurations=0; planner=0; contexts=0; targetProfiles=0; creditWindows=0; forcedChunks=0; leaks=0
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] realmBuilds=0; containment=0 (cap/tick 256); invasions=0/64; concord=0/0
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=minecraft:overworld; q=264; candidates=0; misses=264; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=minecraft:overworld; q=174; candidates=0; misses=174; stale=16; fallbackScans=20; memory~=320B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=522B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=minecraft:overworld; q=18; candidates=0; misses=18; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=spellFields; dimension=powers:middleworld; q=9; candidates=0; misses=9; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=artifactFields; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystNatural; dimension=powers:middleworld; q=6; candidates=0; misses=6; stale=1; fallbackScans=2; memory~=80B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=amethystWards; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=namedTargets; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] index=livingForces; dimension=powers:middleworld; q=24; candidates=17015; misses=12; stale=0; fallbackScans=0; memory~=0B
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] travelTickets=0/64; perDimensionLimit=24; lastRefusal=none
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] missingDimensions=0; droppedDistinct=0; orphanedRuinEvents=0
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] questTelemetrySamples=0; publicationReadyLevels=0/20; minimumPerLevel=20
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] testing: energy=disabled; cooldowns=disabled
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(powers)[m [0mQA client role=crystals-aaf08ac-op executed SCREENSHOT [middleworld-cohort-return] at connected tick 1800
+[m[34m[03:42:15][m [32m[Render thread/INFO][m [36m(Minecraft)[m [0m[System] [CHAT] Saved screenshot as 2026-08-14_03.42.15.png
+[m
