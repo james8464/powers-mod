@@ -4,7 +4,7 @@ import com.powers.fx.BeamFxStyle;
 import com.powers.fx.FxGeometry;
 import com.powers.magic.fx.FxMotif;
 import com.powers.magic.fx.FxOrientation;
-import com.powers.network.FxPayloadPool;
+import com.powers.network.FxPayloadBatch;
 import com.powers.network.MagicFxPackets;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.Arrays;
 final class FxAllocationProfile {
 	private static final int VIEWERS_PER_OPERATION = 64;
 	private static final int POINTS_PER_OPERATION = 48;
-	private static final FxGeometry.Point[] ESCAPE_SINK = new FxGeometry.Point[128];
+	private static volatile long blackholeSink;
 
 	private FxAllocationProfile() {
 	}
@@ -28,12 +28,13 @@ final class FxAllocationProfile {
 			throw new IllegalArgumentException("Allocation profile dimensions must be positive");
 		}
 		com.sun.management.ThreadMXBean allocations = allocationBean();
-		FxPayloadPool payloads = new FxPayloadPool(1_024);
+		FxGeometry.TransformBuffer transform = new FxGeometry.TransformBuffer()
+				.configure(1.35, FxOrientation.BILLBOARD, 0.72);
 		long blackhole = 0L;
 		for (int batch = 0; batch < warmupBatches; batch++) {
-			blackhole ^= executeBatch(payloads, batch * operationsPerBatch, operationsPerBatch);
+			blackhole = mix(blackhole,
+					executeBatch(transform, batch * operationsPerBatch, operationsPerBatch));
 		}
-		payloads.clear();
 		long[] nanos = new long[Math.multiplyExact(measuredBatches, operationsPerBatch)];
 		long threadId = Thread.currentThread().threadId();
 		long allocatedBefore = allocations.getThreadAllocatedBytes(threadId);
@@ -41,46 +42,49 @@ final class FxAllocationProfile {
 		for (int batch = 0; batch < measuredBatches; batch++) {
 			for (int operation = 0; operation < operationsPerBatch; operation++) {
 				long started = System.nanoTime();
-				blackhole ^= executeOperation(payloads,
-						(long) batch * operationsPerBatch + operation + 1_000_000L);
+				blackhole = mix(blackhole, executeOperation(transform,
+						(long) batch * operationsPerBatch + operation + 1_000_000L));
 				nanos[sample++] = Math.max(1L, System.nanoTime() - started);
 			}
 		}
 		long allocatedBytes = allocations.getThreadAllocatedBytes(threadId) - allocatedBefore;
+		blackholeSink = blackhole;
 		Arrays.sort(nanos);
 		long p99 = nanos[Math.min(nanos.length - 1, (int) Math.ceil(nanos.length * 0.99) - 1)];
 		return new Result(nanos.length, allocatedBytes,
 				allocatedBytes / (double) nanos.length, p99,
-				FxGeometry.poolSize(), payloads.size(), blackhole);
+				FxGeometry.poolSize(), 0, blackholeSink);
 	}
 
-	private static long executeBatch(FxPayloadPool payloads, long firstOperation, int count) {
+	private static long executeBatch(FxGeometry.TransformBuffer transform,
+			long firstOperation, int count) {
 		long blackhole = 0L;
 		for (int operation = 0; operation < count; operation++) {
-			blackhole ^= executeOperation(payloads, firstOperation + operation);
+			blackhole = mix(blackhole, executeOperation(transform, firstOperation + operation));
 		}
 		return blackhole;
 	}
 
-	private static long executeOperation(FxPayloadPool payloads, long eventId) {
+	private static long executeOperation(FxGeometry.TransformBuffer transform, long eventId) {
 		var points = FxGeometry.points(FxMotif.SPIRAL, (int) (eventId & 15L), 4,
 				POINTS_PER_OPERATION);
 		long blackhole = eventId;
 		for (int index = 0; index < points.size(); index++) {
-			FxGeometry.Point scaled = FxGeometry.scale(points.get(index), 1.35);
-			FxGeometry.Point transformed = FxGeometry.transform(scaled,
-					FxOrientation.BILLBOARD, 0.72);
-			ESCAPE_SINK[(int) ((eventId + index) & (ESCAPE_SINK.length - 1))] = transformed;
-			blackhole ^= Double.doubleToRawLongBits(transformed.x() + transformed.y()
-					+ transformed.z());
+			transform.apply(points.get(index));
+			blackhole = mix(blackhole, Double.doubleToRawLongBits(
+					transform.x() + transform.y() + transform.z()));
 		}
+		FxPayloadBatch.Beam payloads = FxPayloadBatch.beam(eventId, BeamFxStyle.COLORED,
+				0.0, 64.0, 0.0, 24.0, 64.0, 0.0, 0x7DEBFF);
 		for (int viewer = 0; viewer < VIEWERS_PER_OPERATION; viewer++) {
-			var payload = payloads.intern(new MagicFxPackets.BeamFxPayload(
-					eventId, BeamFxStyle.COLORED, 0.0, 64.0, 0.0,
-					24.0, 64.0, 0.0, 32, 0x7DEBFF));
-			blackhole ^= System.identityHashCode(payload);
+			MagicFxPackets.BeamFxPayload payload = payloads.forCount(32);
+			blackhole = mix(blackhole, System.identityHashCode(payload));
 		}
 		return blackhole;
+	}
+
+	private static long mix(long current, long value) {
+		return Long.rotateLeft(current, 11) + value + 0x9E3779B97F4A7C15L;
 	}
 
 	private static com.sun.management.ThreadMXBean allocationBean() {

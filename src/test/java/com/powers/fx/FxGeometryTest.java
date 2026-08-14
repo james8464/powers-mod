@@ -56,4 +56,21 @@ class FxGeometryTest {
 		assertTrue(first == second);
 		assertTrue(FxGeometry.poolSize() <= FxGeometry.MAX_POOLED_GEOMETRIES);
 	}
+
+	@Test
+	void reusableTransformBufferMatchesLegacyGeometryWithoutPerPointResults() {
+		FxGeometry.Point source = new FxGeometry.Point(1.25, -0.5, 2.75);
+		double scale = 1.35;
+		double angle = 0.72;
+		FxGeometry.Point expected = FxGeometry.transform(FxGeometry.scale(source, scale),
+				com.powers.magic.fx.FxOrientation.BILLBOARD, angle);
+		FxGeometry.TransformBuffer buffer = new FxGeometry.TransformBuffer();
+
+		assertTrue(buffer == buffer.configure(scale,
+				com.powers.magic.fx.FxOrientation.BILLBOARD, angle));
+		assertTrue(buffer == buffer.apply(source));
+		assertEquals(expected.x(), buffer.x(), 1.0E-12);
+		assertEquals(expected.y(), buffer.y(), 1.0E-12);
+		assertEquals(expected.z(), buffer.z(), 1.0E-12);
+	}
 }

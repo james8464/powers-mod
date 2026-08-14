@@ -24,7 +24,6 @@ import java.util.WeakHashMap;
 public final class MagicFxPackets {
 	private static final Map<ServerLevel, MagicFxService> SERVICES = new WeakHashMap<>();
 	private static final FxPacketCoalescer COALESCER = new FxPacketCoalescer(32_768);
-	private static final FxPayloadPool PAYLOADS = new FxPayloadPool(1_024);
 
 	private MagicFxPackets() {
 	}
@@ -211,12 +210,6 @@ public final class MagicFxPackets {
 	public static void clear() {
 		SERVICES.clear();
 		COALESCER.clear();
-		PAYLOADS.clear();
-	}
-
-	/** Canonicalizes a short-lived immutable payload for repeated observer sends. */
-	public static <T extends CustomPacketPayload> T pooled(T payload) {
-		return PAYLOADS.intern(payload);
 	}
 
 	/** Starts an isolated transport capture without disturbing payload or level caches. */
