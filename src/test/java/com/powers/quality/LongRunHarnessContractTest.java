@@ -12,6 +12,8 @@ class LongRunHarnessContractTest {
 	@Test
 	void restartSoakIsIsolatedPersistentAndDefaultsToTwentyFourHours() throws IOException {
 		String script = Files.readString(Path.of("scripts/restart_soak.py"));
+		String build = Files.readString(Path.of("build.gradle"));
+		String metadata = Files.readString(Path.of("src/gametest/resources/fabric.mod.json"));
 		assertTrue(script.contains("default=24.0"));
 		assertTrue(script.contains("powersRunDir"));
 		assertTrue(script.contains("save-all flush"));
@@ -20,6 +22,16 @@ class LongRunHarnessContractTest {
 		assertTrue(script.contains("forcedChunks=0"));
 		assertTrue(script.contains("start_new_session=True"));
 		assertTrue(script.contains("os.killpg"));
+		assertTrue(script.contains("powers testing soak verify"));
+		assertTrue(script.contains("powers testing soak seed"));
+		assertTrue(script.contains("powers testing soak rollover"));
+		assertTrue(script.contains("shutdown_mode"));
+		assertTrue(script.contains("client_command"));
+		assertTrue(script.contains("SoakClient"));
+		assertTrue(script.contains("SIGTERM"));
+		assertTrue(build.contains("powersRestartSoak"));
+		assertTrue(build.contains("RestartSoakGameTests"));
+		assertTrue(metadata.contains("${restartSoakEntrypoint}"));
 	}
 
 	@Test

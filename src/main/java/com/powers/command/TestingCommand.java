@@ -12,6 +12,7 @@ import com.powers.entity.PowerTestActor;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.testing.GameplayAcceptanceCatalogue;
+import com.powers.testing.RestartSoakScenario;
 import com.powers.testing.TestingArenaLayout;
 import com.powers.testing.TestingOverrides;
 import com.powers.util.BoundedEntityCandidates;
@@ -31,6 +32,9 @@ import net.minecraft.world.phys.Vec3;
 final class TestingCommand {
 	private static final String ARENA_TAG = "powers_testing_arena";
 	private static final double ARENA_CLEANUP_RADIUS = 24.0;
+	private static final int MAX_SOAK_CYCLE = 1_000_000;
+
+	private enum SoakPhase { VERIFY, SEED, STATUS, ROLLOVER }
 
 	private TestingCommand() {
 	}
@@ -52,6 +56,11 @@ final class TestingCommand {
 						.then(Commands.literal("off").executes(context -> setCooldowns(context, false))))
 				.then(Commands.literal("refill").executes(TestingCommand::refill))
 				.then(Commands.literal("coverage").executes(TestingCommand::coverage))
+				.then(Commands.literal("soak")
+						.then(soakPhase("verify", SoakPhase.VERIFY))
+						.then(soakPhase("seed", SoakPhase.SEED))
+						.then(soakPhase("status", SoakPhase.STATUS))
+						.then(soakPhase("rollover", SoakPhase.ROLLOVER)))
 				.then(Commands.literal("quest-telemetry")
 						.executes(TestingCommand::questTelemetry))
 				.then(Commands.literal("profile")
@@ -72,6 +81,40 @@ final class TestingCommand {
 								.then(Commands.argument("username", StringArgumentType.word())
 										.executes(context -> spawnActor(context,
 												StringArgumentType.getString(context, "username"))))));
+	}
+
+	private static LiteralArgumentBuilder<CommandSourceStack> soakPhase(String literal,
+			SoakPhase phase) {
+		return Commands.literal(literal)
+				.then(Commands.argument("cycle", IntegerArgumentType.integer(1, MAX_SOAK_CYCLE))
+						.executes(context -> runSoakPhase(context, phase)));
+	}
+
+	private static int runSoakPhase(CommandContext<CommandSourceStack> context, SoakPhase phase) {
+		int cycle = IntegerArgumentType.getInteger(context, "cycle");
+		ServerPlayer client = context.getSource().getServer().getPlayerList().getPlayers().stream()
+				.filter(player -> RestartSoakScenario.CLIENT_NAME.equals(player.getScoreboardName()))
+				.findFirst().orElse(null);
+		if (client == null) {
+			context.getSource().sendFailure(Component.literal(
+					"Restart soak requires the connected SoakClient."));
+			return 0;
+		}
+		RestartSoakScenario.Result result = switch (phase) {
+			case VERIFY -> RestartSoakScenario.verifyStartup(client, cycle);
+			case SEED -> RestartSoakScenario.seed(client, cycle);
+			case STATUS -> RestartSoakScenario.status(client, cycle);
+			case ROLLOVER -> RestartSoakScenario.rollover(client, cycle);
+		};
+		String marker = "POWERS_SOAK_" + phase.name() + " cycle=" + cycle
+				+ " passed=" + result.passed() + " detail=" + result.detail();
+		com.powers.PowersMod.LOGGER.info(marker);
+		if (result.passed()) {
+			context.getSource().sendSuccess(() -> Component.literal(marker), false);
+		} else {
+			context.getSource().sendFailure(Component.literal(marker));
+		}
+		return result.commandResult();
 	}
 
 	private static int coverage(CommandContext<CommandSourceStack> context) {
