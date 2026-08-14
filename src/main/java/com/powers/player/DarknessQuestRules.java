@@ -6,16 +6,16 @@ import java.util.Map;
 /** Pure cumulative thresholds for the ten deliberately difficult shadow rites. */
 public final class DarknessQuestRules {
 	private static final List<List<QuestRoute<DarknessDeed>>> RITES = List.of(
-			routes(Map.of(DarknessDeed.PASSIVE, 25), Map.of(DarknessDeed.VILLAGER, 8)),
+			routes(Map.of(DarknessDeed.PASSIVE, 25), Map.of(DarknessDeed.VILLAGER, 10)),
 			routes(Map.of(DarknessDeed.PASSIVE, 100),
 					Map.of(DarknessDeed.WOLF, 35, DarknessDeed.IRON_GOLEM, 2)),
-			routes(Map.of(DarknessDeed.VILLAGER, 50, DarknessDeed.IRON_GOLEM, 7),
+			routes(Map.of(DarknessDeed.VILLAGER, 60, DarknessDeed.IRON_GOLEM, 8),
 					Map.of(DarknessDeed.PASSIVE, 250, DarknessDeed.WOLF, 40)),
-			routes(Map.of(DarknessDeed.VILLAGER, 60, DarknessDeed.WOLF, 35,
-					DarknessDeed.BABY_VILLAGER, 7),
+			routes(Map.of(DarknessDeed.VILLAGER, 70, DarknessDeed.WOLF, 40,
+					DarknessDeed.BABY_VILLAGER, 10),
 					Map.of(DarknessDeed.PASSIVE, 400, DarknessDeed.IRON_GOLEM, 15)),
-			routes(Map.of(DarknessDeed.VILLAGER, 75, DarknessDeed.WOLF, 50,
-					DarknessDeed.BABY_VILLAGER, 10, DarknessDeed.IRON_GOLEM, 10),
+			routes(Map.of(DarknessDeed.VILLAGER, 85, DarknessDeed.WOLF, 60,
+					DarknessDeed.BABY_VILLAGER, 12, DarknessDeed.IRON_GOLEM, 11),
 					Map.of(DarknessDeed.VILLAGER, 130, DarknessDeed.IRON_GOLEM, 25)),
 			routes(Map.of(DarknessDeed.VILLAGER, 125, DarknessDeed.WOLF, 100,
 					DarknessDeed.BABY_VILLAGER, 20, DarknessDeed.IRON_GOLEM, 15),
