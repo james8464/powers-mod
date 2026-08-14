@@ -90,7 +90,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
-| PRG-001 | Guarantee | P1 | Telemetry-driven audit of all Light/Dark quest thresholds in real multiplayer. | Median/p90 completion time is published; changes include migration and rationale. |
 | PRG-003 | Enhancement | P2 | Add party contribution to Herald/First Vessel credit with anti-AFK rules. | Nearby meaningful damage/support receives deterministic credit once. |
 | PRG-004 | Enhancement | P2 | Make each of 28 nodes alter at least one named mechanic and display it numerically. | No node is title-only; tooltip matches executable profile tests. |
 | PRG-005 | Enhancement | P2 | Add rank-maze route preview, dependency highlights, respec delta, and confirmation. | Keyboard/narration users can inspect every consequence before spending XP. |

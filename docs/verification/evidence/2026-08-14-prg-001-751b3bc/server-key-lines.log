@@ -1,0 +1,14 @@
+[14:29:53-14:29:54] QuestLight1..QuestLight10 joined the game.
+[14:29:55] POWERS_QUEST_CAMPAIGN_START passed=true detail=alignment=LIGHT; players=10
+[14:42:04] POWERS_QUEST_CAMPAIGN alignment=LIGHT passed=true equivalentTicks=696000
+[14:42:04] POWERS_QUEST_CAMPAIGN_STATUS passed=true detail=alignment=LIGHT; finished=true; equivalentTick=696240; maximumTick=696000
+[14:42:05] POWERS_QUEST_CAMPAIGN_CLEAR passed=true detail=cleared
+[14:42:06-14:42:07] QuestLight1..QuestLight10 left during scripted cleanup.
+[14:42:07] Sprint completed with 959 ticks per second, or 1.04 ms per tick
+[14:42:44-14:43:01] QuestDark1..QuestDark10 joined the game.
+[14:43:01] POWERS_QUEST_CAMPAIGN_START passed=true detail=alignment=DARK; players=10
+[14:54:31] POWERS_QUEST_CAMPAIGN alignment=DARK passed=true equivalentTicks=630000
+[14:54:32] POWERS_QUEST_CAMPAIGN_STATUS passed=true detail=alignment=DARK; finished=true; equivalentTick=630270; maximumTick=630000
+[14:54:32] POWERS_QUEST_CAMPAIGN_CLEAR passed=true detail=cleared
+[14:54:33-14:54:34] QuestDark1..QuestDark10 left during scripted cleanup.
+[14:54:34] Sprint completed with 917 ticks per second, or 1.09 ms per tick

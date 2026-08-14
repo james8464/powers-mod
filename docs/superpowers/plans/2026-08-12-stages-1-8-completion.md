@@ -36,9 +36,9 @@ Locked invariants:
 
 - [ ] `QA-001`: exact-build signed release envelope; close last.
 - [x] `PERF-001`: rerun 10/50/100-player 36,000-tick and 1,800-second profiles; distinguish real clients from embedded server actors.
-- [ ] `QA-005`: complete every generated manual acceptance row on one exact build with four Fabric clients where relevant.
+- [x] `QA-005`: complete every generated manual acceptance row on one exact build with four Fabric clients where relevant.
 - [ ] `QA-006`: complete a restart/reconnect soak for 24 uninterrupted hours; any failure restarts acceptance after repair.
-- [ ] `PRG-001`: gather ten Light and ten Darkness human-cadence samples and publish median/p90 for all thresholds.
+- [x] `PRG-001`: gather ten Light and ten Darkness human-cadence samples and publish median/p90 for all thresholds.
 - [ ] `PERF-005`: observer/dimension/chunk/action/phase visual coalescing, with at least 25% fewer packets/bytes and unchanged collisions.
 - [ ] `PERF-006`: JFR-directed geometry/payload allocation reduction, at least 20% lower allocation and no greater than 5% p99 regression.
 
