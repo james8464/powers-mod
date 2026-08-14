@@ -37,6 +37,7 @@ class QuestTelemetryCampaignHarnessTest(unittest.TestCase):
         self.assertIn("--username QuestLight7", rendered)
         self.assertIn("--gameDir /client-7", rendered)
         self.assertIn("powers.qa.role=quest-telemetry", rendered)
+        self.assertIn("powers.qa.server=127.0.0.1:25566", rendered)
 
 
 if __name__ == "__main__":

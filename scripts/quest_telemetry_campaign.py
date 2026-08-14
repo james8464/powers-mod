@@ -19,6 +19,7 @@ from typing import TextIO
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = (ROOT / "build" / "quest-telemetry-campaign").resolve()
 READY_MARKER = "Done ("
+CAMPAIGN_PORT = 25_566
 PHASE_TICKS = {"LIGHT": 700_000, "DARK": 635_000}
 ROW = re.compile(r"\b(LIGHT|DARK);(10|[1-9]);(\d+);(\d+);(\d+);([a-z0-9_,.-]+)")
 
@@ -33,7 +34,7 @@ def client_command(java: Path, launch: Path, arguments_file: Path,
     return [
         str(java), "-Xms128m", "-Xmx512m",
         "-Dpowers.qa.role=quest-telemetry",
-        "-Dpowers.qa.server=127.0.0.1:25565",
+        f"-Dpowers.qa.server=127.0.0.1:{CAMPAIGN_PORT}",
         f"-Dfabric.dli.config={launch}", "-Dfabric.dli.env=client",
         "-Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotClient",
         f"@{arguments_file}", "-XstartOnFirstThread",
@@ -196,7 +197,7 @@ def main() -> int:
     runtime.mkdir()
     (runtime / "eula.txt").write_text("eula=true\n", encoding="utf-8")
     (runtime / "server.properties").write_text(
-        "online-mode=false\nlevel-name=world\nmax-players=20\nview-distance=4\n"
+        f"online-mode=false\nserver-port={CAMPAIGN_PORT}\nlevel-name=world\nmax-players=20\nview-distance=4\n"
         "simulation-distance=4\n", encoding="utf-8")
     inputs = prepare_launch()
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
