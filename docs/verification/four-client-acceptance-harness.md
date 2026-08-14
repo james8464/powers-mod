@@ -20,6 +20,7 @@ Each non-comment row is `connectedTick<TAB>operation<TAB>argument`. Supported op
 | `artifact_teleport` | `alignment action-key option x y z dimension` | Sends the exact server-validated artifact-coordinate payload used by the destination screen. |
 | `teleport` | `slot x y z dimension` | Sends the same validated destination payload as the rendered Time Shift menu. |
 | `look` | `yaw pitch` | Sets the real client's camera and published player rotation; yaw is `-180..180` and pitch is `-90..90`. |
+| `key` | supported key name plus `on` or `off` | Replays held input; click-style vanilla keys such as `advancements` also enqueue the click consumed by Minecraft's client loop. |
 | `respawn` | `now` | Sends the vanilla perform-respawn client packet. |
 | `close` | `screen` | Closes the current rendered screen through its normal close callback. |
 | `locator` | target or world query | Fills the rendered celestial-locator field and submits through that screen's server-issued nonce. |

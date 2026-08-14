@@ -227,7 +227,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
 | QA-001 | Guarantee | P0 | Run clean full build, JUnit, all GameTests, dedicated server, client smoke, visual suite, soak, and manual acceptance before release tags. | One signed release report contains exact commands, revisions, counts, logs, and unresolved limitations. |
-| QA-005 | Guarantee | P1 | Add manual acceptance checklist for every registered action/item/entity/screen/command. | Tester records pass/fail/evidence/build ID; omissions are visible. |
 | QA-006 | Guarantee | P1 | Add long-duration world soak with forced restart every few minutes. | No leaked ticket, index, field, summon, body, freeze, or Ruin state over 24 hours. |
 | QA-009 | Guarantee | P2 | Add network latency/loss/reorder simulation for menus, movement control, wheel binding, and FX. | State converges without double cast, ghost selection, or unsafe prediction. |
 | QA-010 | Guarantee | P2 | Add test worlds for claims, borders, low ceilings, void, fluids, mounts, passengers, portals, and modded dimensions. | Each critical action has at least one hostile-environment scenario. |

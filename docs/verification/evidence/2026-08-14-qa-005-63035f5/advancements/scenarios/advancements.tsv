@@ -1,0 +1,13 @@
+60	close	screen
+100	command	tag @s remove darkness
+240	key	advancements on
+241	key	advancements off
+300	screenshot	advancement-light-clean
+340	close	screen
+380	command	tag @s add darkness
+540	key	advancements on
+541	key	advancements off
+600	screenshot	advancement-darkness-clean
+640	close	screen
+680	command	powers diagnose
+720	screenshot	advancement-views-zero-residue

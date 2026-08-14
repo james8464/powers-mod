@@ -429,7 +429,7 @@ The exact generated appendices are:
 
 ## Verification status
 
-Current automated evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md), [bounded P2 ledger](docs/verification/2026-08-11-bounded-p2-acceptance.md), and [Queue 1 ledger](docs/verification/2026-08-11-queue-1-acceptance.md), not inferred from documentation hashes. The exact fresh Queue 1 counts are recorded only after the final combined verification run. The current-source interactive client review, long profiles/soak, quest sample collection, and manual acceptance remain explicit human or elapsed-time gates and are never represented as automated proof.
+Current automated evidence is recorded in [the 2026-08-11 verification report](docs/verification/2026-08-11-release.md), [bounded P2 ledger](docs/verification/2026-08-11-bounded-p2-acceptance.md), and [Queue 1 ledger](docs/verification/2026-08-11-queue-1-acceptance.md), not inferred from documentation hashes. The exact fresh Queue 1 counts are recorded only after the final combined verification run. Long profiles, the 24-hour restart soak, and quest sample collection remain explicit elapsed-time gates and are never represented as automated proof.
 
 Useful checks:
 
@@ -443,7 +443,7 @@ Useful checks:
 ./test.sh server
 ```
 
-The generated [manual acceptance checklist](docs/verification/manual-acceptance-checklist.md) covers every registered action, item, entity, screen, and command. Rows marked `MANUAL LIVE PENDING` must be completed by a tester against the recorded build ID; automated checks never impersonate that sign-off. Current P0/P1 closure evidence and deliberately pending duration/manual gates are recorded in [the P0/P1 acceptance ledger](docs/verification/2026-08-11-p0-p1-acceptance.md).
+The generated [manual acceptance checklist](docs/verification/manual-acceptance-checklist.md) covers every registered action, item, entity, screen, and command. Its exact-build live campaigns now provide a PASS and evidence path for every manual row; automated checks remain labelled separately and never impersonate that sign-off. Current P0/P1 closure evidence and deliberately pending duration gates are recorded in [the P0/P1 acceptance ledger](docs/verification/2026-08-11-p0-p1-acceptance.md).
 
 ## Lore and design boundary
 
