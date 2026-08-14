@@ -42,6 +42,18 @@ class FxCoalescingCaptureHarnessTest(unittest.TestCase):
                       module.COLLISION_FILTER)
         self.assertIn("collision_gametest_passed", source)
 
+    def test_only_the_known_offline_certificate_401_is_ignored(self):
+        module = load_module()
+        lines = [
+            "[Download-3/ERROR] Failed to retrieve profile key pair",
+            "MinecraftClientHttpException[type=HTTP_ERROR, status=401, "
+            "response=ErrorResponse[path=/player/certificates]]",
+            "MinecraftClientHttpException[type=HTTP_ERROR, status=500, "
+            "response=ErrorResponse[path=/other]]",
+        ]
+
+        self.assertEqual([lines[2]], module.unexpected_client_errors(lines))
+
 
 if __name__ == "__main__":
     unittest.main()
