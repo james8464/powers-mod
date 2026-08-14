@@ -11,6 +11,7 @@
 			"com.powers.gametest.P1AcceptanceGameTests",
 			"com.powers.gametest.LiveActionAcceptanceGameTests",
 			"com.powers.gametest.QuestTelemetryCampaignGameTests",
+			"com.powers.gametest.FxCoalescingGameTests",
 			"com.powers.gametest.MultiplayerInteractionGameTests"${connectedProfileEntrypoint}${restartSoakEntrypoint}
 		],
 		"fabric-client-gametest": [
