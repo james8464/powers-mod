@@ -192,6 +192,9 @@ final class ServerFxTransport {
 
 	static void resetLodMetrics(MinecraftServer server) {
 		LOD_METRICS.remove(server);
+		// Fabric's parallel GameTests reuse one mock-player UUID. Clear only that
+		// server's ephemeral allowance so another test cannot consume this proof's budget.
+		BUDGETS.remove(server);
 	}
 
 	static PowerFx.LodSnapshot lodSnapshot(MinecraftServer server) {
