@@ -256,7 +256,8 @@ public final class PerceptionSnapshotGameTests {
 
 	@SuppressWarnings("removal")
 	private static Cluster cluster(GameTestHelper helper, int zombies) {
-		Vec3 center = Vec3.atCenterOf(helper.absolutePos(new BlockPos(4, 2, 4)));
+		// The 48-block authored query must not count neighbouring parallel GameTests.
+		Vec3 center = Vec3.atCenterOf(helper.absolutePos(new BlockPos(4, 250, 4)));
 		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
 		owner.setPos(center);
 		ShadowCompanionEntity shadow = helper.spawn(PowersEntities.SHADOW_COMPANION,

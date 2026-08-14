@@ -51,4 +51,13 @@ class ViewerParticleBudgetTest {
 		assertEquals(0, budget.claim(40, FIRST, 10, Double.NaN));
 		assertEquals(0, budget.serverUsed());
 	}
+
+	@Test
+	void duplicateProfilesRetainIndependentLiveViewerAllowances() {
+		ViewerParticleBudget budget = new ViewerParticleBudget(150, 50, 128.0);
+
+		assertEquals(50, budget.claim(50, FIRST, 101, 60, 0.0));
+		assertEquals(50, budget.claim(50, FIRST, 102, 60, 0.0));
+		assertEquals(100, budget.serverUsed());
+	}
 }
