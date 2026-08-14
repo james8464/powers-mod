@@ -1,0 +1,62 @@
+# Exact 7052ead live acceptance for every remaining command route.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	powers list
+120	COMMAND	powers slots
+140	COMMAND	powers slots @s
+160	COMMAND	powers reroll @s
+180	COMMAND	powers slots @s
+200	COMMAND	powers consent teleport deny
+220	COMMAND	powers consent teleport allow
+240	COMMAND	powers reload
+270	COMMAND	tag @s remove darkness
+290	COMMAND	advancement grant @s through powers:skill/level_10
+330	COMMAND	powers path list
+350	COMMAND	powers path unlock insight_1
+370	COMMAND	powers path focus insight_1
+390	COMMAND	experience set @s 100 levels
+410	COMMAND	powers path respec
+430	COMMAND	powers path list
+460	COMMAND	tag @s add darkness
+480	COMMAND	advancement grant @s through powers:darkness/level_10
+520	COMMAND	powers darkprefix false
+540	COMMAND	powers darkprefix true
+570	COMMAND	powers assign @s energy_drain 0
+580	COMMAND	powers assign @s void_beam 0
+590	COMMAND	powers assign @s time_freeze 0
+600	COMMAND	powers assign @s fireball 0
+620	COMMAND	powers slots @s
+650	COMMAND	item replace entity @s weapon.mainhand with powers:imported_book_grimoire_celestial
+670	GRIMOIRE	book_grimoire_celestial 3
+690	USE	main
+920	COMMAND	powers ruin preview
+940	COMMAND	powers ruin cancel
+980	COMMAND	powers boss spawn
+1000	COMMAND	execute if entity @e[type=powers:first_vessel,distance=..12] run say FIRST_VESSEL_PRESENT
+1020	COMMAND	kill @e[type=powers:first_vessel,distance=..20]
+1050	COMMAND	powers shadow learning reset @s
+1080	COMMAND	powers diagnose
+1110	COMMAND	powers testing status
+1130	COMMAND	powers testing energy off
+1150	COMMAND	powers testing energy on
+1170	COMMAND	powers testing cooldowns off
+1190	COMMAND	powers testing cooldowns on
+1210	COMMAND	powers testing refill
+1230	COMMAND	powers testing coverage
+1250	COMMAND	powers testing quest-telemetry
+1280	COMMAND	powers testing arena spawn
+1310	COMMAND	execute if entity @e[tag=powers_testing_arena,distance=..24] run say TEST_ARENA_PRESENT
+1330	COMMAND	powers testing arena clear
+1360	COMMAND	execute unless entity @e[tag=powers_testing_arena,distance=..24] run say TEST_ARENA_CLEARED
+1380	COMMAND	powers testing actor spawn CommandActor
+1410	COMMAND	execute if entity @e[type=powers:power_test_actor,name=CommandActor,distance=..8] run say TEST_ACTOR_PRESENT
+1430	COMMAND	kill @e[type=powers:power_test_actor,name=CommandActor,distance=..16]
+1460	COMMAND	powers testing off
+1480	COMMAND	powers testing reset
+1500	COMMAND	powers testing on
+1530	COMMAND	powers testing profile
+1560	COMMAND	powers testing profile start 1 1
+1600	COMMAND	powers testing profile status
+2800	COMMAND	powers testing profile status
+2830	COMMAND	powers diagnose
+2860	SCREENSHOT	remaining-command-campaign
