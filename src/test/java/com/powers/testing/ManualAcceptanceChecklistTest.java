@@ -43,6 +43,9 @@ class ManualAcceptanceChecklistTest {
 		assertEquals(23, text.lines().filter(line -> line.startsWith("| innate | ")).count());
 		assertEquals(11, text.lines().filter(line -> line.startsWith("| screen | ")).count());
 		assertEquals(32, text.lines().filter(line -> line.startsWith("| command | ")).count());
+		assertFalse(text.lines().anyMatch(line -> line.startsWith("| ")
+				&& line.contains("MANUAL LIVE PENDING")),
+				"completed QA-005 register must not regain an unaccepted row");
 		assertFalse(text.lines().anyMatch(line -> line.startsWith("| innate | `size_shift`")
 				&& line.contains("AUTOMATED PASS")));
 		assertFalse(text.lines().anyMatch(line -> line.startsWith("| item | `powers:")

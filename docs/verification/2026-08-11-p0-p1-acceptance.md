@@ -28,6 +28,7 @@ This ledger is the evidence boundary for removing rows from `docs/planning/IMPRO
 | QA-002–004 | Mandatory Java-25 check/GameTest/server/save/mutation/resource/doc/visual CI jobs; run-ID-isolated test reports; deterministic headless presentation goldens and approved-baseline workflow. |
 | QA-007–008 | `EnergyCooldownPropertyTest` runs 100,000 hostile randomized invariant cases; PIT enforced 80% minimum and passed with 237/259 mutations killed (92%), 93% mutated-line coverage, and 93% covered-test strength. |
 | PERF-001 | Commit `6fb6991` completed paced live profiles at 10/50/100 connected embedded players for 36,000 ticks and at least 1,800 seconds each. All 54,000 authenticated casts succeeded; p95 was 7.23/5.85/6.58 ms and p99 was 8.83/8.50/9.33 ms. Three 1,800-second JFRs have zero data loss in `evidence/2026-08-12-perf-001/`. |
+| QA-005 | The regenerated current 427-row checklist has an evidence-backed PASS for every action, artifact action, item, entity, system, screen, and command that requires live acceptance. Exact-build real-client campaigns include four-client combat/dialogue, all crystal and artifact paths, all 260 item identities, Middleworld entry/return, and alignment-exclusive advancement views. No `MANUAL LIVE PENDING` row remains. |
 
 ## Still open: evidence that cannot be fabricated
 
@@ -38,7 +39,6 @@ This ledger is the evidence boundary for removing rows from `docs/planning/IMPRO
 | PRG-001 | Persistent anonymous route/duration telemetry, median/p90 summaries, and a 20-sample-per-level publication lock are implemented. | Collect real multiplayer samples for all 20 alignment/level rows, then publish and justify any quest changes/migration. |
 | VFX-003 | First-person exclusion/cone budgeting for Lightning and Fireball is implemented and unit-tested. | Record and review first-person captures at every rank in live gameplay. |
 | QA-001 | Automated release pipeline, evidence templates, and prior client/server smoke reports exist. | Finish the current-tree client smoke, long soaks, performance runs, and signed manual acceptance before a release tag. |
-| QA-005 | Generated 428-row checklist covers every registered action/item/entity/screen/command. | A human tester must fill build ID, pass/fail, and evidence for every `MANUAL LIVE PENDING` row. |
 | QA-006 | Isolated repeated-restart harness defaults to 24 hours and publishes clean-state JSON; a two-cycle smoke passed. | Complete the full 24-hour run and review every cycle for ticket/index/field/summon/body/freeze/Ruin leaks. |
 
 ## Verification commands
@@ -51,4 +51,7 @@ This ledger is the evidence boundary for removing rows from `docs/planning/IMPRO
 ./test.sh restart-soak --hours 0.01 --cycle-seconds 10
 ```
 
-The manual 90-minute connected-player profile, 24-hour restart soak, quest data collection, first-person capture review, and signed manual checklist remain deliberately outside automated completion claims.
+The final connected-player profiles, 24-hour restart soak, quest data collection, first-person
+capture review, and signed release envelope remain deliberately outside automated completion
+claims. QA-005's completed checklist is runtime evidence, not a substitute for those elapsed-time
+gates.
