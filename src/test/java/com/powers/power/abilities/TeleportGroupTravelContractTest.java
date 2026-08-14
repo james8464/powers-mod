@@ -36,8 +36,8 @@ class TeleportGroupTravelContractTest {
 				"src/main/java/com/powers/item/ImportedArtifactItem.java"));
 		String gate = Files.readString(Path.of(
 				"src/main/java/com/powers/power/artifact/ArtifactGateManager.java"));
-		assertTrue(method(device, "private static boolean openMiniportal", "private static boolean ownsExactStack")
-				.contains("TravelCohort.capture"));
+		assertTrue(method(device, "private static void completeMiniportal", "private static void failMiniportal")
+					.contains("TravelCohort.capture"));
 		assertTrue(gate.contains("TravelCohort.capture"));
 		assertTrue(gate.contains("TravelCohort.move"));
 	}

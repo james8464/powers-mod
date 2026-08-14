@@ -42,6 +42,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import net.minecraft.world.phys.AABB;
 
 /**
@@ -345,8 +346,16 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 				false, phase.ordinal() * 4, "both", previousAction, false,
 				true, milestone);
 		String fallback = dialogue.line(getUUID(), context, true);
-		DialogueProviderRuntime.request(getUUID(), context, true, fallback).thenAccept(line ->
-				level.getServer().execute(() -> sendLoreIfRelevant(level, line)));
+		UUID vesselId = getUUID();
+		var dimension = level.dimension();
+		long callbackEpoch = com.powers.util.ServerCallbackGate.capture(level.getServer());
+		DialogueProviderRuntime.request(vesselId, context, true, fallback).thenAccept(line ->
+				com.powers.util.ServerCallbackGate.execute(callbackEpoch, server -> {
+					ServerLevel currentLevel = server.getLevel(dimension);
+					if (currentLevel != null && currentLevel.getEntity(vesselId) instanceof FirstVessel vessel) {
+						vessel.sendLoreIfRelevant(currentLevel, line);
+					}
+				}));
 	}
 
 	private void sendLoreIfRelevant(ServerLevel level, String line) {

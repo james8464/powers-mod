@@ -127,6 +127,13 @@ final class PowerDiagnosticsCommand {
 					+ "; reason=" + ticket.reason() + "; deadline=" + ticket.deadline()
 					+ "; state=" + ticket.state());
 		}
+		var delayedTasks = com.powers.PowersMod.delayedTasks();
+		send(context, "delayedMagicTasks=" + delayedTasks.size());
+		for (var task : delayedTasks) {
+			send(context, "delayedTask owner=" + task.cancellationOwner()
+					+ "; subject=" + task.subjectId() + "; dimension=" + task.dimensionId()
+					+ "; purpose=" + task.purpose() + "; deadline=" + task.deadline());
+		}
 		var missingDimensions = PersistentDimensionDiagnostics.snapshot();
 		send(context, "missingDimensions=" + missingDimensions.issues().size()
 				+ "; droppedDistinct=" + missingDimensions.droppedDistinctKeys()

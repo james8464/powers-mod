@@ -3,10 +3,13 @@ package com.powers.power.travel;
 import com.powers.PowersMod;
 import com.powers.util.LoadedChunks;
 import com.powers.util.ScheduledTaskQueue;
+import com.powers.util.ServerCallbackGate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.TicketType;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ChunkPos;
 
 import java.util.ArrayList;
@@ -34,6 +37,12 @@ public final class TravelChunkLoader {
 	}
 
 	public enum Resolution { READY, TIMEOUT, REPLACED, CANCELLED }
+
+	/** Completion re-enters through the active server and stable owner identity. */
+	@FunctionalInterface
+	public interface ResolutionCallback {
+		void run(MinecraftServer server, UUID owner);
+	}
 
 	/** Pure exact-once state shared by future, timeout, replacement, and disconnect paths. */
 	public static final class RequestState {
@@ -63,30 +72,33 @@ public final class TravelChunkLoader {
 
 	private static final class Pending {
 		private final UUID owner;
-		private final ServerLevel level;
+		private final ResourceKey<Level> dimension;
 		private final BlockPos destination;
 		private final ChunkPos chunk;
 		private final long startedAt;
 		private final String reason;
-		private final Runnable ready;
-		private final Runnable failed;
+		private final ResolutionCallback ready;
+		private final ResolutionCallback failed;
+		private final long epoch;
 		private final RequestState state = new RequestState();
 		private ScheduledTaskQueue.TaskToken timeoutToken;
 
 		private Pending(UUID owner, ServerLevel level, BlockPos destination,
-				long startedAt, String reason, Runnable ready, Runnable failed) {
+				long startedAt, String reason, ResolutionCallback ready,
+				ResolutionCallback failed, long epoch) {
 			this.owner = owner;
-			this.level = level;
+			this.dimension = level.dimension();
 			this.destination = destination.immutable();
 			this.chunk = ChunkPos.containing(destination);
 			this.startedAt = startedAt;
 			this.reason = reason;
 			this.ready = ready;
 			this.failed = failed;
+			this.epoch = epoch;
 		}
 	}
 
-	private record Lease(UUID owner, ServerLevel level, ChunkPos chunk, String reason,
+	private record Lease(UUID owner, ResourceKey<Level> dimension, ChunkPos chunk, String reason,
 			long deadline, ScheduledTaskQueue.TaskToken releaseToken) {
 	}
 
@@ -101,13 +113,13 @@ public final class TravelChunkLoader {
 
 	/** Starts or replaces the sole pending destination load owned by a player UUID. */
 	public static boolean request(UUID owner, ServerLevel level, BlockPos destination,
-			Runnable ready, Runnable timedOut) {
+			ResolutionCallback ready, ResolutionCallback timedOut) {
 		return request(owner, level, destination, "travel", ready, timedOut);
 	}
 
 	/** Starts a bounded request with an operator-visible, non-sensitive reason. */
 	public static boolean request(UUID owner, ServerLevel level, BlockPos destination,
-			String reason, Runnable ready, Runnable timedOut) {
+			String reason, ResolutionCallback ready, ResolutionCallback timedOut) {
 		Objects.requireNonNull(owner, "owner");
 		Objects.requireNonNull(level, "level");
 		Objects.requireNonNull(destination, "destination");
@@ -115,60 +127,57 @@ public final class TravelChunkLoader {
 		Objects.requireNonNull(timedOut, "timedOut");
 		MinecraftServer server = level.getServer();
 		if (server == null) return false;
+		long epoch = ServerCallbackGate.capture(server);
 		boolean replacing = PENDING.containsKey(owner) || READY_LEASES.containsKey(owner);
 		int active = pendingRequestCount();
 		int inDimension = activeInDimension(level);
 		if (!mayAdmit(active, inDimension, replacing)) {
 			lastRefusal = "backpressure owner=" + owner + "; dimension="
 					+ level.dimension().identifier() + "; reason=" + safeReason(reason);
-			timedOut.run();
+			timedOut.run(server, owner);
 			return false;
 		}
-		releaseLease(owner);
+		releaseLease(server, owner);
 		Pending previous = PENDING.get(owner);
-		if (previous != null) settle(previous, Resolution.REPLACED);
+		if (previous != null) settle(server, previous, Resolution.REPLACED);
 		Pending pending = new Pending(owner, level, destination, server.getTickCount(),
-				safeReason(reason), ready, timedOut);
+				safeReason(reason), ready, timedOut, epoch);
 		PENDING.put(owner, pending);
 		pending.timeoutToken = PowersMod.scheduleDelayed(server, DEFAULT_BUDGET.waitTicks() + 1,
-				() -> settle(pending, Resolution.TIMEOUT));
+				owner, level.dimension(), owner, "travel_timeout",
+				(current, task) -> settleByOwner(current, task.subjectId(), Resolution.TIMEOUT));
 		if (!pending.timeoutToken.accepted()) {
-			settle(pending, Resolution.TIMEOUT);
+			settle(server, pending, Resolution.TIMEOUT);
 			return false;
 		}
 		if (LoadedChunks.contains(level, destination)) {
 			level.getChunkSource().addTicketWithRadius(TicketHolder.TRAVEL, pending.chunk, TICKET_RADIUS);
-			settle(pending, Resolution.READY);
+			settle(server, pending, Resolution.READY);
 			return true;
 		}
 		try {
 			level.getChunkSource().addTicketAndLoadWithRadius(TicketHolder.TRAVEL, pending.chunk, TICKET_RADIUS)
-					.whenComplete((ignored, error) -> server.execute(() -> {
-						boolean loaded = error == null && DEFAULT_BUDGET.readyInTime(
-								pending.startedAt, server.getTickCount())
-								&& LoadedChunks.contains(level, pending.destination);
-						settle(pending, loaded ? Resolution.READY : Resolution.TIMEOUT);
-					}));
+					.whenComplete((ignored, error) -> finishAsync(owner, pending.epoch, error == null));
 		} catch (RuntimeException error) {
-			settle(pending, Resolution.TIMEOUT);
+			settle(server, pending, Resolution.TIMEOUT);
 			return false;
 		}
 		return true;
 	}
 
 	/** Cancels one player's pending load on disconnect or lifecycle invalidation. */
-	public static boolean cancel(UUID owner) {
+	public static boolean cancel(MinecraftServer server, UUID owner) {
 		Pending pending = PENDING.get(owner);
-		return pending != null && settle(pending, Resolution.CANCELLED);
+		return pending != null && settle(server, pending, Resolution.CANCELLED);
 	}
 
 	/** Releases all live tickets at server shutdown. */
-	public static void clear() {
+	public static void clear(MinecraftServer server) {
 		for (Pending pending : new ArrayList<>(PENDING.values())) {
-			settle(pending, Resolution.CANCELLED);
+			settle(server, pending, Resolution.CANCELLED);
 		}
 		PENDING.clear();
-		for (UUID owner : new ArrayList<>(READY_LEASES.keySet())) releaseLease(owner);
+		for (UUID owner : new ArrayList<>(READY_LEASES.keySet())) releaseLease(server, owner);
 		READY_LEASES.clear();
 		lastRefusal = "none";
 	}
@@ -194,10 +203,10 @@ public final class TravelChunkLoader {
 	public static Diagnostics diagnostics() {
 		java.util.List<TicketDiagnostic> tickets = new java.util.ArrayList<>();
 		for (Pending pending : PENDING.values()) tickets.add(new TicketDiagnostic(pending.owner,
-				pending.level.dimension().identifier().toString(), pending.reason,
+				pending.dimension.identifier().toString(), pending.reason,
 				pending.startedAt + DEFAULT_BUDGET.waitTicks(), "loading"));
 		for (Lease lease : READY_LEASES.values()) tickets.add(new TicketDiagnostic(lease.owner(),
-				lease.level().dimension().identifier().toString(), lease.reason(), lease.deadline(), "ready"));
+				lease.dimension().identifier().toString(), lease.reason(), lease.deadline(), "ready"));
 		tickets.sort(java.util.Comparator.comparing(value -> value.owner().toString()));
 		return new Diagnostics(tickets.size(), MAX_ACTIVE_TICKETS, MAX_ACTIVE_PER_DIMENSION,
 				lastRefusal, java.util.List.copyOf(tickets));
@@ -208,44 +217,65 @@ public final class TravelChunkLoader {
 		return resolution == Resolution.READY ? MAX_FOLLOWUP_TICKS : 0;
 	}
 
-	private static boolean settle(Pending pending, Resolution resolution) {
+	private static boolean settle(MinecraftServer server, Pending pending, Resolution resolution) {
 		if (!pending.state.resolve(resolution)) return false;
 		PENDING.remove(pending.owner, pending);
 		if (pending.timeoutToken != null) pending.timeoutToken.cancel();
 		if (resolution == Resolution.READY) {
 			int delay = releaseDelayTicks(resolution);
 			ScheduledTaskQueue.TaskToken token = PowersMod.scheduleDelayed(
-					pending.level.getServer(), delay, () -> releaseLease(pending.owner));
+					server, delay, pending.owner, pending.dimension, pending.owner,
+					"travel_ticket_release",
+					(current, task) -> releaseLease(current, task.subjectId()));
 			if (token.accepted()) {
 				READY_LEASES.put(pending.owner,
-						new Lease(pending.owner, pending.level, pending.chunk, pending.reason,
-								pending.level.getServer().getTickCount() + delay, token));
+						new Lease(pending.owner, pending.dimension, pending.chunk, pending.reason,
+								server.getTickCount() + delay, token));
 			} else {
-				removeTicket(pending.level, pending.chunk);
+				removeTicket(server, pending.dimension, pending.chunk);
 			}
-			pending.ready.run();
+			pending.ready.run(server, pending.owner);
 		} else {
-			removeTicket(pending.level, pending.chunk);
-			pending.failed.run();
+			removeTicket(server, pending.dimension, pending.chunk);
+			pending.failed.run(server, pending.owner);
 		}
 		return true;
 	}
 
-	private static void releaseLease(UUID owner) {
+	private static void releaseLease(MinecraftServer server, UUID owner) {
 		Lease lease = READY_LEASES.remove(owner);
 		if (lease == null) return;
 		lease.releaseToken().cancel();
-		removeTicket(lease.level(), lease.chunk());
+		removeTicket(server, lease.dimension(), lease.chunk());
 	}
 
-	private static void removeTicket(ServerLevel level, ChunkPos chunk) {
-		level.getChunkSource().removeTicketWithRadius(TicketHolder.TRAVEL, chunk, TICKET_RADIUS);
+	private static void removeTicket(MinecraftServer server, ResourceKey<Level> dimension, ChunkPos chunk) {
+		ServerLevel level = server.getLevel(dimension);
+		if (level != null) level.getChunkSource().removeTicketWithRadius(
+				TicketHolder.TRAVEL, chunk, TICKET_RADIUS);
 	}
 
 	private static int activeInDimension(ServerLevel level) {
 		int count = 0;
-		for (Pending pending : PENDING.values()) if (pending.level == level) count++;
-		for (Lease lease : READY_LEASES.values()) if (lease.level() == level) count++;
+		for (Pending pending : PENDING.values()) if (pending.dimension.equals(level.dimension())) count++;
+		for (Lease lease : READY_LEASES.values()) if (lease.dimension().equals(level.dimension())) count++;
 		return count;
+	}
+
+	private static void finishAsync(UUID owner, long epoch, boolean futureSucceeded) {
+		ServerCallbackGate.execute(epoch, server -> {
+			Pending pending = PENDING.get(owner);
+			if (pending == null || pending.epoch != epoch) return;
+			ServerLevel level = server.getLevel(pending.dimension);
+			boolean loaded = futureSucceeded && level != null && DEFAULT_BUDGET.readyInTime(
+					pending.startedAt, server.getTickCount())
+					&& LoadedChunks.contains(level, pending.destination);
+			settle(server, pending, loaded ? Resolution.READY : Resolution.TIMEOUT);
+		});
+	}
+
+	private static void settleByOwner(MinecraftServer server, UUID owner, Resolution resolution) {
+		Pending pending = PENDING.get(owner);
+		if (pending != null) settle(server, pending, resolution);
 	}
 }

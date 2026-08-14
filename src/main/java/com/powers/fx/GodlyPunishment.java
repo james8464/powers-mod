@@ -47,14 +47,20 @@ public final class GodlyPunishment {
 			PowersMod.startStorm(level, pos, player, 100, 100);
 		}
 
-		PowersMod.scheduleDelayed(level.getServer(), 25, () -> {
+		var playerId = player.getUUID();
+		var dimension = level.dimension();
+		PowersMod.scheduleDelayed(level.getServer(), 25, playerId, dimension, playerId,
+				"godly_punishment_followup", (server, task) -> {
 			// the follow-up wave lands a moment later; skip it if the player died first
-			if (!player.isAlive() || player.isRemoved() || player.level() != level) return;
-			Vec3 follow = player.position().add(0, 1, 0);
-			PowerFx.ring(level, follow.add(0, -0.3, 0), 6.0, rgb, 40, phase + 1.3);
-			PowerFx.coloredBurst(level, follow, rgb, 32, 1.2);
-			PowerFx.burst(level, follow, ParticleTypes.ELECTRIC_SPARK, 18, 0.9, 0.12);
-			PowerFx.sound(level, follow, SoundEvents.BEACON_DEACTIVATE, 1.0f, 0.6f);
+			ServerLevel currentLevel = server.getLevel(dimension);
+			ServerPlayer current = server.getPlayerList().getPlayer(task.subjectId());
+			if (currentLevel == null || current == null || !current.isAlive()
+					|| current.isRemoved() || current.level() != currentLevel) return;
+			Vec3 follow = current.position().add(0, 1, 0);
+			PowerFx.ring(currentLevel, follow.add(0, -0.3, 0), 6.0, rgb, 40, phase + 1.3);
+			PowerFx.coloredBurst(currentLevel, follow, rgb, 32, 1.2);
+			PowerFx.burst(currentLevel, follow, ParticleTypes.ELECTRIC_SPARK, 18, 0.9, 0.12);
+			PowerFx.sound(currentLevel, follow, SoundEvents.BEACON_DEACTIVATE, 1.0f, 0.6f);
 		});
 	}
 

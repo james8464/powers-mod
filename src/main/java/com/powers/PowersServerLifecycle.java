@@ -66,7 +66,9 @@ final class PowersServerLifecycle {
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
 				onDisconnect(server, handler.getPlayer()));
 		ServerLifecycleEvents.SERVER_STOPPING.register(BodyProxyManager::returnAll);
+		ServerLifecycleEvents.SERVER_STOPPING.register(com.powers.util.ServerCallbackGate::clear);
 		ServerLifecycleEvents.SERVER_STOPPING.register(GlobalTimeStopManager::clearAll);
+		ServerLifecycleEvents.SERVER_STARTED.register(com.powers.util.ServerCallbackGate::bind);
 		ServerLifecycleEvents.SERVER_STARTED.register(GlobalTimeStopManager::reconcileStartup);
 		ServerLifecycleEvents.SERVER_STOPPED.register(PowersServerLifecycle::onServerStopped);
 		ServerChunkEvents.CHUNK_LOAD.register((level, chunk, newlyGenerated) ->
@@ -94,6 +96,9 @@ final class PowersServerLifecycle {
 	}
 
 	private static void afterRespawn(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
+		PowersMod.cancelDelayedTasks(oldPlayer.getUUID());
+		com.powers.power.crystals.MindscapeCrystalAbility.cancel(
+				newPlayer.level().getServer(), oldPlayer.getUUID());
 		PlayerPowerTicker.migrateLegacyRealmGamemode(newPlayer);
 		PrivateCompanionManager.forget(oldPlayer);
 		com.powers.companion.ShadowCompanionStore.clearBody(newPlayer);
@@ -104,7 +109,7 @@ final class PowersServerLifecycle {
 		SpellCastingManager.clear(oldPlayer);
 		ArtifactInventoryRuntime.forget(oldPlayer);
 		CrucibleWeaponRuntime.forget(oldPlayer.getUUID());
-		TravelChunkLoader.cancel(oldPlayer.getUUID());
+		TravelChunkLoader.cancel(newPlayer.level().getServer(), oldPlayer.getUUID());
 		PowersPackets.forget(oldPlayer);
 		BodyProxyManager.discardOnDeath(newPlayer);
 		if (!alive) {
@@ -118,6 +123,8 @@ final class PowersServerLifecycle {
 	}
 
 	private static void onDisconnect(MinecraftServer server, ServerPlayer player) {
+		PowersMod.cancelDelayedTasks(player.getUUID());
+		com.powers.power.crystals.MindscapeCrystalAbility.cancel(server, player.getUUID());
 		if (!PowersConfigLoader.get().persistCooldowns()) {
 			PlayerPowers.get(player).clearCooldowns();
 		}
@@ -133,7 +140,7 @@ final class PowersServerLifecycle {
 		PrivateCompanionManager.forget(player);
 		KnowledgeRemoteProviderRuntime.forget(player.getUUID());
 		com.powers.player.PlayerEnergyHistory.forget(player);
-		TravelChunkLoader.cancel(player.getUUID());
+		TravelChunkLoader.cancel(server, player.getUUID());
 		ConcordCastManager.forget(player.getUUID());
 		RealmEventManager.forget(player.getUUID());
 		PowersPackets.forget(player);
@@ -144,7 +151,6 @@ final class PowersServerLifecycle {
 		com.powers.testing.RestartSoakScenario.clear(server);
 		com.powers.testing.QuestTelemetryCampaignScenario.clear(server);
 		MagicRuntime.global().clearAll();
-		ServerMagicScheduler.clear();
 		PlayerPowerTicker.clear();
 		SkillSystem.clearAll();
 		AmethystDampening.clearAll();
@@ -166,7 +172,7 @@ final class PowersServerLifecycle {
 		PowersPackets.clearSyncCache();
 		CompanionPackets.clearBudgets();
 		MagicFxPackets.clear();
-		TravelChunkLoader.clear();
+		TravelChunkLoader.clear(server);
 		MindscapeMobReturnTracker.clear();
 		NamedLivingTargetIndex.clearAll();
 		ServerRuntimeMetrics.clear();
@@ -177,6 +183,9 @@ final class PowersServerLifecycle {
 		com.powers.player.PlayerEnergyHistory.clear();
 		PersistentDimensionDiagnostics.clear();
 		ControlResistance.clear();
+		// Delayed owners may enqueue cleanup while their own shutdown hooks run.
+		// Clear the scheduler last so none of that work can cross into the next server epoch.
+		ServerMagicScheduler.clear();
 	}
 
 	private static void tick(MinecraftServer server) {
@@ -196,7 +205,7 @@ final class PowersServerLifecycle {
 		LivingForceManager.tick(server);
 		ForceContainmentManager.tick(server);
 		FactionInvasionManager.tick(server);
-		PowerAbilityRuntime.tickTeleportMarking();
-		ServerMagicScheduler.tick(tick);
+		PowerAbilityRuntime.tickTeleportMarking(server);
+		ServerMagicScheduler.tick(server);
 	}
 }

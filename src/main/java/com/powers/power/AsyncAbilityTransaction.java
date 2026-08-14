@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Rolls back a paid cast when its accepted asynchronous world action later fails. */
 public final class AsyncAbilityTransaction {
-	private final MinecraftServer server;
 	private final java.util.UUID playerId;
 	private final int refundAmount;
 	private final String abilityId;
@@ -18,7 +17,6 @@ public final class AsyncAbilityTransaction {
 
 	public AsyncAbilityTransaction(ServerPlayer player, PlayerPowers.PlayerPowersData data,
 			Ability energyAbility) {
-		this.server = player.level().getServer();
 		this.playerId = player.getUUID();
 		this.refundAmount = PowerEnergy.cost(player, energyAbility);
 		this.abilityId = energyAbility.id().toString();
@@ -34,7 +32,7 @@ public final class AsyncAbilityTransaction {
 	}
 
 	/** Refunds exactly once and clears only the cooldown started by this cast. */
-	public void fail() {
+	public void fail(MinecraftServer server) {
 		if (!settled.compareAndSet(false, true)) return;
 		ServerPlayer player = server.getPlayerList().getPlayer(playerId);
 		if (player == null) return;

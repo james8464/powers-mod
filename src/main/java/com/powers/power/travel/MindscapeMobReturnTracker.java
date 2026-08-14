@@ -6,8 +6,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 
@@ -26,7 +28,8 @@ public final class MindscapeMobReturnTracker {
 		SKIP_SHADOW
 	}
 
-	private record Origin(UUID journeyOwner, ServerLevel level, Vec3 position, float yRot, float xRot) {
+	private record Origin(UUID journeyOwner, ResourceKey<Level> dimension,
+			Vec3 position, float yRot, float xRot) {
 	}
 
 	private static final Map<UUID, Origin> ORIGINS = new LinkedHashMap<>();
@@ -51,13 +54,13 @@ public final class MindscapeMobReturnTracker {
 			UUID eldest = ORIGINS.keySet().iterator().next();
 			ORIGINS.remove(eldest);
 		}
-		ORIGINS.put(entity.getUUID(), new Origin(journeyOwner, (ServerLevel) entity.level(), entity.position(),
+		ORIGINS.put(entity.getUUID(), new Origin(journeyOwner, entity.level().dimension(), entity.position(),
 				entity.getYRot(), entity.getXRot()));
 		return true;
 	}
 
 	/** Returns every ordinary mob carried by this caster's current mindscape journey. */
-	public static int returnOwned(UUID journeyOwner) {
+	public static int returnOwned(MinecraftServer server, UUID journeyOwner) {
 		if (journeyOwner == null) return 0;
 		java.util.List<UUID> owned = ORIGINS.entrySet().stream()
 				.filter(entry -> journeyOwner.equals(entry.getValue().journeyOwner()))
@@ -67,7 +70,7 @@ public final class MindscapeMobReturnTracker {
 		for (UUID entityId : owned) {
 			Origin origin = ORIGINS.get(entityId);
 			if (origin == null) continue;
-			LivingEntity current = find(origin.level().getServer(), entityId);
+			LivingEntity current = find(server, entityId);
 			if (current != null && returnToOrigin(current)) requested++;
 		}
 		return requested;
@@ -86,19 +89,18 @@ public final class MindscapeMobReturnTracker {
 		// Cross-dimensional teleports replace non-player entity instances. Resolve the
 		// live instance before both the immediate and asynchronously loaded paths so a
 		// rollback cannot discard the origin merely because its caller held the old body.
-		MinecraftServer server = origin.level().getServer();
+		MinecraftServer server = entity.level().getServer();
+		ServerLevel originLevel = server.getLevel(origin.dimension());
+		if (originLevel == null) return false;
 		LivingEntity current = find(server, entityId);
 		if (current == null) {
 			ORIGINS.remove(entityId);
 			return false;
 		}
 		BlockPos block = BlockPos.containing(origin.position());
-		if (LoadedChunks.contains(origin.level(), block)) return complete(current, origin);
-		return TravelChunkLoader.request(entityId, origin.level(), block, "mindscape_mob_return",
-				() -> {
-					LivingEntity loadedEntity = find(server, entityId);
-					if (loadedEntity != null) complete(loadedEntity, origin);
-				}, () -> { });
+		if (LoadedChunks.contains(originLevel, block)) return complete(current, origin, originLevel);
+		return TravelChunkLoader.request(entityId, originLevel, block, "mindscape_mob_return",
+				MindscapeMobReturnTracker::completeLoaded, (currentServer, owner) -> { });
 	}
 
 	public static void forget(LivingEntity entity) {
@@ -121,12 +123,21 @@ public final class MindscapeMobReturnTracker {
 		ORIGINS.clear();
 	}
 
-	private static boolean complete(LivingEntity entity, Origin origin) {
+	private static void completeLoaded(MinecraftServer server, UUID entityId) {
+		Origin origin = ORIGINS.get(entityId);
+		ServerLevel originLevel = origin == null ? null : server.getLevel(origin.dimension());
+		LivingEntity entity = find(server, entityId);
+		if (origin != null && originLevel != null && entity != null) {
+			complete(entity, origin, originLevel);
+		}
+	}
+
+	private static boolean complete(LivingEntity entity, Origin origin, ServerLevel originLevel) {
 		if (!entity.isAlive() || entity.isRemoved()) {
 			ORIGINS.remove(entity.getUUID());
 			return false;
 		}
-		Entity moved = entity.teleport(new TeleportTransition(origin.level(), origin.position(), Vec3.ZERO,
+		Entity moved = entity.teleport(new TeleportTransition(originLevel, origin.position(), Vec3.ZERO,
 				origin.yRot(), origin.xRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 		if (moved == null) return false;
 		ORIGINS.remove(entity.getUUID());

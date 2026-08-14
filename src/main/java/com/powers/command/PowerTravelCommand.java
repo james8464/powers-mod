@@ -43,8 +43,8 @@ final class PowerTravelCommand {
 		BlockPos arrivalChunk = BlockPos.containing(RealmLayout.ENTRY_X,
 				RealmTerrain.provisionalArrivalY(target), RealmLayout.ENTRY_Z);
 		boolean accepted = TravelChunkLoader.request(ownerId, target, arrivalChunk, "admin_travel",
-				() -> complete(server, ownerId, key, dimensionName, actor),
-				() -> fail(server, ownerId, dimensionName, actor));
+				(current, owner) -> complete(current, owner, key, dimensionName, actor),
+				(current, owner) -> fail(current, owner, dimensionName, actor));
 		if (!accepted) return 0;
 		context.getSource().sendSuccess(() -> Component.literal(
 				"Preparing travel to " + dimensionName + "…").withStyle(ChatFormatting.GRAY), false);

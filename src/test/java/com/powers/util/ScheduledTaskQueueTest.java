@@ -4,12 +4,32 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ScheduledTaskQueueTest {
+	@Test
+	void ownedDescriptorsExposeStableIdentityAndCancelEveryLifecycleCallback() {
+		ScheduledTaskQueue queue = new ScheduledTaskQueue(4, 4, ignored -> { });
+		UUID subject = UUID.randomUUID();
+		UUID cancellationOwner = UUID.randomUUID();
+		var first = new ScheduledTaskQueue.TaskDescriptor(subject, "minecraft:overworld", 12L,
+				cancellationOwner, "locator_reveal");
+		var second = new ScheduledTaskQueue.TaskDescriptor(subject, "powers:light_realm", 18L,
+				cancellationOwner, "locator_finish");
+
+		queue.schedule(first, () -> { });
+		queue.schedule(second, () -> { });
+
+		assertEquals(List.of(first, second), queue.snapshot());
+		assertEquals(2, queue.cancelOwner(cancellationOwner));
+		assertTrue(queue.snapshot().isEmpty());
+		assertEquals(0, queue.runDue(20L));
+	}
+
 	@Test
 	void runsOnlyDueTasksInStableOrderAndAllowsSchedulingFromCallbacks() {
 		ScheduledTaskQueue queue = new ScheduledTaskQueue();

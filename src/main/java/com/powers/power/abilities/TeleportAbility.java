@@ -38,11 +38,17 @@ import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import static com.powers.power.abilities.TeleportDelayedState.MARKING;
+import static com.powers.power.abilities.TeleportDelayedState.PENDING_MARKING;
+import static com.powers.power.abilities.TeleportDelayedState.PENDING_TELEPORTS;
+import static com.powers.power.abilities.TeleportDelayedState.MarkingState;
+import static com.powers.power.abilities.TeleportDelayedState.PendingMarking;
+import static com.powers.power.abilities.TeleportDelayedState.PendingTeleport;
+import static com.powers.power.abilities.TeleportDelayedState.findLiving;
 
 /**
  * time shift - mark a target spot or player, then blink there after a short
@@ -51,21 +57,11 @@ import java.util.UUID;
  */
 public class TeleportAbility extends Ability {
 	private static final net.minecraft.resources.Identifier POWER_ID = PowersMod.id("time_shift");
-	// how long the storm visuals play out at both ends
 	private static final int STORM_TICKS = 100;
-	// the pause between activating and the actual blink, so the storm can build
 	private static final int TELEPORT_DELAY_TICKS = 50;
-	// any entity within this distance of the caster gets dragged along
-	// 10 seconds to pick a spot before the marking expires and you're pulled back
 	private static final int MARK_TIMEOUT_TICKS = 200;
 
-	// per-player marking state keyed by uuid; cleared on disconnect and server stop so it can't leak
-	private static final Map<UUID, MarkingState> MARKING = new HashMap<>();
 	private static final TeleportStormTracker ACTIVE_STORMS = new TeleportStormTracker();
-
-	public record MarkingState(ServerPlayer player, ResourceKey<Level> originalDimension,
-			Vec3 originalPos, GameType originalMode, ResourceKey<Level> markingDimension,
-			Vec3 markingCenter, CastSource castSource, long deadline, int slot) {}
 
 	public TeleportAbility() {
 		super(POWER_ID,
@@ -83,13 +79,11 @@ public class TeleportAbility extends Ability {
 			return false;
 		}
 		if (!BodyProxyManager.start(player, BodyProxyKind.MARKING)) return false;
-		// remember the original dimension, spot and game mode so the marking can always be undone
 		MARKING.put(player.getUUID(), new MarkingState(
-				player, player.level().dimension(), player.position(), player.gameMode(),
+				player.level().dimension(), player.position(), player.gameMode(),
 				targetLevel.dimension(), target.position(), CastScalingContext.currentSource(),
 				((ServerLevel) player.level()).getServer().getTickCount()
 						+ PowerScalingService.duration(player, "time_shift", MARK_TIMEOUT_TICKS), slot));
-		// spectator so you can fly to the landing spot without fighting
 		player.setGameMode(GameType.SPECTATOR);
 		PowerFx.rune((ServerLevel) target.level(), target.position().add(0, 2, 0), 1.5, 0x88CCFF, 20, 0.6);
 		PowerFx.sound((ServerLevel) target.level(), target.position(), SoundEvents.ENDERMAN_TELEPORT, 0.7f, 1.2f);
@@ -103,7 +97,6 @@ public class TeleportAbility extends Ability {
 	/** Completes the marking teleport to the coordinates picked in spectator mode, restoring your game mode. */
 	public static void completeMarking(ServerPlayer player, int slot, Vec3 pos) {
 		MarkingState state = MARKING.get(player.getUUID());
-		// no active marking, or the packet came from another slot - ignore it
 		if (state == null || state.slot() != slot) return;
 		MARKING.remove(player.getUUID());
 		if (!MagicUseGate.ongoingAllowed(player) || !ServerCastLifecycle.mayContinue(
@@ -111,7 +104,6 @@ public class TeleportAbility extends Ability {
 			restore(player, state);
 			return;
 		}
-		// a corrupted packet could carry NaN and break the teleport, bail out and stay in place
 		if (!Double.isFinite(pos.x()) || !Double.isFinite(pos.y()) || !Double.isFinite(pos.z())) {
 			restore(player, state);
 			return;
@@ -148,26 +140,38 @@ public class TeleportAbility extends Ability {
 		PowerFx.rune(originalLevel, state.originalPos(), 2.0, 0x8AE8FF, 24, 0.0);
 		PowerFx.rune(level, pos, 2.0, 0x8AE8FF, 24, Math.PI * 0.5);
 		UUID ownerId = player.getUUID();
-		PowersMod.scheduleDelayed(server, TELEPORT_DELAY_TICKS, () -> {
-			ServerPlayer current = server.getPlayerList().getPlayer(ownerId);
-			if (current == null || !BodyProxyManager.hasSession(current, BodyProxyKind.MARKING)
-					|| current.level() != level || !MagicUseGate.ongoingAllowed(current)
-					|| !ServerCastLifecycle.mayContinue(current, state.castSource(), ownsPower(current))
-					|| !SafeDestinationResolver.validateExact(current, level, pos, TravelKind.POWER).allowed()) {
-				ACTIVE_STORMS.finish(ownerId);
-				if (current != null) restore(current, state);
-				return;
-			}
-			TravelCohort.Snapshot cohort = TravelCohort.captureAt(originalLevel, current, current,
-					state.originalPos());
-			current.teleport(new TeleportTransition(level, pos, Vec3.ZERO,
-					current.getYRot(), current.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
-			current.setGameMode(state.originalMode());
-			BodyProxyManager.finish(current);
-			TravelCohort.move(cohort, level, pos);
-			PowersMod.scheduleDelayed(server, STORM_TICKS - TELEPORT_DELAY_TICKS,
-					() -> ACTIVE_STORMS.finish(ownerId));
-		});
+		PENDING_MARKING.put(ownerId, new PendingMarking(state, level.dimension(), pos));
+		PowersMod.scheduleDelayed(server, TELEPORT_DELAY_TICKS, ownerId, level.dimension(), ownerId,
+				"marking_teleport", TeleportAbility::completeDelayedMarking);
+	}
+
+	private static void completeDelayedMarking(MinecraftServer server,
+			com.powers.util.ScheduledTaskQueue.TaskDescriptor task) {
+		UUID ownerId = task.subjectId();
+		PendingMarking pending = PENDING_MARKING.remove(ownerId);
+		ServerPlayer current = server.getPlayerList().getPlayer(ownerId);
+		ServerLevel level = pending == null ? null : server.getLevel(pending.destination());
+		ServerLevel originalLevel = pending == null ? null
+				: server.getLevel(pending.state().originalDimension());
+		if (pending == null || current == null || level == null || originalLevel == null
+				|| !BodyProxyManager.hasSession(current, BodyProxyKind.MARKING)
+				|| current.level() != level || !MagicUseGate.ongoingAllowed(current)
+				|| !ServerCastLifecycle.mayContinue(current, pending.state().castSource(), ownsPower(current))
+				|| !SafeDestinationResolver.validateExact(current, level, pending.position(),
+						TravelKind.POWER).allowed()) {
+			ACTIVE_STORMS.finish(ownerId);
+			if (current != null && pending != null) restore(current, pending.state());
+			return;
+		}
+		TravelCohort.Snapshot cohort = TravelCohort.captureAt(originalLevel, current, current,
+				pending.state().originalPos());
+		current.teleport(new TeleportTransition(level, pending.position(), Vec3.ZERO,
+				current.getYRot(), current.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+		current.setGameMode(pending.state().originalMode());
+		BodyProxyManager.finish(current);
+		TravelCohort.move(cohort, level, pending.position());
+		scheduleStormFinish(server, ownerId, level.dimension(),
+				STORM_TICKS - TELEPORT_DELAY_TICKS);
 	}
 
 	/**
@@ -178,25 +182,30 @@ public class TeleportAbility extends Ability {
 	 */
 	public static void clearMarking(ServerPlayer player) {
 		MarkingState state = MARKING.remove(player.getUUID());
+		PendingMarking pending = PENDING_MARKING.remove(player.getUUID());
+		if (state == null && pending != null) state = pending.state();
 		if (state != null) {
 			restore(player, state);
 		}
 	}
 
-	// called on server stop - unwind every open marking so nobody is saved out
-	// as a spectator, then clear the map so it can't leak across restarts
-	public static void clearAllMarking() {
-		for (MarkingState state : new ArrayList<>(MARKING.values())) {
-			restore(state.player(), state);
+	public static void clearAllMarking(MinecraftServer server) {
+		for (var entry : new ArrayList<>(MARKING.entrySet())) {
+			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
+			if (player != null) restore(player, entry.getValue());
+		}
+		for (var entry : new ArrayList<>(PENDING_MARKING.entrySet())) {
+			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
+			if (player != null) restore(player, entry.getValue().state());
 		}
 		MARKING.clear();
+		PENDING_MARKING.clear();
 	}
 
 	public static boolean isMarking(UUID owner) {
 		return MARKING.containsKey(owner);
 	}
 
-	// puts a marking player back where they started, in the mode they started in
 	private static void restore(ServerPlayer player, MarkingState state) {
 		boolean hadAnchor = BodyProxyManager.hasSession(player, BodyProxyKind.MARKING);
 		boolean returned = hadAnchor && BodyProxyManager.returnToBody(player);
@@ -216,24 +225,23 @@ public class TeleportAbility extends Ability {
 		BodyProxyManager.finish(player);
 	}
 
-	public static void tickMarking() {
+	public static void tickMarking(MinecraftServer server) {
 		var it = MARKING.entrySet().iterator();
 		while (it.hasNext()) {
 			var entry = it.next();
 			MarkingState state = entry.getValue();
-			MinecraftServer server = state.player().level().getServer();
-			if (server == null) {
+			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
+			if (player == null) {
 				it.remove();
 				continue;
 			}
 			boolean expired = server.getTickCount() >= state.deadline();
-			boolean interrupted = !MagicUseGate.ongoingAllowed(state.player())
+			boolean interrupted = !MagicUseGate.ongoingAllowed(player)
 					|| !ServerCastLifecycle.mayContinue(
-							state.player(), state.castSource(), ownsPower(state.player()));
+							player, state.castSource(), ownsPower(player));
 			if (expired || interrupted) {
-				// timeout hit - pull the player back to the dimension and spot where they started
-				restore(state.player(), state);
-				PowerMessages.overlay(state.player(), expired
+				restore(player, state);
+				PowerMessages.overlay(player, expired
 						? PowerMessages.random("ability.powers.marking_expired", 3)
 						: Component.translatable("spell.powers.interrupted"));
 				it.remove();
@@ -247,7 +255,6 @@ public class TeleportAbility extends Ability {
 		MinecraftServer server = player.level().getServer();
 		ServerLevel targetLevel = server == null ? null : server.getLevel(dimension);
 		if (targetLevel == null) {
-			// the dimension isn't loaded on this server
 			PowerMessages.send(caster, "ability.powers.bad_dimension", 3);
 			return false;
 		}
@@ -265,105 +272,158 @@ public class TeleportAbility extends Ability {
 			PowerMessages.overlay(caster, Component.translatable("ability.powers.teleport_storm_active"));
 			return false;
 		}
-		boolean accepted = TravelChunkLoader.request(caster.getUUID(), targetLevel, BlockPos.containing(target),
-				"teleport_power",
-				() -> beginTeleport(caster, player, dimension, originLevel, targetLevel, target,
-						castSource, STORM_TICKS, TELEPORT_DELAY_TICKS, transaction),
-				() -> {
-					ACTIVE_STORMS.finish(caster.getUUID());
-					transaction.fail();
-					TravelFailurePresenter.report(caster, player, target, DestinationFailure.UNLOADED_CHUNK);
-				});
-		if (!accepted) ACTIVE_STORMS.finish(caster.getUUID());
+		UUID ownerId = caster.getUUID();
+		PENDING_TELEPORTS.put(ownerId, new PendingTeleport(ownerId, player.getUUID(),
+				originLevel.dimension(), dimension, target, castSource, STORM_TICKS,
+				TELEPORT_DELAY_TICKS, transaction, false));
+		boolean accepted = TravelChunkLoader.request(ownerId, targetLevel, BlockPos.containing(target),
+				"teleport_power", TeleportAbility::beginLoadedTeleport,
+				TeleportAbility::failLoadedTeleport);
+		if (!accepted) {
+			ACTIVE_STORMS.finish(ownerId);
+			PENDING_TELEPORTS.remove(ownerId);
+		}
 		return accepted;
 	}
 
-	private void beginTeleport(ServerPlayer caster, LivingEntity player, ResourceKey<Level> dimension,
-			ServerLevel originLevel, ServerLevel targetLevel, Vec3 target, CastSource castSource,
-			int stormTicks, int teleportDelay,
-			AsyncAbilityTransaction transaction) {
+	private static void beginLoadedTeleport(MinecraftServer server, UUID ownerId) {
+		PendingTeleport pending = PENDING_TELEPORTS.get(ownerId);
+		ServerPlayer caster = server.getPlayerList().getPlayer(ownerId);
+		LivingEntity player = pending == null ? null : findLiving(server, pending.travellerId());
+		ServerLevel originLevel = pending == null ? null : server.getLevel(pending.origin());
+		ServerLevel targetLevel = pending == null ? null : server.getLevel(pending.destination());
+		if (pending == null || caster == null || player == null || originLevel == null
+				|| targetLevel == null) {
+			abortStorm(server, pending, caster, player);
+			return;
+		}
 		if (!MagicUseGate.ongoingAllowed(caster) || !subjectMayContinue(player)
-				|| !ServerCastLifecycle.mayContinue(caster, castSource, ownsPower(caster))
+				|| !ServerCastLifecycle.mayContinue(caster, pending.castSource(), ownsPower(caster))
 				|| !player.isAlive() || player.level() != originLevel) {
-			abortStorm(caster, player, transaction, false);
+			abortStorm(server, pending, caster, player);
 			return;
 		}
 		SafeDestinationResolver.Result destination = SafeDestinationResolver.validateExact(
-				player, targetLevel, target, TravelKind.POWER);
+				player, targetLevel, pending.target(), TravelKind.POWER);
 		if (!destination.allowed()) {
-			abortStorm(caster, player, transaction, false);
-				TravelFailurePresenter.report(caster, player, target, destination.failure());
+			abortStorm(server, pending, caster, player);
+			TravelFailurePresenter.report(caster, player, pending.target(), destination.failure());
 			return;
 		}
 		boolean bodyStarted = player instanceof ServerPlayer subject
 				&& BodyProxyManager.start(subject, BodyProxyKind.MARKING);
 		if (player instanceof ServerPlayer && !bodyStarted) {
-			abortStorm(caster, player, transaction, false);
+			abortStorm(server, pending, caster, player);
 			return;
 		}
-		MinecraftServer server = originLevel.getServer();
+		pending = pending.withBodyStarted(bodyStarted);
+		PENDING_TELEPORTS.put(ownerId, pending);
 		Vec3 origin = player.position();
 		PowerFx.rune(originLevel, origin, 2.0, 0x8AE8FF, 24, 0.0);
-		PowerFx.rune(targetLevel, target, 2.0, 0x8AE8FF, 24, Math.PI * 0.5);
+		PowerFx.rune(targetLevel, pending.target(), 2.0, 0x8AE8FF, 24, Math.PI * 0.5);
 		PowerFx.sound(originLevel, origin, SoundEvents.ENDERMAN_TELEPORT, 0.9f, 1.0f);
-		PowerFx.sound(targetLevel, target, SoundEvents.ENDERMAN_TELEPORT, 0.9f, 1.15f);
+		PowerFx.sound(targetLevel, pending.target(), SoundEvents.ENDERMAN_TELEPORT, 0.9f, 1.15f);
 		// the blink itself is delayed so the storm can build up at both ends;
 		// the lightning beneath the traveler echoes the realm they're bound for
 		PowersMod.startStorm(originLevel, origin,
 				player instanceof ServerPlayer serverPlayer ? serverPlayer : null,
-				stormTicks, teleportDelay, themeFor(dimension));
-		PowersMod.startStorm(targetLevel, target, null, stormTicks, 0);
-		PowersMod.scheduleDelayed(server, teleportDelay, () -> {
-			ServerPlayer currentCaster = server.getPlayerList().getPlayer(caster.getUUID());
-			if (player instanceof ServerPlayer subjectPlayer) AmethystDampening.update(subjectPlayer);
-			if (currentCaster != null && currentCaster != player) AmethystDampening.update(currentCaster);
-			if (!DelayedTravelRules.travellerMayContinue(currentCaster == caster,
-					caster.isAlive() && !caster.isRemoved(), player.isAlive() && !player.isRemoved(),
-					caster.level() == originLevel, player.level() == originLevel,
-					AmethystDampening.isDampened(caster), AmethystDampening.isDampened(player))) {
-				abortStorm(caster, player, transaction, bodyStarted);
-				return;
-			}
-			if (!MagicUseGate.ongoingAllowed(caster) || !subjectMayContinue(player)
-					|| !ServerCastLifecycle.mayContinue(caster, castSource, ownsPower(caster))) {
-				abortStorm(caster, player, transaction, bodyStarted);
-				return;
-			}
-			SafeDestinationResolver.Result revalidated = SafeDestinationResolver.validateExact(
-					player, targetLevel, target, TravelKind.POWER);
-			if (!revalidated.allowed()) {
-				abortStorm(caster, player, transaction, bodyStarted);
-					TravelFailurePresenter.report(caster, player, target, revalidated.failure());
-				return;
-			}
-			TravelCohort.Snapshot cohort = TravelCohort.capture(originLevel, caster, player);
-			player.teleport(new TeleportTransition(targetLevel, target, Vec3.ZERO,
-					player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
-			if (player.level() != targetLevel) {
-				abortStorm(caster, player, transaction, bodyStarted);
-				return;
-			}
-			if (bodyStarted && player instanceof ServerPlayer subject) BodyProxyManager.finish(subject);
-			transaction.succeed();
-			TravelCohort.move(cohort, targetLevel, target);
-			PowersMod.scheduleDelayed(server, Math.max(1, stormTicks - teleportDelay),
-					() -> ACTIVE_STORMS.finish(caster.getUUID()));
-		});
+				pending.stormTicks(), pending.teleportDelay(), themeFor(pending.destination()));
+		PowersMod.startStorm(targetLevel, pending.target(), null, pending.stormTicks(), 0);
+		PowersMod.scheduleDelayed(server, pending.teleportDelay(), ownerId, pending.origin(), ownerId,
+				"teleport_commit", TeleportAbility::completeDelayedTeleport);
 	}
 
-	private static void abortStorm(ServerPlayer caster, LivingEntity traveller,
-			AsyncAbilityTransaction transaction, boolean bodyStarted) {
-		ACTIVE_STORMS.finish(caster.getUUID());
-		if (bodyStarted && traveller instanceof ServerPlayer player) BodyProxyManager.finish(player);
-		transaction.fail();
+	private static void completeDelayedTeleport(MinecraftServer server,
+			com.powers.util.ScheduledTaskQueue.TaskDescriptor task) {
+		UUID ownerId = task.subjectId();
+		PendingTeleport pending = PENDING_TELEPORTS.get(ownerId);
+		ServerPlayer caster = server.getPlayerList().getPlayer(ownerId);
+		LivingEntity traveller = pending == null ? null : findLiving(server, pending.travellerId());
+		ServerLevel origin = pending == null ? null : server.getLevel(pending.origin());
+		ServerLevel target = pending == null ? null : server.getLevel(pending.destination());
+		if (pending == null || caster == null || traveller == null || origin == null || target == null) {
+			abortStorm(server, pending, caster, traveller);
+			return;
+		}
+		if (traveller instanceof ServerPlayer subject) AmethystDampening.update(subject);
+		if (caster != traveller) AmethystDampening.update(caster);
+		if (!DelayedTravelRules.travellerMayContinue(true,
+				caster.isAlive() && !caster.isRemoved(), traveller.isAlive() && !traveller.isRemoved(),
+				caster.level() == origin, traveller.level() == origin,
+				AmethystDampening.isDampened(caster), AmethystDampening.isDampened(traveller))
+				|| !MagicUseGate.ongoingAllowed(caster) || !subjectMayContinue(traveller)
+				|| !ServerCastLifecycle.mayContinue(caster, pending.castSource(), ownsPower(caster))) {
+			abortStorm(server, pending, caster, traveller);
+			return;
+		}
+		SafeDestinationResolver.Result revalidated = SafeDestinationResolver.validateExact(
+				traveller, target, pending.target(), TravelKind.POWER);
+		if (!revalidated.allowed()) {
+			abortStorm(server, pending, caster, traveller);
+			TravelFailurePresenter.report(caster, traveller, pending.target(), revalidated.failure());
+			return;
+		}
+		TravelCohort.Snapshot cohort = TravelCohort.capture(origin, caster, traveller);
+		var moved = traveller.teleport(new TeleportTransition(target, pending.target(), Vec3.ZERO,
+				traveller.getYRot(), traveller.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+		if (!(moved instanceof LivingEntity arrived) || arrived.level() != target) {
+			abortStorm(server, pending, caster, traveller);
+			return;
+		}
+		if (pending.bodyStarted() && traveller instanceof ServerPlayer subject) {
+			BodyProxyManager.finish(subject);
+		}
+		pending.transaction().succeed();
+		PENDING_TELEPORTS.remove(ownerId, pending);
+		TravelCohort.move(cohort, target, pending.target());
+		scheduleStormFinish(server, ownerId, target.dimension(),
+				Math.max(1, pending.stormTicks() - pending.teleportDelay()));
+	}
+
+	private static void failLoadedTeleport(MinecraftServer server, UUID ownerId) {
+		PendingTeleport pending = PENDING_TELEPORTS.remove(ownerId);
+		ACTIVE_STORMS.finish(ownerId);
+		if (pending == null) return;
+		pending.transaction().fail(server);
+		ServerPlayer caster = server.getPlayerList().getPlayer(ownerId);
+		LivingEntity traveller = findLiving(server, pending.travellerId());
+		if (caster != null && traveller != null) {
+			TravelFailurePresenter.report(caster, traveller, pending.target(),
+					DestinationFailure.UNLOADED_CHUNK);
+		}
+	}
+
+	private static void abortStorm(MinecraftServer server, PendingTeleport pending,
+			ServerPlayer caster, LivingEntity traveller) {
+		UUID ownerId = pending == null ? (caster == null ? null : caster.getUUID()) : pending.casterId();
+		if (ownerId != null) {
+			ACTIVE_STORMS.finish(ownerId);
+			PENDING_TELEPORTS.remove(ownerId);
+		}
+		if (pending != null && pending.bodyStarted() && traveller instanceof ServerPlayer player) {
+			BodyProxyManager.finish(player);
+		}
+		if (pending != null) pending.transaction().fail(server);
+	}
+
+	private static void scheduleStormFinish(MinecraftServer server, UUID ownerId,
+			ResourceKey<Level> dimension, int delay) {
+		PowersMod.scheduleDelayed(server, Math.max(1, delay), ownerId, dimension, ownerId,
+				"teleport_storm_finish", (current, task) -> ACTIVE_STORMS.finish(task.subjectId()));
 	}
 
 	/** Lifecycle cleanup for disconnects and server shutdown. */
-	public static void clearStorm(UUID owner) {
+	public static void clearStorm(MinecraftServer server, UUID owner) {
 		ACTIVE_STORMS.finish(owner);
+		PendingTeleport pending = PENDING_TELEPORTS.remove(owner);
+		if (pending != null) pending.transaction().fail(server);
 	}
 
-	public static void clearAllStorms() {
+	public static void clearAllStorms(MinecraftServer server) {
+		for (PendingTeleport pending : new ArrayList<>(PENDING_TELEPORTS.values())) {
+			pending.transaction().fail(server);
+		}
+		PENDING_TELEPORTS.clear();
 		ACTIVE_STORMS.clear();
 	}
 

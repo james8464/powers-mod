@@ -77,9 +77,9 @@ final class LocatorSpellPackets {
 	}
 
 	static void handleLocate(PowersPackets.LocateTargetPayload payload, ServerPlayNetworking.Context context) {
-		context.server().execute(() -> {
-			if (PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.LOCATOR)) {
-				locate(context.player(), payload, context.server().getTickCount());
+		ServerPlayCallback.execute(context, player -> {
+			if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.LOCATOR)) {
+				locate(player, payload, player.level().getServer().getTickCount());
 			}
 		});
 	}
@@ -249,21 +249,34 @@ final class LocatorSpellPackets {
 		if (trueSight) PowerFx.trueSightPiercing(level, position);
 
 		MinecraftServer server = level.getServer();
-		PowersMod.scheduleDelayed(server, 16, () -> swellRitual(player, level, position));
-		PowersMod.scheduleDelayed(server, 32, () -> openHeavens(player, level, position));
+		UUID ownerId = player.getUUID();
+		ResourceKey<Level> ritualDimension = level.dimension();
+		PowersMod.scheduleDelayed(server, 16, ownerId, ritualDimension, ownerId,
+				"locator_swell", (current, task) -> swellRitual(current, task.subjectId(),
+						ritualDimension, position));
+		PowersMod.scheduleDelayed(server, 32, ownerId, ritualDimension, ownerId,
+				"locator_heavens", (current, task) -> openHeavens(current, task.subjectId(),
+						ritualDimension, position));
 		TargetRef targetRef = new TargetRef(target.getUUID(), target.level().dimension());
-		PowersMod.scheduleDelayed(server, 48, () -> revealTarget(player, level, position,
-				targetRef, trueSight));
+		PowersMod.scheduleDelayed(server, 48, ownerId, ritualDimension, ownerId,
+				"locator_reveal", (current, task) -> revealTarget(current, task.subjectId(),
+						ritualDimension, position, targetRef, trueSight));
 	}
 
-	private static void swellRitual(ServerPlayer player, ServerLevel level, Vec3 position) {
+	private static void swellRitual(MinecraftServer server, UUID ownerId,
+			ResourceKey<Level> dimension, Vec3 position) {
+		ServerPlayer player = server.getPlayerList().getPlayer(ownerId);
+		ServerLevel level = server.getLevel(dimension);
 		if (!ritualOwnerValid(player, level)) return;
 		PowerFx.ring(level, position, 4.2, CELESTIAL_COLOR, 34, 0.4);
 		PowerFx.ring(level, position, 2.8, 0xFFE8F4FF, 26, 1.1);
 		PowerFx.sound(level, position, SoundEvents.BEACON_ACTIVATE, 0.9f, 1.25f);
 	}
 
-	private static void openHeavens(ServerPlayer player, ServerLevel level, Vec3 position) {
+	private static void openHeavens(MinecraftServer server, UUID ownerId,
+			ResourceKey<Level> dimension, Vec3 position) {
+		ServerPlayer player = server.getPlayerList().getPlayer(ownerId);
+		ServerLevel level = server.getLevel(dimension);
 		if (!ritualOwnerValid(player, level)) return;
 		PowerFx.beam(level, position, position.add(0, 36, 0),
 				PowerFx.dust(CELESTIAL_COLOR, 1.25F), 18);
@@ -271,10 +284,12 @@ final class LocatorSpellPackets {
 		PowerFx.sound(level, position, SoundEvents.CONDUIT_ACTIVATE, 1.0f, 1.15f);
 	}
 
-	private static void revealTarget(ServerPlayer player, ServerLevel level, Vec3 position, TargetRef targetRef,
-			boolean trueSight) {
+	private static void revealTarget(MinecraftServer server, UUID ownerId,
+			ResourceKey<Level> dimension, Vec3 position, TargetRef targetRef, boolean trueSight) {
+		ServerPlayer player = server.getPlayerList().getPlayer(ownerId);
+		ServerLevel level = server.getLevel(dimension);
 		if (!ritualOwnerValid(player, level)) return;
-		ServerLevel targetLevel = level.getServer().getLevel(targetRef.dimension());
+		ServerLevel targetLevel = server.getLevel(targetRef.dimension());
 		LivingEntity target = targetLevel == null ? null
 				: targetLevel.getEntity(targetRef.id()) instanceof LivingEntity living ? living : null;
 		if (target == null || !target.isAlive()) {

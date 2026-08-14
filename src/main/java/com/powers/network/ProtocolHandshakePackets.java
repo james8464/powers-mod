@@ -86,8 +86,9 @@ public final class ProtocolHandshakePackets {
 	}
 
 	private static void handleResponse(Response payload, ServerConfigurationNetworking.Context context) {
-		context.server().execute(() -> {
-			ServerConfigurationPacketListenerImpl listener = context.packetListener();
+		ServerConfigurationPacketListenerImpl listener = context.packetListener();
+		long epoch = com.powers.util.ServerCallbackGate.capture(context.server());
+		com.powers.util.ServerCallbackGate.execute(epoch, server -> {
 			HandshakeTask task = PENDING.remove(listener);
 			if (task == null) {
 				listener.disconnect(Component.literal("Unexpected POWERS configuration response."));
