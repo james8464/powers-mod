@@ -101,6 +101,10 @@ public final class PowersGameTests {
 				"Size Morphing did not activate through the authoritative pipeline");
 		helper.assertTrue(player.getScale() < 0.75F,
 				"Size Morphing did not apply the selected half-scale body");
+		data.setSlots(player, java.util.List.of(
+				"powers:size_shift", "powers:double_health", "powers:starfall"));
+		helper.assertTrue(data.isToggleActive(ability.id().toString()) && player.getScale() < 0.75F,
+				"Replacing another slot silently deactivated a retained toggle");
 		helper.assertTrue(com.powers.power.AbilityActivationService.activate(
 				player, ability, ability.id().toString())
 				== com.powers.power.AbilityActivationService.Result.ACTIVATED,

@@ -395,8 +395,8 @@ public final class PlayerPowers {
 			// A passive may be shared with a potion or another mod. It is allowed
 			// to expire naturally instead of removing the entire effect type.
 			// Artifact toggles are item-owned and survive an unrelated slot reroll.
-			target.setAttached(ACTIVE_TOGGLES, PowerToggleLifecycle.deactivateInnate(
-					player, this, List.copyOf(getActiveToggles())));
+			target.setAttached(ACTIVE_TOGGLES, PowerToggleLifecycle.reconcileInnate(
+					player, this, List.copyOf(getActiveToggles()), newIds));
 			target.setAttached(POWER_SLOTS, newIds);
 			PowersPackets.syncTo(player);
 		}
