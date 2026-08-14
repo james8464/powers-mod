@@ -246,7 +246,7 @@ public final class BodyProxyManager {
 			UUID ownerId = player.getUUID();
 			return TravelChunkLoader.request(ownerId, returnLevel, requestedBlock, "body_return",
 					() -> completed(completion,
-							completeReturn(server, ownerId, returnLevel, state, requested, travelKind)),
+							completeReturn(server, ownerId, null, returnLevel, state, requested, travelKind)),
 					() -> {
 						ServerPlayer owner = server.getPlayerList().getPlayer(ownerId);
 						if (owner != null) PowerMessages.send(owner, "ability.powers.no_room", 3);
@@ -254,7 +254,7 @@ public final class BodyProxyManager {
 					});
 		}
 		return completed(completion,
-				completeReturn(server, player.getUUID(), returnLevel, state, requested, travelKind));
+				completeReturn(server, player.getUUID(), player, returnLevel, state, requested, travelKind));
 	}
 
 	private static boolean completed(Consumer<Boolean> completion, boolean result) {
@@ -262,9 +262,16 @@ public final class BodyProxyManager {
 		return result;
 	}
 
-	private static boolean completeReturn(MinecraftServer server, UUID ownerId,
+	private static boolean completeReturn(MinecraftServer server, UUID ownerId, ServerPlayer directOwner,
 			ServerLevel target, MindBodyState state, Vec3 requested, TravelKind travelKind) {
-		ServerPlayer player = server.getPlayerList().getPlayer(ownerId);
+		ServerPlayer listedOwner = server.getPlayerList().getPlayer(ownerId);
+		BodyReturnOwnerPolicy.Source source = BodyReturnOwnerPolicy.resolve(
+				directOwner != null && ownerId.equals(directOwner.getUUID()), listedOwner != null);
+		ServerPlayer player = switch (source) {
+			case DIRECT -> directOwner;
+			case LOOKUP -> listedOwner;
+			case MISSING -> null;
+		};
 		if (player == null || !state.equals(PlayerPowers.get(player).mindBody())) return false;
 		Vec3 destination = findReturnSpot(player, target, requested, travelKind);
 		if (destination == null) return false;
