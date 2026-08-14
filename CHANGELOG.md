@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fixed mind-body return at player-list lifecycle boundaries: disconnect and early join recovery now
+  complete through the live player reference, while delayed chunk callbacks continue to resolve the
+  owner by UUID and cannot retain a stale entity.
 - Prevented Energy and Void beams from crashing a dedicated server when protection, a ward, or
   another terminal counters the ray exactly at the caster's eye position; origin-local counters now
   resolve normally without publishing impossible zero-length collision geometry.
