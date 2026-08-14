@@ -198,7 +198,9 @@ public final class ImportedArtifactItem extends Item {
 		int commanded = 0;
 		for (com.powers.entity.AbstractPlayerLikeMob guardian :
 				BoundedEntityCandidates.ofClass(level, com.powers.entity.AbstractPlayerLikeMob.class,
-						area, 64, LivingEntity::isAlive)) {
+						area, 64, candidate -> candidate.isAlive()
+								&& (candidate instanceof com.powers.entity.DarknessCreature
+								|| candidate instanceof com.powers.entity.RadiantSentinel))) {
 			guardian.configureGuardian(player.getUUID(), 2_400, guardian.eliteGuardian());
 			guardian.setTarget(null);
 			guardian.heal(20.0F);
