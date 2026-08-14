@@ -20,6 +20,15 @@ public final class VesselControlClient {
 		ticks = 0;
 	}
 
+	/** Sends the server-authoritative emergency return used by right-click while spectating. */
+	public static boolean requestRelease() {
+		if (!active || !ClientPlayNetworking.canSend(VesselControlPackets.ReleasePayload.TYPE)) {
+			return false;
+		}
+		ClientPlayNetworking.send(new VesselControlPackets.ReleasePayload());
+		return true;
+	}
+
 	public static void tick(Minecraft client) {
 		if (!active || client.player == null || client.getCameraEntity() == null) return;
 		boolean attack = client.options.keyAttack.isDown();

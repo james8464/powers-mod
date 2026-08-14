@@ -22,7 +22,8 @@
 		"AvatarRendererMixin",
 		"LightRealmSkyMixin",
 		"OptionalItemModelFallbackMixin",
-		"RainbowCrystalVisualMixin"
+		"RainbowCrystalVisualMixin",
+		"VesselControlUseMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

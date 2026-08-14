@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed Blue Crystal Dreamwalking's spectator-mode exit: right-click now sends a dedicated authenticated release request, restores the physical body and original game mode, and cannot release another player's session.
 - Completed rendered-client acceptance for all innate powers, including distant consent-free cohort travel, retained toggle reconciliation, a real two-times Double Health baseline, and ownership-safe Time Freeze release. The development-only acceptance script can now submit the exact validated destination payload used by the Time Shift screen.
 
 - Preserved active innate toggles when allegiance reconciliation replaces a different slot; dropped powers still clean up exactly once, while retained Size Morphing and Time Freeze ownership no longer flicker or silently restart.

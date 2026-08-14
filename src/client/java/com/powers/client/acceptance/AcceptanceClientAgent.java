@@ -2,6 +2,7 @@ package com.powers.client.acceptance;
 
 import com.powers.PowersMod;
 import com.powers.client.screen.CelestialLocatorScreen;
+import com.powers.client.VesselControlClient;
 import com.powers.network.PowersPackets;
 import com.powers.network.CrystalSelectorPackets;
 import com.powers.network.GrimoirePackets;
@@ -97,7 +98,8 @@ public final class AcceptanceClientAgent {
 						Integer.parseInt(values[0]), Integer.parseInt(values[1])));
 			}
 			case USE -> {
-				if (client.gameMode != null && client.player != null) {
+				if (!VesselControlClient.requestRelease()
+						&& client.gameMode != null && client.player != null) {
 					client.gameMode.useItem(client.player, InteractionHand.MAIN_HAND);
 				}
 			}

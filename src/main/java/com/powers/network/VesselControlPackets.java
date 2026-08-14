@@ -26,6 +26,19 @@ public final class VesselControlPackets {
 		}
 	}
 
+	/** Authenticated owner request to leave the currently controlled remote form. */
+	public record ReleasePayload() implements CustomPacketPayload {
+		public static final Type<ReleasePayload> TYPE =
+				new Type<>(PowersMod.id("vessel_control_release"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, ReleasePayload> STREAM_CODEC =
+				StreamCodec.of((buffer, payload) -> { }, buffer -> new ReleasePayload());
+
+		@Override
+		public Type<? extends CustomPacketPayload> type() {
+			return TYPE;
+		}
+	}
+
 	public record InputPayload(float forward, float strafe, boolean jump, boolean crouch,
 			float yaw, float pitch, int hotbarSlot, int attackEntityId)
 			implements CustomPacketPayload {
@@ -59,6 +72,7 @@ public final class VesselControlPackets {
 	public static void initialize() {
 		PayloadTypeRegistry.clientboundPlay().register(StatePayload.TYPE, StatePayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(InputPayload.TYPE, InputPayload.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(ReleasePayload.TYPE, ReleasePayload.STREAM_CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(InputPayload.TYPE, (payload, context) ->
 				context.server().execute(() -> {
 					ServerPlayer owner = context.player();
@@ -66,6 +80,17 @@ public final class VesselControlPackets {
 						VesselPossessionAbility.applyControl(owner, payload);
 					}
 				}));
+		ServerPlayNetworking.registerGlobalReceiver(ReleasePayload.TYPE, (payload, context) ->
+				context.server().execute(() -> {
+					if (PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.VESSEL_CONTROL)) {
+						releaseControlledSession(context.player());
+					}
+				}));
+	}
+
+	/** Production packet entry point retained separately for live GameTest coverage. */
+	public static boolean releaseControlledSession(ServerPlayer owner) {
+		return VesselPossessionAbility.releaseControlledSession(owner);
 	}
 
 	public static void sendState(ServerPlayer owner, boolean active) {
