@@ -6,18 +6,20 @@ import com.powers.magic.fx.MagicFxKind;
 import com.powers.magic.fx.MagicFxService;
 import com.powers.fx.BeamFxStyle;
 import com.powers.fx.ShapeFxKind;
-import com.powers.diagnostics.ServerRuntimeMetrics;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 
 /** Owns the compact clientbound protocol for semantic magic presentation. */
@@ -37,7 +39,7 @@ public final class MagicFxPackets {
 		public static final StreamCodec<RegistryFriendlyByteBuf, MagicFxPayload> STREAM_CODEC =
 				StreamCodec.of(MagicFxPayload::encode, MagicFxPayload::decode);
 
-		private static void encode(RegistryFriendlyByteBuf buffer, MagicFxPayload payload) {
+		static void encode(RegistryFriendlyByteBuf buffer, MagicFxPayload payload) {
 			buffer.writeVarInt(payload.kind.networkId());
 			buffer.writeVarLong(payload.eventId);
 			ByteBufCodecs.STRING_UTF8.encode(buffer, payload.motif);
@@ -90,7 +92,7 @@ public final class MagicFxPackets {
 			color &= 0xFFFFFF;
 		}
 
-		private static void encode(RegistryFriendlyByteBuf buffer, BeamFxPayload payload) {
+		static void encode(RegistryFriendlyByteBuf buffer, BeamFxPayload payload) {
 			buffer.writeVarLong(payload.eventId);
 			buffer.writeVarInt(payload.style.networkId());
 			buffer.writeDouble(payload.fromX);
@@ -138,7 +140,7 @@ public final class MagicFxPackets {
 			color &= 0xFFFFFF;
 		}
 
-		private static void encode(RegistryFriendlyByteBuf buffer, ShapeFxPayload payload) {
+		static void encode(RegistryFriendlyByteBuf buffer, ShapeFxPayload payload) {
 			buffer.writeVarLong(payload.eventId);
 			buffer.writeVarInt(payload.kind.networkId());
 			buffer.writeDouble(payload.x);
@@ -165,10 +167,107 @@ public final class MagicFxPackets {
 		}
 	}
 
+	/** One ordered semantic cue inside a mixed same-tick batch. */
+	public record BatchEntry(MagicFxPayload magic, BeamFxPayload beam, ShapeFxPayload shape) {
+		private static final int MAGIC = 0;
+		private static final int BEAM = 1;
+		private static final int SHAPE = 2;
+
+		public BatchEntry {
+			int present = (magic == null ? 0 : 1) + (beam == null ? 0 : 1) + (shape == null ? 0 : 1);
+			if (present != 1) throw new IllegalArgumentException("A batch entry must hold exactly one cue");
+		}
+
+		public static BatchEntry magic(MagicFxPayload payload) {
+			return new BatchEntry(Objects.requireNonNull(payload), null, null);
+		}
+
+		public static BatchEntry beam(BeamFxPayload payload) {
+			return new BatchEntry(null, Objects.requireNonNull(payload), null);
+		}
+
+		public static BatchEntry shape(ShapeFxPayload payload) {
+			return new BatchEntry(null, null, Objects.requireNonNull(payload));
+		}
+
+		void encode(RegistryFriendlyByteBuf buffer) {
+			if (magic != null) {
+				buffer.writeByte(MAGIC);
+				MagicFxPayload.encode(buffer, magic);
+			} else if (beam != null) {
+				buffer.writeByte(BEAM);
+				BeamFxPayload.encode(buffer, beam);
+			} else {
+				buffer.writeByte(SHAPE);
+				ShapeFxPayload.encode(buffer, shape);
+			}
+		}
+
+		private static BatchEntry decode(RegistryFriendlyByteBuf buffer) {
+			return switch (buffer.readUnsignedByte()) {
+				case MAGIC -> magic(MagicFxPayload.decode(buffer));
+				case BEAM -> beam(BeamFxPayload.decode(buffer));
+				case SHAPE -> shape(ShapeFxPayload.decode(buffer));
+				default -> throw new IllegalArgumentException("Unknown semantic FX batch entry");
+			};
+		}
+	}
+
+	/** A bounded ordered tail whose repeated semantic fields can use vanilla packet compression. */
+	public record SemanticFxBatchPayload(List<BatchEntry> entries) implements CustomPacketPayload {
+		private static final int MAX_ENTRIES = SemanticFxBatchAccumulator.DEFAULT_MAX_ENTRIES;
+		public static final CustomPacketPayload.Type<SemanticFxBatchPayload> TYPE =
+				new CustomPacketPayload.Type<>(PowersMod.id("semantic_fx_batch"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, SemanticFxBatchPayload> STREAM_CODEC =
+				StreamCodec.of(SemanticFxBatchPayload::encode, SemanticFxBatchPayload::decode);
+
+		public SemanticFxBatchPayload {
+			entries = List.copyOf(entries);
+			if (entries.isEmpty() || entries.size() > MAX_ENTRIES) {
+				throw new IllegalArgumentException("Semantic FX batch size is out of bounds");
+			}
+		}
+
+		static void encode(RegistryFriendlyByteBuf buffer, SemanticFxBatchPayload payload) {
+			buffer.writeVarInt(payload.entries.size());
+			for (BatchEntry entry : payload.entries) entry.encode(buffer);
+		}
+
+		private static SemanticFxBatchPayload decode(RegistryFriendlyByteBuf buffer) {
+			int count = buffer.readVarInt();
+			if (count < 1 || count > MAX_ENTRIES) {
+				throw new IllegalArgumentException("Semantic FX batch size is out of bounds");
+			}
+			List<BatchEntry> entries = new java.util.ArrayList<>(count);
+			for (int index = 0; index < count; index++) entries.add(BatchEntry.decode(buffer));
+			return new SemanticFxBatchPayload(entries);
+		}
+
+		@Override
+		public Type<? extends CustomPacketPayload> type() {
+			return TYPE;
+		}
+	}
+
+	/** Byte-accounted delivery choice for one ordered deferred tail. */
+	public record TransportPlan(List<BatchEntry> entries, boolean batch,
+			int individualWireBytes, int batchWireBytes) {
+		public TransportPlan {
+			entries = List.copyOf(entries);
+		}
+	}
+
+	/** Actual packets sent by the semantic transport since its last explicit reset. */
+	public record TransportSnapshot(long immediatePackets, long batchPackets,
+			long batchedEntries, long fallbackPackets, long staleEntriesDropped) {
+	}
+
 	public static void initialize() {
 		PayloadTypeRegistry.clientboundPlay().register(MagicFxPayload.TYPE, MagicFxPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(BeamFxPayload.TYPE, BeamFxPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(ShapeFxPayload.TYPE, ShapeFxPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(
+				SemanticFxBatchPayload.TYPE, SemanticFxBatchPayload.STREAM_CODEC);
 	}
 
 	/** Sends an already budgeted beam only to its intended observer. */
@@ -180,8 +279,7 @@ public final class MagicFxPackets {
 		if (COALESCER.allow(tick, observer.getUUID(), observer.level().dimension().identifier().toString(),
 				chunkX, chunkZ, "beam:" + payload.style().name(), "sustain",
 				encodedBodyBytes(payload))) {
-			ServerPlayNetworking.send(observer, payload);
-			ServerRuntimeMetrics.recordPacket(observer.level().getServer(), tick);
+			deliver(observer, BatchEntry.beam(payload), encodedBodyBytes(payload));
 		}
 	}
 
@@ -192,8 +290,7 @@ public final class MagicFxPackets {
 		if (COALESCER.allow(tick, observer.getUUID(), observer.level().dimension().identifier().toString(),
 				((int) Math.floor(payload.x())) >> 4, ((int) Math.floor(payload.z())) >> 4,
 				"shape:" + payload.kind().name(), "sustain", encodedBodyBytes(payload))) {
-			ServerPlayNetworking.send(observer, payload);
-			ServerRuntimeMetrics.recordPacket(observer.level().getServer(), tick);
+			deliver(observer, BatchEntry.shape(payload), encodedBodyBytes(payload));
 		}
 	}
 
@@ -209,12 +306,27 @@ public final class MagicFxPackets {
 	/** Clears weak transport state explicitly at the normal server lifecycle edge. */
 	public static void clear() {
 		SERVICES.clear();
+		SemanticFxTransport.clear();
 		COALESCER.clear();
+	}
+
+	/** Flushes deferred same-tick tails after every authoritative magic owner has ticked. */
+	public static void flush(MinecraftServer server) {
+		SemanticFxTransport.flush(server);
 	}
 
 	/** Starts an isolated transport capture without disturbing payload or level caches. */
 	public static void resetFxTrafficMetrics() {
 		COALESCER.clear();
+	}
+
+	/** Resets only semantic transport counters for a bounded live acceptance capture. */
+	public static void resetTransportMetrics(MinecraftServer server) {
+		SemanticFxTransport.resetMetrics(server);
+	}
+
+	public static TransportSnapshot transportSnapshot(MinecraftServer server) {
+		return SemanticFxTransport.snapshot(server);
 	}
 
 	public static FxPacketCoalescer.TrafficSnapshot fxTrafficSnapshot() {
@@ -231,10 +343,22 @@ public final class MagicFxPackets {
 					((int) Math.floor(event.x())) >> 4, ((int) Math.floor(event.z())) >> 4,
 					"magic:" + event.motif(), event.kind().name().toLowerCase(java.util.Locale.ROOT),
 					encodedBodyBytes(payload))) {
-				ServerPlayNetworking.send(observer, payload);
-				ServerRuntimeMetrics.recordPacket(level.getServer(), tick);
+				deliver(observer, BatchEntry.magic(payload), encodedBodyBytes(payload));
 			}
 		}
+	}
+
+	private static void deliver(ServerPlayer observer, BatchEntry entry, int encodedBytes) {
+		SemanticFxTransport.deliver(observer, entry, encodedBytes);
+	}
+
+	static TransportPlan transportPlan(List<BatchEntry> entries, boolean batchSupported) {
+		return SemanticFxTransport.plan(entries, batchSupported, 256);
+	}
+
+	static TransportPlan transportPlan(List<BatchEntry> entries, boolean batchSupported,
+			int compressionThreshold) {
+		return SemanticFxTransport.plan(entries, batchSupported, compressionThreshold);
 	}
 
 	static int encodedBodyBytes(MagicFxPayload payload) {

@@ -86,11 +86,29 @@ public class PowersClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(PowerStatePayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientPowerState.update(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.MagicFxPayload.TYPE,
-				(payload, context) -> context.client().execute(() -> ClientMagicFx.handle(payload)));
+				(payload, context) -> context.client().execute(() -> {
+					ClientSemanticFxMetrics.recordIndividual(payload.eventId());
+					ClientMagicFx.handle(payload);
+				}));
 		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.BeamFxPayload.TYPE,
-				(payload, context) -> context.client().execute(() -> ClientBeamFx.handle(payload)));
+				(payload, context) -> context.client().execute(() -> {
+					ClientSemanticFxMetrics.recordIndividual(payload.eventId());
+					ClientBeamFx.handle(payload);
+				}));
 		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.ShapeFxPayload.TYPE,
-				(payload, context) -> context.client().execute(() -> ClientShapeFx.handle(payload)));
+				(payload, context) -> context.client().execute(() -> {
+					ClientSemanticFxMetrics.recordIndividual(payload.eventId());
+					ClientShapeFx.handle(payload);
+				}));
+		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.SemanticFxBatchPayload.TYPE,
+				(payload, context) -> context.client().execute(() -> {
+					ClientSemanticFxMetrics.recordBatch(payload.entries());
+					for (MagicFxPackets.BatchEntry entry : payload.entries()) {
+						if (entry.magic() != null) ClientMagicFx.handle(entry.magic());
+						else if (entry.beam() != null) ClientBeamFx.handle(entry.beam());
+						else ClientShapeFx.handle(entry.shape());
+					}
+				}));
 		ClientPlayNetworking.registerGlobalReceiver(BodyProxyPackets.BodySnapshotPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientBodySnapshots.handle(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(CompanionPackets.StatePayload.TYPE,

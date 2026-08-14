@@ -2,6 +2,7 @@ package com.powers.gametest;
 
 import com.powers.PowersItems;
 import com.powers.client.ClientPowerState;
+import com.powers.client.ClientSemanticFxMetrics;
 import com.powers.client.fx.ClientMagicFx;
 import com.powers.client.screen.ArtifactCatalogueScreen;
 import com.powers.client.screen.ArcaneCrucibleScreen;
@@ -21,6 +22,8 @@ import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.artifact.ArtifactFavouriteRules;
 import com.powers.network.PowerStatePayload;
 import com.powers.network.RelicPackets;
+import com.powers.network.MagicFxPackets;
+import com.powers.fx.BeamFxStyle;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
 import com.powers.power.PowerRegistry;
@@ -60,6 +63,7 @@ public final class PowersClientGameTests implements FabricClientGameTest {
                 }
             });
             context.takeScreenshot("powers-client-world-smoke");
+			verifySemanticFxBatching(context, singleplayer);
             verifyCrystalTravel(context, singleplayer);
 			quiesceVisuals(context);
             captureHudStates(context);
@@ -69,6 +73,42 @@ public final class PowersClientGameTests implements FabricClientGameTest {
             smokeOperatorCommands(singleplayer);
         }
     }
+
+	private static void verifySemanticFxBatching(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer) {
+		long firstEventId = 0xF015_0000L;
+		context.runOnClient(client -> ClientSemanticFxMetrics.reset());
+		singleplayer.getServer().runOnServer(server -> {
+			var player = server.getPlayerList().getPlayers().getFirst();
+			MagicFxPackets.resetTransportMetrics(server);
+			for (int index = 0; index < 10; index++) {
+				MagicFxPackets.sendBeam(player, new MagicFxPackets.BeamFxPayload(
+						firstEventId + index, BeamFxStyle.values()[index],
+						player.getX(), player.getEyeY(), player.getZ(),
+						player.getX() + 8.0, player.getEyeY() + index * 0.1, player.getZ(),
+						16, 0xB8F4FF));
+			}
+		});
+		singleplayer.getServer().waitFor(server -> {
+			var snapshot = MagicFxPackets.transportSnapshot(server);
+			return snapshot.immediatePackets() >= 1 && snapshot.batchPackets() >= 1
+					&& snapshot.batchedEntries() >= 9;
+		});
+		context.waitFor(client -> {
+			var snapshot = ClientSemanticFxMetrics.snapshot();
+			return snapshot.batchPackets() >= 1 && snapshot.batchedEntries() >= 9;
+		});
+		context.runOnClient(client -> {
+			List<Long> controlled = ClientSemanticFxMetrics.snapshot().recentEventIds().stream()
+					.filter(id -> id >= firstEventId && id < firstEventId + 10)
+					.toList();
+			List<Long> expected = java.util.stream.LongStream.range(firstEventId, firstEventId + 10)
+					.boxed().toList();
+			if (!controlled.equals(expected)) {
+				throw new AssertionError("Semantic FX delivery order changed: " + controlled);
+			}
+		});
+	}
 
 	private static void quiesceVisuals(ClientGameTestContext context) {
 		for (int tick = 0; tick < 35; tick++) {
@@ -81,10 +121,26 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 	}
 
     private static void smokeOperatorCommands(TestSingleplayerContext singleplayer) {
+		String assignedPower = singleplayer.getServer().computeOnServer(server -> {
+			var player = server.getPlayerList().getPlayerByName("Player0");
+			if (player == null) throw new AssertionError("Client test player is unavailable");
+			var assigned = com.powers.player.PlayerPowers.get(player).getSlotIds();
+			var allegiance = com.powers.player.SkillSystem.hasDarknessTag(player)
+					? com.powers.power.PowerAffinity.DARKNESS
+					: com.powers.power.PowerAffinity.RADIANT;
+			return PowerRegistry.getAssignable(allegiance).stream()
+					.map(power -> power.id().getPath())
+					.filter(id -> assigned.stream().noneMatch(saved -> {
+						var power = PowerRegistry.get(saved);
+						return power != null && power.id().getPath().equals(id);
+					}))
+					.findFirst()
+					.orElseThrow(() -> new AssertionError("No unassigned compatible power exists"));
+		});
         for (String command : List.of(
                 "powers list",
                 "powers slots Player0",
-                "powers assign Player0 flight 0",
+				"powers assign Player0 " + assignedPower + " 0",
                 "execute as Player0 run powers consent teleport allow",
                 "execute as Player0 run powers path list",
                 "execute as Player0 run powers darkprefix false",
@@ -120,7 +176,8 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 		singleplayer.getServer().runOnServer(server -> {
 			var player = server.getPlayerList().getPlayerByName("Player0");
 			if (player == null || com.powers.player.PlayerPowers.get(player).getPower(0) == null
-					|| !com.powers.player.PlayerPowers.get(player).getPower(0).id().getPath().equals("flight")) {
+					|| !com.powers.player.PlayerPowers.get(player).getPower(0).id().getPath()
+							.equals(assignedPower)) {
 				throw new AssertionError("/powers assign did not persist the requested slot");
 			}
 			if (!com.powers.testing.TestingOverrides.state(player.getUUID()).equals(
