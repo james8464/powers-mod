@@ -366,7 +366,7 @@ Testing commands are operator-only, executor-local, session-only, and never bypa
 /powers testing profile start <minutes> <expectedPlayers>
 ```
 
-The arena creates seven named acceptance targets: neutral/radiant/dark test actors, zombie, iron golem, Hollowed, and Radiant Sentinel. Coverage is derived from live registries so a newly added action cannot silently disappear from the manual test inventory. `/powers diagnose` reports fields, forced chunks, body proxies, Celestial events, per-dimension spatial-index work and memory, scan/work budgets, packets, particles, testing flags, cleanup state, active delayed-task owner/subject/dimension/purpose/deadline records, config-validation counts, bounded privileged-action audit totals, and the executor's last 32 authoritative energy transactions reconciled by source. Crash reports add only bounded aggregate POWERS session counts and the latest typed failure reason/tick—never names, chat, IDs, coordinates, or remote content. `/powers diagnose export` atomically writes aggregate-only schema-v1 JSON to the world's `powers/diagnostics/latest.json`; it excludes chat, names, UUIDs, precise player coordinates, credentials, and remote-provider content.
+The arena creates seven named acceptance targets: neutral/radiant/dark test actors, zombie, iron golem, Hollowed, and Radiant Sentinel. Coverage is derived from live registries so a newly added action cannot silently disappear from the manual test inventory. `/powers diagnose` reports fields, forced chunks, body proxies, Celestial events, per-dimension spatial-index work and memory, scan/work budgets, packets, particles, testing flags, cleanup state, active delayed-task owner/subject/dimension/purpose/deadline records, config-validation counts, bounded privileged-action audit totals, the effective global/world/dimension policy value and source for every overridable rule, and the executor's last 32 authoritative energy transactions reconciled by source. Crash reports add only bounded aggregate POWERS session counts and the latest typed failure reason/tick—never names, chat, IDs, coordinates, or remote content. `/powers diagnose export` atomically writes aggregate-only schema-v1 JSON to the world's `powers/diagnostics/latest.json`; it excludes chat, names, UUIDs, precise player coordinates, credentials, and remote-provider content.
 
 Quest telemetry stores bounded, anonymous Light/Dark completion durations and route names; completed samples contain no player identity. Publication remains locked until each alignment/level has at least ten independent samples. The operator-only quest campaign command is an evidence tool: it accepts exactly ten fresh, purpose-named connected clients and replays server-authoritative deeds at documented human-equivalent game-tick cadences; it never inserts telemetry rows directly. The opt-in profiler records full server ticks, connected-player counts, authoritative network-cast success, work-budget peaks, p95/p99 MSPT, and sampled allocations to `profiles/*.json` and `profiles/*.jfr`; a run closes only after both its exact tick-sample count and corresponding wall duration are complete, and it has no recording/allocation overhead while inactive.
 
@@ -374,7 +374,7 @@ The accepted PRG-001 campaign used 20 real Fabric clients on commit `751b3bc`. M
 
 ## Configuration
 
-The server file uses schema version 2. Values are sanitized at load; `/powers reload` reapplies policy and reports each bounded original-to-sanitized delta, reason, and active revision. Credentials, free-form strings, and safe-zone coordinates are represented only by redacted summaries.
+The server file uses schema version 4. Values are sanitized at load; `/powers reload` reapplies policy and reports each bounded original-to-sanitized delta, reason, and active revision. Credentials, free-form strings, and safe-zone coordinates are represented only by redacted summaries.
 
 | Key | Default | Meaning |
 | --- | ---: | --- |
@@ -397,6 +397,22 @@ The server file uses schema version 2. Values are sanitized at load; `/powers re
 | `rankRespecExperienceLevels` | `30` | Rank-maze respec price (0–1,000). |
 | `adminPermissionLevel` | `2` | Operator command permission (0–4). |
 | `safeZones` | `[]` | Up to 256 sanitized dimension/x/y/z/radius records. |
+
+`policyOverrides` can patch the eleven world-sensitive boolean rules above for at most 128 exact world names and 128 namespaced dimensions. Resolution is field-by-field and deterministic: the global value is the base, an exact `worlds` entry patches it, then a matching `dimensions` entry patches that result. Omitted fields inherit. Safe-zone and external protection-adapter denials remain absolute regardless of an override.
+
+```json
+"policyOverrides": {
+  "worlds": {
+    "Lore World": { "allowTerrainDamage": false }
+  },
+  "dimensions": {
+    "powers:dark_realm": {
+      "allowTerrainDamage": true,
+      "requireLocatorConsent": true
+    }
+  }
+}
+```
 
 `livingForces` defaults to spreading enabled, two attempts, radius 8, Wither amplifier 2 (Wither III), 24 energy/second, clash radius 48, and 4,096 checks/tick. Bounds are enforced at load.
 
