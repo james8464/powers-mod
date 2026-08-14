@@ -1,0 +1,42 @@
+# Exact-build replacement proof for world-mutating and apotheosis artifact actions.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	gamemode survival @s
+110	COMMAND	effect give @s minecraft:resistance 999999 255 true
+120	COMMAND	tag @s add darkness
+130	COMMAND	advancement grant @s through powers:darkness/level_10
+140	COMMAND	item replace entity @s weapon.mainhand with powers:lycanbane
+
+# Creativity: force the caster into the Overworld and reproduce the proven straight-down ray.
+170	COMMAND	execute in minecraft:overworld run tp @s 2200.5 106 2200.5 0 90
+180	COMMAND	fill 2190 99 2190 2210 100 2210 minecraft:stone
+190	COMMAND	fill 2190 101 2190 2210 115 2210 minecraft:air
+200	LOOK	0 90
+220	ARTIFACT	darkness crystal/creativity_manifestation -1
+260	COMMAND	execute if block 2200 103 2200 minecraft:glowstone run say DARK_ARTIFACT_CREATION_LIGHT_PRESENT
+270	COMMAND	execute if block 2202 101 2200 minecraft:orange_concrete run say DARK_ARTIFACT_CREATION_FRAME_PRESENT
+280	SCREENSHOT	dark-artifact-creativity-exact
+
+# Blight Ground: keep the caster on a two-layer platform until the bounded queue settles.
+310	COMMAND	execute in minecraft:overworld run tp @s 2250.5 102 2250.5 0 0
+320	COMMAND	fill 2240 99 2240 2260 100 2260 minecraft:stone
+330	COMMAND	fill 2240 101 2240 2260 115 2260 minecraft:air
+350	ARTIFACT	darkness unique/blight_ground -1
+430	COMMAND	execute if block 2250 100 2250 powers:darkness run say DARK_ARTIFACT_BLIGHT_PRESENT
+440	SCREENSHOT	dark-artifact-blight-exact
+
+# Nightfall: a non-aligned husk proves hostile pressure; hidden effects prove apotheosis.
+470	COMMAND	execute in minecraft:overworld run tp @s 2300.5 102 2300.5 0 0
+480	COMMAND	fill 2290 99 2290 2310 100 2310 minecraft:stone
+490	COMMAND	fill 2290 101 2290 2310 115 2310 minecraft:air
+500	COMMAND	kill @e[type=minecraft:husk]
+510	COMMAND	summon minecraft:husk 2300.5 102 2305.5 {NoAI:1b,NoGravity:1b,PersistenceRequired:1b,Health:20.0f}
+520	COMMAND	data get entity @e[type=minecraft:husk,sort=nearest,limit=1] Health
+540	ARTIFACT	darkness unique/nightfall_dominion -1
+550	COMMAND	data get entity @s active_effects
+590	COMMAND	execute unless entity @e[type=minecraft:husk,distance=..16] run say NIGHTFALL_TARGET_DESTROYED
+600	SCREENSHOT	dark-artifact-nightfall-exact
+630	ARTIFACT	darkness unique/nightfall_dominion -1
+660	COMMAND	item replace entity @s weapon.mainhand with minecraft:air
+690	COMMAND	powers diagnose
+700	SCREENSHOT	dark-artifact-uniques-complete

@@ -1,0 +1,130 @@
+# Exact-client Shadow Sword routed-crystal, unique-action, and teleport acceptance.
+220	CLOSE	screen
+240	COMMAND	powers testing on
+260	COMMAND	gamemode survival @s
+280	COMMAND	effect give @s minecraft:resistance 999999 255 true
+300	COMMAND	tag @s add darkness
+320	COMMAND	advancement grant @s through powers:darkness/level_10
+340	COMMAND	forceload add 1400 1400 1450 1450
+360	COMMAND	fill 1400 90 1400 1450 100 1450 minecraft:stone
+380	COMMAND	fill 1400 101 1400 1450 180 1450 minecraft:air
+400	COMMAND	tp @s 1425.5 101 1425.5 0 0
+420	COMMAND	item replace entity @s weapon.mainhand with powers:lycanbane
+
+# Time Shift uses the real artifact input payload and an explicitly unloaded-destination route.
+460	ARTIFACT	darkness innate/time_shift -1
+480	ARTIFACT_TELEPORT	darkness 1410.5 101 1410.5 minecraft:overworld self
+560	COMMAND	data get entity @s Pos
+580	SCREENSHOT	artifact-dark-time-shift
+
+# Inferno damages and ignites a nearby player-capable target.
+620	COMMAND	kill @e[name=InfernoTarget]
+640	COMMAND	powers testing actor spawn InfernoTarget
+660	COMMAND	tp @e[name=InfernoTarget,limit=1] 1410.5 101 1416.5
+680	COMMAND	data merge entity @e[name=InfernoTarget,limit=1] {NoAI:1b,NoGravity:1b,Glowing:1b,PersistenceRequired:1b}
+700	COMMAND	data get entity @e[name=InfernoTarget,limit=1] Health
+720	ARTIFACT	darkness crystal/inferno -1
+800	COMMAND	data get entity @e[name=InfernoTarget,limit=1] Health
+820	COMMAND	data get entity @e[name=InfernoTarget,limit=1] Fire
+840	SCREENSHOT	artifact-dark-inferno
+
+# Creation produces exactly three player-shaped combat echoes.
+900	ARTIFACT	darkness crystal/clone_swarm -1
+940	COMMAND	execute if entity @e[type=powers:echo_clone,distance=..12] run say ARTIFACT_CLONES_PRESENT
+960	SCREENSHOT	artifact-dark-clone-swarm
+
+# Yellow Size Shift applies and then cleans both extreme SCALE transitions.
+1000	ARTIFACT	darkness crystal/size_shift -1
+1040	COMMAND	attribute @s minecraft:scale get
+1060	SCREENSHOT	artifact-dark-size-small
+1100	ARTIFACT	darkness crystal/size_shift -1
+1140	COMMAND	attribute @s minecraft:scale get
+1160	SCREENSHOT	artifact-dark-size-large
+
+# Life Bloom heals and applies only hidden restorative effects.
+1200	COMMAND	attribute @s minecraft:max_health base set 40
+1220	COMMAND	data merge entity @s {Health:4.0f}
+1240	ARTIFACT	darkness crystal/life_bloom -1
+1280	COMMAND	data get entity @s Health
+1300	COMMAND	data get entity @s active_effects
+1320	SCREENSHOT	artifact-dark-life-bloom
+
+# Chrono Stop owns and releases the global vanilla freeze through owner input.
+1360	ARTIFACT	darkness crystal/chrono_stop -1
+1400	SCREENSHOT	artifact-dark-chrono-stop
+1460	ARTIFACT	darkness crystal/chrono_stop -1
+1500	COMMAND	tick query
+
+# Soul Link mirrors one actor's damage onto another linked actor.
+1540	COMMAND	kill @e[name=LinkedOne]
+1560	COMMAND	kill @e[name=LinkedTwo]
+1580	COMMAND	powers testing actor spawn LinkedOne
+1600	COMMAND	powers testing actor spawn LinkedTwo
+1620	COMMAND	tp @e[name=LinkedOne,limit=1] 1410.5 101 1415.5
+1640	COMMAND	tp @e[name=LinkedTwo,limit=1] 1412.5 101 1415.5
+1660	COMMAND	data merge entity @e[name=LinkedOne,limit=1] {NoAI:1b,NoGravity:1b,Glowing:1b,PersistenceRequired:1b}
+1680	COMMAND	data merge entity @e[name=LinkedTwo,limit=1] {NoAI:1b,NoGravity:1b,Glowing:1b,PersistenceRequired:1b}
+1700	ARTIFACT	darkness crystal/soul_link -1
+1720	COMMAND	damage @e[name=LinkedOne,limit=1] 12 minecraft:generic
+1760	COMMAND	data get entity @e[name=LinkedTwo,limit=1] Health
+1780	SCREENSHOT	artifact-dark-soul-link
+
+# Dreamwalking accepts the player-like actor, creates a vulnerable body, then returns.
+1820	COMMAND	kill @e[name=DreamTarget]
+1840	COMMAND	powers testing actor spawn DreamTarget
+1860	COMMAND	tp @e[name=DreamTarget,limit=1] 1410.5 101 1414.5
+1880	COMMAND	data merge entity @e[name=DreamTarget,limit=1] {NoAI:1b,NoGravity:1b,Glowing:1b,PersistenceRequired:1b}
+1900	COMMAND	tp @s 1410.5 101 1410.5 0 0
+1920	ARTIFACT	darkness crystal/dreamwalking -1
+1960	COMMAND	data get entity @s playerGameType
+1980	COMMAND	powers diagnose
+2000	SCREENSHOT	artifact-dark-dreamwalking
+2040	COMMAND	powers return
+2080	COMMAND	data get entity @s playerGameType
+
+# Creativity Manifestation erects a chamber on the aimed floor.
+2120	COMMAND	fill 1420 101 1420 1430 112 1430 minecraft:air
+2140	COMMAND	setblock 1425 100 1429 minecraft:stone
+2160	COMMAND	tp @s 1425.5 101 1425.5 0 34
+2180	ARTIFACT	darkness crystal/creativity_manifestation -1
+2240	COMMAND	execute if block 1425 101 1428 #powers:crucible_frame run say ARTIFACT_CREATION_PRESENT
+2260	SCREENSHOT	artifact-dark-creativity
+
+# Darkness unique rites: summons, spreading terrain, and rank-ten apotheosis.
+2320	COMMAND	tp @s 1410.5 101 1410.5 0 0
+2340	ARTIFACT	darkness unique/call_hollowed -1
+2380	COMMAND	execute if entity @e[type=powers:darkness_creature,distance=..16] run say ARTIFACT_HOLLOWED_PRESENT
+2400	SCREENSHOT	artifact-dark-call-hollowed
+2440	ARTIFACT	darkness unique/blight_ground -1
+2520	COMMAND	execute if block 1410 100 1410 powers:darkness_block run say ARTIFACT_BLIGHT_PRESENT
+2540	SCREENSHOT	artifact-dark-blight-ground
+2580	COMMAND	kill @e[name=DominionTarget]
+2600	COMMAND	powers testing actor spawn DominionTarget
+2620	COMMAND	tp @e[name=DominionTarget,limit=1] 1410.5 101 1416.5
+2640	COMMAND	data merge entity @e[name=DominionTarget,limit=1] {NoAI:1b,NoGravity:1b,Glowing:1b,PersistenceRequired:1b}
+2660	ARTIFACT	darkness unique/nightfall_dominion -1
+2720	COMMAND	data get entity @s active_effects
+2740	COMMAND	data get entity @e[name=DominionTarget,limit=1] Health
+2760	SCREENSHOT	artifact-dark-nightfall
+2800	ARTIFACT	darkness unique/nightfall_dominion -1
+
+# Fixed-destination crystals must enter and return from all three mindscapes.
+2860	ARTIFACT	darkness crystal/dark_crystal -1
+2980	COMMAND	data get entity @s Dimension
+3000	SCREENSHOT	artifact-dark-realm
+3040	ARTIFACT	darkness crystal/dark_crystal -1
+3160	COMMAND	data get entity @s Dimension
+
+3220	ARTIFACT	darkness crystal/light_crystal -1
+3340	COMMAND	data get entity @s Dimension
+3360	SCREENSHOT	artifact-light-realm-via-sword
+3400	ARTIFACT	darkness crystal/light_crystal -1
+3520	COMMAND	data get entity @s Dimension
+
+3580	ARTIFACT	darkness crystal/middleworld -1
+3700	COMMAND	data get entity @s Dimension
+3720	SCREENSHOT	artifact-middleworld
+3760	ARTIFACT	darkness crystal/middleworld -1
+3880	COMMAND	data get entity @s Dimension
+3900	COMMAND	powers diagnose
+3920	SCREENSHOT	artifact-dark-complete

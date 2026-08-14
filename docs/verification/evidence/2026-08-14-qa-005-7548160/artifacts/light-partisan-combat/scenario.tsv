@@ -1,0 +1,60 @@
+# Exact-build isolated Partisan movement and player-like combat lane.
+100	CLOSE	screen
+120	COMMAND	powers testing on
+140	COMMAND	gamemode survival @s
+160	COMMAND	tag @s remove darkness
+180	COMMAND	advancement grant @s through powers:skill/level_10
+200	COMMAND	fill 2990 199 2990 3010 199 3350 minecraft:stone
+220	COMMAND	fill 2990 200 2990 3010 230 3350 minecraft:air
+240	COMMAND	item replace entity @s weapon.mainhand with powers:heavenly_partisan
+
+# Authoritative survival propulsion stays active in a top-level inventory slot.
+280	COMMAND	tp @s 3000.5 200 3000.5 0 0
+300	COMMAND	data get entity @s Pos
+320	ARTIFACT	light innate/flight -1
+340	KEY	forward on
+340	KEY	sprint on
+340	KEY	jump on
+380	COMMAND	item replace entity @s inventory.0 with powers:heavenly_partisan
+400	COMMAND	item replace entity @s weapon.mainhand with minecraft:air
+420	COMMAND	data get entity @s Motion
+440	COMMAND	data get entity @s Pos
+460	COMMAND	data get entity @s abilities
+480	SCREENSHOT	exact-partisan-flight-inventory-owned
+500	KEY	forward off
+500	KEY	sprint off
+500	KEY	jump off
+520	COMMAND	item replace entity @s weapon.mainhand from entity @s inventory.0
+540	ARTIFACT	light innate/flight -1
+
+# Lightning against a real player-capable target.
+580	COMMAND	kill @e[type=powers:power_test_actor]
+600	COMMAND	tp @s 3000.5 200 3000.5 0 0
+620	COMMAND	powers testing actor spawn PartisanLightning
+640	COMMAND	tp @e[type=powers:power_test_actor,sort=nearest,limit=1] 3000.5 200 3012.5
+660	COMMAND	data merge entity @e[type=powers:power_test_actor,sort=nearest,limit=1] {NoAI:1b,NoGravity:1b,PersistenceRequired:1b,Glowing:1b,Health:100.0f}
+680	LOOK	0 0
+700	COMMAND	data get entity @e[type=powers:power_test_actor,sort=nearest,limit=1] Health
+720	ARTIFACT	light innate/lightning_strike -1
+740	SCREENSHOT	exact-partisan-lightning-telegraph
+800	COMMAND	data get entity @e[type=powers:power_test_actor,sort=nearest,limit=1] Health
+820	SCREENSHOT	exact-partisan-lightning-impact
+
+# Energy Beam retains the artifact channel after the Partisan leaves the hand.
+860	COMMAND	kill @e[type=powers:power_test_actor]
+880	COMMAND	powers testing actor spawn PartisanBeam
+900	COMMAND	tp @e[type=powers:power_test_actor,sort=nearest,limit=1] 3000.5 200 3012.5
+920	COMMAND	data merge entity @e[type=powers:power_test_actor,sort=nearest,limit=1] {NoAI:1b,NoGravity:1b,PersistenceRequired:1b,Glowing:1b,Health:100.0f}
+940	LOOK	0 0
+960	COMMAND	data get entity @e[type=powers:power_test_actor,sort=nearest,limit=1] Health
+980	ARTIFACT	light innate/energy_beam -1
+1000	COMMAND	item replace entity @s inventory.0 with powers:heavenly_partisan
+1020	COMMAND	item replace entity @s weapon.mainhand with minecraft:air
+1040	SCREENSHOT	exact-partisan-energy-beam-channel
+1080	COMMAND	data get entity @e[type=powers:power_test_actor,sort=nearest,limit=1] Health
+1100	SCREENSHOT	exact-partisan-energy-beam-impact
+
+# Removal from top-level inventory ends the channel and leaves no runtime state.
+1120	COMMAND	clear @s powers:heavenly_partisan
+1160	COMMAND	powers diagnose
+1180	SCREENSHOT	exact-partisan-combat-complete

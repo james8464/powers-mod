@@ -1,0 +1,152 @@
+# Exact-client Heavenly Partisan routed-power, crystal, and dominion acceptance.
+220	CLOSE	screen
+240	COMMAND	powers testing on
+260	COMMAND	gamemode survival @s
+280	COMMAND	effect give @s minecraft:resistance 999999 255 true
+300	COMMAND	tag @s remove darkness
+320	COMMAND	advancement grant @s through powers:skill/level_10
+340	COMMAND	tp @s 1630.5 101 1630.5 0 0
+360	COMMAND	item replace entity @s weapon.mainhand with powers:heavenly_partisan
+
+# Flight is real server movement without creative-flight flags.
+400	ARTIFACT	light innate/flight -1
+420	KEY	forward on
+420	KEY	sprint on
+420	KEY	jump on
+500	KEY	jump off
+520	KEY	forward off
+520	KEY	sprint off
+540	COMMAND	data get entity @s Motion
+560	COMMAND	data get entity @s abilities
+580	SCREENSHOT	partisan-flight
+600	ARTIFACT	light innate/flight -1
+
+# Starfall converges on a live player-capable target.
+640	COMMAND	kill @e[name=LightTarget]
+660	COMMAND	powers testing actor spawn LightTarget
+680	COMMAND	tp @e[name=LightTarget,limit=1] 1630.5 101 1636.5
+700	COMMAND	data merge entity @e[name=LightTarget,limit=1] {NoAI:1b,NoGravity:1b,Glowing:1b,PersistenceRequired:1b}
+720	COMMAND	tp @s 1630.5 101 1630.5 0 0
+740	COMMAND	data get entity @e[name=LightTarget,limit=1] Health
+760	ARTIFACT	light innate/starfall -1
+840	COMMAND	data get entity @e[name=LightTarget,limit=1] Health
+860	SCREENSHOT	partisan-starfall
+
+# Lightning telegraphs, creates a bolt, and damages the same visible target.
+900	COMMAND	data get entity @e[name=LightTarget,limit=1] Health
+920	ARTIFACT	light innate/lightning_strike -1
+940	SCREENSHOT	partisan-lightning-telegraph
+980	COMMAND	data get entity @e[name=LightTarget,limit=1] Health
+1000	SCREENSHOT	partisan-lightning-impact
+
+# Thunderclap applies pressure and terrain-aware presentation.
+1040	ARTIFACT	light innate/thunderclap -1
+1080	COMMAND	data get entity @e[name=LightTarget,limit=1] Motion
+1100	COMMAND	data get entity @e[name=LightTarget,limit=1] Health
+1120	SCREENSHOT	partisan-thunderclap
+
+# Energy Beam deals discrete authoritative beats.
+1160	COMMAND	kill @e[name=LightTarget]
+1180	COMMAND	powers testing actor spawn LightTarget
+1200	COMMAND	tp @e[name=LightTarget,limit=1] 1630.5 101 1636.5
+1220	COMMAND	data merge entity @e[name=LightTarget,limit=1] {NoAI:1b,NoGravity:1b,Glowing:1b,PersistenceRequired:1b}
+1240	COMMAND	tp @s 1630.5 101 1630.5 0 0
+1260	ARTIFACT	light innate/energy_beam -1
+1320	COMMAND	data get entity @e[name=LightTarget,limit=1] Health
+1340	SCREENSHOT	partisan-energy-beam
+
+# Forcefield survives an overkill hit once, then breaks without spill-through.
+1380	COMMAND	data merge entity @s {Health:20.0f}
+1400	ARTIFACT	light innate/forcefield -1
+1420	COMMAND	effect clear @s minecraft:resistance
+1440	COMMAND	damage @s 1000 minecraft:generic
+1460	COMMAND	data get entity @s Health
+1480	SCREENSHOT	partisan-forcefield-sacrifice
+1500	COMMAND	effect give @s minecraft:resistance 999999 255 true
+
+# Plant acceleration advances an exactly aimed crop.
+1540	COMMAND	setblock 1620 100 1620 minecraft:farmland
+1560	COMMAND	setblock 1620 101 1620 minecraft:wheat[age=0]
+1580	COMMAND	tp @s 1620.5 101 1617.5 0 28
+1600	ARTIFACT	light innate/plant_healing_acceleration -1
+1640	COMMAND	execute unless block 1620 101 1620 minecraft:wheat[age=0] run say PARTISAN_PLANT_GREW
+1660	SCREENSHOT	partisan-plant
+
+# Double Health toggles the exact vanilla maximum-health modifier.
+1700	COMMAND	attribute @s minecraft:max_health base set 20
+1720	ARTIFACT	light innate/double_health -1
+1740	COMMAND	attribute @s minecraft:max_health get
+1760	SCREENSHOT	partisan-double-health
+1780	ARTIFACT	light innate/double_health -1
+1800	COMMAND	attribute @s minecraft:max_health get
+
+# Routed Light crystal manifestations.
+1840	COMMAND	tp @s 1608.5 101 1608.5 0 90
+1860	ARTIFACT	light crystal/creativity_manifestation -1
+1900	COMMAND	execute if block 1606 101 1608 minecraft:orange_concrete run say PARTISAN_CREATION_PRESENT
+1920	SCREENSHOT	partisan-creativity
+1960	ARTIFACT	light crystal/life_bloom -1
+2000	COMMAND	data get entity @s active_effects
+2020	SCREENSHOT	partisan-life-bloom
+2060	ARTIFACT	light crystal/light_crystal -1
+2180	COMMAND	data get entity @s Dimension
+2200	SCREENSHOT	partisan-light-realm
+2240	ARTIFACT	light crystal/light_crystal -1
+2360	COMMAND	data get entity @s Dimension
+
+# Call Radiant summons four bounded allied sentinels.
+2400	COMMAND	tp @s 1640.5 101 1640.5 0 0
+2420	COMMAND	kill @e[type=powers:radiant_sentinel]
+2440	ARTIFACT	light dominion/call_radiant -1
+2480	COMMAND	execute if entity @e[type=powers:radiant_sentinel,distance=..16] run say PARTISAN_RADIANT_PRESENT
+2500	COMMAND	data get entity @e[type=powers:radiant_sentinel,sort=nearest,limit=1] Pos
+2520	SCREENSHOT	partisan-call-radiant
+
+# Consecrate Ground creates spreading Pure Light under the wielder.
+2560	ARTIFACT	light dominion/consecrate_ground -1
+2640	COMMAND	powers diagnose
+2660	SCREENSHOT	partisan-consecrate-ground
+
+# Covenant Chain binds a visible non-allied target.
+2700	COMMAND	kill @e[name=CovenantTarget]
+2720	COMMAND	powers testing actor spawn CovenantTarget
+2740	COMMAND	tp @e[name=CovenantTarget,limit=1] 1640.5 101 1645.5
+2760	COMMAND	data merge entity @e[name=CovenantTarget,limit=1] {NoAI:1b,NoGravity:1b,Glowing:1b,PersistenceRequired:1b}
+2780	COMMAND	tp @s 1640.5 101 1640.5 0 0
+2800	ARTIFACT	light dominion/covenant_chain -1
+2840	SCREENSHOT	partisan-covenant-chain
+
+# Daybreak Wave visibly harms and moves Darkness opposition.
+2880	COMMAND	tag @e[name=CovenantTarget,limit=1] add darkness
+2900	COMMAND	data get entity @e[name=CovenantTarget,limit=1] Health
+2920	ARTIFACT	light dominion/daybreak_wave -1
+2960	COMMAND	data get entity @e[name=CovenantTarget,limit=1] Health
+2980	COMMAND	data get entity @e[name=CovenantTarget,limit=1] Motion
+3000	SCREENSHOT	partisan-daybreak-wave
+
+# Heaven Gate opens a bounded loaded forward step.
+3040	COMMAND	tp @s 1640.5 101 1640.5 0 0
+3060	ARTIFACT	light dominion/heaven_gate -1
+3100	SCREENSHOT	partisan-heaven-gate
+
+# Solar Firmament starts one bounded persistent field.
+3140	ARTIFACT	light dominion/solar_firmament -1
+3180	COMMAND	powers diagnose
+3200	SCREENSHOT	partisan-solar-firmament
+
+# Second Dawn absorbs otherwise lethal damage and restores the wielder.
+3240	ARTIFACT	light dominion/second_dawn -1
+3260	COMMAND	effect clear @s minecraft:resistance
+3280	COMMAND	damage @s 1000 minecraft:generic
+3300	COMMAND	data get entity @s Health
+3320	SCREENSHOT	partisan-second-dawn
+3340	COMMAND	effect give @s minecraft:resistance 999999 255 true
+
+# Host Heaven combines elite summons, consecration, and a cosmic field.
+3380	ARTIFACT	light dominion/host_heaven -1
+3440	COMMAND	powers diagnose
+3460	COMMAND	data get entity @e[type=powers:radiant_sentinel,sort=nearest,limit=1] Health
+3480	SCREENSHOT	partisan-host-heaven
+3520	COMMAND	item replace entity @s weapon.mainhand with minecraft:air
+3560	COMMAND	powers diagnose
+3580	SCREENSHOT	partisan-complete

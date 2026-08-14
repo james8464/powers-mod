@@ -1,0 +1,32 @@
+# Isolates ordinary /powers return from the Shadow Sword commit-packet return path.
+300	CLOSE	screen
+320	COMMAND	powers testing on
+340	COMMAND	gamemode survival @s
+360	COMMAND	tag @s add darkness
+380	COMMAND	advancement grant @s through powers:darkness/level_10
+400	COMMAND	tp @s 3800.5 101 3800.5 0 0
+420	COMMAND	fill 3793 100 3793 3807 100 3807 minecraft:stone
+440	COMMAND	fill 3793 101 3793 3807 110 3807 minecraft:air
+460	COMMAND	fill 3793 100 3793 3807 100 3807 minecraft:stone
+480	COMMAND	tp @s 3800.5 101 3800.5 0 0
+500	COMMAND	effect give @s minecraft:resistance infinite 255 true
+520	COMMAND	item replace entity @s weapon.mainhand with powers:lycanbane
+540	COMMAND	data get entity @s SelectedItem
+560	COMMAND	data get entity @s Tags
+580	COMMAND	data get entity @s active_effects
+600	ARTIFACT	darkness crystal/light_crystal -1
+740	COMMAND	data get entity @s Dimension
+760	COMMAND	data get entity @s SelectedItem
+780	COMMAND	data get entity @s Tags
+800	COMMAND	data get entity @s active_effects
+820	COMMAND	powers diagnose
+840	COMMAND	powers return
+960	COMMAND	data get entity @s Dimension
+980	COMMAND	powers diagnose
+1020	ARTIFACT	darkness crystal/light_crystal -1
+1160	COMMAND	data get entity @s Dimension
+1180	COMMAND	data get entity @s SelectedItem
+1200	ARTIFACT	darkness crystal/light_crystal -1
+1340	COMMAND	data get entity @s Dimension
+1360	COMMAND	powers diagnose
+1380	SCREENSHOT	realm-return-probe-complete
