@@ -222,7 +222,7 @@ public final class LivingForceManager {
 			Map<Long, LivingForceKind> repaired = new java.util.LinkedHashMap<>();
 			for (Map.Entry<Long, LivingForceKind> entry : saved.frontier(dimension, chunkKey).entrySet()) {
 				BlockPos position = BlockPos.of(entry.getKey());
-				LivingForceKind actual = LivingForceKind.from(level.getBlockState(position));
+				LivingForceKind actual = LivingForceKind.from(chunk.getBlockState(position));
 				if (actual == null || !isFrontier(level, position, actual)) continue;
 				repaired.put(entry.getKey(), actual);
 				registerLoaded(level, position, actual);

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Prevented saved living-force frontier repair from re-entering Minecraft's chunk loader and watchdog-crashing a dedicated server when a force-heavy realm chunk reloads.
+- Made administrator dimension travel load its fixed arrival chunk with a bounded ticket and land at that dimension's terrain height instead of an unsafe hard-coded void coordinate.
 - Fixed `/powers travel` so full namespaced dimension IDs such as `minecraft:the_nether` are parsed as one destination argument.
 - Fixed realm-crystal mob lifecycle ownership so terrain or movement cannot strand a carried mob outside the two-block return recapture radius; body return, death, and stale-session cleanup now recall every loaded mob owned by that journey.
 - Fixed Blue Crystal Dreamwalking's spectator-mode exit: right-click now sends a dedicated authenticated release request, restores the physical body and original game mode, and cannot release another player's session.
