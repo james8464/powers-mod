@@ -1,0 +1,8 @@
+600	command	powers testing on
+620	command	gamemode creative
+640	command	tp AnchorCaster 0 101 0 0 0
+660	command	item replace entity AnchorCaster weapon.mainhand with powers:imported_book_grimoire_deep
+680	grimoire	book_grimoire_deep 0
+700	use	main
+800	screenshot	anchor-caster-applied
+860	command	powers diagnose
