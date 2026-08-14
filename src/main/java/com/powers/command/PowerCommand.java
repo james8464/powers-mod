@@ -126,9 +126,11 @@ public final class PowerCommand {
 				.then(TestingCommand.create())
 				.then(Commands.literal("travel")
 						.requires(source -> PermissionNodes.allows(source, PermissionCommandRoutes.forControl("travel")))
-						.then(Commands.argument("dimension", StringArgumentType.word())
+						.then(Commands.argument("dimension", dimensionArgument())
 								.executes(PowerCommand::travel))));
 	}
+
+	static StringArgumentType dimensionArgument() { return StringArgumentType.greedyString(); }
 
 	private static int resetShadowLearning(CommandContext<CommandSourceStack> context)
 			throws CommandSyntaxException {

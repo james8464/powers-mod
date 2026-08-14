@@ -338,7 +338,7 @@ Operator commands:
 /powers diagnose
 /powers diagnose export
 /powers shadow learning reset <player>
-/powers travel <dimension>
+/powers travel <namespaced-dimension>  # for example minecraft:the_nether
 ```
 
 Optional Fabric Permissions API providers may grant the independent nodes `powers.command.diagnose`, `powers.command.testing`, `powers.command.travel`, `powers.command.assign`, `powers.command.recover`, and `powers.command.boss`; without a provider, the configured vanilla operator tier remains authoritative.
