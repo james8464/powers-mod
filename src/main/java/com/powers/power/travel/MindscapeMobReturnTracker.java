@@ -26,7 +26,7 @@ public final class MindscapeMobReturnTracker {
 		SKIP_SHADOW
 	}
 
-	private record Origin(ServerLevel level, Vec3 position, float yRot, float xRot) {
+	private record Origin(UUID journeyOwner, ServerLevel level, Vec3 position, float yRot, float xRot) {
 	}
 
 	private static final Map<UUID, Origin> ORIGINS = new LinkedHashMap<>();
@@ -41,18 +41,36 @@ public final class MindscapeMobReturnTracker {
 		return TrackDecision.TRACK;
 	}
 
-	public static boolean track(LivingEntity entity) {
+	public static boolean track(UUID journeyOwner, LivingEntity entity) {
 		if (entity == null || trackDecision(entity.isAlive() && !entity.isRemoved(),
-				entity instanceof ServerPlayer, entity instanceof ShadowCompanionEntity) != TrackDecision.TRACK) {
+				entity instanceof ServerPlayer, entity instanceof ShadowCompanionEntity) != TrackDecision.TRACK
+				|| journeyOwner == null) {
 			return false;
 		}
 		while (ORIGINS.size() >= MAX_TRACKED) {
 			UUID eldest = ORIGINS.keySet().iterator().next();
 			ORIGINS.remove(eldest);
 		}
-		ORIGINS.put(entity.getUUID(), new Origin((ServerLevel) entity.level(), entity.position(),
+		ORIGINS.put(entity.getUUID(), new Origin(journeyOwner, (ServerLevel) entity.level(), entity.position(),
 				entity.getYRot(), entity.getXRot()));
 		return true;
+	}
+
+	/** Returns every ordinary mob carried by this caster's current mindscape journey. */
+	public static int returnOwned(UUID journeyOwner) {
+		if (journeyOwner == null) return 0;
+		java.util.List<UUID> owned = ORIGINS.entrySet().stream()
+				.filter(entry -> journeyOwner.equals(entry.getValue().journeyOwner()))
+				.map(Map.Entry::getKey)
+				.toList();
+		int requested = 0;
+		for (UUID entityId : owned) {
+			Origin origin = ORIGINS.get(entityId);
+			if (origin == null) continue;
+			LivingEntity current = find(origin.level().getServer(), entityId);
+			if (current != null && returnToOrigin(current)) requested++;
+		}
+		return requested;
 	}
 
 	public static boolean tracked(LivingEntity entity) {
@@ -89,6 +107,14 @@ public final class MindscapeMobReturnTracker {
 
 	public static int trackedCount() {
 		return ORIGINS.size();
+	}
+
+	/** Number of loaded or pending mob-return records owned by one realm traveller. */
+	public static int trackedCount(UUID journeyOwner) {
+		if (journeyOwner == null) return 0;
+		return (int) ORIGINS.values().stream()
+				.filter(origin -> journeyOwner.equals(origin.journeyOwner()))
+				.count();
 	}
 
 	public static void clear() {

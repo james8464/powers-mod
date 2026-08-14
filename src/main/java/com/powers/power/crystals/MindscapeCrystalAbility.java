@@ -106,6 +106,7 @@ public abstract class MindscapeCrystalAbility extends Ability {
 				MindscapeMobReturnTracker.returnToOrigin(subject);
 			}
 		}
+		MindscapeMobReturnTracker.returnOwned(caster.getUUID());
 		return BodyProxyManager.returnToBody(caster);
 	}
 
@@ -187,7 +188,7 @@ public abstract class MindscapeCrystalAbility extends Ability {
 						return;
 					}
 					startedPlayers.add(player);
-				} else if (MindscapeMobReturnTracker.track(subject)) {
+				} else if (MindscapeMobReturnTracker.track(caster.getUUID(), subject)) {
 					trackedMobs.add(subject);
 				}
 			}
