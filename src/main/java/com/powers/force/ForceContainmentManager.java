@@ -4,6 +4,9 @@ import com.powers.AmethystWardBlock;
 import com.powers.PowersBlocks;
 import com.powers.PowersParticles;
 import com.powers.fx.PowerFx;
+import com.powers.protection.PowerProtection;
+import com.powers.protection.PowerProtectionAdapters;
+import com.powers.util.BoundedRoundRobinQueue;
 import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
@@ -12,7 +15,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -20,15 +23,16 @@ import java.util.WeakHashMap;
 /** Progressively crystallises living force around completed powered ward ceremonies. */
 public final class ForceContainmentManager {
 	private static final int MAX_INSPECTIONS_PER_TICK = 256;
-	private static final Map<ServerLevel, LinkedHashMap<BlockPos, Task>> TASKS = new WeakHashMap<>();
+	private static final Map<ServerLevel, LaneState> TASKS = new WeakHashMap<>();
 
 	private ForceContainmentManager() {
 	}
 
 	public static void request(ServerLevel level, BlockPos ward) {
-		if (!isCeremony(level, ward)) return;
-		TASKS.computeIfAbsent(level, ignored -> new LinkedHashMap<>())
-				.putIfAbsent(ward.immutable(), new Task());
+		LaneState state = TASKS.computeIfAbsent(level, ignored -> new LaneState());
+		BlockPos key = ward.immutable();
+		if (state.tasks.containsKey(key)) return;
+		if (state.tasks.putIfAbsent(key, new Task()) == null) state.work.offer(key);
 	}
 
 	public static boolean isCeremony(ServerLevel level, BlockPos ward) {
@@ -46,22 +50,42 @@ public final class ForceContainmentManager {
 	}
 
 	public static void tick(MinecraftServer server) {
-		int remaining = MAX_INSPECTIONS_PER_TICK;
+		Map<BlockWorkBudget.Lane, ServerLevel> levelsByLane = new LinkedHashMap<>();
+		long providerPolicyId = PowerProtectionAdapters.blockWorkPolicyId();
 		for (ServerLevel level : server.getAllLevels()) {
-			LinkedHashMap<BlockPos, Task> tasks = TASKS.get(level);
-			if (tasks == null) continue;
-			Iterator<Map.Entry<BlockPos, Task>> iterator = tasks.entrySet().iterator();
-			while (iterator.hasNext() && remaining > 0) {
-				Map.Entry<BlockPos, Task> entry = iterator.next();
-				if (!isCeremony(level, entry.getKey())) {
-					iterator.remove();
-					continue;
-				}
-				remaining -= advance(level, entry.getKey(), entry.getValue(), remaining);
-				if (entry.getValue().complete()) iterator.remove();
+			LaneState state = TASKS.get(level);
+			if (state == null) continue;
+			if (state.tasks.isEmpty()) {
+				TASKS.remove(level);
+				continue;
 			}
-			if (tasks.isEmpty()) TASKS.remove(level);
-			if (remaining <= 0) break;
+			levelsByLane.put(new BlockWorkBudget.Lane(
+					level.dimension().identifier().toString(), providerPolicyId), level);
+		}
+		Map<BlockWorkBudget.Lane, Integer> allowances = BlockWorkBudget.allocate(
+				MAX_INSPECTIONS_PER_TICK, levelsByLane.keySet(), server.getTickCount());
+		for (Map.Entry<BlockWorkBudget.Lane, Integer> lane : allowances.entrySet()) {
+			ServerLevel level = levelsByLane.get(lane.getKey());
+			LaneState state = TASKS.get(level);
+			if (state == null || lane.getValue() <= 0) continue;
+			advanceBounded(level, state, lane.getValue());
+			if (state.tasks.isEmpty()) TASKS.remove(level);
+		}
+	}
+
+	private static void advanceBounded(ServerLevel level, LaneState state, int allowance) {
+		for (int slot = 0; slot < allowance; slot++) {
+			BlockPos ward = state.work.poll();
+			if (ward == null) return;
+			Task task = state.tasks.get(ward);
+			if (task == null) continue;
+			if (!isCeremony(level, ward)) {
+				state.tasks.remove(ward);
+				continue;
+			}
+			advance(level, ward, task, 1);
+			if (task.complete()) state.tasks.remove(ward);
+			else state.work.offer(ward);
 		}
 	}
 
@@ -76,6 +100,7 @@ public final class ForceContainmentManager {
 			if (!LoadedChunks.contains(level, target)) continue;
 			LivingForceKind kind = LivingForceKind.from(level.getBlockState(target));
 			if (kind == null) continue;
+			if (!PowerProtection.mayAffectBlock(level, target)) continue;
 			level.setBlock(target, Blocks.AMETHYST_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
 			LivingForceManager.unregister(level, target);
 			if (visuals++ < 8) {
@@ -94,7 +119,7 @@ public final class ForceContainmentManager {
 	}
 
 	public static Diagnostics diagnostics() {
-		return new Diagnostics(TASKS.values().stream().mapToInt(Map::size).sum(),
+		return new Diagnostics(TASKS.values().stream().mapToInt(state -> state.tasks.size()).sum(),
 				MAX_INSPECTIONS_PER_TICK);
 	}
 
@@ -111,5 +136,10 @@ public final class ForceContainmentManager {
 		private boolean complete() {
 			return cursor >= ForceContainmentRules.sphere().size();
 		}
+	}
+
+	private static final class LaneState {
+		private final Map<BlockPos, Task> tasks = new HashMap<>();
+		private final BoundedRoundRobinQueue<BlockPos> work = new BoundedRoundRobinQueue<>();
 	}
 }
