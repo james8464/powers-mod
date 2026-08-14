@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Kept artifact-started multi-tick powers alive while their authorised Shadow Sword or Heavenly Partisan remains in top-level inventory, and made item removal, lost alignment, death, logout, or shutdown end them safely without retaining player/world references.
+- Made server-owned survival Flight compatible with vanilla `allow-flight=false` without creative-flight flags, added exact client-camera direction and artifact-coordinate travel to the acceptance harness, and expanded the live suite to 83 GameTests with artifact Astral Projection and aimed Partisan combat coverage.
 - Prevented saved living-force frontier repair from re-entering Minecraft's chunk loader and watchdog-crashing a dedicated server when a force-heavy realm chunk reloads.
 - Made administrator dimension travel load its fixed arrival chunk with a bounded ticket and land at that dimension's terrain height instead of an unsafe hard-coded void coordinate.
 - Fixed `/powers travel` so full namespaced dimension IDs such as `minecraft:the_nether` are parsed as one destination argument.

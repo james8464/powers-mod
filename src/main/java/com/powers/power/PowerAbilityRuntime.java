@@ -78,7 +78,7 @@ public final class PowerAbilityRuntime {
 			case "starfall" -> StarfallAbility.clear(server, owner);
 			case "super_speed" -> SuperSpeedAbility.clear(server, owner);
 			case "vessel_possession" -> VesselPossessionAbility.clear(player);
-			case "astral_projection" -> AstralProjectionAbility.clear(owner);
+			case "astral_projection" -> AstralProjectionAbility.clear(server, owner);
 			case "speed_burst" -> SpeedBurstAbility.clear(owner);
 			case "energy_beam" -> EnergyBeamAbility.clear(owner);
 			case "void_beam" -> VoidBeamAbility.clear(owner);
@@ -104,7 +104,7 @@ public final class PowerAbilityRuntime {
 		StarfallAbility.clear(server, owner);
 		SuperSpeedAbility.clear(server, owner);
 		VesselPossessionAbility.clear(player);
-		AstralProjectionAbility.clear(owner);
+		AstralProjectionAbility.clear(server, owner);
 		DreamwalkingAbility.clear(player);
 		InfernoAbility.clear(owner);
 		SoulLinkAbility.clear(owner);
@@ -138,7 +138,7 @@ public final class PowerAbilityRuntime {
 		StarfallAbility.clearAll(server);
 		SuperSpeedAbility.clearAll(server);
 		VesselPossessionAbility.clearAll();
-		AstralProjectionAbility.clearAll();
+		AstralProjectionAbility.clearAll(server);
 		EnergyDrainAbility.clearAll();
 		CrystalPowerRegistry.clearAllSelections();
 		EntityFreezeController.clearAll();

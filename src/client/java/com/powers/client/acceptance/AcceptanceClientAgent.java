@@ -116,6 +116,15 @@ public final class AcceptanceClientAgent {
 				ClientPlayNetworking.send(new ShadowSwordPackets.CommitPayload(
 						values[0], values[1], Integer.parseInt(values[2])));
 			}
+			case ARTIFACT_TELEPORT -> {
+				String[] values = step.argument().split(" ");
+				Identifier dimension = Identifier.parse(values[4]);
+				ClientPlayNetworking.send(new ShadowSwordPackets.TeleportPayload(
+						values[0], Double.parseDouble(values[1]), Double.parseDouble(values[2]),
+						Double.parseDouble(values[3]),
+						ResourceKey.create(Registries.DIMENSION, dimension),
+						values[5].equals("self") ? "" : values[5]));
+			}
 			case TELEPORT -> {
 				String[] values = step.argument().split(" ");
 				Identifier dimension = Identifier.parse(values[4]);
@@ -137,10 +146,24 @@ public final class AcceptanceClientAgent {
 				}
 			}
 			case KEY -> setMovementKey(client, step.argument());
+			case LOOK -> setLook(client, step.argument());
 			case SCREENSHOT -> Screenshot.grab(client, false);
 		}
 		PowersMod.LOGGER.info("QA client role={} executed {} [{}] at connected tick {}",
 				CONFIG.role(), step.operation(), step.argument(), connectedTicks);
+	}
+
+	private static void setLook(Minecraft client, String argument) {
+		if (client.player == null) return;
+		String[] values = argument.split(" ");
+		float yaw = Float.parseFloat(values[0]);
+		float pitch = Float.parseFloat(values[1]);
+		client.player.setYRot(yaw);
+		client.player.setXRot(pitch);
+		client.player.setYHeadRot(yaw);
+		client.player.setYBodyRot(yaw);
+		client.player.yRotO = yaw;
+		client.player.xRotO = pitch;
 	}
 
 	private static void setMovementKey(Minecraft client, String argument) {

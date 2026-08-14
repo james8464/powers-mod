@@ -161,7 +161,8 @@ public final class ArtifactWeaponManager {
 	/** Revalidates a multi-tick artifact invocation without emitting per-tick feedback. */
 	public static boolean maySustain(ServerPlayer player, ArtifactAlignment alignment) {
 		return player != null && ArtifactAuthorizationRules.maySustain(
-				MagicUseGate.ongoingAllowed(player), holds(player, alignment), authorized(player, alignment));
+				MagicUseGate.ongoingAllowed(player), carries(player, alignment),
+				authorized(player, alignment));
 	}
 
 	public static ArtifactAlignment alignment(ItemStack stack) {

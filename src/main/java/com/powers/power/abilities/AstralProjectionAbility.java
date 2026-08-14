@@ -5,9 +5,13 @@ import com.powers.fx.PowerFx;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
 import com.powers.mind.BodyReturnFallbackRules;
+import com.powers.magic.runtime.CastScalingContext;
+import com.powers.magic.runtime.CastSource;
+import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.MagicUseGate;
+import com.powers.power.Power;
 import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -20,6 +24,7 @@ import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,17 +35,18 @@ import java.util.UUID;
  * untouchable ghost, yanked back if you drift more than 150 blocks from home.
  */
 public class AstralProjectionAbility extends Ability {
+	private static final Identifier POWER_ID = PowersMod.id("astral_projection");
 	// 30 seconds as a ghost
 	private static final int DURATION = 600;
 	// leash radius in blocks
 	private static final double RADIUS = 150.0;
 	private static final Map<UUID, Projection> ACTIVE = new HashMap<>();
 
-	private record Projection(ServerPlayer player, ResourceKey<Level> dimension, Vec3 origin,
-			GameType gameMode, long endsAt, double radius) {}
+	private record Projection(ResourceKey<Level> dimension, Vec3 origin,
+			GameType gameMode, CastSource castSource, long endsAt, double radius) {}
 
 	public AstralProjectionAbility() {
-		super(PowersMod.id("astral_projection"),
+		super(POWER_ID,
 				Component.translatable("ability.powers.astral_projection"), 0, false);
 	}
 
@@ -55,8 +61,10 @@ public class AstralProjectionAbility extends Ability {
 		ServerLevel level = (ServerLevel) player.level();
 		Vec3 origin = player.position();
 		if (!BodyProxyManager.start(player, BodyProxyKind.ASTRAL)) return false;
-		Projection projection = new Projection(player, level.dimension(), origin, player.gameMode(),
-				level.getServer().getTickCount() + scaledDuration(player, DURATION), scaledRange(player, RADIUS));
+		Projection projection = new Projection(level.dimension(), origin, player.gameMode(),
+				CastScalingContext.currentSource(),
+				level.getServer().getTickCount() + scaledDuration(player, DURATION),
+				scaledRange(player, RADIUS));
 		ACTIVE.put(player.getUUID(), projection);
 		player.setGameMode(GameType.SPECTATOR);
 		player.teleport(new TeleportTransition(level,
@@ -85,10 +93,12 @@ public class AstralProjectionAbility extends Ability {
 		for (var it = ACTIVE.entrySet().iterator(); it.hasNext();) {
 			var entry = it.next();
 			Projection projection = entry.getValue();
-			ServerPlayer player = projection.player();
-			if (!MagicUseGate.ongoingAllowed(player)) {
-				// a dead ghost would otherwise stay stuck in spectator forever
-				if (player != null) player.setGameMode(projection.gameMode());
+			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
+			boolean sourceOwned = player != null && ServerCastLifecycle.mayContinue(
+					player, projection.castSource(), ownsPower(player));
+			if (!MagicUseGate.ongoingAllowed(player) || !sourceOwned) {
+				if (player != null && player.isAlive()) end(player, projection);
+				else if (player != null) BodyProxyManager.discardOnDeath(player);
 				it.remove();
 				continue;
 			}
@@ -133,16 +143,27 @@ public class AstralProjectionAbility extends Ability {
 		PowerMessages.send(player, "ability.powers.astral_ended", 3);
 	}
 
-	public static void clear(UUID player) {
+	public static void clear(MinecraftServer server, UUID player) {
 		Projection projection = ACTIVE.remove(player);
-		if (projection != null && projection.player().isAlive()) end(projection.player(), projection);
-		else if (projection != null) BodyProxyManager.discardOnDeath(projection.player());
+		if (projection == null) return;
+		ServerPlayer owner = server.getPlayerList().getPlayer(player);
+		if (owner != null && owner.isAlive()) end(owner, projection);
+		else if (owner != null) BodyProxyManager.discardOnDeath(owner);
 	}
 
-	public static void clearAll() {
-		for (Projection projection : ACTIVE.values()) {
-			if (projection.player().isAlive()) end(projection.player(), projection);
+	public static void clearAll(MinecraftServer server) {
+		for (UUID player : java.util.List.copyOf(ACTIVE.keySet())) {
+			clear(server, player);
 		}
 		ACTIVE.clear();
+	}
+
+	private static boolean ownsPower(ServerPlayer player) {
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		for (int slot = 0; slot < PlayerPowers.SLOT_COUNT; slot++) {
+			Power power = data.getPower(slot);
+			if (power != null && POWER_ID.equals(power.id())) return true;
+		}
+		return false;
 	}
 }

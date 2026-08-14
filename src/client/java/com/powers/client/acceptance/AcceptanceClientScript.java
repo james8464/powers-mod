@@ -8,7 +8,7 @@ import java.util.Locale;
 public final class AcceptanceClientScript {
 	public enum Operation {
 		COMMAND, CHAT, ACTIVATE, SELECT, USE, ATTACK, GRIMOIRE, CRYSTAL, ARTIFACT,
-		TELEPORT, RESPAWN, CLOSE, LOCATOR, KEY, SCREENSHOT
+		ARTIFACT_TELEPORT, TELEPORT, RESPAWN, CLOSE, LOCATOR, KEY, LOOK, SCREENSHOT
 	}
 
 	public record Step(int tick, Operation operation, String argument) {
@@ -88,6 +88,19 @@ public final class AcceptanceClientScript {
 				validateIdentifier(values[1], lineNumber, "action");
 				parseBoundedInteger(values[2], -1, 255, lineNumber, "option");
 			}
+			case ARTIFACT_TELEPORT -> {
+				String[] values = argument.split(" ");
+				if (values.length != 6 || !(values[0].equals("light")
+						|| values[0].equals("darkness"))) {
+					throw malformed(lineNumber,
+							"artifact teleport needs alignment, x, y, z, dimension and target");
+				}
+				parseFiniteDouble(values[1], lineNumber, "x");
+				parseFiniteDouble(values[2], lineNumber, "y");
+				parseFiniteDouble(values[3], lineNumber, "z");
+				validateIdentifier(values[4], lineNumber, "dimension");
+				validateIdentifier(values[5], lineNumber, "target");
+			}
 			case TELEPORT -> {
 				String[] values = argument.split(" ");
 				if (values.length != 5) {
@@ -111,6 +124,12 @@ public final class AcceptanceClientScript {
 						|| values[0].equals("sprint"))) {
 					throw malformed(lineNumber, "key needs a supported movement name and on/off state");
 				}
+			}
+			case LOOK -> {
+				String[] values = argument.split(" ");
+				if (values.length != 2) throw malformed(lineNumber, "look needs yaw and pitch");
+				parseBoundedDouble(values[0], -180.0, 180.0, lineNumber, "yaw");
+				parseBoundedDouble(values[1], -90.0, 90.0, lineNumber, "pitch");
 			}
 			case CLOSE -> {
 				if (!argument.equals("screen")) throw malformed(lineNumber,
@@ -155,6 +174,15 @@ public final class AcceptanceClientScript {
 		} catch (NumberFormatException exception) {
 			throw malformed(lineNumber, field + " is not a number");
 		}
+	}
+
+	private static double parseBoundedDouble(String value, double minimum, double maximum,
+			int lineNumber, String field) {
+		double parsed = parseFiniteDouble(value, lineNumber, field);
+		if (parsed < minimum || parsed > maximum) {
+			throw malformed(lineNumber, field + " is out of range");
+		}
+		return parsed;
 	}
 
 	private static IllegalArgumentException malformed(int lineNumber, String reason) {
