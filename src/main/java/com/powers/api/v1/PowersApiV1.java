@@ -7,6 +7,6 @@ public interface PowersApiV1 {
 	RegistrationResult registerProtectionService(ProtectionService service);
 	RegistrationResult registerLifecycleHook(LifecycleHook hook);
 	CastContext castContext(net.minecraft.server.level.ServerPlayer actor, String registeredActionId);
-	PresenceHandle registerPresence(PhysicalPresence presence);
+	PresenceHandle registerPresence(CastContext context, PhysicalPresence presence);
 	boolean removePresence(PresenceHandle handle);
 }

@@ -73,6 +73,7 @@ final class PowersServerLifecycle {
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> PowersApiRuntime.global().stopServer());
 		ServerLifecycleEvents.SERVER_STARTED.register(com.powers.util.ServerCallbackGate::bind);
 		ServerLifecycleEvents.SERVER_STARTING.register(PowersApiRuntime.global()::startServer);
+		ServerLifecycleEvents.SERVER_STARTED.register(PowersApiRuntime.global()::serverStarted);
 		ServerLifecycleEvents.SERVER_STARTED.register(GlobalTimeStopManager::reconcileStartup);
 		ServerLifecycleEvents.SERVER_STOPPED.register(PowersServerLifecycle::onServerStopped);
 		ServerChunkEvents.CHUNK_LOAD.register((level, chunk, newlyGenerated) ->

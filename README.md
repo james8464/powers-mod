@@ -31,7 +31,9 @@ Fabric entrypoint key `powers:v1`. API version `1.0` registers semantic actions 
 collision catalogue, fixed physical presences into the live spatial runtime, unanimous fail-closed
 protection services, authoritative cast contexts, and server lifecycle hooks. Registration is
 deterministic and closes before `SERVER_STARTED`; all mutation is server-thread-only and every
-extension registration is removed at server stop. See [API v1 integration](docs/development/integration-api-v1.md)
+extension registration is removed at server stop. Physical presences require one-shot live-player
+cast authority and pass range, lifetime, safe-zone, protection, collision, energy, cooldown, and work
+budgets before commit. See [API v1 integration](docs/development/integration-api-v1.md)
 and the independently compiled `src/exampleExtension` compatibility mod.
 
 ## First awakening and controls
