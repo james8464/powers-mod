@@ -111,6 +111,15 @@ def client_command(java: Path, launch_config: Path, argument_file: Path,
     ]
 
 
+def arena_setup_commands() -> tuple[str, str, str]:
+    """Reset each reconnect to an open, loaded arena before spawning test entities."""
+    return (
+        "execute in minecraft:overworld run teleport SoakClient 0.5 100 0.5 0 0",
+        "execute at SoakClient run fill ~-12 ~ ~-12 ~12 ~8 ~12 minecraft:air",
+        "execute at SoakClient run fill ~-12 ~-1 ~-12 ~12 ~-1 ~12 minecraft:stone",
+    )
+
+
 def should_echo(line: str, quiet: bool) -> bool:
     """Keep long acceptance runs readable without removing their stored raw logs."""
     if not quiet:
@@ -276,7 +285,8 @@ def one_cycle(runtime: Path, cycle_seconds: int, boot_timeout: int, index: int,
             if ready_at is not None and connected_at is None and now - ready_at > boot_timeout:
                 raise TimeoutError("SoakClient did not connect")
             if connected_at is not None and not setup_sent:
-                send(process, "execute at SoakClient run fill ~-8 ~-1 ~-8 ~8 ~-1 ~8 minecraft:stone")
+                for command in arena_setup_commands():
+                    send(process, command)
                 send(process, "execute as SoakClient run powers testing on")
                 send(process, f"powers testing soak verify {index}")
                 send(process, f"powers testing soak seed {index}")

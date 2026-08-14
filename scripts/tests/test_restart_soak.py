@@ -34,6 +34,14 @@ class RestartSoakPolicyTest(unittest.TestCase):
         self.assertIn("powers.qa.script=/restart-soak-client.tsv", rendered)
         self.assertIn("--gameDir /runtime/client", rendered)
 
+    def test_each_reconnect_gets_a_deterministic_open_summoning_arena(self):
+        commands = SOAK.arena_setup_commands()
+        self.assertEqual(
+            "execute in minecraft:overworld run teleport SoakClient 0.5 100 0.5 0 0",
+            commands[0])
+        self.assertIn("minecraft:air", commands[1])
+        self.assertIn("minecraft:stone", commands[2])
+
     def test_duration_is_an_exact_number_of_complete_cycles(self):
         self.assertEqual(288, SOAK.required_cycle_count(24 * 3600, 300))
         self.assertEqual(4, SOAK.required_cycle_count(36, 10))

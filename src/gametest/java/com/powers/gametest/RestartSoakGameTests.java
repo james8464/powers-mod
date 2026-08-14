@@ -19,7 +19,7 @@ public final class RestartSoakGameTests {
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level player fixture.
 	public void seedsSettlesAndPersistsEveryRuntimeOwner(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
-		BlockPos origin = helper.absolutePos(new BlockPos(4, 3, 4));
+		BlockPos origin = helper.absolutePos(new BlockPos(4, 20, 4));
 		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
 		helper.getLevel().setBlock(origin.below(), Blocks.STONE.defaultBlockState(), Block.UPDATE_ALL);
 		var seeded = RestartSoakScenario.seed(player, 1);

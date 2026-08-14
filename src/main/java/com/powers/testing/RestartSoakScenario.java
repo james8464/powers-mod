@@ -100,6 +100,7 @@ public final class RestartSoakScenario {
 				PowersMod.id("flight").toString()));
 		ServerLevel level = (ServerLevel) player.level();
 		BlockPos origin = player.blockPosition();
+		placeSummonPad(level, origin, state);
 		placeForceCage(level, origin.offset(14, 0, 0), PowersBlocks.DARKNESS, state);
 		placeForceCage(level, origin.offset(-14, 0, 0), PowersBlocks.PURE_LIGHT, state);
 		SpellFieldManager.add(SpellFieldKind.SANCTUARY, player, SETTLE_TICKS, 3.0, 1);
@@ -204,6 +205,17 @@ public final class RestartSoakScenario {
 			rememberAndSet(level, center.relative(direction), Blocks.BEDROCK.defaultBlockState(), state);
 		}
 		rememberAndSet(level, center, force.defaultBlockState(), state);
+	}
+
+	private static void placeSummonPad(ServerLevel level, BlockPos center, State state) {
+		for (int x = -6; x <= 6; x++) {
+			for (int z = -6; z <= 6; z++) {
+				BlockPos floor = center.offset(x, -1, z);
+				if (level.getBlockState(floor).isAir()) {
+					rememberAndSet(level, floor, Blocks.STONE.defaultBlockState(), state);
+				}
+			}
+		}
 	}
 
 	private static void rememberAndSet(ServerLevel level, BlockPos position, BlockState replacement,
