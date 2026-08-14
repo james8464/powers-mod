@@ -76,6 +76,18 @@ public final class CelestialLocatorScreen extends Screen {
 		choose(targetNameField.getValue());
 	}
 
+	/**
+	 * Drives the rendered locator during development acceptance runs. The screen
+	 * still submits its server-issued nonce through the normal selection path.
+	 */
+	public boolean submitAcceptanceTarget(String targetName) {
+		if (targetNameField == null || targetName == null || targetName.isBlank()
+				|| targetName.length() > 64) return false;
+		targetNameField.setValue(targetName);
+		chooseTyped();
+		return true;
+	}
+
 	private void choose(String targetName) {
 		String normalized = targetName.trim();
 		if (normalized.isEmpty()) return;

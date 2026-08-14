@@ -1,6 +1,7 @@
 package com.powers.client.acceptance;
 
 import com.powers.PowersMod;
+import com.powers.client.screen.CelestialLocatorScreen;
 import com.powers.network.PowersPackets;
 import com.powers.network.CrystalSelectorPackets;
 import com.powers.network.GrimoirePackets;
@@ -111,6 +112,13 @@ public final class AcceptanceClientAgent {
 			}
 			case RESPAWN -> connection.send(new ServerboundClientCommandPacket(
 					ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
+			case LOCATOR -> {
+				if (!(client.gui.screen() instanceof CelestialLocatorScreen locator)
+						|| !locator.submitAcceptanceTarget(step.argument())) {
+					PowersMod.LOGGER.error("QA client role={} could not submit locator input [{}]",
+							CONFIG.role(), step.argument());
+				}
+			}
 			case SCREENSHOT -> Screenshot.grab(client, false);
 		}
 		PowersMod.LOGGER.info("QA client role={} executed {} [{}] at connected tick {}",
