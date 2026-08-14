@@ -26,7 +26,7 @@ public class DoubleHealthAbility extends ToggleAbility {
 	@Override
 	public boolean activateToggleOn(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		float oldMaximum = player.getMaxHealth();
-		applyModifier(player, innateLevel(player).capacityMultiplier());
+		applyModifier(player, healthMultiplier(player));
 		long now = player.level().getServer().getTickCount();
 		if (now >= data.cooldownReadyAt(HEAL_LOCK)) {
 			player.setHealth(player.getHealth() + healToCap(
@@ -62,7 +62,13 @@ public class DoubleHealthAbility extends ToggleAbility {
 
 	@Override
 	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		applyModifier(player, innateLevel(player).capacityMultiplier());
+		applyModifier(player, healthMultiplier(player));
+	}
+
+	private double healthMultiplier(ServerPlayer player) {
+		// The named baseline is always a second vanilla heart row; rank mastery
+		// then grows the authored capacity profile beyond that useful minimum.
+		return Math.max(2.0, innateLevel(player).capacityMultiplier());
 	}
 
 	private static void applyModifier(ServerPlayer player, double healthMultiplier) {

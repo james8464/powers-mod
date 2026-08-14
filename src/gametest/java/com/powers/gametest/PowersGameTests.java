@@ -89,6 +89,54 @@ public final class PowersGameTests {
 
 	@GameTest
 	@SuppressWarnings("removal")
+	public void innateSizeMorphActivationTogglesScaleBackToNormal(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		var data = com.powers.player.PlayerPowers.get(player);
+		var ability = new com.powers.power.abilities.SizeMorphAbility();
+		data.setSizeMorphOption(1);
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+				player, ability, ability.id().toString())
+				== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+				"Size Morphing did not activate through the authoritative pipeline");
+		helper.assertTrue(player.getScale() < 0.75F,
+				"Size Morphing did not apply the selected half-scale body");
+		helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+				player, ability, ability.id().toString())
+				== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+				"Size Morphing did not deactivate through the authoritative pipeline");
+		helper.assertTrue(Math.abs(player.getScale() - 1.0F) < 0.001F,
+				"Size Morphing retained its scale after toggle-off");
+		TestingOverrides.clear(player.getUUID());
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
+	public void doubleHealthHasARealBaselineAndCleansUpOnToggleOff(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		var data = com.powers.player.PlayerPowers.get(player);
+		var ability = new com.powers.power.abilities.DoubleHealthAbility();
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		float baseline = player.getMaxHealth();
+		helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+				player, ability, ability.id().toString())
+				== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+				"Double Health did not activate through the authoritative pipeline");
+		helper.assertTrue(player.getMaxHealth() >= baseline * 2.0F,
+				"Double Health did not provide its promised baseline second heart row");
+		helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+				player, ability, ability.id().toString())
+				== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+				"Double Health did not deactivate through the authoritative pipeline");
+		helper.assertTrue(Math.abs(player.getMaxHealth() - baseline) < 0.001F,
+				"Double Health retained its modifier after toggle-off");
+		TestingOverrides.clear(player.getUUID());
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
 	public void rankReconciliationPreservesForeignAttributeOwners(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		var foreignId = net.minecraft.resources.Identifier.fromNamespaceAndPath("example_mod", "persistent_buff");

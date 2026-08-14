@@ -82,7 +82,7 @@ Random assignment guarantees one allegiance-exclusive option and never duplicate
 | Energy Drain | Two-second channel. Players lose energy and receive hidden-particle Exhaustion; mobs take repeated percentage-health damage plus a capped completion strike; the caster refills. |
 | Ice Manipulation | Freezing ray that harms/freezes targets, water to ice, lava to obsidian, and protected snow placement. |
 | Plant & Healing Acceleration | Normal use grows an aimed bonemealable plant. Crouching emits a zero-cooldown heal for the caster and injured players in an inclusive two-block radius. |
-| Double Health | Owned maximum-health toggle, continuous drain, proportional cleanup, a clear extra-heart-row pulse, heal-to-cap rules, anti-toggle healing lock, and no removal of unrelated attribute modifiers. |
+| Double Health | Owned maximum-health toggle with a real 2× baseline that grows to the authored 6× rank-10 capacity, continuous drain, proportional cleanup, a clear extra-heart-row pulse, heal-to-cap rules, anti-toggle healing lock, and no removal of unrelated attribute modifiers. |
 
 Every innate has authored transformations at ranks 3, 6, 9, and 10 rather than only generic percentages. The exact 253 level profiles, capstone damage/range/duration, destruction tier, capacity, and transformation names are in [Innate power levels](docs/gameplay/innate-levels.md).
 
