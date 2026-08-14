@@ -1,0 +1,71 @@
+# Exact-build isolation for the routed innate results whose broad-run samples were ambiguous.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	gamemode survival @s
+110	COMMAND	effect give @s minecraft:resistance 999999 255 true
+120	COMMAND	tp @s 950.5 101 950.5 0 0
+140	COMMAND	fill 934 100 934 966 100 966 minecraft:stone
+150	COMMAND	fill 934 101 934 966 116 966 minecraft:air
+160	COMMAND	tag @s add darkness
+170	COMMAND	advancement grant @s through powers:darkness/level_10
+180	COMMAND	item replace entity @s weapon.mainhand with powers:lycanbane
+
+# Breezy Bash: observe the initial lift and the authored apex-to-slam transition.
+210	COMMAND	kill @e[type=minecraft:husk]
+220	COMMAND	summon minecraft:husk 950.5 101 954.5 {NoAI:1b,NoGravity:1b,PersistenceRequired:1b}
+230	LOOK	0 0
+250	ARTIFACT	darkness innate/breezy_bash -1
+252	COMMAND	data get entity @e[type=minecraft:husk,sort=nearest,limit=1] Motion
+260	COMMAND	data get entity @e[type=minecraft:husk,sort=nearest,limit=1] Pos
+269	COMMAND	data get entity @e[type=minecraft:husk,sort=nearest,limit=1] Motion
+275	SCREENSHOT	dark-artifact-breezy-isolated
+
+# Removing and restoring the weapon cancels the previous rite before Gravity Repel starts.
+310	COMMAND	item replace entity @s weapon.mainhand with minecraft:air
+330	COMMAND	kill @e[type=minecraft:husk]
+350	COMMAND	summon minecraft:husk 950.5 101 954.5 {NoAI:1b,NoGravity:1b,PersistenceRequired:1b}
+360	COMMAND	item replace entity @s weapon.mainhand with powers:lycanbane
+370	LOOK	0 0
+390	ARTIFACT	darkness innate/gravity_displacement 2
+392	COMMAND	data get entity @e[type=minecraft:husk,sort=nearest,limit=1] Motion
+400	COMMAND	data get entity @e[type=minecraft:husk,sort=nearest,limit=1] Pos
+420	COMMAND	data get entity @e[type=minecraft:husk,sort=nearest,limit=1] Motion
+430	SCREENSHOT	dark-artifact-gravity-isolated
+
+# End the field, then possess an ordinary mob with no competing control claim.
+470	COMMAND	item replace entity @s weapon.mainhand with minecraft:air
+500	COMMAND	kill @e[type=minecraft:husk]
+520	COMMAND	summon minecraft:husk 950.5 101 954.5 {NoAI:1b,NoGravity:1b,PersistenceRequired:1b}
+530	COMMAND	item replace entity @s weapon.mainhand with powers:lycanbane
+540	LOOK	0 0
+560	ARTIFACT	darkness innate/vessel_possession -1
+580	COMMAND	data get entity @s playerGameType
+590	COMMAND	powers diagnose
+600	SCREENSHOT	dark-artifact-possession-isolated
+630	USE	main
+660	COMMAND	data get entity @s playerGameType
+670	COMMAND	powers diagnose
+
+# Aim at the crop rather than the supporting floor and prove that its age changes.
+710	COMMAND	kill @e[type=minecraft:husk]
+720	COMMAND	setblock 950 100 954 minecraft:farmland
+730	COMMAND	setblock 950 101 954 minecraft:wheat[age=0]
+740	COMMAND	tp @s 950.5 101 950.5 0 21.5
+750	LOOK	0 21.5
+770	ARTIFACT	darkness innate/plant_healing_acceleration -1
+790	COMMAND	data get block 950 101 954
+800	COMMAND	execute unless block 950 101 954 minecraft:wheat[age=0] run say DARK_ARTIFACT_PLANT_GREW
+810	SCREENSHOT	dark-artifact-plant-isolated
+
+# Capture Speed Burst immediately and after travel on a clear runway.
+850	COMMAND	tp @s 950.5 101 950.5 0 0
+860	LOOK	0 0
+880	ARTIFACT	darkness innate/speed_burst -1
+881	COMMAND	data get entity @s Motion
+890	COMMAND	data get entity @s Pos
+910	COMMAND	data get entity @s Pos
+920	SCREENSHOT	dark-artifact-speed-burst-isolated
+
+950	COMMAND	item replace entity @s weapon.mainhand with minecraft:air
+990	COMMAND	powers diagnose
+1000	SCREENSHOT	dark-artifact-ambiguities-complete

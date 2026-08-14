@@ -1,0 +1,481 @@
+[06:16:28] [main/INFO] (FabricLoader/GameProvider) Loading Minecraft 26.2 with Fabric Loader 0.19.3
+[06:16:28] [main/INFO] (FabricLoader/Mappings) Mappings not present!
+[06:16:28] [main/INFO] (FabricLoader) Loading 51 mods:
+	- fabric-api 0.156.0+26.2
+	- fabric-api-base 2.0.4+ece063239e
+	- fabric-api-lookup-api-v1 2.0.17+11e1c9a39e
+	- fabric-biome-api-v1 18.0.6+c7bd5b8e9e
+	- fabric-block-api-v1 3.0.3+ec56b6019e
+	- fabric-block-getter-api-v2 2.0.7+ec56b6019e
+	- fabric-client-gametest-api-v1 6.0.0+515ac5339e
+	- fabric-command-api-v2 3.1.0+00cb03469e
+	- fabric-content-registries-v0 11.3.0+d0a699d09e
+	- fabric-convention-tags-v2 4.7.0+1f023a9e9e
+	- fabric-crash-report-info-v1 1.0.5+086d547a9e
+	- fabric-creative-tab-api-v1 5.0.14+d871b99e9e
+	- fabric-data-attachment-api-v1 2.2.18+515ac5339e
+	- fabric-data-generation-api-v1 25.5.0+aed122aa9e
+	- fabric-debug-api-v1 1.0.2+c792624d9e
+	- fabric-dimensions-v1 5.1.11+515ac5339e
+	- fabric-entity-events-v1 5.0.5+06488ac19e
+	- fabric-events-interaction-v0 5.2.7+515ac5339e
+	- fabric-game-rule-api-v1 4.0.8+46a6d00c9e
+	- fabric-gametest-api-v1 4.0.21+4a7fa0819e
+	- fabric-item-api-v1 14.4.0+49a69a7b9e
+	- fabric-key-mapping-api-v1 2.0.5+e2bdee789e
+	- fabric-lifecycle-events-v1 4.1.3+4575b05f9e
+	- fabric-loot-api-v3 3.0.17+06488ac19e
+	- fabric-menu-api-v1 2.0.16+086d547a9e
+	- fabric-message-api-v1 7.0.7+086d547a9e
+	- fabric-model-loading-api-v1 8.0.16+c80601bb9e
+	- fabric-networking-api-v1 6.3.3+72073ef09e
+	- fabric-object-builder-api-v1 24.1.0+6fcd5f039e
+	- fabric-particles-v1 5.0.18+d1756aa99e
+	- fabric-permission-api-v1 1.0.4+536fad2f9e
+	- fabric-recipe-api-v1 9.0.20+11e1c9a39e
+	- fabric-registry-sync-v0 7.1.0+c7bd5b8e9e
+	- fabric-renderer-api-v1 14.1.3+2b0d8a229e
+	- fabric-renderer-indigo 9.1.3+2b0d8a229e
+	- fabric-rendering-fluids-v1 6.0.4+06488ac19e
+	- fabric-rendering-v1 25.3.2+515ac5339e
+	- fabric-resource-conditions-api-v1 6.1.0+10e9a28b9e
+	- fabric-resource-loader-v0 3.3.20+4fc5413f9e
+	- fabric-resource-loader-v1 2.0.13+9edec1269e
+	- fabric-screen-api-v1 5.1.0+48e3c0b09e
+	- fabric-serialization-api-v1 2.0.4+11a26f319e
+	- fabric-sound-api-v1 2.0.5+11a26f319e
+	- fabric-tag-api-v1 2.1.4+515ac5339e
+	- fabric-transfer-api-v1 8.0.12+11dbb7d79e
+	- fabric-transitive-access-wideners-v1 8.1.4+67c847259e
+	- fabricloader 0.19.3
+	- java 25
+	- minecraft 26.2
+	- mixinextras 0.5.4
+	- powers 1.0.2
+[06:16:28] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/Users/james/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.3+mixin.0.8.7/41c4a3984a80f4679e759fb9f495587acc5cdac7/sponge-mixin-0.17.3+mixin.0.8.7.jar Service=Knot/Fabric Env=CLIENT
+[06:16:28] [main/INFO] (FabricLoader/Mixin) Compatibility level set to JAVA_25
+[06:16:29] [main/INFO] (FabricLoader/MixinExtras|Service) Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.4).
+[06:16:29] [Datafixer Bootstrap #0/INFO] (Minecraft) 295 Datafixer optimizations took 157 milliseconds
+[06:16:34] [Render thread/INFO] (Minecraft) Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[06:16:34] [Render thread/INFO] (Minecraft) Setting user: DarkCaster
+[06:16:34] [Render thread/INFO] (powers) Loaded rank mazes: 28 light nodes, 28 darkness nodes
+[06:16:35] [Render thread/INFO] (powers) Magic collision kernel loaded: 64 actions, 2080 exhaustive interactions
+[06:16:35] [Render thread/INFO] (powers) POWERS framework initialized with 23 power(s)
+[06:16:35] [Render thread/INFO] (Indigo) [Indigo] Registering Indigo renderer!
+[06:16:35] [Render thread/INFO] (Minecraft) Backend library: LWJGL version 3.4.1-snapshot
+[06:16:35] [Download-2/ERROR] (Minecraft) Failed to fetch user properties
+com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+	at knot//com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:70)
+	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:173)
+	at knot//net.minecraft.client.Minecraft.lambda$new$1(Minecraft.java:418)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+Caused by: MinecraftClientHttpException[type=HTTP_ERROR, status=401, response=ErrorResponse[path=/player/attributes, error=null, errorMessage=null, details=null]]
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.buildHttpException(MinecraftClient.java:170)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:147)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.getWithEtag(MinecraftClient.java:81)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:65)
+	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:123)
+	... 5 more
+[06:16:35] [Render thread/INFO] (Minecraft) Using graphics backend OpenGL, using drivers: 4.1 Metal - 90.5
+[06:16:35] [Render thread/INFO] (Minecraft) Using graphics device: Apple M3 Pro (Apple)
+[06:16:35] [Render thread/INFO] (Minecraft) Using graphics device extensions: GL_ARB_draw_indirect, GL_EXT_texture_filter_anisotropic
+[06:16:36] [Download-2/INFO] (Minecraft) Could not authorize you against Realms server: java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC
+[06:16:36] [Download-2/ERROR] (Minecraft) Failed to fetch Realms feature flags
+com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC'
+	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:509)
+	at knot//com.mojang.realmsclient.client.RealmsClient.fetchFeatureFlags(RealmsClient.java:159)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[06:16:36] [Render thread/INFO] (Minecraft) Reloading ResourceManager: vanilla, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-getter-api-v2, fabric-client-gametest-api-v1, fabric-command-api-v2, fabric-content-registries-v0, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-creative-tab-api-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-debug-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-gametest-api-v1, fabric-item-api-v1, fabric-key-mapping-api-v1, fabric-lifecycle-events-v1, fabric-loot-api-v3, fabric-menu-api-v1, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-permission-api-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-rendering-fluids-v1, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-resource-loader-v1, fabric-screen-api-v1, fabric-serialization-api-v1, fabric-sound-api-v1, fabric-tag-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, powers
+[06:16:36] [Worker-Main-2/INFO] (Minecraft) Found unifont_all_no_pua-17.0.01.hex, loading
+[06:16:36] [Worker-Main-9/INFO] (Minecraft) Found unifont_pua-17.0.01.hex, loading
+[06:16:36] [Worker-Main-2/INFO] (Minecraft) Found unifont_jp_patch-17.0.01.hex, loading
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/rendertype_beacon_beam and FS minecraft:core/rendertype_beacon_beam. Log output: WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/rendertype_entity_shadow and FS minecraft:core/rendertype_entity_shadow. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'Normal' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'Normal' to match BindAttributeLocation request.
+
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'Normal' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/rendertype_crumbling and FS minecraft:core/rendertype_crumbling. Log output: WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'Normal' to match BindAttributeLocation request.
+WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/entity and FS minecraft:core/entity. Log output: WARNING: Could not find vertex shader attribute 'UV1' to match BindAttributeLocation request.
+
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/rendertype_beacon_beam and FS minecraft:core/rendertype_beacon_beam. Log output: WARNING: Could not find vertex shader attribute 'UV2' to match BindAttributeLocation request.
+
+[06:16:37] [Render thread/INFO] (Minecraft) Info log when linking program containing VS minecraft:core/animate_sprite and FS minecraft:core/animate_sprite_blit. Log output: WARNING: Output of vertex shader 'fAnimationProgress' not read by fragment shader
+
+[06:16:37] [Render thread/INFO] (Minecraft) OpenAL initialized on device MacBook Pro Speakers
+[06:16:37] [Render thread/INFO] (Minecraft) Sound engine started
+[06:16:37] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[06:16:37] [Render thread/INFO] (Minecraft) Created: 128x128x0 minecraft:textures/atlas/decorated_pot.png-atlas
+[06:16:37] [Render thread/INFO] (Minecraft) Created: 2048x1024x0 minecraft:textures/atlas/armor_trims.png-atlas
+[06:16:37] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[06:16:37] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/shield_patterns.png-atlas
+[06:16:37] [Render thread/INFO] (Minecraft) Created: 2048x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[06:16:37] [Render thread/INFO] (Minecraft) Created: 512x512x0 minecraft:textures/atlas/chest.png-atlas
+[06:16:37] [Render thread/INFO] (Minecraft) Created: 256x128x0 minecraft:textures/atlas/celestials.png-atlas
+[06:16:37] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/banner_patterns.png-atlas
+[06:16:37] [Render thread/INFO] (Minecraft) Created: 2048x2048x0 minecraft:textures/atlas/items.png-atlas
+[06:16:37] [Render thread/INFO] (Minecraft) Created: 1024x1024x0 minecraft:textures/atlas/gui.png-atlas
+[06:16:37] [Render thread/INFO] (Minecraft) Created: 128x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[06:16:37] [Render thread/INFO] (Minecraft) Created: 512x512x0 minecraft:textures/atlas/shulker_boxes.png-atlas
+[06:16:38] [Render thread/INFO] (Minecraft) Connecting to 127.0.0.1, 25565
+[06:16:38] [Download-1/ERROR] (Minecraft) Failed to retrieve profile key pair
+MinecraftClientHttpException[type=HTTP_ERROR, status=401, response=ErrorResponse[path=/player/certificates, error=null, errorMessage=null, details=null]]
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.buildHttpException(MinecraftClient.java:170)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:147)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.post(MinecraftClient.java:89)
+	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.getKeyPair(YggdrasilUserApiService.java:62)
+	at knot//net.minecraft.client.multiplayer.AccountProfileKeyPairManager.fetchProfileKeyPair(AccountProfileKeyPairManager.java:119)
+	at knot//net.minecraft.client.multiplayer.AccountProfileKeyPairManager.lambda$readOrFetchProfileKeyPair$0(AccountProfileKeyPairManager.java:72)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[06:16:39] [Render thread/INFO] (Minecraft) Loaded 5 advancements
+[06:16:39] [Render thread/INFO] (Minecraft) Resizing Dynamic Transforms UBO, capacity limit of 2 reached during a single frame. New capacity will be 4.
+[06:16:40] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 loaded 105 scripted steps
+[06:16:40] [Render thread/INFO] (Minecraft) Resizing Dynamic Transforms UBO, capacity limit of 4 reached during a single frame. New capacity will be 8.
+[06:16:40] [Render thread/INFO] (Minecraft) Resizing Dynamic Transforms UBO, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[06:16:40] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 2 reached during a single frame. New capacity will be 4.
+[06:16:40] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 4 reached during a single frame. New capacity will be 8.
+[06:16:40] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[06:16:40] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 16 reached during a single frame. New capacity will be 32.
+[06:16:40] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 32 reached during a single frame. New capacity will be 64.
+[06:16:40] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 64 reached during a single frame. New capacity will be 128.
+[06:16:40] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 connected as DarkCaster to 127.0.0.1:25565
+[06:16:40] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 128 reached during a single frame. New capacity will be 256.
+[06:16:41] [Render thread/INFO] (Minecraft) Resizing Chunk Sections UBO, capacity limit of 256 reached during a single frame. New capacity will be 512.
+[06:16:45] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 captured its connected-world evidence
+[06:16:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.16.45.png
+[06:16:50] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed CLOSE [screen] at connected tick 220
+[06:16:51] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [powers testing on] at connected tick 240
+[06:16:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Testing limits — energy: DISABLED, cooldowns: DISABLED
+[06:16:52] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [gamemode survival @s] at connected tick 260
+[06:16:53] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [effect give @s minecraft:resistance 999999 255 true] at connected tick 280
+[06:16:53] [Render thread/INFO] (Minecraft) [System] [CHAT] Applied effect Resistance to [Dormant] DarkCaster
+[06:16:54] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [tag @s add darkness] at connected tick 300
+[06:16:54] [Render thread/INFO] (Minecraft) [System] [CHAT] Added tag 'darkness' to [Dormant] DarkCaster
+[06:16:55] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [advancement grant @s through powers:darkness/level_10] at connected tick 320
+[06:16:55] [Render thread/INFO] (Minecraft) [System] [CHAT] Granted 11 advancements to [Dormant] DarkCaster
+[06:16:55] [Render thread/INFO] (Minecraft) Loaded 16 advancements
+[06:16:56] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [forceload add 1400 1400 1450 1450] at connected tick 340
+[06:16:56] [Render thread/INFO] (Minecraft) [System] [CHAT] No chunks were marked for force loading
+[06:16:57] [Render thread/INFO] (Minecraft) [System] [CHAT] Shadows weave around you as you rise to Nightfall.
+[06:16:57] [Render thread/INFO] (Minecraft) Forgot about advancement powers:skill/level_02
+[06:16:57] [Render thread/INFO] (Minecraft) Forgot about advancement powers:skill/level_01
+[06:16:57] [Render thread/INFO] (Minecraft) Forgot about advancement powers:skill/level_02
+[06:16:57] [Render thread/INFO] (Minecraft) Forgot about advancement powers:skill/level_01
+[06:16:57] [Render thread/INFO] (Minecraft) Forgot about advancement powers:skill_root
+[06:16:57] [Render thread/WARN] (Minecraft) Told to remove advancement powers:skill/level_02 but I don't know what that is
+[06:16:57] [Render thread/INFO] (Minecraft) Loaded 13 advancements
+[06:16:57] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [fill 1400 90 1400 1450 100 1450 minecraft:stone] at connected tick 360
+[06:16:57] [Render thread/INFO] (Minecraft) [System] [CHAT] No blocks were filled
+[06:16:58] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [fill 1400 101 1400 1450 180 1450 minecraft:air] at connected tick 380
+[06:16:58] [Render thread/INFO] (Minecraft) [System] [CHAT] Too many blocks in the specified area (maximum 32768, but specified 208080)
+[06:16:59] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [tp @s 1425.5 101 1425.5 0 0] at connected tick 400
+[06:16:59] [Render thread/INFO] (Minecraft) [System] [CHAT] Teleported [Unmarked] DarkCaster to 1425.500000, 101.000000, 1425.500000
+[06:17:00] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [item replace entity @s weapon.mainhand with powers:lycanbane] at connected tick 420
+[06:17:00] [Render thread/INFO] (Minecraft) [System] [CHAT] Replaced a slot on [Unmarked] DarkCaster with [Shadow Sword]
+[06:17:02] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness innate/time_shift -1] at connected tick 460
+[06:17:03] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT_TELEPORT [darkness 1410.5 101 1410.5 minecraft:overworld self] at connected tick 480
+[06:17:07] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @s Pos] at connected tick 560
+[06:17:07] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkCaster has the following entity data: [1410.5d, 101.0d, 1410.5d]
+[06:17:08] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-time-shift] at connected tick 580
+[06:17:08] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.17.08.png
+[06:17:10] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [kill @e[name=InfernoTarget]] at connected tick 620
+[06:17:10] [Render thread/INFO] (Minecraft) [System] [CHAT] No entity was found
+[06:17:11] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [powers testing actor spawn InfernoTarget] at connected tick 640
+[06:17:11] [Render thread/INFO] (Minecraft) [System] [CHAT] Spawned test actor: InfernoTarget
+[06:17:12] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [tp @e[name=InfernoTarget,limit=1] 1410.5 101 1416.5] at connected tick 660
+[06:17:12] [Render thread/INFO] (Minecraft) [System] [CHAT] Teleported InfernoTarget to 1410.500000, 101.000000, 1416.500000
+[06:17:13] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data merge entity @e[name=InfernoTarget,limit=1] {NoAI:1b,NoGravity:1b,Glowing:1b,PersistenceRequired:1b}] at connected tick 680
+[06:17:13] [Render thread/INFO] (Minecraft) [System] [CHAT] Modified entity data of InfernoTarget
+[06:17:14] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @e[name=InfernoTarget,limit=1] Health] at connected tick 700
+[06:17:14] [Render thread/INFO] (Minecraft) [System] [CHAT] InfernoTarget has the following entity data: 100.0f
+[06:17:15] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/inferno -1] at connected tick 720
+[06:17:19] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @e[name=InfernoTarget,limit=1] Health] at connected tick 800
+[06:17:19] [Render thread/INFO] (Minecraft) [System] [CHAT] InfernoTarget has the following entity data: 94.39999f
+[06:17:20] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @e[name=InfernoTarget,limit=1] Fire] at connected tick 820
+[06:17:20] [Render thread/INFO] (Minecraft) [System] [CHAT] InfernoTarget has the following entity data: 157s
+[06:17:21] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-inferno] at connected tick 840
+[06:17:21] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.17.21.png
+[06:17:24] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkCaster has made the advancement [Monster Hunter]
+[06:17:24] [Render thread/INFO] (Minecraft) Loaded 58 advancements
+[06:17:24] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/clone_swarm -1] at connected tick 900
+[06:17:26] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [execute if entity @e[type=powers:echo_clone,distance=..12] run say ARTIFACT_CLONES_PRESENT] at connected tick 940
+[06:17:26] [Render thread/INFO] (Minecraft) [System] [CHAT] [[Unmarked] DarkCaster] ARTIFACT_CLONES_PRESENT
+[06:17:27] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-clone-swarm] at connected tick 960
+[06:17:27] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.17.27.png
+[06:17:29] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/size_shift -1] at connected tick 1000
+[06:17:31] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [attribute @s minecraft:scale get] at connected tick 1040
+[06:17:31] [Render thread/INFO] (Minecraft) [System] [CHAT] The value of attribute Scale for entity DarkCaster is 0.0625
+[06:17:32] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-size-small] at connected tick 1060
+[06:17:32] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.17.32.png
+[06:17:34] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/size_shift -1] at connected tick 1100
+[06:17:36] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [attribute @s minecraft:scale get] at connected tick 1140
+[06:17:36] [Render thread/INFO] (Minecraft) [System] [CHAT] The value of attribute Scale for entity DarkCaster is 10.0
+[06:17:37] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-size-large] at connected tick 1160
+[06:17:37] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.17.37.png
+[06:17:39] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [attribute @s minecraft:max_health base set 40] at connected tick 1200
+[06:17:39] [Render thread/INFO] (Minecraft) [System] [CHAT] The base value for attribute Max Health for entity DarkCaster set to 40.0
+[06:17:40] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data merge entity @s {Health:4.0f}] at connected tick 1220
+[06:17:40] [Render thread/INFO] (Minecraft) [System] [CHAT] Unable to modify player data
+[06:17:41] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/life_bloom -1] at connected tick 1240
+[06:17:43] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @s Health] at connected tick 1280
+[06:17:43] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkCaster has the following entity data: 40.0f
+[06:17:44] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @s active_effects] at connected tick 1300
+[06:17:44] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkCaster has the following entity data: [{duration: 540, show_icon: 1b, ambient: 1b, id: "minecraft:saturation", show_particles: 0b}, {duration: 99, show_icon: 1b, amplifier: 6b, ambient: 1b, id: "minecraft:jump_boost", show_particles: 0b}, {duration: 19998959, show_icon: 1b, amplifier: -1b, id: "minecraft:resistance", show_particles: 0b}, {duration: 199, show_icon: 1b, amplifier: 9b, ambient: 1b, id: "minecraft:strength", show_particles: 0b}, {duration: 99, show_icon: 1b, amplifier: 5b, ambient: 1b, id: "minecraft:speed", show_particles: 0b}, {duration: 540, show_icon: 1b, amplifier: 3b, ambient: 1b, id: "minecraft:absorption", show_particles: 0b}, {duration: 99, show_icon: 1b, ambient: 1b, id: "minecraft:slow_falling", show_particles: 0b}, {duration: 540, show_icon: 1b, amplifier: 4b, ambient: 1b, id: "minecraft:regeneration", show_particles: 0b}]
+[06:17:45] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-life-bloom] at connected tick 1320
+[06:17:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.17.45.png
+[06:17:47] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/chrono_stop -1] at connected tick 1360
+[06:17:48] [Render thread/INFO] (Minecraft) [System] [CHAT] The world holds its breath — time freezes!
+[06:17:49] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-chrono-stop] at connected tick 1400
+[06:17:49] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.17.49.png
+[06:17:52] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/chrono_stop -1] at connected tick 1460
+[06:17:52] [Render thread/INFO] (Minecraft) [System] [CHAT] Eternity ends; the clock ticks onward.
+[06:17:54] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [tick query] at connected tick 1500
+[06:17:54] [Render thread/INFO] (Minecraft) [System] [CHAT] The game is running normally
+[06:17:54] [Render thread/INFO] (Minecraft) [System] [CHAT] Target tick rate: 20.0 per second.\nAverage time per tick: 3.5ms (Target: 50.0ms)
+[06:17:54] [Render thread/INFO] (Minecraft) [System] [CHAT] Percentiles: P50: 1.6ms P95: 8.0ms P99: 8.2ms. Sample: 100
+[06:17:56] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [kill @e[name=LinkedOne]] at connected tick 1540
+[06:17:56] [Render thread/INFO] (Minecraft) [System] [CHAT] No entity was found
+[06:17:57] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [kill @e[name=LinkedTwo]] at connected tick 1560
+[06:17:57] [Render thread/INFO] (Minecraft) [System] [CHAT] No entity was found
+[06:17:58] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [powers testing actor spawn LinkedOne] at connected tick 1580
+[06:17:58] [Render thread/INFO] (Minecraft) [System] [CHAT] Spawned test actor: LinkedOne
+[06:17:59] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [powers testing actor spawn LinkedTwo] at connected tick 1600
+[06:17:59] [Render thread/INFO] (Minecraft) [System] [CHAT] Spawned test actor: LinkedTwo
+[06:18:00] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [tp @e[name=LinkedOne,limit=1] 1410.5 101 1415.5] at connected tick 1620
+[06:18:00] [Render thread/INFO] (Minecraft) [System] [CHAT] Teleported LinkedOne to 1410.500000, 101.000000, 1415.500000
+[06:18:01] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [tp @e[name=LinkedTwo,limit=1] 1412.5 101 1415.5] at connected tick 1640
+[06:18:01] [Render thread/INFO] (Minecraft) [System] [CHAT] Teleported LinkedTwo to 1412.500000, 101.000000, 1415.500000
+[06:18:02] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data merge entity @e[name=LinkedOne,limit=1] {NoAI:1b,NoGravity:1b,Glowing:1b,PersistenceRequired:1b}] at connected tick 1660
+[06:18:02] [Render thread/INFO] (Minecraft) [System] [CHAT] Modified entity data of LinkedOne
+[06:18:03] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data merge entity @e[name=LinkedTwo,limit=1] {NoAI:1b,NoGravity:1b,Glowing:1b,PersistenceRequired:1b}] at connected tick 1680
+[06:18:03] [Render thread/INFO] (Minecraft) [System] [CHAT] Modified entity data of LinkedTwo
+[06:18:04] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/soul_link -1] at connected tick 1700
+[06:18:05] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [damage @e[name=LinkedOne,limit=1] 12 minecraft:generic] at connected tick 1720
+[06:18:05] [Render thread/INFO] (Minecraft) [System] [CHAT] Applied 12.0 damage to LinkedOne
+[06:18:07] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @e[name=LinkedTwo,limit=1] Health] at connected tick 1760
+[06:18:07] [Render thread/INFO] (Minecraft) [System] [CHAT] LinkedTwo has the following entity data: 89.259995f
+[06:18:08] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-soul-link] at connected tick 1780
+[06:18:08] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.18.08.png
+[06:18:10] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [kill @e[name=DreamTarget]] at connected tick 1820
+[06:18:10] [Render thread/INFO] (Minecraft) [System] [CHAT] No entity was found
+[06:18:11] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [powers testing actor spawn DreamTarget] at connected tick 1840
+[06:18:11] [Render thread/INFO] (Minecraft) [System] [CHAT] Spawned test actor: DreamTarget
+[06:18:12] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [tp @e[name=DreamTarget,limit=1] 1410.5 101 1414.5] at connected tick 1860
+[06:18:12] [Render thread/INFO] (Minecraft) [System] [CHAT] Teleported DreamTarget to 1410.500000, 101.000000, 1414.500000
+[06:18:13] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data merge entity @e[name=DreamTarget,limit=1] {NoAI:1b,NoGravity:1b,Glowing:1b,PersistenceRequired:1b}] at connected tick 1880
+[06:18:13] [Render thread/INFO] (Minecraft) [System] [CHAT] Modified entity data of DreamTarget
+[06:18:14] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [tp @s 1410.5 101 1410.5 0 0] at connected tick 1900
+[06:18:14] [Render thread/INFO] (Minecraft) [System] [CHAT] Teleported [Unmarked] DarkCaster to 1410.500000, 101.000000, 1410.500000
+[06:18:15] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/dreamwalking -1] at connected tick 1920
+[06:18:17] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @s playerGameType] at connected tick 1960
+[06:18:17] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkCaster has the following entity data: 0
+[06:18:18] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [powers diagnose] at connected tick 1980
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] magic=538/20 cells; spellFields=0 (cap/tick 32); artifactFields=0
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] forces=11029; clashes=0; auraCaps=512/player,4096/level; guardians=0
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] proxies=0; travelLoads=0; celestialEvents=0; forcedChunks=0
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] lastTick: packets=0; particles=2; entityInspections=0
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] configValidation: revision=1; adjustments=0; retained=0; dropped=0
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] operatorAudit: total=1
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] operatorAudit action=testing_control; result=success; count=1
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] Energy history: spent=0 restored=1350 net=1350
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] energySource=regeneration; amount=1350
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] physicalRays=0; rayCollisionsThisTick=0; shadowSessions=0; revealedShadowBodies=0
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] shadowBodies=0 (hidden=0, revealed=0); tasks=0; energy=0; rites=0; toggles=0; casts=0; conjurations=0; planner=0; contexts=0; targetProfiles=0; creditWindows=0; forcedChunks=0; leaks=0
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] realmBuilds=0; containment=0 (cap/tick 256); invasions=0/64; concord=0/0
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=minecraft:overworld; q=1301; candidates=0; misses=1301; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=minecraft:overworld; q=140; candidates=0; misses=140; stale=16; fallbackScans=30; memory~=1120B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=958B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=minecraft:overworld; q=37925; candidates=128615; misses=37915; stale=0; fallbackScans=0; memory~=531792B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] travelTickets=0/64; perDimensionLimit=24; lastRefusal=none
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] missingDimensions=0; droppedDistinct=0; orphanedRuinEvents=0
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] questTelemetrySamples=0; publicationReadyLevels=0/20; minimumPerLevel=20
+[06:18:18] [Render thread/INFO] (Minecraft) [System] [CHAT] testing: energy=disabled; cooldowns=disabled
+[06:18:19] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-dreamwalking] at connected tick 2000
+[06:18:19] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.18.19.png
+[06:18:21] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [powers return] at connected tick 2040
+[06:18:21] [Render thread/INFO] (Minecraft) [System] [CHAT] You have no reachable mind-body anchor.
+[06:18:23] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @s playerGameType] at connected tick 2080
+[06:18:23] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkCaster has the following entity data: 0
+[06:18:25] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [fill 1420 101 1420 1430 112 1430 minecraft:air] at connected tick 2120
+[06:18:25] [Render thread/INFO] (Minecraft) [System] [CHAT] No blocks were filled
+[06:18:26] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [setblock 1425 100 1429 minecraft:stone] at connected tick 2140
+[06:18:26] [Render thread/INFO] (Minecraft) [System] [CHAT] Could not set the block
+[06:18:27] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [tp @s 1425.5 101 1425.5 0 34] at connected tick 2160
+[06:18:27] [Render thread/INFO] (Minecraft) [System] [CHAT] Teleported [Unmarked] DarkCaster to 1425.500000, 101.000000, 1425.500000
+[06:18:28] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/creativity_manifestation -1] at connected tick 2180
+[06:18:31] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [execute if block 1425 101 1428 #powers:crucible_frame run say ARTIFACT_CREATION_PRESENT] at connected tick 2240
+[06:18:31] [Render thread/INFO] (Minecraft) [System] [CHAT] Unknown block tag 'powers:crucible_frame'
+[06:18:31] [Render thread/INFO] (Minecraft) [System] [CHAT] ... 101 1428 #powers:crucible_frame run say ARTIFACT_CREATION_PRESENT<--[HERE]
+[06:18:32] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-creativity] at connected tick 2260
+[06:18:32] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.18.32.png
+[06:18:35] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [tp @s 1410.5 101 1410.5 0 0] at connected tick 2320
+[06:18:35] [Render thread/INFO] (Minecraft) [System] [CHAT] Teleported [Unmarked] DarkCaster to 1410.500000, 101.000000, 1410.500000
+[06:18:36] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness unique/call_hollowed -1] at connected tick 2340
+[06:18:38] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [execute if entity @e[type=powers:darkness_creature,distance=..16] run say ARTIFACT_HOLLOWED_PRESENT] at connected tick 2380
+[06:18:38] [Render thread/INFO] (Minecraft) [System] [CHAT] [[Unmarked] DarkCaster] ARTIFACT_HOLLOWED_PRESENT
+[06:18:39] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-call-hollowed] at connected tick 2400
+[06:18:39] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.18.39.png
+[06:18:41] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness unique/blight_ground -1] at connected tick 2440
+[06:18:45] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [execute if block 1410 100 1410 powers:darkness_block run say ARTIFACT_BLIGHT_PRESENT] at connected tick 2520
+[06:18:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Unknown block type 'powers:darkness_block'
+[06:18:45] [Render thread/INFO] (Minecraft) [System] [CHAT] ... 100 1410 powers:darkness_block run say ARTIFACT_BLIGHT_PRESENT<--[HERE]
+[06:18:46] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-blight-ground] at connected tick 2540
+[06:18:46] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.18.46.png
+[06:18:48] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [kill @e[name=DominionTarget]] at connected tick 2580
+[06:18:48] [Render thread/INFO] (Minecraft) [System] [CHAT] No entity was found
+[06:18:49] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [powers testing actor spawn DominionTarget] at connected tick 2600
+[06:18:49] [Render thread/INFO] (Minecraft) [System] [CHAT] Spawned test actor: DominionTarget
+[06:18:50] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [tp @e[name=DominionTarget,limit=1] 1410.5 101 1416.5] at connected tick 2620
+[06:18:50] [Render thread/INFO] (Minecraft) [System] [CHAT] Teleported DominionTarget to 1410.500000, 101.000000, 1416.500000
+[06:18:51] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data merge entity @e[name=DominionTarget,limit=1] {NoAI:1b,NoGravity:1b,Glowing:1b,PersistenceRequired:1b}] at connected tick 2640
+[06:18:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Modified entity data of DominionTarget
+[06:18:52] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness unique/nightfall_dominion -1] at connected tick 2660
+[06:18:55] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @s active_effects] at connected tick 2720
+[06:18:55] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkCaster has the following entity data: [{duration: 19997539, show_icon: 1b, amplifier: -1b, id: "minecraft:resistance", show_particles: 0b}, {duration: 12, show_icon: 1b, amplifier: 9b, id: "minecraft:strength", show_particles: 0b}, {duration: 12, show_icon: 1b, amplifier: 3b, id: "minecraft:speed", show_particles: 0b}, {duration: 12, show_icon: 1b, amplifier: 4b, id: "minecraft:regeneration", show_particles: 0b}, {duration: 12, show_icon: 1b, id: "minecraft:fire_resistance", show_particles: 0b}]
+[06:18:56] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @e[name=DominionTarget,limit=1] Health] at connected tick 2740
+[06:18:56] [Render thread/INFO] (Minecraft) [System] [CHAT] No entity was found
+[06:18:57] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-nightfall] at connected tick 2760
+[06:18:57] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.18.57.png
+[06:18:59] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness unique/nightfall_dominion -1] at connected tick 2800
+[06:19:02] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/dark_crystal -1] at connected tick 2860
+[06:19:08] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @s Dimension] at connected tick 2980
+[06:19:08] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkCaster has the following entity data: "powers:dark_realm"
+[06:19:09] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-realm] at connected tick 3000
+[06:19:09] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.19.09.png
+[06:19:11] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/dark_crystal -1] at connected tick 3040
+[06:19:17] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @s Dimension] at connected tick 3160
+[06:19:17] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkCaster has the following entity data: "minecraft:overworld"
+[06:19:20] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/light_crystal -1] at connected tick 3220
+[06:19:26] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @s Dimension] at connected tick 3340
+[06:19:26] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkCaster has the following entity data: "minecraft:overworld"
+[06:19:27] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-light-realm-via-sword] at connected tick 3360
+[06:19:27] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.19.27.png
+[06:19:29] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/light_crystal -1] at connected tick 3400
+[06:19:35] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @s Dimension] at connected tick 3520
+[06:19:35] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkCaster has the following entity data: "minecraft:overworld"
+[06:19:38] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/middleworld -1] at connected tick 3580
+[06:19:44] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @s Dimension] at connected tick 3700
+[06:19:44] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkCaster has the following entity data: "powers:middleworld"
+[06:19:45] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-middleworld] at connected tick 3720
+[06:19:45] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.19.45.png
+[06:19:47] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed ARTIFACT [darkness crystal/middleworld -1] at connected tick 3760
+[06:19:53] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [data get entity @s Dimension] at connected tick 3880
+[06:19:53] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkCaster has the following entity data: "minecraft:overworld"
+[06:19:54] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed COMMAND [powers diagnose] at connected tick 3900
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] magic=565/23 cells; spellFields=0 (cap/tick 32); artifactFields=0
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] forces=12222; clashes=0; auraCaps=512/player,4096/level; guardians=0
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] proxies=0; travelLoads=0; celestialEvents=0; forcedChunks=0
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] lastTick: packets=0; particles=2; entityInspections=0
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] configValidation: revision=1; adjustments=0; retained=0; dropped=0
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] operatorAudit: total=1
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] operatorAudit action=testing_control; result=success; count=1
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] Energy history: spent=0 restored=1350 net=1350
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] energySource=regeneration; amount=1350
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] physicalRays=0; rayCollisionsThisTick=0; shadowSessions=0; revealedShadowBodies=0
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] shadowBodies=0 (hidden=0, revealed=0); tasks=0; energy=0; rites=0; toggles=0; casts=0; conjurations=0; planner=0; contexts=0; targetProfiles=0; creditWindows=0; forcedChunks=0; leaks=0
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] realmBuilds=6; containment=0 (cap/tick 256); invasions=0/64; concord=0/0
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=minecraft:overworld; q=1365; candidates=0; misses=1365; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=minecraft:overworld; q=231; candidates=0; misses=231; stale=16; fallbackScans=30; memory~=1120B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=minecraft:overworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=minecraft:overworld; q=65394; candidates=312139; misses=65239; stale=0; fallbackScans=0; memory~=589440B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=minecraft:the_end; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=minecraft:the_nether; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=powers:dark_realm; q=4; candidates=0; misses=4; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=powers:dark_realm; q=8; candidates=0; misses=8; stale=2; fallbackScans=2; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=powers:dark_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=powers:dark_realm; q=1004; candidates=718651; misses=502; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=powers:light_realm; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=spellFields; dimension=powers:middleworld; q=13; candidates=0; misses=13; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=artifactFields; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystNatural; dimension=powers:middleworld; q=8; candidates=0; misses=8; stale=1; fallbackScans=2; memory~=80B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=amethystWards; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=namedTargets; dimension=powers:middleworld; q=0; candidates=0; misses=0; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] index=livingForces; dimension=powers:middleworld; q=39; candidates=21543; misses=19; stale=0; fallbackScans=0; memory~=0B
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] travelTickets=0/64; perDimensionLimit=24; lastRefusal=none
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] missingDimensions=0; droppedDistinct=0; orphanedRuinEvents=0
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] questTelemetrySamples=0; publicationReadyLevels=0/20; minimumPerLevel=20
+[06:19:54] [Render thread/INFO] (Minecraft) [System] [CHAT] testing: energy=disabled; cooldowns=disabled
+[06:19:55] [Render thread/INFO] (powers) QA client role=exact-dark-valid-7548160 executed SCREENSHOT [artifact-dark-complete] at connected tick 3920
+[06:19:55] [Render thread/INFO] (Minecraft) [System] [CHAT] Saved screenshot as 2026-08-14_06.19.55.png

@@ -1,0 +1,16 @@
+# Exact Blight Ground proof: create the support before teleporting so gravity cannot move the cast origin.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	tag @s add darkness
+110	COMMAND	advancement grant @s through powers:darkness/level_10
+120	COMMAND	item replace entity @s weapon.mainhand with powers:lycanbane
+140	COMMAND	execute in minecraft:overworld run fill 2390 99 2390 2410 100 2410 minecraft:stone
+150	COMMAND	execute in minecraft:overworld run fill 2390 101 2390 2410 115 2410 minecraft:air
+170	COMMAND	execute in minecraft:overworld run tp @s 2400.5 101 2400.5 0 0
+200	ARTIFACT	darkness unique/blight_ground -1
+280	COMMAND	execute if block 2400 100 2400 powers:darkness run say DARK_ARTIFACT_BLIGHT_CENTER_PRESENT
+290	COMMAND	execute if block 2394 100 2400 powers:darkness run say DARK_ARTIFACT_BLIGHT_EDGE_PRESENT
+300	SCREENSHOT	dark-artifact-blight-ground-exact
+330	COMMAND	item replace entity @s weapon.mainhand with minecraft:air
+360	COMMAND	powers diagnose
+370	SCREENSHOT	dark-artifact-blight-ground-complete

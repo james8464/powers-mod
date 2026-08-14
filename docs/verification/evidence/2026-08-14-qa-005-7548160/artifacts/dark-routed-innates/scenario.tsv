@@ -1,0 +1,217 @@
+# Exact-build rendered acceptance: every non-input Shadow Sword innate route.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	gamemode survival @s
+110	COMMAND	effect give @s minecraft:resistance 999999 255 true
+120	COMMAND	tp @s 800.5 101 800.5 0 0
+140	COMMAND	fill 776 100 776 824 100 824 minecraft:stone
+150	COMMAND	kill @e[name=ArtifactTarget]
+160	COMMAND	tag @s add darkness
+170	COMMAND	advancement grant @s through powers:darkness/level_10
+180	COMMAND	item replace entity @s weapon.mainhand with powers:lycanbane
+
+# Toggle morphology is owned by the held artifact and returns exactly to baseline.
+210	ARTIFACT	darkness innate/size_shift 1
+220	COMMAND	attribute @s minecraft:scale get
+230	SCREENSHOT	dark-artifact-size
+250	ARTIFACT	darkness innate/size_shift 1
+260	COMMAND	attribute @s minecraft:scale get
+
+# Propulsion flight consumes real held client input and cleans up on its second cast.
+290	ARTIFACT	darkness innate/flight -1
+300	KEY	forward on
+300	KEY	sprint on
+300	KEY	jump on
+350	COMMAND	data get entity @s Pos
+360	COMMAND	data get entity @s Motion
+370	SCREENSHOT	dark-artifact-flight
+380	KEY	forward off
+380	KEY	sprint off
+380	KEY	jump off
+400	ARTIFACT	darkness innate/flight -1
+
+# Starfall resolves against a live player-compatible target.
+430	COMMAND	tp @s 800.5 101 800.5 0 0
+440	COMMAND	powers testing actor spawn ArtifactTarget
+450	COMMAND	tp @e[name=ArtifactTarget,limit=1] 800.5 101 805.5
+460	COMMAND	data merge entity @e[name=ArtifactTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+480	ARTIFACT	darkness innate/starfall -1
+510	SCREENSHOT	dark-artifact-starfall
+600	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] Health
+
+# Void Beam completes its server-owned charge and ray release.
+630	COMMAND	kill @e[name=ArtifactTarget]
+640	COMMAND	powers testing actor spawn ArtifactTarget
+650	COMMAND	tp @e[name=ArtifactTarget,limit=1] 800.5 101 805.5
+660	COMMAND	data merge entity @e[name=ArtifactTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+680	ARTIFACT	darkness innate/void_beam -1
+710	SCREENSHOT	dark-artifact-void-beam
+770	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] Health
+
+# Fireball uses its authored crouch-release path.
+800	COMMAND	kill @e[name=ArtifactTarget]
+810	COMMAND	powers testing actor spawn ArtifactTarget
+820	COMMAND	tp @e[name=ArtifactTarget,limit=1] 800.5 101 808.5
+830	COMMAND	data merge entity @e[name=ArtifactTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+850	ARTIFACT	darkness innate/fireball -1
+880	KEY	sneak on
+890	ARTIFACT	darkness innate/fireball -1
+900	KEY	sneak off
+920	SCREENSHOT	dark-artifact-fireball
+990	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] Health
+
+# Tribunal lightning uses the artifact source with no gameplay cooldown.
+1020	COMMAND	kill @e[name=ArtifactTarget]
+1030	COMMAND	powers testing actor spawn ArtifactTarget
+1040	COMMAND	tp @e[name=ArtifactTarget,limit=1] 800.5 101 805.5
+1050	COMMAND	data merge entity @e[name=ArtifactTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+1070	ARTIFACT	darkness innate/lightning_strike -1
+1100	SCREENSHOT	dark-artifact-lightning
+1180	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] Health
+
+# Thunderclap always emits a destructive pressure wave.
+1210	COMMAND	kill @e[name=ArtifactTarget]
+1220	COMMAND	powers testing actor spawn ArtifactTarget
+1230	COMMAND	tp @e[name=ArtifactTarget,limit=1] 800.5 101 805.5
+1240	COMMAND	data merge entity @e[name=ArtifactTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+1260	ARTIFACT	darkness innate/thunderclap -1
+1280	SCREENSHOT	dark-artifact-thunderclap
+1310	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] Motion
+1320	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] Health
+
+# Speed Burst moves the real survival body.
+1350	COMMAND	tp @s 800.5 101 800.5 0 0
+1370	ARTIFACT	darkness innate/speed_burst -1
+1390	COMMAND	data get entity @s Pos
+1400	COMMAND	data get entity @s Motion
+
+# Telekinesis applies authoritative target motion.
+1430	COMMAND	tp @s 800.5 101 800.5 0 0
+1440	COMMAND	kill @e[name=ArtifactTarget]
+1450	COMMAND	powers testing actor spawn ArtifactTarget
+1460	COMMAND	tp @e[name=ArtifactTarget,limit=1] 800.5 101 805.5
+1470	COMMAND	data merge entity @e[name=ArtifactTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+1490	ARTIFACT	darkness innate/telekinesis -1
+1510	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] Motion
+
+# Energy Beam runs its complete discrete-damage channel.
+1540	COMMAND	kill @e[name=ArtifactTarget]
+1550	COMMAND	powers testing actor spawn ArtifactTarget
+1560	COMMAND	tp @e[name=ArtifactTarget,limit=1] 800.5 101 805.5
+1570	COMMAND	data merge entity @e[name=ArtifactTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+1590	ARTIFACT	darkness innate/energy_beam -1
+1620	SCREENSHOT	dark-artifact-energy-beam
+1700	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] Health
+
+# Chronal overdrive consumes genuine movement input.
+1730	COMMAND	tp @s 800.5 101 800.5 0 0
+1750	ARTIFACT	darkness innate/super_speed -1
+1760	KEY	forward on
+1760	KEY	sprint on
+1810	COMMAND	data get entity @s Pos
+1820	KEY	forward off
+1820	KEY	sprint off
+1830	SCREENSHOT	dark-artifact-super-speed
+
+# Breezy Bash captures and releases a nearby target.
+1860	COMMAND	tp @s 800.5 101 800.5 0 0
+1870	COMMAND	kill @e[name=ArtifactTarget]
+1880	COMMAND	powers testing actor spawn ArtifactTarget
+1890	COMMAND	tp @e[name=ArtifactTarget,limit=1] 800.5 101 804.5
+1900	COMMAND	data merge entity @e[name=ArtifactTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+1920	ARTIFACT	darkness innate/breezy_bash -1
+1950	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] Motion
+
+# Invisibility is particle-free and removable.
+1980	ARTIFACT	darkness innate/invisibility -1
+2000	COMMAND	data get entity @s active_effects
+2010	SCREENSHOT	dark-artifact-invisibility
+2030	ARTIFACT	darkness innate/invisibility -1
+2040	COMMAND	data get entity @s active_effects
+
+# True global Time Freeze remains owner-releasable on the unfrozen path.
+2070	ARTIFACT	darkness innate/time_freeze -1
+2100	COMMAND	tick query
+2110	SCREENSHOT	dark-artifact-time-freeze
+2140	ARTIFACT	darkness innate/time_freeze -1
+2170	COMMAND	tick query
+
+# A forcefield sacrifices itself against overkill without leaking damage.
+2200	COMMAND	effect clear @s minecraft:resistance
+2210	COMMAND	data get entity @s Health
+2230	ARTIFACT	darkness innate/forcefield -1
+2250	COMMAND	damage @s 100 minecraft:generic
+2270	COMMAND	data get entity @s Health
+2280	SCREENSHOT	dark-artifact-forcefield
+2300	COMMAND	effect give @s minecraft:resistance 999999 255 true
+
+# Gravity Repel captures and pushes the player-compatible target.
+2330	COMMAND	tp @s 800.5 101 800.5 0 0
+2340	COMMAND	kill @e[name=ArtifactTarget]
+2350	COMMAND	powers testing actor spawn ArtifactTarget
+2360	COMMAND	tp @e[name=ArtifactTarget,limit=1] 800.5 101 804.5
+2370	COMMAND	data merge entity @e[name=ArtifactTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+2390	ARTIFACT	darkness innate/gravity_displacement 2
+2420	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] Motion
+
+# Possession creates and then clears a vulnerable body session.
+2460	COMMAND	kill @e[name=ArtifactTarget]
+2470	COMMAND	powers testing actor spawn ArtifactTarget
+2480	COMMAND	tp @e[name=ArtifactTarget,limit=1] 800.5 101 804.5
+2490	COMMAND	data merge entity @e[name=ArtifactTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+2510	ARTIFACT	darkness innate/vessel_possession -1
+2540	COMMAND	data get entity @s playerGameType
+2550	COMMAND	powers diagnose
+2560	SCREENSHOT	dark-artifact-possession
+2590	ARTIFACT	darkness innate/vessel_possession -1
+2620	COMMAND	data get entity @s playerGameType
+2630	COMMAND	powers diagnose
+
+# Astral Projection creates and clears its physical proxy.
+2660	ARTIFACT	darkness innate/astral_projection -1
+2690	COMMAND	data get entity @s playerGameType
+2700	COMMAND	powers diagnose
+2710	SCREENSHOT	dark-artifact-astral
+2740	ARTIFACT	darkness innate/astral_projection -1
+2770	COMMAND	data get entity @s playerGameType
+2780	COMMAND	powers diagnose
+
+# Energy Drain authors a visible tether and hidden-particle exhaustion.
+2810	COMMAND	kill @e[name=ArtifactTarget]
+2820	COMMAND	powers testing actor spawn ArtifactTarget
+2830	COMMAND	tp @e[name=ArtifactTarget,limit=1] 800.5 101 804.5
+2840	COMMAND	data merge entity @e[name=ArtifactTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+2860	ARTIFACT	darkness innate/energy_drain -1
+2900	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] active_effects
+2910	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] Health
+
+# Ice Manipulation applies damage, frozen ticks, and hidden effects.
+2940	COMMAND	kill @e[name=ArtifactTarget]
+2950	COMMAND	powers testing actor spawn ArtifactTarget
+2960	COMMAND	tp @e[name=ArtifactTarget,limit=1] 800.5 101 804.5
+2970	COMMAND	data merge entity @e[name=ArtifactTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+2990	ARTIFACT	darkness innate/ice_manipulation -1
+3010	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] Health
+3020	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] TicksFrozen
+3030	COMMAND	data get entity @e[name=ArtifactTarget,limit=1] active_effects
+3040	SCREENSHOT	dark-artifact-ice
+
+# Verdant acceleration advances a real crop.
+3070	COMMAND	kill @e[name=ArtifactTarget]
+3080	COMMAND	setblock 800 100 804 minecraft:farmland
+3090	COMMAND	setblock 800 101 804 minecraft:wheat[age=0]
+3100	COMMAND	tp @s 800.5 101 800.5 0 28
+3120	ARTIFACT	darkness innate/plant_healing_acceleration -1
+3140	COMMAND	execute unless block 800 101 804 minecraft:wheat[age=0] run say DARK_ARTIFACT_PLANT_GREW
+
+# Double Health changes and restores the exact maximum-health attribute.
+3170	ARTIFACT	darkness innate/double_health -1
+3190	COMMAND	attribute @s minecraft:max_health get
+3200	SCREENSHOT	dark-artifact-double-health
+3220	ARTIFACT	darkness innate/double_health -1
+3240	COMMAND	attribute @s minecraft:max_health get
+
+# Losing the item revokes any remaining artifact-owned runtime state.
+3270	COMMAND	item replace entity @s weapon.mainhand with minecraft:air
+3310	COMMAND	powers diagnose
+3330	SCREENSHOT	dark-artifact-innates-complete

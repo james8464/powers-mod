@@ -1,0 +1,61 @@
+202:[06:52:04] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/size_shift 1] at connected tick 210
+207:[06:52:06] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/size_shift 1] at connected tick 250
+210:[06:52:08] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/flight -1] at connected tick 290
+215:[06:52:11] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkInnatesExact has the following entity data: [800.5d, 101.20000004768372d, 800.6999999880791d]
+217:[06:52:11] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkInnatesExact has the following entity data: [0.0d, 0.9d, 4.0d]
+223:[06:52:13] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/flight -1] at connected tick 400
+232:[06:52:17] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/starfall -1] at connected tick 480
+236:[06:52:23] [Render thread/INFO] (Minecraft) [System] [CHAT] ArtifactTarget has the following entity data: 84.0f
+245:[06:52:27] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/void_beam -1] at connected tick 680
+249:[06:52:32] [Render thread/INFO] (Minecraft) [System] [CHAT] ArtifactTarget has the following entity data: 87.0f
+258:[06:52:36] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/fireball -1] at connected tick 850
+260:[06:52:38] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/fireball -1] at connected tick 890
+265:[06:52:43] [Render thread/INFO] (Minecraft) [System] [CHAT] ArtifactTarget has the following entity data: 83.0f
+274:[06:52:47] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/lightning_strike -1] at connected tick 1070
+278:[06:52:52] [Render thread/INFO] (Minecraft) [System] [CHAT] ArtifactTarget has the following entity data: 86.0f
+287:[06:52:56] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/thunderclap -1] at connected tick 1260
+293:[06:52:59] [Render thread/INFO] (Minecraft) [System] [CHAT] ArtifactTarget has the following entity data: [0.0d, 0.45d, 2.2d]
+295:[06:52:59] [Render thread/INFO] (Minecraft) [System] [CHAT] ArtifactTarget has the following entity data: 46.8f
+298:[06:53:02] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/speed_burst -1] at connected tick 1370
+300:[06:53:03] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkInnatesExact has the following entity data: [800.5d, 101.0d, 800.6999999880791d]
+302:[06:53:03] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkInnatesExact has the following entity data: [0.0d, -0.009800000190734863d, 0.0d]
+313:[06:53:08] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/telekinesis -1] at connected tick 1490
+315:[06:53:09] [Render thread/INFO] (Minecraft) [System] [CHAT] ArtifactTarget has the following entity data: [0.0d, 0.6215999984741211d, 2.2d]
+324:[06:53:13] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/energy_beam -1] at connected tick 1590
+328:[06:53:18] [Render thread/INFO] (Minecraft) [System] [CHAT] ArtifactTarget has the following entity data: 86.0f
+331:[06:53:21] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/super_speed -1] at connected tick 1750
+335:[06:53:24] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkInnatesExact has the following entity data: [800.5d, 101.0d, 801.6999999880791d]
+350:[06:53:29] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/breezy_bash -1] at connected tick 1920
+352:[06:53:31] [Render thread/INFO] (Minecraft) [System] [CHAT] ArtifactTarget has the following entity data: [0.0d, -0.0784000015258789d, 0.0d]
+353:[06:53:32] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/invisibility -1] at connected tick 1980
+355:[06:53:33] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkInnatesExact has the following entity data: [{duration: 19998090, show_icon: 0b, amplifier: -1b, id: "minecraft:resistance", show_particles: 0b}, {duration: 2147483627, show_icon: 0b, amplifier: -1b, id: "minecraft:invisibility", show_particles: 0b}]
+358:[06:53:35] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/invisibility -1] at connected tick 2030
+360:[06:53:35] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkInnatesExact has the following entity data: [{duration: 19998050, show_icon: 0b, amplifier: -1b, id: "minecraft:resistance", show_particles: 0b}]
+361:[06:53:37] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/time_freeze -1] at connected tick 2070
+369:[06:53:40] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/time_freeze -1] at connected tick 2140
+377:[06:53:44] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkInnatesExact has the following entity data: 20.0f
+378:[06:53:45] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/forcefield -1] at connected tick 2230
+382:[06:53:47] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkInnatesExact has the following entity data: 20.0f
+397:[06:53:53] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/gravity_displacement 2] at connected tick 2390
+399:[06:53:54] [Render thread/INFO] (Minecraft) [System] [CHAT] ArtifactTarget has the following entity data: [0.0d, 0.0d, 0.0d]
+408:[06:53:59] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/vessel_possession -1] at connected tick 2510
+410:[06:54:00] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkInnatesExact has the following entity data: 0
+414:[06:54:01] [Render thread/INFO] (Minecraft) [System] [CHAT] proxies=0; travelLoads=0; celestialEvents=0; forcedChunks=0
+466:[06:54:03] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/vessel_possession -1] at connected tick 2590
+468:[06:54:04] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkInnatesExact has the following entity data: 0
+472:[06:54:05] [Render thread/INFO] (Minecraft) [System] [CHAT] proxies=0; travelLoads=0; celestialEvents=0; forcedChunks=0
+522:[06:54:06] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/astral_projection -1] at connected tick 2660
+524:[06:54:08] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkInnatesExact has the following entity data: 3
+528:[06:54:08] [Render thread/INFO] (Minecraft) [System] [CHAT] proxies=1; travelLoads=0; celestialEvents=0; forcedChunks=1
+580:[06:54:10] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/astral_projection -1] at connected tick 2740
+582:[06:54:12] [Render thread/INFO] (Minecraft) [System] [CHAT] [Unmarked] DarkInnatesExact has the following entity data: 0
+586:[06:54:12] [Render thread/INFO] (Minecraft) [System] [CHAT] proxies=0; travelLoads=0; celestialEvents=0; forcedChunks=0
+644:[06:54:16] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/energy_drain -1] at connected tick 2860
+648:[06:54:19] [Render thread/INFO] (Minecraft) [System] [CHAT] ArtifactTarget has the following entity data: 92.0f
+657:[06:54:23] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/ice_manipulation -1] at connected tick 2990
+659:[06:54:24] [Render thread/INFO] (Minecraft) [System] [CHAT] ArtifactTarget has the following entity data: 95.0f
+674:[06:54:29] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/plant_healing_acceleration -1] at connected tick 3120
+675:[06:54:30] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed COMMAND [execute unless block 800 101 804 minecraft:wheat[age=0] run say DARK_ARTIFACT_PLANT_GREW] at connected tick 3140
+676:[06:54:32] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/double_health -1] at connected tick 3170
+681:[06:54:34] [Render thread/INFO] (powers) QA client role=exact-7548160-dark-innates-final executed ARTIFACT [darkness innate/double_health -1] at connected tick 3220
+689:[06:54:39] [Render thread/INFO] (Minecraft) [System] [CHAT] proxies=0; travelLoads=0; celestialEvents=0; forcedChunks=0
