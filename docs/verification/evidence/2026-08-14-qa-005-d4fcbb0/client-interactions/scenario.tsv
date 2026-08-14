@@ -1,0 +1,28 @@
+# Exact-build QA-005 interaction smoke for production item/menu packet entrypoints.
+300	command	powers testing on
+320	command	gamemode creative
+340	command	tp SmokeTest 0 101 0
+360	command	fill -12 100 -12 12 100 12 minecraft:stone
+380	command	fill -12 101 -12 12 112 12 minecraft:air
+400	command	tag SmokeTest add darkness
+420	command	advancement grant SmokeTest through powers:darkness/level_10
+460	command	item replace entity SmokeTest weapon.mainhand with powers:imported_book_grimoire_wild
+480	grimoire	book_grimoire_wild 2
+520	use	main
+560	screenshot	spell-hearth-sanctuary
+580	command	item replace entity SmokeTest weapon.mainhand with powers:rainbow_crystal
+600	crystal	3
+640	use	main
+680	command	data get entity SmokeTest active_effects
+700	screenshot	crystal-life-bloom
+720	command	item replace entity SmokeTest weapon.mainhand with powers:lycanbane
+740	artifact	darkness unique/blight_ground -1
+820	command	execute at SmokeTest if block ~ ~-1 ~ powers:darkness run say QA_BLIGHT_PRESENT
+840	screenshot	artifact-blight-ground
+860	command	item replace entity SmokeTest weapon.mainhand with minecraft:diamond_sword
+880	command	summon minecraft:zombie 0 101 3 {CustomName:'{"text":"CombatTarget"}',CustomNameVisible:true,NoAI:true,PersistenceRequired:true}
+900	command	data get entity @e[name=CombatTarget,limit=1] Health
+940	attack	CombatTarget
+980	command	data get entity @e[name=CombatTarget,limit=1] Health
+1000	screenshot	vanilla-attack
+1040	command	powers diagnose
