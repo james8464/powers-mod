@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "profile": "complete",
+  "side": "client",
+  "minecraftVersion": "26.2",
+  "artifacts": [
+    {
+      "id": "sodium",
+      "projectId": "AANobbMI",
+      "versionId": "2Yom1N68",
+      "version": "mc26.2-0.9.1-fabric",
+      "filename": "sodium-fabric-0.9.1+mc26.2.jar",
+      "size": 1834384,
+      "sha256": "de406c7a0ca5e748dfbe44740278400882a44e3109e2584b243ec02d4003344b",
+      "sourceUrl": "https://modrinth.com/mod/AANobbMI/version/2Yom1N68",
+      "downloadUrl": "https://cdn.modrinth.com/data/AANobbMI/versions/2Yom1N68/sodium-fabric-0.9.1%2Bmc26.2.jar",
+      "releaseChannel": "release",
+      "sides": [
+        "client"
+      ],
+      "license": "PolyForm Shield 1.0.0",
+      "redistribution": "Cache locally for testing; do not redistribute with POWERS.",
+      "retrieved": "2026-08-14"
+    },
+    {
+      "id": "lithium",
+      "projectId": "gvQqBUqZ",
+      "versionId": "f7vZ0VWU",
+      "version": "mc26.2-0.25.3-fabric",
+      "filename": "lithium-fabric-0.25.3+mc26.2.jar",
+      "size": 912850,
+      "sha256": "fdde92e238e8075f89ad7f701f2a3d5854af88ba9a67657184a4407b104ac563",
+      "sourceUrl": "https://modrinth.com/mod/gvQqBUqZ/version/f7vZ0VWU",
+      "downloadUrl": "https://cdn.modrinth.com/data/gvQqBUqZ/versions/f7vZ0VWU/lithium-fabric-0.25.3%2Bmc26.2.jar",
+      "releaseChannel": "release",
+      "sides": [
+        "client",
+        "server"
+      ],
+      "license": "LGPL-3.0-only",
+      "redistribution": "Cache locally for testing; any redistribution must satisfy LGPL-3.0-only.",
+      "retrieved": "2026-08-14"
+    },
+    {
+      "id": "simple_voice_chat",
+      "projectId": "9eGKb6K1",
+      "versionId": "DKSq5wO6",
+      "version": "fabric-2.6.22+26.2",
+      "filename": "voicechat-fabric-2.6.22+26.2.jar",
+      "size": 5576838,
+      "sha256": "1b6a8c6c41d6d7edaa10543ac623a70b0c60f22f34567969b6999c345aa277b2",
+      "sourceUrl": "https://modrinth.com/plugin/9eGKb6K1/version/DKSq5wO6",
+      "downloadUrl": "https://cdn.modrinth.com/data/9eGKb6K1/versions/DKSq5wO6/voicechat-fabric-2.6.22%2B26.2.jar",
+      "releaseChannel": "release",
+      "sides": [
+        "client",
+        "server"
+      ],
+      "license": "All Rights Reserved",
+      "redistribution": "Local testing only; do not redistribute.",
+      "retrieved": "2026-08-14"
+    },
+    {
+      "id": "inventory_extended",
+      "projectId": "ovStb4Jg",
+      "versionId": "b0CvTRNk",
+      "version": "1.1.2",
+      "filename": "inventoryextended-1.1.2-mc26.2.jar",
+      "size": 82228,
+      "sha256": "7cdbe2079d5e8be9c5faba8b03dbccc1ddccb7f99ec48987079cc9bd8e235bc6",
+      "sourceUrl": "https://modrinth.com/mod/ovStb4Jg/version/b0CvTRNk",
+      "downloadUrl": "https://cdn.modrinth.com/data/ovStb4Jg/versions/b0CvTRNk/inventoryextended-1.1.2-mc26.2.jar",
+      "releaseChannel": "release",
+      "sides": [
+        "client",
+        "server"
+      ],
+      "license": "Apache-2.0",
+      "redistribution": "Cache locally; redistribution must preserve Apache-2.0 notices.",
+      "retrieved": "2026-08-14"
+    }
+  ]
+}

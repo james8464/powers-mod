@@ -8,7 +8,7 @@ final class AcceptanceKeyInput {
 	}
 
 	static void apply(KeyMapping key, String name, boolean down) {
-		if (down && name.equals("advancements")) {
+		if (down && (name.equals("advancements") || name.equals("rank_maze"))) {
 			KeyMapping.click(key.getDefaultKey());
 		}
 		key.setDown(down);

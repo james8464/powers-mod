@@ -1,10 +1,11 @@
 # NET-011 compatibility evidence
 
-This directory contains privacy-safe evidence for the exact Minecraft 26.2 artifacts in the compatibility manifest. Third-party JARs, full logs, worlds, screenshots, player identity, UUIDs, IP addresses, and voice data are deliberately excluded.
+This directory is the committed, privacy-safe audit record for the exact Minecraft 26.2 artifacts in the manifest. Third-party JARs, worlds, player identities, UUIDs, IP addresses, home paths, seeds, credentials, and voice data are excluded. `scripts/compatibility_harness.py sanitize` produced every committed log; its deterministic redaction behavior is regression-tested.
 
-- `runtime-results.tsv` is the machine-readable pass/limited/fail ledger.
-- `runtime-markers.log` preserves selected exact, non-private log lines with source filenames and original line numbers.
-- Full ignored logs remain locally under `build/compatibility-runs/*`; client copies are tied to their isolated receipts and unique process usernames as documented in the matrix.
-- The two full-stack 113/114 logs and focused 1/1 reproduction are frozen under ignored `build/compatibility-runs/net011-log-snapshots/`; filenames and SHA-256 values are pinned in `runtime-results.tsv` so mutable `latest.log` is never the final reference.
+- `runtime-results.tsv` is the machine-readable pass/limited/fail ledger, including the two original 113/114 failures, the misleading focused pass, the pre-fix aggregate failure, and the final literal 115/115 pass.
+- `logs/` contains the complete sanitized logs, not selected excerpts, so every warning/error can be audited. Offline-authentication 401/Realms errors, voice debug/offline warnings and microphone denial are fixture-attributed limitations. Vanilla shader-link warnings did not prevent the pinned Sodium renderer from producing the inspected frames.
+- `receipts/` records exact project/version IDs, filenames, byte sizes, hashes, URLs, licenses and retrieval dates for each final isolated process.
+- `visual/` contains exactly eight inspected frames: normal and reduced-motion versions of the static-white Light Realm, ten-symbol HUD/power rail, Rank Maze screen, and current authored Double Health effect. The automatic first frames with security/voice toasts and the illegible test-beam frames are excluded.
+- `SHA256SUMS` binds every committed evidence artifact; regenerate from this directory with `find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 shasum -a 256`.
 
-The evidence supports only the bounded claims in [`compatibility-matrix.md`](../../compatibility-matrix.md). In particular, it does not claim a ClaimMod adapter, nested-container artifact ownership, microphone/audio success, visually graded renderer output, or the not-yet-implemented enhanced Light Realm sky.
+The evidence supports only the bounded claims in [`compatibility-matrix.md`](../../compatibility-matrix.md). It does not claim a ClaimMod-specific adapter, nested-container artifact ownership, microphone/audio success, or the future enhanced VFX-009 renderer.

@@ -37,6 +37,9 @@ base {
 	archivesName = project.archives_base_name
 }
 
+def compatibilityGameTestsEnabled = providers.gradleProperty("powersCompatibilityGameTests").isPresent()
+		|| gradle.startParameter.taskNames.any { it.split(":").last() == "runCompatibilityGameTest" }
+
 sourceSets {
 	exampleExtension {
 		java.srcDir "src/exampleExtension/java"
@@ -75,6 +78,12 @@ fabricApi {
 		enableGameTests = true
 		enableClientGameTests = true
 		eula = true
+	}
+}
+
+if (compatibilityGameTestsEnabled) {
+	loom.runs.named("gameTest") {
+		runDirectory.set(layout.buildDirectory.dir("compatibility-runs/complete-gametest"))
 	}
 }
 
@@ -190,11 +199,45 @@ tasks.register("prepareCompatibilityRun", Exec) {
 			"--cache", compatibilityCache.get(),
 			"--profile", compatibilityProfile.get(),
 			"--side", compatibilitySide.get(),
-			"--run-dir", target.get().absolutePath
+			"--run-dir", target.get().absolutePath,
+			"--allowed-root", file(compatibilityRunDir.get()).absolutePath
+	doFirst {
+		file(compatibilityRunDir.get()).mkdirs()
+	}
 	doLast {
 		logger.lifecycle("Use -PpowersRunDir={} with run{} for this isolated profile.",
 				target.get().absolutePath, compatibilitySide.get().capitalize())
 	}
+}
+
+def compatibilityGameTestRoot = layout.buildDirectory.dir("compatibility-runs")
+def compatibilityGameTestRun = layout.buildDirectory.dir("compatibility-runs/complete-gametest")
+tasks.register("prepareCompatibilityGameTest", Exec) {
+	group = "verification"
+	description = "Hash-verifies and stages the pinned complete server profile for isolated GameTests."
+	commandLine "python3", "-B", "scripts/compatibility_harness.py", "assemble",
+			"--manifest", compatibilityManifest.asFile.absolutePath,
+			"--cache", compatibilityCache.get(),
+			"--profile", "complete", "--side", "server",
+			"--run-dir", compatibilityGameTestRun.get().asFile.absolutePath,
+			"--allowed-root", compatibilityGameTestRoot.get().asFile.absolutePath
+	doFirst {
+		compatibilityGameTestRoot.get().asFile.mkdirs()
+	}
+}
+
+tasks.register("runCompatibilityGameTest") {
+	group = "verification"
+	description = "Runs GameTests in an owned isolated directory with the verified complete server profile."
+	dependsOn("prepareCompatibilityGameTest", "runGameTest")
+}
+tasks.named("runGameTest") {
+	if (compatibilityGameTestsEnabled) {
+		dependsOn("prepareCompatibilityGameTest")
+	}
+}
+tasks.named("runGameTest").configure {
+	mustRunAfter("prepareCompatibilityGameTest")
 }
 
 // The 90-minute connected-player profile is intentionally absent from ordinary
@@ -207,6 +250,7 @@ tasks.named("processGametestResources") {
 	inputs.property("connectedProfileEnabled", connectedProfileEnabled)
 	inputs.property("restartSoakEnabled", restartSoakEnabled)
 	inputs.property("perf016BenchmarkEnabled", perf016BenchmarkEnabled)
+	inputs.property("compatibilityGameTestsEnabled", compatibilityGameTestsEnabled)
 	filesMatching("fabric.mod.json") {
 		expand connectedProfileEntrypoint: connectedProfileEnabled
 				? ',\n\t\t\t"com.powers.gametest.ConnectedBotProfileGameTests"'
@@ -216,12 +260,17 @@ tasks.named("processGametestResources") {
 						: '',
 				perf016BenchmarkEntrypoint: perf016BenchmarkEnabled
 						? ',\n\t\t\t"com.powers.force.CatastrophicBlockWorkGameTests"'
+						: '',
+				compatibilityEntrypoint: compatibilityGameTestsEnabled
+						? ',\n\t\t\t"com.powers.gametest.CompatibilityInventoryGameTests"'
 						: ''
 	}
 }
 
 tasks.named("runGameTest") {
-	if (perf016BenchmarkEnabled) {
+	if (compatibilityGameTestsEnabled && providers.gradleProperty("gameTestFilter").isPresent()) {
+		systemProperty "fabric-api.gametest.filter", providers.gradleProperty("gameTestFilter").get()
+	} else if (perf016BenchmarkEnabled) {
 		systemProperty "fabric-api.gametest.filter",
 				"powers-gametest:catastrophic_block_work_game_tests_catastrophic_containment_cannot_starve_another_dimension"
 	} else if (restartSoakEnabled) {
@@ -242,8 +291,13 @@ tasks.named("runGameTest") {
 		systemProperty "fabric-api.gametest.filter", providers.gradleProperty("gameTestFilter").get()
 	}
 	doFirst {
-		def gameTestRun = layout.buildDirectory.dir("run/gameTest").get().asFile
+		def gameTestRun = compatibilityGameTestsEnabled
+				? compatibilityGameTestRun.get().asFile
+				: layout.buildDirectory.dir("run/gameTest").get().asFile
 		delete(new File(gameTestRun, "world"))
+		if (!compatibilityGameTestsEnabled) {
+			delete(new File(gameTestRun, "mods"))
+		}
 		gameTestRun.mkdirs()
 		def properties = new File(gameTestRun, "server.properties")
 		if (!properties.exists()) {

@@ -1,0 +1,17 @@
+# Sodium live visual proof. Server console assigns powers and enters the Light Realm.
+60	CLOSE	screen
+158	CLEAN	ui
+160	SCREENSHOT	light-realm-white-sky
+180	ACTIVATE	0
+181	CLEAN	ui
+182	SCREENSHOT	ten-symbol-hud-and-power-rail
+220	KEY	rank_maze on
+221	KEY	rank_maze off
+238	CLEAN	ui
+240	SCREENSHOT	powers-rank-maze-screen
+270	CLOSE	screen
+298	LOOK	0 20
+300	COMMAND	powers testing fx-capture 64
+301	LOOK	55 8
+301	CLEAN	ui
+302	SCREENSHOT	semantic-lightning-fx

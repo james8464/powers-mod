@@ -150,7 +150,18 @@ public final class AcceptanceClientAgent {
 			}
 			case KEY -> setAcceptanceKey(client, step.argument());
 			case LOOK -> setLook(client, step.argument());
-			case SCREENSHOT -> Screenshot.grab(client, false);
+			case SCREENSHOT -> {
+				// Acceptance captures are evidence, not a transcript of earlier system
+				// notifications. Clear queued/visible UI noise immediately before pixels
+				// are sampled; Screenshot may report its own filename after the capture.
+				client.gui.hud.getChat().clearMessages(false);
+				client.gui.toastManager().clear();
+				Screenshot.grab(client, false);
+			}
+			case CLEAN -> {
+				client.gui.hud.getChat().clearMessages(false);
+				client.gui.toastManager().clear();
+			}
 		}
 		PowersMod.LOGGER.info("QA client role={} executed {} [{}] at connected tick {}",
 				CONFIG.role(), step.operation(), step.argument(), connectedTicks);
@@ -180,6 +191,7 @@ public final class AcceptanceClientAgent {
 			case "sneak" -> client.options.keyShift;
 			case "sprint" -> client.options.keySprint;
 			case "advancements" -> client.options.keyAdvancements;
+			case "rank_maze" -> com.powers.client.PowersClient.rankMazeKey;
 			default -> throw new IllegalArgumentException("Unsupported acceptance key");
 		};
 		AcceptanceKeyInput.apply(key, values[0], values[1].equals("on"));

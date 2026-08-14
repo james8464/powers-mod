@@ -8,7 +8,7 @@ import java.util.Locale;
 public final class AcceptanceClientScript {
 	public enum Operation {
 		COMMAND, CHAT, ACTIVATE, SELECT, USE, ATTACK, GRIMOIRE, CRYSTAL, ARTIFACT,
-		ARTIFACT_TELEPORT, TELEPORT, RESPAWN, CLOSE, LOCATOR, KEY, LOOK, SCREENSHOT
+		ARTIFACT_TELEPORT, TELEPORT, RESPAWN, CLOSE, LOCATOR, KEY, LOOK, CLEAN, SCREENSHOT
 	}
 
 	public record Step(int tick, Operation operation, String argument) {
@@ -121,7 +121,8 @@ public final class AcceptanceClientScript {
 						|| !(values[0].equals("forward") || values[0].equals("back")
 						|| values[0].equals("left") || values[0].equals("right")
 						|| values[0].equals("jump") || values[0].equals("sneak")
-						|| values[0].equals("sprint") || values[0].equals("advancements"))) {
+						|| values[0].equals("sprint") || values[0].equals("advancements")
+						|| values[0].equals("rank_maze"))) {
 					throw malformed(lineNumber, "key needs a supported name and on/off state");
 				}
 			}
@@ -134,6 +135,10 @@ public final class AcceptanceClientScript {
 			case CLOSE -> {
 				if (!argument.equals("screen")) throw malformed(lineNumber,
 						"close argument must be screen");
+			}
+			case CLEAN -> {
+				if (!argument.equals("ui")) throw malformed(lineNumber,
+						"clean argument must be ui");
 			}
 			case COMMAND, CHAT -> { }
 		}

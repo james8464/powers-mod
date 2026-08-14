@@ -97,10 +97,20 @@ class AcceptanceClientScriptTest {
 	void acceptsTheVanillaAdvancementsKeyForLiveScreenEvidence() {
 		var steps = AcceptanceClientScript.parse(List.of(
 				"20\tkey\tadvancements on",
-				"21\tkey\tadvancements off"));
+				"21\tkey\tadvancements off",
+				"30\tkey\trank_maze on",
+				"31\tkey\trank_maze off"));
 
 		assertEquals("advancements on", steps.getFirst().argument());
-		assertEquals("advancements off", steps.getLast().argument());
+		assertEquals("rank_maze off", steps.getLast().argument());
+	}
+
+	@Test
+	void acceptsOnlyTheExplicitUiCleanupBoundary() {
+		assertEquals(AcceptanceClientScript.Operation.CLEAN,
+				AcceptanceClientScript.parse(List.of("20\tclean\tui")).getFirst().operation());
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("20\tclean\tworld")));
 	}
 
 	@Test
@@ -109,6 +119,16 @@ class AcceptanceClientScriptTest {
 				InputConstants.Type.KEYSYM, 299, KeyMapping.Category.MISC);
 
 		AcceptanceKeyInput.apply(mapping, "advancements", true);
+
+		assertTrue(mapping.consumeClick());
+	}
+
+	@Test
+	void powersScreenPressQueuesTheCustomClickConsumedByTheClientLoop() {
+		var mapping = new KeyMapping("key.powers.acceptance_rank_maze",
+				InputConstants.Type.KEYSYM, 300, KeyMapping.Category.MISC);
+
+		AcceptanceKeyInput.apply(mapping, "rank_maze", true);
 
 		assertTrue(mapping.consumeClick());
 	}

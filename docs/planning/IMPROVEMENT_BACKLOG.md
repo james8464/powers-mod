@@ -207,7 +207,7 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
 | NET-010 | Implemented | P2 | Atomic datapack reload migration for action/menu keys without reconnect. | Immutable monotonic snapshots, captured casts, stale refresh, and actual-owner alias migration are covered by live GameTests. |
-| NET-011 | Guarantee | P2 | Validate behavior with common performance/render/voice/claim/inventory mods. | Published compatibility matrix names tested versions and known limitations. |
+| NET-011 | Implemented | P2 | Validate behavior with common performance/render/voice/claim/inventory mods. | Published compatibility matrix names tested versions and known limitations. |
 | NET-012 | Enhancement | P3 | Add localization framework and first complete non-English translation. | No string concatenation blocks grammar; all UI/tooltips/subtitles localize. |
 | NET-013 | Enhancement | P3 | Add server presets: lore survival, PvP-balanced, cinematic testing, low-spec. | Presets are explicit diffs and never overwrite hand-edited config without confirmation. |
 

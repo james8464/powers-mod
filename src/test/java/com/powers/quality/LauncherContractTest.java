@@ -51,6 +51,21 @@ class LauncherContractTest {
 	}
 
 	@Test
+	void compatibilityGameTestOwnsVerifiedIsolatedRuntime() throws IOException {
+		String build = Files.readString(Path.of(System.getProperty("user.dir")).resolve("build.gradle"));
+		assertTrue(build.contains("tasks.register(\"prepareCompatibilityGameTest\", Exec)"),
+				"compatibility GameTests do not own an artifact-staging task");
+		assertTrue(build.contains("tasks.register(\"runCompatibilityGameTest\")"),
+				"compatibility GameTests do not expose an owned launch task");
+		assertTrue(build.contains("compatibility-runs/complete-gametest"),
+				"compatibility GameTests are not isolated from ordinary runGameTest");
+		assertTrue(build.contains("--allowed-root") && build.contains("\"--profile\", \"complete\""),
+				"compatibility GameTests do not use the strict pinned-artifact harness");
+		assertTrue(build.contains("if (!compatibilityGameTestsEnabled)"),
+				"ordinary runGameTest does not keep its mods directory unpolluted");
+	}
+
+	@Test
 	void dedicatedServerTaskSeedsItsOwnRuntimeFiles() throws IOException {
 		String build = Files.readString(Path.of(System.getProperty("user.dir")).resolve("build.gradle"));
 		int runServer = build.indexOf("tasks.named(\"runServer\")");
