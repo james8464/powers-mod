@@ -66,7 +66,7 @@ public final class GrimoirePackets {
 		PayloadTypeRegistry.clientboundPlay().register(OpenIndexPayload.TYPE, OpenIndexPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SelectSpellPayload.TYPE, SelectSpellPayload.STREAM_CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(SelectSpellPayload.TYPE,
-				(payload, context) -> context.server().execute(() -> select(context.player(), payload)));
+				(payload, context) -> ServerPlayCallback.execute(context, player -> select(player, payload)));
 	}
 
 	/** Opens a canonical snapshot for one held grimoire. */

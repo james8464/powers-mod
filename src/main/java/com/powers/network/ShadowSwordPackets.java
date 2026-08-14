@@ -143,49 +143,49 @@ public final class ShadowSwordPackets {
 				BindFavouritePayload.TYPE, BindFavouritePayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(TeleportPayload.TYPE, TeleportPayload.STREAM_CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(SelectPayload.TYPE, (payload, context) ->
-				context.server().execute(() -> {
-					if (PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.ARTIFACT)) {
+				ServerPlayCallback.execute(context, player -> {
+					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) {
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
 					if (alignment != null) ArtifactWeaponManager.select(
-							context.player(), alignment, payload.actionKey(), payload.option());
+							player, alignment, payload.actionKey(), payload.option());
 					}
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(CommitPayload.TYPE, (payload, context) ->
-				context.server().execute(() -> {
-					if (!PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.ARTIFACT)) return;
+				ServerPlayCallback.execute(context, player -> {
+					if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) return;
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
-					if (alignment != null && ArtifactWeaponManager.select(context.player(), alignment,
+					if (alignment != null && ArtifactWeaponManager.select(player, alignment,
 							payload.actionKey(), payload.option())) {
-						ArtifactWeaponManager.activateSelected(context.player(), alignment);
+						ArtifactWeaponManager.activateSelected(player, alignment);
 					}
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(CyclePayload.TYPE, (payload, context) ->
-				context.server().execute(() -> {
-					if (!PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.ARTIFACT)
+				ServerPlayCallback.execute(context, player -> {
+					if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)
 							|| !ArtifactScrollRules.validDirection(payload.direction())) return;
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
-					if (alignment == null || !ArtifactWeaponManager.holds(context.player(), alignment)
-							|| !ArtifactWeaponManager.authorized(context.player(), alignment)) return;
+					if (alignment == null || !ArtifactWeaponManager.holds(player, alignment)
+							|| !ArtifactWeaponManager.authorized(player, alignment)) return;
 					ArtifactWeaponManager.Action selected = ArtifactWeaponManager.selected(
-							context.player(), alignment);
+							player, alignment);
 					String next = ArtifactFavouriteRules.cycle(
-							ArtifactSelectionState.favourites(context.player(), alignment),
+							ArtifactSelectionState.favourites(player, alignment),
 							selected == null ? null : selected.definition().key(), payload.direction());
-					if (next != null) ArtifactWeaponManager.select(context.player(), alignment, next, -1);
+					if (next != null) ArtifactWeaponManager.select(player, alignment, next, -1);
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(BindFavouritePayload.TYPE, (payload, context) ->
-				context.server().execute(() -> {
-					if (!PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.ARTIFACT)) return;
+				ServerPlayCallback.execute(context, player -> {
+					if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) return;
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
-					if (alignment == null || !ArtifactWeaponManager.holds(context.player(), alignment)
-							|| !ArtifactWeaponManager.authorized(context.player(), alignment)) return;
-					ArtifactSelectionState.bindFavourite(context.player(), alignment,
+					if (alignment == null || !ArtifactWeaponManager.holds(player, alignment)
+							|| !ArtifactWeaponManager.authorized(player, alignment)) return;
+					ArtifactSelectionState.bindFavourite(player, alignment,
 							payload.slot(), payload.actionKey());
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(TeleportPayload.TYPE, (payload, context) ->
-				context.server().execute(() -> {
-					if (PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.TRAVEL)) {
-						handleTeleport(context.player(), payload);
+				ServerPlayCallback.execute(context, player -> {
+					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.TRAVEL)) {
+						handleTeleport(player, payload);
 					}
 				}));
 	}

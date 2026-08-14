@@ -51,7 +51,7 @@ public final class RankPackets {
 	}
 
 	private static void handle(RankActionPayload payload, ServerPlayNetworking.Context context) {
-		context.server().execute(() -> apply(context.player(), payload));
+		ServerPlayCallback.execute(context, player -> apply(player, payload));
 	}
 
 	private static void apply(ServerPlayer player, RankActionPayload payload) {

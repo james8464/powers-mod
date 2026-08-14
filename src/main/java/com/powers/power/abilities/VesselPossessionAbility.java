@@ -218,11 +218,7 @@ public class VesselPossessionAbility extends Ability {
 		VesselControlPackets.sendState(owner, false);
 		owner.setCamera(null);
 		if (reason == PossessionEndRules.Reason.VESSEL_FATAL) {
-			BodyProxyManager.returnToBody(owner, returned -> {
-				if (returned && owner.isAlive() && !owner.isRemoved()) {
-					com.powers.fx.GodlyPunishment.deadVesselWrath(owner);
-				}
-			});
+			BodyProxyManager.returnAfterVesselDeath(owner);
 		} else {
 			BodyProxyManager.returnToBody(owner);
 		}

@@ -7,6 +7,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
@@ -28,6 +30,7 @@ final class ServerMagicScheduler {
 	private static final ScheduledTaskQueue DELAYED = new ScheduledTaskQueue(8_192, 256,
 			ServerMagicScheduler::reportTaskFailure);
 	private static long currentTick;
+	private static MinecraftServer executingServer;
 	private static long lastFailureLogTick = -LOG_INTERVAL_TICKS;
 	private static long lastCapacityLogTick = -LOG_INTERVAL_TICKS;
 
@@ -70,9 +73,21 @@ final class ServerMagicScheduler {
 		return -1;
 	}
 
-	static ScheduledTaskQueue.TaskToken schedule(MinecraftServer server, int ticks, Runnable action) {
-		ScheduledTaskQueue.TaskToken token = DELAYED.schedule(
-				server.getTickCount() + Math.max(1, ticks), action);
+	static ScheduledTaskQueue.TaskToken schedule(MinecraftServer server, int ticks, UUID subjectId,
+			ResourceKey<Level> dimension, UUID cancellationOwner, String purpose,
+			PowersMod.DelayedServerAction action) {
+		long deadline = server.getTickCount() + Math.max(1, ticks);
+		var descriptor = new ScheduledTaskQueue.TaskDescriptor(subjectId,
+				dimension.identifier().toString(), deadline, cancellationOwner, purpose);
+		ScheduledTaskQueue.TaskToken token = DELAYED.schedule(descriptor, () -> {
+			MinecraftServer current = executingServer;
+			Identifier dimensionId = Identifier.tryParse(descriptor.dimensionId());
+			ResourceKey<Level> dimensionKey = dimensionId == null ? null
+					: ResourceKey.create(Registries.DIMENSION, dimensionId);
+			if (current != null && dimensionKey != null && current.getLevel(dimensionKey) != null) {
+				action.run(current, descriptor);
+			}
+		});
 		if (!token.accepted() && currentTick - lastCapacityLogTick >= LOG_INTERVAL_TICKS) {
 			lastCapacityLogTick = currentTick;
 			PowersMod.LOGGER.warn("Refused delayed magic task because the 8192-task cap is full");
@@ -80,15 +95,28 @@ final class ServerMagicScheduler {
 		return token;
 	}
 
-	static void tick(int currentTick) {
-		ServerMagicScheduler.currentTick = currentTick;
+	static int cancelOwner(UUID owner) {
+		return DELAYED.cancelOwner(owner);
+	}
+
+	static List<ScheduledTaskQueue.TaskDescriptor> delayedTasks() {
+		return DELAYED.snapshot();
+	}
+
+	static void tick(MinecraftServer server) {
+		ServerMagicScheduler.currentTick = server.getTickCount();
 		var iterator = STORMS.iterator();
 		while (iterator.hasNext()) {
 			LightningStorm storm = iterator.next();
 			storm.tick();
 			if (storm.finished()) iterator.remove();
 		}
-		DELAYED.runDue(currentTick);
+		executingServer = server;
+		try {
+			DELAYED.runDue(currentTick);
+		} finally {
+			executingServer = null;
+		}
 	}
 
 	static void clear() {
@@ -97,6 +125,7 @@ final class ServerMagicScheduler {
 		currentTick = 0L;
 		lastFailureLogTick = -LOG_INTERVAL_TICKS;
 		lastCapacityLogTick = -LOG_INTERVAL_TICKS;
+		executingServer = null;
 	}
 
 	private static void reportTaskFailure(Throwable failure) {

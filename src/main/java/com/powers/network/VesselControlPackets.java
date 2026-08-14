@@ -74,16 +74,15 @@ public final class VesselControlPackets {
 		PayloadTypeRegistry.serverboundPlay().register(InputPayload.TYPE, InputPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ReleasePayload.TYPE, ReleasePayload.STREAM_CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(InputPayload.TYPE, (payload, context) ->
-				context.server().execute(() -> {
-					ServerPlayer owner = context.player();
+				ServerPlayCallback.execute(context, owner -> {
 					if (PacketRateLimiter.allow(owner, PacketRateLimiter.Lane.VESSEL_CONTROL)) {
 						VesselPossessionAbility.applyControl(owner, payload);
 					}
 				}));
 		ServerPlayNetworking.registerGlobalReceiver(ReleasePayload.TYPE, (payload, context) ->
-				context.server().execute(() -> {
-					if (PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.VESSEL_CONTROL)) {
-						releaseControlledSession(context.player());
+				ServerPlayCallback.execute(context, player -> {
+					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.VESSEL_CONTROL)) {
+						releaseControlledSession(player);
 					}
 				}));
 	}

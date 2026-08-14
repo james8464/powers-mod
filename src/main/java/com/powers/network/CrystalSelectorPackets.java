@@ -42,9 +42,9 @@ public final class CrystalSelectorPackets {
 		PayloadTypeRegistry.clientboundPlay().register(OpenPayload.TYPE, OpenPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SelectPayload.TYPE, SelectPayload.STREAM_CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(SelectPayload.TYPE, (payload, context) ->
-				context.server().execute(() -> {
-					if (PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.ARTIFACT)) {
-						select(context.player(), payload.selected());
+				ServerPlayCallback.execute(context, player -> {
+					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) {
+						select(player, payload.selected());
 					}
 				}));
 	}

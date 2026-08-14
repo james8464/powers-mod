@@ -15,11 +15,14 @@ final class ShadowCompanionMessaging {
 	}
 
 	static void answer(ServerPlayer owner, String question) {
+		UUID ownerId = owner.getUUID();
+		long callbackEpoch = com.powers.util.ServerCallbackGate.capture(owner.level().getServer());
 		KnowledgeService.answerAsync(owner, ShadowChatContext.contextualize(owner, question)).thenAccept(answer ->
-				owner.level().getServer().execute(() -> {
-					if (owner.connection == null || owner.isRemoved()
-							|| !PrivateCompanionManager.requested(owner.getUUID())) return;
-					replyAndRemember(owner, question, spokenAnswer(answer));
+				com.powers.util.ServerCallbackGate.execute(callbackEpoch, server -> {
+					ServerPlayer current = server.getPlayerList().getPlayer(ownerId);
+					if (current == null || current.connection == null || current.isRemoved()
+							|| !PrivateCompanionManager.requested(ownerId)) return;
+					replyAndRemember(current, question, spokenAnswer(answer));
 				}));
 	}
 

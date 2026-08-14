@@ -1319,7 +1319,8 @@ public final class PowersGameTests {
 			helper.assertTrue(com.powers.power.travel.MindscapeMobReturnTracker.trackedCount(
 					journeyOwner) == 1, "Journey mob was not indexed under its caster");
 			helper.assertTrue(com.powers.power.travel.MindscapeMobReturnTracker.returnOwned(
-					journeyOwner) == 1, "Caster return did not recall its separated journey mob");
+					helper.getLevel().getServer(), journeyOwner) == 1,
+					"Caster return did not recall its separated journey mob");
 			helper.succeedWhen(() -> {
 				var returned = helper.getLevel().getEntity(mobId);
 				helper.assertTrue(returned != null && returned.position().distanceToSqr(

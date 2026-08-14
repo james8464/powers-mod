@@ -196,8 +196,7 @@ public final class PowersPackets {
 	}
 
 	private static void handleActivate(ActivateAbilityPayload payload, ServerPlayNetworking.Context context) {
-		context.server().execute(() -> {
-			ServerPlayer player = context.player();
+		ServerPlayCallback.execute(context, player -> {
 			if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ACTIVATION)) return;
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
@@ -215,8 +214,7 @@ public final class PowersPackets {
 
 	private static void handleSelection(SelectAbilityOptionPayload payload,
 			ServerPlayNetworking.Context context) {
-		context.server().execute(() -> {
-			ServerPlayer player = context.player();
+		ServerPlayCallback.execute(context, player -> {
 			if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.SELECTION)) return;
 			if (GlobalTimeStopManager.rejectIfStopped(player)) return;
 			AmethystDampening.update(player);
@@ -239,8 +237,7 @@ public final class PowersPackets {
 	}
 
 	private static void handleTeleport(TeleportRequestPayload payload, ServerPlayNetworking.Context context) {
-		context.server().execute(() -> {
-			ServerPlayer player = context.player();
+		ServerPlayCallback.execute(context, player -> {
 			if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.TRAVEL)) return;
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 			// guards against malformed packets: names cap at 16 chars and
@@ -271,8 +268,7 @@ public final class PowersPackets {
 	}
 
 	private static void handleMark(TeleportMarkPayload payload, ServerPlayNetworking.Context context) {
-		context.server().execute(() -> {
-			ServerPlayer player = context.player();
+		ServerPlayCallback.execute(context, player -> {
 			if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.TRAVEL)) return;
 			if (GlobalTimeStopManager.rejectIfStopped(player)) return;
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;

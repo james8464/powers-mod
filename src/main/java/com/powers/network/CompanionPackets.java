@@ -96,8 +96,7 @@ public final class CompanionPackets {
 		PayloadTypeRegistry.clientboundPlay().register(StatusPayload.TYPE, StatusPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(InteractPayload.TYPE, InteractPayload.STREAM_CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(InteractPayload.TYPE, (payload, context) ->
-				context.server().execute(() -> {
-					ServerPlayer player = context.player();
+				ServerPlayCallback.execute(context, player -> {
 					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.COMPANION)) {
 						PrivateCompanionManager.interact(player, payload.sessionId());
 					}

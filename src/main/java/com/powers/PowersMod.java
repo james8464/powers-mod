@@ -5,10 +5,15 @@ import com.powers.power.PowerRegistry;
 import com.powers.util.ScheduledTaskQueue;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+
+import java.util.UUID;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +24,12 @@ public final class PowersMod implements ModInitializer {
 
 	/** Realm palette echoed by a scheduled magical storm. */
 	public enum StormTheme { NONE, DARK, LIGHT }
+
+	/** Callback supplied with the currently active server and stable task identity. */
+	@FunctionalInterface
+	public interface DelayedServerAction {
+		void run(MinecraftServer server, ScheduledTaskQueue.TaskDescriptor task);
+	}
 
 	@Override
 	public void onInitialize() {
@@ -51,10 +62,22 @@ public final class PowersMod implements ModInitializer {
 		ServerMagicScheduler.startStorm(level, position, follow, ticks, followTicks, theme);
 	}
 
-	/** Runs an action once after a bounded server-tick delay. */
+	/** Runs owned work after a bounded delay without retaining entity or level instances. */
 	public static ScheduledTaskQueue.TaskToken scheduleDelayed(
-			MinecraftServer server, int ticks, Runnable action) {
-		return ServerMagicScheduler.schedule(server, ticks, action);
+			MinecraftServer server, int ticks, UUID subjectId, ResourceKey<Level> dimension,
+			UUID cancellationOwner, String purpose, DelayedServerAction action) {
+		return ServerMagicScheduler.schedule(server, ticks, subjectId, dimension,
+				cancellationOwner, purpose, action);
+	}
+
+	/** Cancels all delayed work owned by one disconnecting or dying principal. */
+	public static int cancelDelayedTasks(UUID cancellationOwner) {
+		return ServerMagicScheduler.cancelOwner(cancellationOwner);
+	}
+
+	/** Stable delayed-work identities for bounded operator diagnostics. */
+	public static List<ScheduledTaskQueue.TaskDescriptor> delayedTasks() {
+		return ServerMagicScheduler.delayedTasks();
 	}
 
 	/** Creates one identifier in the stable POWERS namespace. */

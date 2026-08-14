@@ -24,6 +24,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -41,9 +42,16 @@ import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 /** Gives imported relic families bounded server-authoritative actions. */
 public final class ImportedArtifactItem extends Item {
 	private static final int USE_COOLDOWN_TICKS = 100;
+	private static final Map<UUID, MiniportalRequest> PENDING_MINIPORTALS = new HashMap<>();
+	private record MiniportalRequest(ResourceKey<Level> origin, ResourceKey<Level> destination,
+			Vec3 position, int charges, int inventorySlot) { }
 	private final String texture;
 	private final ImportedArtifactKind kind;
 	private final ArtifactRole role;
@@ -244,45 +252,63 @@ public final class ImportedArtifactItem extends Item {
 		BlockPos requested = anchor.position();
 		Vec3 position = Vec3.atBottomCenterOf(requested);
 		ServerLevel origin = (ServerLevel) player.level();
-		var server = origin.getServer();
 		if (!SafeDestinationResolver.validatePreload(player, destination, position,
 				TravelKind.POWER).allowed()) return false;
-		return TravelChunkLoader.request(player.getUUID(), destination, requested, "miniportal", () -> {
-			ServerPlayer current = server.getPlayerList().getPlayer(player.getUUID());
-			if (current != null) AmethystDampening.update(current);
-			int currentCharges = MiniportalRules.charges(
-					device.get(PowersDataComponents.MINIPORTAL_CHARGES));
-			if (!MiniportalRules.mayCommit(current == player,
-					player.isAlive() && !player.isRemoved(), player.level() == origin,
-					ownsExactStack(player, device), charges, currentCharges)
-					|| !DelayedTravelRules.travellerMayContinue(current == player,
-					player.isAlive() && !player.isRemoved(), player.isAlive() && !player.isRemoved(),
-					player.level() == origin, player.level() == origin,
-					AmethystDampening.isDampened(player), AmethystDampening.isDampened(player))
-					|| !SafeDestinationResolver.validateExact(player, destination, position,
-							TravelKind.POWER).allowed()) {
-				if (current == player) explain(player, "item.powers.relic.anchor_unreachable");
-				return;
-			}
-			TravelCohort.Snapshot cohort = TravelCohort.capture(origin, player, player);
-			player.teleport(new TeleportTransition(destination, position, Vec3.ZERO,
-					player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
-			TravelCohort.move(cohort, destination, position);
-			int remaining = MiniportalRules.afterSuccessfulTravel(charges);
-			device.set(PowersDataComponents.MINIPORTAL_CHARGES, remaining);
-			MiniportalRules.applyVisual(device, remaining);
-			PowerFx.spiral(destination, position, 1.0, 3.0, 0xC99C58, 24, 0.0);
-		}, () -> {
-			ServerPlayer current = server.getPlayerList().getPlayer(player.getUUID());
-			if (current == player) explain(player, "item.powers.relic.anchor_unreachable");
-		});
+		int inventorySlot = inventorySlot(player, device);
+		if (inventorySlot < 0) return false;
+		UUID ownerId = player.getUUID();
+		PENDING_MINIPORTALS.put(ownerId, new MiniportalRequest(origin.dimension(),
+				destination.dimension(), position, charges, inventorySlot));
+		boolean accepted = TravelChunkLoader.request(ownerId, destination, requested, "miniportal",
+				ImportedArtifactItem::completeMiniportal, ImportedArtifactItem::failMiniportal);
+		if (!accepted) PENDING_MINIPORTALS.remove(ownerId);
+		return accepted;
 	}
 
-	private static boolean ownsExactStack(ServerPlayer player, ItemStack expected) {
+	private static int inventorySlot(ServerPlayer player, ItemStack expected) {
 		for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
-			if (player.getInventory().getItem(slot) == expected) return true;
+			if (player.getInventory().getItem(slot) == expected) return slot;
 		}
-		return player.getMainHandItem() == expected || player.getOffhandItem() == expected;
+		return -1;
+	}
+
+	private static void completeMiniportal(MinecraftServer server, UUID ownerId) {
+		MiniportalRequest request = PENDING_MINIPORTALS.remove(ownerId);
+		ServerPlayer player = server.getPlayerList().getPlayer(ownerId);
+		ServerLevel origin = request == null ? null : server.getLevel(request.origin());
+		ServerLevel destination = request == null ? null : server.getLevel(request.destination());
+		if (player == null || origin == null || destination == null) return;
+		ItemStack device = player.getInventory().getItem(request.inventorySlot());
+		boolean stillMiniportal = device.getItem() instanceof ImportedArtifactItem artifact
+				&& artifact.texture.equals("device_miniportal");
+		AmethystDampening.update(player);
+		int currentCharges = MiniportalRules.charges(
+				device.get(PowersDataComponents.MINIPORTAL_CHARGES));
+		if (!MiniportalRules.mayCommit(true, player.isAlive() && !player.isRemoved(),
+				player.level() == origin, stillMiniportal, request.charges(), currentCharges)
+				|| !DelayedTravelRules.travellerMayContinue(true,
+				player.isAlive() && !player.isRemoved(), player.isAlive() && !player.isRemoved(),
+				player.level() == origin, player.level() == origin,
+				AmethystDampening.isDampened(player), AmethystDampening.isDampened(player))
+				|| !SafeDestinationResolver.validateExact(player, destination, request.position(),
+						TravelKind.POWER).allowed()) {
+			explain(player, "item.powers.relic.anchor_unreachable");
+			return;
+		}
+		TravelCohort.Snapshot cohort = TravelCohort.capture(origin, player, player);
+		player.teleport(new TeleportTransition(destination, request.position(), Vec3.ZERO,
+				player.getYRot(), player.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
+		TravelCohort.move(cohort, destination, request.position());
+		int remaining = MiniportalRules.afterSuccessfulTravel(request.charges());
+		device.set(PowersDataComponents.MINIPORTAL_CHARGES, remaining);
+		MiniportalRules.applyVisual(device, remaining);
+		PowerFx.spiral(destination, request.position(), 1.0, 3.0, 0xC99C58, 24, 0.0);
+	}
+
+	private static void failMiniportal(MinecraftServer server, UUID ownerId) {
+		PENDING_MINIPORTALS.remove(ownerId);
+		ServerPlayer player = server.getPlayerList().getPlayer(ownerId);
+		if (player != null) explain(player, "item.powers.relic.anchor_unreachable");
 	}
 
 	private static boolean transmute(ServerPlayer player, UseOnContext context) {

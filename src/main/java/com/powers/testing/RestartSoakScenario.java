@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.WeakHashMap;
 
 /** Operator-only live scenario used by the repeated-restart acceptance harness. */
@@ -109,8 +110,8 @@ public final class RestartSoakScenario {
 				1, false, null, true);
 		BlockPos travelTarget = origin.offset(160, 0, 160);
 		boolean travel = TravelChunkLoader.request(player.getUUID(), level, travelTarget,
-				"restart_soak", () -> state.travelResolved = true,
-				() -> state.travelResolved = true);
+				"restart_soak", RestartSoakScenario::markTravelResolved,
+				RestartSoakScenario::markTravelResolved);
 		boolean frozen = GlobalTimeStopManager.startCrystal(player, 40);
 		java.util.List<String> failures = new java.util.ArrayList<>();
 		if (!body) failures.add("body");
@@ -136,14 +137,20 @@ public final class RestartSoakScenario {
 			STATES.remove(server);
 			return fail("seed rejected: " + String.join(",", failures));
 		}
-		var token = PowersMod.scheduleDelayed(server, SETTLE_TICKS,
-				() -> settle(server, state.owner));
+		var token = PowersMod.scheduleDelayed(server, SETTLE_TICKS, state.owner,
+				level.dimension(), state.owner, "restart_soak_settle",
+				(current, task) -> settle(current, task.subjectId()));
 		if (!token.accepted()) {
 			settle(server, state.owner);
 			STATES.remove(server);
 			return fail("settlement callback was rejected");
 		}
 		return pass("systems=" + RestartSoakScenarioPlan.requiredSystems().size());
+	}
+
+	private static void markTravelResolved(MinecraftServer server, UUID owner) {
+		State state = STATES.get(server);
+		if (state != null && state.owner.equals(owner)) state.travelResolved = true;
 	}
 
 	/** Starts one persisted countdown shortly before the harness restarts the server. */
@@ -188,7 +195,7 @@ public final class RestartSoakScenario {
 			BodyProxyManager.finish(player);
 			ArtifactGuardianSummons.revokeOwner(server, ownerId, ArtifactAlignment.DARKNESS);
 		}
-		TravelChunkLoader.clear();
+		TravelChunkLoader.clear(server);
 		SpellFieldManager.clearAll();
 		ServerLevel level = server.getLevel(state.dimension);
 		if (level != null) state.originals.forEach((position, original) ->

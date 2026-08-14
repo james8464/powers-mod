@@ -67,7 +67,7 @@ public final class PowerAbilityRuntime {
 		switch (abilityId) {
 			case "time_shift" -> {
 				TeleportAbility.clearMarking(player);
-				TeleportAbility.clearStorm(owner);
+				TeleportAbility.clearStorm(server, owner);
 			}
 			case "time_freeze" -> TimeFreezeToggleAbility.clear(server, owner);
 			case "forcefield" -> ForcefieldAbility.clear(owner);
@@ -93,7 +93,7 @@ public final class PowerAbilityRuntime {
 	private static void clearPlayerState(MinecraftServer server, ServerPlayer player) {
 		UUID owner = player.getUUID();
 		TeleportAbility.clearMarking(player);
-		TeleportAbility.clearStorm(owner);
+		TeleportAbility.clearStorm(server, owner);
 		TimeFreezeToggleAbility.clear(server, owner);
 		clearRuntimeOnlyToggles(player);
 		ForcefieldAbility.clear(owner);
@@ -127,8 +127,8 @@ public final class PowerAbilityRuntime {
 		com.powers.mind.ParticipantPowerLock.clear();
 		com.powers.testing.TestingOverrides.clearAll();
 		com.powers.entity.TestActorPowerState.clearAll();
-		TeleportAbility.clearAllMarking();
-		TeleportAbility.clearAllStorms();
+		TeleportAbility.clearAllMarking(server);
+		TeleportAbility.clearAllStorms(server);
 		TimeFreezeToggleAbility.clearAll(server);
 		ForcefieldAbility.clearAll();
 		GravityDisplacementAbility.clearAll(server);
@@ -141,6 +141,7 @@ public final class PowerAbilityRuntime {
 		AstralProjectionAbility.clearAll(server);
 		EnergyDrainAbility.clearAll();
 		CrystalPowerRegistry.clearAllSelections();
+		com.powers.power.crystals.MindscapeCrystalAbility.clearAll(server);
 		EntityFreezeController.clearAll();
 		DreamwalkingAbility.clearAll(server);
 		InfernoAbility.clearAll();
@@ -178,8 +179,8 @@ public final class PowerAbilityRuntime {
 	}
 
 	/** Advances the teleport marking session after body and field managers settle. */
-	public static void tickTeleportMarking() {
-		TeleportAbility.tickMarking();
+	public static void tickTeleportMarking(MinecraftServer server) {
+		TeleportAbility.tickMarking(server);
 	}
 
 	/** Returns whether the player is currently operating away from their physical body. */

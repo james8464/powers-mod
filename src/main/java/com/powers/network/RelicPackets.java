@@ -60,9 +60,9 @@ public final class RelicPackets {
 		PayloadTypeRegistry.serverboundPlay().register(
 				TransferReservoirPayload.TYPE, TransferReservoirPayload.STREAM_CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(TransferReservoirPayload.TYPE,
-				(payload, context) -> context.server().execute(() -> {
-					if (PacketRateLimiter.allow(context.player(), PacketRateLimiter.Lane.ARTIFACT)) {
-						transfer(context.player(), payload);
+				(payload, context) -> ServerPlayCallback.execute(context, player -> {
+					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) {
+						transfer(player, payload);
 					}
 				}));
 	}

@@ -3,6 +3,7 @@ package com.powers.mind;
 import com.powers.PowersMod;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.PowerFx;
+import com.powers.fx.GodlyPunishment;
 import com.powers.magic.runtime.MagicLifecycleRules;
 import com.powers.magic.MagicActionId;
 import com.powers.magic.runtime.PhysicalMagicPresences;
@@ -46,10 +47,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 /** Owns vulnerable, skin-matched bodies left behind by mind and spirit travel. */
 public final class BodyProxyManager {
+	private enum ReturnContinuation { NONE, FATAL_DEATH, VESSEL_WRATH }
 	private record Active(UUID ownerId, Mannequin body, Vec3 position,
 			ServerLevel level, ChunkPos chunk, BodySnapshot snapshot, FatalResolutionGate fatalResolution) {
 	}
@@ -149,7 +150,7 @@ public final class BodyProxyManager {
 				MagicLifecycleRules.Event.AVATAR_FATAL).outcome()
 				!= MagicLifecycleRules.Outcome.RETURN_AND_DIE) return true;
 		if (active.fatalResolution().claim(FatalResolutionGate.Cause.AVATAR)) {
-			beginFatalReturn(player, source);
+			beginFatalReturn(player);
 		}
 		return false;
 	}
@@ -173,7 +174,7 @@ public final class BodyProxyManager {
 				0xBCA7FF, 8, 0.45);
 		if (health <= 0.0F) {
 			if (active.fatalResolution().claim(FatalResolutionGate.Cause.BODY)) {
-				beginFatalReturn(owner, source);
+				beginFatalReturn(owner);
 			}
 		} else {
 			owner.setHealth(health);
@@ -181,27 +182,19 @@ public final class BodyProxyManager {
 	}
 
 	/** Returns first, then replays vanilla death outside the active damage callback. */
-	private static void beginFatalReturn(ServerPlayer owner, DamageSource source) {
+	private static void beginFatalReturn(ServerPlayer owner) {
 		owner.setCamera(null);
 		owner.setHealth(Math.max(1.0F, owner.getHealth()));
-		MinecraftServer server = owner.level().getServer();
-		returnToBody(owner, TravelKind.FATAL_SOUL_RETURN, returned -> {
-			if (!returned) finish(owner);
-			PowersMod.scheduleDelayed(server, 1, () -> {
-				if (owner.isRemoved()) return;
-				owner.setHealth(0.0F);
-				owner.die(source);
-			});
-		});
+		returnToBody(owner, TravelKind.FATAL_SOUL_RETURN, ReturnContinuation.FATAL_DEATH);
 	}
 
 	public static boolean returnToBody(ServerPlayer player) {
 		return returnToBody(player, TravelKind.PLAYER_RETURN);
 	}
 
-	/** Returns normally and reports completion after any bounded chunk request. */
-	public static boolean returnToBody(ServerPlayer player, Consumer<Boolean> completion) {
-		return returnToBody(player, TravelKind.PLAYER_RETURN, completion);
+	/** Returns a slain possessed host's controller before applying divine wrath. */
+	public static boolean returnAfterVesselDeath(ServerPlayer player) {
+		return returnToBody(player, TravelKind.PLAYER_RETURN, ReturnContinuation.VESSEL_WRATH);
 	}
 
 	/** Operator-only recovery path; callers must enforce administrative permission. */
@@ -210,14 +203,15 @@ public final class BodyProxyManager {
 	}
 
 	private static boolean returnToBody(ServerPlayer player, TravelKind travelKind) {
-		return returnToBody(player, travelKind, null);
+		return returnToBody(player, travelKind, ReturnContinuation.NONE);
 	}
 
 	private static boolean returnToBody(ServerPlayer player, TravelKind travelKind,
-			Consumer<Boolean> completion) {
+			ReturnContinuation continuation) {
 		MindBodyState state = PlayerPowers.get(player).mindBody();
-		if (state == null) return completed(completion, false);
 		MinecraftServer server = player.level().getServer();
+		UUID ownerId = player.getUUID();
+		if (state == null) return completed(server, ownerId, continuation, false);
 		Identifier dimensionId = Identifier.tryParse(state.dimension());
 		ServerLevel target = dimensionId == null ? null
 				: server.getLevel(ResourceKey.create(Registries.DIMENSION, dimensionId));
@@ -226,7 +220,7 @@ public final class BodyProxyManager {
 			PersistentDimensionDiagnostics.record("body", state.dimension());
 			PowersMod.LOGGER.error("Body return blocked because recorded dimension is unavailable: player={}, dimension={}; use /powers recoverbody as an operator",
 					player.getUUID(), state.dimension());
-			return completed(completion, false);
+			return completed(server, ownerId, continuation, false);
 		}
 		if (fallback) {
 			PersistentDimensionDiagnostics.record("body_recovery", state.dimension());
@@ -244,22 +238,42 @@ public final class BodyProxyManager {
 				WorldBoundaryRules.clampCoordinate(recorded.z, border.getMinZ(), border.getMaxZ(), 1.0));
 		BlockPos requestedBlock = BlockPos.containing(requested);
 		if (!LoadedChunks.contains(returnLevel, requestedBlock)) {
-			UUID ownerId = player.getUUID();
+			ResourceKey<Level> returnDimension = returnLevel.dimension();
 			return TravelChunkLoader.request(ownerId, returnLevel, requestedBlock, "body_return",
-					() -> completed(completion,
-							completeReturn(server, ownerId, null, returnLevel, state, requested, travelKind)),
-					() -> {
-						ServerPlayer owner = server.getPlayerList().getPlayer(ownerId);
+					(current, owner) -> {
+						ServerLevel loadedReturn = current.getLevel(returnDimension);
+						boolean returned = loadedReturn != null && completeReturn(current, owner, null,
+								loadedReturn, state, requested, travelKind);
+						completed(current, owner, continuation, returned);
+					}, (current, ownerIdOnFailure) -> {
+						ServerPlayer owner = current.getPlayerList().getPlayer(ownerIdOnFailure);
 						if (owner != null) PowerMessages.send(owner, "ability.powers.no_room", 3);
-						completed(completion, false);
+						completed(current, ownerIdOnFailure, continuation, false);
 					});
 		}
-		return completed(completion,
-				completeReturn(server, player.getUUID(), player, returnLevel, state, requested, travelKind));
+		return completed(server, ownerId, continuation,
+				completeReturn(server, ownerId, player, returnLevel, state, requested, travelKind));
 	}
 
-	private static boolean completed(Consumer<Boolean> completion, boolean result) {
-		if (completion != null) completion.accept(result);
+	private static boolean completed(MinecraftServer server, UUID ownerId,
+			ReturnContinuation continuation, boolean result) {
+		ServerPlayer owner = server.getPlayerList().getPlayer(ownerId);
+		if (continuation == ReturnContinuation.VESSEL_WRATH && result && owner != null
+				&& owner.isAlive() && !owner.isRemoved()) {
+			GodlyPunishment.deadVesselWrath(owner);
+		}
+		if (continuation == ReturnContinuation.FATAL_DEATH) {
+			if (!result && owner != null) finish(owner);
+			ResourceKey<Level> dimension = owner == null
+					? Level.OVERWORLD : owner.level().dimension();
+			PowersMod.scheduleDelayed(server, 1, ownerId, dimension, ownerId,
+					"fatal_body_death", (currentServer, task) -> {
+						ServerPlayer current = currentServer.getPlayerList().getPlayer(task.subjectId());
+						if (current == null || current.isRemoved()) return;
+						current.setHealth(0.0F);
+						current.die(current.damageSources().generic());
+					});
+		}
 		return result;
 	}
 
@@ -289,7 +303,7 @@ public final class BodyProxyManager {
 	public static void finish(ServerPlayer player) {
 		Active active = BY_OWNER.remove(player.getUUID());
 		if (active != null) {
-			MindscapeMobReturnTracker.returnOwned(player.getUUID());
+			MindscapeMobReturnTracker.returnOwned(player.level().getServer(), player.getUUID());
 			BY_BODY.remove(active.body().getUUID());
 			BodyProxyPackets.remove(active.body());
 			PhysicalMagicPresences.unload(active.body());
@@ -341,7 +355,7 @@ public final class BodyProxyManager {
 
 	private static void finishStale(Active active) {
 		if (!BY_OWNER.remove(active.ownerId(), active)) return;
-		MindscapeMobReturnTracker.returnOwned(active.ownerId());
+		MindscapeMobReturnTracker.returnOwned(active.level().getServer(), active.ownerId());
 		BY_BODY.remove(active.body().getUUID());
 		BodyProxyPackets.remove(active.body());
 		PhysicalMagicPresences.unload(active.body());
