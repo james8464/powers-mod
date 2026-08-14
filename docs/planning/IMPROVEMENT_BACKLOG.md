@@ -17,7 +17,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | PERF-010 | Enhancement | P2 | Virtualize artifact catalogue rows and replace page rebuilds with a scrollable reusable grid. | Constant widget count and smooth search with thousands of datapack actions. |
 | PERF-011 | Enhancement | P2 | Cache rank profiles and translated menu snapshots by revision. | No per-frame/per-cast reconstruction when rank/config/registry revision is unchanged. |
 | PERF-013 | Enhancement | P2 | Add LOD for distant beams, realm events, Herald ceremonies, and Celestial Ruin. | Distant observers receive bounded silhouettes/audio without full near-field packets. |
-| PERF-014 | Enhancement | P2 | Persist only compact owner/task IDs for permitted long-lived summons; exclude all derivable caches. | Save size is bounded and load rebuilds indexes exactly once. |
 | PERF-015 | Research | P2 | Benchmark Fabric networking compression thresholds for semantic FX bursts. | Choose packet shape using bytes, CPU, and latency measurements rather than intuition. |
 | PERF-016 | Enhancement | P2 | Budget block transformations by dimension and claim provider, not only globally. | A catastrophic event cannot freeze ordinary spread/containment forever. |
 | PERF-017 | Enhancement | P2 | Add query heat maps to diagnostics for wards, names, forces, bodies, and fields. | Operator can identify the top hot chunks without installing a profiler. |

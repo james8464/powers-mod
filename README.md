@@ -415,6 +415,7 @@ Back up a world before enabling or testing Celestial Ruin terrain/block-entity d
 - Realm landmarks persist completion per site and build incrementally.
 - Shadow planning, retrieval, learning, dialogue, and remote requests have independent hard bounds.
 - Shadow and both guardian alignments share immutable per-level/per-cell observations for each server tick. Narrow firing lanes reuse only semantically complete captures, saturated prefixes cannot answer different bounds, and every selected UUID is re-resolved before live mutation. `/powers diagnose` reports query, hit, inspection, and cached-cell totals.
+- Finite guardians persist only owner, task, archetype, and absolute expiry beside Minecraft's entity UUID. Owner/tier caps are reconstructed on load, expired or malformed records fail closed, and no navigation, targets, attributes, or index caches are serialized.
 - Ephemeral summons and visual entities are excluded from ordinary saves where appropriate.
 
 The separately attributed CI soak exercises 10/50/100 simulated players and asserts packet, particle, scan, field, queue, forced-chunk, tactical-decision, and Java-25 per-thread allocation budgets. `./test.sh restart-soak` runs an isolated 24-hour repeated-restart harness by default and writes `build/restart-soak/restart-soak-report.json`; it never opens the ordinary `run/world`. The opt-in connected-bot GameTest profiles 10, 50, and 100 embedded connections for 30 minutes each and publishes JFR/JSON evidence. Pass `-PpowersProfilePopulation=10`, `50`, or `100` to run one population in an isolated exact-build archive; omitting it retains the sequential three-population run. The accepted exact-build embedded and ten-rendered-client results are recorded in [the PERF-001 evidence report](docs/verification/evidence/2026-08-14-perf-001/README.md).
@@ -424,6 +425,8 @@ Repeated semantic sustain visuals are coalesced once per tick by observer, dimen
 Semantic geometry now uses a reusable primitive transform buffer, and each visual event caches only its bounded observer variants. The exact 25,600-operation PERF-006 profile reduced allocation from 7,587.795 to 95.653 bytes per operation (98.739%) while p99 improved by 61.078%; retained caches remained bounded, both Java 25 JFRs lost no data, and all 86 Fabric GameTests passed. Exact recordings and results are in [the PERF-006 evidence bundle](docs/verification/evidence/2026-08-14-perf-006-9d2d31a/README.md).
 
 The exact PERF-012 mixed-AI scene uses separated, moving Shadow/guardian/target positions over four independent planning cadences. Shared snapshots reduced identical legacy entity inspections from 540 to 348 (35.56%) while retaining the former ordinary scan caps; all 95 live GameTests passed. Exact results and boundary cases are in [the PERF-012 evidence bundle](docs/verification/evidence/2026-08-14-perf-012-3baa5da/README.md).
+
+PERF-014 replaced legacy remaining-lifetime guardian saves with a compact absolute-deadline schema. Compact/legacy loading, unloaded expiry, duplicate lifecycle callbacks, loaded owner/tier changes, malformed records, authoritative attributes, and unowned cap isolation passed 1,431 JVM tests and all 100 live GameTests. Exact proof is in [the PERF-014 evidence bundle](docs/verification/evidence/2026-08-14-perf-014-836e691/README.md).
 
 ## Datapack and integration surfaces
 

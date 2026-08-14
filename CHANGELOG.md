@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Replaced long-lived guardian save state with a four-key owner/task/archetype/absolute-expiry record backed by vanilla entity UUIDs; derived caps now rebuild exactly once per accepted load, loaded owner/tier changes rebind atomically, malformed data expires fail-closed, and unowned invaders cannot pollute caster-owned limits.
+
 - Shared bounded immutable perception snapshots between Shadow, Darkness Creatures, Radiant Sentinels, and guardian fields; realistic separated four-cadence profiling reduced identical entity inspections by 35.56%, while saturated-cache, allied-crowd, firing-lane, target-lifecycle, foreign-entity, and long-lane safety cases now have live coverage.
 
 - Replaced delayed entity/level captures with UUID-, dimension-, deadline-, owner-, and lifecycle-epoch continuations across travel, mind/body return, realm crystals, locator phases, storms, remote dialogue, and queued network packets; logout, respawn, missing dimensions, replacement, reload, and shutdown now cancel or re-resolve safely, with inspectable diagnostics and 88 live GameTests.
