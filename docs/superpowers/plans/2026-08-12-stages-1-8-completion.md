@@ -46,7 +46,7 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
 
 ### Stage 2 — correctness, performance, networking, and infrastructure
 
-- [ ] `COR-020`: delayed work stores stable identity/deadline/cancellation ownership, never stale entity/level references.
+- [x] `COR-020`: delayed work stores stable identity/deadline/cancellation ownership, never stale entity/level references.
 - [ ] `PERF-012`: shared read-only per-level/chunk/tick perception snapshots; at least 30% fewer mixed-AI inspections.
 - [ ] `PERF-014`: compact long-lived summon persistence and exactly-once derived-index rebuild.
 - [ ] `PERF-016`: implement fair per-dimension/provider scheduling only if catastrophic-load evidence exceeds the locked starvation or 10% p99 gate; otherwise record measured-and-declined.
