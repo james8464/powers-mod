@@ -145,7 +145,7 @@ public final class AcceptanceClientAgent {
 							CONFIG.role(), step.argument());
 				}
 			}
-			case KEY -> setMovementKey(client, step.argument());
+			case KEY -> setAcceptanceKey(client, step.argument());
 			case LOOK -> setLook(client, step.argument());
 			case SCREENSHOT -> Screenshot.grab(client, false);
 		}
@@ -166,7 +166,7 @@ public final class AcceptanceClientAgent {
 		client.player.xRotO = pitch;
 	}
 
-	private static void setMovementKey(Minecraft client, String argument) {
+	private static void setAcceptanceKey(Minecraft client, String argument) {
 		String[] values = argument.split(" ");
 		var key = switch (values[0]) {
 			case "forward" -> client.options.keyUp;
@@ -176,7 +176,8 @@ public final class AcceptanceClientAgent {
 			case "jump" -> client.options.keyJump;
 			case "sneak" -> client.options.keyShift;
 			case "sprint" -> client.options.keySprint;
-			default -> throw new IllegalArgumentException("Unsupported acceptance movement key");
+			case "advancements" -> client.options.keyAdvancements;
+			default -> throw new IllegalArgumentException("Unsupported acceptance key");
 		};
 		key.setDown(values[1].equals("on"));
 	}
