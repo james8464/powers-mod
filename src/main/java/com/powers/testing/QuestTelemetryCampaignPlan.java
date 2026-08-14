@@ -42,8 +42,8 @@ public final class QuestTelemetryCampaignPlan {
 			long previous = 0L;
 			for (int current = 1; current <= level; current++) {
 				long raw = alignment == QuestTelemetryLedger.Alignment.LIGHT
-						? earliest(SkillQuestRules.routes(current))
-						: earliest(DarknessQuestRules.routes(current));
+						? earliestIndependent(SkillQuestRules.routes(current))
+						: earliestDarkness(DarknessQuestRules.routes(current));
 				previous = Math.max(previous, raw);
 			}
 			return previous;
@@ -53,10 +53,39 @@ public final class QuestTelemetryCampaignPlan {
 			return expectedCompletionTick(alignment, 10);
 		}
 
-		private <T extends Enum<T>> long earliest(List<QuestRoute<T>> routes) {
+		private <T extends Enum<T>> long earliestIndependent(List<QuestRoute<T>> routes) {
 			return routes.stream().mapToLong(route -> route.thresholds().entrySet().stream()
 					.mapToLong(entry -> (long) interval(deedKey(entry.getKey())) * entry.getValue())
 					.max().orElseThrow()).min().orElseThrow();
+		}
+
+		private long earliestDarkness(List<QuestRoute<DarknessDeed>> routes) {
+			return routes.stream().mapToLong(this::earliestDarkness).min().orElseThrow();
+		}
+
+		private long earliestDarkness(QuestRoute<DarknessDeed> route) {
+			long upper = 1L;
+			while (!completed(route, upper)) upper = Math.multiplyExact(upper, 2L);
+			long lower = 0L;
+			while (lower + 1L < upper) {
+				long candidate = lower + (upper - lower) / 2L;
+				if (completed(route, candidate)) upper = candidate;
+				else lower = candidate;
+			}
+			return upper;
+		}
+
+		private boolean completed(QuestRoute<DarknessDeed> route, long elapsedTicks) {
+			return route.thresholds().entrySet().stream().allMatch(entry ->
+					darknessCount(entry.getKey(), elapsedTicks) >= entry.getValue());
+		}
+
+		private long darknessCount(DarknessDeed deed, long elapsedTicks) {
+			long count = elapsedTicks / interval(deedKey(deed));
+			if (deed == DarknessDeed.VILLAGER) {
+				count += elapsedTicks / interval(DarknessDeed.BABY_VILLAGER.key());
+			}
+			return count;
 		}
 	}
 

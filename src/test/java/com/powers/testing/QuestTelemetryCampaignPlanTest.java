@@ -52,4 +52,12 @@ class QuestTelemetryCampaignPlanTest {
 		assertFalse(profile.due("power_use", interval - 1L));
 		assertTrue(profile.due("power_use", interval));
 	}
+
+	@Test
+	void darknessPredictionCountsAChildVillagerAsBothAuthoredDeeds() {
+		var profile = QuestTelemetryCampaignPlan.profiles(
+				QuestTelemetryLedger.Alignment.DARK).getFirst();
+		assertEquals(40_000L, profile.expectedCompletionTick(
+				QuestTelemetryLedger.Alignment.DARK, 3));
+	}
 }
