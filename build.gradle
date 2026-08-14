@@ -277,6 +277,24 @@ tasks.register("syntheticSoak", Test) {
 	}
 }
 
+def perf006Label = providers.gradleProperty("powersPerf006Label").orElse("capture")
+tasks.register("perf006AllocationProfile", JavaExec) {
+	description = "Captures the exact PERF-006 allocation workload with JFR and ThreadMXBean."
+	group = "verification"
+	dependsOn("testClasses")
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "com.powers.performance.FxAllocationProfile"
+	doFirst {
+		def safeLabel = perf006Label.get().replaceAll("[^A-Za-z0-9._-]", "_").take(80)
+		def output = layout.buildDirectory.dir("perf-006-allocation").get().asFile
+		output.mkdirs()
+		def recording = new File(output, "${safeLabel}.jfr")
+		delete(recording)
+		jvmArgs "-XX:StartFlightRecording=filename=${recording.absolutePath},settings=profile,dumponexit=true,maxsize=256m"
+		args new File(output, "${safeLabel}.json").absolutePath, safeLabel
+	}
+}
+
 tasks.register("updateVisualGoldens", JavaExec) {
 	description = "Regenerates reviewed, deterministic client visual goldens."
 	group = "documentation"
