@@ -12,7 +12,7 @@ Each non-comment row is `connectedTick<TAB>operation<TAB>argument`. Supported op
 | `chat` | message | Sends signed-chat-compatible player dialogue. |
 | `activate` | slot `0`–`2` | Sends the normal serverbound innate activation packet. |
 | `select` | `slot option` | Sends the normal serverbound ability-option packet. |
-| `use` | `main` | Uses the main-hand item through vanilla client interaction handling. |
+| `use` | `main` | Uses the main-hand item through vanilla client interaction handling, or sends the same authenticated emergency return as right-click while controlling a remote vessel. |
 | `attack` | visible entity name | Attacks the matching rendered living entity through vanilla client interaction handling. |
 | `grimoire` | `book-key spell-index` | Sends the normal held-grimoire selection packet; a later `use` performs the cast. |
 | `crystal` | mode index | Sends the normal held-Rainbow selector packet; a later `use` performs the crystal action. |

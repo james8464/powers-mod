@@ -253,6 +253,14 @@ public class VesselPossessionAbility extends Ability {
 		return true;
 	}
 
+	/** Ends any remote-control session when its authenticated owner requests an emergency return. */
+	public static boolean releaseControlledSession(ServerPlayer owner) {
+		Possession possession = owner == null ? null : POSSESSING.remove(owner.getUUID());
+		if (possession == null || possession.owner() != owner) return false;
+		end(possession, owner, PossessionEndRules.Reason.NONE);
+		return true;
+	}
+
 	/** Applies one rate-limited input frame to the exact server-owned host. */
 	public static void applyControl(ServerPlayer owner, VesselControlPackets.InputPayload input) {
 		Possession possession = owner == null ? null : POSSESSING.get(owner.getUUID());

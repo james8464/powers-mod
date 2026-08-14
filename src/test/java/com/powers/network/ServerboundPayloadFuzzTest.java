@@ -39,7 +39,8 @@ class ServerboundPayloadFuzzTest {
 				play("artifact_bind", ShadowSwordPackets.BindFavouritePayload.STREAM_CODEC),
 				play("artifact_teleport", ShadowSwordPackets.TeleportPayload.STREAM_CODEC),
 				play("companion", CompanionPackets.InteractPayload.STREAM_CODEC),
-				play("vessel", VesselControlPackets.InputPayload.STREAM_CODEC));
+				play("vessel", VesselControlPackets.InputPayload.STREAM_CODEC),
+				play("vessel_release", VesselControlPackets.ReleasePayload.STREAM_CODEC));
 		for (NamedCodec<?> codec : codecs) fuzzPlay(codec);
 	}
 

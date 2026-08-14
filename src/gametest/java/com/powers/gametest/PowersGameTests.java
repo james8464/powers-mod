@@ -1000,6 +1000,40 @@ public final class PowersGameTests {
 
 	@GameTest
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void dreamwalkingReleasePacketReturnsTheSpectatingOwner(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		caster.setGameMode(GameType.SURVIVAL);
+		for (int x = 0; x <= 6; x++) for (int z = 0; z <= 8; z++) {
+			helper.setBlock(new BlockPos(x, 0, z), Blocks.STONE);
+		}
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		PowerTestActor host = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 6));
+		GameType originalMode = caster.gameMode();
+
+		helper.assertTrue(VesselPossessionAbility.beginDreamwalk(caster, host, 600,
+				com.powers.magic.runtime.CastSource.CRYSTAL), "Dreamwalking setup failed");
+		helper.assertTrue(originalMode.getName().equals(com.powers.player.PlayerPowers.get(caster)
+				.mindBody().gameMode()), "Body proxy did not retain the owner's original mode");
+		helper.assertTrue(caster.gameMode.getGameModeForPlayer() == GameType.SPECTATOR,
+				"Dreamwalking owner did not enter its remote camera state");
+		helper.assertTrue(VesselControlPackets.releaseControlledSession(caster),
+				"Authenticated release packet did not end Dreamwalking");
+		helper.assertFalse(VesselPossessionAbility.isDreamwalking(caster.getUUID()),
+				"Dreamwalking remained active after its release packet");
+		helper.succeedWhen(() -> {
+			helper.assertFalse(com.powers.mind.BodyProxyManager.hasSession(caster,
+					com.powers.mind.BodyProxyKind.DREAMWALK),
+					"Release packet left the vulnerable body proxy active");
+			helper.assertTrue(caster.gameMode.getGameModeForPlayer() == originalMode,
+					"Release packet did not restore the physical body's game mode: "
+							+ caster.gameMode.getGameModeForPlayer().getName()
+							+ ", alive=" + caster.isAlive());
+		});
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void testingOverridesBypassEnergyAndPowerCooldowns(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		var data = com.powers.player.PlayerPowers.get(player);
