@@ -1673,8 +1673,8 @@ public final class PowersGameTests {
 							.allMatch(action -> action.ability() != null),
 					"An artifact route failed to resolve for " + alignment);
 		}
-		helper.assertTrue(MagicRuntime.catalogue().definitions().size() == 64
-				&& MagicRuntime.global().interactionCount() == 2_080,
+		helper.assertTrue(MagicRuntime.catalogue().definitions().size() == 65
+				&& MagicRuntime.global().interactionCount() == 2_145,
 				"The exhaustive live magic-collision kernel was incomplete");
 		helper.succeed();
 	}

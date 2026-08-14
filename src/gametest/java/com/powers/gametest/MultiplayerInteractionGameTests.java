@@ -81,6 +81,7 @@ public final class MultiplayerInteractionGameTests {
 
 		Vec3 center = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(8, 3, 8)));
 		List<MagicActionDefinition> definitions = MagicRuntime.catalogue().definitions().stream()
+				.filter(definition -> definition.origin() != com.powers.magic.MagicOrigin.EXTENSION)
 				.sorted(Comparator.comparing(MagicActionDefinition::id)).toList();
 		EnumMap<InteractionOutcome, Integer> outcomes = new EnumMap<>(InteractionOutcome.class);
 		int[] firstIndex = {0};
@@ -127,6 +128,7 @@ public final class MultiplayerInteractionGameTests {
 		helper.assertFalse(firstOwner.getUUID().equals(secondOwner.getUUID()),
 				"Physical multiplayer fixtures reused one authoritative UUID");
 		List<MagicActionDefinition> definitions = MagicRuntime.catalogue().definitions().stream()
+				.filter(definition -> definition.origin() != com.powers.magic.MagicOrigin.EXTENSION)
 				.sorted(Comparator.comparing(MagicActionDefinition::id)).toList();
 		Vec3 center = Vec3.atCenterOf(helper.absolutePos(new BlockPos(8, 4, 8)));
 		int[] firstIndex = {0};

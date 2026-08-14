@@ -75,7 +75,7 @@ public record MagicCastPresentation(String soundCue, int intensity, int genericB
 
 	private static int baseIntensity(MagicActionDefinition action) {
 		int value = switch (action.origin()) {
-			case INNATE -> 1;
+			case INNATE, EXTENSION -> 1;
 			case SPELL -> 2;
 			case CRYSTAL, AMETHYST -> 3;
 			case ARTIFACT -> 4;

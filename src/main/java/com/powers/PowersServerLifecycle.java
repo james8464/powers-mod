@@ -1,6 +1,7 @@
 package com.powers;
 
 import com.powers.ai.PerceptionSnapshotService;
+import com.powers.api.v1.PowersApiRuntime;
 import com.powers.companion.DialogueProviderRuntime;
 import com.powers.audit.OperatorAudit;
 import com.powers.companion.PrivateCompanionManager;
@@ -69,7 +70,9 @@ final class PowersServerLifecycle {
 		ServerLifecycleEvents.SERVER_STOPPING.register(BodyProxyManager::returnAll);
 		ServerLifecycleEvents.SERVER_STOPPING.register(com.powers.util.ServerCallbackGate::clear);
 		ServerLifecycleEvents.SERVER_STOPPING.register(GlobalTimeStopManager::clearAll);
+		ServerLifecycleEvents.SERVER_STOPPING.register(server -> PowersApiRuntime.global().stopServer());
 		ServerLifecycleEvents.SERVER_STARTED.register(com.powers.util.ServerCallbackGate::bind);
+		ServerLifecycleEvents.SERVER_STARTING.register(PowersApiRuntime.global()::startServer);
 		ServerLifecycleEvents.SERVER_STARTED.register(GlobalTimeStopManager::reconcileStartup);
 		ServerLifecycleEvents.SERVER_STOPPED.register(PowersServerLifecycle::onServerStopped);
 		ServerChunkEvents.CHUNK_LOAD.register((level, chunk, newlyGenerated) ->

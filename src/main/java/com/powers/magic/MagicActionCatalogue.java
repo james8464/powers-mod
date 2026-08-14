@@ -40,6 +40,7 @@ public final class MagicActionCatalogue {
 			Map.entry(MagicAspect.SUPPRESSION, 0xB36BFF));
 
 	private final Map<MagicActionId, MagicActionDefinition> definitions;
+	private final Set<MagicActionId> builtInIds;
 
 	private MagicActionCatalogue(Collection<MagicActionDefinition> definitions) {
 		Map<MagicActionId, MagicActionDefinition> indexed = new LinkedHashMap<>();
@@ -48,7 +49,8 @@ public final class MagicActionCatalogue {
 				throw new IllegalArgumentException("Duplicate magic action: " + definition.id());
 			}
 		}
-		this.definitions = Collections.unmodifiableMap(indexed);
+		this.definitions = indexed;
+		this.builtInIds = Set.copyOf(indexed.keySet());
 	}
 
 	/** Builds the complete immutable catalogue in stable registration order. */
@@ -201,17 +203,31 @@ public final class MagicActionCatalogue {
 	}
 
 	/** Returns the definition for an action or {@code null} when the ID is unknown. */
-	public MagicActionDefinition definition(MagicActionId id) {
+	public synchronized MagicActionDefinition definition(MagicActionId id) {
 		return definitions.get(Objects.requireNonNull(id, "id"));
 	}
 
 	/** Returns all definitions in stable registration order. */
-	public Collection<MagicActionDefinition> definitions() {
-		return definitions.values();
+	public synchronized Collection<MagicActionDefinition> definitions() {
+		return List.copyOf(definitions.values());
+	}
+
+	/** Adds one externally owned definition to this canonical production catalogue. */
+	public synchronized boolean registerExternal(MagicActionDefinition definition) {
+		Objects.requireNonNull(definition, "definition");
+		if (definition.origin() != MagicOrigin.EXTENSION || definitions.containsKey(definition.id())) return false;
+		definitions.put(definition.id(), definition);
+		return true;
+	}
+
+	/** Removes one external definition at the owning server lifecycle boundary. */
+	public synchronized boolean unregisterExternal(MagicActionId id) {
+		Objects.requireNonNull(id, "id");
+		return !builtInIds.contains(id) && definitions.remove(id) != null;
 	}
 
 	/** Returns the immutable subset owned by the requested origin. */
-	public List<MagicActionDefinition> byOrigin(MagicOrigin origin) {
+	public synchronized List<MagicActionDefinition> byOrigin(MagicOrigin origin) {
 		return definitions.values().stream().filter(definition -> definition.origin() == origin).toList();
 	}
 
@@ -294,7 +310,7 @@ public final class MagicActionCatalogue {
 			case MOVEMENT, INFORMATION, WORLD_INTERACTION -> 5;
 		};
 		int originBonus = switch (origin) {
-			case INNATE, AMETHYST -> 0;
+			case INNATE, AMETHYST, EXTENSION -> 0;
 			case SPELL -> 3;
 			case CRYSTAL -> 8;
 			case ARTIFACT -> 14;
@@ -325,7 +341,8 @@ public final class MagicActionCatalogue {
 	}
 
 	private static int baseEnergy(MagicOrigin origin, MagicIntent intent) {
-		if (origin == MagicOrigin.AMETHYST || origin == MagicOrigin.REALM) return 0;
+		if (origin == MagicOrigin.AMETHYST || origin == MagicOrigin.REALM
+				|| origin == MagicOrigin.EXTENSION) return 0;
 		int base = origin == MagicOrigin.CRYSTAL ? 55
 				: origin == MagicOrigin.ARTIFACT ? 40 : origin == MagicOrigin.SPELL ? 20 : 18;
 		return base + (intent == MagicIntent.HARM || intent == MagicIntent.CONTROL ? 8 : 0);
@@ -333,6 +350,7 @@ public final class MagicActionCatalogue {
 
 	private static int baseCooldown(MagicOrigin origin, MagicDelivery delivery) {
 		if (origin == MagicOrigin.AMETHYST || origin == MagicOrigin.REALM
+				|| origin == MagicOrigin.EXTENSION
 				|| delivery == MagicDelivery.TOGGLE) return 0;
 		return origin == MagicOrigin.CRYSTAL ? 1200
 				: origin == MagicOrigin.ARTIFACT ? 800 : origin == MagicOrigin.SPELL ? 600 : 200;
@@ -349,7 +367,7 @@ public final class MagicActionCatalogue {
 
 	private static int basePriority(MagicOrigin origin) {
 		return switch (origin) {
-			case INNATE -> 10;
+			case INNATE, EXTENSION -> 10;
 			case SPELL -> 15;
 			case CRYSTAL -> 20;
 			case ARTIFACT -> 22;
