@@ -13,6 +13,7 @@
 			"com.powers.gametest.QuestTelemetryCampaignGameTests",
 			"com.powers.gametest.FxCoalescingGameTests",
 			"com.powers.gametest.DelayedCallbackGameTests",
+			"com.powers.entity.PerceptionSnapshotGameTests",
 			"com.powers.gametest.MultiplayerInteractionGameTests"${connectedProfileEntrypoint}${restartSoakEntrypoint}
 		],
 		"fabric-client-gametest": [

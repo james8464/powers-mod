@@ -1,5 +1,6 @@
 package com.powers;
 
+import com.powers.ai.PerceptionSnapshotService;
 import com.powers.companion.DialogueProviderRuntime;
 import com.powers.audit.OperatorAudit;
 import com.powers.companion.PrivateCompanionManager;
@@ -175,6 +176,7 @@ final class PowersServerLifecycle {
 		TravelChunkLoader.clear(server);
 		MindscapeMobReturnTracker.clear();
 		NamedLivingTargetIndex.clearAll();
+		PerceptionSnapshotService.clear();
 		ServerRuntimeMetrics.clear();
 		PhysicalMagicPresences.clear();
 		ConsentOverrideRuntime.clear();

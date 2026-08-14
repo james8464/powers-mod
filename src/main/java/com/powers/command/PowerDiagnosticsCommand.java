@@ -2,6 +2,7 @@ package com.powers.command;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.powers.audit.OperatorAudit;
+import com.powers.ai.PerceptionSnapshotService;
 import com.powers.companion.PrivateCompanionManager;
 import com.powers.config.PowersConfigLoader;
 import com.powers.diagnostics.DiagnosticExport;
@@ -134,6 +135,10 @@ final class PowerDiagnosticsCommand {
 					+ "; subject=" + task.subjectId() + "; dimension=" + task.dimensionId()
 					+ "; purpose=" + task.purpose() + "; deadline=" + task.deadline());
 		}
+		var perception = PerceptionSnapshotService.diagnostics();
+		send(context, "perceptionSnapshots: queries=" + perception.queries()
+				+ "; hits=" + perception.cacheHits() + "; entityInspections="
+				+ perception.inspections() + "; cachedCells=" + perception.cachedCells());
 		var missingDimensions = PersistentDimensionDiagnostics.snapshot();
 		send(context, "missingDimensions=" + missingDimensions.issues().size()
 				+ "; droppedDistinct=" + missingDimensions.droppedDistinctKeys()
