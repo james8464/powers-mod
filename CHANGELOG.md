@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Replaced first-dimension force-containment scheduling with a hard-capped fair dimension/policy queue: request ingestion is O(1), ceremony validation and transformations share the 256-slot budget, workloads above capacity rotate without long gaps, and protection adapters remain fail-closed.
+
 - Replaced long-lived guardian save state with a four-key owner/task/archetype/absolute-expiry record backed by vanilla entity UUIDs; derived caps now rebuild exactly once per accepted load, loaded owner/tier changes rebind atomically, malformed data expires fail-closed, and unowned invaders cannot pollute caster-owned limits.
 
 - Shared bounded immutable perception snapshots between Shadow, Darkness Creatures, Radiant Sentinels, and guardian fields; realistic separated four-cadence profiling reduced identical entity inspections by 35.56%, while saturated-cache, allied-crowd, firing-lane, target-lifecycle, foreign-entity, and long-lane safety cases now have live coverage.

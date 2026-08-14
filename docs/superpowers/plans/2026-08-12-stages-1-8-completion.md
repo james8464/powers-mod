@@ -48,8 +48,8 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
 
 - [x] `COR-020`: delayed work stores stable identity/deadline/cancellation ownership, never stale entity/level references.
 - [x] `PERF-012`: shared read-only per-level/chunk/tick perception snapshots; at least 30% fewer mixed-AI inspections.
-- [ ] `PERF-014`: compact long-lived summon persistence and exactly-once derived-index rebuild.
-- [ ] `PERF-016`: implement fair per-dimension/provider scheduling only if catastrophic-load evidence exceeds the locked starvation or 10% p99 gate; otherwise record measured-and-declined.
+- [x] `PERF-014`: compact long-lived summon persistence and exactly-once derived-index rebuild.
+- [x] `PERF-016`: catastrophic load crossed the starvation gate; fair dimension/protection-policy scheduling now bounds validation and transformation work.
 - [ ] `PERF-015`: measure semantic-FX packet shape/compression from 64 B–8 KiB before choosing it.
 - [ ] `PERF-013`: recognisable near/mid/far semantic-FX LOD without simplifying event geometry or identity.
 - [ ] `NET-007`: deterministic global → world → dimension policy resolution with absolute protection denial and diagnosed source.

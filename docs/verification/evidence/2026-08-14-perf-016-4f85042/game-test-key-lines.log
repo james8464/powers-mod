@@ -1,0 +1,5 @@
+[pre-fix] Catastrophic work starved another dimension for over 100 ticks (failure observed at tick 102)
+[post-fix] PERF-016 catastrophicCeremonies=30 starvationTicks=1
+[post-fix] PERF-016 claimProviderDenied=true
+[post-fix] All 1 required tests passed :)
+[ordinary] All 100 required tests passed :)
