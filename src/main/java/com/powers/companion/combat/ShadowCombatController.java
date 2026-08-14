@@ -1,18 +1,18 @@
 package com.powers.companion.combat;
 
+import com.powers.ai.PerceptionQueryProfile;
+import com.powers.ai.PerceptionSnapshotRules;
+import com.powers.ai.PerceptionSnapshotService;
 import com.powers.companion.ShadowCompanionEntity;
 import com.powers.player.SkillSystem;
-import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.Comparator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +25,8 @@ public final class ShadowCombatController {
 	public static final int CREDIT_WINDOW_TICKS = 100;
 	private static final int PLAN_INTERVAL = 10;
 	private static final int CAST_INTERVAL = 20;
+	private static final double MAX_LANE_AXIS_LENGTH = 96.0;
+	private static final double MAX_LANE_VERTICAL_LENGTH = 48.0;
 	private static final Map<UUID, RuntimeState> STATES = new HashMap<>();
 
 	public record TickResult(boolean acted, String learnedState,
@@ -61,11 +63,13 @@ public final class ShadowCombatController {
 		if (target == null) return new TickResult(false, updated, null);
 		shadow.setTarget(target);
 
-		ShadowCombatFacts facts = facts(owner, shadow, target, preference,
-				allyInLane(level, owner, shadow, target));
+		boolean unsafeFiringLane = allyInLane(level, owner, shadow, target);
+		ShadowCombatFacts facts = facts(owner, shadow, target, preference, unsafeFiringLane);
 		List<ShadowPowerAction> legal = new ArrayList<>(26);
 		for (ShadowPowerAction action : ShadowPowerCatalogue.actions()) {
-			if (action.cost() <= shadow.energy()) legal.add(action);
+			if (action.cost() <= shadow.energy()
+					&& !(unsafeFiringLane && action.range() == ShadowPowerAction.RangeMode.FAR
+					&& action.intent() == ShadowPowerAction.Intent.OFFENSE)) legal.add(action);
 		}
 		ShadowTacticalPlanner.Decision decision = ShadowTacticalPlanner.choose(legal, facts,
 				state.learning);
@@ -145,11 +149,14 @@ public final class ShadowCombatController {
 		for (LivingEntity preferred : preferredTargets) {
 			if (valid(owner, shadow, preferred)) return preferred;
 		}
-		return BoundedEntityCandidates.living(level,
-				AABB.ofSize(owner.position(), 48.0, 24.0, 48.0), MAX_TARGET_CANDIDATES,
-				entity -> entity instanceof Monster && valid(owner, shadow, entity),
-				Comparator.comparingDouble(entity -> entity.distanceToSqr(owner))).stream()
-				.findFirst().orElse(null);
+		for (var observation : PerceptionSnapshotService.observe(level, owner.position(),
+				24.0, 12.0, MAX_TARGET_CANDIDATES,
+				candidate -> candidate.monster() && !candidate.darknessAligned(),
+				PerceptionQueryProfile.SHADOW_TARGET)) {
+			LivingEntity candidate = PerceptionSnapshotService.resolve(level, observation);
+			if (valid(owner, shadow, candidate)) return candidate;
+		}
+		return null;
 	}
 
 	private static boolean valid(ServerPlayer owner, ShadowCompanionEntity shadow,
@@ -172,12 +179,23 @@ public final class ShadowCombatController {
 			ShadowCompanionEntity shadow, LivingEntity target) {
 		Vec3 from = shadow.getEyePosition();
 		Vec3 to = target.getEyePosition();
-		AABB bounds = new AABB(from, to).inflate(1.5);
-		return !BoundedEntityCandidates.living(level, bounds, 16,
-				entity -> entity != shadow && entity != target
-						&& (entity == owner || entity.entityTags().contains(SkillSystem.DARKNESS_TAG))
-						&& distanceToSegmentSquared(entity.getEyePosition(), from, to) <= 1.5 * 1.5)
-				.isEmpty();
+		Vec3 delta = to.subtract(from);
+		if (Math.abs(delta.x) > MAX_LANE_AXIS_LENGTH
+				|| Math.abs(delta.z) > MAX_LANE_AXIS_LENGTH
+				|| Math.abs(delta.y) > MAX_LANE_VERTICAL_LENGTH) return true;
+		Vec3 center = from.add(to).scale(0.5);
+		AABB lane = new AABB(from, to).inflate(1.5);
+		for (var observation : PerceptionSnapshotService.observe(level, lane, center, 16,
+				candidate -> (candidate.darknessAligned()
+						|| candidate.entityId().equals(owner.getUUID()))
+						&& !candidate.entityId().equals(shadow.getUUID())
+						&& !candidate.entityId().equals(target.getUUID())
+						&& PerceptionSnapshotRules.withinSegmentLane(candidate, from, to, 1.5),
+				PerceptionQueryProfile.ALLY_LANE)) {
+			LivingEntity entity = PerceptionSnapshotService.resolve(level, observation);
+			if (entity != null) return true;
+		}
+		return false;
 	}
 
 	private static void move(ShadowCompanionEntity shadow, ServerPlayer owner,
@@ -208,10 +226,4 @@ public final class ShadowCombatController {
 				: Math.clamp(entity.getHealth() / entity.getMaxHealth(), 0.0, 1.0);
 	}
 
-	private static double distanceToSegmentSquared(Vec3 point, Vec3 start, Vec3 end) {
-		Vec3 segment = end.subtract(start);
-		if (segment.lengthSqr() < 1.0E-8) return point.distanceToSqr(start);
-		double t = Math.clamp(point.subtract(start).dot(segment) / segment.lengthSqr(), 0.0, 1.0);
-		return point.distanceToSqr(start.add(segment.scale(t)));
-	}
 }

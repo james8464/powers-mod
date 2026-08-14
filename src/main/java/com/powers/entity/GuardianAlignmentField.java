@@ -1,6 +1,8 @@
 package com.powers.entity;
 
 import com.powers.PowerStatusEffects;
+import com.powers.ai.PerceptionQueryProfile;
+import com.powers.ai.PerceptionSnapshotService;
 import com.powers.fx.PowerFx;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.player.SkillSystem;
@@ -8,14 +10,10 @@ import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
-import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.AABB;
-
-import java.util.Comparator;
 
 /** Applies the guardian's fourth, alignment-specific tactical action. */
 public final class GuardianAlignmentField {
@@ -27,11 +25,13 @@ public final class GuardianAlignmentField {
 	public static void pulse(ServerLevel level, AbstractPlayerLikeMob guardian,
 			ArtifactAlignment alignment) {
 		double radius = guardian.eliteGuardian() ? 9.0 : 6.0;
-		for (LivingEntity target : BoundedEntityCandidates.living(level,
-				AABB.ofSize(guardian.position(), radius * 2.0, radius * 2.0, radius * 2.0),
-				MAX_TARGETS, candidate -> candidate != guardian && candidate.isAlive()
-						&& candidate.distanceToSqr(guardian) <= radius * radius,
-				Comparator.comparingDouble(candidate -> candidate.distanceToSqr(guardian)))) {
+		for (var observation : PerceptionSnapshotService.observe(level, guardian.position(),
+				radius, radius, MAX_TARGETS,
+				candidate -> !candidate.entityId().equals(guardian.getUUID())
+						&& candidate.position().distanceToSqr(guardian.position()) <= radius * radius,
+				PerceptionQueryProfile.GUARDIAN_FIELD)) {
+			LivingEntity target = PerceptionSnapshotService.resolve(level, observation);
+			if (target == null || target.distanceToSqr(guardian) > radius * radius) continue;
 			boolean targetDark = target.entityTags().contains(SkillSystem.DARKNESS_TAG);
 			if (!GuardianFieldRules.hostile(alignment, targetDark)) {
 				if (alignment == ArtifactAlignment.LIGHT) target.heal(guardian.eliteGuardian() ? 8.0F : 4.0F);

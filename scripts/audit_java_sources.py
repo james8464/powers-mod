@@ -17,6 +17,7 @@ PUBLIC_TYPE = re.compile(
 JAVADOC = re.compile(r"/\*\*(.*?)\*/", re.DOTALL)
 
 PACKAGE_OWNERSHIP = {
+    "ai": "Per-level per-tick immutable perception snapshots; replaced each tick and cleared on server stop.",
     "magic.runtime": "Bounded per-server cast residues; cleared on disconnect, respawn, and stop.",
     "magic": "Immutable process-wide catalogue and pure deterministic resolver.",
     "network": "Registered once; packet input is validated and executed on the server thread.",
