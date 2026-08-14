@@ -431,6 +431,8 @@ PERF-014 replaced legacy remaining-lifetime guardian saves with a compact absolu
 
 PERF-016 reproduced cross-dimension starvation after 102 ticks with 30 catastrophic Overworld ceremonies, then replaced global first-level scheduling with bounded fair lanes and task queues. The accepted scene advanced the ordinary Nether ceremony in one tick, retained claim denial, passed 1,438 JVM tests and all 100 ordinary live GameTests, and has exact proof in [the PERF-016 evidence bundle](docs/verification/evidence/2026-08-14-perf-016-4f85042/README.md).
 
+PERF-015 measures actual Minecraft 26.2 framed and compression-aware Magic/Beam/Shape packets before choosing a transport. Ordered same-tick tails batch only when the measured wire shape is smaller, saving 55.524% at 256 B and 79.489% at 8 KiB under the normal 256-byte compression threshold while keeping lead cues immediate and collision state separate. Exact results and live-client ordering proof are in [the PERF-015 evidence bundle](docs/verification/evidence/2026-08-14-perf-015-65401e7/README.md).
+
 ## Datapack and integration surfaces
 
 Datapacks can extend recipes, loot, tags, `powers:knowledge_entries`, Crucible eligibility, living-force immunity, artifact conjuration policy, and authored data registries without replacing server validation. Java integrations may register Crucible predicates. Save migrations preserve legacy artifact keys, inactive grimoire IDs, hidden item aliases, rank/loadout state, cooldowns, body sessions, landmarks, Shadow memory/learning, and Celestial Ruin events where supported.
