@@ -1,0 +1,112 @@
+# Exact-build rendered acceptance for all eight pending crystal actions and Middleworld.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	gamemode survival @s
+110	COMMAND	effect give @s minecraft:resistance 999999 255 true
+120	COMMAND	tp @s 0.5 101 0.5 0 0
+
+# Red — Inferno damages and ignites a real player-compatible target.
+140	COMMAND	fill -16 100 -16 16 100 16 minecraft:stone
+140	COMMAND	tp @s 0.5 101 0.5 0 0
+150	COMMAND	powers testing actor spawn InfernoTarget
+160	COMMAND	tp @e[name=InfernoTarget,limit=1] 0.5 101 5.5
+170	COMMAND	data merge entity @e[name=InfernoTarget,limit=1] {NoAI:1b,PersistenceRequired:1b}
+180	COMMAND	item replace entity @s weapon.mainhand with powers:red_crystal
+200	USE	main
+240	COMMAND	data get entity @e[name=InfernoTarget,limit=1] Health
+250	COMMAND	data get entity @e[name=InfernoTarget,limit=1] Fire
+260	SCREENSHOT	inferno-live
+300	COMMAND	kill @e[name=InfernoTarget]
+
+# Orange mode zero — exactly three bounded combat echoes.
+330	COMMAND	tp @s 8.5 101 0.5 0 0
+340	COMMAND	item replace entity @s weapon.mainhand with powers:orange_crystal
+360	USE	main
+400	COMMAND	execute if entity @e[type=powers:echo_clone,distance=..10] run say CLONE_SWARM_PRESENT
+410	COMMAND	data get entity @e[type=powers:echo_clone,distance=..10,limit=1] Health
+420	SCREENSHOT	clone-swarm
+440	COMMAND	kill @e[type=powers:echo_clone]
+
+# Orange mode one — actual sneak-use selection and creation chamber placement.
+470	COMMAND	tp @s -8.5 106 0.5 0 90
+480	KEY	sneak on
+490	USE	main
+500	KEY	sneak off
+530	USE	main
+570	COMMAND	execute if block -9 103 0 minecraft:glowstone run say CREATION_CHAMBER_PRESENT
+580	COMMAND	execute if block -7 101 0 minecraft:orange_concrete run say CREATION_FRAME_PRESENT
+590	SCREENSHOT	creativity-manifestation
+
+# Yellow — extreme size shift and every supporting effect remains particle-free.
+620	COMMAND	tp @s 0.5 101 0.5 0 0
+630	COMMAND	item replace entity @s weapon.mainhand with powers:yellow_crystal
+650	USE	main
+680	COMMAND	attribute @s minecraft:scale get
+690	COMMAND	data get entity @s active_effects
+700	SCREENSHOT	yellow-size-shift
+
+# Violet — one linked target mirrors a bounded share of another target's damage.
+730	COMMAND	tp @s 0.5 101 0.5 0 0
+740	COMMAND	powers testing actor spawn SoulA
+750	COMMAND	powers testing actor spawn SoulB
+760	COMMAND	tp @e[name=SoulA,limit=1] 0.5 101 4.5
+770	COMMAND	tp @e[name=SoulB,limit=1] 3.5 101 4.5
+780	COMMAND	data merge entity @e[name=SoulA,limit=1] {NoAI:1b,PersistenceRequired:1b}
+790	COMMAND	data merge entity @e[name=SoulB,limit=1] {NoAI:1b,PersistenceRequired:1b}
+800	COMMAND	item replace entity @s weapon.mainhand with powers:violet_crystal
+820	USE	main
+850	COMMAND	data get entity @e[name=SoulA,limit=1] Health
+860	COMMAND	data get entity @e[name=SoulB,limit=1] Health
+870	COMMAND	damage @e[name=SoulA,limit=1] 8 minecraft:generic
+900	COMMAND	data get entity @e[name=SoulA,limit=1] Health
+910	COMMAND	data get entity @e[name=SoulB,limit=1] Health
+920	SCREENSHOT	soul-link-mirror
+940	COMMAND	kill @e[name=SoulA]
+940	COMMAND	kill @e[name=SoulB]
+
+# Blue mode zero — Chrono Stop owns and then releases the vanilla tick freeze.
+970	COMMAND	tp @s 0.5 101 0.5 0 0
+980	COMMAND	item replace entity @s weapon.mainhand with powers:blue_crystal
+1000	USE	main
+1030	COMMAND	tick query
+1040	SCREENSHOT	chrono-stop-owned
+1070	USE	main
+1100	COMMAND	tick query
+1110	SCREENSHOT	chrono-stop-released
+
+# Blue mode one — controlled movement and the fixed spectator right-click return.
+1140	COMMAND	powers testing actor spawn DreamHost
+1150	COMMAND	tp @e[name=DreamHost,limit=1] 0.5 101 4.5
+1160	COMMAND	data merge entity @e[name=DreamHost,limit=1] {NoAI:1b,PersistenceRequired:1b}
+1180	KEY	sneak on
+1190	USE	main
+1200	KEY	sneak off
+1230	USE	main
+1260	COMMAND	data get entity @s playerGameType
+1270	COMMAND	powers diagnose
+1290	KEY	forward on
+1350	KEY	forward off
+1360	COMMAND	data get entity @e[name=DreamHost,limit=1] Pos
+1370	SCREENSHOT	dreamwalking-controlled
+1400	USE	main
+1450	COMMAND	data get entity @s playerGameType
+1460	COMMAND	powers diagnose
+1470	SCREENSHOT	dreamwalking-returned
+
+# Indigo — caster and one invulnerable vanilla mob enter and return together.
+1500	COMMAND	tp @s 8.5 101 0.5 0 0
+1510	COMMAND	summon minecraft:cow 8.5 101 1.5 {CustomName:'"RealmMate"',Tags:["qa_realm_mate"],NoAI:1b,Invulnerable:1b,PersistenceRequired:1b}
+1520	COMMAND	item replace entity @s weapon.mainhand with powers:indigo_crystal
+1540	USE	main
+1630	COMMAND	execute if dimension powers:middleworld run say MIDDLEWORLD_ENTERED
+1640	COMMAND	execute in powers:middleworld if entity @e[tag=qa_realm_mate,limit=1] run say REALM_MATE_ENTERED
+1650	COMMAND	powers diagnose
+1660	SCREENSHOT	middleworld-cohort-arrival
+1670	COMMAND	execute in powers:middleworld as @e[tag=qa_realm_mate,limit=1] at @s run tp @s ~6 ~4 ~
+1680	COMMAND	execute in powers:middleworld run data get entity @e[tag=qa_realm_mate,limit=1] Pos
+1700	USE	main
+1760	COMMAND	execute if dimension minecraft:overworld run say MIDDLEWORLD_RETURNED
+1770	COMMAND	execute in minecraft:overworld if entity @e[tag=qa_realm_mate,limit=1] run say REALM_MATE_RETURNED
+1780	COMMAND	execute in minecraft:overworld run data get entity @e[tag=qa_realm_mate,limit=1] Pos
+1790	COMMAND	powers diagnose
+1800	SCREENSHOT	middleworld-cohort-return
