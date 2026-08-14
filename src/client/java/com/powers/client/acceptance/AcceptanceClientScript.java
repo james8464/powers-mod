@@ -121,8 +121,8 @@ public final class AcceptanceClientScript {
 						|| !(values[0].equals("forward") || values[0].equals("back")
 						|| values[0].equals("left") || values[0].equals("right")
 						|| values[0].equals("jump") || values[0].equals("sneak")
-						|| values[0].equals("sprint"))) {
-					throw malformed(lineNumber, "key needs a supported movement name and on/off state");
+						|| values[0].equals("sprint") || values[0].equals("advancements"))) {
+					throw malformed(lineNumber, "key needs a supported name and on/off state");
 				}
 			}
 			case LOOK -> {

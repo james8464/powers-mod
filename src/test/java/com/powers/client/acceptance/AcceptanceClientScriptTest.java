@@ -89,4 +89,14 @@ class AcceptanceClientScriptTest {
 		assertThrows(IllegalArgumentException.class,
 				() -> AcceptanceClientScript.parse(List.of("20\tlook\tNaN 0")));
 	}
+
+	@Test
+	void acceptsTheVanillaAdvancementsKeyForLiveScreenEvidence() {
+		var steps = AcceptanceClientScript.parse(List.of(
+				"20\tkey\tadvancements on",
+				"21\tkey\tadvancements off"));
+
+		assertEquals("advancements on", steps.getFirst().argument());
+		assertEquals("advancements off", steps.getLast().argument());
+	}
 }
