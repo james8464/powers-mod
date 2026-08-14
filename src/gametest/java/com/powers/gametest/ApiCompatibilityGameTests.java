@@ -5,6 +5,7 @@ import com.powers.api.v1.CastContext;
 import com.powers.api.v1.CastSource;
 import com.powers.api.v1.PhysicalPresence;
 import com.powers.api.v1.PowersApiRuntime;
+import com.powers.api.v1.PresenceHandle;
 import com.powers.api.v1.PresenceKind;
 import com.powers.example.ExamplePowersExtension;
 import com.powers.magic.MagicActionId;
@@ -20,6 +21,9 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /** Dedicated-server proof that the independently compiled v1 extension reaches production owners. */
 public final class ApiCompatibilityGameTests {
@@ -112,6 +116,63 @@ public final class ApiCompatibilityGameTests {
 		helper.assertTrue(rejected(() -> PowersApiRuntime.global().api().castContext(actor,
 				ExamplePowersExtension.ACTION_ID)), "Removed player retained cast authority");
 		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 42)
+	@SuppressWarnings("removal")
+	public void expiredApiPresencesReclaimCapacityWithoutAliasingHandles(GameTestHelper helper) {
+		ServerPlayer actor = helper.makeMockServerPlayerInLevel();
+		actor.snapTo(100.0, 64.0, 0.0);
+		List<PresenceHandle> expiredHandles = new ArrayList<>();
+		long expiresAt = helper.getLevel().getServer().getTickCount() + 35L;
+		registerBatch(helper, actor, 4, expiresAt, expiredHandles);
+		for (long tick = 1L; tick < 32L; tick++) {
+			helper.runAtTickTime(tick, () -> registerBatch(helper, actor, 4, expiresAt, expiredHandles));
+		}
+		helper.runAtTickTime(32L, () -> {
+			CastContext context = PowersApiRuntime.global().api().castContext(actor,
+					ExamplePowersExtension.ACTION_ID);
+			Vec3 point = actor.position().add(0.0, 1.0, 0.0);
+			helper.assertTrue(rejected(() -> PowersApiRuntime.global().api().registerPresence(context,
+					new PhysicalPresence(helper.getLevel(), point.x, point.y, point.z, 1.0,
+							expiresAt, PresenceKind.FIELD))),
+					"Active API presence cap was not enforced");
+		});
+		helper.runAtTickTime(37L, () -> {
+			TestingOverrides.setAll(actor.getUUID(), true);
+			try {
+				CastContext context = PowersApiRuntime.global().api().castContext(actor,
+						ExamplePowersExtension.ACTION_ID);
+				Vec3 point = actor.position().add(0.0, 1.0, 0.0);
+				PresenceHandle replacement = PowersApiRuntime.global().api().registerPresence(context,
+						new PhysicalPresence(helper.getLevel(), point.x, point.y, point.z, 1.0,
+								helper.getLevel().getServer().getTickCount() + 5L, PresenceKind.FIELD));
+				helper.assertTrue(!PowersApiRuntime.global().api().removePresence(expiredHandles.getFirst()),
+						"Expired handle still referred to active API state");
+				helper.assertTrue(PowersApiRuntime.global().api().removePresence(replacement),
+						"Expired handle removed or aliased the replacement presence");
+			} finally {
+				TestingOverrides.clear(actor.getUUID());
+			}
+			helper.succeed();
+		});
+	}
+
+	private static void registerBatch(GameTestHelper helper, ServerPlayer actor,
+			int registrations, long expiresAt, List<PresenceHandle> handles) {
+		TestingOverrides.setAll(actor.getUUID(), true);
+		try {
+			for (int registration = 0; registration < registrations; registration++) {
+				CastContext context = PowersApiRuntime.global().api().castContext(actor,
+						ExamplePowersExtension.ACTION_ID);
+				Vec3 point = actor.position().add(registration * 0.25, 1.0, 0.0);
+				handles.add(PowersApiRuntime.global().api().registerPresence(context,
+						new PhysicalPresence(helper.getLevel(), point.x, point.y, point.z, 1.0,
+								expiresAt, PresenceKind.FIELD)));
+			}
+		} finally {
+			TestingOverrides.clear(actor.getUUID());
+		}
 	}
 
 	private static boolean rejected(Runnable operation) {
