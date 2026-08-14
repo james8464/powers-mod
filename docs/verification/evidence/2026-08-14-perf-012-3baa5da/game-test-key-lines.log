@@ -1,0 +1,3 @@
+[17:02:37] [Server thread/INFO] (powers) PERF-012 identical mixed AI: queries=24, cacheHits=12, inspections=348, legacyInspections=540, reductionPercent=35.56
+[17:02:41] [Server thread/INFO] (Minecraft) ========= 95 GAME TESTS COMPLETE IN 36.74 s ======================
+[17:02:41] [Server thread/INFO] (Minecraft) All 95 required tests passed :)
