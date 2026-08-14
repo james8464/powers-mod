@@ -51,7 +51,7 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
 - [x] `PERF-014`: compact long-lived summon persistence and exactly-once derived-index rebuild.
 - [x] `PERF-016`: catastrophic load crossed the starvation gate; fair dimension/protection-policy scheduling now bounds validation and transformation work.
 - [x] `PERF-015`: exact framed/compressed 64 B–8 KiB measurements now choose ordered semantic-FX batching only when it is smaller.
-- [ ] `PERF-013`: recognisable near/mid/far semantic-FX LOD without simplifying event geometry or identity.
+- [x] `PERF-013`: recognisable near/mid/far semantic-FX LOD without simplifying event geometry or identity.
 - [ ] `NET-007`: deterministic global → world → dimension policy resolution with absolute protection denial and diagnosed source.
 - [ ] `NET-009`: versioned `com.powers.api.v1` integration API plus compiled example/compatibility mod.
 - [ ] `NET-010`: atomic revisioned action reload, captured active casts, stale menu rejection, and alias migration.
