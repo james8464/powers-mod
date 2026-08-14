@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added deterministic field-by-field global → exact-world → dimension power-policy overrides with bounded schema-v4 loading, effective-source diagnostics, and absolute safe-zone/external-protection precedence; observation protection now covers named mobs as well as players and old exhaustive-switch adapters fail closed across the new action boundary.
+
 - Added server-authoritative near/mid/far semantic-FX LOD for beams, runes, spirals, Herald ceremonies, First Vessel rituals, and Celestial Ruin; distant observers retain event geometry and signature audio without near-field particle density, client distance culling is overridden only for authorised cues, and overlapping Ruin ringing remains bounded and independent.
 
 - Added exact Minecraft 26.2 frame/compression measurement for semantic Magic/Beam/Shape bursts and ordered bounded batching only when it reduces wire bytes; the normal 256-byte threshold saves 55.524% at 256 B and 79.489% at 8 KiB while preserving immediate lead cues, connection/dimension lifecycle safety, and physical collision authority.

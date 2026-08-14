@@ -7,7 +7,7 @@ Back up an existing world before first launch. POWERS migrations preserve valid 
 - The old Infected Rainbow Crystal registry item remains an inert, hidden missing-save alias. Darkness now changes the ordinary Rainbow Crystal's held appearance without mutating the stack.
 - The removed Green Space-Time and obsolete Portal Rift actions do not survive as selectable abilities. Green retains Life Bloom; Indigo owns the stable Middleworld journey.
 - Existing Miniportals without charge data initialize safely within the new zero-to-two charge component contract. Rebinding stores exact dimension and coordinates; a dropped amethyst shard restores both charges.
-- Configuration schema v1 rewrites atomically to v2. Only the obsolete generated `allowTerrainDamage: false` default becomes `true`; an administrator's explicit v2 opt-out remains unchanged.
+- Configuration schemas v1–v3 rewrite atomically to v4. Only the obsolete generated v1 `allowTerrainDamage: false` default becomes `true`; explicit modern values remain unchanged. The new `policyOverrides` maps default empty, so migration cannot silently change a world's effective policy.
 - Realm-return and body states are revalidated at use. Corrupt/missing destinations use bounded recovery and operator diagnostics; ordinary players cannot use migration as a Light/Dark departure bypass.
 - Legacy finite guardians migrate owner UUID, remaining lifetime, and elite tier into the compact schema on first load. Positive remaining lifetime becomes a bounded absolute deadline, zero expires immediately, `-1` remains a natural creature, and malformed owner/task/archetype combinations expire fail-closed. Derived target, navigation, attribute, and cap-index state is rebuilt rather than copied.
 
