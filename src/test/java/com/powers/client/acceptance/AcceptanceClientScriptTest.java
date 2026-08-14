@@ -22,15 +22,17 @@ class AcceptanceClientScriptTest {
 				"75\tgrimoire\tbook_grimoire_wild 2",
 				"80\tcrystal\t4",
 				"85\tartifact\tdarkness unique/blight_ground -1",
+				"86\tteleport\t0 32.5 101 -48.5 minecraft:overworld",
 				"88\tlocator\tSoulWitness",
 				"90\tchat\tshadow, reveal yourself",
 				"100\tscreenshot\tforcefield-break"));
 
-		assertEquals(14, steps.size());
+		assertEquals(15, steps.size());
 		assertEquals(AcceptanceClientScript.Operation.CLOSE, steps.getFirst().operation());
 		assertEquals(AcceptanceClientScript.Operation.KEY, steps.get(3).operation());
 		assertEquals(AcceptanceClientScript.Operation.ACTIVATE, steps.get(4).operation());
-		assertEquals(AcceptanceClientScript.Operation.LOCATOR, steps.get(11).operation());
+		assertEquals(AcceptanceClientScript.Operation.TELEPORT, steps.get(11).operation());
+		assertEquals(AcceptanceClientScript.Operation.LOCATOR, steps.get(12).operation());
 		assertEquals("forcefield-break", steps.getLast().argument());
 	}
 
@@ -57,6 +59,12 @@ class AcceptanceClientScriptTest {
 				() -> AcceptanceClientScript.parse(List.of("20\tcrystal\t256")));
 		assertThrows(IllegalArgumentException.class,
 				() -> AcceptanceClientScript.parse(List.of("20\tartifact\tdarkness action -2")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of(
+						"20\tteleport\t0 NaN 64 0 minecraft:overworld")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of(
+						"20\tteleport\t3 0 64 0 minecraft:overworld")));
 		assertThrows(IllegalArgumentException.class,
 				() -> AcceptanceClientScript.parse(List.of("20\tlocator\t" + "x".repeat(65))));
 		assertThrows(IllegalArgumentException.class,

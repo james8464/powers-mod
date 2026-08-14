@@ -8,7 +8,7 @@ import java.util.Locale;
 public final class AcceptanceClientScript {
 	public enum Operation {
 		COMMAND, CHAT, ACTIVATE, SELECT, USE, ATTACK, GRIMOIRE, CRYSTAL, ARTIFACT,
-		RESPAWN, CLOSE, LOCATOR, KEY, SCREENSHOT
+		TELEPORT, RESPAWN, CLOSE, LOCATOR, KEY, SCREENSHOT
 	}
 
 	public record Step(int tick, Operation operation, String argument) {
@@ -88,6 +88,17 @@ public final class AcceptanceClientScript {
 				validateIdentifier(values[1], lineNumber, "action");
 				parseBoundedInteger(values[2], -1, 255, lineNumber, "option");
 			}
+			case TELEPORT -> {
+				String[] values = argument.split(" ");
+				if (values.length != 5) {
+					throw malformed(lineNumber, "teleport needs slot, x, y, z and dimension");
+				}
+				parseBoundedInteger(values[0], 0, 2, lineNumber, "slot");
+				parseFiniteDouble(values[1], lineNumber, "x");
+				parseFiniteDouble(values[2], lineNumber, "y");
+				parseFiniteDouble(values[3], lineNumber, "z");
+				validateIdentifier(values[4], lineNumber, "dimension");
+			}
 			case LOCATOR -> {
 				if (argument.length() > 64) throw malformed(lineNumber, "locator input is too long");
 			}
@@ -133,6 +144,16 @@ public final class AcceptanceClientScript {
 			return parsed;
 		} catch (NumberFormatException exception) {
 			throw malformed(lineNumber, field + " is not an integer");
+		}
+	}
+
+	private static double parseFiniteDouble(String value, int lineNumber, String field) {
+		try {
+			double parsed = Double.parseDouble(value);
+			if (!Double.isFinite(parsed)) throw malformed(lineNumber, field + " is not finite");
+			return parsed;
+		} catch (NumberFormatException exception) {
+			throw malformed(lineNumber, field + " is not a number");
 		}
 	}
 

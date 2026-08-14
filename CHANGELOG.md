@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Completed rendered-client acceptance for all innate powers, including distant consent-free cohort travel, retained toggle reconciliation, a real two-times Double Health baseline, and ownership-safe Time Freeze release. The development-only acceptance script can now submit the exact validated destination payload used by the Time Shift screen.
+
 - Preserved active innate toggles when allegiance reconciliation replaces a different slot; dropped powers still clean up exactly once, while retained Size Morphing and Time Freeze ownership no longer flicker or silently restart.
 - Fixed mind-body return at player-list lifecycle boundaries: disconnect and early join recovery now
   complete through the live player reference, while delayed chunk callbacks continue to resolve the

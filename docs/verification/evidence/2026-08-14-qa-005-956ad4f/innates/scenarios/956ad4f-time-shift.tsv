@@ -1,0 +1,21 @@
+# Exact-build Time Shift proof through the same authenticated payload used by the rendered menu.
+60	CLOSE	screen
+80	COMMAND	powers testing on
+100	COMMAND	gamemode survival @s
+110	COMMAND	effect give @s minecraft:resistance 999999 255 true
+120	COMMAND	fill -8 100 -8 8 100 8 minecraft:stone
+130	COMMAND	tp @s 0.5 101 0.5 0 0
+140	COMMAND	kill @e[name=TravelMate]
+150	COMMAND	powers testing actor spawn TravelMate
+160	COMMAND	tp @e[name=TravelMate,limit=1] 0.5 101 1.5
+170	COMMAND	data merge entity @e[name=TravelMate,limit=1] {NoAI:1b,PersistenceRequired:1b}
+180	COMMAND	powers assign @s time_shift 0
+200	ACTIVATE	0
+220	SCREENSHOT	time-shift-menu
+240	TELEPORT	0 192.5 101 0.5 minecraft:overworld
+250	CLOSE	screen
+270	SCREENSHOT	time-shift-storm
+350	SCREENSHOT	time-shift-arrival
+370	COMMAND	data get entity @s Pos
+380	COMMAND	data get entity @e[name=TravelMate,limit=1] Pos
+400	COMMAND	powers diagnose
