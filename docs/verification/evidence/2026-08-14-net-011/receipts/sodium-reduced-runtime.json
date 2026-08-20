@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "runRole": "sodium-reduced-round2-final",
+  "implementationCommit": "d0a1490af69da3264f6058097a8af899cbe1bf62",
   "parentCommit": "cca6944a3ad3b3091c04ce28a20ec453e5896c64",
   "sourcePatchSha256": "b94a852f4115c3ddb158d0e80b7a8517a71db390c810ef7bc971c326ca5d1fce",
   "acceptanceScript": {

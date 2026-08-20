@@ -96,6 +96,6 @@ Final gates:
 
 Changed areas: Gradle isolated launch contract; strict compatibility manifest/harness/tests; registry ledger regression; pinned Inventory Extended live GameTest; acceptance clean/key scripting; matrix/report/evidence/visuals; Java source audit; NET-011 plan/backlog closure. VFX-009 remains open and owns the enhanced renderer.
 
-Commit lineage: fix round 1 is `cca6944a3ad3b3091c04ce28a20ec453e5896c64`. Fix round 2 implementation/evidence SHA is appended after its cohesive direct-main commit.
+Commit lineage: fix round 1 is `cca6944a3ad3b3091c04ce28a20ec453e5896c64`. Fix round 2 implementation and evidence are the cohesive direct-main commit `d0a1490af69da3264f6058097a8af899cbe1bf62`; its immediate metadata successor binds that immutable SHA into this report, the matrix and the reduced-motion runtime receipt.
 
 Concerns: the current static renderer is proven but VFX-009 enhanced sky is not; ClaimMod has no supported adapter; microphone audio is untested; nested containers remain deliberately dormant. These are explicit matrix limits, not inferred successes.

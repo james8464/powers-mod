@@ -41,4 +41,6 @@ Use Java 25 and run profiles sequentially. `runCompatibilityGameTest` hash-verif
 
 Every claimed client log is the exact `<gameDir>/logs/latest.log` for the named process and receipt. The normal and corrected reduced clients used distinct run directories, role markers, timestamps, and screenshots. The reduced runtime receipt binds its acceptance script, resolved settings marker, saved exact options and selected image hashes. Complete logs were passed through the deterministic sanitizer and committed rather than referenced from ignored mutable paths.
 
+The descriptor hardening, corrected reduced-motion client implementation, and bound evidence are immutable at commit `d0a1490af69da3264f6058097a8af899cbe1bf62`; the adjacent metadata commit only records that SHA in the report and receipt.
+
 Committed sanitized logs, exact receipts, eight inspected frames, checksums, and machine-readable outcomes are in [`docs/verification/evidence/2026-08-14-net-011/`](evidence/2026-08-14-net-011/). Offline-client 401/Realms errors, vanilla unused-shader-attribute warnings, voice debug/offline warnings, microphone denial, and the final host-stall warning are retained and attributed rather than hidden. The final owned complete-stack run passed all 115 required tests despite the host stall.

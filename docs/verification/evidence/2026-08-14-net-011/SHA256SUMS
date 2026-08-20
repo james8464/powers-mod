@@ -1,4 +1,4 @@
-2cf598aed58a52e6c59e0431d229d685b3bf181bccf294334492365042cdee1a  ./README.md
+1660e9c60a0cd84f24ac98c807202a44d1c8e079afcb8ba57735de4ae047f5d3  ./README.md
 bdbd411d5860898b6aa2873e3d0ac4f3436b761a6ca34326d0304af83d74a3d8  ./logs/2026-08-14-224601-complete-stack-113-of-114.log
 9901d7fab3f19bc3d90dc6a03d7c8d8ddc7ced489275a5c0a32514a713f3052c  ./logs/2026-08-14-224703-complete-stack-focused-pass.log
 defbb3a15af42a643405144e471f44ce1f05960402084514caa0408f8fe6b2c0  ./logs/2026-08-14-225152-complete-stack-rerun-113-of-114.log
@@ -12,7 +12,7 @@ b4d0158125dfa5b7d302aa248450aedf2c90258f899193fde21e9c77f2d044f7  ./receipts/com
 16a3990891463af543e878986ff4f4b496e54f8b5794e08d82dbfa5ebeb19a04  ./receipts/sodium-normal-client.json
 16a3990891463af543e878986ff4f4b496e54f8b5794e08d82dbfa5ebeb19a04  ./receipts/sodium-reduced-client.json
 b4d0158125dfa5b7d302aa248450aedf2c90258f899193fde21e9c77f2d044f7  ./receipts/sodium-reduced-final-server.json
-1f5c957f95e5fcd5e16c0ac29cd0446d24c2ce49ad95de32f39ca729c828abe4  ./receipts/sodium-reduced-runtime.json
+a269cf0256aaf324ba4b53745502bbe11cd0798b5eb64e5474ebe787f958905e  ./receipts/sodium-reduced-runtime.json
 b4d0158125dfa5b7d302aa248450aedf2c90258f899193fde21e9c77f2d044f7  ./receipts/sodium-visual-server.json
 3978f5269af2cf1ac768703a8e6917a8368a84add3ee260a322308caf023f6a0  ./runtime-markers.log
 2daab09a19a65225da60e1ff60f94bbb90ca0734a20c949c0a1dc64709c38dc2  ./runtime-results.tsv
