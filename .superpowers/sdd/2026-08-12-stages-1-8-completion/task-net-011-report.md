@@ -2,7 +2,7 @@
 
 ## Outcome
 
-Fix round 1 resolves the independent-review defects in the NET-011 harness and evidence. The owned isolated complete-stack task passed all 115 required GameTests; Inventory Extended's added slots are now described truthfully as top-level inventory; and full sanitized logs, receipts, checksums, plus eight visually inspected Sodium frames are committed. No third-party binary or production dependency is committed.
+Fix rounds 1 and 2 resolve the independent-review defects in the NET-011 harness and evidence. The owned isolated complete-stack task passed all 115 required GameTests; Inventory Extended's added slots are described truthfully as top-level inventory; artifact staging is descriptor-pinned and owned paths are no-follow validated; and full sanitized logs, receipts, checksums, plus eight visually inspected Sodium frames are committed. No third-party binary or production dependency is committed.
 
 The matrix remains bounded: ClaimMod-specific integration is unsupported, microphone/audio is unclaimed, nested containers remain dormant, and the future enhanced VFX-009 Light Realm renderer is not claimed. NET-011 is closed because its compatibility guarantee now has exact versions, real-process proof and explicit limitations; VFX-009 remains the separate owner of enhanced-sky implementation.
 
@@ -29,12 +29,14 @@ Observed REDs before implementation:
 - Registry-reload GameTest: two repeatable 113/114 runs failed `invalid_continuation_cancels_exactly_once_without_completion`, while its focused run passed. Investigation showed the test compared net energy across four ticks and suite phase crossed passive regeneration at `tick % 20`. The replacement asserts authoritative ledger semantics: initial `PLAYER_POOL_COST`, cancellation cost computed as pool/reservoir cost minus `TRANSACTION_ROLLBACK`, exact net 11, distinct forced `REGENERATION`, and unchanged transaction deltas on the later tick. Focused GREEN preceded the single final aggregate.
 - Inventory Extended live test: first RED exposed the pinned mixin's actual 70 entries versus the assumed 68; the next RED corrected a mistaken assertion about vanilla mayfly ownership. Final test proves 43 vanilla + 27 added entries, authorization from added slot 36, removal/revocation, and POWERS toggle/snapshot cleanup.
 - Acceptance scripting: a real client RED showed synthetic key down did not open Rank Maze. A bounded click path plus parsing test made it GREEN. A second visual RED showed clearing chat in the screenshot operation occurred after framebuffer capture; an explicit prior `CLEAN ui` operation and unit coverage fixed it.
+- Fix-round-2 harness RED: four tests proved `mods/`, `eula.txt`, `server.properties`, and the receipt could be symlinks, and a deterministic cache-path swap staged unverified bytes. Assembly now holds a no-follow verified source descriptor, writes through owned directory descriptors, rejects non-regular children before mutation, verifies the streamed bytes, and removes partial staged output on failure. All external symlink targets remain untouched.
+- Reduced-motion evidence RED: the prior saved client options contained `particles:0` (ALL), so those reduced frames were retired rather than relabelled. A test-first acceptance-only `SETTING reduced_motion` directive applies options after Minecraft initialization, saves and re-reads them, and emits the resolved marker. The single authorized corrected replay saved `particles:2` (MINIMAL) and `screenEffectScale:0.0`; its exact sanitized options, marker, receipt, logs and four replacement frames are committed.
 
 Focused commands/results:
 
 ```text
 python3 -B -m unittest scripts.tests.test_compatibility_harness
-# 6 tests, PASS
+# 9 tests, PASS
 
 ./gradlew test --tests com.powers.quality.LauncherContractTest --tests com.powers.client.acceptance.AcceptanceClientScriptTest
 # PASS
@@ -48,9 +50,9 @@ python3 -B -m unittest scripts.tests.test_compatibility_harness
 
 ## Owned harness and runtime proof
 
-`runCompatibilityGameTest` depends on `prepareCompatibilityGameTest`, which verifies hashes and assembles `complete/server` under `build/compatibility-runs/complete-gametest`. Its receipt records exact file/version/project IDs, byte sizes, hashes, URLs, channels, sides, licenses and retrieval dates. Ordinary `runGameTest` deletes its own `mods/`, so ignored manually staged JARs cannot pollute it.
+`runCompatibilityGameTest` depends on `prepareCompatibilityGameTest`, which verifies hashes and assembles `complete/server` under `build/compatibility-runs/complete-gametest`. Its receipt records exact file/version/project IDs, byte sizes, hashes, URLs, channels, sides, licenses and retrieval dates. Assembly pins each verified artifact through one no-follow file descriptor, streams it into an exclusive no-follow destination, checks the streamed size/hash, and writes the receipt last. Every owned child is inspected through directory descriptors before deletion/write. Ordinary `runGameTest` deletes its own `mods/`, so ignored manually staged JARs cannot pollute it.
 
-The harness validates schema, safe IDs/profile membership, exact non-boolean positive sizes, lowercase SHA-256, HTTPS/no-credential URLs, project/version path linkage for Modrinth pages and CDN downloads, release dates/channels, filenames, artifact symlinks, and run-directory containment/equality/symlink escape. Assembly only removes `.jar` files inside the validated child `mods/` directory.
+The harness validates schema, safe IDs/profile membership, exact non-boolean positive sizes, lowercase SHA-256, HTTPS/no-credential URLs, project/version path linkage for Modrinth pages and CDN downloads, release dates/channels, filenames, artifact symlinks, run-directory containment/equality/symlink escape, and each owned child with no-follow metadata. Assembly only removes validated regular `.jar` files through the owned `mods/` directory descriptor.
 
 Final complete-stack command (the only post-fix high-load run):
 
@@ -64,7 +66,7 @@ The three pre-fix full logs and focused pass are committed alongside the final l
 
 ## Runtime matrix truth
 
-- Sodium: real pinned macOS client, exact isolated game directories and process-role markers. Normal and reduced-motion runs both loaded Sodium and produced clean unpaused static-white Light Realm, ten energy symbols/power rail, and Rank Maze frames. Double Health provides identifiable current semantic FX; the reduced configuration (`particles: minimal`, screen effect scale zero) visibly reduces its particle overlay. The eight selected frames were visually inspected; automatic toast frames and illegible beam frames were excluded.
+- Sodium: real pinned macOS client, exact isolated game directories and process-role markers. Normal and corrected reduced-motion runs both loaded Sodium and produced clean unpaused static-white Light Realm, ten energy symbols/power rail, and Rank Maze frames. Double Health provides identifiable current semantic FX. The corrected replay applied settings after options initialization and its log plus saved options independently prove `MINIMAL`/`2` and scale `0.0`; the four reduced frames replace the invalid prior set. The eight selected frames were visually inspected; automatic toast frames and illegible beam frames were excluded. Enhanced sky remains `UNAVAILABLE`/deferred to VFX-009 and is not claimed.
 - Lithium: complete-stack server tests cover ticks, scheduled work, Time Freeze, teleport/body/realm, save/reload and action lifecycles.
 - Simple Voice Chat: UDP start, secret/authentication/connection check, and simultaneous POWERS payload/FX traffic pass. macOS microphone permission was denied; no audio was recorded or claimed.
 - ClaimMod: load/config/zero claims/save/stop coexistence passes. No source/integration API or POWERS adapter exists, so ClaimMod-specific denial/scar/destruction/teleport/observe semantics remain unsupported. NET-007's generic absolute-denial/fail-closed contract is still tested.
@@ -85,14 +87,15 @@ The sanitizer redacts IPv4/ports, IPv6/loopback/ports, localhost endpoints, UUID
 
 Final gates:
 
-- harness Python tests: 6/6 PASS;
+- harness Python tests: 9/9 PASS;
 - affected JVM tests: PASS;
 - final owned complete-stack GameTests: 115/115 PASS;
-- aggregate `./gradlew check -x runGameTest`: PASS after regenerating the Java source audit; 33 Python tests and all resource/docs/audit/JVM gates passed. GameTests were excluded here to preserve the one controlled post-fix full-stack run above;
+- fresh fix-round-2 `./gradlew runCompatibilityGameTest`: PASS on 2026-08-20; all 115 required GameTests passed through the descriptor-hardened owned assembler;
+- fresh aggregate `./gradlew verifyCompatibilityArtifacts check -x runGameTest --rerun-tasks`: PASS after regenerating the Java source audit; 36 Python tests and all resource/docs/audit/JVM gates passed. GameTests were excluded here because the complete pinned-stack run passed immediately beforehand;
 - privacy scan, resource/docs/audit checks, exact staged-file review: recorded before commit.
 
 Changed areas: Gradle isolated launch contract; strict compatibility manifest/harness/tests; registry ledger regression; pinned Inventory Extended live GameTest; acceptance clean/key scripting; matrix/report/evidence/visuals; Java source audit; NET-011 plan/backlog closure. VFX-009 remains open and owns the enhanced renderer.
 
-Commit: populated after cohesive direct-main commit.
+Commit lineage: fix round 1 is `cca6944a3ad3b3091c04ce28a20ec453e5896c64`. Fix round 2 implementation/evidence SHA is appended after its cohesive direct-main commit.
 
 Concerns: the current static renderer is proven but VFX-009 enhanced sky is not; ClaimMod has no supported adapter; microphone audio is untested; nested containers remain deliberately dormant. These are explicit matrix limits, not inferred successes.

@@ -114,6 +114,15 @@ class AcceptanceClientScriptTest {
 	}
 
 	@Test
+	void acceptsOnlyAuditableReducedMotionSettings() {
+		var steps = AcceptanceClientScript.parse(List.of("1\tsetting\treduced_motion"));
+		assertEquals("SETTING", steps.getFirst().operation().name());
+		assertEquals("reduced_motion", steps.getFirst().argument());
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("1\tsetting\tparticles all")));
+	}
+
+	@Test
 	void advancementPressQueuesTheVanillaClickConsumedByTheClientLoop() {
 		var mapping = new KeyMapping("key.powers.acceptance_test",
 				InputConstants.Type.KEYSYM, 299, KeyMapping.Category.MISC);

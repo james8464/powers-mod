@@ -10,7 +10,7 @@ import json
 import os
 from pathlib import Path
 import re
-import shutil
+import stat
 import sys
 from typing import Any
 from urllib.parse import urlsplit
@@ -126,25 +126,46 @@ def artifact_map(manifest: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {artifact["id"]: artifact for artifact in manifest["artifacts"]}
 
 
-def verify_artifact(artifact: dict[str, Any], cache: Path) -> Path:
+def digest_descriptor(descriptor: int) -> tuple[int, str]:
+    os.lseek(descriptor, 0, os.SEEK_SET)
+    digest = hashlib.sha256()
+    size = 0
+    while chunk := os.read(descriptor, 1024 * 1024):
+        size += len(chunk)
+        digest.update(chunk)
+    os.lseek(descriptor, 0, os.SEEK_SET)
+    return size, digest.hexdigest()
+
+
+def verify_artifact(artifact: dict[str, Any], cache: Path) -> int:
     path = cache / artifact["filename"]
     identifier = artifact["id"]
-    if path.is_symlink() or not path.is_file():
+    try:
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    except OSError as exception:
         raise CompatibilityError(f"{identifier}: missing cached artifact {path}")
-    if path.stat().st_size != artifact["size"]:
-        raise CompatibilityError(f"{identifier}: size mismatch")
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()
-    if digest != artifact["sha256"]:
-        raise CompatibilityError(f"{identifier}: SHA-256 mismatch")
-    return path
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise CompatibilityError(f"{identifier}: cached artifact is not a regular file")
+        size, digest = digest_descriptor(descriptor)
+        if size != artifact["size"]:
+            raise CompatibilityError(f"{identifier}: size mismatch")
+        if digest != artifact["sha256"]:
+            raise CompatibilityError(f"{identifier}: SHA-256 mismatch")
+        return descriptor
+    except BaseException:
+        os.close(descriptor)
+        raise
 
 
 def verify(manifest: dict[str, Any], cache: Path) -> None:
     for artifact in manifest["artifacts"]:
-        verify_artifact(artifact, cache)
+        descriptor = verify_artifact(artifact, cache)
+        os.close(descriptor)
 
 
-def safe_run_directory(run_dir: Path, allowed_root: Path) -> Path:
+def safe_run_directory(run_dir: Path, allowed_root: Path) -> tuple[Path, str]:
     root_input = allowed_root.absolute()
     target_input = run_dir.absolute()
     if allowed_root.is_symlink() or not allowed_root.is_dir():
@@ -153,20 +174,100 @@ def safe_run_directory(run_dir: Path, allowed_root: Path) -> Path:
         relative = target_input.relative_to(root_input)
     except ValueError as exception:
         raise CompatibilityError("unsafe run directory: outside allowed root") from exception
-    if not relative.parts:
-        raise CompatibilityError("unsafe run directory: cannot equal allowed root")
-    cursor = root_input
-    for part in relative.parts:
-        cursor = cursor / part
-        if cursor.is_symlink():
-            raise CompatibilityError("unsafe run directory: symlink component")
+    if len(relative.parts) != 1:
+        raise CompatibilityError("unsafe run directory: must be one owned child of allowed root")
     root = root_input.resolve()
     target = target_input.resolve(strict=False)
     try:
         target.relative_to(root)
     except ValueError as exception:
         raise CompatibilityError("unsafe run directory: symlink escape") from exception
-    return target
+    return root, relative.parts[0]
+
+
+def open_owned_run_directory(run_dir: Path, allowed_root: Path) -> int:
+    root, name = safe_run_directory(run_dir, allowed_root)
+    try:
+        root_descriptor = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            try:
+                os.mkdir(name, dir_fd=root_descriptor)
+            except FileExistsError:
+                pass
+            return os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                           dir_fd=root_descriptor)
+        finally:
+            os.close(root_descriptor)
+    except OSError as exception:
+        raise CompatibilityError(f"unsafe run directory: {exception}") from exception
+
+
+def validate_owned_file(directory: int, name: str) -> bool:
+    try:
+        metadata = os.stat(name, dir_fd=directory, follow_symlinks=False)
+    except FileNotFoundError:
+        return False
+    if not stat.S_ISREG(metadata.st_mode):
+        raise CompatibilityError(f"unsafe owned path: {name}")
+    return True
+
+
+def open_owned_directory(directory: int, name: str) -> int:
+    try:
+        try:
+            os.mkdir(name, dir_fd=directory)
+        except FileExistsError:
+            pass
+        metadata = os.stat(name, dir_fd=directory, follow_symlinks=False)
+        if not stat.S_ISDIR(metadata.st_mode):
+            raise CompatibilityError(f"unsafe owned path: {name}")
+        return os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                       dir_fd=directory)
+    except OSError as exception:
+        raise CompatibilityError(f"unsafe owned path: {name}: {exception}") from exception
+
+
+def write_owned_text(directory: int, name: str, content: str) -> None:
+    validate_owned_file(directory, name)
+    try:
+        descriptor = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW,
+                             0o644, dir_fd=directory)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as output:
+            output.write(content)
+    except OSError as exception:
+        raise CompatibilityError(f"unsafe owned path: {name}: {exception}") from exception
+
+
+def stage_verified_artifact(artifact: dict[str, Any], source: int, mods: int) -> None:
+    name = artifact["filename"]
+    descriptor = -1
+    try:
+        descriptor = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                             0o644, dir_fd=mods)
+        os.lseek(source, 0, os.SEEK_SET)
+        digest = hashlib.sha256()
+        size = 0
+        while chunk := os.read(source, 1024 * 1024):
+            size += len(chunk)
+            digest.update(chunk)
+            view = memoryview(chunk)
+            while view:
+                written = os.write(descriptor, view)
+                view = view[written:]
+        if size != artifact["size"] or digest.hexdigest() != artifact["sha256"]:
+            raise CompatibilityError(f"{artifact['id']}: staged artifact mismatch")
+    except BaseException:
+        if descriptor >= 0:
+            os.close(descriptor)
+            descriptor = -1
+        try:
+            os.unlink(name, dir_fd=mods)
+        except FileNotFoundError:
+            pass
+        raise
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
 
 
 def assemble(manifest: dict[str, Any], cache: Path, profile: str,
@@ -176,32 +277,63 @@ def assemble(manifest: dict[str, Any], cache: Path, profile: str,
     artifacts = artifact_map(manifest)
     selected = [artifacts[identifier] for identifier in manifest["profiles"][profile]
                 if side in artifacts[identifier]["sides"]]
-    sources = [(artifact, verify_artifact(artifact, cache)) for artifact in selected]
-    run_dir = safe_run_directory(run_dir, allowed_root)
-    mods = run_dir / "mods"
-    mods.mkdir(parents=True, exist_ok=True)
-    for existing in mods.glob("*.jar"):
-        existing.unlink()
-    for artifact, source in sources:
-        shutil.copy2(source, mods / artifact["filename"])
-    (run_dir / "eula.txt").write_text("eula=true\n", encoding="utf-8")
-    properties = run_dir / "server.properties"
-    if not properties.exists():
-        properties.write_text("online-mode=false\nlevel-name=world\n", encoding="utf-8")
-    receipt = {
-        "schemaVersion": 1,
-        "profile": profile,
-        "side": side,
-        "minecraftVersion": manifest["minecraftVersion"],
-        "artifacts": [{field: artifact[field] for field in (
-            "id", "projectId", "versionId", "version", "filename", "size", "sha256",
-            "sourceUrl", "downloadUrl", "releaseChannel", "sides", "license", "redistribution",
-            "retrieved",
-        )} for artifact, _ in sources],
-    }
-    (run_dir / "compatibility-receipt.json").write_text(
-        json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
-    return receipt["artifacts"]
+    sources: list[tuple[dict[str, Any], int]] = []
+    staged: list[str] = []
+    run_descriptor = -1
+    mods_descriptor = -1
+    try:
+        for artifact in selected:
+            sources.append((artifact, verify_artifact(artifact, cache)))
+        run_descriptor = open_owned_run_directory(run_dir, allowed_root)
+        # Validate every owned child before any deletion or write.
+        validate_owned_file(run_descriptor, "eula.txt")
+        validate_owned_file(run_descriptor, "server.properties")
+        had_receipt = validate_owned_file(run_descriptor, "compatibility-receipt.json")
+        mods_descriptor = open_owned_directory(run_descriptor, "mods")
+        for name in os.listdir(mods_descriptor):
+            if name.endswith(".jar"):
+                validate_owned_file(mods_descriptor, name)
+        for name in os.listdir(mods_descriptor):
+            if name.endswith(".jar"):
+                os.unlink(name, dir_fd=mods_descriptor)
+        if had_receipt:
+            os.unlink("compatibility-receipt.json", dir_fd=run_descriptor)
+        for artifact, source in sources:
+            stage_verified_artifact(artifact, source, mods_descriptor)
+            staged.append(artifact["filename"])
+        write_owned_text(run_descriptor, "eula.txt", "eula=true\n")
+        if not validate_owned_file(run_descriptor, "server.properties"):
+            write_owned_text(run_descriptor, "server.properties",
+                             "online-mode=false\nlevel-name=world\n")
+        receipt = {
+            "schemaVersion": 1,
+            "profile": profile,
+            "side": side,
+            "minecraftVersion": manifest["minecraftVersion"],
+            "artifacts": [{field: artifact[field] for field in (
+                "id", "projectId", "versionId", "version", "filename", "size", "sha256",
+                "sourceUrl", "downloadUrl", "releaseChannel", "sides", "license",
+                "redistribution", "retrieved",
+            )} for artifact, _ in sources],
+        }
+        write_owned_text(run_descriptor, "compatibility-receipt.json",
+                         json.dumps(receipt, indent=2) + "\n")
+        return receipt["artifacts"]
+    except BaseException:
+        if mods_descriptor >= 0:
+            for name in staged:
+                try:
+                    os.unlink(name, dir_fd=mods_descriptor)
+                except FileNotFoundError:
+                    pass
+        raise
+    finally:
+        if mods_descriptor >= 0:
+            os.close(mods_descriptor)
+        if run_descriptor >= 0:
+            os.close(run_descriptor)
+        for _, descriptor in sources:
+            os.close(descriptor)
 
 
 def sanitize(source: Path, output: Path, identities: list[str]) -> None:
