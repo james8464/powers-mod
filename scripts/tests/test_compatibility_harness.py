@@ -187,6 +187,71 @@ class CompatibilityHarnessTest(unittest.TestCase):
                 else:
                     self.assertEqual(target_content, external.read_bytes())
 
+    def test_owned_text_replaces_hardlinks_without_mutating_external_inode(self):
+        for name in ("eula.txt", "server.properties", "compatibility-receipt.json"):
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as raw_directory:
+                directory = Path(raw_directory)
+                owned = directory / "owned"
+                owned.mkdir()
+                external = directory / "external"
+                external.write_bytes(b"external content")
+                os.link(external, owned / name)
+                external_inode = external.stat().st_ino
+                directory_descriptor = os.open(
+                    owned, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+                try:
+                    HARNESS_MODULE.write_owned_text(
+                        directory_descriptor, name, "generated content\n")
+                finally:
+                    os.close(directory_descriptor)
+
+                self.assertEqual(b"external content", external.read_bytes())
+                self.assertEqual("generated content\n", (owned / name).read_text())
+                self.assertEqual(external_inode, external.stat().st_ino)
+                self.assertNotEqual(external_inode, (owned / name).stat().st_ino)
+
+    def test_assemble_replaces_generated_hardlinks_without_mutating_external_inode(self):
+        for name in ("eula.txt", "compatibility-receipt.json"):
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as raw_directory:
+                directory = Path(raw_directory)
+                manifest, cache = self.fixture(directory)
+                (cache / "fixture.jar").write_bytes(b"pinned jar")
+                run_directory = directory / "isolated-client"
+                run_directory.mkdir()
+                external = directory / "external"
+                external.write_bytes(b"external content")
+                os.link(external, run_directory / name)
+                external_inode = external.stat().st_ino
+
+                result = self.run_harness(
+                    "assemble", "--manifest", str(manifest), "--cache", str(cache),
+                    "--profile", "renderer", "--side", "client",
+                    "--run-dir", str(run_directory), "--allowed-root", str(directory))
+
+                self.assertEqual(0, result.returncode, result.stderr)
+                self.assertEqual(b"external content", external.read_bytes())
+                self.assertEqual(external_inode, external.stat().st_ino)
+                self.assertNotEqual(external_inode, (run_directory / name).stat().st_ino)
+
+    def test_owned_text_removes_exclusive_temporary_file_when_replace_fails(self):
+        with tempfile.TemporaryDirectory() as raw_directory:
+            owned = Path(raw_directory) / "owned"
+            owned.mkdir()
+            directory_descriptor = os.open(
+                owned, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            try:
+                with mock.patch.object(HARNESS_MODULE.os, "replace",
+                                       side_effect=OSError("simulated replace failure")):
+                    with self.assertRaisesRegex(
+                            HARNESS_MODULE.CompatibilityError,
+                            "simulated replace failure"):
+                        HARNESS_MODULE.write_owned_text(
+                            directory_descriptor, "eula.txt", "eula=true\n")
+            finally:
+                os.close(directory_descriptor)
+
+            self.assertEqual([], list(owned.iterdir()))
+
     def test_assemble_uses_verified_open_source_when_cache_path_is_swapped(self):
         with tempfile.TemporaryDirectory() as raw_directory:
             directory = Path(raw_directory)

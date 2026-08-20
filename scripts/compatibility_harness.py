@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 import re
+import secrets
 import stat
 import sys
 from typing import Any
@@ -229,13 +230,38 @@ def open_owned_directory(directory: int, name: str) -> int:
 
 def write_owned_text(directory: int, name: str, content: str) -> None:
     validate_owned_file(directory, name)
+    temporary_name = f".powers-owned-{secrets.token_hex(12)}.tmp"
+    descriptor = -1
     try:
-        descriptor = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW,
-                             0o644, dir_fd=directory)
-        with os.fdopen(descriptor, "w", encoding="utf-8") as output:
-            output.write(content)
+        descriptor = os.open(
+            temporary_name,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+            0o644,
+            dir_fd=directory,
+        )
+        remaining = memoryview(content.encode("utf-8"))
+        while remaining:
+            written = os.write(descriptor, remaining)
+            remaining = remaining[written:]
+        os.fsync(descriptor)
+        os.close(descriptor)
+        descriptor = -1
+        os.replace(
+            temporary_name,
+            name,
+            src_dir_fd=directory,
+            dst_dir_fd=directory,
+        )
+        os.fsync(directory)
     except OSError as exception:
         raise CompatibilityError(f"unsafe owned path: {name}: {exception}") from exception
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+        try:
+            os.unlink(temporary_name, dir_fd=directory)
+        except FileNotFoundError:
+            pass
 
 
 def stage_verified_artifact(artifact: dict[str, Any], source: int, mods: int) -> None:
