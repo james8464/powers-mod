@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
 
 import hashlib
+import importlib.util
 import json
+import os
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[2]
 HARNESS = ROOT / "scripts/compatibility_harness.py"
+SPEC = importlib.util.spec_from_file_location("compatibility_harness", HARNESS)
+HARNESS_MODULE = importlib.util.module_from_spec(SPEC)
+assert SPEC.loader is not None
+SPEC.loader.exec_module(HARNESS_MODULE)
 
 
 class CompatibilityHarnessTest(unittest.TestCase):
@@ -145,6 +152,84 @@ class CompatibilityHarnessTest(unittest.TestCase):
                         "--run-dir", str(target), "--allowed-root", str(allowed))
                     self.assertEqual(1, result.returncode)
                     self.assertIn("unsafe run directory", result.stderr)
+
+    def test_assemble_rejects_symlinked_owned_children_without_touching_targets(self):
+        for child, target_content in (
+                ("mods", b"external jar"),
+                ("eula.txt", b"external eula"),
+                ("server.properties", b"external properties"),
+                ("compatibility-receipt.json", b"external receipt")):
+            with self.subTest(child=child), tempfile.TemporaryDirectory() as raw_directory:
+                directory = Path(raw_directory)
+                manifest, cache = self.fixture(directory)
+                (cache / "fixture.jar").write_bytes(b"pinned jar")
+                run_directory = directory / "isolated-client"
+                run_directory.mkdir()
+                external = directory / "external"
+                if child == "mods":
+                    external.mkdir()
+                    target = external / "existing.jar"
+                    target.write_bytes(target_content)
+                else:
+                    external.write_bytes(target_content)
+                (run_directory / child).symlink_to(
+                    external, target_is_directory=child == "mods")
+
+                result = self.run_harness(
+                    "assemble", "--manifest", str(manifest), "--cache", str(cache),
+                    "--profile", "renderer", "--side", "client",
+                    "--run-dir", str(run_directory), "--allowed-root", str(directory))
+
+                self.assertEqual(1, result.returncode)
+                self.assertIn("unsafe owned path", result.stderr)
+                if child == "mods":
+                    self.assertEqual(target_content, target.read_bytes())
+                else:
+                    self.assertEqual(target_content, external.read_bytes())
+
+    def test_assemble_uses_verified_open_source_when_cache_path_is_swapped(self):
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            manifest_path, cache = self.fixture(directory)
+            source = cache / "fixture.jar"
+            source.write_bytes(b"pinned jar")
+            run_directory = directory / "isolated-client"
+            manifest = HARNESS_MODULE.load_manifest(manifest_path)
+            original_verify = HARNESS_MODULE.verify_artifact
+
+            def verify_then_swap(artifact, artifact_cache):
+                verified = original_verify(artifact, artifact_cache)
+                source.rename(cache / "verified-original.jar")
+                source.write_bytes(b"tampered!!")
+                return verified
+
+            with mock.patch.object(HARNESS_MODULE, "verify_artifact",
+                                   side_effect=verify_then_swap):
+                HARNESS_MODULE.assemble(
+                    manifest, cache, "renderer", "client", run_directory, directory)
+
+            self.assertEqual(b"pinned jar", (run_directory / "mods" / "fixture.jar").read_bytes())
+
+    def test_staged_descriptor_mismatch_fails_and_removes_partial_destination(self):
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            manifest_path, _ = self.fixture(directory)
+            artifact = HARNESS_MODULE.load_manifest(manifest_path)["artifacts"][0]
+            source = directory / "wrong.jar"
+            source.write_bytes(b"tampered!!")
+            mods = directory / "mods"
+            mods.mkdir()
+            source_descriptor = os.open(source, os.O_RDONLY | os.O_NOFOLLOW)
+            mods_descriptor = os.open(mods, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            try:
+                with self.assertRaisesRegex(HARNESS_MODULE.CompatibilityError,
+                                            "staged artifact mismatch"):
+                    HARNESS_MODULE.stage_verified_artifact(
+                        artifact, source_descriptor, mods_descriptor)
+            finally:
+                os.close(source_descriptor)
+                os.close(mods_descriptor)
+            self.assertFalse((mods / "fixture.jar").exists())
 
     def test_sanitizer_redacts_identity_network_uuid_home_and_seed_deterministically(self):
         with tempfile.TemporaryDirectory() as raw_directory:

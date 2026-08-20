@@ -1,4 +1,5 @@
 # Same pinned Sodium proof with screenEffectScale=0 and minimal particles.
+1	SETTING	reduced_motion
 60	CLOSE	screen
 158	CLEAN	ui
 160	SCREENSHOT	reduced-light-realm-white-sky

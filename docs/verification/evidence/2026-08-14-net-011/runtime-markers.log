@@ -17,3 +17,6 @@ complete-client/client-green-latest.log:226 [22:41:42] [Render thread/INFO] (Min
 complete-server/logs/latest.log:197 [22:41:41] [Server thread/INFO] (powers) Published action registry revision 2 with 109 canonical keys and 0 aliases
 complete-server/logs/latest.log:260 [22:41:41] [Server thread/INFO] (Minecraft) Saved the game
 complete-server/logs/latest.log:269 [22:41:59] [Server thread/INFO] (claimmod) ClaimMod claim data saved.
+sodium-reduced-final-client/logs/latest.log:193 [23:56:29] [Render thread/INFO] (powers) QA client role=sodium-reduced-round2-final resolved reduced-motion settings particles=MINIMAL screenEffectScale=0.0
+sodium-reduced-final-client/options.txt:30 particles:2
+sodium-reduced-final-client/options.txt:36 screenEffectScale:0.0

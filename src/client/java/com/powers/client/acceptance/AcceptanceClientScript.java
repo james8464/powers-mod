@@ -8,7 +8,8 @@ import java.util.Locale;
 public final class AcceptanceClientScript {
 	public enum Operation {
 		COMMAND, CHAT, ACTIVATE, SELECT, USE, ATTACK, GRIMOIRE, CRYSTAL, ARTIFACT,
-		ARTIFACT_TELEPORT, TELEPORT, RESPAWN, CLOSE, LOCATOR, KEY, LOOK, CLEAN, SCREENSHOT
+		ARTIFACT_TELEPORT, TELEPORT, RESPAWN, CLOSE, LOCATOR, KEY, LOOK, SETTING, CLEAN,
+		SCREENSHOT
 	}
 
 	public record Step(int tick, Operation operation, String argument) {
@@ -139,6 +140,10 @@ public final class AcceptanceClientScript {
 			case CLEAN -> {
 				if (!argument.equals("ui")) throw malformed(lineNumber,
 						"clean argument must be ui");
+			}
+			case SETTING -> {
+				if (!argument.equals("reduced_motion")) throw malformed(lineNumber,
+						"setting argument must be reduced_motion");
 			}
 			case COMMAND, CHAT -> { }
 		}

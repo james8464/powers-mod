@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "runRole": "sodium-reduced-round2-final",
+  "parentCommit": "cca6944a3ad3b3091c04ce28a20ec453e5896c64",
+  "sourcePatchSha256": "b94a852f4115c3ddb158d0e80b7a8517a71db390c810ef7bc971c326ca5d1fce",
+  "acceptanceScript": {
+    "path": "scripts/net011-sodium-reduced-motion.tsv",
+    "sha256": "37e9637d4ac032467daf0dcd8661b10dc0476ea3c38883f968b75e58422f6e07"
+  },
+  "options": {
+    "path": "sodium-reduced-options.txt",
+    "size": 5703,
+    "sha256": "d9f3d3097ce2e1bdbf248da5b39f622128e338c575422e3fad20b4e81ad62f4c",
+    "particlesSerialized": 2,
+    "particlesResolved": "MINIMAL",
+    "screenEffectScale": 0.0
+  },
+  "clientLog": {
+    "path": "logs/sodium-reduced-client.log",
+    "size": 24697,
+    "sha256": "841c9afd8dfe729b22d2558a988af6a31f72d3a544192e0729576061474dd145",
+    "settingsMarker": "QA client role=sodium-reduced-round2-final resolved reduced-motion settings particles=MINIMAL screenEffectScale=0.0"
+  },
+  "selectedFrames": {
+    "hudTenSymbols": "165279f73a0878ba0bade95b6a9901fcb3d96838dd58fb820725a37733ec06b3",
+    "doubleHealthFx": "e3fc50c71389ff42ccbf5d70741953d6de51f12584af7d764c26eff4b4722a16",
+    "rankMazeScreen": "8ff0cf8dbb03f1935b20012f65c947907ae52d413791dc80a7a9367b16692bdc",
+    "staticWhiteLightRealm": "60a758b708d3a06db454385dd89a7970ea122a08dde2589e953d713cfe357735"
+  }
+}

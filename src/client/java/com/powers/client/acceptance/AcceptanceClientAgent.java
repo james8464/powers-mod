@@ -162,9 +162,24 @@ public final class AcceptanceClientAgent {
 				client.gui.hud.getChat().clearMessages(false);
 				client.gui.toastManager().clear();
 			}
+			case SETTING -> applyReducedMotionSetting(client);
 		}
 		PowersMod.LOGGER.info("QA client role={} executed {} [{}] at connected tick {}",
 				CONFIG.role(), step.operation(), step.argument(), connectedTicks);
+	}
+
+	private static void applyReducedMotionSetting(Minecraft client) {
+		client.options.particles().set(net.minecraft.server.level.ParticleStatus.MINIMAL);
+		client.options.screenEffectScale().set(0.0);
+		client.options.save();
+		var particles = client.options.particles().get();
+		double scale = client.options.screenEffectScale().get();
+		if (particles != net.minecraft.server.level.ParticleStatus.MINIMAL || scale != 0.0) {
+			throw new IllegalStateException("Reduced-motion options did not resolve exactly");
+		}
+		PowersMod.LOGGER.info(
+				"QA client role={} resolved reduced-motion settings particles={} screenEffectScale={}",
+				CONFIG.role(), particles, scale);
 	}
 
 	private static void setLook(Minecraft client, String argument) {
