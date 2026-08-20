@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import importlib.util
+import json
+import queue
 import tempfile
 import unittest
 from pathlib import Path
@@ -90,6 +92,7 @@ class RestartSoakPolicyTest(unittest.TestCase):
         result = {
             "ready": True,
             "client_connected": True,
+            "client_disconnected": True,
             "startup_verified": True,
             "seeded": True,
             "settled": True,
@@ -112,6 +115,66 @@ class RestartSoakPolicyTest(unittest.TestCase):
         result["exit_code"] = -int(SOAK.signal.SIGTERM)
         result["client_ability_actions"] = 0
         self.assertFalse(SOAK.cycle_passed(result))
+
+    def test_cycle_cannot_pass_without_observed_client_disconnect(self):
+        result = {
+            "ready": True,
+            "client_connected": True,
+            "client_disconnected": False,
+            "startup_verified": True,
+            "seeded": True,
+            "settled": True,
+            "status_verified": True,
+            "rollover_seeded": True,
+            "client_ability_actions": 2,
+            "shutdown_mode": "sigterm",
+            "exit_code": -int(SOAK.signal.SIGTERM),
+            "error_lines": [],
+        }
+        self.assertFalse(SOAK.cycle_passed(result))
+
+    def test_server_disconnect_marker_is_observed_before_shutdown(self):
+        output = queue.Queue()
+        output.put("[Server thread/INFO]: SoakClient left the game\n")
+        process = mock.Mock()
+        process.poll.return_value = None
+        lines = []
+
+        SOAK.wait_for_server_marker(
+            process, output, lines, SOAK.CLIENT_LEFT_MARKER,
+            timeout_seconds=1, cycle=12, quiet=True)
+
+        self.assertTrue(any(SOAK.CLIENT_LEFT_MARKER in line for line in lines))
+
+    def test_checkpoint_report_contains_exact_progress_and_failure(self):
+        cycles = [{"cycle": 1, "passed": True, "connected_workload_seconds": 8.5}]
+        report = SOAK.build_report(
+            git_commit="abc123", duration_seconds=20.0, cycle_seconds=10,
+            requested_cycles=2, cycles=cycles, elapsed_seconds=11.0,
+            acceptance_window=42.0, failure="interrupted by SIGTERM",
+            runtime=Path("build/restart-soak/runtime"), final=True)
+
+        self.assertEqual("abc123", report["git_commit"])
+        self.assertEqual(2, report["requested_cycles"])
+        self.assertEqual(1, report["completed_cycles"])
+        self.assertEqual(11.0, report["elapsed_seconds"])
+        self.assertEqual(8.5, report["connected_workload_seconds"])
+        self.assertEqual("interrupted by SIGTERM", report["failure"])
+        self.assertEqual("failed", report["status"])
+        self.assertFalse(report["passed"])
+
+    def test_checkpoint_json_replaces_atomically_without_temp_residue(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "checkpoint.json"
+            SOAK.write_json_atomic(target, {"completed_cycles": 1})
+            SOAK.write_json_atomic(target, {"completed_cycles": 2})
+
+            self.assertEqual(2, json.loads(target.read_text())["completed_cycles"])
+            self.assertEqual([], list(target.parent.glob("*.tmp")))
+
+    def test_launcher_sigterm_becomes_reportable_interruption(self):
+        with self.assertRaisesRegex(SOAK.LauncherInterrupted, "SIGTERM"):
+            SOAK.raise_launcher_interruption(SOAK.signal.SIGTERM, None)
 
     def test_negative_machine_marker_fails_fast(self):
         lines = [

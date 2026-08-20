@@ -23,6 +23,7 @@ SOAK_ROOT = (ROOT / "build" / "restart-soak").resolve()
 READY_MARKER = "Done ("
 CLIENT_JOINED_MARKER = "SoakClient joined the game"
 CLIENT_LEFT_MARKER = "SoakClient left the game"
+CLIENT_DISCONNECT_TIMEOUT_SECONDS = 20
 REQUIRED_DIAGNOSTIC_MARKERS = (
     "forcedChunks=0",
     "proxies=0",
@@ -35,6 +36,15 @@ PHASE_MARKERS = {
     "settled": "POWERS_SOAK_SETTLED",
     "rollover_seeded": "POWERS_SOAK_ROLLOVER",
 }
+
+
+class LauncherInterrupted(RuntimeError):
+    """A launcher signal that must become durable failure evidence."""
+
+
+def raise_launcher_interruption(signum: int, _frame: object) -> None:
+    """Turn launcher-only termination into a checkpointed failure."""
+    raise LauncherInterrupted(f"interrupted by {signal.Signals(signum).name}")
 
 
 def shutdown_mode(cycle: int) -> str:
@@ -80,8 +90,8 @@ def total_connected_seconds(cycles: list[dict[str, object]]) -> float:
 def cycle_passed(result: dict[str, object]) -> bool:
     """Evaluate one cycle without allowing an expected SIGTERM to mask missing proof."""
     required = (
-        "ready", "client_connected", "startup_verified", "seeded", "settled",
-        "status_verified", "rollover_seeded",
+        "ready", "client_connected", "client_disconnected", "startup_verified",
+        "seeded", "settled", "status_verified", "rollover_seeded",
     )
     mode = str(result.get("shutdown_mode", ""))
     code = result.get("exit_code")
@@ -169,6 +179,76 @@ def enqueue_output(stream: TextIO, destination: queue.Queue[str]) -> None:
     """Copy complete text lines from one process without retaining a second log."""
     for line in stream:
         destination.put(line)
+
+
+def wait_for_server_marker(process: subprocess.Popen[object],
+                           output_queue: queue.Queue[str], lines: list[str],
+                           marker: str, timeout_seconds: int, cycle: int,
+                           quiet: bool) -> None:
+    """Wait boundedly until the live server observes a required lifecycle marker."""
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        while True:
+            try:
+                line = output_queue.get_nowait()
+            except queue.Empty:
+                break
+            stripped = line.rstrip()
+            lines.append(stripped)
+            if should_echo(line, quiet):
+                sys.stdout.write(f"[{cycle:04d}] {line}")
+                sys.stdout.flush()
+            if marker in line:
+                return
+        if process.poll() is not None:
+            raise RuntimeError(
+                f"Dedicated server exited before observing lifecycle marker: {marker}")
+        time.sleep(0.05)
+    raise TimeoutError(f"Dedicated server did not observe lifecycle marker: {marker}")
+
+
+def write_json_atomic(path: Path, payload: dict[str, object]) -> None:
+    """Durably replace a JSON checkpoint without exposing a partial document."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    with temporary.open("w", encoding="utf-8") as output:
+        json.dump(payload, output, indent=2)
+        output.write("\n")
+        output.flush()
+        os.fsync(output.fileno())
+    os.replace(temporary, path)
+
+
+def build_report(*, git_commit: str, duration_seconds: float, cycle_seconds: int,
+                 requested_cycles: int, cycles: list[dict[str, object]],
+                 elapsed_seconds: float, acceptance_window: float, failure: str,
+                 runtime: Path, final: bool) -> dict[str, object]:
+    """Build the same evidence schema for live checkpoints and final outcomes."""
+    completed_cycles = sum(result.get("passed") is True for result in cycles)
+    passed = final and acceptance_passed(
+        failure, completed_cycles, requested_cycles, elapsed_seconds, duration_seconds)
+    status = "passed" if passed else ("failed" if failure else (
+        "incomplete" if final else "running"))
+    try:
+        runtime_name = str(runtime.resolve().relative_to(ROOT))
+    except ValueError:
+        runtime_name = str(runtime)
+    return {
+        "schema": 3,
+        "git_commit": git_commit,
+        "requested_hours": duration_seconds / 3600.0,
+        "cycle_seconds": cycle_seconds,
+        "requested_cycles": requested_cycles,
+        "completed_cycles": completed_cycles,
+        "connected_workload_seconds": total_connected_seconds(cycles),
+        "elapsed_seconds": elapsed_seconds,
+        "acceptance_window_started_epoch": acceptance_window,
+        "cycles": cycles,
+        "status": status,
+        "passed": passed,
+        "failure": failure,
+        "runtime": runtime_name,
+    }
 
 
 def stop_process_group(process: subprocess.Popen[object], timeout: int = 20) -> None:
@@ -336,6 +416,10 @@ def one_cycle(runtime: Path, cycle_seconds: int, boot_timeout: int, index: int,
                 if client is not None:
                     workload_ended_at = time.monotonic()
                     stop_process_group(client)
+                    wait_for_server_marker(
+                        process, output_queue, lines, CLIENT_LEFT_MARKER,
+                        CLIENT_DISCONNECT_TIMEOUT_SECONDS, index, quiet)
+                    client_left = True
                 if mode == "clean":
                     send(process, "stop")
                 else:
@@ -411,17 +495,28 @@ def main() -> int:
     args = arguments()
     duration_seconds, cycle_seconds, boot_timeout, requested_cycles = checked_settings(args)
     SOAK_ROOT.mkdir(parents=True, exist_ok=True)
-    runtime = prepare_runtime(args.reset_runtime)
-    launch_inputs = prepare_client_launch()
-    script = (ROOT / "scripts" / "restart-soak-client.tsv").resolve()
-    if not script.is_file():
-        raise RuntimeError(f"Missing restart workload script: {script}")
-
+    report_path = SOAK_ROOT / "restart-soak-report.json"
+    runtime = (SOAK_ROOT / "runtime").resolve()
+    git_commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True,
+        capture_output=True, check=True).stdout.strip()
     began = time.monotonic()
     acceptance_window = time.time()
     cycles: list[dict[str, object]] = []
     failure = ""
+    previous_handlers = {
+        signum: signal.getsignal(signum) for signum in (signal.SIGINT, signal.SIGTERM)
+    }
+    for signum in previous_handlers:
+        signal.signal(signum, raise_launcher_interruption)
     try:
+        runtime = prepare_runtime(args.reset_runtime)
+        launch_inputs = prepare_client_launch()
+        script = (ROOT / "scripts" / "restart-soak-client.tsv").resolve()
+        if not script.is_file():
+            raise RuntimeError(f"Missing restart workload script: {script}")
+        began = time.monotonic()
+        acceptance_window = time.time()
         for index in range(1, requested_cycles + 1):
             result = one_cycle(runtime, cycle_seconds, boot_timeout, index, launch_inputs,
                                script, args.quiet)
@@ -430,34 +525,32 @@ def main() -> int:
             acceptance_window = accepted_window_start(acceptance_window, passed, time.time())
             if not passed:
                 failure = f"cycle {index} failed connected lifecycle validation"
+            checkpoint = build_report(
+                git_commit=git_commit, duration_seconds=duration_seconds,
+                cycle_seconds=cycle_seconds, requested_cycles=requested_cycles,
+                cycles=cycles, elapsed_seconds=round(time.monotonic() - began, 3),
+                acceptance_window=acceptance_window, failure=failure,
+                runtime=runtime, final=False)
+            write_json_atomic(report_path, checkpoint)
+            if failure:
                 break
     except (OSError, RuntimeError, TimeoutError, ValueError,
-            subprocess.CalledProcessError) as error:
-        failure = str(error)
+            subprocess.CalledProcessError, KeyboardInterrupt) as error:
+        failure = str(error) or type(error).__name__
         acceptance_window = accepted_window_start(acceptance_window, False, time.time())
 
-    completed_cycles = sum(result.get("passed") is True for result in cycles)
     elapsed_seconds = round(time.monotonic() - began, 3)
-    report = {
-        "schema": 2,
-        "git_commit": subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True,
-            capture_output=True, check=True).stdout.strip(),
-        "requested_hours": duration_seconds / 3600.0,
-        "cycle_seconds": cycle_seconds,
-        "requested_cycles": requested_cycles,
-        "completed_cycles": completed_cycles,
-        "connected_workload_seconds": total_connected_seconds(cycles),
-        "elapsed_seconds": elapsed_seconds,
-        "acceptance_window_started_epoch": acceptance_window,
-        "cycles": cycles,
-        "passed": acceptance_passed(failure, completed_cycles, requested_cycles,
-                                    elapsed_seconds, duration_seconds),
-        "failure": failure,
-        "runtime": str(runtime.relative_to(ROOT)),
-    }
-    report_path = SOAK_ROOT / "restart-soak-report.json"
-    report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    report = build_report(
+        git_commit=git_commit, duration_seconds=duration_seconds,
+        cycle_seconds=cycle_seconds, requested_cycles=requested_cycles,
+        cycles=cycles, elapsed_seconds=elapsed_seconds,
+        acceptance_window=acceptance_window, failure=failure,
+        runtime=runtime, final=True)
+    try:
+        write_json_atomic(report_path, report)
+    finally:
+        for signum, handler in previous_handlers.items():
+            signal.signal(signum, handler)
     print(f"Restart-soak report: {report_path}")
     return 0 if report["passed"] else 1
 
