@@ -2,7 +2,7 @@
 
 ## Outcome
 
-Fix rounds 1 and 2 resolve the independent-review defects in the NET-011 harness and evidence. The owned isolated complete-stack task passed all 115 required GameTests; Inventory Extended's added slots are described truthfully as top-level inventory; artifact staging is descriptor-pinned and owned paths are no-follow validated; and full sanitized logs, receipts, checksums, plus eight visually inspected Sodium frames are committed. No third-party binary or production dependency is committed.
+Fix rounds 1–3 resolve the independent-review defects in the NET-011 harness and evidence. The owned isolated complete-stack task passed all 115 required GameTests; Inventory Extended's added slots are described truthfully as top-level inventory; artifact staging is descriptor-pinned and owned paths are no-follow validated; and full sanitized logs, receipts, checksums, plus eight visually inspected Sodium frames are committed. No third-party binary or production dependency is committed.
 
 The matrix remains bounded: ClaimMod-specific integration is unsupported, microphone/audio is unclaimed, nested containers remain dormant, and the future enhanced VFX-009 Light Realm renderer is not claimed. NET-011 is closed because its compatibility guarantee now has exact versions, real-process proof and explicit limitations; VFX-009 remains the separate owner of enhanced-sky implementation.
 
@@ -31,12 +31,13 @@ Observed REDs before implementation:
 - Acceptance scripting: a real client RED showed synthetic key down did not open Rank Maze. A bounded click path plus parsing test made it GREEN. A second visual RED showed clearing chat in the screenshot operation occurred after framebuffer capture; an explicit prior `CLEAN ui` operation and unit coverage fixed it.
 - Fix-round-2 harness RED: four tests proved `mods/`, `eula.txt`, `server.properties`, and the receipt could be symlinks, and a deterministic cache-path swap staged unverified bytes. Assembly now holds a no-follow verified source descriptor, writes through owned directory descriptors, rejects non-regular children before mutation, verifies the streamed bytes, and removes partial staged output on failure. All external symlink targets remain untouched.
 - Reduced-motion evidence RED: the prior saved client options contained `particles:0` (ALL), so those reduced frames were retired rather than relabelled. A test-first acceptance-only `SETTING reduced_motion` directive applies options after Minecraft initialization, saves and re-reads them, and emits the resolved marker. The single authorized corrected replay saved `particles:2` (MINIMAL) and `screenEffectScale:0.0`; its exact sanitized options, marker, receipt, logs and four replacement frames are committed.
+- Fix-round-3 harness RED: `write_owned_text` reproducibly changed external inodes hard-linked as `eula.txt`, `server.properties`, or `compatibility-receipt.json`; `O_NOFOLLOW` prevented symlink traversal but not `O_TRUNC` through a hard link. Generated text now goes to an exclusive descriptor-relative temporary file, is flushed and synced, then atomically replaces the owned directory entry. The external inode remains byte-identical, the destination receives a new inode, and replace failure removes the temporary file.
 
 Focused commands/results:
 
 ```text
 python3 -B -m unittest scripts.tests.test_compatibility_harness
-# 9 tests, PASS
+# 12 tests, PASS
 
 ./gradlew test --tests com.powers.quality.LauncherContractTest --tests com.powers.client.acceptance.AcceptanceClientScriptTest
 # PASS
@@ -52,7 +53,7 @@ python3 -B -m unittest scripts.tests.test_compatibility_harness
 
 `runCompatibilityGameTest` depends on `prepareCompatibilityGameTest`, which verifies hashes and assembles `complete/server` under `build/compatibility-runs/complete-gametest`. Its receipt records exact file/version/project IDs, byte sizes, hashes, URLs, channels, sides, licenses and retrieval dates. Assembly pins each verified artifact through one no-follow file descriptor, streams it into an exclusive no-follow destination, checks the streamed size/hash, and writes the receipt last. Every owned child is inspected through directory descriptors before deletion/write. Ordinary `runGameTest` deletes its own `mods/`, so ignored manually staged JARs cannot pollute it.
 
-The harness validates schema, safe IDs/profile membership, exact non-boolean positive sizes, lowercase SHA-256, HTTPS/no-credential URLs, project/version path linkage for Modrinth pages and CDN downloads, release dates/channels, filenames, artifact symlinks, run-directory containment/equality/symlink escape, and each owned child with no-follow metadata. Assembly only removes validated regular `.jar` files through the owned `mods/` directory descriptor.
+The harness validates schema, safe IDs/profile membership, exact non-boolean positive sizes, lowercase SHA-256, HTTPS/no-credential URLs, project/version path linkage for Modrinth pages and CDN downloads, release dates/channels, filenames, artifact symlinks, run-directory containment/equality/symlink escape, and each owned child with no-follow metadata. Assembly only removes validated regular `.jar` files through the owned `mods/` directory descriptor. Generated text never truncates its destination: it is written and synced through an exclusive temporary descriptor, atomically replaces the directory entry, and cleans the temporary name on failure, so an existing or concurrently introduced hard link cannot expose an external inode to writes.
 
 Final complete-stack command (the only post-fix high-load run):
 
@@ -87,7 +88,8 @@ The sanitizer redacts IPv4/ports, IPv6/loopback/ports, localhost endpoints, UUID
 
 Final gates:
 
-- harness Python tests: 9/9 PASS;
+- harness Python tests: 12/12 PASS;
+- fix-round-3 actual assembler gate: `verifyCompatibilityArtifacts prepareCompatibilityRun` PASS for the pinned complete server profile without launching a client or GameTest server;
 - affected JVM tests: PASS;
 - final owned complete-stack GameTests: 115/115 PASS;
 - fresh fix-round-2 `./gradlew runCompatibilityGameTest`: PASS on 2026-08-20; all 115 required GameTests passed through the descriptor-hardened owned assembler;
@@ -96,6 +98,6 @@ Final gates:
 
 Changed areas: Gradle isolated launch contract; strict compatibility manifest/harness/tests; registry ledger regression; pinned Inventory Extended live GameTest; acceptance clean/key scripting; matrix/report/evidence/visuals; Java source audit; NET-011 plan/backlog closure. VFX-009 remains open and owns the enhanced renderer.
 
-Commit lineage: fix round 1 is `cca6944a3ad3b3091c04ce28a20ec453e5896c64`. Fix round 2 implementation and evidence are the cohesive direct-main commit `d0a1490af69da3264f6058097a8af899cbe1bf62`; its immediate metadata successor binds that immutable SHA into this report, the matrix and the reduced-motion runtime receipt.
+Commit lineage: fix round 1 is `cca6944a3ad3b3091c04ce28a20ec453e5896c64`. Fix round 2 implementation and evidence are the cohesive direct-main commit `d0a1490af69da3264f6058097a8af899cbe1bf62`; its immediate metadata successor binds that immutable SHA into this report, the matrix and the reduced-motion runtime receipt. Fix round 3's immutable implementation SHA is appended by its immediate metadata successor.
 
 Concerns: the current static renderer is proven but VFX-009 enhanced sky is not; ClaimMod has no supported adapter; microphone audio is untested; nested containers remain deliberately dormant. These are explicit matrix limits, not inferred successes.
