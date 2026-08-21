@@ -51,7 +51,8 @@ final class SourceAudit {
 					+ "expir(?:e|es|ed|y)|one-shot|once|outcome|returns?|reports?|registers?|issues?|commits?|"
 					+ "exposes?|identifies|supplies|allows?|denies|throws?|creates?|clears?|preserves?|emits?)\\b");
 	private static final Pattern TYPE_CONTRACT_SIGNAL = Pattern.compile(
-			"(?i)\\b(?:boundary|defines?|groups?|invok(?:e|ed|es)|models?|owns?|represents?)\\b");
+			"(?i)\\b(?:boundary|defines?|groups?|immutable|invok(?:e|ed|es)|models?|owns?|physical|"
+					+ "read-only|semantic|server-authored|server-only|versioned|represents?)\\b");
 	private static final Pattern UNSUPPORTED_CERTAINTY = Pattern.compile(
 			"(?i)\\b(?:always works?|cannot fail|completely safe|fully safe|guaranteed to work|"
 					+ "handles everything|should never happen)\\b");
@@ -248,11 +249,12 @@ final class SourceAudit {
 						String contract = doc == null ? "" : doc.toString();
 						int contractWords = contract.isBlank() ? 0 : contract.trim().split("\\s+").length;
 						boolean missing = contract.isBlank();
-						boolean meaningfulNestedContract = contractWords >= 4
+						boolean meaningfulApiContract = contractWords >= 4
 								&& (CONTRACT_SIGNAL.matcher(contract).find()
 										|| TYPE_CONTRACT_SIGNAL.matcher(contract).find());
-						boolean meaninglessNestedContract = !topLevel && !meaningfulNestedContract;
-						if (missing || meaninglessNestedContract) {
+						boolean meaninglessApiContract = relative.contains("/api/")
+								&& !meaningfulApiContract;
+						if (missing || meaninglessApiContract) {
 							types.add(finding(relative, unit, positions, tree));
 						}
 					}

@@ -119,7 +119,7 @@ class SourceAuditPolicyTest {
 	void callablePublicApiMembersRequireContracts() throws IOException {
 		write("src/main/java/com/example/api/v1/ExampleApi.java", """
 				package com.example.api.v1;
-				/** Public integration boundary. */
+				/** Defines the stable public integration boundary. */
 				public interface ExampleApi {
 					boolean mutate(String value);
 					/** Reports state without mutation. */
@@ -137,7 +137,7 @@ class SourceAuditPolicyTest {
 	void apiContractsCoverMultilineConstructorsNestedInterfacesAndMeaningfulDocs() throws IOException {
 		write("src/main/java/com/example/api/v1/ExampleApi.java", """
 				package com.example.api.v1;
-				/** Stable integration boundary. */
+				/** Defines the stable public integration boundary. */
 				public record ExampleApi(String id) {
 					/** A comment that says nothing useful. */
 					public ExampleApi {
@@ -169,7 +169,7 @@ class SourceAuditPolicyTest {
 	void overrideMayInheritItsContract() throws IOException {
 		write("src/main/java/com/example/api/v1/ExampleApi.java", """
 				package com.example.api.v1;
-				/** Stable integration boundary. */
+				/** Defines the stable public integration boundary. */
 				public final class ExampleApi implements Runnable {
 					@Override
 					public void run() { }
@@ -196,10 +196,24 @@ class SourceAuditPolicyTest {
 	}
 
 	@Test
+	void topLevelApiTypesRequireMeaningfulContractsNotPlaceholderProse() throws IOException {
+		write("src/main/java/com/example/api/v1/ExampleApi.java", """
+				package com.example.api.v1;
+				/** Type. */
+				public final class ExampleApi { }
+				""");
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertEquals(Set.of("src/main/java/com/example/api/v1/ExampleApi.java:3"),
+				result.undocumentedPublicTypes());
+	}
+
+	@Test
 	void onlyExactOverrideAnnotationsMayInheritAnApiContract() throws IOException {
 		write("src/main/java/com/example/api/v1/ExampleApi.java", """
 				package com.example.api.v1;
-				/** Stable integration boundary. */
+				/** Defines the stable public integration boundary. */
 				public final class ExampleApi implements Runnable {
 					@interface CustomOverride { }
 					@CustomOverride
@@ -219,7 +233,7 @@ class SourceAuditPolicyTest {
 	void packagePrivateNestedTypesDoNotCreatePublicApiContracts() throws IOException {
 		write("src/main/java/com/example/api/v1/ExampleApi.java", """
 				package com.example.api.v1;
-				/** Stable integration boundary. */
+				/** Defines the stable public integration boundary. */
 				public final class ExampleApi {
 					static final class InternalWorker {
 						public void execute() { }
@@ -237,7 +251,7 @@ class SourceAuditPolicyTest {
 	void interfaceMemberTypesAreImplicitlyPublicApiSurfaces() throws IOException {
 		write("src/main/java/com/example/api/v1/ExampleApi.java", """
 				package com.example.api.v1;
-				/** Stable integration boundary. */
+				/** Defines the stable public integration boundary. */
 				public interface ExampleApi {
 					/** Executes a validated integration decision. */
 					class Decision {
@@ -256,7 +270,7 @@ class SourceAuditPolicyTest {
 	void explicitPublicNestedApiTypesRequireTheirOwnMeaningfulContract() throws IOException {
 		write("src/main/java/com/example/api/v1/ExampleApi.java", """
 				package com.example.api.v1;
-				/** Stable integration boundary. */
+				/** Defines the stable public integration boundary. */
 				public final class ExampleApi {
 					public static final class Decision {
 						/** Reports the validated decision outcome. */
@@ -275,7 +289,7 @@ class SourceAuditPolicyTest {
 	void implicitPublicInterfaceMemberTypesRequireTheirOwnMeaningfulContract() throws IOException {
 		write("src/main/java/com/example/api/v1/ExampleApi.java", """
 				package com.example.api.v1;
-				/** Stable integration boundary. */
+				/** Defines the stable public integration boundary. */
 				public interface ExampleApi {
 					/** Type. */
 					class Decision {
@@ -295,7 +309,7 @@ class SourceAuditPolicyTest {
 	void isolatedOutcomeVerbIsNotAMeaningfulApiContract() throws IOException {
 		write("src/main/java/com/example/api/v1/ExampleApi.java", """
 				package com.example.api.v1;
-				/** Stable integration boundary. */
+				/** Defines the stable public integration boundary. */
 				public interface ExampleApi {
 					/** Returns. */
 					int state();
@@ -312,7 +326,7 @@ class SourceAuditPolicyTest {
 	void inlinePublicApiMethodsStillRequireContracts() throws IOException {
 		write("src/main/java/com/example/api/v1/ExampleApi.java", """
 				package com.example.api.v1;
-				/** Public integration boundary. */
+				/** Defines the stable public integration boundary. */
 				public final class ExampleApi {
 					public static ExampleApi global() { return null; }
 				}

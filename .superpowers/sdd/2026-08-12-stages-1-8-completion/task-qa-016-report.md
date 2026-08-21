@@ -9,7 +9,7 @@ Complete on direct `main`, starting from `edd898943b121aa3ef5a55044650fe502da2ea
 - Replaced 77 narration/comment lines with bounded authority, lifecycle, transaction, cleanup, or presentation invariants without changing gameplay behavior or mass-deleting useful comments.
 - Added a Java-aware comment lexer which ignores strings, characters, and escape-aware text blocks, keeps leading comment paragraphs together, audits inline comments independently, and reports the exact finding line inside multiline comments.
 - Rejects unfinished `TODO`/`FIXME`/`XXX`/`HACK` comments, vague/mechanical narration, unsupported certainty, undocumented public integration callables, wildcard/debug residue, files over 450 lines, and files over 350 lines with multiple externally visible behavioural class/interface owners.
-- Uses parse-only JDK syntax trees and doc trees for annotated top-level public types, meaningful visible nested API type contracts, multiline methods, explicit and compact constructors, and nested/annotated interfaces. Only exact `Override` or `java.lang.Override` annotations inherit contracts. A nested type is public surface only when explicitly public or implicitly public as an interface member; package-private/private helpers are excluded.
+- Uses parse-only JDK syntax trees and doc trees for annotated public types, meaningful contracts on every visible API type, multiline methods, explicit and compact constructors, and nested/annotated interfaces. Only exact `Override` or `java.lang.Override` annotations inherit contracts. A nested type is public surface only when explicitly public or implicitly public as an interface member; package-private/private helpers are excluded. Non-API top-level types retain the presence-only documentation rule.
 - Preserved and regenerated the exact `docs/quality/code-audit.md` inventory. Corrected its generator to use the declaration-adjacent public-type contract rather than unrelated helper Javadoc.
 
 ## RED/GREEN evidence
@@ -22,6 +22,7 @@ Complete on direct `main`, starting from `edd898943b121aa3ef5a55044650fe502da2ea
 6. Aggregate RED: random chunk origins, reused mock-player state, and natural regeneration exposed three unrelated fixture assumptions. GREEN: the production tests now own deterministic perception geometry, ritual state, and health baselines; each passed in isolation and in the final aggregate.
 7. Re-review RED: five focused failures proved that annotated same-line public types, suffix-named fake overrides, package-private nested API methods, package-private top-level helpers, and package-private nested behavioural helpers escaped or polluted the policy. GREEN: one AST visibility model now drives type documentation, callable reachability, and public behavioural-owner counts; implicit-public interface members and exact qualified overrides have positive fixtures.
 8. Final review RED: explicit-public nested API classes and implicit-public interface member types could expose documented methods without documenting their own purpose. GREEN: both visible nested-type forms require meaningful API type prose, while the global top-level and package-private exclusion policies remain unchanged.
+9. Consistency RED: a top-level API type with `Type.` passed while the same placeholder failed on a visible nested API type. GREEN: every visible API type now requires at least four words and an explicit authority, validation, lifecycle, outcome, or type-purpose signal; non-API top-level types remain presence-only.
 
 ## Verification
 
@@ -35,6 +36,7 @@ JAVA_HOME=/opt/homebrew/Cellar/openjdk@25/25.0.4/libexec/openjdk.jdk/Contents/Ho
 - Fabric GameTests: 125/125 required tests passed in 50.82s.
 - Aggregate gates passed: Java source audit, non-item asset audit, resource validation, item/magic/rank documentation verification.
 - Focused perception, Augury, packet-fault, interrupted-ritual, and reload-cancellation GameTests: each passed before the final aggregate.
+- Final contract-consistency rerun: 33 focused source-policy tests passed; `check -x runGameTest` passed in 47s with 1,576 JVM tests across 368 suites and all 45 Python tests. Three unchanged full-check attempts passed every QA-016/audit/resource task but the concurrently running QA-006 server/client soak made the shared GameTest runtime intermittently fail presentation, mind-session, or proxy-cleanup timing assertions; the soak was preserved and no gameplay code was changed for this test-only correction.
 
 ## Changed surfaces
 
