@@ -12,8 +12,8 @@ The gate rejects:
 - `TODO`, `FIXME`, `XXX`, or `HACK` in actual comments;
 - vague labels and mechanical narration without a strong paragraph-level intent/invariant signal; weak words such as `when`, `so`, or `only` cannot bypass the rule, while short factual comments remain valid;
 - unsupported certainty such as “should never happen”, “always works”, or “cannot fail”;
-- undocumented public types and callable members under `com.powers.api`; JDK syntax trees cover multiline methods, constructors, compact record constructors, and nested/annotated interfaces, while overrides may inherit their interface contract;
-- wildcard imports, direct debug writes, source units over 450 lines, and source units over 350 lines containing multiple externally visible behavioural class/interface owners (private helpers and constructor-only nested data types are not independent owners);
+- undocumented annotated top-level public types and callable members under `com.powers.api`; JDK syntax/doc trees cover multiline methods, constructors, compact record constructors, and nested/annotated interfaces. Nested callables are surface only through an explicit public type or Java's implicit-public interface-member rule, and only exact `Override`/`java.lang.Override` annotations may inherit a contract;
+- wildcard imports, direct debug writes, source units over 450 lines, and source units over 350 lines containing multiple externally visible behavioural class/interface owners (package-private/private helpers and constructor-only nested data types are not independent owners);
 - any mismatch between the exact production/client source inventory and `docs/quality/code-audit.md`.
 
 ## Audit outcome
@@ -35,6 +35,8 @@ The gate rejects:
 - GREEN: inline public callables require contracts and inline comments remain independently audited.
 - RED: review fixtures demonstrated missed multiline/compact/nested API declarations, meaningless one-word contracts, imprecise multiline locations, weak-token narration bypasses, false data-record/constructor-only ownership results, and an escaped text-block delimiter leak.
 - GREEN: parse-only `JavacTask`/`DocTrees` declaration ownership, matcher-offset lines, paragraph-aware narration, behavioural-owner classification, and escape-aware text blocks pass the isolated policy suite and the full production source scan.
+- RED: re-review fixtures found five visibility defects: annotated same-line public types escaped the regex; a suffix-named annotation impersonated `Override`; and package-private nested API methods plus package-private top-level/nested behavioural helpers polluted public findings.
+- GREEN: the shared AST visibility walk now reports annotated public declarations, accepts only exact Java override annotations, excludes package-private helper surfaces, and preserves implicit-public interface member semantics. Positive and negative fixtures pass with the complete production audit.
 
 ## Verification
 
@@ -44,7 +46,7 @@ The final aggregate command was:
 JAVA_HOME=/opt/homebrew/Cellar/openjdk@25/25.0.4/libexec/openjdk.jdk/Contents/Home ./gradlew check --rerun-tasks --no-daemon
 ```
 
-It completed successfully in 1 minute 47 seconds. The current `test/default` result set contained 1,566 JVM test cases across 368 result suites, with zero failures, errors, or skips; 45 Python tests passed in 1.511 seconds. The Fabric run recorded 125/125 required GameTests passing in 52.21 seconds. `auditJavaSources`, `auditNonItemAssets`, resource validation, `verifyItemDocs`, `verifyMagicDocs`, and `verifyRankDocs` all passed in the same aggregate.
+It completed successfully in 1 minute 43 seconds. The current `test/default` result set contained 1,573 JVM test cases across 368 result suites, with zero failures, errors, or skips; 45 Python tests passed in 1.504 seconds. The Fabric run recorded 125/125 required GameTests passing in 47.94 seconds. `auditJavaSources`, `auditNonItemAssets`, resource validation, `verifyItemDocs`, `verifyMagicDocs`, and `verifyRankDocs` all passed in the same aggregate.
 
 Repeated aggregate RED runs exposed four unrelated fixture assumptions: random structure origins could split one perception cluster across chunks; embedded players could retain earlier ritual state; natural regeneration could change health during a presentation-only assertion; and two ritual tests inferred payment from aggregate deltas that vary when regeneration occurs before rollback. The fixtures now align authored perception actors to one chunk cell, establish clean ritual state, begin presentation checks at full health, and assert the authoritative reserve/restore/half-charge event sequence directly. Each affected production-entrypoint test passed in isolation before the final 125-test aggregate passed.
 

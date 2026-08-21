@@ -182,6 +182,75 @@ class SourceAuditPolicyTest {
 	}
 
 	@Test
+	void annotatedSameLinePublicTypeStillRequiresDocumentation() throws IOException {
+		write("src/main/java/com/example/Example.java", """
+				package com.example;
+				@Deprecated public final class Example { }
+				""");
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertEquals(Set.of("src/main/java/com/example/Example.java:2"),
+				result.undocumentedPublicTypes());
+	}
+
+	@Test
+	void onlyExactOverrideAnnotationsMayInheritAnApiContract() throws IOException {
+		write("src/main/java/com/example/api/v1/ExampleApi.java", """
+				package com.example.api.v1;
+				/** Stable integration boundary. */
+				public final class ExampleApi implements Runnable {
+					@interface CustomOverride { }
+					@CustomOverride
+					public void missingContract() { }
+					@java.lang.Override
+					public void run() { }
+				}
+				""");
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertEquals(Set.of("src/main/java/com/example/api/v1/ExampleApi.java:5"),
+				result.undocumentedPublicContracts());
+	}
+
+	@Test
+	void packagePrivateNestedTypesDoNotCreatePublicApiContracts() throws IOException {
+		write("src/main/java/com/example/api/v1/ExampleApi.java", """
+				package com.example.api.v1;
+				/** Stable integration boundary. */
+				public final class ExampleApi {
+					static final class InternalWorker {
+						public void execute() { }
+					}
+				}
+				""");
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertTrue(result.undocumentedPublicContracts().isEmpty(), result::summary);
+	}
+
+	@Test
+	void interfaceMemberTypesAreImplicitlyPublicApiSurfaces() throws IOException {
+		write("src/main/java/com/example/api/v1/ExampleApi.java", """
+				package com.example.api.v1;
+				/** Stable integration boundary. */
+				public interface ExampleApi {
+					/** Executes a validated integration decision. */
+					class Decision {
+						public void execute() { }
+					}
+				}
+				""");
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertEquals(Set.of("src/main/java/com/example/api/v1/ExampleApi.java:6"),
+				result.undocumentedPublicContracts());
+	}
+
+	@Test
 	void isolatedOutcomeVerbIsNotAMeaningfulApiContract() throws IOException {
 		write("src/main/java/com/example/api/v1/ExampleApi.java", """
 				package com.example.api.v1;
@@ -292,6 +361,64 @@ class SourceAuditPolicyTest {
 		SourceAudit.Result result = SourceAudit.scan(root);
 
 		assertTrue(result.mixedResponsibilityFiles().isEmpty(), result::summary);
+	}
+
+	@Test
+	void nearLimitSourceMayKeepPackagePrivateTopLevelHelpers() throws IOException {
+		StringBuilder source = new StringBuilder("""
+				package com.example;
+				/** Primary responsibility. */
+				public final class Example { }
+				final class PackageWorker {
+					void execute() { }
+				}
+				""");
+		while (source.toString().lines().count() <= 350) source.append("\n");
+		write("src/main/java/com/example/Example.java", source.toString());
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertTrue(result.mixedResponsibilityFiles().isEmpty(), result::summary);
+	}
+
+	@Test
+	void nearLimitSourceMayKeepPackagePrivateNestedBehavioralHelpers() throws IOException {
+		StringBuilder source = new StringBuilder("""
+				package com.example;
+				/** Primary responsibility. */
+				public final class Example {
+					static final class CoupledWorker {
+						void execute() { }
+					}
+				}
+				""");
+		while (source.toString().lines().count() <= 350) source.append("\n");
+		write("src/main/java/com/example/Example.java", source.toString());
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertTrue(result.mixedResponsibilityFiles().isEmpty(), result::summary);
+	}
+
+	@Test
+	void nearLimitSourceCountsImplicitlyPublicInterfaceOwners() throws IOException {
+		StringBuilder source = new StringBuilder("""
+				package com.example;
+				/** Primary responsibility. */
+				public interface Example {
+					/** Executes a validated integration decision. */
+					class IndependentWorker {
+						void execute() { }
+					}
+				}
+				""");
+		while (source.toString().lines().count() <= 350) source.append("\n");
+		write("src/main/java/com/example/Example.java", source.toString());
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertEquals(Set.of("src/main/java/com/example/Example.java (351 lines, 2 externally visible owners)"),
+				result.mixedResponsibilityFiles());
 	}
 
 	@Test

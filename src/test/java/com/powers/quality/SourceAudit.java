@@ -31,8 +31,6 @@ import javax.tools.SimpleJavaFileObject;
 import javax.tools.ToolProvider;
 
 final class SourceAudit {
-	private static final Pattern PUBLIC_TYPE = Pattern.compile(
-			"(?m)^public\\s+(?:(?:final|abstract|sealed|non-sealed)\\s+)*(?:class|interface|record|enum)\\s+");
 	private static final Pattern WILDCARD_IMPORT = Pattern.compile("(?m)^import\\s+[^;]*\\*;");
 	private static final Pattern UNFINISHED = Pattern.compile("\\b(?:TODO|FIXME|XXX|HACK)\\b", Pattern.CASE_INSENSITIVE);
 	private static final Pattern DEBUG_WRITE = Pattern.compile("System\\.(?:out|err)|\\.printStackTrace\\s*\\(");
@@ -79,8 +77,8 @@ final class SourceAudit {
 			Path file = projectRoot.resolve(relative);
 			String source = Files.readString(file);
 			ParsedSource parsed = ParsedSource.parse(relative, source);
-			if (!relative.endsWith("package-info.java") && !hasDocumentedPublicType(source)) {
-				undocumented.add(relative);
+			if (!relative.endsWith("package-info.java")) {
+				undocumented.addAll(parsed.undocumentedPublicTypes());
 			}
 			for (Comment comment : comments(source)) {
 				addMatches(unfinished, relative, comment, UNFINISHED);
@@ -212,7 +210,8 @@ final class SourceAudit {
 		}
 	}
 
-	private record ParsedSource(Set<String> undocumentedPublicContracts,
+	private record ParsedSource(Set<String> undocumentedPublicTypes,
+			Set<String> undocumentedPublicContracts,
 			int externallyVisibleOwnerCount) {
 		static ParsedSource parse(String relative, String source) throws IOException {
 			var compiler = ToolProvider.getSystemJavaCompiler();
@@ -225,6 +224,7 @@ final class SourceAudit {
 			CompilationUnitTree unit = task.parse().iterator().next();
 			DocTrees docs = DocTrees.instance(task);
 			SourcePositions positions = docs.getSourcePositions();
+			Set<String> types = new LinkedHashSet<>();
 			Set<String> contracts = new LinkedHashSet<>();
 			int[] owners = {0};
 			new TreePathScanner<Void, Void>() {
@@ -233,13 +233,24 @@ final class SourceAudit {
 
 				@Override public Void visitClass(ClassTree tree, Void unused) {
 					boolean topLevel = getCurrentPath().getParentPath().getLeaf() instanceof CompilationUnitTree;
+					Set<Modifier> modifiers = tree.getModifiers().getFlags();
+					boolean explicitlyPublic = modifiers.contains(Modifier.PUBLIC);
+					boolean implicitlyPublic = !topLevel && !interfaceScope.isEmpty()
+							&& interfaceScope.peek() && !modifiers.contains(Modifier.PRIVATE);
 					boolean visible = topLevel
-							? tree.getModifiers().getFlags().contains(Modifier.PUBLIC)
+							? explicitlyPublic
 							: !publicSurface.isEmpty() && publicSurface.peek()
-									&& !tree.getModifiers().getFlags().contains(Modifier.PRIVATE);
-					if (topLevel || (visible && hasDeclaredBehaviour(tree))) owners[0]++;
+									&& (explicitlyPublic || implicitlyPublic);
+					if (topLevel && visible) {
+						var doc = docs.getDocCommentTree(getCurrentPath());
+						if (doc == null || doc.toString().isBlank()) {
+							types.add(finding(relative, unit, positions, tree));
+						}
+					}
+					if (visible && (topLevel || hasDeclaredBehaviour(tree))) owners[0]++;
 					publicSurface.push(visible);
-					interfaceScope.push(tree.getKind() == Tree.Kind.INTERFACE);
+					interfaceScope.push(tree.getKind() == Tree.Kind.INTERFACE
+							|| tree.getKind() == Tree.Kind.ANNOTATION_TYPE);
 					super.visitClass(tree, unused);
 					interfaceScope.pop();
 					publicSurface.pop();
@@ -248,7 +259,9 @@ final class SourceAudit {
 
 				@Override public Void visitMethod(MethodTree tree, Void unused) {
 					boolean inherited = tree.getModifiers().getAnnotations().stream()
-							.anyMatch(annotation -> annotation.getAnnotationType().toString().endsWith("Override"));
+							.map(annotation -> annotation.getAnnotationType().toString())
+							.anyMatch(annotation -> annotation.equals("Override")
+									|| annotation.equals("java.lang.Override"));
 					boolean interfaceMethod = !interfaceScope.isEmpty() && interfaceScope.peek()
 							&& !tree.getModifiers().getFlags().contains(Modifier.PRIVATE);
 					boolean publicMethod = tree.getModifiers().getFlags().contains(Modifier.PUBLIC);
@@ -258,15 +271,21 @@ final class SourceAudit {
 						String contract = doc == null ? "" : doc.toString();
 						int contractWords = contract.isBlank() ? 0 : contract.trim().split("\\s+").length;
 						if (contractWords < 4 || !CONTRACT_SIGNAL.matcher(contract).find()) {
-							long offset = positions.getStartPosition(unit, tree);
-							long line = unit.getLineMap().getLineNumber(Math.max(0, offset));
-							contracts.add(relative + ":" + line);
+							contracts.add(finding(relative, unit, positions, tree));
 						}
 					}
 					return super.visitMethod(tree, unused);
 				}
 			}.scan(unit, null);
-			return new ParsedSource(Collections.unmodifiableSet(contracts), owners[0]);
+			return new ParsedSource(Collections.unmodifiableSet(types),
+					Collections.unmodifiableSet(contracts), owners[0]);
+		}
+
+		private static String finding(String relative, CompilationUnitTree unit,
+				SourcePositions positions, Tree tree) {
+			long offset = positions.getStartPosition(unit, tree);
+			long line = unit.getLineMap().getLineNumber(Math.max(0, offset));
+			return relative + ":" + line;
 		}
 
 		private static boolean hasDeclaredBehaviour(ClassTree tree) {
@@ -309,18 +328,6 @@ final class SourceAudit {
 			if (slash >= 0) result.add(file.substring(0, slash));
 		}
 		return result;
-	}
-
-	private static boolean hasDocumentedPublicType(String source) {
-		Matcher matcher = PUBLIC_TYPE.matcher(source);
-		if (!matcher.find()) return true;
-		int declaration = matcher.start();
-		int close = source.lastIndexOf("*/", declaration);
-		int open = close < 0 ? -1 : source.lastIndexOf("/**", close);
-		if (open < 0 || close < open) return false;
-		String between = source.substring(close + 2, declaration)
-				.replaceAll("(?m)^\\s*@[^\\n]+$", "");
-		return between.isBlank();
 	}
 
 	private static String portable(Path path) {
