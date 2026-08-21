@@ -10,7 +10,7 @@
 
 **Spec:** `.superpowers/sdd/2026-08-12-stages-1-8-completion/task-vfx-011-brief.md`
 
-**Provisional status (2026-08-21):** Tasks 1–5 and the durable evidence implementation are complete. The Java 25 client gallery, focused gates, ordinary 128/128 GameTests, and non-live aggregate are green. VFX-011 remains open because the final post-structure literal aggregate collided with the separately protected QA-006 24-hour server/client soak; two load-sensitive failures passed immediately unchanged in isolation. Rerun the literal aggregate after QA-006 releases the host, then close the row and bind the final commit. VFX-009 remains open.
+**Repair status (2026-08-21):** Tasks 1–5 implemented the audit surfaces, and the asset/two-client evidence remains valid. Independent review found the 971 gallery raw files and original client-emitted metadata were not retained, so every historical screenshot decision is pending and the contact pages are navigation-only. The agent/packager now require emitted raw digests/runtime settings and content-addressed raw retention. After QA-006 releases the host, rerun, explicitly review the retained raw set, and run the literal aggregate before closing. VFX-009 remains open.
 
 ## Global Constraints
 

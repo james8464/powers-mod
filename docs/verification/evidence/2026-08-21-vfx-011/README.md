@@ -1,22 +1,21 @@
 # VFX-011 provisional exact-build evidence
 
-This bundle proves the implemented VFX-011 asset and renderer audit on the working tree above base commit `c99ad4330c8c5ed9000e9dfb2a5cd310a7e3f581`. It is deliberately **provisional**: VFX-011 remains open until one post-implementation literal aggregate `check` can run after the protected QA-006 24-hour soak releases the host. The existing enhanced Light Realm renderer remains separate, open VFX-009 work; this bundle claims only the current static fallback.
+This bundle proves the immutable asset audit and two-client proofs on the working tree above base commit `c99ad4330c8c5ed9000e9dfb2a5cd310a7e3f581`. VFX-011 is **pending fresh raw capture**: the prior 971 screenshot files and original client-emitted metadata were not retained, so their historical contact pages are navigation aids, not visual acceptance evidence. A fresh post-soak gallery and one literal aggregate `check` are required. The enhanced Light Realm renderer remains separate, open VFX-009 work.
 
-## Accepted evidence
+## Accepted evidence and historical navigation
 
 - The immutable asset manifest inventories 970 assets, including all 362 PNGs. Every physical frame has a premultiplied-alpha mip chain through 1×1. The 5,629 unique frame/mip tiles appear on light, dark, and checker backgrounds as 16,887 traceable rows across 90 owned pages. Sixty-six transparent-RGB cases use explicit path-and-source-SHA review exceptions; decode success is never described as renderer PASS.
-- The Java 25 production client gallery completed 971 exact screenshots. It covers baked item contexts, spawn eggs, entity poses/UVs, Shadow/Echo wide and slim overlays, GUI 1–4 at physical 1280×720 and 960×720, normal/reduced motion, HUD half units and vanilla combinations, boss states, and first-/third-person gameplay. `captures.jsonl` is the accepted 971-row metadata file (SHA-256 `d80fbd866a7b99312dba938cf6a6d9cfe86fd902af70303e8d6d2e0a24eb82f6`); `client-capture-index.tsv` maps its 9,034 exact capture IDs to 971 screenshots and 49 bounded pages.
-- Twenty representative capture IDs map to 15 unique full-resolution PNGs because several IDs intentionally share one item/entity sheet.
+- The historical Java 25 gallery index maps 9,034 capture IDs to 971 screenshot names and 49 contact pages. Those pages and the 20 representative IDs mapped to 15 retained PNGs remain useful navigation, but cannot substitute for the missing 971 raw files or prove their bytes/settings.
 - A separate Java 25 dedicated-server campaign used two real Fabric clients. The accepted full-resolution locator frame contains the real `VfxObserver` player and the accepted advancement frame visibly selects the Darkness root. Exact joins, leaves, command/state markers, options, logs, and hashes are in `two-client/`.
-- `review-decisions.tsv` contains 2,082 explicit digest-bound decisions: 970 source assets, 90 asset pages, 971 production screenshots, 49 client pages, and two real-client captures. The generator cannot infer PASS or REPAIRED from a filename; missing, extra, blank, or stale decisions fail. `review-ledger.tsv` joins those decisions into 27,032 source/page/tile/capture rows.
+- `review-decisions.tsv` retains accepted asset/two-client decisions. All 971 historical client digests are explicitly `PENDING_RAW_RECAPTURE`; all 49 client pages are `LIMITED` navigation-only. The ledger generator rejects any PASS/REPAIRED claim for those historical rows.
 
-## Repairs represented by accepted replacements
+## Historical repairs awaiting raw recapture
 
-The reviewed set includes corrected `vaelith` and `void_oculus` item transforms, dedicated item/entity label bands, catalogue title/summary and global-search tab state, clean two-client screenshots without tutorial/chat overlays, and authoritative HUD reset/readiness. The final HUD replacements retain hearts/hunger in reduced realm and energy views, clear retained dismount overlays before reduced captures, and present a clean Spectator frame. Superseded raw captures are not included in this bundle.
+The historical pages show corrected `vaelith` and `void_oculus` transforms, label bands, catalogue layout/tab state, and HUD reset/readiness. These observations must be repeated against retained raw bytes before acceptance. The separate two-client screenshots remain retained and accepted.
 
 ## Exact environment and commands
 
-Runtime: Minecraft 26.2; Fabric Loader 0.19.3; Fabric API 0.156.0+26.2; OpenJDK 25.0.4; Apple M3 Pro; OpenGL 4.1 Metal backend. The integrated gallery used only the repository/default resource set and the mods enumerated in its retained log. Every capture's physical window, effective GUI scale, mip, reduced-motion state, camera, background, time, weather, capture IDs, and source keys are retained in `captures.jsonl`. `integrated-options.txt` binds the requested option matrix to the exact test-agent source SHA; Minecraft clamps requested GUI scale four to effective scale three at 720px, and both values are recorded truthfully.
+The historical run used Minecraft 26.2, Fabric Loader 0.19.3, Fabric API 0.156.0+26.2, OpenJDK 25.0.4, Apple M3 Pro, and OpenGL 4.1 Metal. Its reconstructed metadata/options were removed because they are not an acceptable substitute for original client-emitted values. The repaired gallery agent now emits each raw screenshot SHA and actual runtime options; the packager refuses missing fields, rehashes and retains every raw PNG content-addressably, and binds original metadata, implementation SHA, and JAR SHA in a receipt.
 
 Retained logs are complete but privacy-sanitized: user-home prefixes are represented by `<HOME>` and loopback endpoints by `<LOOPBACK>`. The sanitizer changes no line count and the evidence tests reject raw home paths, raw ephemeral loopback ports, stale two-client receipt hashes, or missing metadata/options.
 
@@ -34,8 +33,8 @@ python3 scripts/vfx011_two_client_gallery.py
 
 Results: combined client gallery GREEN in 3m48; focused visual/resource gates GREEN; Python evidence gates GREEN; ordinary full server suite GREEN 128/128; non-live aggregate GREEN with 1,608 JUnit tests and 50 Python tests; JAR SHA-256 `9d9e75437f35c3500b9e54d2f268888715020606ab1b0540e1eae8755744bb70`.
 
-## Open acceptance limitation
+## Open acceptance limitations
 
-Two later aggregate attempts ran concurrently with the protected QA-006 server/client soak and each exposed a different already-green load-sensitive GameTest. The living-force invasion and realm-crystal cohort tests both passed immediately and unchanged in isolation. No unrelated fixture deadline or production behavior was relaxed. A third aggregate was stopped during preflight when the active QA-006 processes were identified. VFX-011 therefore remains open pending one literal post-soak aggregate; the ordinary 128/128 GREEN, both isolated confirmations, and the non-live aggregate are retained without being misrepresented as that final gate.
+The historical 971 raw screenshots and original emitted metadata no longer exist on disk. Do not infer their review from contact sheets, filenames, or the historical index. After QA-006 releases the host, rerun the exact gallery, package all raw bytes and emitted metadata, conduct explicit digest-bound review, then rerun the literal aggregate. Earlier ordinary 128/128 GREEN, isolated confirmations, and non-live aggregate remain historical test evidence only.
 
-`SHA256SUMS` binds the durable bundle, including the accepted metadata, exact options, sanitized logs, and refreshed two-client receipt. `build-metadata.json` binds provisional implementation commit `500f8911736380c90813bb8e20b46bf5e3a83ebc`; the final post-soak acceptance successor must add its exact commit when that gate runs.
+`SHA256SUMS` binds the current bounded bundle, including historical navigation pages and accepted sanitized two-client proof. `build-metadata.json` declares the missing inputs. A future acceptance successor must retain and checksum every fresh raw screenshot plus the original client-emitted metadata and exact implementation/JAR identity.

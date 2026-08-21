@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "status": "PROVISIONAL_PENDING_POST_SOAK_AGGREGATE",
+  "status": "PENDING_FRESH_RAW_CAPTURE",
   "sourceBaseCommit": "c99ad4330c8c5ed9000e9dfb2a5cd310a7e3f581",
   "provisionalImplementationCommit": "500f8911736380c90813bb8e20b46bf5e3a83ebc",
   "sourcePatchSha256BeforeEvidenceDocs": "61f670aa675f67b2184b3abc38d825456ca8c7fe4ea347ca7affe65ec05ae393",
@@ -16,17 +16,12 @@
     "gpu": "Apple M3 Pro",
     "graphics": "OpenGL 4.1 Metal - 90.5"
   },
-  "acceptedClientMetadata": {
-    "file": "captures.jsonl",
-    "rows": 971,
-    "sha256": "d80fbd866a7b99312dba938cf6a6d9cfe86fd902af70303e8d6d2e0a24eb82f6"
-  },
-  "integratedOptions": {
-    "file": "integrated-options.txt",
-    "sha256": "a252a8e5bb4bdae6dd71801728fff3e5557503ab9b558c2e80d1288f30d8c3a4",
-    "source": "src/gametest/java/com/powers/client/acceptance/VfxGalleryClientAgent.java",
-    "sourceSha256": "af252fe3f054937929af4b67fae5595c3a391a7789533fbd598939e15dc27988"
-  },
+  "missingAcceptanceInputs": [
+    "fresh post-soak 971-screenshot raw gallery run",
+    "original client-emitted per-screenshot metadata and runtime options",
+    "digest-bound explicit manual decisions for the fresh raw screenshots",
+    "literal aggregate gate after the protected QA-006 soak"
+  ],
   "privacy": {
     "homeMarker": "<HOME>",
     "loopbackMarker": "<LOOPBACK>",

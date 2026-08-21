@@ -90,9 +90,8 @@ d967772df519ad391654761801b84f84d063ec9f747bd710ce5355e08851d8d2  docs/quality/v
 1436b291c2f5303bb4644c567933c27d2f5ef63e877f9187cca2e241a764cbdc  docs/quality/vfx-011-asset-pages/pixels-light-028.png
 65a508c3ffcba96e4572e6f111d245bb69598004b4d9c3c09ff6155fd1f0412b  docs/quality/vfx-011-asset-pages/pixels-light-029.png
 9b59500ad7ba5518d6574059ca16ab5bb1b08cb92dab85fb30a8f4c50e5e929f  docs/quality/vfx-011-reviewed-exceptions.json
-340f95615350c4dbe74b18216f04272ff2ac7caed7a2b1faa7fc4a4bc9d8e43b  docs/verification/evidence/2026-08-21-vfx-011/README.md
-2ccd06a7cedd996b623fe5abcaa6ebd20d03d951001dce70e4061cd7567bd951  docs/verification/evidence/2026-08-21-vfx-011/build-metadata.json
-d80fbd866a7b99312dba938cf6a6d9cfe86fd902af70303e8d6d2e0a24eb82f6  docs/verification/evidence/2026-08-21-vfx-011/captures.jsonl
+a800e8c8111255671765855635ffb152623659a17b7b6b98a21896a061726290  docs/verification/evidence/2026-08-21-vfx-011/README.md
+94b1cb4c29c07e0f92d82648b57a08c51651c36f84b2cfcbcac299d71558bd59  docs/verification/evidence/2026-08-21-vfx-011/build-metadata.json
 4e38144a8cc576274a17bec7d5bb17e28adc708aa3b1deb3e1f512d7c0c866fb  docs/verification/evidence/2026-08-21-vfx-011/client-capture-index.tsv
 216ce2fce01ebdf02c7dcac5a42976552d521a69da32f90063791b54782bb2cb  docs/verification/evidence/2026-08-21-vfx-011/client-contact-sheets/client-000.png
 78a7046497f3ba5a0680198376bc9aeb8b3b625c92ab228fa3aa90d3739902ea  docs/verification/evidence/2026-08-21-vfx-011/client-contact-sheets/client-001.png
@@ -143,7 +142,6 @@ a173dabc7eff6ccee8349e2c511ec0da4b7d97271b8464213e8f3b783cf79f74  docs/verificat
 899095d722fb8fb39d51582e479810fe77051f76ca457a492d908fa537be013f  docs/verification/evidence/2026-08-21-vfx-011/client-contact-sheets/client-046.png
 4ce7da689cc37f7dd1e780ac5a67f23c5492f156e6bab2ec1b6574f5d97d6a2b  docs/verification/evidence/2026-08-21-vfx-011/client-contact-sheets/client-047.png
 42a51912d741fca4c0c509f7d14d1ce2b9c88eedec7a52be12a740df77175792  docs/verification/evidence/2026-08-21-vfx-011/client-contact-sheets/client-048.png
-a252a8e5bb4bdae6dd71801728fff3e5557503ab9b558c2e80d1288f30d8c3a4  docs/verification/evidence/2026-08-21-vfx-011/integrated-options.txt
 c9d4aa52ea1a202d98510ab8dd136507830cd0549fd56310f8308d42a51d149a  docs/verification/evidence/2026-08-21-vfx-011/logs/check-nonlive-final-java25.log
 ba34e0701a960ea504c10f4c7cab6a7ad7cd27e4f3c9cc8526778f77a8d4a446  docs/verification/evidence/2026-08-21-vfx-011/logs/focused-final-java25.log
 8f94410a539c84cd0f1262c311a1c0116a2299694dd9a915d9febdb445d483b1  docs/verification/evidence/2026-08-21-vfx-011/logs/runClientGameTest-final-combined-accepted-java25.log
@@ -166,8 +164,8 @@ aae37ce9727c13277f9b41050e61decabd177e6550c3ba64dc59116d47bc0bc1  docs/verificat
 102be7ece319c663225a1c7a39b9a785f98a55526d5c54f9abf3610076009780  docs/verification/evidence/2026-08-21-vfx-011/representative-full-resolution/0988_vfx011-boss-dark_herald-progress38.png
 2b61f67b12a9b89debcace105576baf237a3e7ac7b31d137d4047a75368c9f87  docs/verification/evidence/2026-08-21-vfx-011/representative-full-resolution/0991_vfx011-boss-first_vessel-last_covenant-progress14.png
 0f5efad0806f2c7f179b3ba6eecc021aa6d703daf03ff5dbe873a367100ad355  docs/verification/evidence/2026-08-21-vfx-011/representative-index.tsv
-ccede43b386d85aca0bc723c7ab4bf28a31a7174b901adb3f1d735a7524d3d00  docs/verification/evidence/2026-08-21-vfx-011/review-decisions.tsv
-83486357c12f341dd0de0d1dda9e0e69c72be217ce4e98c5683623cc19fc8a1e  docs/verification/evidence/2026-08-21-vfx-011/review-ledger.tsv
+e9a6074efddc5e86ab8c0eaf626785da3b1cf4d0ee20af3ff5cbd7ba3c0e7848  docs/verification/evidence/2026-08-21-vfx-011/review-decisions.tsv
+0b4b3fe85d9b9c5190f0d2757f570ea3409e887d27790d385d44aa9f4e16c03e  docs/verification/evidence/2026-08-21-vfx-011/review-ledger.tsv
 b82a057103ac969dc2b8664095545e46345fbf11380030a2dd5d74bac5a22937  docs/verification/evidence/2026-08-21-vfx-011/two-client/darkness.tsv
 1c207109581802f4e260fd2625ccac16ab3a0dd748863051bc38dc2e621b7a31  docs/verification/evidence/2026-08-21-vfx-011/two-client/locator.tsv
 b85e83ab3fc190eaee425b167db4a0c0499e8b1a87b89c127d832f8513edd7ef  docs/verification/evidence/2026-08-21-vfx-011/two-client/logs/VfxObserver-idle.log

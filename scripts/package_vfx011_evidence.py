@@ -39,6 +39,21 @@ REPRESENTATIVES = (
     "boss/dark_herald/progress38",
     "boss/first_vessel/last_covenant/progress14",
 )
+RUNTIME_OPTION_TYPES = {
+    "physicalWidth": int,
+    "physicalHeight": int,
+    "requestedGuiScale": int,
+    "effectiveGuiScale": int,
+    "mipLevel": int,
+    "particles": str,
+    "screenEffectScale": (int, float),
+    "reducedMotion": bool,
+    "renderDistance": int,
+    "graphicsMode": str,
+    "resourcePacks": list,
+    "gameTime": int,
+    "weather": str,
+}
 
 
 def digest(path: Path) -> str:
@@ -47,6 +62,18 @@ def digest(path: Path) -> str:
 
 def load_rows(path: Path) -> list[dict]:
     rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+    for row in rows:
+        emitted_digest = row.get("screenshotSha256")
+        runtime_options = row.get("runtimeOptions")
+        valid_runtime = isinstance(runtime_options, dict) and set(runtime_options) == set(RUNTIME_OPTION_TYPES)
+        if valid_runtime:
+            valid_runtime = all(isinstance(runtime_options[key], expected)
+                                and (expected is bool or not isinstance(runtime_options[key], bool))
+                                for key, expected in RUNTIME_OPTION_TYPES.items())
+        if (not isinstance(emitted_digest, str) or len(emitted_digest) != 64
+                or any(character not in "0123456789abcdef" for character in emitted_digest)
+                or not valid_runtime):
+            raise ValueError("capture metadata lacks client-emitted screenshot digest/runtime options")
     screenshots = [row["screenshot"] for row in rows]
     if len(screenshots) != len(set(screenshots)):
         raise ValueError("duplicate screenshot in capture metadata")
@@ -56,17 +83,58 @@ def load_rows(path: Path) -> list[dict]:
     return rows
 
 
-def build(captures: Path, screenshots: Path, output: Path) -> None:
+def validate_raw_screenshots(rows: list[dict], screenshots: Path) -> None:
+    for row in rows:
+        source = screenshots / row["screenshot"]
+        if not source.is_file():
+            raise FileNotFoundError(source)
+        actual = digest(source)
+        if actual != row["screenshotSha256"]:
+            raise ValueError(f"raw screenshot digest mismatch: {row['screenshot']}")
+
+
+def retain_raw_screenshots(rows: list[dict], screenshots: Path, raw: Path) -> list[str]:
+    raw.mkdir(parents=True, exist_ok=True)
+    lines = ["screenshot\tsha256\tcontent_path"]
+    for row in rows:
+        sha256 = row["screenshotSha256"]
+        content_name = f"{sha256}.png"
+        content_path = raw / content_name
+        shutil.copyfile(screenshots / row["screenshot"], content_path)
+        if digest(content_path) != sha256:
+            raise ValueError(f"retained raw screenshot digest mismatch: {row['screenshot']}")
+        lines.append(f"{row['screenshot']}\t{sha256}\tclient-raw/{content_name}")
+    return lines
+
+
+def build(captures: Path, screenshots: Path, output: Path,
+          implementation_commit: str, jar: Path) -> None:
     rows = load_rows(captures)
+    if len(rows) != 971:
+        raise ValueError(f"expected exact 971-row gallery run, found {len(rows)}")
+    validate_raw_screenshots(rows, screenshots)
+    if (len(implementation_commit) != 40
+            or any(character not in "0123456789abcdef" for character in implementation_commit)):
+        raise ValueError("implementation commit must be an exact lowercase SHA-1")
+    if not jar.is_file():
+        raise FileNotFoundError(jar)
     output.mkdir(parents=True, exist_ok=True)
     sheets = output / "client-contact-sheets"
     representatives = output / "representative-full-resolution"
+    raw = output / "client-raw"
     sheets.mkdir(exist_ok=True)
     representatives.mkdir(exist_ok=True)
-    for directory in (sheets, representatives):
+    raw.mkdir(exist_ok=True)
+    for directory in (sheets, representatives, raw):
         for stale in directory.iterdir():
             if stale.is_file():
                 stale.unlink()
+
+    emitted_metadata = output / "client-emitted-captures.jsonl"
+    shutil.copyfile(captures, emitted_metadata)
+    raw_lines = retain_raw_screenshots(rows, screenshots, raw)
+    raw_index = output / "client-raw-index.tsv"
+    raw_index.write_text("\n".join(raw_lines) + "\n")
 
     font = ImageFont.load_default()
     index_lines = ["capture_id\tscreenshot\tpage\tslot\tx\ty\twidth\theight\tsha256"]
@@ -106,6 +174,18 @@ def build(captures: Path, screenshots: Path, output: Path) -> None:
         shutil.copyfile(source, target)
         representative_lines.append(f"{capture_id}\t{target.name}\t{digest(target)}")
     (output / "representative-index.tsv").write_text("\n".join(representative_lines) + "\n")
+    receipt = {
+        "schema": 1,
+        "implementationCommit": implementation_commit,
+        "jar": {"file": jar.name, "sha256": digest(jar)},
+        "clientEmittedMetadata": {
+            "file": emitted_metadata.name, "sha256": digest(emitted_metadata), "rows": len(rows)},
+        "rawScreenshots": {
+            "index": raw_index.name, "indexSha256": digest(raw_index), "rows": len(rows),
+            "uniqueContentFiles": len(list(raw.glob("*.png"))),
+        },
+    }
+    (output / "client-run-receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
 
 
 def main() -> None:
@@ -113,8 +193,10 @@ def main() -> None:
     parser.add_argument("--captures", type=Path, required=True)
     parser.add_argument("--screenshots", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--implementation-commit", required=True)
+    parser.add_argument("--jar", type=Path, required=True)
     args = parser.parse_args()
-    build(args.captures, args.screenshots, args.output)
+    build(args.captures, args.screenshots, args.output, args.implementation_commit, args.jar)
 
 
 if __name__ == "__main__":
