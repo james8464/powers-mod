@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 /** Bounded input and lifecycle packets for an authenticated Vessel Possession session. */
 public final class VesselControlPackets {
+	private static final VesselControlSequence INPUT_SEQUENCES = new VesselControlSequence();
 	private VesselControlPackets() {
 	}
 
@@ -39,7 +40,7 @@ public final class VesselControlPackets {
 		}
 	}
 
-	public record InputPayload(float forward, float strafe, boolean jump, boolean crouch,
+	public record InputPayload(long sequence, float forward, float strafe, boolean jump, boolean crouch,
 			float yaw, float pitch, int hotbarSlot, int attackEntityId)
 			implements CustomPacketPayload {
 		public static final Type<InputPayload> TYPE = new Type<>(PowersMod.id("vessel_control_input"));
@@ -47,6 +48,7 @@ public final class VesselControlPackets {
 				StreamCodec.of(InputPayload::encode, InputPayload::decode);
 
 		private static void encode(RegistryFriendlyByteBuf buffer, InputPayload input) {
+			buffer.writeVarLong(input.sequence);
 			buffer.writeFloat(input.forward);
 			buffer.writeFloat(input.strafe);
 			buffer.writeBoolean(input.jump);
@@ -58,7 +60,7 @@ public final class VesselControlPackets {
 		}
 
 		private static InputPayload decode(RegistryFriendlyByteBuf buffer) {
-			return new InputPayload(buffer.readFloat(), buffer.readFloat(), buffer.readBoolean(),
+			return new InputPayload(buffer.readVarLong(), buffer.readFloat(), buffer.readFloat(), buffer.readBoolean(),
 					buffer.readBoolean(), buffer.readFloat(), buffer.readFloat(),
 					buffer.readVarInt(), buffer.readVarInt() - 1);
 		}
@@ -73,28 +75,33 @@ public final class VesselControlPackets {
 		PayloadTypeRegistry.clientboundPlay().register(StatePayload.TYPE, StatePayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(InputPayload.TYPE, InputPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ReleasePayload.TYPE, ReleasePayload.STREAM_CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(InputPayload.TYPE, (payload, context) ->
-				ServerPlayCallback.execute(context, owner -> {
-					if (PacketRateLimiter.allow(owner, PacketRateLimiter.Lane.VESSEL_CONTROL)) {
+		PowersPlayNetworking.registerReceiver(InputPayload.TYPE, (payload, owner) -> {
+					if (INPUT_SEQUENCES.accept(owner.getUUID(), payload.sequence())
+							&& PacketRateLimiter.allow(owner, PacketRateLimiter.Lane.VESSEL_CONTROL)) {
 						VesselPossessionAbility.applyControl(owner, payload);
 					}
-				}));
-		ServerPlayNetworking.registerGlobalReceiver(ReleasePayload.TYPE, (payload, context) ->
-				ServerPlayCallback.execute(context, player -> {
+				});
+		PowersPlayNetworking.registerReceiver(ReleasePayload.TYPE, (payload, player) -> {
 					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.VESSEL_CONTROL)) {
 						releaseControlledSession(player);
 					}
-				}));
+				});
 	}
 
 	/** Production packet entry point retained separately for live GameTest coverage. */
 	public static boolean releaseControlledSession(ServerPlayer owner) {
+		if (owner != null) INPUT_SEQUENCES.clear(owner.getUUID());
 		return VesselPossessionAbility.releaseControlledSession(owner);
 	}
 
 	public static void sendState(ServerPlayer owner, boolean active) {
+		if (owner != null) INPUT_SEQUENCES.clear(owner.getUUID());
 		if (owner != null && ServerPlayNetworking.canSend(owner, StatePayload.TYPE)) {
-			ServerPlayNetworking.send(owner, new StatePayload(active));
+			PowersPlayNetworking.send(owner, new StatePayload(active));
 		}
+	}
+
+	public static void clearSequences() {
+		INPUT_SEQUENCES.clearAll();
 	}
 }

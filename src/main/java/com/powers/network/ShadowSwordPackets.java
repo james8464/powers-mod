@@ -156,8 +156,7 @@ public final class ShadowSwordPackets {
 		PayloadTypeRegistry.serverboundPlay().register(
 				BindFavouritePayload.TYPE, BindFavouritePayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(TeleportPayload.TYPE, TeleportPayload.STREAM_CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(SelectPayload.TYPE, (payload, context) ->
-				ServerPlayCallback.execute(context, player -> {
+		PowersPlayNetworking.registerReceiver(SelectPayload.TYPE, (payload, player) -> {
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
 					ActionSubmissionService.submit(MagicRuntime.catalogue().snapshot(), request(payload),
 							() -> validSelectionContext(player, alignment,
@@ -166,9 +165,8 @@ public final class ShadowSwordPackets {
 							() -> PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT),
 							() -> ArtifactWeaponManager.select(player, alignment,
 									payload.actionKey(), payload.option()));
-				}));
-		ServerPlayNetworking.registerGlobalReceiver(CommitPayload.TYPE, (payload, context) ->
-				ServerPlayCallback.execute(context, player -> {
+				});
+		PowersPlayNetworking.registerReceiver(CommitPayload.TYPE, (payload, player) -> {
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
 					ActionSubmissionService.submit(MagicRuntime.catalogue().snapshot(), request(payload),
 							() -> validSelectionContext(player, alignment,
@@ -180,9 +178,8 @@ public final class ShadowSwordPackets {
 									ArtifactWeaponManager.activateSelected(player, alignment);
 								}
 							});
-				}));
-		ServerPlayNetworking.registerGlobalReceiver(CyclePayload.TYPE, (payload, context) ->
-				ServerPlayCallback.execute(context, player -> {
+				});
+		PowersPlayNetworking.registerReceiver(CyclePayload.TYPE, (payload, player) -> {
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
 					String selectedKey = alignment == null ? null
 							: ArtifactSelectionState.peekSelected(player, alignment);
@@ -199,9 +196,8 @@ public final class ShadowSwordPackets {
 										selected.definition().key(), payload.direction());
 								if (next != null) ArtifactWeaponManager.select(player, alignment, next, -1);
 							});
-				}));
-		ServerPlayNetworking.registerGlobalReceiver(BindFavouritePayload.TYPE, (payload, context) ->
-				ServerPlayCallback.execute(context, player -> {
+				});
+		PowersPlayNetworking.registerReceiver(BindFavouritePayload.TYPE, (payload, player) -> {
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
 					ActionSubmissionService.submit(MagicRuntime.catalogue().snapshot(), request(payload),
 							() -> validBindableContext(player, alignment, payload.actionKey())
@@ -210,9 +206,9 @@ public final class ShadowSwordPackets {
 							() -> PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT),
 							() -> ArtifactSelectionState.bindFavourite(player, alignment,
 									payload.slot(), payload.actionKey()));
-				}));
-		ServerPlayNetworking.registerGlobalReceiver(TeleportPayload.TYPE, (payload, context) ->
-				ServerPlayCallback.execute(context, player -> handleTeleport(player, payload)));
+				});
+		PowersPlayNetworking.registerReceiver(TeleportPayload.TYPE,
+				(payload, player) -> handleTeleport(player, payload));
 	}
 
 	public static void openMenu(ServerPlayer player, ArtifactAlignment alignment,
@@ -220,7 +216,7 @@ public final class ShadowSwordPackets {
 			int sizeMorphOption, int energy,
 			java.util.List<String> favourites,
 			java.util.List<ArtifactActionSnapshot> actions) {
-		ServerPlayNetworking.send(player, new OpenMenuPayload(
+		PowersPlayNetworking.send(player, new OpenMenuPayload(
 				MagicRuntime.catalogue().snapshot().revision(), alignment.serializedName(), selectedKey, rank, sizeMorphOption,
 				energy, java.util.List.copyOf(favourites), java.util.List.copyOf(actions)));
 	}
@@ -228,7 +224,7 @@ public final class ShadowSwordPackets {
 	public static void openTeleport(ServerPlayer player, ArtifactAlignment alignment) {
 		ArtifactWeaponManager.Action selected = ArtifactWeaponManager.selected(player, alignment);
 		if (selected == null) return;
-		ServerPlayNetworking.send(player, new OpenTeleportPayload(
+		PowersPlayNetworking.send(player, new OpenTeleportPayload(
 				MagicRuntime.catalogue().snapshot().revision(), alignment.serializedName(),
 				selected.definition().key()));
 	}

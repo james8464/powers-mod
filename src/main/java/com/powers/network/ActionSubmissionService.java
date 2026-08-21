@@ -35,7 +35,12 @@ public final class ActionSubmissionService {
 
 	/** Invalidates a menu whose live owner disappeared, carrying the current authoritative revision. */
 	public static void refresh(ServerPlayer player, String surface) {
-		ServerPlayNetworking.send(player, new RefreshPayload(
+		PowersPlayNetworking.send(player, new RefreshPayload(
+				com.powers.magic.runtime.MagicRuntime.catalogue().snapshot().revision(), surface));
+	}
+
+	static void refreshCritical(ServerPlayer player, String surface) {
+		PowersPlayNetworking.sendCritical(player, new RefreshPayload(
 				com.powers.magic.runtime.MagicRuntime.catalogue().snapshot().revision(), surface));
 	}
 

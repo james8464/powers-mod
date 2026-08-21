@@ -59,12 +59,12 @@ public final class RelicPackets {
 				OpenReservoirPayload.TYPE, OpenReservoirPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(
 				TransferReservoirPayload.TYPE, TransferReservoirPayload.STREAM_CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(TransferReservoirPayload.TYPE,
-				(payload, context) -> ServerPlayCallback.execute(context, player -> {
+		PowersPlayNetworking.registerReceiver(TransferReservoirPayload.TYPE,
+				(payload, player) -> {
 					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT)) {
 						transfer(player, payload);
 					}
-				}));
+				});
 	}
 
 	public static boolean openReservoir(ServerPlayer player, ItemStack expected) {
@@ -102,7 +102,7 @@ public final class RelicPackets {
 		int pendingCost = pending == null || pending.ability() == null
 				? 0 : PowerEnergy.cost(player, pending.ability());
 		int auxiliary = ArtifactEnergyReservoir.stored(stack);
-		ServerPlayNetworking.send(player, new OpenReservoirPayload(slot, data.energy(),
+		PowersPlayNetworking.send(player, new OpenReservoirPayload(slot, data.energy(),
 				data.energyCapacity(), auxiliary, ArtifactEnergyReservoir.capacity(relic.texture()),
 				pendingCost, ArtifactEnergyReservoir.shortfall(data.energy(), auxiliary, pendingCost)));
 	}

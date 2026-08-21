@@ -95,18 +95,17 @@ public final class CompanionPackets {
 		PayloadTypeRegistry.clientboundPlay().register(StatePayload.TYPE, StatePayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(StatusPayload.TYPE, StatusPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(InteractPayload.TYPE, InteractPayload.STREAM_CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(InteractPayload.TYPE, (payload, context) ->
-				ServerPlayCallback.execute(context, player -> {
+		PowersPlayNetworking.registerReceiver(InteractPayload.TYPE, (payload, player) -> {
 					if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.COMPANION)) {
 						PrivateCompanionManager.interact(player, payload.sessionId());
 					}
-				}));
+				});
 	}
 
 	public static void sendStatus(ServerPlayer owner, boolean active, int energy,
 			String stance, boolean revealed, boolean suppressed, int recallTicks) {
 		if (!ServerPlayNetworking.canSend(owner, StatusPayload.TYPE)) return;
-		ServerPlayNetworking.send(owner, new StatusPayload(owner.getUUID(), active,
+		PowersPlayNetworking.send(owner, new StatusPayload(owner.getUUID(), active,
 				Math.clamp(energy, 0, com.powers.companion.ShadowCompanionRules.MAX_ENERGY),
 				com.powers.companion.ShadowCompanionRules.MAX_ENERGY,
 				stance == null ? "follow" : stance, revealed, suppressed,
@@ -138,7 +137,7 @@ public final class CompanionPackets {
 				ignored -> new CompanionPacketBudget(MAX_STATE_PACKETS_PER_TICK)).claim(tick)) {
 			return false;
 		}
-		ServerPlayNetworking.send(recipient, new StatePayload(ownerId, sessionId, active,
+		PowersPlayNetworking.send(recipient, new StatePayload(ownerId, sessionId, active,
 				teleport, dimension, x, y, z, yaw));
 		ServerRuntimeMetrics.recordPacket(server, tick);
 		return true;

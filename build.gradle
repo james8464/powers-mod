@@ -268,7 +268,7 @@ tasks.named("processGametestResources") {
 }
 
 tasks.named("runGameTest") {
-	if (compatibilityGameTestsEnabled && providers.gradleProperty("gameTestFilter").isPresent()) {
+	if (providers.gradleProperty("gameTestFilter").isPresent()) {
 		systemProperty "fabric-api.gametest.filter", providers.gradleProperty("gameTestFilter").get()
 	} else if (perf016BenchmarkEnabled) {
 		systemProperty "fabric-api.gametest.filter",

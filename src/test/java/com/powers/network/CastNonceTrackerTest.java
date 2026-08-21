@@ -14,9 +14,11 @@ class CastNonceTrackerTest {
 		UUID owner = UUID.randomUUID();
 		UUID stranger = UUID.randomUUID();
 		UUID nonce = tracker.issue(owner, 20);
+		assertTrue(tracker.contains(owner));
 
 		assertFalse(tracker.consume(stranger, nonce, 21));
 		assertTrue(tracker.consume(owner, nonce, 21));
+		assertFalse(tracker.contains(owner));
 		assertFalse(tracker.consume(owner, nonce, 22));
 	}
 

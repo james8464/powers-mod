@@ -157,7 +157,7 @@ public final class SemanticFxTransport {
 				server.getCompressionThreshold());
 		MutableMetrics metrics = metrics(server);
 		if (plan.batch()) {
-			ServerPlayNetworking.send(observer,
+			PowersPlayNetworking.send(observer,
 					new MagicFxPackets.SemanticFxBatchPayload(plan.entries()));
 			ServerRuntimeMetrics.recordPacket(server, server.getTickCount());
 			metrics.batchPackets++;
@@ -172,13 +172,13 @@ public final class SemanticFxTransport {
 	private static boolean sendIndividual(ServerPlayer observer, MagicFxPackets.BatchEntry entry) {
 		if (entry.magic() != null
 				&& ServerPlayNetworking.canSend(observer, MagicFxPackets.MagicFxPayload.TYPE)) {
-			ServerPlayNetworking.send(observer, entry.magic());
+			if (!PowersPlayNetworking.send(observer, entry.magic())) return false;
 		} else if (entry.beam() != null
 				&& ServerPlayNetworking.canSend(observer, MagicFxPackets.BeamFxPayload.TYPE)) {
-			ServerPlayNetworking.send(observer, entry.beam());
+			if (!PowersPlayNetworking.send(observer, entry.beam())) return false;
 		} else if (entry.shape() != null
 				&& ServerPlayNetworking.canSend(observer, MagicFxPackets.ShapeFxPayload.TYPE)) {
-			ServerPlayNetworking.send(observer, entry.shape());
+			if (!PowersPlayNetworking.send(observer, entry.shape())) return false;
 		} else {
 			return false;
 		}

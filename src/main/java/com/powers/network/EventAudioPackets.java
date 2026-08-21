@@ -83,7 +83,6 @@ public final class EventAudioPackets {
 
 	public static boolean send(ServerPlayer player, Cue cue, FxLodTier tier, float pitch) {
 		if (!ServerPlayNetworking.canSend(player, Payload.TYPE)) return false;
-		ServerPlayNetworking.send(player, new Payload(cue, tier, pitch));
-		return true;
+		return PowersPlayNetworking.send(player, new Payload(cue, tier, pitch));
 	}
 }

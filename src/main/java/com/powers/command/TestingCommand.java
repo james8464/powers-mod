@@ -1,6 +1,7 @@
 package com.powers.command;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -90,6 +91,15 @@ final class TestingCommand {
 				.then(Commands.literal("fx-capture")
 						.then(Commands.argument("duplicates", IntegerArgumentType.integer(4, 4_096))
 								.executes(TestingCommand::captureDuplicateFx)))
+				.then(Commands.literal("packets")
+						.executes(TestingCommand::packetFaultStatus)
+						.then(Commands.literal("status").executes(TestingCommand::packetFaultStatus))
+						.then(Commands.literal("off").executes(TestingCommand::disablePacketFaults))
+						.then(Commands.literal("reset").executes(TestingCommand::resetPacketFaults))
+						.then(Commands.literal("profile")
+								.then(Commands.argument("name", StringArgumentType.word())
+										.then(Commands.argument("seed", LongArgumentType.longArg())
+												.executes(TestingCommand::configurePacketFaults)))))
 				.then(Commands.literal("arena")
 						.executes(TestingCommand::spawnArena)
 						.then(Commands.literal("spawn").executes(TestingCommand::spawnArena))
@@ -305,8 +315,45 @@ final class TestingCommand {
 			throws CommandSyntaxException {
 		ServerPlayer player = context.getSource().getPlayerOrException();
 		TestingOverrides.clear(player.getUUID());
+		com.powers.testing.network.PacketFaultController.configure(
+				context.getSource().getServer(),
+				com.powers.testing.network.PacketFaultProfile.disabled());
 		audit(context, player, "reset");
 		return status(context);
+	}
+
+	private static int configurePacketFaults(CommandContext<CommandSourceStack> context) {
+		String name = StringArgumentType.getString(context, "name");
+		long seed = LongArgumentType.getLong(context, "seed");
+		try {
+			com.powers.testing.network.PacketFaultController.configure(
+					context.getSource().getServer(),
+					com.powers.testing.network.PacketFaultProfile.named(name, seed));
+			return packetFaultStatus(context);
+		} catch (IllegalArgumentException error) {
+			context.getSource().sendFailure(Component.literal(error.getMessage()));
+			return 0;
+		}
+	}
+
+	private static int disablePacketFaults(CommandContext<CommandSourceStack> context) {
+		com.powers.testing.network.PacketFaultController.configure(
+				context.getSource().getServer(),
+				com.powers.testing.network.PacketFaultProfile.disabled());
+		return packetFaultStatus(context);
+	}
+
+	private static int resetPacketFaults(CommandContext<CommandSourceStack> context) {
+		com.powers.testing.network.PacketFaultController.reset(context.getSource().getServer());
+		return packetFaultStatus(context);
+	}
+
+	private static int packetFaultStatus(CommandContext<CommandSourceStack> context) {
+		context.getSource().sendSuccess(() -> Component.literal(
+				com.powers.testing.network.PacketFaultController
+						.diagnostics(context.getSource().getServer()).line())
+				.withStyle(ChatFormatting.AQUA), false);
+		return 1;
 	}
 
 	private static int setAll(CommandContext<CommandSourceStack> context, boolean enabled)

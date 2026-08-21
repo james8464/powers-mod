@@ -76,7 +76,7 @@ public final class BodyProxyPackets {
 
 	public static void send(ServerPlayer observer, int entityId, BodySnapshot snapshot) {
 		if (ServerPlayNetworking.canSend(observer, BodySnapshotPayload.TYPE)) {
-			ServerPlayNetworking.send(observer, new BodySnapshotPayload(entityId, encode(snapshot)));
+			PowersPlayNetworking.send(observer, new BodySnapshotPayload(entityId, encode(snapshot)));
 		}
 	}
 
@@ -92,7 +92,7 @@ public final class BodyProxyPackets {
 		BodySnapshotPayload payload = new BodySnapshotPayload(body.getId(), "");
 		for (ServerPlayer observer : PlayerLookup.tracking(body)) {
 			if (ServerPlayNetworking.canSend(observer, BodySnapshotPayload.TYPE)) {
-				ServerPlayNetworking.send(observer, payload);
+				PowersPlayNetworking.send(observer, payload);
 			}
 		}
 	}

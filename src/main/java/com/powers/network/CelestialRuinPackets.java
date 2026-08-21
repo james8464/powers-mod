@@ -77,7 +77,7 @@ public final class CelestialRuinPackets {
 			var lod = FxLodPolicy.decide(Math.sqrt(distanceSquared), 640,
 					FxLodScope.CATASTROPHIC, FxShapeFamily.COLUMN);
 			if (!lod.visible()) continue;
-			ServerPlayNetworking.send(player,
+			PowersPlayNetworking.send(player,
 					new Payload(phase, center.x, center.y, center.z, age, lod.tier()));
 			ServerRuntimeMetrics.recordPacket(level.getServer(), level.getServer().getTickCount());
 		}

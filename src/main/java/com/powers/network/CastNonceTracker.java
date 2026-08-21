@@ -43,4 +43,8 @@ final class CastNonceTracker {
 	int size() {
 		return sessions.size();
 	}
+
+	boolean contains(UUID owner) {
+		return sessions.containsKey(owner);
+	}
 }

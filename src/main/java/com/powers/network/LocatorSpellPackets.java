@@ -63,7 +63,7 @@ final class LocatorSpellPackets {
 	static void open(ServerPlayer player, CelestialSearchMode mode) {
 		UUID nonce = NONCES.issue(player.getUUID(), player.level().getServer().getTickCount());
 		MODES.put(player.getUUID(), mode);
-		ServerPlayNetworking.send(player, new PowersPackets.OpenLocatorScreenPayload(mode, nonce));
+		PowersPlayNetworking.send(player, new PowersPackets.OpenLocatorScreenPayload(mode, nonce));
 	}
 
 	static void forget(UUID owner) {
@@ -76,12 +76,14 @@ final class LocatorSpellPackets {
 		MODES.clear();
 	}
 
-	static void handleLocate(PowersPackets.LocateTargetPayload payload, ServerPlayNetworking.Context context) {
-		ServerPlayCallback.execute(context, player -> {
-			if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.LOCATOR)) {
-				locate(player, payload, player.level().getServer().getTickCount());
-			}
-		});
+	static boolean hasPendingNonce(UUID owner) {
+		return NONCES.contains(owner);
+	}
+
+	static void handleLocate(PowersPackets.LocateTargetPayload payload, ServerPlayer player) {
+		if (PacketRateLimiter.allow(player, PacketRateLimiter.Lane.LOCATOR)) {
+			locate(player, payload, player.level().getServer().getTickCount());
+		}
 	}
 
 	private static void locate(ServerPlayer player, PowersPackets.LocateTargetPayload payload, long currentTick) {
