@@ -15,6 +15,8 @@ import stat
 import sys
 from typing import Any
 from urllib.parse import urlsplit
+from urllib.error import HTTPError, URLError
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 
 REQUIRED_ARTIFACT_FIELDS = (
@@ -138,16 +140,62 @@ def digest_descriptor(descriptor: int) -> tuple[int, str]:
     return size, digest.hexdigest()
 
 
-def verify_artifact(artifact: dict[str, Any], cache: Path) -> int:
-    path = cache / artifact["filename"]
+def open_cache_directory(
+        cache: Path, *, create: bool, allowed_root: Path | None = None) -> int:
+    absolute = cache.absolute()
+    root = (allowed_root if allowed_root is not None else absolute.parent).absolute()
+    try:
+        relative = absolute.relative_to(root)
+    except ValueError as exception:
+        raise CompatibilityError("unsafe cache directory: outside allowed root") from exception
+    if not relative.parts:
+        raise CompatibilityError("unsafe cache directory: root cannot be the cache")
+    try:
+        root_info = root.lstat()
+        if stat.S_ISLNK(root_info.st_mode) or not stat.S_ISDIR(root_info.st_mode):
+            raise CompatibilityError("unsafe cache directory: invalid allowed root")
+        current = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    except OSError as exception:
+        raise CompatibilityError(f"unsafe cache directory: {exception}") from exception
+    try:
+        for part in relative.parts:
+            try:
+                child = os.open(
+                    part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                    dir_fd=current)
+            except FileNotFoundError:
+                if not create:
+                    raise CompatibilityError(
+                        f"unsafe cache directory: missing {absolute}") from None
+                try:
+                    os.mkdir(part, mode=0o700, dir_fd=current)
+                    child = os.open(
+                        part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                        dir_fd=current)
+                except OSError as exception:
+                    raise CompatibilityError(
+                        f"unsafe cache directory: {exception}") from exception
+            except OSError as exception:
+                raise CompatibilityError(
+                    f"unsafe cache directory: {exception}") from exception
+            os.close(current)
+            current = child
+        return current
+    except BaseException:
+        os.close(current)
+        raise
+
+
+def verify_artifact_at(artifact: dict[str, Any], cache: int) -> int:
+    name = artifact["filename"]
     identifier = artifact["id"]
     try:
-        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+        descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=cache)
     except OSError as exception:
-        raise CompatibilityError(f"{identifier}: missing cached artifact {path}")
+        raise CompatibilityError(f"{identifier}: missing cached artifact {name}") from exception
     try:
         metadata = os.fstat(descriptor)
-        if not stat.S_ISREG(metadata.st_mode):
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
             raise CompatibilityError(f"{identifier}: cached artifact is not a regular file")
         size, digest = digest_descriptor(descriptor)
         if size != artifact["size"]:
@@ -160,10 +208,115 @@ def verify_artifact(artifact: dict[str, Any], cache: Path) -> int:
         raise
 
 
-def verify(manifest: dict[str, Any], cache: Path) -> None:
+def verify_artifact(
+        artifact: dict[str, Any], cache: Path,
+        allowed_root: Path | None = None) -> int:
+    directory = open_cache_directory(
+        cache, create=False, allowed_root=allowed_root)
+    try:
+        return verify_artifact_at(artifact, directory)
+    finally:
+        os.close(directory)
+
+
+def verify(
+        manifest: dict[str, Any], cache: Path,
+        allowed_root: Path | None = None) -> None:
     for artifact in manifest["artifacts"]:
-        descriptor = verify_artifact(artifact, cache)
+        descriptor = verify_artifact(artifact, cache, allowed_root)
         os.close(descriptor)
+
+
+class _NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, request, file_pointer, code, message, headers, new_url):
+        return None
+
+
+def fetch(
+        manifest: dict[str, Any], cache: Path, *,
+        allowed_root: Path | None = None, opener=None) -> list[str]:
+    directory = open_cache_directory(
+        cache, create=True, allowed_root=allowed_root)
+    downloaded: list[str] = []
+    if opener is None:
+        client = build_opener(_NoRedirect())
+        open_request = lambda request: client.open(request, timeout=60)
+    else:
+        open_request = opener
+    try:
+        for artifact in manifest["artifacts"]:
+            name = artifact["filename"]
+            try:
+                existing = verify_artifact_at(artifact, directory)
+            except CompatibilityError:
+                try:
+                    metadata = os.stat(name, dir_fd=directory, follow_symlinks=False)
+                except FileNotFoundError:
+                    metadata = None
+                if metadata is not None and (
+                        not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1):
+                    raise CompatibilityError(
+                        f"{artifact['id']}: unsafe cached artifact {name}")
+            else:
+                os.close(existing)
+                continue
+
+            temporary = f".powers-download-{secrets.token_hex(12)}.tmp"
+            output = -1
+            try:
+                output = os.open(
+                    temporary,
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                    0o600,
+                    dir_fd=directory,
+                )
+                request = Request(
+                    artifact["downloadUrl"],
+                    headers={"User-Agent": "POWERS-compatibility-harness/1"})
+                with open_request(request) as response:
+                    if (getattr(response, "status", None) != 200
+                            or response.geturl() != artifact["downloadUrl"]):
+                        raise CompatibilityError(
+                            f"{artifact['id']}: unexpected download response")
+                    digest = hashlib.sha256()
+                    size = 0
+                    while block := response.read(1024 * 1024):
+                        size += len(block)
+                        if size > artifact["size"]:
+                            raise CompatibilityError(
+                                f"{artifact['id']}: downloaded artifact mismatch")
+                        digest.update(block)
+                        view = memoryview(block)
+                        while view:
+                            written = os.write(output, view)
+                            if written <= 0:
+                                raise OSError("short compatibility download write")
+                            view = view[written:]
+                if size != artifact["size"] or digest.hexdigest() != artifact["sha256"]:
+                    raise CompatibilityError(
+                        f"{artifact['id']}: downloaded artifact mismatch")
+                os.fsync(output)
+                os.close(output)
+                output = -1
+                os.replace(
+                    temporary, name, src_dir_fd=directory, dst_dir_fd=directory)
+                os.fsync(directory)
+                verified = verify_artifact_at(artifact, directory)
+                os.close(verified)
+                downloaded.append(artifact["id"])
+            except (HTTPError, URLError, OSError) as exception:
+                raise CompatibilityError(
+                    f"{artifact['id']}: compatibility download failed: {exception}") from exception
+            finally:
+                if output >= 0:
+                    os.close(output)
+                try:
+                    os.unlink(temporary, dir_fd=directory)
+                except FileNotFoundError:
+                    pass
+        return downloaded
+    finally:
+        os.close(directory)
 
 
 def safe_run_directory(run_dir: Path, allowed_root: Path) -> tuple[Path, str]:
@@ -387,10 +540,12 @@ def sanitize(source: Path, output: Path, identities: list[str]) -> None:
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser()
     subcommands = result.add_subparsers(dest="command", required=True)
-    for name in ("verify", "assemble"):
+    for name in ("fetch", "verify", "assemble"):
         command = subcommands.add_parser(name)
         command.add_argument("--manifest", type=Path, required=True)
         command.add_argument("--cache", type=Path, required=True)
+        if name in ("fetch", "verify"):
+            command.add_argument("--allowed-root", type=Path)
         if name == "assemble":
             command.add_argument("--profile", required=True)
             command.add_argument("--side", choices=("client", "server"), required=True)
@@ -411,8 +566,12 @@ def main(arguments: list[str] | None = None) -> int:
             print(f"Sanitized {options.input} -> {options.output}")
             return 0
         manifest = load_manifest(options.manifest)
-        if options.command == "verify":
-            verify(manifest, options.cache)
+        if options.command == "fetch":
+            downloaded = fetch(
+                manifest, options.cache, allowed_root=options.allowed_root)
+            print(f"Fetched {len(downloaded)} pinned compatibility artifacts")
+        elif options.command == "verify":
+            verify(manifest, options.cache, options.allowed_root)
             print(f"Verified {len(manifest['artifacts'])} pinned compatibility artifacts")
         else:
             selected = assemble(

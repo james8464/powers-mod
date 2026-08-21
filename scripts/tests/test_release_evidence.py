@@ -276,6 +276,21 @@ class ReleaseEvidenceTest(unittest.TestCase):
                 with self.assertRaisesRegex(ReleaseContractError, "rawPath"):
                     self.validate(self.row(path, kind, validator, result), path)
 
+    def test_review_validation_carries_the_exact_retained_raw_snapshot(self):
+        with tempfile.TemporaryDirectory() as raw:
+            directory = Path(raw)
+            path = self.review_bundle(directory)
+            row = self.row(
+                path, "visual", "visual-review", {"decisions": 1})
+            snapshots = []
+            accepted = EVIDENCE.validate_evidence(
+                row, path, COMMIT, raw_snapshots=snapshots)
+            self.assertEqual(1, accepted["decisions"])
+            self.assertEqual(1, len(snapshots))
+            (directory / "raw/frame.png").write_bytes(b"replacement frame")
+            with self.assertRaisesRegex(ReleaseContractError, "changed after validation"):
+                EVIDENCE.recheck_regular_snapshot(snapshots[0])
+
     def test_generic_typed_families_require_exact_commit_and_passed_state(self):
         fixtures = (
             ("packet-fault", "packet-fault", {"profiles": 6, "clientConverged": True}),

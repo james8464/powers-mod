@@ -6,7 +6,7 @@ import os
 import re
 import stat
 import xml.etree.ElementTree as ElementTree
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Callable, Mapping
 
 from release_contract import (
@@ -17,8 +17,8 @@ from release_contract import (
     SHA256_PATTERN,
     EvidenceRow,
     ReleaseContractError,
-    safe_regular_file,
-    sha256_file,
+    read_regular_snapshot,
+    recheck_regular_snapshot,
     validate_packaged_text,
 )
 
@@ -308,7 +308,10 @@ def _validate_runtime(runtime: object, identifier: str) -> None:
 
 def _validate_review(
         row: EvidenceRow, path: Path, expected_commit: str,
-        content: bytes) -> dict[str, object]:
+        content: bytes,
+        raw_snapshots: list[object] | None = None,
+        raw_root: Path | None = None,
+        raw_prefix: PurePosixPath | None = None) -> dict[str, object]:
     data = _json(path, content)
     _passed(data, expected_commit, f"{row.kind} review")
     decisions = data.get("decisions")
@@ -330,12 +333,17 @@ def _validate_review(
         raw_path = decision.get("rawPath")
         if not isinstance(raw_path, str):
             raise ReleaseContractError(f"review {identifier}: rawPath is required")
-        raw = safe_regular_file(path.parent, raw_path)
+        root = raw_root or path.parent
+        relative = raw_path if raw_prefix is None else (raw_prefix / raw_path).as_posix()
+        raw = read_regular_snapshot(
+            root, relative, maximum_bytes=MAX_EVIDENCE_BYTES)
         expected_digest = decision.get("sha256")
         if not isinstance(expected_digest, str) or not SHA256_PATTERN.fullmatch(expected_digest):
             raise ReleaseContractError(f"review {identifier}: raw SHA-256 is invalid")
-        if sha256_file(raw) != expected_digest:
+        if raw.sha256 != expected_digest:
             raise ReleaseContractError(f"review {identifier}: raw SHA-256 mismatch")
+        if raw_snapshots is not None:
+            raw_snapshots.append(raw)
         _validate_runtime(decision.get("runtime"), identifier)
     return {"decisions": expected_count, "decisionIds": sorted(identifiers)}
 
@@ -417,7 +425,11 @@ VALIDATORS: Mapping[
 
 
 def validate_evidence(
-        row: EvidenceRow, path: Path, expected_commit: str) -> dict[str, object]:
+        row: EvidenceRow, path: Path, expected_commit: str, *,
+        content: bytes | None = None,
+        raw_snapshots: list[object] | None = None,
+        raw_root: Path | None = None,
+        raw_prefix: PurePosixPath | None = None) -> dict[str, object]:
     if not isinstance(expected_commit, str) or not COMMIT_PATTERN.fullmatch(expected_commit):
         raise ReleaseContractError("expected commit is not a full lowercase SHA")
     if row.commit not in (expected_commit, HEAD_BINDING):
@@ -425,10 +437,14 @@ def validate_evidence(
     expected_validator = EVIDENCE_VALIDATORS.get(row.kind)
     if expected_validator is None or row.validator != expected_validator or row.validator not in VALIDATORS:
         raise ReleaseContractError(f"evidence {row.id}: validator is not registered")
-    content = _read_bytes(path)
+    content = _read_bytes(path) if content is None else content
     if len(content) != row.size:
         raise ReleaseContractError(f"evidence {row.id}: size mismatch")
     if hashlib.sha256(content).hexdigest() != row.sha256:
         raise ReleaseContractError(f"evidence {row.id}: SHA-256 mismatch")
     validate_packaged_text(_text(path, content))
+    if row.validator in ("manual-review", "visual-review"):
+        return _validate_review(
+            row, path, expected_commit, content, raw_snapshots,
+            raw_root, raw_prefix)
     return VALIDATORS[row.validator](row, path, expected_commit, content)

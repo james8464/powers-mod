@@ -120,6 +120,18 @@ class EvidenceManifest:
     rows: tuple[EvidenceRow, ...]
 
 
+@dataclass(frozen=True, slots=True)
+class RegularFileSnapshot:
+    root: Path
+    relative: str
+    content: bytes
+    size: int
+    sha256: str
+    device: int
+    inode: int
+    modified_ns: int
+
+
 def _is_plain_int(value: object) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
 
@@ -182,18 +194,22 @@ def _string_vector(value: object, label: str) -> tuple[str, ...]:
     return tuple(value)
 
 
+def _decode_json(data: bytes, label: object) -> object:
+    if len(data) > MAX_JSON_BYTES:
+        raise ReleaseContractError(f"{label}: JSON exceeds {MAX_JSON_BYTES} bytes")
+    try:
+        return json.loads(data.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ReleaseContractError(f"{label}: invalid JSON: {error}") from error
+
+
 def _read_json(path: Path) -> object:
     try:
         with path.open("rb") as source:
             data = source.read(MAX_JSON_BYTES + 1)
     except (OSError, ValueError) as error:
         raise ReleaseContractError(f"{path}: cannot read JSON: {error}") from error
-    if len(data) > MAX_JSON_BYTES:
-        raise ReleaseContractError(f"{path}: JSON exceeds {MAX_JSON_BYTES} bytes")
-    try:
-        return json.loads(data.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError) as error:
-        raise ReleaseContractError(f"{path}: invalid JSON: {error}") from error
+    return _decode_json(data, path)
 
 
 def _source_url(value: object) -> str:
@@ -208,8 +224,10 @@ def _source_url(value: object) -> str:
     return value
 
 
-def load_catalogue(path: Path) -> GateCatalogue:
-    data = _object(_read_json(path), "catalogue")
+def load_catalogue(path: Path, *, content: bytes | None = None) -> GateCatalogue:
+    data = _object(
+        _read_json(path) if content is None else _decode_json(content, path),
+        "catalogue")
     required = {
         "schemaVersion", "repository", "outputRoot", "environmentAllowlist",
         "commands", "evidence", "artifacts",
@@ -289,8 +307,11 @@ def load_catalogue(path: Path) -> GateCatalogue:
         tuple(evidence), tuple(artifacts), source_urls)
 
 
-def load_evidence_manifest(path: Path) -> EvidenceManifest:
-    data = _object(_read_json(path), "evidence manifest")
+def load_evidence_manifest(
+        path: Path, *, content: bytes | None = None) -> EvidenceManifest:
+    data = _object(
+        _read_json(path) if content is None else _decode_json(content, path),
+        "evidence manifest")
     _exact_keys(data, {"schemaVersion", "commit", "rows"}, set(), "evidence manifest")
     if not _is_plain_int(data["schemaVersion"]) or data["schemaVersion"] != SCHEMA_VERSION:
         raise ReleaseContractError("evidence manifest schemaVersion: expected 1")
@@ -381,6 +402,85 @@ def safe_regular_file(root: Path, relative: str) -> Path:
     return target
 
 
+def read_regular_snapshot(
+        root: Path, relative: str, *, maximum_bytes: int) -> RegularFileSnapshot:
+    if (not isinstance(maximum_bytes, int) or isinstance(maximum_bytes, bool)
+            or maximum_bytes <= 0):
+        raise ReleaseContractError("maximum bytes must be a positive integer")
+    root = _safe_directory(root)
+    clean = _relative_path(relative, "file")
+    parts = PurePosixPath(clean).parts
+    descriptor = os.open(
+        root, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+        | getattr(os, "O_NOFOLLOW", 0))
+    parent_descriptor = descriptor
+    file_descriptor = -1
+    try:
+        for part in parts[:-1]:
+            try:
+                child = os.open(
+                    part,
+                    os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+                    | getattr(os, "O_NOFOLLOW", 0),
+                    dir_fd=parent_descriptor)
+            except OSError as error:
+                raise ReleaseContractError(f"unsafe path {relative}: {error}") from error
+            if parent_descriptor != descriptor:
+                os.close(parent_descriptor)
+            parent_descriptor = child
+        try:
+            file_descriptor = os.open(
+                parts[-1], os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0),
+                dir_fd=parent_descriptor)
+        except OSError as error:
+            raise ReleaseContractError(f"unsafe file {relative}: {error}") from error
+        before = os.fstat(file_descriptor)
+        if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1
+                or before.st_size <= 0 or before.st_size > maximum_bytes):
+            raise ReleaseContractError(f"unsafe file {relative}")
+        blocks: list[bytes] = []
+        total = 0
+        digest = hashlib.sha256()
+        while block := os.read(file_descriptor, min(1024 * 1024, maximum_bytes + 1 - total)):
+            total += len(block)
+            if total > maximum_bytes:
+                raise ReleaseContractError(f"file exceeds {maximum_bytes} bytes: {relative}")
+            blocks.append(block)
+            digest.update(block)
+        after = os.fstat(file_descriptor)
+        current = os.stat(parts[-1], dir_fd=parent_descriptor, follow_symlinks=False)
+        identity = (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns)
+        if (identity != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns)
+                or (after.st_dev, after.st_ino) != (current.st_dev, current.st_ino)
+                or total != after.st_size):
+            raise ReleaseContractError(f"file changed while reading: {relative}")
+        return RegularFileSnapshot(
+            root, clean, b"".join(blocks), total, digest.hexdigest(),
+            after.st_dev, after.st_ino, after.st_mtime_ns)
+    finally:
+        if file_descriptor >= 0:
+            os.close(file_descriptor)
+        if parent_descriptor != descriptor:
+            os.close(parent_descriptor)
+        os.close(descriptor)
+
+
+def recheck_regular_snapshot(snapshot: RegularFileSnapshot) -> None:
+    try:
+        current = read_regular_snapshot(
+            snapshot.root, snapshot.relative,
+            maximum_bytes=max(snapshot.size, 1))
+    except ReleaseContractError as error:
+        raise ReleaseContractError(
+            f"file changed after validation: {snapshot.relative}") from error
+    if ((current.device, current.inode, current.size, current.modified_ns,
+         current.sha256, current.content)
+            != (snapshot.device, snapshot.inode, snapshot.size,
+                snapshot.modified_ns, snapshot.sha256, snapshot.content)):
+        raise ReleaseContractError(
+            f"file changed after validation: {snapshot.relative}")
+
+
 def sha256_file(path: Path) -> str:
     flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
     descriptor = os.open(path, flags)
@@ -468,6 +568,8 @@ _TOKEN = re.compile(r"(?i)\b(?:token|password|passwd|secret)\s*[=:]\s*\S{8,}")
 _CREDENTIAL_URL = re.compile(r"https?://[^\s/@:]+:[^\s/@]+@")
 _ABSOLUTE_PATH = re.compile(r"(?<![A-Za-z0-9_.-])/(?:Users|home|private|var/folders|tmp)/[^\s]+")
 _IPV4 = re.compile(r"(?<![0-9.])(?:[0-9]{1,3}\.){3}[0-9]{1,3}(?![0-9.])")
+_IPV6_CANDIDATE = re.compile(
+    r"(?<![0-9A-Za-z])\[?[0-9A-Fa-f:]{2,}\]?(?![0-9A-Za-z])")
 _ALLOWED_IPV4_NETWORKS = tuple(ipaddress.ip_network(value) for value in (
     "0.0.0.0/32", "10.0.0.0/8", "127.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"))
 
@@ -489,4 +591,14 @@ def validate_packaged_text(text: str) -> None:
         except ValueError:
             raise ReleaseContractError("packaged text contains malformed IP address")
         if not any(address in network for network in _ALLOWED_IPV4_NETWORKS):
+            raise ReleaseContractError("packaged text contains public IP address")
+    for match in _IPV6_CANDIDATE.finditer(text):
+        candidate = match.group(0).strip("[]")
+        if candidate.count(":") < 2:
+            continue
+        try:
+            address = ipaddress.ip_address(candidate)
+        except ValueError:
+            continue
+        if address.version == 6 and address.is_global:
             raise ReleaseContractError("packaged text contains public IP address")

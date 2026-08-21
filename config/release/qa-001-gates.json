@@ -1,11 +1,9 @@
 {
   "schemaVersion": 1,
   "repository": "james8464/powers-mod",
-  "outputRoot": "build/release-envelope",
+  "outputRoot": ".release-envelope",
   "environmentAllowlist": [
-    "JAVA_HOME",
     "JAVA_VERSION",
-    "GRADLE_USER_HOME",
     "POWERS_TEST_RUN_ID",
     "GITHUB_RUN_ID",
     "GITHUB_RUN_ATTEMPT",
@@ -25,6 +23,11 @@
     {
       "id": "client-gametests",
       "argv": ["./gradlew", "runClientGameTest", "--rerun-tasks", "--no-daemon", "--console=plain"],
+      "validator": "command-receipt"
+    },
+    {
+      "id": "compatibility-artifacts",
+      "argv": ["python3", "-B", "scripts/compatibility_harness.py", "fetch", "--manifest", "config/compatibility/net-011.json", "--cache", ".compatibility-cache/net-011", "--allowed-root", "."],
       "validator": "command-receipt"
     },
     {
