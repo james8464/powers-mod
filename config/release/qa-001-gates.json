@@ -36,6 +36,11 @@
       "id": "dedicated-server-smoke",
       "argv": ["python3", "-B", "scripts/server_smoke.py"],
       "validator": "command-receipt"
+    },
+    {
+      "id": "release-artifacts",
+      "argv": ["./gradlew", "remapJar", "sourcesJar", "--rerun-tasks", "--no-daemon"],
+      "validator": "command-receipt"
     }
   ],
   "evidence": [
