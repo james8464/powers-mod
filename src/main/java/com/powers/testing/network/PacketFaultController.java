@@ -25,9 +25,10 @@ public final class PacketFaultController {
 		private final Set<UUID> active = new HashSet<>();
 		private final Map<UUID, LiveMarker> liveMarkers = new HashMap<>();
 
-		private Session(PacketFaultProfile profile, Set<Integer> scopedEntityIds) {
+		private Session(PacketFaultProfile profile, Set<Integer> scopedEntityIds,
+				PacketFaultServerBudget serverBudget) {
 			this.profile = profile;
-			this.engine = new PacketFaultEngine(profile);
+			this.engine = new PacketFaultEngine(profile, serverBudget);
 			this.scopedEntityIds = Set.copyOf(scopedEntityIds);
 		}
 
@@ -36,6 +37,7 @@ public final class PacketFaultController {
 		}
 	}
 	private static final class ServerSessions {
+		private final PacketFaultServerBudget budget = new PacketFaultServerBudget();
 		private Session global;
 		private final Map<Integer, Session> scoped = new HashMap<>();
 
@@ -80,7 +82,7 @@ public final class PacketFaultController {
 			return;
 		}
 		if (sessions.global != null) sessions.global.engine.cancelAll();
-		sessions.global = createSession(server, profile, Set.of());
+		sessions.global = createSession(server, profile, Set.of(), sessions.budget);
 	}
 
 	/** Scopes live GameTest faulting so unrelated concurrent test players keep ordinary networking. */
@@ -102,7 +104,7 @@ public final class PacketFaultController {
 			Session previous = sessions.scoped.get(entityId);
 			if (previous != null) previous.engine.cancelAll();
 		}
-		Session session = createSession(server, profile, entityIds);
+		Session session = createSession(server, profile, entityIds, sessions.budget);
 		for (int entityId : entityIds) sessions.scoped.put(entityId, session);
 	}
 
@@ -172,10 +174,12 @@ public final class PacketFaultController {
 	public static void tick(MinecraftServer server) {
 		ServerSessions sessions = SESSIONS.get(server);
 		if (sessions == null) return;
-		for (Session session : sessions.all()) tick(server, session);
+		Set<Session> active = sessions.all();
+		for (Session session : active) refreshLifecycle(server, session);
+		sessions.budget.tick(active.stream().map(session -> session.engine).toList(), server.getTickCount());
 	}
 
-	private static void tick(MinecraftServer server, Session session) {
+	private static void refreshLifecycle(MinecraftServer server, Session session) {
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 			if (!session.includes(player)) continue;
 			LiveMarker current = marker(player);
@@ -185,7 +189,6 @@ public final class PacketFaultController {
 			session.engine.clear(new PacketFaultConnection(player.getUUID(), generation));
 			session.generations.put(player.getUUID(), generation + 1L);
 		}
-		session.engine.tick(server.getTickCount());
 	}
 
 	public static Diagnostics diagnostics(MinecraftServer server) {
@@ -249,8 +252,8 @@ public final class PacketFaultController {
 	}
 
 	private static Session createSession(MinecraftServer server, PacketFaultProfile profile,
-			Set<Integer> entityIds) {
-		Session session = new Session(profile, entityIds);
+			Set<Integer> entityIds, PacketFaultServerBudget serverBudget) {
+		Session session = new Session(profile, entityIds, serverBudget);
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 			if (!session.includes(player)) continue;
 			session.generations.put(player.getUUID(), 1L);

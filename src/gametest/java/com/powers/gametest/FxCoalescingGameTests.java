@@ -98,7 +98,8 @@ public final class FxCoalescingGameTests {
 		helper.runAfterDelay(3, () ->
 				PowerFx.eventRune(helper.getLevel(), center, 12.0, 0xFFF2A8, 64, 0.25));
 		helper.runAfterDelay(4, () -> observer.teleportTo(center.x + 1_800.0, center.y, center.z));
-		helper.runAfterDelay(5, () -> {
+		// Give the server tracking view time to observe the long-distance teleport under a busy batch.
+		helper.runAfterDelay(8, () -> {
 			PowerFx.eventRune(helper.getLevel(), center, 12.0, 0xFFF2A8, 64, 0.25);
 			PowerFx.eventSound(helper.getLevel(), center,
 					EventAudioPackets.Cue.LIGHT_HERALD, 3.0F, 0.65F);

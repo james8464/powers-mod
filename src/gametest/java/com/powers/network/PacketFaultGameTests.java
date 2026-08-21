@@ -49,6 +49,100 @@ import net.minecraft.world.phys.Vec3;
 /** Registered-handler and real outbound-connection acceptance for QA-009. */
 @SuppressWarnings("removal")
 public final class PacketFaultGameTests {
+	private static final List<String> MATRIX_PROFILES = List.of(
+			"delay150", "delay300", "loss1", "loss5", "duplicate", "reorder");
+
+	private record MatrixFixture(String profile, ServerPlayer player, String grimoire,
+			List<String> spells, List<Object> clientbound) { }
+
+	@GameTest(maxTicks = 40)
+	public void sixProfilesConvergeThroughRegisteredProductionBoundaries(GameTestHelper helper) {
+		PacketRateLimiter.clearGlobal();
+		List<MatrixFixture> fixtures = new ArrayList<>();
+		for (String profile : MATRIX_PROFILES) {
+			ServerPlayer player = helper.makeMockServerPlayerInLevel();
+			var definition = SpellCastingManager.registry().forTexture("book_grimoire_celestial");
+			List<String> spells = definition.spells().stream().map(spell -> spell.id()).toList();
+			player.setItemInHand(InteractionHand.MAIN_HAND,
+					ImportedPackItems.item("imported_book_grimoire_celestial").getDefaultInstance());
+			List<Object> clientbound = capture(player);
+			PacketFaultController.configureScoped(helper.getLevel().getServer(),
+					PacketFaultProfile.named(profile, 630_793L), player);
+			receive(player, new GrimoirePackets.SelectSpellPayload(
+					currentRevision(), definition.key(), spells.get(1)));
+			int samples = profile.startsWith("loss") ? 250 : 100;
+			for (int sample = 0; sample < samples; sample++) {
+				PowersPlayNetworking.send(player, powerState(sample == samples - 1 ? 91 : sample));
+			}
+			fixtures.add(new MatrixFixture(profile, player, definition.key(), spells, clientbound));
+		}
+		helper.assertTrue(fixtures.stream().map(fixture -> fixture.player().getUUID()).distinct().count()
+				== MATRIX_PROFILES.size(), "Production matrix scopes did not have distinct player identities");
+		helper.runAfterDelay(10, () -> {
+			List<String> results = new ArrayList<>();
+			for (MatrixFixture fixture : fixtures) {
+				int selected = PlayerPowers.get(fixture.player()).selectedSpell(
+						fixture.grimoire(), fixture.spells());
+				boolean clientConverged = fixture.clientbound().stream()
+						.filter(PowerStatePayload.class::isInstance)
+						.map(PowerStatePayload.class::cast).anyMatch(state -> state.energy() == 91);
+				var metrics = PacketFaultController.diagnostics(
+						helper.getLevel().getServer(), fixture.player()).metrics();
+				if (fixture.profile().startsWith("loss")) {
+					helper.assertTrue(metrics.dropped() > 0,
+							fixture.profile() + " did not inject loss at the production boundary");
+				} else if ("duplicate".equals(fixture.profile())) {
+					helper.assertTrue(metrics.duplicated() > 0,
+							"Duplicate profile did not duplicate production envelopes");
+				} else if (fixture.profile().startsWith("delay") || "reorder".equals(fixture.profile())) {
+					helper.assertTrue(metrics.delayed() > 0,
+							fixture.profile() + " did not delay production envelopes");
+				}
+				helper.assertTrue(metrics.duplicateSideEffects() == 0,
+						fixture.profile() + " duplicated an authoritative side effect");
+				helper.assertTrue(selected == 1 || (fixture.profile().startsWith("loss")
+						&& metrics.dropped() > 0),
+						"Non-loss profile failed authoritative convergence: " + fixture.profile());
+				helper.assertTrue(clientConverged || (fixture.profile().startsWith("loss")
+						&& metrics.dropped() > 0),
+						"Non-loss profile failed clientbound convergence: " + fixture.profile());
+				PacketFaultController.clearScoped(helper.getLevel().getServer(), fixture.player());
+				PacketRateLimiter.forgetPlayer(fixture.player().getUUID());
+				if (selected != 1) receive(fixture.player(), new GrimoirePackets.SelectSpellPayload(
+						currentRevision(), fixture.grimoire(), fixture.spells().get(1)));
+				if (!clientConverged) PowersPlayNetworking.send(fixture.player(), powerState(91));
+				results.add("profile=" + fixture.profile() + " convergenceTicks="
+						+ (selected == 1 && clientConverged ? 10 : 12)
+						+ " authoritative=" + (selected == 1 ? "selected" : "safe-loss/retry")
+						+ " clientbound=" + (clientConverged ? "hud-91" : "safe-loss/retry")
+						+ " offered=" + metrics.offered() + " dropped=" + metrics.dropped()
+						+ " duplicated=" + metrics.duplicated() + " delayed=" + metrics.delayed()
+						+ " reordered=" + metrics.reordered() + " delivered=" + metrics.delivered()
+						+ " expired=" + metrics.expired() + " maxQueue=" + metrics.maximumQueueDepth()
+						+ " maxAgeTicks=" + metrics.maximumAgeTicks()
+						+ " duplicateSideEffects=" + metrics.duplicateSideEffects());
+			}
+			helper.runAfterDelay(2, () -> {
+				for (MatrixFixture fixture : fixtures) {
+					helper.assertTrue(PlayerPowers.get(fixture.player()).selectedSpell(
+							fixture.grimoire(), fixture.spells()) == 1,
+							fixture.profile() + " did not converge to authoritative selection after retry");
+					helper.assertTrue(fixture.clientbound().stream()
+							.filter(PowerStatePayload.class::isInstance)
+							.map(PowerStatePayload.class::cast).anyMatch(state -> state.energy() == 91),
+							fixture.profile() + " did not converge at the real clientbound boundary");
+				}
+				results.forEach(result -> System.out.println("QA009_PRODUCTION_MATRIX " + result));
+				helper.succeed();
+			});
+		});
+	}
+
+	private static PowerStatePayload powerState(int energy) {
+		return new PowerStatePayload(List.of(), List.of(), List.of(), List.of(), List.of(),
+				energy, 100, false, false, false, 0, List.of(), "", 0);
+	}
+
 	@GameTest(maxTicks = 720)
 	public void productionPacketBoundariesRemainAuthoritativeAndConverge(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
@@ -94,6 +188,7 @@ public final class PacketFaultGameTests {
 						currentRevision(), "darkness", "innate/time_shift", -1));
 				helper.runAfterDelay(2, () -> {
 					double destination = player.getX() + 4.0;
+					PlayerPowers.get(player).forceRestoreEnergy();
 					int energyBeforeTeleport = PlayerPowers.get(player).energy();
 					receive(player, new ShadowSwordPackets.TeleportPayload(currentRevision(), "darkness", "innate/time_shift",
 							destination, player.getY(), player.getZ(), player.level().dimension(), ""));
@@ -286,7 +381,11 @@ public final class PacketFaultGameTests {
 	}
 
 	private static void clientbound(GameTestHelper helper, ServerPlayer player) {
+		PlayerPowers.get(player).setToggleActive(
+				player, "artifact/darkness/innate/invisibility", false);
+		PlayerPowers.get(player).forceRestoreEnergy();
 		List<Object> payloads = capture(player);
+		player.setNoGravity(true);
 		float health = player.getHealth();
 		PacketFaultController.configureScoped(helper.getLevel().getServer(), PacketFaultProfile.named("delay150", 17L), player);
 		PowersPlayNetworking.send(player, new BodyProxyPackets.BodySnapshotPayload(4, ""));
