@@ -9,7 +9,7 @@ Complete on direct `main`, starting from `edd898943b121aa3ef5a55044650fe502da2ea
 - Replaced 77 narration/comment lines with bounded authority, lifecycle, transaction, cleanup, or presentation invariants without changing gameplay behavior or mass-deleting useful comments.
 - Added a Java-aware comment lexer which ignores strings, characters, and escape-aware text blocks, keeps leading comment paragraphs together, audits inline comments independently, and reports the exact finding line inside multiline comments.
 - Rejects unfinished `TODO`/`FIXME`/`XXX`/`HACK` comments, vague/mechanical narration, unsupported certainty, undocumented public integration callables, wildcard/debug residue, files over 450 lines, and files over 350 lines with multiple externally visible behavioural class/interface owners.
-- Uses parse-only JDK syntax trees and doc trees for annotated top-level public types, multiline methods, explicit and compact constructors, nested/annotated interfaces, and meaningful contract vocabulary. Only exact `Override` or `java.lang.Override` annotations inherit contracts. A nested type is public surface only when explicitly public or implicitly public as an interface member; package-private/private helpers are excluded.
+- Uses parse-only JDK syntax trees and doc trees for annotated top-level public types, meaningful visible nested API type contracts, multiline methods, explicit and compact constructors, and nested/annotated interfaces. Only exact `Override` or `java.lang.Override` annotations inherit contracts. A nested type is public surface only when explicitly public or implicitly public as an interface member; package-private/private helpers are excluded.
 - Preserved and regenerated the exact `docs/quality/code-audit.md` inventory. Corrected its generator to use the declaration-adjacent public-type contract rather than unrelated helper Javadoc.
 
 ## RED/GREEN evidence
@@ -21,6 +21,7 @@ Complete on direct `main`, starting from `edd898943b121aa3ef5a55044650fe502da2ea
 5. Review RED: focused fixtures exposed declaration, exact-line, weak-token, mixed-owner, and escaped-text-block gaps; additional fixtures proved that a lone outcome verb and constructor-only data class are not meaningful contracts or behavioural owners. GREEN: the AST/comment policy passes all focused fixtures and the exact production scan.
 6. Aggregate RED: random chunk origins, reused mock-player state, and natural regeneration exposed three unrelated fixture assumptions. GREEN: the production tests now own deterministic perception geometry, ritual state, and health baselines; each passed in isolation and in the final aggregate.
 7. Re-review RED: five focused failures proved that annotated same-line public types, suffix-named fake overrides, package-private nested API methods, package-private top-level helpers, and package-private nested behavioural helpers escaped or polluted the policy. GREEN: one AST visibility model now drives type documentation, callable reachability, and public behavioural-owner counts; implicit-public interface members and exact qualified overrides have positive fixtures.
+8. Final review RED: explicit-public nested API classes and implicit-public interface member types could expose documented methods without documenting their own purpose. GREEN: both visible nested-type forms require meaningful API type prose, while the global top-level and package-private exclusion policies remain unchanged.
 
 ## Verification
 
@@ -28,10 +29,10 @@ Complete on direct `main`, starting from `edd898943b121aa3ef5a55044650fe502da2ea
 JAVA_HOME=/opt/homebrew/Cellar/openjdk@25/25.0.4/libexec/openjdk.jdk/Contents/Home ./gradlew check --rerun-tasks --no-daemon
 ```
 
-- Build: successful in 1m43s.
-- JVM: 1,573 tests in the current `test/default` result set across 368 result suites; 0 failures, 0 errors, 0 skipped.
-- Python: 45 passed in 1.504s.
-- Fabric GameTests: 125/125 required tests passed in 47.94s.
+- Build: successful in 1m49s.
+- JVM: 1,575 tests in the current `test/default` result set across 368 result suites; 0 failures, 0 errors, 0 skipped.
+- Python: 45 passed in 1.507s.
+- Fabric GameTests: 125/125 required tests passed in 50.82s.
 - Aggregate gates passed: Java source audit, non-item asset audit, resource validation, item/magic/rank documentation verification.
 - Focused perception, Augury, packet-fault, interrupted-ritual, and reload-cancellation GameTests: each passed before the final aggregate.
 
