@@ -10,6 +10,7 @@ public record LightRealmSkyProfile(Mode mode, int baseColor, List<Layer> layers,
 			Shape.OUTER_HALO, Shape.RUNIC_COMPASS, Shape.CROWN_ARCS, Shape.RADIAL_VEIL);
 	private static final List<Integer> AUTHORED_COLORS = List.of(
 			0xFFFFF8DE, 0xFFFFE5A6, 0xFFFFF0C7, 0xFFFFD77A);
+	private static final List<Double> AUTHORED_SCALES = List.of(1.00, 0.78, 0.57, 0.35);
 	private static final double NORMAL_MIN_CONTRAST = 0.40;
 	private static final double REDUCED_MAX_CONTRAST = 0.20;
 
@@ -43,8 +44,9 @@ public record LightRealmSkyProfile(Mode mode, int baseColor, List<Layer> layers,
 		}
 		for (int index = 0; index < expectedLayers; index++) {
 			Layer layer = layers.get(index);
-			if (layer.shape() != AUTHORED_SHAPES.get(index) || layer.color() != AUTHORED_COLORS.get(index)) {
-				throw new IllegalArgumentException("enhanced sky layers require the ordered authored shape palette");
+			if (layer.shape() != AUTHORED_SHAPES.get(index) || layer.color() != AUTHORED_COLORS.get(index)
+					|| Double.compare(layer.scale(), AUTHORED_SCALES.get(index)) != 0) {
+				throw new IllegalArgumentException("enhanced sky layers require the ordered authored shape palette and scale");
 			}
 			if (reduced && (layer.angularVelocity() != 0.0 || layer.pulseAmplitude() != 0.0
 					|| layer.phase() != 0.0)) {
