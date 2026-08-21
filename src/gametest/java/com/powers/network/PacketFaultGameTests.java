@@ -111,10 +111,10 @@ public final class PacketFaultGameTests {
 				if (selected != 1) receive(fixture.player(), new GrimoirePackets.SelectSpellPayload(
 						currentRevision(), fixture.grimoire(), fixture.spells().get(1)));
 				if (!clientConverged) PowersPlayNetworking.send(fixture.player(), powerState(91));
-				results.add("profile=" + fixture.profile() + " convergenceTicks="
+				results.add("profile=" + fixture.profile() + " serverObservedByTicks="
 						+ (selected == 1 && clientConverged ? 10 : 12)
 						+ " authoritative=" + (selected == 1 ? "selected" : "safe-loss/retry")
-						+ " clientbound=" + (clientConverged ? "hud-91" : "safe-loss/retry")
+						+ " outbound=" + (clientConverged ? "power-state-91" : "safe-loss/retry")
 						+ " offered=" + metrics.offered() + " dropped=" + metrics.dropped()
 						+ " duplicated=" + metrics.duplicated() + " delayed=" + metrics.delayed()
 						+ " reordered=" + metrics.reordered() + " delivered=" + metrics.delivered()
@@ -131,6 +131,8 @@ public final class PacketFaultGameTests {
 							.filter(PowerStatePayload.class::isInstance)
 							.map(PowerStatePayload.class::cast).anyMatch(state -> state.energy() == 91),
 							fixture.profile() + " did not converge at the real clientbound boundary");
+					fixture.player().connection.disconnect(
+							Component.literal("QA-009 production matrix complete"));
 				}
 				results.forEach(result -> System.out.println("QA009_PRODUCTION_MATRIX " + result));
 				helper.succeed();
@@ -386,6 +388,7 @@ public final class PacketFaultGameTests {
 		PlayerPowers.get(player).forceRestoreEnergy();
 		List<Object> payloads = capture(player);
 		player.setNoGravity(true);
+		player.setInvulnerable(true);
 		float health = player.getHealth();
 		PacketFaultController.configureScoped(helper.getLevel().getServer(), PacketFaultProfile.named("delay150", 17L), player);
 		PowersPlayNetworking.send(player, new BodyProxyPackets.BodySnapshotPayload(4, ""));
@@ -434,6 +437,7 @@ public final class PacketFaultGameTests {
 					"HUD or semantic FX family did not converge: " + payloads);
 			helper.assertTrue(player.getHealth() == health,
 					"Presentation faulting altered physical damage state");
+			player.setInvulnerable(false);
 			locator(helper, player, payloads);
 		});
 	}

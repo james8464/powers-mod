@@ -19,18 +19,33 @@ No row expired, overflowed, or cancelled under the ordinary matrix. Separate har
 
 ## Production convergence matrix
 
-One required Fabric GameTest creates six simultaneous scoped players. Each row submits a real registered grimoire selection and a burst of real `PowerStatePayload` connection writes. Loss rows use 250 state writes so the seeded 1% and 5% profiles exercise actual loss without exceeding the 256-envelope per-direction cap; other rows use 100. The test observes state after ten ticks, performs the documented direct retry only if a final current-state packet was lost, and asserts the final authoritative selection and outbound HUD snapshot after at most twelve ticks.
+One required Fabric GameTest creates six simultaneous scoped players. Each row submits a real registered grimoire selection and a burst of real `PowerStatePayload` connection writes. Loss rows use 250 state writes so the seeded 1% and 5% profiles exercise actual loss without exceeding the 256-envelope per-direction cap; other rows use 100. The test polls at tick ten, performs the documented direct retry only if a final current-state packet was lost, and asserts the final authoritative selection and outbound connection write by tick twelve. These are polling upper bounds, not exact first-convergence times, and this server fixture makes no client/HUD claim.
 
-| Profile | Convergence ticks | Final authority | Final client | Offered | Drop | Dupe | Delay | Reorder/stale | Deliver | Expire | Max queue | Max age | Dupe effects |
+| Profile | Observed by ticks ≤ | Final authority | Final outbound write | Offered | Drop | Dupe | Delay | Reorder/stale | Deliver | Expire | Max queue | Max age | Dupe effects |
 | --- | ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| delay150 | 10 | spell 1 | HUD 91 | 101 | 0 | 0 | 101 | 99 | 2 | 0 | 101 | 4 | 0 |
-| delay300 | 10 | spell 1 | HUD 91 | 101 | 0 | 0 | 101 | 99 | 2 | 0 | 101 | 7 | 0 |
-| loss1 | 10 | spell 1 | HUD 91 | 251 | 3 | 0 | 0 | 246 | 2 | 0 | 248 | 3 | 0 |
-| loss5 | 10 | spell 1 | HUD 91 | 251 | 12 | 0 | 0 | 237 | 2 | 0 | 239 | 3 | 0 |
-| duplicate | 10 | spell 1 | HUD 91 | 101 | 0 | 101 | 0 | 198 | 2 | 0 | 202 | 3 | 0 |
-| reorder | 10 | spell 1 | HUD 91 | 101 | 0 | 0 | 68 | 99 | 2 | 0 | 101 | 2 | 0 |
+| delay150 | 10 | spell 1 | power state 91 | 101 | 0 | 0 | 101 | 99 | 2 | 0 | 101 | 4 | 0 |
+| delay300 | 10 | spell 1 | power state 91 | 101 | 0 | 0 | 101 | 99 | 2 | 0 | 101 | 7 | 0 |
+| loss1 | 10 | spell 1 | power state 91 | 251 | 2 | 0 | 0 | 247 | 2 | 0 | 249 | 3 | 0 |
+| loss5 | 10 | spell 1 | power state 91 | 251 | 10 | 0 | 0 | 239 | 2 | 0 | 241 | 3 | 0 |
+| duplicate | 10 | spell 1 | power state 91 | 101 | 0 | 101 | 0 | 198 | 2 | 0 | 202 | 3 | 0 |
+| reorder | 10 | spell 1 | power state 91 | 101 | 0 | 0 | 68 | 99 | 2 | 0 | 101 | 2 | 0 |
 
-The exact counts above are from the isolated production-matrix run on 2026-08-21 and join to the scheduler matrix by profile ID. Each player has a distinct asserted UUID and independent entity-scoped session; per-player rate-limit state is forgotten before a retry. The required test additionally asserts that both loss profiles drop at least one real production envelope, duplicate injection occurs, delay/reorder profiles schedule delayed work, only an explicit loss may enter the safe-loss/retry state, and the post-retry selection is exactly index 1. The existing integrated Fabric-client fixture remains the final-client-state proof: the actual Shadow screen, HUD mirror, and renderer queue converge under delay/reorder/loss.
+The exact counts above are from the isolated production-matrix run on 2026-08-21 and join to the scheduler matrix by profile ID. Each player has a distinct asserted UUID and independent entity-scoped session; per-player rate-limit state is forgotten before a retry. The required test additionally asserts that both loss profiles drop at least one real production envelope, duplicate injection occurs, delay/reorder profiles schedule delayed work, only an explicit loss may enter the safe-loss/retry state, and the post-retry selection is exactly index 1.
+
+## Integrated-client convergence matrix
+
+One real Fabric client runs the six named profiles sequentially. Each row uses a unique final energy marker and observes `ClientPowerState`, the actual client packet-handler/HUD mirror. The first poll occurs after ten ticks; therefore “observed by” is a truthful upper bound rather than a claim of the exact earlier arrival tick. A lost final current-state snapshot is retried once only after disabling the fault profile.
+
+| Profile | Observed by ticks ≤ | Retry | Final HUD energy | Offered | Drop | Dupe | Delay | Reorder/stale | Deliver | Expire | Max queue | Max age | Dupe effects |
+| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| delay150 | 10 | no | 811 | 110 | 0 | 0 | 110 | 106 | 1 | 0 | 102 | 4 | 0 |
+| delay300 | 10 | no | 812 | 110 | 0 | 0 | 110 | 103 | 1 | 0 | 105 | 7 | 0 |
+| loss1 | 10 | no | 813 | 260 | 1 | 0 | 0 | 248 | 10 | 0 | 249 | 4 | 0 |
+| loss5 | 11 | yes | 814 | 260 | 13 | 0 | 0 | 237 | 9 | 0 | 237 | 4 | 0 |
+| duplicate | 10 | no | 815 | 110 | 0 | 110 | 0 | 198 | 10 | 0 | 200 | 4 | 0 |
+| reorder | 10 | no | 816 | 110 | 0 | 0 | 77 | 103 | 5 | 0 | 100 | 2 | 0 |
+
+The profile ID joins every client row to the exact scheduler and server-production rows above. The same integrated run separately proves the real Shadow screen plus lossy semantic-FX renderer path.
 
 ## Production-path proof
 
