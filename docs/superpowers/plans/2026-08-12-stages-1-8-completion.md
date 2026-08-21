@@ -62,7 +62,7 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
 
 ### Stage 3 — UI and magical presentation
 
-- [ ] `PERF-010` + `UX-004`: one fixed-widget virtual scrolling catalogue with search, filters, favourites, recents, direct binding, stable revisions, narration, and a 10,000-action fixture.
+- [x] `PERF-010` + `UX-004`: one fixed-widget virtual scrolling catalogue with search, filters, favourites, recents, direct binding, stable revisions, narration, and a 10,000-action fixture.
 - [ ] `VFX-011`: non-item texture/model transform, UV, mipmap, alpha, atlas, spawn-egg, HUD, boss, and screen contact-sheet audit.
 - [ ] `VFX-009`: dedicated ancient-white Light Realm sky renderer with Sodium-safe boundary and static fallback.
 - [ ] `VFX-004`: protected, no-drop, reversible material-aware scar service under hard budgets.

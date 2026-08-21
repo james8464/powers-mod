@@ -14,7 +14,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
-| PERF-010 | Enhancement | P2 | Virtualize artifact catalogue rows and replace page rebuilds with a scrollable reusable grid. | Constant widget count and smooth search with thousands of datapack actions. |
 | PERF-011 | Enhancement | P2 | Cache rank profiles and translated menu snapshots by revision. | No per-frame/per-cast reconstruction when rank/config/registry revision is unchanged. |
 | PERF-017 | Enhancement | P2 | Add query heat maps to diagnostics for wards, names, forces, bodies, and fields. | Operator can identify the top hot chunks without installing a profiler. |
 | PERF-018 | Enhancement | P3 | Add dormant-dimension suspension for realm ambience and landmark logic. | Empty dimensions perform zero periodic work beyond persisted deadlines. |
@@ -173,7 +172,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 
 | ID | Kind | Priority | Improvement | Acceptance condition |
 | --- | --- | --- | --- | --- |
-| UX-004 | Enhancement | P2 | Replace artifact catalogue pagination with virtual scroll, filters, and recent actions. | Any action is bindable in two interactions after search. |
 | UX-007 | Enhancement | P2 | Add complete controller/gamepad navigation for all screens and selectors. | Every action is reachable without mouse and focus never traps. |
 | UX-008 | Guarantee | P2 | Complete narration labels, order, live-region throttling, and high-contrast focus for every custom screen. | Automated accessibility audit plus manual screen-reader pass. |
 | UX-009 | Enhancement | P2 | Add configurable reduced flashes, tinnitus, camera shake, FOV, and large-beam opacity. | Celestial Ruin remains mechanically readable with all comfort options enabled. |

@@ -27,8 +27,15 @@ public final class ShadowSwordScreen extends Screen {
 			int sizeMorphOption, int energy,
 			List<String> favourites,
 			List<com.powers.item.artifact.ArtifactActionSnapshot> snapshots) {
+		this(revision, alignment, initialKey, rank, sizeMorphOption, energy, favourites,
+				List.of(), snapshots);
+	}
+
+	public ShadowSwordScreen(long revision, String alignment, String initialKey, int rank,
+			int sizeMorphOption, int energy, List<String> favourites, List<String> recents,
+			List<com.powers.item.artifact.ArtifactActionSnapshot> snapshots) {
 		this(ArtifactMenuState.fromPacket(revision, alignment, initialKey, rank,
-				sizeMorphOption, energy, favourites, snapshots));
+				sizeMorphOption, energy, favourites, recents, snapshots));
 	}
 
 	ShadowSwordScreen(ArtifactMenuState state) {

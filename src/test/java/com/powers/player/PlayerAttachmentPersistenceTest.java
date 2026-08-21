@@ -29,7 +29,8 @@ class PlayerAttachmentPersistenceTest {
 
 		for (String name : new String[] {
 				"COOLDOWNS", "SKILL_LEVEL", "DARKNESS_LEVEL", "TELEPORT_CONSENT",
-				"SHADOW_SWORD_FAVOURITES", "HEAVENLY_PARTISAN_FAVOURITES", "LAST_DEATH"
+				"SHADOW_SWORD_FAVOURITES", "HEAVENLY_PARTISAN_FAVOURITES",
+				"SHADOW_SWORD_RECENTS", "HEAVENLY_PARTISAN_RECENTS", "LAST_DEATH"
 		}) {
 			assertTrue(source.matches("(?s).*" + name + ".*persistent.*"), name);
 		}

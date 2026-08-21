@@ -1,6 +1,7 @@
 package com.powers.client;
 
 import com.powers.client.screen.GrimoireIndexScreen;
+import com.powers.client.screen.ArtifactCatalogueScreen;
 import com.powers.client.screen.RainbowConvergenceScreen;
 import com.powers.client.screen.ShadowSwordScreen;
 import com.powers.client.screen.TeleportInputScreen;
@@ -16,6 +17,7 @@ class ClientActionRefreshTest {
 		assertFalse(ClientActionRefresh.shouldClose("crystal", GrimoireIndexScreen.class));
 		assertFalse(ClientActionRefresh.shouldClose("crystal", ShadowSwordScreen.class));
 		assertTrue(ClientActionRefresh.shouldClose("artifact", ShadowSwordScreen.class));
+		assertTrue(ClientActionRefresh.shouldClose("artifact", ArtifactCatalogueScreen.class));
 		assertTrue(ClientActionRefresh.shouldClose("artifact",
 				TeleportInputScreen.OwnerSurface.ARTIFACT));
 		assertFalse(ClientActionRefresh.shouldClose("artifact",

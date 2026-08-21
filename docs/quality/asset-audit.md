@@ -9,7 +9,7 @@ This exhaustive manifest covers every tracked POWERS namespace asset except new-
 | `blockstates/darkness.json` | blockstates | `9a3e8bb90dd6` | pass | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/pure_light.json` | blockstates | `c4375fe29f91` | pass | JSON decoded; references are covered by strict resource validation. |
 | `icon.png` | icon.png | `00ea24abeb49` | pass | PNG 128×128, alpha; reviewed in contact sheet. |
-| `lang/en_us.json` | lang | `7923686c7f51` | pass | JSON decoded; references are covered by strict resource validation. |
+| `lang/en_us.json` | lang | `6b83f7784d05` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward.json` | models | `ec18f4c15589` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward_powered.json` | models | `e82316d2c639` | pass | JSON decoded; references are covered by strict resource validation. |
 | `models/block/arcane_crucible.json` | models | `7590e3936646` | pass | JSON decoded; references are covered by strict resource validation. |

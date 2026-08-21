@@ -7,6 +7,8 @@ import com.powers.client.screen.PowerSelectionScreen;
 import com.powers.client.screen.TeleportInputScreen;
 import com.powers.client.screen.RankMazeScreen;
 import com.powers.client.screen.ShadowSwordScreen;
+import com.powers.client.screen.ArtifactCatalogueScreen;
+import com.powers.client.screen.ArtifactMenuState;
 import com.powers.client.screen.GrimoireIndexScreen;
 import com.powers.client.screen.ReservoirTransferScreen;
 import com.powers.client.screen.RainbowConvergenceScreen;
@@ -144,11 +146,17 @@ public class PowersClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenMenuPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> {
 					ClientActionRegistry.acceptArtifact(payload.revision(), payload.selectedKey());
-					Minecraft.getInstance().gui.setScreen(
-						new ShadowSwordScreen(payload.revision(), payload.alignment(), payload.selectedKey(), payload.rank(),
-								payload.sizeMorphOption(), payload.energy(),
-								payload.favourites(),
-								payload.actions()));
+					Minecraft minecraft = Minecraft.getInstance();
+					ArtifactMenuState state = ArtifactMenuState.fromPacket(payload.revision(),
+							payload.alignment(), payload.selectedKey(), payload.rank(),
+							payload.sizeMorphOption(), payload.energy(), payload.favourites(),
+							payload.recents(), payload.actions());
+					if (!(minecraft.gui.screen() instanceof ArtifactCatalogueScreen catalogue)
+							|| !catalogue.acceptRefresh(state)) {
+						minecraft.gui.setScreen(new ShadowSwordScreen(payload.revision(), payload.alignment(),
+								payload.selectedKey(), payload.rank(), payload.sizeMorphOption(), payload.energy(),
+								payload.favourites(), payload.recents(), payload.actions()));
+					}
 				}));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenTeleportPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> {

@@ -90,6 +90,7 @@ public final class ArtifactWeaponManager {
 		if (selected && option >= 0) {
 			selected = action.ability().selectOption(player, PlayerPowers.get(player), option);
 		}
+		if (selected) ArtifactSelectionState.recordRecent(player, alignment, action.definition().key());
 		if (selected) PowerMessages.overlay(player,
 				Component.translatable("item.powers.artifact.selected", action.name()));
 		if (selected) PowersPackets.syncTo(player);
@@ -148,7 +149,8 @@ public final class ArtifactWeaponManager {
 		}).toList();
 		ShadowSwordPackets.openMenu(player, alignment, ArtifactSelectionState.selected(player, alignment),
 				rank(player, alignment), data.getSizeMorphOption(), data.energy(),
-				ArtifactSelectionState.favourites(player, alignment), snapshots);
+				ArtifactSelectionState.favourites(player, alignment),
+				ArtifactSelectionState.recents(player, alignment), snapshots);
 	}
 
 	public static boolean authorized(ServerPlayer player, ArtifactAlignment alignment) {

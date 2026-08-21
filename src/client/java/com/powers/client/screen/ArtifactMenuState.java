@@ -22,12 +22,14 @@ public record ArtifactMenuState(
 		int sizeMorphOption,
 		int energy,
 		List<String> favourites,
+		List<String> recents,
 		List<ArtifactActionDefinition> actions,
 		List<ArtifactActionSnapshot> snapshots) {
 	public ArtifactMenuState {
 		rank = Math.clamp(rank, 0, 10);
 		energy = Math.max(0, energy);
 		favourites = List.copyOf(favourites);
+		recents = List.copyOf(recents);
 		actions = List.copyOf(actions);
 		snapshots = List.copyOf(snapshots);
 		sizeMorphOption = SizeMorphRules.isValidOption(sizeMorphOption)
@@ -36,19 +38,21 @@ public record ArtifactMenuState(
 
 	public static ArtifactMenuState fromPacket(long revision, String alignment, String selectedKey, int rank,
 			int sizeMorphOption, int energy, List<String> favourites,
+			List<String> recents,
 			List<ArtifactActionSnapshot> snapshots) {
 		ArtifactAlignment parsed = ArtifactAlignment.fromSerialized(alignment);
 		return new ArtifactMenuState(revision, parsed, selectedKey, rank, sizeMorphOption,
-				energy, favourites, ArtifactActionCatalogue.forAlignment(parsed), snapshots);
+				energy, favourites, recents, ArtifactActionCatalogue.forAlignment(parsed), snapshots);
 	}
 
 	public ArtifactMenuState withFavourites(List<String> updated) {
 		return new ArtifactMenuState(revision, alignment, selectedKey, rank, sizeMorphOption,
-				energy, updated, actions, snapshots);
+				energy, updated, recents, actions, snapshots);
 	}
 
 	public ArtifactActionDefinition action(String key) {
-		return ArtifactActionCatalogue.find(alignment, key);
+		if (key == null) return null;
+		return actions.stream().filter(action -> action.key().equals(key)).findFirst().orElse(null);
 	}
 
 	public int cost(ArtifactActionDefinition action) {

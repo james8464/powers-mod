@@ -1,6 +1,7 @@
 package com.powers.gametest;
 
 import com.powers.PowersItems;
+import com.powers.PowersWeapons;
 import com.powers.client.ClientPowerState;
 import com.powers.client.ClientSemanticFxMetrics;
 import com.powers.client.fx.ClientMagicFx;
@@ -22,6 +23,7 @@ import com.powers.item.artifact.ArtifactActionCatalogue;
 import com.powers.item.artifact.ArtifactActionSnapshot;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.artifact.ArtifactFavouriteRules;
+import com.powers.magic.runtime.MagicRuntime;
 import com.powers.network.PowerStatePayload;
 import com.powers.network.PowersPlayNetworking;
 import com.powers.network.ShadowSwordPackets;
@@ -33,8 +35,10 @@ import com.powers.network.EventAudioPackets;
 import com.powers.network.CelestialRuinPackets;
 import com.powers.fx.FxLodTier;
 import com.powers.mind.BodyProxyKind;
-import com.powers.mind.BodyProxyManager;
+import com.powers.player.ArtifactSelectionState;
 import com.powers.player.PlayerPowers;
+import com.powers.player.SkillSystem;
+import com.powers.mind.BodyProxyManager;
 import com.powers.power.PowerRegistry;
 import com.powers.power.abilities.SizeMorphRules;
 import com.powers.power.crystals.CrystalAbilityCatalog;
@@ -90,7 +94,7 @@ public final class PowersClientGameTests implements FabricClientGameTest {
             verifyCrystalTravel(context, singleplayer);
 			quiesceVisuals(context);
             captureHudStates(context);
-            captureScreens(context);
+            captureScreens(context, singleplayer);
             captureRemainingScreens(context);
             captureCompactScreens(context);
             smokeOperatorCommands(singleplayer);
@@ -113,7 +117,7 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 			PacketFaultController.configureScoped(server, stateProfile, player);
 			PowersPlayNetworking.send(player, new ShadowSwordPackets.OpenMenuPayload(2L,
 					"darkness", "innate/fireball", 10, SizeMorphRules.normalOption(), 777,
-					List.of("", "", "", "", "", "", "", ""), List.of()));
+					List.of("", "", "", "", "", "", "", ""), List.of(), List.of()));
 			for (int energy : List.of(555, 666, 777)) {
 				PowersPlayNetworking.send(player, new PowerStatePayload(List.of(), List.of(), List.of(),
 						List.of(), List.of(), energy, 1_000, false, true, false,
@@ -455,7 +459,7 @@ public final class PowersClientGameTests implements FabricClientGameTest {
         context.takeScreenshot("powers-hud-full-darkness");
     }
 
-    private static void captureScreens(ClientGameTestContext context) {
+    private static void captureScreens(ClientGameTestContext context, TestSingleplayerContext singleplayer) {
         List<String> rainbowModes = CrystalAbilityCatalog.defaults().get("rainbow_crystal");
         if (rainbowModes.size() != 7) {
             throw new AssertionError("Rainbow selector must expose exactly seven forces");
@@ -472,15 +476,61 @@ public final class PowersClientGameTests implements FabricClientGameTest {
         List<String> favourites = ArtifactFavouriteRules.defaults(
                 ArtifactActionCatalogue.forAlignment(ArtifactAlignment.DARKNESS), 10,
                 "innate/lightning_strike");
+		long revision = singleplayer.getServer().computeOnServer(server -> {
+			var player = server.getPlayerList().getPlayers().getFirst();
+			player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,
+					PowersWeapons.weapon("lycanbane").getDefaultInstance());
+			player.addTag(SkillSystem.DARKNESS_TAG);
+			PlayerPowers.get(player).setDarknessLevel(player, 10);
+			return MagicRuntime.catalogue().snapshot().revision();
+		});
         capture(context, "powers-shadow-combat-wheel",
-				() -> new ShadowSwordScreen(0L, "darkness", "innate/lightning_strike", 10,
+				() -> new ShadowSwordScreen(revision, "darkness", "innate/lightning_strike", 10,
                         SizeMorphRules.normalOption(), 100, favourites, snapshots),
                 ShadowSwordScreen.class);
         capture(context, "powers-shadow-library",
-                () -> ClientAcceptanceScreens.artifactCatalogue("darkness",
+                () -> ClientAcceptanceScreens.artifactCatalogue(revision, "darkness",
                         "innate/lightning_strike", 10, SizeMorphRules.normalOption(), 100,
                         favourites, snapshots), ArtifactCatalogueScreen.class);
+		verifyVirtualCatalogue(context, singleplayer);
     }
+
+	private static void verifyVirtualCatalogue(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer) {
+		ClientAcceptanceScreens.CatalogueProbe before = context.computeOnClient(client ->
+				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
+		if (before.widgets() <= 0 || before.widgets() != before.allocations()) {
+			throw new AssertionError("Catalogue did not allocate exactly one fixed visible widget pool: " + before);
+		}
+		context.getInput().scroll(-6.0);
+		context.waitTick();
+		ClientAcceptanceScreens.CatalogueProbe afterScroll = context.computeOnClient(client ->
+				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
+		if (afterScroll.widgets() != before.widgets() || afterScroll.allocations() != before.allocations()) {
+			throw new AssertionError("Mouse-wheel scrolling reconstructed catalogue widgets: " + afterScroll);
+		}
+		context.runOnClient(client -> ClientAcceptanceScreens.searchInnate(
+				(ArtifactCatalogueScreen) client.gui.screen(), "fireball"));
+		context.waitTick();
+		ClientAcceptanceScreens.CatalogueProbe searched = context.computeOnClient(client ->
+				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
+		if (searched.results() != 1 || searched.firstActionLabel().isBlank()) {
+			throw new AssertionError("Production catalogue search did not isolate Fireball: " + searched);
+		}
+		context.clickScreenButton(searched.firstActionLabel());
+		context.clickScreenButton("1");
+		context.waitTick();
+		singleplayer.getServer().waitFor(server -> ArtifactSelectionState.favourites(
+				server.getPlayerList().getPlayers().getFirst(), ArtifactAlignment.DARKNESS)
+				.getFirst().equals("innate/fireball"));
+		ClientAcceptanceScreens.CatalogueProbe bound = context.computeOnClient(client ->
+				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
+		if (!"innate/fireball".equals(bound.selectedKey()) || bound.widgets() != before.widgets()
+				|| bound.allocations() != before.allocations()) {
+			throw new AssertionError("Search-result selection/direct binding rebuilt widgets or lost key: " + bound);
+		}
+		context.takeScreenshot("powers-shadow-library-virtual-fireball");
+	}
 
     private static void captureRemainingScreens(ClientGameTestContext context) {
         capture(context, "powers-teleport-menu", () -> new TeleportInputScreen(0),

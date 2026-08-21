@@ -35,6 +35,11 @@ class ArtifactCatalogueRulesTest {
 				ArtifactCatalogueRules.filter(actions, ArtifactCatalogueTab.FAVOURITES,
 						favourites, "", ArtifactActionDefinition::abilityId).stream()
 						.map(ArtifactActionDefinition::key).toList());
+		assertEquals(List.of("innate/lightning_strike", "unique/blight_ground"),
+				ArtifactCatalogueRules.filter(actions, ArtifactCatalogueTab.RECENT,
+						favourites, List.of("innate/lightning_strike", "unique/blight_ground"),
+						"", ArtifactActionDefinition::abilityId).stream()
+						.map(ArtifactActionDefinition::key).toList());
 		assertTrue(ArtifactCatalogueRules.filter(actions, ArtifactCatalogueTab.INNATE,
 				favourites, "", ArtifactActionDefinition::abilityId).stream()
 				.allMatch(action -> action.category() == ArtifactActionCategory.ROUTED_POWER));
@@ -53,11 +58,11 @@ class ArtifactCatalogueRulesTest {
 		assertTrue(compact.panelX() + compact.panelWidth() <= 312);
 		assertTrue(compact.panelY() + compact.panelHeight() <= 232);
 		assertEquals(1, compact.columns());
-		assertTrue(compact.pageSize() >= 4);
+		assertTrue(compact.visibleCapacity() >= 4);
 
 		ArtifactCatalogueRules.Layout wide = ArtifactCatalogueRules.layout(1280, 720);
 		assertEquals(2, wide.columns());
-		assertTrue(wide.pageSize() > compact.pageSize());
+		assertTrue(wide.visibleCapacity() > compact.visibleCapacity());
 
 		ArtifactCatalogueRules.Layout narrow = ArtifactCatalogueRules.layout(240, 180);
 		assertTrue(narrow.panelX() >= 4 && narrow.panelY() >= 4);
