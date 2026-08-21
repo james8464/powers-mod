@@ -34,6 +34,7 @@ import com.powers.network.CelestialRuinPackets;
 import com.powers.fx.FxLodTier;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
+import com.powers.player.PlayerPowers;
 import com.powers.power.PowerRegistry;
 import com.powers.power.abilities.SizeMorphRules;
 import com.powers.power.crystals.CrystalAbilityCatalog;
@@ -45,6 +46,7 @@ import com.powers.magic.fx.MagicFxKind;
 import com.powers.testing.network.PacketFaultController;
 import com.powers.testing.network.PacketFaultDirection;
 import com.powers.testing.network.PacketFaultFamily;
+import com.powers.testing.network.PacketFaultMetrics;
 import com.powers.testing.network.PacketFaultProfile;
 import com.powers.testing.TestingOverrides;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
@@ -57,6 +59,9 @@ import net.minecraft.network.chat.Component;
 import java.util.List;
 import java.util.EnumSet;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 /**
@@ -94,6 +99,7 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 
 	private static void verifyPacketFaultClientConvergence(ClientGameTestContext context,
 			TestSingleplayerContext singleplayer) {
+		verifyNamedPacketFaultProfilesOnRealClient(context, singleplayer);
 		context.runOnClient(client -> {
 			ClientPowerState.reset();
 			ClientSemanticFxMetrics.reset();
@@ -146,6 +152,79 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 			}
 			PacketFaultController.clearScoped(server, player);
 		});
+	}
+
+	private static void verifyNamedPacketFaultProfilesOnRealClient(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer) {
+		List<String> profiles = List.of("delay150", "delay300", "loss1", "loss5", "duplicate", "reorder");
+		for (int profileIndex = 0; profileIndex < profiles.size(); profileIndex++) {
+			String profile = profiles.get(profileIndex);
+			int finalEnergy = 811 + profileIndex;
+			AtomicLong startedAt = new AtomicLong();
+			AtomicReference<PacketFaultMetrics> metrics = new AtomicReference<>();
+			AtomicBoolean retried = new AtomicBoolean();
+			context.runOnClient(client -> ClientPowerState.reset());
+			singleplayer.getServer().runOnServer(server -> {
+				var player = server.getPlayerList().getPlayers().getFirst();
+				PlayerPowers.get(player).forceRestoreEnergy();
+				PacketFaultController.configureScoped(server,
+						PacketFaultProfile.named(profile, 630_793L), player);
+				startedAt.set(server.getTickCount());
+				int samples = profile.startsWith("loss") ? 250 : 100;
+				for (int sample = 0; sample < samples; sample++) {
+					int energy = sample == samples - 1 ? finalEnergy : sample;
+					PowersPlayNetworking.send(player, clientPowerState(energy));
+				}
+			});
+			context.waitTicks(10);
+			context.runOnClient(client -> retried.set(ClientPowerState.energy() != finalEnergy));
+			singleplayer.getServer().runOnServer(server -> {
+				var player = server.getPlayerList().getPlayers().getFirst();
+				metrics.set(PacketFaultController.diagnostics(server, player).metrics());
+				PacketFaultController.clearScoped(server, player);
+				if (retried.get()) PowersPlayNetworking.send(player, clientPowerState(finalEnergy));
+			});
+			context.waitFor(client -> ClientPowerState.energy() == finalEnergy);
+			AtomicLong observedBy = new AtomicLong();
+			singleplayer.getServer().runOnServer(server -> observedBy.set(
+					Math.max(0L, server.getTickCount() - startedAt.get())));
+			context.runOnClient(client -> {
+				if (ClientPowerState.energy() != finalEnergy) {
+					throw new AssertionError(profile + " did not reach the actual client HUD mirror");
+				}
+			});
+			PacketFaultMetrics snapshot = metrics.get();
+			if (snapshot == null || snapshot.duplicateSideEffects() != 0L) {
+				throw new AssertionError(profile + " did not retain safe transport accounting: " + snapshot);
+			}
+			if (profile.startsWith("loss") && snapshot.dropped() == 0L) {
+				throw new AssertionError(profile + " did not inject loss on the real client path");
+			}
+			if ("duplicate".equals(profile) && snapshot.duplicated() == 0L) {
+				throw new AssertionError("Duplicate profile did not duplicate real client envelopes");
+			}
+			if ((profile.startsWith("delay") || "reorder".equals(profile))
+					&& snapshot.delayed() == 0L) {
+				throw new AssertionError(profile + " did not delay real client envelopes");
+			}
+			if (!profile.startsWith("loss") && retried.get()) {
+				throw new AssertionError(profile + " required an unexpected fault-disabled retry");
+			}
+			System.out.println("QA009_CLIENT_MATRIX profile=" + profile
+					+ " observedByTicks=" + observedBy.get() + " retried=" + retried.get()
+					+ " finalHudEnergy=" + finalEnergy + " offered=" + snapshot.offered()
+					+ " dropped=" + snapshot.dropped() + " duplicated=" + snapshot.duplicated()
+					+ " delayed=" + snapshot.delayed() + " reordered=" + snapshot.reordered()
+					+ " delivered=" + snapshot.delivered() + " expired=" + snapshot.expired()
+					+ " maxQueue=" + snapshot.maximumQueueDepth()
+					+ " maxAgeTicks=" + snapshot.maximumAgeTicks()
+					+ " duplicateSideEffects=" + snapshot.duplicateSideEffects());
+		}
+	}
+
+	private static PowerStatePayload clientPowerState(int energy) {
+		return new PowerStatePayload(List.of(), List.of(), List.of(), List.of(), List.of(),
+				energy, 1_000, false, true, false, SizeMorphRules.normalOption(), List.of(), "", 0);
 	}
 
 	private static void verifySemanticFxBatching(ClientGameTestContext context,
