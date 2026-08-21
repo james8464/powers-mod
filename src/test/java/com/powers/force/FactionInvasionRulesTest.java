@@ -2,9 +2,11 @@ package com.powers.force;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -50,15 +52,31 @@ class FactionInvasionRulesTest {
 	}
 
 	@Test
-	void boundedCursorStillCoversRepresentativeJoinLeaveAndReorderChurn() {
-		FactionInvasionRules.AnchorWindow first = FactionInvasionRules.playerAnchorWindow(5, 0);
-		int next = first.nextAnchorAfterVisited(2);
-		FactionInvasionRules.AnchorWindow afterReorderAndReplacement =
-				FactionInvasionRules.playerAnchorWindow(5, next);
-		Set<Integer> visited = new HashSet<>(afterReorderAndReplacement.indexes());
+	void truncatedNumericCursorStaysBoundedAndIndexValidAcrossRealIdentityChurn() {
+		List<UUID> players = new ArrayList<>();
+		for (int index = 0; index < 100; index++) players.add(new UUID(0L, index + 1L));
+		UUID firstVisited = players.getFirst();
+		UUID removed = players.get(20);
+		UUID joined = new UUID(1L, 1L);
+		FactionInvasionRules.AnchorWindow first = FactionInvasionRules.playerAnchorWindow(players.size(), 0);
+		int next = first.nextAnchorAfterVisited(1);
 
-		assertEquals(Set.of(0, 1, 2, 3, 4), visited);
-		assertTrue(afterReorderAndReplacement.indexes().size() <= 64);
+		players.remove(removed);
+		players.add(joined);
+		players.remove(firstVisited);
+		players.add(1, firstVisited);
+		java.util.Collections.swap(players, 30, 70);
+		FactionInvasionRules.AnchorWindow afterChurn =
+				FactionInvasionRules.playerAnchorWindow(players.size(), next);
+		Set<UUID> actualIdentities = new HashSet<>();
+		for (int index : afterChurn.indexes()) actualIdentities.add(players.get(index));
+
+		assertEquals(1, next);
+		assertEquals(64, afterChurn.indexes().size());
+		assertEquals(64, actualIdentities.size());
+		assertFalse(players.contains(removed));
+		assertTrue(players.contains(joined));
+		assertTrue(afterChurn.indexes().stream().allMatch(index -> index >= 0 && index < players.size()));
 	}
 
 	private static void assertCompleteRoundRobinCoverage(int playerCount) {
