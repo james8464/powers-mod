@@ -15,6 +15,7 @@ from urllib.parse import urlsplit
 
 
 SCHEMA_VERSION = 1
+HEAD_BINDING = "@HEAD"
 ID_PATTERN = re.compile(r"[a-z0-9]+(?:[._-][a-z0-9]+)*\Z")
 COMMIT_PATTERN = re.compile(r"[0-9a-f]{40}\Z")
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}\Z")
@@ -144,7 +145,9 @@ def _identifier(value: object, label: str) -> str:
     return value
 
 
-def _commit(value: object, label: str) -> str:
+def _commit(value: object, label: str, *, allow_head: bool = False) -> str:
+    if value == HEAD_BINDING and allow_head:
+        return HEAD_BINDING
     if not isinstance(value, str) or not COMMIT_PATTERN.fullmatch(value):
         raise ReleaseContractError(f"{label}: invalid commit")
     return value
@@ -291,7 +294,9 @@ def load_evidence_manifest(path: Path) -> EvidenceManifest:
     _exact_keys(data, {"schemaVersion", "commit", "rows"}, set(), "evidence manifest")
     if not _is_plain_int(data["schemaVersion"]) or data["schemaVersion"] != SCHEMA_VERSION:
         raise ReleaseContractError("evidence manifest schemaVersion: expected 1")
-    commit = _commit(data["commit"], "evidence manifest commit")
+    commit = _commit(data["commit"], "evidence manifest commit", allow_head=True)
+    if commit != HEAD_BINDING:
+        raise ReleaseContractError("evidence manifest commit must use @HEAD")
     raw_rows = data["rows"]
     if not isinstance(raw_rows, list) or not raw_rows:
         raise ReleaseContractError("evidence manifest rows: expected nonempty list")
@@ -314,7 +319,8 @@ def load_evidence_manifest(path: Path) -> EvidenceManifest:
         validator = item["validator"]
         if validator != EVIDENCE_VALIDATORS[kind]:
             raise ReleaseContractError(f"evidence validator: expected {EVIDENCE_VALIDATORS[kind]}")
-        row_commit = _commit(item["commit"], f"evidence {identifier} commit")
+        row_commit = _commit(
+            item["commit"], f"evidence {identifier} commit", allow_head=True)
         if row_commit != commit:
             raise ReleaseContractError(f"evidence {identifier} commit: manifest mismatch")
         if not _is_plain_int(item["size"]) or item["size"] <= 0:

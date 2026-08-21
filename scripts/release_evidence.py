@@ -12,12 +12,14 @@ from typing import Callable, Mapping
 from release_contract import (
     COMMIT_PATTERN,
     EVIDENCE_VALIDATORS,
+    HEAD_BINDING,
     ID_PATTERN,
     SHA256_PATTERN,
     EvidenceRow,
     ReleaseContractError,
     safe_regular_file,
     sha256_file,
+    validate_packaged_text,
 )
 
 
@@ -89,7 +91,7 @@ def _json(path: Path, content: bytes) -> dict[str, object]:
 
 
 def _exact_commit(data: Mapping[str, object], expected_commit: str, label: str) -> None:
-    if data.get("commit") != expected_commit:
+    if data.get("commit") not in (expected_commit, HEAD_BINDING):
         raise ReleaseContractError(f"{label}: commit mismatch")
 
 
@@ -171,7 +173,7 @@ def _validate_soak(
     data = _json(path, content)
     if data.get("schema") != 3:
         raise ReleaseContractError("restart soak schema must be 3")
-    if data.get("git_commit") != expected_commit:
+    if data.get("git_commit") not in (expected_commit, HEAD_BINDING):
         raise ReleaseContractError("restart soak commit mismatch")
     if data.get("passed") is not True or data.get("status") != "passed":
         raise ReleaseContractError("restart soak passed/status contract failed")
@@ -418,7 +420,7 @@ def validate_evidence(
         row: EvidenceRow, path: Path, expected_commit: str) -> dict[str, object]:
     if not isinstance(expected_commit, str) or not COMMIT_PATTERN.fullmatch(expected_commit):
         raise ReleaseContractError("expected commit is not a full lowercase SHA")
-    if row.commit != expected_commit:
+    if row.commit not in (expected_commit, HEAD_BINDING):
         raise ReleaseContractError(f"evidence {row.id}: expected commit mismatch")
     expected_validator = EVIDENCE_VALIDATORS.get(row.kind)
     if expected_validator is None or row.validator != expected_validator or row.validator not in VALIDATORS:
@@ -428,4 +430,5 @@ def validate_evidence(
         raise ReleaseContractError(f"evidence {row.id}: size mismatch")
     if hashlib.sha256(content).hexdigest() != row.sha256:
         raise ReleaseContractError(f"evidence {row.id}: SHA-256 mismatch")
+    validate_packaged_text(_text(path, content))
     return VALIDATORS[row.validator](row, path, expected_commit, content)

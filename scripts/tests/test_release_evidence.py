@@ -336,6 +336,34 @@ class ReleaseEvidenceTest(unittest.TestCase):
             with self.assertRaisesRegex(ReleaseContractError, "(size|SHA-256)"):
                 self.validate(row, path)
 
+    def test_head_token_resolves_only_against_verified_expected_commit(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "migration.json"
+            self.write_json(path, {
+                "schemaVersion": 1, "commit": "@HEAD", "passed": True, "cases": 1,
+            })
+            data = path.read_bytes()
+            row = EvidenceRow(
+                "migration-fixture", "migration", "migration", path.name,
+                hashlib.sha256(data).hexdigest(), len(data), "@HEAD",
+                ("fixture",), {"cases": 1}, ())
+            accepted = EVIDENCE.validate_evidence(row, path, COMMIT)
+            self.assertTrue(accepted["passed"])
+
+    def test_privacy_is_checked_on_the_exact_semantically_validated_bytes(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "migration.json"
+            self.write_json(path, {
+                "schemaVersion": 1,
+                "commit": COMMIT,
+                "passed": True,
+                "cases": 1,
+                "diagnostic": "/Users/alice/private.log",
+            })
+            row = self.row(path, "migration", "migration", {"cases": 1})
+            with self.assertRaisesRegex(ReleaseContractError, "unowned absolute path"):
+                self.validate(row, path)
+
 
 if __name__ == "__main__":
     unittest.main()
