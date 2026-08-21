@@ -8,6 +8,7 @@ public record ActionRegistration(String id, CastSource source, Set<ActionAspect>
 		ActionDelivery delivery, ActionIntent intent, int potency, double range,
 		int durationTicks, int energyCost, int cooldownTicks, int residueTicks,
 		int priority, int primaryRgb) {
+	/** Validates extension-owned metadata before it can enter the canonical action catalogue. */
 	public ActionRegistration {
 		Objects.requireNonNull(id, "id");
 		Objects.requireNonNull(source, "source");

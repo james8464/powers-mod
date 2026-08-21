@@ -32,21 +32,8 @@ public final class PrivateCompanionManager {
 	private static final AtomicLong NEXT_SESSION = new AtomicLong(1L);
 	private static final Set<UUID> REQUESTED = new HashSet<>();
 	private static final Set<UUID> REVEALED = new HashSet<>();
-	private static final Map<UUID, Session> SESSIONS = new HashMap<>();
+	private static final Map<UUID, PrivateCompanionSession> SESSIONS = new HashMap<>();
 	private static final Map<UUID, UUID> BODY_OWNERS = new HashMap<>();
-
-	static final class Session {
-		private final long id;
-		ShadowCompanionEntity body;
-		private final Set<UUID> apparitionViewers = new HashSet<>();
-		final ShadowTaskController tasks = new ShadowTaskController();
-		private int dimensionTransferFailures;
-
-		private Session(long id, ShadowCompanionEntity body) {
-			this.id = id;
-			this.body = body;
-		}
-	}
 
 	private PrivateCompanionManager() {
 	}
@@ -66,11 +53,11 @@ public final class PrivateCompanionManager {
 		ShadowCompanionData data = ShadowCompanionStore.get(player);
 		if (!ShadowStatusSync.mayProceed(player, data)) return;
 
-		Session session = SESSIONS.get(ownerId);
+		PrivateCompanionSession session = SESSIONS.get(ownerId);
 		if (session == null) {
 			ShadowCompanionEntity body = ensureBody(player, data);
 			if (body == null) return;
-			session = new Session(NEXT_SESSION.getAndIncrement(), body);
+			session = new PrivateCompanionSession(NEXT_SESSION.getAndIncrement(), body);
 			SESSIONS.put(ownerId, session);
 		}
 		if (!CompanionSyncRules.shouldUpdate(serverTick, session.id)) return;
@@ -147,7 +134,7 @@ public final class PrivateCompanionManager {
 		return REQUESTED.contains(owner);
 	}
 
-	static Session session(UUID owner) {
+	static PrivateCompanionSession session(UUID owner) {
 		return SESSIONS.get(owner);
 	}
 
@@ -218,7 +205,7 @@ public final class PrivateCompanionManager {
 		return Optional.empty();
 	}
 
-	private static boolean followOwner(ServerPlayer owner, Session session) {
+	private static boolean followOwner(ServerPlayer owner, PrivateCompanionSession session) {
 		ShadowCompanionEntity previous = session.body;
 		ShadowTravelRuntime.FollowResult result = ShadowTravelRuntime.follow(owner, previous);
 		if (result.body() == null) return false;
@@ -237,7 +224,7 @@ public final class PrivateCompanionManager {
 	public static boolean travelBody(ShadowCompanionEntity body, ServerLevel targetLevel, Vec3 destination) {
 		if (body == null) return false;
 		UUID ownerId = BODY_OWNERS.getOrDefault(body.getUUID(), body.ownerId());
-		Session session = ownerId == null ? null : SESSIONS.get(ownerId);
+		PrivateCompanionSession session = ownerId == null ? null : SESSIONS.get(ownerId);
 		if (session == null || session.body != body) return false;
 		ShadowCompanionEntity movedShadow = ShadowTravelRuntime.move(body, targetLevel,
 				destination, body.getYRot(), body.getXRot());
@@ -250,7 +237,7 @@ public final class PrivateCompanionManager {
 	}
 
 	private static void setRevealed(ServerPlayer owner, boolean revealed) {
-		Session session = SESSIONS.get(owner.getUUID());
+		PrivateCompanionSession session = SESSIONS.get(owner.getUUID());
 		if (session != null && session.body != null) {
 			ShadowManifestationRules.visibility(session.body.getUUID(),
 					session.body.revealed(), revealed);
@@ -260,7 +247,7 @@ public final class PrivateCompanionManager {
 		ShadowCompanionStore.update(owner, state -> state.withRevealed(revealed));
 	}
 
-	private static void syncApparition(ServerPlayer owner, Session session, boolean teleport) {
+	private static void syncApparition(ServerPlayer owner, PrivateCompanionSession session, boolean teleport) {
 		ShadowCompanionEntity body = session.body;
 		if (body == null) return;
 		if (body.revealed()) {
@@ -286,7 +273,7 @@ public final class PrivateCompanionManager {
 		BODY_OWNERS.remove(body.getUUID());
 		ShadowCombatController.clearBody(body.getUUID());
 		ShadowConjurationManager.abandon(ownerId);
-		Session session = SESSIONS.remove(ownerId);
+		PrivateCompanionSession session = SESSIONS.remove(ownerId);
 		REQUESTED.remove(ownerId);
 		REVEALED.remove(ownerId);
 		ServerPlayer owner = entity.level().getServer().getPlayerList().getPlayer(ownerId);
@@ -302,7 +289,7 @@ public final class PrivateCompanionManager {
 		return true;
 	}
 
-	private static void dismissBrokenBody(ServerPlayer owner, Session session, Vec3 position) {
+	private static void dismissBrokenBody(ServerPlayer owner, PrivateCompanionSession session, Vec3 position) {
 		REQUESTED.remove(owner.getUUID());
 		REVEALED.remove(owner.getUUID());
 		SESSIONS.remove(owner.getUUID(), session);
@@ -331,7 +318,7 @@ public final class PrivateCompanionManager {
 		PowerFx.sound(level, position, PowersSounds.DARK_WHISPER, 1.1F, 0.55F);
 	}
 
-	private static void removeClientViewers(ServerPlayer owner, Session session) {
+	private static void removeClientViewers(ServerPlayer owner, PrivateCompanionSession session) {
 		for (UUID viewer : Set.copyOf(session.apparitionViewers)) {
 			ServerPlayer recipient = owner.level().getServer().getPlayerList().getPlayer(viewer);
 			if (recipient != null && recipient.connection != null) {
@@ -361,19 +348,19 @@ public final class PrivateCompanionManager {
 	}
 
 	public static Optional<UUID> bodyId(UUID owner) {
-		Session session = SESSIONS.get(owner);
+		PrivateCompanionSession session = SESSIONS.get(owner);
 		return session == null || session.body == null ? Optional.empty()
 				: Optional.of(session.body.getUUID());
 	}
 
 	public static Optional<ShadowCompanionEntity> body(UUID owner) {
-		Session session = SESSIONS.get(owner);
+		PrivateCompanionSession session = SESSIONS.get(owner);
 		return session == null || session.body == null ? Optional.empty()
 				: Optional.of(session.body);
 	}
 
 	public static Optional<UUID> revealedBodyId(UUID owner) {
-		Session session = SESSIONS.get(owner);
+		PrivateCompanionSession session = SESSIONS.get(owner);
 		return session == null || session.body == null || !session.body.revealed()
 				? Optional.empty() : Optional.of(session.body.getUUID());
 	}
@@ -401,7 +388,7 @@ public final class PrivateCompanionManager {
 	}
 
 	private static void despawn(ServerPlayer owner) {
-		Session removed = SESSIONS.remove(owner.getUUID());
+		PrivateCompanionSession removed = SESSIONS.remove(owner.getUUID());
 		if (removed == null) {
 			ShadowCompanionStore.clearBody(owner);
 			ShadowStatusSync.inactive(owner);
@@ -423,8 +410,8 @@ public final class PrivateCompanionManager {
 	}
 
 	public static void clear() {
-		for (Map.Entry<UUID, Session> entry : Map.copyOf(SESSIONS).entrySet()) {
-			Session session = entry.getValue();
+		for (Map.Entry<UUID, PrivateCompanionSession> entry : Map.copyOf(SESSIONS).entrySet()) {
+			PrivateCompanionSession session = entry.getValue();
 			ServerPlayer owner = session.body == null ? null : session.body.level().getServer()
 					.getPlayerList().getPlayer(entry.getKey());
 			if (session.body != null && ShadowConjurationManager.active(entry.getKey())) {
