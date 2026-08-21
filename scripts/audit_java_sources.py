@@ -34,6 +34,21 @@ PACKAGE_OWNERSHIP = {
     "mixin": "No independent ownership; delegates narrow hooks to server policy.",
 }
 
+PURE_VISUAL_SCAR_FILES = {
+    "ClientVisualScarState.java",
+    "ScarFxProtocolRules.java",
+    "VisualScarDeliveryRules.java",
+    "VisualScarDeliveryModel.java",
+    "VisualScarExpiryIndex.java",
+    "VisualScarGeometry.java",
+    "VisualScarLedgerRules.java",
+    "VisualScarMotifGeometry.java",
+    "VisualScarPresentation.java",
+    "VisualScarRevalidationRing.java",
+    "VisualScarRequestQueue.java",
+    "VisualScarRules.java",
+}
+
 
 def package_suffix(path: Path) -> str:
     text = path.as_posix()
@@ -45,6 +60,8 @@ def package_suffix(path: Path) -> str:
 
 
 def ownership(path: Path) -> str:
+    if path.name in PURE_VISUAL_SCAR_FILES:
+        return "Pure bounded value/state models; runtime owners supply lifecycle and thread confinement."
     package = package_suffix(path)
     for prefix, description in sorted(PACKAGE_OWNERSHIP.items(), key=lambda item: -len(item[0])):
         if package == prefix or package.startswith(prefix + "."):
@@ -57,6 +74,8 @@ def authority(path: Path) -> str:
     package = package_suffix(path)
     if text.startswith("src/client/"):
         return "Client render/input thread; presentation only."
+    if path.name in PURE_VISUAL_SCAR_FILES:
+        return "Pure Java logic; no Minecraft, Fabric, world, network, or render dependency."
     if package == "magic" or package in {"hud", "progression"}:
         return "Pure/immutable logic; callable from tests, mutations remain server-owned."
     return "Server-authoritative; mutable Minecraft state is touched on the server thread."
