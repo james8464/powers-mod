@@ -50,6 +50,8 @@ final class SourceAudit {
 					+ "require(?:s|d)?|epoch|lifecycle|start(?:s|ed)?|stop(?:s|ped)?|remov(?:e|es|ed|al)|"
 					+ "expir(?:e|es|ed|y)|one-shot|once|outcome|returns?|reports?|registers?|issues?|commits?|"
 					+ "exposes?|identifies|supplies|allows?|denies|throws?|creates?|clears?|preserves?|emits?)\\b");
+	private static final Pattern TYPE_CONTRACT_SIGNAL = Pattern.compile(
+			"(?i)\\b(?:boundary|defines?|groups?|invok(?:e|ed|es)|models?|owns?|represents?)\\b");
 	private static final Pattern UNSUPPORTED_CERTAINTY = Pattern.compile(
 			"(?i)\\b(?:always works?|cannot fail|completely safe|fully safe|guaranteed to work|"
 					+ "handles everything|should never happen)\\b");
@@ -241,9 +243,16 @@ final class SourceAudit {
 							? explicitlyPublic
 							: !publicSurface.isEmpty() && publicSurface.peek()
 									&& (explicitlyPublic || implicitlyPublic);
-					if (topLevel && visible) {
+					if (visible && (topLevel || relative.contains("/api/"))) {
 						var doc = docs.getDocCommentTree(getCurrentPath());
-						if (doc == null || doc.toString().isBlank()) {
+						String contract = doc == null ? "" : doc.toString();
+						int contractWords = contract.isBlank() ? 0 : contract.trim().split("\\s+").length;
+						boolean missing = contract.isBlank();
+						boolean meaningfulNestedContract = contractWords >= 4
+								&& (CONTRACT_SIGNAL.matcher(contract).find()
+										|| TYPE_CONTRACT_SIGNAL.matcher(contract).find());
+						boolean meaninglessNestedContract = !topLevel && !meaningfulNestedContract;
+						if (missing || meaninglessNestedContract) {
 							types.add(finding(relative, unit, positions, tree));
 						}
 					}

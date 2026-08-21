@@ -179,6 +179,7 @@ class SourceAuditPolicyTest {
 		SourceAudit.Result result = SourceAudit.scan(root);
 
 		assertTrue(result.undocumentedPublicContracts().isEmpty(), result::summary);
+		assertTrue(result.undocumentedPublicTypes().isEmpty(), result::summary);
 	}
 
 	@Test
@@ -229,6 +230,7 @@ class SourceAuditPolicyTest {
 		SourceAudit.Result result = SourceAudit.scan(root);
 
 		assertTrue(result.undocumentedPublicContracts().isEmpty(), result::summary);
+		assertTrue(result.undocumentedPublicTypes().isEmpty(), result::summary);
 	}
 
 	@Test
@@ -248,6 +250,45 @@ class SourceAuditPolicyTest {
 
 		assertEquals(Set.of("src/main/java/com/example/api/v1/ExampleApi.java:6"),
 				result.undocumentedPublicContracts());
+	}
+
+	@Test
+	void explicitPublicNestedApiTypesRequireTheirOwnMeaningfulContract() throws IOException {
+		write("src/main/java/com/example/api/v1/ExampleApi.java", """
+				package com.example.api.v1;
+				/** Stable integration boundary. */
+				public final class ExampleApi {
+					public static final class Decision {
+						/** Reports the validated decision outcome. */
+						public boolean allowed() { return true; }
+					}
+				}
+				""");
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertEquals(Set.of("src/main/java/com/example/api/v1/ExampleApi.java:4"),
+				result.undocumentedPublicTypes());
+	}
+
+	@Test
+	void implicitPublicInterfaceMemberTypesRequireTheirOwnMeaningfulContract() throws IOException {
+		write("src/main/java/com/example/api/v1/ExampleApi.java", """
+				package com.example.api.v1;
+				/** Stable integration boundary. */
+				public interface ExampleApi {
+					/** Type. */
+					class Decision {
+						/** Reports the validated decision outcome. */
+						public boolean allowed() { return true; }
+					}
+				}
+				""");
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertEquals(Set.of("src/main/java/com/example/api/v1/ExampleApi.java:5"),
+				result.undocumentedPublicTypes());
 	}
 
 	@Test
