@@ -42,7 +42,9 @@ public final class ArtifactGuardianSummons {
 	public static int summonLiving(LivingEntity caster, ArtifactAlignment alignment,
 			int requested, boolean elite, LivingEntity forcedTarget, boolean owned) {
 		ServerLevel level = (ServerLevel) caster.level();
-		if (PowerProtection.isSafeZone(level, caster.position())) return 0;
+		if (PowerProtection.isSafeZone(level, caster.position())
+				|| caster instanceof ServerPlayer player
+						&& !PowerProtection.mayRitual(player, level, caster.blockPosition())) return 0;
 		Map<UUID, Set<UUID>> index = elite ? ELITE_BY_OWNER : NORMAL_BY_OWNER;
 		UUID ownerId = owned ? caster.getUUID() : null;
 		Set<UUID> existing = ownerId == null ? Set.of()

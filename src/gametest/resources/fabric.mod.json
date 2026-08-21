@@ -21,6 +21,7 @@
 			,"com.powers.gametest.ActionRegistryReloadGameTests"
 			,"com.powers.player.ActionSubmissionPacketGameTests"
 			,"com.powers.network.PacketFaultGameTests"${compatibilityEntrypoint}
+			,"com.powers.gametest.HostileEnvironmentGameTests"
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests"

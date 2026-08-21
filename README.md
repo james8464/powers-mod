@@ -314,6 +314,8 @@ Safe zones are dimension/position/radius records and protect damage, hostile mov
 
 Delayed magic and queued play packets retain stable UUID, dimension, deadline, cancellation-owner, and lifecycle-epoch data rather than player or level objects. They re-resolve the live subject at execution and cancel on logout, death/respawn, missing dimensions, replacement requests, and server shutdown/reload.
 
+The live hostile-environment suite exercises those shared owners against external claim denial, an actual world border, solid low ceilings, exact void-floor travel, water and lava, nested mount/passenger graphs, physical Nether portals in ordinary and confined realms, and a real GameTest-only foreign dimension. Its [coverage and result matrix](docs/verification/evidence/2026-08-21-qa-010/README.md) records authoritative payment, mutation, and cleanup outcomes without changing direct-coordinate travel semantics.
+
 The generated [lifecycle matrix](docs/interactions/lifecycle-matrix.csv) covers eight forms, six cast sources, and 14 termination events (672 outcomes). [Interaction rules](docs/interactions/interaction-rules.md) explain targeting, protection, forcefield, amethyst, terrain, body, and cleanup precedence.
 
 ## Magic interactions and presentation

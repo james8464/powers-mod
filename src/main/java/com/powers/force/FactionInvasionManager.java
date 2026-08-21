@@ -31,8 +31,8 @@ import java.util.UUID;
 /** Manifests a small, finite opposing patrol at active living-force scars. */
 public final class FactionInvasionManager {
 	private static final int PULSE_TICKS = 200;
-	private static final int MAX_PLAYER_ANCHORS = 64;
 	private static final Map<UUID, ResourceKey<Level>> ACTIVE = new HashMap<>();
+	private static int nextPlayerAnchor = FactionInvasionRules.initialPlayerAnchorCursor();
 
 	private FactionInvasionManager() {
 	}
@@ -41,10 +41,13 @@ public final class FactionInvasionManager {
 		if (server.getTickCount() % PULSE_TICKS != 0) return;
 		prune(server);
 		if (ACTIVE.size() >= FactionInvasionRules.GLOBAL_INVADER_CAP) return;
-		int anchors = 0;
-		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-			if (anchors++ >= MAX_PLAYER_ANCHORS
-					|| PowerProtection.isSafeZone((ServerLevel) player.level(), player.position())) continue;
+		var players = server.getPlayerList().getPlayers();
+		if (players.isEmpty()) return;
+		FactionInvasionRules.AnchorWindow anchors =
+				FactionInvasionRules.playerAnchorWindow(players.size(), nextPlayerAnchor);
+		for (int index : anchors.indexes()) {
+			ServerPlayer player = players.get(index);
+			if (PowerProtection.isSafeZone((ServerLevel) player.level(), player.position())) continue;
 			ServerLevel level = (ServerLevel) player.level();
 			LivingForceKind force = opposingForce(level, player);
 			if (force == null || nearbyInvaders(level, player) >= FactionInvasionRules.NEARBY_INVADER_CAP) {
@@ -53,6 +56,9 @@ public final class FactionInvasionManager {
 			spawn(level, player, force, server.getTickCount());
 			if (ACTIVE.size() >= FactionInvasionRules.GLOBAL_INVADER_CAP) break;
 		}
+		// Keep the per-pulse bound while preventing stable PlayerList order from
+		// starving anchors beyond the first 64 on larger or test-heavy servers.
+		nextPlayerAnchor = anchors.nextCursor();
 	}
 
 	private static LivingForceKind opposingForce(ServerLevel level, ServerPlayer player) {
@@ -149,6 +155,7 @@ public final class FactionInvasionManager {
 
 	public static void clear() {
 		ACTIVE.clear();
+		nextPlayerAnchor = FactionInvasionRules.initialPlayerAnchorCursor();
 	}
 
 	public record Diagnostics(int activeInvaders, int globalCap) {

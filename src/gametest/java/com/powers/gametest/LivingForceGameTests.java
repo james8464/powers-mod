@@ -3,6 +3,7 @@ package com.powers.gametest;
 import com.powers.PowersBlocks;
 import com.powers.AmethystWardBlock;
 import com.powers.entity.DarknessCreature;
+import com.powers.force.FactionInvasionManager;
 import com.powers.force.ForceContainmentManager;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
@@ -77,20 +78,26 @@ public final class LivingForceGameTests {
 		});
 	}
 
-	@GameTest(maxTicks = 260)
+	@GameTest(environment = "powers:invasion_isolated", maxTicks = 460)
 	@SuppressWarnings("removal")
 	public void opposedLivingForceOpensABoundedFactionInvasion(GameTestHelper helper) {
+		FactionInvasionManager.clear();
 		var player = helper.makeMockServerPlayerInLevel();
 		BlockPos local = new BlockPos(8, 2, 8);
 		BlockPos absolute = helper.absolutePos(local);
 		player.setGameMode(GameType.SURVIVAL);
 		player.setPos(absolute.getX() + 0.5, absolute.getY(), absolute.getZ() + 0.5);
 		helper.setBlock(local.offset(1, 0, 0), PowersBlocks.DARKNESS);
-		helper.runAfterDelay(220, () -> {
+		helper.runAfterDelay(420, () -> {
 			var invaders = helper.getLevel().getEntitiesOfClass(DarknessCreature.class,
 					player.getBoundingBox().inflate(32.0), entity -> entity.temporaryGuardian());
-			helper.assertTrue(!invaders.isEmpty(), "Nearby Darkness never manifested a Hollowed patrol");
-			helper.assertTrue(invaders.size() <= 3, "Faction invasion exceeded its local cap");
+			try {
+				helper.assertTrue(!invaders.isEmpty(), "Nearby Darkness never manifested a Hollowed patrol");
+				helper.assertTrue(invaders.size() <= 3, "Faction invasion exceeded its local cap");
+			} finally {
+				invaders.forEach(DarknessCreature::discard);
+				FactionInvasionManager.clear();
+			}
 			helper.succeed();
 		});
 	}
