@@ -52,6 +52,11 @@ public final class PowerAbilityRuntime {
 			power.ability().activateToggleOff(player, data);
 			data.setToggleActive(player, key, false);
 		}
+		// A resource reload can briefly leave a saved slot unresolved while its
+		// authoritative toggle key remains. Death must never preserve that ownership.
+		for (String key : java.util.List.copyOf(data.getActiveToggles())) {
+			data.setToggleActive(player, key, false);
+		}
 	}
 
 	/** Clears every active ability session owned by a disconnecting player. */

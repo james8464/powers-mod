@@ -35,16 +35,15 @@ public final class ArtifactGuardianSummons {
 
 	public static int summon(ServerPlayer caster, ArtifactAlignment alignment,
 			int requested, boolean elite, LivingEntity forcedTarget, boolean owned) {
-		return summonLiving(caster, alignment, requested, elite, forcedTarget, owned);
+		return summonLiving(caster, caster, alignment, requested, elite, forcedTarget, owned);
 	}
 
-	/** Entity-safe entry used by a real Shadow body without inventing a fake player. */
-	public static int summonLiving(LivingEntity caster, ArtifactAlignment alignment,
+	/** Entity-safe entry retaining the authoritative owner for external ritual protection. */
+	public static int summonLiving(LivingEntity caster, ServerPlayer actor, ArtifactAlignment alignment,
 			int requested, boolean elite, LivingEntity forcedTarget, boolean owned) {
 		ServerLevel level = (ServerLevel) caster.level();
 		if (PowerProtection.isSafeZone(level, caster.position())
-				|| caster instanceof ServerPlayer player
-						&& !PowerProtection.mayRitual(player, level, caster.blockPosition())) return 0;
+				|| !PowerProtection.mayRitual(actor, level, caster.blockPosition())) return 0;
 		Map<UUID, Set<UUID>> index = elite ? ELITE_BY_OWNER : NORMAL_BY_OWNER;
 		UUID ownerId = owned ? caster.getUUID() : null;
 		Set<UUID> existing = ownerId == null ? Set.of()

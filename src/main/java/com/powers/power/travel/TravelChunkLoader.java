@@ -168,7 +168,10 @@ public final class TravelChunkLoader {
 	/** Cancels one player's pending load on disconnect or lifecycle invalidation. */
 	public static boolean cancel(MinecraftServer server, UUID owner) {
 		Pending pending = PENDING.get(owner);
-		return pending != null && settle(server, pending, Resolution.CANCELLED);
+		boolean cancelled = pending != null && settle(server, pending, Resolution.CANCELLED);
+		boolean leased = READY_LEASES.containsKey(owner);
+		if (leased) releaseLease(server, owner);
+		return cancelled || leased;
 	}
 
 	/** Releases all live tickets at server shutdown. */

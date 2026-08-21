@@ -248,7 +248,7 @@ public final class ShadowPowerExecutor {
 
 	private static boolean summon(ShadowCompanionEntity shadow, LivingEntity target,
 			ServerPlayer owner) {
-		return ArtifactGuardianSummons.summonLiving(shadow, ArtifactAlignment.DARKNESS,
+		return ArtifactGuardianSummons.summonLiving(shadow, owner, ArtifactAlignment.DARKNESS,
 				3, false, target, true) > 0;
 	}
 

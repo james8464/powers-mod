@@ -22,6 +22,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Ice Manipulation: a freezing beam that hurts whatever you hit and coats
  * the ground in ice. Freezes water into ice, lava into obsidian, and adds
@@ -46,16 +49,24 @@ public class IceManipulationAbility extends Ability {
 		Vec3 dir = end.subtract(origin).normalize();
 		double dist = origin.distanceTo(end);
 
-		// Claim denial is an atomic cast boundary: preflight every block the beam
-		// could transform before damage, effects, terrain, payment, or cooldown commit.
+		Map<BlockPos, BlockState> mutations = new LinkedHashMap<>();
 		for (double d = 0; d < dist; d += 0.5) {
 			Vec3 point = origin.add(dir.scale(d));
 			BlockPos pos = BlockPos.containing(point);
 			BlockState state = level.getBlockState(pos);
-			BlockPos mutation = state.is(Blocks.WATER) || state.is(Blocks.LAVA) ? pos
-					: !state.isAir() && !state.is(Blocks.BEDROCK) && d < dist - 1.0
-							&& level.getBlockState(pos.above()).isAir() ? pos.above() : null;
-			if (mutation != null && !PowerProtection.mayAffectBlock(player, level, mutation)) return false;
+			if (state.is(Blocks.WATER)) {
+				mutations.putIfAbsent(pos.immutable(), Blocks.ICE.defaultBlockState());
+			} else if (state.is(Blocks.LAVA)) {
+				mutations.putIfAbsent(pos.immutable(), Blocks.OBSIDIAN.defaultBlockState());
+			} else if (!state.isAir() && !state.is(Blocks.BEDROCK) && d < dist - 1.0
+					&& level.getBlockState(pos.above()).isAir()) {
+				mutations.putIfAbsent(pos.above().immutable(), Blocks.SNOW.defaultBlockState());
+			}
+		}
+		// The authorized set is the applied set: later samples cannot reinterpret
+		// an earlier fluid mutation as a new solid/snow candidate.
+		for (BlockPos mutation : mutations.keySet()) {
+			if (!PowerProtection.mayAffectBlock(player, level, mutation)) return false;
 		}
 
 		if (hit instanceof net.minecraft.world.phys.EntityHitResult entHit
@@ -74,22 +85,8 @@ public class IceManipulationAbility extends Ability {
 			target.setTicksFrozen(scaledDuration(player, 160));
 		}
 
-		// walk the beam in half-block steps and freeze blocks along the path
-		for (double d = 0; d < dist; d += 0.5) {
-			Vec3 point = origin.add(dir.scale(d));
-			BlockPos pos = new BlockPos((int) Math.floor(point.x), (int) Math.floor(point.y), (int) Math.floor(point.z));
-			BlockState state = level.getBlockState(pos);
-			if (state.is(Blocks.WATER) && PowerProtection.mayAffectBlock(player, level, pos)) {
-				level.setBlockAndUpdate(pos, Blocks.ICE.defaultBlockState());
-			} else if (state.is(Blocks.LAVA) && PowerProtection.mayAffectBlock(player, level, pos)) {
-				level.setBlockAndUpdate(pos, Blocks.OBSIDIAN.defaultBlockState());
-			} else if (!state.isAir() && !state.is(Blocks.BEDROCK) && d < dist - 1.0) {
-				// coat solid ground with snow near the beam's end, only where the space above is free
-				BlockPos above = pos.above();
-				if (level.getBlockState(above).isAir() && PowerProtection.mayAffectBlock(player, level, above)) {
-					level.setBlockAndUpdate(above, Blocks.SNOW.defaultBlockState());
-				}
-			}
+		for (Map.Entry<BlockPos, BlockState> mutation : mutations.entrySet()) {
+			level.setBlockAndUpdate(mutation.getKey(), mutation.getValue());
 		}
 
 		com.powers.fx.PowerFx.beam(level, origin, end,

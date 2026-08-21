@@ -32,7 +32,7 @@ import java.util.UUID;
 public final class FactionInvasionManager {
 	private static final int PULSE_TICKS = 200;
 	private static final Map<UUID, ResourceKey<Level>> ACTIVE = new HashMap<>();
-	private static int nextPlayerAnchor = FactionInvasionRules.initialPlayerAnchorCursor();
+	private static int nextPlayerAnchor = FactionInvasionRules.initialPlayerAnchor();
 
 	private FactionInvasionManager() {
 	}
@@ -43,10 +43,12 @@ public final class FactionInvasionManager {
 		if (ACTIVE.size() >= FactionInvasionRules.GLOBAL_INVADER_CAP) return;
 		var players = server.getPlayerList().getPlayers();
 		if (players.isEmpty()) return;
-		FactionInvasionRules.AnchorWindow anchors =
-				FactionInvasionRules.playerAnchorWindow(players.size(), nextPlayerAnchor);
+		FactionInvasionRules.AnchorWindow anchors = FactionInvasionRules.playerAnchorWindow(
+				players.size(), nextPlayerAnchor);
+		int visited = 0;
 		for (int index : anchors.indexes()) {
 			ServerPlayer player = players.get(index);
+			visited++;
 			if (PowerProtection.isSafeZone((ServerLevel) player.level(), player.position())) continue;
 			ServerLevel level = (ServerLevel) player.level();
 			LivingForceKind force = opposingForce(level, player);
@@ -58,7 +60,7 @@ public final class FactionInvasionManager {
 		}
 		// Keep the per-pulse bound while preventing stable PlayerList order from
 		// starving anchors beyond the first 64 on larger or test-heavy servers.
-		nextPlayerAnchor = anchors.nextCursor();
+		nextPlayerAnchor = anchors.nextAnchorAfterVisited(visited);
 	}
 
 	private static LivingForceKind opposingForce(ServerLevel level, ServerPlayer player) {
@@ -155,7 +157,7 @@ public final class FactionInvasionManager {
 
 	public static void clear() {
 		ACTIVE.clear();
-		nextPlayerAnchor = FactionInvasionRules.initialPlayerAnchorCursor();
+		nextPlayerAnchor = FactionInvasionRules.initialPlayerAnchor();
 	}
 
 	public record Diagnostics(int activeInvaders, int globalCap) {

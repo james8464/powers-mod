@@ -24,22 +24,27 @@ public final class FactionInvasionRules {
 		return SCAR_OFFSETS;
 	}
 
-	public static int initialPlayerAnchorCursor() {
+	public static int initialPlayerAnchor() {
 		return 0;
 	}
 
-	public static AnchorWindow playerAnchorWindow(int playerCount, int cursor) {
-		if (playerCount <= 0) return new AnchorWindow(List.of(), initialPlayerAnchorCursor());
-		int start = Math.floorMod(cursor, playerCount);
+	public static AnchorWindow playerAnchorWindow(int playerCount, int nextAnchor) {
+		if (playerCount <= 0) return new AnchorWindow(List.of(), 0, 0);
+		int start = Math.floorMod(nextAnchor, playerCount);
 		int size = Math.min(PLAYER_ANCHOR_CAP, playerCount);
 		List<Integer> indexes = new ArrayList<>(size);
 		for (int offset = 0; offset < size; offset++) {
 			indexes.add((start + offset) % playerCount);
 		}
-		return new AnchorWindow(List.copyOf(indexes), (start + size) % playerCount);
+		return new AnchorWindow(List.copyOf(indexes), start, playerCount);
 	}
 
-	public record AnchorWindow(List<Integer> indexes, int nextCursor) {
+	public record AnchorWindow(List<Integer> indexes, int start, int playerCount) {
+		public int nextAnchorAfterVisited(int visited) {
+			if (playerCount == 0) return 0;
+			int bounded = Math.clamp(visited, 0, indexes.size());
+			return (start + bounded) % playerCount;
+		}
 	}
 
 	public record Offset(int x, int z) {

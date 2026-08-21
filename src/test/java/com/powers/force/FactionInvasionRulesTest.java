@@ -3,6 +3,7 @@ package com.powers.force;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,18 +34,42 @@ class FactionInvasionRulesTest {
 
 	@Test
 	void playerAnchorCursorHasAnExplicitLifecycleReset() {
-		assertEquals(0, FactionInvasionRules.initialPlayerAnchorCursor());
+		assertEquals(0, FactionInvasionRules.initialPlayerAnchor());
+	}
+
+	@Test
+	void truncatedNearCapWindowResumesAfterTheLastActuallyVisitedAnchor() {
+		FactionInvasionRules.AnchorWindow first =
+				FactionInvasionRules.playerAnchorWindow(100, 0);
+		int next = first.nextAnchorAfterVisited(1);
+		FactionInvasionRules.AnchorWindow second =
+				FactionInvasionRules.playerAnchorWindow(100, next);
+
+		assertEquals(1, next);
+		assertEquals(1, second.indexes().getFirst());
+	}
+
+	@Test
+	void boundedCursorStillCoversRepresentativeJoinLeaveAndReorderChurn() {
+		FactionInvasionRules.AnchorWindow first = FactionInvasionRules.playerAnchorWindow(5, 0);
+		int next = first.nextAnchorAfterVisited(2);
+		FactionInvasionRules.AnchorWindow afterReorderAndReplacement =
+				FactionInvasionRules.playerAnchorWindow(5, next);
+		Set<Integer> visited = new HashSet<>(afterReorderAndReplacement.indexes());
+
+		assertEquals(Set.of(0, 1, 2, 3, 4), visited);
+		assertTrue(afterReorderAndReplacement.indexes().size() <= 64);
 	}
 
 	private static void assertCompleteRoundRobinCoverage(int playerCount) {
 		Set<Integer> visited = new HashSet<>();
-		int cursor = FactionInvasionRules.initialPlayerAnchorCursor();
+		int next = FactionInvasionRules.initialPlayerAnchor();
 		for (int pulse = 0; pulse < 2; pulse++) {
 			FactionInvasionRules.AnchorWindow window =
-					FactionInvasionRules.playerAnchorWindow(playerCount, cursor);
+					FactionInvasionRules.playerAnchorWindow(playerCount, next);
 			assertTrue(window.indexes().size() <= 64);
 			visited.addAll(window.indexes());
-			cursor = window.nextCursor();
+			next = window.nextAnchorAfterVisited(window.indexes().size());
 		}
 		assertEquals(playerCount, visited.size());
 	}
