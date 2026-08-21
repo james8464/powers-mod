@@ -15,7 +15,22 @@ All rows offered 1,000 packets with seed `630793`; convergence completed with qu
 | duplicate | 0 | 1,000 | 0 | 1,000 suppressed | 1,000 | 2 | 0 |
 | reorder | 0 | 0 | 667 | 666 suppressed | 334 | 3 | 2 |
 
-No row expired, overflowed, or cancelled under the ordinary matrix. Separate hard-bound tests prove the 32,768 global queue cap, 4,096 global work-per-tick cap, per-channel fairness, lifetime expiry, duplicate-copy overflow safety, and fail-closed cancellation accounting.
+No row expired, overflowed, or cancelled under the ordinary matrix. Separate hard-bound tests prove one 32,768-envelope admission cap and one 4,096-operation tick cap shared by every global and entity-scoped session on the same server. A two-session 40,000-envelope fixture proves exact overflow accounting, fair progress for both sessions, and a combined—not per-session—4,096-operation tick maximum. Per-channel fairness, lifetime expiry, duplicate-copy overflow safety, and fail-closed cancellation are covered separately.
+
+## Production convergence matrix
+
+One required Fabric GameTest creates six simultaneous scoped players. Each row submits a real registered grimoire selection and a burst of real `PowerStatePayload` connection writes. Loss rows use 250 state writes so the seeded 1% and 5% profiles exercise actual loss without exceeding the 256-envelope per-direction cap; other rows use 100. The test observes state after ten ticks, performs the documented direct retry only if a final current-state packet was lost, and asserts the final authoritative selection and outbound HUD snapshot after at most twelve ticks.
+
+| Profile | Convergence ticks | Final authority | Final client | Offered | Drop | Dupe | Delay | Reorder/stale | Deliver | Expire | Max queue | Max age | Dupe effects |
+| --- | ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| delay150 | 10 | spell 1 | HUD 91 | 101 | 0 | 0 | 101 | 99 | 2 | 0 | 101 | 4 | 0 |
+| delay300 | 10 | spell 1 | HUD 91 | 101 | 0 | 0 | 101 | 99 | 2 | 0 | 101 | 7 | 0 |
+| loss1 | 10 | spell 1 | HUD 91 | 251 | 3 | 0 | 0 | 246 | 2 | 0 | 248 | 3 | 0 |
+| loss5 | 10 | spell 1 | HUD 91 | 251 | 12 | 0 | 0 | 237 | 2 | 0 | 239 | 3 | 0 |
+| duplicate | 10 | spell 1 | HUD 91 | 101 | 0 | 101 | 0 | 198 | 2 | 0 | 202 | 3 | 0 |
+| reorder | 10 | spell 1 | HUD 91 | 101 | 0 | 0 | 68 | 99 | 2 | 0 | 101 | 2 | 0 |
+
+The exact counts above are from the isolated production-matrix run on 2026-08-21 and join to the scheduler matrix by profile ID. Each player has a distinct asserted UUID and independent entity-scoped session; per-player rate-limit state is forgotten before a retry. The required test additionally asserts that both loss profiles drop at least one real production envelope, duplicate injection occurs, delay/reorder profiles schedule delayed work, only an explicit loss may enter the safe-loss/retry state, and the post-retry selection is exactly index 1. The existing integrated Fabric-client fixture remains the final-client-state proof: the actual Shadow screen, HUD mirror, and renderer queue converge under delay/reorder/loss.
 
 ## Production-path proof
 
@@ -30,9 +45,10 @@ No row expired, overflowed, or cancelled under the ordinary matrix. Separate har
 
 ```text
 ./gradlew test --tests 'com.powers.testing.network.*' --tests 'com.powers.network.*Nonce*' --tests com.powers.network.VesselControlSequenceTest --no-daemon
+./gradlew runGameTest -PgameTestFilter=powers-gametest:packet_fault_game_tests_six_profiles_converge_through_registered_production_boundaries --no-daemon
 ./gradlew runGameTest -PgameTestFilter=powers-gametest:packet_fault_game_tests_production_packet_boundaries_remain_authoritative_and_converge --no-daemon
 ./gradlew runClientGameTest --no-daemon
 ./gradlew runGameTest --no-daemon
 ```
 
-All focused commands passed. One required sequential server fixture owns the complete registered-path scenario, including the 600-tick locator expiry, while entity-scoped sessions allow unrelated parallel GameTests to coexist. The ordinary batch passed all 115 required tests. The final broad gates and exact commit are recorded in the task report.
+All focused commands passed. One required sequential server fixture owns the complete registered-path scenario, including the 600-tick locator expiry; the second required fixture proves all six profiles and six entity scopes concurrently. The original QA-009 implementation commit is `e48610853134640a2fb0400ab63dc054999df2d9`. Literal broad-gate results and the changed-files inventory are recorded in the task report; the shared-server-budget follow-up is recorded in this evidence file and its commit handoff.

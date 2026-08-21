@@ -19,6 +19,7 @@ public final class PacketFaultEngine {
 			Stream stream, Predicate<T> delivery, Runnable failure, T payload, boolean duplicate) { }
 
 	private final PacketFaultProfile profile;
+	private final PacketFaultServerBudget serverBudget;
 	private final PriorityQueue<Envelope<?>> queue = new PriorityQueue<>(
 			Comparator.<Envelope<?>>comparingLong(Envelope::deliverAt)
 					.thenComparingLong(Envelope::order));
@@ -28,8 +29,6 @@ public final class PacketFaultEngine {
 	private final Map<Stream, Long> latestOffered = new HashMap<>();
 	private final Map<Stream, Long> latestDelivered = new HashMap<>();
 	private final Map<Stream, SeenWindow> deliveredOnce = new HashMap<>();
-	private static final int GLOBAL_QUEUE_LIMIT = 32_768;
-	private static final int GLOBAL_WORK_PER_TICK = 4_096;
 	private static final class SeenWindow {
 		private long high = -1L;
 		private long bits;
@@ -65,7 +64,12 @@ public final class PacketFaultEngine {
 	private long maximumAgeTicks;
 
 	public PacketFaultEngine(PacketFaultProfile profile) {
+		this(profile, new PacketFaultServerBudget());
+	}
+
+	PacketFaultEngine(PacketFaultProfile profile, PacketFaultServerBudget serverBudget) {
 		this.profile = Objects.requireNonNull(profile, "profile");
+		this.serverBudget = Objects.requireNonNull(serverBudget, "serverBudget");
 	}
 
 	public PacketFaultProfile profile() {
@@ -127,7 +131,7 @@ public final class PacketFaultEngine {
 			long decision, Predicate<T> delivery, Runnable failure, T payload,
 			boolean duplicate, boolean failOnOverflow) {
 		int depth = channelDepth.getOrDefault(channel, 0);
-		if (depth >= profile.queueLimit() || queue.size() >= GLOBAL_QUEUE_LIMIT) {
+		if (depth >= profile.queueLimit() || !serverBudget.tryAcquire()) {
 			overflowed++;
 			if (failOnOverflow) failure.run();
 			return false;
@@ -149,10 +153,14 @@ public final class PacketFaultEngine {
 
 	/** Delivers at most the configured work allowance for each connection and direction. */
 	public void tick(long currentTick) {
+		tick(currentTick, PacketFaultServerBudget.GLOBAL_WORK_PER_TICK);
+	}
+
+	int tick(long currentTick, int maximumWork) {
 		Map<Channel, Integer> work = new HashMap<>();
 		List<Envelope<?>> deferred = new ArrayList<>();
 		int globalWork = 0;
-		while (globalWork < GLOBAL_WORK_PER_TICK
+		while (globalWork < maximumWork
 				&& !queue.isEmpty() && queue.peek().deliverAt() <= currentTick) {
 			Envelope<?> envelope = queue.poll();
 			globalWork++;
@@ -181,6 +189,7 @@ public final class PacketFaultEngine {
 			}
 		}
 		queue.addAll(deferred);
+		return globalWork;
 	}
 
 	private void deliver(Envelope<?> envelope) {
@@ -230,6 +239,7 @@ public final class PacketFaultEngine {
 	}
 
 	private void decrement(Stream stream) {
+		serverBudget.release(1);
 		Channel channel = stream.channel();
 		channelDepth.computeIfPresent(channel, (ignored, depth) -> depth <= 1 ? null : depth - 1);
 		streamDepth.computeIfPresent(stream, (ignored, depth) -> depth <= 1 ? null : depth - 1);
@@ -248,6 +258,7 @@ public final class PacketFaultEngine {
 		List<Envelope<?>> removed = queue.stream()
 				.filter(envelope -> envelope.stream().channel().connection().equals(connection)).toList();
 		queue.removeAll(removed);
+		serverBudget.release(removed.size());
 		for (Envelope<?> envelope : removed) {
 			cancelled++;
 			fail(envelope);
@@ -264,6 +275,7 @@ public final class PacketFaultEngine {
 	public int cancelAll() {
 		List<Envelope<?>> removed = List.copyOf(queue);
 		queue.clear();
+		serverBudget.release(removed.size());
 		channelDepth.clear();
 		streamDepth.clear();
 		nextSequences.clear();
