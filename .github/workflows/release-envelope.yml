@@ -1,0 +1,149 @@
+name: QA-001 exact-build release envelope
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Full final main commit to verify and attest
+        required: true
+        type: string
+      evidence_manifest:
+        description: Committed schema-1 @HEAD evidence index
+        required: true
+        default: config/release/qa-001-evidence.json
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  release-envelope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - name: Check out the explicit release commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.release_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prove exact main identity
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          EVIDENCE_MANIFEST: ${{ inputs.evidence_manifest }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$EVIDENCE_MANIFEST" = "config/release/qa-001-evidence.json"
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+          git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*'
+          test "$(git rev-parse refs/remotes/origin/main)" = "$RELEASE_SHA"
+          git switch -C main "$RELEASE_SHA"
+          test "$(git symbolic-ref --short HEAD)" = main
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Start the isolated client display
+        run: |
+          set -euo pipefail
+          Xvfb :99 -screen 0 1280x720x24 >"$RUNNER_TEMP/powers-xvfb.log" 2>&1 &
+          echo "DISPLAY=:99" >> "$GITHUB_ENV"
+
+      - name: Run the literal final Gradle gate
+        run: |
+          python3 -B scripts/release_gate.py \
+            --catalogue config/release/qa-001-gates.json --gate final-gradle \
+            --receipt-dir build/release-envelope/receipts \
+            --repo-root . --expected-sha "${{ inputs.release_sha }}"
+
+      - name: Run complete server GameTests
+        run: |
+          python3 -B scripts/release_gate.py \
+            --catalogue config/release/qa-001-gates.json --gate server-gametests \
+            --receipt-dir build/release-envelope/receipts \
+            --repo-root . --expected-sha "${{ inputs.release_sha }}"
+
+      - name: Run complete integrated-client GameTests
+        run: |
+          python3 -B scripts/release_gate.py \
+            --catalogue config/release/qa-001-gates.json --gate client-gametests \
+            --receipt-dir build/release-envelope/receipts \
+            --repo-root . --expected-sha "${{ inputs.release_sha }}"
+
+      - name: Run the pinned compatibility GameTests
+        run: |
+          python3 -B scripts/release_gate.py \
+            --catalogue config/release/qa-001-gates.json --gate compatibility-gametests \
+            --receipt-dir build/release-envelope/receipts \
+            --repo-root . --expected-sha "${{ inputs.release_sha }}"
+
+      - name: Run dedicated-server smoke
+        run: |
+          python3 -B scripts/release_gate.py \
+            --catalogue config/release/qa-001-gates.json --gate dedicated-server-smoke \
+            --receipt-dir build/release-envelope/receipts \
+            --repo-root . --expected-sha "${{ inputs.release_sha }}"
+
+      - name: Build exact release artifacts
+        run: |
+          python3 -B scripts/release_gate.py \
+            --catalogue config/release/qa-001-gates.json --gate release-artifacts \
+            --receipt-dir build/release-envelope/receipts \
+            --repo-root . --expected-sha "${{ inputs.release_sha }}"
+
+      - name: Resolve the exact project version
+        id: version
+        run: |
+          set -euo pipefail
+          value="$(sed -n 's/^mod_version=//p' gradle.properties)"
+          [[ "$value" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9.-]+)?$ ]]
+          echo "value=$value" >> "$GITHUB_OUTPUT"
+
+      - name: Build and verify the final envelope
+        env:
+          EVIDENCE_MANIFEST: ${{ inputs.evidence_manifest }}
+        run: |
+          set -euo pipefail
+          created_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          python3 -B scripts/release_envelope.py \
+            --repo-root . --expected-sha "${{ inputs.release_sha }}" \
+            --catalogue config/release/qa-001-gates.json \
+            --evidence "$EVIDENCE_MANIFEST" \
+            --receipts build/release-envelope/receipts \
+            --runtime-jar "build/libs/powers-${{ steps.version.outputs.value }}.jar" \
+            --sources-jar "build/libs/powers-${{ steps.version.outputs.value }}-sources.jar" \
+            --output build/release-envelope --mode final \
+            --created-at "$created_at" --github-run-id "$GITHUB_RUN_ID" \
+            --github-run-attempt "$GITHUB_RUN_ATTEMPT"
+          sha256sum -c build/release-envelope/SHA256SUMS
+
+      - name: Attest the exact JARs and reports
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            build/libs/powers-${{ steps.version.outputs.value }}.jar
+            build/libs/powers-${{ steps.version.outputs.value }}-sources.jar
+            build/release-envelope/release-envelope.json
+            build/release-envelope/release-envelope.md
+          create-storage-record: false
+
+      - name: Upload the retrieval bundle
+        uses: actions/upload-artifact@v6
+        with:
+          name: qa-001-${{ inputs.release_sha }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            build/release-envelope
+            build/libs/powers-${{ steps.version.outputs.value }}.jar
+            build/libs/powers-${{ steps.version.outputs.value }}-sources.jar
