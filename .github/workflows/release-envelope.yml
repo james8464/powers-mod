@@ -63,42 +63,49 @@ jobs:
         run: |
           python3 -B scripts/release_gate.py \
             --catalogue config/release/qa-001-gates.json --gate final-gradle \
-            --receipt-dir build/release-envelope/receipts \
+            --receipt-dir .release-envelope/receipts \
             --repo-root . --expected-sha "${{ inputs.release_sha }}"
 
       - name: Run complete server GameTests
         run: |
           python3 -B scripts/release_gate.py \
             --catalogue config/release/qa-001-gates.json --gate server-gametests \
-            --receipt-dir build/release-envelope/receipts \
+            --receipt-dir .release-envelope/receipts \
             --repo-root . --expected-sha "${{ inputs.release_sha }}"
 
       - name: Run complete integrated-client GameTests
         run: |
           python3 -B scripts/release_gate.py \
             --catalogue config/release/qa-001-gates.json --gate client-gametests \
-            --receipt-dir build/release-envelope/receipts \
+            --receipt-dir .release-envelope/receipts \
+            --repo-root . --expected-sha "${{ inputs.release_sha }}"
+
+      - name: Acquire hash-pinned compatibility artifacts
+        run: |
+          python3 -B scripts/release_gate.py \
+            --catalogue config/release/qa-001-gates.json --gate compatibility-artifacts \
+            --receipt-dir .release-envelope/receipts \
             --repo-root . --expected-sha "${{ inputs.release_sha }}"
 
       - name: Run the pinned compatibility GameTests
         run: |
           python3 -B scripts/release_gate.py \
             --catalogue config/release/qa-001-gates.json --gate compatibility-gametests \
-            --receipt-dir build/release-envelope/receipts \
+            --receipt-dir .release-envelope/receipts \
             --repo-root . --expected-sha "${{ inputs.release_sha }}"
 
       - name: Run dedicated-server smoke
         run: |
           python3 -B scripts/release_gate.py \
             --catalogue config/release/qa-001-gates.json --gate dedicated-server-smoke \
-            --receipt-dir build/release-envelope/receipts \
+            --receipt-dir .release-envelope/receipts \
             --repo-root . --expected-sha "${{ inputs.release_sha }}"
 
       - name: Build exact release artifacts
         run: |
           python3 -B scripts/release_gate.py \
             --catalogue config/release/qa-001-gates.json --gate release-artifacts \
-            --receipt-dir build/release-envelope/receipts \
+            --receipt-dir .release-envelope/receipts \
             --repo-root . --expected-sha "${{ inputs.release_sha }}"
 
       - name: Resolve the exact project version
@@ -119,13 +126,13 @@ jobs:
             --repo-root . --expected-sha "${{ inputs.release_sha }}" \
             --catalogue config/release/qa-001-gates.json \
             --evidence "$EVIDENCE_MANIFEST" \
-            --receipts build/release-envelope/receipts \
+            --receipts .release-envelope/receipts \
             --runtime-jar "build/libs/powers-${{ steps.version.outputs.value }}.jar" \
             --sources-jar "build/libs/powers-${{ steps.version.outputs.value }}-sources.jar" \
-            --output build/release-envelope --mode final \
+            --output .release-envelope --mode final \
             --created-at "$created_at" --github-run-id "$GITHUB_RUN_ID" \
             --github-run-attempt "$GITHUB_RUN_ATTEMPT"
-          sha256sum -c build/release-envelope/SHA256SUMS
+          sha256sum -c .release-envelope/SHA256SUMS
 
       - name: Attest the exact JARs and reports
         uses: actions/attest@v4
@@ -133,8 +140,8 @@ jobs:
           subject-path: |
             build/libs/powers-${{ steps.version.outputs.value }}.jar
             build/libs/powers-${{ steps.version.outputs.value }}-sources.jar
-            build/release-envelope/release-envelope.json
-            build/release-envelope/release-envelope.md
+            .release-envelope/release-envelope.json
+            .release-envelope/release-envelope.md
           create-storage-record: false
 
       - name: Upload the retrieval bundle
@@ -142,8 +149,25 @@ jobs:
         with:
           name: qa-001-${{ inputs.release_sha }}
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 30
           path: |
-            build/release-envelope
+            .release-envelope/release-envelope.json
+            .release-envelope/release-envelope.md
+            .release-envelope/SHA256SUMS
+            .release-envelope/receipts/final-gradle.json
+            .release-envelope/receipts/final-gradle.log
+            .release-envelope/receipts/server-gametests.json
+            .release-envelope/receipts/server-gametests.log
+            .release-envelope/receipts/client-gametests.json
+            .release-envelope/receipts/client-gametests.log
+            .release-envelope/receipts/compatibility-artifacts.json
+            .release-envelope/receipts/compatibility-artifacts.log
+            .release-envelope/receipts/compatibility-gametests.json
+            .release-envelope/receipts/compatibility-gametests.log
+            .release-envelope/receipts/dedicated-server-smoke.json
+            .release-envelope/receipts/dedicated-server-smoke.log
+            .release-envelope/receipts/release-artifacts.json
+            .release-envelope/receipts/release-artifacts.log
             build/libs/powers-${{ steps.version.outputs.value }}.jar
             build/libs/powers-${{ steps.version.outputs.value }}-sources.jar

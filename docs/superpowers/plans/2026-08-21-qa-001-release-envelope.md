@@ -18,7 +18,7 @@
 - Use test-first development: record the focused RED, make the smallest implementation GREEN, then run affected Python/static gates.
 - Use argument vectors with `shell=False`; never accept a command string or interpolate a shell fragment.
 - Treat repository/evidence paths as hostile. Reject absolute paths, `..`, symlinks, devices, sockets, writable hard-link aliases, and files outside the owned root.
-- Write owned outputs via exclusive temporary files, `fsync`, atomic replacement, and destination rehash.
+- Write replaceable envelope outputs via exclusive temporary files, `fsync`, atomic replacement, and destination rehash. Reserve gate namespaces with an owned `O_EXCL` lock and publish accepted logs/receipts with descriptor-relative no-replace links.
 - Capture only the environment allowlist defined by the catalogue. Never package arbitrary environment variables, credentials, home paths, bearer tokens, UUIDs, public IPs, or unowned absolute paths.
 - A hash proves byte identity, not acceptance. Each evidence family must pass its typed validator.
 - A committed file cannot embed the hash of the commit that contains it. The committed evidence index and commit-bearing source evidence therefore use only the literal `@HEAD`; final verification resolves it after proving `HEAD` and emits only the full 40-character SHA. Receipts never use the token.
@@ -71,8 +71,10 @@
   - `final-gradle`: `./gradlew clean check pitest verifyScreenshots verifyVisualGoldens saveMigrationCorpus syntheticSoak --rerun-tasks --no-daemon`;
   - `server-gametests`: `./gradlew runGameTest --rerun-tasks --no-daemon --console=plain`;
   - `client-gametests`: `./gradlew runClientGameTest --rerun-tasks --no-daemon --console=plain`;
+  - `compatibility-artifacts`: `python3 -B scripts/compatibility_harness.py fetch --manifest config/compatibility/net-011.json --cache .compatibility-cache/net-011 --allowed-root .`;
   - `compatibility-gametests`: `./gradlew runCompatibilityGameTest --rerun-tasks --no-daemon --console=plain`;
-  - `dedicated-server-smoke`: `python3 -B scripts/server_smoke.py`.
+  - `dedicated-server-smoke`: `python3 -B scripts/server_smoke.py`;
+  - `release-artifacts`: `./gradlew remapJar sourcesJar --rerun-tasks --no-daemon`.
 - [x] Declare typed evidence families for QA-005, QA-006, PERF-001, compatibility, packet faults, migration, visuals, assets/resources/docs/source audits, four-client acceptance, GitHub CI, and limitations.
 - [x] Re-run the focused test GREEN and inspect `git diff --check`.
 - [x] Commit only Task 1 paths with message `test(release): lock QA-001 release contract`.
@@ -87,7 +89,7 @@
 - [x] Write CLI fixtures around a temporary catalogue and executable fixture that prove:
   - only a declared gate ID can execute;
   - the exact argv list is passed with `shell=False` in the repository root;
-  - only `JAVA_HOME`, `JAVA_VERSION`, `GRADLE_USER_HOME`, `POWERS_TEST_RUN_ID`, `GITHUB_RUN_ID`, `GITHUB_RUN_ATTEMPT`, and `GITHUB_SHA` may be captured when present;
+  - only `JAVA_VERSION`, `POWERS_TEST_RUN_ID`, `GITHUB_RUN_ID`, `GITHUB_RUN_ATTEMPT`, and `GITHUB_SHA` may be captured when present; the child receives a separate minimal operational environment and never arbitrary ambient secrets;
   - stdout/stderr are combined into an owned log file without loading an unbounded log into memory;
   - receipt schema records gate ID, full commit, argv, allowlisted environment, UTC start/end, monotonic duration, exit code, log path/size/SHA-256, and catalogue SHA-256;
   - nonzero exit, signal termination, mismatched `HEAD`, oversized output, changed log bytes, and atomic-write failure cannot yield an accepted receipt.
@@ -134,33 +136,33 @@
 - Create: `scripts/release_envelope.py`
 - Create: `scripts/tests/test_release_envelope.py`
 
-- [ ] Build temporary Git repository fixtures with a bare `origin` and test `validate_repository(repo_root, expected_sha, final_mode)` against:
+- [x] Build temporary Git repository fixtures with a bare `origin` and test `validate_repository(repo_root, expected_sha, final_mode)` against:
   - correct/incorrect branch, HEAD, fresh `origin/main`, dirty index/worktree, untracked files, missing remote, extra local/remote branches, and shallow/ambiguous SHA;
   - the one owned ignored output root, allowed only when its contents are exact generated outputs;
   - open plan checkboxes, present QA-001 backlog row, invalid evidence tokens, and evidence values that do not resolve to the verified commit.
-- [ ] Split modes explicitly:
+- [x] Split modes explicitly:
   - `preflight` validates infrastructure and inputs but must report `accepted=false` and cannot emit a release envelope;
   - `final` requires every selected ledger checkbox checked and QA-001 absent from the backlog.
-- [ ] Add receipt fixtures rejecting a missing gate, duplicate receipt, nonzero exit, argv/catalogue mismatch, unknown environment key, stale commit, changed log, or non-regular log.
-- [ ] Add artifact fixtures using `gradle.properties` and ZIP/JAR manifests; require exactly `powers-<mod_version>.jar` and `powers-<mod_version>-sources.jar`, nonempty regular files, exact expected names/version, and destination rehash after packaging.
-- [ ] Add determinism fixtures proving two builds from identical validated inputs produce byte-identical deterministic evidence sections, gate/evidence ordering, Markdown, and `SHA256SUMS`; creation/run metadata must be supplied explicitly and cannot affect evidence ordering.
-- [ ] Add interruption/rehash fixtures proving no accepted partial output and no manifest acceptance after a source byte changes.
-- [ ] Observe the missing-builder RED:
+- [x] Add receipt fixtures rejecting a missing gate, duplicate receipt, nonzero exit, argv/catalogue mismatch, unknown environment key, stale commit, changed log, or non-regular log.
+- [x] Add artifact fixtures using `gradle.properties` and ZIP/JAR manifests; require exactly `powers-<mod_version>.jar` and `powers-<mod_version>-sources.jar`, nonempty regular files, exact expected names/version, and destination rehash after packaging.
+- [x] Add determinism fixtures proving two builds from identical validated inputs produce byte-identical deterministic evidence sections, gate/evidence ordering, Markdown, and `SHA256SUMS`; creation/run metadata must be supplied explicitly and cannot affect evidence ordering.
+- [x] Add interruption/rehash fixtures proving no accepted partial output and no manifest acceptance after a source byte changes.
+- [x] Observe the missing-builder RED:
 
   ```bash
   python3 -B -m unittest scripts.tests.test_release_envelope -v
   ```
-- [ ] Implement:
+- [x] Implement:
   - `validate_repository(...)`;
   - `validate_receipts(...)`;
   - `validate_artifacts(...)`;
   - `build_envelope(...)`;
   - Markdown rendering exclusively from the validated JSON object;
   - `SHA256SUMS` over JSON, Markdown, both JARs, and packaged receipts.
-- [ ] Add CLI arguments `--repo-root`, `--expected-sha`, `--catalogue`, `--evidence`, `--receipts`, `--runtime-jar`, `--sources-jar`, `--output`, `--mode`, `--created-at`, `--github-run-id`, and `--github-run-attempt`.
-- [ ] Include literal reproduction commands and four `gh attestation verify <subject> --repo james8464/powers-mod` commands in both envelope formats.
-- [ ] Re-run all focused release tests GREEN and run `git diff --check`.
-- [ ] Commit only Task 4 paths with message `feat(release): build canonical QA-001 envelope`.
+- [x] Add CLI arguments `--repo-root`, `--expected-sha`, `--catalogue`, `--evidence`, `--receipts`, `--runtime-jar`, `--sources-jar`, `--output`, `--mode`, `--created-at`, `--github-run-id`, and `--github-run-attempt`.
+- [x] Include literal reproduction commands and four `gh attestation verify <subject> --repo james8464/powers-mod` commands in both envelope formats.
+- [x] Re-run all focused release tests GREEN and run `git diff --check`.
+- [x] Commit only Task 4 paths with message `feat(release): build canonical QA-001 envelope`.
 
 ## Task 5 — Lock the manual attestation workflow
 
@@ -169,8 +171,8 @@
 - Create: `.github/workflows/release-envelope.yml`
 - Create: `scripts/tests/test_release_workflow.py`
 
-- [ ] Write a workflow contract test that rejects any trigger other than `workflow_dispatch`, a non-40-hex input, default-branch checkout, tag/release creation, write permissions beyond attestations/id-token, mutable evidence paths, shell-composed release commands, or a missing final verifier step.
-- [ ] Require these exact properties:
+- [x] Write a workflow contract test that rejects any trigger other than `workflow_dispatch`, a non-40-hex input, default-branch checkout, tag/release creation, write permissions beyond attestations/id-token, mutable evidence paths, shell-composed release commands, or a missing final verifier step.
+- [x] Require these exact properties:
   - inputs `release_sha` and `evidence_manifest`;
   - checkout `ref: ${{ inputs.release_sha }}` with persisted credentials disabled;
   - proof that input SHA equals checked-out `HEAD` and fetched `origin/main`;
@@ -179,15 +181,15 @@
   - permissions exactly `contents: read`, `id-token: write`, `attestations: write`;
   - `actions/attest@v4` with `create-storage-record: false` and explicit runtime JAR, sources JAR, JSON envelope, and Markdown envelope subject paths;
   - ordinary upload of the bundle for retrieval, without treating upload as proof;
-  - no `git push`, tag, GitHub release, package publish, or arbitrary download step.
-- [ ] Observe the absent-workflow RED:
+  - no `git push`, tag, GitHub release, package publish, or arbitrary download step; the sole acquisition path is the declared Modrinth-host/project/version/size/SHA-pinned compatibility gate.
+- [x] Observe the absent-workflow RED:
 
   ```bash
   python3 -B -m unittest scripts.tests.test_release_workflow -v
   ```
-- [ ] Implement the minimal workflow and keep it manual-only.
-- [ ] Re-run all `test_release_*.py` tests GREEN and run workflow whitespace/privacy checks.
-- [ ] Commit only Task 5 paths with message `ci(release): attest exact QA-001 envelope`.
+- [x] Implement the minimal workflow and keep it manual-only.
+- [x] Re-run all `test_release_*.py` tests GREEN and run workflow whitespace/privacy checks.
+- [x] Commit only Task 5 paths with message `ci(release): attest exact QA-001 envelope`.
 
 ## Task 6 — Integrate lightweight verification and document open status
 
@@ -199,12 +201,12 @@
 - Modify: `CHANGELOG.md`
 - Modify: `docs/superpowers/plans/2026-08-21-qa-001-release-envelope.md`
 
-- [ ] Confirm `testPythonScripts` discovers every `scripts/tests/test_release_*.py`; avoid a redundant Gradle task if discovery already proves this.
-- [ ] Add a lightweight catalogue/preflight validation invocation to ordinary CI only if the Python suite does not already cover it. Do not add any live or final-mode gate to push/PR CI.
-- [ ] Record every observed RED and focused GREEN command, implementation commit, changed files, known limitation, and the explicit statement: `QA-001 infrastructure implemented; final envelope not yet accepted`.
-- [ ] Document operator flow in README/changelog: local preflight, final evidence manifest, manual workflow dispatch, artifact download, four `gh attestation verify` commands, then and only then optional tagging.
-- [ ] Keep the QA-001 plan row unchecked and its backlog row present. Add a regression assertion for both open-state facts if the docs validator can own it without circular final-mode logic.
-- [ ] Run while QA-006 remains active:
+- [x] Confirm `testPythonScripts` discovers every `scripts/tests/test_release_*.py`; avoid a redundant Gradle task if discovery already proves this.
+- [x] Add a lightweight catalogue/preflight validation invocation to ordinary CI only if the Python suite does not already cover it. Do not add any live or final-mode gate to push/PR CI.
+- [x] Record every observed RED and focused GREEN command, implementation commit, changed files, known limitation, and the explicit statement: `QA-001 infrastructure implemented; final envelope not yet accepted`.
+- [x] Document operator flow in README/changelog: local preflight, final evidence manifest, manual workflow dispatch, artifact download, four `gh attestation verify` commands, then and only then optional tagging.
+- [x] Keep the QA-001 plan row unchecked and its backlog row present. Add a regression assertion for both open-state facts if the docs validator can own it without circular final-mode logic.
+- [x] Run while QA-006 remains active:
 
   ```bash
   python3 -B -m unittest discover -s scripts/tests -p 'test_release_*.py' -v
@@ -216,8 +218,8 @@
   ```bash
   ./gradlew check --rerun-tasks --no-daemon
   ```
-- [ ] Request independent code review of the bounded infrastructure diff, address all P1/P2 findings test-first, and repeat focused verification.
-- [ ] Commit only the Task 6 documentation/integration paths with message `docs(release): prepare QA-001 operator flow`.
+- [x] Request independent code review of the bounded infrastructure diff, address all P1/P2 findings test-first, and repeat focused verification.
+- [x] Commit the cohesive Task 6 and independent-review remediation paths without staging unrelated work.
 
 ## Task 7 — Final Stage 8 closure procedure (deferred, do not execute now)
 

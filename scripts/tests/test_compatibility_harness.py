@@ -2,6 +2,7 @@
 
 import hashlib
 import importlib.util
+import io
 import json
 import os
 import subprocess
@@ -53,6 +54,87 @@ class CompatibilityHarnessTest(unittest.TestCase):
         return subprocess.run(
             [sys.executable, "-B", str(HARNESS), *arguments],
             cwd=ROOT, capture_output=True, text=True, check=False)
+
+    def test_fetch_acquires_only_exact_pinned_bytes_and_reuses_verified_cache(self):
+        class Response(io.BytesIO):
+            status = 200
+
+            def __init__(self, content: bytes, url: str):
+                super().__init__(content)
+                self.url = url
+
+            def geturl(self) -> str:
+                return self.url
+
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            manifest_path, cache = self.fixture(directory)
+            manifest = HARNESS_MODULE.load_manifest(manifest_path)
+            url = manifest["artifacts"][0]["downloadUrl"]
+            opens: list[str] = []
+
+            def open_exact(request):
+                opens.append(request.full_url)
+                return Response(b"pinned jar", request.full_url)
+
+            fetched = HARNESS_MODULE.fetch(manifest, cache, opener=open_exact)
+            self.assertEqual(["fixture"], fetched)
+            self.assertEqual([url], opens)
+            self.assertEqual(b"pinned jar", (cache / "fixture.jar").read_bytes())
+            HARNESS_MODULE.verify(manifest, cache)
+
+            reused = HARNESS_MODULE.fetch(
+                manifest, cache,
+                opener=lambda _request: self.fail("verified cache must not redownload"))
+            self.assertEqual([], reused)
+
+    def test_fetch_rejects_wrong_bytes_without_replacing_existing_cache(self):
+        class Response(io.BytesIO):
+            status = 200
+
+            def __init__(self, content: bytes, url: str):
+                super().__init__(content)
+                self.url = url
+
+            def geturl(self) -> str:
+                return self.url
+
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            manifest_path, cache = self.fixture(directory)
+            target = cache / "fixture.jar"
+            target.write_bytes(b"old-invalid")
+            manifest = HARNESS_MODULE.load_manifest(manifest_path)
+            with self.assertRaisesRegex(
+                    HARNESS_MODULE.CompatibilityError,
+                    "downloaded artifact mismatch"):
+                HARNESS_MODULE.fetch(
+                    manifest, cache,
+                    opener=lambda request: Response(b"wrong bytes", request.full_url))
+            self.assertEqual(b"old-invalid", target.read_bytes())
+            self.assertEqual([target], list(cache.iterdir()))
+
+    def test_fetch_rejects_symlinked_intermediate_cache_parent(self):
+        with tempfile.TemporaryDirectory() as raw_directory:
+            directory = Path(raw_directory)
+            manifest_path, unused_cache = self.fixture(directory)
+            unused_cache.rmdir()
+            repository = directory / "repo"
+            repository.mkdir()
+            external = directory / "external"
+            external.mkdir()
+            (repository / ".compatibility-cache").symlink_to(
+                external, target_is_directory=True)
+            manifest = HARNESS_MODULE.load_manifest(manifest_path)
+
+            with self.assertRaisesRegex(
+                    HARNESS_MODULE.CompatibilityError, "unsafe cache directory"):
+                HARNESS_MODULE.fetch(
+                    manifest, repository / ".compatibility-cache/net-011",
+                    allowed_root=repository,
+                    opener=lambda _request: self.fail("unsafe cache must not download"))
+
+            self.assertEqual([], list(external.iterdir()))
 
     def test_verify_rejects_hash_mismatched_cached_artifact(self):
         with tempfile.TemporaryDirectory() as raw_directory:

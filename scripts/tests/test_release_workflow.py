@@ -9,6 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW = ROOT / ".github/workflows/release-envelope.yml"
 CATALOGUE = ROOT / "config/release/qa-001-gates.json"
+SELECTED_PLAN = ROOT / "docs/superpowers/plans/2026-08-12-stages-1-8-completion.md"
+BACKLOG = ROOT / "docs/planning/IMPROVEMENT_BACKLOG.md"
 
 
 class ReleaseWorkflowTest(unittest.TestCase):
@@ -51,6 +53,15 @@ class ReleaseWorkflowTest(unittest.TestCase):
     def test_every_declared_gate_is_run_through_release_gate(self):
         text = self.text()
         catalogue = json.loads(CATALOGUE.read_text(encoding="utf-8"))
+        self.assertEqual([
+            "final-gradle", "server-gametests", "client-gametests",
+            "compatibility-artifacts", "compatibility-gametests",
+            "dedicated-server-smoke", "release-artifacts",
+        ], [gate["id"] for gate in catalogue["commands"]])
+        self.assertEqual("james8464/powers-mod", catalogue["repository"])
+        self.assertEqual(".release-envelope", catalogue["outputRoot"])
+        self.assertNotIn("JAVA_HOME", catalogue["environmentAllowlist"])
+        self.assertNotIn("GRADLE_USER_HOME", catalogue["environmentAllowlist"])
         for gate in catalogue["commands"]:
             self.assertEqual(1, text.count(f"--gate {gate['id']} "))
             self.assertRegex(
@@ -61,6 +72,31 @@ class ReleaseWorkflowTest(unittest.TestCase):
         self.assertIn("--mode final", text)
         self.assertIn('"$EVIDENCE_MANIFEST"', text)
 
+    def test_real_receipt_root_survives_the_literal_gradle_clean_gate(self):
+        catalogue = json.loads(CATALOGUE.read_text(encoding="utf-8"))
+        self.assertNotEqual("build", Path(catalogue["outputRoot"]).parts[0])
+        final_gate = next(
+            gate for gate in catalogue["commands"] if gate["id"] == "final-gradle")
+        self.assertEqual(["./gradlew", "clean"], final_gate["argv"][:2])
+        self.assertIn(
+            f"--receipt-dir {catalogue['outputRoot']}/receipts", self.text())
+
+    def test_fresh_runner_fetches_pinned_compatibility_bytes_before_use(self):
+        catalogue = json.loads(CATALOGUE.read_text(encoding="utf-8"))
+        fetch = next(
+            gate for gate in catalogue["commands"]
+            if gate["id"] == "compatibility-artifacts")
+        self.assertEqual([
+            "python3", "-B", "scripts/compatibility_harness.py", "fetch",
+            "--manifest", "config/compatibility/net-011.json",
+            "--cache", ".compatibility-cache/net-011",
+            "--allowed-root", ".",
+        ], fetch["argv"])
+        text = self.text()
+        self.assertLess(
+            text.index("--gate compatibility-artifacts "),
+            text.index("--gate compatibility-gametests "))
+
     def test_attestation_names_four_exact_subjects_and_never_mutates_release_state(self):
         text = self.text()
         self.assertIn("create-storage-record: false", text)
@@ -68,13 +104,21 @@ class ReleaseWorkflowTest(unittest.TestCase):
         expected = (
             "build/libs/powers-${{ steps.version.outputs.value }}.jar",
             "build/libs/powers-${{ steps.version.outputs.value }}-sources.jar",
-            "build/release-envelope/release-envelope.json",
-            "build/release-envelope/release-envelope.md",
+            ".release-envelope/release-envelope.json",
+            ".release-envelope/release-envelope.md",
         )
         for path in expected:
             self.assertEqual(1, subject_block.count(path))
         self.assertNotIn("*", subject_block)
-        self.assertIn("path: |\n            build/release-envelope", text)
+        upload_block = text[text.index("- name: Upload the retrieval bundle"):]
+        self.assertIn("include-hidden-files: true", upload_block)
+        self.assertNotIn("path: |\n            .release-envelope\n", upload_block)
+        catalogue = json.loads(CATALOGUE.read_text(encoding="utf-8"))
+        for gate in catalogue["commands"]:
+            self.assertIn(
+                f".release-envelope/receipts/{gate['id']}.json", upload_block)
+            self.assertIn(
+                f".release-envelope/receipts/{gate['id']}.log", upload_block)
         lowered = text.lower()
         for forbidden in (
                 "git push", "git tag", "gh release", "create-release",
@@ -88,6 +132,12 @@ class ReleaseWorkflowTest(unittest.TestCase):
         self.assertNotRegex(text, r"uses:\s+[^\s]+@(?!v\d)\S+")
         self.assertNotIn("curl ", text)
         self.assertNotIn("wget ", text)
+
+    def test_infrastructure_landing_keeps_qa001_explicitly_open(self):
+        plan = SELECTED_PLAN.read_text(encoding="utf-8")
+        backlog = BACKLOG.read_text(encoding="utf-8")
+        self.assertIn("- [ ] `QA-001`: exact-build signed release envelope; close last.", plan)
+        self.assertRegex(backlog, r"(?m)^\| QA-001 \|")
 
 
 if __name__ == "__main__":

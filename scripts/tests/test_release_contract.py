@@ -171,6 +171,33 @@ class ReleaseContractTest(unittest.TestCase):
                 with self.assertRaisesRegex(CONTRACT.ReleaseContractError, expected):
                     CONTRACT.load_evidence_manifest(path)
 
+    def test_regular_snapshot_rejects_intermediate_symlinks_and_rechecks_identity(self):
+        with tempfile.TemporaryDirectory() as raw:
+            directory = Path(raw)
+            root = directory / "root"
+            root.mkdir()
+            owned = root / "owned"
+            owned.mkdir()
+            source = owned / "evidence.txt"
+            source.write_text("accepted bytes\n", encoding="utf-8")
+
+            snapshot = CONTRACT.read_regular_snapshot(
+                root, "owned/evidence.txt", maximum_bytes=1024)
+            self.assertEqual(b"accepted bytes\n", snapshot.content)
+            CONTRACT.recheck_regular_snapshot(snapshot)
+
+            source.write_text("changed bytes\n", encoding="utf-8")
+            with self.assertRaisesRegex(CONTRACT.ReleaseContractError, "changed after validation"):
+                CONTRACT.recheck_regular_snapshot(snapshot)
+
+            external = directory / "external"
+            external.mkdir()
+            (external / "evidence.txt").write_text("outside\n", encoding="utf-8")
+            (root / "linked").symlink_to(external, target_is_directory=True)
+            with self.assertRaisesRegex(CONTRACT.ReleaseContractError, "unsafe path"):
+                CONTRACT.read_regular_snapshot(
+                    root, "linked/evidence.txt", maximum_bytes=1024)
+
     def test_committed_evidence_manifest_accepts_only_head_binding_token(self):
         digest = "b" * 64
         base = {
@@ -272,6 +299,7 @@ class ReleaseContractTest(unittest.TestCase):
             "home=/Users/alice/project",
             "uuid=123e4567-e89b-12d3-a456-426614174000",
             "client=203.0.113.8",
+            "client=[2001:4860:4860::8888]:443",
             "token=ghp_abcdefghijklmnopqrstuvwxyz123456",
             "source=/private/tmp/foreign.log",
         )

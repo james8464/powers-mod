@@ -2,14 +2,16 @@
 
 import argparse
 import hashlib
+import io
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
 import zipfile
 from collections.abc import Mapping
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from release_contract import (
     COMMIT_PATTERN,
@@ -17,9 +19,10 @@ from release_contract import (
     ReleaseContractError,
     load_catalogue,
     load_evidence_manifest,
+    read_regular_snapshot,
+    recheck_regular_snapshot,
     safe_regular_file,
     sha256_file,
-    validate_packaged_text,
     write_bytes_atomic,
 )
 from release_evidence import validate_evidence
@@ -29,6 +32,31 @@ from release_gate import verify_receipt
 DEFAULT_PLAN = Path("docs/superpowers/plans/2026-08-12-stages-1-8-completion.md")
 DEFAULT_BACKLOG = Path("docs/planning/IMPROVEMENT_BACKLOG.md")
 OUTPUT_NAMES = ("release-envelope.json", "release-envelope.md", "SHA256SUMS")
+REQUIRED_LEDGER_IDS = (
+    "QA-001", "PERF-001", "QA-005", "QA-006", "PRG-001", "PERF-005",
+    "PERF-006", "COR-020", "PERF-012", "PERF-014", "PERF-016",
+    "PERF-015", "PERF-013", "NET-007", "NET-009", "NET-010", "NET-011",
+    "QA-009", "QA-010", "QA-016", "PERF-010", "UX-004", "VFX-011",
+    "VFX-009", "VFX-004", "VFX-005", "VFX-006", "VFX-007", "INT-008",
+    "INT-009", "INT-010", "INT-011", "INT-007", "INT-012", "INT-014",
+    "PWR-004", "PWR-006", "PWR-011", "PWR-014", "PWR-015", "PWR-022",
+    "PWR-023", "PWR-024", "SPL-004", "SPL-005", "SPL-007", "SPL-009",
+    "SPL-011", "CRY-003", "CRY-006", "CRY-007", "PRG-003", "PRG-004",
+    "PRG-009", "ART-003", "ART-006", "ART-014", "ART-016", "ART-020",
+    "SHD-011", "SHD-013", "SHD-008", "SHD-009", "SHD-010", "SHD-014",
+    "SHD-016", "WRLD-008", "MOB-006", "WRLD-015", "MOB-007", "MOB-014",
+    "MOB-015",
+)
+REQUIRED_FINAL_ACCEPTANCE = (
+    "Regenerate the complete `QA-005` checklist on the final commit.",
+    "Rerun final 10/50/100-player 30-minute profiles and the complete 24-hour restart soak.",
+    "Pass `./gradlew clean check pitest verifyScreenshots verifyVisualGoldens saveMigrationCorpus syntheticSoak --rerun-tasks --no-daemon`.",
+    "Pass complete Fabric server/client GameTests, dedicated-server reload/save/restart, compatibility, packet-fault, and four-client campaign gates.",
+    "Verify asset, sound, resource, documentation, migration, source-quality, and exact-audit manifests.",
+    "Build the final JAR/report, publish GitHub Actions provenance with `actions/attest@v4`, and verify it using `gh attestation verify`.",
+    "Confirm only `main` exists, the worktree is clean, local/remote SHAs match, and GitHub Actions is green.",
+    "Remove `QA-001` only after every statement above is proven on the same final commit.",
+)
 
 
 def _git(repo_root: Path, *arguments: str) -> str:
@@ -42,17 +70,16 @@ def _git(repo_root: Path, *arguments: str) -> str:
     return result.stdout.strip()
 
 
-def _repository_file(repo_root: Path, relative: Path) -> Path:
-    return safe_regular_file(repo_root, relative.as_posix())
-
-
 def validate_repository(
         repo_root: Path,
         expected_sha: str,
         final_mode: bool,
         plan_path: Path = DEFAULT_PLAN,
         backlog_path: Path = DEFAULT_BACKLOG,
-        output_root: str = "build/release-envelope") -> dict[str, object]:
+        output_root: str = ".release-envelope",
+        *,
+        plan_content: bytes | None = None,
+        backlog_content: bytes | None = None) -> dict[str, object]:
     repo_root = repo_root.absolute()
     if (not isinstance(expected_sha, str) or not COMMIT_PATTERN.fullmatch(expected_sha)):
         raise ReleaseContractError("expected SHA must be 40 lowercase hexadecimal characters")
@@ -76,13 +103,16 @@ def validate_repository(
         repo_root, "for-each-ref", "--format=%(refname:short)", "refs/heads").splitlines()))
     if local_branches != ["main"]:
         raise ReleaseContractError(f"local branches must be exactly main: {local_branches}")
-    remote_branches = sorted(
-        line for line in _git(
-            repo_root, "for-each-ref", "--format=%(refname:short)",
-            "refs/remotes/origin").splitlines()
-        if line and line not in ("origin", "origin/HEAD"))
-    if remote_branches != ["origin/main"]:
-        raise ReleaseContractError(f"remote branches must be exactly origin/main: {remote_branches}")
+    remote_rows = _git(repo_root, "ls-remote", "--heads", "origin").splitlines()
+    remote_heads: list[tuple[str, str]] = []
+    for line in remote_rows:
+        fields = line.split()
+        if len(fields) != 2 or not COMMIT_PATTERN.fullmatch(fields[0]):
+            raise ReleaseContractError("remote branches returned malformed identity")
+        remote_heads.append((fields[1], fields[0]))
+    if remote_heads != [("refs/heads/main", expected_sha)]:
+        raise ReleaseContractError(f"remote branches must be exactly origin/main: {remote_heads}")
+    remote_branches = ["origin/main"]
     dirty = []
     output_prefix = output_root.rstrip("/") + "/"
     for line in _git(repo_root, "status", "--porcelain=v1", "--untracked-files=all").splitlines():
@@ -93,13 +123,42 @@ def validate_repository(
     if dirty:
         raise ReleaseContractError(f"worktree/index is not clean: {dirty[0]}")
 
-    plan_text = _repository_file(repo_root, plan_path).read_text(encoding="utf-8")
-    backlog_text = _repository_file(repo_root, backlog_path).read_text(encoding="utf-8")
+    if plan_content is None:
+        plan_content = read_regular_snapshot(
+            repo_root, plan_path.as_posix(), maximum_bytes=16 * 1024 * 1024).content
+    if backlog_content is None:
+        backlog_content = read_regular_snapshot(
+            repo_root, backlog_path.as_posix(), maximum_bytes=16 * 1024 * 1024).content
+    try:
+        plan_text = plan_content.decode("utf-8")
+        backlog_text = backlog_content.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise ReleaseContractError("programme governance files must be UTF-8") from error
+    ledger_section = plan_text.split("## Decisions ledger", 1)[0]
+    ledger_ids: list[str] = []
+    for line in ledger_section.splitlines():
+        if re.match(r"^- \[[ x]\] ", line):
+            ledger_ids.extend(re.findall(r"`([A-Z]+-\d+)`", line))
+    if tuple(ledger_ids) != REQUIRED_LEDGER_IDS:
+        raise ReleaseContractError("programme ledger identity is incomplete or reordered")
+    final_section = plan_text.split("## Final acceptance", 1)
+    final_rows = () if len(final_section) != 2 else tuple(
+        match.group(1) for match in re.finditer(
+            r"(?m)^- \[[ x]\] (.+)$", final_section[1]))
+    if final_rows != REQUIRED_FINAL_ACCEPTANCE:
+        raise ReleaseContractError("programme ledger final acceptance contract is incomplete")
+    if not re.search(r"(?m)^\| [A-Z]+-\d+ \|", backlog_text):
+        raise ReleaseContractError("programme backlog has no registered rows")
+    active_backlog_ids = set(re.findall(
+        r"(?m)^\|\s*([A-Z]+-\d+)\s*\|", backlog_text))
     if final_mode:
         if re.search(r"(?m)^- \[ \] ", plan_text):
             raise ReleaseContractError("selected completion plan contains an open checkbox")
-        if re.search(r"(?m)^\| QA-001 \|", backlog_text):
-            raise ReleaseContractError("QA-001 remains in the improvement backlog")
+        remaining_selected = sorted(
+            active_backlog_ids.intersection(REQUIRED_LEDGER_IDS))
+        if remaining_selected:
+            raise ReleaseContractError(
+                "selected backlog row remains: " + remaining_selected[0])
     return {
         "accepted": bool(final_mode),
         "branch": branch,
@@ -116,7 +175,9 @@ def validate_receipts(
         receipts_dir: Path,
         repo_root: Path,
         expected_sha: str,
-        catalogue_path: Path) -> list[object]:
+        catalogue_path: Path,
+        *,
+        source_snapshots: list[object] | None = None) -> list[object]:
     expected_directory = (repo_root / catalogue.output_root / "receipts").absolute()
     if receipts_dir.absolute() != expected_directory:
         raise ReleaseContractError(f"receipt directory must be {expected_directory}")
@@ -131,7 +192,13 @@ def validate_receipts(
     except OSError as error:
         raise ReleaseContractError(f"cannot inspect receipt directory: {error}") from error
     expected_json = {f"{gate.id}.json" for gate in catalogue.commands}
-    actual_json = {entry.name for entry in entries if entry.name.endswith(".json")}
+    expected_logs = {f"{gate.id}.log" for gate in catalogue.commands}
+    actual_names = {entry.name for entry in entries}
+    unexpected_outputs = actual_names - expected_json - expected_logs
+    if unexpected_outputs:
+        raise ReleaseContractError(
+            f"unexpected receipt output: {sorted(unexpected_outputs)[0]}")
+    actual_json = actual_names & expected_json
     missing = expected_json - actual_json
     unexpected = actual_json - expected_json
     if missing:
@@ -142,16 +209,45 @@ def validate_receipts(
     for gate in sorted(catalogue.commands, key=lambda value: value.id):
         path = safe_regular_file(receipts_dir, f"{gate.id}.json")
         receipts.append(verify_receipt(
-            path, catalogue, repo_root, expected_sha, catalogue_path=catalogue_path))
+            path, catalogue, repo_root, expected_sha,
+            catalogue_path=catalogue_path,
+            source_snapshots=source_snapshots))
     return receipts
+
+
+def validate_output_inventory(
+        output_dir: Path, catalogue: GateCatalogue) -> None:
+    try:
+        info = output_dir.lstat()
+    except FileNotFoundError:
+        return
+    except OSError as error:
+        raise ReleaseContractError(f"release output is unavailable: {error}") from error
+    if output_dir.is_symlink() or not stat.S_ISDIR(info.st_mode):
+        raise ReleaseContractError("release output root is unsafe")
+    allowed = {"receipts", *OUTPUT_NAMES}
+    for entry in output_dir.iterdir():
+        if entry.name not in allowed:
+            raise ReleaseContractError(f"unexpected release output: {entry.name}")
+        entry_info = entry.lstat()
+        if entry.is_symlink():
+            raise ReleaseContractError(f"unsafe release output: {entry.name}")
+        if entry.name == "receipts":
+            if not stat.S_ISDIR(entry_info.st_mode):
+                raise ReleaseContractError("unsafe release output: receipts")
+        elif not stat.S_ISREG(entry_info.st_mode) or entry_info.st_nlink != 1:
+            raise ReleaseContractError(f"unsafe release output: {entry.name}")
 
 
 def validate_evidence_manifest(
         catalogue: GateCatalogue,
         evidence_path: Path,
         repo_root: Path,
-        expected_sha: str) -> list[dict[str, object]]:
-    manifest = load_evidence_manifest(evidence_path)
+        expected_sha: str,
+        *,
+        manifest=None,
+        source_snapshots: list[object] | None = None) -> list[dict[str, object]]:
+    manifest = manifest or load_evidence_manifest(evidence_path)
     requirements = {row.id: row for row in catalogue.evidence}
     rows = {row.id: row for row in manifest.rows}
     missing = requirements.keys() - rows.keys()
@@ -166,12 +262,15 @@ def validate_evidence_manifest(
         row = rows[identifier]
         if row.kind != requirement.kind or row.validator != requirement.validator:
             raise ReleaseContractError(f"evidence {identifier}: catalogue contract mismatch")
-        path = safe_regular_file(repo_root, row.path)
-        try:
-            validate_packaged_text(path.read_text(encoding="utf-8"))
-        except UnicodeDecodeError as error:
-            raise ReleaseContractError(f"evidence {identifier}: non-UTF-8 packaged input") from error
-        typed = validate_evidence(row, path, expected_sha)
+        snapshot = read_regular_snapshot(
+            repo_root, row.path, maximum_bytes=256 * 1024 * 1024)
+        if source_snapshots is not None:
+            source_snapshots.append(snapshot)
+        path = repo_root / row.path
+        typed = validate_evidence(
+            row, path, expected_sha, content=snapshot.content,
+            raw_snapshots=source_snapshots, raw_root=repo_root,
+            raw_prefix=PurePosixPath(row.path).parent)
         validated.append({
             "id": row.id,
             "kind": row.kind,
@@ -187,9 +286,13 @@ def validate_evidence_manifest(
     return validated
 
 
-def _properties(path: Path) -> dict[str, str]:
+def _properties(path: Path, *, content: bytes | None = None) -> dict[str, str]:
     values: dict[str, str] = {}
-    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+    try:
+        text = path.read_text(encoding="utf-8") if content is None else content.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise ReleaseContractError("gradle.properties: expected UTF-8") from error
+    for number, line in enumerate(text.splitlines(), 1):
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):
             continue
@@ -205,12 +308,12 @@ def _properties(path: Path) -> dict[str, str]:
     return values
 
 
-def _safe_zip(path: Path) -> zipfile.ZipFile:
+def _safe_zip(content: bytes, label: Path) -> zipfile.ZipFile:
     try:
-        archive = zipfile.ZipFile(path, "r")
+        archive = zipfile.ZipFile(io.BytesIO(content), "r")
         bad = archive.testzip()
     except (OSError, zipfile.BadZipFile) as error:
-        raise ReleaseContractError(f"artifact is not a valid ZIP/JAR: {path}: {error}") from error
+        raise ReleaseContractError(f"artifact is not a valid ZIP/JAR: {label}: {error}") from error
     if bad is not None:
         archive.close()
         raise ReleaseContractError(f"artifact contains corrupt member: {bad}")
@@ -226,9 +329,16 @@ def validate_artifacts(
         repo_root: Path,
         catalogue: GateCatalogue,
         runtime_jar: Path,
-        sources_jar: Path) -> list[dict[str, object]]:
-    properties_path = safe_regular_file(repo_root, "gradle.properties")
-    properties = _properties(properties_path)
+        sources_jar: Path,
+        *,
+        source_snapshots: list[object] | None = None,
+        properties_snapshot=None) -> list[dict[str, object]]:
+    properties_snapshot = properties_snapshot or read_regular_snapshot(
+        repo_root, "gradle.properties", maximum_bytes=1024 * 1024)
+    if source_snapshots is not None and properties_snapshot not in source_snapshots:
+        source_snapshots.append(properties_snapshot)
+    properties = _properties(
+        repo_root / "gradle.properties", content=properties_snapshot.content)
     version = properties["mod_version"]
     supplied = {"runtime-jar": runtime_jar.absolute(), "sources-jar": sources_jar.absolute()}
     requirements = {artifact.id: artifact for artifact in catalogue.artifacts}
@@ -241,8 +351,11 @@ def validate_artifacts(
         if supplied[identifier] != expected:
             raise ReleaseContractError(
                 f"artifact path mismatch for {identifier}: {supplied[identifier]} != {expected}")
-        artifact = safe_regular_file(repo_root, expected_relative)
-        with _safe_zip(artifact) as archive:
+        snapshot = read_regular_snapshot(
+            repo_root, expected_relative, maximum_bytes=512 * 1024 * 1024)
+        if source_snapshots is not None:
+            source_snapshots.append(snapshot)
+        with _safe_zip(snapshot.content, expected) as archive:
             names = set(archive.namelist())
             if identifier == "runtime-jar":
                 if "fabric.mod.json" not in names or not any(name.endswith(".class") for name in names):
@@ -258,8 +371,8 @@ def validate_artifacts(
         accepted.append({
             "id": identifier,
             "path": expected_relative,
-            "size": artifact.stat().st_size,
-            "sha256": sha256_file(artifact),
+            "size": snapshot.size,
+            "sha256": snapshot.sha256,
         })
     return accepted
 
@@ -369,25 +482,67 @@ def build_envelope(
         backlog_path: Path = DEFAULT_BACKLOG) -> dict[str, Path]:
     if mode not in ("preflight", "final"):
         raise ReleaseContractError("mode must be preflight or final")
-    catalogue = load_catalogue(catalogue_path)
+    expected_catalogue = (repo_root / "config/release/qa-001-gates.json").absolute()
+    expected_evidence = (repo_root / "config/release/qa-001-evidence.json").absolute()
+    expected_plan = (repo_root / DEFAULT_PLAN).absolute()
+    expected_backlog = (repo_root / DEFAULT_BACKLOG).absolute()
+    if catalogue_path.absolute() != expected_catalogue:
+        raise ReleaseContractError(f"catalogue path must be {expected_catalogue}")
+    if evidence_path.absolute() != expected_evidence:
+        raise ReleaseContractError(f"evidence path must be {expected_evidence}")
+    supplied_plan = (repo_root / plan_path).absolute() if not plan_path.is_absolute() else plan_path.absolute()
+    supplied_backlog = ((repo_root / backlog_path).absolute()
+                        if not backlog_path.is_absolute() else backlog_path.absolute())
+    if supplied_plan != expected_plan:
+        raise ReleaseContractError(f"plan path must be {expected_plan}")
+    if supplied_backlog != expected_backlog:
+        raise ReleaseContractError(f"backlog path must be {expected_backlog}")
+    source_snapshots: list[object] = []
+    catalogue_snapshot = read_regular_snapshot(
+        repo_root, "config/release/qa-001-gates.json",
+        maximum_bytes=16 * 1024 * 1024)
+    evidence_index_snapshot = read_regular_snapshot(
+        repo_root, "config/release/qa-001-evidence.json",
+        maximum_bytes=16 * 1024 * 1024)
+    properties_snapshot = read_regular_snapshot(
+        repo_root, "gradle.properties", maximum_bytes=1024 * 1024)
+    plan_snapshot = read_regular_snapshot(
+        repo_root, DEFAULT_PLAN.as_posix(), maximum_bytes=16 * 1024 * 1024)
+    backlog_snapshot = read_regular_snapshot(
+        repo_root, DEFAULT_BACKLOG.as_posix(), maximum_bytes=16 * 1024 * 1024)
+    source_snapshots.extend((
+        catalogue_snapshot, evidence_index_snapshot, properties_snapshot,
+        plan_snapshot, backlog_snapshot))
+    catalogue = load_catalogue(
+        catalogue_path, content=catalogue_snapshot.content)
+    evidence_manifest = load_evidence_manifest(
+        evidence_path, content=evidence_index_snapshot.content)
     expected_output = (repo_root / catalogue.output_root).absolute()
     if output_dir.absolute() != expected_output:
         raise ReleaseContractError(f"output directory must be {expected_output}")
+    validate_output_inventory(output_dir, catalogue)
     repository = validate_repository(
         repo_root, expected_sha, mode == "final", plan_path, backlog_path,
-        catalogue.output_root)
+        catalogue.output_root, plan_content=plan_snapshot.content,
+        backlog_content=backlog_snapshot.content)
     receipts = validate_receipts(
-        catalogue, receipts_dir, repo_root, expected_sha, catalogue_path)
+        catalogue, receipts_dir, repo_root, expected_sha, catalogue_path,
+        source_snapshots=source_snapshots)
     evidence = validate_evidence_manifest(
-        catalogue, evidence_path, repo_root, expected_sha)
-    artifacts = validate_artifacts(repo_root, catalogue, runtime_jar, sources_jar)
+        catalogue, evidence_path, repo_root, expected_sha,
+        manifest=evidence_manifest, source_snapshots=source_snapshots)
+    artifacts = validate_artifacts(
+        repo_root, catalogue, runtime_jar, sources_jar,
+        source_snapshots=source_snapshots,
+        properties_snapshot=properties_snapshot)
     if mode == "preflight":
         return {}
     if not re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z", created_at):
         raise ReleaseContractError("created-at must be an explicit UTC timestamp")
     if not github_run_id.isdigit() or not github_run_attempt.isdigit():
         raise ReleaseContractError("final mode requires numeric GitHub run identity")
-    properties = _properties(safe_regular_file(repo_root, "gradle.properties"))
+    properties = _properties(
+        repo_root / "gradle.properties", content=properties_snapshot.content)
     receipt_rows = _receipt_rows(receipts, repo_root, receipts_dir)
     limitations = sorted({
         limitation for row in evidence for limitation in row["limitations"]})
@@ -411,8 +566,8 @@ def build_envelope(
         "javaVersion": "25",
         "createdAt": created_at,
         "github": {"runId": github_run_id, "runAttempt": github_run_attempt},
-        "catalogueSha256": sha256_file(catalogue_path),
-        "evidenceIndexSha256": sha256_file(evidence_path),
+        "catalogueSha256": catalogue_snapshot.sha256,
+        "evidenceIndexSha256": evidence_index_snapshot.sha256,
         "repositoryState": repository,
         "gates": receipt_rows,
         "evidence": evidence,
@@ -433,26 +588,44 @@ def build_envelope(
     try:
         write_bytes_atomic(json_path, json_bytes)
         write_bytes_atomic(markdown_path, markdown_bytes)
+        generated_snapshots = []
+        for path, expected_content in (
+                (json_path, json_bytes), (markdown_path, markdown_bytes)):
+            snapshot = read_regular_snapshot(
+                repo_root, path.relative_to(repo_root).as_posix(),
+                maximum_bytes=64 * 1024 * 1024)
+            if snapshot.content != expected_content:
+                raise ReleaseContractError(
+                    f"generated output changed: {path.name}")
+            generated_snapshots.append(snapshot)
         checksum_paths = [
             json_path, markdown_path, runtime_jar, sources_jar,
             *(receipts_dir / f"{gate.id}.json" for gate in catalogue.commands),
+            *(receipts_dir / f"{gate.id}.log" for gate in catalogue.commands),
         ]
         checksum_lines = []
         for path in sorted(checksum_paths, key=lambda value: value.relative_to(repo_root).as_posix()):
             relative = path.relative_to(repo_root).as_posix()
             checksum_lines.append(f"{sha256_file(path)}  {relative}")
-        write_bytes_atomic(
-            checksums_path, ("\n".join(checksum_lines) + "\n").encode("utf-8"))
+        checksums_bytes = ("\n".join(checksum_lines) + "\n").encode("utf-8")
+        write_bytes_atomic(checksums_path, checksums_bytes)
+        checksums_snapshot = read_regular_snapshot(
+            repo_root, checksums_path.relative_to(repo_root).as_posix(),
+            maximum_bytes=64 * 1024 * 1024)
+        if checksums_snapshot.content != checksums_bytes:
+            raise ReleaseContractError("generated output changed: SHA256SUMS")
+        generated_snapshots.append(checksums_snapshot)
         for artifact in artifacts:
             if sha256_file(repo_root / artifact["path"]) != artifact["sha256"]:
                 raise ReleaseContractError(f"artifact changed during packaging: {artifact['id']}")
-        manifest = load_evidence_manifest(evidence_path)
-        for row in manifest.rows:
-            if sha256_file(repo_root / row.path) != row.sha256:
-                raise ReleaseContractError(f"evidence changed during packaging: {row.id}")
+        for snapshot in source_snapshots:
+            recheck_regular_snapshot(snapshot)
         for receipt in receipt_rows:
             if sha256_file(repo_root / receipt["receiptPath"]) != receipt["receiptSha256"]:
                 raise ReleaseContractError(f"receipt changed during packaging: {receipt['id']}")
+        validate_output_inventory(output_dir, catalogue)
+        for snapshot in generated_snapshots:
+            recheck_regular_snapshot(snapshot)
     except BaseException:
         _cleanup_outputs(output_dir)
         raise

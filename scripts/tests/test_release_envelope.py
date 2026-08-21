@@ -4,6 +4,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -28,8 +29,20 @@ SPEC.loader.exec_module(ENVELOPE)
 
 
 class ReleaseEnvelopeTest(unittest.TestCase):
-    PLAN = Path("docs/superpowers/plans/selected.md")
+    PLAN = Path("docs/superpowers/plans/2026-08-12-stages-1-8-completion.md")
     BACKLOG = Path("docs/planning/IMPROVEMENT_BACKLOG.md")
+
+    def test_checked_in_programme_ledger_matches_locked_release_identity(self):
+        text = (ROOT / self.PLAN).read_text(encoding="utf-8")
+        ledger_section = text.split("## Decisions ledger", 1)[0]
+        identifiers = []
+        for line in ledger_section.splitlines():
+            if re.match(r"^- \[[ x]\] ", line):
+                identifiers.extend(re.findall(r"`([A-Z]+-\d+)`", line))
+        self.assertEqual(ENVELOPE.REQUIRED_LEDGER_IDS, tuple(identifiers))
+        final_section = text.split("## Final acceptance", 1)[1]
+        final_rows = tuple(re.findall(r"(?m)^- \[[ x]\] (.+)$", final_section))
+        self.assertEqual(ENVELOPE.REQUIRED_FINAL_ACCEPTANCE, final_rows)
 
     def git(self, repo: Path, *arguments: str) -> str:
         result = subprocess.run(
@@ -51,12 +64,22 @@ class ReleaseEnvelopeTest(unittest.TestCase):
 
         (repo / self.PLAN.parent).mkdir(parents=True)
         (repo / self.BACKLOG.parent).mkdir(parents=True)
+        ledger = []
+        for identifier in ENVELOPE.REQUIRED_LEDGER_IDS:
+            checked = final or identifier != "QA-001"
+            ledger.append(f"- [{'x' if checked else ' '}] `{identifier}`: fixture")
+        acceptance = [
+            f"- [x] {value}" for value in ENVELOPE.REQUIRED_FINAL_ACCEPTANCE]
         (repo / self.PLAN).write_text(
-            "# Selected\n\n- [x] final row\n" if final else
-            "# Selected\n\n- [ ] QA-001 remains open\n", encoding="utf-8")
+            "# Selected\n\n" + "\n".join(ledger)
+            + "\n\n## Decisions ledger\n\nFixture.\n\n## Final acceptance\n\n"
+            + "\n".join(acceptance) + "\n", encoding="utf-8")
+        backlog_rows = ["| COR-018 | Guarantee | P2 | Deferred | Evidence |"]
+        if not final:
+            backlog_rows.append("| QA-001 | Guarantee | P0 | Envelope | Report |")
         (repo / self.BACKLOG).write_text(
-            "# Backlog\n" if final else
-            "# Backlog\n\n| QA-001 | Guarantee | P0 | Envelope | Report |\n",
+            "# Backlog\n\n| ID | Kind | Priority | Improvement | Acceptance |\n"
+            "| --- | --- | --- | --- | --- |\n" + "\n".join(backlog_rows) + "\n",
             encoding="utf-8")
         (repo / ".gitignore").write_text("/build/\n", encoding="utf-8")
         (repo / "gradle.properties").write_text(
@@ -158,7 +181,9 @@ class ReleaseEnvelopeTest(unittest.TestCase):
                     repo, commit, True, self.PLAN, self.BACKLOG, "build/release-envelope")
 
     def test_repository_validation_rejects_branch_remote_and_worktree_drift(self):
-        mutations = ("dirty", "untracked", "wrong-branch", "extra-local", "remote-behind", "extra-remote")
+        mutations = (
+            "dirty", "untracked", "wrong-branch", "extra-local", "remote-behind",
+            "extra-remote", "hidden-extra-remote")
         for mutation in mutations:
             with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as raw:
                 repo, _, _, commit = self.fixture(Path(raw))
@@ -179,13 +204,52 @@ class ReleaseEnvelopeTest(unittest.TestCase):
                     self.git(repo, "commit", "--allow-empty", "-m", "local only")
                     expected = self.git(repo, "rev-parse", "HEAD")
                     message = "origin/main"
-                else:
+                elif mutation == "extra-remote":
                     self.git(repo, "push", "origin", "HEAD:refs/heads/extra")
+                    message = "remote branches"
+                else:
+                    self.git(repo, "config", "remote.origin.fetch",
+                             "+refs/heads/main:refs/remotes/origin/main")
+                    self.git(repo, "push", "origin", "HEAD:refs/heads/hidden")
+                    self.git(repo, "update-ref", "-d", "refs/remotes/origin/hidden")
                     message = "remote branches"
                 with self.assertRaisesRegex(ReleaseContractError, message):
                     ENVELOPE.validate_repository(
                         repo, expected, True, self.PLAN, self.BACKLOG,
                         "build/release-envelope")
+
+    def test_repository_validation_rejects_truncated_governance_files(self):
+        with tempfile.TemporaryDirectory() as raw:
+            repo, _, _, _ = self.fixture(Path(raw))
+            (repo / self.PLAN).write_text("# Selected\n", encoding="utf-8")
+            (repo / self.BACKLOG).write_text("# Backlog\n", encoding="utf-8")
+            self.git(repo, "add", str(self.PLAN), str(self.BACKLOG))
+            self.git(repo, "commit", "-m", "truncate governance")
+            self.git(repo, "push", "origin", "main")
+            commit = self.git(repo, "rev-parse", "HEAD")
+            with self.assertRaisesRegex(ReleaseContractError, "programme ledger"):
+                ENVELOPE.validate_repository(
+                    repo, commit, True, self.PLAN, self.BACKLOG,
+                    "build/release-envelope")
+
+    def test_final_repository_rejects_any_selected_id_left_in_backlog(self):
+        with tempfile.TemporaryDirectory() as raw:
+            repo, _, _, _ = self.fixture(Path(raw))
+            backlog = repo / self.BACKLOG
+            backlog.write_text(
+                backlog.read_text(encoding="utf-8")
+                + "| VFX-004 | Presentation | P1 | Still active | Evidence |\n",
+                encoding="utf-8")
+            self.git(repo, "add", str(self.BACKLOG))
+            self.git(repo, "commit", "-m", "leave selected row active")
+            self.git(repo, "push", "origin", "main")
+            commit = self.git(repo, "rev-parse", "HEAD")
+
+            with self.assertRaisesRegex(
+                    ReleaseContractError, "selected backlog row remains"):
+                ENVELOPE.validate_repository(
+                    repo, commit, True, self.PLAN, self.BACKLOG,
+                    "build/release-envelope")
 
     def test_receipt_set_is_exact_and_reverified(self):
         with tempfile.TemporaryDirectory() as raw:
@@ -195,6 +259,13 @@ class ReleaseEnvelopeTest(unittest.TestCase):
             receipts = ENVELOPE.validate_receipts(
                 catalogue, directory, repo, commit, catalogue_path)
             self.assertEqual(["unit"], [receipt.gate_id for receipt in receipts])
+
+            rogue = directory / "private.running"
+            rogue.write_text("secret\n", encoding="utf-8")
+            with self.assertRaisesRegex(ReleaseContractError, "unexpected receipt output"):
+                ENVELOPE.validate_receipts(
+                    catalogue, directory, repo, commit, catalogue_path)
+            rogue.unlink()
 
             shutil.copy2(directory / "unit.json", directory / "duplicate.json")
             with self.assertRaisesRegex(ReleaseContractError, "unexpected receipt"):
@@ -239,6 +310,41 @@ class ReleaseEnvelopeTest(unittest.TestCase):
                 ENVELOPE.validate_artifacts(
                     repo, load_catalogue(catalogue_path), runtime, sources)
 
+    def test_artifact_validation_carries_recheckable_exact_source_snapshots(self):
+        with tempfile.TemporaryDirectory() as raw:
+            repo, catalogue_path, _, _ = self.fixture(Path(raw))
+            runtime, sources = self.artifacts(repo)
+            snapshots = []
+            accepted = ENVELOPE.validate_artifacts(
+                repo, load_catalogue(catalogue_path), runtime, sources,
+                source_snapshots=snapshots)
+            self.assertEqual(3, len(snapshots))
+            self.assertEqual(
+                {row["sha256"] for row in accepted},
+                {snapshot.sha256 for snapshot in snapshots
+                 if snapshot.relative.startswith("build/libs/")})
+            runtime.write_bytes(b"replacement")
+            runtime_snapshot = next(
+                snapshot for snapshot in snapshots
+                if snapshot.relative.endswith("powers-1.2.3.jar"))
+            with self.assertRaisesRegex(ReleaseContractError, "changed after validation"):
+                ENVELOPE.recheck_regular_snapshot(runtime_snapshot)
+
+    def test_final_builder_pins_all_committed_control_paths(self):
+        with tempfile.TemporaryDirectory() as raw:
+            directory = Path(raw)
+            repo, catalogue, evidence, commit = self.fixture(directory)
+            receipts = self.receipts(repo, catalogue, commit)
+            runtime, sources = self.artifacts(repo)
+            output = repo / "build/release-envelope"
+            external_catalogue = directory / "catalogue.json"
+            external_catalogue.write_bytes(catalogue.read_bytes())
+            with self.assertRaisesRegex(ReleaseContractError, "catalogue path"):
+                ENVELOPE.build_envelope(
+                    repo, commit, external_catalogue, evidence, receipts,
+                    runtime, sources, output, "final", "2026-08-21T12:00:00Z",
+                    "123", "1", self.PLAN, self.BACKLOG)
+
     def test_final_build_is_canonical_deterministic_and_checksum_complete(self):
         with tempfile.TemporaryDirectory() as raw:
             repo, catalogue, evidence, commit = self.fixture(Path(raw))
@@ -272,7 +378,7 @@ class ReleaseEnvelopeTest(unittest.TestCase):
             self.assertIn("gh attestation verify", first["markdown"].decode("utf-8"))
 
             checksum_lines = first["checksums"].decode("utf-8").splitlines()
-            self.assertEqual(5, len(checksum_lines))
+            self.assertEqual(6, len(checksum_lines))
             for line in checksum_lines:
                 digest, relative = line.split("  ", 1)
                 self.assertEqual(digest, hashlib.sha256((repo / relative).read_bytes()).hexdigest())
@@ -317,6 +423,44 @@ class ReleaseEnvelopeTest(unittest.TestCase):
                         "final", "2026-08-21T12:00:00Z", "123", "1",
                         self.PLAN, self.BACKLOG)
             for name in ("release-envelope.json", "release-envelope.md", "SHA256SUMS"):
+                self.assertFalse((output / name).exists())
+
+    def test_final_builder_rejects_every_unowned_output_entry(self):
+        with tempfile.TemporaryDirectory() as raw:
+            repo, catalogue, evidence, commit = self.fixture(Path(raw))
+            receipts = self.receipts(repo, catalogue, commit)
+            runtime, sources = self.artifacts(repo)
+            output = repo / "build/release-envelope"
+            (output / "private.txt").write_text("not owned\n", encoding="utf-8")
+            with self.assertRaisesRegex(ReleaseContractError, "unexpected release output"):
+                ENVELOPE.build_envelope(
+                    repo, commit, catalogue, evidence, receipts, runtime, sources,
+                    output, "final", "2026-08-21T12:00:00Z", "123", "1",
+                    self.PLAN, self.BACKLOG)
+
+    def test_generated_subject_swap_cannot_be_checksummed_or_accepted(self):
+        with tempfile.TemporaryDirectory() as raw:
+            repo, catalogue, evidence, commit = self.fixture(Path(raw))
+            receipts = self.receipts(repo, catalogue, commit)
+            runtime, sources = self.artifacts(repo)
+            output = repo / "build/release-envelope"
+            original = ENVELOPE.write_bytes_atomic
+
+            def swap_json(path: Path, data: bytes) -> str:
+                digest = original(path, data)
+                if path.name == "release-envelope.json":
+                    path.write_text('{"accepted":false}\n', encoding="utf-8")
+                return digest
+
+            with mock.patch.object(
+                    ENVELOPE, "write_bytes_atomic", side_effect=swap_json):
+                with self.assertRaisesRegex(
+                        ReleaseContractError, "generated output changed"):
+                    ENVELOPE.build_envelope(
+                        repo, commit, catalogue, evidence, receipts, runtime,
+                        sources, output, "final", "2026-08-21T12:00:00Z",
+                        "123", "1", self.PLAN, self.BACKLOG)
+            for name in ENVELOPE.OUTPUT_NAMES:
                 self.assertFalse((output / name).exists())
 
 

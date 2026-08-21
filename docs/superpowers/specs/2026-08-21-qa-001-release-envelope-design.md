@@ -106,7 +106,10 @@ Paths must be regular files below the repository or the owned release-output
 directory. Symlinks, hard-link aliases for writable outputs, absolute paths,
 `..`, device files, sockets, and missing files are rejected. Files are opened
 without following symlinks and rehashed after packaging. Generated output uses
-exclusive temporary files, `fsync`, and atomic replacement.
+exclusive temporary files, `fsync`, and atomic replacement. Gate receipts use
+a held descriptor-relative directory, an owned `O_EXCL` namespace lock, and
+no-replace publication so concurrent or prior accepted results cannot be
+overwritten.
 
 ## Typed validation
 
@@ -145,8 +148,10 @@ and a trailing newline. It records:
 - the required post-build `gh attestation verify` commands.
 
 `release-envelope.md` is rendered only from the validated JSON object. It never
-parses raw logs independently. `SHA256SUMS` covers both envelopes, both JARs, and
-all packaged receipts.
+parses raw logs independently. `SHA256SUMS` covers both envelopes, both JARs,
+all packaged receipts, and every accepted raw gate log. The owned
+`.release-envelope` root sits outside Gradle's `clean` target and accepts no
+unnamed file.
 
 The envelope is not self-referential: GitHub's attestation URL is an external
 result. The attested JSON and Markdown report bind all release evidence, while
@@ -174,13 +179,15 @@ After local verification and artifact creation:
   with:
     subject-path: |
       build/libs/powers-*.jar
-      build/release-envelope/release-envelope.json
-      build/release-envelope/release-envelope.md
+      .release-envelope/release-envelope.json
+      .release-envelope/release-envelope.md
     create-storage-record: false
 ```
 
-The workflow uploads the envelope bundle as an ordinary workflow artifact too,
-but upload success is not attestation proof. Final operator verification uses:
+The workflow uploads an explicit validated inventory as an ordinary workflow
+artifact too. Hidden-file inclusion is enabled because the clean-proof owned
+root is `.release-envelope`; no recursive or stale file can join that inventory.
+Upload success is not attestation proof. Final operator verification uses:
 
 ```text
 gh attestation verify <subject> --repo james8464/powers-mod
@@ -191,9 +198,12 @@ Each subject must verify against the exact repository and digest before tagging.
 ## Failure handling and security
 
 All validators fail closed with a nonzero exit and a concise path/gate-specific
-message. They never rewrite source evidence, delete inputs, invoke a shell,
-download arbitrary content, or read secrets. Receipt environment capture is an
-allowlist limited to Java/Gradle/runtime version identifiers and GitHub run IDs.
+message. They never rewrite source evidence, delete inputs, invoke a shell, or
+read secrets. The sole network acquisition is the catalogue's Modrinth
+host/project/version/size/SHA-pinned compatibility fetch, traversed beneath a
+held repository dirfd without redirects. Gate children receive a minimal fixed
+operational environment; receipt capture is narrower still and limited to
+runtime version/test identifiers and GitHub run IDs.
 Potential credentials, home paths, bearer tokens, UUIDs, public IP addresses,
 and unowned absolute paths are rejected from packaged text evidence.
 
