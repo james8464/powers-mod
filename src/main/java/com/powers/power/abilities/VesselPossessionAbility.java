@@ -40,7 +40,7 @@ import java.util.UUID;
  */
 public class VesselPossessionAbility extends Ability {
 	private static final net.minecraft.resources.Identifier POWER_ID = PowersMod.id("vessel_possession");
-	// 10 seconds of possession
+	// A finite ten-second lease prevents abandoned control ownership.
 	private static final int POSSESS_TICKS = 200;
 	private record Possession(UUID sessionId, ServerPlayer owner, LivingEntity target,
 			boolean targetOriginallyNoAi, PossessionRules.SessionKind kind,

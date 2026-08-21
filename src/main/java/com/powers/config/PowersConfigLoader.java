@@ -289,7 +289,7 @@ public final class PowersConfigLoader {
 			if (object.has(key) && object.get(key).isJsonPrimitive()
 					&& object.getAsJsonPrimitive(key).isBoolean()) return object.get(key).getAsBoolean();
 		} catch (RuntimeException ignored) {
-			// Report the value-free default substitution below.
+			// Report the value-free default below without retaining malformed operator input.
 		}
 		changes.add(new ConfigValidationReport.Entry(path, ConfigValidationReport.Kind.DEFAULTED,
 				invalidMarker(object, key), Boolean.toString(fallback),
@@ -303,7 +303,7 @@ public final class PowersConfigLoader {
 			if (object.has(key) && object.get(key).isJsonPrimitive()
 					&& object.getAsJsonPrimitive(key).isNumber()) return object.get(key).getAsInt();
 		} catch (RuntimeException ignored) {
-			// Report the value-free default substitution below.
+			// Report the value-free default below without retaining malformed operator input.
 		}
 		changes.add(new ConfigValidationReport.Entry(path, ConfigValidationReport.Kind.DEFAULTED,
 				invalidMarker(object, key), Integer.toString(fallback),

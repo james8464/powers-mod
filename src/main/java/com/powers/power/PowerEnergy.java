@@ -14,9 +14,9 @@ import net.minecraft.server.level.ServerPlayer;
 
 /** the shared energy pool every power draws from, plus the costs */
 public final class PowerEnergy {
-	// starting energy pool for every player
+	// The shared baseline keeps rank scaling identical across ordinary alignments.
 	public static final int BASE_MAX = 250;
-	// the shadow variant starts with twice the base pool
+	// Darkness begins at exactly twice the ordinary baseline before rank growth.
 	public static final int DARKNESS_BASE_MAX = BASE_MAX * 2;
 
 	private PowerEnergy() {

@@ -33,7 +33,7 @@ public class SizeShiftAbility extends Ability {
 	private static final int DURATION_TICKS = 400;
 	private static final int COOLDOWN_TICKS = 600;
 
-	// Yellow spans Minecraft's practical minimum and the approved tenfold form.
+	// Hard scale endpoints keep Yellow within Minecraft's approved practical range.
 	private static final AttributeModifier SHRINK_MODIFIER = new AttributeModifier(
 			PowersMod.id("size_shift_shrink"),
 			CrystalSizeShiftRules.modifierFor(CrystalSizeShiftRules.SMALL_SCALE),

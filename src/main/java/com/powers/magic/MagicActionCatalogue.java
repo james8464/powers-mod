@@ -108,7 +108,7 @@ public final class MagicActionCatalogue {
 		add(actions, "double_health", MagicOrigin.INNATE, MagicDelivery.AURA, MagicIntent.DEFENCE,
 				MagicAspect.LIFE, MagicAspect.PROTECTION);
 
-		// Crystal actions: convergence items reuse these underlying action IDs.
+		// Reuse underlying crystal IDs so convergence items share collision semantics.
 		add(actions, "inferno", MagicOrigin.CRYSTAL, MagicDelivery.FIELD, MagicIntent.HARM,
 				MagicAspect.FLAME, MagicAspect.STORM);
 		add(actions, "clone_swarm", MagicOrigin.CRYSTAL, MagicDelivery.FIELD, MagicIntent.SUPPORT,
@@ -161,7 +161,7 @@ public final class MagicActionCatalogue {
 		add(actions, "starbound_light_lightning", MagicOrigin.ARTIFACT, MagicDelivery.INSTANT,
 				MagicIntent.HARM, MagicAspect.STORM, MagicAspect.LIGHT);
 
-		// Grimoire spells: identifiers match SpellRegistry selections and cooldowns.
+		// Match SpellRegistry identities so selections and cooldown ownership cannot diverge.
 		add(actions, "soul_compass", MagicOrigin.SPELL, MagicDelivery.INSTANT, MagicIntent.INFORMATION,
 				MagicAspect.SOUL, MagicAspect.MIND);
 		add(actions, "augury", MagicOrigin.SPELL, MagicDelivery.CHANNEL, MagicIntent.INFORMATION,
@@ -195,7 +195,7 @@ public final class MagicActionCatalogue {
 		add(actions, "amethyst_ward", MagicOrigin.AMETHYST, MagicDelivery.FIELD, MagicIntent.DEFENCE,
 				MagicAspect.SUPPRESSION, MagicAspect.PROTECTION);
 
-		// Persistent realm matter participates even though no player actively casts it.
+		// Realm matter retains a collision identity without fabricating a player caster.
 		add(actions, "darkness_block", MagicOrigin.REALM, MagicDelivery.FIELD, MagicIntent.WORLD_INTERACTION,
 				MagicAspect.DARKNESS);
 		add(actions, "pure_light_block", MagicOrigin.REALM, MagicDelivery.FIELD, MagicIntent.WORLD_INTERACTION,

@@ -44,7 +44,7 @@ public class LifeBloomAbility extends Ability {
 		// entities on some runtimes. Bless the caster explicitly so Life Bloom can
 		// never omit its source, then inspect only nearby companions below.
 		bless(player, blessingDuration, level);
-		// the box reaches 20 blocks out from the caster in every direction
+		// A finite caster-centred box bounds companion inspection in every direction.
 		for (LivingEntity ally : BoundedEntityCandidates.living(level,
 				AABB.ofSize(origin, radius * 2, radius * 2, radius * 2),
 				256,

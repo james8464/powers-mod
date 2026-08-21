@@ -158,7 +158,7 @@ public class DreamwalkingAbility extends Ability {
 					|| host == null || !host.isAlive()
 					|| dreamer.level() != hostLevel
 					|| now >= dream.endsAt();
-			// Consent and amethyst are live counterplay, not one-time entry checks.
+			// Revalidate consent and amethyst so entry cannot grant lasting control authority.
 			if (!invalid) {
 				invalid = AmethystDampening.isDampened(dreamer) || AmethystDampening.isDampened(host)
 						|| !PowerProtection.mayDreamwalk(dreamer, host);

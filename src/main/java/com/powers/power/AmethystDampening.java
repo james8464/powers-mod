@@ -46,7 +46,7 @@ import java.util.Optional;
  * everything else the mod did each tick.
  */
 public final class AmethystDampening {
-	// how close amethyst blocks need to be to suppress powers
+	// The fixed proximity bound keeps suppression local and index queries finite.
 	private static final int RADIUS = 6;
 	private static final int MAX_SUPPRESSED_WARDS_PER_DIMENSION = 4_096;
 	private static final int MAX_SUPPRESSION_TICKS = 72_000;
@@ -269,7 +269,7 @@ public final class AmethystDampening {
 		PowerFx.sound(level, pos, SoundEvents.BEACON_DEACTIVATE, 0.8f, 1.1f);
 	}
 
-	// any amethyst item suppresses powers, from the main inventory, offhand, or armor
+	// Scan every carried slot so moving amethyst cannot bypass suppression.
 	private static boolean hasAmethystItem(ServerPlayer player) {
 		for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
 			if (isAmethystItem(stack)) return true;

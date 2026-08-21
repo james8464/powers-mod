@@ -441,7 +441,7 @@ public class TeleportAbility extends Ability {
 				&& (!(subject instanceof ServerPlayer player) || MagicUseGate.ongoingAllowed(player));
 	}
 
-	// which realm's signature the departing lightning should build up
+	// Preserve the destination realm signature so departure telegraphs the impending arrival.
 	private static PowersMod.StormTheme themeFor(ResourceKey<Level> dimension) {
 		if (SkillSystem.isDarkRealm(dimension)) return PowersMod.StormTheme.DARK;
 		if (dimension.identifier().equals(PowersMod.id("light_realm"))) return PowersMod.StormTheme.LIGHT;

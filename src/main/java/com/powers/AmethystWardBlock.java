@@ -72,7 +72,7 @@ public class AmethystWardBlock extends Block {
 
 	@Override
 	protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean moving) {
-		// a broken or piston-pushed ward stops projecting immediately
+		// Remove membership immediately so a displaced ward cannot retain suppression authority.
 		AmethystDampening.removePoweredWard(level, pos);
 		super.affectNeighborsAfterRemoval(state, level, pos, moving);
 	}

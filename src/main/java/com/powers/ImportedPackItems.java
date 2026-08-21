@@ -70,7 +70,7 @@ public final class ImportedPackItems {
 			}
 			java.util.function.Function<Item.Properties, Item> factory = Item::new;
 			if (texture.startsWith("food_")) {
-				// cooked, smoked, and stew foods restore more hunger
+				// Classification is explicit so prepared foods retain their stronger nutrition.
 				boolean cooked = texture.contains("cooked") || texture.contains("smoked") || texture.contains("stew");
 				FoodProperties food = new FoodProperties.Builder()
 						.nutrition(cooked ? 6 : 4)
@@ -90,7 +90,7 @@ public final class ImportedPackItems {
 				factory = props -> new GrimoireItem(props, texture);
 			} else if (!ImportedItemRules.isLegacyAssetLayer(texture)
 					&& (texture.contains("runestone") || texture.contains("rune"))) {
-				// runestones and runes become usable rune items
+				// Use the rune owner so these textures inherit the released energy behavior.
 				int energy = RuneTierRules.energyFor(texture);
 				factory = props -> new RuneItem(props, energy);
 			} else if (ImportedArtifactRules.kind(texture) != ImportedArtifactKind.NONE) {

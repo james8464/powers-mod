@@ -110,7 +110,7 @@ public final class PowerRegistry {
 		if (idString == null || idString.isBlank()) {
 			return null;
 		}
-		// bare names like "flight" are shorthand for "powers:flight"
+		// Normalize bare names so commands and saved names share one canonical identity.
 		String normalized = idString.indexOf(':') < 0 ? PowersMod.MOD_ID + ":" + idString : idString;
 		Identifier id = Identifier.tryParse(normalized);
 		return id != null ? get(id) : null;

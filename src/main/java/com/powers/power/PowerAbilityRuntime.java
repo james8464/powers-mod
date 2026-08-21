@@ -89,7 +89,7 @@ public final class PowerAbilityRuntime {
 			case "void_beam" -> VoidBeamAbility.clear(owner);
 			case "energy_drain" -> EnergyDrainAbility.clear(owner);
 			default -> {
-				// Instant stateless abilities have nothing to compensate.
+				// Stateless actions own no rollback state after their activation returns.
 			}
 		}
 	}

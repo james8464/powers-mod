@@ -75,7 +75,7 @@ final class PlayerPowerAttachments {
 
 	/** Forces this schema class to initialize while Fabric is still registering content. */
 	static void initialize() {
-		// Static field initialization above performs every AttachmentRegistry registration.
+		// Class-load ownership ensures every attachment is registered before save decoding.
 	}
 
 	private static AttachmentType<List<String>> persistentStringList(String name) {

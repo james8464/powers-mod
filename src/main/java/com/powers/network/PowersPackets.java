@@ -115,7 +115,7 @@ public final class PowersPackets {
 		}
 	}
 
-	// the server's go-ahead for the celestial grimoire: open the locator screen
+	// Open the locator only after the server authorises the celestial grimoire cast.
 	public record OpenLocatorScreenPayload(com.powers.spell.CelestialSearchMode mode,
 			UUID nonce) implements CustomPacketPayload {
 		public static final CustomPacketPayload.Type<OpenLocatorScreenPayload> TYPE =
@@ -266,10 +266,10 @@ public final class PowersPackets {
 			if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.TRAVEL)) return;
 			if (GlobalTimeStopManager.rejectIfStopped(player)) return;
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;
-			// reject garbage: NaN coordinates would corrupt the stored mark
+			// Reject non-finite coordinates before they can corrupt the server-owned mark.
 			if (!Double.isFinite(payload.x()) || !Double.isFinite(payload.y()) || !Double.isFinite(payload.z())) return;
 			AmethystDampening.update(player);
-			// the same counterplay applies to marking a teleport spot
+			// Reuse teleport counterplay so marking cannot bypass protection policy.
 			if (AmethystDampening.isDampened(player)) {
 				TeleportAbility.clearMarking(player);
 				AmethystDampening.punish(player);

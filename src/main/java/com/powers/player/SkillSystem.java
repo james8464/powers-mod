@@ -106,7 +106,7 @@ public final class SkillSystem {
 				PowersPackets.syncTo(player);
 			}
 		}
-		// Lazily migrates the old numeric ladder into the persistent maze.
+		// Lazy migration preserves old numeric progress without rewriting untouched players.
 		data.rankProgress(false);
 		if (hasDarknessTag(player)) data.rankProgress(true);
 		applyRank(player);
@@ -131,7 +131,7 @@ public final class SkillSystem {
 		return DARKNESS_TIERS[clampLevel(level, DARKNESS_MAX_LEVEL)].color();
 	}
 
-	// levels run 0..max inclusive and there is one tier name for each
+	// Inclusive indexing keeps one stable title for every persisted level.
 	private static int clampLevel(int level, int max) {
 		return Math.max(0, Math.min(max, level));
 	}

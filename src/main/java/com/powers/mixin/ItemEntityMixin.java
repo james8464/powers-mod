@@ -32,7 +32,7 @@ public abstract class ItemEntityMixin {
 	}
 
 	@Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
-	// crystals ignore all damage: lightning, explosions, fire, you name it
+	// Damage immunity preserves released crystal ownership across every vanilla damage source.
 	private void powers$protectCrystalFromDamage(ServerLevel level, DamageSource source, float amount,
 			CallbackInfoReturnable<Boolean> cir) {
 		if (ProtectedMagicDropRules.isProtected(((ItemEntity) (Object) this).getItem())) {

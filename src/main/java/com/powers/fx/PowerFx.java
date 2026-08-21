@@ -133,14 +133,14 @@ public final class PowerFx {
 		ServerFxTransport.eventAudio(level, pos, cue, positionalVolume, pitch);
 	}
 
-	// the small "no" burst for a cancelled or refused cast
+	// A dedicated restrained burst keeps refusal feedback distinct from successful impact FX.
 	public static void cancelled(ServerLevel level, Vec3 pos, int rgb) {
 		burst(level, pos, com.powers.PowersParticles.ECLIPSE, 10, 0.35, 0.02);
 		coloredBurst(level, pos, rgb, 8, 0.25);
 		sound(level, pos, SoundEvents.BEACON_DEACTIVATE, 0.5f, 0.7f);
 	}
 
-	// two colored beams meeting mid-air with a spark burst, for powers clashing
+	// Preserve both beam colours so a collision remains attributable to both casters.
 	public static void clash(ServerLevel level, Vec3 from, Vec3 to, int attacker, int defender) {
 		Vec3 midpoint = from.add(to).scale(0.5);
 		beam(level, from, midpoint, dust(attacker, 0.85F), 8);

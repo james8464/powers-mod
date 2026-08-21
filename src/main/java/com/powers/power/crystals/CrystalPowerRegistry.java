@@ -129,7 +129,7 @@ public final class CrystalPowerRegistry {
 		String actionId = ability instanceof ModeCrystalAbility convergence
 				? convergence.selectedActionId(player) : ability.id().getPath();
 		if (!MagicUseGate.passes(player, true, actionId)) return false;
-		// not ready yet - tell the player how long is left
+		// Report the authoritative remainder without mutating selection or energy.
 		if (!ActivationCooldowns.isReady(player, ability)) {
 			int remaining = ActivationCooldowns.remainingTicks(player, ability);
 			com.powers.knowledge.MagicAttemptReporter.failure(player, actionId,
@@ -182,7 +182,7 @@ public final class CrystalPowerRegistry {
 				PowerMessages.send(player, "crystal.powers.unavailable", 4);
 			}
 		}
-		// push the updated energy and cooldown to the client
+		// Synchronize only after resolution so the client observes committed state.
 		PowersPackets.syncTo(player);
 		return activated;
 	}

@@ -15,6 +15,8 @@ import com.powers.magic.runtime.MagicRuntime;
 import com.powers.magic.runtime.PhysicalMagicPresences;
 import com.powers.magic.runtime.PresenceAnchor;
 import com.powers.player.PlayerPowers;
+import com.powers.player.EnergyHistorySource;
+import com.powers.player.PlayerEnergyHistory;
 import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.spell.CelestialRuinCancellation;
 import com.powers.spell.CelestialRuinManager;
@@ -187,6 +189,7 @@ public final class P1AcceptanceGameTests {
 		caster.setItemInHand(InteractionHand.MAIN_HAND,
 				ImportedPackItems.item("imported_book_grimoire_deep").getDefaultInstance());
 		int before = PlayerPowers.get(caster).energy();
+		int historyBefore = PlayerEnergyHistory.snapshot(caster).history().size();
 		SpellCastingManager.use(caster, "book_grimoire_deep");
 		helper.assertTrue(SpellCastingManager.isChanneling(caster.getUUID()),
 				"Dimensional Anchor did not begin its interruptible channel");
@@ -196,7 +199,12 @@ public final class P1AcceptanceGameTests {
 		helper.runAfterDelay(3, () -> {
 			helper.assertFalse(SpellCastingManager.isChanneling(caster.getUUID()),
 					"Movement did not interrupt the ritual");
-			helper.assertTrue(PlayerPowers.get(caster).energy() == before - 11,
+			var history = PlayerEnergyHistory.snapshot(caster).history();
+			long ritualNet = history.subList(historyBefore, history.size()).stream()
+					.filter(entry -> entry.source() != EnergyHistorySource.REGENERATION)
+					.mapToLong(com.powers.player.EnergyHistorySnapshot.Entry::delta)
+					.sum();
+			helper.assertTrue(ritualNet == -11,
 					"Interrupted ritual did not retain exactly half its payment");
 			helper.assertFalse(DimensionalAnchorAbility.isAnchored(target),
 					"Interrupted ritual executed its effect");

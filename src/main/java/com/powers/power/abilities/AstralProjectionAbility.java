@@ -36,9 +36,9 @@ import java.util.UUID;
  */
 public class AstralProjectionAbility extends Ability {
 	private static final Identifier POWER_ID = PowersMod.id("astral_projection");
-	// 30 seconds as a ghost
+	// A finite thirty-second lease prevents abandoned projection ownership.
 	private static final int DURATION = 600;
-	// leash radius in blocks
+	// The hard leash bounds observation without loading remote chunks.
 	private static final double RADIUS = 150.0;
 	private static final Map<UUID, Projection> ACTIVE = new HashMap<>();
 
@@ -109,13 +109,13 @@ public class AstralProjectionAbility extends Ability {
 			}
 			if (now >= projection.endsAt()
 					|| !player.level().dimension().equals(projection.dimension())) {
-				// time is up or the ghost switched dimensions, send them home
+				// End expired or displaced projections so remote ownership cannot persist.
 				end(player, projection);
 				it.remove();
 				continue;
 			}
 			if (player.position().distanceToSqr(projection.origin()) > projection.radius() * projection.radius()) {
-				// leash snapped: teleport the ghost back to the origin
+				// Enforce the hard leash without loading or searching a replacement destination.
 				PowerFx.sound((ServerLevel) player.level(), player.position(), SoundEvents.ENDERMAN_TELEPORT, 0.75f, 0.75f);
 				PowerFx.rune((ServerLevel) player.level(), player.position(), 1.2, 0x7C4DFF, 18, now * 0.125);
 				player.teleport(new TeleportTransition((ServerLevel) player.level(), projection.origin(), Vec3.ZERO,
@@ -133,7 +133,7 @@ public class AstralProjectionAbility extends Ability {
 	}
 
 	private static void end(ServerPlayer player, Projection projection) {
-		// bring the ghost back to the recorded origin, then restore game mode
+		// Restore the recorded body origin before releasing the spectator hold.
 		boolean hadAnchor = BodyProxyManager.hasSession(player, BodyProxyKind.ASTRAL);
 		boolean returned = BodyProxyManager.returnToBody(player);
 		if (BodyReturnFallbackRules.mayUseLegacyFallback(hadAnchor, returned)) {

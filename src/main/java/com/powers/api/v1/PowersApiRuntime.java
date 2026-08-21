@@ -93,7 +93,9 @@ public final class PowersApiRuntime implements PowersApiV1 {
 
 	PowersApiRuntime() { }
 
+	/** Returns the process-wide runtime whose server-epoch state is cleared on every stop. */
 	public static PowersApiRuntime global() { return GLOBAL; }
+	/** Exposes this runtime through the stable versioned integration contract. */
 	public PowersApiV1 api() { return this; }
 
 	/** Discovers Fabric entrypoints in stable identity order and opens one registration epoch. */
