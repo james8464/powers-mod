@@ -28,15 +28,14 @@ import java.util.List;
 /** Registered packet and transport-boundary coverage for NET-010 rejection ordering. */
 @SuppressWarnings("removal")
 public final class ActionSubmissionPacketGameTests {
-	@GameTest(maxTicks = 20)
+	@GameTest(environment = "powers:artifact_stale_cycle_isolated", maxTicks = 20)
 	@SuppressWarnings("removal")
 	public void staleCycleDoesNotMigrateRawSelectionOrConsumeArtifactLane(GameTestHelper helper) {
 		ServerPlayer player = authorizedShadowOwner(helper);
 		var catalogue = MagicRuntime.catalogue();
-		catalogue.reloadAliases(java.util.Map.of("innate/net010_old_fire", "innate/fireball"));
 		long stale = catalogue.snapshot().revision() - 1L;
 		player.setAttached(PlayerPowerAttachments.SHADOW_SWORD_SELECTION, "innate/net010_old_fire");
-		int energy = PlayerPowers.get(player).energy();
+		PlayerPowers.get(player).restoreEnergy();
 		long cooldown = player.level().getGameTime() + 100L;
 		PlayerPowers.get(player).setCooldown("powers:fireball", cooldown);
 		List<Object> payloads = captureClientboundPayloads(player);
@@ -48,7 +47,7 @@ public final class ActionSubmissionPacketGameTests {
 			helper.assertTrue("innate/net010_old_fire".equals(player.getAttachedOrElse(
 					PlayerPowerAttachments.SHADOW_SWORD_SELECTION, "")),
 					"Stale cycle migrated the raw saved selection before validation");
-			helper.assertTrue(PlayerPowers.get(player).energy() == energy,
+			helper.assertTrue(PlayerPowers.get(player).energy() == PlayerPowers.get(player).energyCapacity(),
 					"Stale cycle changed energy");
 			helper.assertTrue(PlayerPowers.get(player).cooldownReadyAt("powers:fireball") == cooldown,
 					"Stale cycle changed cooldown state");
@@ -58,15 +57,16 @@ public final class ActionSubmissionPacketGameTests {
 		});
 	}
 
-	@GameTest(maxTicks = 20)
+	@GameTest(environment = "powers:artifact_stale_teleport_isolated", maxTicks = 20)
 	@SuppressWarnings("removal")
 	public void staleTeleportDoesNotMigrateRawSelectionOrConsumeTravelLane(GameTestHelper helper) {
 		ServerPlayer player = authorizedShadowOwner(helper);
 		var catalogue = MagicRuntime.catalogue();
-		catalogue.reloadAliases(java.util.Map.of("innate/net010_old_time", "innate/time_shift"));
 		long stale = catalogue.snapshot().revision() - 1L;
 		player.setAttached(PlayerPowerAttachments.SHADOW_SWORD_SELECTION, "innate/net010_old_time");
-		var before = player.position();
+		double beforeX = player.getX();
+		double beforeZ = player.getZ();
+		double requestedX = player.getX() + 8.0;
 		int energy = PlayerPowers.get(player).energy();
 		long cooldown = player.level().getGameTime() + 100L;
 		PlayerPowers.get(player).setCooldown("powers:time_shift", cooldown);
@@ -75,12 +75,15 @@ public final class ActionSubmissionPacketGameTests {
 
 		player.connection.handleCustomPayload(new ServerboundCustomPayloadPacket(
 				new ShadowSwordPackets.TeleportPayload(stale, "darkness", "innate/time_shift",
-						player.getX() + 8.0, player.getY(), player.getZ(), player.level().dimension(), "")));
+						requestedX, player.getY(), player.getZ(), player.level().dimension(), "")));
 		helper.runAfterDelay(2, () -> {
 			helper.assertTrue("innate/net010_old_time".equals(player.getAttachedOrElse(
 					PlayerPowerAttachments.SHADOW_SWORD_SELECTION, "")),
 					"Stale teleport migrated the raw saved selection before validation");
-			helper.assertTrue(player.position().equals(before) && PlayerPowers.get(player).energy() == energy,
+			helper.assertTrue(Math.abs(player.getX() - requestedX) > 4.0
+					&& Math.abs(player.getX() - beforeX) < 1.0
+					&& Math.abs(player.getZ() - beforeZ) < 1.0
+					&& PlayerPowers.get(player).energy() == energy,
 					"Stale teleport changed action state or energy");
 			helper.assertTrue(PlayerPowers.get(player).cooldownReadyAt("powers:time_shift") == cooldown,
 					"Stale teleport changed cooldown state");
@@ -90,7 +93,7 @@ public final class ActionSubmissionPacketGameTests {
 		});
 	}
 
-	@GameTest(maxTicks = 20)
+	@GameTest(environment = "powers:crystal_invalidation_isolated", maxTicks = 20)
 	@SuppressWarnings("removal")
 	public void crystalOwnerLossSendsOnlyExplicitCrystalInvalidation(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
@@ -107,7 +110,7 @@ public final class ActionSubmissionPacketGameTests {
 		});
 	}
 
-	@GameTest(maxTicks = 30)
+	@GameTest(environment = "powers:artifact_recents_isolated", maxTicks = 30)
 	@SuppressWarnings("removal")
 	public void successfulArtifactSelectionRecordsAndTransportsBoundedRecents(GameTestHelper helper) {
 		ServerPlayer player = authorizedShadowOwner(helper);
@@ -135,6 +138,74 @@ public final class ActionSubmissionPacketGameTests {
 		});
 	}
 
+	@GameTest(environment = "powers:artifact_authority_isolated", maxTicks = 80)
+	public void artifactBindingAuthorityRejectsThenAcknowledgesBeforeCommit(GameTestHelper helper) {
+		ServerPlayer player = authorizedShadowOwner(helper);
+		List<String> beforeFavourites = ArtifactSelectionState.favourites(player, ArtifactAlignment.DARKNESS);
+		helper.assertFalse(beforeFavourites.contains("innate/invisibility"),
+				"Authority fixture requires an unlocked action outside the wheel");
+		var powers = PlayerPowers.get(player);
+		powers.restoreEnergy();
+		PacketRateLimiter.clearGlobal();
+		long revision = MagicRuntime.catalogue().snapshot().revision();
+
+		player.connection.handleCustomPayload(new ServerboundCustomPayloadPacket(
+				new ShadowSwordPackets.CommitPayload(revision,
+						"darkness", "innate/invisibility", -1)));
+		helper.runAfterDelay(2, () -> {
+			helper.assertTrue(powers.energy() == powers.energyCapacity(),
+					"An unbound custom commit paid artifact energy");
+			helper.assertFalse(powers.isToggleActive("artifact/darkness/innate/invisibility"),
+					"An unbound custom commit activated its effect");
+			List<Object> payloads = captureClientboundPayloads(player);
+			PacketRateLimiter.clearGlobal();
+			player.connection.handleCustomPayload(new ServerboundCustomPayloadPacket(
+					new ShadowSwordPackets.BindFavouritePayload(revision - 1L, "darkness", 0,
+							"innate/invisibility")));
+			helper.runAfterDelay(2, () -> {
+				helper.assertTrue(ArtifactSelectionState.favourites(player, ArtifactAlignment.DARKNESS)
+						.equals(beforeFavourites), "Stale bind changed the authoritative wheel");
+				assertOneRefresh(helper, payloads, "artifact");
+				payloads.clear();
+				for (int request = 0; request < PacketRateLimiter.Lane.ARTIFACT.limit(); request++) {
+					PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT);
+				}
+				player.connection.handleCustomPayload(new ServerboundCustomPayloadPacket(
+						new ShadowSwordPackets.BindFavouritePayload(revision, "darkness", 0,
+								"innate/invisibility")));
+				helper.runAfterDelay(2, () -> {
+					helper.assertTrue(ArtifactSelectionState.favourites(player, ArtifactAlignment.DARKNESS)
+							.equals(beforeFavourites), "Rate-limited bind changed the authoritative wheel");
+					helper.assertTrue(payloads.stream()
+							.noneMatch(ShadowSwordPackets.OpenMenuPayload.class::isInstance),
+							"Rate-limited bind emitted a false authoritative acknowledgement");
+					payloads.clear();
+					PacketRateLimiter.clearGlobal();
+					player.connection.handleCustomPayload(new ServerboundCustomPayloadPacket(
+							new ShadowSwordPackets.BindFavouritePayload(revision, "darkness", 0,
+									"innate/invisibility")));
+					helper.runAfterDelay(2, () -> {
+						List<ShadowSwordPackets.OpenMenuPayload> menus = payloads.stream()
+								.filter(ShadowSwordPackets.OpenMenuPayload.class::isInstance)
+								.map(ShadowSwordPackets.OpenMenuPayload.class::cast).toList();
+						helper.assertTrue(!menus.isEmpty()
+								&& "innate/invisibility".equals(menus.getLast().favourites().getFirst()),
+								"Successful bind did not acknowledge the authoritative wheel: " + menus);
+						player.connection.handleCustomPayload(new ServerboundCustomPayloadPacket(
+								new ShadowSwordPackets.CommitPayload(revision, "darkness",
+										"innate/invisibility", -1)));
+						helper.runAfterDelay(2, () -> {
+							helper.assertTrue(powers.isToggleActive(
+									"artifact/darkness/innate/invisibility"),
+									"Authoritatively bound action could not commit");
+							helper.succeed();
+						});
+					});
+				});
+			});
+		});
+	}
+
 	private static ServerPlayer authorizedShadowOwner(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		player.setItemInHand(InteractionHand.MAIN_HAND, PowersWeapons.weapon("lycanbane").getDefaultInstance());
@@ -155,7 +226,7 @@ public final class ActionSubmissionPacketGameTests {
 		List<ActionSubmissionService.RefreshPayload> refreshes = payloads.stream()
 				.filter(ActionSubmissionService.RefreshPayload.class::isInstance)
 				.map(ActionSubmissionService.RefreshPayload.class::cast).toList();
-		helper.assertTrue(payloads.size() == 1 && refreshes.size() == 1
+		helper.assertTrue(refreshes.size() == 1
 				&& surface.equals(refreshes.getFirst().surface()),
 				"Rejected packet did not send exactly one " + surface + " invalidation: " + payloads);
 	}

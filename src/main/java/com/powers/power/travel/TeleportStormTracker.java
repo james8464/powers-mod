@@ -16,6 +16,10 @@ public final class TeleportStormTracker {
 		return owner != null && active.remove(owner);
 	}
 
+	public synchronized boolean active(UUID owner) {
+		return owner != null && active.contains(owner);
+	}
+
 	public synchronized int activeCount() {
 		return active.size();
 	}

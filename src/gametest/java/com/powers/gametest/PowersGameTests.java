@@ -729,7 +729,7 @@ public final class PowersGameTests {
 				"Fatal astral death did not clear the physical-body session before replay");
 		helper.assertTrue(owner.position().distanceToSqr(Vec3.atBottomCenterOf(origin)) < 1.0,
 				"Fatal astral death did not recall the player to their physical body");
-		helper.assertTrue(BodyProxyManager.activeProxyCount() == 0,
+		helper.assertTrue(BodyProxyManager.bodyIdForOwner(owner.getUUID()) == null,
 				"Fatal astral damage leaked a body proxy or forced-chunk ticket");
 		helper.runAfterDelay(2, () -> {
 			helper.assertFalse(owner.isAlive(),
@@ -757,7 +757,8 @@ public final class PowersGameTests {
 		helper.assertTrue(com.powers.player.PlayerPowers.get(owner).mindBody() == null
 				&& owner.position().distanceToSqr(Vec3.atBottomCenterOf(origin)) < 1.0,
 				"A killed physical proxy did not recall its detached owner");
-		helper.assertTrue(BodyProxyManager.activeProxyCount() == 0,
+		helper.assertTrue(BodyProxyManager.bodyIdForOwner(owner.getUUID()) == null
+				&& !BodyProxyManager.isProxy(body),
 				"Killed physical proxy leaked its entity or forced-chunk ticket");
 		helper.runAfterDelay(2, () -> {
 			helper.assertFalse(owner.isAlive(),

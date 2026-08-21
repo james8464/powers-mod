@@ -3,6 +3,7 @@ package com.powers.player;
 import com.mojang.serialization.Codec;
 import com.powers.PowersMod;
 import com.powers.mind.MindBodyState;
+import com.powers.item.artifact.ArtifactRecentRules;
 import com.powers.power.PowerEnergy;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
@@ -41,9 +42,9 @@ final class PlayerPowerAttachments {
 	static final AttachmentType<List<String>> HEAVENLY_PARTISAN_FAVOURITES =
 			persistentStringList("heavenly_partisan_favourites");
 	static final AttachmentType<List<String>> SHADOW_SWORD_RECENTS =
-			persistentStringList("shadow_sword_recents");
+			persistentRecentList("shadow_sword_recents");
 	static final AttachmentType<List<String>> HEAVENLY_PARTISAN_RECENTS =
-			persistentStringList("heavenly_partisan_recents");
+			persistentRecentList("heavenly_partisan_recents");
 	static final AttachmentType<Map<String, Long>> COOLDOWNS = persistentMap(
 			"cooldowns", Codec.unboundedMap(Codec.STRING, Codec.LONG));
 	static final AttachmentType<Map<String, Integer>> SPELL_SELECTIONS = persistentMap(
@@ -85,6 +86,11 @@ final class PlayerPowerAttachments {
 	private static AttachmentType<List<String>> persistentStringList(String name) {
 		return AttachmentRegistry.create(PowersMod.id(name), builder -> builder
 				.initializer(ArrayList::new).persistent(Codec.STRING.listOf()).copyOnDeath());
+	}
+
+	private static AttachmentType<List<String>> persistentRecentList(String name) {
+		return AttachmentRegistry.create(PowersMod.id(name), builder -> builder
+				.initializer(ArrayList::new).persistent(ArtifactRecentRules.CODEC).copyOnDeath());
 	}
 
 	/** Registers runtime state that must never survive reconnect or death. */

@@ -7,6 +7,14 @@ import java.util.function.Function;
 
 /** Client/server-neutral filtering and fixed-window responsive catalogue geometry. */
 public final class ArtifactCatalogueRules {
+	/** Retains the released column-major mapping: fill a column before advancing right. */
+	public static int columnForSlot(int slot, int rows) {
+		return Math.max(0, slot) / Math.max(1, rows);
+	}
+
+	public static int rowForSlot(int slot, int rows) {
+		return Math.max(0, slot) % Math.max(1, rows);
+	}
 	private ArtifactCatalogueRules() {
 	}
 
@@ -40,7 +48,7 @@ public final class ArtifactCatalogueRules {
 		List<String> safeRecents = recents == null ? List.of() : recents;
 		String needle = normalize(query);
 		List<ArtifactActionDefinition> filtered = actions.stream()
-				.filter(action -> switch (tab) {
+				.filter(action -> !needle.isEmpty() || switch (tab) {
 					case FAVOURITES -> safeFavourites.contains(action.key());
 					case RECENT -> safeRecents.contains(action.key());
 					case INNATE -> action.category() == ArtifactActionCategory.ROUTED_POWER;
@@ -52,7 +60,8 @@ public final class ArtifactCatalogueRules {
 						|| normalize(action.abilityId()).contains(needle)
 						|| normalize(labelProvider.apply(action)).contains(needle))
 				.toList();
-		List<String> ordered = tab == ArtifactCatalogueTab.FAVOURITES ? safeFavourites
+		List<String> ordered = !needle.isEmpty() ? List.of()
+				: tab == ArtifactCatalogueTab.FAVOURITES ? safeFavourites
 				: tab == ArtifactCatalogueTab.RECENT ? safeRecents : List.of();
 		return ordered.isEmpty() ? filtered : filtered.stream()
 				.sorted(Comparator.comparingInt(action -> ordered.indexOf(action.key()))).toList();
@@ -62,7 +71,7 @@ public final class ArtifactCatalogueRules {
 		int panelWidth = Math.max(1, Math.min(720, screenWidth - 16));
 		int panelHeight = Math.max(1, Math.min(520, screenHeight - 16));
 		int columns = panelWidth >= 560 ? 2 : 1;
-		int rows = Math.max(1, (panelHeight - 112) / 24);
+		int rows = Math.max(1, (panelHeight - 120) / 24);
 		return new Layout((screenWidth - panelWidth) / 2, (screenHeight - panelHeight) / 2,
 				panelWidth, panelHeight, columns, rows);
 	}

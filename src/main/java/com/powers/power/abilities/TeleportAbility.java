@@ -1,5 +1,4 @@
 package com.powers.power.abilities;
-
 import com.powers.PowersMod;
 import com.powers.config.PowersConfigLoader;
 import com.powers.fx.PowerFx;
@@ -36,12 +35,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
 import static com.powers.power.abilities.TeleportDelayedState.MARKING;
 import static com.powers.power.abilities.TeleportDelayedState.PENDING_MARKING;
 import static com.powers.power.abilities.TeleportDelayedState.PENDING_TELEPORTS;
@@ -49,7 +46,6 @@ import static com.powers.power.abilities.TeleportDelayedState.MarkingState;
 import static com.powers.power.abilities.TeleportDelayedState.PendingMarking;
 import static com.powers.power.abilities.TeleportDelayedState.PendingTeleport;
 import static com.powers.power.abilities.TeleportDelayedState.findLiving;
-
 /**
  * time shift - mark a target spot or player, then blink there after a short
  * storm while riding along with anything close by; marking puts you in
@@ -60,9 +56,7 @@ public class TeleportAbility extends Ability {
 	private static final int STORM_TICKS = 100;
 	private static final int TELEPORT_DELAY_TICKS = 50;
 	private static final int MARK_TIMEOUT_TICKS = 200;
-
 	private static final TeleportStormTracker ACTIVE_STORMS = new TeleportStormTracker();
-
 	public TeleportAbility() {
 		super(POWER_ID,
 				Component.translatable("ability.powers.time_shift"),
@@ -410,6 +404,11 @@ public class TeleportAbility extends Ability {
 			ResourceKey<Level> dimension, int delay) {
 		PowersMod.scheduleDelayed(server, Math.max(1, delay), ownerId, dimension, ownerId,
 				"teleport_storm_finish", (current, task) -> ACTIVE_STORMS.finish(task.subjectId()));
+	}
+
+	/** Whether this owner still holds the exact-once teleport-storm lifecycle lease. */
+	public static boolean hasActiveStorm(UUID owner) {
+		return ACTIVE_STORMS.active(owner);
 	}
 
 	/** Lifecycle cleanup for disconnects and server shutdown. */

@@ -1,5 +1,4 @@
 package com.powers.client.screen;
-
 import com.powers.client.AbilityGlyphRenderer;
 import com.powers.cooldown.CooldownPresentation;
 import com.powers.item.artifact.ArtifactActionDefinition;
@@ -20,12 +19,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.IntStream;
-
 /** Fixed-widget virtual catalogue and server-authoritative eight-slot loadout editor. */
 public final class ArtifactCatalogueScreen extends Screen {
 	private ArtifactMenuState state;
@@ -45,7 +42,7 @@ public final class ArtifactCatalogueScreen extends Screen {
 	private int sizeMorphOption;
 	private int gravityOption;
 	private int actionWidgetAllocations;
-
+	private boolean lastBindNonOptimistic = true;
 	ArtifactCatalogueScreen(ArtifactMenuState state) {
 		super(Component.translatable("screen.powers.artifact.catalogue.title"));
 		this.state = state;
@@ -53,7 +50,6 @@ public final class ArtifactCatalogueScreen extends Screen {
 		this.gravityOption = gravityOption(state);
 		this.favourites = state.favourites();
 	}
-
 	@Override
 	protected void init() {
 		layout = ArtifactCatalogueRules.layout(width, height);
@@ -67,19 +63,17 @@ public final class ArtifactCatalogueScreen extends Screen {
 		tab = preservedTab;
 		query = preservedQuery;
 		selected = model.selected();
-
 		int left = layout.panelX();
 		int top = layout.panelY();
 		EditBox previousSearch = searchBox;
-		searchBox = addRenderableWidget(new EditBox(font, left + 8, top + 25,
+		searchBox = addRenderableWidget(new EditBox(font, left + 8, top + 32,
 				layout.panelWidth() - 16, 18, previousSearch,
 				Component.translatable("screen.powers.artifact.catalogue.search")));
 		if (previousSearch == null) searchBox.setValue(query);
 		searchBox.setMaxLength(48);
 		searchBox.setHint(Component.translatable("screen.powers.artifact.catalogue.search_hint"));
-
 		tabButtons.clear();
-		int tabY = top + 47;
+		int tabY = top + 54;
 		int tabWidth = Math.max(24, (layout.panelWidth() - 28) / ArtifactCatalogueTab.values().length);
 		for (int index = 0; index < ArtifactCatalogueTab.values().length; index++) {
 			ArtifactCatalogueTab value = ArtifactCatalogueTab.values()[index];
@@ -87,24 +81,22 @@ public final class ArtifactCatalogueScreen extends Screen {
 					.bounds(left + 8 + index * (tabWidth + 3), tabY, tabWidth, 18).build());
 			tabButtons.add(button);
 		}
-
 		actionButtons.clear();
 		actionWidgetAllocations = 0;
 		int contentLeft = left + 8;
-		int contentTop = top + 69;
+		int contentTop = top + 76;
 		int columnGap = 4;
 		int columnWidth = (layout.panelWidth() - 16
 				- columnGap * (layout.columns() - 1)) / layout.columns();
 		for (int slot = 0; slot < model.poolSize(); slot++) {
-			int column = slot % layout.columns();
-			int row = slot / layout.columns();
+			int column = ArtifactCatalogueRules.columnForSlot(slot, layout.rows());
+			int row = ArtifactCatalogueRules.rowForSlot(slot, layout.rows());
 			ArtifactActionButton button = new ArtifactActionButton(
 					contentLeft + column * (columnWidth + columnGap), contentTop + row * 24,
 					columnWidth, slot);
 			actionButtons.add(addRenderableWidget(button));
 			actionWidgetAllocations++;
 		}
-
 		int favouritesY = top + layout.panelHeight() - 20;
 		addSelectionControls(left, favouritesY - 21);
 		favouriteButtons.clear();
@@ -120,16 +112,14 @@ public final class ArtifactCatalogueScreen extends Screen {
 		refreshWidgets();
 		setInitialFocus(searchBox);
 	}
-
 	@Override
 	public void tick() {
 		if (searchBox != null && !searchBox.getValue().equals(query)) {
 			query = searchBox.getValue();
 			model.setFilter(tab, query);
-			refreshActionWidgets();
+			refreshWidgets();
+			}
 		}
-	}
-
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount,
 			double verticalAmount) {
@@ -140,27 +130,28 @@ public final class ArtifactCatalogueScreen extends Screen {
 		}
 		return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
 	}
-
 	@Override
 	public boolean keyPressed(KeyEvent event) {
 		int delta = switch (event.key()) {
-			case GLFW.GLFW_KEY_UP -> -layout.columns();
-			case GLFW.GLFW_KEY_DOWN -> layout.columns();
-			case GLFW.GLFW_KEY_LEFT -> -1;
-			case GLFW.GLFW_KEY_RIGHT -> 1;
+			case GLFW.GLFW_KEY_UP -> -1;
+			case GLFW.GLFW_KEY_DOWN -> 1;
+			case GLFW.GLFW_KEY_LEFT -> -layout.rows();
+			case GLFW.GLFW_KEY_RIGHT -> layout.rows();
 			case GLFW.GLFW_KEY_PAGE_UP -> -model.poolSize();
 			case GLFW.GLFW_KEY_PAGE_DOWN -> model.poolSize();
 			default -> 0;
 		};
-		if (delta != 0 && (searchBox == null || !searchBox.isFocused())) {
+		boolean horizontalEditing = searchBox != null && searchBox.isFocused()
+				&& (event.key() == GLFW.GLFW_KEY_LEFT || event.key() == GLFW.GLFW_KEY_RIGHT);
+		if (delta != 0 && !horizontalEditing) {
 			model.moveSelection(delta);
 			selected = model.selected();
 			refreshWidgets();
+			focusSelectedButton();
 			return true;
 		}
 		return super.keyPressed(event);
 	}
-
 	/** Applies a newer server-authored menu without losing a still-valid local catalogue context. */
 	public boolean acceptRefresh(ArtifactMenuState next) {
 		if (next == null || next.alignment() != state.alignment()) return false;
@@ -214,13 +205,10 @@ public final class ArtifactCatalogueScreen extends Screen {
 	private void assign(int slot) {
 		ArtifactCatalogueViewModel.BindingIntent binding = model.bind(slot);
 		if (binding == null || selected == null || state.locked(selected)) return;
-		favourites = ArtifactFavouriteRules.assign(favourites, binding.slot(), binding.actionKey());
+		List<String> beforeSend = favourites;
 		ClientPlayNetworking.send(new ShadowSwordPackets.BindFavouritePayload(
 				state.revision(), state.alignment().serializedName(), binding.slot(), binding.actionKey()));
-		model.refresh(state.revision(), state.actions(), favourites, state.recents(),
-				selected.key(), action -> state.actionName(action).getString());
-		selected = model.selected();
-		refreshWidgets();
+		lastBindNonOptimistic = favourites.equals(beforeSend);
 	}
 
 	private void choose() {
@@ -238,7 +226,8 @@ public final class ArtifactCatalogueScreen extends Screen {
 	private void refreshWidgets() {
 		refreshActionWidgets();
 		for (int index = 0; index < tabButtons.size(); index++) {
-			tabButtons.get(index).active = ArtifactCatalogueTab.values()[index] != tab;
+			tabButtons.get(index).active = !query.isBlank()
+					|| ArtifactCatalogueTab.values()[index] != tab;
 		}
 		boolean selectable = selected != null && !state.locked(selected);
 		if (selectButton != null) selectButton.active = selectable;
@@ -263,6 +252,21 @@ public final class ArtifactCatalogueScreen extends Screen {
 		for (int slot = 0; slot < actionButtons.size(); slot++) {
 			actionButtons.get(slot).bind(slot < visible.size() ? visible.get(slot) : null);
 		}
+		if (getFocused() instanceof ArtifactActionButton focused && (!focused.visible || focused.action == null
+				|| !focused.action.key().equals(model.selectedKey()))) {
+			setFocused(searchBox);
+		}
+	}
+
+	private void focusSelectedButton() {
+		for (ArtifactActionButton button : actionButtons) {
+			if (button.visible && button.action != null
+					&& button.action.key().equals(model.selectedKey())) {
+				setFocused(button);
+				return;
+			}
+		}
+		setFocused(searchBox);
 	}
 
 	@Override
@@ -282,11 +286,11 @@ public final class ArtifactCatalogueScreen extends Screen {
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		super.extractRenderState(graphics, mouseX, mouseY, delta);
-		graphics.centeredText(font, title, width / 2, layout.panelY() + 8, accent());
+		graphics.centeredText(font, title, width / 2, layout.panelY() + 6, accent());
 		graphics.text(font, Component.translatable("screen.powers.artifact.catalogue.summary",
 				Component.translatable("screen.powers.artifact.alignment."
 						+ state.alignment().serializedName()), state.rank(), state.energy(), model.filteredCount()),
-				layout.panelX() + 8, layout.panelY() + 14, 0xFFBDB5C7, false);
+				layout.panelX() + 8, layout.panelY() + 20, 0xFFBDB5C7, false);
 		graphics.text(font, Component.translatable("screen.powers.artifact.catalogue.favourites"),
 				layout.panelX() + 8, layout.panelY() + layout.panelHeight() - 53, 0xFFD8D1DF, false);
 		if (model.filteredCount() > 0) {
@@ -294,7 +298,7 @@ public final class ArtifactCatalogueScreen extends Screen {
 			int last = model.firstVisibleIndex() + model.visible().size();
 			graphics.text(font, Component.translatable("screen.powers.artifact.catalogue.position",
 					first, last, model.filteredCount()), layout.panelX() + layout.panelWidth() - 112,
-					layout.panelY() + 14, 0xFFBDB5C7, false);
+					layout.panelY() + 20, 0xFFBDB5C7, false);
 		}
 	}
 
@@ -321,8 +325,56 @@ public final class ArtifactCatalogueScreen extends Screen {
 		setTab(filter);
 	}
 
+	void verificationSearchValue(String value) {
+		if (searchBox != null) searchBox.setValue(value == null ? "" : value);
+	}
+
 	String selectedKey() {
 		return model == null ? state.selectedKey() : model.selectedKey();
+	}
+
+	String focusedActionKey() {
+		return getFocused() instanceof ArtifactActionButton button && button.action != null
+				? button.action.key() : "";
+	}
+
+	String focusedNarrationText() {
+		return getFocused() instanceof ArtifactActionButton button ? button.getMessage().getString() : "";
+	}
+
+	boolean hiddenActionHasFocus() {
+		return getFocused() instanceof ArtifactActionButton button && !button.visible;
+	}
+
+	String favouriteKey(int slot) {
+		return slot >= 0 && slot < favourites.size() ? favourites.get(slot) : "";
+	}
+
+	int firstVisibleIndex() {
+		return model == null ? 0 : model.firstVisibleIndex();
+	}
+
+	boolean lastBindNonOptimistic() {
+		return lastBindNonOptimistic;
+	}
+
+	boolean noCategoryTabSelected() {
+		return !tabButtons.isEmpty() && tabButtons.stream().allMatch(button -> button.active);
+	}
+
+	String selectedCategoryTab() {
+		for (int index = 0; index < tabButtons.size(); index++) {
+			if (!tabButtons.get(index).active) return ArtifactCatalogueTab.values()[index].name();
+		}
+		return "";
+	}
+
+	void verificationKey(int key) {
+		keyPressed(new KeyEvent(key, 0, 0));
+	}
+
+	ArtifactMenuState verificationState() {
+		return state;
 	}
 
 	private boolean insidePanel(double x, double y) {

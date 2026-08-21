@@ -497,6 +497,8 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 
 	private static void verifyVirtualCatalogue(ClientGameTestContext context,
 			TestSingleplayerContext singleplayer) {
+		context.runOnClient(client -> ClientAcceptanceScreens.searchInnate(
+				(ArtifactCatalogueScreen) client.gui.screen(), ""));
 		ClientAcceptanceScreens.CatalogueProbe before = context.computeOnClient(client ->
 				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
 		if (before.widgets() <= 0 || before.widgets() != before.allocations()) {
@@ -509,27 +511,123 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 		if (afterScroll.widgets() != before.widgets() || afterScroll.allocations() != before.allocations()) {
 			throw new AssertionError("Mouse-wheel scrolling reconstructed catalogue widgets: " + afterScroll);
 		}
-		context.runOnClient(client -> ClientAcceptanceScreens.searchInnate(
-				(ArtifactCatalogueScreen) client.gui.screen(), "fireball"));
+		if (afterScroll.firstVisibleIndex() <= before.firstVisibleIndex()) {
+			throw new AssertionError("Real mouse-wheel input did not advance the virtual window: " + afterScroll);
+		}
+		singleplayer.getServer().waitFor(server -> {
+			List<String> serverFavourites = ArtifactSelectionState.favourites(
+					server.getPlayerList().getPlayers().getFirst(), ArtifactAlignment.DARKNESS);
+			if (serverFavourites.contains("innate/invisibility")) {
+				throw new AssertionError("Acceptance fixture requires Invisibility to begin unbound");
+			}
+			return true;
+		});
+		context.runOnClient(client -> ClientAcceptanceScreens.searchDefault(
+				(ArtifactCatalogueScreen) client.gui.screen(), "invisibility"));
 		context.waitTick();
 		ClientAcceptanceScreens.CatalogueProbe searched = context.computeOnClient(client ->
 				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
-		if (searched.results() != 1 || searched.firstActionLabel().isBlank()) {
-			throw new AssertionError("Production catalogue search did not isolate Fireball: " + searched);
+		if (searched.results() != 1 || searched.firstActionLabel().isBlank()
+				|| !searched.noCategoryTabSelected()) {
+			throw new AssertionError("Default-surface global search did not isolate unbound Invisibility: " + searched);
 		}
+		context.runOnClient(client -> ClientAcceptanceScreens.moveDown(
+				(ArtifactCatalogueScreen) client.gui.screen()));
+		ClientAcceptanceScreens.CatalogueProbe focused = context.computeOnClient(client ->
+				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
+		if (!focused.selectedKey().equals(focused.focusedActionKey())
+				|| focused.focusedNarrationText().isBlank() || focused.hiddenActionHasFocus()) {
+			throw new AssertionError("Keyboard focus/narration did not follow the visible selected action: " + focused);
+		}
+		context.runOnClient(client -> ClientAcceptanceScreens.searchDefault(
+				(ArtifactCatalogueScreen) client.gui.screen(), "no such action"));
+		ClientAcceptanceScreens.CatalogueProbe filteredAway = context.computeOnClient(client ->
+				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
+		if (filteredAway.hiddenActionHasFocus() || !filteredAway.focusedActionKey().isEmpty()) {
+			throw new AssertionError("Filtered pooled button retained stale keyboard focus: " + filteredAway);
+		}
+		context.runOnClient(client -> ClientAcceptanceScreens.searchDefault(
+				(ArtifactCatalogueScreen) client.gui.screen(), "invisibility"));
 		context.clickScreenButton(searched.firstActionLabel());
 		context.clickScreenButton("1");
+		ClientAcceptanceScreens.CatalogueProbe pending = context.computeOnClient(client ->
+				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
+		if (!pending.lastBindNonOptimistic()) {
+			throw new AssertionError("Client bind event optimistically changed a favourite before acknowledgement");
+		}
 		context.waitTick();
 		singleplayer.getServer().waitFor(server -> ArtifactSelectionState.favourites(
 				server.getPlayerList().getPlayers().getFirst(), ArtifactAlignment.DARKNESS)
-				.getFirst().equals("innate/fireball"));
+				.getFirst().equals("innate/invisibility"));
 		ClientAcceptanceScreens.CatalogueProbe bound = context.computeOnClient(client ->
 				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
-		if (!"innate/fireball".equals(bound.selectedKey()) || bound.widgets() != before.widgets()
+		if (!"innate/invisibility".equals(bound.selectedKey())
+				|| !"innate/invisibility".equals(bound.firstFavouriteKey())
+				|| bound.widgets() != before.widgets()
 				|| bound.allocations() != before.allocations()) {
 			throw new AssertionError("Search-result selection/direct binding rebuilt widgets or lost key: " + bound);
 		}
-		context.takeScreenshot("powers-shadow-library-virtual-fireball");
+		captureCatalogueAtGuiScales(context);
+		context.runOnClient(client -> ClientAcceptanceScreens.clearSearch(
+				(ArtifactCatalogueScreen) client.gui.screen()));
+		context.waitTick();
+		ClientAcceptanceScreens.CatalogueProbe cleared = context.computeOnClient(client ->
+				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
+		if (!"FAVOURITES".equals(cleared.selectedCategoryTab())) {
+			throw new AssertionError("Clearing global search did not restore the chosen category tab: " + cleared);
+		}
+		verifyTenThousandActionProductionScreen(context);
+	}
+
+	private static void captureCatalogueAtGuiScales(ClientGameTestContext context) {
+		int previousScale = context.computeOnClient(client -> client.options.guiScale().get());
+		context.runOnClient(client -> {
+			client.options.guiScale().set(2);
+			client.resizeGui();
+		});
+		context.waitTick();
+		context.takeScreenshot("powers-shadow-library-production-1280x720-gui2");
+		context.runOnClient(client -> {
+			client.options.guiScale().set(3);
+			client.resizeGui();
+		});
+		context.waitTick();
+		context.takeScreenshot("powers-shadow-library-production-1280x720-gui3");
+		context.runOnClient(client -> {
+			client.options.guiScale().set(previousScale);
+			client.resizeGui();
+		});
+		context.waitTick();
+	}
+
+	private static void verifyTenThousandActionProductionScreen(ClientGameTestContext context) {
+		context.runOnClient(client -> client.gui.setScreen(ClientAcceptanceScreens.syntheticCatalogue(10_000)));
+		context.waitTick();
+		context.runOnClient(client -> ClientAcceptanceScreens.searchInnate(
+				(ArtifactCatalogueScreen) client.gui.screen(), ""));
+		ClientAcceptanceScreens.CatalogueProbe before = context.computeOnClient(client ->
+				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
+		context.getInput().scroll(-100.0);
+		context.waitTick();
+		ClientAcceptanceScreens.CatalogueProbe scrolled = context.computeOnClient(client ->
+				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
+		if (scrolled.firstVisibleIndex() <= before.firstVisibleIndex()
+				|| scrolled.widgets() != before.widgets() || scrolled.allocations() != before.allocations()) {
+			throw new AssertionError("10,000-action production wheel did not scroll without allocation: "
+					+ before + " -> " + scrolled);
+		}
+		context.runOnClient(client -> ClientAcceptanceScreens.searchInnate(
+				(ArtifactCatalogueScreen) client.gui.screen(), "synthetic 9999"));
+		context.runOnClient(client -> ClientAcceptanceScreens.refreshSynthetic(
+				(ArtifactCatalogueScreen) client.gui.screen(), 101L));
+		context.waitTick();
+		ClientAcceptanceScreens.CatalogueProbe after = context.computeOnClient(client ->
+				ClientAcceptanceScreens.catalogueProbe((ArtifactCatalogueScreen) client.gui.screen()));
+		if (after.results() != 1 || before.widgets() != before.allocations()
+				|| after.widgets() != before.widgets() || after.allocations() != before.allocations()) {
+			throw new AssertionError("10,000-action production screen rebuilt its fixed widget pool: "
+					+ before + " -> " + after);
+		}
 	}
 
     private static void captureRemainingScreens(ClientGameTestContext context) {

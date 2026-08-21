@@ -31,25 +31,37 @@ public final class ActionRegistryReloadGameTests {
 			var catalogue = MagicRuntime.catalogue();
 			long before = catalogue.snapshot().revision();
 			var server = helper.getLevel().getServer();
-			server.reloadResources(server.getPackRepository().getSelectedIds()).whenComplete((ignored, failure) ->
+			GameTestResourceReloadLease.acquire(server, lease -> {
+				helper.runBeforeTestEnd(lease::close);
+				server.reloadResources(server.getPackRepository().getSelectedIds()).whenComplete((ignored, failure) ->
 				server.execute(() -> {
-					if (failure != null) throw new AssertionError("Registered Fabric reload failed", failure);
-					var accepted = catalogue.snapshot();
-					helper.assertTrue(accepted.revision() == before + 1L,
-							"Registered listener did not publish exactly one revision");
-					helper.assertTrue(accepted.definition(new MagicActionId("example_resonant_field")) != null,
-							"NET-009 external action was omitted from the resource-reloaded snapshot");
-					helper.assertTrue("fireball".equals(accepted.resolve("net010_pack_fire").value()),
-							"Real datapack alias did not pass through the registered parser/apply path");
-					verifyRegisteredFailedReload(helper, server, catalogue, accepted);
+					try {
+						if (failure != null) {
+							lease.close();
+							throw new AssertionError("Registered Fabric reload failed", failure);
+						}
+						var accepted = catalogue.snapshot();
+						helper.assertTrue(accepted.revision() == before + 1L,
+								"Registered listener did not publish exactly one revision");
+						helper.assertTrue(accepted.definition(new MagicActionId("example_resonant_field")) != null,
+								"NET-009 external action was omitted from the resource-reloaded snapshot");
+						helper.assertTrue("fireball".equals(accepted.resolve("net010_pack_fire").value()),
+								"Real datapack alias did not pass through the registered parser/apply path");
+						verifyRegisteredFailedReload(helper, server, catalogue, accepted, lease);
+					} catch (Throwable assertion) {
+						lease.close();
+						throw assertion;
+					}
 				}));
+			});
 		});
 	}
 
 	private static void verifyRegisteredFailedReload(GameTestHelper helper,
 			net.minecraft.server.MinecraftServer server,
 			com.powers.magic.MagicActionCatalogue catalogue,
-			com.powers.magic.ActionRegistrySnapshot accepted) {
+			com.powers.magic.ActionRegistrySnapshot accepted,
+			GameTestResourceReloadLease.Lease lease) {
 		try {
 			var resource = ActionRegistryReloadGameTests.class.getClassLoader()
 					.getResource("data/powers/powers_actions/net010_live.json");
@@ -71,19 +83,24 @@ public final class ActionRegistryReloadGameTests {
 						}
 						Throwable finalRestoreFailure = restoreFailure;
 						server.execute(() -> {
-							if (finalRestoreFailure != null) {
-								throw new AssertionError("Could not restore live GameTest resource",
-										finalRestoreFailure);
+							try {
+								if (finalRestoreFailure != null) {
+									throw new AssertionError("Could not restore live GameTest resource",
+											finalRestoreFailure);
+								}
+								helper.assertTrue(failure != null,
+										"Registered Fabric reload future accepted a cyclic resource");
+								helper.assertTrue(catalogue.snapshot() == accepted
+										&& catalogue.snapshot().revision() == accepted.revision(),
+										"Failed registered reload changed snapshot identity or revision");
+								helper.succeed();
+							} finally {
+								lease.close();
 							}
-							helper.assertTrue(failure != null,
-									"Registered Fabric reload future accepted a cyclic resource");
-							helper.assertTrue(catalogue.snapshot() == accepted
-									&& catalogue.snapshot().revision() == accepted.revision(),
-									"Failed registered reload changed snapshot identity or revision");
-							helper.succeed();
 						});
 					});
 		} catch (java.io.IOException | java.net.URISyntaxException error) {
+			lease.close();
 			throw new AssertionError("Could not prepare invalid live action resource", error);
 		}
 	}

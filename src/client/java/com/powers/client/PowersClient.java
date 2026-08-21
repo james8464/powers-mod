@@ -131,13 +131,13 @@ public class PowersClient implements ClientModInitializer {
 								new CelestialLocatorScreen(payload.mode(), payload.nonce()))));
 		ClientPlayNetworking.registerGlobalReceiver(GrimoirePackets.OpenIndexPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> {
-					ClientActionRegistry.accept(payload.revision());
+					if (!ClientActionRegistry.accept(payload.revision())) return;
 					Minecraft.getInstance().gui.setScreen(new GrimoireIndexScreen(payload.revision(),
 							payload.grimoireKey(), payload.selected(), payload.entries()));
 				}));
 		ClientPlayNetworking.registerGlobalReceiver(ActionSubmissionService.RefreshPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> {
-					ClientActionRegistry.accept(payload.revision());
+					if (!ClientActionRegistry.accept(payload.revision())) return;
 					Minecraft minecraft = Minecraft.getInstance();
 					if (ClientActionRefresh.shouldClose(payload.surface(), minecraft.gui.screen())) {
 						minecraft.gui.setScreen(null);
@@ -145,7 +145,7 @@ public class PowersClient implements ClientModInitializer {
 				}));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenMenuPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> {
-					ClientActionRegistry.acceptArtifact(payload.revision(), payload.selectedKey());
+					if (!ClientActionRegistry.acceptArtifact(payload.revision(), payload.selectedKey())) return;
 					Minecraft minecraft = Minecraft.getInstance();
 					ArtifactMenuState state = ArtifactMenuState.fromPacket(payload.revision(),
 							payload.alignment(), payload.selectedKey(), payload.rank(),
@@ -160,7 +160,7 @@ public class PowersClient implements ClientModInitializer {
 				}));
 		ClientPlayNetworking.registerGlobalReceiver(ShadowSwordPackets.OpenTeleportPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> {
-					ClientActionRegistry.acceptArtifact(payload.revision(), payload.actionKey());
+					if (!ClientActionRegistry.acceptArtifact(payload.revision(), payload.actionKey())) return;
 					Minecraft.getInstance().gui.setScreen(TeleportInputScreen.artifact(
 							payload.revision(), payload.alignment(), payload.actionKey()));
 				}));
@@ -169,7 +169,7 @@ public class PowersClient implements ClientModInitializer {
 						new ReservoirTransferScreen(payload))));
 		ClientPlayNetworking.registerGlobalReceiver(CrystalSelectorPackets.OpenPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> {
-					ClientActionRegistry.accept(payload.revision());
+					if (!ClientActionRegistry.accept(payload.revision())) return;
 					Minecraft.getInstance().gui.setScreen(new RainbowConvergenceScreen(
 							payload.revision(), payload.modes(), payload.selected()));
 				}));

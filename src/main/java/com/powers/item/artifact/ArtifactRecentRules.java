@@ -1,5 +1,6 @@
 package com.powers.item.artifact;
 
+import com.mojang.serialization.Codec;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -8,6 +9,8 @@ import java.util.Set;
 /** Pure bounds and reconciliation for the per-alignment recent-action history. */
 public final class ArtifactRecentRules {
 	public static final int LIMIT = 8;
+	public static final Codec<List<String>> CODEC = Codec.sizeLimitedString(96).listOf(0, LIMIT)
+			.xmap(ArtifactRecentRules::bounded, List::copyOf);
 
 	private ArtifactRecentRules() {
 	}
@@ -42,5 +45,9 @@ public final class ArtifactRecentRules {
 
 	private static boolean valid(String key) {
 		return key != null && !key.isBlank() && key.length() <= 96;
+	}
+
+	private static List<String> bounded(List<String> values) {
+		return reconcile(values, values);
 	}
 }
