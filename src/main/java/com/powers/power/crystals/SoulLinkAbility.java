@@ -124,14 +124,14 @@ public class SoulLinkAbility extends Ability {
 			float damage = 0.0f;
 			for (Link link : active.links()) {
 				LivingEntity entity = link.entity();
-				// skip souls that died, despawned or left the caster's dimension
+				// Remove invalid members so stale entities cannot retain link authority.
 				if (!entity.isAlive() || entity.isRemoved() || entity.level() != caster.level()
 						|| AmethystDampening.isDampened(entity)
 						|| !PowerProtection.mayHarm(caster, entity)
 						|| SpellFieldManager.isSanctuaryProtected((ServerLevel) caster.level(), entity)) {
 					continue;
 				}
-				// track the biggest wound suffered this tick
+				// Retain only the largest fresh wound so one tick transfers damage once.
 				MirrorBaseline mirror = MIRROR_BASELINES.get(entity.getUUID());
 				float suffered = SoulLinkMath.woundAfterMirror(link.lastHealth(),
 						mirror == null ? null : mirror.health(), entity.getHealth());

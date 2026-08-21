@@ -31,7 +31,7 @@ public class PlantHealingAbility extends Ability {
 		// bonemeal the plant that was actually hit, not the empty block beyond it
 		var pos = blockHit.getBlockPos();
 		var state = level.getBlockState(pos);
-		// some plants can't be bonemealed (fully grown, for example)
+		// Treat non-bonemealable plants as refusal so an inert cast is not charged.
 		if (!(state.getBlock() instanceof BonemealableBlock growable)
 				|| !growable.isValidBonemealTarget(level, pos, state)) return false;
 		growable.performBonemeal(level, level.getRandom(), pos, state);

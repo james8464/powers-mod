@@ -2,7 +2,7 @@ package com.powers.companion;
 
 /** Five-tick energy pulse for a manifested Shadow. */
 public final class ShadowEnergyRules {
-	private static final int LINKED_REFILL_PER_PULSE = 225; // 900 per second
+	private static final int LINKED_REFILL_PER_PULSE = 225; // Four pulses preserve the authored 900-per-second refill.
 	private static final int DARKNESS_REFILL_PER_PULSE = 80;
 	private static final int PURE_LIGHT_DRAIN_PER_PULSE = 75;
 	private static final int AMETHYST_DRAIN_PER_PULSE = 150;

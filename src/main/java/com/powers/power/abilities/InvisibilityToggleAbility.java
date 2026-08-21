@@ -24,7 +24,7 @@ public class InvisibilityToggleAbility extends ToggleAbility {
 	public boolean activateToggleOn(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		player.addEffect(ownedEffect());
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
-			// smoke burst hides the spot where you stood
+			// A restrained smoke burst marks activation without tracking the invisible player.
 			com.powers.fx.PowerFx.burst(level, player.position(), net.minecraft.core.particles.ParticleTypes.SMOKE, 18, 0.5, 0.02);
 			com.powers.fx.PowerFx.sound(level, player.position(), net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT, 0.7f, 1.6f);
 		}

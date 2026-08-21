@@ -86,11 +86,11 @@ public final class ModeCrystalAbility extends Ability {
 	}
 
 	public void clear(UUID player) {
-		// Selections are persistent player data and intentionally survive reconnect.
+		// Attachment ownership preserves selections across transient runtime cleanup.
 	}
 
 	public void clearAll() {
-		// Persistent selections are owned by player attachments.
+		// Player attachments retain selection authority across server epochs.
 	}
 
 	public boolean radialSelector() {

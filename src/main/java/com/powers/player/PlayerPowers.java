@@ -221,7 +221,7 @@ public final class PlayerPowers {
 			return PlayerEnergyStorage.energy(target);
 		}
 
-		// capacity grows with the player's skill ladder
+		// Rank-owned scaling keeps capacity independent from transient artifacts and effects.
 		public int energyCapacity() {
 			return PlayerEnergyStorage.capacity(target);
 		}
@@ -293,7 +293,7 @@ public final class PlayerPowers {
 		public boolean spendEnergy(ServerPlayer player, Ability ability) {
 			int cost = PowerEnergy.cost(player, ability);
 			if (!PlayerEnergyStorage.consume(target, cost)) {
-				// too broke: tell the player and show a cancelled spark burst
+				// Report insufficient energy without leaving a successful-cast presentation residue.
 				PowerMessages.send(player, "energy.powers.empty", 6);
 				if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 					com.powers.fx.PowerFx.cancelled(level, player.position().add(0, 1, 0), 0x40E0D0);
@@ -319,12 +319,12 @@ public final class PlayerPowers {
 			refundEnergy(amount);
 		}
 
-		// the exhaustion effect blocks all natural regen
+		// Exhaustion blocks natural regeneration so paid depletion retains counterplay.
 		public boolean regenerateEnergy(int amount) {
 			return PlayerEnergyStorage.regenerate(target, amount);
 		}
 
-		// exhausted players can't even refill by sleeping
+		// Sleeping respects Exhaustion so it cannot bypass the recovery lock.
 		public void restoreEnergy() {
 			PlayerEnergyStorage.restore(target);
 		}

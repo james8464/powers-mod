@@ -28,7 +28,7 @@ public final class PowersBlocks {
 			ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath("minecraft", "ingredients"));
 
 	public static final ResourceKey<Block> DARKNESS_KEY = key("darkness");
-	// utterly black, unbreakable block of the dark realm
+	// Realm boundaries stay unbreakable so ordinary mining cannot bypass confinement.
 	public static final Block DARKNESS = register(DARKNESS_KEY,
 			properties -> new LivingForceBlock(LivingForceKind.DARKNESS, properties), BlockBehaviour.Properties.of()
 			.mapColor(MapColor.COLOR_BLACK)
@@ -39,7 +39,7 @@ public final class PowersBlocks {
 			.randomTicks());
 
 	public static final ResourceKey<Block> PURE_LIGHT_KEY = key("pure_light");
-	// unbreakable block of the light realm that shines at full brightness
+	// Full emission keeps the Light Realm readable without weakening its unbreakable boundary.
 	public static final Block PURE_LIGHT = register(PURE_LIGHT_KEY,
 			properties -> new LivingForceBlock(LivingForceKind.PURE_LIGHT, properties), BlockBehaviour.Properties.of()
 			.mapColor(MapColor.QUARTZ)

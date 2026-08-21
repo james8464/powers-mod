@@ -37,7 +37,7 @@ public final class ActivationCooldowns {
 
 	/** arms the cooldown after a successful activation */
 	public static void start(ServerPlayer player, Ability ability, int ticks) {
-		// zero means the ability has no cooldown to wait for
+		// Skip non-positive durations so cooldown-free actions create no hidden state.
 		if (ticks <= 0 || TestingOverrides.cooldownsDisabled(player.getUUID())) {
 			return;
 		}

@@ -346,7 +346,7 @@ public final class PowerCommand {
 				ids.add(p.id().toString());
 			}
 		}
-		// the same power can't fill two slots at once
+		// Reject duplicate slots so one assignment cannot reduce loadout variety.
 		if (ids.contains(canonicalPowerId) && !ids.get(slot).equals(canonicalPowerId)) {
 			context.getSource().sendFailure(Component.literal("That power is already assigned to another slot."));
 			return 0;

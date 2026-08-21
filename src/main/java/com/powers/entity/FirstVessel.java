@@ -80,7 +80,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 
 	public static AttributeSupplier.Builder createAttributes() {
 		return Monster.createMonsterAttributes()
-				// Vanilla clamps this attribute; the boss layers its 5000+ vitality above it.
+				// Layer custom vitality above vanilla's clamp so the boss retains its authored health.
 				.add(Attributes.MAX_HEALTH, 1_024.0)
 				.add(Attributes.ARMOR, 16.0)
 				.add(Attributes.ARMOR_TOUGHNESS, 16.0)

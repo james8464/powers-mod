@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
  * lifetime, avoiding delayed tasks or persistent summon maps.
  */
 public class CloneSwarmAbility extends Ability {
-	// 90 seconds between uses
+	// The authored ninety-second cooldown bounds repeated entity creation.
 	private static final int COOLDOWN_TICKS = 1800;
 	private static final int CLONE_COUNT = 3;
 	// clones last 60 seconds (1200 ticks) before poofing away
@@ -46,7 +46,7 @@ public class CloneSwarmAbility extends Ability {
 			}
 			clone.configure(player, scaledDuration(player, CLONE_LIFE_TICKS));
 			PowerEntityState.markBanishableSummon(clone);
-			// tough fighters: 80 health, 18 attack damage, brisk speed
+			// Fixed combat baselines keep each temporary clone equivalent before cast scaling.
 			clone.getAttribute(Attributes.MAX_HEALTH).setBaseValue(80.0 * potency);
 			clone.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(18.0 * potency);
 			clone.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.42);
@@ -60,7 +60,7 @@ public class CloneSwarmAbility extends Ability {
 			PowerFx.coloredBurst(level, clone.position().add(0, 1, 0), 0xFF6D00, 12, 0.6);
 		}
 		if (spawned == 0) {
-			// nothing could be summoned - don't charge the player
+			// Refuse payment when collision prevents every clone from entering the world.
 			return false;
 		}
 		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0xFF6D00, 30, 1.5);

@@ -63,7 +63,19 @@ def authority(path: Path) -> str:
 
 
 def first_javadoc(source: str) -> str:
-    match = JAVADOC.search(source)
+    public_type = PUBLIC_TYPE.search(source)
+    match = None
+    if public_type:
+        candidates = [candidate for candidate in JAVADOC.finditer(source, 0, public_type.start())]
+        if candidates:
+            candidate = candidates[-1]
+            between = source[candidate.end():public_type.start()]
+            if not between.strip() or all(
+                line.lstrip().startswith("@") for line in between.splitlines() if line.strip()
+            ):
+                match = candidate
+    if match is None:
+        match = JAVADOC.search(source)
     if not match:
         return "Internal implementation documented by its package and call-site contracts."
     lines = []

@@ -45,9 +45,9 @@ public class EnergyDrainAbility extends Ability {
 	private static final net.minecraft.resources.Identifier POWER_ID = PowersMod.id("energy_drain");
 	// 30 seconds of exhaustion after a full drain
 	private static final int EXHAUSTION_TICKS = 600;
-	// 2 seconds to drain the whole bar
+	// The finite two-second channel leaves a visible interruption window.
 	private static final int RITUAL_TICKS = 40;
-	// the link breaks past 48 blocks
+	// The hard range bound lets either participant escape the channel.
 	private static final double MAX_RANGE_SQ = 48.0 * 48.0;
 	private static final Map<UUID, Ritual> RITUALS = new HashMap<>();
 
@@ -126,7 +126,7 @@ public class EnergyDrainAbility extends Ability {
 				PowerFx.burst(level, rune, PowerFx.dust(0x7A22A8, 0.8F), 2, 0.03, 0.0);
 			}
 			if (now >= ritual.state().finishesAt()) {
-				// full drain landed, hit the target with exhaustion
+				// Apply Exhaustion only after the full channel completes successfully.
 				if (PlayerLikeTarget.isCompatible(target)) {
 					com.powers.magic.ActionTargetCapabilities.resolveParticipant("energy_drain", target,
 							com.powers.magic.participant.ParticipantCapability.ENERGY_POOL)

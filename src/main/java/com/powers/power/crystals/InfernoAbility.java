@@ -33,11 +33,11 @@ import java.util.UUID;
  * within 12 blocks is set ablaze, and no one inside escapes the flames
  */
 public class InfernoAbility extends Ability {
-	// 8 seconds of firestorm
+	// The finite eight-second lease prevents an abandoned firestorm.
 	private static final int DURATION_TICKS = 160;
-	// 90 seconds between uses
+	// The authored ninety-second cooldown bounds repeated terrain pressure.
 	private static final int COOLDOWN_TICKS = 1800;
-	// everything within 12 blocks gets caught in the flames
+	// A hard radius bounds both target inspection and presentation work.
 	private static final int RADIUS = 12;
 
 	// one inferno per owner uuid, cleaned up on disconnect and server stop so it can't leak
@@ -86,7 +86,7 @@ public class InfernoAbility extends Ability {
 			}
 
 			ServerLevel level = (ServerLevel) player.level();
-			// every 8 ticks (0.4s) the barrage fires
+			// Fixed pulse cadence bounds repeated damage and FX work.
 			if (left % 8 == 0) {
 				Vec3 origin = player.position().add(0, 1.2, 0);
 				for (int i = 0; i < 6; i++) {
@@ -95,7 +95,7 @@ public class InfernoAbility extends Ability {
 					PowerFx.beam(level, impact.add(0, 8, 0), impact, ParticleTypes.FLAME, 10);
 					PowerFx.burst(level, impact, ParticleTypes.LARGE_SMOKE, 4, 0.4, 0.04);
 				}
-				// set everything within 12 blocks alight for 8 seconds
+				// Keep the ignition window finite so one cast cannot leave permanent pulse ownership.
 				for (LivingEntity target : BoundedEntityCandidates.living(level,
 						AABB.ofSize(origin, field.radius() * 2, 8, field.radius() * 2),
 						192,
@@ -110,7 +110,7 @@ public class InfernoAbility extends Ability {
 			}
 
 			if (--left <= 0) {
-				// time's up - a smoke burst marks the end of the firestorm
+				// Emit one terminal cue after removing ownership from the active map.
 				it.remove();
 				PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.SMOKE, 24, 1.2, 0.1);
 			} else {
@@ -120,12 +120,12 @@ public class InfernoAbility extends Ability {
 		}
 	}
 
-	// disconnect - stop the firestorm of the player who left
+	// Disconnect cleanup prevents an ownerless field from surviving its player.
 	public static void clear(UUID player) {
 		ACTIVE.remove(player);
 	}
 
-	// server stop - no inferno should outlive the world
+	// Server-stop cleanup prevents active fields from crossing world epochs.
 	public static void clearAll() {
 		ACTIVE.clear();
 	}

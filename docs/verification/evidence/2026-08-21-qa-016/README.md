@@ -1,0 +1,48 @@
+# QA-016 intent-first source-quality evidence
+
+Date: 2026-08-21
+Platform: Minecraft 26.2, Fabric Loader 0.19.3, Fabric API 0.156.0+26.2, Java 25
+
+## Enforced policy
+
+The exact-source owner scans all 811 common/client Java units. Its comment lexer ignores string, character, and text-block contents; reports exact portable file/line locations; and keeps adjacent leading comment paragraphs together while auditing inline comments independently.
+
+The gate rejects:
+
+- `TODO`, `FIXME`, `XXX`, or `HACK` in actual comments;
+- short descriptive or mechanical narration without an intent/invariant signal;
+- unsupported certainty such as “should never happen”, “always works”, or “cannot fail”;
+- undocumented public types and callable members under `com.powers.api` (overrides may inherit their interface contract);
+- wildcard imports, direct debug writes, source units over 450 lines, and source units over 350 lines containing multiple top-level owners;
+- any mismatch between the exact production/client source inventory and `docs/quality/code-audit.md`.
+
+## Audit outcome
+
+- Parsed all 811 production/client Java source units, including 309 line-comment lines and 2,205 Javadoc openings.
+- Rewrote 77 existing narration/comment lines into authority, lifecycle, bounded-work, transaction, cleanup, or presentation invariants. Useful existing intent comments were retained; comments were not mass-deleted.
+- Added callable contracts to `CastContext`, `PowersApiV1`, and the public `PowersApiRuntime` accessors.
+- Corrected the manifest generator so a file's responsibility comes from the declaration-adjacent public type contract rather than an unrelated earlier helper Javadoc.
+- The final scan reports no generic, unfinished, unsupported-certainty, undocumented-contract, wildcard/debug, oversized, mixed-owner, or manifest-drift finding.
+
+## TDD record
+
+- RED: fixture suite did not compile because the old audit exposed none of the new finding categories.
+- GREEN: comment-aware diagnostics, public API member contracts, and mixed-owner limits passed isolated JVM fixtures.
+- RED: the manifest selected an earlier package-private helper comment as the public responsibility.
+- GREEN: the generator selected the declaration-adjacent public type contract; isolated Python fixture passed.
+- RED: inline public methods and adjacent inline comments escaped the first parser revision.
+- GREEN: inline public callables require contracts and inline comments remain independently audited.
+
+## Verification
+
+The final aggregate command was:
+
+```text
+JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew check --no-daemon
+```
+
+It completed successfully in 1 minute 3 seconds. The current `test/default` result set contained 1,557 JVM test cases across 368 result suites, with zero failures, errors, or skips; 45 Python tests passed in 1.651 seconds. The Fabric run recorded 125/125 required GameTests passing in 49.82 seconds. `auditJavaSources`, `auditNonItemAssets`, resource validation, `verifyItemDocs`, `verifyMagicDocs`, and `verifyRankDocs` all passed in the same aggregate.
+
+The aggregate initially exposed a phase-dependent assertion in the interrupted-ritual GameTest: ordinary one-second energy regeneration could occur during its three-tick wait. Production history proved the transaction still charged exactly half its authored payment. The test now accounts for player-local energy history while excluding ordinary regeneration; the isolated GameTest and the subsequent 125-test aggregate both passed.
+
+Generated hashes are byte-identity evidence only; they are not represented as semantic review proof.

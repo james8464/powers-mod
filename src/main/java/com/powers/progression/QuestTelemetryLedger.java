@@ -151,7 +151,7 @@ public final class QuestTelemetryLedger {
 				if (ledger.samples.size() >= ledger.maximumSamples) ledger.samples.removeFirst();
 				ledger.samples.addLast(sample);
 			} catch (IllegalArgumentException ignored) {
-				// Invalid historic samples are dropped independently.
+				// Drop invalid historic samples independently so one corrupt row cannot erase later evidence.
 			}
 		}
 		return ledger;

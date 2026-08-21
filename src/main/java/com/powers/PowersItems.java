@@ -21,7 +21,7 @@ public final class PowersItems {
 	private static final ResourceKey<CreativeModeTab> SPAWN_EGGS_TAB =
 			ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath("minecraft", "spawn_eggs"));
 
-	// all seven color crystals fuse into the rainbow crystal
+	// Rainbow convergence requires all seven colours so no single crystal is superseded.
 	public static final ResourceKey<Item> RAINBOW_CRYSTAL_KEY = ModItemIds.create("rainbow_crystal");
 	public static final Item RAINBOW_CRYSTAL = ModItemIds.register(
 			RAINBOW_CRYSTAL_KEY,

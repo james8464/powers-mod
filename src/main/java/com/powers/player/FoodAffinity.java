@@ -23,22 +23,22 @@ public final class FoodAffinity {
 	public static final TagKey<Item> NEUTRAL_TAG = TagKey.create(Registries.ITEM, PowersMod.id("food_neutral"));
 
 	private static final Set<String> NORMAL_FOODS = Set.of(
-			// vanilla dishes
+			// Explicit vanilla exceptions preserve the released normal-food affinity.
 			"mushroom_stew", "cooked_porkchop", "cooked_cod", "cooked_salmon", "cooked_beef",
 			"cooked_chicken", "cooked_rabbit", "rabbit_stew", "cooked_mutton", "beetroot_soup",
-			// imported dishes
+			// Explicit imported exceptions preserve the released normal-food affinity.
 			"imported_food_bacon_cooked", "imported_food_fish_fillet_cooked", "imported_food_fish_fillet_smoked",
 			"imported_food_salmon_fillet_cooked", "imported_food_salmon_fillet_smoked", "imported_food_sausage_cooked",
 			"imported_food_slab_beef_cooked", "imported_food_slab_cheval_cooked", "imported_food_slab_mooshroom_cooked",
 			"imported_food_slab_pork_cooked", "imported_food_stew_sweetpod");
 
 	private static final Set<String> ABNORMAL_FOODS = Set.of(
-			// vanilla oddities
+			// Explicit vanilla exceptions preserve the released abnormal-food affinity.
 			"rotten_flesh", "spider_eye", "pufferfish", "pufferfish_bucket", "tropical_fish",
 			"tropical_fish_bucket", "cod_bucket", "salmon_bucket", "cod", "salmon",
 			"poisonous_potato", "chorus_fruit", "suspicious_stew", "porkchop", "beef",
 			"chicken", "rabbit", "mutton",
-			// imported raw, wormy and earthy fare
+			// Explicit imported exceptions preserve the released abnormal-food affinity.
 			"imported_food_apple_wormy", "imported_food_apple_wormy_2", "imported_food_bacon_raw",
 			"imported_food_fish_fillet_raw", "imported_food_salmon_fillet_raw", "imported_food_sausage_raw",
 			"imported_food_slab_beef_raw", "imported_food_slab_cheval_raw", "imported_food_slab_mooshroom_raw",
@@ -46,11 +46,11 @@ public final class FoodAffinity {
 			"imported_food_slab_pork_salted", "imported_food_muckroot", "imported_food_jerky");
 
 	private static final Set<String> NEUTRAL_FOODS = Set.of(
-			// vanilla staples
+			// Explicit vanilla exceptions preserve the released neutral-food affinity.
 			"bread", "apple", "carrot", "potato", "baked_potato", "golden_carrot",
 			"golden_apple", "enchanted_golden_apple", "melon_slice", "sweet_berries", "glow_berries",
 			"cookie", "dried_kelp", "beetroot", "honey_bottle", "pumpkin_pie",
-			// imported produce and humble fare
+			// Explicit imported exceptions preserve the released neutral-food affinity.
 			"imported_food_apple_green", "imported_food_beans", "imported_food_beet", "imported_food_billberry",
 			"imported_food_blackberry", "imported_food_blueberries", "imported_food_bread_big", "imported_food_cabbage",
 			"imported_food_chickpeas", "imported_food_coconut_normal", "imported_food_coconut_opened", "imported_food_coconut_straw",

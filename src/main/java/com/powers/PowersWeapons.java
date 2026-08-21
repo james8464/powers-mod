@@ -40,7 +40,7 @@ public final class PowersWeapons {
 	private record WeaponDef(String id, String displayName, ToolMaterial material, Kind kind, float damage, float speed) {
 	}
 
-	// the whole roster: id, display name, material, kind, damage, swing speed
+	// One stable roster keeps registration, combat values, and display identity aligned.
 	private static final WeaponDef[] DEFS = {
 			new WeaponDef("amethyst_greatblade", "Amethyst Greatblade", ToolMaterial.DIAMOND, Kind.SWORD, 7f, 1.6f),
 			new WeaponDef("amethyst_greatpick", "Amethyst Greatpick", ToolMaterial.DIAMOND, Kind.PICKAXE, 5f, 1.2f),

@@ -41,7 +41,7 @@ public class TelekinesisAbility extends Ability {
 		double range = scaledRange(player, 8.0);
 		double force = Math.min(1.35, scaling(player).potencyMultiplier());
 		AABB area = AABB.ofSize(player.position(), range * 2, range * 1.5, range * 2);
-		// an 8-block reach in all directions, 12 tall, centered on the player
+		// A centered finite volume bounds candidate inspection in every direction.
 		Vec3 center = player.position();
 		int moved = 0;
 		for (LivingEntity target : BoundedEntityCandidates.living(level, area, 160,

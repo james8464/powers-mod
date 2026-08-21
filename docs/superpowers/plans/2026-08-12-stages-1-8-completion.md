@@ -58,7 +58,7 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
 - [x] `NET-011`: pinned 26.2 compatibility matrix for Sodium, Lithium, Simple Voice Chat, ClaimMod, and Inventory Extended/CompactStorage.
 - [x] `QA-009`: testing-only mod-packet delay/loss/duplication/reorder injector and convergence proof.
 - [x] `QA-010`: live hostile-environment fixtures for claims, borders, ceilings, void, fluids, mounts/passengers, portals, and a synthetic dimension.
-- [ ] `QA-016`: intent/invariant comments and stronger source-quality rejection of noise, stale TODOs, misleading claims, undocumented public contracts, and mixed-responsibility classes.
+- [x] `QA-016`: intent/invariant comments and stronger source-quality rejection of noise, stale TODOs, misleading claims, undocumented public contracts, and mixed-responsibility classes.
 
 ### Stage 3 — UI and magical presentation
 

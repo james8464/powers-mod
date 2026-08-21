@@ -17,6 +17,7 @@ class SourceQualityTest {
 
 		assertEquals(audit.productionFiles(), audit.manifestFiles(), audit::summary);
 		assertTrue(audit.undocumentedPublicTypes().isEmpty(), audit::summary);
+		assertTrue(audit.undocumentedPublicContracts().isEmpty(), audit::summary);
 		assertTrue(audit.missingPackageDocumentation().isEmpty(), audit::summary);
 	}
 
@@ -25,6 +26,8 @@ class SourceQualityTest {
 		SourceAudit.Result audit = SourceAudit.scan(Path.of(System.getProperty("user.dir")));
 
 		assertTrue(audit.unfinishedMarkers().isEmpty(), audit::summary);
+		assertTrue(audit.genericComments().isEmpty(), audit::summary);
+		assertTrue(audit.misleadingComments().isEmpty(), audit::summary);
 		assertTrue(audit.debugWrites().isEmpty(), audit::summary);
 		assertTrue(audit.wildcardImports().isEmpty(), audit::summary);
 	}
@@ -34,6 +37,7 @@ class SourceQualityTest {
 		SourceAudit.Result audit = SourceAudit.scan(Path.of(System.getProperty("user.dir")));
 
 		assertTrue(audit.oversizedFiles().isEmpty(), audit::summary);
+		assertTrue(audit.mixedResponsibilityFiles().isEmpty(), audit::summary);
 	}
 
 	@Test

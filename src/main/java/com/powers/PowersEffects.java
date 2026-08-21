@@ -19,14 +19,14 @@ public final class PowersEffects {
 
 	private static final class ExhaustionEffect extends MobEffect {
 		private ExhaustionEffect() {
-			// deep indigo tint
+			// A fixed deep-indigo tint distinguishes Exhaustion without ambient particles.
 			super(MobEffectCategory.HARMFUL, 0x24104F);
 		}
 	}
 
 	private static final class AmethystPoisoningEffect extends MobEffect {
 		private AmethystPoisoningEffect() {
-			// amethyst violet tint
+			// A fixed violet tint keeps Amethyst Poisoning visually distinct from Exhaustion.
 			super(MobEffectCategory.HARMFUL, 0xB36BFF);
 		}
 	}

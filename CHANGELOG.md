@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Completed QA-016 source-contract enforcement: the Java audit now parses comments independently of string literals, rejects short/mechanical narration and unsupported certainty claims with exact lines, requires callable `com.powers.api` contracts, and detects both oversized and near-limit multi-owner units; all production/client comments were scanned, 77 narration lines were rewritten as intent or invariants, and the exact-source manifest now derives responsibility from the public type contract.
+
 - Added real hostile-environment GameTests for external claim denial, world borders, low ceilings, exact void travel and vanilla void death, delayed-stable water/lava, production nested-passenger travel, live mind/body portals, and a reload-tested GameTest-only foreign dimension; fixed immutable Ice claim planning, owner-protected Shadow/artifact summons, transactional collision-safe Size Morph selection, stable-order bounded invasion cursors, deterministic cohort detachment, and fatal projection toggle/ticket/task cleanup.
 
 - Added an operator-only deterministic POWERS-payload fault injector with seeded 150/300 ms delay, exact loss, duplication, and reorder profiles; bounded per-connection/global scheduling, logical state-owner convergence, exactly-once discrete requests, lifecycle fail-closed cancellation, redacted diagnostics, locator/Vessel/menu/FX production-boundary GameTests, and a disabled zero-queue fast path.
