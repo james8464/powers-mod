@@ -49,7 +49,12 @@ Final mode requires all of the following:
 - the selected Stage 1–8 ledger has no open checkbox;
 - `QA-001` is absent from `docs/planning/IMPROVEMENT_BACKLOG.md`;
 - all other branches are absent locally and remotely;
-- every receipt and evidence record names the same full 40-character commit;
+- every receipt names the same full 40-character commit;
+- the committed evidence index and any commit-bearing committed evidence use the
+  single literal token `@HEAD`, because embedding a commit's own hash in that
+  commit is a cryptographic fixed-point impossibility; after independently
+  proving `HEAD`, the verifier resolves `@HEAD` to that full commit and rejects
+  every other symbolic or mismatched value;
 - runtime and sources JAR version/filename match Gradle project metadata;
 - no release tag is required or created by the workflow.
 
@@ -82,13 +87,16 @@ explicit test and review.
 
 ## Evidence manifest
 
-The final evidence manifest is committed on the final release commit and uses
-schema 1. Each row contains:
+The final evidence index is committed on the final release commit and uses
+schema 1. Its top-level and row commit fields are exactly `@HEAD`; the verifier
+resolves that token only after the repository identity gate succeeds. Each row
+contains:
 
 - stable gate/evidence ID and kind;
 - repository-relative path;
 - full SHA-256 and byte size;
-- full implementation commit;
+- the exact `@HEAD` binding token, rendered as the full verified release commit
+  in the generated envelope;
 - producer command or fixture identity;
 - typed result fields, such as test totals, client count, duration, cycle count,
   or visual review decision;
@@ -110,13 +118,14 @@ The verifier does not treat a file hash as proof of its contents.
   no failed required test.
 - restart-soak JSON must be the final schema, `passed=true`, have exactly the
   requested cycles, have at least 86,400 accepted seconds, contain no failure,
-  and name the release commit.
+  and contain either the already verified full release commit or the exact
+  committed `@HEAD` token.
 - profiling reports must name 10/50/100 real-client runs, 1,800 seconds each,
-  and the release commit.
+  and the already verified full release commit or exact `@HEAD` token.
 - visual/manual evidence must have explicit digest-bound review decisions;
   contact sheets or screenshots without retained source bytes cannot pass.
-- compatibility receipts must name exact pinned artifact hashes and the release
-  commit.
+- compatibility receipts must name exact pinned artifact hashes and the already
+  verified full release commit or exact `@HEAD` token.
 - command receipts must exit zero and match the catalogue's literal argument
   vector; arbitrary `command` strings are not accepted.
 - limitations are included verbatim in both envelope formats and cannot be
