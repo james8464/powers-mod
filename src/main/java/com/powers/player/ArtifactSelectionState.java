@@ -5,6 +5,7 @@ import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.artifact.ArtifactSelectionMigration;
 import com.powers.item.artifact.ArtifactFavouriteRules;
 import com.powers.item.artifact.ArtifactSelectionRules;
+import com.powers.item.artifact.ArtifactRecentRules;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
@@ -72,12 +73,38 @@ public final class ArtifactSelectionState {
 		return true;
 	}
 
+	/** Returns a reconciled newest-first history for the current catalogue. */
+	public static List<String> recents(ServerPlayer player, ArtifactAlignment alignment) {
+		List<String> stored = alignment == ArtifactAlignment.DARKNESS
+				? player.getAttachedOrElse(PlayerPowerAttachments.SHADOW_SWORD_RECENTS, List.of())
+				: player.getAttachedOrElse(PlayerPowerAttachments.HEAVENLY_PARTISAN_RECENTS, List.of());
+		List<String> available = ArtifactActionCatalogue.forAlignment(alignment).stream()
+				.map(com.powers.item.artifact.ArtifactActionDefinition::key).toList();
+		List<String> reconciled = ArtifactRecentRules.reconcile(stored, available);
+		if (!reconciled.equals(stored)) setRecents(player, alignment, reconciled);
+		return reconciled;
+	}
+
+	/** Records only an already-authorized, successful artifact selection. */
+	public static void recordRecent(ServerPlayer player, ArtifactAlignment alignment, String canonicalKey) {
+		setRecents(player, alignment, ArtifactRecentRules.record(recents(player, alignment), canonicalKey));
+	}
+
 	private static void setFavourites(ServerPlayer player, ArtifactAlignment alignment,
 			List<String> favourites) {
 		if (alignment == ArtifactAlignment.DARKNESS) {
 			player.setAttached(PlayerPowerAttachments.SHADOW_SWORD_FAVOURITES, List.copyOf(favourites));
 		} else {
 			player.setAttached(PlayerPowerAttachments.HEAVENLY_PARTISAN_FAVOURITES, List.copyOf(favourites));
+		}
+	}
+
+	private static void setRecents(ServerPlayer player, ArtifactAlignment alignment,
+			List<String> recents) {
+		if (alignment == ArtifactAlignment.DARKNESS) {
+			player.setAttached(PlayerPowerAttachments.SHADOW_SWORD_RECENTS, List.copyOf(recents));
+		} else {
+			player.setAttached(PlayerPowerAttachments.HEAVENLY_PARTISAN_RECENTS, List.copyOf(recents));
 		}
 	}
 }

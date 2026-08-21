@@ -40,6 +40,10 @@ final class PlayerPowerAttachments {
 			persistentStringList("shadow_sword_favourites");
 	static final AttachmentType<List<String>> HEAVENLY_PARTISAN_FAVOURITES =
 			persistentStringList("heavenly_partisan_favourites");
+	static final AttachmentType<List<String>> SHADOW_SWORD_RECENTS =
+			persistentStringList("shadow_sword_recents");
+	static final AttachmentType<List<String>> HEAVENLY_PARTISAN_RECENTS =
+			persistentStringList("heavenly_partisan_recents");
 	static final AttachmentType<Map<String, Long>> COOLDOWNS = persistentMap(
 			"cooldowns", Codec.unboundedMap(Codec.STRING, Codec.LONG));
 	static final AttachmentType<Map<String, Integer>> SPELL_SELECTIONS = persistentMap(

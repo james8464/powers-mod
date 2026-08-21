@@ -1,6 +1,7 @@
 package com.powers.client;
 
 import com.powers.client.screen.GrimoireIndexScreen;
+import com.powers.client.screen.ArtifactCatalogueScreen;
 import com.powers.client.screen.RainbowConvergenceScreen;
 import com.powers.client.screen.ShadowSwordScreen;
 import com.powers.client.screen.TeleportInputScreen;
@@ -26,7 +27,8 @@ public final class ClientActionRefresh {
 	static boolean shouldClose(String surface, Class<? extends Screen> current) {
 		if (surface == null || current == null) return false;
 		return switch (surface) {
-			case "artifact" -> ShadowSwordScreen.class.isAssignableFrom(current);
+			case "artifact" -> ShadowSwordScreen.class.isAssignableFrom(current)
+					|| ArtifactCatalogueScreen.class.isAssignableFrom(current);
 			case "crystal" -> RainbowConvergenceScreen.class.isAssignableFrom(current);
 			case "grimoire" -> GrimoireIndexScreen.class.isAssignableFrom(current);
 			default -> false;

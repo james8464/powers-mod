@@ -41,6 +41,7 @@ public final class ShadowSwordPackets {
 
 	public record OpenMenuPayload(long revision, String alignment, String selectedKey, int rank,
 			int sizeMorphOption, int energy, java.util.List<String> favourites,
+			java.util.List<String> recents,
 			java.util.List<ArtifactActionSnapshot> actions) implements CustomPacketPayload {
 		public static final Type<OpenMenuPayload> TYPE = new Type<>(PowersMod.id("open_shadow_sword"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, OpenMenuPayload> STREAM_CODEC =
@@ -52,6 +53,7 @@ public final class ShadowSwordPackets {
 						ByteBufCodecs.VAR_INT, OpenMenuPayload::sizeMorphOption,
 						ByteBufCodecs.VAR_INT, OpenMenuPayload::energy,
 						ACTION_LIST_CODEC, OpenMenuPayload::favourites,
+						ACTION_LIST_CODEC, OpenMenuPayload::recents,
 						SNAPSHOT_LIST_CODEC, OpenMenuPayload::actions,
 						OpenMenuPayload::new);
 
@@ -215,10 +217,12 @@ public final class ShadowSwordPackets {
 			String selectedKey, int rank,
 			int sizeMorphOption, int energy,
 			java.util.List<String> favourites,
+			java.util.List<String> recents,
 			java.util.List<ArtifactActionSnapshot> actions) {
 		PowersPlayNetworking.send(player, new OpenMenuPayload(
 				MagicRuntime.catalogue().snapshot().revision(), alignment.serializedName(), selectedKey, rank, sizeMorphOption,
-				energy, java.util.List.copyOf(favourites), java.util.List.copyOf(actions)));
+				energy, java.util.List.copyOf(favourites), java.util.List.copyOf(recents),
+				java.util.List.copyOf(actions)));
 	}
 
 	public static void openTeleport(ServerPlayer player, ArtifactAlignment alignment) {

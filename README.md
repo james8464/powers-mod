@@ -178,7 +178,7 @@ There are ten usable crystal items exposing 11 distinct actions. Multi-mode crys
 
 ## Mythic artifacts and combat UI
 
-Crouch-right-click the Shadow Sword or Heavenly Partisan for a non-pausing eight-segment wheel. Hover and release crouch, click, or press `1`–`8` to select a favourite; release-to-cast is a separately persisted opt-in and defaults off. The centre opens a searchable icon library with Favourites, Innate, Crystals, and alignment tabs; entries show glyph, translated name, registry key, exact live cost/savings, cooldown progress, toggle, rank lock, and applicable size/gravity variant. Loadouts persist and retired keys migrate without duplicates.
+Crouch-right-click the Shadow Sword or Heavenly Partisan for a non-pausing eight-segment wheel. Hover and release crouch, click, or press `1`–`8` to select a favourite; release-to-cast is a separately persisted opt-in and defaults off. The centre opens a virtual scrolling icon library with Favourites, Recent, Innate, Crystals, and alignment-action tabs plus localized search. Its fixed visible widget pool does not grow or rebuild while scrolling thousands of datapack actions. Entries show glyph, translated name, registry key, exact live cost/savings, cooldown progress, toggle, rank lock, and applicable size/gravity variant. Click a searched result and then slot `1`–`8` to bind it directly in two interactions. Loadouts and bounded per-alignment recents persist, retired keys reconcile without duplicates, and revision refreshes retain any still-canonical selection.
 
 ### Shadow Sword
 

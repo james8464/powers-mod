@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
 
-/** Client/server-neutral filtering, paging, and responsive catalogue geometry. */
+/** Client/server-neutral filtering and fixed-window responsive catalogue geometry. */
 public final class ArtifactCatalogueRules {
 	private ArtifactCatalogueRules() {
 	}
@@ -28,12 +28,21 @@ public final class ArtifactCatalogueRules {
 	public static List<ArtifactActionDefinition> filter(List<ArtifactActionDefinition> actions,
 			ArtifactCatalogueTab tab, List<String> favourites, String query,
 			Function<ArtifactActionDefinition, String> labelProvider) {
+		return filter(actions, tab, favourites, List.of(), query, labelProvider);
+	}
+
+	/** Filters all player-facing tabs, preserving authored order for favourites and recents. */
+	public static List<ArtifactActionDefinition> filter(List<ArtifactActionDefinition> actions,
+			ArtifactCatalogueTab tab, List<String> favourites, List<String> recents, String query,
+			Function<ArtifactActionDefinition, String> labelProvider) {
 		if (actions == null || tab == null || labelProvider == null) return List.of();
 		List<String> safeFavourites = favourites == null ? List.of() : favourites;
+		List<String> safeRecents = recents == null ? List.of() : recents;
 		String needle = normalize(query);
 		List<ArtifactActionDefinition> filtered = actions.stream()
 				.filter(action -> switch (tab) {
 					case FAVOURITES -> safeFavourites.contains(action.key());
+					case RECENT -> safeRecents.contains(action.key());
 					case INNATE -> action.category() == ArtifactActionCategory.ROUTED_POWER;
 					case CRYSTALS -> action.category() == ArtifactActionCategory.ROUTED_CRYSTAL;
 					case SWORD -> action.category() == ArtifactActionCategory.DOMINION;
@@ -43,9 +52,10 @@ public final class ArtifactCatalogueRules {
 						|| normalize(action.abilityId()).contains(needle)
 						|| normalize(labelProvider.apply(action)).contains(needle))
 				.toList();
-		return tab == ArtifactCatalogueTab.FAVOURITES ? filtered.stream()
-				.sorted(Comparator.comparingInt(action -> safeFavourites.indexOf(action.key())))
-				.toList() : filtered;
+		List<String> ordered = tab == ArtifactCatalogueTab.FAVOURITES ? safeFavourites
+				: tab == ArtifactCatalogueTab.RECENT ? safeRecents : List.of();
+		return ordered.isEmpty() ? filtered : filtered.stream()
+				.sorted(Comparator.comparingInt(action -> ordered.indexOf(action.key()))).toList();
 	}
 
 	public static Layout layout(int screenWidth, int screenHeight) {
@@ -57,19 +67,6 @@ public final class ArtifactCatalogueRules {
 				panelWidth, panelHeight, columns, rows);
 	}
 
-	public static int pageCount(int actionCount, int pageSize) {
-		return Math.max(1, (Math.max(0, actionCount) + Math.max(1, pageSize) - 1)
-				/ Math.max(1, pageSize));
-	}
-
-	public static <T> List<T> page(List<T> values, int page, int pageSize) {
-		if (values == null || values.isEmpty()) return List.of();
-		int safeSize = Math.max(1, pageSize);
-		int safePage = Math.clamp(page, 0, pageCount(values.size(), safeSize) - 1);
-		int from = safePage * safeSize;
-		return values.subList(from, Math.min(values.size(), from + safeSize));
-	}
-
 	private static String normalize(String value) {
 		return value == null ? "" : value.toLowerCase(Locale.ROOT)
 				.replaceAll("[^a-z0-9]+", " ").trim();
@@ -77,7 +74,7 @@ public final class ArtifactCatalogueRules {
 
 	public record Layout(int panelX, int panelY, int panelWidth, int panelHeight,
 			int columns, int rows) {
-		public int pageSize() {
+		public int visibleCapacity() {
 			return columns * rows;
 		}
 	}

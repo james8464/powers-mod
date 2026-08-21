@@ -107,9 +107,38 @@ public final class ActionSubmissionPacketGameTests {
 		});
 	}
 
+	@GameTest(maxTicks = 30)
+	@SuppressWarnings("removal")
+	public void successfulArtifactSelectionRecordsAndTransportsBoundedRecents(GameTestHelper helper) {
+		ServerPlayer player = authorizedShadowOwner(helper);
+		player.setAttached(PlayerPowerAttachments.SHADOW_SWORD_RECENTS, List.of(
+				"innate/lightning_strike", "innate/thunderclap"));
+		List<Object> payloads = captureClientboundPayloads(player);
+		PacketRateLimiter.clearGlobal();
+		long revision = MagicRuntime.catalogue().snapshot().revision();
+
+		player.connection.handleCustomPayload(new ServerboundCustomPayloadPacket(
+				new ShadowSwordPackets.SelectPayload(revision, "darkness", "innate/fireball", -1)));
+		helper.runAfterDelay(2, () -> {
+			List<String> recent = ArtifactSelectionState.recents(player, ArtifactAlignment.DARKNESS);
+			helper.assertTrue(recent.equals(List.of("innate/fireball", "innate/lightning_strike",
+					"innate/thunderclap")), "Successful selection did not record newest-first recents: " + recent);
+			ArtifactWeaponManager.openMenu(player, ArtifactAlignment.DARKNESS);
+			helper.runAfterDelay(2, () -> {
+				List<ShadowSwordPackets.OpenMenuPayload> menus = payloads.stream()
+						.filter(ShadowSwordPackets.OpenMenuPayload.class::isInstance)
+						.map(ShadowSwordPackets.OpenMenuPayload.class::cast).toList();
+				helper.assertTrue(!menus.isEmpty() && menus.getLast().recents().equals(recent),
+						"Server-authored menu did not transport the authoritative recents: " + menus);
+				helper.succeed();
+			});
+		});
+	}
+
 	private static ServerPlayer authorizedShadowOwner(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		player.setItemInHand(InteractionHand.MAIN_HAND, PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		player.addTag(SkillSystem.DARKNESS_TAG);
 		PlayerPowers.get(player).setDarknessLevel(player, 10);
 		return player;
 	}
