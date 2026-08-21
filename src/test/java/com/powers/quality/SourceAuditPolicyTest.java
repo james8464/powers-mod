@@ -32,7 +32,7 @@ class SourceAuditPolicyTest {
 	}
 
 	@Test
-	void shortDescriptiveNarrationIsRejectedEvenWithoutAnImperativeVerb() throws IOException {
+	void shortFactualCommentIsAcceptedWithoutMandatorySignalWords() throws IOException {
 		write("src/main/java/com/example/Example.java", """
 				package com.example;
 				/** Owns the example invariant. */
@@ -44,7 +44,7 @@ class SourceAuditPolicyTest {
 
 		SourceAudit.Result result = SourceAudit.scan(root);
 
-		assertEquals(Set.of("src/main/java/com/example/Example.java:4"), result.genericComments());
+		assertTrue(result.genericComments().isEmpty(), result::summary);
 	}
 
 	@Test
@@ -134,6 +134,71 @@ class SourceAuditPolicyTest {
 	}
 
 	@Test
+	void apiContractsCoverMultilineConstructorsNestedInterfacesAndMeaningfulDocs() throws IOException {
+		write("src/main/java/com/example/api/v1/ExampleApi.java", """
+				package com.example.api.v1;
+				/** Stable integration boundary. */
+				public record ExampleApi(String id) {
+					/** A comment that says nothing useful. */
+					public ExampleApi {
+					}
+					public boolean
+							allows(
+								String value
+							) { return true; }
+					@FunctionalInterface
+					public interface Decision {
+						boolean decide(String value);
+					}
+					private static final class Internal {
+						public void helper() { }
+					}
+				}
+				""");
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertEquals(Set.of(
+				"src/main/java/com/example/api/v1/ExampleApi.java:5",
+				"src/main/java/com/example/api/v1/ExampleApi.java:7",
+				"src/main/java/com/example/api/v1/ExampleApi.java:13"),
+				result.undocumentedPublicContracts());
+	}
+
+	@Test
+	void overrideMayInheritItsContract() throws IOException {
+		write("src/main/java/com/example/api/v1/ExampleApi.java", """
+				package com.example.api.v1;
+				/** Stable integration boundary. */
+				public final class ExampleApi implements Runnable {
+					@Override
+					public void run() { }
+				}
+				""");
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertTrue(result.undocumentedPublicContracts().isEmpty(), result::summary);
+	}
+
+	@Test
+	void isolatedOutcomeVerbIsNotAMeaningfulApiContract() throws IOException {
+		write("src/main/java/com/example/api/v1/ExampleApi.java", """
+				package com.example.api.v1;
+				/** Stable integration boundary. */
+				public interface ExampleApi {
+					/** Returns. */
+					int state();
+				}
+				""");
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertEquals(Set.of("src/main/java/com/example/api/v1/ExampleApi.java:5"),
+				result.undocumentedPublicContracts());
+	}
+
+	@Test
 	void inlinePublicApiMethodsStillRequireContracts() throws IOException {
 		write("src/main/java/com/example/api/v1/ExampleApi.java", """
 				package com.example.api.v1;
@@ -150,20 +215,140 @@ class SourceAuditPolicyTest {
 	}
 
 	@Test
-	void nearLimitSourceWithIndependentTopLevelTypesIsRejected() throws IOException {
+	void commentFindingsReportTheExactOffendingLineInsideMultilineComments() throws IOException {
+		write("src/main/java/com/example/Example.java", """
+				package com.example;
+				/** Owns the example invariant. */
+				public final class Example {
+					/* Context is retained here.
+					 * TODO remove this branch.
+					 */
+					// Context is retained here.
+					// This should never happen.
+					void apply() { }
+				}
+				""");
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertEquals(Set.of("src/main/java/com/example/Example.java:5"), result.unfinishedMarkers());
+		assertEquals(Set.of("src/main/java/com/example/Example.java:8"), result.misleadingComments());
+	}
+
+	@Test
+	void mechanicalNarrationCannotBorrowWeakIntentTokens() throws IOException {
+		write("src/main/java/com/example/Example.java", """
+				package com.example;
+				/** Owns the example invariant. */
+				public final class Example {
+					// Apply logic only when needed so it works.
+					void apply() { }
+					/** Process the value only when requested. */
+					void process() { }
+				}
+				""");
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertEquals(Set.of(
+				"src/main/java/com/example/Example.java:4",
+				"src/main/java/com/example/Example.java:6"), result.genericComments());
+	}
+
+	@Test
+	void nearLimitSourceWithIndependentExternallyVisibleOwnersIsRejected() throws IOException {
 		StringBuilder source = new StringBuilder("""
 				package com.example;
 				/** Primary responsibility. */
-				public final class Example { }
-				final class SeparateOwner { }
+				public final class Example {
+					public static final class IndependentWorker {
+						public void execute() { }
+					}
+				}
 				""");
 		while (source.toString().lines().count() <= 350) source.append("\n");
 		write("src/main/java/com/example/Example.java", source.toString());
 
 		SourceAudit.Result result = SourceAudit.scan(root);
 
-		assertEquals(Set.of("src/main/java/com/example/Example.java (351 lines, 2 top-level types)"),
+		assertEquals(Set.of("src/main/java/com/example/Example.java (351 lines, 2 externally visible owners)"),
 				result.mixedResponsibilityFiles());
+	}
+
+	@Test
+	void nearLimitSourceMayKeepPrivateCoupledHelpers() throws IOException {
+		StringBuilder source = new StringBuilder("""
+				package com.example;
+				/** Primary responsibility. */
+				public final class Example {
+					private static final class CoupledHelper {
+						void execute() { }
+					}
+				}
+				""");
+		while (source.toString().lines().count() <= 350) source.append("\n");
+		write("src/main/java/com/example/Example.java", source.toString());
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertTrue(result.mixedResponsibilityFiles().isEmpty(), result::summary);
+	}
+
+	@Test
+	void nearLimitSourceMayExposeDataOnlyNestedRecords() throws IOException {
+		StringBuilder source = new StringBuilder("""
+				package com.example;
+				/** Primary responsibility. */
+				public final class Example {
+					public record Snapshot(int value) {
+						public Snapshot { if (value < 0) throw new IllegalArgumentException(); }
+					}
+				}
+				""");
+		while (source.toString().lines().count() <= 350) source.append("\n");
+		write("src/main/java/com/example/Example.java", source.toString());
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertTrue(result.mixedResponsibilityFiles().isEmpty(), result::summary);
+	}
+
+	@Test
+	void nearLimitSourceMayExposeConstructorOnlyDataClasses() throws IOException {
+		StringBuilder source = new StringBuilder("""
+				package com.example;
+				/** Primary responsibility. */
+				public final class Example {
+					public static final class Snapshot {
+						private final int value;
+						public Snapshot(int value) { this.value = value; }
+					}
+				}
+				""");
+		while (source.toString().lines().count() <= 350) source.append("\n");
+		write("src/main/java/com/example/Example.java", source.toString());
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertTrue(result.mixedResponsibilityFiles().isEmpty(), result::summary);
+	}
+
+	@Test
+	void escapedDelimiterLikeSequenceDoesNotEndATextBlock() throws IOException {
+		String delimiter = "\"\"\"";
+		String escapedDelimiter = "\\\"" + "\"\"";
+		write("src/main/java/com/example/Example.java",
+				"package com.example;\n"
+						+ "/** Owns the example invariant. */\n"
+						+ "public final class Example {\n"
+						+ "\tString text = " + delimiter + "\n"
+						+ "\t\t" + escapedDelimiter + " // TODO remains text\n"
+						+ "\t\t" + delimiter + ";\n"
+						+ "}\n");
+
+		SourceAudit.Result result = SourceAudit.scan(root);
+
+		assertTrue(result.unfinishedMarkers().isEmpty(), result::summary);
 	}
 
 	private void write(String relative, String source) throws IOException {

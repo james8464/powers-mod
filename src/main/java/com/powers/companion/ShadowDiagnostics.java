@@ -40,14 +40,14 @@ public record ShadowDiagnostics(int bodies, int hiddenBodies, int revealedBodies
 				+ "; forcedChunks=" + forcedChunks + "; leaks=" + leakedHandles;
 	}
 
-	static ShadowDiagnostics collect(Iterable<PrivateCompanionManager.Session> sessions,
+	static ShadowDiagnostics collect(Iterable<PrivateCompanionSession> sessions,
 			Set<UUID> bodyHandles) {
 		int bodies = 0;
 		int revealed = 0;
 		int tasks = 0;
 		int energy = 0;
 		Set<UUID> liveBodyIds = new HashSet<>();
-		for (PrivateCompanionManager.Session session : sessions) {
+		for (PrivateCompanionSession session : sessions) {
 			if (session.body != null && session.body.isAlive() && !session.body.isRemoved()) {
 				bodies++;
 				energy += session.body.energy();

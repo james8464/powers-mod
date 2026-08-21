@@ -169,7 +169,7 @@ public class PowersClient implements ClientModInitializer {
 				(payload, context) -> context.client().execute(() -> ClientCelestialRuinFx.handle(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(EventAudioPackets.Payload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientEventAudio.handle(payload)));
-		// clear the cached state when you leave the server so the hud doesn't carry over old powers
+		// Disconnect owns the client cache boundary; no server-authored power state may cross sessions.
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			ClientPowerState.reset();
 			ClientActionRegistry.reset();

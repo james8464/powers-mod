@@ -1,16 +1,34 @@
 package com.powers.quality;
 
+import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.util.DocTrees;
+import com.sun.source.util.JavacTask;
+import com.sun.source.util.SourcePositions;
+import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
+
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import javax.lang.model.element.Modifier;
+import javax.tools.JavaFileObject;
+import javax.tools.SimpleJavaFileObject;
+import javax.tools.ToolProvider;
 
 final class SourceAudit {
 	private static final Pattern PUBLIC_TYPE = Pattern.compile(
@@ -21,18 +39,22 @@ final class SourceAudit {
 	private static final Pattern MANIFEST_ROW = Pattern.compile("^\\| `([^`]+\\.java)` \\|");
 	private static final Pattern MECHANICAL_NARRATION = Pattern.compile(
 			"(?i)^(?:apply|build|calculate|call|check|clear|close|compute|create|get|handle|initialize|"
-					+ "iterate|load|loop|open|process|register|remove|return|run|save|send|set|spawn|update)\\b");
-	private static final Pattern INTENT_SIGNAL = Pattern.compile(
+					+ "iterate|load|loop|open|process|register|remove|return|run|save|send|set|spawn|update)(?:\\s|$)");
+	private static final Pattern STRONG_INTENT_SIGNAL = Pattern.compile(
 			"(?i)\\b(?:after|authority|before|because|bound(?:ed|s)?|cap|deliberately|deterministic|ensures?|"
-					+ "exact(?:ly)?|finite|hard|immutable|instead|invariant|keeps?|limit|must|never|only|otherwise|"
-					+ "own(?:ed|er|ership|s)?|preserves?|prevents?|rather|so|stable|transactional|unless|until|"
-					+ "when|while|without)\\b");
+					+ "exact(?:ly)?|finite|hard|immutable|instead|invariant|keeps?|limit|must|never|otherwise|"
+					+ "own(?:ed|er|ership|s)?|preserves?|prevents?|rather|stable|transactional|unless|until|"
+					+ "while|without)\\b");
+	private static final Pattern VAGUE_COMMENT = Pattern.compile(
+			"(?i)^(?:first|second|value|logic|handler|setup)(?:\\s|$)");
+	private static final Pattern CONTRACT_SIGNAL = Pattern.compile(
+			"(?i)\\b(?:authorit(?:y|ative)|authori[sz](?:e|ed|es|ation)|valid(?:ate|ated|ates|ation)?|invalid|reject(?:s|ed|ion)?|"
+					+ "require(?:s|d)?|epoch|lifecycle|start(?:s|ed)?|stop(?:s|ped)?|remov(?:e|es|ed|al)|"
+					+ "expir(?:e|es|ed|y)|one-shot|once|outcome|returns?|reports?|registers?|issues?|commits?|"
+					+ "exposes?|identifies|supplies|allows?|denies|throws?|creates?|clears?|preserves?|emits?)\\b");
 	private static final Pattern UNSUPPORTED_CERTAINTY = Pattern.compile(
 			"(?i)\\b(?:always works?|cannot fail|completely safe|fully safe|guaranteed to work|"
 					+ "handles everything|should never happen)\\b");
-	private static final Pattern TOP_LEVEL_TYPE = Pattern.compile(
-			"(?m)^(?:public\\s+)?(?:(?:final|abstract|sealed|non-sealed)\\s+)*(?:class|interface|record|enum)\\s+");
-	private static final Pattern METHOD_DECLARATION = Pattern.compile("^[^=;{}]+\\([^;{}]*\\)\\s*;?$");
 	private static final int MAX_REVIEWED_LINES = 450;
 	private static final int MIXED_RESPONSIBILITY_LINES = 350;
 
@@ -56,17 +78,18 @@ final class SourceAudit {
 		for (String relative : productionFiles) {
 			Path file = projectRoot.resolve(relative);
 			String source = Files.readString(file);
+			ParsedSource parsed = ParsedSource.parse(relative, source);
 			if (!relative.endsWith("package-info.java") && !hasDocumentedPublicType(source)) {
 				undocumented.add(relative);
 			}
 			for (Comment comment : comments(source)) {
-				String location = relative + ":" + comment.line();
-				if (UNFINISHED.matcher(comment.text()).find()) unfinished.add(location);
-				if (isGenericNarration(comment)) genericComments.add(location);
-				if (UNSUPPORTED_CERTAINTY.matcher(comment.text()).find()) misleadingComments.add(location);
+				addMatches(unfinished, relative, comment, UNFINISHED);
+				int genericLine = genericNarrationLine(comment);
+				if (genericLine >= 0) genericComments.add(relative + ":" + genericLine);
+				addMatches(misleadingComments, relative, comment, UNSUPPORTED_CERTAINTY);
 			}
 			if (relative.contains("/api/")) undocumentedContracts.addAll(
-					undocumentedPublicContracts(relative, source));
+					parsed.undocumentedPublicContracts());
 			if (DEBUG_WRITE.matcher(source).find()) debug.add(relative);
 			if (WILDCARD_IMPORT.matcher(source).find()) wildcard.add(relative);
 			long lines;
@@ -74,12 +97,10 @@ final class SourceAudit {
 				lines = stream.count();
 			}
 			if (lines > MAX_REVIEWED_LINES) oversized.add(relative + " (" + lines + ")");
-			Matcher topLevelTypes = TOP_LEVEL_TYPE.matcher(source);
-			int topLevelTypeCount = 0;
-			while (topLevelTypes.find()) topLevelTypeCount++;
-			if (lines > MIXED_RESPONSIBILITY_LINES && topLevelTypeCount > 1) {
+			int ownerCount = parsed.externallyVisibleOwnerCount();
+			if (lines > MIXED_RESPONSIBILITY_LINES && ownerCount > 1) {
 				mixedResponsibility.add(relative + " (" + lines + " lines, "
-						+ topLevelTypeCount + " top-level types)");
+						+ ownerCount + " externally visible owners)");
 			}
 		}
 
@@ -92,56 +113,25 @@ final class SourceAudit {
 				debug, wildcard, oversized, mixedResponsibility);
 	}
 
-	private static boolean isGenericNarration(Comment comment) {
-		if (comment.javadoc()) return false;
-		String text = comment.text().replaceAll("\\s+", " ").trim();
-		int words = text.isEmpty() ? 0 : text.split("\\s+").length;
-		if (words == 0 || INTENT_SIGNAL.matcher(text).find()) return false;
-		return words <= 12 || (words <= 20 && MECHANICAL_NARRATION.matcher(text).find());
+	private static void addMatches(Set<String> findings, String relative, Comment comment, Pattern pattern) {
+		Matcher matcher = pattern.matcher(comment.text());
+		while (matcher.find()) findings.add(relative + ":" + comment.lineAt(matcher.start()));
 	}
 
-	private static Set<String> undocumentedPublicContracts(String relative, String source) {
-		Set<String> result = new LinkedHashSet<>();
-		boolean publicInterface = Pattern.compile("(?m)^public\\s+(?:sealed\\s+)?interface\\s+")
-				.matcher(source).find();
-		String[] lines = source.split("\\R", -1);
-		int offset = 0;
-		String typeName = Path.of(relative).getFileName().toString().replaceFirst("\\.java$", "");
+	private static int genericNarrationLine(Comment comment) {
+		String[] lines = comment.text().split("\\R", -1);
+		boolean paragraphHasIntent = STRONG_INTENT_SIGNAL.matcher(comment.text()).find();
 		for (int index = 0; index < lines.length; index++) {
-			String trimmed = lines[index].trim();
-			boolean explicitPublic = trimmed.startsWith("public ");
-			boolean implicitInterfaceMethod = publicInterface && trimmed.endsWith(";") && trimmed.contains("(");
-			String declarationHead = trimmed.replaceFirst("^@\\w+(?:\\([^)]*\\))?\\s+", "");
-			int body = declarationHead.indexOf('{');
-			if (body >= 0) declarationHead = declarationHead.substring(0, body).trim();
-			boolean declaration = (explicitPublic || implicitInterfaceMethod)
-					&& METHOD_DECLARATION.matcher(declarationHead).matches()
-					&& !trimmed.contains(" interface ") && !trimmed.startsWith("public interface ")
-					&& !trimmed.startsWith("public class ") && !trimmed.startsWith("public record ")
-					&& !trimmed.startsWith("public enum ") && !trimmed.contains("@Override");
-			if (declaration) {
-				Matcher name = Pattern.compile("([A-Za-z_$][\\w$]*)\\s*\\(").matcher(trimmed);
-				String methodName = null;
-				while (name.find()) methodName = name.group(1);
-				if (!typeName.equals(methodName) && !hasJavadocBefore(source, offset)) {
-					result.add(relative + ":" + (index + 1));
-				}
+			String text = lines[index].replaceFirst("^\\s*\\*?\\s*", "").trim();
+			if (text.isEmpty() || text.startsWith("@")) continue;
+			int words = text.split("\\s+").length;
+			boolean mechanical = MECHANICAL_NARRATION.matcher(text).find();
+			boolean vague = VAGUE_COMMENT.matcher(text).find() && words <= 6;
+			if ((mechanical && !paragraphHasIntent) || vague) {
+				return comment.line() + index;
 			}
-			offset += lines[index].length() + 1;
 		}
-		return result;
-	}
-
-	private static boolean hasJavadocBefore(String source, int declarationOffset) {
-		String prefix = source.substring(0, Math.min(declarationOffset, source.length()));
-		int close = prefix.lastIndexOf("*/");
-		if (close < 0) return false;
-		int open = prefix.lastIndexOf("/**", close);
-		if (open < 0) return false;
-		String between = prefix.substring(close + 2)
-				.replaceAll("(?m)^\\s*@[^\\n]+$", "")
-				.trim();
-		return between.isEmpty();
+		return -1;
 	}
 
 	private static List<Comment> comments(String source) {
@@ -157,7 +147,8 @@ final class SourceAudit {
 				index += textBlock ? 3 : 1;
 				while (index < source.length()) {
 					if (source.charAt(index) == '\n') line++;
-					if (textBlock && index + 2 < source.length() && source.startsWith("\"\"\"", index)) {
+					if (textBlock && index + 2 < source.length() && source.startsWith("\"\"\"", index)
+							&& !isEscaped(source, index)) {
 						index += 3; break;
 					}
 					if (!textBlock && source.charAt(index) == '\\') { index = Math.min(source.length(), index + 2); continue; }
@@ -208,7 +199,82 @@ final class SourceAudit {
 		return merged;
 	}
 
-	private record Comment(String text, int line, boolean javadoc, boolean leading) { }
+	private static boolean isEscaped(String source, int offset) {
+		int slashes = 0;
+		for (int index = offset - 1; index >= 0 && source.charAt(index) == '\\'; index--) slashes++;
+		return (slashes & 1) == 1;
+	}
+
+	private record Comment(String text, int line, boolean javadoc, boolean leading) {
+		int lineAt(int offset) {
+			return line + (int) text.substring(0, Math.max(0, offset)).chars()
+					.filter(character -> character == '\n').count();
+		}
+	}
+
+	private record ParsedSource(Set<String> undocumentedPublicContracts,
+			int externallyVisibleOwnerCount) {
+		static ParsedSource parse(String relative, String source) throws IOException {
+			var compiler = ToolProvider.getSystemJavaCompiler();
+			JavaFileObject input = new SimpleJavaFileObject(
+					URI.create("string:///" + relative.replace(" ", "%20")), JavaFileObject.Kind.SOURCE) {
+				@Override public CharSequence getCharContent(boolean ignoreEncodingErrors) { return source; }
+			};
+			JavacTask task = (JavacTask) compiler.getTask(null, null, diagnostic -> { },
+					List.of("-proc:none"), null, List.of(input));
+			CompilationUnitTree unit = task.parse().iterator().next();
+			DocTrees docs = DocTrees.instance(task);
+			SourcePositions positions = docs.getSourcePositions();
+			Set<String> contracts = new LinkedHashSet<>();
+			int[] owners = {0};
+			new TreePathScanner<Void, Void>() {
+				private final Deque<Boolean> publicSurface = new ArrayDeque<>();
+				private final Deque<Boolean> interfaceScope = new ArrayDeque<>();
+
+				@Override public Void visitClass(ClassTree tree, Void unused) {
+					boolean topLevel = getCurrentPath().getParentPath().getLeaf() instanceof CompilationUnitTree;
+					boolean visible = topLevel
+							? tree.getModifiers().getFlags().contains(Modifier.PUBLIC)
+							: !publicSurface.isEmpty() && publicSurface.peek()
+									&& !tree.getModifiers().getFlags().contains(Modifier.PRIVATE);
+					if (topLevel || (visible && hasDeclaredBehaviour(tree))) owners[0]++;
+					publicSurface.push(visible);
+					interfaceScope.push(tree.getKind() == Tree.Kind.INTERFACE);
+					super.visitClass(tree, unused);
+					interfaceScope.pop();
+					publicSurface.pop();
+					return null;
+				}
+
+				@Override public Void visitMethod(MethodTree tree, Void unused) {
+					boolean inherited = tree.getModifiers().getAnnotations().stream()
+							.anyMatch(annotation -> annotation.getAnnotationType().toString().endsWith("Override"));
+					boolean interfaceMethod = !interfaceScope.isEmpty() && interfaceScope.peek()
+							&& !tree.getModifiers().getFlags().contains(Modifier.PRIVATE);
+					boolean publicMethod = tree.getModifiers().getFlags().contains(Modifier.PUBLIC);
+					if (!publicSurface.isEmpty() && publicSurface.peek() && (publicMethod || interfaceMethod)
+							&& !inherited) {
+						var doc = docs.getDocCommentTree(getCurrentPath());
+						String contract = doc == null ? "" : doc.toString();
+						int contractWords = contract.isBlank() ? 0 : contract.trim().split("\\s+").length;
+						if (contractWords < 4 || !CONTRACT_SIGNAL.matcher(contract).find()) {
+							long offset = positions.getStartPosition(unit, tree);
+							long line = unit.getLineMap().getLineNumber(Math.max(0, offset));
+							contracts.add(relative + ":" + line);
+						}
+					}
+					return super.visitMethod(tree, unused);
+				}
+			}.scan(unit, null);
+			return new ParsedSource(Collections.unmodifiableSet(contracts), owners[0]);
+		}
+
+		private static boolean hasDeclaredBehaviour(ClassTree tree) {
+			return (tree.getKind() == Tree.Kind.CLASS || tree.getKind() == Tree.Kind.INTERFACE)
+					&& tree.getMembers().stream().anyMatch(member -> member instanceof MethodTree method
+							&& method.getReturnType() != null);
+		}
+	}
 
 	private static Set<String> productionFiles(Path root) throws IOException {
 		Set<String> result = new LinkedHashSet<>();

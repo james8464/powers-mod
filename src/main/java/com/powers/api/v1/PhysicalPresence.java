@@ -6,6 +6,7 @@ import java.util.Objects;
 /** Bounded fixed presence; action and owner authority come only from its {@link CastContext}. */
 public record PhysicalPresence(ServerLevel level, double x, double y,
 		double z, double radius, long expiresAt, PresenceKind kind) {
+	/** Validates finite geometry and bounded lifetime metadata before registration. */
 	public PhysicalPresence {
 		Objects.requireNonNull(kind, "kind");
 		if (!Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)

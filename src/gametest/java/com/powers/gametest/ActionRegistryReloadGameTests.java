@@ -150,6 +150,8 @@ public final class ActionRegistryReloadGameTests {
 		player.setItemInHand(InteractionHand.MAIN_HAND, com.powers.ImportedPackItems.item(
 				"imported_book_grimoire_deep").getDefaultInstance());
 		var before = PlayerEnergyHistory.snapshot(player);
+		int baselineEnergy = PlayerPowers.get(player).energy();
+		int historyBefore = before.history().size();
 		SpellCastingManager.use(player, "book_grimoire_deep");
 		helper.assertTrue(SpellCastingManager.isChanneling(player.getUUID()), "Channel did not begin");
 		helper.assertTrue(PlayerEnergyHistory.snapshot(player).amount(EnergyHistorySource.PLAYER_POOL_COST)
@@ -160,30 +162,32 @@ public final class ActionRegistryReloadGameTests {
 			helper.assertFalse(SpellCastingManager.isChanneling(player.getUUID()),
 					"Owner loss did not cancel the channel");
 			var cancelled = PlayerEnergyHistory.snapshot(player);
-			long poolCosts = cancelled.amount(EnergyHistorySource.PLAYER_POOL_COST)
-					- before.amount(EnergyHistorySource.PLAYER_POOL_COST);
-			long reservoirCosts = cancelled.amount(EnergyHistorySource.RESERVOIR_COST)
-					- before.amount(EnergyHistorySource.RESERVOIR_COST);
-			long rollbacks = cancelled.amount(EnergyHistorySource.TRANSACTION_ROLLBACK)
-					- before.amount(EnergyHistorySource.TRANSACTION_ROLLBACK);
-			helper.assertTrue(poolCosts + reservoirCosts - rollbacks == 11,
-					"Cancellation ledger did not retain exactly one half-payment");
+			var transaction = cancelled.history().subList(historyBefore, cancelled.history().size());
+			var costs = transaction.stream()
+					.filter(entry -> entry.source() == EnergyHistorySource.PLAYER_POOL_COST)
+					.map(com.powers.player.EnergyHistorySnapshot.Entry::delta).toList();
+			boolean restoredBaseline = transaction.stream()
+					.filter(entry -> entry.source() == EnergyHistorySource.TRANSACTION_ROLLBACK)
+					.anyMatch(entry -> entry.after() == baselineEnergy);
+			helper.assertTrue(costs.equals(java.util.List.of(-22L, -11L)) && restoredBaseline,
+					"Cancellation ledger did not reserve, restore, then retain exactly one half-payment: "
+							+ transaction);
 			helper.assertFalse(DimensionalAnchorAbility.isAnchored(target),
 					"Cancelled channel executed its authored effect");
 			// Force the phase boundary that exposed the old net-energy assertion. A legal
 			// ambient mutation must remain a distinct source and cannot look like a repeat refund.
 			long regeneration = cancelled.amount(EnergyHistorySource.REGENERATION);
+			int terminalHistorySize = cancelled.history().size();
 			PlayerPowers.get(player).regenerateEnergy(1);
 			helper.assertTrue(PlayerEnergyHistory.snapshot(player).amount(EnergyHistorySource.REGENERATION)
 					== regeneration + 1, "Ambient regeneration was not independently attributed");
 			helper.runAfterDelay(5, () -> {
 				var later = PlayerEnergyHistory.snapshot(player);
-				helper.assertTrue(later.amount(EnergyHistorySource.PLAYER_POOL_COST)
-						- before.amount(EnergyHistorySource.PLAYER_POOL_COST) == poolCosts
-						&& later.amount(EnergyHistorySource.RESERVOIR_COST)
-						- before.amount(EnergyHistorySource.RESERVOIR_COST) == reservoirCosts
-						&& later.amount(EnergyHistorySource.TRANSACTION_ROLLBACK)
-						- before.amount(EnergyHistorySource.TRANSACTION_ROLLBACK) == rollbacks,
+				var afterTerminal = later.history().subList(terminalHistorySize, later.history().size());
+				helper.assertTrue(afterTerminal.stream().noneMatch(entry ->
+						entry.source() == EnergyHistorySource.PLAYER_POOL_COST
+								|| entry.source() == EnergyHistorySource.RESERVOIR_COST
+								|| entry.source() == EnergyHistorySource.TRANSACTION_ROLLBACK),
 						"Invalid continuation was cancelled more than once");
 				helper.assertFalse(DimensionalAnchorAbility.isAnchored(target),
 						"Cancelled channel completed later");

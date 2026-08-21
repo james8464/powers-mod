@@ -1357,8 +1357,15 @@ public final class PowersGameTests {
 		player.setItemInHand(InteractionHand.MAIN_HAND, com.powers.ImportedPackItems.item(
 				"imported_book_grimoire_celestial").getDefaultInstance());
 		var powers = com.powers.player.PlayerPowers.get(player);
+		// Mock players reuse one identity across earlier environments, so this fixture owns a clean ritual baseline.
+		SpellCastingManager.clear(player);
+		com.powers.network.PacketRateLimiter.forgetPlayer(player.getUUID());
+		powers.clearCooldown("spell:augury");
+		powers.forceRestoreEnergy();
 		powers.setSelectedSpell("book_grimoire_celestial", 1);
 		SpellCastingManager.use(player, "book_grimoire_celestial");
+		helper.assertTrue(SpellCastingManager.isChanneling(player.getUUID()),
+				"Augury did not enter its authored ritual channel");
 		helper.runAfterDelay(30, () -> {
 			helper.assertTrue(powers.cooldownReadyAt("spell:augury") > player.level().getGameTime(),
 					"Augury did not commit its authored payment and cooldown");

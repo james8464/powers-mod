@@ -389,6 +389,8 @@ public final class PacketFaultGameTests {
 		List<Object> payloads = capture(player);
 		player.setNoGravity(true);
 		player.setInvulnerable(true);
+		// Full health excludes unrelated natural-regeneration phases from this presentation-only assertion.
+		player.setHealth(player.getMaxHealth());
 		float health = player.getHealth();
 		PacketFaultController.configureScoped(helper.getLevel().getServer(), PacketFaultProfile.named("delay150", 17L), player);
 		PowersPlayNetworking.send(player, new BodyProxyPackets.BodySnapshotPayload(4, ""));

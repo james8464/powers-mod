@@ -200,12 +200,16 @@ public final class P1AcceptanceGameTests {
 			helper.assertFalse(SpellCastingManager.isChanneling(caster.getUUID()),
 					"Movement did not interrupt the ritual");
 			var history = PlayerEnergyHistory.snapshot(caster).history();
-			long ritualNet = history.subList(historyBefore, history.size()).stream()
-					.filter(entry -> entry.source() != EnergyHistorySource.REGENERATION)
-					.mapToLong(com.powers.player.EnergyHistorySnapshot.Entry::delta)
-					.sum();
-			helper.assertTrue(ritualNet == -11,
-					"Interrupted ritual did not retain exactly half its payment");
+			var ritual = history.subList(historyBefore, history.size());
+			var costs = ritual.stream()
+					.filter(entry -> entry.source() == EnergyHistorySource.PLAYER_POOL_COST)
+					.map(com.powers.player.EnergyHistorySnapshot.Entry::delta).toList();
+			boolean restoredBaseline = ritual.stream()
+					.filter(entry -> entry.source() == EnergyHistorySource.TRANSACTION_ROLLBACK)
+					.anyMatch(entry -> entry.after() == before);
+			helper.assertTrue(costs.equals(java.util.List.of(-22L, -11L)) && restoredBaseline,
+					"Interrupted ritual did not reserve, restore, then retain exactly half its payment: "
+							+ ritual);
 			helper.assertFalse(DimensionalAnchorAbility.isAnchored(target),
 					"Interrupted ritual executed its effect");
 			helper.succeed();

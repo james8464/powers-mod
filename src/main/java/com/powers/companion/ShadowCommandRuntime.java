@@ -83,7 +83,7 @@ final class ShadowCommandRuntime {
 		return true;
 	}
 
-	static void tickConjuration(ServerPlayer owner, PrivateCompanionManager.Session session) {
+	static void tickConjuration(ServerPlayer owner, PrivateCompanionSession session) {
 		ShadowConjurationManager.Outcome outcome = ShadowConjurationManager.tick(owner, session.body);
 		if (!outcome.pending()) finishTask(owner, session, outcome.accepted(), outcome.reason());
 	}
@@ -103,7 +103,7 @@ final class ShadowCommandRuntime {
 	}
 
 	private static void stop(ServerPlayer owner, ShadowRequest request) {
-		PrivateCompanionManager.Session session = PrivateCompanionManager.session(owner.getUUID());
+		PrivateCompanionSession session = PrivateCompanionManager.session(owner.getUUID());
 		if (session != null) {
 			session.tasks.cancel("owner_stop");
 			if (ShadowConjurationManager.active(owner.getUUID())) {
@@ -116,7 +116,7 @@ final class ShadowCommandRuntime {
 
 	private static void submit(ServerPlayer owner, ShadowRequest request) {
 		PrivateCompanionManager.request(owner);
-		PrivateCompanionManager.Session session = PrivateCompanionManager.session(owner.getUUID());
+		PrivateCompanionSession session = PrivateCompanionManager.session(owner.getUUID());
 		if (session == null) {
 			ShadowCompanionMessaging.replyAndRemember(
 					owner, request.original(), "Manifest me first; a command needs a body.");
@@ -150,7 +150,7 @@ final class ShadowCommandRuntime {
 	}
 
 	private static void setRangePreference(ServerPlayer owner,
-			PrivateCompanionManager.Session session, ShadowRequest request) {
+			PrivateCompanionSession session, ShadowRequest request) {
 		ShadowRequestRange range = switch (request.range()) {
 			case CLOSE -> ShadowRequestRange.CLOSE;
 			case MID -> ShadowRequestRange.MID;
@@ -162,7 +162,7 @@ final class ShadowCommandRuntime {
 	}
 
 	private static void executeCombatOrder(ServerPlayer owner,
-			PrivateCompanionManager.Session session, ShadowRequest request) {
+			PrivateCompanionSession session, ShadowRequest request) {
 		LivingEntity target = request.kind() == ShadowRequest.Kind.DEFEND
 				? owner.getLastAttacker() : null;
 		if (target == null && !request.subject().isBlank() && !request.subject().equals("owner")) {
@@ -185,14 +185,14 @@ final class ShadowCommandRuntime {
 		finishTask(owner, session, true, "combat_order_accepted");
 	}
 
-	private static void executeScout(ServerPlayer owner, PrivateCompanionManager.Session session) {
+	private static void executeScout(ServerPlayer owner, PrivateCompanionSession session) {
 		Vec3 look = owner.getLookAngle();
 		Vec3 destination = owner.position().add(look.x * 24.0, 2.0, look.z * 24.0);
 		session.body.getNavigation().moveTo(destination.x, destination.y, destination.z, 1.25);
 		finishTask(owner, session, true, "scout_started");
 	}
 
-	private static void executePower(ServerPlayer owner, PrivateCompanionManager.Session session,
+	private static void executePower(ServerPlayer owner, PrivateCompanionSession session,
 			ShadowRequest request) {
 		String id = localId(request.subject());
 		ShadowPowerAction action = ShadowPowerCatalogue.find(id);
@@ -208,14 +208,14 @@ final class ShadowCommandRuntime {
 		finishTask(owner, session, result.success(), result.reason());
 	}
 
-	private static void stopPower(ServerPlayer owner, PrivateCompanionManager.Session session,
+	private static void stopPower(ServerPlayer owner, PrivateCompanionSession session,
 			ShadowRequest request) {
 		ShadowPowerRuntime.stop(owner, session.body, localId(request.subject()));
 		finishTask(owner, session, true, "power_stopped");
 	}
 
 	private static void executeConjuration(ServerPlayer owner,
-			PrivateCompanionManager.Session session, ShadowRequest request) {
+			PrivateCompanionSession session, ShadowRequest request) {
 		Identifier id = Identifier.tryParse(request.subject());
 		if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) {
 			finishTask(owner, session, false, "unknown_item");
@@ -228,7 +228,7 @@ final class ShadowCommandRuntime {
 	}
 
 	private static void executeRetrieval(ServerPlayer owner,
-			PrivateCompanionManager.Session session, ShadowRequest request) {
+			PrivateCompanionSession session, ShadowRequest request) {
 		Identifier id = Identifier.tryParse(request.subject());
 		if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) {
 			finishTask(owner, session, false, "unknown_item");
@@ -245,7 +245,7 @@ final class ShadowCommandRuntime {
 		finishTask(owner, session, true, "item_retrieved");
 	}
 
-	private static void finishTask(ServerPlayer owner, PrivateCompanionManager.Session session,
+	private static void finishTask(ServerPlayer owner, PrivateCompanionSession session,
 			boolean success, String reason) {
 		ShadowTask.Result result = success ? session.tasks.complete(reason) : session.tasks.fail(reason);
 		ShadowCompanionStore.update(owner, state -> state.withStance(ShadowStance.FOLLOW)
