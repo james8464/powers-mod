@@ -2,33 +2,33 @@
 
 ## Status
 
-Implementation and focused live acceptance are complete on direct `main`, starting from `08110e5e2193c3d956ccb93d8a67c97c18fdbe5b`. The cohesive resulting commit is recorded at handoff because a commit cannot embed its own object ID.
+Accepted on direct `main`. Initial implementation: `a5fe966fbf2974c1eb47b639ec5cb72979fae9bb`; review correction and exact verified implementation: `eb17a3a82a42d852916e3970710c880337f717dc`.
 
 ## Delivered behavior
 
-- Replaced numbered catalogue pages and `rebuildWidgets()` with a fixed `columns × rows` action-button pool. Scroll, search, filter, select, and bind operations only rebind those slots.
-- Added a pure revision-aware view model with indexed localized/stable-key search, row scrolling, keyboard movement, canonical-key selection persistence, and deterministic Favourites/Recent/Innate/Crystals/Sword filters.
-- Added newest-first, deduplicated, eight-entry Light/Dark recent histories as additive persistent attachments. Only a successful authoritative artifact selection records a recent key.
-- Extended the server-authored menu payload with bounded recents. A compatible menu refresh can update an open catalogue in place; stale invalidations now close both wheel and catalogue surfaces.
-- Preserved the eight-slot quick wheel and existing server validation. Search result click plus numbered-slot click is the direct two-interaction bind path.
-- Added alignment/result position presentation, keyboard navigation, full action-state button messages/tooltips, and standard Minecraft button narration.
+- One column-major virtual scrolling grid reuses a fixed button pool; scroll, search, filter, refresh, select, and bind never rebuild widgets.
+- Global nonblank search finds unlocked actions from the default Favourites surface. Empty search restores the chosen Favourites/Recent/Innate/Crystals/Sword filter.
+- Canonical-key selection and clamped first-visible position survive monotonic registry refreshes; every revision-bearing receiver rejects reordered older payloads.
+- Keyboard arrows move both model selection and visible GUI focus. Hidden pooled buttons cannot retain focus, and narration follows the focused action.
+- Recents are newest-first, de-duplicated, persisted and decoded with an eight-key allocation bound.
+- Bind clicks are non-optimistic. The server validates revision, owner, alignment, rank, slot, canonical key, and limiter; success sends an authoritative menu refresh. Commit additionally requires membership in server-owned favourites before payment or effect.
+- The released eight-slot wheel and column-major reading order remain unchanged.
 
-## TDD evidence
+## TDD and live acceptance
 
-1. RED: the 10,000-action, stable-revision, bounded-recent, and direct-binding tests failed to compile because the view model, recent rules, and Recent tab did not exist. GREEN: all pure contracts passed.
-2. RED: persistent-schema and menu-codec tests failed because recents had no authoritative owner or transport. GREEN: additive per-alignment attachments and bounded payload lists round-trip.
-3. RED: the client invalidation test proved stale artifact responses did not close the catalogue. GREEN: catalogue and wheel now share the artifact invalidation boundary.
-4. Live RED: the first packet GameTest fixture lacked the Darkness identity tag, correctly proving the authoritative receiver refused mutation. GREEN: the corrected authorised fixture recorded and transported exact recents.
-5. Integrated RED: a deliberately unauthorised direct-screen fixture was closed by the real stale-response path. GREEN: the integrated player now holds the correct artifact, alignment tag, rank, and exact registry revision; real result/slot clicks are accepted and observed on the server.
+RED was observed for missing virtualization, filtering, stable scroll, bounded recents, focus/narration, monotonic refresh, non-optimistic authority, and 10,000-action production-screen contracts. Focused JVM and registered packet-path tests then passed.
 
-## Verification
+The registered authority proof is one sequential orchestrator because Fabric mock players share an identity: unbound commit denies payment/effect; stale bind emits exactly one matching invalidation; rate-limited current bind emits no false menu acknowledgement; successful bind returns the authoritative wheel and only then permits commit. Three formerly concurrent authority fixtures therefore became one stronger test, changing the required aggregate from 129 to 127.
 
-Focused JVM, packet GameTest, compile-client, and two full integrated-client suites passed. The final integrated run completed in 35 seconds, produced `catalogue-full.png` (`00d362d3916b…`) and `catalogue-fireball-filter.png` (`04e72e9105a…`), and proved the allocation counter remained identical across real mouse scrolling, search, selection, and binding. Manual image inspection found the favourites caption overlapping the selection row on the first run; the corrected second capture has clean separation.
+The production client fixture loaded 10,000 synthetic actions without shipping them, proved real wheel movement changes the window while allocation/widget counts remain fixed, searched an unbound action from the default surface, bound it in two interactions, exercised focus/narration and revision refresh, and completed in 36 seconds.
 
-The repository-wide non-GameTest gate passed from a clean rerun: Java tests, 45 Python tests, resource validation, source/asset audits, and generated item/magic/rank documentation checks. All three GameTests directly covering this unit passed in isolation: authoritative recent recording/transport and the two existing stale cycle/teleport revision boundaries. The existing QA-009 production packet-fault test also passed in isolation.
+## Final verification
 
-Two complete 126-test GameTest runs exposed pre-existing cross-test timing interference rather than a catalogue regression. The first run failed only the stale cycle/teleport tick-2 assertions; both immediately passed alone. The second failed only the QA-009 artifact-teleport payment deadline; it immediately passed alone. This exact broad-suite limitation is retained here rather than falsely reporting a green aggregate.
+- `./gradlew runGameTest --no-daemon`: 127/127 required GameTests passed in 51.50 seconds.
+- `./gradlew check --rerun-tasks --no-daemon`: passed in 1 minute 43 seconds; its embedded 127/127 GameTests passed in 48.29 seconds, 1,589 JVM tests passed, 45 Python tests passed, and resource, source, asset, access-widener, and generated documentation checks passed.
+- Integrated production client: passed in 36 seconds at both GUI scales; both accepted captures were manually inspected for clean title/summary/tabs/rows/selection/favourites geometry.
+- `git diff --cached --check`: passed before the implementation commit.
 
-## Save migration and boundaries
+## Save and authority boundaries
 
-Older saves have no recent attachments and therefore decode to empty histories. The next successful selection writes only the newest schema, at most eight current canonical keys per alignment. Favourites and selections retain their released IDs and alias migration. No client decision can bypass revision, owner, alignment, rank, slot, option, or rate-limit validation.
+Older saves decode missing recents as empty and write only the newest bounded schema. Favourites, selections, released IDs, aliases, and server-owned revision checks remain compatible. No client catalogue state can authorize a bind or cast.
