@@ -131,7 +131,7 @@ class ReleaseContractTest(unittest.TestCase):
                     CONTRACT.load_catalogue(path)
 
     def test_evidence_manifest_is_strict_and_immutable(self):
-        commit = "a" * 40
+        commit = "@HEAD"
         digest = "b" * 64
         data = {
             "schemaVersion": 1,
@@ -167,6 +167,42 @@ class ReleaseContractTest(unittest.TestCase):
                     ("producer", "./gradlew test", "producer")):
                 broken = json.loads(json.dumps(data))
                 broken["rows"][0][field] = value
+                self.write_json(path, broken)
+                with self.assertRaisesRegex(CONTRACT.ReleaseContractError, expected):
+                    CONTRACT.load_evidence_manifest(path)
+
+    def test_committed_evidence_manifest_accepts_only_head_binding_token(self):
+        digest = "b" * 64
+        base = {
+            "schemaVersion": 1,
+            "commit": "@HEAD",
+            "rows": [{
+                "id": "unit-tests",
+                "kind": "junit",
+                "validator": "junit-xml",
+                "path": "evidence/junit.xml",
+                "sha256": digest,
+                "size": 42,
+                "commit": "@HEAD",
+                "producer": ["./gradlew", "test"],
+                "result": {"tests": 1, "failures": 0},
+                "limitations": [],
+            }],
+        }
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "evidence.json"
+            self.write_json(path, base)
+            manifest = CONTRACT.load_evidence_manifest(path)
+            self.assertEqual("@HEAD", manifest.commit)
+            self.assertEqual("@HEAD", manifest.rows[0].commit)
+            for top, row, expected in (
+                    ("@MAIN", "@MAIN", "commit"),
+                    ("@HEAD", "a" * 40, "manifest mismatch"),
+                    ("a" * 40, "@HEAD", "must use @HEAD"),
+                    ("a" * 40, "a" * 40, "must use @HEAD")):
+                broken = json.loads(json.dumps(base))
+                broken["commit"] = top
+                broken["rows"][0]["commit"] = row
                 self.write_json(path, broken)
                 with self.assertRaisesRegex(CONTRACT.ReleaseContractError, expected):
                     CONTRACT.load_evidence_manifest(path)
