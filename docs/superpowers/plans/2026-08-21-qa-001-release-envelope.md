@@ -21,6 +21,7 @@
 - Write owned outputs via exclusive temporary files, `fsync`, atomic replacement, and destination rehash.
 - Capture only the environment allowlist defined by the catalogue. Never package arbitrary environment variables, credentials, home paths, bearer tokens, UUIDs, public IPs, or unowned absolute paths.
 - A hash proves byte identity, not acceptance. Each evidence family must pass its typed validator.
+- A committed file cannot embed the hash of the commit that contains it. The committed evidence index and commit-bearing source evidence therefore use only the literal `@HEAD`; final verification resolves it after proving `HEAD` and emits only the full 40-character SHA. Receipts never use the token.
 - Do not tag, create a GitHub release, push, remove backlog rows, or check the QA-001 ledger as part of infrastructure implementation.
 
 ---
@@ -50,31 +51,31 @@
 - Create: `scripts/release_contract.py`
 - Create: `scripts/tests/test_release_contract.py`
 
-- [ ] Add tests that import `scripts/release_contract.py` by path and expect:
+- [x] Add tests that import `scripts/release_contract.py` by path and expect:
   - `ReleaseContractError`;
   - immutable `Gate`, `GateCatalogue`, `CommandReceipt`, and `EvidenceRow` models;
   - `load_catalogue(path)` and `load_evidence_manifest(path)`;
   - `safe_regular_file(root, relative)` and `sha256_file(path)`;
   - `write_bytes_atomic(path, data)` and canonical `write_json_atomic(path, value)`.
-- [ ] Add catalogue fixtures rejecting malformed schema versions, unknown keys/validators, duplicate IDs, empty or non-string argv, command strings, undeclared evidence kinds, mutable URLs, absolute/parent paths, and environment names outside the allowlist.
-- [ ] Add filesystem fixtures rejecting symlinked roots/children, FIFOs/devices/directories, out-of-root resolution, and writable multi-link inputs; prove rejected inputs and external hard-link targets remain unchanged.
-- [ ] Add atomic-output fixtures proving deterministic sorted UTF-8 JSON with a trailing newline, distinct replacement inode, external hard-link preservation, temporary-file cleanup after simulated replacement failure, and post-write rehash.
-- [ ] Add privacy fixtures rejecting credential-shaped text, bearer tokens, home paths, UUIDs, public IPs, and unowned absolute paths while allowing repository-relative paths and documented non-secret hashes.
-- [ ] Run the focused test and record the missing-module/API RED:
+- [x] Add catalogue fixtures rejecting malformed schema versions, unknown keys/validators, duplicate IDs, empty or non-string argv, command strings, undeclared evidence kinds, mutable URLs, absolute/parent paths, and environment names outside the allowlist.
+- [x] Add filesystem fixtures rejecting symlinked roots/children, FIFOs/devices/directories, out-of-root resolution, and writable multi-link inputs; prove rejected inputs and external hard-link targets remain unchanged.
+- [x] Add atomic-output fixtures proving deterministic sorted UTF-8 JSON with a trailing newline, distinct replacement inode, external hard-link preservation, temporary-file cleanup after simulated replacement failure, and post-write rehash.
+- [x] Add privacy fixtures rejecting credential-shaped text, bearer tokens, home paths, UUIDs, public IPs, and unowned absolute paths while allowing repository-relative paths and documented non-secret hashes.
+- [x] Run the focused test and record the missing-module/API RED:
 
   ```bash
   python3 -B -m unittest scripts.tests.test_release_contract -v
   ```
-- [ ] Implement only the shared contract required by the tests, using `os.open`/`dir_fd` and no-follow flags for owned files.
-- [ ] Populate the schema-1 catalogue with these literal automated gate IDs and argv vectors:
+- [x] Implement only the shared contract required by the tests, using `os.open`/`dir_fd` and no-follow flags for owned files.
+- [x] Populate the schema-1 catalogue with these literal automated gate IDs and argv vectors:
   - `final-gradle`: `./gradlew clean check pitest verifyScreenshots verifyVisualGoldens saveMigrationCorpus syntheticSoak --rerun-tasks --no-daemon`;
   - `server-gametests`: `./gradlew runGameTest --rerun-tasks --no-daemon --console=plain`;
   - `client-gametests`: `./gradlew runClientGameTest --rerun-tasks --no-daemon --console=plain`;
   - `compatibility-gametests`: `./gradlew runCompatibilityGameTest --rerun-tasks --no-daemon --console=plain`;
   - `dedicated-server-smoke`: `python3 -B scripts/server_smoke.py`.
-- [ ] Declare typed evidence families for QA-005, QA-006, PERF-001, compatibility, packet faults, migration, visuals, assets/resources/docs/source audits, four-client acceptance, GitHub CI, and limitations.
-- [ ] Re-run the focused test GREEN and inspect `git diff --check`.
-- [ ] Commit only Task 1 paths with message `test(release): lock QA-001 release contract`.
+- [x] Declare typed evidence families for QA-005, QA-006, PERF-001, compatibility, packet faults, migration, visuals, assets/resources/docs/source audits, four-client acceptance, GitHub CI, and limitations.
+- [x] Re-run the focused test GREEN and inspect `git diff --check`.
+- [x] Commit only Task 1 paths with message `test(release): lock QA-001 release contract`.
 
 ## Task 2 — Produce exact command receipts
 
@@ -83,23 +84,23 @@
 - Create: `scripts/release_gate.py`
 - Create: `scripts/tests/test_release_gate.py`
 
-- [ ] Write CLI fixtures around a temporary catalogue and executable fixture that prove:
+- [x] Write CLI fixtures around a temporary catalogue and executable fixture that prove:
   - only a declared gate ID can execute;
   - the exact argv list is passed with `shell=False` in the repository root;
   - only `JAVA_HOME`, `JAVA_VERSION`, `GRADLE_USER_HOME`, `POWERS_TEST_RUN_ID`, `GITHUB_RUN_ID`, `GITHUB_RUN_ATTEMPT`, and `GITHUB_SHA` may be captured when present;
   - stdout/stderr are combined into an owned log file without loading an unbounded log into memory;
   - receipt schema records gate ID, full commit, argv, allowlisted environment, UTC start/end, monotonic duration, exit code, log path/size/SHA-256, and catalogue SHA-256;
   - nonzero exit, signal termination, mismatched `HEAD`, oversized output, changed log bytes, and atomic-write failure cannot yield an accepted receipt.
-- [ ] Add a deterministic `--dry-run` that validates and prints canonical argv without executing it; ensure dry-run cannot create an accepted receipt.
-- [ ] Observe the missing-script RED with:
+- [x] Add a deterministic `--dry-run` that validates and prints canonical argv without executing it; ensure dry-run cannot create an accepted receipt.
+- [x] Observe the missing-script RED with:
 
   ```bash
   python3 -B -m unittest scripts.tests.test_release_gate -v
   ```
-- [ ] Implement `run_gate(catalogue, gate_id, receipt_dir, repo_root, expected_sha, environment)` and the CLI. Stream output to an exclusive owned log, hash it from the same descriptor, then atomically write the receipt only after process completion.
-- [ ] Return nonzero and leave a diagnostic failure receipt outside the accepted receipt namespace when the command fails; never overwrite a prior accepted receipt for another commit.
-- [ ] Re-run Tasks 1–2 tests GREEN and run all Python release tests discovered so far.
-- [ ] Commit only Task 2 paths with message `feat(release): capture exact gate receipts`.
+- [x] Implement `run_gate(catalogue, gate_id, receipt_dir, repo_root, expected_sha, environment)` and the CLI. Stream output to an exclusive owned log, hash it from the same descriptor, then atomically write the receipt only after process completion.
+- [x] Return nonzero and leave a diagnostic failure receipt outside the accepted receipt namespace when the command fails; never overwrite a prior accepted receipt for another commit.
+- [x] Re-run Tasks 1–2 tests GREEN and run all Python release tests discovered so far.
+- [x] Commit only Task 2 paths with message `feat(release): capture exact gate receipts`.
 
 ## Task 3 — Validate evidence semantically
 
@@ -108,23 +109,23 @@
 - Create: `scripts/release_evidence.py`
 - Create: `scripts/tests/test_release_evidence.py`
 
-- [ ] Define `validate_evidence(row, path, expected_sha) -> dict[str, object]` and register closed validator IDs rather than dynamic imports.
-- [ ] Add JUnit XML fixtures for exact totals and zero failures/errors/skips; reject malformed XML, missing suites, skipped tests, and count inconsistencies.
-- [ ] Add Fabric log fixtures requiring a declared exact required-test total, completion marker, and no failed required test or server error; reject stale commit/count claims.
-- [ ] Add restart-soak schema fixtures requiring `passed=true`, empty failure, exact planned cycle count, at least 86,400 accepted seconds, accepted disconnect/recovery predicates for every boundary, zero server errors, and the exact commit. Include 23:59:59, failed-cycle, missing-cycle, stale-report, and wrong-commit REDs.
-- [ ] Add profile fixtures requiring distinct 10/50/100 real-client runs, 1,800 seconds each, exact commit, bounded error fields, and no embedded-actor substitution.
-- [ ] Add compatibility fixtures requiring every pinned artifact ID/version/file size/SHA-256, exact stack identity, accepted test totals, and explicit LIMITED rows where permitted.
-- [ ] Add manual/visual fixtures requiring retained raw bytes, source-byte SHA-256, explicit digest-bound reviewer decision, exact runtime metadata, and no pending/heuristic decision. Contact-sheet-only or reconstructed-metadata rows must not pass.
-- [ ] Add generic JSON/text-manifest validators for packet faults, migrations, assets, sounds, resources, docs, source audits, four-client acceptance, and GitHub CI; each must assert its typed result and exact commit rather than only its file digest.
-- [ ] Add limitation fixtures proving every accepted limitation is explicit, stable-ID keyed, nonblank, and returned verbatim to the envelope.
-- [ ] Observe the missing-validator RED:
+- [x] Define `validate_evidence(row, path, expected_sha) -> dict[str, object]` and register closed validator IDs rather than dynamic imports.
+- [x] Add JUnit XML fixtures for exact totals and zero failures/errors/skips; reject malformed XML, missing suites, skipped tests, and count inconsistencies.
+- [x] Add Fabric log fixtures requiring a declared exact required-test total, completion marker, and no failed required test or server error; reject stale commit/count claims.
+- [x] Add restart-soak schema fixtures requiring `passed=true`, empty failure, exact planned cycle count, at least 86,400 accepted seconds, accepted disconnect/recovery predicates for every boundary, zero server errors, and the exact commit. Include 23:59:59, failed-cycle, missing-cycle, stale-report, and wrong-commit REDs.
+- [x] Add profile fixtures requiring distinct 10/50/100 real-client runs, 1,800 seconds each, exact commit, bounded error fields, and no embedded-actor substitution.
+- [x] Add compatibility fixtures requiring every pinned artifact ID/version/file size/SHA-256, exact stack identity, accepted test totals, and explicit LIMITED rows where permitted.
+- [x] Add manual/visual fixtures requiring retained raw bytes, source-byte SHA-256, explicit digest-bound reviewer decision, exact runtime metadata, and no pending/heuristic decision. Contact-sheet-only or reconstructed-metadata rows must not pass.
+- [x] Add generic JSON/text-manifest validators for packet faults, migrations, assets, sounds, resources, docs, source audits, four-client acceptance, and GitHub CI; each must assert its typed result and exact commit rather than only its file digest.
+- [x] Add limitation fixtures proving every accepted limitation is explicit, stable-ID keyed, nonblank, and returned verbatim to the envelope.
+- [x] Observe the missing-validator RED:
 
   ```bash
   python3 -B -m unittest scripts.tests.test_release_evidence -v
   ```
-- [ ] Implement the closed validator registry with bounded file sizes/counts and path-specific error messages.
-- [ ] Re-run Tasks 1–3 tests GREEN and run `python3 -B -m unittest discover -s scripts/tests -p 'test_release_*.py' -v`.
-- [ ] Commit only Task 3 paths with message `feat(release): validate typed acceptance evidence`.
+- [x] Implement the closed validator registry with bounded file sizes/counts and path-specific error messages.
+- [x] Re-run Tasks 1–3 tests GREEN and run `python3 -B -m unittest discover -s scripts/tests -p 'test_release_*.py' -v`.
+- [x] Commit only Task 3 paths with message `feat(release): validate typed acceptance evidence`.
 
 ## Task 4 — Build a canonical exact-commit envelope
 
@@ -136,7 +137,7 @@
 - [ ] Build temporary Git repository fixtures with a bare `origin` and test `validate_repository(repo_root, expected_sha, final_mode)` against:
   - correct/incorrect branch, HEAD, fresh `origin/main`, dirty index/worktree, untracked files, missing remote, extra local/remote branches, and shallow/ambiguous SHA;
   - the one owned ignored output root, allowed only when its contents are exact generated outputs;
-  - open plan checkboxes, present QA-001 backlog row, and mismatched evidence commits.
+  - open plan checkboxes, present QA-001 backlog row, invalid evidence tokens, and evidence values that do not resolve to the verified commit.
 - [ ] Split modes explicitly:
   - `preflight` validates infrastructure and inputs but must report `accepted=false` and cannot emit a release envelope;
   - `final` requires every selected ledger checkbox checked and QA-001 absent from the backlog.
@@ -221,8 +222,8 @@
 ## Task 7 — Final Stage 8 closure procedure (deferred, do not execute now)
 
 - [ ] Complete and accept every remaining Stage 1–8 work unit in strict ledger order.
-- [ ] Regenerate the final QA-005 evidence, PERF-001 10/50/100 profiles, QA-006 24-hour soak, compatibility, packet-fault, visual, migration, audit, multiplayer, server, and client evidence on the same candidate commit.
-- [ ] Commit the final schema-1 evidence manifest, check every final-acceptance row, and remove QA-001 from the backlog in one release-candidate commit.
+- [ ] Regenerate the final QA-005 evidence, PERF-001 10/50/100 profiles, QA-006 24-hour soak, compatibility, packet-fault, visual, migration, audit, multiplayer, server, and client evidence for the candidate tree, using exact `@HEAD` only where committed evidence has a commit field.
+- [ ] Commit the final schema-1 `@HEAD` evidence index, check every final-acceptance row, and remove QA-001 from the backlog in one release-candidate commit.
 - [ ] Execute every catalogue gate via `release_gate.py` at that exact clean SHA and build both JARs.
 - [ ] Push only that SHA to `origin/main`; fetch and prove equality plus single-branch state.
 - [ ] Dispatch `.github/workflows/release-envelope.yml` with the full SHA and committed evidence-manifest path.
