@@ -98,7 +98,12 @@ public class AstralProjectionAbility extends Ability {
 					player, projection.castSource(), ownsPower(player));
 			if (!MagicUseGate.ongoingAllowed(player) || !sourceOwned) {
 				if (player != null && player.isAlive()) end(player, projection);
-				else if (player != null) BodyProxyManager.discardOnDeath(player);
+				else if (player != null) {
+					com.powers.power.travel.TravelChunkLoader.cancel(server, player.getUUID());
+					PowersMod.cancelDelayedTasks(player.getUUID());
+					com.powers.power.PowerAbilityRuntime.deactivateToggles(player);
+					BodyProxyManager.discardOnDeath(player);
+				}
 				it.remove();
 				continue;
 			}

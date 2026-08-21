@@ -120,6 +120,12 @@ public final class BodyProxyManager {
 		return BY_BODY.containsKey(entity.getUUID());
 	}
 
+	/** Stable body identity for diagnostics and lifecycle assertions; never scans a shared level. */
+	public static UUID bodyIdForOwner(UUID ownerId) {
+		Active active = BY_OWNER.get(ownerId);
+		return active == null ? null : active.body().getUUID();
+	}
+
 	/** Returns the immutable render frame for a tracked proxy body UUID. */
 	public static BodySnapshot snapshotFor(UUID bodyId) {
 		Active active = BY_BODY.get(bodyId);
@@ -184,6 +190,9 @@ public final class BodyProxyManager {
 
 	/** Returns first, then replays vanilla death outside the active damage callback. */
 	private static void beginFatalReturn(ServerPlayer owner) {
+		TravelChunkLoader.cancel(owner.level().getServer(), owner.getUUID());
+		PowersMod.cancelDelayedTasks(owner.getUUID());
+		com.powers.power.PowerAbilityRuntime.deactivateToggles(owner);
 		owner.setCamera(null);
 		owner.setHealth(Math.max(1.0F, owner.getHealth()));
 		returnToBody(owner, TravelKind.FATAL_SOUL_RETURN, ReturnContinuation.FATAL_DEATH);
