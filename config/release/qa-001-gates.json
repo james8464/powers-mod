@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "repository": "james8464/powers-mod",
+  "outputRoot": "build/release-envelope",
+  "environmentAllowlist": [
+    "JAVA_HOME",
+    "JAVA_VERSION",
+    "GRADLE_USER_HOME",
+    "POWERS_TEST_RUN_ID",
+    "GITHUB_RUN_ID",
+    "GITHUB_RUN_ATTEMPT",
+    "GITHUB_SHA"
+  ],
+  "commands": [
+    {
+      "id": "final-gradle",
+      "argv": ["./gradlew", "clean", "check", "pitest", "verifyScreenshots", "verifyVisualGoldens", "saveMigrationCorpus", "syntheticSoak", "--rerun-tasks", "--no-daemon"],
+      "validator": "command-receipt"
+    },
+    {
+      "id": "server-gametests",
+      "argv": ["./gradlew", "runGameTest", "--rerun-tasks", "--no-daemon", "--console=plain"],
+      "validator": "command-receipt"
+    },
+    {
+      "id": "client-gametests",
+      "argv": ["./gradlew", "runClientGameTest", "--rerun-tasks", "--no-daemon", "--console=plain"],
+      "validator": "command-receipt"
+    },
+    {
+      "id": "compatibility-gametests",
+      "argv": ["./gradlew", "runCompatibilityGameTest", "--rerun-tasks", "--no-daemon", "--console=plain"],
+      "validator": "command-receipt"
+    },
+    {
+      "id": "dedicated-server-smoke",
+      "argv": ["python3", "-B", "scripts/server_smoke.py"],
+      "validator": "command-receipt"
+    }
+  ],
+  "evidence": [
+    {"id": "jvm-tests", "kind": "junit", "validator": "junit-xml"},
+    {"id": "server-gametests", "kind": "fabric-log", "validator": "fabric-log"},
+    {"id": "client-gametests", "kind": "fabric-log", "validator": "fabric-log"},
+    {"id": "qa-006-restart-soak", "kind": "restart-soak", "validator": "restart-soak"},
+    {"id": "perf-001-real-clients", "kind": "profiles", "validator": "real-client-profiles"},
+    {"id": "net-011-compatibility", "kind": "compatibility", "validator": "compatibility"},
+    {"id": "qa-009-packet-faults", "kind": "packet-fault", "validator": "packet-fault"},
+    {"id": "qa-005-manual", "kind": "manual", "validator": "manual-review"},
+    {"id": "visual-acceptance", "kind": "visual", "validator": "visual-review"},
+    {"id": "migration-corpus", "kind": "migration", "validator": "migration"},
+    {"id": "audit-manifests", "kind": "manifest", "validator": "manifest"},
+    {"id": "four-client-campaign", "kind": "four-client", "validator": "four-client"},
+    {"id": "github-actions", "kind": "github-ci", "validator": "github-ci"},
+    {"id": "accepted-limitations", "kind": "limitations", "validator": "limitations"}
+  ],
+  "artifacts": [
+    {"id": "runtime-jar", "pathTemplate": "build/libs/powers-{version}.jar"},
+    {"id": "sources-jar", "pathTemplate": "build/libs/powers-{version}-sources.jar"}
+  ]
+}
