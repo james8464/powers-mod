@@ -182,7 +182,7 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | VFX-007 | Enhancement | P2 | Expand 14 sounds into layered near/mid/far variants and occlusion-aware mixes. | Loud events do not clip; volume falls off correctly; subtitles exist. |
 | VFX-009 | Enhancement | P2 | Add custom Light Realm sky shader/skybox with accessibility fallback. | Pure white target remains stable across render distance/resource packs. |
 | VFX-010 | Enhancement | P2 | Add weather/biome-responsive ancient rune color grading. | Meaningful action colors remain consistent and color-blind safe. |
-| VFX-011 | Guarantee | P2 | Audit texture mipmaps, alpha seams, spawn eggs, item transforms, and atlas bleeding. Provisional implementation/evidence is complete; closure waits for the post-QA-006 literal aggregate. | Pixel-perfect captures at all mip levels/views. |
+| VFX-011 | Guarantee | P2 | Audit texture mipmaps, alpha seams, spawn eggs, item transforms, and atlas bleeding. The implementation is provisional; closure requires a fresh retained 971-frame run with original emitted metadata, explicit digest-bound review, and the post-QA-006 literal aggregate. | Pixel-perfect captures at all mip levels/views. |
 | VFX-012 | Expansion | P3 | Add original music/ambient soundscapes for Light, Dark, Middleworld, bosses, and Eclipse events. | Loop points, licensing, subtitles, volume categories, and performance validated. |
 
 ## 12. Cross-system interactions and counterplay
