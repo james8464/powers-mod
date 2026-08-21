@@ -206,18 +206,49 @@ public final class HostileEnvironmentGameTests {
 	@SuppressWarnings("removal")
 	public void worldBorderRejectsExactCoordinatesAtomicallyWithoutRewriting(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
-		BlockPos origin = helper.absolutePos(new BlockPos(2, 2, 2));
-		player.snapTo(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
-		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		data.setSlots(player, java.util.List.of("powers:time_shift"));
 		WorldBorder border = helper.getLevel().getWorldBorder();
 		double oldX = border.getCenterX();
 		double oldZ = border.getCenterZ();
 		double oldSize = border.getSize();
-		int energy = data.energy();
-		Vec3 position = player.position();
-		int tickets = TravelChunkLoader.pendingRequestCount();
+		java.util.List<net.minecraft.world.entity.Entity> ownedEntities = new java.util.ArrayList<>();
 		try {
+			BlockPos origin = helper.absolutePos(new BlockPos(2, 2, 2));
+			player.snapTo(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+			data.setSlots(player, java.util.List.of("powers:time_shift"));
+			var horse = EntityTypes.HORSE.create(helper.getLevel(),
+					net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
+			var zombie = EntityTypes.ZOMBIE.create(helper.getLevel(),
+					net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
+			var shadow = com.powers.PowersEntities.SHADOW_COMPANION.create(helper.getLevel(),
+					net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
+			helper.assertTrue(horse != null && zombie != null && shadow != null,
+					"World-border fixture could not create its bounded real cohort");
+			ownedEntities.add(horse);
+			ownedEntities.add(zombie);
+			ownedEntities.add(shadow);
+			horse.snapTo(player.getX() + 1.0, player.getY(), player.getZ());
+			zombie.snapTo(horse.position());
+			shadow.snapTo(player.getX() - 1.0, player.getY(), player.getZ());
+			horse.setNoAi(true);
+			zombie.setNoAi(true);
+			shadow.setNoAi(true);
+			helper.getLevel().addFreshEntity(horse);
+			helper.getLevel().addFreshEntity(zombie);
+			helper.getLevel().addFreshEntity(shadow);
+			player.startRiding(horse, true, false);
+			zombie.startRiding(horse, true, false);
+			helper.assertTrue(BodyProxyManager.start(player, com.powers.mind.BodyProxyKind.ASTRAL),
+					"World-border fixture could not establish a real confinement-applicable body session");
+			java.util.UUID bodyId = BodyProxyManager.bodyIdForOwner(player.getUUID());
+			var body = bodyId == null ? null : helper.getLevel().getEntity(bodyId);
+			helper.assertTrue(body != null, "World-border fixture did not create its real body proxy");
+			int energy = data.energy();
+			Vec3 position = player.position();
+			Vec3 horsePosition = horse.position();
+			Vec3 zombiePosition = zombie.position();
+			Vec3 shadowPosition = shadow.position();
+			var mindBody = data.mindBody();
 			border.setCenter(position.x, position.z);
 			border.setSize(12.0);
 			double requestedX = position.x + 12.0;
@@ -228,11 +259,33 @@ public final class HostileEnvironmentGameTests {
 			helper.assertTrue(player.position().equals(position),
 					"World-border rejection silently rewrote the entered coordinate");
 			helper.assertTrue(data.energy() == energy, "World-border rejection charged energy");
-			helper.assertTrue(TravelChunkLoader.pendingRequestCount() == tickets,
-					"World-border rejection leaked a travel ticket");
+			helper.assertTrue(horse.position().equals(horsePosition)
+					&& zombie.position().equals(zombiePosition) && shadow.position().equals(shadowPosition),
+					"World-border rejection moved a bounded cohort member");
+			helper.assertTrue(player.getVehicle() == horse && zombie.getVehicle() == horse
+					&& horse.getPassengers().size() == 2 && horse.getPassengers().contains(player)
+					&& horse.getPassengers().contains(zombie) && shadow.getVehicle() == null
+					&& shadow.getPassengers().isEmpty(),
+					"World-border rejection changed cohort relationships");
+			helper.assertTrue(BodyProxyManager.hasSession(player, com.powers.mind.BodyProxyKind.ASTRAL)
+					&& data.mindBody() == mindBody && helper.getLevel().getEntity(bodyId) == body
+					&& !body.isRemoved(),
+					"World-border rejection changed the real mind/body session");
+			helper.assertFalse(hasTravelTicket(player),
+					"World-border rejection leaked owner-scoped travel work");
 		} finally {
 			border.setCenter(oldX, oldZ);
 			border.setSize(oldSize);
+			TravelChunkLoader.cancel(helper.getLevel().getServer(), player.getUUID());
+			com.powers.PowersMod.cancelDelayedTasks(player.getUUID());
+			BodyProxyManager.finish(player);
+			player.stopRiding();
+			for (var entity : ownedEntities) {
+				entity.stopRiding();
+				entity.ejectPassengers();
+				entity.discard();
+			}
+			player.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
 		}
 		helper.succeed();
 	}
@@ -241,80 +294,90 @@ public final class HostileEnvironmentGameTests {
 	@SuppressWarnings("removal")
 	public void voidCoordinateRemainsExactAndFatalBodyDamageClearsMindAndTravelState(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
-		BlockPos origin = helper.absolutePos(new BlockPos(2, 2, 2));
-		player.snapTo(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
-		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		data.setSlots(player, java.util.List.of("powers:time_shift", "powers:astral_projection", "powers:flight"));
-		TestingOverrides.setAll(player.getUUID(), true);
-		double voidY = helper.getLevel().getMinY() + 2.0;
-		Vec3 requested = new Vec3(player.getX() + 8.0, voidY, player.getZ() + 8.0);
+		FlightAbility flight = new FlightAbility();
+		AtomicBoolean cleaned = new AtomicBoolean();
+		Runnable cleanup = () -> {
+			if (cleaned.compareAndSet(false, true)) cleanupVoidFixture(player, flight);
+		};
+		helper.runBeforeTestEnd(cleanup);
 		AtomicBoolean staleCallbackRan = new AtomicBoolean();
-		helper.getLevel().getChunkAt(BlockPos.containing(requested));
-		player.setNoGravity(true);
-		helper.assertTrue(AbilityActivationService.activateTeleport(player, player,
-				new TeleportAbility(), helper.getLevel().dimension(), requested.x, requested.y,
-				requested.z, true) == AbilityActivationService.Result.ACTIVATED,
-				"Exact void coordinate was safety-corrected before Minecraft travel");
-		helper.runAfterDelay(52, () -> {
-			helper.assertTrue(player.position().distanceToSqr(requested) < 0.01,
-					"Direct travel rewrote the entered void coordinate at commit");
-			FlightAbility flight = new FlightAbility();
-			helper.assertTrue(AbilityActivationService.activate(player, flight, "powers:flight", true)
-					== AbilityActivationService.Result.ACTIVATED,
-					"Void fixture could not start a real persistent toggle before fatal cleanup");
-			helper.assertTrue(AbilityActivationService.activate(player, new AstralProjectionAbility(),
-					"powers:astral_projection", true) == AbilityActivationService.Result.ACTIVATED,
-					"Void fixture could not start the real vulnerable-body lifecycle");
-			var token = com.powers.PowersMod.scheduleDelayed(helper.getLevel().getServer(), 120,
-					player.getUUID(), helper.getLevel().dimension(), player.getUUID(), "qa010_void_stale",
-					(server, task) -> staleCallbackRan.set(true));
-			helper.assertTrue(token.accepted(), "Void fixture could not queue owned lifecycle work");
-			var body = helper.getLevel().getEntities(
-					net.minecraft.world.level.entity.EntityTypeTest.forClass(
-							net.minecraft.world.entity.LivingEntity.class),
-					BodyProxyManager::isProxy).stream().findFirst().orElse(null);
-			helper.assertTrue(body != null, "Astral lifecycle did not create its real body proxy");
-			player.setGameMode(GameType.SURVIVAL);
-			player.setInvulnerable(false);
-			player.getAbilities().invulnerable = false;
-			for (int i = 0; i < 60; i++) player.connection.tickClientLoadTimeout();
-			player.setNoGravity(false);
-			player.setHealth(4.0F);
-			player.setPos(player.getX(), helper.getLevel().getMinY() - 80.0, player.getZ());
-			helper.assertTrue(player.getY() < helper.getLevel().getMinY() - 64.0,
-					"Void fixture did not cross the vanilla below-world threshold; y=" + player.getY());
-			helper.assertFalse(player.isInvulnerableTo(helper.getLevel(), player.damageSources().fellOutOfWorld()),
-					"Void fixture player remained invulnerable to vanilla below-world damage; removed="
-							+ player.isRemoved() + ", baseInvulnerable=" + player.isInvulnerable());
-			player.checkBelowWorld();
-			helper.assertTrue(player.getHealth() < 4.0F,
-					"Vanilla below-world dispatch did not damage the projected avatar; health="
-							+ player.getHealth());
-		});
-		helper.runAfterDelay(140, () -> {
-			try {
-				helper.assertFalse(AstralProjectionAbility.isActive(player.getUUID()),
-						"Fatal void-body damage left astral state active");
-				helper.assertFalse(BodyProxyManager.hasSession(player, com.powers.mind.BodyProxyKind.ASTRAL),
-						"Fatal void-body damage left a body proxy session");
-				helper.assertFalse(data.isToggleActive("powers:flight"),
-						"Fatal void lifecycle retained an active movement toggle");
-				helper.assertTrue(com.powers.PowersMod.delayedTasks().stream()
-						.noneMatch(task -> task.cancellationOwner().equals(player.getUUID())),
-						"Fatal void lifecycle retained owned delayed work");
-				helper.assertFalse(staleCallbackRan.get(),
-						"Fatal void lifecycle allowed owned delayed work to execute");
-				helper.assertFalse(hasTravelTicket(player),
-						"Fatal void-body damage left owner-scoped travel work: "
-								+ TravelChunkLoader.diagnostics().tickets());
-			} finally {
-				AstralProjectionAbility.clear(helper.getLevel().getServer(), player.getUUID());
-				TestingOverrides.clear(player.getUUID());
-				player.setNoGravity(false);
-				player.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
-			}
-			helper.succeed();
-		});
+		try {
+			BlockPos origin = helper.absolutePos(new BlockPos(2, 2, 2));
+			player.snapTo(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+			data.setSlots(player, java.util.List.of("powers:time_shift", "powers:astral_projection", "powers:flight"));
+			TestingOverrides.setAll(player.getUUID(), true);
+			double voidY = helper.getLevel().getMinY() + 2.0;
+			Vec3 requested = new Vec3(player.getX() + 8.0, voidY, player.getZ() + 8.0);
+			helper.getLevel().getChunkAt(BlockPos.containing(requested));
+			player.setNoGravity(true);
+			helper.assertTrue(AbilityActivationService.activateTeleport(player, player,
+					new TeleportAbility(), helper.getLevel().dimension(), requested.x, requested.y,
+					requested.z, true) == AbilityActivationService.Result.ACTIVATED,
+					"Exact void coordinate was safety-corrected before Minecraft travel");
+			helper.runAfterDelay(52, () -> {
+				try {
+					helper.assertTrue(player.position().distanceToSqr(requested) < 0.01,
+							"Direct travel rewrote the entered void coordinate at commit");
+					helper.assertTrue(AbilityActivationService.activate(player, flight, "powers:flight", true)
+							== AbilityActivationService.Result.ACTIVATED,
+							"Void fixture could not start a real persistent toggle before fatal cleanup");
+					helper.assertTrue(AbilityActivationService.activate(player, new AstralProjectionAbility(),
+							"powers:astral_projection", true) == AbilityActivationService.Result.ACTIVATED,
+							"Void fixture could not start the real vulnerable-body lifecycle");
+					var token = com.powers.PowersMod.scheduleDelayed(helper.getLevel().getServer(), 120,
+							player.getUUID(), helper.getLevel().dimension(), player.getUUID(), "qa010_void_stale",
+							(server, task) -> staleCallbackRan.set(true));
+					helper.assertTrue(token.accepted(), "Void fixture could not queue owned lifecycle work");
+					java.util.UUID bodyId = BodyProxyManager.bodyIdForOwner(player.getUUID());
+					helper.assertTrue(bodyId != null && helper.getLevel().getEntity(bodyId) != null,
+							"Astral lifecycle did not create its real body proxy");
+					player.setGameMode(GameType.SURVIVAL);
+					player.setInvulnerable(false);
+					player.getAbilities().invulnerable = false;
+					for (int i = 0; i < 60; i++) player.connection.tickClientLoadTimeout();
+					player.setNoGravity(false);
+					player.setHealth(4.0F);
+					player.setPos(player.getX(), helper.getLevel().getMinY() - 80.0, player.getZ());
+					helper.assertTrue(player.getY() < helper.getLevel().getMinY() - 64.0,
+							"Void fixture did not cross the vanilla below-world threshold; y=" + player.getY());
+					helper.assertFalse(player.isInvulnerableTo(helper.getLevel(), player.damageSources().fellOutOfWorld()),
+							"Void fixture player remained invulnerable to vanilla below-world damage; removed="
+									+ player.isRemoved() + ", baseInvulnerable=" + player.isInvulnerable());
+					player.checkBelowWorld();
+					helper.assertTrue(player.getHealth() < 4.0F,
+							"Vanilla below-world dispatch did not damage the projected avatar; health="
+									+ player.getHealth());
+				} catch (Throwable failure) {
+					cleanup.run();
+					throw failure;
+				}
+			});
+			helper.runAfterDelay(140, () -> {
+				try {
+					helper.assertFalse(AstralProjectionAbility.isActive(player.getUUID()),
+							"Fatal void-body damage left astral state active");
+					helper.assertFalse(BodyProxyManager.hasSession(player, com.powers.mind.BodyProxyKind.ASTRAL),
+							"Fatal void-body damage left a body proxy session");
+					helper.assertFalse(data.isToggleActive("powers:flight"),
+							"Fatal void lifecycle retained an active movement toggle");
+					helper.assertTrue(com.powers.PowersMod.delayedTasks().stream()
+							.noneMatch(task -> task.cancellationOwner().equals(player.getUUID())),
+							"Fatal void lifecycle retained owned delayed work");
+					helper.assertFalse(staleCallbackRan.get(),
+							"Fatal void lifecycle allowed owned delayed work to execute");
+					helper.assertFalse(hasTravelTicket(player),
+							"Fatal void-body damage left owner-scoped travel work: "
+									+ TravelChunkLoader.diagnostics().tickets());
+				} finally {
+					cleanup.run();
+				}
+				helper.succeed();
+			});
+		} catch (Throwable failure) {
+			cleanup.run();
+			throw failure;
+		}
 	}
 
 	@GameTest(environment = "qa010_hostile:isolated", maxTicks = 30)
@@ -460,70 +523,88 @@ public final class HostileEnvironmentGameTests {
 	@SuppressWarnings("removal")
 	public void mountedNestedPassengersTravelWithoutDuplicationOrCrossLevelReferences(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
-		BlockPos origin = helper.absolutePos(new BlockPos(3, 2, 3));
-		player.snapTo(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
-		var horse = EntityTypes.HORSE.create(helper.getLevel(), net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
-		var zombie = EntityTypes.ZOMBIE.create(helper.getLevel(), net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
-		var chicken = EntityTypes.CHICKEN.create(helper.getLevel(), net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
-		helper.assertTrue(horse != null && zombie != null && chicken != null,
-				"Passenger fixture could not create its real entity graph");
-		horse.snapTo(player.getX() + 1.0, player.getY(), player.getZ());
-		zombie.snapTo(horse.position());
-		chicken.snapTo(horse.position());
-		helper.getLevel().addFreshEntity(horse);
-		helper.getLevel().addFreshEntity(zombie);
-		helper.getLevel().addFreshEntity(chicken);
-		player.startRiding(horse, true, false);
-		zombie.startRiding(horse, true, false);
-		chicken.startRiding(zombie, true, false);
-		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		data.setSlots(player, java.util.List.of("powers:flight", "powers:time_shift"));
-		TestingOverrides.setAll(player.getUUID(), true);
 		FlightAbility flight = new FlightAbility();
-		helper.assertTrue(AbilityActivationService.activate(player, flight, "powers:flight", true)
-				== AbilityActivationService.Result.ACTIVATED,
-				"Mounted player could not enter its persistent movement owner");
-		Vec3 destination = player.position().add(8.0, 0.0, 8.0);
-		helper.getLevel().getChunkAt(BlockPos.containing(destination));
+		java.util.List<net.minecraft.world.entity.Entity> ownedEntities = new java.util.ArrayList<>();
+		AtomicBoolean cleaned = new AtomicBoolean();
+		Runnable cleanup = () -> {
+			if (cleaned.compareAndSet(false, true)) cleanupTravelFixture(player, flight, ownedEntities);
+		};
+		helper.runBeforeTestEnd(cleanup);
 		try {
+			BlockPos origin = helper.absolutePos(new BlockPos(3, 2, 3));
+			player.snapTo(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+			var horse = EntityTypes.HORSE.create(helper.getLevel(), net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
+			var zombie = EntityTypes.ZOMBIE.create(helper.getLevel(), net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
+			var chicken = EntityTypes.CHICKEN.create(helper.getLevel(), net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
+			helper.assertTrue(horse != null && zombie != null && chicken != null,
+					"Passenger fixture could not create its real entity graph");
+			ownedEntities.add(chicken);
+			ownedEntities.add(zombie);
+			ownedEntities.add(horse);
+			horse.snapTo(player.getX() + 1.0, player.getY(), player.getZ());
+			zombie.snapTo(horse.position());
+			chicken.snapTo(horse.position());
+			horse.setNoAi(true);
+			zombie.setNoAi(true);
+			zombie.setBaby(true);
+			chicken.setNoAi(true);
+			helper.getLevel().addFreshEntity(horse);
+			helper.getLevel().addFreshEntity(zombie);
+			helper.getLevel().addFreshEntity(chicken);
+			player.startRiding(horse, true, false);
+			zombie.startRiding(horse, true, false);
+			chicken.startRiding(zombie, true, false);
+			helper.assertTrue(java.util.List.of(horse, zombie, chicken).stream()
+					.allMatch(entity -> entity.position().distanceToSqr(player.position())
+							<= com.powers.power.travel.TravelCohortRules.RADIUS
+									* com.powers.power.travel.TravelCohortRules.RADIUS),
+					"Passenger graph began outside the production cohort radius");
+			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+			data.setSlots(player, java.util.List.of("powers:flight", "powers:time_shift"));
+			TestingOverrides.setAll(player.getUUID(), true);
+			helper.assertTrue(AbilityActivationService.activate(player, flight, "powers:flight", true)
+					== AbilityActivationService.Result.ACTIVATED,
+					"Mounted player could not enter its persistent movement owner");
+			Vec3 destination = player.position().add(8.0, 0.0, 8.0);
+			helper.getLevel().getChunkAt(BlockPos.containing(destination));
 			helper.assertTrue(AbilityActivationService.activateTeleport(player, player,
 					new TeleportAbility(), helper.getLevel().dimension(), destination.x,
 					destination.y, destination.z, true) == AbilityActivationService.Result.ACTIVATED,
 					"Production Time Shift entrypoint rejected the mounted graph");
 			helper.assertTrue(hasTravelTicket(player),
 					"Production Time Shift did not own a delayed destination ticket");
+			helper.runAfterDelay(65, () -> {
+				try {
+					helper.assertTrue(player.position().distanceToSqr(destination) < 0.01,
+							"Production Time Shift did not commit the exact destination");
+					for (var entity : java.util.List.of(horse, zombie, chicken)) {
+						helper.assertTrue(!entity.isRemoved() && helper.getLevel().getEntity(entity.getUUID()) == entity,
+								"Cohort travel lost or duplicated a passenger entity");
+						helper.assertTrue(entity.getVehicle() == null || entity.getVehicle().level() == entity.level(),
+								"Cohort travel retained a cross-level passenger reference");
+					}
+					helper.assertTrue(player.getVehicle() == null && horse.getPassengers().isEmpty()
+							&& horse.getVehicle() == null && zombie.getPassengers().isEmpty()
+							&& zombie.getVehicle() == null && chicken.getPassengers().isEmpty()
+							&& chicken.getVehicle() == null,
+							"Production cohort policy did not deterministically detach the exact graph: "
+									+ "playerVehicle=" + player.getVehicle() + ", horsePassengers="
+									+ horse.getPassengers() + ", zombieVehicle=" + zombie.getVehicle()
+									+ ", zombiePassengers=" + zombie.getPassengers() + ", chickenVehicle="
+									+ chicken.getVehicle());
+					helper.assertTrue(data.isToggleActive("powers:flight"),
+							"Cohort travel silently dropped persistent toggle ownership");
+					helper.assertFalse(hasTravelTicket(player),
+							"Completed mounted travel retained owner-scoped destination work");
+				} finally {
+					cleanup.run();
+				}
+				helper.succeed();
+			});
 		} catch (Throwable failure) {
-			cleanupTravelFixture(player, flight, java.util.List.of(chicken, zombie, horse));
+			cleanup.run();
 			throw failure;
 		}
-		helper.runAfterDelay(65, () -> {
-			try {
-				helper.assertTrue(player.position().distanceToSqr(destination) < 0.01,
-						"Production Time Shift did not commit the exact destination");
-				for (var entity : java.util.List.of(horse, zombie, chicken)) {
-					helper.assertTrue(!entity.isRemoved() && helper.getLevel().getEntity(entity.getUUID()) == entity,
-							"Cohort travel lost or duplicated a passenger entity");
-					helper.assertTrue(entity.getVehicle() == null || entity.getVehicle().level() == entity.level(),
-							"Cohort travel retained a cross-level passenger reference");
-				}
-				helper.assertTrue(player.getVehicle() == null && horse.getPassengers().isEmpty()
-						&& horse.getVehicle() == null && zombie.getPassengers().isEmpty()
-						&& zombie.getVehicle() == null && chicken.getPassengers().isEmpty()
-						&& chicken.getVehicle() == null,
-						"Production cohort policy did not deterministically detach the exact graph: "
-								+ "playerVehicle=" + player.getVehicle() + ", horsePassengers="
-								+ horse.getPassengers() + ", zombieVehicle=" + zombie.getVehicle()
-								+ ", zombiePassengers=" + zombie.getPassengers() + ", chickenVehicle="
-								+ chicken.getVehicle());
-				helper.assertTrue(data.isToggleActive("powers:flight"),
-						"Cohort travel silently dropped persistent toggle ownership");
-				helper.assertFalse(hasTravelTicket(player),
-						"Completed mounted travel retained owner-scoped destination work");
-			} finally {
-				cleanupTravelFixture(player, flight, java.util.List.of(chicken, zombie, horse));
-			}
-			helper.succeed();
-		});
 	}
 
 	@GameTest(environment = "qa010_hostile:isolated", maxTicks = 40)
@@ -604,7 +685,7 @@ public final class HostileEnvironmentGameTests {
 		helper.succeed();
 	}
 
-	@GameTest(environment = "qa010_hostile:synthetic_reload", maxTicks = 260)
+	@GameTest(environment = "qa010_hostile:synthetic_reload", maxTicks = 600)
 	@SuppressWarnings("removal")
 	public void syntheticForeignDimensionRunsPolicyFxTravelAndStableDelayedCleanup(GameTestHelper helper) {
 		var level = helper.getLevel().getServer().getLevel(SYNTHETIC_DIMENSION);
@@ -615,78 +696,105 @@ public final class HostileEnvironmentGameTests {
 		Vec3 destination = new Vec3(0.5, 70.0, 0.5);
 		BlockPos destinationFloor = BlockPos.containing(destination).below();
 		var originalFloor = level.getBlockState(destinationFloor);
-		level.setBlockAndUpdate(destinationFloor, Blocks.STONE.defaultBlockState());
-		level.getChunkAt(BlockPos.containing(destination));
 		FlightAbility flight = new FlightAbility();
-		TestingOverrides.setAll(player.getUUID(), true);
+		AtomicBoolean cleaned = new AtomicBoolean();
+		Runnable cleanup = () -> {
+			if (cleaned.compareAndSet(false, true)) {
+				cleanupSyntheticFixture(player, flight, level, destinationFloor, originalFloor);
+			}
+		};
+		helper.runBeforeTestEnd(cleanup);
 		AtomicBoolean reloadComplete = new AtomicBoolean();
 		AtomicBoolean delayedRebound = new AtomicBoolean();
 		AtomicBoolean exactArrivalObserved = new AtomicBoolean();
 		AtomicBoolean exactReturnObserved = new AtomicBoolean();
+		AtomicBoolean watchingReturn = new AtomicBoolean();
+		AtomicBoolean initialTravelStarted = new AtomicBoolean();
+		AtomicBoolean foreignPhaseStarted = new AtomicBoolean();
+		AtomicBoolean returnStarted = new AtomicBoolean();
+		java.util.concurrent.atomic.AtomicInteger fixtureTicks = new java.util.concurrent.atomic.AtomicInteger();
 		AtomicReference<Throwable> reloadFailure = new AtomicReference<>();
-		PlayerPowers.get(player).setSlots(player,
-				java.util.List.of("powers:time_shift", "powers:flight"));
-		helper.assertTrue(AbilityActivationService.activateTeleport(player, player,
-				new TeleportAbility(), SYNTHETIC_DIMENSION, destination.x, destination.y,
-				destination.z, true) == AbilityActivationService.Result.ACTIVATED,
-				"POWERS travel entrypoint rejected the synthetic dimension");
-		helper.assertTrue(scheduleExactObservers(player, level, destination,
-				exactArrivalObserved, "qa010_synthetic_exact_arrival"),
-				"Synthetic dimension rejected the exact-arrival observer");
-		helper.runAfterDelay(55, () -> {
-			try {
-				helper.assertTrue(exactArrivalObserved.get() && player.level() == level,
-						"POWERS travel did not commit the requested synthetic coordinate exactly");
-				helper.assertTrue(com.powers.config.ResolvedPowerPolicy.resolve(level) != null,
-						"Policy resolution switched on a foreign namespace");
-				var beforeFx = com.powers.fx.PowerFx.lodSnapshot(level.getServer());
-				helper.assertTrue(AbilityActivationService.activate(player, flight, "powers:flight", true)
-						== AbilityActivationService.Result.ACTIVATED,
-						"Action/FX production entrypoint rejected a foreign dimension");
-				var afterFx = com.powers.fx.PowerFx.lodSnapshot(level.getServer());
-				helper.assertTrue(fxDeliveries(afterFx) > fxDeliveries(beforeFx),
-						"Synthetic-dimension action emitted no observable authoritative FX delivery");
-				AbilityActivationService.activate(player, flight, "powers:flight", true);
-				var server = level.getServer();
-				var callback = com.powers.PowersMod.scheduleDelayed(server, 30, player.getUUID(),
-						SYNTHETIC_DIMENSION, player.getUUID(), "qa010_synthetic_rebind",
-						(current, task) -> delayedRebound.set(
-								current.getLevel(SYNTHETIC_DIMENSION) == level && player.level() == level));
-				helper.assertTrue(callback.accepted(),
-						"Synthetic dimension rejected owned delayed work before reload");
-				server.reloadResources(server.getPackRepository().getSelectedIds())
-						.whenComplete((ignored, failure) -> server.execute(() -> {
-							reloadFailure.set(failure);
-							reloadComplete.set(true);
-						}));
-			} catch (Throwable failure) {
-				cleanupSyntheticFixture(player, flight, level, destinationFloor, originalFloor);
-				throw failure;
-			}
-		});
-		helper.runAfterDelay(105, () -> {
-			try {
-				helper.assertTrue(reloadComplete.get() && reloadFailure.get() == null,
-						"Synthetic-dimension reload/rebind did not complete successfully");
-				helper.assertTrue(delayedRebound.get(),
-						"Owned synthetic callback did not resolve against stable live identities after reload");
-				helper.assertTrue(level.getServer().getLevel(SYNTHETIC_DIMENSION) == level
-						&& com.powers.config.ResolvedPowerPolicy.resolve(level) != null,
-						"Synthetic level/policy did not rebind after resource reload");
-				helper.assertTrue(AbilityActivationService.activateTeleport(player, player, new TeleportAbility(),
-							overworld.dimension(), origin.x, origin.y, origin.z, true)
-							== AbilityActivationService.Result.ACTIVATED,
-						"POWERS travel entrypoint could not leave the synthetic dimension");
-				helper.assertTrue(scheduleExactObservers(player, overworld, origin,
-						exactReturnObserved, "qa010_synthetic_exact_return"),
-						"Synthetic dimension rejected the exact-return observer");
-			} catch (Throwable failure) {
-				cleanupSyntheticFixture(player, flight, level, destinationFloor, originalFloor);
-				throw failure;
-			}
-		});
-		helper.runAfterDelay(240, () -> {
-			try {
+		try {
+			helper.onEachTick(() -> {
+				try {
+					if (fixtureTicks.incrementAndGet() >= 20
+							&& initialTravelStarted.compareAndSet(false, true)) {
+					level.setBlockAndUpdate(destinationFloor, Blocks.STONE.defaultBlockState());
+					level.getChunkAt(BlockPos.containing(destination));
+					TestingOverrides.setAll(player.getUUID(), true);
+					PlayerPowers.get(player).setSlots(player,
+							java.util.List.of("powers:time_shift", "powers:flight"));
+					helper.assertTrue(AbilityActivationService.activateTeleport(player, player,
+							new TeleportAbility(), SYNTHETIC_DIMENSION, destination.x, destination.y,
+							destination.z, true) == AbilityActivationService.Result.ACTIVATED,
+							"POWERS travel entrypoint rejected the synthetic dimension");
+					}
+					if (player.level() == level && player.position().distanceToSqr(destination) < 0.01) {
+						exactArrivalObserved.set(true);
+					}
+					if (watchingReturn.get() && player.level() == overworld
+							&& player.position().distanceToSqr(origin) < 0.01) {
+						exactReturnObserved.set(true);
+					}
+					if (exactArrivalObserved.get() && foreignPhaseStarted.compareAndSet(false, true)) {
+						helper.assertTrue(com.powers.config.ResolvedPowerPolicy.resolve(level) != null,
+								"Policy resolution switched on a foreign namespace");
+						var beforeFx = com.powers.fx.PowerFx.lodSnapshot(level.getServer());
+						helper.assertTrue(AbilityActivationService.activate(player, flight, "powers:flight", true)
+								== AbilityActivationService.Result.ACTIVATED,
+								"Action/FX production entrypoint rejected a foreign dimension");
+						var afterFx = com.powers.fx.PowerFx.lodSnapshot(level.getServer());
+						helper.assertTrue(fxDeliveries(afterFx) > fxDeliveries(beforeFx),
+								"Synthetic-dimension action emitted no observable authoritative FX delivery");
+						AbilityActivationService.activate(player, flight, "powers:flight", true);
+						var server = level.getServer();
+						var callback = com.powers.PowersMod.scheduleDelayed(server, 30, player.getUUID(),
+								SYNTHETIC_DIMENSION, player.getUUID(), "qa010_synthetic_rebind",
+								(current, task) -> delayedRebound.set(
+										current.getLevel(SYNTHETIC_DIMENSION) == level && player.level() == level));
+						helper.assertTrue(callback.accepted(),
+								"Synthetic dimension rejected owned delayed work before reload");
+						server.reloadResources(server.getPackRepository().getSelectedIds())
+								.whenComplete((ignored, failure) -> server.execute(() -> {
+									reloadFailure.set(failure);
+									reloadComplete.set(true);
+								}));
+					}
+					if (reloadComplete.get()) {
+						helper.assertTrue(reloadFailure.get() == null,
+								"Synthetic-dimension reload/rebind failed: " + reloadFailure.get());
+					}
+					if (reloadComplete.get() && delayedRebound.get() && !hasTravelTicket(player)
+							&& com.powers.PowersMod.delayedTasks().stream().noneMatch(task ->
+									task.cancellationOwner().equals(player.getUUID())
+											&& "teleport_storm_finish".equals(task.purpose()))
+							&& returnStarted.compareAndSet(false, true)) {
+						helper.assertTrue(level.getServer().getLevel(SYNTHETIC_DIMENSION) == level
+								&& com.powers.config.ResolvedPowerPolicy.resolve(level) != null,
+								"Synthetic level/policy did not rebind after resource reload");
+						watchingReturn.set(true);
+						helper.assertTrue(AbilityActivationService.activateTeleport(player, player,
+								new TeleportAbility(), overworld.dimension(), origin.x, origin.y, origin.z, true)
+								== AbilityActivationService.Result.ACTIVATED,
+								"POWERS travel entrypoint could not leave the synthetic dimension");
+					}
+				} catch (Throwable failure) {
+					cleanup.run();
+					throw failure;
+				}
+			});
+			helper.succeedWhen(() -> {
+				helper.assertTrue(foreignPhaseStarted.get() && reloadComplete.get()
+						&& delayedRebound.get() && returnStarted.get(),
+						"Synthetic reload/return phases did not complete within their production bounds: foreign="
+								+ foreignPhaseStarted.get() + ", reload=" + reloadComplete.get()
+								+ ", reloadFailure=" + reloadFailure.get() + ", rebound=" + delayedRebound.get()
+								+ ", returnStarted=" + returnStarted.get() + ", arrival="
+								+ exactArrivalObserved.get() + ", return=" + exactReturnObserved.get()
+								+ ", level=" + player.level().dimension().identifier() + ", tickets="
+								+ TravelChunkLoader.diagnostics().tickets() + ", tasks="
+								+ com.powers.PowersMod.delayedTasks().stream().filter(task ->
+										task.cancellationOwner().equals(player.getUUID())).toList());
 				helper.assertTrue(exactReturnObserved.get() && player.level() == overworld,
 						"POWERS travel did not commit the exact return from the synthetic dimension");
 				helper.assertFalse(hasTravelTicket(player),
@@ -696,32 +804,16 @@ public final class HostileEnvironmentGameTests {
 						"Synthetic round trip/reload retained owned delayed work: "
 								+ com.powers.PowersMod.delayedTasks().stream()
 										.filter(task -> task.cancellationOwner().equals(player.getUUID())).toList());
-			} finally {
-				cleanupSyntheticFixture(player, flight, level, destinationFloor, originalFloor);
-			}
-			helper.succeed();
-		});
+				cleanup.run();
+			});
+		} catch (Throwable failure) {
+			cleanup.run();
+			throw failure;
+		}
 	}
 
 	private static long fxDeliveries(com.powers.fx.PowerFx.LodSnapshot snapshot) {
 		return snapshot.nearDeliveries() + snapshot.midDeliveries() + snapshot.farDeliveries();
-	}
-
-	private static boolean scheduleExactObservers(ServerPlayer player,
-			net.minecraft.server.level.ServerLevel expectedLevel, Vec3 expectedPosition,
-			AtomicBoolean observed, String purpose) {
-		boolean accepted = true;
-		for (int delay = 50; delay <= 65; delay++) {
-			accepted &= com.powers.PowersMod.scheduleDelayed(expectedLevel.getServer(), delay,
-					player.getUUID(), expectedLevel.dimension(), player.getUUID(), purpose,
-					(current, task) -> {
-						if (player.level() == expectedLevel
-								&& player.position().distanceToSqr(expectedPosition) < 0.01) {
-							observed.set(true);
-						}
-					}).accepted();
-		}
-		return accepted;
 	}
 
 	private static boolean hasTravelTicket(ServerPlayer player) {
@@ -739,6 +831,20 @@ public final class HostileEnvironmentGameTests {
 		target.discard();
 		infernoCaster.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
 		iceCaster.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
+	}
+
+	private static void cleanupVoidFixture(ServerPlayer player, FlightAbility flight) {
+		if (PlayerPowers.get(player).isToggleActive("powers:flight")) {
+			AbilityActivationService.activate(player, flight, "powers:flight", true);
+		}
+		AstralProjectionAbility.clear(player.level().getServer(), player.getUUID());
+		TeleportAbility.clearStorm(player.level().getServer(), player.getUUID());
+		TravelChunkLoader.cancel(player.level().getServer(), player.getUUID());
+		com.powers.PowersMod.cancelDelayedTasks(player.getUUID());
+		BodyProxyManager.finish(player);
+		TestingOverrides.clear(player.getUUID());
+		player.setNoGravity(false);
+		player.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
 	}
 
 	private static void cleanupSyntheticFixture(ServerPlayer player, FlightAbility flight,
