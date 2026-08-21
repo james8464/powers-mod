@@ -1346,7 +1346,9 @@ public final class PowersGameTests {
 		helper.succeed();
 	}
 
-	@GameTest(maxTicks = 80)
+	// Real GameTest realms activate the crystal fixtures in the default batch;
+	// keep this independent ritual in its own lifecycle environment.
+	@GameTest(environment = "powers:ritual_isolated", maxTicks = 80)
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void auguryCompletesAsAnUnrankedPracticalRitual(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();

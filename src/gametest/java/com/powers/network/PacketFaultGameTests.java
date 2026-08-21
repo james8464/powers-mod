@@ -55,7 +55,7 @@ public final class PacketFaultGameTests {
 	private record MatrixFixture(String profile, ServerPlayer player, String grimoire,
 			List<String> spells, List<Object> clientbound) { }
 
-	@GameTest(maxTicks = 40)
+	@GameTest(environment = "powers:packet_fault_matrix_isolated", maxTicks = 40)
 	public void sixProfilesConvergeThroughRegisteredProductionBoundaries(GameTestHelper helper) {
 		PacketRateLimiter.clearGlobal();
 		List<MatrixFixture> fixtures = new ArrayList<>();
@@ -145,7 +145,7 @@ public final class PacketFaultGameTests {
 				energy, 100, false, false, false, 0, List.of(), "", 0);
 	}
 
-	@GameTest(maxTicks = 720)
+	@GameTest(environment = "powers:packet_fault_isolated", maxTicks = 720)
 	public void productionPacketBoundariesRemainAuthoritativeAndConverge(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		long revision = currentRevision();

@@ -217,7 +217,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | --- | --- | --- | --- | --- |
 | QA-001 | Guarantee | P0 | Run clean full build, JUnit, all GameTests, dedicated server, client smoke, visual suite, soak, and manual acceptance before release tags. | One signed release report contains exact commands, revisions, counts, logs, and unresolved limitations. |
 | QA-006 | Guarantee | P1 | Add long-duration world soak with forced restart every few minutes. | No leaked ticket, index, field, summon, body, freeze, or Ruin state over 24 hours. |
-| QA-010 | Guarantee | P2 | Add test worlds for claims, borders, low ceilings, void, fluids, mounts, passengers, portals, and modded dimensions. | Each critical action has at least one hostile-environment scenario. |
 | QA-015 | Enhancement | P2 | Add in-game operator test dashboard summarizing coverage and recent failures. | Dashboard is read-only outside explicit testing actions and has negligible idle cost. |
 | QA-016 | Guarantee | P2 | Audit all comments for intent/invariants rather than line-by-line narration. | Source quality check rejects stale TODOs, misleading claims, and public APIs without contracts. |
 | QA-019 | Enhancement | P3 | Produce a concise operator handbook separate from the player README. | Includes install, config, backups, recovery, diagnostics, permissions, and catastrophe policy. |

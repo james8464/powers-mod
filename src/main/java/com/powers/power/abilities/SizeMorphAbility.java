@@ -41,8 +41,13 @@ public final class SizeMorphAbility extends ToggleAbility {
 		if (!SizeMorphRules.isValidOption(option)
 				|| com.powers.player.SkillSystem.effectiveLevel(player)
 				< SizeMorphRules.minimumRank(option)) return false;
+		int previousOption = data.getSizeMorphOption();
 		data.setSizeMorphOption(option);
-		if (data.isToggleActive(id().toString())) applySelectedScale(player, data);
+		if (data.isToggleActive(id().toString()) && !applySelectedScale(player, data)) {
+			data.setSizeMorphOption(previousOption);
+			if (!applySelectedScale(player, data)) normalizeActiveScale(player, data);
+			return false;
+		}
 		return true;
 	}
 
@@ -61,7 +66,7 @@ public final class SizeMorphAbility extends ToggleAbility {
 
 	@Override
 	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		applySelectedScale(player, data);
+		if (!applySelectedScale(player, data)) normalizeActiveScale(player, data);
 	}
 
 	private static boolean applySelectedScale(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
@@ -73,12 +78,27 @@ public final class SizeMorphAbility extends ToggleAbility {
 			scale.addTransientModifier(new AttributeModifier(
 					MODIFIER_ID, selected - 1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 		}
+		player.refreshDimensions();
+		if (selected > 1.0 && player.level() instanceof ServerLevel level
+				&& !level.noCollision(player, player.getBoundingBox())) {
+			scale.removeModifier(MODIFIER_ID);
+			player.refreshDimensions();
+			return false;
+		}
 		return true;
+	}
+
+	private static void normalizeActiveScale(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		data.setSizeMorphOption(SizeMorphRules.normalOption());
+		removeModifier(player);
 	}
 
 	private static void removeModifier(ServerPlayer player) {
 		AttributeInstance scale = player.getAttribute(Attributes.SCALE);
-		if (scale != null) scale.removeModifier(MODIFIER_ID);
+		if (scale != null) {
+			scale.removeModifier(MODIFIER_ID);
+			player.refreshDimensions();
+		}
 	}
 
 	private static void showChange(ServerPlayer player, double scale) {

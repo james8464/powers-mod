@@ -43,6 +43,20 @@ public class IceManipulationAbility extends Ability {
 		Vec3 end = origin.add(look.scale(range));
 		HitResult hit = PowerTargeting.raycast(player, range);
 		if (hit.getType() != HitResult.Type.MISS) end = hit.getLocation();
+		Vec3 dir = end.subtract(origin).normalize();
+		double dist = origin.distanceTo(end);
+
+		// Claim denial is an atomic cast boundary: preflight every block the beam
+		// could transform before damage, effects, terrain, payment, or cooldown commit.
+		for (double d = 0; d < dist; d += 0.5) {
+			Vec3 point = origin.add(dir.scale(d));
+			BlockPos pos = BlockPos.containing(point);
+			BlockState state = level.getBlockState(pos);
+			BlockPos mutation = state.is(Blocks.WATER) || state.is(Blocks.LAVA) ? pos
+					: !state.isAir() && !state.is(Blocks.BEDROCK) && d < dist - 1.0
+							&& level.getBlockState(pos.above()).isAir() ? pos.above() : null;
+			if (mutation != null && !PowerProtection.mayAffectBlock(player, level, mutation)) return false;
+		}
 
 		if (hit instanceof net.minecraft.world.phys.EntityHitResult entHit
 				&& entHit.getEntity() instanceof LivingEntity target) {
@@ -61,8 +75,6 @@ public class IceManipulationAbility extends Ability {
 		}
 
 		// walk the beam in half-block steps and freeze blocks along the path
-		Vec3 dir = end.subtract(origin).normalize();
-		double dist = origin.distanceTo(end);
 		for (double d = 0; d < dist; d += 0.5) {
 			Vec3 point = origin.add(dir.scale(d));
 			BlockPos pos = new BlockPos((int) Math.floor(point.x), (int) Math.floor(point.y), (int) Math.floor(point.z));

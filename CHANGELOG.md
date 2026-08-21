@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added real hostile-environment GameTests for external claim denial, world borders, low ceilings, exact void travel, water/lava, nested passengers, ordinary and confined Nether portals, and a GameTest-only foreign dimension; fixed atomic Ice claim preflight, protected artifact summons, and transactional collision-safe Size Morph selection.
+
 - Added an operator-only deterministic POWERS-payload fault injector with seeded 150/300 ms delay, exact loss, duplication, and reorder profiles; bounded per-connection/global scheduling, logical state-owner convergence, exactly-once discrete requests, lifecycle fail-closed cancellation, redacted diagnostics, locator/Vessel/menu/FX production-boundary GameTests, and a disabled zero-queue fast path.
 
 - Published a reproducible Minecraft 26.2 Fabric compatibility matrix with exact stable Sodium, Lithium, Simple Voice Chat, ClaimMod, and Inventory Extended artifacts, SHA-256 verification, isolated runtime assembly, real client/server evidence, and explicit unsupported/untested boundaries.

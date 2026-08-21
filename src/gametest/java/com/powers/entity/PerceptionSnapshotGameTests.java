@@ -31,7 +31,7 @@ public final class PerceptionSnapshotGameTests {
 	private static final EntityTypeTest<Entity, LivingEntity> LIVING =
 			EntityTypeTest.forClass(LivingEntity.class);
 
-	@GameTest(maxTicks = 20)
+	@GameTest(maxTicks = 20, padding = 128)
 	@SuppressWarnings("removal")
 	public void mixedProductionQueriesBeatTheIdenticalLegacyWork(GameTestHelper helper) {
 		Cluster cluster = cluster(helper, 24);
