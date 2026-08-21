@@ -3,6 +3,7 @@ package com.powers.client.acceptance;
 import com.google.gson.Gson;
 import com.powers.PowersMod;
 import com.powers.PowersWeapons;
+import com.powers.client.fx.FxAccessibility;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -30,7 +31,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -160,10 +164,19 @@ public final class VfxGalleryClientAgent {
 
 	public static void record(Minecraft client, String screenshot, List<String> captureIds,
 			List<String> sourceKeys, int mipLevel, boolean reducedMotion, Background background, String camera) {
-		CaptureMetadata metadata = new CaptureMetadata(screenshot, List.copyOf(captureIds), List.copyOf(sourceKeys),
-				client.getWindow().getWidth(), client.getWindow().getHeight(),
-				(int) client.getWindow().getGuiScale(), mipLevel, reducedMotion,
-				background.serializedName, camera, 6_000L, "clear");
+		Path screenshotPath = client.gameDirectory.toPath().resolve("screenshots").resolve(screenshot);
+		long gameTime = client.level == null ? -1L : client.level.getGameTime();
+		String weather = client.level == null ? "unavailable"
+				: client.level.isThundering() ? "thunder" : client.level.isRaining() ? "rain" : "clear";
+		List<String> resourcePacks = client.getResourcePackRepository().getSelectedIds().stream().sorted().toList();
+		RuntimeOptions options = new RuntimeOptions(client.getWindow().getWidth(), client.getWindow().getHeight(),
+				client.options.guiScale().get(), (int) client.getWindow().getGuiScale(),
+				client.options.mipmapLevels().get(), client.options.particles().get().toString(),
+				client.options.screenEffectScale().get(), FxAccessibility.reducedMotion(client),
+				client.options.renderDistance().get(), client.options.graphicsPreset().get().toString(),
+				resourcePacks, gameTime, weather);
+		CaptureMetadata metadata = new CaptureMetadata(screenshot, sha256(screenshotPath),
+				List.copyOf(captureIds), List.copyOf(sourceKeys), options, background.serializedName, camera);
 		try {
 			Files.writeString(metadataPath(client), GSON.toJson(metadata) + "\n",
 					StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
@@ -174,6 +187,14 @@ public final class VfxGalleryClientAgent {
 
 	private static Path metadataPath(Minecraft client) {
 		return client.gameDirectory.toPath().resolve("vfx-011-gallery/captures.jsonl");
+	}
+
+	private static String sha256(Path path) {
+		try {
+			return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(path)));
+		} catch (IOException | NoSuchAlgorithmException error) {
+			throw new IllegalStateException("Could not hash VFX gallery screenshot " + path, error);
+		}
 	}
 
 	public enum Background {
@@ -196,9 +217,14 @@ public final class VfxGalleryClientAgent {
 		}
 	}
 
-	public record CaptureMetadata(String screenshot, List<String> captureIds, List<String> sourceKeys, int physicalWidth,
-			int physicalHeight, int guiScale, int mipLevel, boolean reducedMotion,
-			String background, String camera, long gameTime, String weather) {
+	public record CaptureMetadata(String screenshot, String screenshotSha256, List<String> captureIds,
+			List<String> sourceKeys, RuntimeOptions runtimeOptions, String background, String camera) {
+	}
+
+	public record RuntimeOptions(int physicalWidth, int physicalHeight, int requestedGuiScale,
+			int effectiveGuiScale, int mipLevel, String particles, double screenEffectScale,
+			boolean reducedMotion, int renderDistance, String graphicsMode, List<String> resourcePacks,
+			long gameTime, String weather) {
 	}
 
 	private static final class ItemGalleryScreen extends Screen {

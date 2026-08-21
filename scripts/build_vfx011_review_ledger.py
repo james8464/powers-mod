@@ -16,7 +16,7 @@ MANIFEST = ROOT / "docs/quality/vfx-011-asset-audit.json"
 EVIDENCE = ROOT / "docs/verification/evidence/2026-08-21-vfx-011"
 DECISIONS = EVIDENCE / "review-decisions.tsv"
 LEDGER = EVIDENCE / "review-ledger.tsv"
-VERDICTS = {"PASS", "REPAIRED", "LIMITED"}
+VERDICTS = {"PASS", "REPAIRED", "LIMITED", "PENDING_RAW_RECAPTURE"}
 
 
 def digest(path: Path) -> str:
@@ -49,7 +49,7 @@ def expected_decision_digests() -> dict[tuple[str, str], str]:
     for page, page_digest in manifest["pageDigests"].items():
         expected[("asset_page", page)] = page_digest
     for row in client_rows:
-        key = ("client_screenshot", row["screenshot"])
+        key = ("historical_client_digest", row["screenshot"])
         prior = expected.setdefault(key, row["sha256"])
         if prior != row["sha256"]:
             raise ValueError(f"inconsistent screenshot digest: {row['screenshot']}")
@@ -89,6 +89,10 @@ def validate_decisions(decisions: dict[tuple[str, str], dict],
     for key in keys:
         if decisions[key]["sha256"] != expected[key]:
             raise ValueError(f"stale explicit decision digest: {key}")
+        if key[0] == "historical_client_digest" and decisions[key]["verdict"] != "PENDING_RAW_RECAPTURE":
+            raise ValueError(f"historical client digest cannot claim visual acceptance: {key}")
+        if key[0] == "client_page" and decisions[key]["verdict"] != "LIMITED":
+            raise ValueError(f"client contact page is navigation-only: {key}")
 
 
 def render() -> str:
@@ -112,9 +116,9 @@ def render() -> str:
         decision = decisions[("asset_page", page)]
         writer.writerow(("asset_page", "", page, "", "", decision["verdict"], decision["notes"]))
     for row in client_rows:
-        decision = decisions[("client_screenshot", row["screenshot"])]
+        decision = decisions[("historical_client_digest", row["screenshot"])]
         bounds = f'{row["x"]},{row["y"]},{row["width"]},{row["height"]}'
-        writer.writerow(("client_capture", row["capture_id"], row["page"], row["slot"], bounds,
+        writer.writerow(("client_capture_pending_raw", row["capture_id"], row["page"], row["slot"], bounds,
                          decision["verdict"], f'{decision["notes"]}; screenshot={row["screenshot"]}'))
     for page in sorted({row["page"] for row in client_rows}):
         decision = decisions[("client_page", page)]
