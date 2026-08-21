@@ -433,35 +433,51 @@ public final class HostileEnvironmentGameTests {
 	@GameTest(environment = "qa010_hostile:isolated", maxTicks = 30)
 	@SuppressWarnings("removal")
 	public void waterAndLavaUseRealThermalBlocksAndSubmergedMovementStaysFinite(GameTestHelper helper) {
-		ServerPlayer iceCaster = helper.makeMockServerPlayerInLevel();
-		BlockPos origin = helper.absolutePos(new BlockPos(3, 2, 3));
-		iceCaster.snapTo(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
-		iceCaster.setYRot(0.0F);
-		iceCaster.setXRot(0.0F);
-		PlayerPowers.PlayerPowersData iceData = PlayerPowers.get(iceCaster);
-		iceData.setSlots(iceCaster, java.util.List.of("powers:ice_manipulation"));
-		TestingOverrides.setAll(iceCaster.getUUID(), true);
-		BlockPos water = BlockPos.containing(iceCaster.getEyePosition().add(iceCaster.getLookAngle().scale(2.5)));
-		helper.getLevel().setBlockAndUpdate(water, Blocks.WATER.defaultBlockState());
-		helper.getLevel().setBlockAndUpdate(water.above(), Blocks.STONE.defaultBlockState());
-		BlockPos lava = BlockPos.containing(iceCaster.getEyePosition().add(iceCaster.getLookAngle().scale(4.5)));
-		helper.getLevel().setBlockAndUpdate(lava, Blocks.LAVA.defaultBlockState());
-		ServerPlayer infernoCaster = helper.makeMockServerPlayerInLevel();
-		infernoCaster.snapTo(origin.getX() + 8.5, origin.getY(), origin.getZ() + 0.5);
-		helper.getLevel().setBlockAndUpdate(infernoCaster.blockPosition(), Blocks.WATER.defaultBlockState());
-		helper.getLevel().setBlockAndUpdate(infernoCaster.blockPosition().above(), Blocks.WATER.defaultBlockState());
-		var target = EntityTypes.ZOMBIE.create(helper.getLevel(), net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
-		helper.assertTrue(target != null, "Fluid fixture could not create its Inferno target");
-		target.snapTo(infernoCaster.getX() + 1.0, infernoCaster.getY(), infernoCaster.getZ());
-		target.setNoAi(true);
-		helper.getLevel().addFreshEntity(target);
-		var observed = new net.minecraft.world.phys.AABB(
-				Vec3.atLowerCornerOf(water), Vec3.atLowerCornerOf(lava.above())).inflate(8.0);
-		int dropsBefore = helper.getLevel().getEntities(
-				net.minecraft.world.level.entity.EntityTypeTest.forClass(
-						net.minecraft.world.entity.item.ItemEntity.class),
-				entity -> entity.getBoundingBox().intersects(observed)).size();
+		AtomicReference<ServerPlayer> iceCasterRef = new AtomicReference<>();
+		AtomicReference<ServerPlayer> infernoCasterRef = new AtomicReference<>();
+		AtomicReference<net.minecraft.world.entity.LivingEntity> targetRef = new AtomicReference<>();
+		AtomicBoolean cleaned = new AtomicBoolean();
+		Runnable cleanup = () -> {
+			if (cleaned.compareAndSet(false, true)) {
+				cleanupFluidFixture(iceCasterRef.get(), infernoCasterRef.get(), targetRef.get());
+			}
+		};
+		helper.runBeforeTestEnd(cleanup);
 		try {
+			ServerPlayer iceCaster = helper.makeMockServerPlayerInLevel();
+			iceCasterRef.set(iceCaster);
+			BlockPos origin = helper.absolutePos(new BlockPos(3, 2, 3));
+			iceCaster.snapTo(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+			iceCaster.setYRot(0.0F);
+			iceCaster.setXRot(0.0F);
+			PlayerPowers.PlayerPowersData iceData = PlayerPowers.get(iceCaster);
+			iceData.setSlots(iceCaster, java.util.List.of("powers:ice_manipulation"));
+			TestingOverrides.setAll(iceCaster.getUUID(), true);
+			BlockPos water = BlockPos.containing(
+					iceCaster.getEyePosition().add(iceCaster.getLookAngle().scale(2.5)));
+			helper.getLevel().setBlockAndUpdate(water, Blocks.WATER.defaultBlockState());
+			helper.getLevel().setBlockAndUpdate(water.above(), Blocks.STONE.defaultBlockState());
+			BlockPos lava = BlockPos.containing(
+					iceCaster.getEyePosition().add(iceCaster.getLookAngle().scale(4.5)));
+			helper.getLevel().setBlockAndUpdate(lava, Blocks.LAVA.defaultBlockState());
+			ServerPlayer infernoCaster = helper.makeMockServerPlayerInLevel();
+			infernoCasterRef.set(infernoCaster);
+			infernoCaster.snapTo(origin.getX() + 8.5, origin.getY(), origin.getZ() + 0.5);
+			helper.getLevel().setBlockAndUpdate(infernoCaster.blockPosition(), Blocks.WATER.defaultBlockState());
+			helper.getLevel().setBlockAndUpdate(infernoCaster.blockPosition().above(), Blocks.WATER.defaultBlockState());
+			var target = EntityTypes.ZOMBIE.create(helper.getLevel(),
+					net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
+			helper.assertTrue(target != null, "Fluid fixture could not create its Inferno target");
+			targetRef.set(target);
+			target.snapTo(infernoCaster.getX() + 1.0, infernoCaster.getY(), infernoCaster.getZ());
+			target.setNoAi(true);
+			helper.getLevel().addFreshEntity(target);
+			var observed = new net.minecraft.world.phys.AABB(
+					Vec3.atLowerCornerOf(water), Vec3.atLowerCornerOf(lava.above())).inflate(8.0);
+			int dropsBefore = helper.getLevel().getEntities(
+					net.minecraft.world.level.entity.EntityTypeTest.forClass(
+							net.minecraft.world.entity.item.ItemEntity.class),
+					entity -> entity.getBoundingBox().intersects(observed)).size();
 			helper.assertTrue(AbilityActivationService.activate(iceCaster, new IceManipulationAbility(),
 					"powers:ice_manipulation", true) == AbilityActivationService.Result.ACTIVATED,
 					"Ice production entrypoint rejected real water");
@@ -509,12 +525,12 @@ public final class HostileEnvironmentGameTests {
 					helper.assertTrue(dropsAfter == dropsBefore,
 							"Thermal/fluid work emitted duplicate item drops");
 				} finally {
-					cleanupFluidFixture(iceCaster, infernoCaster, target);
+					cleanup.run();
 				}
 				helper.succeed();
 			});
 		} catch (Throwable failure) {
-			cleanupFluidFixture(iceCaster, infernoCaster, target);
+			cleanup.run();
 			throw failure;
 		}
 	}
@@ -824,13 +840,17 @@ public final class HostileEnvironmentGameTests {
 	private static void cleanupFluidFixture(ServerPlayer iceCaster, ServerPlayer infernoCaster,
 			net.minecraft.world.entity.LivingEntity target) {
 		InfernoAbility.clearAll();
-		if (PlayerPowers.get(iceCaster).isToggleActive("powers:flight")) {
+		if (iceCaster != null && PlayerPowers.get(iceCaster).isToggleActive("powers:flight")) {
 			AbilityActivationService.activate(iceCaster, new FlightAbility(), "powers:flight", true);
 		}
-		TestingOverrides.clear(iceCaster.getUUID());
-		target.discard();
-		infernoCaster.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
-		iceCaster.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
+		if (iceCaster != null) {
+			TestingOverrides.clear(iceCaster.getUUID());
+			iceCaster.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
+		}
+		if (target != null) target.discard();
+		if (infernoCaster != null) {
+			infernoCaster.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
+		}
 	}
 
 	private static void cleanupVoidFixture(ServerPlayer player, FlightAbility flight) {
