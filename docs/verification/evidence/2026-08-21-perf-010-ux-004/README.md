@@ -1,32 +1,44 @@
 # PERF-010 + UX-004 virtual catalogue evidence
 
-Exact implementation commit: recorded after the cohesive commit; all commands below ran from the tracked direct-`main` tree before commit.
+Initial implementation commit: `a5fe966fbf2974c1eb47b639ec5cb72979fae9bb`
+
+Accepted review-correction commit: `eb17a3a82a42d852916e3970710c880337f717dc`
+
+## Accepted visual evidence
+
+- `catalogue-production-1280x720-gui2.png` — production screen, 1280×720, GUI scale 2.
+- `catalogue-production-1280x720-gui3.png` — compact/high-scale production screen, 1280×720, GUI scale 3.
+
+```text
+072999ce93c2c2b71909ebc064240240a499ed30e32d5e2ac22f272e0f15ead9  catalogue-production-1280x720-gui2.png
+914ab763e9d0b494fe38fad7d2a489970f219b39cbabc92e4d993a1f7f57a63c  catalogue-production-1280x720-gui3.png
+```
+
+Both captures were manually inspected: title and summary do not overlap; global search leaves every category tab unselected; rows, selected action, bind control, and all eight favourites remain readable. Superseded frames are quarantined under `rejected/` and are not acceptance evidence.
 
 ## Proven contracts
 
-- `ArtifactCatalogueViewModelTest` builds 10,000 synthetic actions, searches the final action, scrolls to index 4,000, preserves canonical selection across revisions, and proves the visible pool remains exactly 24 slots.
-- `ArtifactRecentRulesTest` proves newest-first de-duplication, an eight-key cap, and fail-closed reconciliation against available canonical keys.
-- `successfulArtifactSelectionRecordsAndTransportsBoundedRecents` enters through the registered `SelectPayload` receiver, then observes the persistent server owner and real `OpenMenuPayload` transport.
-- The integrated Fabric client uses the production catalogue screen. It sends a real mouse-wheel input, verifies allocation/widget counters remain identical, searches for Fireball, clicks the result and quick-wheel slot `1`, waits for the server-authoritative favourite, and captures the resulting screen.
-- Every bind/select payload still carries the captured registry revision, alignment, canonical action key, and existing bounded option/slot values. The server continues to validate owner, rank, alignment, revision, canonical spelling, and rate limit before mutation.
+- The real production screen holds 10,000 synthetic actions with a constant widget/allocation count through wheel scroll, search, filtering, and revision refresh.
+- Global search exposes an unbound action from the default surface; result click plus numbered favourite click is the two-interaction bind path.
+- Selection, scroll position, GUI focus, and narration remain coherent across column-major scrolling and revision refresh.
+- Recents decode with an eight-entry allocation bound.
+- Registered packet handlers prove unbound/stale/rate-limited denial and authoritative bind acknowledgement before commit.
 
-## Visual evidence
-
-- `catalogue-full.png` — production fixed-grid catalogue at 1280×720.
-- `catalogue-fireball-filter.png` — one-result localized Fireball search after the real direct-bind interaction.
+## Final gates
 
 ```text
-00d362d3916bb4d09fef67320927f2899da2661eca6965eaf98778dbb8afd3c1  catalogue-full.png
-04e72e9105ad819e16eabf51a95c645eca937d89c53600a98402d841fa598d25  catalogue-fireball-filter.png
-```
+./gradlew runGameTest --no-daemon
+127/127 required GameTests passed in 51.50 s
 
-## Verification commands
+./gradlew check --rerun-tasks --no-daemon
+BUILD SUCCESSFUL in 1m 43s
+embedded GameTests: 127/127 in 48.29 s
+JVM tests: 1,589 passed
+Python tests: 45 passed
+resource/source/asset/access-widener/generated-doc checks: passed
 
-```text
-./gradlew test --tests com.powers.item.artifact.ArtifactCatalogueViewModelTest --tests com.powers.item.artifact.ArtifactRecentRulesTest --tests com.powers.item.artifact.ArtifactCatalogueRulesTest --tests com.powers.player.PlayerAttachmentPersistenceTest --tests com.powers.network.ShadowSwordPacketsTest --tests com.powers.client.ClientActionRefreshTest --no-daemon
-./gradlew runGameTest -PgameTestFilter=powers-gametest:action_submission_packet_game_tests_successful_artifact_selection_records_and_transports_bounded_recents --no-daemon
 ./gradlew runClientGameTest --no-daemon
-./gradlew check -x runGameTest --rerun-tasks --no-daemon
+BUILD SUCCESSFUL in 36s
 ```
 
-The full 126-test GameTest aggregate was also attempted twice. Its unrelated timing-sensitive failures and the immediately green isolated reruns are recorded transparently in the task report. No QA-006 process/worktree or protected QA-005 capture was touched.
+The previous 129-test count changed deliberately when three shared-identity authority fixtures were replaced by one stronger sequential registered-path orchestrator. No QA-005 capture, QA-006 process/worktree, or protected cache was modified.
