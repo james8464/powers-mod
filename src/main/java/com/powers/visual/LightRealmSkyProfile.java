@@ -6,6 +6,13 @@ import java.util.Objects;
 /** Immutable, renderer-agnostic description of the Light Realm sky for one frame. */
 public record LightRealmSkyProfile(Mode mode, int baseColor, List<Layer> layers,
 		double rotationRadians, boolean usesTexture, boolean usesCustomShader) {
+	private static final List<Shape> AUTHORED_SHAPES = List.of(
+			Shape.OUTER_HALO, Shape.RUNIC_COMPASS, Shape.CROWN_ARCS, Shape.RADIAL_VEIL);
+	private static final List<Integer> AUTHORED_COLORS = List.of(
+			0xFFFFF8DE, 0xFFFFE5A6, 0xFFFFF0C7, 0xFFFFD77A);
+	private static final double NORMAL_MIN_CONTRAST = 0.40;
+	private static final double REDUCED_MAX_CONTRAST = 0.20;
+
 	public LightRealmSkyProfile {
 		Objects.requireNonNull(mode, "mode");
 		layers = List.copyOf(layers);
@@ -24,6 +31,36 @@ public record LightRealmSkyProfile(Mode mode, int baseColor, List<Layer> layers,
 		}
 		if (mode == Mode.STATIC_WHITE && !layers.isEmpty()) {
 			throw new IllegalArgumentException("STATIC_WHITE cannot carry enhanced layers");
+		}
+		if (mode == Mode.ANCIENT_WHITE) validateEnhanced(layers, AUTHORED_SHAPES.size(), false, rotationRadians);
+		if (mode == Mode.ANCIENT_WHITE_REDUCED) validateEnhanced(layers, 2, true, rotationRadians);
+	}
+
+	private static void validateEnhanced(List<Layer> layers, int expectedLayers,
+			boolean reduced, double rotationRadians) {
+		if (layers.size() != expectedLayers) {
+			throw new IllegalArgumentException("enhanced sky layer cardinality does not match its mode");
+		}
+		for (int index = 0; index < expectedLayers; index++) {
+			Layer layer = layers.get(index);
+			if (layer.shape() != AUTHORED_SHAPES.get(index) || layer.color() != AUTHORED_COLORS.get(index)) {
+				throw new IllegalArgumentException("enhanced sky layers require the ordered authored shape palette");
+			}
+			if (reduced && (layer.angularVelocity() != 0.0 || layer.pulseAmplitude() != 0.0
+					|| layer.phase() != 0.0)) {
+				throw new IllegalArgumentException("reduced-motion layers must be fully static");
+			}
+		}
+		double contrast = layers.stream().mapToDouble(Layer::alpha).sum();
+		if ((!reduced && contrast < NORMAL_MIN_CONTRAST) || (reduced && contrast > REDUCED_MAX_CONTRAST)) {
+			throw new IllegalArgumentException("enhanced sky contrast does not match its mode");
+		}
+		if (!reduced && (layers.stream().noneMatch(layer -> layer.angularVelocity() != 0.0)
+				|| layers.stream().noneMatch(layer -> layer.pulseAmplitude() != 0.0))) {
+			throw new IllegalArgumentException("ordinary enhanced sky requires bounded drift and pulse");
+		}
+		if (reduced && rotationRadians != 0.0) {
+			throw new IllegalArgumentException("reduced-motion sky rotation must be zero");
 		}
 	}
 

@@ -100,6 +100,57 @@ class LightRealmSkyRulesTest {
 	}
 
 	@Test
+	void enhancedProfileConstructorsEnforceAuthoredShapePaletteAndCardinality() {
+		List<LightRealmSkyProfile.Layer> normal = LightRealmSkyRules.resolve(true, false, true, 6_000).layers();
+		assertThrows(IllegalArgumentException.class, () -> new LightRealmSkyProfile(
+				LightRealmSkyProfile.Mode.ANCIENT_WHITE, 0xFFFFFFFF, List.of(), 0.0, false, false));
+		assertThrows(IllegalArgumentException.class, () -> new LightRealmSkyProfile(
+				LightRealmSkyProfile.Mode.ANCIENT_WHITE, 0xFFFFFFFF,
+				List.of(normal.get(0), normal.get(0), normal.get(2), normal.get(3)), 0.0, false, false));
+		LightRealmSkyProfile.Layer arbitraryPalette = layer(normal.get(0).shape(), 0xFFFF00FF,
+				normal.get(0).alpha(), normal.get(0).scale(), normal.get(0).angularVelocity(),
+				normal.get(0).pulseAmplitude(), normal.get(0).phase());
+		assertThrows(IllegalArgumentException.class, () -> new LightRealmSkyProfile(
+				LightRealmSkyProfile.Mode.ANCIENT_WHITE, 0xFFFFFFFF,
+				List.of(arbitraryPalette, normal.get(1), normal.get(2), normal.get(3)), 0.0, false, false));
+	}
+
+	@Test
+	void modeSpecificContrastAndReducedMotionAreConstructorInvariants() {
+		List<LightRealmSkyProfile.Layer> lowContrastNormal = List.of(
+				layer(LightRealmSkyProfile.Shape.OUTER_HALO, 0xFFFFF8DE, 0.04, 1.0, 0.0001, 0.01, 0.0),
+				layer(LightRealmSkyProfile.Shape.RUNIC_COMPASS, 0xFFFFE5A6, 0.04, 0.78, -0.0002, 0.01, 0.5),
+				layer(LightRealmSkyProfile.Shape.CROWN_ARCS, 0xFFFFF0C7, 0.04, 0.57, 0.0003, 0.01, 1.0),
+				layer(LightRealmSkyProfile.Shape.RADIAL_VEIL, 0xFFFFD77A, 0.04, 0.35, -0.0001, 0.01, 1.5));
+		assertThrows(IllegalArgumentException.class, () -> new LightRealmSkyProfile(
+				LightRealmSkyProfile.Mode.ANCIENT_WHITE, 0xFFFFFFFF, lowContrastNormal, 0.0, false, false));
+		List<LightRealmSkyProfile.Layer> motionlessNormal = List.of(
+				layer(LightRealmSkyProfile.Shape.OUTER_HALO, 0xFFFFF8DE, 0.1, 1.0, 0.0, 0.0, 0.0),
+				layer(LightRealmSkyProfile.Shape.RUNIC_COMPASS, 0xFFFFE5A6, 0.1, 0.78, 0.0, 0.0, 0.0),
+				layer(LightRealmSkyProfile.Shape.CROWN_ARCS, 0xFFFFF0C7, 0.1, 0.57, 0.0, 0.0, 0.0),
+				layer(LightRealmSkyProfile.Shape.RADIAL_VEIL, 0xFFFFD77A, 0.1, 0.35, 0.0, 0.0, 0.0));
+		assertThrows(IllegalArgumentException.class, () -> new LightRealmSkyProfile(
+				LightRealmSkyProfile.Mode.ANCIENT_WHITE, 0xFFFFFFFF, motionlessNormal, 0.0, false, false));
+
+		List<LightRealmSkyProfile.Layer> highContrastReduced = List.of(
+				layer(LightRealmSkyProfile.Shape.OUTER_HALO, 0xFFFFF8DE, 0.11, 1.0, 0.0, 0.0, 0.0),
+				layer(LightRealmSkyProfile.Shape.RUNIC_COMPASS, 0xFFFFE5A6, 0.10, 0.78, 0.0, 0.0, 0.0));
+		assertThrows(IllegalArgumentException.class, () -> new LightRealmSkyProfile(
+				LightRealmSkyProfile.Mode.ANCIENT_WHITE_REDUCED, 0xFFFFFFFF,
+				highContrastReduced, 0.0, false, false));
+
+		List<LightRealmSkyProfile.Layer> reduced = LightRealmSkyRules.resolve(true, true, true, 6_000).layers();
+		LightRealmSkyProfile.Layer animated = layer(reduced.get(0).shape(), reduced.get(0).color(),
+				reduced.get(0).alpha(), reduced.get(0).scale(), 0.0001, 0.001, 0.2);
+		assertThrows(IllegalArgumentException.class, () -> new LightRealmSkyProfile(
+				LightRealmSkyProfile.Mode.ANCIENT_WHITE_REDUCED, 0xFFFFFFFF,
+				List.of(animated, reduced.get(1)), 0.0, false, false));
+		assertThrows(IllegalArgumentException.class, () -> new LightRealmSkyProfile(
+				LightRealmSkyProfile.Mode.ANCIENT_WHITE_REDUCED, 0xFFFFFFFF,
+				reduced, 0.01, false, false));
+	}
+
+	@Test
 	void publicLayersRejectValuesOutsideRendererSafeBounds() {
 		assertThrows(IllegalArgumentException.class, () -> layer(0xFFFFE5A6, 0.26, 0.8, 0.0, 0.0, 0.0));
 		assertThrows(IllegalArgumentException.class, () -> layer(0xFFFFE5A6, 0.039, 0.8, 0.0, 0.0, 0.0));
@@ -116,7 +167,11 @@ class LightRealmSkyRulesTest {
 
 	private static LightRealmSkyProfile.Layer layer(int color, double alpha, double scale,
 			double velocity, double pulse, double phase) {
-		return new LightRealmSkyProfile.Layer(LightRealmSkyProfile.Shape.OUTER_HALO,
-				color, alpha, scale, velocity, pulse, phase);
+		return layer(LightRealmSkyProfile.Shape.OUTER_HALO, color, alpha, scale, velocity, pulse, phase);
+	}
+
+	private static LightRealmSkyProfile.Layer layer(LightRealmSkyProfile.Shape shape, int color,
+			double alpha, double scale, double velocity, double pulse, double phase) {
+		return new LightRealmSkyProfile.Layer(shape, color, alpha, scale, velocity, pulse, phase);
 	}
 }
