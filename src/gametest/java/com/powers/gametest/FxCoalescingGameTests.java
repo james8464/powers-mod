@@ -9,7 +9,6 @@ import com.powers.magic.runtime.MagicPresenceHandle;
 import com.powers.magic.runtime.PhysicalMagicPresences;
 import com.powers.magic.runtime.PresenceAnchor;
 import com.powers.network.FxPacketCoalescer;
-import com.powers.network.EventAudioPackets;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -84,38 +83,39 @@ public final class FxCoalescingGameTests {
 		helper.succeed();
 	}
 
-	@GameTest(maxTicks = 60)
+	@GameTest(environment = "powers:fx_lod_isolated", maxTicks = 60)
 	@SuppressWarnings("removal")
 	public void eventScaleLodReachesNearMidAndFarObservers(GameTestHelper helper) {
-		Vec3 center = Vec3.atCenterOf(helper.absolutePos(new BlockPos(4, 2, 4)));
-		ServerPlayer observer = helper.makeMockServerPlayerInLevel();
-		observer.teleportTo(center.x + 32.0, center.y, center.z);
+		Vec3 fixture = Vec3.atCenterOf(helper.absolutePos(new BlockPos(4, 2, 4)));
+		// Fabric retains completed mock players. Measure in a private remote cell, shifted
+		// toward world centre, so stale recipients remain outside the event's 6,000-block range.
+		Vec3 center = fixture.add(fixture.x > 0.0 ? -100_000.0 : 100_000.0, 0.0,
+				fixture.z > 0.0 ? -100_000.0 : 100_000.0);
+		ServerPlayer near = helper.makeMockServerPlayerInLevel();
+		ServerPlayer mid = helper.makeMockServerPlayerInLevel();
+		ServerPlayer far = helper.makeMockServerPlayerInLevel();
+		near.teleportTo(center.x + 32.0, center.y, center.z);
+		mid.teleportTo(center.x + 144.0, center.y, center.z);
+		far.teleportTo(center.x + 1_800.0, center.y, center.z);
+		helper.assertTrue(near.getId() != mid.getId() && mid.getId() != far.getId()
+				&& near.getId() != far.getId(),
+				"Fixture observers did not receive distinct budget identities");
+		// One synchronous expansion is the literal per-observer LOD contract. Resetting
+		// immediately before it prevents earlier same-tick FX from affecting the measurement.
 		PowerFx.resetLodMetrics(helper.getLevel().getServer());
-		helper.runAfterDelay(2, () -> {
-			PowerFx.eventRune(helper.getLevel(), center, 12.0, 0xFFF2A8, 64, 0.25);
-			observer.teleportTo(center.x + 144.0, center.y, center.z);
-		});
-		helper.runAfterDelay(3, () ->
-				PowerFx.eventRune(helper.getLevel(), center, 12.0, 0xFFF2A8, 64, 0.25));
-		helper.runAfterDelay(4, () -> observer.teleportTo(center.x + 1_800.0, center.y, center.z));
-		// Give the server tracking view time to observe the long-distance teleport under a busy batch.
-		helper.runAfterDelay(8, () -> {
-			PowerFx.eventRune(helper.getLevel(), center, 12.0, 0xFFF2A8, 64, 0.25);
-			PowerFx.eventSound(helper.getLevel(), center,
-					EventAudioPackets.Cue.LIGHT_HERALD, 3.0F, 0.65F);
-			var snapshot = PowerFx.lodSnapshot(helper.getLevel().getServer());
-			helper.assertTrue(snapshot.nearDeliveries() >= 1,
-					"Near observer did not receive the full event silhouette");
-			helper.assertTrue(snapshot.midDeliveries() >= 1,
-					"Mid observer did not receive the reduced-density event silhouette");
-			helper.assertTrue(snapshot.farDeliveries() >= 1,
-					"Far observer did not receive the bounded event silhouette");
-			helper.assertTrue(snapshot.nearSamples() > 0 && snapshot.midSamples() > 0
-					&& snapshot.farSamples() > 0,
-					"One visible tier consumed no bounded presentation budget");
-			// Fabric mock players cannot negotiate custom payloads. The rendered-client
-			// suite proves distant audio delivery; this server test owns silhouette budgets.
-			helper.succeed();
-		});
+		PowerFx.eventRune(helper.getLevel(), center, 12.0, 0xFFF2A8, 64, 0.25);
+		var snapshot = PowerFx.lodSnapshot(helper.getLevel().getServer());
+		helper.assertTrue(snapshot.nearDeliveries() >= 1,
+				"Near observer did not receive the full event silhouette");
+		helper.assertTrue(snapshot.midDeliveries() >= 1,
+				"Mid observer did not receive the reduced-density event silhouette");
+		helper.assertTrue(snapshot.farDeliveries() >= 1,
+				"Far observer did not receive the bounded event silhouette");
+		helper.assertTrue(snapshot.nearSamples() > 0 && snapshot.midSamples() > 0
+				&& snapshot.farSamples() > 0,
+				"One visible tier consumed no bounded presentation budget");
+		// Fabric mock players cannot negotiate custom payloads. The rendered-client
+		// suite proves distant audio delivery; this server test owns silhouette budgets.
+		helper.succeed();
 	}
 }

@@ -20,7 +20,7 @@ class ArtifactCatalogueViewModelTest {
 		assertEquals(24, model.poolSize());
 		assertEquals(24, model.visible().size());
 		model.scrollRows(2_000);
-		assertEquals(4_000, suffix(model.visible().getFirst()));
+		assertEquals(2_000, suffix(model.visible().getFirst()));
 		model.setFilter(ArtifactCatalogueTab.INNATE, "Action 9999");
 		assertEquals(List.of(9_999), model.visible().stream().map(ArtifactCatalogueViewModelTest::suffix).toList());
 		assertEquals(24, model.poolSize());
@@ -46,6 +46,25 @@ class ArtifactCatalogueViewModelTest {
 	}
 
 	@Test
+	void revisionRefreshPreservesAndClampsTheScrolledWindowInPlace() {
+		List<ArtifactActionDefinition> actions = actions(100);
+		ArtifactCatalogueViewModel model = new ArtifactCatalogueViewModel(4L, actions,
+				List.of(), List.of(), actions.get(67).key(), ArtifactActionDefinition::abilityId, 2, 5);
+		model.setFilter(ArtifactCatalogueTab.INNATE, "");
+		model.scrollRows(30);
+		assertEquals(30, model.firstVisibleIndex());
+
+		model.refresh(5L, actions, List.of(), List.of(), actions.getFirst().key(),
+				ArtifactActionDefinition::abilityId);
+		assertEquals(30, model.firstVisibleIndex(), "A revision refresh jumped the virtual window to the start");
+		assertEquals(actions.get(67).key(), model.selectedKey());
+
+		model.refresh(6L, actions.subList(0, 18), List.of(), List.of(), actions.get(17).key(),
+				ArtifactActionDefinition::abilityId);
+		assertEquals(8, model.firstVisibleIndex(), "A shorter revision did not clamp to its last full window");
+	}
+
+	@Test
 	void searchResultBindsInSelectThenSlotInteractionAndRecentFilterIsBounded() {
 		List<ArtifactActionDefinition> actions = actions(40);
 		List<String> recent = IntStream.iterate(39, index -> index - 1).limit(10)
@@ -59,6 +78,19 @@ class ArtifactCatalogueViewModelTest {
 		model.setFilter(ArtifactCatalogueTab.RECENT, "");
 		assertEquals(ArtifactRecentRules.LIMIT, model.filteredCount());
 		assertEquals(actions.get(39).key(), model.visible().getFirst().key());
+	}
+
+	@Test
+	void nonBlankSearchFromDefaultFavouritesSurfaceFindsAnUnboundActionGlobally() {
+		List<ArtifactActionDefinition> actions = actions(40);
+		ArtifactCatalogueViewModel model = new ArtifactCatalogueViewModel(9L, actions,
+				List.of(actions.getFirst().key()), List.of(), actions.getFirst().key(),
+				action -> "Action " + suffix(action), 1, 8);
+
+		model.setFilter(ArtifactCatalogueTab.FAVOURITES, "Action 37");
+
+		assertEquals(List.of(actions.get(37).key()),
+				model.visible().stream().map(ArtifactActionDefinition::key).toList());
 	}
 
 	@Test

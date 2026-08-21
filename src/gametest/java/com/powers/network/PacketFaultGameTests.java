@@ -12,6 +12,7 @@ import com.powers.magic.fx.MagicFxKind;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.magic.runtime.MagicRuntime;
 import com.powers.magic.runtime.CastSource;
+import com.powers.gametest.GameTestResourceReloadLease;
 import com.powers.player.ArtifactSelectionState;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
@@ -145,40 +146,54 @@ public final class PacketFaultGameTests {
 				energy, 100, false, false, false, 0, List.of(), "", 0);
 	}
 
-	@GameTest(environment = "powers:packet_fault_isolated", maxTicks = 720)
+	// The internal 602-tick nonce expiry remains exact; the extra 200 ticks only
+	// cover waiting for the serialized NET-010/QA-010 global-resource reload lease.
+	@GameTest(environment = "powers:packet_fault_isolated", maxTicks = 920)
 	public void productionPacketBoundariesRemainAuthoritativeAndConverge(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
-		long revision = currentRevision();
-		player.setItemInHand(InteractionHand.MAIN_HAND, PowersWeapons.weapon("lycanbane").getDefaultInstance());
-		player.addTag(SkillSystem.DARKNESS_TAG);
-		PlayerPowers.get(player).setDarknessLevel(player, 10);
-		PacketRateLimiter.clearGlobal();
-		PacketFaultController.configureScoped(helper.getLevel().getServer(),
-				PacketFaultProfile.named("reorder", 42L), player);
-		receive(player, new ShadowSwordPackets.SelectPayload(revision, "darkness", "innate/lightning_strike", -1));
-		receive(player, new ShadowSwordPackets.SelectPayload(revision, "darkness", "innate/fireball", -1));
-		receive(player, new ShadowSwordPackets.BindFavouritePayload(revision, "darkness", 0, "innate/lightning_strike"));
-		receive(player, new ShadowSwordPackets.BindFavouritePayload(revision, "darkness", 1, "innate/fireball"));
-		helper.runAfterDelay(7, () -> {
-			List<String> favourites = ArtifactSelectionState.favourites(player, ArtifactAlignment.DARKNESS);
-			String selected = ArtifactSelectionState.peekSelected(player, ArtifactAlignment.DARKNESS);
-			helper.assertTrue("innate/fireball".equals(selected),
-					"Artifact selection did not converge: selected=" + selected + "; "
-							+ PacketFaultController.diagnostics(helper.getLevel().getServer(), player).line());
-			helper.assertTrue("innate/lightning_strike".equals(favourites.get(0))
-					&& "innate/fireball".equals(favourites.get(1)), "Favourite slots were conflated");
-			artifactCommands(helper, player);
+		GameTestResourceReloadLease.acquire(helper.getLevel().getServer(), lease -> {
+			helper.runBeforeTestEnd(lease::close);
+			long revision = currentRevision();
+			player.setItemInHand(InteractionHand.MAIN_HAND,
+					PowersWeapons.weapon("lycanbane").getDefaultInstance());
+			player.addTag(SkillSystem.DARKNESS_TAG);
+			PlayerPowers.get(player).setDarknessLevel(player, 10);
+			PacketRateLimiter.clearGlobal();
+			PacketFaultController.configureScoped(helper.getLevel().getServer(),
+					PacketFaultProfile.named("reorder", 42L), player);
+			receive(player, new ShadowSwordPackets.SelectPayload(
+					revision, "darkness", "innate/lightning_strike", -1));
+			receive(player, new ShadowSwordPackets.SelectPayload(
+					revision, "darkness", "innate/fireball", -1));
+			receive(player, new ShadowSwordPackets.BindFavouritePayload(
+					revision, "darkness", 0, "innate/lightning_strike"));
+			receive(player, new ShadowSwordPackets.BindFavouritePayload(
+					revision, "darkness", 1, "innate/fireball"));
+			receive(player, new ShadowSwordPackets.BindFavouritePayload(
+					revision, "darkness", 2, "innate/invisibility"));
+			helper.runAfterDelay(12, () -> {
+				List<String> favourites = ArtifactSelectionState.favourites(player, ArtifactAlignment.DARKNESS);
+				String selected = ArtifactSelectionState.peekSelected(player, ArtifactAlignment.DARKNESS);
+				helper.assertTrue("innate/fireball".equals(selected),
+						"Artifact selection did not converge: selected=" + selected + "; "
+								+ PacketFaultController.diagnostics(helper.getLevel().getServer(), player).line());
+				helper.assertTrue("innate/lightning_strike".equals(favourites.get(0))
+						&& "innate/fireball".equals(favourites.get(1))
+						&& "innate/invisibility".equals(favourites.get(2)), "Favourite slots were conflated");
+				artifactCommands(helper, player, lease);
+			});
 		});
 	}
 
-	private static void artifactCommands(GameTestHelper helper, ServerPlayer player) {
+	private static void artifactCommands(GameTestHelper helper, ServerPlayer player,
+			GameTestResourceReloadLease.Lease lease) {
 		PacketRateLimiter.clearGlobal();
 		PacketFaultController.configureScoped(helper.getLevel().getServer(),
 				PacketFaultProfile.named("duplicate", 71L), player);
 		receive(player, new ShadowSwordPackets.CyclePayload(
 				currentRevision(), "darkness", "innate/fireball", 1));
 		helper.runAfterDelay(2, () -> {
-			helper.assertTrue("innate/time_shift".equals(
+			helper.assertTrue("innate/invisibility".equals(
 					ArtifactSelectionState.peekSelected(player, ArtifactAlignment.DARKNESS)),
 					"Faulted combat-wheel cycle did not advance exactly once");
 			receive(player, new ShadowSwordPackets.CommitPayload(
@@ -200,7 +215,7 @@ public final class PacketFaultGameTests {
 				helper.assertTrue(PacketFaultController.diagnostics(helper.getLevel().getServer(), player)
 								.metrics().duplicateSideEffects() == 0L,
 								"Duplicated artifact commands reached authority twice");
-						grimoire(helper, player);
+						grimoire(helper, player, lease);
 					});
 				});
 			});
@@ -351,7 +366,8 @@ public final class PacketFaultGameTests {
 		});
 	}
 
-	private static void grimoire(GameTestHelper helper, ServerPlayer player) {
+	private static void grimoire(GameTestHelper helper, ServerPlayer player,
+			GameTestResourceReloadLease.Lease lease) {
 		var definition = SpellCastingManager.registry().forTexture("book_grimoire_celestial");
 		List<String> spells = definition.spells().stream().map(spell -> spell.id()).toList();
 		player.setItemInHand(InteractionHand.MAIN_HAND,
@@ -363,11 +379,12 @@ public final class PacketFaultGameTests {
 		helper.runAfterDelay(7, () -> {
 			helper.assertTrue(PlayerPowers.get(player).selectedSpell(definition.key(), spells) == 1,
 					"Grimoire selection did not converge");
-			crystal(helper, player);
+			crystal(helper, player, lease);
 		});
 	}
 
-	private static void crystal(GameTestHelper helper, ServerPlayer player) {
+	private static void crystal(GameTestHelper helper, ServerPlayer player,
+			GameTestResourceReloadLease.Lease lease) {
 		player.setItemInHand(InteractionHand.MAIN_HAND, PowersItems.RAINBOW_CRYSTAL.getDefaultInstance());
 		ModeCrystalAbility ability = (ModeCrystalAbility) CrystalPowerRegistry.get(PowersItems.RAINBOW_CRYSTAL);
 		List<String> modes = ability.modeIds();
@@ -378,6 +395,7 @@ public final class PacketFaultGameTests {
 		helper.runAfterDelay(7, () -> {
 			helper.assertTrue(PlayerPowers.get(player).selectedCrystalMode("rainbow_crystal", modes) == 1,
 					"Crystal selection did not converge");
+			lease.close();
 			clientbound(helper, player);
 		});
 	}
@@ -389,6 +407,11 @@ public final class PacketFaultGameTests {
 		List<Object> payloads = capture(player);
 		player.setNoGravity(true);
 		player.setInvulnerable(true);
+		Vec3 fixture = Vec3.atCenterOf(helper.absolutePos(new BlockPos(4, 2, 4)));
+		// Other required GameTests include event-scale damage. Keep this presentation-only
+		// assertion outside every other fixture's loaded combat radius without deleting players.
+		player.teleportTo(fixture.x + (fixture.x > 0.0 ? -100_000.0 : 100_000.0),
+				fixture.y, fixture.z + (fixture.z > 0.0 ? -100_000.0 : 100_000.0));
 		// Full health excludes unrelated natural-regeneration phases from this presentation-only assertion.
 		player.setHealth(player.getMaxHealth());
 		float health = player.getHealth();
@@ -437,8 +460,9 @@ public final class PacketFaultGameTests {
 					&& count(payloads, MagicFxPackets.ShapeFxPayload.class) == 1
 					&& count(payloads, MagicFxPackets.SemanticFxBatchPayload.class) == 1,
 					"HUD or semantic FX family did not converge: " + payloads);
-			helper.assertTrue(player.getHealth() == health,
-					"Presentation faulting altered physical damage state");
+			helper.assertTrue(player.getHealth() == player.getMaxHealth(),
+					"Presentation faulting altered physical damage state: before=" + health
+							+ ", after=" + player.getHealth() + ", currentMax=" + player.getMaxHealth());
 			player.setInvulnerable(false);
 			locator(helper, player, payloads);
 		});

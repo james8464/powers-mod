@@ -49,7 +49,7 @@ public final class ArtifactCatalogueViewModel {
 		searchText = Map.copyOf(indexed);
 		if (find(selectedKey) == null) selectedKey = find(serverSelectedKey) == null
 				? (this.actions.isEmpty() ? null : this.actions.getFirst().key()) : serverSelectedKey;
-		refilter(true);
+		refilter(false);
 	}
 
 	public void setFilter(ArtifactCatalogueTab tab, String query) {
@@ -59,9 +59,8 @@ public final class ArtifactCatalogueViewModel {
 	}
 
 	public void scrollRows(int deltaRows) {
-		int currentRow = firstVisibleIndex / columns;
-		int maximumRow = Math.max(0, (filtered.size() - 1) / columns - rows + 1);
-		firstVisibleIndex = Math.clamp((currentRow + deltaRows) * columns, 0, maximumRow * columns);
+		int maximumStart = Math.max(0, filtered.size() - poolSize());
+		firstVisibleIndex = Math.clamp(firstVisibleIndex + deltaRows, 0, maximumStart);
 	}
 
 	public List<ArtifactActionDefinition> visible() {
@@ -87,10 +86,9 @@ public final class ArtifactCatalogueViewModel {
 		int next = Math.clamp((current < 0 ? 0 : current) + delta, 0, filtered.size() - 1);
 		selectedKey = filtered.get(next).key();
 		if (next < firstVisibleIndex) {
-			firstVisibleIndex = (next / columns) * columns;
+			firstVisibleIndex = next;
 		} else if (next >= firstVisibleIndex + poolSize()) {
-			int row = next / columns;
-			firstVisibleIndex = Math.max(0, (row - rows + 1) * columns);
+			firstVisibleIndex = next - poolSize() + 1;
 		}
 	}
 
@@ -136,7 +134,7 @@ public final class ArtifactCatalogueViewModel {
 		Map<String, Integer> recentOrder = order(recents);
 		List<ArtifactActionDefinition> result = new ArrayList<>();
 		for (ArtifactActionDefinition action : actions) {
-			boolean inTab = switch (tab) {
+			boolean inTab = !query.isEmpty() || switch (tab) {
 				case FAVOURITES -> favouriteOrder.containsKey(action.key());
 				case RECENT -> recentOrder.containsKey(action.key());
 				case INNATE -> action.category() == ArtifactActionCategory.ROUTED_POWER;
@@ -147,9 +145,9 @@ public final class ArtifactCatalogueViewModel {
 				result.add(action);
 			}
 		}
-		if (tab == ArtifactCatalogueTab.FAVOURITES) {
+		if (query.isEmpty() && tab == ArtifactCatalogueTab.FAVOURITES) {
 			result.sort(java.util.Comparator.comparingInt(action -> favouriteOrder.get(action.key())));
-		} else if (tab == ArtifactCatalogueTab.RECENT) {
+		} else if (query.isEmpty() && tab == ArtifactCatalogueTab.RECENT) {
 			result.sort(java.util.Comparator.comparingInt(action -> recentOrder.get(action.key())));
 		}
 		filtered = List.copyOf(result);

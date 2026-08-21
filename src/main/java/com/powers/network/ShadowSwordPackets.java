@@ -171,7 +171,7 @@ public final class ShadowSwordPackets {
 		PowersPlayNetworking.registerReceiver(CommitPayload.TYPE, (payload, player) -> {
 					ArtifactAlignment alignment = parseAlignment(payload.alignment());
 					ActionSubmissionService.submit(MagicRuntime.catalogue().snapshot(), request(payload),
-							() -> validSelectionContext(player, alignment,
+							() -> validCommitContext(player, alignment,
 									payload.actionKey(), payload.option()),
 							() -> refreshArtifact(player, alignment),
 							() -> PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT), () -> {
@@ -206,8 +206,12 @@ public final class ShadowSwordPackets {
 									&& payload.slot() >= 0 && payload.slot() < ArtifactFavouriteRules.SLOT_COUNT,
 							() -> refreshArtifact(player, alignment),
 							() -> PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ARTIFACT),
-							() -> ArtifactSelectionState.bindFavourite(player, alignment,
-									payload.slot(), payload.actionKey()));
+							() -> {
+								if (ArtifactSelectionState.bindFavourite(player, alignment,
+										payload.slot(), payload.actionKey())) {
+									ArtifactWeaponManager.openMenu(player, alignment);
+								}
+							});
 				});
 		PowersPlayNetworking.registerReceiver(TeleportPayload.TYPE,
 				(payload, player) -> handleTeleport(player, payload));
@@ -273,6 +277,12 @@ public final class ShadowSwordPackets {
 		ArtifactWeaponManager.Action action = ArtifactWeaponManager.action(alignment, actionKey);
 		return action != null && ShadowSwordSelectionRules.validOption(
 				option, action.ability().selectionOptionCount());
+	}
+
+	private static boolean validCommitContext(ServerPlayer player, ArtifactAlignment alignment,
+			String actionKey, int option) {
+		return validSelectionContext(player, alignment, actionKey, option)
+				&& ArtifactSelectionState.favourites(player, alignment).contains(actionKey);
 	}
 
 	private static boolean validBindableContext(ServerPlayer player, ArtifactAlignment alignment,

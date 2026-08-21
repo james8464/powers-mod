@@ -9,6 +9,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ArtifactCatalogueRulesTest {
 	@Test
+	void nonBlankQuerySearchesGloballyFromTheDefaultFavouritesTab() {
+		List<ArtifactActionDefinition> actions = ArtifactActionCatalogue.forAlignment(
+				ArtifactAlignment.DARKNESS);
+		List<ArtifactActionDefinition> result = ArtifactCatalogueRules.filter(actions,
+				ArtifactCatalogueTab.FAVOURITES, List.of("innate/lightning_strike"),
+				"invisibility", ArtifactActionDefinition::abilityId);
+
+		assertEquals(List.of("innate/invisibility"), result.stream()
+				.map(ArtifactActionDefinition::key).toList());
+	}
+
+	@Test
+	void virtualSlotsRetainTheReleasedColumnMajorReadingMap() {
+		assertEquals(0, ArtifactCatalogueRules.columnForSlot(0, 6));
+		assertEquals(5, ArtifactCatalogueRules.rowForSlot(5, 6));
+		assertEquals(1, ArtifactCatalogueRules.columnForSlot(6, 6));
+		assertEquals(0, ArtifactCatalogueRules.rowForSlot(6, 6));
+	}
+	@Test
 	void searchMatchesLocalizedLabelsStableIdsAndSelectedTab() {
 		List<ArtifactActionDefinition> actions = ArtifactActionCatalogue.forAlignment(
 				ArtifactAlignment.DARKNESS);

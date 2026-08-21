@@ -701,13 +701,20 @@ public final class HostileEnvironmentGameTests {
 		helper.succeed();
 	}
 
-	@GameTest(environment = "qa010_hostile:synthetic_reload", maxTicks = 600)
+	@GameTest(environment = "qa010_hostile:synthetic_reload", maxTicks = 400)
 	@SuppressWarnings("removal")
 	public void syntheticForeignDimensionRunsPolicyFxTravelAndStableDelayedCleanup(GameTestHelper helper) {
 		var level = helper.getLevel().getServer().getLevel(SYNTHETIC_DIMENSION);
 		helper.assertTrue(level != null, "GameTest-only synthetic dimension was absent from the live registry");
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		var overworld = helper.getLevel();
+		BlockPos originFeet = helper.absolutePos(new BlockPos(2, 2, 2));
+		BlockPos originFloor = originFeet.below();
+		var originalOriginFloor = overworld.getBlockState(originFloor);
+		overworld.setBlockAndUpdate(originFloor, Blocks.STONE.defaultBlockState());
+		player.snapTo(originFeet.getX() + 0.5, originFeet.getY(), originFeet.getZ() + 0.5);
+		player.setDeltaMovement(Vec3.ZERO);
+		player.fallDistance = 0.0F;
 		Vec3 origin = player.position();
 		Vec3 destination = new Vec3(0.5, 70.0, 0.5);
 		BlockPos destinationFloor = BlockPos.containing(destination).below();
@@ -716,11 +723,13 @@ public final class HostileEnvironmentGameTests {
 		AtomicBoolean cleaned = new AtomicBoolean();
 		Runnable cleanup = () -> {
 			if (cleaned.compareAndSet(false, true)) {
-				cleanupSyntheticFixture(player, flight, level, destinationFloor, originalFloor);
+				cleanupSyntheticFixture(player, flight, level, destinationFloor, originalFloor,
+						overworld, originFloor, originalOriginFloor);
 			}
 		};
 		helper.runBeforeTestEnd(cleanup);
 		AtomicBoolean reloadComplete = new AtomicBoolean();
+		AtomicBoolean delayedRanBeforeReload = new AtomicBoolean();
 		AtomicBoolean delayedRebound = new AtomicBoolean();
 		AtomicBoolean exactArrivalObserved = new AtomicBoolean();
 		AtomicBoolean exactReturnObserved = new AtomicBoolean();
@@ -730,9 +739,30 @@ public final class HostileEnvironmentGameTests {
 		AtomicBoolean returnStarted = new AtomicBoolean();
 		java.util.concurrent.atomic.AtomicInteger fixtureTicks = new java.util.concurrent.atomic.AtomicInteger();
 		AtomicReference<Throwable> reloadFailure = new AtomicReference<>();
+		var server = level.getServer();
+		GameTestResourceReloadLease.acquire(server, lease -> {
+			helper.runBeforeTestEnd(lease::close);
+			var callback = com.powers.PowersMod.scheduleDelayed(server, 30, player.getUUID(),
+					SYNTHETIC_DIMENSION, player.getUUID(), "qa010_synthetic_rebind",
+					(current, task) -> {
+						if (!reloadComplete.get()) delayedRanBeforeReload.set(true);
+						else delayedRebound.set(current.getLevel(SYNTHETIC_DIMENSION) == level);
+					});
+			helper.assertTrue(callback.accepted(),
+					"Synthetic dimension rejected owned delayed work before reload");
+			server.reloadResources(server.getPackRepository().getSelectedIds())
+					.whenComplete((ignored, failure) -> server.execute(() -> {
+						reloadFailure.set(failure);
+						reloadComplete.set(true);
+						lease.close();
+					}));
+		});
 		try {
 			helper.onEachTick(() -> {
 				try {
+					if (!reloadComplete.get()) return;
+					helper.assertTrue(reloadFailure.get() == null,
+							"Synthetic-dimension reload/rebind failed: " + reloadFailure.get());
 					if (fixtureTicks.incrementAndGet() >= 20
 							&& initialTravelStarted.compareAndSet(false, true)) {
 					level.setBlockAndUpdate(destinationFloor, Blocks.STONE.defaultBlockState());
@@ -763,33 +793,19 @@ public final class HostileEnvironmentGameTests {
 						helper.assertTrue(fxDeliveries(afterFx) > fxDeliveries(beforeFx),
 								"Synthetic-dimension action emitted no observable authoritative FX delivery");
 						AbilityActivationService.activate(player, flight, "powers:flight", true);
-						var server = level.getServer();
-						var callback = com.powers.PowersMod.scheduleDelayed(server, 30, player.getUUID(),
-								SYNTHETIC_DIMENSION, player.getUUID(), "qa010_synthetic_rebind",
-								(current, task) -> delayedRebound.set(
-										current.getLevel(SYNTHETIC_DIMENSION) == level && player.level() == level));
-						helper.assertTrue(callback.accepted(),
-								"Synthetic dimension rejected owned delayed work before reload");
-						server.reloadResources(server.getPackRepository().getSelectedIds())
-								.whenComplete((ignored, failure) -> server.execute(() -> {
-									reloadFailure.set(failure);
-									reloadComplete.set(true);
-								}));
 					}
-					if (reloadComplete.get()) {
-						helper.assertTrue(reloadFailure.get() == null,
-								"Synthetic-dimension reload/rebind failed: " + reloadFailure.get());
-					}
-					if (reloadComplete.get() && delayedRebound.get() && !hasTravelTicket(player)
-							&& com.powers.PowersMod.delayedTasks().stream().noneMatch(task ->
+				if (reloadComplete.get() && delayedRebound.get() && !hasTravelTicket(player)
+						&& !TeleportAbility.hasActiveStorm(player.getUUID())
+						&& com.powers.PowersMod.delayedTasks().stream().noneMatch(task ->
 									task.cancellationOwner().equals(player.getUUID())
 											&& "teleport_storm_finish".equals(task.purpose()))
 							&& returnStarted.compareAndSet(false, true)) {
 						helper.assertTrue(level.getServer().getLevel(SYNTHETIC_DIMENSION) == level
 								&& com.powers.config.ResolvedPowerPolicy.resolve(level) != null,
 								"Synthetic level/policy did not rebind after resource reload");
-						watchingReturn.set(true);
-						helper.assertTrue(AbilityActivationService.activateTeleport(player, player,
+					watchingReturn.set(true);
+					PlayerPowers.get(player).forceRestoreEnergy();
+					helper.assertTrue(AbilityActivationService.activateTeleport(player, player,
 								new TeleportAbility(), overworld.dimension(), origin.x, origin.y, origin.z, true)
 								== AbilityActivationService.Result.ACTIVATED,
 								"POWERS travel entrypoint could not leave the synthetic dimension");
@@ -801,10 +817,11 @@ public final class HostileEnvironmentGameTests {
 			});
 			helper.succeedWhen(() -> {
 				helper.assertTrue(foreignPhaseStarted.get() && reloadComplete.get()
-						&& delayedRebound.get() && returnStarted.get(),
+						&& !delayedRanBeforeReload.get() && delayedRebound.get() && returnStarted.get(),
 						"Synthetic reload/return phases did not complete within their production bounds: foreign="
 								+ foreignPhaseStarted.get() + ", reload=" + reloadComplete.get()
 								+ ", reloadFailure=" + reloadFailure.get() + ", rebound=" + delayedRebound.get()
+								+ ", early=" + delayedRanBeforeReload.get()
 								+ ", returnStarted=" + returnStarted.get() + ", arrival="
 								+ exactArrivalObserved.get() + ", return=" + exactReturnObserved.get()
 								+ ", level=" + player.level().dimension().identifier() + ", tickets="
@@ -869,8 +886,11 @@ public final class HostileEnvironmentGameTests {
 
 	private static void cleanupSyntheticFixture(ServerPlayer player, FlightAbility flight,
 			net.minecraft.server.level.ServerLevel level, BlockPos destinationFloor,
-			net.minecraft.world.level.block.state.BlockState originalFloor) {
+			net.minecraft.world.level.block.state.BlockState originalFloor,
+			net.minecraft.server.level.ServerLevel originLevel, BlockPos originFloor,
+			net.minecraft.world.level.block.state.BlockState originalOriginFloor) {
 		level.setBlockAndUpdate(destinationFloor, originalFloor);
+		originLevel.setBlockAndUpdate(originFloor, originalOriginFloor);
 		if (PlayerPowers.get(player).isToggleActive("powers:flight")) {
 			AbilityActivationService.activate(player, flight, "powers:flight", true);
 		}
