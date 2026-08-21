@@ -2,7 +2,7 @@ package com.powers.network;
 
 /** Pure validation shared by the configuration-stage protocol handshake. */
 public final class ProtocolHandshakeRules {
-	public static final int CURRENT_PROTOCOL = 1;
+	public static final int CURRENT_PROTOCOL = 2;
 	public static final int MAX_VERSION_LENGTH = 64;
 
 	private ProtocolHandshakeRules() {

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added an operator-only deterministic POWERS-payload fault injector with seeded 150/300 ms delay, exact loss, duplication, and reorder profiles; bounded per-connection/global scheduling, logical state-owner convergence, exactly-once discrete requests, lifecycle fail-closed cancellation, redacted diagnostics, locator/Vessel/menu/FX production-boundary GameTests, and a disabled zero-queue fast path.
+
 - Published a reproducible Minecraft 26.2 Fabric compatibility matrix with exact stable Sodium, Lithium, Simple Voice Chat, ClaimMod, and Inventory Extended artifacts, SHA-256 verification, isolated runtime assembly, real client/server evidence, and explicit unsupported/untested boundaries.
 
 - Added NET-010 atomic action-registry reloads: one immutable monotonic snapshot now owns built-in/external definitions and bounded acyclic datapack aliases; artifact, grimoire, and Rainbow submissions carry revisions and canonical keys, stale requests refresh without mutation, active casts capture their starting revision, and stable saved artifact/favourite/spell/crystal keys migrate while legacy index saves retain deterministic defaults.

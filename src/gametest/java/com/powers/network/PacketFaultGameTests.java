@@ -1,0 +1,446 @@
+package com.powers.network;
+
+import com.powers.ImportedPackItems;
+import com.powers.PowersItems;
+import com.powers.PowersWeapons;
+import com.powers.PowersEntities;
+import com.powers.entity.PowerTestActor;
+import com.powers.fx.FxLodTier;
+import com.powers.fx.BeamFxStyle;
+import com.powers.fx.ShapeFxKind;
+import com.powers.magic.fx.MagicFxKind;
+import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.magic.runtime.MagicRuntime;
+import com.powers.magic.runtime.CastSource;
+import com.powers.player.ArtifactSelectionState;
+import com.powers.player.PlayerPowers;
+import com.powers.player.SkillSystem;
+import com.powers.power.crystals.CrystalPowerRegistry;
+import com.powers.power.crystals.ModeCrystalAbility;
+import com.powers.power.abilities.VesselPossessionAbility;
+import com.powers.spell.SpellCastingManager;
+import com.powers.spell.CelestialSearchMode;
+import com.powers.testing.network.PacketFaultController;
+import com.powers.testing.network.PacketFaultDirection;
+import com.powers.testing.network.PacketFaultFamily;
+import com.powers.testing.network.PacketFaultProfile;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.UUID;
+import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.phys.Vec3;
+
+/** Registered-handler and real outbound-connection acceptance for QA-009. */
+@SuppressWarnings("removal")
+public final class PacketFaultGameTests {
+	@GameTest(maxTicks = 720)
+	public void productionPacketBoundariesRemainAuthoritativeAndConverge(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		long revision = currentRevision();
+		player.setItemInHand(InteractionHand.MAIN_HAND, PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		player.addTag(SkillSystem.DARKNESS_TAG);
+		PlayerPowers.get(player).setDarknessLevel(player, 10);
+		PacketRateLimiter.clearGlobal();
+		PacketFaultController.configureScoped(helper.getLevel().getServer(),
+				PacketFaultProfile.named("reorder", 42L), player);
+		receive(player, new ShadowSwordPackets.SelectPayload(revision, "darkness", "innate/lightning_strike", -1));
+		receive(player, new ShadowSwordPackets.SelectPayload(revision, "darkness", "innate/fireball", -1));
+		receive(player, new ShadowSwordPackets.BindFavouritePayload(revision, "darkness", 0, "innate/lightning_strike"));
+		receive(player, new ShadowSwordPackets.BindFavouritePayload(revision, "darkness", 1, "innate/fireball"));
+		helper.runAfterDelay(7, () -> {
+			List<String> favourites = ArtifactSelectionState.favourites(player, ArtifactAlignment.DARKNESS);
+			String selected = ArtifactSelectionState.peekSelected(player, ArtifactAlignment.DARKNESS);
+			helper.assertTrue("innate/fireball".equals(selected),
+					"Artifact selection did not converge: selected=" + selected + "; "
+							+ PacketFaultController.diagnostics(helper.getLevel().getServer(), player).line());
+			helper.assertTrue("innate/lightning_strike".equals(favourites.get(0))
+					&& "innate/fireball".equals(favourites.get(1)), "Favourite slots were conflated");
+			artifactCommands(helper, player);
+		});
+	}
+
+	private static void artifactCommands(GameTestHelper helper, ServerPlayer player) {
+		PacketRateLimiter.clearGlobal();
+		PacketFaultController.configureScoped(helper.getLevel().getServer(),
+				PacketFaultProfile.named("duplicate", 71L), player);
+		receive(player, new ShadowSwordPackets.CyclePayload(
+				currentRevision(), "darkness", "innate/fireball", 1));
+		helper.runAfterDelay(2, () -> {
+			helper.assertTrue("innate/time_shift".equals(
+					ArtifactSelectionState.peekSelected(player, ArtifactAlignment.DARKNESS)),
+					"Faulted combat-wheel cycle did not advance exactly once");
+			receive(player, new ShadowSwordPackets.CommitPayload(
+					currentRevision(), "darkness", "innate/invisibility", -1));
+			helper.runAfterDelay(2, () -> {
+				helper.assertTrue(PlayerPowers.get(player).isToggleActive("artifact/darkness/innate/invisibility"),
+						"Faulted wheel commit did not activate its server-owned toggle");
+				receive(player, new ShadowSwordPackets.SelectPayload(
+						currentRevision(), "darkness", "innate/time_shift", -1));
+				helper.runAfterDelay(2, () -> {
+					double destination = player.getX() + 4.0;
+					int energyBeforeTeleport = PlayerPowers.get(player).energy();
+					receive(player, new ShadowSwordPackets.TeleportPayload(currentRevision(), "darkness", "innate/time_shift",
+							destination, player.getY(), player.getZ(), player.level().dimension(), ""));
+					helper.runAfterDelay(2, () -> {
+						helper.assertTrue(PlayerPowers.get(player).energy() < energyBeforeTeleport,
+								"Faulted artifact teleport did not commit its authoritative payment");
+				helper.assertTrue(PacketFaultController.diagnostics(helper.getLevel().getServer(), player)
+								.metrics().duplicateSideEffects() == 0L,
+								"Duplicated artifact commands reached authority twice");
+						grimoire(helper, player);
+					});
+				});
+			});
+		});
+	}
+
+	private static void locatorNonceExpiresThroughTheRegisteredHandler(
+			GameTestHelper helper, ServerPlayer player) {
+		player.setItemInHand(InteractionHand.MAIN_HAND,
+				ImportedPackItems.item("imported_book_grimoire_celestial").getDefaultInstance());
+		List<Object> payloads = capture(player);
+		LocatorSpellPackets.open(player, CelestialSearchMode.WORLD);
+		PowersPackets.OpenLocatorScreenPayload opened = payloads.stream()
+				.filter(PowersPackets.OpenLocatorScreenPayload.class::isInstance)
+				.map(PowersPackets.OpenLocatorScreenPayload.class::cast).findFirst().orElseThrow();
+		helper.runAfterDelay(602, () -> {
+			receive(player, new PowersPackets.LocateTargetPayload("village", opened.nonce()));
+			helper.runAfterDelay(2, () -> {
+				helper.assertFalse(LocatorSpellPackets.hasPendingNonce(player.getUUID()),
+						"Expired locator nonce remained replayable");
+					helper.succeed();
+				});
+		});
+	}
+
+	private static void locatorNonceCannotBeReplayedByAnotherPlayer(
+			GameTestHelper helper, ServerPlayer owner) {
+		ServerPlayer stranger = helper.makeMockServerPlayerInLevel();
+		helper.assertFalse(owner.getUUID().equals(stranger.getUUID()),
+				"Other-player nonce fixture requires distinct player identities");
+		owner.setItemInHand(InteractionHand.MAIN_HAND,
+				ImportedPackItems.item("imported_book_grimoire_celestial").getDefaultInstance());
+		stranger.setItemInHand(InteractionHand.MAIN_HAND,
+				ImportedPackItems.item("imported_book_grimoire_celestial").getDefaultInstance());
+		List<Object> payloads = capture(owner);
+		LocatorSpellPackets.open(owner, CelestialSearchMode.WORLD);
+		PowersPackets.OpenLocatorScreenPayload opened = payloads.stream()
+				.filter(PowersPackets.OpenLocatorScreenPayload.class::isInstance)
+				.map(PowersPackets.OpenLocatorScreenPayload.class::cast).findFirst().orElseThrow();
+		receive(stranger, new PowersPackets.LocateTargetPayload("unknown", opened.nonce()));
+		helper.runAfterDelay(2, () -> {
+			helper.assertTrue(LocatorSpellPackets.hasPendingNonce(owner.getUUID()),
+					"Another player consumed the owner's locator nonce");
+			receive(owner, new PowersPackets.LocateTargetPayload("unknown", opened.nonce()));
+			helper.runAfterDelay(2, () -> {
+				helper.assertFalse(LocatorSpellPackets.hasPendingNonce(owner.getUUID()),
+						"The issuing player could not consume its own nonce");
+				vesselInputAndReleaseRemainServerAuthoritativeUnderFaults(helper);
+			});
+		});
+	}
+
+	private static void vesselInputAndReleaseRemainServerAuthoritativeUnderFaults(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		player.setGameMode(GameType.SURVIVAL);
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		PowerTestActor host = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 6));
+		double before = host.getZ();
+		helper.assertTrue(VesselPossessionAbility.beginDreamwalk(player, host, 600, CastSource.CRYSTAL),
+				"Dreamwalking fixture could not start");
+		PacketRateLimiter.clearGlobal();
+		PacketFaultController.configureScoped(helper.getLevel().getServer(),
+				PacketFaultProfile.named("reorder", 62L), player);
+		receive(player, new VesselControlPackets.InputPayload(1L, -1.0F, 0.0F,
+				false, false, 0.0F, 0.0F, 0, -1));
+		receive(player, new VesselControlPackets.InputPayload(2L, 1.0F, 0.0F,
+				false, false, 0.0F, 0.0F, 0, -1));
+		helper.runAfterDelay(5, () -> {
+			helper.assertTrue(host.getZ() > before, "Stale vessel input overwrote the newest frame");
+			PacketRateLimiter.clearGlobal();
+			PacketFaultController.configureScoped(helper.getLevel().getServer(),
+					PacketFaultProfile.named("delay300", 63L), player);
+			receive(player, new VesselControlPackets.ReleasePayload());
+			helper.runAfterDelay(3, () -> helper.assertTrue(
+					VesselPossessionAbility.isDreamwalking(player.getUUID()), "Delayed release arrived early"));
+			helper.runAfterDelay(7, () -> {
+				helper.assertFalse(VesselPossessionAbility.isDreamwalking(player.getUUID()),
+						"Registered delayed release did not return the owner");
+				helper.assertTrue(VesselPossessionAbility.beginDreamwalk(player, host, 600, CastSource.CRYSTAL),
+						"Second Dreamwalking fixture could not start");
+				host.discard();
+				helper.runAfterDelay(2, () -> {
+					helper.assertFalse(VesselPossessionAbility.isDreamwalking(player.getUUID()),
+							"Removed vessel did not return its remote owner");
+					PowerTestActor dimensionHost = helper.spawn(
+							PowersEntities.POWER_TEST_ACTOR, new BlockPos(4, 1, 6));
+					helper.assertTrue(VesselPossessionAbility.beginDreamwalk(
+							player, dimensionHost, 600, CastSource.CRYSTAL),
+							"Dimension-change Dreamwalking fixture could not start");
+					PacketRateLimiter.clearGlobal();
+					PacketFaultController.configureScoped(helper.getLevel().getServer(),
+							PacketFaultProfile.named("delay300", 64L), player);
+					receive(player, new VesselControlPackets.ReleasePayload());
+					var nether = helper.getLevel().getServer().getLevel(Level.NETHER);
+					helper.assertTrue(nether != null, "Nether fixture was unavailable");
+					var teleported = player.teleport(new TeleportTransition(nether, player.position(), Vec3.ZERO,
+							player.getYRot(), player.getXRot(), TeleportTransition.DO_NOTHING));
+					helper.assertTrue(teleported instanceof ServerPlayer,
+							"Dimension-change fixture did not return a server player");
+					ServerPlayer moved = (ServerPlayer) teleported;
+					helper.assertTrue(moved.level().dimension().equals(Level.NETHER),
+							"Dimension-change fixture did not enter the Nether");
+					helper.runAfterDelay(2, () -> {
+						helper.assertFalse(VesselPossessionAbility.isDreamwalking(moved.getUUID()),
+								"Dimension change did not cancel queued control and release safely");
+						ServerPlayer deadOwner = helper.makeMockServerPlayerInLevel();
+						PowerTestActor deathHost = helper.spawn(
+								PowersEntities.POWER_TEST_ACTOR, new BlockPos(6, 1, 6));
+						helper.assertTrue(VesselPossessionAbility.beginDreamwalk(
+								deadOwner, deathHost, 600, CastSource.CRYSTAL),
+								"Death Dreamwalking fixture could not start");
+						PacketRateLimiter.clearGlobal();
+						PacketFaultController.configureScoped(helper.getLevel().getServer(),
+								PacketFaultProfile.named("delay300", 65L), deadOwner);
+						receive(deadOwner, new VesselControlPackets.ReleasePayload());
+						deadOwner.setHealth(0.0F);
+						helper.runAfterDelay(2, () -> {
+							helper.assertFalse(deadOwner.isAlive(), "Death fixture remained alive");
+							helper.assertFalse(VesselPossessionAbility.isDreamwalking(deadOwner.getUUID()),
+									"Dead owner retained queued vessel control instead of failing closed");
+							PacketFaultController.clearScoped(helper.getLevel().getServer(), deadOwner);
+				disconnectCancelsQueuedVesselRelease(helper);
+						});
+					});
+				});
+			});
+		});
+	}
+
+	private static void disconnectCancelsQueuedVesselRelease(GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		PowerTestActor host = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(7, 1, 6));
+		helper.assertTrue(VesselPossessionAbility.beginDreamwalk(owner, host, 600, CastSource.CRYSTAL),
+				"Disconnect Dreamwalking fixture could not start");
+		PacketRateLimiter.clearGlobal();
+		PacketFaultController.configureScoped(helper.getLevel().getServer(),
+				PacketFaultProfile.named("delay300", 66L), owner);
+		receive(owner, new VesselControlPackets.ReleasePayload());
+		UUID ownerId = owner.getUUID();
+		owner.connection.disconnect(Component.literal("QA-009 disconnect lifecycle"));
+		helper.runAfterDelay(2, () -> {
+			helper.assertTrue(helper.getLevel().getServer().getPlayerList().getPlayer(ownerId) == null,
+					"Disconnect fixture remained in the live player list");
+			helper.assertFalse(VesselPossessionAbility.isDreamwalking(ownerId),
+					"Disconnected owner retained queued vessel control instead of failing closed");
+			locatorNonceExpiresThroughTheRegisteredHandler(helper, helper.makeMockServerPlayerInLevel());
+		});
+	}
+
+	private static void grimoire(GameTestHelper helper, ServerPlayer player) {
+		var definition = SpellCastingManager.registry().forTexture("book_grimoire_celestial");
+		List<String> spells = definition.spells().stream().map(spell -> spell.id()).toList();
+		player.setItemInHand(InteractionHand.MAIN_HAND,
+				ImportedPackItems.item("imported_book_grimoire_celestial").getDefaultInstance());
+		PacketRateLimiter.clearGlobal();
+		PacketFaultController.configureScoped(helper.getLevel().getServer(), PacketFaultProfile.named("reorder", 81L), player);
+		receive(player, new GrimoirePackets.SelectSpellPayload(currentRevision(), definition.key(), spells.get(0)));
+		receive(player, new GrimoirePackets.SelectSpellPayload(currentRevision(), definition.key(), spells.get(1)));
+		helper.runAfterDelay(7, () -> {
+			helper.assertTrue(PlayerPowers.get(player).selectedSpell(definition.key(), spells) == 1,
+					"Grimoire selection did not converge");
+			crystal(helper, player);
+		});
+	}
+
+	private static void crystal(GameTestHelper helper, ServerPlayer player) {
+		player.setItemInHand(InteractionHand.MAIN_HAND, PowersItems.RAINBOW_CRYSTAL.getDefaultInstance());
+		ModeCrystalAbility ability = (ModeCrystalAbility) CrystalPowerRegistry.get(PowersItems.RAINBOW_CRYSTAL);
+		List<String> modes = ability.modeIds();
+		PacketRateLimiter.clearGlobal();
+		PacketFaultController.configureScoped(helper.getLevel().getServer(), PacketFaultProfile.named("reorder", 82L), player);
+		receive(player, new CrystalSelectorPackets.SelectPayload(currentRevision(), modes.get(0)));
+		receive(player, new CrystalSelectorPackets.SelectPayload(currentRevision(), modes.get(1)));
+		helper.runAfterDelay(7, () -> {
+			helper.assertTrue(PlayerPowers.get(player).selectedCrystalMode("rainbow_crystal", modes) == 1,
+					"Crystal selection did not converge");
+			clientbound(helper, player);
+		});
+	}
+
+	private static void clientbound(GameTestHelper helper, ServerPlayer player) {
+		List<Object> payloads = capture(player);
+		float health = player.getHealth();
+		PacketFaultController.configureScoped(helper.getLevel().getServer(), PacketFaultProfile.named("delay150", 17L), player);
+		PowersPlayNetworking.send(player, new BodyProxyPackets.BodySnapshotPayload(4, ""));
+		PowersPlayNetworking.send(player, new BodyProxyPackets.BodySnapshotPayload(5, ""));
+		PowersPlayNetworking.send(player, new CompanionPackets.StatePayload(player.getUUID(), 7L,
+				true, false, "minecraft:overworld", 0, 0, 0, 0));
+		PowersPlayNetworking.send(player, new CompanionPackets.StatusPayload(player.getUUID(), true,
+				100, 100, "follow", false, false, 0));
+		PowersPlayNetworking.send(player, new VesselControlPackets.StatePayload(true));
+		PowersPlayNetworking.send(player, new PowerStatePayload(List.of(), List.of(), List.of(), List.of(),
+				List.of(), 100, 100, false, false, false, 0, List.of(), "", 0));
+		MagicFxPackets.MagicFxPayload magic = new MagicFxPackets.MagicFxPayload(MagicFxKind.CAST,
+				91L, "qa009", "", 0, 64, 0, 0x112233, 0x445566, 7, 2, 1);
+		MagicFxPackets.BeamFxPayload beam = new MagicFxPackets.BeamFxPayload(92L, BeamFxStyle.RIBBON,
+				0, 64, 0, 4, 64, 0, 8, 0x778899);
+		MagicFxPackets.ShapeFxPayload shape = new MagicFxPackets.ShapeFxPayload(93L, ShapeFxKind.RUNE,
+				0, 64, 0, 2, 0, 12, 0xAABBCC, 0);
+		PowersPlayNetworking.send(player, magic);
+		PowersPlayNetworking.send(player, beam);
+		PowersPlayNetworking.send(player, shape);
+		PowersPlayNetworking.send(player, new MagicFxPackets.SemanticFxBatchPayload(List.of(
+				MagicFxPackets.BatchEntry.magic(magic), MagicFxPackets.BatchEntry.beam(beam))));
+		PowersPlayNetworking.send(player, new CelestialRuinPackets.Payload(CelestialRuinPackets.Phase.BEGIN,
+				0, 64, 0, 0, FxLodTier.NEAR));
+		PowersPlayNetworking.send(player, new CelestialRuinPackets.Payload(CelestialRuinPackets.Phase.BEGIN,
+				100, 64, 100, 0, FxLodTier.NEAR));
+		PowersPlayNetworking.send(player, new EventAudioPackets.Payload(
+				EventAudioPackets.Cue.DARK_EVENT, FxLodTier.NEAR, 1.0F));
+		helper.runAfterDelay(2, () -> helper.assertTrue(payloads.isEmpty(), "150 ms profile delivered early"));
+		helper.runAfterDelay(5, () -> {
+			helper.assertTrue(count(payloads, BodyProxyPackets.BodySnapshotPayload.class) == 2,
+					"Body streams were conflated: " + payloads + "; "
+							+ PacketFaultController.diagnostics(helper.getLevel().getServer(), player).line());
+			helper.assertTrue(count(payloads, CompanionPackets.StatePayload.class) == 1
+					&& count(payloads, CompanionPackets.StatusPayload.class) == 1
+					&& count(payloads, VesselControlPackets.StatePayload.class) == 1,
+					"Companion/vessel streams were conflated: " + payloads);
+			helper.assertTrue(count(payloads, CelestialRuinPackets.Payload.class) == 2
+					&& count(payloads, EventAudioPackets.Payload.class) == 1,
+					"World presentation was lost: " + payloads);
+			helper.assertTrue(count(payloads, PowerStatePayload.class) == 1
+					&& count(payloads, MagicFxPackets.MagicFxPayload.class) == 1
+					&& count(payloads, MagicFxPackets.BeamFxPayload.class) == 1
+					&& count(payloads, MagicFxPackets.ShapeFxPayload.class) == 1
+					&& count(payloads, MagicFxPackets.SemanticFxBatchPayload.class) == 1,
+					"HUD or semantic FX family did not converge: " + payloads);
+			helper.assertTrue(player.getHealth() == health,
+					"Presentation faulting altered physical damage state");
+			locator(helper, player, payloads);
+		});
+	}
+
+	private static void locator(GameTestHelper helper, ServerPlayer player, List<Object> payloads) {
+		payloads.clear();
+		player.setItemInHand(InteractionHand.MAIN_HAND,
+				ImportedPackItems.item("imported_book_grimoire_celestial").getDefaultInstance());
+		PacketFaultProfile duplicate = new PacketFaultProfile("locator-duplicate", 31L,
+				EnumSet.of(PacketFaultDirection.SERVERBOUND), EnumSet.of(PacketFaultFamily.LOCATOR_REQUEST),
+				0, 0, 10_000, 0, 32, 40, 16);
+		PacketFaultController.configureScoped(helper.getLevel().getServer(), duplicate, player);
+		LocatorSpellPackets.open(player, CelestialSearchMode.WORLD);
+		PowersPackets.OpenLocatorScreenPayload opened = payloads.stream()
+				.filter(PowersPackets.OpenLocatorScreenPayload.class::isInstance)
+				.map(PowersPackets.OpenLocatorScreenPayload.class::cast).reduce((first, second) -> second).orElseThrow();
+		receive(player, new PowersPackets.LocateTargetPayload("unknown", opened.nonce()));
+		helper.runAfterDelay(2, () -> {
+			helper.assertFalse(LocatorSpellPackets.hasPendingNonce(player.getUUID()),
+					"Duplicated locator request was not consumed exactly once");
+			var duplicateMetrics = PacketFaultController.diagnostics(helper.getLevel().getServer(), player).metrics();
+			helper.assertTrue(duplicateMetrics.duplicated() == 1L
+					&& duplicateMetrics.delivered() == 1L && duplicateMetrics.duplicateSideEffects() == 0L,
+					"Locator duplicate was not idempotent: " + duplicateMetrics);
+
+			payloads.clear();
+			PacketFaultProfile loss = new PacketFaultProfile("locator-loss", 32L,
+					EnumSet.of(PacketFaultDirection.SERVERBOUND), EnumSet.of(PacketFaultFamily.LOCATOR_REQUEST),
+					0, 10_000, 0, 0, 32, 40, 16);
+			PacketFaultController.configureScoped(helper.getLevel().getServer(), loss, player);
+			LocatorSpellPackets.open(player, CelestialSearchMode.WORLD);
+			PowersPackets.OpenLocatorScreenPayload retry = payloads.stream()
+					.filter(PowersPackets.OpenLocatorScreenPayload.class::isInstance)
+					.map(PowersPackets.OpenLocatorScreenPayload.class::cast).reduce((first, second) -> second).orElseThrow();
+			receive(player, new PowersPackets.LocateTargetPayload("unknown", retry.nonce()));
+			helper.runAfterDelay(2, () -> {
+				helper.assertTrue(LocatorSpellPackets.hasPendingNonce(player.getUUID()),
+						"Injected loss consumed authoritative locator state");
+				PacketFaultController.clearScoped(helper.getLevel().getServer(), player);
+				receive(player, new PowersPackets.LocateTargetPayload("unknown", retry.nonce()));
+				helper.runAfterDelay(2, () -> {
+					helper.assertFalse(LocatorSpellPackets.hasPendingNonce(player.getUUID()),
+							"Manual retry did not converge after loss");
+					LocatorSpellPackets.open(player, CelestialSearchMode.WORLD);
+					helper.assertTrue(LocatorSpellPackets.hasPendingNonce(player.getUUID()),
+							"Reconnect fixture did not issue a nonce");
+					PowersPackets.forget(player);
+					helper.assertFalse(LocatorSpellPackets.hasPendingNonce(player.getUUID()),
+							"Reconnect lifecycle retained a locator nonce");
+					reconnect(helper, player, payloads);
+				});
+			});
+		});
+	}
+
+	private static void reconnect(GameTestHelper helper, ServerPlayer player, List<Object> payloads) {
+		payloads.clear();
+		PacketFaultController.configureScoped(helper.getLevel().getServer(), PacketFaultProfile.named("delay300", 23L), player);
+		PowersPlayNetworking.send(player, new EventAudioPackets.Payload(
+				EventAudioPackets.Cue.DARK_EVENT, FxLodTier.NEAR, 0.8F));
+		PacketFaultController.disconnected(helper.getLevel().getServer(), player.getUUID());
+		PacketFaultController.joined(player);
+		PowersPlayNetworking.send(player, new EventAudioPackets.Payload(
+				EventAudioPackets.Cue.LIGHT_HERALD, FxLodTier.NEAR, 1.2F));
+		helper.runAfterDelay(8, () -> {
+			helper.assertTrue(count(payloads, EventAudioPackets.Payload.class) == 1
+					&& ((EventAudioPackets.Payload) payloads.getFirst()).cue() == EventAudioPackets.Cue.LIGHT_HERALD,
+					"Pre-reconnect envelope survived: " + payloads);
+			helper.assertTrue(PacketFaultController.diagnostics(helper.getLevel().getServer(), player).metrics().duplicateSideEffects() == 0L,
+					"Faults duplicated authority effects");
+		PacketFaultController.clearScoped(helper.getLevel().getServer(), player);
+		locatorNonceCannotBeReplayedByAnotherPlayer(helper, player);
+		});
+	}
+
+	private static void receive(ServerPlayer player,
+			net.minecraft.network.protocol.common.custom.CustomPacketPayload payload) {
+		player.connection.handleCustomPayload(new ServerboundCustomPayloadPacket(payload));
+	}
+
+	private static long currentRevision() {
+		return MagicRuntime.catalogue().snapshot().revision();
+	}
+
+	private static long count(List<Object> payloads, Class<?> type) {
+		return payloads.stream().filter(type::isInstance).count();
+	}
+
+	private static List<Object> capture(ServerPlayer player) {
+		try {
+			Field listenerConnection = player.connection.getClass().getSuperclass().getDeclaredField("connection");
+			listenerConnection.setAccessible(true);
+			Connection connection = (Connection) listenerConnection.get(player.connection);
+			Field channelField = Connection.class.getDeclaredField("channel");
+			channelField.setAccessible(true);
+			io.netty.channel.Channel channel = (io.netty.channel.Channel) channelField.get(connection);
+			List<Object> payloads = new ArrayList<>();
+			channel.pipeline().addLast("qa009_capture_" + System.identityHashCode(payloads), new ChannelDuplexHandler() {
+				@Override public void write(ChannelHandlerContext context, Object message, ChannelPromise promise) throws Exception {
+					if (message instanceof ClientboundCustomPayloadPacket custom) payloads.add(custom.payload());
+					super.write(context, message, promise);
+				}
+			});
+			return payloads;
+		} catch (ReflectiveOperationException error) {
+			throw new AssertionError("Could not observe the real clientbound connection", error);
+		}
+	}
+}

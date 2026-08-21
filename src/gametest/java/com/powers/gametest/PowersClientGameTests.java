@@ -23,6 +23,8 @@ import com.powers.item.artifact.ArtifactActionSnapshot;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.artifact.ArtifactFavouriteRules;
 import com.powers.network.PowerStatePayload;
+import com.powers.network.PowersPlayNetworking;
+import com.powers.network.ShadowSwordPackets;
 import com.powers.network.RelicPackets;
 import com.powers.network.MagicFxPackets;
 import com.powers.fx.BeamFxStyle;
@@ -39,6 +41,11 @@ import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.spell.CelestialSearchMode;
 import com.powers.spell.SpellIndexEntry;
 import com.powers.spell.SpellRegistry;
+import com.powers.magic.fx.MagicFxKind;
+import com.powers.testing.network.PacketFaultController;
+import com.powers.testing.network.PacketFaultDirection;
+import com.powers.testing.network.PacketFaultFamily;
+import com.powers.testing.network.PacketFaultProfile;
 import com.powers.testing.TestingOverrides;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -48,6 +55,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
+import java.util.EnumSet;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -68,7 +76,8 @@ public final class PowersClientGameTests implements FabricClientGameTest {
                     throw new AssertionError("Client player and level must exist after world creation");
                 }
             });
-            context.takeScreenshot("powers-client-world-smoke");
+			context.takeScreenshot("powers-client-world-smoke");
+			verifyPacketFaultClientConvergence(context, singleplayer);
 			verifySemanticFxBatching(context, singleplayer);
 			verifyDistantSemanticRendering(context, singleplayer);
 			verifyDistantEventAudio(context, singleplayer);
@@ -82,6 +91,62 @@ public final class PowersClientGameTests implements FabricClientGameTest {
             smokeOperatorCommands(singleplayer);
         }
     }
+
+	private static void verifyPacketFaultClientConvergence(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer) {
+		context.runOnClient(client -> {
+			ClientPowerState.reset();
+			ClientSemanticFxMetrics.reset();
+		});
+		singleplayer.getServer().runOnServer(server -> {
+			var player = server.getPlayerList().getPlayers().getFirst();
+			PacketFaultProfile stateProfile = new PacketFaultProfile("client-state", 0xC11E17L,
+					EnumSet.of(PacketFaultDirection.CLIENTBOUND),
+					EnumSet.of(PacketFaultFamily.MENU_SNAPSHOT, PacketFaultFamily.POWER_STATE),
+					3, 0, 0, 2, 64, 40, 16);
+			PacketFaultController.configureScoped(server, stateProfile, player);
+			PowersPlayNetworking.send(player, new ShadowSwordPackets.OpenMenuPayload(2L,
+					"darkness", "innate/fireball", 10, SizeMorphRules.normalOption(), 777,
+					List.of("", "", "", "", "", "", "", ""), List.of()));
+			for (int energy : List.of(555, 666, 777)) {
+				PowersPlayNetworking.send(player, new PowerStatePayload(List.of(), List.of(), List.of(),
+						List.of(), List.of(), energy, 1_000, false, true, false,
+						SizeMorphRules.normalOption(), List.of(), "", 0));
+			}
+		});
+		context.waitFor(client -> client.gui.screen() instanceof ShadowSwordScreen
+				&& ClientPowerState.energy() == 777);
+		context.runOnClient(client -> client.gui.setScreen(null));
+		singleplayer.getServer().runOnServer(server -> {
+			var player = server.getPlayerList().getPlayers().getFirst();
+			var stateMetrics = PacketFaultController.diagnostics(server, player).metrics();
+			if (stateMetrics.delayed() < 4L || stateMetrics.reordered() < 1L) {
+				throw new AssertionError("Client menu/HUD fault matrix was not exercised: " + stateMetrics);
+			}
+			PacketFaultProfile fxProfile = new PacketFaultProfile("client-fx", 0xC11E18L,
+					EnumSet.of(PacketFaultDirection.CLIENTBOUND), EnumSet.of(PacketFaultFamily.MAGIC_FX),
+					3, 500, 0, 2, 128, 40, 32);
+			PacketFaultController.configureScoped(server, fxProfile, player);
+			for (int index = 0; index < 64; index++) {
+				PowersPlayNetworking.send(player, new MagicFxPackets.MagicFxPayload(MagicFxKind.CAST,
+						0x9A009000L + index, "qa009", "", player.getX(), player.getY(), player.getZ(),
+						0xB36BFF, 0x101018, index, 1, 1));
+			}
+		});
+		context.waitFor(client -> ClientSemanticFxMetrics.snapshot().individualPackets() > 0L);
+		singleplayer.getServer().waitFor(server -> {
+			var player = server.getPlayerList().getPlayers().getFirst();
+			return PacketFaultController.diagnostics(server, player).queueDepth() == 0;
+		});
+		singleplayer.getServer().runOnServer(server -> {
+			var player = server.getPlayerList().getPlayers().getFirst();
+			var metrics = PacketFaultController.diagnostics(server, player).metrics();
+			if (metrics.dropped() < 1L || metrics.delivered() < 1L || metrics.delayed() < 1L) {
+				throw new AssertionError("Real-client FX loss/delay matrix was not exercised: " + metrics);
+			}
+			PacketFaultController.clearScoped(server, player);
+		});
+	}
 
 	private static void verifySemanticFxBatching(ClientGameTestContext context,
 			TestSingleplayerContext singleplayer) {

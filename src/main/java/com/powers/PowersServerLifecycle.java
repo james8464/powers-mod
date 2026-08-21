@@ -91,6 +91,7 @@ final class PowersServerLifecycle {
 	}
 
 	private static void onJoin(ServerPlayer player) {
+		com.powers.testing.network.PacketFaultController.joined(player);
 		PlayerPowerTicker.migrateLegacyRealmGamemode(player);
 		if (!PowersConfigLoader.get().persistCooldowns()) {
 			PlayerPowers.get(player).clearCooldowns();
@@ -104,6 +105,9 @@ final class PowersServerLifecycle {
 	}
 
 	private static void afterRespawn(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
+		com.powers.testing.network.PacketFaultController.disconnected(
+				newPlayer.level().getServer(), oldPlayer.getUUID());
+		com.powers.testing.network.PacketFaultController.joined(newPlayer);
 		PowersMod.cancelDelayedTasks(oldPlayer.getUUID());
 		com.powers.power.crystals.MindscapeCrystalAbility.cancel(
 				newPlayer.level().getServer(), oldPlayer.getUUID());
@@ -131,6 +135,7 @@ final class PowersServerLifecycle {
 	}
 
 	private static void onDisconnect(MinecraftServer server, ServerPlayer player) {
+		com.powers.testing.network.PacketFaultController.disconnected(server, player.getUUID());
 		PowersMod.cancelDelayedTasks(player.getUUID());
 		com.powers.power.crystals.MindscapeCrystalAbility.cancel(server, player.getUUID());
 		if (!PowersConfigLoader.get().persistCooldowns()) {
@@ -155,6 +160,7 @@ final class PowersServerLifecycle {
 	}
 
 	private static void onServerStopped(MinecraftServer server) {
+		com.powers.testing.network.PacketFaultController.clear(server);
 		com.powers.magic.ActionRegistryReloadListener.serverStopped();
 		com.powers.performance.ServerTickProfiler.cancel(server);
 		com.powers.testing.RestartSoakScenario.clear(server);
@@ -179,6 +185,7 @@ final class PowersServerLifecycle {
 		KnowledgeRemoteProviderRuntime.clear();
 		com.powers.fx.PowerFx.clearBudgets();
 		PowersPackets.clearSyncCache();
+		com.powers.network.VesselControlPackets.clearSequences();
 		CompanionPackets.clearBudgets();
 		MagicFxPackets.clear();
 		TravelChunkLoader.clear(server);
@@ -200,6 +207,7 @@ final class PowersServerLifecycle {
 
 	private static void tick(MinecraftServer server) {
 		int tick = server.getTickCount();
+		com.powers.testing.network.PacketFaultController.tick(server);
 		com.powers.testing.QuestTelemetryCampaignScenario.tick(server);
 		MagicRuntime.global().tick(tick);
 		PhysicalMagicPresences.tick(tick);

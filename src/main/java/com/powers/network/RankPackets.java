@@ -47,11 +47,11 @@ public final class RankPackets {
 
 	public static void initialize() {
 		PayloadTypeRegistry.serverboundPlay().register(RankActionPayload.TYPE, RankActionPayload.STREAM_CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(RankActionPayload.TYPE, RankPackets::handle);
+		PowersPlayNetworking.registerReceiver(RankActionPayload.TYPE, RankPackets::handle);
 	}
 
-	private static void handle(RankActionPayload payload, ServerPlayNetworking.Context context) {
-		ServerPlayCallback.execute(context, player -> apply(player, payload));
+	private static void handle(RankActionPayload payload, ServerPlayer player) {
+		apply(player, payload);
 	}
 
 	private static void apply(ServerPlayer player, RankActionPayload payload) {

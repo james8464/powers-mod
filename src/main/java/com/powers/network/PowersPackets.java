@@ -189,16 +189,14 @@ public final class PowersPackets {
 		CelestialRuinPackets.initialize();
 		EventAudioPackets.initialize();
 
-		ServerPlayNetworking.registerGlobalReceiver(ActivateAbilityPayload.TYPE, PowersPackets::handleActivate);
-		ServerPlayNetworking.registerGlobalReceiver(
-				SelectAbilityOptionPayload.TYPE, PowersPackets::handleSelection);
-		ServerPlayNetworking.registerGlobalReceiver(TeleportRequestPayload.TYPE, PowersPackets::handleTeleport);
-		ServerPlayNetworking.registerGlobalReceiver(TeleportMarkPayload.TYPE, PowersPackets::handleMark);
-		ServerPlayNetworking.registerGlobalReceiver(LocateTargetPayload.TYPE, LocatorSpellPackets::handleLocate);
+		PowersPlayNetworking.registerReceiver(ActivateAbilityPayload.TYPE, PowersPackets::handleActivate);
+		PowersPlayNetworking.registerReceiver(SelectAbilityOptionPayload.TYPE, PowersPackets::handleSelection);
+		PowersPlayNetworking.registerReceiver(TeleportRequestPayload.TYPE, PowersPackets::handleTeleport);
+		PowersPlayNetworking.registerReceiver(TeleportMarkPayload.TYPE, PowersPackets::handleMark);
+		PowersPlayNetworking.registerReceiver(LocateTargetPayload.TYPE, LocatorSpellPackets::handleLocate);
 	}
 
-	private static void handleActivate(ActivateAbilityPayload payload, ServerPlayNetworking.Context context) {
-		ServerPlayCallback.execute(context, player -> {
+	private static void handleActivate(ActivateAbilityPayload payload, ServerPlayer player) {
 			if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.ACTIVATION)) return;
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
@@ -208,15 +206,13 @@ public final class PowersPackets {
 			if (ability != null && !ability.requiresInput()) {
 				var result = AbilityActivationService.activate(
 						player, ability, power.id().toString());
-				ServerTickProfiler.recordAction(context.server(),
+				ServerTickProfiler.recordAction(player.level().getServer(),
 						result == AbilityActivationService.Result.ACTIVATED);
 			}
-		});
 	}
 
 	private static void handleSelection(SelectAbilityOptionPayload payload,
-			ServerPlayNetworking.Context context) {
-		ServerPlayCallback.execute(context, player -> {
+			ServerPlayer player) {
 			if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.SELECTION)) return;
 			if (GlobalTimeStopManager.rejectIfStopped(player)) return;
 			AmethystDampening.update(player);
@@ -235,11 +231,9 @@ public final class PowersPackets {
 			if (ability == null || payload.option() < 0
 					|| payload.option() >= ability.selectionOptionCount()) return;
 			if (ability.selectOption(player, data, payload.option())) syncTo(player);
-		});
 	}
 
-	private static void handleTeleport(TeleportRequestPayload payload, ServerPlayNetworking.Context context) {
-		ServerPlayCallback.execute(context, player -> {
+	private static void handleTeleport(TeleportRequestPayload payload, ServerPlayer player) {
 			if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.TRAVEL)) return;
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 			// guards against malformed packets: names cap at 16 chars and
@@ -266,11 +260,9 @@ public final class PowersPackets {
 			if (subject == null) return;
 			AbilityActivationService.activateTeleport(player, subject, ability, payload.dimension(),
 					payload.x(), payload.y(), payload.z(), false);
-		});
 	}
 
-	private static void handleMark(TeleportMarkPayload payload, ServerPlayNetworking.Context context) {
-		ServerPlayCallback.execute(context, player -> {
+	private static void handleMark(TeleportMarkPayload payload, ServerPlayer player) {
 			if (!PacketRateLimiter.allow(player, PacketRateLimiter.Lane.TRAVEL)) return;
 			if (GlobalTimeStopManager.rejectIfStopped(player)) return;
 			if (payload.slot() < 0 || payload.slot() >= PlayerPowers.SLOT_COUNT) return;
@@ -285,7 +277,6 @@ public final class PowersPackets {
 			}
 			TeleportAbility.completeMarking(player, payload.slot(),
 					new Vec3(payload.x(), payload.y(), payload.z()));
-		});
 	}
 
 	private static LivingEntity findLivingTarget(ServerPlayer caster, String name) {
@@ -338,7 +329,7 @@ public final class PowersPackets {
 						.map(com.powers.player.EnergyHistorySnapshot.Breakdown::amount).toList());
 		if (payload.equals(LAST_SENT_STATE.get(player.getUUID()))) return;
 		LAST_SENT_STATE.put(player.getUUID(), payload);
-		ServerPlayNetworking.send(player, payload);
+		PowersPlayNetworking.send(player, payload, () -> LAST_SENT_STATE.remove(player.getUUID()));
 	}
 
 	public static void forget(ServerPlayer player) {

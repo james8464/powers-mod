@@ -44,12 +44,12 @@ public final class CrystalSelectorPackets {
 	static void initialize() {
 		PayloadTypeRegistry.clientboundPlay().register(OpenPayload.TYPE, OpenPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SelectPayload.TYPE, SelectPayload.STREAM_CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(SelectPayload.TYPE, (payload, context) ->
-				ServerPlayCallback.execute(context, player -> select(player, payload)));
+		PowersPlayNetworking.registerReceiver(SelectPayload.TYPE,
+				(payload, player) -> select(player, payload));
 	}
 
 	public static void open(ServerPlayer player, ModeCrystalAbility convergence) {
-		ServerPlayNetworking.send(player,
+		PowersPlayNetworking.send(player,
 				new OpenPayload(MagicRuntime.catalogue().snapshot().revision(),
 						convergence.modeIds(), convergence.selectedIndex(player)));
 	}

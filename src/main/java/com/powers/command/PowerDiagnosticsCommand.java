@@ -138,6 +138,7 @@ final class PowerDiagnosticsCommand {
 					+ "; purpose=" + task.purpose() + "; deadline=" + task.deadline());
 		}
 		var perception = PerceptionSnapshotService.diagnostics();
+		send(context, com.powers.testing.network.PacketFaultController.diagnostics(server).line());
 		send(context, "perceptionSnapshots: queries=" + perception.queries()
 				+ "; hits=" + perception.cacheHits() + "; entityInspections="
 				+ perception.inspections() + "; cachedCells=" + perception.cachedCells());

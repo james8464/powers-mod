@@ -1048,7 +1048,7 @@ public final class PowersGameTests {
 				com.powers.player.PlayerPowers.get(caster)), "Vessel Possession rejected a living mob");
 		helper.assertTrue(host.isNoAi(), "Possessed mob retained autonomous AI");
 		VesselPossessionAbility.applyControl(caster, new VesselControlPackets.InputPayload(
-				1.0F, 0.0F, false, false, 0.0F, 0.0F, 0, -1));
+				0L, 1.0F, 0.0F, false, false, 0.0F, 0.0F, 0, -1));
 		helper.assertTrue(host.getZ() > before, "Authenticated forward input did not move the host");
 		VesselPossessionAbility.clear(caster);
 		helper.assertFalse(host.isNoAi(), "Mob AI was not restored after possession");
@@ -1072,7 +1072,7 @@ public final class PowersGameTests {
 		helper.assertTrue(VesselPossessionAbility.isDreamwalking(caster.getUUID()),
 				"Dreamwalking did not own the shared control session");
 		VesselPossessionAbility.applyControl(caster, new VesselControlPackets.InputPayload(
-				1.0F, 0.0F, false, false, 0.0F, 0.0F, 0, -1));
+				0L, 1.0F, 0.0F, false, false, 0.0F, 0.0F, 0, -1));
 		helper.assertTrue(host.getZ() > before, "Dreamwalking remained camera-only");
 		helper.assertTrue(VesselPossessionAbility.stopDreamwalking(caster),
 				"Dreamwalking could not be toggled off");

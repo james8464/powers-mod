@@ -3,7 +3,7 @@
 	"id": "powers-example-extension",
 	"version": "1.0.0",
 	"name": "POWERS API v1 Example Extension",
-	"environment": "server",
+	"environment": "*",
 	"entrypoints": {
 		"powers:v1": ["com.powers.example.ExamplePowersExtension"]
 	},

@@ -68,8 +68,8 @@ public final class GrimoirePackets {
 	public static void initialize() {
 		PayloadTypeRegistry.clientboundPlay().register(OpenIndexPayload.TYPE, OpenIndexPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SelectSpellPayload.TYPE, SelectSpellPayload.STREAM_CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(SelectSpellPayload.TYPE,
-				(payload, context) -> ServerPlayCallback.execute(context, player -> select(player, payload)));
+		PowersPlayNetworking.registerReceiver(SelectSpellPayload.TYPE,
+				(payload, player) -> select(player, payload));
 	}
 
 	/** Opens a canonical snapshot for one held grimoire. */
@@ -77,7 +77,7 @@ public final class GrimoirePackets {
 		List<SpellIndexEntry> entries = grimoire.spells().stream().map(SpellIndexEntry::from).toList();
 		int selected = PlayerPowers.get(player).selectedSpell(grimoire.key(),
 				entries.stream().map(SpellIndexEntry::id).toList());
-		ServerPlayNetworking.send(player, new OpenIndexPayload(
+		PowersPlayNetworking.send(player, new OpenIndexPayload(
 				MagicRuntime.catalogue().snapshot().revision(), grimoire.key(), selected, entries));
 	}
 

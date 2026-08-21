@@ -10,6 +10,7 @@ public final class VesselControlClient {
 	private static boolean active;
 	private static boolean attackHeld;
 	private static int ticks;
+	private static long sequence;
 
 	private VesselControlClient() {
 	}
@@ -18,6 +19,7 @@ public final class VesselControlClient {
 		active = value;
 		attackHeld = false;
 		ticks = 0;
+		sequence = 0L;
 	}
 
 	/** Sends the server-authoritative emergency return used by right-click while spectating. */
@@ -43,7 +45,7 @@ public final class VesselControlClient {
 				- (client.options.keyRight.isDown() ? 1.0F : 0.0F);
 		var camera = client.getCameraEntity();
 		ClientPlayNetworking.send(new VesselControlPackets.InputPayload(
-				forward, strafe, client.options.keyJump.isDown(), client.options.keyShift.isDown(),
+				sequence++, forward, strafe, client.options.keyJump.isDown(), client.options.keyShift.isDown(),
 				camera.getYRot(), camera.getXRot(), client.player.getInventory().getSelectedSlot(), attackId));
 	}
 }
