@@ -1,0 +1,29 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :
+Fabric Loom: 1.17.19
+
+> Task :compileJava
+> Task :processResources
+> Task :classes
+> Task :compileClientJava
+> Task :processClientResources
+> Task :clientClasses
+> Task :compileTestJava
+> Task :processTestResources
+> Task :testClasses
+> Task :test
+> Task :verifyVfxAssetAudit
+> Task :verifyVisualGoldens
+
+> Task :validatePowerResources
+POWERS resource validation passed
+
+> Task :compileExampleExtensionJava
+> Task :processExampleExtensionResources
+> Task :exampleExtensionClasses
+> Task :compileGametestJava
+
+BUILD SUCCESSFUL in 26s
+13 actionable tasks: 13 executed

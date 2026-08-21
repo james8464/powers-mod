@@ -39,22 +39,22 @@ def inspect(path: Path) -> tuple[str, str]:
     if suffix == ".png":
         width, height, color_type = inspect_png(path)
         alpha = "alpha" if color_type in {3, 4, 6} else "opaque"
-        return "pass", f"PNG {width}×{height}, {alpha}; reviewed in contact sheet."
+        return "integrity", f"PNG {width}×{height}, {alpha}; decoded for structural/pixel evidence only."
     if suffix == ".ogg":
         data = path.read_bytes()
         marker = data.find(b"\x01vorbis")
         if data[:4] != b"OggS" or marker < 0 or marker + 11 >= len(data):
             raise ValueError(f"{relative}: invalid Ogg/Vorbis stream")
         channels = data[marker + 11]
-        return "pass", f"Ogg/Vorbis, {channels} channel(s), {len(data)} bytes; normalized original cue."
+        return "integrity", f"Ogg/Vorbis, {channels} channel(s), {len(data)} bytes; stream decoded."
     if suffix == ".json" or path.name.endswith(".mcmeta"):
         with path.open("r", encoding="utf-8") as source:
             value = json.load(source)
         if not isinstance(value, (dict, list)):
             raise ValueError(f"{relative}: JSON root must be an object or array")
-        return "pass", "JSON decoded; references are covered by strict resource validation."
+        return "integrity", "JSON decoded; references are covered by strict resource validation."
     if suffix == ".png" or path.name == "icon.png":
-        return "pass", "Image decoded."
+        return "integrity", "Image decoded; no renderer verdict inferred."
     return "intentional", f"Retained namespaced asset ({suffix or 'no extension'})."
 
 
@@ -114,7 +114,7 @@ def render_manifest(files: list[Path]) -> str:
         rows.append(f"| `{relative}` | {group} | `{digest}` | {status} | {evidence} |")
     header = """# Non-item asset audit
 
-This exhaustive manifest covers every tracked POWERS namespace asset except new-item definitions, models, and textures, which the requested pass explicitly excludes. A digest proves file identity only. PNGs are decoded into contact sheets for visual review; JSON/reference, animation, alpha, sound, and translation contracts are enforced separately by `validate_resources.py`.
+This historical integrity-only manifest covers every tracked POWERS namespace asset except item definitions, models, and textures. A digest or successful decode proves identity/integrity only; contact sheets are not renderer proof and carry no automatic visual verdict. JSON/reference, animation, alpha, sound, and translation contracts are enforced separately by `validate_resources.py`.
 
 | Asset | Group | SHA-256 | Review | Evidence |
 |---|---|---|---|---|

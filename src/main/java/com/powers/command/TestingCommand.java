@@ -104,6 +104,7 @@ final class TestingCommand {
 						.executes(TestingCommand::spawnArena)
 						.then(Commands.literal("spawn").executes(TestingCommand::spawnArena))
 						.then(Commands.literal("clear").executes(TestingCommand::clearArena)))
+				.then(VfxTestingCommands.create())
 				.then(Commands.literal("actor")
 						.then(Commands.literal("spawn")
 								.executes(context -> spawnActor(context, null))

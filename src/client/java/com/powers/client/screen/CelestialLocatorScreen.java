@@ -30,6 +30,7 @@ public final class CelestialLocatorScreen extends Screen {
 	private PlayerList playerList;
 	private EditBox targetNameField;
 	private boolean empty;
+	private List<String> acceptancePlayers = List.of();
 
 	public CelestialLocatorScreen(CelestialSearchMode mode, UUID nonce) {
 		super(Component.translatable(mode == CelestialSearchMode.ENTITY
@@ -51,6 +52,7 @@ public final class CelestialLocatorScreen extends Screen {
 						.sorted(java.util.Comparator.comparing(info -> info.getProfile().name()))
 						.toList();
 		empty = mode == CelestialSearchMode.ENTITY && players.isEmpty();
+		acceptancePlayers = players.stream().map(info -> info.getProfile().name()).toList();
 		targetNameField = addRenderableWidget(new EditBox(font, left + 20, top + 36, 148, 20,
 				Component.translatable(mode == CelestialSearchMode.ENTITY
 						? "screen.powers.locator.field" : "screen.powers.locator.world_field")));
@@ -86,6 +88,11 @@ public final class CelestialLocatorScreen extends Screen {
 		targetNameField.setValue(targetName);
 		chooseTyped();
 		return true;
+	}
+
+	/** Read-only proof surface for development acceptance clients. */
+	public List<String> acceptanceVisiblePlayers() {
+		return acceptancePlayers;
 	}
 
 	private void choose(String targetName) {

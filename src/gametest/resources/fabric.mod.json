@@ -22,9 +22,11 @@
 			,"com.powers.player.ActionSubmissionPacketGameTests"
 			,"com.powers.network.PacketFaultGameTests"${compatibilityEntrypoint}
 			,"com.powers.gametest.HostileEnvironmentGameTests"
+			,"com.powers.gametest.VfxGalleryGameTests"
 		],
 		"fabric-client-gametest": [
-			"com.powers.gametest.PowersClientGameTests"
+			"com.powers.gametest.PowersClientGameTests",
+			"com.powers.client.VfxGalleryClientGameTests"
 		]
 	},
 	"depends": {

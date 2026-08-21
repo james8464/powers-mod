@@ -13,8 +13,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,6 +28,49 @@ public final class VisualGoldenHarness {
 	private static final int TILE_HEIGHT = 288;
 
 	private VisualGoldenHarness() {
+	}
+
+	/** One distinct structural HUD input, with Minecraft's scaled logical dimensions. */
+	record HudCase(int physicalWidth, int physicalHeight, int guiScale, int heartRows,
+			int mountRows, int airRows, boolean armour, boolean spectator,
+			int energyRow, int halfUnits) {
+		int logicalWidth() {
+			return Math.ceilDiv(physicalWidth, guiScale);
+		}
+
+		int logicalHeight() {
+			return Math.ceilDiv(physicalHeight, guiScale);
+		}
+
+		String key() {
+			return physicalWidth + "x" + physicalHeight + "@" + guiScale
+					+ ":hearts=" + heartRows + ":mount=" + mountRows + ":air=" + airRows
+					+ ":armour=" + armour + ":spectator=" + spectator
+					+ ":energy=" + energyRow + ":half=" + halfUnits;
+		}
+	}
+
+	static List<HudCase> hudCases() {
+		List<HudCase> cases = new ArrayList<>(53_760);
+		for (int guiScale = 1; guiScale <= 4; guiScale++) {
+			for (int heartRows = 1; heartRows <= 4; heartRows++) {
+				for (int mountRows = 0; mountRows <= 3; mountRows++) {
+					for (int airRows = 0; airRows <= 1; airRows++) {
+						for (boolean armour : List.of(false, true)) {
+							for (boolean spectator : List.of(false, true)) {
+								for (int energyRow = 0; energyRow < 5; energyRow++) {
+									for (int halfUnits = 0; halfUnits <= 20; halfUnits++) {
+										cases.add(new HudCase(1280, 960, guiScale, heartRows,
+												mountRows, airRows, armour, spectator, energyRow, halfUnits));
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return List.copyOf(cases);
 	}
 
 	public static void main(String[] arguments) throws Exception {
@@ -53,9 +98,6 @@ public final class VisualGoldenHarness {
 	private static Map<String, BufferedImage> images(Path root) throws IOException {
 		Map<String, BufferedImage> result = new LinkedHashMap<>();
 		result.put("hud-representative-matrix.png", hudMatrix(root));
-		result.put("screen-surface-matrix.png", screenMatrix(root));
-		result.put("entity-uv-and-spawn-eggs.png", entityMatrix(root));
-		result.put("light-realm-sky-contract.png", lightSky());
 		return result;
 	}
 
@@ -64,16 +106,14 @@ public final class VisualGoldenHarness {
 		BufferedImage atlas = asset(root, "textures/gui/energy_symbols.png");
 		BufferedImage slot = asset(root, "textures/gui/power_slot.png");
 		BufferedImage active = asset(root, "textures/gui/power_slot_active.png");
-		int[][] sizes = {{320, 240}, {427, 240}, {512, 288}, {854, 480}};
 		for (int index = 0; index < 16; index++) {
-			int[] size = sizes[index % sizes.length];
-			int air = index % 3 == 0 ? 1 : 0;
-			int mount = index % 4 == 0 ? 2 : 0;
-			int hearts = 1 + index % 4;
-			boolean armour = (index & 1) != 0;
-			boolean spectator = index == 15;
-			BufferedImage frame = hudFrame(size[0], size[1], air, mount, hearts,
-					armour, spectator, index % 5, (index * 7) % 21, atlas, slot, active);
+			int variant = index % 4;
+			HudCase hudCase = new HudCase(1280, 960, index / 4 + 1,
+					variant + 1, variant, variant % 2, (variant & 1) != 0,
+					index == 15, index % 5, (index * 7) % 21);
+			BufferedImage frame = hudFrame(hudCase.logicalWidth(), hudCase.logicalHeight(),
+					hudCase.airRows(), hudCase.mountRows(), hudCase.heartRows(), hudCase.armour(),
+					hudCase.spectator(), hudCase.energyRow(), hudCase.halfUnits(), atlas, slot, active);
 			int x = index % 4 * TILE_WIDTH;
 			int y = index / 4 * TILE_HEIGHT;
 			drawContained(sheet, frame, x + 6, y + 6, TILE_WIDTH - 12, TILE_HEIGHT - 12);
@@ -130,68 +170,16 @@ public final class VisualGoldenHarness {
 		return frame;
 	}
 
-	private static BufferedImage screenMatrix(Path root) throws IOException {
-		String[] paths = {
-				"textures/gui/teleport_panel.png", "textures/gui/locator_panel.png",
-				"textures/gui/rank_maze/light_panel.png", "textures/gui/rank_maze/dark_panel.png",
-				"textures/gui/advancements/backgrounds/radiant_path.png",
-				"textures/gui/advancements/backgrounds/shadow_path.png",
-				"textures/gui/power_slot.png", "textures/gui/power_slot_active.png"};
-		BufferedImage sheet = canvas(1024, 1024, 0xFF17131D);
-		for (int index = 0; index < paths.length; index++) {
-			BufferedImage source = asset(root, paths[index]);
-			drawContained(sheet, source, index % 2 * 512 + 8, index / 2 * 256 + 8, 496, 240);
-		}
-		return sheet;
-	}
-
-	private static BufferedImage entityMatrix(Path root) throws IOException {
-		String[] entities = {"dark_herald", "darkness_player", "first_vessel",
-				"light_herald", "radiant_sentinel", "test_actor"};
-		String[] eggs = {"dark_herald_spawn_egg", "darkness_creature_spawn_egg",
-				"first_vessel_spawn_egg", "light_herald_spawn_egg",
-				"power_test_actor_spawn_egg", "radiant_sentinel_spawn_egg"};
-		BufferedImage sheet = canvas(768, 768, 0xFF20242B);
-		Graphics2D graphics = pixels(sheet);
-		for (int index = 0; index < entities.length; index++) {
-			BufferedImage skin = asset(root, "textures/entity/" + entities[index] + ".png");
-			int x = index % 3 * 256;
-			int y = index / 3 * 320;
-			graphics.drawImage(skin, x + 8, y + 8, x + 200, y + 200,
-					0, 0, 64, 64, null);
-			// Enlarged base face is the quickest visual proof of UV alignment.
-			graphics.drawImage(skin, x + 200, y + 8, x + 248, y + 56,
-					8, 8, 16, 16, null);
-			BufferedImage egg = asset(root, "textures/item/" + eggs[index] + ".png");
-			graphics.drawImage(egg, x + 200, y + 72, x + 248, y + 120,
-					0, 0, 16, 16, null);
-		}
-		graphics.dispose();
-		return sheet;
-	}
-
-	private static BufferedImage lightSky() {
-		BufferedImage image = canvas(512, 256, 0xFFFFFFFF);
-		Graphics2D graphics = pixels(image);
-		graphics.setColor(new Color(0xFFFDFDFD, true));
-		graphics.fillRect(0, 192, 512, 64);
-		graphics.setColor(new Color(0xFFFFFFFF, true));
-		graphics.fillOval(224, 96, 64, 64);
-		graphics.dispose();
-		return image;
-	}
-
 	private static String manifest(Path root, Map<String, BufferedImage> images) throws Exception {
-		StringBuilder json = new StringBuilder("{\n  \"schema\": 1,\n")
-				.append("  \"hudCombinationsCheckedByHudLayoutTest\": 8192,\n")
+		StringBuilder json = new StringBuilder("{\n  \"schema\": 2,\n")
+				.append("  \"evidenceKind\": \"headless_hud_pixel_contract\",\n")
+				.append("  \"hudCombinationsCheckedByHudLayoutTest\": 53760,\n")
 				.append("  \"representativeGuiScales\": [1, 2, 3, 4],\n")
 				.append("  \"conditions\": [\"extra_hearts\", \"mount\", \"air\", \"armour\", ")
-				.append("\"spectator\", \"reduced_motion\", \"five_energy_states\"],\n")
+				.append("\"spectator\", \"five_energy_states\", \"twenty_one_half_unit_states\"],\n")
 				.append("  \"sourceAssets\": {\n");
-		String[] sources = {"textures/gui/energy_symbols.png", "textures/gui/teleport_panel.png",
-				"textures/gui/locator_panel.png", "textures/gui/rank_maze/light_panel.png",
-				"textures/gui/rank_maze/dark_panel.png", "textures/entity/first_vessel.png",
-				"textures/entity/radiant_sentinel.png", "textures/item/first_vessel_spawn_egg.png"};
+		String[] sources = {"textures/gui/energy_symbols.png", "textures/gui/power_slot.png",
+				"textures/gui/power_slot_active.png"};
 		for (int index = 0; index < sources.length; index++) {
 			Path path = assets(root).resolve(sources[index]);
 			json.append("    \"").append(sources[index]).append("\": \"").append(hash(path)).append("\"")

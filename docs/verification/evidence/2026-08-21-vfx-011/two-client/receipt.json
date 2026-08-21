@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "commit": "c99ad4330c8c5ed9000e9dfb2a5cd310a7e3f581",
+  "java": "openjdk version \"25.0.4\" 2026-07-21",
+  "minecraft": "26.2",
+  "server": "dedicated/offline",
+  "realClients": 2,
+  "screenshots": [
+    {
+      "file": "locator-01.png",
+      "sha256": "2ecead775b430cec3fc41f4fdc049e65b2066277b57f6f9cc0c89320f6249a66"
+    },
+    {
+      "file": "darkness-01.png",
+      "sha256": "15627934286d394616908173be0f49db9f12879f29c918eba99350e403490da1"
+    }
+  ],
+  "logs": [
+    {
+      "file": "VfxObserver-idle.log",
+      "sha256": "b85e83ab3fc190eaee425b167db4a0c0499e8b1a87b89c127d832f8513edd7ef"
+    },
+    {
+      "file": "VfxPrimary-darkness.log",
+      "sha256": "d3b54bd1264e10839a4745e1c8d500a21782a2931f71c0064a42e916d4eb4d1f"
+    },
+    {
+      "file": "VfxPrimary-locator.log",
+      "sha256": "fc5e118398fcfa1f5f2e42e2b07cc54ff0089670baec5acdd73729495fb7a245"
+    },
+    {
+      "file": "server.log",
+      "sha256": "8e622ab4ec356eab4a1779da442b76332cfcb064e5bb25d07b6d3543bde197c0"
+    }
+  ],
+  "options": [
+    {
+      "file": "VfxObserver-idle-options.txt",
+      "sha256": "dbe7fee69757d13704616aa99583d8dc43bdd644fea975aa12b14f1e42bfbfbf"
+    },
+    {
+      "file": "VfxPrimary-darkness-options.txt",
+      "sha256": "dbe7fee69757d13704616aa99583d8dc43bdd644fea975aa12b14f1e42bfbfbf"
+    },
+    {
+      "file": "VfxPrimary-locator-options.txt",
+      "sha256": "dbe7fee69757d13704616aa99583d8dc43bdd644fea975aa12b14f1e42bfbfbf"
+    }
+  ],
+  "markers": {
+    "observerJoined": true,
+    "primaryJoinedTwice": true,
+    "primaryLeftTwice": true,
+    "locatorCommand": true,
+    "locatorState": true,
+    "darkCommand": true,
+    "darkState": true
+  },
+  "unexpectedErrorLines": [],
+  "passed": true
+}
