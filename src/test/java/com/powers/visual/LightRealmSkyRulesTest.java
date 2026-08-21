@@ -113,6 +113,12 @@ class LightRealmSkyRulesTest {
 		assertThrows(IllegalArgumentException.class, () -> new LightRealmSkyProfile(
 				LightRealmSkyProfile.Mode.ANCIENT_WHITE, 0xFFFFFFFF,
 				List.of(arbitraryPalette, normal.get(1), normal.get(2), normal.get(3)), 0.0, false, false));
+		List<LightRealmSkyProfile.Layer> reduced = LightRealmSkyRules.resolve(true, true, true, 6_000).layers();
+		LightRealmSkyProfile.Layer collapsedHalo = layer(reduced.get(0).shape(), reduced.get(0).color(),
+				reduced.get(0).alpha(), 0.35, 0.0, 0.0, 0.0);
+		assertThrows(IllegalArgumentException.class, () -> new LightRealmSkyProfile(
+				LightRealmSkyProfile.Mode.ANCIENT_WHITE_REDUCED, 0xFFFFFFFF,
+				List.of(collapsedHalo, reduced.get(1)), 0.0, false, false));
 	}
 
 	@Test
