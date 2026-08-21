@@ -1578,9 +1578,12 @@ public final class PowersGameTests {
 				.getRoot().getChild("powers");
 		helper.assertTrue(powers != null, "The /powers root command was not registered");
 		var testing = powers.getChild("testing");
+		var vfx = testing == null ? null : testing.getChild("vfx");
 		helper.assertTrue(testing != null && testing.getChild("coverage") != null
-				&& testing.getChild("arena") != null,
-				"The manual acceptance coverage/arena commands were not registered");
+				&& testing.getChild("arena") != null && vfx != null
+				&& vfx.getChild("locator-entity") != null
+				&& vfx.getChild("advancement-dark") != null,
+				"The manual acceptance coverage/arena/VFX commands were not registered");
 		helper.succeed();
 	}
 

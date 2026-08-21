@@ -1,0 +1,5 @@
+160	command	powers testing vfx locator-entity
+190	clean	ui
+200	screenshot	locator_entity_two_clients
+220	close	screen
+240	command	powers testing vfx advancement-dark

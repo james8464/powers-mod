@@ -1,0 +1,15 @@
+schema=1
+source=src/gametest/java/com/powers/client/acceptance/VfxGalleryClientAgent.java
+sourceSha256=af252fe3f054937929af4b67fae5595c3a391a7789533fbd598939e15dc27988
+acceptedCapturesSha256=d80fbd866a7b99312dba938cf6a6d9cfe86fd902af70303e8d6d2e0a24eb82f6
+physicalWindows=1280x720,960x720
+guiScales=1,2,3,4
+effectiveGuiScaleAt720px=1,2,3,3
+mipmapLevels=0,1,2,3,4
+normal.particles=ALL
+normal.screenEffectScale=1.0
+reduced.particles=MINIMAL
+reduced.screenEffectScale=0.0
+resourcePacks=repository-default
+gameTime=6000
+weather=clear

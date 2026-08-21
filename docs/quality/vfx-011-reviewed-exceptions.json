@@ -1,0 +1,401 @@
+{
+  "schema": 1,
+  "exceptions": [
+    {
+      "path": "textures/item/amethyst_greatblade.png",
+      "sha256": "d047ec82c18bc903e0f9a9ff3b805a9b60526b823b2dc76b6512bd5755f5835a",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/amethyst_greatpick.png",
+      "sha256": "c5365faf6948ea0c3905d4f612b63a62b799969e5bf25a2e03e8509bf5b8d064",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/amethyst_greatshovel.png",
+      "sha256": "06ddce86a00ed853da304e14bc6ac1583eaedef84f07bdda1503a4cf17734b7b",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/ancient_greatslab.png",
+      "sha256": "d0d96d7aa857ee56f912d0eb83f88da275637b0b0b815066502b1aea10110318",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/azure_dagger.png",
+      "sha256": "bc5084e07bc8376a941061f1229caa2dd6bfe76eb190c9759d2de4f64af584e8",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/azure_greataxe.png",
+      "sha256": "bc5d8bf022dab46543df21d32d4def9505bc6b654227a6f3df35fed7e6fd1032",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/azure_greatsword.png",
+      "sha256": "cceff441cd98a323dbf3c8f78002c687e0285153cce3793e70168b54ee0b0d7c",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/azure_pickaxe.png",
+      "sha256": "63d6107e57a5dc48d817b0c6066e77aeb80718f82bb850eca9d114383d96c559",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/azure_sabre.png",
+      "sha256": "4ad87f21b1b7ad9664dc0fe939a610e0121f26c6a5001657781e26d99da339d0",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/azure_scythe.png",
+      "sha256": "4484c2d4fdd6e067c14bd9081f3160c77fb3d54291bb441d747d7a2af5ded27d",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/azure_shovel.png",
+      "sha256": "d9b2d5b51332ed08dfa9c9194a62debd0fd623e4fb6ae3836442668a1141eb3c",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/berserkers_cleaver.png",
+      "sha256": "523590ffe1603e154217356842694e96a3127654b4240ce67e7970a7b5590fa9",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/berserkers_greataxe.png",
+      "sha256": "6a03899577054ebf21c711f438e36b2da5db55687e9224ee8dab3448432d161c",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/black_iron_clobberer.png",
+      "sha256": "6e9d2615cfa588319b7ae65c0db463594fe56af98ebbd863ebfdf996bb3e5801",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/black_iron_greataxe.png",
+      "sha256": "2283507c55ef8925f0700b6ddb0b66d6288b58dd44369337dbde27de5195dce3",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/black_iron_greatsword.png",
+      "sha256": "872b470d5ad15a1e6b7b8a4c16bb464e1d33b09469559ae99e94785bf26a1e50",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/cadithpiercer.png",
+      "sha256": "3719c8d950d76b34250f7a5df37e98af0a00a35ea6279aa8b628b9fd8fabdfc6",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/calamity_blade.png",
+      "sha256": "3db001106f5df3f405cfb6938487b1f66a15614df6ebe6bf5d81c67b8b719451",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/claymore.png",
+      "sha256": "3820466dc2672b458d65d99379f3fd65c08b6e619a66f352e3d29d0b4071c961",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/crescent_greataxe.png",
+      "sha256": "2f046e8f305b0d2b8263d9e96a1fed2aa2b7e32c0fa1de5e9c4dbc6a2c646463",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/crimson_cleaver.png",
+      "sha256": "f2720f867d493f895563d07d70f257f9b815239023c5049c1b9f9535b5cc58a2",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/crystal_frostcythe.png",
+      "sha256": "41149ee6edb608de24688674de132c4bcf6202c88203cc94b2aa1257ffee290b",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/demonic_sword.png",
+      "sha256": "3efbdc6c6a6474f1bc27196dd0b983cfaa94e51d10224968878ddf8187144ce0",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/demons_blood_blade.png",
+      "sha256": "986fad970e20e8d4b11774b77a4dc70d4b6ea94738eb3c600641489b5bfb0da6",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/demons_blood_shovel.png",
+      "sha256": "d765b6dd0f364d1f4a5ab5960f359f74aeb64a08762b1a736285f58d36aba864",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/demonslayers_greatsword.png",
+      "sha256": "19b33934ae3d29c9d6af9f20f5810706e44b9620c962539a487f6265e52da44f",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/dragon_sword_effect.png",
+      "sha256": "06425b3117e2b082d2985f96e7f6ea1fdd09bff5d8cb884d1d8bd3cedaac7da7",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/emerald_greatcleaver.png",
+      "sha256": "ed9472fe65c143c78920877fcdd2c6f7ff5606a57744ae20edbe0b00c1fe359e",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/flamberge.png",
+      "sha256": "7d749e9f8b0203a046661d6a2098f427459ec9e4c527ae5857d07a8f22293fa3",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/gilded_phoenix_greataxe.png",
+      "sha256": "661b9e51c0db3b814bc1d5357be8285dd7d76fb3b131220f9db0d8fe8d6507c3",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/gloomsteel_greataxe.png",
+      "sha256": "9a841d45a47f1bc087d5e2e96ee8116a10e901883d871e7589d5962fce56ad2a",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/gloomsteel_katana.png",
+      "sha256": "af075b6f922c4c9f3c80ac62637c268cc208c060313e293bcb2130b026429c7f",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/gloomsteel_knife.png",
+      "sha256": "12fcbda2f043a6d6b542abd924fa9882f1f486a18eb3eb1280ab2b3e0246f9e4",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/grand_claymore.png",
+      "sha256": "4640dcdf31c78c6a23e590730ae330490385f1ee29b6ebabedde61f618c1e6c7",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/iron_dagger.png",
+      "sha256": "5f4f1137e778e23373aac4501848812f67b674fe062a637dbf8555ba3a21ef25",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/iron_greataxe.png",
+      "sha256": "823a3ab6076c589fa71b2118d04f21ce2327a27aa50f60183a58c9f78909eff9",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/iron_halberd.png",
+      "sha256": "b5c79f583a6f3c512197ec05bc244bd427a5321e778de06c2afe66de57bf7121",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/iron_hay_sickle.png",
+      "sha256": "3fe1253eb046aecd56d580b5477f2d688a74ac941c8e97a27f6fc585ea07c177",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/iron_polearm.png",
+      "sha256": "831d0fe285c6fce0056443d0490b877482858bfb36934dcae40a54fca3341cf5",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/iron_sai.png",
+      "sha256": "ef4309608d699b5aa01922c1d6e7e5e6b8bd13a902bbe2dce00d515045fee61d",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/lycanbane.png",
+      "sha256": "6a6bfe5307c5b7cba0e645a177169f9febc0c9c4026d706d412016b5d0c02b2a",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/nocturne.png",
+      "sha256": "147e427b829982e678e1cb655f2d637b8b86bd71aeee4bbea7b12683c2893d29",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/oculus.png",
+      "sha256": "32570df43cc724016a238914cf457faf0e4425e2062d58539400a8c1b6a03af9",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/phantomguard_greatsword.png",
+      "sha256": "f101f83297ab7fafb617c79ec715264a9384df59be35e6fc6ec70b67cc5092f5",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/phantomguard_partisan.png",
+      "sha256": "1378118a9b4f43fda7757f723dd8f75b1ea336b822e6d0a2ae117cb4dd5933ad",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/sacrificial_cleaver.png",
+      "sha256": "0035477172a25f183f01e8dccdee178e7e4bbd7c20f374529617917ac3845058",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/skeleton_axe.png",
+      "sha256": "91a225bd1d2ada4656295ac7b74afe600ef9ae73852f8a74745d6db8d1272839",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/solstice.png",
+      "sha256": "c38dd19892b6920960ef717add960c3a0d53beefdf5faf2665df19faa9726dce",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/spider_sword.png",
+      "sha256": "945e7829083e1066c88646980ff5aac03f82ca87e5c570d9ed6ceadc02b3ff77",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/talonbrand.png",
+      "sha256": "49c1157c68609a572698716e255f5266e2769adf651ac5f3a375da86c1a4f0a9",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/talonpick.png",
+      "sha256": "c4abc348159db6d87806dd8abe66e7d0a42510070546ef523674c9051717ed09",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/talonshovel.png",
+      "sha256": "e96ec853707cc67568f483c53f77737c7ff9b5a88467ccd850a5a1385fe1cb15",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/treacherous_cleaver.png",
+      "sha256": "89e1ed0e59ab345de953f055b98bae5a3dcd069ec061e2ef4857c025988a2e82",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/uchigatana.png",
+      "sha256": "41869aeff5323efdd2c0440011d24380c921cbac6b6a887acd09e4c58b04e60b",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/valhakyra.png",
+      "sha256": "5b53e95e11d3991053cc2e481000194862bfcc1ec1c1a76fdd425da3cafaca5b",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/vengeance_blade.png",
+      "sha256": "e66726ca8ade31b0071811180690b40f1835e69436694a05f389cf2ef8fdb8f6",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/vesper.png",
+      "sha256": "534ac685d03b65062adac663ceae86d596f8f0d4c5ab08ff0de8c28f1a540a24",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/vindicator.png",
+      "sha256": "c3098057d81b5f3fba45a7a243fc648f965f26da39c6cc4c2dd32a671bd2b00c",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/viridian_greataxe.png",
+      "sha256": "5cbae39f459ff66df5c6fb012bb3d8c09b4b84252868485d857e650b06ff1a26",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/viridian_pickaxe.png",
+      "sha256": "a526fc536dc564e0dd5da69ff9b812f5f426eb619f70722fb84ef57686098990",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/viridian_shovel.png",
+      "sha256": "6afc467128e8d44a67a9340c0c416a7fd1066ba4ca983460a04a6c14c46df003",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/void_oculus.png",
+      "sha256": "40f4b069d2b23e90c384b1df5cd5605701334d1c91b94ad7af8dc29c57006a80",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/winterthorn.png",
+      "sha256": "0624633d28ffca14429faa97da800371e858a046aaecf0e2e850f3e9ca2c52ab",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/wooden_bludgeon.png",
+      "sha256": "1a7a2610d64030c6be959f6a9cdbed864f66a1c8fa2daa9954531c788676ca6c",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/wooden_tonfa.png",
+      "sha256": "e815ec7820ac1b10900f4b086a32f678d62a60fd230c2981f2fda1366acd6f36",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    },
+    {
+      "path": "textures/item/zenith.png",
+      "sha256": "403d9d8033df12d2734adbca42d6a1eece7ff9c46c4a4654389a2c260fde68cf",
+      "violation": "transparent-edge colour contamination",
+      "note": "Reviewed on deterministic light, dark, and checker frame/mip pages. Invisible source RGB is adjacent to authored pixels; premultiplied-alpha mip generation discards fully transparent RGB and prevents colour bleed."
+    }
+  ]
+}

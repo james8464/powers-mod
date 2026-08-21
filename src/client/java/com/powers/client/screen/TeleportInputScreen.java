@@ -82,6 +82,16 @@ public final class TeleportInputScreen extends Screen {
 		return ownerSurface;
 	}
 
+	/** Drives the production validation state during renderer acceptance. */
+	public boolean submitAcceptanceCoordinates(String x, String y, String z) {
+		if (xField == null || yField == null || zField == null) return false;
+		xField.setValue(x);
+		yField.setValue(y);
+		zField.setValue(z);
+		confirm();
+		return error != null;
+	}
+
 	@Override
 	protected void init() {
 		int left = panelX();

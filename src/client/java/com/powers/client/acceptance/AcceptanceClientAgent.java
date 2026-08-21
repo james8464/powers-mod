@@ -151,6 +151,7 @@ public final class AcceptanceClientAgent {
 			case KEY -> setAcceptanceKey(client, step.argument());
 			case LOOK -> setLook(client, step.argument());
 			case SCREENSHOT -> {
+				verifyScreenshotState(client, step.argument());
 				// Acceptance captures are evidence, not a transcript of earlier system
 				// notifications. Clear queued/visible UI noise immediately before pixels
 				// are sampled; Screenshot may report its own filename after the capture.
@@ -166,6 +167,26 @@ public final class AcceptanceClientAgent {
 		}
 		PowersMod.LOGGER.info("QA client role={} executed {} [{}] at connected tick {}",
 				CONFIG.role(), step.operation(), step.argument(), connectedTicks);
+	}
+
+	private static void verifyScreenshotState(Minecraft client, String label) {
+		if (label.equals("locator_entity_two_clients")) {
+			if (!(client.gui.screen() instanceof CelestialLocatorScreen locator)
+					|| !locator.acceptanceVisiblePlayers().contains("VfxObserver")) {
+				throw new AssertionError("Two-client locator proof lacks VfxObserver");
+			}
+			PowersMod.LOGGER.info("QA VFX proof locator visiblePlayers={}",
+					locator.acceptanceVisiblePlayers());
+		}
+		if (label.equals("darkness_advancement_root")) {
+			if (!(client.gui.screen() instanceof net.minecraft.client.gui.screens.advancements.AdvancementsScreen)
+					|| client.player == null
+					|| client.player.connection.getAdvancements().get(PowersMod.id("darkness_root")) == null
+					|| client.player.connection.getAdvancements().get(PowersMod.id("skill_root")) != null) {
+				throw new AssertionError("Darkness advancement proof is not the sole loaded POWERS root");
+			}
+			PowersMod.LOGGER.info("QA VFX proof selectedRoot=powers:darkness_root opposingRootLoaded=false");
+		}
 	}
 
 	private static void applyReducedMotionSetting(Minecraft client) {

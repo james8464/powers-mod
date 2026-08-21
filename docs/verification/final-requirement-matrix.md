@@ -6,7 +6,7 @@ This matrix maps the approved finalisation scope to implementation and repeatabl
 | --- | --- | --- | --- |
 | R01 | Full production-code audit | Complete | 579 common/client Java files were reviewed by authority, lifecycle, validation, cleanup, and bounded-work ownership; `docs/quality/code-audit.md` pins the exact reviewed source state without treating hashes as semantic proof |
 | R02 | Best practices, lifecycle cleanup, and explanatory comments | Complete | Java compilation uses deprecation/unchecked warnings as errors; source-quality tests reject debug markers, wildcards, oversized files, missing type contracts, and unaudited production units |
-| R03 | Non-item asset audit | Complete | 160 decoded non-item assets, generated contact sheets, exact manifest, PNG/JSON/Ogg/reference validators, and `auditNonItemAssets` |
+| R03 | Asset integrity audit | Complete | 970 exact-identity namespaced assets are inventoried with model, texture, animation, display-context, PNG, JSON, Ogg, and reference validation; headless contact sheets are structural evidence only |
 | R04 | Intentionally absent crystal recipes | Complete | Resource validation rejects accidental crystal recipes; README and item catalogue mark story acquisition as deliberately deferred |
 | R05 | Hidden status-effect particles | Complete | Every production `MobEffectInstance` is created through `PowerStatusEffects.hidden`; unit audit and resource validation pass |
 | R06 | Minimalist power messaging | Complete | Routine failures/cooldowns use action-bar overlays; chat is reserved for discoveries, catastrophic warnings, commands, and Shadow dialogue |

@@ -78,22 +78,23 @@ public final class GrimoireIndexScreen extends Screen {
 		if (entries.isEmpty()) return;
 		SpellIndexEntry entry = entries.get(preview);
 		int x = left + 180;
+		int gap = height < 260 ? 2 : 5;
 		graphics.text(font, Component.translatable("spell.powers." + entry.id()), x, top + 38,
 				0xFF311B17, false);
 		int y = drawWrapped(graphics, Component.translatable(entry.purposeKey()), x, top + 56, 146, 0xFF4B2F27);
 		y = drawWrapped(graphics, Component.translatable("screen.powers.grimoire.target",
-				Component.translatable(entry.targetKey()), compact(entry.range())), x, y + 5, 146, 0xFF5C362B);
+				Component.translatable(entry.targetKey()), compact(entry.range())), x, y + gap, 146, 0xFF5C362B);
 		y = drawWrapped(graphics, Component.translatable("screen.powers.grimoire.cost",
-				entry.energy(), ticks(entry.channelTicks()), ticks(entry.cooldownTicks())), x, y + 5, 146, 0xFF5C362B);
+				entry.energy(), ticks(entry.channelTicks()), ticks(entry.cooldownTicks())), x, y + gap, 146, 0xFF5C362B);
 		drawWrapped(graphics, Component.translatable("screen.powers.grimoire.counter",
-				Component.translatable(entry.counterKey())), x, y + 5, 146, 0xFF6A2730);
+				Component.translatable(entry.counterKey())), x, y + gap, 146, 0xFF6A2730);
 	}
 
 	private int drawWrapped(GuiGraphicsExtractor graphics, Component text, int x, int y,
 			int width, int color) {
 		for (var line : font.split(text, width)) {
 			graphics.text(font, line, x, y, color, false);
-			y += 10;
+			y += height < 260 ? 9 : 10;
 		}
 		return y;
 	}

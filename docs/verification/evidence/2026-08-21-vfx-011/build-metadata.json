@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "status": "PROVISIONAL_PENDING_POST_SOAK_AGGREGATE",
+  "sourceBaseCommit": "c99ad4330c8c5ed9000e9dfb2a5cd310a7e3f581",
+  "sourcePatchSha256BeforeEvidenceDocs": "61f670aa675f67b2184b3abc38d825456ca8c7fe4ea347ca7affe65ec05ae393",
+  "jar": {
+    "name": "powers-1.0.2.jar",
+    "sha256": "9d9e75437f35c3500b9e54d2f268888715020606ab1b0540e1eae8755744bb70"
+  },
+  "runtime": {
+    "minecraft": "26.2",
+    "fabricLoader": "0.19.3",
+    "fabricApi": "0.156.0+26.2",
+    "java": "OpenJDK 25.0.4",
+    "gpu": "Apple M3 Pro",
+    "graphics": "OpenGL 4.1 Metal - 90.5"
+  },
+  "acceptedClientMetadata": {
+    "file": "captures.jsonl",
+    "rows": 971,
+    "sha256": "d80fbd866a7b99312dba938cf6a6d9cfe86fd902af70303e8d6d2e0a24eb82f6"
+  },
+  "integratedOptions": {
+    "file": "integrated-options.txt",
+    "sha256": "a252a8e5bb4bdae6dd71801728fff3e5557503ab9b558c2e80d1288f30d8c3a4",
+    "source": "src/gametest/java/com/powers/client/acceptance/VfxGalleryClientAgent.java",
+    "sourceSha256": "af252fe3f054937929af4b67fae5595c3a391a7789533fbd598939e15dc27988"
+  },
+  "privacy": {
+    "homeMarker": "<HOME>",
+    "loopbackMarker": "<LOOPBACK>",
+    "twoClientReceiptSha256": "ac08c6f2de123b8cf12eb76059ef13cab810117e2e2f435e30f307f2e99edf29"
+  },
+  "assetAudit": {
+    "assets": 970,
+    "pngs": 362,
+    "physicalFrameMips": 5629,
+    "backgroundTileRows": 16887,
+    "pages": 90,
+    "combinedDeterministicSha256": "75519a65923ceca827471b4727fa4ea3842de6dcdec380bc3c5ce0a4a87f277a"
+  }
+}
