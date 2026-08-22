@@ -24,6 +24,7 @@ READY_MARKER = "Done ("
 CLIENT_JOINED_MARKER = "SoakClient joined the game"
 CLIENT_LEFT_MARKER = "SoakClient left the game"
 CLIENT_DISCONNECT_TIMEOUT_SECONDS = 20
+LIFECYCLE_COMPLETION_TIMEOUT_SECONDS = 30
 REQUIRED_DIAGNOSTIC_MARKERS = (
     "forcedChunks=0",
     "proxies=0",
@@ -100,6 +101,17 @@ def cycle_passed(result: dict[str, object]) -> bool:
     return (all(result.get(field) is True for field in required)
             and int(result.get("client_ability_actions", 0)) > 0
             and expected_exit and not result.get("error_lines"))
+
+
+def cycle_lifecycle_failure(*, client_left: bool, shutdown_sent: bool,
+                            pre_shutdown_at: float | None, now: float) -> str:
+    """Reject an uncontrolled disconnect or an unbounded rollover-proof wait."""
+    if client_left and not shutdown_sent:
+        return "SoakClient disconnected before flushed shutdown"
+    if (pre_shutdown_at is not None and not shutdown_sent
+            and now - pre_shutdown_at > LIFECYCLE_COMPLETION_TIMEOUT_SECONDS):
+        return "rollover/status/save proof timed out"
+    return ""
 
 
 def client_command(java: Path, launch_config: Path, argument_file: Path,
@@ -348,6 +360,7 @@ def one_cycle(runtime: Path, cycle_seconds: int, boot_timeout: int, index: int,
     client_log_handle = None
     setup_sent = False
     pre_shutdown_sent = False
+    pre_shutdown_at: float | None = None
     shutdown_sent = False
     client_left = False
     workload_ended_at: float | None = None
@@ -388,6 +401,14 @@ def one_cycle(runtime: Path, cycle_seconds: int, boot_timeout: int, index: int,
             negative = failed_phase(lines, index)
             if negative:
                 raise RuntimeError(f"negative lifecycle marker: {negative}")
+            lifecycle_failure = cycle_lifecycle_failure(
+                client_left=client_left,
+                shutdown_sent=shutdown_sent,
+                pre_shutdown_at=pre_shutdown_at,
+                now=now,
+            )
+            if lifecycle_failure:
+                raise RuntimeError(lifecycle_failure)
             if ready_at is None and now - started > boot_timeout:
                 raise TimeoutError("Dedicated server did not become ready")
             if ready_at is not None and connected_at is None and now - ready_at > boot_timeout:
@@ -410,6 +431,7 @@ def one_cycle(runtime: Path, cycle_seconds: int, boot_timeout: int, index: int,
                 send(process, "powers diagnose export")
                 send(process, "save-all flush")
                 pre_shutdown_sent = True
+                pre_shutdown_at = now
             second_status = phase_seen(lines, "POWERS_SOAK_STATUS", index, 2)
             saved = any("Saved the game" in line for line in lines)
             if pre_shutdown_sent and second_status and saved and not shutdown_sent:
