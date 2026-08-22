@@ -133,6 +133,36 @@ class RestartSoakPolicyTest(unittest.TestCase):
         }
         self.assertFalse(SOAK.cycle_passed(result))
 
+    def test_client_disconnect_before_controlled_shutdown_fails_the_cycle(self):
+        failure = SOAK.cycle_lifecycle_failure(
+            client_left=True,
+            shutdown_sent=False,
+            pre_shutdown_at=None,
+            now=200.0,
+        )
+        self.assertIn("disconnected before flushed shutdown", failure)
+        self.assertEqual("", SOAK.cycle_lifecycle_failure(
+            client_left=True,
+            shutdown_sent=True,
+            pre_shutdown_at=180.0,
+            now=200.0,
+        ))
+
+    def test_missing_post_rollover_proof_has_a_bounded_failure(self):
+        self.assertEqual("", SOAK.cycle_lifecycle_failure(
+            client_left=False,
+            shutdown_sent=False,
+            pre_shutdown_at=100.0,
+            now=100.0 + SOAK.LIFECYCLE_COMPLETION_TIMEOUT_SECONDS,
+        ))
+        failure = SOAK.cycle_lifecycle_failure(
+            client_left=False,
+            shutdown_sent=False,
+            pre_shutdown_at=100.0,
+            now=100.001 + SOAK.LIFECYCLE_COMPLETION_TIMEOUT_SECONDS,
+        )
+        self.assertIn("rollover/status/save proof timed out", failure)
+
     def test_server_disconnect_marker_is_observed_before_shutdown(self):
         output = queue.Queue()
         output.put("[Server thread/INFO]: SoakClient left the game\n")
