@@ -68,8 +68,17 @@
 - Consumes: production Light Crystal travel or an existing production-safe realm fixture and the renderer diagnostics seam.
 - Produces: exact normal/reduced/fallback capture IDs and renderer-mode metadata.
 
-- [ ] After QA-006 releases the host, write the client GameTest coverage contract RED for normal/reduced/fallback, render distances, weather state, and resource reload.
-- [ ] Implement only test-fixture orchestration; do not add a shipping 10k/visual payload or fabricate renderer state.
+**No-launch fixture design (drafted before the QA-006 soak ends):** enter through
+`CrystalPowerRegistry.tryActivate(..., PowersItems.LIGHT_CRYSTAL)` and wait for the real realm/body-proxy state on
+both server and client. Capture normal clear views at render distances 4/12/24, rain-command and post-resource-reload
+views at distance 12, reduced-motion clear views at 4/12/24, then close the actual per-SkyRenderer enhancement through
+a GameTest-only reflective fixture and capture the observed `STATIC_WHITE` fallback last. Emit the screenshot SHA and
+actual client runtime options/mode/weather/reload revision immediately after each capture. A separate pinned Sodium
+launch repeats normal/reduced/fallback and owns its exact mod/options/JAR/log receipt. No visual verdict is inferred.
+
+- [x] Before QA-006 releases the host, write the no-launch client GameTest coverage contract RED for normal/reduced/fallback, render distances, weather state, resource reload, raw screenshot hashes, and emitted runtime metadata.
+- [x] Compile the test-only orchestration without launching a client; do not add a shipping visual payload or fabricate renderer state.
+- [ ] After QA-006 releases the host, run the real-client matrix and accept this orchestration only from observed output.
 - [ ] Run the isolated Java 25 client gallery, visually inspect full-resolution frames, and repair actual defects test-first.
 - [ ] Repeat normal/reduced/fallback on the pinned Sodium 26.2 client with exact mod/options hashes.
 - [ ] Record manual digest-bound verdicts; reject missing, stale, blank, or inferred decisions.
