@@ -1,6 +1,5 @@
 package com.powers.fx;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled("Pending VFX-004 integration after QA-006, VFX-011, and VFX-009 close")
 class VisualScarReachabilityTest {
 	private static final Path ROOT = Path.of("src/main/java/com/powers");
 	private static final String REQUEST = "VisualScarService.request(";
@@ -33,6 +31,17 @@ class VisualScarReachabilityTest {
 				"power/abilities/ThunderclapAbility.java"), requesters.stream().sorted().toList());
 		String fire = source("power/abilities/FireballImpactResolver.java");
 		assertTrue(fire.contains("level.setBlockAndUpdate(pos, fire)"));
+		assertTrue(fire.indexOf(REQUEST) < fire.indexOf("CombatTerrainImpact.crater"));
+		String bash = source("power/abilities/BreezyBashAbility.java");
+		assertTrue(bash.indexOf(REQUEST) < bash.indexOf("CombatTerrainImpact.crater"));
+		String thunderclap = source("power/abilities/ThunderclapAbility.java");
+		assertTrue(thunderclap.indexOf(REQUEST) < thunderclap.indexOf("CombatTerrainImpact.thunderclap"));
+		String ice = source("power/abilities/IceManipulationAbility.java");
+		assertTrue(ice.contains("blockHit.getDirection()"));
+		assertTrue(ice.indexOf(REQUEST) < ice.indexOf(
+				"for (Map.Entry<BlockPos, BlockState> mutation : mutations.entrySet())"));
+		String beam = source("power/abilities/EnergyBeamAbility.java");
+		assertTrue(beam.contains("ray.surfaceSupport()") && beam.contains("ray.surfaceFace()"));
 		assertFalse(source("power/abilities/CombatTerrainImpact.java").contains("VisualScarService"));
 	}
 
@@ -53,10 +62,17 @@ class VisualScarReachabilityTest {
 		for (String forbidden : List.of("setBlock(", "setBlockAndUpdate(", "destroyBlock(",
 				"SavedData", "addRegionTicket", "addTicket")) assertFalse(service.contains(forbidden));
 		assertTrue(service.contains("PowerProtection.blockDecision"));
+		assertTrue(service.contains("PowerProtectionAdapters.blockWorkPolicyId"));
 		assertTrue(service.contains("VisualScarRequestQueue"));
+		assertTrue(service.contains("pendingByKey"));
 		assertTrue(service.contains("BlockWorkBudget"));
 		assertTrue(service.contains("TreeMap"));
 		assertTrue(service.contains("ChunkSpatialIndex"));
+		assertTrue(service.contains("VisualScarLedgerRules.observeMovement"));
+		assertTrue(service.contains("spatial.nearby"));
+		assertTrue(service.contains("sessionPlayers.get(player.getUUID()) == player"));
+		assertFalse(service.contains("System.identityHashCode"));
+		assertFalse(service.contains("sessionGenerations"));
 	}
 
 	@Test
@@ -80,6 +96,12 @@ class VisualScarReachabilityTest {
 		assertTrue(renderer.contains("VisualScarMotifGeometry.batchNearestCandidates"));
 		assertFalse(renderer.contains("ResourceLocation"));
 		assertFalse(renderer.contains("Shader"));
+		String manager = Files.readString(Path.of(
+				"src/client/java/com/powers/client/fx/ClientVisualScarManager.java"));
+		assertTrue(manager.contains("VisualScarResyncPayload"));
+		assertTrue(manager.contains("receiveObserved"));
+		assertTrue(manager.contains("needsAuthoritativeResync"));
+		assertTrue(manager.contains("localTick"));
 	}
 
 	@Test

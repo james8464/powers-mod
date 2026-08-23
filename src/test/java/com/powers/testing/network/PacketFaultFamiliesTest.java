@@ -14,6 +14,7 @@ import com.powers.network.PowerStatePayload;
 import com.powers.network.PowersPackets;
 import com.powers.network.ShadowSwordPackets;
 import com.powers.network.VesselControlPackets;
+import com.powers.network.VisualScarResyncPayload;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,10 @@ final class PacketFaultFamiliesTest {
 				PacketFaultFamilies.classify(PowersPackets.LocateTargetPayload.TYPE));
 		assertEquals(PacketFaultFamily.MAGIC_FX,
 				PacketFaultFamilies.classify(MagicFxPackets.MagicFxPayload.TYPE));
+		assertEquals(PacketFaultFamily.SCAR_FX,
+				PacketFaultFamilies.classify(MagicFxPackets.ScarFxPayload.TYPE));
+		assertEquals(PacketFaultFamily.SCAR_FX,
+				PacketFaultFamilies.classify(VisualScarResyncPayload.TYPE));
 		assertEquals(PacketFaultFamily.BEAM_FX,
 				PacketFaultFamilies.classify(MagicFxPackets.BeamFxPayload.TYPE));
 		assertEquals(PacketFaultFamily.SHAPE_FX,

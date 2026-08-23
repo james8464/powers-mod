@@ -13,6 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class VisualScarGeometryTest {
 	@Test
+	void rendererBoundaryConvertsPackedRgbaToMinecraftArgb() {
+		assertEquals(0x44112233, VisualScarMotifGeometry.rgbaToArgb(0x11223344));
+	}
+
+	@Test
 	void allThirtyProfilesOnSixFacesProduceBoundedFiniteSurfaceMeshesAtWorldLimits() {
 		for (var profile : VisualScarPresentation.allProfiles()) {
 			for (VisualScarRules.Face face : VisualScarRules.Face.values()) {

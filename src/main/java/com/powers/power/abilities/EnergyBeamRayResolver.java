@@ -9,6 +9,7 @@ import com.powers.spell.SpellFieldManager;
 import com.powers.util.LoadedChunks;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
@@ -29,7 +30,8 @@ import java.util.Optional;
 final class EnergyBeamRayResolver {
 	/** The nearest endpoint, with either a body or a semantic terminal. */
 	record RayResolution(Vec3 endpoint, LivingEntity target,
-			EnergyBeamRules.Counterplay counterplay) {
+			EnergyBeamRules.Counterplay counterplay, BlockPos surfaceSupport,
+			Direction surfaceFace) {
 	}
 
 	private EnergyBeamRayResolver() {
@@ -39,7 +41,7 @@ final class EnergyBeamRayResolver {
 	static RayResolution resolve(ServerLevel level, ServerPlayer caster, double range) {
 		Vec3 origin = caster.getEyePosition();
 		Vec3 direction = caster.getLookAngle();
-		if (!finiteDirection(direction)) return new RayResolution(origin, null, null);
+		if (!finiteDirection(direction)) return new RayResolution(origin, null, null, null, null);
 		direction = direction.normalize();
 		HitResult picked = PowerTargeting.raycast(caster, range);
 		double pickedDistance = picked.getType() == HitResult.Type.MISS
@@ -59,14 +61,17 @@ final class EnergyBeamRayResolver {
 		Optional<EnergyBeamRules.Intercept> terminal = EnergyBeamRules
 				.nearestTerminal(intercepts, pickedDistance);
 		if (target != null && terminal.isEmpty()) {
-			return new RayResolution(picked.getLocation(), target, null);
+			return new RayResolution(picked.getLocation(), target, null, null, null);
 		}
 		if (terminal.isPresent()) {
 			EnergyBeamRules.Intercept hit = terminal.get();
+			BlockHitResult surface = hit.counterplay() == EnergyBeamRules.Counterplay.SURFACE
+					&& picked instanceof BlockHitResult blockHit ? blockHit : null;
 			return new RayResolution(origin.add(direction.scale(hit.distance())),
-					null, hit.counterplay());
+					null, hit.counterplay(), surface == null ? null : surface.getBlockPos(),
+					surface == null ? null : surface.getDirection());
 		}
-		return new RayResolution(pickedEnd, null, null);
+		return new RayResolution(pickedEnd, null, null, null, null);
 	}
 
 	/** Returns nearest visible bodies in deterministic distance/UUID order. */

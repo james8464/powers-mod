@@ -10,6 +10,7 @@ import com.powers.diagnostics.ServerRuntimeMetrics;
 import com.powers.force.FactionInvasionManager;
 import com.powers.force.ForceContainmentManager;
 import com.powers.force.LivingForceManager;
+import com.powers.fx.VisualScarService;
 import com.powers.forge.CrucibleWeaponRuntime;
 import com.powers.item.ArtifactInventoryRuntime;
 import com.powers.knowledge.KnowledgeRemoteProviderRuntime;
@@ -135,6 +136,7 @@ final class PowersServerLifecycle {
 	}
 
 	private static void onDisconnect(MinecraftServer server, ServerPlayer player) {
+		VisualScarService.disconnect(player);
 		com.powers.testing.network.PacketFaultController.disconnected(server, player.getUUID());
 		PowersMod.cancelDelayedTasks(player.getUUID());
 		com.powers.power.crystals.MindscapeCrystalAbility.cancel(server, player.getUUID());
@@ -160,6 +162,7 @@ final class PowersServerLifecycle {
 	}
 
 	private static void onServerStopped(MinecraftServer server) {
+		VisualScarService.clear(server);
 		com.powers.testing.network.PacketFaultController.clear(server);
 		com.powers.magic.ActionRegistryReloadListener.serverStopped();
 		com.powers.performance.ServerTickProfiler.cancel(server);
@@ -226,5 +229,6 @@ final class PowersServerLifecycle {
 		PowerAbilityRuntime.tickTeleportMarking(server);
 		ServerMagicScheduler.tick(server);
 		MagicFxPackets.flush(server);
+		VisualScarService.tick(server);
 	}
 }

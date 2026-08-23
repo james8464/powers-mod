@@ -9,8 +9,14 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
 /** Project-owned play transport seam; ordinary disabled traffic takes the direct Fabric path. */
 public final class PowersPlayNetworking {
+	public enum GuardedSendFailure {
+		UNSUPPORTED_CAPABILITY, SESSION_PREDICATE_FALSE, FAULT_OR_QUEUE_FAILURE
+	}
 	@FunctionalInterface
 	public interface Handler<T extends CustomPacketPayload> {
 		void receive(T payload, ServerPlayer player);
@@ -55,6 +61,50 @@ public final class PowersPlayNetworking {
 					ServerPlayNetworking.send(current, value);
 					return true;
 				}, failure);
+	}
+
+	/** Rechecks session identity and capability at the final direct or fault-delayed send edge. */
+	public static boolean sendGuarded(ServerPlayer player, CustomPacketPayload payload,
+			Predicate<ServerPlayer> sessionPredicate, Runnable successCallback,
+			Consumer<GuardedSendFailure> failureCallback) {
+		java.util.Objects.requireNonNull(player, "player");
+		java.util.Objects.requireNonNull(payload, "payload");
+		java.util.Objects.requireNonNull(sessionPredicate, "sessionPredicate");
+		java.util.Objects.requireNonNull(successCallback, "successCallback");
+		java.util.Objects.requireNonNull(failureCallback, "failureCallback");
+		if (!sessionPredicate.test(player)) {
+			failureCallback.accept(GuardedSendFailure.SESSION_PREDICATE_FALSE);
+			return false;
+		}
+		if (!ServerPlayNetworking.canSend(player, payload.type())) {
+			failureCallback.accept(GuardedSendFailure.UNSUPPORTED_CAPABILITY);
+			return false;
+		}
+		if (!PacketFaultFamilies.isProjectOwned(payload.type())
+				|| !PacketFaultController.enabled(player.level().getServer())) {
+			if (sessionPredicate.test(player) && ServerPlayNetworking.canSend(player, payload.type())) {
+				ServerPlayNetworking.send(player, payload);
+				successCallback.run();
+				return true;
+			}
+			failureCallback.accept(ServerPlayNetworking.canSend(player, payload.type())
+					? GuardedSendFailure.SESSION_PREDICATE_FALSE
+					: GuardedSendFailure.UNSUPPORTED_CAPABILITY);
+			return false;
+		}
+		return PacketFaultController.send(player, PacketFaultFamilies.classify(payload),
+				PacketFaultStreams.key(payload), payload,
+				(current, value) -> {
+					if (sessionPredicate.test(current) && ServerPlayNetworking.canSend(current, value.type())) {
+						ServerPlayNetworking.send(current, value);
+						successCallback.run();
+						return true;
+					}
+					failureCallback.accept(ServerPlayNetworking.canSend(current, value.type())
+							? GuardedSendFailure.SESSION_PREDICATE_FALSE
+							: GuardedSendFailure.UNSUPPORTED_CAPABILITY);
+					return false;
+				}, () -> failureCallback.accept(GuardedSendFailure.FAULT_OR_QUEUE_FAILURE));
 	}
 
 	/** Unfaulted invalidation used only after an injected request was intentionally lost. */

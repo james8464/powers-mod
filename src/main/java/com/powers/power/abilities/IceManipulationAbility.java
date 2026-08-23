@@ -10,7 +10,10 @@ import com.powers.power.PowerTargeting;
 import com.powers.progression.PowerScalingService;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
+import com.powers.fx.VisualScarRules;
+import com.powers.fx.VisualScarService;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +22,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -85,6 +89,12 @@ public class IceManipulationAbility extends Ability {
 			target.setTicksFrozen(scaledDuration(player, 160));
 		}
 
+		BlockPos scarSupport = hit instanceof BlockHitResult blockHit
+				? blockHit.getBlockPos() : BlockPos.containing(end).below();
+		Direction scarFace = hit instanceof BlockHitResult blockHit
+				? blockHit.getDirection() : Direction.UP;
+		VisualScarService.request(level, player, scarSupport, scarFace,
+				VisualScarRules.Impact.ICE, Long.hashCode(level.getServer().getTickCount()));
 		for (Map.Entry<BlockPos, BlockState> mutation : mutations.entrySet()) {
 			level.setBlockAndUpdate(mutation.getKey(), mutation.getValue());
 		}

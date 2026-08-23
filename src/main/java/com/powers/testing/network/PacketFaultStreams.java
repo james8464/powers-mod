@@ -5,6 +5,7 @@ import com.powers.network.ActionSubmissionService;
 import com.powers.network.CelestialRuinPackets;
 import com.powers.network.CompanionPackets;
 import com.powers.network.GrimoirePackets;
+import com.powers.network.MagicFxPackets;
 import com.powers.network.PowersPackets;
 import com.powers.network.RankPackets;
 import com.powers.network.RelicPackets;
@@ -66,6 +67,11 @@ public final class PacketFaultStreams {
 			long position = mix(Double.doubleToLongBits(value.x()), Double.doubleToLongBits(value.y()),
 					Double.doubleToLongBits(value.z()));
 			return compact(type, Long.toUnsignedString(position, 16));
+		}
+		if (payload instanceof MagicFxPackets.ScarFxPayload value) {
+			String discriminator = value.operation() == com.powers.fx.ScarFxProtocolRules.RESET_DIMENSION
+					? "reset" : Long.toUnsignedString(value.position(), 16) + ':' + value.face();
+			return compact(type, discriminator);
 		}
 		if (payload instanceof RankPackets.RankActionPayload value) {
 			return compact(type, value.nodeId());

@@ -3,6 +3,8 @@ package com.powers.power.abilities;
 import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.ThunderclapFx;
+import com.powers.fx.VisualScarRules;
+import com.powers.fx.VisualScarService;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -12,6 +14,8 @@ import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.network.chat.Component;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
@@ -76,6 +80,11 @@ public final class ThunderclapAbility extends Ability {
 			projectile.setDeltaMovement(push);
 			projectile.hurtMarked = true;
 		}
+		BlockPos support = player.blockPosition().offset(
+				(int) Math.round(horizontal.x * 2.0), -1, (int) Math.round(horizontal.z * 2.0));
+		VisualScarService.request(level, player,
+				support, Direction.UP,
+				VisualScarRules.Impact.THUNDERCLAP, Long.hashCode(level.getServer().getTickCount()));
 		CombatTerrainImpact.thunderclap(level, player, origin, horizontal, range,
 				CombatTerrainImpact.tier(player, CastScalingContext.currentSource(), "thunderclap"));
 		ThunderclapFx.release(level, origin.add(horizontal.scale(2.0)), horizontal, range);

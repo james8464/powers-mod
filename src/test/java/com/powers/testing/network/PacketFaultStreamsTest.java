@@ -7,6 +7,7 @@ import com.powers.network.BodyProxyPackets;
 import com.powers.network.ActionSubmissionService;
 import com.powers.network.CelestialRuinPackets;
 import com.powers.network.CompanionPackets;
+import com.powers.network.MagicFxPackets;
 import com.powers.network.RankPackets;
 import com.powers.network.ShadowSwordPackets;
 import com.powers.network.VesselControlPackets;
@@ -47,5 +48,17 @@ final class PacketFaultStreamsTest {
 	void menuInvalidationsForDifferentSurfacesDoNotSuppressEachOther() {
 		assertNotEquals(PacketFaultStreams.key(new ActionSubmissionService.RefreshPayload(7L, "artifact")),
 				PacketFaultStreams.key(new ActionSubmissionService.RefreshPayload(7L, "crystal")));
+	}
+
+	@Test
+	void independentScarKeysNeverSuppressEachOther() {
+		var first = new MagicFxPackets.ScarFxPayload(1, 42, 1, 0, 0, 7, 1, 40);
+		var second = new MagicFxPackets.ScarFxPayload(1, 43, 1, 0, 0, 8, 1, 40);
+		var otherFace = new MagicFxPackets.ScarFxPayload(1, 42, 2, 0, 0, 9, 1, 40);
+		var origin = new MagicFxPackets.ScarFxPayload(0, 0, 0, 0, 0, 9, 1, 40);
+		var reset = new MagicFxPackets.ScarFxPayload(2, 0, 0, 0, 0, 0, 1, 1);
+		assertNotEquals(PacketFaultStreams.key(first), PacketFaultStreams.key(second));
+		assertNotEquals(PacketFaultStreams.key(first), PacketFaultStreams.key(otherFace));
+		assertNotEquals(PacketFaultStreams.key(origin), PacketFaultStreams.key(reset));
 	}
 }

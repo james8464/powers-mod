@@ -3,6 +3,8 @@ package com.powers.power.abilities;
 import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.EnergyBeamFx;
+import com.powers.fx.VisualScarRules;
+import com.powers.fx.VisualScarService;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
 import com.powers.magic.runtime.MagicRayCollisionRuntime;
@@ -163,6 +165,10 @@ public final class EnergyBeamAbility extends Ability {
 		}
 		if (ray.counterplay() == EnergyBeamRules.Counterplay.SURFACE) {
 			resetStreak(channel);
+			if (ray.surfaceSupport() != null && ray.surfaceFace() != null) {
+				VisualScarService.request(level, caster, ray.surfaceSupport(), ray.surfaceFace(),
+						VisualScarRules.Impact.BEAM, Long.hashCode(nowSeed(channel, ray.endpoint())));
+			}
 			CombatTerrainImpact.rayScar(level, caster, caster.getEyePosition(),
 					ray.endpoint(), channel.terrainTier, 0xFFD166);
 			EnergyBeamFx.impact(level, ray.endpoint(), 1);
@@ -212,6 +218,11 @@ public final class EnergyBeamAbility extends Ability {
 			solarFlare(level, caster, channel, ray.target(), ray.endpoint(), damage);
 		}
 		ancientSplits(level, caster, channel, ray.target(), ray.endpoint(), damage);
+	}
+
+	private static long nowSeed(Channel channel, Vec3 point) {
+		return channel.startedAt ^ Double.doubleToLongBits(point.x)
+				^ Long.rotateLeft(Double.doubleToLongBits(point.z), 17);
 	}
 
 	private static void steamPulse(ServerLevel level, ServerPlayer caster,

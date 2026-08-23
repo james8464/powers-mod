@@ -17,6 +17,8 @@ import com.powers.client.fx.ClientShapeFx;
 import com.powers.client.fx.ClientBeamFx;
 import com.powers.client.fx.ClientCelestialRuinFx;
 import com.powers.client.fx.ClientEventAudio;
+import com.powers.client.fx.ClientVisualScarManager;
+import com.powers.client.fx.ClientVisualScarRenderer;
 import com.powers.client.acceptance.AcceptanceClientAgent;
 import com.powers.client.body.ClientBodySnapshots;
 import com.powers.client.fx.particle.ArcaneParticle;
@@ -46,6 +48,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
@@ -54,6 +58,8 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ResourceManager;
 import org.lwjgl.glfw.GLFW;
 
 /** client entry point: registers the v/x/c slot keys, wires up the huds and the teleport screen */
@@ -68,6 +74,7 @@ public class PowersClient implements ClientModInitializer {
 	public static KeyMapping releaseCastToggleKey;
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void onInitializeClient() {
 		ClientProtocolHandshake.initialize();
 		ClientHudPreferences.initialize();
@@ -90,6 +97,11 @@ public class PowersClient implements ClientModInitializer {
 				GLFW.GLFW_KEY_UNKNOWN, CATEGORY));
 		ClientPlayNetworking.registerGlobalReceiver(PowerStatePayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientPowerState.update(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.ScarFxPayload.TYPE,
+				(payload, context) -> {
+					var captured = ClientVisualScarManager.captureHandlerStamp(context.client());
+					context.client().execute(() -> ClientVisualScarManager.handle(payload, captured));
+				});
 		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.MagicFxPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> {
 					ClientSemanticFxMetrics.recordIndividual(payload.eventId());
@@ -179,6 +191,8 @@ public class PowersClient implements ClientModInitializer {
 				(payload, context) -> context.client().execute(() -> ClientEventAudio.handle(payload)));
 		// Disconnect owns the client cache boundary; no server-authored power state may cross sessions.
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			ClientVisualScarManager.resetConnectionEpoch();
+			ClientVisualScarRenderer.closeResources();
 			ClientPowerState.reset();
 			ClientActionRegistry.reset();
 			ClientMagicFx.reset();
@@ -188,6 +202,22 @@ public class PowersClient implements ClientModInitializer {
 			ClientCelestialRuinFx.reset();
 			ClientEventAudio.resetMetrics();
 		});
+		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) ->
+				ClientVisualScarRenderer.recreateResources());
+		ClientVisualScarRenderer.initialize();
+		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(
+				new SimpleSynchronousResourceReloadListener() {
+					@Override
+					public net.minecraft.resources.Identifier getFabricId() {
+						return PowersMod.id("visual_scar_renderer");
+					}
+
+					@Override
+					public void onResourceManagerReload(ResourceManager manager) {
+						ClientVisualScarRenderer.closeResources();
+						ClientVisualScarRenderer.recreateResources();
+					}
+				});
 
 		registerParticles();
 		EntityRenderers.register(PowersEntities.DARKNESS_CREATURE,
@@ -241,6 +271,7 @@ public class PowersClient implements ClientModInitializer {
 
 	private static void tick(Minecraft client) {
 		AcceptanceClientAgent.tick(client);
+		ClientVisualScarManager.tick(client);
 		ClientMagicFx.tick();
 		ClientCelestialRuinFx.tick();
 		ClientPowerState.tickCooldowns();

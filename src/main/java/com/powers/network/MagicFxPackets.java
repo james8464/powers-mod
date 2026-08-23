@@ -6,6 +6,7 @@ import com.powers.magic.fx.MagicFxKind;
 import com.powers.magic.fx.MagicFxService;
 import com.powers.fx.BeamFxStyle;
 import com.powers.fx.ShapeFxKind;
+import com.powers.fx.ScarFxProtocolRules;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -16,7 +17,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,6 +29,38 @@ public final class MagicFxPackets {
 	private static final FxPacketCoalescer COALESCER = new FxPacketCoalescer(32_768);
 
 	private MagicFxPackets() {
+	}
+
+	/** Exact bounded semantic payload for one transient presentation-only surface scar. */
+	public record ScarFxPayload(int operation, long position, int face, int impact,
+			int material, int visualSeed, long generation, int leaseTicks)
+			implements CustomPacketPayload {
+		public static final CustomPacketPayload.Type<ScarFxPayload> TYPE =
+				new CustomPacketPayload.Type<>(PowersMod.id("scar_fx"));
+		public static final StreamCodec<RegistryFriendlyByteBuf, ScarFxPayload> STREAM_CODEC =
+				StreamCodec.of(ScarFxPayloadCodec::encode, ScarFxPayloadCodec::decode);
+
+		public ScarFxPayload {
+			if (!ScarFxProtocolRules.validate(new ScarFxProtocolRules.Wire(operation, position,
+					face, impact, material, visualSeed, generation, leaseTicks))) {
+				throw new IllegalArgumentException("Invalid visual scar payload");
+			}
+		}
+
+		public ScarFxPayload(ScarFxProtocolRules.Wire wire) {
+			this(wire.operation(), wire.position(), wire.face(), wire.impact(), wire.material(),
+					wire.visualSeed(), wire.generation(), wire.leaseTicks());
+		}
+
+		public ScarFxProtocolRules.Wire wire() {
+			return new ScarFxProtocolRules.Wire(operation, position, face, impact, material,
+					visualSeed, generation, leaseTicks);
+		}
+
+		@Override
+		public Type<? extends CustomPacketPayload> type() {
+			return TYPE;
+		}
 	}
 
 	/** Compact cast or interaction cue; clients generate deterministic geometry locally. */
@@ -294,6 +326,8 @@ public final class MagicFxPackets {
 	}
 
 	public static void initialize() {
+		VisualScarResyncPayload.initialize();
+		PayloadTypeRegistry.clientboundPlay().register(ScarFxPayload.TYPE, ScarFxPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(MagicFxPayload.TYPE, MagicFxPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(BeamFxPayload.TYPE, BeamFxPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(ShapeFxPayload.TYPE, ShapeFxPayload.STREAM_CODEC);
@@ -397,43 +431,14 @@ public final class MagicFxPackets {
 	}
 
 	static int encodedBodyBytes(MagicFxPayload payload) {
-		return varIntBytes(payload.kind().networkId()) + varLongBytes(payload.eventId())
-				+ stringBytes(payload.motif()) + stringBytes(payload.sound())
-				+ Double.BYTES * 3 + Integer.BYTES * 3
-				+ varIntBytes(payload.intensity()) + varIntBytes(payload.genericBeatCount()) + 1;
+		return FxPacketWireSize.encodedBodyBytes(payload);
 	}
 
 	static int encodedBodyBytes(BeamFxPayload payload) {
-		return varLongBytes(payload.eventId()) + varIntBytes(payload.style().networkId())
-				+ Double.BYTES * 6 + varIntBytes(payload.count()) + Integer.BYTES + 1;
+		return FxPacketWireSize.encodedBodyBytes(payload);
 	}
 
 	static int encodedBodyBytes(ShapeFxPayload payload) {
-		return varLongBytes(payload.eventId()) + varIntBytes(payload.kind().networkId())
-				+ Double.BYTES * 5 + varIntBytes(payload.count())
-				+ Integer.BYTES + Double.BYTES + 1;
-	}
-
-	private static int stringBytes(String value) {
-		int bytes = value.getBytes(StandardCharsets.UTF_8).length;
-		return varIntBytes(bytes) + bytes;
-	}
-
-	private static int varIntBytes(int value) {
-		int bytes = 1;
-		while ((value & ~0x7F) != 0) {
-			bytes++;
-			value >>>= 7;
-		}
-		return bytes;
-	}
-
-	private static int varLongBytes(long value) {
-		int bytes = 1;
-		while ((value & ~0x7FL) != 0L) {
-			bytes++;
-			value >>>= 7;
-		}
-		return bytes;
+		return FxPacketWireSize.encodedBodyBytes(payload);
 	}
 }

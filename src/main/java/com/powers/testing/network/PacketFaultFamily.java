@@ -22,6 +22,7 @@ public enum PacketFaultFamily {
 	BODY_SNAPSHOT(Semantics.CURRENT_ONLY),
 	COMPANION_SNAPSHOT(Semantics.CURRENT_ONLY),
 	MAGIC_FX(Semantics.EVERY),
+	SCAR_FX(Semantics.CURRENT_ONLY),
 	BEAM_FX(Semantics.EVERY),
 	SHAPE_FX(Semantics.EVERY),
 	SEMANTIC_BATCH(Semantics.EVERY),

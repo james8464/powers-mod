@@ -1,6 +1,8 @@
 package com.powers.power.abilities;
 
 import com.powers.fx.FireballFx;
+import com.powers.fx.VisualScarRules;
+import com.powers.fx.VisualScarService;
 import com.powers.mind.BodyProxyManager;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
@@ -10,6 +12,7 @@ import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
@@ -96,6 +99,12 @@ final class FireballImpactResolver {
 		FireballFx.impact(level, point, radius, heart.tier, affected,
 				heart.empoweredImpact, heart.ancientMastery);
 		if (controller != null) {
+			BlockPos scarSupport = hit instanceof BlockHitResult blockHit
+					? blockHit.getBlockPos() : BlockPos.containing(point).below();
+			Direction scarFace = hit instanceof BlockHitResult blockHit
+					? blockHit.getDirection() : Direction.UP;
+			VisualScarService.request(level, controller, scarSupport, scarFace,
+					VisualScarRules.Impact.FIRE, heart.controller.hashCode() ^ heart.tier);
 			CombatTerrainImpact.crater(level, controller, point, heart.terrainTier);
 			scorchTerrain(level, controller, point, heart);
 		}

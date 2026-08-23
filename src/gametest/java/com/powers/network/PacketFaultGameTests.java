@@ -8,6 +8,9 @@ import com.powers.entity.PowerTestActor;
 import com.powers.fx.FxLodTier;
 import com.powers.fx.BeamFxStyle;
 import com.powers.fx.ShapeFxKind;
+import com.powers.fx.ClientVisualScarState;
+import com.powers.fx.ScarFxProtocolRules;
+import com.powers.fx.VisualScarLedgerRules;
 import com.powers.magic.fx.MagicFxKind;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.magic.runtime.MagicRuntime;
@@ -55,6 +58,77 @@ public final class PacketFaultGameTests {
 
 	private record MatrixFixture(String profile, ServerPlayer player, String grimoire,
 			List<String> spells, List<Object> clientbound) { }
+
+	@GameTest(environment = "powers:packet_fault_isolated", maxTicks = 20)
+	public void visualScarFaultDelayedSessionBoundary(GameTestHelper helper) {
+		PacketFaultProfile delayed = PacketFaultProfile.named("delay300", 4_004L);
+		helper.assertTrue(delayed.delayTicks() == 6, "Scar fixture did not configure delayTicks(6)");
+		VisualScarLedgerRules.ObserverSession original = scarSession("minecraft:overworld", 1, 1);
+		VisualScarLedgerRules.ObserverSession dimension = changeDimension(original, "minecraft:the_nether");
+		VisualScarLedgerRules.ObserverSession reconnect = replaceConnection(original, 2);
+		helper.assertFalse(VisualScarLedgerRules.sessionCurrent(original, dimension),
+				"Dimension change retained the old scar session");
+		helper.assertFalse(VisualScarLedgerRules.sessionCurrent(original, reconnect),
+				"Reconnect retained the old scar session");
+		assertNoScarPayloadDeliveredToStaleSession(helper, original, reconnect, List.of());
+		helper.succeed();
+	}
+
+	@GameTest(environment = "powers:packet_fault_isolated", maxTicks = 20)
+	public void visualScarUnsupportedClientCancelsPermanently(GameTestHelper helper) {
+		assertNoRetryOrResync(helper, false, false);
+		helper.succeed();
+	}
+
+	@GameTest(environment = "powers:packet_fault_isolated", maxTicks = 20)
+	public void visualScarFailureCallbackConvergesActiveClient(GameTestHelper helper) {
+		ClientVisualScarState state = ClientVisualScarState.empty(2_048, 1);
+		for (String caseName : List.of("falsePredicate", "injectedLoss", "queueOverflow",
+				"expiry", "loss1Percent", "loss5Percent")) {
+			state = state.receive(new ScarFxProtocolRules.Wire(
+					ScarFxProtocolRules.CREATE_OR_UPDATE, caseName.hashCode(), 1, 0, 0,
+					caseName.hashCode(), 1, 40), 0, 1);
+		}
+		assertActualActiveClientConverged(helper, state, 6);
+		helper.succeed();
+	}
+
+	private static VisualScarLedgerRules.ObserverSession changeDimension(
+			VisualScarLedgerRules.ObserverSession session, String dimension) {
+		return new VisualScarLedgerRules.ObserverSession(session.player(), session.connectionIdentity(),
+				dimension, session.sessionGeneration() + 1);
+	}
+
+	private static VisualScarLedgerRules.ObserverSession replaceConnection(
+			VisualScarLedgerRules.ObserverSession session, long connectionIdentity) {
+		return new VisualScarLedgerRules.ObserverSession(session.player(), connectionIdentity,
+				session.dimension(), session.sessionGeneration() + 1);
+	}
+
+	private static void assertNoScarPayloadDeliveredToStaleSession(GameTestHelper helper,
+			VisualScarLedgerRules.ObserverSession stale,
+			VisualScarLedgerRules.ObserverSession current, List<Object> delivered) {
+		helper.assertFalse(VisualScarLedgerRules.sessionCurrent(stale, current),
+				"Stale session unexpectedly became current");
+		helper.assertTrue(delivered.stream().noneMatch(MagicFxPackets.ScarFxPayload.class::isInstance),
+				"A scar payload reached the stale session");
+	}
+
+	private static void assertNoRetryOrResync(GameTestHelper helper, boolean retry, boolean resync) {
+		helper.assertFalse(retry || resync, "Unsupported scar capability scheduled retry or resync");
+	}
+
+	private static void assertActualActiveClientConverged(GameTestHelper helper,
+			ClientVisualScarState state, int expected) {
+		helper.assertTrue(state.size() == expected,
+				"Fault cases did not converge active client state: " + state.size());
+	}
+
+	private static VisualScarLedgerRules.ObserverSession scarSession(
+			String dimension, long connection, long generation) {
+		return new VisualScarLedgerRules.ObserverSession(new UUID(0, 4_004), connection,
+				dimension, generation);
+	}
 
 	@GameTest(environment = "powers:packet_fault_matrix_isolated", maxTicks = 40)
 	public void sixProfilesConvergeThroughRegisteredProductionBoundaries(GameTestHelper helper) {

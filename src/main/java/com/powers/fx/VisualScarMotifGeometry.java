@@ -17,6 +17,11 @@ public final class VisualScarMotifGeometry {
 	private VisualScarMotifGeometry() {
 	}
 
+	/** Rotates authored packed RGBA into Minecraft's packed ARGB vertex-color convention. */
+	public static int rgbaToArgb(int rgba) {
+		return Integer.rotateRight(rgba, Byte.SIZE);
+	}
+
 	/** Generates one finite bounded motif mesh from the complete presentation profile. */
 	public static Mesh mesh(VisualScarPresentation.Profile profile, VisualScarRules.Face face,
 			double worldX, double worldY, double worldZ,

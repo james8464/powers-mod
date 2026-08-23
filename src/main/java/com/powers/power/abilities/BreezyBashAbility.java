@@ -3,6 +3,8 @@ package com.powers.power.abilities;
 import com.powers.PowerStatusEffects;
 import com.powers.PowersMod;
 import com.powers.fx.BreezyBashFx;
+import com.powers.fx.VisualScarRules;
+import com.powers.fx.VisualScarService;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
 import com.powers.magic.runtime.ServerCastLifecycle;
@@ -30,6 +32,8 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -254,6 +258,8 @@ public final class BreezyBashAbility extends Ability {
 			releaseClaim(rite, targetId);
 		}
 		rite.captured.clear();
+		VisualScarService.request(level, owner, BlockPos.containing(rite.center).below(), Direction.UP,
+				VisualScarRules.Impact.SLAM, Long.hashCode(rite.startedAt));
 		CombatTerrainImpact.crater(level, owner, rite.center, rite.terrainTier);
 		if (rite.empoweredImpact) BreezyBashFx.pressure(level, rite.center, rite.radius);
 		BreezyBashFx.close(level, rite.center, rite.radius, false);

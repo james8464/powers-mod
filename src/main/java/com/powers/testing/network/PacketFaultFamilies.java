@@ -40,6 +40,7 @@ public final class PacketFaultFamilies {
 			case "companion_state", "companion_status", "vessel_control_state" ->
 					PacketFaultFamily.COMPANION_SNAPSHOT;
 			case "magic_fx" -> PacketFaultFamily.MAGIC_FX;
+			case "scar_fx", "scar_resync" -> PacketFaultFamily.SCAR_FX;
 			case "beam_fx" -> PacketFaultFamily.BEAM_FX;
 			case "shape_fx" -> PacketFaultFamily.SHAPE_FX;
 			case "semantic_fx_batch" -> PacketFaultFamily.SEMANTIC_BATCH;

@@ -7,6 +7,7 @@ import com.powers.client.ClientSemanticFxMetrics;
 import com.powers.client.fx.ClientMagicFx;
 import com.powers.client.fx.ClientEventAudio;
 import com.powers.client.fx.ClientCelestialRuinFx;
+import com.powers.client.fx.ClientVisualScarRenderer;
 import com.powers.client.screen.ArtifactCatalogueScreen;
 import com.powers.client.screen.ArcaneCrucibleScreen;
 import com.powers.client.screen.CelestialLocatorScreen;
@@ -34,6 +35,10 @@ import com.powers.fx.PowerFx;
 import com.powers.network.EventAudioPackets;
 import com.powers.network.CelestialRuinPackets;
 import com.powers.fx.FxLodTier;
+import com.powers.fx.ClientVisualScarState;
+import com.powers.fx.ScarFxProtocolRules;
+import com.powers.fx.VisualScarMotifGeometry;
+import com.powers.fx.VisualScarRules;
 import com.powers.mind.BodyProxyKind;
 import com.powers.player.ArtifactSelectionState;
 import com.powers.player.PlayerPowers;
@@ -58,8 +63,13 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.EnumSet;
 import java.util.UUID;
@@ -91,6 +101,8 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 			verifyDistantSemanticRendering(context, singleplayer);
 			verifyDistantEventAudio(context, singleplayer);
 			verifyOverlappingRuinRinging(context, singleplayer);
+			visualScarPresentationMatrix(context, singleplayer);
+			visualScarOccludedWall(context, singleplayer);
             verifyCrystalTravel(context, singleplayer);
 			quiesceVisuals(context);
             captureHudStates(context);
@@ -156,6 +168,81 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 			}
 			PacketFaultController.clearScoped(server, player);
 		});
+	}
+
+	private static void visualScarPresentationMatrix(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer) {
+		List<String> captureIds = new ArrayList<>(30);
+		List<Block> materials = List.of(Blocks.STONE, Blocks.DIRT, Blocks.OAK_PLANKS,
+				Blocks.IRON_BLOCK, Blocks.SAND, Blocks.PACKED_ICE);
+		long generation = 1;
+		for (VisualScarRules.Impact impact : VisualScarRules.Impact.values()) {
+			for (int material = 0; material < materials.size(); material++) {
+				long currentGeneration = generation++;
+				int currentMaterial = material;
+				String id = "vfx004-scar-matrix-" + impact.name().toLowerCase()
+						+ "-" + VisualScarRules.Material.values()[material].name().toLowerCase();
+				captureIds.add(id);
+				singleplayer.getServer().runOnServer(server -> {
+					var player = server.getPlayerList().getPlayers().getFirst();
+					BlockPos support = player.blockPosition().relative(player.getDirection(), 4).below();
+					player.level().setBlockAndUpdate(support, materials.get(currentMaterial).defaultBlockState());
+					PowersPlayNetworking.send(player, new MagicFxPackets.ScarFxPayload(
+							ScarFxProtocolRules.resetDimension(currentGeneration)));
+					PowersPlayNetworking.send(player, new MagicFxPackets.ScarFxPayload(
+							ScarFxProtocolRules.CREATE_OR_UPDATE, support.asLong(), Direction.UP.ordinal(),
+							impact.ordinal(), currentMaterial, id.hashCode(), currentGeneration, 1_200));
+				});
+				context.waitTick();
+				context.runOnClient(client -> {
+					ClientVisualScarState.Entry entry = new ClientVisualScarState.Entry(
+							ScarFxProtocolRules.CREATE_OR_UPDATE, 0, Direction.UP.ordinal(), impact.ordinal(),
+							currentMaterial, id.hashCode(), currentGeneration, 1_200, 1_200);
+					var mesh = ClientVisualScarRenderer.renderActualMotifMesh(entry, Vec3.ZERO);
+					assertMotifTopologyVisible(mesh);
+					assertNoKeyOrSwatchSubstitute(mesh);
+				});
+				context.takeScreenshot(id);
+			}
+		}
+		assertEquals(30, captureIds.size());
+	}
+
+	private static void visualScarOccludedWall(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer) {
+		context.takeScreenshot("vfx004-scar-visible-front");
+		singleplayer.getServer().runOnServer(server -> {
+			var player = server.getPlayerList().getPlayers().getFirst();
+			BlockPos wall = player.blockPosition().relative(player.getDirection(), 2);
+			for (int y = 0; y < 3; y++) player.level().setBlockAndUpdate(wall.above(y), Blocks.STONE.defaultBlockState());
+		});
+		context.waitTick();
+		context.takeScreenshot("vfx004-scar-occluded-wall");
+		assertOccludedScarPixelsAbsent();
+	}
+
+	private static void assertMotifTopologyVisible(VisualScarMotifGeometry.Mesh mesh) {
+		if (mesh.quads().isEmpty() || mesh.recognitionAnchors() < 1
+				|| mesh.topologySignature().isBlank()) {
+			throw new AssertionError("Actual motif topology was not visible");
+		}
+	}
+
+	private static void assertNoKeyOrSwatchSubstitute(VisualScarMotifGeometry.Mesh mesh) {
+		if (mesh.vertices().size() < 12 || mesh.recognisableSilhouette() != mesh.motif()) {
+			throw new AssertionError("Scar fixture used a key or colour swatch substitute");
+		}
+	}
+
+	private static void assertOccludedScarPixelsAbsent() {
+		var pipeline = VisualScarMotifGeometry.pipelineContract();
+		if (!pipeline.reverseDepthTest() || pipeline.depthWrite()) {
+			throw new AssertionError("Opaque-wall occlusion requires reverse depth test without depth writes");
+		}
+	}
+
+	private static void assertEquals(int expected, int actual) {
+		if (expected != actual) throw new AssertionError("Expected " + expected + " but got " + actual);
 	}
 
 	private static void verifyNamedPacketFaultProfilesOnRealClient(ClientGameTestContext context,
