@@ -8,6 +8,7 @@ import csv
 import hashlib
 import io
 import json
+import re
 from pathlib import Path
 
 
@@ -17,10 +18,27 @@ EVIDENCE = ROOT / "docs/verification/evidence/2026-08-21-vfx-011"
 DECISIONS = EVIDENCE / "review-decisions.tsv"
 LEDGER = EVIDENCE / "review-ledger.tsv"
 VERDICTS = {"PASS", "REPAIRED", "LIMITED", "PENDING_RAW_RECAPTURE"}
+GUI_SCALE_CAPTURE = re.compile(r"(?:^|/)scale([1-4])(?:/|$)")
 
 
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def validate_runtime_scale_bindings(rows: list[dict]) -> None:
+    for row in rows:
+        options = row.get("runtimeOptions", {})
+        for capture_id in row.get("captureIds", []):
+            match = GUI_SCALE_CAPTURE.search(capture_id)
+            if match is None:
+                continue
+            nominal = int(match.group(1))
+            requested = options.get("requestedGuiScale")
+            effective = options.get("effectiveGuiScale")
+            if requested != nominal or effective != nominal:
+                raise ValueError(
+                    f"nominal GUI scale {nominal} does not match requested/effective "
+                    f"runtime scale {requested}/{effective}: {capture_id}")
 
 
 def validate_client_command_receipt(evidence: Path, run_receipt: dict) -> None:
@@ -79,6 +97,10 @@ def inputs(evidence: Path = EVIDENCE) -> tuple[dict, list[dict], dict | None]:
         if (evidence / "two-client").exists():
             raise ValueError("fresh exact-build bundle must exclude separately built two-client proof")
         fresh = json.loads(fresh_receipt_path.read_text())
+        emitted_rows = [json.loads(line) for line in
+                        (evidence / fresh["clientEmittedMetadata"]["file"]).read_text().splitlines()
+                        if line.strip()]
+        validate_runtime_scale_bindings(emitted_rows)
         if fresh.get("clientEmittedMetadata", {}).get("rows") != 971:
             raise ValueError("fresh client receipt row count drift")
         raw = fresh.get("rawScreenshots", {})

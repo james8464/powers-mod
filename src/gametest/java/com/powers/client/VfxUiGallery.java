@@ -70,8 +70,12 @@ final class VfxUiGallery {
 			TestSingleplayerContext singleplayer, Set<String> emitted) {
 		for (int scale = 1; scale <= 4; scale++) {
 			for (boolean reduced : List.of(false, true)) {
-				for (WindowCase window : List.of(new WindowCase("wide", 1280, 720),
-						new WindowCase("narrow", 960, 720))) {
+				List<WindowCase> windows = scale == 4
+						? List.of(new WindowCase("wide", 1600, 960),
+								new WindowCase("narrow", 1280, 960))
+						: List.of(new WindowCase("wide", 1280, 720),
+								new WindowCase("narrow", 960, 720));
+				for (WindowCase window : windows) {
 					context.getInput().resizeWindow(window.width, window.height);
 					int currentScale = scale;
 					context.runOnClient(client -> {
@@ -114,7 +118,7 @@ final class VfxUiGallery {
 		});
 		context.waitTick();
 		String invalidId = "screen/teleport/invalid_coordinates/scale2/normal/wide";
-		var invalidShot = context.takeScreenshot(fileName(invalidId));
+		var invalidShot = takeScreenshot(context, invalidId);
 		record(context, invalidShot.getFileName().toString(), invalidId, false, "screen");
 		emitted.add(invalidId);
 	}
@@ -210,7 +214,7 @@ final class VfxUiGallery {
 		context.getInput().setCursorPos(id.contains("/hover/") ? 145 : 2,
 				id.contains("/hover/") ? 185 : 2);
 		context.waitTick();
-		var screenshot = context.takeScreenshot(fileName(id));
+		var screenshot = takeScreenshot(context, id);
 		record(context, screenshot.getFileName().toString(), id, reduced, "screen");
 		if (!emitted.add(id)) throw new AssertionError("Duplicate VFX screen ID " + id);
 	}
@@ -260,7 +264,7 @@ final class VfxUiGallery {
 					context.waitTick();
 					String id = "hud/energy/" + mode.name().toLowerCase(java.util.Locale.ROOT)
 							+ "/half" + half + "/" + (reduced ? "reduced" : "normal");
-					var screenshot = context.takeScreenshot(fileName(id));
+					var screenshot = takeScreenshot(context, id);
 					record(context, screenshot.getFileName().toString(), id, reduced, "hud");
 					if (!emitted.add(id)) throw new AssertionError("Duplicate VFX HUD ID " + id);
 				}
@@ -334,7 +338,7 @@ final class VfxUiGallery {
 		context.runOnClient(client -> setup.run());
 		context.waitTick();
 		String id = "hud/combination/" + state + "/" + (reduced ? "reduced" : "normal");
-		var screenshot = context.takeScreenshot(fileName(id));
+		var screenshot = takeScreenshot(context, id);
 		record(context, screenshot.getFileName().toString(), id, reduced, "hud");
 		if (!emitted.add(id)) throw new AssertionError("Duplicate HUD combination " + id);
 	}
@@ -378,7 +382,7 @@ final class VfxUiGallery {
 	private static void captureWorld(ClientGameTestContext context, String id,
 			Set<String> emitted, String camera) {
 		context.setScreen(() -> null);
-		var screenshot = context.takeScreenshot(fileName(id));
+		var screenshot = takeScreenshot(context, id);
 		record(context, screenshot.getFileName().toString(), id, false, camera);
 		if (!emitted.add(id)) throw new AssertionError("Duplicate world capture " + id);
 	}
@@ -396,6 +400,12 @@ final class VfxUiGallery {
 			boolean reduced, String camera) {
 		context.runOnClient(client -> VfxGalleryClientAgent.record(client, screenshot, List.of(id),
 				4, reduced, BACKGROUND, camera));
+	}
+
+	private static java.nio.file.Path takeScreenshot(ClientGameTestContext context, String id) {
+		context.runOnClient(client ->
+				VfxGalleryClientAgent.assertRuntimeScaleMatchesCaptureIds(client, List.of(id)));
+		return context.takeScreenshot(fileName(id));
 	}
 
 	private static String fileName(String id) {

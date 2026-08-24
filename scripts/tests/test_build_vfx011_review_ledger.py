@@ -91,6 +91,24 @@ class Vfx011EvidenceTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "client-emitted"):
                 module.load_rows(captures)
 
+    def test_packager_rejects_nominal_gui_scale_that_runtime_clamped(self):
+        """Catches a gallery labeling scale4 while Minecraft actually rendered scale3."""
+        module = load_module("package_vfx011_evidence")
+        with tempfile.TemporaryDirectory() as temporary:
+            captures = Path(temporary) / "captures.jsonl"
+            options = runtime_options()
+            options["requestedGuiScale"] = 3
+            options["effectiveGuiScale"] = 3
+            row = {
+                "screenshot": "frame.png",
+                "captureIds": ["screen/teleport/default/scale4/normal/wide"],
+                "screenshotSha256": "a" * 64,
+                "runtimeOptions": options,
+            }
+            captures.write_text(json.dumps(row) + "\n")
+            with self.assertRaisesRegex(ValueError, "nominal GUI scale"):
+                module.load_rows(captures)
+
     def test_committed_evidence_is_privacy_sanitized(self):
         result = subprocess.run(
             [sys.executable, "scripts/sanitize_vfx011_evidence.py", "--check"],
@@ -204,6 +222,37 @@ class Vfx011EvidenceTest(unittest.TestCase):
              str(FRESH_EVIDENCE), "--check"], cwd=ROOT, capture_output=True, text=True,
             check=False)
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_ledger_rejects_digest_bound_nominal_gui_scale_runtime_mismatch(self):
+        """Catches accepting relabeled scale4 metadata after receipts are rehashed."""
+        module = load_module("build_vfx011_review_ledger")
+        with tempfile.TemporaryDirectory() as temporary:
+            evidence = Path(temporary)
+            for name in ("client-capture-index.tsv", "client-run-receipt.json",
+                         "client-command-receipt.json", "client-emitted-captures.jsonl"):
+                (evidence / name).write_bytes((FRESH_EVIDENCE / name).read_bytes())
+            command_receipt = json.loads((evidence / "client-command-receipt.json").read_text())
+            transcript_name = command_receipt["transcript"]["file"]
+            (evidence / transcript_name).parent.mkdir(parents=True, exist_ok=True)
+            (evidence / transcript_name).write_bytes((FRESH_EVIDENCE / transcript_name).read_bytes())
+
+            metadata_path = evidence / "client-emitted-captures.jsonl"
+            rows = [json.loads(line) for line in metadata_path.read_text().splitlines()]
+            scale4 = next(row for row in rows if any("/scale4/" in capture_id
+                                                     for capture_id in row["captureIds"]))
+            scale4["runtimeOptions"]["requestedGuiScale"] = 3
+            scale4["runtimeOptions"]["effectiveGuiScale"] = 3
+            metadata_path.write_text("".join(json.dumps(row, separators=(",", ":")) + "\n"
+                                             for row in rows))
+            metadata_sha = hashlib.sha256(metadata_path.read_bytes()).hexdigest()
+            run_receipt = json.loads((evidence / "client-run-receipt.json").read_text())
+            run_receipt["clientEmittedMetadata"]["sha256"] = metadata_sha
+            (evidence / "client-run-receipt.json").write_text(json.dumps(run_receipt) + "\n")
+            command_receipt["clientEmittedMetadata"]["sha256"] = metadata_sha
+            (evidence / "client-command-receipt.json").write_text(json.dumps(command_receipt) + "\n")
+
+            with self.assertRaisesRegex(ValueError, "nominal GUI scale"):
+                module.inputs(evidence)
 
     def test_fresh_bundle_excludes_cross_commit_two_client_acceptance(self):
         self.assertFalse((FRESH_EVIDENCE / "two-client").exists())

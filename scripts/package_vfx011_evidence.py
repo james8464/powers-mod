@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 from pathlib import Path
 
@@ -54,6 +55,7 @@ RUNTIME_OPTION_TYPES = {
     "gameTime": int,
     "weather": str,
 }
+GUI_SCALE_CAPTURE = re.compile(r"(?:^|/)scale([1-4])(?:/|$)")
 
 
 def digest(path: Path) -> str:
@@ -74,6 +76,17 @@ def load_rows(path: Path) -> list[dict]:
                 or any(character not in "0123456789abcdef" for character in emitted_digest)
                 or not valid_runtime):
             raise ValueError("capture metadata lacks client-emitted screenshot digest/runtime options")
+        for capture_id in row.get("captureIds", []):
+            match = GUI_SCALE_CAPTURE.search(capture_id)
+            if match is None:
+                continue
+            nominal = int(match.group(1))
+            requested = runtime_options["requestedGuiScale"]
+            effective = runtime_options["effectiveGuiScale"]
+            if requested != nominal or effective != nominal:
+                raise ValueError(
+                    f"nominal GUI scale {nominal} does not match requested/effective "
+                    f"runtime scale {requested}/{effective}: {capture_id}")
     screenshots = [row["screenshot"] for row in rows]
     if len(screenshots) != len(set(screenshots)):
         raise ValueError("duplicate screenshot in capture metadata")

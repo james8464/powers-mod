@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /** Development gallery primitives; Minecraft's baked renderer remains the image authority. */
 public final class VfxGalleryClientAgent {
@@ -54,6 +55,7 @@ public final class VfxGalleryClientAgent {
 	private static final List<String> SHELF_ITEMS = List.of("amethyst_greatpick",
 			"amethyst_greatshovel", "azure_pickaxe", "azure_shovel", "demons_blood_pick",
 			"demons_blood_shovel", "talonshovel", "vaelith", "viridian_pickaxe", "viridian_shovel");
+	private static final Pattern GUI_SCALE_CAPTURE = Pattern.compile("(?:^|/)scale([1-4])(?:/|$)");
 
 	private VfxGalleryClientAgent() {
 	}
@@ -154,6 +156,21 @@ public final class VfxGalleryClientAgent {
 			Files.writeString(output, "", StandardCharsets.UTF_8);
 		} catch (IOException error) {
 			throw new IllegalStateException("Could not initialise VFX gallery metadata", error);
+		}
+	}
+
+	public static void assertRuntimeScaleMatchesCaptureIds(Minecraft client, List<String> captureIds) {
+		int requested = client.options.guiScale().get();
+		int effective = client.getWindow().getGuiScale();
+		for (String captureId : captureIds) {
+			var matcher = GUI_SCALE_CAPTURE.matcher(captureId);
+			if (!matcher.find()) continue;
+			int nominal = Integer.parseInt(matcher.group(1));
+			if (requested != nominal || effective != nominal) {
+				throw new AssertionError("Nominal GUI scale " + nominal
+						+ " does not match requested/effective runtime scale "
+						+ requested + "/" + effective + ": " + captureId);
+			}
 		}
 	}
 
