@@ -22,20 +22,20 @@ def sanitized(text: str) -> str:
     return re.sub(r"[ \t]+(?=\r?$)", "", text, flags=re.MULTILINE)
 
 
-def owned_files() -> list[Path]:
-    return sorted(path for pattern in TEXT_GLOBS for path in EVIDENCE.glob(pattern))
+def owned_files(evidence: Path = EVIDENCE) -> list[Path]:
+    return sorted(path for pattern in TEXT_GLOBS for path in evidence.glob(pattern))
 
 
-def scan_files() -> list[Path]:
-    return sorted(path for path in EVIDENCE.rglob("*")
+def scan_files(evidence: Path = EVIDENCE) -> list[Path]:
+    return sorted(path for path in evidence.rglob("*")
                   if path.is_file() and path.suffix != ".png")
 
 
-def refresh_receipt() -> None:
-    path = EVIDENCE / "two-client/receipt.json"
+def refresh_receipt(evidence: Path = EVIDENCE) -> None:
+    path = evidence / "two-client/receipt.json"
     receipt = json.loads(path.read_text())
     for entry in receipt["logs"]:
-        owned = EVIDENCE / "two-client/logs" / Path(entry["file"]).name
+        owned = evidence / "two-client/logs" / Path(entry["file"]).name
         entry["file"] = owned.name
         entry["sha256"] = hashlib.sha256(owned.read_bytes()).hexdigest()
     option_names = {
@@ -49,7 +49,7 @@ def refresh_receipt() -> None:
             name = recorded.name
         else:
             name = option_names[recorded.parent.name]
-        owned = EVIDENCE / "two-client/options" / name
+        owned = evidence / "two-client/options" / name
         entry["file"] = owned.name
         entry["sha256"] = hashlib.sha256(owned.read_bytes()).hexdigest()
     path.write_text(json.dumps(receipt, indent=2) + "\n")
@@ -57,10 +57,12 @@ def refresh_receipt() -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--evidence", type=Path, default=EVIDENCE)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     offenders = []
-    for path in owned_files():
+    evidence = args.evidence.resolve()
+    for path in owned_files(evidence):
         before = path.read_text(errors="surrogateescape")
         after = sanitized(before)
         if args.check:
@@ -72,15 +74,15 @@ def main() -> None:
             if before != after:
                 path.write_text(after, errors="surrogateescape")
     if args.check:
-        offenders.extend(path.relative_to(ROOT).as_posix() for path in scan_files()
+        offenders.extend(path.relative_to(ROOT).as_posix() for path in scan_files(evidence)
                          if PRIVATE.search(path.read_text(errors="surrogateescape")))
         offenders = sorted(set(offenders))
         if offenders:
             raise SystemExit("unsanitized evidence: " + ", ".join(offenders))
-        print(f"privacy scan passed: {len(scan_files())} files")
+        print(f"privacy scan passed: {len(scan_files(evidence))} files")
     else:
-        refresh_receipt()
-        print(f"sanitized {len(owned_files())} files and refreshed receipt")
+        refresh_receipt(evidence)
+        print(f"sanitized {len(owned_files(evidence))} files and refreshed receipt")
 
 
 if __name__ == "__main__":

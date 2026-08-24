@@ -13,6 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE = ROOT / "docs/verification/evidence/2026-08-21-vfx-011"
+FRESH_EVIDENCE = ROOT / "docs/verification/evidence/2026-08-24-vfx-011"
 
 
 def load_module(name):
@@ -172,6 +173,38 @@ class Vfx011EvidenceTest(unittest.TestCase):
         self.assertEqual({"PENDING_RAW_RECAPTURE"}, {row["verdict"] for row in screenshots})
         self.assertEqual(49, len(pages))
         self.assertEqual({"LIMITED"}, {row["verdict"] for row in pages})
+
+    def test_fresh_bundle_uses_retained_raw_decisions_and_is_cli_selectable(self):
+        module = load_module("build_vfx011_review_ledger")
+        decisions = module.load_decisions(FRESH_EVIDENCE / "review-decisions.tsv")
+        expected = module.expected_decision_keys(FRESH_EVIDENCE)
+        self.assertEqual(expected, set(decisions))
+        raw = [row for key, row in decisions.items() if key[0] == "client_raw"]
+        self.assertEqual(971, len(raw))
+        self.assertNotIn("PENDING_RAW_RECAPTURE", {row["verdict"] for row in raw})
+        result = subprocess.run(
+            [sys.executable, "scripts/build_vfx011_review_ledger.py", "--evidence",
+             str(FRESH_EVIDENCE), "--check"], cwd=ROOT, capture_output=True, text=True,
+            check=False)
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_fresh_checksums_bind_every_owned_file(self):
+        checksum_path = FRESH_EVIDENCE / "SHA256SUMS"
+        rows = [line.split("  ", 1) for line in checksum_path.read_text().splitlines()]
+        bound = {path: digest for digest, path in rows}
+        retained = list((FRESH_EVIDENCE / "client-raw").glob("*.png"))
+        self.assertEqual(971, len(retained))
+        owned = [path for path in FRESH_EVIDENCE.rglob("*")
+                 if path.is_file() and path != checksum_path]
+        owned.extend((
+            ROOT / "docs/quality/vfx-011-asset-audit.json",
+            ROOT / "docs/quality/vfx-011-reviewed-exceptions.json",
+        ))
+        owned.extend((ROOT / "docs/quality/vfx-011-asset-pages").glob("*.png"))
+        self.assertEqual({path.relative_to(ROOT).as_posix() for path in owned}, set(bound))
+        for path in owned:
+            relative = path.relative_to(ROOT).as_posix()
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), bound[relative])
 
     def test_names_cannot_infer_a_repair_or_pass(self):
         source = (ROOT / "scripts/build_vfx011_review_ledger.py").read_text()

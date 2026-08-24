@@ -1,0 +1,807 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :
+Fabric Loom: 1.17.19
+
+> Task :compileJava
+> Task :processResources
+> Task :classes
+> Task :compileClientJava
+> Task :processClientResources
+> Task :clientClasses
+> Task :compileExampleExtensionJava
+> Task :processExampleExtensionResources
+> Task :exampleExtensionClasses
+> Task :compileGametestJava
+> Task :deleteGameTestRunDir
+> Task :acceptGameTestEula
+> Task :generateLog4jConfig
+> Task :generateDLIConfig
+> Task :configureLaunch
+> Task :processGametestResources
+> Task :gametestClasses
+
+> Task :runGameTest
+[11:19:54] [main/INFO] (FabricLoader/GameProvider) Loading Minecraft 26.2 with Fabric Loader 0.19.3
+[11:19:54] [main/INFO] (FabricLoader/Mappings) Mappings not present!
+[11:19:54] [main/INFO] (FabricLoader) Loading 45 mods:
+	- fabric-api 0.156.0+26.2
+	   |-- fabric-key-mapping-api-v1 2.0.5+e2bdee789e
+	   |-- fabric-model-loading-api-v1 8.0.16+c80601bb9e
+	   |-- fabric-renderer-api-v1 14.1.3+2b0d8a229e
+	   |-- fabric-renderer-indigo 9.1.3+2b0d8a229e
+	   |-- fabric-rendering-v1 25.3.2+515ac5339e
+	   |-- fabric-screen-api-v1 5.1.0+48e3c0b09e
+	   \-- fabric-sound-api-v1 2.0.5+11a26f319e
+	- fabric-api-base 2.0.4+ece063239e
+	- fabric-api-lookup-api-v1 2.0.17+11e1c9a39e
+	- fabric-biome-api-v1 18.0.6+c7bd5b8e9e
+	- fabric-block-api-v1 3.0.3+ec56b6019e
+	- fabric-block-getter-api-v2 2.0.7+ec56b6019e
+	- fabric-command-api-v2 3.1.0+00cb03469e
+	- fabric-content-registries-v0 11.3.0+d0a699d09e
+	- fabric-convention-tags-v2 4.7.0+1f023a9e9e
+	- fabric-crash-report-info-v1 1.0.5+086d547a9e
+	- fabric-creative-tab-api-v1 5.0.14+d871b99e9e
+	- fabric-data-attachment-api-v1 2.2.18+515ac5339e
+	- fabric-data-generation-api-v1 25.5.0+aed122aa9e
+	- fabric-debug-api-v1 1.0.2+c792624d9e
+	- fabric-dimensions-v1 5.1.11+515ac5339e
+	- fabric-entity-events-v1 5.0.5+06488ac19e
+	- fabric-events-interaction-v0 5.2.7+515ac5339e
+	- fabric-game-rule-api-v1 4.0.8+46a6d00c9e
+	- fabric-gametest-api-v1 4.0.21+4a7fa0819e
+	- fabric-item-api-v1 14.4.0+49a69a7b9e
+	- fabric-lifecycle-events-v1 4.1.3+4575b05f9e
+	- fabric-loot-api-v3 3.0.17+06488ac19e
+	- fabric-menu-api-v1 2.0.16+086d547a9e
+	- fabric-message-api-v1 7.0.7+086d547a9e
+	- fabric-networking-api-v1 6.3.3+72073ef09e
+	- fabric-object-builder-api-v1 24.1.0+6fcd5f039e
+	- fabric-particles-v1 5.0.18+d1756aa99e
+	- fabric-permission-api-v1 1.0.4+536fad2f9e
+	- fabric-recipe-api-v1 9.0.20+11e1c9a39e
+	- fabric-registry-sync-v0 7.1.0+c7bd5b8e9e
+	- fabric-rendering-fluids-v1 6.0.4+06488ac19e
+	- fabric-resource-conditions-api-v1 6.1.0+10e9a28b9e
+	- fabric-resource-loader-v0 3.3.20+4fc5413f9e
+	- fabric-resource-loader-v1 2.0.13+9edec1269e
+	- fabric-serialization-api-v1 2.0.4+11a26f319e
+	- fabric-tag-api-v1 2.1.4+515ac5339e
+	- fabric-transfer-api-v1 8.0.12+11dbb7d79e
+	- fabric-transitive-access-wideners-v1 8.1.4+67c847259e
+	- fabricloader 0.19.3
+	- java 25
+	- minecraft 26.2
+	- mixinextras 0.5.4
+	- powers 1.0.2
+	- powers-example-extension 1.0.0
+	- powers-gametest 1.0.0
+[11:19:54] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:<HOME>/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.3+mixin.0.8.7/41c4a3984a80f4679e759fb9f495587acc5cdac7/sponge-mixin-0.17.3+mixin.0.8.7.jar Service=Knot/Fabric Env=SERVER
+[11:19:54] [main/INFO] (FabricLoader/Mixin) Compatibility level set to JAVA_25
+[11:19:55] [main/INFO] (FabricLoader/MixinExtras|Service) Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.4).
+[11:19:59] [main/INFO] (powers) POWERS config validation: revision=1; adjustments=0; retained=0; dropped=0
+[11:19:59] [main/INFO] (powers) Loaded rank mazes: 28 light nodes, 28 darkness nodes
+[11:19:59] [main/INFO] (powers) Magic collision kernel loaded: 64 actions, 2080 exhaustive interactions
+[11:19:59] [main/INFO] (powers) POWERS framework initialized with 23 power(s)
+[11:19:59] [main/INFO] (Minecraft) Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[11:19:59] [main/INFO] (FabricGameTestRunner) Starting test server
+[11:20:00] [main/INFO] (Minecraft) Loaded 1605 recipes
+[11:20:00] [main/INFO] (Minecraft) Loaded 1713 advancements
+[11:20:00] [main/INFO] (powers) Staged 2 initial action aliases until extension registration
+[11:20:00] [main/INFO] (powers) Loaded 14 Shadow knowledge entries
+[11:20:00] [main/INFO] (BiomeModificationImpl) Applied 0 biome modifications to 0 of 69 new biomes in 798.6 μs
+[11:20:00] [Server thread/INFO] (powers) Published action registry revision 2 with 110 canonical keys and 2 aliases
+[11:20:01] [Server thread/INFO] (Minecraft) Selecting global world spawn...
+[11:20:01] [Server thread/INFO] (Minecraft) Loading 0 persistent chunks...
+[11:20:01] [Server thread/INFO] (Minecraft) Preparing spawn area: 100%
+[11:20:01] [Server thread/INFO] (Minecraft) Time elapsed: 284 ms
+[11:20:01] [Server thread/INFO] (Minecraft) Started game test server
+[11:20:01] [Server thread/INFO] (Minecraft) 131 tests are now running at position 5909842, -59, -10523363!
+[11:20:02] [Server thread/INFO] (Minecraft) Running test environment 'qa010_hostile:synthetic_reload' batch 0 (1 tests)...
+[11:20:02] [Server thread/INFO] (Minecraft) [                                                                                                                                   ]
+[11:20:02] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1 at (0.0, 0.0, 0.0)
+[11:20:02] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:02] [Server thread/INFO] (Minecraft) Loaded 1605 recipes
+[11:20:02] [Server thread/INFO] (Minecraft) Loaded 1713 advancements
+[11:20:02] [Server thread/INFO] (powers) Published action registry revision 3 with 110 canonical keys and 2 aliases
+[11:20:02] [Server thread/INFO] (powers) Loaded 14 Shadow knowledge entries
+[11:20:03] [Server thread/INFO] (Minecraft) [_                                                                                                                                  ]
+[11:20:03] [Server thread/INFO] (Minecraft) [_                                                                                                                                  ]
+[11:20:03] [Server thread/INFO] (Minecraft) [_                                                                                                                                  ]
+[11:20:03] [Server thread/INFO] (Minecraft) [_                                                                                                                                  ]
+[11:20:03] [Server thread/INFO] (Minecraft) [_                                                                                                                                  ]
+[11:20:03] [Server thread/INFO] (Minecraft) [_                                                                                                                                  ]
+[11:20:03] [Server thread/INFO] (Minecraft) [_                                                                                                                                  ]
+[11:20:03] [Server thread/INFO] (Minecraft) [_                                                                                                                                  ]
+[11:20:03] [Server thread/INFO] (Minecraft) [_                                                                                                                                  ]
+[11:20:03] [Server thread/INFO] (Minecraft) [_                                                                                                                                  ]
+[11:20:03] [Server thread/INFO] (Minecraft) [_                                                                                                                                  ]
+[11:20:03] [Server thread/INFO] (Minecraft) Running test environment 'qa010_hostile:travel_graph' batch 0 (1 tests)...
+[11:20:03] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 204 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) [+_                                                                                                                                 ]
+[11:20:04] [Server thread/INFO] (Minecraft) [+_                                                                                                                                 ]
+[11:20:04] [Server thread/INFO] (Minecraft) [+_                                                                                                                                 ]
+[11:20:04] [Server thread/INFO] (Minecraft) Running test environment 'powers:artifact_stale_cycle_isolated' batch 0 (1 tests)...
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 279 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) Running test environment 'powers:artifact_stale_teleport_isolated' batch 0 (1 tests)...
+[11:20:04] [Server thread/INFO] (Minecraft) [+++                                                                                                                                ]
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 290 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) Running test environment 'powers:ritual_isolated' batch 0 (1 tests)...
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 299 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) [++++_                                                                                                                              ]
+[11:20:04] [Server thread/INFO] (Minecraft) [++++_                                                                                                                              ]
+[11:20:04] [Server thread/INFO] (Minecraft) Running test environment 'powers:fx_lod_isolated' batch 0 (1 tests)...
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 315 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 316 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 317 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) Running test environment 'minecraft:default' batch 0 (50 tests)...
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 318 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 319 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 323 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) Named entity PowerTestActor['Test_889382ef'/324, l='ServerLevel[Test Level]', x=5909845.50, y=-56.00, z=-10523337.50] died: Test_889382ef died
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 327 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) Named entity FirstVessel['The First Vessel'/329, l='ServerLevel[Test Level]', x=5909875.50, y=-56.00, z=-10523341.50] died: death.attack.powers.celestial_ruin
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 332 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 334 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 336 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 338 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 339 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 340 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 341 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 343 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 346 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:04] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 347 at (0.0, 0.0, 0.0)
+[11:20:04] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 350 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 351 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player has made the advancement [We Need to Go Deeper]
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 354 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 355 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 356 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 357 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (powers) powers_operator_audit action=consent_override result=success actor=test-mock-player subject=test-mock-player detail=teleport
+[11:20:05] [Server thread/INFO] (powers) powers_operator_audit action=consent_override result=success actor=test-mock-player subject=test-mock-player detail=locator
+[11:20:05] [Server thread/INFO] (powers) powers_operator_audit action=consent_override result=success actor=test-mock-player subject=test-mock-player detail=companion
+[11:20:05] [Server thread/INFO] (powers) powers_operator_audit action=consent_override result=success actor=test-mock-player subject=test-mock-player detail=dreamwalk
+[11:20:05] [Server thread/INFO] (powers) powers_operator_audit action=consent_override result=success actor=test-mock-player subject=test-mock-player detail=possession
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 358 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (powers) powers_operator_audit action=consent_override result=denied actor=test-mock-player subject=test-mock-player detail=deny_energy
+[11:20:05] [Server thread/INFO] (powers) powers_operator_audit action=consent_override result=success actor=test-mock-player subject=test-mock-player detail=teleport
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 359 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 360 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 361 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 362 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 367 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 370 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 371 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 372 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 378 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 379 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player died
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player died
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 392 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 394 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 396 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, hide yourself
+[11:20:05] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, leave me
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 400 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 401 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 402 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 403 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 404 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 405 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 407 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 409 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 412 at (0.0, 0.0, 0.0)
+[11:20:05] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:05] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, hide yourself
+[11:20:05] [Server thread/INFO] (Minecraft) Named entity ShadowCompanionEntity['Shadow of test-mock-player'/395, l='ServerLevel[Test Level]', x=5909892.40, y=-56.00, z=-10523276.15] died: Shadow of test-mock-player died
+[11:20:05] [Server thread/INFO] (Minecraft) [++++++++++++++++++__++_+++++++_+_++++++++++_+++_+++_+_+_                                                                           ]
+[11:20:06] [Server thread/INFO] (Minecraft) [++++++++++++++++++__++_+++++++_+_++++++++++_+++_+++_+_++                                                                           ]
+[11:20:06] [Server thread/INFO] (Minecraft) [Unmarked] test-mock-player has made the advancement [We Need to Go Deeper]
+[11:20:07] [Server thread/INFO] (Minecraft) [++++++++++++++++++__++_+++++++++_++++++++++_+++++++_++++                                                                           ]
+[11:20:07] [Server thread/INFO] (Minecraft) [++++++++++++++++++__++++++++++++_++++++++++_++++++++++++                                                                           ]
+[11:20:07] [Server thread/INFO] (Minecraft) [++++++++++++++++++__+++++++++++++++++++++++_++++++++++++                                                                           ]
+[11:20:07] [Server thread/ERROR] (Minecraft) powers-gametest:powers_game_tests_realm_crystal_carries_nearby_mob_and_persistent_shadow_then_returns_them failed at 5909887, -59, -10523329! Return cohort could not see the tracked mob near its caster on tick 100
+[11:20:07] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, hide yourself
+[11:20:07] [Server thread/INFO] (Minecraft) [++++++++++++++++++_X++++++++++++++++++++++++++++++++++++                                                                           ]
+[11:20:07] [Server thread/INFO] (Minecraft) [++++++++++++++++++_X++++++++++++++++++++++++++++++++++++                                                                           ]
+[11:20:08] [Server thread/INFO] (Minecraft) [++++++++++++++++++_X++++++++++++++++++++++++++++++++++++                                                                           ]
+[11:20:54] [Server thread/INFO] (Minecraft) Running test environment 'minecraft:default' batch 1 (50 tests)...
+[11:20:54] [Server thread/WARN] (Minecraft) Can't keep up! Is the server overloaded? Running 27046ms or 540 ticks behind
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 746 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 749 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 752 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 755 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 756 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 757 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 759 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 760 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 765 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 766 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 767 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 774 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 775 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 777 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 778 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 780 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 781 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 782 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 783 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 785 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:54] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 789 at (0.0, 0.0, 0.0)
+[11:20:54] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) Named entity PowerTestActor['Target_thunderclap'/792, l='ServerLevel[Test Level]', x=5910114.50, y=-55.00, z=-10522929.50] died: Target_thunderclap was consumed by ancient power
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 804 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 805 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 806 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 807 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 808 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 809 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 810 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 811 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 812 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 813 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 814 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 815 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 960 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 966 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (powers) PERF-012 identical mixed AI: queries=24, cacheHits=12, inspections=348, legacyInspections=540, reductionPercent=35.56
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1012 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1013 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1018 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1022 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1024 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1034 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1035 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1036 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1037 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1039 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use astral projection
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use blight ground
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use breezy bash
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use call hollowed
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use double health
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, stop double health
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use energy beam
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use energy drain
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use fireball
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use flight
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, stop flight
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use forcefield
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, stop forcefield
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use gravity displacement
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use ice manipulation
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use invisibility
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, stop invisibility
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use lightning strike
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use nightfall dominion
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, stop nightfall dominion
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use plant healing acceleration
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use size shift
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, stop size shift
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use speed burst
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use starfall
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use super speed
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, stop super speed
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use telekinesis
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use thunderclap
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use time freeze
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, stop time freeze
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use time shift
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use vessel possession
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use void beam
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1075 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1076 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1077 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, stay here
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, fight at far range
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, follow me
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, how does amethyst interfere with magic?
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, explain the darkness to me
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use lightning strike
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use energy beam
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use lightning strike
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, use void beam
+[11:20:55] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, hide yourself
+[11:20:55] [Server thread/INFO] (Minecraft) Named entity ShadowCompanionEntity['Shadow of test-mock-player'/1078, l='ServerLevel[Test Level]', x=5909952.25, y=41.00, z=-10522019.25] died: Shadow of test-mock-player died
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1086 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1087 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1088 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1092 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1093 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1094 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:55] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 1519 at (0.0, 0.0, 0.0)
+[11:20:55] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:56] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++__++++__++++__++++_+_ +++++++++++++++++++++++__+++                         ]
+[11:20:56] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++_+++++_+++++++++++_+_ +++++++++++++++++++++++__+++                         ]
+[11:20:56] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++_+++++++++++_+_ +++++++++++++++++++++++__+++                         ]
+[11:20:57] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++_+++++++++++++_ +++++++++++++++++++++++__+++                         ]
+[11:20:57] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++_++++++++++++++ +++++++++++++++++++++++__+++                         ]
+[11:20:57] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++_++++++++++++++ +++++++++++++++++++++++__+++                         ]
+[11:20:58] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++_++++++++++++++ +++++++++++++++++++++++__+++                         ]
+[11:20:58] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++ +++++++++++++++++++++++__+++                         ]
+[11:20:58] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++ +++++++++++++++++++++++__+++                         ]
+[11:20:58] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++ +++++++++++++++++++++++__+++                         ]
+[11:20:59] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++ +++++++++++++++++++++++__+++                         ]
+[11:20:59] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++ +++++++++++++++++++++++__+++                         ]
+[11:20:59] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++ +++++++++++++++++++++++__+++                         ]
+[11:20:59] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++ +++++++++++++++++++++++__+++                         ]
+[11:20:59] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++ +++++++++++++++++++++++__+++                         ]
+[11:20:59] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2078 at (0.0, 0.0, 0.0)
+[11:20:59] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:20:59] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++++++++++++++++++++++__+++                         ]
+[11:21:00] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++++++++++++++++++++++__+++                         ]
+[11:21:00] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++++++++++++++++++++++__+++                         ]
+[11:21:00] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++++++++++++++++++++++__+++                         ]
+[11:21:00] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++++++++++++++++++++++__+++                         ]
+[11:21:00] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++++++++++++++++++++++__+++                         ]
+[11:21:00] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++++++++++++++++++++++__+++                         ]
+[11:21:00] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++++++++++++++++++++++__+++                         ]
+[11:21:00] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++++++++++++++++++++++__+++                         ]
+[11:21:00] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++++++++++++++++++++++__+++                         ]
+[11:21:00] [Server thread/INFO] (powers) powers_operator_audit action=catastrophic_ritual result=success actor=test-mock-player subject=world detail=begin
+[11:21:00] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:00] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:01] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:01] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:01] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:01] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:01] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:01] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:01] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:01] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:01] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:01] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:01] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:01] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:02] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:02] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:02] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:02] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:02] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:02] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:02] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:02] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:02] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:02] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:03] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:03] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:03] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__+++                         ]
+[11:21:03] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++                         ]
+[11:21:08] [Server thread/INFO] (Minecraft) Running test environment 'minecraft:default' batch 2 (8 tests)...
+[11:21:09] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2834 at (0.0, 0.0, 0.0)
+[11:21:09] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:09] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2835 at (0.0, 0.0, 0.0)
+[11:21:09] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:09] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2837 at (0.0, 0.0, 0.0)
+[11:21:09] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:09] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2839 at (0.0, 0.0, 0.0)
+[11:21:09] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:09] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2841 at (0.0, 0.0, 0.0)
+[11:21:09] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:09] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2842 at (0.0, 0.0, 0.0)
+[11:21:09] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:09] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2843 at (0.0, 0.0, 0.0)
+[11:21:09] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:09] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+___+++                 ]
+[11:21:11] [Server thread/INFO] (Minecraft) Loaded 1605 recipes
+[11:21:11] [Server thread/INFO] (Minecraft) Loaded 1713 advancements
+[11:21:11] [Server thread/INFO] (powers) Published action registry revision 7 with 110 canonical keys and 2 aliases
+[11:21:11] [Server thread/INFO] (powers) Loaded 14 Shadow knowledge entries
+[11:21:12] [Server thread/INFO] (Minecraft) Loaded 1605 recipes
+[11:21:12] [Server thread/INFO] (Minecraft) Loaded 1713 advancements
+[11:21:12] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+_+++++                 ]
+[11:21:13] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++++                 ]
+[11:21:13] [Server thread/INFO] (Minecraft) Running test environment 'powers:packet_fault_isolated' batch 0 (4 tests)...
+[11:21:13] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2851 at (0.0, 0.0, 0.0)
+[11:21:13] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:13] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:13] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:14] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:14] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2890 at (0.0, 0.0, 0.0)
+[11:21:14] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:14] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2897 at (0.0, 0.0, 0.0)
+[11:21:14] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:14] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:14] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player has made the advancement [We Need to Go Deeper]
+[11:21:14] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2921 at (0.0, 0.0, 0.0)
+[11:21:14] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:14] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2926 at (0.0, 0.0, 0.0)
+[11:21:14] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:14] [Server thread/INFO] (Minecraft) test-mock-player lost connection: QA-009 disconnect lifecycle
+[11:21:14] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:14] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 2933 at (0.0, 0.0, 0.0)
+[11:21:14] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:14] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:14] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:14] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:14] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:14] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:14] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:14] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:14] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:15] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:15] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:15] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:15] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:15] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:15] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:15] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:15] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:15] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:15] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:15] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:15] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:16] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:16] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:16] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:16] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:16] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:16] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:16] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:16] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:16] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:16] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+++             ]
+[11:21:16] [Server thread/INFO] (Minecraft) Running test environment 'powers:crystal_invalidation_isolated' batch 0 (1 tests)...
+[11:21:16] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++             ]
+[11:21:16] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3084 at (0.0, 0.0, 0.0)
+[11:21:16] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:16] [Server thread/INFO] (Minecraft) Running test environment 'powers:invasion_isolated' batch 0 (1 tests)...
+[11:21:16] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3088 at (0.0, 0.0, 0.0)
+[11:21:16] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:16] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:16] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:17] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:17] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:17] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:17] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:17] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:17] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:17] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:17] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:17] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:17] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:17] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:18] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:18] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:18] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:18] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:18] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:18] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:18] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:18] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_           ]
+[11:21:18] [Server thread/INFO] (Minecraft) Running test environment 'qa010_hostile:isolated' batch 0 (7 tests)...
+[11:21:18] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3158 at (0.0, 0.0, 0.0)
+[11:21:18] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:18] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3159 at (0.0, 0.0, 0.0)
+[11:21:18] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:18] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3164 at (0.0, 0.0, 0.0)
+[11:21:18] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:18] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player has made the advancement [Monster Hunter]
+[11:21:18] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3170 at (0.0, 0.0, 0.0)
+[11:21:18] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:18] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3171 at (0.0, 0.0, 0.0)
+[11:21:18] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:18] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3173 at (0.0, 0.0, 0.0)
+[11:21:18] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:18] [Server thread/INFO] (Minecraft) <test-mock-player> shadow, leave me
+[11:21:18] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3176 at (0.0, 0.0, 0.0)
+[11:21:18] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:18] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3178 at (0.0, 0.0, 0.0)
+[11:21:18] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:19] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player has made the advancement [We Need to Go Deeper]
+[11:21:19] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+_+    ]
+[11:21:20] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+    ]
+[11:21:20] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+    ]
+[11:21:20] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player fell out of the world
+[11:21:20] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+    ]
+[11:21:20] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+    ]
+[11:21:20] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+    ]
+[11:21:20] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++_+    ]
+[11:21:20] [Server thread/INFO] (Minecraft) Running test environment 'powers:artifact_recents_isolated' batch 0 (1 tests)...
+[11:21:20] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    ]
+[11:21:20] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3309 at (0.0, 0.0, 0.0)
+[11:21:20] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:20] [Server thread/INFO] (Minecraft) Running test environment 'powers:packet_fault_matrix_isolated' batch 0 (1 tests)...
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3310 at (0.0, 0.0, 0.0)
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3311 at (0.0, 0.0, 0.0)
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3312 at (0.0, 0.0, 0.0)
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3313 at (0.0, 0.0, 0.0)
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3314 at (0.0, 0.0, 0.0)
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3315 at (0.0, 0.0, 0.0)
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:21] [Server thread/ERROR] (Minecraft) powers-gametest:packet_fault_game_tests_six_profiles_converge_through_registered_production_boundaries failed at 5909842, -59, -10521821! loss1 did not inject loss at the production boundary on tick 10
+[11:21:21] [Server thread/INFO] (Minecraft) Running test environment 'powers:artifact_authority_isolated' batch 0 (1 tests)...
+[11:21:21] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++X  ]
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3316 at (0.0, 0.0, 0.0)
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:21] [Server thread/INFO] (Minecraft) Running test environment 'powers:vfx_gallery' batch 0 (1 tests)...
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player[embedded] logged in with entity id 3317 at (0.0, 0.0, 0.0)
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player joined the game
+[11:21:21] [Server thread/INFO] (Minecraft) [+++++++++++++++++++X++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++X++]
+[11:21:21] [Server thread/INFO] (Minecraft) ========= 131 GAME TESTS COMPLETE IN 1.328 min ======================
+[11:21:21] [Server thread/INFO] (Minecraft) 2 required tests failed :(
+[11:21:21] [Server thread/INFO] (Minecraft)    - powers-gametest:powers_game_tests_realm_crystal_carries_nearby_mob_and_persistent_shadow_then_returns_them: Return cohort could not see the tracked mob near its caster on tick 100
+[11:21:21] [Server thread/INFO] (Minecraft)    - powers-gametest:packet_fault_game_tests_six_profiles_converge_through_registered_production_boundaries: loss1 did not inject loss at the production boundary on tick 10
+[11:21:21] [Server thread/INFO] (Minecraft) ====================================================
+[11:21:21] [Server thread/INFO] (Minecraft) Stopping server
+[11:21:21] [Server thread/INFO] (Minecraft) Saving players
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Nightfall] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Unmarked] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Unmarked] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Nightfall] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Unmarked] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Unmarked] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Unmarked] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Nightfall] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Unmarked] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) test-mock-player lost connection: Server closed
+[11:21:21] [Server thread/INFO] (Minecraft) [Dormant] test-mock-player left the game
+[11:21:21] [Server thread/INFO] (Minecraft) Saving worlds
+[11:21:22] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Test Level]'/minecraft:overworld
+[11:21:22] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Test Level]'/minecraft:the_nether
+[11:21:23] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Test Level]'/powers:dark_realm
+[11:21:23] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Test Level]'/qa010_hostile:synthetic
+[11:21:23] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Test Level]'/minecraft:the_end
+[11:21:23] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Test Level]'/powers:light_realm
+[11:21:23] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage (world): All chunks are saved
+[11:21:23] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[11:21:23] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage (dark_realm): All chunks are saved
+[11:21:23] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage (synthetic): All chunks are saved
+[11:21:23] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[11:21:23] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage (light_realm): All chunks are saved
+[11:21:23] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage: All dimensions are saved
+[11:21:23] [Server thread/INFO] (Minecraft) Game test server shutting down
+
+> Task :runGameTest FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':runGameTest' (registered by plugin 'fabric-loom').
+> Process 'command '/opt/homebrew/Cellar/openjdk@25/25.0.4/libexec/openjdk.jdk/Contents/Home/bin/java'' finished with non-zero exit value 2
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 43s
+13 actionable tasks: 13 executed

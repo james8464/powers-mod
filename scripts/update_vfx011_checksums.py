@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 from pathlib import Path
 
@@ -17,14 +18,19 @@ def digest(path: Path) -> str:
 
 
 def main() -> None:
-    files = [path for path in EVIDENCE.rglob("*") if path.is_file() and path != CHECKSUMS]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--evidence", type=Path, default=EVIDENCE)
+    args = parser.parse_args()
+    evidence = args.evidence.resolve()
+    checksums = evidence / "SHA256SUMS"
+    files = [path for path in evidence.rglob("*") if path.is_file() and path != checksums]
     files.extend((
         ROOT / "docs/quality/vfx-011-asset-audit.json",
         ROOT / "docs/quality/vfx-011-reviewed-exceptions.json",
     ))
     files.extend((ROOT / "docs/quality/vfx-011-asset-pages").glob("*.png"))
     files = sorted(files, key=lambda path: path.relative_to(ROOT).as_posix())
-    CHECKSUMS.write_text("".join(
+    checksums.write_text("".join(
         f"{digest(path)}  {path.relative_to(ROOT).as_posix()}\n" for path in files))
     print(f"bound {len(files)} files")
 

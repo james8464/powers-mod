@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "status": "ACCEPTED",
+  "implementationCommit": "3376c8b97405e53804b12439b976e73874ff2ea0",
+  "jar": {
+    "name": "powers-1.0.2.jar",
+    "sha256": "0f0b70ac6840408a8be304bc27a79f52dbf92fb40d1df1b16a5e9ae1fee427d0"
+  },
+  "runtime": {
+    "minecraft": "26.2",
+    "fabricLoader": "0.19.3",
+    "fabricApi": "0.156.0+26.2",
+    "java": "OpenJDK 25.0.4",
+    "gpu": "Apple M3 Pro",
+    "graphics": "OpenGL 4.1 Metal - 90.5",
+    "physicalSurface": "1280x720",
+    "loadedMods": 53
+  },
+  "assetAudit": {
+    "assets": 970,
+    "pngs": 362,
+    "physicalFrameMips": 5629,
+    "backgroundTileRows": 16887,
+    "pages": 90,
+    "combinedDeterministicSha256": "75519a65923ceca827471b4727fa4ea3842de6dcdec380bc3c5ce0a4a87f277a"
+  },
+  "clientGallery": {
+    "metadataRows": 971,
+    "uniqueRawPngs": 971,
+    "captureIds": 9034,
+    "contactPages": 49,
+    "representativeIds": 20,
+    "uniqueRepresentativePngs": 15,
+    "metadataSha256": "9f1573526005a5d0d8e7f979a415aab772e99f6add61f73fa97a067f883e2f7a"
+  },
+  "review": {
+    "decisionRows": 2082,
+    "ledgerRows": 27032,
+    "directRawPasses": 15,
+    "limitedRawRows": 956,
+    "limitedContactPages": 49
+  },
+  "separateOpenWork": ["VFX-009"]
+}

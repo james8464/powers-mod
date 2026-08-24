@@ -63,7 +63,7 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
 ### Stage 3 — UI and magical presentation
 
 - [x] `PERF-010` + `UX-004`: one fixed-widget virtual scrolling catalogue with search, filters, favourites, recents, direct binding, stable revisions, narration, and a 10,000-action fixture.
-- [ ] `VFX-011`: asset/two-client evidence is accepted, but the historical 971 gallery lacks retained raw bytes/original emitted metadata. Keep open for fresh post-soak raw capture, explicit digest-bound review, and the literal aggregate gate.
+- [x] `VFX-011`: accepted exact-build successor retains all 971 raw gallery PNGs and original emitted metadata, binds 2,082 explicit review decisions, and passes the post-QA-006 literal aggregate; historical provisional evidence remains preserved.
 - [ ] `VFX-009`: dedicated ancient-white Light Realm sky renderer with Sodium-safe boundary and static fallback.
 - [ ] `VFX-004`: protected, no-drop, reversible material-aware scar service under hard budgets.
 - [ ] `VFX-005`: unique long-distance silhouettes for every rank-10 transformation.

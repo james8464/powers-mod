@@ -23,11 +23,11 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def inputs() -> tuple[dict, list[dict], dict]:
+def inputs(evidence: Path = EVIDENCE) -> tuple[dict, list[dict], dict]:
     manifest = json.loads(MANIFEST.read_text())
     client_rows = list(csv.DictReader(
-        (EVIDENCE / "client-capture-index.tsv").read_text().splitlines(), delimiter="\t"))
-    receipt = json.loads((EVIDENCE / "two-client/receipt.json").read_text())
+        (evidence / "client-capture-index.tsv").read_text().splitlines(), delimiter="\t"))
+    receipt = json.loads((evidence / "two-client/receipt.json").read_text())
     if len(manifest["assets"]) != 970 or len(manifest["pageDigests"]) != 90:
         raise ValueError("asset inventory/page count drift")
     if len(manifest["pageTiles"]) != 16_887:
@@ -38,30 +38,59 @@ def inputs() -> tuple[dict, list[dict], dict]:
         raise ValueError("client page ownership drift")
     if not receipt.get("passed") or len(receipt.get("screenshots", [])) != 2:
         raise ValueError("two-client proof is not accepted")
+    fresh_receipt_path = evidence / "client-run-receipt.json"
+    if fresh_receipt_path.is_file():
+        fresh = json.loads(fresh_receipt_path.read_text())
+        if fresh.get("clientEmittedMetadata", {}).get("rows") != 971:
+            raise ValueError("fresh client receipt row count drift")
+        raw = fresh.get("rawScreenshots", {})
+        if raw.get("rows") != 971 or raw.get("uniqueContentFiles") != 971:
+            raise ValueError("fresh raw screenshot receipt coverage drift")
     return manifest, client_rows, receipt
 
 
-def expected_decision_digests() -> dict[tuple[str, str], str]:
-    manifest, client_rows, receipt = inputs()
+def expected_decision_digests(evidence: Path = EVIDENCE) -> dict[tuple[str, str], str]:
+    manifest, client_rows, receipt = inputs(evidence)
     expected: dict[tuple[str, str], str] = {}
     for asset in manifest["assets"]:
         expected[("asset_source", asset["path"])] = asset["sha256"]
     for page, page_digest in manifest["pageDigests"].items():
         expected[("asset_page", page)] = page_digest
+    fresh = (evidence / "client-run-receipt.json").is_file()
+    raw_index: dict[str, dict] = {}
+    if fresh:
+        raw_index = {row["screenshot"]: row for row in csv.DictReader(
+            (evidence / "client-raw-index.tsv").read_text().splitlines(), delimiter="\t")}
+        emitted = [json.loads(line) for line in
+                   (evidence / "client-emitted-captures.jsonl").read_text().splitlines()]
+        emitted_by_name = {row["screenshot"]: row for row in emitted}
+        if len(raw_index) != 971 or len(emitted_by_name) != 971:
+            raise ValueError("fresh raw/emitted metadata coverage drift")
+    client_kind = "client_raw" if fresh else "historical_client_digest"
     for row in client_rows:
-        key = ("historical_client_digest", row["screenshot"])
+        key = (client_kind, row["screenshot"])
         prior = expected.setdefault(key, row["sha256"])
         if prior != row["sha256"]:
             raise ValueError(f"inconsistent screenshot digest: {row['screenshot']}")
+        if fresh:
+            indexed = raw_index.get(row["screenshot"])
+            emitted_row = emitted_by_name.get(row["screenshot"])
+            if indexed is None or emitted_row is None:
+                raise ValueError(f"fresh screenshot is not retained: {row['screenshot']}")
+            content = evidence / indexed["content_path"]
+            if (indexed["sha256"] != row["sha256"]
+                    or emitted_row.get("screenshotSha256") != row["sha256"]
+                    or not content.is_file() or digest(content) != row["sha256"]):
+                raise ValueError(f"fresh screenshot digest binding drift: {row['screenshot']}")
     for page in {row["page"] for row in client_rows}:
-        expected[("client_page", page)] = digest(EVIDENCE / "client-contact-sheets" / page)
+        expected[("client_page", page)] = digest(evidence / "client-contact-sheets" / page)
     for screenshot in receipt["screenshots"]:
         expected[("two_client_capture", screenshot["file"])] = screenshot["sha256"]
     return expected
 
 
-def expected_decision_keys() -> set[tuple[str, str]]:
-    return set(expected_decision_digests())
+def expected_decision_keys(evidence: Path = EVIDENCE) -> set[tuple[str, str]]:
+    return set(expected_decision_digests(evidence))
 
 
 def load_decisions(path: Path = DECISIONS) -> dict[tuple[str, str], dict]:
@@ -79,8 +108,9 @@ def load_decisions(path: Path = DECISIONS) -> dict[tuple[str, str], dict]:
 
 
 def validate_decisions(decisions: dict[tuple[str, str], dict],
-                       expected_keys: set[tuple[str, str]] | None = None) -> None:
-    expected = expected_decision_digests()
+                       expected_keys: set[tuple[str, str]] | None = None,
+                       evidence: Path = EVIDENCE) -> None:
+    expected = expected_decision_digests(evidence)
     keys = set(expected) if expected_keys is None else expected_keys
     missing = keys - set(decisions)
     extra = set(decisions) - keys
@@ -91,14 +121,16 @@ def validate_decisions(decisions: dict[tuple[str, str], dict],
             raise ValueError(f"stale explicit decision digest: {key}")
         if key[0] == "historical_client_digest" and decisions[key]["verdict"] != "PENDING_RAW_RECAPTURE":
             raise ValueError(f"historical client digest cannot claim visual acceptance: {key}")
+        if key[0] == "client_raw" and decisions[key]["verdict"] == "PENDING_RAW_RECAPTURE":
+            raise ValueError(f"retained fresh client raw requires a reviewed verdict: {key}")
         if key[0] == "client_page" and decisions[key]["verdict"] != "LIMITED":
             raise ValueError(f"client contact page is navigation-only: {key}")
 
 
-def render() -> str:
-    manifest, client_rows, receipt = inputs()
-    decisions = load_decisions()
-    validate_decisions(decisions)
+def render(evidence: Path = EVIDENCE) -> str:
+    manifest, client_rows, receipt = inputs(evidence)
+    decisions = load_decisions(evidence / "review-decisions.tsv")
+    validate_decisions(decisions, evidence=evidence)
     output = io.StringIO()
     writer = csv.writer(output, delimiter="\t", lineterminator="\n")
     writer.writerow(("kind", "source", "page", "tile_or_slot", "bounds", "verdict", "notes"))
@@ -115,10 +147,13 @@ def render() -> str:
     for page in sorted(manifest["pageDigests"]):
         decision = decisions[("asset_page", page)]
         writer.writerow(("asset_page", "", page, "", "", decision["verdict"], decision["notes"]))
+    fresh = (evidence / "client-run-receipt.json").is_file()
+    client_kind = "client_raw" if fresh else "historical_client_digest"
+    output_kind = "client_capture" if fresh else "client_capture_pending_raw"
     for row in client_rows:
-        decision = decisions[("historical_client_digest", row["screenshot"])]
+        decision = decisions[(client_kind, row["screenshot"])]
         bounds = f'{row["x"]},{row["y"]},{row["width"]},{row["height"]}'
-        writer.writerow(("client_capture_pending_raw", row["capture_id"], row["page"], row["slot"], bounds,
+        writer.writerow((output_kind, row["capture_id"], row["page"], row["slot"], bounds,
                          decision["verdict"], f'{decision["notes"]}; screenshot={row["screenshot"]}'))
     for page in sorted({row["page"] for row in client_rows}):
         decision = decisions[("client_page", page)]
@@ -132,14 +167,17 @@ def render() -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--evidence", type=Path, default=EVIDENCE)
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--update", action="store_true")
     group.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    expected = render()
+    evidence = args.evidence.resolve()
+    ledger = evidence / "review-ledger.tsv"
+    expected = render(evidence)
     if args.update:
-        LEDGER.write_text(expected)
-    elif not LEDGER.is_file() or LEDGER.read_text() != expected:
+        ledger.write_text(expected)
+    elif not ledger.is_file() or ledger.read_text() != expected:
         raise SystemExit("VFX-011 review ledger is missing or stale; run with --update")
 
 
