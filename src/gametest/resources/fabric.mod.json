@@ -26,8 +26,8 @@
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests",
-			"com.powers.client.VfxGalleryClientGameTests",
-			"com.powers.client.LightRealmSkyClientGameTests"
+			"com.powers.client.LightRealmSkyClientGameTests",
+			"com.powers.client.VfxGalleryClientGameTests"
 		]
 	},
 	"depends": {
