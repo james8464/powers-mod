@@ -90,7 +90,7 @@ d967772df519ad391654761801b84f84d063ec9f747bd710ce5355e08851d8d2  docs/quality/v
 1436b291c2f5303bb4644c567933c27d2f5ef63e877f9187cca2e241a764cbdc  docs/quality/vfx-011-asset-pages/pixels-light-028.png
 65a508c3ffcba96e4572e6f111d245bb69598004b4d9c3c09ff6155fd1f0412b  docs/quality/vfx-011-asset-pages/pixels-light-029.png
 9b59500ad7ba5518d6574059ca16ab5bb1b08cb92dab85fb30a8f4c50e5e929f  docs/quality/vfx-011-reviewed-exceptions.json
-741a84b0356684f7fd4055d6385258958b667482124d1a8ebf883bea26feec72  docs/verification/evidence/2026-08-24-vfx-011/README.md
+697ffd78f9e7a366916ad700cfe01d606fc6104f5b594fb5991f858f73b17c93  docs/verification/evidence/2026-08-24-vfx-011/README.md
 719d3bad57029d2e372eb628fc9efe6a23bf5d3d847e7026ca545f1de785a4e6  docs/verification/evidence/2026-08-24-vfx-011/build-metadata.json
 ed86d75637cf2ad1f37d5a92741e481c529446c787c8ca650ddc35d3e6f67576  docs/verification/evidence/2026-08-24-vfx-011/client-capture-index.tsv
 4af0913e14bf86cbcca4a953031ad4ddd9fb6ffbdabde6e9528eda0c08899fe3  docs/verification/evidence/2026-08-24-vfx-011/client-command-receipt.json
@@ -1124,6 +1124,7 @@ ff650d975809ec4dd7435258ed087e87a57f94b2c7ee5f0631717bd5d7295b5d  docs/verificat
 0058c941556f4603a6742e37de27c561c1f38ddb167e10432286a4ab26f0cd6b  docs/verification/evidence/2026-08-24-vfx-011/logs/final-review-check-attempt2-clean-failed.log
 6059d76b72d7bb4b979a07d4ebb6800b4cac7974632cc809f887418463b53192  docs/verification/evidence/2026-08-24-vfx-011/logs/final-review-check-attempt3-evidence-contract-failed.log
 941cdbb54b06c715cb12a8be681165e6fe61c21a0b881ba87002702ba2cb7aeb  docs/verification/evidence/2026-08-24-vfx-011/logs/final-review-check-attempt4-failed.log
+e7b003d662316144b7dc1d46e621e00c63d9bc584fd21a301624411032090dd3  docs/verification/evidence/2026-08-24-vfx-011/logs/final-review-check-final-green.log
 2c8668eaeada65095084e3c43f6c75e2093099600ca602106b1571b067a79923  docs/verification/evidence/2026-08-24-vfx-011/logs/final-review-check-without-gametest.log
 949b909a2e038cf3bcbea90d47833a197fbd59b9e96bb8339ccaf3034ebf3537  docs/verification/evidence/2026-08-24-vfx-011/logs/final-review-focused-gradle.log
 790ce9481e31a07ecc8d65f32582b3a7c52b5b08acef2c0c84181c1f2555a9e6  docs/verification/evidence/2026-08-24-vfx-011/logs/final-review-gallery-gametest.log
