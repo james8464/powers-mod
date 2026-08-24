@@ -1,10 +1,14 @@
 # VFX-011 Task 6 report — 2026-08-24
 
-## Outcome
+## Current authoritative outcome
 
 VFX-011 is closed with a fresh exact-build successor at `docs/verification/evidence/2026-08-24-vfx-011`. The historical `2026-08-21-vfx-011` provisional bundle is preserved. VFX-009 remains present in the backlog and unchecked in the completion plan.
 
-The exact implementation is commit `3376c8b97405e53804b12439b976e73874ff2ea0` (`test(vfx): isolate VFX-011 client capture gate`). Its runtime JAR is `powers-1.0.2.jar`, SHA-256 `0f0b70ac6840408a8be304bc27a79f52dbf92fb40d1df1b16a5e9ae1fee427d0`. The final evidence/closure commit is the commit containing this report; its exact SHA is reported in the Task 6 handoff because a commit cannot embed its own SHA.
+The exact capture implementation is commit `44e3a7c58c6426f2cfa8f64e4cb5fabd29822279` (`fix(vfx): bind gallery captures to actual GUI scale`) and its runtime JAR is `powers-1.0.2.jar`, SHA-256 `0f0b70ac6840408a8be304bc27a79f52dbf92fb40d1df1b16a5e9ae1fee427d0`. Scales 1–3 use 960×720/1280×720 surfaces; scale 4 uses 1280×960/1600×960, with all 68 nominal scale-4 capture IDs reporting requested/effective 4/4.
+
+The finalized-head literal aggregate passed exit 0 with 131/131 required GameTests, 1,680/1,680 JUnit tests, 143/143 Python tests, audits/resources, and `BUILD SUCCESSFUL in 3m 4s`. Its retained privacy-sanitized transcript is `docs/verification/evidence/2026-08-24-vfx-011/logs/final-review-check-final-green.log`, SHA-256 `e7b003d662316144b7dc1d46e621e00c63d9bc584fd21a301624411032090dd3`. `docs/verification/evidence/2026-08-24-vfx-011/SHA256SUMS` binds 1,177 files and has SHA-256 `9ea3260167cb3f1adb05b08dd37ab8b5cbf85290f305e9da4c522ad1d18e2c93`; all 1,177 entries verify.
+
+This current summary and the later fix/reconciliation appendices are authoritative. The intervening sections from `Implementation and TDD` through the first `Closure and self-review` are retained as chronological records of earlier evidence iterations; their superseded implementation SHA, surfaces, test counts, log digests, and checksum totals are historical, not current acceptance claims.
 
 ## Implementation and TDD
 
@@ -278,3 +282,7 @@ This clean literal aggregate resolves the sole final-review acceptance concern. 
 Closure wording was reconciled in the successor README and completion plan. The top-level README and CHANGELOG already accurately stated that literal aggregates pass and required no byte change. VFX-009 remains open, the historical `2026-08-21-vfx-011` evidence remains unchanged, and neither production/runtime code nor decisions/raw visual evidence changed in this reconciliation.
 
 Final reconciliation gates all exited 0: privacy scan passed for 51 owned non-PNG files; ledger `--check` passed; `python3 -B -m unittest scripts.tests.test_build_vfx011_review_ledger` passed 21/21; and `shasum -a 256 -c` verified 1,177/1,177 entries. Final `SHA256SUMS` SHA-256 is `9ea3260167cb3f1adb05b08dd37ab8b5cbf85290f305e9da4c522ad1d18e2c93`. `git diff --check` exited 0, and comparison against `936f0c8f...` proved the historical evidence directory unchanged. The root agent will rerun the full aggregate on the reconciliation commit; this narrow wave did not rerun it or alter runtime code.
+
+## Closure reconciliation fix round 2 — report consistency
+
+Fix base: `a5d12e58f348549b13272016cffc6a97fc640577`. The opening was rewritten as the single authoritative current summary: implementation `44e3a7c5...`, actual scale-4 surfaces and 4/4 runtime binding, 143 Python tests, the retained final-green transcript/digest, and the 1,177-entry checksum state. Earlier initial-capture sections are now explicitly scoped as historical chronology, eliminating their ambiguity without rewriting or discarding retained evidence history. This docs-only correction changes no evidence byte, decision, raw capture, runtime source, README, CHANGELOG, plan, or backlog state.
