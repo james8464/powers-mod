@@ -53,6 +53,8 @@ DIAGNOSTIC_MARKERS = (
 )
 _HOME_PATH = re.compile(r"(?:file:)?/(?:Users|home)/[^\s\])]+")
 _LOOPBACK = re.compile(r"/?(?:127\.0\.0\.1|localhost)(?::\d+|,\s*\d+)?")
+_UUID = re.compile(
+    r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b")
 REPORT_FIELDS = frozenset({
     "schema", "git_commit", "requested_hours", "cycle_seconds",
     "requested_cycles", "completed_cycles", "connected_workload_seconds",
@@ -78,6 +80,7 @@ def sanitize_log(text: str) -> str:
     sanitized = re.sub(
         r"(?:file:)?/(?:private|var/folders|tmp)/[^\s\])]+", "<LOCAL_PATH>", sanitized)
     sanitized = _LOOPBACK.sub("<LOOPBACK>", sanitized)
+    sanitized = _UUID.sub("<UUID>", sanitized)
     sanitized = re.sub(r"[ \t]+(?=\r?$)", "", sanitized, flags=re.MULTILINE)
     validate_packaged_text(sanitized)
     return sanitized
@@ -343,7 +346,7 @@ def package_run(source: Path, destination: Path) -> dict[str, object]:
         "clientAbilityActions": total_actions,
         "logCount": len(entries),
         "archiveSha256": archive_sha,
-        "privacy": "absolute home paths and loopback endpoints replaced in retained logs",
+        "privacy": "absolute home paths, loopback endpoints, and UUIDs replaced in retained logs",
         "releaseLimitation": "the final release commit still requires its own complete 24-hour rerun",
     }
     readme = f"""# QA-006 restart/reconnect soak evidence
@@ -356,8 +359,8 @@ SIGTERM boundary. The run recorded {total_actions} client ability activations an
 {sigterm_boundaries} flushed SIGTERM boundaries.
 
 `restart-soak-logs.tar.gz` is deterministic and contains privacy-sanitized UTF-8 logs. The exact raw
-and retained hashes/sizes are recorded per member in `logs-index.json`; private home paths and dynamic
-loopback endpoints are replaced without removing diagnostic lines. `SHA256SUMS` covers every other
+and retained hashes/sizes are recorded per member in `logs-index.json`; private home paths, dynamic
+loopback endpoints, and UUIDs are replaced without removing diagnostic lines. `SHA256SUMS` covers every other
 file in this directory.
 
 This evidence closes the QA-006 work unit only. The selected programme's final acceptance still

@@ -1,0 +1,15 @@
+{
+  "archiveSha256": "0c3eb4a22de0fa9f6d1e82d82abcd69dc5f7c62d2c7bba575985c3c185f0fcd6",
+  "clientAbilityActions": 18967,
+  "completedCycles": 288,
+  "connectedWorkloadSeconds": 77962.142,
+  "elapsedSeconds": 88081.194,
+  "implementationCommit": "0e8a3d4efa3e61f09cb0146ba6b9a00bbb235021",
+  "logCount": 576,
+  "privacy": "absolute home paths, loopback endpoints, and UUIDs replaced in retained logs",
+  "releaseLimitation": "the final release commit still requires its own complete 24-hour rerun",
+  "requestedHours": 24.0,
+  "schema": 1,
+  "sigtermBoundaries": 24,
+  "status": "passed"
+}

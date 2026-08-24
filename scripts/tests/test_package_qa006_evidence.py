@@ -21,6 +21,17 @@ SPEC.loader.exec_module(PACKAGE)
 
 
 class Qa006EvidencePackagerTest(unittest.TestCase):
+    def test_sanitize_log_redacts_player_uuid(self):
+        raw = "Couldn't look up profile properties for 6c4dbc4a-f119-3ae4-ad1d-738d4acfc52e\n"
+        try:
+            sanitized = PACKAGE.sanitize_log(raw)
+        except Exception as error:
+            self.fail(f"sanitize_log rejected a redaction-safe player UUID: {error}")
+        self.assertEqual(
+            "Couldn't look up profile properties for <UUID>\n",
+            sanitized,
+        )
+
     def make_run(self, root: Path, *, cycles: int = 288) -> Path:
         source = root / "restart-soak"
         server_logs = source / "server-logs"
@@ -218,6 +229,9 @@ class Qa006EvidencePackagerTest(unittest.TestCase):
             self.assertEqual(576, len(index["logs"]))
             self.assertEqual(288, index["serverLogs"])
             self.assertEqual(288, index["clientLogs"])
+            summary = json.loads((first / "validation-summary.json").read_text())
+            self.assertIn("UUID", summary["privacy"])
+            self.assertIn("UUID", (first / "README.md").read_text())
             checksums = (first / "SHA256SUMS").read_text()
             for name in PACKAGE.OWNED_OUTPUTS - {"SHA256SUMS"}:
                 self.assertIn(name, checksums)
