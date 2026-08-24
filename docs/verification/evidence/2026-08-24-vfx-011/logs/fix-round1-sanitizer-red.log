@@ -1,0 +1,20 @@
+F
+======================================================================
+FAIL: test_sanitizer_refreshes_fresh_client_transcript_receipt_idempotently (scripts.tests.test_build_vfx011_review_ledger.Vfx011EvidenceTest.test_sanitizer_refreshes_fresh_client_transcript_receipt_idempotently)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<HOME>/Developer/Minecraft mods/POWERS/.worktrees/vfx-011-exact-visual-audit/scripts/tests/test_build_vfx011_review_ledger.py", line 122, in test_sanitizer_refreshes_fresh_client_transcript_receipt_idempotently
+    self.assertEqual(hashlib.sha256(transcript.read_bytes()).hexdigest(),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     receipt["transcript"]["sha256"])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'd6794e99f7e34b01801611a699a5a91c49df4153659da40bfadeae14bdd1ca67' != '50129d0902bb14035c26e4f832fe8acab1b0b40adc85730fac1e645ca899f398'
+- d6794e99f7e34b01801611a699a5a91c49df4153659da40bfadeae14bdd1ca67
++ 50129d0902bb14035c26e4f832fe8acab1b0b40adc85730fac1e645ca899f398
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.141s
+
+FAILED (failures=1)
+VFX011_SANITIZER_RECEIPT_RED_EXIT=1

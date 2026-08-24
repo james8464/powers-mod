@@ -33,26 +33,33 @@ def scan_files(evidence: Path = EVIDENCE) -> list[Path]:
 
 def refresh_receipt(evidence: Path = EVIDENCE) -> None:
     path = evidence / "two-client/receipt.json"
-    receipt = json.loads(path.read_text())
-    for entry in receipt["logs"]:
-        owned = evidence / "two-client/logs" / Path(entry["file"]).name
-        entry["file"] = owned.name
-        entry["sha256"] = hashlib.sha256(owned.read_bytes()).hexdigest()
-    option_names = {
-        "VfxObserver-idle": "VfxObserver-idle-options.txt",
-        "VfxPrimary-darkness": "VfxPrimary-darkness-options.txt",
-        "VfxPrimary-locator": "VfxPrimary-locator-options.txt",
-    }
-    for entry in receipt["options"]:
-        recorded = Path(entry["file"])
-        if recorded.name in option_names.values():
-            name = recorded.name
-        else:
-            name = option_names[recorded.parent.name]
-        owned = evidence / "two-client/options" / name
-        entry["file"] = owned.name
-        entry["sha256"] = hashlib.sha256(owned.read_bytes()).hexdigest()
-    path.write_text(json.dumps(receipt, indent=2) + "\n")
+    if path.is_file():
+        receipt = json.loads(path.read_text())
+        for entry in receipt["logs"]:
+            owned = evidence / "two-client/logs" / Path(entry["file"]).name
+            entry["file"] = owned.name
+            entry["sha256"] = hashlib.sha256(owned.read_bytes()).hexdigest()
+        option_names = {
+            "VfxObserver-idle": "VfxObserver-idle-options.txt",
+            "VfxPrimary-darkness": "VfxPrimary-darkness-options.txt",
+            "VfxPrimary-locator": "VfxPrimary-locator-options.txt",
+        }
+        for entry in receipt["options"]:
+            recorded = Path(entry["file"])
+            if recorded.name in option_names.values():
+                name = recorded.name
+            else:
+                name = option_names[recorded.parent.name]
+            owned = evidence / "two-client/options" / name
+            entry["file"] = owned.name
+            entry["sha256"] = hashlib.sha256(owned.read_bytes()).hexdigest()
+        path.write_text(json.dumps(receipt, indent=2) + "\n")
+    command_path = evidence / "client-command-receipt.json"
+    if command_path.is_file():
+        receipt = json.loads(command_path.read_text())
+        transcript = evidence / receipt["transcript"]["file"]
+        receipt["transcript"]["sha256"] = hashlib.sha256(transcript.read_bytes()).hexdigest()
+        command_path.write_text(json.dumps(receipt, indent=2) + "\n")
 
 
 def main() -> None:

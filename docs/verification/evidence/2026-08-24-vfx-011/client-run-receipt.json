@@ -7,12 +7,12 @@
   },
   "clientEmittedMetadata": {
     "file": "client-emitted-captures.jsonl",
-    "sha256": "9f1573526005a5d0d8e7f979a415aab772e99f6add61f73fa97a067f883e2f7a",
+    "sha256": "db2959e19685123d0cbdbbec450e586fe523e47406a447c6b264d803308b317c",
     "rows": 971
   },
   "rawScreenshots": {
     "index": "client-raw-index.tsv",
-    "indexSha256": "157c0e1983a788c1ece565ef760380d5989edde125fe13edb2acf456a502199a",
+    "indexSha256": "d1cf527be7bb07097cca8cb75fde91b28c6dc12d8f35bbbbbe04b2c7e874f4c9",
     "rows": 971,
     "uniqueContentFiles": 971
   }

@@ -111,6 +111,23 @@ class Vfx011EvidenceTest(unittest.TestCase):
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
         self.assertEqual(before, receipt.read_bytes())
 
+    def test_sanitizer_refreshes_fresh_client_transcript_receipt_idempotently(self):
+        command_receipt = FRESH_EVIDENCE / "client-command-receipt.json"
+        result = subprocess.run(
+            [sys.executable, "scripts/sanitize_vfx011_evidence.py", "--evidence",
+             str(FRESH_EVIDENCE)], cwd=ROOT, capture_output=True, text=True, check=False)
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        receipt = json.loads(command_receipt.read_text())
+        transcript = FRESH_EVIDENCE / receipt["transcript"]["file"]
+        self.assertEqual(hashlib.sha256(transcript.read_bytes()).hexdigest(),
+                         receipt["transcript"]["sha256"])
+        before = command_receipt.read_bytes()
+        result = subprocess.run(
+            [sys.executable, "scripts/sanitize_vfx011_evidence.py", "--evidence",
+             str(FRESH_EVIDENCE)], cwd=ROOT, capture_output=True, text=True, check=False)
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        self.assertEqual(before, command_receipt.read_bytes())
+
     def test_two_client_receipt_hashes_sanitized_owned_files(self):
         receipt = json.loads((EVIDENCE / "two-client/receipt.json").read_text())
         for category, directory, key in (
@@ -187,6 +204,42 @@ class Vfx011EvidenceTest(unittest.TestCase):
              str(FRESH_EVIDENCE), "--check"], cwd=ROOT, capture_output=True, text=True,
             check=False)
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_fresh_bundle_excludes_cross_commit_two_client_acceptance(self):
+        self.assertFalse((FRESH_EVIDENCE / "two-client").exists())
+        rows = list(csv.DictReader(
+            (FRESH_EVIDENCE / "review-decisions.tsv").read_text().splitlines(),
+            delimiter="\t"))
+        self.assertFalse([row for row in rows if row["kind"] == "two_client_capture"])
+        module = load_module("build_vfx011_review_ledger")
+        self.assertFalse(
+            [key for key in module.expected_decision_keys(FRESH_EVIDENCE)
+             if key[0] == "two_client_capture"])
+
+    def test_fresh_client_command_receipt_proves_terminal_success_and_exact_binding(self):
+        receipt_path = FRESH_EVIDENCE / "client-command-receipt.json"
+        self.assertTrue(receipt_path.is_file(), receipt_path)
+        receipt = json.loads(receipt_path.read_text())
+        self.assertEqual("PASS", receipt["result"])
+        self.assertEqual(0, receipt["exitCode"])
+        self.assertEqual(
+            ["./gradlew", "runClientGameTest", "-Pvfx011ClientOnly", "--rerun-tasks",
+             "--no-daemon", "--console=plain"],
+            receipt["command"])
+        self.assertEqual(
+            "3376c8b97405e53804b12439b976e73874ff2ea0",
+            receipt["implementationCommit"])
+        run_receipt = json.loads((FRESH_EVIDENCE / "client-run-receipt.json").read_text())
+        self.assertEqual(run_receipt["jar"]["sha256"], receipt["jar"]["sha256"])
+        self.assertEqual(971, receipt["clientEmittedMetadata"]["rows"])
+        self.assertEqual(971, receipt["rawScreenshots"]["verifiedDigests"])
+        self.assertEqual(9_034, receipt["captureIds"]["unique"])
+        transcript = FRESH_EVIDENCE / receipt["transcript"]["file"]
+        self.assertEqual(receipt["transcript"]["sha256"],
+                         hashlib.sha256(transcript.read_bytes()).hexdigest())
+        terminal = transcript.read_text(errors="replace")
+        self.assertIn("BUILD SUCCESSFUL", terminal)
+        self.assertIn("VFX011_CLIENT_COMMAND_EXIT=0", terminal)
 
     def test_fresh_checksums_bind_every_owned_file(self):
         checksum_path = FRESH_EVIDENCE / "SHA256SUMS"

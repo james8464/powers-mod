@@ -7,7 +7,7 @@ This dated successor closes VFX-011 against implementation commit `3376c8b97405e
 - The immutable audit inventories 970 assets, including 362 PNGs. Its 5,629 physical frame/mip tiles produce 16,887 traceable light/dark/checker rows on 90 deterministic pages. All 90 pages were explicitly inspected with `view_image`; no additional repair was indicated.
 - A fresh exact-build client run emitted 971 metadata rows covering 9,034 unique capture IDs. All 971 original raw PNGs are retained content-addressably in `client-raw/`, and `client-emitted-captures.jsonl` preserves the original emitted metadata and runtime options.
 - All 49 generated client contact pages were explicitly inspected as navigation aids. Fifteen unique representative full-resolution PNGs covering 20 required representative IDs were directly inspected with `view_image(detail=original)`.
-- `review-decisions.tsv` contains 2,082 digest-bound decisions: 970 asset sources, 90 asset pages, 971 fresh client raw files, 49 client pages, and two accepted two-client captures. The generated `review-ledger.tsv` contains 27,032 evidence rows plus its header.
+- `review-decisions.tsv` contains 2,080 digest-bound decisions: 970 asset sources, 90 asset pages, 971 fresh client raw files, and 49 client pages. The generated `review-ledger.tsv` contains 27,030 evidence rows plus its header.
 - Fifteen directly opened representative raw PNGs are `PASS`. The other 956 retained raw PNGs are explicitly `LIMITED`: their bytes and emitted digests are verified and their contact pages were viewed, but they were not directly opened, so no visual PASS is inferred. All 49 contact pages are likewise `LIMITED` navigation evidence.
 
 ## Visual findings
@@ -35,7 +35,9 @@ python3 -B -m unittest scripts.tests.test_audit_non_item_assets scripts.tests.te
 ./gradlew check --rerun-tasks --no-daemon --console=plain
 ```
 
-The exact client run exited 0 with 971/971 captures. Focused JVM/resource gates and 18 Python tests passed. The gallery server test passed 1/1. The accepted authoritative `./test.sh gametest` execution printed `All 131 required tests passed` and `BUILD SUCCESSFUL`; its surrounding tee wrapper later hit zsh's reserved `status` variable, so that wrapper is truthfully recorded as nonzero outside Gradle. A later literal `check` run exited 0 with all 131 required GameTests, 1,680 JUnit tests, resource/audit gates, and `BUILD SUCCESSFUL`.
+The exact client command has a fresh full wrapper transcript and machine receipt recording `BUILD SUCCESSFUL`, exit 0, 971 unique captures, 9,034 unique capture IDs, and 971 verified raw digests. Focused JVM/resource gates and all 19 evidence tests passed. The gallery server test passed 1/1. The accepted authoritative `./test.sh gametest` execution printed `All 131 required tests passed` and `BUILD SUCCESSFUL`; its surrounding tee wrapper later hit zsh's reserved `status` variable, so that wrapper is truthfully recorded as nonzero outside Gradle. A later literal `check` run exited 0 with all 131 required GameTests, 1,680 JUnit tests, resource/audit gates, and `BUILD SUCCESSFUL`.
+
+The two-client campaign in the preserved `2026-08-21-vfx-011` provisional bundle was captured at commit `c99ad4330c8c5ed9000e9dfb2a5cd310a7e3f581`, which is not the exact implementation commit and is not its ancestor. It remains historical only. No two-client artifact, decision, ledger row, or checksum entry is accepted by this successor.
 
 ## Retained aggregate limitation
 

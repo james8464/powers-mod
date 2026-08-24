@@ -23,11 +23,48 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def inputs(evidence: Path = EVIDENCE) -> tuple[dict, list[dict], dict]:
+def validate_client_command_receipt(evidence: Path, run_receipt: dict) -> None:
+    path = evidence / "client-command-receipt.json"
+    if not path.is_file():
+        raise ValueError("fresh client command terminal receipt is missing")
+    receipt = json.loads(path.read_text())
+    if receipt.get("result") != "PASS" or receipt.get("exitCode") != 0:
+        raise ValueError("fresh client command did not record terminal success")
+    expected_command = [
+        "./gradlew", "runClientGameTest", "-Pvfx011ClientOnly", "--rerun-tasks",
+        "--no-daemon", "--console=plain",
+    ]
+    if receipt.get("command") != expected_command:
+        raise ValueError("fresh client command contract drift")
+    if receipt.get("implementationCommit") != run_receipt.get("implementationCommit"):
+        raise ValueError("fresh client command implementation binding drift")
+    if receipt.get("jar", {}).get("sha256") != run_receipt.get("jar", {}).get("sha256"):
+        raise ValueError("fresh client command JAR binding drift")
+    emitted = receipt.get("clientEmittedMetadata", {})
+    emitted_path = evidence / run_receipt["clientEmittedMetadata"]["file"]
+    if (emitted.get("rows") != 971
+            or emitted.get("sha256") != digest(emitted_path)
+            or emitted.get("sha256") != run_receipt["clientEmittedMetadata"]["sha256"]):
+        raise ValueError("fresh client command metadata binding drift")
+    raw = receipt.get("rawScreenshots", {})
+    capture_ids = receipt.get("captureIds", {})
+    if (raw.get("rows") != 971 or raw.get("uniqueScreenshots") != 971
+            or raw.get("verifiedDigests") != 971
+            or capture_ids.get("rows") != 9_034 or capture_ids.get("unique") != 9_034):
+        raise ValueError("fresh client command coverage drift")
+    transcript_info = receipt.get("transcript", {})
+    transcript = evidence / transcript_info.get("file", "")
+    if not transcript.is_file() or transcript_info.get("sha256") != digest(transcript):
+        raise ValueError("fresh client command transcript binding drift")
+    terminal = transcript.read_text(errors="replace")
+    if "BUILD SUCCESSFUL" not in terminal or "VFX011_CLIENT_COMMAND_EXIT=0" not in terminal:
+        raise ValueError("fresh client command transcript lacks terminal success")
+
+
+def inputs(evidence: Path = EVIDENCE) -> tuple[dict, list[dict], dict | None]:
     manifest = json.loads(MANIFEST.read_text())
     client_rows = list(csv.DictReader(
         (evidence / "client-capture-index.tsv").read_text().splitlines(), delimiter="\t"))
-    receipt = json.loads((evidence / "two-client/receipt.json").read_text())
     if len(manifest["assets"]) != 970 or len(manifest["pageDigests"]) != 90:
         raise ValueError("asset inventory/page count drift")
     if len(manifest["pageTiles"]) != 16_887:
@@ -36,16 +73,22 @@ def inputs(evidence: Path = EVIDENCE) -> tuple[dict, list[dict], dict]:
         raise ValueError("client screenshot/capture-ID coverage drift")
     if len({row["page"] for row in client_rows}) != 49:
         raise ValueError("client page ownership drift")
-    if not receipt.get("passed") or len(receipt.get("screenshots", [])) != 2:
-        raise ValueError("two-client proof is not accepted")
     fresh_receipt_path = evidence / "client-run-receipt.json"
+    receipt = None
     if fresh_receipt_path.is_file():
+        if (evidence / "two-client").exists():
+            raise ValueError("fresh exact-build bundle must exclude separately built two-client proof")
         fresh = json.loads(fresh_receipt_path.read_text())
         if fresh.get("clientEmittedMetadata", {}).get("rows") != 971:
             raise ValueError("fresh client receipt row count drift")
         raw = fresh.get("rawScreenshots", {})
         if raw.get("rows") != 971 or raw.get("uniqueContentFiles") != 971:
             raise ValueError("fresh raw screenshot receipt coverage drift")
+        validate_client_command_receipt(evidence, fresh)
+    else:
+        receipt = json.loads((evidence / "two-client/receipt.json").read_text())
+        if not receipt.get("passed") or len(receipt.get("screenshots", [])) != 2:
+            raise ValueError("two-client proof is not accepted")
     return manifest, client_rows, receipt
 
 
@@ -84,8 +127,9 @@ def expected_decision_digests(evidence: Path = EVIDENCE) -> dict[tuple[str, str]
                 raise ValueError(f"fresh screenshot digest binding drift: {row['screenshot']}")
     for page in {row["page"] for row in client_rows}:
         expected[("client_page", page)] = digest(evidence / "client-contact-sheets" / page)
-    for screenshot in receipt["screenshots"]:
-        expected[("two_client_capture", screenshot["file"])] = screenshot["sha256"]
+    if receipt is not None:
+        for screenshot in receipt["screenshots"]:
+            expected[("two_client_capture", screenshot["file"])] = screenshot["sha256"]
     return expected
 
 
@@ -158,10 +202,11 @@ def render(evidence: Path = EVIDENCE) -> str:
     for page in sorted({row["page"] for row in client_rows}):
         decision = decisions[("client_page", page)]
         writer.writerow(("client_page", "", page, "", "", decision["verdict"], decision["notes"]))
-    for screenshot in receipt["screenshots"]:
-        decision = decisions[("two_client_capture", screenshot["file"])]
-        writer.writerow(("two_client_capture", screenshot["file"], "full_resolution", "", "",
-                         decision["verdict"], decision["notes"]))
+    if receipt is not None:
+        for screenshot in receipt["screenshots"]:
+            decision = decisions[("two_client_capture", screenshot["file"])]
+            writer.writerow(("two_client_capture", screenshot["file"], "full_resolution", "", "",
+                             decision["verdict"], decision["notes"]))
     return output.getvalue()
 
 

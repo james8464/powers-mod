@@ -8,7 +8,7 @@ The exact implementation is commit `3376c8b97405e53804b12439b976e73874ff2ea0` (`
 
 ## Implementation and TDD
 
-The first unfiltered client aggregate produced the complete 971-row VFX-011 gallery but then failed on the unrelated open VFX-009 `LightRealmSkyClientGameTests` timeout. I did not weaken the VFX-011 capture requirements. A temporary contract command proved RED: processing GameTest resources with `-Pvfx011ClientOnly` still retained the Light Realm client entrypoint (exit 1). I then added the property-bound resource filter to `build.gradle`/the GameTest descriptor, committed it before capture, and proved GREEN: the filtered descriptor contains `PowersClientGameTests` and `VfxGalleryClientGameTests` but not `LightRealmSkyClientGameTests`; the default descriptor still contains all three. Focused Light Realm contract and GameTest compilation also passed.
+The first unfiltered client aggregate produced the complete 971-row VFX-011 gallery but then failed on the unrelated open VFX-009 `LightRealmSkyClientGameTests` timeout. I did not weaken the VFX-011 capture requirements. I then added the property-bound resource filter to `build.gradle`/the GameTest descriptor, committed it before capture, and proved GREEN: the filtered descriptor contains `PowersClientGameTests` and `VfxGalleryClientGameTests` but not `LightRealmSkyClientGameTests`; the default descriptor still contains all three. Focused Light Realm contract and GameTest compilation also passed. The file named `processGametestResources-red.log` records `BUILD SUCCESSFUL`, not a failure; the reported out-of-band predicate failure and its exit status were not retained. It therefore cannot be cited as an observed RED.
 
 Commands:
 
@@ -17,19 +17,19 @@ JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradl
 JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew processGametestResources test --tests com.powers.client.visual.LightRealmSkyGalleryContractTest compileGametestJava -Pvfx011ClientOnly --rerun-tasks --no-daemon --console=plain
 ```
 
-Observed results: RED exit 1; GREEN/focused exit 0. Logs: `processGametestResources-red.log`, `implementation-green.log`. No runtime production class or rendered behavior changed; the JAR hash remained identical.
+Observed retained results: the misleadingly named `processGametestResources-red.log` command exited 0; the GREEN/focused command exited 0. The original predicate failure was not retained, so no retroactive RED claim is made. No runtime production class or rendered behavior changed; the JAR hash remained identical.
 
-The evidence scripts also followed RED/GREEN. New fresh-bundle tests initially failed because the successor decisions/checksums did not exist, then passed after the ledger accepted a selectable evidence directory, verified every retained raw PNG against the original emitted digest, emitted fresh `client_capture` rows, and the sanitizer/checksummer accepted a selectable evidence directory. A final strengthened checksum test first failed on unbound newly retained logs/README/metadata, then passed after the final manifest was regenerated.
+The originally retained `focused-python-evidence-gates.log` contains GREEN only. It does not preserve the claimed earlier evidence-script RED and is not cited as TDD proof. Fix round 1 adds a new, genuine retained RED for the cross-commit two-client acceptance and missing terminal receipt before their implementation.
 
 ## Exact capture and packaging
 
-The exact capture command was:
+The original capture log ended at Minecraft shutdown and did not retain Gradle's terminal result, so its former exit-0 claim is withdrawn. Fix round 1 reran the exact command through the committed wrapper:
 
 ```text
-JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew runClientGameTest -Pvfx011ClientOnly --rerun-tasks --no-daemon --console=plain
+JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home python3 -B scripts/run_vfx011_client_capture.py --transcript docs/verification/evidence/2026-08-24-vfx-011/logs/runClientGameTest-vfx011-terminal.log --receipt docs/verification/evidence/2026-08-24-vfx-011/client-command-receipt.json --implementation-commit 3376c8b97405e53804b12439b976e73874ff2ea0 --jar build/libs/powers-1.0.2.jar
 ```
 
-Result: exit 0 in 4m03s; 14 Gradle tasks; 971 metadata rows; 971 unique screenshot names; 9,034 unique capture IDs; zero missing screenshots; zero emitted/raw digest mismatches. Original emitted metadata SHA-256: `9f1573526005a5d0d8e7f979a415aab772e99f6add61f73fa97a067f883e2f7a`. Sanitized retained client log SHA-256: `bd1ce57d64f71d30da08debb912fb949d1cc00537c32220ab05576636b7d4675`.
+Result: wrapper exit 0 in 4m14s; 14 Gradle tasks; retained terminal markers `BUILD SUCCESSFUL` and `VFX011_CLIENT_COMMAND_EXIT=0`; 971 metadata rows; 971 unique screenshot names; 9,034 unique capture IDs; and 971 emitted/raw digest matches. Original emitted metadata SHA-256: `db2959e19685123d0cbdbbec450e586fe523e47406a447c6b264d803308b317c`. Sanitized terminal transcript SHA-256: `d6794e99f7e34b01801611a699a5a91c49df4153659da40bfadeae14bdd1ca67`. Machine receipt SHA-256: `8df19d0522796fe059de441dacc35e8f09a5e52d07b8de98f02ddc0cf1f2bf18`.
 
 Packaging command:
 
@@ -37,7 +37,7 @@ Packaging command:
 python3 -B scripts/package_vfx011_evidence.py --captures build/run/clientGameTest/vfx-011-gallery/captures.jsonl --screenshots build/run/clientGameTest/screenshots --output docs/verification/evidence/2026-08-24-vfx-011 --implementation-commit 3376c8b97405e53804b12439b976e73874ff2ea0 --jar build/libs/powers-1.0.2.jar
 ```
 
-Result: exit 0. The successor retains 971 content-addressed raw PNGs, all original emitted metadata, a raw index, capture index, 49 contact pages, 15 unique full-resolution representative PNGs backing 20 required IDs, and the already accepted sanitized two-client proof. Receipt SHA-256: `93ef57339596fe1497bd0ad6b5d63f79475133370b2abe05c1318a7b2af84259`. Raw-index SHA-256: `157c0e1983a788c1ece565ef760380d5989edde125fe13edb2acf456a502199a`. Capture-index SHA-256: `90089e7fa97c019dd0e6ddcf4cd8f9574a2bcd62f07cc116a63e2cc13f28b9a4`.
+Result: exit 0. The successor retains 971 content-addressed raw PNGs, all original emitted metadata, a raw index, capture index, 49 contact pages, and 15 unique full-resolution representative PNGs backing 20 required IDs. The differently built two-client campaign is excluded. Receipt SHA-256: `62e6267f0e6079bc888c51cfb47ac38cf687a8e76dfb8c34c3924c3f50dabf53`. Raw-index SHA-256: `d1cf527be7bb07097cca8cb75fde91b28c6dc12d8f35bbbbbe04b2c7e874f4c9`. Capture-index SHA-256: `0e6a01a5e0823b5fbe54c26b49184fb6e297a610d934619f0779665d0e97b75e`.
 
 ## Visual review and decisions
 
@@ -49,9 +49,9 @@ I explicitly opened and inspected every generated page and required full-resolut
 
 No VFX repair was indicated. Item and spawn-egg views were coherent; thin/edge-on first- and third-person views match authored transforms. Entity fronts and wide/slim owner-skin overlays were coherent. Screen wide/narrow and GUI-scale variants were legible. HUD energy/combination states, boss bars, and first/third-person gameplay representatives appeared correct. Reduced-motion captures emitted `reducedMotion=true`, `particles=MINIMAL`, and `screenEffectScale=0.0`.
 
-No PASS was inferred from filenames, decoding, logs, hashes, or contact sheets. `review-decisions.tsv` has 2,082 explicit digest-bound rows: 968 asset-source PASS, two asset-source REPAIRED, 90 asset-page PASS, 15 directly opened client-raw PASS, 956 client-raw LIMITED, 49 client-page LIMITED, and two accepted two-client REPAIRED decisions. The 956 raw limitations say the raw bytes were retained/digest-verified and their sheet was viewed, but the raw image was not directly opened. The 49 sheets are navigation-only. `review-decisions.tsv` SHA-256: `8585d338df28f18ecd7040bb82ea0181804275442da24384cb02a59515e4b871`.
+No PASS was inferred from filenames, decoding, logs, hashes, or contact sheets. `review-decisions.tsv` has 2,080 explicit digest-bound rows: 968 asset-source PASS, two asset-source REPAIRED, 90 asset-page PASS, 15 directly opened client-raw PASS, 956 client-raw LIMITED, and 49 client-page LIMITED. The 956 raw limitations say the raw bytes were retained/digest-verified and their sheet was viewed, but the raw image was not directly opened. The 49 sheets are navigation-only. `review-decisions.tsv` SHA-256: `aefa729e436ee4545114fc156bd311561c2bff7eb7e50135ba8b7381aa1d68a1`.
 
-The generated ledger has 27,032 rows plus its header and SHA-256 `4f1ed956bbeb933d2481e0c38793ebf05329619334c8dcdf4a2f3b2613489a94`.
+The generated ledger has 27,030 rows plus its header and SHA-256 `94100e06bd706502980c36a68bc3e1db42ce89087023d080beeb6d31ff3cab59`.
 
 ## Environment
 
@@ -110,3 +110,75 @@ Self-review checks:
 - Failed aggregate logs and the concurrency/probabilistic limitation remain visible.
 - VFX-009 is still open.
 - No push was performed.
+
+## Fix round 1/5 — exact-build binding and retained terminal proof
+
+Fix base: `5035276d89e9783570e7e2f56134797992211845`. The gameplay implementation remains `3376c8b97405e53804b12439b976e73874ff2ea0` and the exact JAR remains SHA-256 `0f0b70ac6840408a8be304bc27a79f52dbf92fb40d1df1b16a5e9ae1fee427d0`. This fix is the commit containing this appendix; its SHA is supplied in the handoff because it cannot truthfully embed its own identity.
+
+### Reviewer findings and disposition
+
+1. The copied two-client receipt named commit `c99ad4330c8c5ed9000e9dfb2a5cd310a7e3f581`, while the successor build metadata names `3376c8b97405e53804b12439b976e73874ff2ea0`. `git merge-base --is-ancestor c99ad4330c8c5ed9000e9dfb2a5cd310a7e3f581 3376c8b97405e53804b12439b976e73874ff2ea0` exited 1. I chose the explicit historical-only resolution: all 12 copied `two-client/` successor artifacts, both accepted successor decisions, both generated ledger rows, and their checksum entries were removed. The original `docs/verification/evidence/2026-08-21-vfx-011/two-client/` evidence remains untouched; `git diff --quiet 5035276d... -- docs/verification/evidence/2026-08-21-vfx-011` exited 0. The fresh ledger generator now rejects a `two-client/` directory in an exact-build bundle. Successor totals are 2,080 decisions and 27,030 ledger rows.
+2. The original report's RED claims were corrected in place. `processGametestResources-red.log` proves `BUILD SUCCESSFUL`, so it is now described as a misleadingly named successful precondition command; the unretained predicate/exit is not claimed. `focused-python-evidence-gates.log` is GREEN only, so it is not cited as a preserved RED. No retroactive failure was manufactured.
+3. The original client log lacked a terminal Gradle/result receipt. `scripts/run_vfx011_client_capture.py` now streams a privacy-sanitized complete command transcript and writes a machine receipt only after validating the literal command, terminal exit, `BUILD SUCCESSFUL`, implementation/JAR identity, 971 metadata rows, 971 unique screenshot names, 9,034 unique capture IDs, and all 971 raw digests. The ledger refuses a fresh bundle without that exact receipt/transcript binding.
+
+### TDD evidence
+
+The first retained RED command was:
+
+```text
+python3 -B -m unittest scripts.tests.test_build_vfx011_review_ledger.Vfx011EvidenceTest.test_fresh_bundle_excludes_cross_commit_two_client_acceptance scripts.tests.test_build_vfx011_review_ledger.Vfx011EvidenceTest.test_fresh_client_command_receipt_proves_terminal_success_and_exact_binding
+```
+
+It exited 1 with two assertion failures: the cross-commit successor `two-client/` directory existed and `client-command-receipt.json` did not. `logs/fix-round1-red.log` preserves the complete sanitized result, SHA-256 `651d37c3a042a544f1f4b07aa72ec694c61a35a8aeb17a22cd7e977e18862160`. The same two tests subsequently passed 2/2.
+
+Privacy sanitization then exposed a second real RED: the sanitized transcript digest differed from the receipt. The new idempotence test exited 1 and is retained at `logs/fix-round1-sanitizer-red.log`, SHA-256 `1b60bd72c5491c4c11b3473e62192d9da3b3e993ad7ed670b6eb7373d3d5ae32`. `sanitize_vfx011_evidence.py` now refreshes the terminal transcript digest as well as the historical two-client receipt when present. The focused test passed, followed by all 19 `test_build_vfx011_review_ledger` tests.
+
+### Fresh terminal proof and exact bytes
+
+After verifying that `git diff --name-only 3376c8b9... -- build.gradle gradle.properties settings.gradle src/main src/client src/gametest` was empty, I rebuilt `build/libs/powers-1.0.2.jar`; it reproduced the required SHA-256. The live command was:
+
+```text
+JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home python3 -B scripts/run_vfx011_client_capture.py --transcript docs/verification/evidence/2026-08-24-vfx-011/logs/runClientGameTest-vfx011-terminal.log --receipt docs/verification/evidence/2026-08-24-vfx-011/client-command-receipt.json --implementation-commit 3376c8b97405e53804b12439b976e73874ff2ea0 --jar build/libs/powers-1.0.2.jar
+```
+
+It exited 0 after the underlying literal Gradle command printed `BUILD SUCCESSFUL in 4m 14s`; the transcript ends with `VFX011_CLIENT_COMMAND_EXIT=0`. Receipt result is `PASS`, exit code 0, rows 971, unique screenshots 971, unique capture IDs 9,034, verified digests 971. Sanitized transcript SHA-256 is `d6794e99f7e34b01801611a699a5a91c49df4153659da40bfadeae14bdd1ca67`; receipt SHA-256 is `8df19d0522796fe059de441dacc35e8f09a5e52d07b8de98f02ddc0cf1f2bf18`; emitted metadata SHA-256 is `db2959e19685123d0cbdbbec450e586fe523e47406a447c6b264d803308b317c`.
+
+The live render changed 885 of 971 raw digests relative to the first successor capture. I did not reuse the old byte-bound review. I repackaged the new run with the existing packaging command, regenerated every digest-bound client decision/ledger row, explicitly inspected all 49/49 new contact sheets with `view_image`, and directly inspected all 15/15 new unique representative raw PNGs with `view_image(detail=original)`. No new VFX defect or repair was indicated. The same honest limitations apply: 15 directly opened raws are PASS, 956 non-opened raws are LIMITED, and all 49 navigation sheets are LIMITED. No PASS comes from a filename, decoder, log, digest, or sheet alone.
+
+The exact raw/metadata revalidation command loaded emitted JSONL and both TSV indexes, recomputed every retained PNG digest, and asserted the receipt/implementation/JAR bindings. It exited 0 with:
+
+```text
+VFX011_CAPTURE_REVALIDATION=PASS
+metadata_rows=971 unique_screenshots=971
+capture_ids=9034 unique_capture_ids=9034 contact_pages=49
+verified_raw_digests=971 metadata_sha256=db2959e19685123d0cbdbbec450e586fe523e47406a447c6b264d803308b317c
+implementation_commit=3376c8b97405e53804b12439b976e73874ff2ea0 jar_sha256=0f0b70ac6840408a8be304bc27a79f52dbf92fb40d1df1b16a5e9ae1fee427d0 terminal_exit=0
+```
+
+### Covering verification
+
+The property-bound resource contract was rerun in both modes. Each Gradle command exited 0, and explicit JSON predicates proved that `-Pvfx011ClientOnly` contains exactly `PowersClientGameTests` plus `VfxGalleryClientGameTests`, while the default descriptor additionally contains `LightRealmSkyClientGameTests`. The complete terminal/predicate log is `logs/fix-round1-property-contract.log`, SHA-256 `c5345d5a30f2f2c5f44c9ff3a0b99f681f21ecf702556abbe9b277ea51a0cb5e`.
+
+Final commands and results:
+
+```text
+python3 -B -m unittest scripts.tests.test_build_vfx011_review_ledger
+# exit 0; 19/19
+
+JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew check --rerun-tasks --no-daemon --console=plain
+# exit 0; 131/131 required GameTests; 1,680/1,680 JUnit; 141/141 Python; BUILD SUCCESSFUL in 3m26s
+
+python3 -B scripts/sanitize_vfx011_evidence.py --evidence docs/verification/evidence/2026-08-24-vfx-011 --check
+# exit 0; privacy scan passed for 35 non-PNG files
+
+python3 -B scripts/build_vfx011_review_ledger.py --evidence docs/verification/evidence/2026-08-24-vfx-011 --check
+# exit 0
+
+python3 -B scripts/update_vfx011_checksums.py --evidence docs/verification/evidence/2026-08-24-vfx-011
+shasum -a 256 -c docs/verification/evidence/2026-08-24-vfx-011/SHA256SUMS
+# exit 0; 1,161/1,161 entries
+```
+
+The full check log is retained at `logs/fix-round1-check.log`, SHA-256 `474a5d07a2984e9a27249e7152cee2ef54628af490e0e5f2c5d550debab2a52a`; it contains `All 131 required tests passed`, `Ran 141 tests ... OK`, `BUILD SUCCESSFUL`, and wrapper exit 0. Final `SHA256SUMS` SHA-256 is `62a17eba7a5746c3b37007e15ea2077ad381cc33d09d909b8b9a80ce3a1412f5`.
+
+Self-review: the historical provisional directory has no diff; the successor contains no two-client path/decision/ledger/checksum acceptance; the exact client receipt and transcript agree after sanitization; raw and metadata counts/digests agree independently; all regenerated visual pages/representatives were viewed; the property filter is tested in filtered and default modes; VFX-009 remains open; and nothing was pushed.

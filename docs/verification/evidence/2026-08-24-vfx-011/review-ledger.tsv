@@ -27029,5 +27029,3 @@ client_page		client-045.png			LIMITED	Navigation-only contact page inspected wit
 client_page		client-046.png			LIMITED	Navigation-only contact page inspected with view_image; no PASS inferred from downsampled sheet
 client_page		client-047.png			LIMITED	Navigation-only contact page inspected with view_image; no PASS inferred from downsampled sheet
 client_page		client-048.png			LIMITED	Navigation-only contact page inspected with view_image; no PASS inferred from downsampled sheet
-two_client_capture	locator-01.png	full_resolution			REPAIRED	Manually reviewed clean real-two-client replay; UI-noise predecessor rejected
-two_client_capture	darkness-01.png	full_resolution			REPAIRED	Manually reviewed clean real-two-client replay; UI-noise predecessor rejected

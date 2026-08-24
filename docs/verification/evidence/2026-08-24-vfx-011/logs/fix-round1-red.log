@@ -1,0 +1,22 @@
+FF
+======================================================================
+FAIL: test_fresh_bundle_excludes_cross_commit_two_client_acceptance (scripts.tests.test_build_vfx011_review_ledger.Vfx011EvidenceTest.test_fresh_bundle_excludes_cross_commit_two_client_acceptance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<HOME>/Developer/Minecraft mods/POWERS/.worktrees/vfx-011-exact-visual-audit/scripts/tests/test_build_vfx011_review_ledger.py", line 192, in test_fresh_bundle_excludes_cross_commit_two_client_acceptance
+    self.assertFalse((FRESH_EVIDENCE / "two-client").exists())
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_fresh_client_command_receipt_proves_terminal_success_and_exact_binding (scripts.tests.test_build_vfx011_review_ledger.Vfx011EvidenceTest.test_fresh_client_command_receipt_proves_terminal_success_and_exact_binding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<HOME>/Developer/Minecraft mods/POWERS/.worktrees/vfx-011-exact-visual-audit/scripts/tests/test_build_vfx011_review_ledger.py", line 204, in test_fresh_client_command_receipt_proves_terminal_success_and_exact_binding
+    self.assertTrue(receipt_path.is_file(), receipt_path)
+AssertionError: False is not true : <HOME>/Developer/Minecraft mods/POWERS/.worktrees/vfx-011-exact-visual-audit/docs/verification/evidence/2026-08-24-vfx-011/client-command-receipt.json
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+FAILED (failures=2)
+VFX011_FIX_ROUND1_RED_EXIT=1

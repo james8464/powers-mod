@@ -31,11 +31,11 @@
     "contactPages": 49,
     "representativeIds": 20,
     "uniqueRepresentativePngs": 15,
-    "metadataSha256": "9f1573526005a5d0d8e7f979a415aab772e99f6add61f73fa97a067f883e2f7a"
+    "metadataSha256": "db2959e19685123d0cbdbbec450e586fe523e47406a447c6b264d803308b317c"
   },
   "review": {
-    "decisionRows": 2082,
-    "ledgerRows": 27032,
+    "decisionRows": 2080,
+    "ledgerRows": 27030,
     "directRawPasses": 15,
     "limitedRawRows": 956,
     "limitedContactPages": 49
