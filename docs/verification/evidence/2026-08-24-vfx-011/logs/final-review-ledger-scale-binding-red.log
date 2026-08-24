@@ -1,0 +1,16 @@
+F
+======================================================================
+FAIL: test_ledger_rejects_digest_bound_nominal_gui_scale_runtime_mismatch (scripts.tests.test_build_vfx011_review_ledger.Vfx011EvidenceTest.test_ledger_rejects_digest_bound_nominal_gui_scale_runtime_mismatch)
+Catches accepting relabeled scale4 metadata after receipts are rehashed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<HOME>/Developer/Minecraft mods/POWERS/.worktrees/vfx-011-exact-visual-audit/scripts/tests/test_build_vfx011_review_ledger.py", line 254, in test_ledger_rejects_digest_bound_nominal_gui_scale_runtime_mismatch
+    with self.assertRaisesRegex(ValueError, "nominal GUI scale"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.085s
+
+FAILED (failures=1)
+FINAL_REVIEW_LEDGER_SCALE_BINDING_RED_EXIT=1

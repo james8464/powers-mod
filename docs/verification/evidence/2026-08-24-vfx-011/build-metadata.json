@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "status": "ACCEPTED",
-  "implementationCommit": "3376c8b97405e53804b12439b976e73874ff2ea0",
+  "implementationCommit": "44e3a7c58c6426f2cfa8f64e4cb5fabd29822279",
   "jar": {
     "name": "powers-1.0.2.jar",
     "sha256": "0f0b70ac6840408a8be304bc27a79f52dbf92fb40d1df1b16a5e9ae1fee427d0"
@@ -13,7 +13,7 @@
     "java": "OpenJDK 25.0.4",
     "gpu": "Apple M3 Pro",
     "graphics": "OpenGL 4.1 Metal - 90.5",
-    "physicalSurface": "1280x720",
+    "physicalSurface": "960x720 or 1280x720 for GUI scales 1-3; 1280x960 or 1600x960 for GUI scale 4",
     "loadedMods": 53
   },
   "assetAudit": {
@@ -31,7 +31,7 @@
     "contactPages": 49,
     "representativeIds": 20,
     "uniqueRepresentativePngs": 15,
-    "metadataSha256": "db2959e19685123d0cbdbbec450e586fe523e47406a447c6b264d803308b317c"
+    "metadataSha256": "2513efffaab8642ea5acbca147d196003279363aee2349e11b08c93e268d9425"
   },
   "review": {
     "decisionRows": 2080,

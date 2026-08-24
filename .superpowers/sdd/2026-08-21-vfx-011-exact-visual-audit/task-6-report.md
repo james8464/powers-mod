@@ -182,3 +182,83 @@ shasum -a 256 -c docs/verification/evidence/2026-08-24-vfx-011/SHA256SUMS
 The full check log is retained at `logs/fix-round1-check.log`, SHA-256 `474a5d07a2984e9a27249e7152cee2ef54628af490e0e5f2c5d550debab2a52a`; it contains `All 131 required tests passed`, `Ran 141 tests ... OK`, `BUILD SUCCESSFUL`, and wrapper exit 0. Final `SHA256SUMS` SHA-256 is `62a17eba7a5746c3b37007e15ea2077ad381cc33d09d909b8b9a80ce3a1412f5`.
 
 Self-review: the historical provisional directory has no diff; the successor contains no two-client path/decision/ledger/checksum acceptance; the exact client receipt and transcript agree after sanitization; raw and metadata counts/digests agree independently; all regenerated visual pages/representatives were viewed; the property filter is tested in filtered and default modes; VFX-009 remains open; and nothing was pushed.
+
+## Final-review fix wave — actual GUI scale 4
+
+Fix base: `83b9704d853a4beea40f734ca1b99983c6487571`. Implementation-first commit: `44e3a7c58c6426f2cfa8f64e4cb5fabd29822279` (`fix(vfx): bind gallery captures to actual GUI scale`). The final evidence commit is the commit containing this appendix and is reported in the handoff because a commit cannot embed its own SHA.
+
+### Root cause and genuine RED
+
+The prior 1280×720 wide and 960×720 narrow surfaces could not render GUI scale 4. Minecraft 26.2 bytecode for `Window.calculateScale(int, boolean)` increments the scale only while `framebufferWidth / (scale + 1) >= 320` and `framebufferHeight / (scale + 1) >= 240`. Consequently, the minimum scale-4 framebuffer is 1280×960. Every one of the 68 nominal `scale4` capture IDs in the superseded successor metadata reported `requestedGuiScale=3` and `effectiveGuiScale=3`.
+
+Before changing production code, I added behavior tests for the two acceptance boundaries. `test_packager_rejects_nominal_gui_scale_that_runtime_clamped` names and catches the production mutation where nominal `/scale4/` metadata reports runtime 3/3. It exercised the real packager with emitted metadata and genuinely failed because no `ValueError` was raised:
+
+```text
+python3 -B -m unittest scripts.tests.test_build_vfx011_review_ledger.Vfx011EvidenceTest.test_packager_rejects_nominal_gui_scale_that_runtime_clamped
+# exit 1; retained at logs/final-review-scale-binding-red.log
+```
+
+`test_ledger_rejects_digest_bound_nominal_gui_scale_runtime_mismatch` exercised the generated-ledger acceptance path and genuinely failed for the same missing predicate:
+
+```text
+python3 -B -m unittest scripts.tests.test_build_vfx011_review_ledger.Vfx011EvidenceTest.test_ledger_rejects_digest_bound_nominal_gui_scale_runtime_mismatch
+# exit 1; retained at logs/final-review-ledger-scale-binding-red.log
+```
+
+Both retained REDs fail with `ValueError not raised`; their SHA-256 digests are respectively `3b5d681b8044962be0a606deeba9de1ba933bb9b550117e7839e873953570d38` and `df391092a2d79764ae7daa122626c225ca7d22099e09d7a1eb33e90500a2f694`.
+
+### Minimal implementation and GREEN
+
+`VfxUiGallery` now uses the unchanged 960×720/1280×720 surfaces for scales 1–3 and 1280×960/1600×960 for scale 4. Every screenshot passes through a helper that invokes `VfxGalleryClientAgent.assertRuntimeScaleMatchesCaptureIds` immediately before `takeScreenshot`; a requested or effective runtime scale that disagrees with any scale-tagged capture ID throws and aborts capture. Both evidence scripts independently enforce the same capture-ID-to-runtime-metadata binding, so a mislabeled exact bundle cannot be packaged or accepted into the ledger.
+
+```text
+python3 -B -m unittest scripts.tests.test_build_vfx011_review_ledger.Vfx011EvidenceTest.test_packager_rejects_nominal_gui_scale_that_runtime_clamped scripts.tests.test_build_vfx011_review_ledger.Vfx011EvidenceTest.test_ledger_rejects_digest_bound_nominal_gui_scale_runtime_mismatch
+JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew compileGameTestJava --rerun-tasks --no-daemon --console=plain
+# exit 0; 2/2 Python tests plus GameTest compilation; logs/final-review-scale-binding-green.log
+```
+
+The GREEN log SHA-256 is `0afab0c57755a30325e179476837625ab7456054b5c015f47b129297fb7b7336`. I committed this implementation before capture as `44e3a7c58c6426f2cfa8f64e4cb5fabd29822279`. The exact rebuilt `build/libs/powers-1.0.2.jar` SHA-256 is `0f0b70ac6840408a8be304bc27a79f52dbf92fb40d1df1b16a5e9ae1fee427d0`.
+
+### Fresh exact capture, package, and visual review
+
+The fresh command was:
+
+```text
+JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home python3 -B scripts/run_vfx011_client_capture.py --transcript docs/verification/evidence/2026-08-24-vfx-011/logs/runClientGameTest-vfx011-terminal.log --receipt docs/verification/evidence/2026-08-24-vfx-011/client-command-receipt.json --implementation-commit 44e3a7c58c6426f2cfa8f64e4cb5fabd29822279 --jar build/libs/powers-1.0.2.jar
+```
+
+It exited 0 after `BUILD SUCCESSFUL in 4m 8s`. The machine receipt binds the implementation SHA/JAR and proves 971 metadata rows, 971 unique screenshots, 9,034 unique capture IDs, and 971 verified raw digests. Original emitted metadata SHA-256 is `2513efffaab8642ea5acbca147d196003279363aee2349e11b08c93e268d9425`. Packaging exited 0.
+
+Runtime-scale revalidation, retained with the authoritative bytecode excerpt in `logs/final-review-scale-runtime-evidence.log`, exited 0 and found:
+
+```text
+scale 1: 34 IDs at 960x720; 34 at 1280x720; all 1/1
+scale 2: 34 IDs at 960x720; 36 at 1280x720; all 2/2
+scale 3: 34 IDs at 960x720; 34 at 1280x720; all 3/3
+scale 4: 34 IDs at 1280x960; 34 at 1600x960; all 4/4
+```
+
+I refreshed every changed digest-bound decision (1,005 rows changed), then regenerated the 2,080-decision review file and 27,030-row ledger. I explicitly inspected all 49/49 regenerated contact pages with `view_image` and all 15/15 unique required full-resolution representative raw PNGs with `view_image(detail=original)`, including the scale-4 Artifact Catalogue and Grimoire surfaces. They remained legible and coherent; no new visual repair was indicated. Thin edge-on item views remain the already-recorded authored-transform observation. Old byte-bound visual verdicts were not reused.
+
+### Verification and aggregate limitation
+
+Focused JVM/resource tests, the property-bound GameTest resource contract in filtered and default modes, and the gallery server GameTest all exited 0; the gallery test passed 1/1. The final evidence suite passed 21/21. The exact successor contains 971 retained raw PNGs, 971 emitted metadata rows, 9,034 capture-index rows, 49 contact sheets, 2,080 decisions, and 27,030 ledger rows.
+
+The mandated literal full command was run repeatedly with the mandated Java home and without weakened filters:
+
+```text
+JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew check --rerun-tasks --no-daemon --console=plain
+```
+
+- Attempt 1 exited 1 after unrelated realm-crystal and invasion GameTests failed.
+- After the repository-authoritative clean entrypoint, attempt 2 exited 1 after an unrelated Augury tick-0 GameTest failed.
+- Attempt 3 passed all 131 required GameTests, all 1,680 JUnit tests, then exited 1 at two in-progress evidence assertions: the newly retained failure logs were not checksum-bound and the live receipt test still pinned the predecessor implementation SHA. Those exact failures were corrected; the evidence suite then passed 21/21.
+- The post-finalization attempt exited 1 after unrelated packet-fault payment and hostile-environment reload/return GameTests failed; the server reported it was 597 ticks behind.
+
+All four complete transcripts and terminal exits are retained as `logs/final-review-check-attempt1-failed.log` through `logs/final-review-check-attempt4-failed.log`. This matches the already diagnosed hard-coded batch concurrency, process-global reset/state, timing, and probabilistic-seed limitation; no unrelated harness repair was folded into VFX-011. A diagnostic aggregate excluding only `runGameTest` then passed exit 0 with 1,680/1,680 JUnit tests, 143/143 Python tests, resource/audit gates, and `BUILD SUCCESSFUL in 1m 42s`; it is not represented as the required full aggregate. The previously accepted authoritative `./test.sh gametest` log still proves 131/131 and `BUILD SUCCESSFUL`, per the root-agent ruling, but no final-review literal `check` achieved a clean single-command exit.
+
+### Final integrity and self-review
+
+Privacy sanitization, ledger validation, exact raw/metadata digest revalidation, and checksum verification were rerun after all evidence bytes changed. The privacy check passed over 50 owned non-PNG files. Revalidation proved 971 metadata rows, 971 raw-index rows, 971 recomputed raw digests, 9,034 capture-index rows, and actual nominal scale counts `1:68,2:70,3:68,4:68`; metadata SHA-256 remained `2513efffaab8642ea5acbca147d196003279363aee2349e11b08c93e268d9425`. `shasum -a 256 -c` verified 1,176/1,176 entries; final `SHA256SUMS` SHA-256 is `f57ff59e2f139e9adf5627a6a7e07b9b670f272d0b6fa87992e33044292efa77`. The historical `docs/verification/evidence/2026-08-21-vfx-011` directory has no diff from the fix base. VFX-009 remains open; VFX-011 alone remains closed. No visual PASS was inferred from a filename, decoder, log, digest, or contact sheet. All genuine RED/GREEN and aggregate-failure logs are retained. No push or merge was performed.
+
+The only concern is the missing clean exit from the final-review literal full `check`: the scale-4 implementation, exact capture, visual review, evidence contracts, privacy, checksums, focused gates, and all non-GameTest aggregate work are green, while the known unrelated concurrent GameTest harness remains flaky.

@@ -276,7 +276,7 @@ class Vfx011EvidenceTest(unittest.TestCase):
              "--no-daemon", "--console=plain"],
             receipt["command"])
         self.assertEqual(
-            "3376c8b97405e53804b12439b976e73874ff2ea0",
+            "44e3a7c58c6426f2cfa8f64e4cb5fabd29822279",
             receipt["implementationCommit"])
         run_receipt = json.loads((FRESH_EVIDENCE / "client-run-receipt.json").read_text())
         self.assertEqual(run_receipt["jar"]["sha256"], receipt["jar"]["sha256"])

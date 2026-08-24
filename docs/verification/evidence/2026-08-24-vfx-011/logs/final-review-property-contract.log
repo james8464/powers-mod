@@ -1,0 +1,23 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :
+Fabric Loom: 1.17.19
+
+> Task :processGametestResources
+
+BUILD SUCCESSFUL in 4s
+1 actionable task: 1 executed
+FILTERED_PROPERTY_CONTRACT=PASS entries=com.powers.gametest.PowersClientGameTests,com.powers.client.VfxGalleryClientGameTests
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :
+Fabric Loom: 1.17.19
+
+> Task :processGametestResources
+
+BUILD SUCCESSFUL in 4s
+1 actionable task: 1 executed
+DEFAULT_PROPERTY_CONTRACT=PASS entries=com.powers.gametest.PowersClientGameTests,com.powers.client.LightRealmSkyClientGameTests,com.powers.client.VfxGalleryClientGameTests
+FINAL_REVIEW_PROPERTY_CONTRACT_EXIT=0

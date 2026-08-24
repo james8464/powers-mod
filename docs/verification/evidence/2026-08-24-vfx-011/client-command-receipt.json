@@ -10,18 +10,18 @@
     "--console=plain"
   ],
   "exitCode": 0,
-  "implementationCommit": "3376c8b97405e53804b12439b976e73874ff2ea0",
+  "implementationCommit": "44e3a7c58c6426f2cfa8f64e4cb5fabd29822279",
   "jar": {
     "file": "powers-1.0.2.jar",
     "sha256": "0f0b70ac6840408a8be304bc27a79f52dbf92fb40d1df1b16a5e9ae1fee427d0"
   },
   "transcript": {
     "file": "logs/runClientGameTest-vfx011-terminal.log",
-    "sha256": "d6794e99f7e34b01801611a699a5a91c49df4153659da40bfadeae14bdd1ca67"
+    "sha256": "4dbba4a5ac5c6d274de73d8580b9804dc5e6cb4aa3d1adb6fea23f345fc2a280"
   },
   "clientEmittedMetadata": {
     "file": "captures.jsonl",
-    "sha256": "db2959e19685123d0cbdbbec450e586fe523e47406a447c6b264d803308b317c",
+    "sha256": "2513efffaab8642ea5acbca147d196003279363aee2349e11b08c93e268d9425",
     "rows": 971
   },
   "rawScreenshots": {

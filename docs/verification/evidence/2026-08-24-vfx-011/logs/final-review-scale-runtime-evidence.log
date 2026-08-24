@@ -1,0 +1,54 @@
+  public int calculateScale(int, boolean);
+    Code:
+         0: iconst_1
+         1: istore_3
+         2: iload_3
+         3: iload_1
+         4: if_icmpeq     57
+         7: iload_3
+         8: aload_0
+         9: getfield      #577                // Field framebufferWidth:I
+        12: if_icmpge     57
+        15: iload_3
+        16: aload_0
+        17: getfield      #580                // Field framebufferHeight:I
+        20: if_icmpge     57
+        23: aload_0
+        24: getfield      #577                // Field framebufferWidth:I
+        27: iload_3
+        28: iconst_1
+        29: iadd
+        30: idiv
+        31: sipush        320
+        34: if_icmplt     57
+        37: aload_0
+        38: getfield      #580                // Field framebufferHeight:I
+        41: iload_3
+        42: iconst_1
+        43: iadd
+        44: idiv
+        45: sipush        240
+        48: if_icmplt     57
+        51: iinc          3, 1
+        54: goto          2
+        57: iload_2
+        58: ifeq          70
+        61: iload_3
+        62: iconst_2
+        63: irem
+        64: ifeq          70
+        67: iinc          3, 1
+        70: iload_3
+        71: ireturn
+
+VFX011_RUNTIME_SCALE_BINDING=PASS
+metadata_rows=971
+scale=1 surface=960x720 capture_ids=34
+scale=1 surface=1280x720 capture_ids=34
+scale=2 surface=960x720 capture_ids=34
+scale=2 surface=1280x720 capture_ids=36
+scale=3 surface=960x720 capture_ids=34
+scale=3 surface=1280x720 capture_ids=34
+scale=4 surface=1280x960 capture_ids=34
+scale=4 surface=1600x960 capture_ids=34
+FINAL_REVIEW_SCALE_RUNTIME_EVIDENCE_EXIT=0

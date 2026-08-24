@@ -1,18 +1,18 @@
 {
   "schema": 1,
-  "implementationCommit": "3376c8b97405e53804b12439b976e73874ff2ea0",
+  "implementationCommit": "44e3a7c58c6426f2cfa8f64e4cb5fabd29822279",
   "jar": {
     "file": "powers-1.0.2.jar",
     "sha256": "0f0b70ac6840408a8be304bc27a79f52dbf92fb40d1df1b16a5e9ae1fee427d0"
   },
   "clientEmittedMetadata": {
     "file": "client-emitted-captures.jsonl",
-    "sha256": "db2959e19685123d0cbdbbec450e586fe523e47406a447c6b264d803308b317c",
+    "sha256": "2513efffaab8642ea5acbca147d196003279363aee2349e11b08c93e268d9425",
     "rows": 971
   },
   "rawScreenshots": {
     "index": "client-raw-index.tsv",
-    "indexSha256": "d1cf527be7bb07097cca8cb75fde91b28c6dc12d8f35bbbbbe04b2c7e874f4c9",
+    "indexSha256": "b0a5f087ddf78133140a7957abb420b3b639ef772e740728b6ebe48dd58433d6",
     "rows": 971,
     "uniqueContentFiles": 971
   }

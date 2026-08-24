@@ -1,0 +1,45 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :
+Fabric Loom: 1.17.19
+
+> Task :auditJavaSources
+> Task :auditNonItemAssets
+> Task :compileJava
+> Task :processResources
+> Task :classes
+> Task :compileClientJava
+> Task :processClientResources
+> Task :clientClasses
+> Task :compileTestJava
+> Task :processTestResources
+> Task :testClasses
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:<HOME>/.gradle/caches/modules-2/files-2.1/org.joml/joml/1.10.8/fc0a71dad90a2cf41d82a76156a0e700af8e4f8d/joml-1.10.8.jar)
+WARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :test
+
+> Task :testPythonScripts
+..............................................................................................................................................[0012] [Server thread/INFO]: SoakClient left the game
+.
+----------------------------------------------------------------------
+Ran 143 tests in 20.771s
+
+OK
+
+> Task :validateAccessWidener NO-SOURCE
+
+> Task :validatePowerResources
+POWERS resource validation passed
+
+> Task :verifyItemDocs
+> Task :verifyMagicDocs
+> Task :verifyRankDocs
+> Task :verifyVfxAssetAudit
+> Task :check
+
+BUILD SUCCESSFUL in 1m 42s
+15 actionable tasks: 15 executed
+FINAL_REVIEW_CHECK_WITHOUT_GAMETEST_EXIT=0

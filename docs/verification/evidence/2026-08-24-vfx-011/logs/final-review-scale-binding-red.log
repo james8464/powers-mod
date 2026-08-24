@@ -1,0 +1,16 @@
+F
+======================================================================
+FAIL: test_packager_rejects_nominal_gui_scale_that_runtime_clamped (scripts.tests.test_build_vfx011_review_ledger.Vfx011EvidenceTest.test_packager_rejects_nominal_gui_scale_that_runtime_clamped)
+Catches a gallery labeling scale4 while Minecraft actually rendered scale3.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<HOME>/Developer/Minecraft mods/POWERS/.worktrees/vfx-011-exact-visual-audit/scripts/tests/test_build_vfx011_review_ledger.py", line 109, in test_packager_rejects_nominal_gui_scale_that_runtime_clamped
+    with self.assertRaisesRegex(ValueError, "nominal GUI scale"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.038s
+
+FAILED (failures=1)
+FINAL_REVIEW_SCALE_BINDING_RED_EXIT=1
