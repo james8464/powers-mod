@@ -167,7 +167,7 @@ public final class VisualScarDeliveryRules {
 			if (state == null || state.awaiting == null || !state.awaiting.equals(send)) return this;
 			state.awaiting = null;
 			if (send.payload().operation() != ScarFxProtocolRules.RESET_DIMENSION) {
-				startDistinctPass(send.session(), state.latestRevision);
+				state.awaitingHeldKey = null;
 			}
 			return this;
 		}

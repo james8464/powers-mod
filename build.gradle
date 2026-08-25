@@ -270,6 +270,8 @@ def restartSoakEnabled = providers.gradleProperty("powersRestartSoak").isPresent
 def perf016BenchmarkEnabled = providers.gradleProperty("powersPerf016Benchmark").isPresent()
 def vfx011ClientOnly = providers.gradleProperty("vfx011ClientOnly").isPresent()
 def vfx009ClientOnly = providers.gradleProperty("vfx009ClientOnly").isPresent()
+def vfx004ClientOnly = providers.gradleProperty("vfx004ClientOnly").isPresent()
+def vfx004FaultClientOnly = providers.gradleProperty("vfx004FaultClientOnly").isPresent()
 tasks.named("processGametestResources") {
 	inputs.property("connectedProfileEnabled", connectedProfileEnabled)
 	inputs.property("restartSoakEnabled", restartSoakEnabled)
@@ -277,9 +279,22 @@ tasks.named("processGametestResources") {
 	inputs.property("compatibilityGameTestsEnabled", compatibilityGameTestsEnabled)
 	inputs.property("vfx011ClientOnly", vfx011ClientOnly)
 	inputs.property("vfx009ClientOnly", vfx009ClientOnly)
+	inputs.property("vfx004ClientOnly", vfx004ClientOnly)
+	inputs.property("vfx004FaultClientOnly", vfx004FaultClientOnly)
 	filesMatching("fabric.mod.json") {
 		filter { line ->
-			vfx011ClientOnly && line.contains("com.powers.client.LightRealmSkyClientGameTests")
+			vfx004FaultClientOnly && (line.contains("com.powers.gametest.PowersClientGameTests")
+					|| line.contains("com.powers.client.VfxGalleryClientGameTests"))
+					? null
+					: vfx004FaultClientOnly && line.contains("com.powers.client.LightRealmSkyClientGameTests")
+							? line.replace("com.powers.client.LightRealmSkyClientGameTests",
+									"com.powers.client.VisualScarFaultAcceptanceClientGameTests")
+					: vfx004ClientOnly && line.contains("com.powers.gametest.PowersClientGameTests")
+					? line.replace("\",", "\"")
+					: vfx004ClientOnly && (line.contains("com.powers.client.VfxGalleryClientGameTests")
+							|| line.contains("com.powers.client.LightRealmSkyClientGameTests"))
+							? null
+					: vfx011ClientOnly && line.contains("com.powers.client.LightRealmSkyClientGameTests")
 					? null
 					: vfx009ClientOnly && (line.contains("com.powers.gametest.PowersClientGameTests")
 							|| line.contains("com.powers.client.VfxGalleryClientGameTests"))

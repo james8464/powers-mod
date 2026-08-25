@@ -152,13 +152,30 @@ class VisualScarReachabilityTest {
 		assertTrue(clientTests.contains("visualScarOccludedWall"));
 		assertTrue(clientTests.contains("vfx004-scar-visible-front"));
 		assertTrue(clientTests.contains("vfx004-scar-occluded-wall"));
-		assertTrue(clientTests.contains("assertOccludedScarPixelsAbsent"));
+		assertTrue(clientTests.contains("setXRot(35.0F)"));
+		assertTrue(clientTests.contains("ClientVisualScarManager.entries()"));
+		assertTrue(clientTests.contains("client.level.getBlockState(expectedSupport)"));
+		assertTrue(clientTests.contains("client.level.getBlockState(expectedWall.above(y)).is(Blocks.STONE)"));
+		assertTrue(clientTests.contains("context.waitTicks(60)"));
+		assertTrue(clientTests.contains("context.waitTicks(5)"));
+		assertTrue(clientTests.contains("assertOcclusionPipelineConfigured"));
+		assertFalse(clientTests.contains("assertOccludedScarPixelsAbsent"));
 		assertTrue(clientTests.contains("visualScarPresentationMatrix"));
+		assertTrue(clientTests.contains("VisualScarService.request"));
+		assertTrue(clientTests.contains("visualScarResourceReloadContinuity"));
+		assertTrue(clientTests.contains("vfx004-scar-post-resource-reload"));
+		assertTrue(clientTests.contains("client.reloadResourcePacks()"));
+		assertTrue(clientTests.contains("Semantic scar changed across resource reload"));
 		assertTrue(clientTests.contains("assertEquals(30, captureIds.size())"));
 		assertTrue(clientTests.contains("vfx004-scar-matrix-"));
 		assertTrue(clientTests.contains("renderActualMotifMesh"));
 		assertTrue(clientTests.contains("assertMotifTopologyVisible"));
 		assertTrue(clientTests.contains("assertNoKeyOrSwatchSubstitute"));
+		assertTrue(clientTests.indexOf("quiesceVisuals(context);")
+				< clientTests.indexOf("visualScarPresentationMatrix(context, singleplayer);"));
+		assertTrue(clientTests.contains("ClientCelestialRuinFx.reset()"));
+		String build = Files.readString(Path.of("build.gradle"));
+		assertTrue(build.contains("vfx004ClientOnly"));
 	}
 
 	private static String source(String relative) throws IOException {

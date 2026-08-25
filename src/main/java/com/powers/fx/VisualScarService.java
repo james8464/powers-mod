@@ -42,7 +42,7 @@ public final class VisualScarService {
 	private VisualScarService() {
 	}
 
-	/** Queues one presentation-only scar after all support and origin facts are safely observed. */
+	/** Queues one presentation-only scar identity without inspecting world or protection state. */
 	public static boolean request(ServerLevel level, LivingEntity owner, BlockPos support,
 			Direction face, VisualScarRules.Impact impact, int visualSeed) {
 		Objects.requireNonNull(level, "level");
@@ -50,30 +50,13 @@ public final class VisualScarService {
 		Objects.requireNonNull(support, "support");
 		Objects.requireNonNull(face, "face");
 		Objects.requireNonNull(impact, "impact");
-		BlockPos origin = support.relative(face);
-		if (!LoadedChunks.contains(level, support)) return false;
-		if (!LoadedChunks.contains(level, origin)) return false;
-
-		BlockState supportState = level.getBlockState(support);
-		Object supportEntity = level.getBlockEntity(support);
-		BlockState originState = level.getBlockState(origin);
-		Object originEntity = level.getBlockEntity(origin);
-		VisualScarRules.Material material = classify(supportState);
-		VisualScarRules.SupportFacts facts = new VisualScarRules.SupportFacts(true, true,
-				PowerProtection.blockDecision(owner, level, support) == ProtectionDecision.ALLOW,
-				supportEntity != null, !supportState.getFluidState().isEmpty(),
-				supportState.isFaceSturdy(level, support, face), material != null,
-				originState.isAir(), originEntity != null, !originState.getFluidState().isEmpty());
-		if (VisualScarRules.admit(facts) != VisualScarRules.Admission.ALLOW) return false;
-
 		MinecraftServer server = level.getServer();
 		if (server == null) return false;
 		State state = STATES.computeIfAbsent(server, ignored -> new State());
 		long providerPolicyId = PowerProtectionAdapters.blockWorkPolicyId() & Long.MAX_VALUE;
 		return state.offer(new PendingRequest(level.dimension().identifier().toString(), providerPolicyId,
 				owner.getUUID(),
-				support.immutable(), face, impact, material, visualSeed,
-				supportState.hashCode()));
+				support.immutable(), face, impact, visualSeed));
 	}
 
 	/** Advances bounded admission, expiry, revalidation, observer resync, and delivery work. */
@@ -124,10 +107,8 @@ public final class VisualScarService {
 	}
 	private record ObserverPosition(double x, double y, double z) {
 	}
-	private record PendingRequest(String dimension, long providerPolicyId, UUID owner,
-			BlockPos support, Direction face,
-			VisualScarRules.Impact impact, VisualScarRules.Material material, int visualSeed,
-			long fingerprint) {
+	private record PendingRequest(String dimension, long providerPolicyId, UUID owner, BlockPos support,
+			Direction face, VisualScarRules.Impact impact, int visualSeed) {
 		private Lane lane() { return new Lane(dimension, providerPolicyId, owner, impact); }
 		private Key key() { return new Key(dimension, support.asLong(), face.ordinal()); }
 	}
@@ -191,14 +172,36 @@ public final class VisualScarService {
 				Key key = details == null ? null : details.pollFirst();
 				if (details != null && details.isEmpty()) requestDetails.remove(lane);
 				PendingRequest pending = key == null ? null : pendingByKey.remove(key);
-				if (pending != null) activate(server, pending, now);
+				if (pending != null) inspectAndActivate(server, pending, now);
 			}
 			for (Key key : expiry.pollDue(now, LIMITS.revalidationsPerTick()).keys()) remove(server, key);
 			for (Key key : revalidation.inspectNext(LIMITS.revalidationsPerTick())) revalidate(server, key);
 			drainDelivery(server, now);
 		}
-
-		private void activate(MinecraftServer server, PendingRequest pending, long now) {
+		private void inspectAndActivate(MinecraftServer server, PendingRequest pending, long now) {
+			ServerLevel level = level(server, pending.dimension);
+			if (level == null) return;
+			BlockPos support = pending.support;
+			BlockPos origin = support.relative(pending.face);
+			if (!LoadedChunks.contains(level, support)) return;
+			if (!LoadedChunks.contains(level, origin)) return;
+			BlockState supportState = level.getBlockState(support);
+			Object supportEntity = level.getBlockEntity(support);
+			BlockState originState = level.getBlockState(origin);
+			Object originEntity = level.getBlockEntity(origin);
+			if (!(level.getEntity(pending.owner) instanceof LivingEntity owner)) return;
+			ProtectionDecision protection = PowerProtection.blockDecision(owner, level, support);
+			VisualScarRules.Material material = classify(supportState);
+			VisualScarRules.SupportFacts facts = new VisualScarRules.SupportFacts(true, true,
+					protection == ProtectionDecision.ALLOW,
+					supportEntity != null, !supportState.getFluidState().isEmpty(),
+					supportState.isFaceSturdy(level, support, pending.face), material != null,
+					originState.isAir(), originEntity != null, !originState.getFluidState().isEmpty());
+			if (VisualScarRules.admit(facts) != VisualScarRules.Admission.ALLOW) return;
+			activate(server, pending, material, supportState.hashCode(), now);
+		}
+		private void activate(MinecraftServer server, PendingRequest pending,
+				VisualScarRules.Material material, long fingerprint, long now) {
 			Key key = pending.key();
 			VisualScarLedgerRules.Record current = active.get(key);
 			if (current != null && !current.owner().equals(pending.owner)) return;
@@ -213,7 +216,7 @@ public final class VisualScarService {
 			long expiresAt = now + LIMITS.maximumLease();
 			VisualScarLedgerRules.Record record = new VisualScarLedgerRules.Record(pending.dimension,
 					pending.support.asLong(), toFace(pending.face), pending.owner, pending.impact,
-					pending.material, pending.visualSeed, nextGeneration, pending.fingerprint,
+					material, pending.visualSeed, nextGeneration, fingerprint,
 					now, expiresAt);
 			active.put(key, record);
 			if (current == null) {
@@ -345,23 +348,19 @@ public final class VisualScarService {
 						}, failure -> handleFailure(send, failure));
 			}
 		}
-
 		private boolean sessionCurrent(VisualScarDeliveryModel.Send send, ServerPlayer player) {
 			long deliveryGeneration = send.deliveryGeneration();
 			return deliveryGeneration == pending.deliveryGeneration(send.session())
 					&& pending.guardCurrent(send, sessions.get(player.getUUID()));
 		}
-
 		private void broadcast(String dimension, ScarFxProtocolRules.Wire wire) {
 			for (VisualScarLedgerRules.ObserverSession session : sessions.values()) {
 				if (session.dimension().equals(dimension)) pending.offerObserved(session, wire);
 			}
 		}
-
 		private void beginSnapshotCreatesAfterResetSuccess(VisualScarDeliveryModel.Send send) {
 			pending.recordSendSuccess(send, sessions.get(send.session().player()));
 		}
-
 		private void handleFailure(VisualScarDeliveryModel.Send send,
 				PowersPlayNetworking.GuardedSendFailure failure) {
 			VisualScarLedgerRules.ObserverSession current = sessions.get(send.session().player());

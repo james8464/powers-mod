@@ -18,6 +18,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class VisualScarDeliveryRulesTest {
 	@Test
+	void lostSnapshotRowRetriesThatRowWithoutRestartingThePass() {
+		var observer = session(1, 10, "overworld", 1);
+		var authority = VisualScarDeliveryRules.authoritativeSnapshot(7, List.of(
+				row("overworld", wire(0, 1, 11, 1)),
+				row("overworld", wire(0, 2, 22, 1))));
+		var pending = VisualScarDeliveryRules.empty(2_048, 32_768)
+				.markNeedsResync(observer, authority.cursor());
+		var reset = pending.drainFair(1, 0, 1, List.of(observer), authority).sent().getFirst();
+		pending = pending.recordSendSuccess(reset, observer);
+		var lost = pending.drainFair(1, 0, 1, List.of(observer), authority).sent().getFirst();
+
+		pending = pending.recordSendFailure(lost,
+				VisualScarDeliveryRules.FailureReason.INJECTED_LOSS, observer);
+		var retry = pending.drainFair(1, 0, 1, List.of(observer), authority).sent().getFirst();
+
+		assertEquals(ScarFxProtocolRules.CREATE_OR_UPDATE, retry.payload().operation());
+		assertEquals(lost.payload().position(), retry.payload().position());
+		assertEquals(lost.deliveryGeneration(), retry.deliveryGeneration());
+	}
+
+	@Test
 	void resetBarrierRecoversLostRemoveAndTombstoneSaturationBeforeActiveCreates() {
 		var observer = session(1, 10, "overworld", 1);
 		var authority = VisualScarDeliveryRules.authoritativeSnapshot(7, List.of(
