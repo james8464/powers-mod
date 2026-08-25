@@ -1,0 +1,16 @@
+{
+  "filename": "sodium-fabric-0.9.1+mc26.2.jar",
+  "version": "0.9.1+mc26.2",
+  "sizeBytes": 1834384,
+  "sha256": "de406c7a0ca5e748dfbe44740278400882a44e3109e2584b243ec02d4003344b",
+  "sourceUrl": "https://cdn.modrinth.com/data/AANobbMI/versions/2Yom1N68/sodium-fabric-0.9.1%2Bmc26.2.jar",
+  "cachePolicy": "immutable external compatibility cache; third-party JAR not copied into Git tree",
+  "loadedModReceipt": "logs/terminal.log",
+  "clientRuntimeReceipt": "logs/latest.log",
+  "optionsReceipt": "options.txt",
+  "configReceipts": [
+    "config/sodium-options.json",
+    "config/sodium-mixins.properties",
+    "config/sodium-fingerprint.json"
+  ]
+}

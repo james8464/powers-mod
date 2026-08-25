@@ -1,0 +1,11 @@
+02a5f4230df93dba6b32a50121585e0757b2b147dc6664186a1cd4507748625e  docs/verification/evidence/2026-08-25-vfx-009/rejected/attempt-06-draw-offset-clipping/client-emitted-captures.jsonl
+481883bcc4d1a800f411553e472af852aed75a3d360de679caf381bf11dc9498  docs/verification/evidence/2026-08-25-vfx-009/rejected/attempt-06-draw-offset-clipping/client-raw/0000_vfx009-normal-clear-distance4.png
+1d997e3387ca470940b6b88889a1c14c28bb1d6980ebb81f0344d344fbcf972f  docs/verification/evidence/2026-08-25-vfx-009/rejected/attempt-06-draw-offset-clipping/client-raw/0001_vfx009-normal-clear-distance12.png
+5457a21fdc701c1fd1614529cfb1e6f2c78cf02142b3f4b02f2afa5710105e04  docs/verification/evidence/2026-08-25-vfx-009/rejected/attempt-06-draw-offset-clipping/client-raw/0002_vfx009-normal-clear-distance24.png
+044049b9a819c40b1851e9b7bcce12348f421b5eb166b8c8dd2daa2dc1af082c  docs/verification/evidence/2026-08-25-vfx-009/rejected/attempt-06-draw-offset-clipping/client-raw/0003_vfx009-normal-rain-distance12.png
+131c914fe2d9a41e341cedd5e73feab1969528b713d07762ca7fa2119077441f  docs/verification/evidence/2026-08-25-vfx-009/rejected/attempt-06-draw-offset-clipping/client-raw/0004_vfx009-normal-post_reload-distance12.png
+904e0cc18755d46fca70950ee11d1da6e34a31c1416daf4cbb4614455354149a  docs/verification/evidence/2026-08-25-vfx-009/rejected/attempt-06-draw-offset-clipping/client-raw/0005_vfx009-reduced-clear-distance4.png
+8c8738773f98e7bdb147e0845ea375b2c188819b6d5e1d7debbcecbdca5ac0bb  docs/verification/evidence/2026-08-25-vfx-009/rejected/attempt-06-draw-offset-clipping/client-raw/0006_vfx009-reduced-clear-distance12.png
+a8cb0292a0ec7f3cdedc74cecb27170a28d70dea5c8757def6b1d2cdbdd51bbc  docs/verification/evidence/2026-08-25-vfx-009/rejected/attempt-06-draw-offset-clipping/client-raw/0007_vfx009-reduced-clear-distance24.png
+a067504675d1dd5d74e1b341982764e4ba43bf6bc976660647e7bcabefe02675  docs/verification/evidence/2026-08-25-vfx-009/rejected/attempt-06-draw-offset-clipping/client-raw/0008_vfx009-fallback-clear-distance12.png
+06ae4640d0a73943da19f41382c71e5e78016573cc31968f0be6da0e6de7afb3  docs/verification/evidence/2026-08-25-vfx-009/rejected/attempt-06-draw-offset-clipping/terminal.log

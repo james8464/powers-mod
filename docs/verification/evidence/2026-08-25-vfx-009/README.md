@@ -1,0 +1,13 @@
+# VFX-009 live Light Realm sky evidence
+
+Both accepted galleries were launched through the production Light Crystal route on Minecraft 26.2 / Java 25 from renderer implementation commit `e6da63bd00b3af656272b9d10e0ac946548d5a2f`. The retained `mod/powers-1.0.2.jar` SHA-256 is `80147beb0793e37bc19d49133d11bde57b4c9c07dfff5b80c32bce25ce15d074`. The exact full implementation/evidence revision is recorded by the successor final-review report so the evidence commit does not recursively claim its own Git identity.
+
+`normal/` is the isolated Fabric runtime. `sodium-0.9.1/` is the same bounded matrix with the immutable-cache `sodium-fabric-0.9.1+mc26.2.jar` on the runtime classpath. Each lane retains nine client-emitted JSONL rows, nine raw 1280x720 PNGs, exact options, the client log, the Gradle terminal receipt, and a lane manifest. The Sodium lane also retains generated configuration and `artifact.json`, which records the artifact name, version, size, full SHA-256, source URL, immutable-cache policy, and paths to loaded-mod/runtime receipts. The third-party Sodium JAR itself is deliberately absent from this tree.
+
+Every capture set the real client player pitch to `-55.0` degrees and waited until the main camera observed it within one degree. `manual-review.tsv` binds all 18 original-resolution inspections to the client-emitted PNG digests. Its positive criteria require the upward sky to dominate the frame; normal rows must visibly show a large warm-white/gold radial rune/halo with tonal separation; reduced rows must visibly retain large, lower-contrast static warm-white/gold silhouettes; fallback rows must positively show that enhanced silhouettes are absent. All rows also reject black void, celestial bodies, seams, clipped geometry, excessive glare, and lost HUD readability.
+
+The server accepted the rain command (`weatherCommandRain=true`), while the Light Realm's no-skylight client reported `weather=clear`; the metadata records both rather than claiming rendered rain. The resource-reload rows observed revision `1`. Normal rows retained `particles=ALL`; incidental POWERS particles do not obscure the judged upper-field silhouettes.
+
+`rejected/` truthfully preserves attempts 01–06: direct-weather timeout, observed-clear rain-command diagnosis, terminal fallback-profile wait, sky-plane clipping, radial-bar clipping, and draw-offset clipping. Accepted attempts supersede these only where the final digest-bound rows say so.
+
+All retained text evidence replaces absolute home paths with `<HOME>` without removing diagnostic lines. `scripts/sanitize_vfx009_evidence.py --check` verifies privacy plus every lane and root manifest.
