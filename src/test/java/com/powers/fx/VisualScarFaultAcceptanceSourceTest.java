@@ -22,6 +22,13 @@ class VisualScarFaultAcceptanceSourceTest {
 		assertTrue(source.contains("PacketFaultProfile.named(\"loss5\""));
 		assertTrue(source.contains("ClientVisualScarManager.entries()"));
 		assertTrue(source.contains("PowersPlayNetworking.sendGuarded"));
+		assertTrue(source.contains("verifyDelayedSessionPredicateBoundary"));
+		assertTrue(source.contains("VisualScarService.disconnect(player)"));
+		assertTrue(source.contains("verifyExpiryRemoval"));
+		assertTrue(source.contains("verifyMovementIntoObservationRange"));
+		assertTrue(source.contains("VFX004_RANGE_BEFORE_ENTRY"));
+		assertTrue(source.contains("getWorldSave()"));
+		assertTrue(source.contains(".open()"));
 		assertFalse(source.contains("new ClientVisualScarState("));
 		assertFalse(source.contains("new MagicFxPackets.ScarFxPayload("));
 		String build = Files.readString(Path.of("build.gradle"));

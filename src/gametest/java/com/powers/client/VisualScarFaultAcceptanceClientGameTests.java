@@ -18,7 +18,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
+import net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldSave;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -41,6 +43,8 @@ public final class VisualScarFaultAcceptanceClientGameTests implements FabricCli
 	@Override
 	public void runTest(ClientGameTestContext context) {
 		context.restoreDefaultGameOptions();
+		TestWorldSave worldSave;
+		AtomicReference<ClientVisualScarState.HandlerStamp> originalConnection = new AtomicReference<>();
 		try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
 			context.waitFor(client -> client.player != null && client.level != null);
 			context.waitFor(client -> ClientVisualScarManager.entries().isEmpty());
@@ -57,12 +61,19 @@ public final class VisualScarFaultAcceptanceClientGameTests implements FabricCli
 			verifyReorder(context, singleplayer, supports.get(), expected);
 			verifyProfile(context, singleplayer, supports.get(), expected, "loss1", 50);
 			verifyProfile(context, singleplayer, supports.get(), expected, "loss5", 100);
+			verifyDelayedSessionPredicateBoundary(context, singleplayer, supports.get(), expected);
 			verifyDimensionBoundary(context, singleplayer, expected);
+			context.runOnClient(client -> originalConnection.set(
+					ClientVisualScarManager.captureHandlerStamp(client)));
+			verifyExpiryRemoval(context, singleplayer, supports.get(), expected);
+			verifyMovementIntoObservationRange(context, singleplayer, expected);
+			worldSave = singleplayer.getWorldSave();
 		} finally {
 			context.runOnClient(client -> {
 				if (client.level != null) ClientVisualScarManager.rendererResourcesRecreated();
 			});
 		}
+		verifyIntegratedReconnect(context, worldSave, originalConnection.get());
 	}
 
 	private static void prepareSupports(TestSingleplayerContext singleplayer,
@@ -116,6 +127,43 @@ public final class VisualScarFaultAcceptanceClientGameTests implements FabricCli
 		assertProfileWasReal("reorder", observed);
 		assertSupportsRemainAuthoritative(singleplayer, supports);
 		clearFaults(singleplayer);
+	}
+
+	private static void verifyDelayedSessionPredicateBoundary(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer, List<BlockPos> supports,
+			AtomicReference<Map<Long, Integer>> expected) {
+		configure(singleplayer, "delay300");
+		publishRound(singleplayer, supports, expected, 150);
+		waitForQueuedScarDelivery(context, singleplayer);
+		singleplayer.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			// Mirrors the production disconnect callback while the guarded send is delayed.
+			VisualScarService.disconnect(player);
+		});
+		awaitAuthoritativeConvergence(context, singleplayer, expected, "session-predicate-boundary");
+		awaitFaultQueueEmpty(context, singleplayer, "session-predicate-boundary");
+		PacketFaultMetrics observed = metrics(singleplayer);
+		if (observed.cancelled() < 1L || observed.delayed() < SCAR_COUNT) {
+			throw new AssertionError("Delayed stale session did not fail its real guarded predicate: "
+					+ observed);
+		}
+		assertSupportsRemainAuthoritative(singleplayer, supports);
+		clearFaults(singleplayer);
+	}
+
+	private static void waitForQueuedScarDelivery(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer) {
+		for (int tick = 0; tick < 100; tick++) {
+			AtomicReference<PacketFaultController.Diagnostics> diagnostics = new AtomicReference<>();
+			singleplayer.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				diagnostics.set(PacketFaultController.diagnostics(server, player));
+			});
+			if (diagnostics.get().metrics().offered() >= SCAR_COUNT
+					&& diagnostics.get().queueDepth() > 0) return;
+			context.waitTick();
+		}
+		throw new AssertionError("No delayed production scar delivery was queued");
 	}
 
 	private static void configure(TestSingleplayerContext singleplayer, String profile) {
@@ -292,6 +340,121 @@ public final class VisualScarFaultAcceptanceClientGameTests implements FabricCli
 		});
 		context.waitFor(client -> client.level != null && client.level.dimension().equals(Level.OVERWORLD));
 		awaitAuthoritativeConvergence(context, singleplayer, expected, "dimension-return");
+	}
+
+	private static void verifyExpiryRemoval(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer, List<BlockPos> supports,
+			AtomicReference<Map<Long, Integer>> expected) {
+		publishRound(singleplayer, supports, expected, 200);
+		awaitAuthoritativeConvergence(context, singleplayer, expected, "expiry-baseline");
+		AtomicReference<Integer> observedLease = new AtomicReference<>();
+		context.runOnClient(client -> observedLease.set(ClientVisualScarManager.entries().stream()
+				.mapToInt(ClientVisualScarState.Entry::leaseTicks).min().orElseThrow()));
+		context.waitTicks(Math.max(1, observedLease.get() - 25));
+		context.runOnClient(client -> {
+			if (!converged(ClientVisualScarManager.entries(), expected.get())) {
+				throw new AssertionError("Scar expired before its advertised authoritative lease");
+			}
+		});
+		for (int tick = 0; tick < 50; tick++) {
+			AtomicBoolean empty = new AtomicBoolean();
+			context.runOnClient(client -> empty.set(ClientVisualScarManager.entries().isEmpty()));
+			if (empty.get()) break;
+			context.waitTick();
+			if (tick == 49) throw new AssertionError("Exact expiry REMOVE did not clear client scars");
+		}
+		assertSupportsRemainAuthoritative(singleplayer, supports);
+		System.out.println("VFX004_EXPIRY_REMOVE count=" + supports.size()
+				+ " advertisedLease=" + observedLease.get()
+				+ " supportMutation=false clientEntries=0");
+	}
+
+	private static void verifyMovementIntoObservationRange(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer,
+			AtomicReference<Map<Long, Integer>> expected) {
+		AtomicReference<Vec3> destination = new AtomicReference<>();
+		AtomicReference<ChunkPos> forcedChunk = new AtomicReference<>();
+		AtomicReference<Double> initialDistance = new AtomicReference<>();
+		singleplayer.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			int remoteChunkX = Math.floorDiv(player.blockPosition().getX() + 320, 16);
+			int remoteChunkZ = Math.floorDiv(player.blockPosition().getZ(), 16);
+			BlockPos anchor = new BlockPos(remoteChunkX * 16 + 4,
+					player.blockPosition().getY(), remoteChunkZ * 16 + 4);
+			ChunkPos remoteChunk = new ChunkPos(remoteChunkX, remoteChunkZ);
+			forcedChunk.set(remoteChunk);
+			player.level().setChunkForced(remoteChunk.x(), remoteChunk.z(), true);
+			double horizontalDistance = Math.hypot(anchor.getX() + 0.5 - player.getX(),
+					anchor.getZ() + 0.5 - player.getZ());
+			if (horizontalDistance <= 256.0) {
+				throw new AssertionError("Remote scar fixture was inside observation range: "
+						+ horizontalDistance);
+			}
+			initialDistance.set(horizontalDistance);
+			Map<Long, Integer> remoteExpected = new LinkedHashMap<>();
+			for (int index = 0; index < 8; index++) {
+				BlockPos support = anchor.offset(index % 4, -1, index / 4);
+				// The fixture loads the target area; VisualScarService itself still creates no ticket.
+				player.level().getChunkAt(support);
+				player.level().setBlockAndUpdate(support, Blocks.STONE.defaultBlockState());
+				player.level().setBlockAndUpdate(support.above(), Blocks.AIR.defaultBlockState());
+				int seed = visualSeed(400, index);
+				remoteExpected.put(support.asLong(), seed);
+				if (!VisualScarService.request(player.level(), player, support, Direction.UP,
+						VisualScarRules.Impact.values()[index % VisualScarRules.Impact.values().length], seed)) {
+					throw new AssertionError("Remote production scar request was rejected: " + index);
+				}
+			}
+			expected.set(Map.copyOf(remoteExpected));
+			destination.set(new Vec3(anchor.getX() + 1.5, player.getY(), anchor.getZ() + 0.5));
+		});
+		context.waitTicks(20);
+		context.runOnClient(client -> {
+			if (!ClientVisualScarManager.entries().isEmpty()) {
+				throw new AssertionError("Out-of-range client received remote active scars");
+			}
+		});
+		System.out.println("VFX004_RANGE_BEFORE_ENTRY distance=" + initialDistance.get()
+				+ " clientEntries=0 activeExpected="
+				+ expected.get().size());
+
+		singleplayer.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			Vec3 target = destination.get();
+			player.teleportTo(target.x, target.y, target.z);
+		});
+		context.waitFor(client -> client.player != null
+				&& client.player.position().distanceToSqr(destination.get()) < 4.0);
+		awaitAuthoritativeConvergence(context, singleplayer, expected, "movement-enter-range");
+		singleplayer.getServer().runOnServer(server -> {
+			ChunkPos remoteChunk = forcedChunk.get();
+			server.overworld().setChunkForced(remoteChunk.x(), remoteChunk.z(), false);
+		});
+		System.out.println("VFX004_RANGE_AFTER_ENTRY clientEntries=" + expected.get().size()
+				+ " authoritativeConvergence=true");
+	}
+
+	private static void verifyIntegratedReconnect(ClientGameTestContext context,
+			TestWorldSave worldSave, ClientVisualScarState.HandlerStamp originalConnection) {
+		context.waitFor(client -> client.level == null && client.player == null);
+		try (TestSingleplayerContext reconnected = worldSave.open()) {
+			context.waitFor(client -> client.player != null && client.level != null);
+			context.waitFor(client -> ClientVisualScarManager.entries().isEmpty());
+			context.runOnClient(client -> {
+				ClientVisualScarState.HandlerStamp current =
+						ClientVisualScarManager.captureHandlerStamp(client);
+				if (originalConnection == null
+						|| current.connectionEpoch() <= originalConnection.connectionEpoch()) {
+					throw new AssertionError("Integrated reconnect did not advance client connection epoch");
+				}
+			});
+			AtomicReference<List<BlockPos>> supports = new AtomicReference<>();
+			AtomicReference<Map<Long, Integer>> expected = new AtomicReference<>(Map.of());
+			prepareSupports(reconnected, supports);
+			publishRound(reconnected, supports.get(), expected, 300);
+			awaitAuthoritativeConvergence(context, reconnected, expected, "integrated-reconnect");
+			assertSupportsRemainAuthoritative(reconnected, supports.get());
+		}
 	}
 
 	private static int visualSeed(int round, int index) {

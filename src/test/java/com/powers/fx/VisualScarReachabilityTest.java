@@ -138,7 +138,8 @@ class VisualScarReachabilityTest {
 		assertTrue(gameTests.contains("replaceConnection"));
 		assertTrue(gameTests.contains("assertNoScarPayloadDeliveredToStaleSession"));
 		assertTrue(gameTests.contains("visualScarUnsupportedClientCancelsPermanently"));
-		assertTrue(gameTests.contains("assertNoRetryOrResync"));
+		assertTrue(gameTests.contains("visualScarFalseSessionPredicateFailsAtProductionBoundary"));
+		assertTrue(gameTests.contains("PowersPlayNetworking.sendGuarded"));
 		assertTrue(gameTests.contains("visualScarFailureCallbackConvergesActiveClient"));
 		for (String caseName : List.of("falsePredicate", "injectedLoss", "queueOverflow",
 				"expiry", "loss1Percent", "loss5Percent")) assertTrue(gameTests.contains(caseName));

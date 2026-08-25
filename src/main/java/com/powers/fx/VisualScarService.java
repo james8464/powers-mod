@@ -38,10 +38,8 @@ import java.util.WeakHashMap;
 public final class VisualScarService {
 	private static final VisualScarRules.Limits LIMITS = VisualScarRules.Limits.hardCeilings();
 	private static final Map<MinecraftServer, State> STATES = new WeakHashMap<>();
-
 	private VisualScarService() {
 	}
-
 	/** Queues one presentation-only scar identity without inspecting world or protection state. */
 	public static boolean request(ServerLevel level, LivingEntity owner, BlockPos support,
 			Direction face, VisualScarRules.Impact impact, int visualSeed) {
@@ -58,31 +56,41 @@ public final class VisualScarService {
 				owner.getUUID(),
 				support.immutable(), face, impact, visualSeed));
 	}
-
 	/** Advances bounded admission, expiry, revalidation, observer resync, and delivery work. */
 	public static void tick(MinecraftServer server) {
 		State state = STATES.get(server);
 		if (state != null) state.tick(server);
 	}
-
 	/** Drops one observer session without retaining retries across disconnect. */
 	public static void disconnect(ServerPlayer player) {
 		State state = STATES.get(player.level().getServer());
 		if (state != null) state.disconnect(player.getUUID());
 	}
-
-	/** Coalesces one authenticated client recovery request into the current session's resync pass. */
 	public static void requestResync(ServerPlayer player) {
 		State state = STATES.get(player.level().getServer());
 		if (state != null) state.requestResync(player);
 	}
-
-	/** Clears every transient owner at the actual server-restart boundary. */
 	public static void clear(MinecraftServer server) {
 		State removed = STATES.remove(server);
 		if (removed != null) removed.clear();
 	}
-
+	static void observeSessionForTest(MinecraftServer server, UUID observer) {
+		State state = STATES.computeIfAbsent(server, ignored -> new State()); state.observeSessions(server);
+		state.sessions.keySet().stream().filter(id -> !id.equals(observer)).toList().forEach(state::disconnect); }
+	static void broadcastForTest(MinecraftServer server, String dimension, ScarFxProtocolRules.Wire wire) {
+		STATES.computeIfAbsent(server, ignored -> new State()).broadcast(dimension, wire); }
+	static void setGenerationForTest(MinecraftServer server, long generation) {
+		if (generation < 0) throw new IllegalArgumentException("generation");
+		STATES.computeIfAbsent(server, ignored -> new State()).generation = generation;
+	} static TestDiagnostics diagnosticsForTest(MinecraftServer server, UUID observer) {
+		State state = STATES.get(server);
+		if (state == null) return new TestDiagnostics(0, false, 0, 0, false);
+		VisualScarLedgerRules.ObserverSession session = state.sessions.get(observer);
+		return new TestDiagnostics(state.generation, state.admissionsDisabled, state.pending.globalSize(),
+				session == null ? 0 : state.pending.observerSize(session),
+				session != null && state.pending.needsResync(session));
+	}
+	record TestDiagnostics(long generation, boolean admissionsDisabled, int pendingGlobal, int pendingObserver, boolean needsResync) { }
 	private static VisualScarRules.Material classify(BlockState state) {
 		if (state.is(BlockTags.ICE) || state.is(BlockTags.SNOW)) return VisualScarRules.Material.COLD;
 		if (state.is(BlockTags.LOGS) || state.is(BlockTags.PLANKS)) return VisualScarRules.Material.WOOD;
@@ -97,7 +105,6 @@ public final class VisualScarService {
 		}
 		return state.isAir() ? null : VisualScarRules.Material.STONE;
 	}
-
 	private record Key(String dimension, long position, int face) {
 		private Key {
 			Objects.requireNonNull(dimension, "dimension");
@@ -231,7 +238,6 @@ public final class VisualScarService {
 			revision++;
 			broadcast(pending.dimension, createWire(record, LIMITS.maximumLease()));
 		}
-
 		private void revalidate(MinecraftServer server, Key key) {
 			VisualScarLedgerRules.Record record = active.get(key);
 			if (record == null) return;
@@ -252,7 +258,6 @@ public final class VisualScarService {
 			if (VisualScarLedgerRules.revalidate(record, true, true, valid, supportState.hashCode())
 					== VisualScarLedgerRules.Revalidation.REMOVE_STALE) remove(server, key);
 		}
-
 		private void remove(MinecraftServer server, Key key) {
 			VisualScarLedgerRules.Record removed = active.remove(key);
 			if (removed == null) return;
@@ -268,7 +273,6 @@ public final class VisualScarService {
 					removed.generation(), 1);
 			broadcast(removed.dimension(), tombstone);
 		}
-
 		private void observeSessions(MinecraftServer server) {
 			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 				String dimension = player.level().dimension().identifier().toString();
@@ -296,7 +300,6 @@ public final class VisualScarService {
 				if (server.getPlayerList().getPlayer(uuid) == null) disconnect(uuid);
 			}
 		}
-
 		private void observeMovement(ServerPlayer player,
 				VisualScarLedgerRules.ObserverSession session) {
 			ObserverPosition current = new ObserverPosition(player.getX(), player.getY(), player.getZ());
@@ -354,8 +357,12 @@ public final class VisualScarService {
 					&& pending.guardCurrent(send, sessions.get(player.getUUID()));
 		}
 		private void broadcast(String dimension, ScarFxProtocolRules.Wire wire) {
+			BlockPos support = BlockPos.of(wire.position());
 			for (VisualScarLedgerRules.ObserverSession session : sessions.values()) {
-				if (session.dimension().equals(dimension)) pending.offerObserved(session, wire);
+				ObserverPosition observer = observerPositions.get(session.player());
+				if (session.dimension().equals(dimension) && observer != null
+						&& VisualScarLedgerRules.withinObservationRange(observer.x, observer.z,
+							support.getX() + 0.5, support.getZ() + 0.5)) pending.offerObserved(session, wire);
 			}
 		}
 		private void beginSnapshotCreatesAfterResetSuccess(VisualScarDeliveryModel.Send send) {
@@ -372,13 +379,11 @@ public final class VisualScarService {
 				markNeedsResync(send, failure);
 			}
 		}
-
 		private void cancelWithoutRetryOrResync(VisualScarDeliveryModel.Send send) {
 			pending.recordSendFailure(send,
 					VisualScarDeliveryRules.FailureReason.UNSUPPORTED_CAPABILITY,
 					sessions.get(send.session().player()));
 		}
-
 		private void markNeedsResync(VisualScarDeliveryModel.Send send,
 				PowersPlayNetworking.GuardedSendFailure failure) {
 			VisualScarDeliveryRules.FailureReason reason =
@@ -387,22 +392,18 @@ public final class VisualScarService {
 							: VisualScarDeliveryRules.FailureReason.INJECTED_LOSS;
 			pending.recordSendFailure(send, reason, sessions.get(send.session().player()));
 		}
-
 		private void discardStaleFailure(VisualScarDeliveryModel.Send send) {
 			// Stale delayed callbacks own no current-session state.
 		}
-
 		private void onGuardedSendSuccess(VisualScarDeliveryModel.Send send) {
 			pending.recordSendSuccess(send, sessions.get(send.session().player()));
 		}
-
 		private void disconnect(UUID player) {
 			VisualScarLedgerRules.ObserverSession removed = sessions.remove(player);
 			sessionPlayers.remove(player);
 			observerPositions.remove(player);
 			if (removed != null) pending.cancel(removed);
 		}
-
 		private void requestResync(ServerPlayer player) {
 			VisualScarLedgerRules.ObserverSession session = sessions.get(player.getUUID());
 			if (session == null || sessionPlayers.get(player.getUUID()) != player

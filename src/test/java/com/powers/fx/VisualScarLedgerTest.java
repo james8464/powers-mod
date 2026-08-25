@@ -171,6 +171,14 @@ class VisualScarLedgerTest {
 	}
 
 	@Test
+	void observationRangeIncludesTheBoundaryAndRejectsBeyondIt() {
+		assertTrue(VisualScarLedgerRules.withinObservationRange(0, 0, 256, 0));
+		assertTrue(VisualScarLedgerRules.withinObservationRange(10, 10, 10, 266));
+		assertFalse(VisualScarLedgerRules.withinObservationRange(0, 0, 256.01, 0));
+		assertFalse(VisualScarLedgerRules.withinObservationRange(0, 0, Double.NaN, 0));
+	}
+
+	@Test
 	void midPageDimensionReconnectAndExpiryInvalidateStaleTail() {
 		var old = new VisualScarLedgerRules.ObserverSession(FIRST, 91,
 				"minecraft:overworld", 4);

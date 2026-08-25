@@ -44,6 +44,14 @@ public final class VisualScarLedgerRules {
 		return new MovementObservation(session, moved, 0);
 	}
 
+	/** Applies the fixed horizontal observation radius without accepting non-finite positions. */
+	public static boolean withinObservationRange(double observerX, double observerZ,
+			double supportX, double supportZ) {
+		double dx = supportX - observerX;
+		double dz = supportZ - observerZ;
+		return Double.isFinite(dx) && Double.isFinite(dz) && dx * dx + dz * dz <= 65_536.0;
+	}
+
 	/** Reports whether UUID, connection identity, dimension, and session generation still match. */
 	public static boolean sessionCurrent(ObserverSession captured, ObserverSession current) {
 		return Objects.equals(captured, current);

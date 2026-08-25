@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.core.BlockPos;
@@ -76,7 +78,29 @@ public final class PacketFaultGameTests {
 
 	@GameTest(environment = "powers:packet_fault_isolated", maxTicks = 20)
 	public void visualScarUnsupportedClientCancelsPermanently(GameTestHelper helper) {
-		assertNoRetryOrResync(helper, false, false);
+		ServerPlayer unsupported = helper.makeMockServerPlayerInLevel();
+		AtomicBoolean delivered = new AtomicBoolean();
+		AtomicReference<PowersPlayNetworking.GuardedSendFailure> failure = new AtomicReference<>();
+		boolean accepted = PowersPlayNetworking.sendGuarded(unsupported, scarPayload(40_004L),
+				ignored -> true, () -> delivered.set(true), failure::set);
+		helper.assertFalse(accepted, "Unsupported scar payload was accepted for delivery");
+		helper.assertFalse(delivered.get(), "Unsupported scar payload reached the connection");
+		helper.assertTrue(failure.get() == PowersPlayNetworking.GuardedSendFailure.UNSUPPORTED_CAPABILITY,
+				"Unsupported scar payload reported the wrong guarded failure: " + failure.get());
+		helper.succeed();
+	}
+
+	@GameTest(environment = "powers:packet_fault_isolated", maxTicks = 20)
+	public void visualScarFalseSessionPredicateFailsAtProductionBoundary(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		AtomicBoolean delivered = new AtomicBoolean();
+		AtomicReference<PowersPlayNetworking.GuardedSendFailure> failure = new AtomicReference<>();
+		boolean accepted = PowersPlayNetworking.sendGuarded(player, scarPayload(40_005L),
+				ignored -> false, () -> delivered.set(true), failure::set);
+		helper.assertFalse(accepted, "False scar session predicate was accepted");
+		helper.assertFalse(delivered.get(), "False-predicate scar payload reached the connection");
+		helper.assertTrue(failure.get() == PowersPlayNetworking.GuardedSendFailure.SESSION_PREDICATE_FALSE,
+				"False scar session reported the wrong guarded failure: " + failure.get());
 		helper.succeed();
 	}
 
@@ -114,8 +138,9 @@ public final class PacketFaultGameTests {
 				"A scar payload reached the stale session");
 	}
 
-	private static void assertNoRetryOrResync(GameTestHelper helper, boolean retry, boolean resync) {
-		helper.assertFalse(retry || resync, "Unsupported scar capability scheduled retry or resync");
+	private static MagicFxPackets.ScarFxPayload scarPayload(long position) {
+		return new MagicFxPackets.ScarFxPayload(new ScarFxProtocolRules.Wire(
+				ScarFxProtocolRules.CREATE_OR_UPDATE, position, 1, 0, 0, 4_004, 1, 40));
 	}
 
 	private static void assertActualActiveClientConverged(GameTestHelper helper,

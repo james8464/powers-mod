@@ -272,6 +272,7 @@ def vfx011ClientOnly = providers.gradleProperty("vfx011ClientOnly").isPresent()
 def vfx009ClientOnly = providers.gradleProperty("vfx009ClientOnly").isPresent()
 def vfx004ClientOnly = providers.gradleProperty("vfx004ClientOnly").isPresent()
 def vfx004FaultClientOnly = providers.gradleProperty("vfx004FaultClientOnly").isPresent()
+def vfx004RestartClientOnly = providers.gradleProperty("vfx004RestartClientOnly").isPresent()
 tasks.named("processGametestResources") {
 	inputs.property("connectedProfileEnabled", connectedProfileEnabled)
 	inputs.property("restartSoakEnabled", restartSoakEnabled)
@@ -281,9 +282,16 @@ tasks.named("processGametestResources") {
 	inputs.property("vfx009ClientOnly", vfx009ClientOnly)
 	inputs.property("vfx004ClientOnly", vfx004ClientOnly)
 	inputs.property("vfx004FaultClientOnly", vfx004FaultClientOnly)
+	inputs.property("vfx004RestartClientOnly", vfx004RestartClientOnly)
 	filesMatching("fabric.mod.json") {
 		filter { line ->
-			vfx004FaultClientOnly && (line.contains("com.powers.gametest.PowersClientGameTests")
+			vfx004RestartClientOnly && (line.contains("com.powers.gametest.PowersClientGameTests")
+					|| line.contains("com.powers.client.VfxGalleryClientGameTests"))
+					? null
+					: vfx004RestartClientOnly && line.contains("com.powers.client.LightRealmSkyClientGameTests")
+							? line.replace("com.powers.client.LightRealmSkyClientGameTests",
+									"com.powers.fx.VisualScarRestartClientGameTests")
+			: vfx004FaultClientOnly && (line.contains("com.powers.gametest.PowersClientGameTests")
 					|| line.contains("com.powers.client.VfxGalleryClientGameTests"))
 					? null
 					: vfx004FaultClientOnly && line.contains("com.powers.client.LightRealmSkyClientGameTests")

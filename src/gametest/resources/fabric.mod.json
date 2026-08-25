@@ -21,6 +21,7 @@
 			,"com.powers.gametest.ActionRegistryReloadGameTests"
 			,"com.powers.player.ActionSubmissionPacketGameTests"
 			,"com.powers.network.PacketFaultGameTests"${compatibilityEntrypoint}
+			,"com.powers.fx.VisualScarBoundaryGameTests"
 			,"com.powers.gametest.HostileEnvironmentGameTests"
 			,"com.powers.gametest.VfxGalleryGameTests"
 		],
