@@ -60,11 +60,12 @@ public final class LightRealmSkyRenderer implements AutoCloseable {
 	private void render(LightRealmSkyProfile profile) {
 		List<GpuBufferSlice> transforms = new ArrayList<>(profile.layers().size());
 		for (LightRealmSkyProfile.Layer layer : profile.layers()) {
-			float pulse = (float) (layer.pulseAmplitude() * Math.sin(layer.phase()));
+			double angle = profile.effectiveRotationRadians(layer);
+			float pulse = (float) (layer.pulseAmplitude() * Math.sin(angle));
 			float alpha = (float) Math.clamp(layer.alpha() + pulse, 0.0, 1.0);
 			int color = ARGB.multiplyAlpha(layer.color(), alpha);
 			Matrix4f transform = RenderSystem.getModelViewMatrixCopy()
-					.rotateY((float) (profile.rotationRadians() + layer.phase()))
+					.rotateY((float) angle)
 					.scale((float) layer.scale());
 			transforms.add(RenderSystem.getDynamicUniforms().writeTransform(
 					transform, ARGB.vector4fFromARGB32(color)));

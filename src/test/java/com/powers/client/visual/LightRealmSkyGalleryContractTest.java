@@ -37,16 +37,26 @@ class LightRealmSkyGalleryContractTest {
 		assertTrue(source.contains("CrystalPowerRegistry.tryActivate") && source.contains("PowersItems.LIGHT_CRYSTAL"),
 				"fixture must enter through the production Light Crystal travel route");
 		assertTrue(source.contains("powers:light_realm") && source.contains("BodyProxyKind.REALM"));
+		assertTrue(source.contains("context.waitTicks(100)"),
+				"production travel particles must settle before normal-mode sky screenshots are judged");
+		assertTrue(source.contains("client.player.setXRot(-55.0F)")
+				&& source.contains("client.gameRenderer.mainCamera().xRot()"),
+				"every renderer capture must observe a deterministic upward real-client camera orientation");
 		assertTrue(source.contains("client.options.renderDistance().set"));
 		assertTrue(source.contains("client.reloadResourcePacks()"));
-		assertTrue(source.contains("getWeatherData()") && source.contains("setRaining(raining)"),
-				"fixture must use the Minecraft 26.2 authoritative weather state");
+		assertTrue(source.contains("getCommands().getDispatcher().execute")
+					&& source.contains("weather rain") && source.contains("weather clear"),
+				"fixture must use the production weather command so the client observes rain state");
+		assertTrue(source.contains("weatherCommandRain"),
+				"rain-command intent and observed client weather must be recorded separately");
 		assertTrue(source.contains("FxAccessibility.reducedMotion"),
 				"normal/reduced screenshots require observed production accessibility state");
 		assertTrue(source.contains("LightRealmSkyClientState") && source.contains("Mode.STATIC_WHITE"),
 				"fallback proof must observe the real closed/unavailable renderer state, not fabricate metadata");
 		assertTrue(source.contains("restoreSkyState") && source.contains("enhancedAvailable()"),
 				"terminal fallback state must be restored and enhanced rows must prove renderer availability");
+		assertTrue(source.contains("profile != null && profile.mode() == expectedMode"),
+				"fallback waits must tolerate one render extraction before observing the replacement profile");
 		assertTrue(source.contains("cleanupAfterFixture") && source.contains("addSuppressed"),
 				"renderer, realm/body, override, and option cleanup failures must not skip later cleanup phases");
 	}
@@ -62,6 +72,22 @@ class LightRealmSkyGalleryContractTest {
 		assertTrue(source.contains("vfx009-captures.jsonl"));
 		assertTrue(source.contains("takeScreenshot") && source.indexOf("takeScreenshot") < source.indexOf("screenshotSha256"),
 				"digest must be emitted from the screenshot bytes after capture");
+	}
+
+	@Test
+	void realSkyGalleryCanRunWithoutTheIndependentVfx011ClientMatrix() throws IOException {
+		String build = Files.readString(ROOT.resolve("build.gradle"));
+		assertTrue(build.contains("vfx009ClientOnly"),
+				"the bounded VFX-009 proof needs an explicit client-run selection");
+		assertTrue(build.contains("vfx009SodiumJar") && build.contains("runtimeOnly files"),
+				"the pinned Sodium gallery must enter the client runtime through an explicit property");
+		assertTrue(build.contains("line.contains(\"com.powers.gametest.PowersClientGameTests\")")
+					&& build.contains("line.contains(\"com.powers.client.VfxGalleryClientGameTests\")"),
+				"VFX-009-only runs must exclude only the two unrelated client entrypoints");
+		String descriptor = Files.readString(ROOT.resolve("src/gametest/resources/fabric.mod.json"));
+		assertTrue(descriptor.indexOf("com.powers.client.VfxGalleryClientGameTests")
+					< descriptor.indexOf("com.powers.client.LightRealmSkyClientGameTests\"\n"),
+				"the retained VFX-009 entrypoint must be terminal after filtering");
 	}
 
 	private static String gallery() throws IOException {

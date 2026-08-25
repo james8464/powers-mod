@@ -64,10 +64,24 @@ class LightRealmSkyRulesTest {
 	}
 
 	@Test
+	void effectiveRuntimeRotationAdvancesExactlyOnceByLayerVelocityWithoutAnimatingReducedMotion() {
+		LightRealmSkyProfile first = LightRealmSkyRules.resolve(true, false, true, 6_000.0);
+		LightRealmSkyProfile next = LightRealmSkyRules.resolve(true, false, true, 6_001.0);
+		for (int index = 0; index < first.layers().size(); index++) {
+			double firstAngle = first.effectiveRotationRadians(first.layers().get(index));
+			double nextAngle = next.effectiveRotationRadians(next.layers().get(index));
+			assertEquals(first.layers().get(index).angularVelocity(), nextAngle - firstAngle, 1.0E-12,
+					"one elapsed tick must apply angular velocity exactly once");
+		}
+		LightRealmSkyProfile reduced = LightRealmSkyRules.resolve(true, true, true, 6_000.0);
+		assertEquals(0.0, reduced.effectiveRotationRadians(reduced.layers().get(0)));
+	}
+
+	@Test
 	void malformedTimeCannotCreateNonFiniteFrameValues() {
 		for (double time : new double[] {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY}) {
 			LightRealmSkyProfile profile = LightRealmSkyRules.resolve(true, false, true, time);
-			assertTrue(Double.isFinite(profile.rotationRadians()));
+			assertTrue(Double.isFinite(profile.animationTimeTicks()));
 			assertTrue(profile.layers().stream().allMatch(layer -> Double.isFinite(layer.phase())));
 		}
 	}

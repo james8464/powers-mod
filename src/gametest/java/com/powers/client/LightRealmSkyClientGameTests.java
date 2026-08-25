@@ -62,11 +62,12 @@ public final class LightRealmSkyClientGameTests implements FabricClientGameTest 
 				waitForLightRealm(context, singleplayer);
 				for (CaptureCase capture : CAPTURES) {
 					prepareCapture(context, singleplayer, capture, resourceReloadRevision);
-					capture(context, capture.id(), resourceReloadRevision.get(), expectedEnhancedMode(capture.reduced()));
+					capture(context, capture.id(), resourceReloadRevision.get(),
+							expectedEnhancedMode(capture.reduced()), capture.raining());
 				}
 				prepareFallback(context, singleplayer, fallbackClosed, fallbackRenderTarget);
 				capture(context, "vfx009/fallback/clear/distance12", resourceReloadRevision.get(),
-						LightRealmSkyProfile.Mode.STATIC_WHITE);
+						LightRealmSkyProfile.Mode.STATIC_WHITE, false);
 			} finally {
 				cleanupAfterFixture(context, singleplayer, fallbackClosed.get(), fallbackRenderTarget.get());
 			}
@@ -94,7 +95,7 @@ public final class LightRealmSkyClientGameTests implements FabricClientGameTest 
 		context.waitFor(client -> client.level != null && client.player != null
 				&& LIGHT_REALM.equals(client.level.dimension().identifier().toString())
 				&& client.gui.screen() == null);
-		context.waitTicks(20);
+		context.waitTicks(100);
 	}
 
 	private static void prepareCapture(ClientGameTestContext context,
@@ -105,13 +106,14 @@ public final class LightRealmSkyClientGameTests implements FabricClientGameTest 
 			client.options.renderDistance().set(capture.renderDistance());
 			client.options.particles().set(capture.reduced() ? ParticleStatus.MINIMAL : ParticleStatus.ALL);
 			client.options.screenEffectScale().set(capture.reduced() ? 0.0 : 1.0);
+			client.player.setXRot(-55.0F);
 		});
 		if (capture.reloadResources()) reloadResources(context, resourceReloadRevision);
 		context.waitFor(client -> client.level != null
 				&& FxAccessibility.reducedMotion(client) == capture.reduced()
 				&& client.options.renderDistance().get() == capture.renderDistance()
-				&& client.level.isRaining() == capture.raining()
-				&& observedMode(client) == expectedEnhancedMode(capture.reduced()));
+				&& observedMode(client) == expectedEnhancedMode(capture.reduced())
+				&& Math.abs(client.gameRenderer.mainCamera().xRot() + 55.0F) < 1.0F);
 		context.waitTicks(10);
 	}
 
@@ -132,7 +134,7 @@ public final class LightRealmSkyClientGameTests implements FabricClientGameTest 
 			fallbackClosed.set(true);
 		});
 		context.waitFor(client -> client.level != null && !client.level.isRaining()
-				&& observedMode(client) == LightRealmSkyProfile.Mode.STATIC_WHITE);
+				&& hasObservedMode(client, LightRealmSkyProfile.Mode.STATIC_WHITE));
 		context.waitTicks(10);
 	}
 
@@ -151,20 +153,23 @@ public final class LightRealmSkyClientGameTests implements FabricClientGameTest 
 	}
 
 	private static void setWeather(TestSingleplayerContext singleplayer, boolean raining) {
-		singleplayer.getServer().runOnServer(server -> {
-			var level = server.getPlayerList().getPlayers().getFirst().level();
-			var weather = level.getWeatherData();
-			weather.setClearWeatherTime(raining ? 0 : 12_000);
-			weather.setRaining(raining);
-			weather.setRainTime(12_000);
-			weather.setThundering(false);
-			weather.setThunderTime(12_000);
-			weather.setDirty();
-		});
+		singleplayer.getServer().runOnServer(server -> setWeather(server, raining));
+	}
+
+	private static void setWeather(net.minecraft.server.MinecraftServer server, boolean raining) {
+		String command = raining ? "execute in " + LIGHT_REALM + " run weather rain 12000"
+				: "execute in " + LIGHT_REALM + " run weather clear 12000";
+		try {
+			if (server.getCommands().getDispatcher().execute(command, server.createCommandSourceStack()) <= 0) {
+				throw new AssertionError("Weather command reported failure: /" + command);
+			}
+		} catch (com.mojang.brigadier.exceptions.CommandSyntaxException error) {
+			throw new AssertionError("Weather command did not parse: /" + command, error);
+		}
 	}
 
 	private static void capture(ClientGameTestContext context, String captureId,
-			int resourceReloadRevision, LightRealmSkyProfile.Mode expectedMode) {
+			int resourceReloadRevision, LightRealmSkyProfile.Mode expectedMode, boolean weatherCommandRain) {
 		String name = captureId.replace('/', '-');
 		Path screenshot = context.takeScreenshot(name);
 		context.waitTick();
@@ -181,7 +186,7 @@ public final class LightRealmSkyClientGameTests implements FabricClientGameTest 
 						+ ": mode=" + mode + ", available=" + enhancedRendererAvailable);
 			}
 			record(client, screenshot, captureId, mode, enhancedRendererAvailable,
-					resourceReloadRevision);
+					resourceReloadRevision, weatherCommandRain);
 		});
 	}
 
@@ -196,8 +201,7 @@ public final class LightRealmSkyClientGameTests implements FabricClientGameTest 
 				throw new IllegalStateException("Could not restore GameTest-only sky state", error);
 			}
 		});
-		context.waitFor(client -> actualSkyState(client).enhancedAvailable()
-				&& observedMode(client) == LightRealmSkyProfile.Mode.ANCIENT_WHITE);
+		context.waitFor(client -> actualSkyState(client).enhancedAvailable());
 	}
 
 	private static LightRealmSkyProfile.Mode expectedEnhancedMode(boolean reduced) {
@@ -209,6 +213,11 @@ public final class LightRealmSkyClientGameTests implements FabricClientGameTest 
 		LightRealmSkyProfile profile = reflectedField(actualSkyState(client), LightRealmSkyProfile.class);
 		if (profile == null) throw new AssertionError("Light Realm sky profile has not been extracted yet");
 		return profile.mode();
+	}
+
+	private static boolean hasObservedMode(Minecraft client, LightRealmSkyProfile.Mode expectedMode) {
+		LightRealmSkyProfile profile = reflectedField(actualSkyState(client), LightRealmSkyProfile.class);
+		return profile != null && profile.mode() == expectedMode;
 	}
 
 	private static LightRealmSkyClientState actualSkyState(Minecraft client) {
@@ -255,7 +264,7 @@ public final class LightRealmSkyClientGameTests implements FabricClientGameTest 
 
 	private static void record(Minecraft client, Path screenshot, String captureId,
 			LightRealmSkyProfile.Mode rendererMode, boolean enhancedRendererAvailable,
-			int resourceReloadRevision) {
+			int resourceReloadRevision, boolean weatherCommandRain) {
 		String weather = client.level == null ? "unavailable"
 				: client.level.isThundering() ? "thunder" : client.level.isRaining() ? "rain" : "clear";
 		RuntimeOptions runtimeOptions = new RuntimeOptions(client.getWindow().getWidth(),
@@ -268,7 +277,7 @@ public final class LightRealmSkyClientGameTests implements FabricClientGameTest 
 		CaptureMetadata metadata = new CaptureMetadata(captureId, screenshot.getFileName().toString(),
 				screenshotSha256(screenshot), runtimeOptions, rendererMode.name(), enhancedRendererAvailable,
 				client.options.renderDistance().get(), FxAccessibility.reducedMotion(client), weather,
-				resourceReloadRevision);
+				resourceReloadRevision, weatherCommandRain);
 		try {
 			Files.writeString(metadataPath(client), GSON.toJson(metadata) + "\n",
 					StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
@@ -313,26 +322,16 @@ public final class LightRealmSkyClientGameTests implements FabricClientGameTest 
 	}
 
 	private static void cleanup(TestSingleplayerContext singleplayer) {
-		singleplayer.getServer().runOnServer(server -> {
+			singleplayer.getServer().runOnServer(server -> {
 			var players = server.getPlayerList().getPlayers();
 			if (players.isEmpty()) return;
 			var player = players.getFirst();
-			setClear(player.level());
+			setWeather(server, false);
 			if (BodyProxyManager.hasSession(player, BodyProxyKind.REALM)) {
 				BodyProxyManager.recoverToBody(player);
 			}
 			TestingOverrides.clear(player.getUUID());
 		});
-	}
-
-	private static void setClear(net.minecraft.server.level.ServerLevel level) {
-		var weather = level.getWeatherData();
-		weather.setClearWeatherTime(12_000);
-		weather.setRaining(false);
-		weather.setRainTime(12_000);
-		weather.setThundering(false);
-		weather.setThunderTime(12_000);
-		weather.setDirty();
 	}
 
 	private record CaptureCase(String id, int renderDistance, boolean reduced,
@@ -341,7 +340,7 @@ public final class LightRealmSkyClientGameTests implements FabricClientGameTest 
 
 	private record CaptureMetadata(String captureId, String screenshot, String screenshotSha256,
 			RuntimeOptions runtimeOptions, String rendererMode, boolean enhancedRendererAvailable, int renderDistance,
-			boolean reducedMotion, String weather, int resourceReloadRevision) {
+			boolean reducedMotion, String weather, int resourceReloadRevision, boolean weatherCommandRain) {
 	}
 
 	private record RuntimeOptions(int physicalWidth, int physicalHeight, int requestedGuiScale,

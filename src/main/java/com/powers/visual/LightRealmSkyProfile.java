@@ -5,7 +5,8 @@ import java.util.Objects;
 
 /** Immutable, renderer-agnostic description of the Light Realm sky for one frame. */
 public record LightRealmSkyProfile(Mode mode, int baseColor, List<Layer> layers,
-		double rotationRadians, boolean usesTexture, boolean usesCustomShader) {
+		double animationTimeTicks, boolean usesTexture, boolean usesCustomShader) {
+	private static final double TAU = Math.PI * 2.0;
 	private static final List<Shape> AUTHORED_SHAPES = List.of(
 			Shape.OUTER_HALO, Shape.RUNIC_COMPASS, Shape.CROWN_ARCS, Shape.RADIAL_VEIL);
 	private static final List<Integer> AUTHORED_COLORS = List.of(
@@ -17,8 +18,8 @@ public record LightRealmSkyProfile(Mode mode, int baseColor, List<Layer> layers,
 	public LightRealmSkyProfile {
 		Objects.requireNonNull(mode, "mode");
 		layers = List.copyOf(layers);
-		if (!Double.isFinite(rotationRadians)) {
-			throw new IllegalArgumentException("rotationRadians must be finite");
+		if (!Double.isFinite(animationTimeTicks)) {
+			throw new IllegalArgumentException("animationTimeTicks must be finite");
 		}
 		if (usesTexture || usesCustomShader) {
 			throw new IllegalArgumentException("Light Realm sky profiles cannot depend on textures or custom shaders");
@@ -33,12 +34,18 @@ public record LightRealmSkyProfile(Mode mode, int baseColor, List<Layer> layers,
 		if (mode == Mode.STATIC_WHITE && !layers.isEmpty()) {
 			throw new IllegalArgumentException("STATIC_WHITE cannot carry enhanced layers");
 		}
-		if (mode == Mode.ANCIENT_WHITE) validateEnhanced(layers, AUTHORED_SHAPES.size(), false, rotationRadians);
-		if (mode == Mode.ANCIENT_WHITE_REDUCED) validateEnhanced(layers, 2, true, rotationRadians);
+		if (mode == Mode.ANCIENT_WHITE) validateEnhanced(layers, AUTHORED_SHAPES.size(), false, animationTimeTicks);
+		if (mode == Mode.ANCIENT_WHITE_REDUCED) validateEnhanced(layers, 2, true, animationTimeTicks);
+	}
+
+	/** Exact per-layer angle consumed by the client renderer for this extracted frame. */
+	public double effectiveRotationRadians(Layer layer) {
+		Objects.requireNonNull(layer, "layer");
+		return Math.IEEEremainder(layer.phase() + layer.angularVelocity() * animationTimeTicks, TAU);
 	}
 
 	private static void validateEnhanced(List<Layer> layers, int expectedLayers,
-			boolean reduced, double rotationRadians) {
+			boolean reduced, double animationTimeTicks) {
 		if (layers.size() != expectedLayers) {
 			throw new IllegalArgumentException("enhanced sky layer cardinality does not match its mode");
 		}
@@ -61,8 +68,8 @@ public record LightRealmSkyProfile(Mode mode, int baseColor, List<Layer> layers,
 				|| layers.stream().noneMatch(layer -> layer.pulseAmplitude() != 0.0))) {
 			throw new IllegalArgumentException("ordinary enhanced sky requires bounded drift and pulse");
 		}
-		if (reduced && rotationRadians != 0.0) {
-			throw new IllegalArgumentException("reduced-motion sky rotation must be zero");
+		if (reduced && animationTimeTicks != 0.0) {
+			throw new IllegalArgumentException("reduced-motion sky animation time must be zero");
 		}
 	}
 
