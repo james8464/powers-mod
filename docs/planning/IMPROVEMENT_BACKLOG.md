@@ -180,7 +180,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | VFX-005 | Enhancement | P2 | Create unique silhouettes for each rank-10 transformation. | A distant observer identifies power/alignment without reading chat. |
 | VFX-006 | Enhancement | P2 | Add animation controllers for Shadow, guardians, Heralds, and First Vessel casting poses. | Client/server action timing stays synchronized under latency. |
 | VFX-007 | Enhancement | P2 | Expand 14 sounds into layered near/mid/far variants and occlusion-aware mixes. | Loud events do not clip; volume falls off correctly; subtitles exist. |
-| VFX-009 | Enhancement | P2 | Add custom Light Realm sky shader/skybox with accessibility fallback. | Pure white target remains stable across render distance/resource packs. |
 | VFX-010 | Enhancement | P2 | Add weather/biome-responsive ancient rune color grading. | Meaningful action colors remain consistent and color-blind safe. |
 | VFX-012 | Expansion | P3 | Add original music/ambient soundscapes for Light, Dark, Middleworld, bosses, and Eclipse events. | Loop points, licensing, subtitles, volume categories, and performance validated. |
 
