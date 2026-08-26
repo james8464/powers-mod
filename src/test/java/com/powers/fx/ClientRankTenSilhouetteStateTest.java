@@ -39,6 +39,43 @@ class ClientRankTenSilhouetteStateTest {
 	}
 
 	@Test
+	void expiredEventIdIsNeverResurrectedByReplay() {
+		ClientRankTenSilhouetteState expired = ClientRankTenSilhouetteState.empty(
+				64, 3, "minecraft:overworld").receive(wire(1, 1), 100, 3,
+				"minecraft:overworld").tick();
+		assertTrue(expired.entries().isEmpty());
+		assertEquals(expired, expired.receive(wire(1, 40), 101, 3, "minecraft:overworld"));
+	}
+
+	@Test
+	void outOfOrderReceiptThatHasAlreadyExpiredNeverEntersState() {
+		ClientRankTenSilhouetteState state = ClientRankTenSilhouetteState.empty(
+				64, 3, "minecraft:overworld").receive(wire(1, 1), 100, 3,
+				"minecraft:overworld").tick();
+		assertEquals(state, state.receive(wire(2, 1), 100, 3, "minecraft:overworld"));
+	}
+
+	@Test
+	void outOfRangeFiniteWorldCoordinatesAreRejectedBeforeMutation() {
+		ClientRankTenSilhouetteState empty = ClientRankTenSilhouetteState.empty(
+				64, 3, "minecraft:overworld");
+		ClientRankTenSilhouetteState.Wire unsafe = new ClientRankTenSilhouetteState.Wire(
+				1, 0, UUID.randomUUID(), "minecraft:overworld", 1.0E100, 70, -5,
+				30, 5, 0, 41, 40);
+		assertEquals(empty, empty.receive(unsafe, 0, 3, "minecraft:overworld"));
+	}
+
+	@Test
+	void defaultWireLifetimeIsTheAuthoredFortyTicks() {
+		assertEquals(40, ClientRankTenSilhouetteState.AUTHORED_LIFETIME_TICKS);
+		ClientRankTenSilhouetteState.Wire defaultLifetime = new ClientRankTenSilhouetteState.Wire(
+				1, 0, UUID.randomUUID(), "minecraft:overworld", 12, 70, -5,
+				30, 5, 0, 41);
+		assertEquals(ClientRankTenSilhouetteState.AUTHORED_LIFETIME_TICKS,
+				defaultLifetime.lifetimeTicks());
+	}
+
+	@Test
 	void receiptLocalExpiryIsExactAndSaturatesAtTheMaximumTick() {
 		ClientRankTenSilhouetteState state = ClientRankTenSilhouetteState.empty(
 				64, 3, "minecraft:overworld").receive(wire(1, 2), 100, 3,

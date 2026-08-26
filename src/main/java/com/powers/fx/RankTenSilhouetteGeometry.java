@@ -8,6 +8,8 @@ import java.util.UUID;
 /** Pure camera-facing expansion of immutable rank-ten primitives into bounded coloured vertices. */
 public final class RankTenSilhouetteGeometry {
 	public static final int MAX_VERTICES = 256;
+	public static final double MAX_WORLD_COORDINATE = 30_000_000.0;
+	public static final int AUTHORED_LIFETIME_TICKS = ClientRankTenSilhouetteState.AUTHORED_LIFETIME_TICKS;
 	private static final int DISC_SEGMENTS = 8;
 
 	private RankTenSilhouetteGeometry() {
@@ -24,19 +26,20 @@ public final class RankTenSilhouetteGeometry {
 		}
 		RankTenSilhouetteProfile.Palette palette = profile.alignmentPalette(event.alignmentId() == 0);
 		double phase = reducedMotion ? 0.0 : event.phase();
-		double alpha = reducedMotion ? palette.fillAlpha() * 0.62 : palette.fillAlpha();
+		double outlineAlpha = palette.fillAlpha();
+		double fillAlpha = reducedMotion ? palette.fillAlpha() * 0.62 : palette.fillAlpha();
 		Basis basis = basis(event, camera);
 		List<Vertex> vertices = new ArrayList<>();
 		for (RankTenSilhouetteProfile.Primitive primitive : profile.primitives()) {
 			if (primitive instanceof RankTenSilhouetteProfile.Segment segment) {
-				segment(vertices, segment, event, basis, palette.outerRgb(), alpha);
+				segment(vertices, segment, event, basis, palette.outerRgb(), outlineAlpha);
 			} else if (primitive instanceof RankTenSilhouetteProfile.Ring ring) {
-				ring(vertices, ring, event, basis, palette.accentRgb(), alpha);
+				ring(vertices, ring, event, basis, palette.accentRgb(), outlineAlpha);
 			} else if (primitive instanceof RankTenSilhouetteProfile.Disc disc) {
-				disc(vertices, disc, event, basis, palette.fillRgb(), alpha);
+				disc(vertices, disc, event, basis, palette.fillRgb(), fillAlpha);
 			}
 		}
-		return new Mesh(vertices, profile.primitiveSignature(), profile.primitiveSignature(), phase, alpha);
+		return new Mesh(vertices, profile.primitiveSignature(), profile.primitiveSignature(), phase, fillAlpha);
 	}
 
 	/** Clamps the only renderer scale surface to the shared hard presentation bounds. */
@@ -119,8 +122,10 @@ public final class RankTenSilhouetteGeometry {
 			int visualSeed, int lifetimeTicks, double phase) {
 		public Event {
 			if (eventId <= 0 || RankTenSilhouetteProfile.fromNetworkId(profileId).isEmpty()
-					|| caster == null || !validDimension(dimension) || !finite(x, y, z, yaw, pitch, phase)
-					|| (alignmentId != 0 && alignmentId != 1) || lifetimeTicks < 1 || lifetimeTicks > 80) {
+					|| caster == null || !validDimension(dimension) || !validWorldCoordinates(x, y, z)
+					|| !finite(yaw, pitch, phase) || (alignmentId != 0 && alignmentId != 1)
+					|| lifetimeTicks < ClientRankTenSilhouetteState.MIN_LIFETIME_TICKS
+					|| lifetimeTicks > ClientRankTenSilhouetteState.MAX_LIFETIME_TICKS) {
 				throw new IllegalArgumentException("invalid silhouette event");
 			}
 		}
@@ -129,6 +134,12 @@ public final class RankTenSilhouetteGeometry {
 				int visualSeed, int lifetimeTicks) {
 			this(eventId, profileId, caster, dimension, x, y, z, yaw, pitch, alignmentId,
 					visualSeed, lifetimeTicks, 0.0);
+		}
+		public Event(long eventId, int profileId, UUID caster, String dimension,
+				double x, double y, double z, float yaw, float pitch, int alignmentId,
+				int visualSeed) {
+			this(eventId, profileId, caster, dimension, x, y, z, yaw, pitch, alignmentId,
+					visualSeed, AUTHORED_LIFETIME_TICKS, 0.0);
 		}
 		public Event withPhase(double value) {
 			return new Event(eventId, profileId, caster, dimension, x, y, z, yaw, pitch,
@@ -156,6 +167,11 @@ public final class RankTenSilhouetteGeometry {
 
 	private static boolean validDimension(String dimension) {
 		return dimension != null && !dimension.isBlank() && dimension.length() <= 128;
+	}
+
+	static boolean validWorldCoordinates(double x, double y, double z) {
+		return finite(x, y, z) && Math.abs(x) <= MAX_WORLD_COORDINATE
+				&& Math.abs(y) <= MAX_WORLD_COORDINATE && Math.abs(z) <= MAX_WORLD_COORDINATE;
 	}
 
 	private static boolean finite(double... values) {
