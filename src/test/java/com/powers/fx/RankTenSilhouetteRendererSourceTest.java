@@ -68,6 +68,39 @@ class RankTenSilhouetteRendererSourceTest {
 	}
 
 	@Test
+	void productionMeshKeepsSegmentAndRingMinorWidthRecognisableAtNinetySixBlocks() {
+		double distance = 96.0;
+		double focalPixels = 720.0 / (2.0 * Math.tan(Math.toRadians(70.0 / 2.0)));
+		assertEquals(0.12, RankTenSilhouetteRenderBatch.distanceStableMinorWidth(0.12, 8));
+		assertEquals(0.336, RankTenSilhouetteRenderBatch.distanceStableMinorWidth(0.12, distance),
+				1.0E-12);
+		assertEquals(0.36, RankTenSilhouetteRenderBatch.distanceStableMinorWidth(0.12, 384));
+		RankTenSilhouetteGeometry.Camera farCamera = new RankTenSilhouetteGeometry.Camera(0, 70, -distance);
+		RankTenSilhouetteGeometry.Camera nearCamera = new RankTenSilhouetteGeometry.Camera(0, 70, -8);
+		for (String powerId : List.of("invisibility", "time_shift")) {
+			RankTenSilhouetteProfile profile = RankTenSilhouetteProfile.forPower(powerId).orElseThrow();
+			ClientRankTenSilhouetteState.Entry entry = entry(31 + profile.networkId(),
+					profile.networkId(), 0, 70, 0, 40);
+			RankTenSilhouetteGeometry.Mesh far = RankTenSilhouetteRenderBatch.renderActualProfileMesh(
+					entry, farCamera, false, 0);
+			RankTenSilhouetteGeometry.Mesh authoredFar = RankTenSilhouetteGeometry.mesh(profile,
+					relativeEvent(entry, farCamera, 0), new RankTenSilhouetteGeometry.Camera(0, 0, 0), false);
+			double projectedMinorPixels = minorWidth(far) * focalPixels / distance;
+			assertTrue(projectedMinorPixels >= 1.5, powerId + " projected only "
+					+ projectedMinorPixels + " pixels at 96 blocks");
+			assertMidpointClose(authoredFar.vertices().get(0), authoredFar.vertices().get(1),
+					far.vertices().get(0), far.vertices().get(1), powerId);
+			assertTrue(far.vertices().size() <= RankTenSilhouetteGeometry.MAX_VERTICES);
+
+			RankTenSilhouetteGeometry.Mesh near = RankTenSilhouetteRenderBatch.renderActualProfileMesh(
+					entry, nearCamera, false, 0);
+			RankTenSilhouetteGeometry.Mesh authoredNear = RankTenSilhouetteGeometry.mesh(profile,
+					relativeEvent(entry, nearCamera, 0), new RankTenSilhouetteGeometry.Camera(0, 0, 0), false);
+			assertEquals(authoredNear.vertices(), near.vertices(), powerId + " near geometry changed");
+		}
+	}
+
+	@Test
 	void pureBatchSelectsNearestWithStableTiesAndHardCapsOneDraw() {
 		RankTenSilhouetteGeometry.Camera camera = new RankTenSilhouetteGeometry.Camera(0, 64, 0);
 		List<ClientRankTenSilhouetteState.Entry> entries = List.of(
@@ -203,6 +236,37 @@ class RankTenSilhouetteRendererSourceTest {
 				profileId, UUID.fromString("00000000-0000-0000-0000-000000000001"), OVERWORLD,
 				x, y, z, 15, -5, 0, 41, lifetime);
 		return new ClientRankTenSilhouetteState.Entry(wire, lifetime);
+	}
+
+	private static RankTenSilhouetteGeometry.Event relativeEvent(
+			ClientRankTenSilhouetteState.Entry entry, RankTenSilhouetteGeometry.Camera camera,
+			double phase) {
+		ClientRankTenSilhouetteState.Wire wire = entry.wire();
+		return new RankTenSilhouetteGeometry.Event(wire.eventId(), wire.profileId(), wire.caster(),
+				wire.dimension(), wire.x() - camera.x(), wire.y() - camera.y(), wire.z() - camera.z(),
+				wire.yaw(), wire.pitch(), wire.alignmentId(), wire.visualSeed(), wire.lifetimeTicks(), phase);
+	}
+
+	private static double minorWidth(RankTenSilhouetteGeometry.Mesh mesh) {
+		RankTenSilhouetteGeometry.Vertex first = mesh.vertices().get(0);
+		RankTenSilhouetteGeometry.Vertex second = mesh.vertices().get(1);
+		return Math.sqrt(Math.pow(first.x() - second.x(), 2)
+				+ Math.pow(first.y() - second.y(), 2) + Math.pow(first.z() - second.z(), 2));
+	}
+
+	private static void assertMidpointClose(RankTenSilhouetteGeometry.Vertex expectedFirst,
+			RankTenSilhouetteGeometry.Vertex expectedSecond,
+			RankTenSilhouetteGeometry.Vertex actualFirst,
+			RankTenSilhouetteGeometry.Vertex actualSecond, String powerId) {
+		List<Float> expected = List.of((expectedFirst.x() + expectedSecond.x()) / 2,
+				(expectedFirst.y() + expectedSecond.y()) / 2,
+				(expectedFirst.z() + expectedSecond.z()) / 2);
+		List<Float> actual = List.of((actualFirst.x() + actualSecond.x()) / 2,
+				(actualFirst.y() + actualSecond.y()) / 2,
+				(actualFirst.z() + actualSecond.z()) / 2);
+		for (int axis = 0; axis < 3; axis++) {
+			assertEquals(expected.get(axis), actual.get(axis), 1.0E-6, powerId + " centerline moved");
+		}
 	}
 
 	private static int occurrences(String source, String needle) {
