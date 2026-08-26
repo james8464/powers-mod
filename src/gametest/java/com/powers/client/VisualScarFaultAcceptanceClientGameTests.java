@@ -22,6 +22,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldSave;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -61,7 +62,7 @@ public final class VisualScarFaultAcceptanceClientGameTests implements FabricCli
 			verifyReorder(context, singleplayer, supports.get(), expected);
 			verifyProfile(context, singleplayer, supports.get(), expected, "loss1", 50);
 			verifyProfile(context, singleplayer, supports.get(), expected, "loss5", 100);
-			verifyDelayedSessionPredicateBoundary(context, singleplayer, supports.get(), expected);
+			verifySameServerSessionReplacement(context, singleplayer, supports.get(), expected);
 			verifyDimensionBoundary(context, singleplayer, expected);
 			context.runOnClient(client -> originalConnection.set(
 					ClientVisualScarManager.captureHandlerStamp(client)));
@@ -129,9 +130,17 @@ public final class VisualScarFaultAcceptanceClientGameTests implements FabricCli
 		clearFaults(singleplayer);
 	}
 
-	private static void verifyDelayedSessionPredicateBoundary(ClientGameTestContext context,
+	private static void verifySameServerSessionReplacement(ClientGameTestContext context,
 			TestSingleplayerContext singleplayer, List<BlockPos> supports,
 			AtomicReference<Map<Long, Integer>> expected) {
+		AtomicReference<MinecraftServer> retainedServer = new AtomicReference<>();
+		AtomicReference<Long> originalSession = new AtomicReference<>();
+		singleplayer.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			retainedServer.set(server);
+			originalSession.set(VisualScarService.diagnosticsForTest(
+					server, player.getUUID()).sessionGeneration());
+		});
 		configure(singleplayer, "delay300");
 		publishRound(singleplayer, supports, expected, 150);
 		waitForQueuedScarDelivery(context, singleplayer);
@@ -142,6 +151,14 @@ public final class VisualScarFaultAcceptanceClientGameTests implements FabricCli
 		});
 		awaitAuthoritativeConvergence(context, singleplayer, expected, "session-predicate-boundary");
 		awaitFaultQueueEmpty(context, singleplayer, "session-predicate-boundary");
+		singleplayer.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			long replacement = VisualScarService.diagnosticsForTest(
+					server, player.getUUID()).sessionGeneration();
+			if (server != retainedServer.get() || replacement <= originalSession.get()) {
+				throw new AssertionError("Connection-session replacement did not retain the server and advance identity");
+			}
+		});
 		PacketFaultMetrics observed = metrics(singleplayer);
 		if (observed.cancelled() < 1L || observed.delayed() < SCAR_COUNT) {
 			throw new AssertionError("Delayed stale session did not fail its real guarded predicate: "
@@ -348,21 +365,38 @@ public final class VisualScarFaultAcceptanceClientGameTests implements FabricCli
 		publishRound(singleplayer, supports, expected, 200);
 		awaitAuthoritativeConvergence(context, singleplayer, expected, "expiry-baseline");
 		AtomicReference<Integer> observedLease = new AtomicReference<>();
+		AtomicReference<Long> removeBaseline = new AtomicReference<>();
 		context.runOnClient(client -> observedLease.set(ClientVisualScarManager.entries().stream()
 				.mapToInt(ClientVisualScarState.Entry::leaseTicks).min().orElseThrow()));
+		context.runOnClient(client -> removeBaseline.set(
+				ClientVisualScarManager.removeDiagnostics().receipts()));
 		context.waitTicks(Math.max(1, observedLease.get() - 25));
 		context.runOnClient(client -> {
 			if (!converged(ClientVisualScarManager.entries(), expected.get())) {
 				throw new AssertionError("Scar expired before its advertised authoritative lease");
 			}
 		});
-		for (int tick = 0; tick < 50; tick++) {
-			AtomicBoolean empty = new AtomicBoolean();
-			context.runOnClient(client -> empty.set(ClientVisualScarManager.entries().isEmpty()));
-			if (empty.get()) break;
+		for (int tick = 0; tick < 100; tick++) {
+			AtomicBoolean authoritativeRemove = new AtomicBoolean();
+			AtomicBoolean serverEmpty = new AtomicBoolean();
+			context.runOnClient(client -> authoritativeRemove.set(
+					ClientVisualScarManager.removeDiagnostics().receipts()
+							- removeBaseline.get() == supports.size()));
+			singleplayer.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				serverEmpty.set(VisualScarService.diagnosticsForTest(
+						server, player.getUUID()).activeCount() == 0);
+			});
+			if (authoritativeRemove.get() && serverEmpty.get()) break;
 			context.waitTick();
-			if (tick == 49) throw new AssertionError("Exact expiry REMOVE did not clear client scars");
+			if (tick == 99) throw new AssertionError(
+					"Authoritative exact-generation REMOVE did not cross production delivery");
 		}
+		context.runOnClient(client -> {
+			if (!ClientVisualScarManager.entries().isEmpty()) {
+				throw new AssertionError("Applied authoritative REMOVE retained client scars");
+			}
+		});
 		assertSupportsRemainAuthoritative(singleplayer, supports);
 		System.out.println("VFX004_EXPIRY_REMOVE count=" + supports.size()
 				+ " advertisedLease=" + observedLease.get()

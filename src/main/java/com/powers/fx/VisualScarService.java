@@ -80,17 +80,17 @@ public final class VisualScarService {
 	static void broadcastForTest(MinecraftServer server, String dimension, ScarFxProtocolRules.Wire wire) {
 		STATES.computeIfAbsent(server, ignored -> new State()).broadcast(dimension, wire); }
 	static void setGenerationForTest(MinecraftServer server, long generation) {
-		if (generation < 0) throw new IllegalArgumentException("generation");
-		STATES.computeIfAbsent(server, ignored -> new State()).generation = generation;
-	} static TestDiagnostics diagnosticsForTest(MinecraftServer server, UUID observer) {
+		if (generation < 0) throw new IllegalArgumentException("generation"); STATES.computeIfAbsent(server, ignored -> new State()).generation = generation; }
+	/** Exposes bounded server state to integrated acceptance fixtures. */
+	public static TestDiagnostics diagnosticsForTest(MinecraftServer server, UUID observer) {
 		State state = STATES.get(server);
-		if (state == null) return new TestDiagnostics(0, false, 0, 0, false);
+		if (state == null) return new TestDiagnostics(0, false, 0, 0, false, 0, 0);
 		VisualScarLedgerRules.ObserverSession session = state.sessions.get(observer);
 		return new TestDiagnostics(state.generation, state.admissionsDisabled, state.pending.globalSize(),
-				session == null ? 0 : state.pending.observerSize(session),
-				session != null && state.pending.needsResync(session));
+				session == null ? 0 : state.pending.observerSize(session), session != null && state.pending.needsResync(session), state.active.size(), session == null ? 0 : session.sessionGeneration());
 	}
-	record TestDiagnostics(long generation, boolean admissionsDisabled, int pendingGlobal, int pendingObserver, boolean needsResync) { }
+	/** Immutable bounded service diagnostics without mutable runtime ownership. */
+	public record TestDiagnostics(long generation, boolean admissionsDisabled, int pendingGlobal, int pendingObserver, boolean needsResync, int activeCount, long sessionGeneration) { }
 	private static VisualScarRules.Material classify(BlockState state) {
 		if (state.is(BlockTags.ICE) || state.is(BlockTags.SNOW)) return VisualScarRules.Material.COLD;
 		if (state.is(BlockTags.LOGS) || state.is(BlockTags.PLANKS)) return VisualScarRules.Material.WOOD;

@@ -20,6 +20,9 @@ public final class ClientVisualScarManager {
 	private static long localTick;
 	private static boolean resyncRequested;
 	private static long lastResyncRequestTick;
+	private static long exactRemoveReceipts;
+	private static long lastRemovePosition;
+	private static long lastRemoveGeneration;
 
 	private ClientVisualScarManager() {
 	}
@@ -41,6 +44,12 @@ public final class ClientVisualScarManager {
 		ClientVisualScarState.ReceiveResult received = state.receiveObserved(
 				payload.wire(), localTick, connectionEpoch);
 		state = received.state();
+		if (payload.wire().operation() == com.powers.fx.ScarFxProtocolRules.REMOVE
+				&& received.outcome() == ClientVisualScarState.ReceiveOutcome.APPLIED) {
+			exactRemoveReceipts++;
+			lastRemovePosition = payload.wire().position();
+			lastRemoveGeneration = payload.wire().generation();
+		}
 		if (received.outcome() == ClientVisualScarState.ReceiveOutcome.APPLIED_RESET) {
 			resyncRequested = false;
 		}
@@ -90,6 +99,14 @@ public final class ClientVisualScarManager {
 		}
 		return List.copyOf(result);
 	}
+
+	/** Exposes read-only exact-REMOVE receipt evidence to integrated acceptance fixtures. */
+	public static RemoveDiagnostics removeDiagnostics() {
+		return new RemoveDiagnostics(exactRemoveReceipts, lastRemovePosition, lastRemoveGeneration);
+	}
+
+	/** Immutable receipt counter and identity of the latest applied exact REMOVE. */
+	public record RemoveDiagnostics(long receipts, long lastPosition, long lastGeneration) { }
 
 	public static void rendererResourcesClosed() {
 		state = state.rendererResourcesClosed();

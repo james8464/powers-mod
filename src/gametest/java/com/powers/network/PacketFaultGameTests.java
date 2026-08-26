@@ -77,20 +77,6 @@ public final class PacketFaultGameTests {
 	}
 
 	@GameTest(environment = "powers:packet_fault_isolated", maxTicks = 20)
-	public void visualScarUnsupportedClientCancelsPermanently(GameTestHelper helper) {
-		ServerPlayer unsupported = helper.makeMockServerPlayerInLevel();
-		AtomicBoolean delivered = new AtomicBoolean();
-		AtomicReference<PowersPlayNetworking.GuardedSendFailure> failure = new AtomicReference<>();
-		boolean accepted = PowersPlayNetworking.sendGuarded(unsupported, scarPayload(40_004L),
-				ignored -> true, () -> delivered.set(true), failure::set);
-		helper.assertFalse(accepted, "Unsupported scar payload was accepted for delivery");
-		helper.assertFalse(delivered.get(), "Unsupported scar payload reached the connection");
-		helper.assertTrue(failure.get() == PowersPlayNetworking.GuardedSendFailure.UNSUPPORTED_CAPABILITY,
-				"Unsupported scar payload reported the wrong guarded failure: " + failure.get());
-		helper.succeed();
-	}
-
-	@GameTest(environment = "powers:packet_fault_isolated", maxTicks = 20)
 	public void visualScarFalseSessionPredicateFailsAtProductionBoundary(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		AtomicBoolean delivered = new AtomicBoolean();

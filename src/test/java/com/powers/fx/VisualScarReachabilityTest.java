@@ -137,7 +137,9 @@ class VisualScarReachabilityTest {
 		assertTrue(gameTests.contains("changeDimension"));
 		assertTrue(gameTests.contains("replaceConnection"));
 		assertTrue(gameTests.contains("assertNoScarPayloadDeliveredToStaleSession"));
-		assertTrue(gameTests.contains("visualScarUnsupportedClientCancelsPermanently"));
+		String boundaryTests = Files.readString(Path.of(
+				"src/gametest/java/com/powers/fx/VisualScarBoundaryGameTests.java"));
+		assertTrue(boundaryTests.contains("unsupportedObserverIsCancelledWithoutRetryOrResync"));
 		assertTrue(gameTests.contains("visualScarFalseSessionPredicateFailsAtProductionBoundary"));
 		assertTrue(gameTests.contains("PowersPlayNetworking.sendGuarded"));
 		assertTrue(gameTests.contains("visualScarFailureCallbackConvergesActiveClient"));

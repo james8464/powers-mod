@@ -53,4 +53,25 @@ public final class VisualScarBoundaryGameTests {
 		VisualScarService.clear(server);
 		helper.succeed();
 	}
+
+	@GameTest(maxTicks = 20)
+	public void unsupportedObserverIsCancelledWithoutRetryOrResync(GameTestHelper helper) {
+		MinecraftServer server = helper.getLevel().getServer();
+		VisualScarService.clear(server);
+		ServerPlayer observer = helper.makeMockServerPlayerInLevel();
+		VisualScarService.observeSessionForTest(server, observer.getUUID());
+		BlockPos support = helper.absolutePos(new BlockPos(2, 1, 2));
+		helper.getLevel().setBlockAndUpdate(support, net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+		helper.getLevel().setBlockAndUpdate(support.above(), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+		helper.assertTrue(VisualScarService.request(helper.getLevel(), observer, support, Direction.UP,
+				VisualScarRules.Impact.BEAM, 9), "Unsupported production observer request was rejected early");
+		VisualScarService.tick(server);
+		VisualScarService.tick(server);
+		VisualScarService.TestDiagnostics diagnostics =
+				VisualScarService.diagnosticsForTest(server, observer.getUUID());
+		helper.assertTrue(diagnostics.pendingObserver() == 0 && !diagnostics.needsResync(),
+				"Unsupported observer retained retry/resync work: " + diagnostics);
+		VisualScarService.clear(server);
+		helper.succeed();
+	}
 }

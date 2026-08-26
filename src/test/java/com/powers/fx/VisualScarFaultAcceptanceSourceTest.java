@@ -22,9 +22,11 @@ class VisualScarFaultAcceptanceSourceTest {
 		assertTrue(source.contains("PacketFaultProfile.named(\"loss5\""));
 		assertTrue(source.contains("ClientVisualScarManager.entries()"));
 		assertTrue(source.contains("PowersPlayNetworking.sendGuarded"));
-		assertTrue(source.contains("verifyDelayedSessionPredicateBoundary"));
+		assertTrue(source.contains("verifySameServerSessionReplacement"));
 		assertTrue(source.contains("VisualScarService.disconnect(player)"));
 		assertTrue(source.contains("verifyExpiryRemoval"));
+		assertTrue(source.contains("removeDiagnostics().receipts()"));
+		assertTrue(source.contains(".activeCount() == 0"));
 		assertTrue(source.contains("verifyMovementIntoObservationRange"));
 		assertTrue(source.contains("VFX004_RANGE_BEFORE_ENTRY"));
 		assertTrue(source.contains("getWorldSave()"));
