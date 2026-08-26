@@ -8,8 +8,8 @@
   particle-independent, lifecycle-safe, and reduced-motion stable. A fresh 56-frame 1280x720 real
   client gallery passes 253 pairwise monochrome distinctions, near-body/crosshair safety, opaque-wall
   occlusion, reload, dimension, and reconnect checks; the unfiltered aggregate passes 138 GameTests,
-  1,730 JUnit tests, and 179 Python tests. Independent closure review returned READY; final
-  closure-head verification and integration remain pending.
+  1,730 JUnit tests, and 179 Python tests. Independent closure review returned READY; the closure
+  head passed literal verification and VFX-005 is integrated into and pushed on `main`.
 
 - Closed VFX-004 with presentation-only, material-aware transient scars for Energy Beam, Breezy Bash,
   Thunderclap, Ice Manipulation, and Fireball. Server admission, revalidation, expiry, observer resync,
