@@ -1,0 +1,3 @@
+command=python3 scripts/audit_java_sources.py
+exit_code=0
+stdout_bytes=0

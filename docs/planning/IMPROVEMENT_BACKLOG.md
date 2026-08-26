@@ -176,7 +176,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | UX-008 | Guarantee | P2 | Complete narration labels, order, live-region throttling, and high-contrast focus for every custom screen. | Automated accessibility audit plus manual screen-reader pass. |
 | UX-009 | Enhancement | P2 | Add configurable reduced flashes, tinnitus, camera shake, FOV, and large-beam opacity. | Celestial Ruin remains mechanically readable with all comfort options enabled. |
 | VFX-003 | Enhancement | P1 | Establish per-action near-camera particle exclusion/cone limits for Lightning and Fireball. | First-person captures preserve aim visibility at all ranks. |
-| VFX-005 | Enhancement | P2 | Create unique silhouettes for each rank-10 transformation. | A distant observer identifies power/alignment without reading chat. |
 | VFX-006 | Enhancement | P2 | Add animation controllers for Shadow, guardians, Heralds, and First Vessel casting poses. | Client/server action timing stays synchronized under latency. |
 | VFX-007 | Enhancement | P2 | Expand 14 sounds into layered near/mid/far variants and occlusion-aware mixes. | Loud events do not clip; volume falls off correctly; subtitles exist. |
 | VFX-010 | Enhancement | P2 | Add weather/biome-responsive ancient rune color grading. | Meaningful action colors remain consistent and color-blind safe. |

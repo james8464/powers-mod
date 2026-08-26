@@ -1,0 +1,412 @@
+{
+  "crosshairIntrusionPixels": 0,
+  "farNormalCount": 23,
+  "farReducedCount": 23,
+  "maximumBackgroundDriftPixels": 176,
+  "maximumLifecycleBackgroundDriftPixels": 144,
+  "minimumAlignmentOutlineJaccard": 1.0,
+  "minimumLifecycleOutlineJaccard": 1.0,
+  "minimumReducedOutlineJaccard": 1.0,
+  "nearBodyColumnCoverage": 40,
+  "nearBodyIdentityPixels": 4676,
+  "nearBodyRetention": 0.994048,
+  "nearBodyRowCoverage": 125,
+  "pairwiseComparisons": 253,
+  "rowCount": 56,
+  "rows": [
+    {
+      "captureId": "vfx005-alignment_variant-flight",
+      "category": "alignment_variant",
+      "foregroundPixels": 90,
+      "imagePath": "0047_vfx005-alignment_variant-flight.png",
+      "sha256": "dde53568a73fc78ac72250c0bbfaf98648a6ccd31845e94f31c88a9b8ad330e4"
+    },
+    {
+      "captureId": "vfx005-alignment_variant-forcefield",
+      "category": "alignment_variant",
+      "foregroundPixels": 132,
+      "imagePath": "0048_vfx005-alignment_variant-forcefield.png",
+      "sha256": "fb1583cb7d90365088bd132d247db831042b3b161634ed6649df3804c8e46148"
+    },
+    {
+      "captureId": "vfx005-baseline-size_shift",
+      "category": "baseline",
+      "foregroundPixels": 0,
+      "imagePath": "0000_vfx005-baseline-size_shift.png",
+      "sha256": "4eb633bc473c593afbda1e174ed87423fafdfcd1e7ad0b28af3954bb264f7f7e"
+    },
+    {
+      "captureId": "vfx005-far_normal-astral_projection",
+      "category": "far_normal",
+      "foregroundPixels": 125,
+      "imagePath": "0019_vfx005-far_normal-astral_projection.png",
+      "sha256": "29da37a3bdc4f8bab0bdac407016f75174293b1810467a85d4fc0f36be738a61"
+    },
+    {
+      "captureId": "vfx005-far_normal-breezy_bash",
+      "category": "far_normal",
+      "foregroundPixels": 112,
+      "imagePath": "0013_vfx005-far_normal-breezy_bash.png",
+      "sha256": "c4970dbb9d54f8b48e74b23f2b28d4017f9303221da323ce8e23e57548dbe1ff"
+    },
+    {
+      "captureId": "vfx005-far_normal-double_health",
+      "category": "far_normal",
+      "foregroundPixels": 144,
+      "imagePath": "0023_vfx005-far_normal-double_health.png",
+      "sha256": "7b6005a945623dd6503d7a1785533e12293caa2d255fef1313a4a6ec60054b3f"
+    },
+    {
+      "captureId": "vfx005-far_normal-energy_beam",
+      "category": "far_normal",
+      "foregroundPixels": 96,
+      "imagePath": "0011_vfx005-far_normal-energy_beam.png",
+      "sha256": "ab502414fe2b07a09281f5fb1b17cea2d6153be7f7e7cf4f52e72b5720e996e5"
+    },
+    {
+      "captureId": "vfx005-far_normal-energy_drain",
+      "category": "far_normal",
+      "foregroundPixels": 115,
+      "imagePath": "0020_vfx005-far_normal-energy_drain.png",
+      "sha256": "1c69c3e2c3c85c01f23c30070eb612a23832db187059ed81f403eb46545f0499"
+    },
+    {
+      "captureId": "vfx005-far_normal-fireball",
+      "category": "far_normal",
+      "foregroundPixels": 131,
+      "imagePath": "0006_vfx005-far_normal-fireball.png",
+      "sha256": "dad68ed8e7c0f31b90e17b9379aed7ee340303b4991501ddaba42afe3791530f"
+    },
+    {
+      "captureId": "vfx005-far_normal-flight",
+      "category": "far_normal",
+      "foregroundPixels": 90,
+      "imagePath": "0003_vfx005-far_normal-flight.png",
+      "sha256": "ad49e22e7965d724b23cda8665d4b8e12a12adc105260e39ee4f53324174aa38"
+    },
+    {
+      "captureId": "vfx005-far_normal-forcefield",
+      "category": "far_normal",
+      "foregroundPixels": 132,
+      "imagePath": "0016_vfx005-far_normal-forcefield.png",
+      "sha256": "70468afbf1da840f55d8902bd7657c06e59c8adf43c050375629954e44cac7a9"
+    },
+    {
+      "captureId": "vfx005-far_normal-gravity_displacement",
+      "category": "far_normal",
+      "foregroundPixels": 128,
+      "imagePath": "0017_vfx005-far_normal-gravity_displacement.png",
+      "sha256": "a2d2663d8bdda4ddbb5ac62117dd7d29a770f5ac01b265e21cd036384e151578"
+    },
+    {
+      "captureId": "vfx005-far_normal-ice_manipulation",
+      "category": "far_normal",
+      "foregroundPixels": 90,
+      "imagePath": "0021_vfx005-far_normal-ice_manipulation.png",
+      "sha256": "bb34650a3ea3f4e78b8fe850585da5f5c971fde3ca6dfc945cc948ee1b6d2fcf"
+    },
+    {
+      "captureId": "vfx005-far_normal-invisibility",
+      "category": "far_normal",
+      "foregroundPixels": 52,
+      "imagePath": "0014_vfx005-far_normal-invisibility.png",
+      "sha256": "2e242dbc33648edbc2b7183a7b2609e7de240d5d271f8d95e8e74c8f03b87008"
+    },
+    {
+      "captureId": "vfx005-far_normal-lightning_strike",
+      "category": "far_normal",
+      "foregroundPixels": 69,
+      "imagePath": "0007_vfx005-far_normal-lightning_strike.png",
+      "sha256": "2269da33afcaf733fced349a420f2ea41d481244b94bbbb31bf2ca1281751cff"
+    },
+    {
+      "captureId": "vfx005-far_normal-plant_healing_acceleration",
+      "category": "far_normal",
+      "foregroundPixels": 116,
+      "imagePath": "0022_vfx005-far_normal-plant_healing_acceleration.png",
+      "sha256": "20cba253fc84111b098c7853e59a8f7f18168780bc6bcdd780ea58f46182df29"
+    },
+    {
+      "captureId": "vfx005-far_normal-size_shift",
+      "category": "far_normal",
+      "foregroundPixels": 90,
+      "imagePath": "0001_vfx005-far_normal-size_shift.png",
+      "sha256": "07a005f77e0bf25efc92f57a125fb244fe8812a84589420f6dc48b6e28f8ecda"
+    },
+    {
+      "captureId": "vfx005-far_normal-speed_burst",
+      "category": "far_normal",
+      "foregroundPixels": 94,
+      "imagePath": "0009_vfx005-far_normal-speed_burst.png",
+      "sha256": "0856d725eb94a13e99412b9c0ad0dff91e53f3e681b1598d094dcab244c143e0"
+    },
+    {
+      "captureId": "vfx005-far_normal-starfall",
+      "category": "far_normal",
+      "foregroundPixels": 62,
+      "imagePath": "0004_vfx005-far_normal-starfall.png",
+      "sha256": "cad98c8f13b51b0833be9bf88f6403d8b93a098df5f248c783e052ebb8f43015"
+    },
+    {
+      "captureId": "vfx005-far_normal-super_speed",
+      "category": "far_normal",
+      "foregroundPixels": 115,
+      "imagePath": "0012_vfx005-far_normal-super_speed.png",
+      "sha256": "97004e39c72e9b3ec46086df130ee47595b2747210bbaa0d280f685c5813d666"
+    },
+    {
+      "captureId": "vfx005-far_normal-telekinesis",
+      "category": "far_normal",
+      "foregroundPixels": 110,
+      "imagePath": "0010_vfx005-far_normal-telekinesis.png",
+      "sha256": "232c757b2a8a25fb2310c174afee1b05076f73e104cb576be18dedf9351210ad"
+    },
+    {
+      "captureId": "vfx005-far_normal-thunderclap",
+      "category": "far_normal",
+      "foregroundPixels": 148,
+      "imagePath": "0008_vfx005-far_normal-thunderclap.png",
+      "sha256": "0f1cf79e80403de2da8de167ae8f1b11a0f36f3088c60169e1e39c736cd36d1f"
+    },
+    {
+      "captureId": "vfx005-far_normal-time_freeze",
+      "category": "far_normal",
+      "foregroundPixels": 100,
+      "imagePath": "0015_vfx005-far_normal-time_freeze.png",
+      "sha256": "ab1ce9becd9c7bcb71c0ad54f2ca28e38778cc3a9837a87a2f5a5fb34caf9fa3"
+    },
+    {
+      "captureId": "vfx005-far_normal-time_shift",
+      "category": "far_normal",
+      "foregroundPixels": 92,
+      "imagePath": "0002_vfx005-far_normal-time_shift.png",
+      "sha256": "b4f05274bdfa5d3bf540172f8a8a473e779d58227cad780eb8d30d72b6afce11"
+    },
+    {
+      "captureId": "vfx005-far_normal-vessel_possession",
+      "category": "far_normal",
+      "foregroundPixels": 82,
+      "imagePath": "0018_vfx005-far_normal-vessel_possession.png",
+      "sha256": "7dbd848f264250d617a145f3ecb4474c7e1ed6f0f8dfa315ce9ee20add1ee89b"
+    },
+    {
+      "captureId": "vfx005-far_normal-void_beam",
+      "category": "far_normal",
+      "foregroundPixels": 128,
+      "imagePath": "0005_vfx005-far_normal-void_beam.png",
+      "sha256": "3a01c340805f1273770edebf64fffc8d7f46c90f0c4e28c06d78b4945c86fd62"
+    },
+    {
+      "captureId": "vfx005-far_reduced-astral_projection",
+      "category": "far_reduced",
+      "foregroundPixels": 125,
+      "imagePath": "0042_vfx005-far_reduced-astral_projection.png",
+      "sha256": "bb88b7e02f502fca4ed591a1b7634c8223e1588b49d6f867882379fb6ffcf678"
+    },
+    {
+      "captureId": "vfx005-far_reduced-breezy_bash",
+      "category": "far_reduced",
+      "foregroundPixels": 112,
+      "imagePath": "0036_vfx005-far_reduced-breezy_bash.png",
+      "sha256": "416bb420fd1ee67fd759d0749a1989ffc480e33175bc2085678d3d3de11651d6"
+    },
+    {
+      "captureId": "vfx005-far_reduced-double_health",
+      "category": "far_reduced",
+      "foregroundPixels": 144,
+      "imagePath": "0046_vfx005-far_reduced-double_health.png",
+      "sha256": "b18b55748b0998552a5f74029bdbaea02d05af8c0c6795997e9bfc772184c2ce"
+    },
+    {
+      "captureId": "vfx005-far_reduced-energy_beam",
+      "category": "far_reduced",
+      "foregroundPixels": 96,
+      "imagePath": "0034_vfx005-far_reduced-energy_beam.png",
+      "sha256": "905314cac5c8b258b888b723e7352bf64ac5a25d8b4f45fb66ea17bccdebbd9d"
+    },
+    {
+      "captureId": "vfx005-far_reduced-energy_drain",
+      "category": "far_reduced",
+      "foregroundPixels": 115,
+      "imagePath": "0043_vfx005-far_reduced-energy_drain.png",
+      "sha256": "dbea8b5dba6c0bb44de5f8401f5ec1985bfb6fa4efdc5ce35c88cc34312068ec"
+    },
+    {
+      "captureId": "vfx005-far_reduced-fireball",
+      "category": "far_reduced",
+      "foregroundPixels": 131,
+      "imagePath": "0029_vfx005-far_reduced-fireball.png",
+      "sha256": "0a3cff1e4b41d2845bf36ff5ed47a3ee1bf5804f43205a750518b124ddf9e455"
+    },
+    {
+      "captureId": "vfx005-far_reduced-flight",
+      "category": "far_reduced",
+      "foregroundPixels": 90,
+      "imagePath": "0026_vfx005-far_reduced-flight.png",
+      "sha256": "956f55559b8da98f53125f9b99883ee0a62b4071d4463b4d8d7fe32a426874ab"
+    },
+    {
+      "captureId": "vfx005-far_reduced-forcefield",
+      "category": "far_reduced",
+      "foregroundPixels": 132,
+      "imagePath": "0039_vfx005-far_reduced-forcefield.png",
+      "sha256": "3d0739ea3c1ba4b3e5c67f4388ca36dc4b2849361e44551ee109ea1779194493"
+    },
+    {
+      "captureId": "vfx005-far_reduced-gravity_displacement",
+      "category": "far_reduced",
+      "foregroundPixels": 128,
+      "imagePath": "0040_vfx005-far_reduced-gravity_displacement.png",
+      "sha256": "5b05f135e253a5109d7eb1a197a0844a06b7fd86695714f7a093459d765a6449"
+    },
+    {
+      "captureId": "vfx005-far_reduced-ice_manipulation",
+      "category": "far_reduced",
+      "foregroundPixels": 90,
+      "imagePath": "0044_vfx005-far_reduced-ice_manipulation.png",
+      "sha256": "2e5e9317fdfa81bd04b466974fc9a0056fa2e541641e0de3ecfca722439973d6"
+    },
+    {
+      "captureId": "vfx005-far_reduced-invisibility",
+      "category": "far_reduced",
+      "foregroundPixels": 52,
+      "imagePath": "0037_vfx005-far_reduced-invisibility.png",
+      "sha256": "f3cc6aba23f53f180d79cf9663a88488a8525ade78d6db828604045a15091463"
+    },
+    {
+      "captureId": "vfx005-far_reduced-lightning_strike",
+      "category": "far_reduced",
+      "foregroundPixels": 69,
+      "imagePath": "0030_vfx005-far_reduced-lightning_strike.png",
+      "sha256": "eaa3cdf890e4a470c2c9d37ed9f2b776cfa47605803ed82ea916aa29bd654f0e"
+    },
+    {
+      "captureId": "vfx005-far_reduced-plant_healing_acceleration",
+      "category": "far_reduced",
+      "foregroundPixels": 116,
+      "imagePath": "0045_vfx005-far_reduced-plant_healing_acceleration.png",
+      "sha256": "6dec5572af2c152d943a37a139ff611f1198721522149b4bdcf118ae72b941fd"
+    },
+    {
+      "captureId": "vfx005-far_reduced-size_shift",
+      "category": "far_reduced",
+      "foregroundPixels": 90,
+      "imagePath": "0024_vfx005-far_reduced-size_shift.png",
+      "sha256": "574e9f78f4d3b31a31070be427378aafe9d71ca12318e74c802910a99abb9221"
+    },
+    {
+      "captureId": "vfx005-far_reduced-speed_burst",
+      "category": "far_reduced",
+      "foregroundPixels": 94,
+      "imagePath": "0032_vfx005-far_reduced-speed_burst.png",
+      "sha256": "560c7a230e573d3a55b2531cdc88eec52e70f36b1c5d4bb70e7ebae8e0617d5d"
+    },
+    {
+      "captureId": "vfx005-far_reduced-starfall",
+      "category": "far_reduced",
+      "foregroundPixels": 62,
+      "imagePath": "0027_vfx005-far_reduced-starfall.png",
+      "sha256": "828a74b515714e5a9edde9c3d3f37f8f7523dcb02339dcc06b4c793bae0e50be"
+    },
+    {
+      "captureId": "vfx005-far_reduced-super_speed",
+      "category": "far_reduced",
+      "foregroundPixels": 115,
+      "imagePath": "0035_vfx005-far_reduced-super_speed.png",
+      "sha256": "5efbce455e2c29a78fc7de056cd10181a6b3887bf5c678d4f73c0e5fa1f355d3"
+    },
+    {
+      "captureId": "vfx005-far_reduced-telekinesis",
+      "category": "far_reduced",
+      "foregroundPixels": 110,
+      "imagePath": "0033_vfx005-far_reduced-telekinesis.png",
+      "sha256": "8c283ee597b5cd4658028eb59f7cc564c72c2ebb0659ee3adcb0a7e72e1fa62d"
+    },
+    {
+      "captureId": "vfx005-far_reduced-thunderclap",
+      "category": "far_reduced",
+      "foregroundPixels": 148,
+      "imagePath": "0031_vfx005-far_reduced-thunderclap.png",
+      "sha256": "cd4ad97e8b60d1f50459e997290b37ea4a3e0daffa81f7eb897952a33f9dc7ee"
+    },
+    {
+      "captureId": "vfx005-far_reduced-time_freeze",
+      "category": "far_reduced",
+      "foregroundPixels": 100,
+      "imagePath": "0038_vfx005-far_reduced-time_freeze.png",
+      "sha256": "3ef017a2eab554258587e31ba09ef9f7bae185fd68900c7f86c2dcfd33c1847e"
+    },
+    {
+      "captureId": "vfx005-far_reduced-time_shift",
+      "category": "far_reduced",
+      "foregroundPixels": 92,
+      "imagePath": "0025_vfx005-far_reduced-time_shift.png",
+      "sha256": "d7bdcd2b3ab4099c7892c52c319c3b48207f66cf435e5451a1346934c9157309"
+    },
+    {
+      "captureId": "vfx005-far_reduced-vessel_possession",
+      "category": "far_reduced",
+      "foregroundPixels": 82,
+      "imagePath": "0041_vfx005-far_reduced-vessel_possession.png",
+      "sha256": "fd0da822f7ba021cbbf794adaaffd9d22d00a29a6b1c4456a8bc14e453e68382"
+    },
+    {
+      "captureId": "vfx005-far_reduced-void_beam",
+      "category": "far_reduced",
+      "foregroundPixels": 128,
+      "imagePath": "0028_vfx005-far_reduced-void_beam.png",
+      "sha256": "943caffbebe8204ff98375a7bbc75eb049c5e663024e300b64ce7c42dc19d2c3"
+    },
+    {
+      "captureId": "vfx005-minimal_particles-starfall",
+      "category": "minimal_particles",
+      "foregroundPixels": 62,
+      "imagePath": "0052_vfx005-minimal_particles-starfall.png",
+      "sha256": "cf0ff69242c574dbee182d787a78515c31f3dffce322f7cc604581a199303196"
+    },
+    {
+      "captureId": "vfx005-near-flight",
+      "category": "near",
+      "foregroundPixels": 11596,
+      "imagePath": "0049_vfx005-near-flight.png",
+      "sha256": "f5eea6982a2ec4e0045d0819aaf6d5bba54ca4e953c72ec71cd2abc923272f28"
+    },
+    {
+      "captureId": "vfx005-post_dimension-time_freeze",
+      "category": "post_dimension",
+      "foregroundPixels": 100,
+      "imagePath": "0054_vfx005-post_dimension-time_freeze.png",
+      "sha256": "ac9c49787ff0260fcaeb6fa8e74f5b6a12958a0f7647b83e89ee83d64a82ebe3"
+    },
+    {
+      "captureId": "vfx005-post_reconnect-double_health",
+      "category": "post_reconnect",
+      "foregroundPixels": 144,
+      "imagePath": "0055_vfx005-post_reconnect-double_health.png",
+      "sha256": "24a9ab8586f15ec387b1147624ef863ea18d43c2c8a733686432bc8bd77ee094"
+    },
+    {
+      "captureId": "vfx005-post_reload-void_beam",
+      "category": "post_reload",
+      "foregroundPixels": 128,
+      "imagePath": "0053_vfx005-post_reload-void_beam.png",
+      "sha256": "6abaad1a2e2ab637c5827a66b7f6bf170d5914154ac5d6851bd051735817a046"
+    },
+    {
+      "captureId": "vfx005-wall-forcefield",
+      "category": "wall",
+      "foregroundPixels": 0,
+      "imagePath": "0051_vfx005-wall-forcefield.png",
+      "sha256": "c74cf8b7a2ba25cec50c9e6a4ecfdf43763c06ccbbbef629f6df422b3234b204"
+    },
+    {
+      "captureId": "vfx005-wall_baseline-forcefield",
+      "category": "wall_baseline",
+      "foregroundPixels": 0,
+      "imagePath": "0050_vfx005-wall_baseline-forcefield.png",
+      "sha256": "c74cf8b7a2ba25cec50c9e6a4ecfdf43763c06ccbbbef629f6df422b3234b204"
+    }
+  ],
+  "schemaVersion": 2,
+  "wallLeakagePixels": 0
+}

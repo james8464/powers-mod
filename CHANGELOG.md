@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Completed the VFX-005 exact-build closure candidate at implementation commit
+  `562f092a1393cb05485499fbbfc9b6782ae9b5cc`: all 23 rank-ten innate powers emit a unique,
+  bounded semantic silhouette only after a committed successful cast. The depth-tested renderer is
+  particle-independent, lifecycle-safe, and reduced-motion stable. A fresh 56-frame 1280x720 real
+  client gallery passes 253 pairwise monochrome distinctions, near-body/crosshair safety, opaque-wall
+  occlusion, reload, dimension, and reconnect checks; the unfiltered aggregate passes 138 GameTests,
+  1,730 JUnit tests, and 179 Python tests. Independent closure review remains explicitly pending
+  before integration.
+
 - Closed VFX-004 with presentation-only, material-aware transient scars for Energy Beam, Breezy Bash,
   Thunderclap, Ice Manipulation, and Fireball. Server admission, revalidation, expiry, observer resync,
   and delivery are hard-bounded and loaded-only; support terrain is never mutated. The real integrated

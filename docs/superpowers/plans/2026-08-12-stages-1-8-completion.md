@@ -68,7 +68,10 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
 - [x] `VFX-004`: protected presentation-only scars for five impact motifs and six material profiles;
   admission/revalidation/delivery remain hard-bounded, real 1%/5% loss converges, reload preserves
   semantic state, and exact 30-cell plus opaque-wall captures pass deterministic verification.
-- [ ] `VFX-005`: unique long-distance silhouettes for every rank-10 transformation.
+- [x] `VFX-005`: exact implementation commit `562f092a1393cb05485499fbbfc9b6782ae9b5cc`
+  provides unique bounded long-distance silhouettes for all 23 rank-ten innate transformations; a
+  fresh 56-frame gallery passes pairwise identity, accessibility, occlusion, and lifecycle gates, and
+  the literal aggregate is green. Independent `READY` review remains the pre-integration gate.
 - [ ] `VFX-006`: synchronised bounded casting poses for player-like magical entities without a heavy animation dependency.
 - [ ] `VFX-007`: authored near/mid/far sound layers, obstruction falloff, subtitles, mixing, and reduced-tinnitus support.
 

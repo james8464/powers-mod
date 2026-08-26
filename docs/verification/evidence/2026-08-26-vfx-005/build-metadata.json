@@ -1,0 +1,43 @@
+{
+  "task": "VFX-005",
+  "status": "PENDING_INDEPENDENT_REVIEW",
+  "implementation_commit": "562f092a1393cb05485499fbbfc9b6782ae9b5cc",
+  "closure_commit": "PENDING",
+  "minecraft": "26.2",
+  "fabric_loader": "0.19.3",
+  "fabric_api": "0.156.0+26.2",
+  "java": "25.0.4",
+  "gradle": "9.5.1",
+  "java_home": "/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home",
+  "full_check": {
+    "exit_code": 0,
+    "elapsed": "3m19s",
+    "required_gametests": 138,
+    "junit_tests": 1730,
+    "python_tests": 179
+  },
+  "client_gallery": {
+    "exit_code": 0,
+    "elapsed": "3m54s",
+    "manifest_rows": 56,
+    "retained_screenshots": 56,
+    "width": 1280,
+    "height": 720
+  },
+  "capture_verification": {
+    "test_count": 32,
+    "test_exit_code": 0,
+    "verifier_exit_code": 0,
+    "far_normal_count": 23,
+    "far_reduced_count": 23,
+    "pairwise_comparisons": 253,
+    "minimum_reduced_outline_jaccard": 1.0,
+    "minimum_alignment_outline_jaccard": 1.0,
+    "minimum_lifecycle_outline_jaccard": 1.0,
+    "near_body_retention": 0.994048,
+    "crosshair_intrusion_pixels": 0,
+    "wall_leakage_pixels": 0
+  },
+  "audit_java_sources_exit_code": 0,
+  "diff_check_exit_code": 0
+}
