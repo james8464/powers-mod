@@ -2,7 +2,7 @@
 
 This bundle binds the VFX-005 implementation and every retained acceptance artifact to immutable
 implementation commit `562f092a1393cb05485499fbbfc9b6782ae9b5cc`. The documentation-only
-closure commit is intentionally recorded as `PENDING` in `build-metadata.json` until it exists.
+closure candidate independently reviewed as READY is commit `900a453d7607cb88cca1f7a5534b67416ed3e09f`.
 
 ## Verified coverage
 
@@ -36,5 +36,5 @@ git diff --check
 ```
 
 Logs replace the private worktree, home, and Gradle-cache prefixes. The retained gallery and
-manifest contain no absolute filesystem paths. `independent-review.md` remains explicitly
-`PENDING`; this bundle does not claim an independent `READY` verdict before that review occurs.
+manifest contain no absolute filesystem paths. `independent-review.md` records the independent
+`READY` verdict for that exact closure candidate.
