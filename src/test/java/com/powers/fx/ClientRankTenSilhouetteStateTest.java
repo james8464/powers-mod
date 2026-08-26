@@ -56,6 +56,15 @@ class ClientRankTenSilhouetteStateTest {
 	}
 
 	@Test
+	void outOfOrderReceiptIsRejectedEvenWhenItsLifetimeWouldReachTheCurrentTick() {
+		ClientRankTenSilhouetteState state = ClientRankTenSilhouetteState.empty(
+				64, 3, "minecraft:overworld").receive(wire(1, 1), 100, 3,
+				"minecraft:overworld").tick();
+		assertEquals(101, state.lifecycleTick());
+		assertEquals(state, state.receive(wire(2, 2), 100, 3, "minecraft:overworld"));
+	}
+
+	@Test
 	void outOfRangeFiniteWorldCoordinatesAreRejectedBeforeMutation() {
 		ClientRankTenSilhouetteState empty = ClientRankTenSilhouetteState.empty(
 				64, 3, "minecraft:overworld");

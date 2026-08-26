@@ -40,7 +40,7 @@ public final class ClientRankTenSilhouetteState {
 	/** Validates every wire and handler stamp before making an immutable state transition. */
 	public ClientRankTenSilhouetteState receive(Wire wire, long receiptTick, long capturedEpoch,
 			String capturedDimension) {
-		if (!valid(wire) || receiptTick < 0 || capturedEpoch != connectionEpoch
+		if (!valid(wire) || receiptTick < lifecycleTick || capturedEpoch != connectionEpoch
 				|| !dimension.equals(capturedDimension) || !dimension.equals(wire.dimension())) return this;
 		if (wire.eventId() <= latestEventId) return this;
 		if (entries.size() >= capacity) return this;
