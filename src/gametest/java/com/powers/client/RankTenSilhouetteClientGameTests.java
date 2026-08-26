@@ -1,6 +1,7 @@
 package com.powers.client;
 
 import com.google.gson.Gson;
+import com.powers.PowersEntities;
 import com.powers.client.fx.ClientRankTenSilhouetteManager;
 import com.powers.fx.RankTenSilhouetteProfile;
 import com.powers.fx.RankTenSilhouetteService;
@@ -20,6 +21,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.item.ItemStack;
 
 import java.io.IOException;
@@ -39,6 +42,7 @@ public final class RankTenSilhouetteClientGameTests implements FabricClientGameT
 	private static final double FAR_DISTANCE = 96.0;
 	private static final float CAMERA_PITCH = -5.0F;
 	private static final int EXPIRY_WAIT_TICKS = 44;
+	private static final String NEAR_BODY_TAG = "powers_vfx005_near_body";
 	private static final List<String> POWER_IDS = List.of(
 			"size_shift", "time_shift", "flight", "starfall", "void_beam", "fireball",
 			"lightning_strike", "thunderclap", "speed_burst", "telekinesis", "energy_beam",
@@ -76,8 +80,12 @@ public final class RankTenSilhouetteClientGameTests implements FabricClientGameT
 				captureEvent(context, singleplayer, "alignment_variant", powerId, FAR_DISTANCE,
 						false, true, "all", reloadRevision.get(), false);
 			}
+			setNearCasterBody(singleplayer, true);
+			context.waitTicks(8);
 			captureEvent(context, singleplayer, "near", "flight", 8.0,
 					false, false, "all", reloadRevision.get(), false);
+			setNearCasterBody(singleplayer, false);
+			context.waitTicks(8);
 			setWall(singleplayer, true);
 			context.waitTicks(8);
 			captureEmpty(context, "wall_baseline", "forcefield", FAR_DISTANCE,
@@ -96,7 +104,10 @@ public final class RankTenSilhouetteClientGameTests implements FabricClientGameT
 			worldSave = singleplayer.getWorldSave();
 		} finally {
 			context.runOnClient(client -> {
-				if (client.player != null) client.options.screenEffectScale().set(1.0);
+				if (client.player != null) {
+					client.options.screenEffectScale().set(1.0);
+					client.options.chatVisibility().set(ChatVisiblity.FULL);
+				}
 			});
 		}
 		context.waitFor(client -> client.level == null && client.player == null);
@@ -139,6 +150,15 @@ public final class RankTenSilhouetteClientGameTests implements FabricClientGameT
 		// Rank synchronization emits legitimate advancement toasts and first-awakening HUD text.
 		// Let those production overlays and the first sky/time synchronization settle before baseline.
 		context.waitTicks(160);
+		quiesceUi(context);
+	}
+
+	private static void quiesceUi(ClientGameTestContext context) {
+		context.runOnClient(client -> {
+			client.gui.toastManager().clear();
+			client.options.chatVisibility().set(ChatVisiblity.HIDDEN);
+		});
+		context.waitTicks(2);
 	}
 
 	private static void captureEvent(ClientGameTestContext context,
@@ -263,6 +283,32 @@ public final class RankTenSilhouetteClientGameTests implements FabricClientGameT
 		context.waitFor(client -> client.level != null && client.level.dimension().equals(Level.OVERWORLD));
 		context.waitFor(client -> ClientRankTenSilhouetteManager.entries().isEmpty());
 		context.waitTicks(8);
+		quiesceUi(context);
+	}
+
+	private static void setNearCasterBody(TestSingleplayerContext singleplayer, boolean present) {
+		singleplayer.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			for (var entity : player.level().getAllEntities()) {
+				if (entity.entityTags().contains(NEAR_BODY_TAG)) entity.discard();
+			}
+			if (!present) return;
+			var body = PowersEntities.POWER_TEST_ACTOR.create(player.level(), EntitySpawnReason.COMMAND);
+			if (body == null) throw new AssertionError("Could not create near caster body target");
+			body.setPos(player.getX(), player.getY(), player.getZ() + 8.0);
+			body.setYRot(180.0F);
+			body.setXRot(0.0F);
+			body.setNoAi(true);
+			body.setNoGravity(true);
+			body.setInvulnerable(true);
+			body.setPersistenceRequired();
+			body.setCustomNameVisible(false);
+			body.setDeltaMovement(Vec3.ZERO);
+			body.addTag(NEAR_BODY_TAG);
+			if (!player.level().addFreshEntity(body)) {
+				throw new AssertionError("Could not add near caster body target");
+			}
+		});
 	}
 
 	private static void setWall(TestSingleplayerContext singleplayer, boolean present) {

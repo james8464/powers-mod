@@ -298,13 +298,13 @@ tasks.named("processGametestResources") {
 					? null
 					: vfx004RestartClientOnly && line.contains("com.powers.client.LightRealmSkyClientGameTests")
 							? line.replace("com.powers.client.LightRealmSkyClientGameTests",
-									"com.powers.fx.VisualScarRestartClientGameTests")
+									"com.powers.fx.VisualScarRestartClientGameTests").replace("\",", "\"")
 			: vfx004FaultClientOnly && (line.contains("com.powers.gametest.PowersClientGameTests")
 					|| line.contains("com.powers.client.VfxGalleryClientGameTests"))
 					? null
 					: vfx004FaultClientOnly && line.contains("com.powers.client.LightRealmSkyClientGameTests")
 							? line.replace("com.powers.client.LightRealmSkyClientGameTests",
-									"com.powers.client.VisualScarFaultAcceptanceClientGameTests")
+									"com.powers.client.VisualScarFaultAcceptanceClientGameTests").replace("\",", "\"")
 					: vfx004ClientOnly && line.contains("com.powers.gametest.PowersClientGameTests")
 					? line.replace("\",", "\"")
 					: vfx004ClientOnly && (line.contains("com.powers.client.VfxGalleryClientGameTests")
@@ -312,9 +312,13 @@ tasks.named("processGametestResources") {
 							? null
 					: vfx011ClientOnly && line.contains("com.powers.client.LightRealmSkyClientGameTests")
 					? null
+					: vfx011ClientOnly && line.contains("com.powers.client.VfxGalleryClientGameTests")
+					? line.replace("\",", "\"")
 					: vfx009ClientOnly && (line.contains("com.powers.gametest.PowersClientGameTests")
 							|| line.contains("com.powers.client.VfxGalleryClientGameTests"))
 							? null
+					: !vfx005ClientOnly && line.contains("com.powers.client.LightRealmSkyClientGameTests")
+					? line.replace("\",", "\"")
 					: line
 		}
 		expand connectedProfileEntrypoint: connectedProfileEnabled

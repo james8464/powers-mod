@@ -23,10 +23,18 @@ ALIGNMENT_VARIANT_IDS = ("flight", "forcefield")
 EXPECTED_SIZE = (1280, 720)
 SILHOUETTE_ROI = (430, 220, 850, 590)
 CROSSHAIR_ROI = (624, 344, 657, 377)
+NEAR_BODY_ROI = (606, 382, 674, 500)
+TOAST_ROI = (962, 0, 1280, 320)
+FULL_FRAME_ROI = (0, 0, 1280, 720)
 PIXEL_DELTA = 12
 MIN_FOREGROUND_PIXELS = 18
+MIN_NEAR_BODY_PIXELS = 128
 MIN_REDUCED_OUTLINE_JACCARD = 0.82
+MAX_LIFECYCLE_BACKGROUND_DRIFT_PIXELS = 256
 EXPECTED_ROW_COUNT = 56
+BASE_EPOCH = 1_000_002
+DIMENSION_EPOCH = 1_000_004
+RECONNECT_EPOCH = 2_000_002
 REQUIRED_KEYS = {
     "captureId", "category", "powerId", "alignment", "distance",
     "reducedMotion", "particles", "reloadRevision", "epoch", "imagePath",
@@ -98,39 +106,38 @@ def _one(rows: list[dict[str, Any]], category: str,
 def _validate_inventory(rows: list[dict[str, Any]]) -> None:
     if len(rows) != EXPECTED_ROW_COUNT:
         raise ValueError(f"required gallery rows: expected {EXPECTED_ROW_COUNT}, found {len(rows)}")
-    capture_ids = [row["captureId"] for row in rows]
-    paths = [row["imagePath"] for row in rows]
-    if len(set(capture_ids)) != len(capture_ids) or len(set(paths)) != len(paths):
-        raise ValueError("required gallery rows contain duplicate capture IDs or image paths")
-    for category, reduced in (("far_normal", False), ("far_reduced", True)):
-        actual = [row for row in rows if row["category"] == category]
-        if len(actual) != len(POWER_IDS) or {row["powerId"] for row in actual} != set(POWER_IDS):
-            raise ValueError(f"required gallery rows: {category} must cover all 23 powers")
-        for row in actual:
-            if (row["distance"], row["reducedMotion"], row["alignment"]) != (96, reduced, "radiant"):
-                raise ValueError(f"required gallery rows: invalid {category}/{row['powerId']} contract")
-            expected_particles = "minimal" if reduced else "all"
-            if row["particles"] != expected_particles:
-                raise ValueError(f"required gallery rows: invalid particles for {category}")
-    variants = [row for row in rows if row["category"] == "alignment_variant"]
-    if len(variants) != len(ALIGNMENT_VARIANT_IDS) or {
-            row["powerId"] for row in variants} != set(ALIGNMENT_VARIANT_IDS):
-        raise ValueError("required gallery rows: alignment variants are incomplete")
-    if any((row["alignment"], row["distance"], row["reducedMotion"])
-           != ("darkness", 96, False) for row in variants):
-        raise ValueError("required gallery rows: alignment variants have invalid settings")
-    for category, expected in SPECIAL_ROWS.items():
-        row = _one(rows, category)
-        observed = (row["powerId"], row["distance"], row["reducedMotion"], row["particles"])
-        if observed != expected or row["alignment"] != "radiant":
-            raise ValueError(f"required gallery rows: invalid {category} contract")
-    if _one(rows, "post_reload")["reloadRevision"] < 1:
-        raise ValueError("required gallery rows: reload revision was not advanced")
-    base_epoch = _one(rows, "baseline")["epoch"]
-    dimension_epoch = _one(rows, "post_dimension")["epoch"]
-    reconnect_epoch = _one(rows, "post_reconnect")["epoch"]
-    if not base_epoch < dimension_epoch < reconnect_epoch:
-        raise ValueError("required gallery rows: dimension/reconnect epochs did not advance")
+    if rows != _canonical_rows():
+        raise ValueError("canonical gallery IDs, paths, ordering, or metadata drifted")
+
+
+def _canonical_rows() -> list[dict[str, Any]]:
+    specs: list[tuple[str, str, str, int, bool, str, int, int]] = [
+        ("baseline", "size_shift", "radiant", 96, False, "all", 0, BASE_EPOCH),
+    ]
+    specs.extend(("far_normal", power_id, "radiant", 96, False, "all", 0, BASE_EPOCH)
+                 for power_id in POWER_IDS)
+    specs.extend(("far_reduced", power_id, "radiant", 96, True, "minimal", 0, BASE_EPOCH)
+                 for power_id in POWER_IDS)
+    specs.extend(("alignment_variant", power_id, "darkness", 96, False, "all", 0, BASE_EPOCH)
+                 for power_id in ALIGNMENT_VARIANT_IDS)
+    specs.extend([
+        ("near", "flight", "radiant", 8, False, "all", 0, BASE_EPOCH),
+        ("wall_baseline", "forcefield", "radiant", 96, False, "all", 0, BASE_EPOCH),
+        ("wall", "forcefield", "radiant", 96, False, "all", 0, BASE_EPOCH),
+        ("minimal_particles", "starfall", "radiant", 96, False, "minimal", 0, BASE_EPOCH),
+        ("post_reload", "void_beam", "radiant", 96, False, "all", 1, BASE_EPOCH),
+        ("post_dimension", "time_freeze", "radiant", 96, False, "all", 1, DIMENSION_EPOCH),
+        ("post_reconnect", "double_health", "radiant", 96, False, "all", 1, RECONNECT_EPOCH),
+    ])
+    rows: list[dict[str, Any]] = []
+    for index, (category, power_id, alignment, distance, reduced,
+                particles, revision, epoch) in enumerate(specs):
+        capture_id = f"vfx005-{category}-{power_id}"
+        rows.append({"captureId": capture_id, "category": category, "powerId": power_id,
+                     "alignment": alignment, "distance": distance, "reducedMotion": reduced,
+                     "particles": particles, "reloadRevision": revision, "epoch": epoch,
+                     "imagePath": f"{index:04d}_{capture_id}.png"})
+    return rows
 
 
 def _open_capture(screenshots: Path, row: dict[str, Any]) -> Image.Image:
@@ -142,6 +149,8 @@ def _open_capture(screenshots: Path, row: dict[str, Any]) -> Image.Image:
     if path.is_symlink() or resolved.parent != screenshots.resolve():
         raise ValueError(f"capture escapes screenshot directory: {row['imagePath']}")
     with Image.open(resolved) as opened:
+        if opened.format != "PNG":
+            raise ValueError(f"capture must be an actual decoded PNG: {row['imagePath']}")
         if opened.size != EXPECTED_SIZE:
             raise ValueError(f"capture must be exact 1280x720: {row['imagePath']} is {opened.size}")
         return opened.convert("RGB")
@@ -150,9 +159,31 @@ def _open_capture(screenshots: Path, row: dict[str, Any]) -> Image.Image:
 def _mask(image: Image.Image, baseline: Image.Image,
           roi: tuple[int, int, int, int] = SILHOUETTE_ROI) -> frozenset[int]:
     difference = ImageChops.difference(image.crop(roi), baseline.crop(roi)).convert("RGB")
-    width = difference.width
     return frozenset(index for index, pixel in enumerate(difference.get_flattened_data())
-                     if max(pixel) >= PIXEL_DELTA and index % width >= 0)
+                     if max(pixel) >= PIXEL_DELTA)
+
+
+def _outside_mask(image: Image.Image, baseline: Image.Image,
+                  excluded: tuple[int, int, int, int]) -> frozenset[int]:
+    difference = ImageChops.difference(image, baseline).convert("RGB")
+    x0, y0, x1, y1 = excluded
+    return frozenset(index for index, pixel in enumerate(difference.get_flattened_data())
+                     if max(pixel) >= PIXEL_DELTA
+                     and not (x0 <= index % EXPECTED_SIZE[0] < x1
+                              and y0 <= index // EXPECTED_SIZE[0] < y1))
+
+
+def _toast_pixels(image: Image.Image) -> int:
+    toast_region = image.crop(TOAST_ROI).convert("RGB")
+    width, height = toast_region.size
+    comparisons = (
+        ImageChops.difference(toast_region.crop((1, 0, width, height)),
+                              toast_region.crop((0, 0, width - 1, height))),
+        ImageChops.difference(toast_region.crop((0, 1, width, height)),
+                              toast_region.crop((0, 0, width, height - 1))),
+    )
+    return int(any(max(channel_max for _, channel_max in difference.getextrema())
+                   >= PIXEL_DELTA for difference in comparisons))
 
 
 def _jaccard(first: frozenset[int], second: frozenset[int]) -> float:
@@ -166,7 +197,19 @@ def validate(screenshots: Path, manifest: Path) -> dict[str, Any]:
         raise ValueError("screenshots directory does not exist")
     rows = _load_manifest(manifest)
     _validate_inventory(rows)
+    referenced = {row["imagePath"] for row in rows}
+    entries = list(screenshots.iterdir())
+    actual = {entry.name for entry in entries}
+    if actual != referenced or any(entry.is_symlink() or not entry.is_file() for entry in entries):
+        raise ValueError("screenshot inventory must exactly match canonical manifest paths")
     images = {row["captureId"]: _open_capture(screenshots, row) for row in rows}
+    for row in rows:
+        # The explicit wall-occlusion scene legitimately fills the toast reserve; its
+        # two full-frame captures are instead required to match pixel-for-pixel below.
+        if row["category"] in {"wall_baseline", "wall"}:
+            continue
+        if _toast_pixels(images[row["captureId"]]) != 0:
+            raise ValueError(f"toast or overlay present: {row['captureId']}")
     baseline_row = _one(rows, "baseline")
     baseline = images[baseline_row["captureId"]]
     masks: dict[str, frozenset[int]] = {}
@@ -196,19 +239,31 @@ def validate(screenshots: Path, manifest: Path) -> dict[str, Any]:
         outline_scores[power_id] = round(score, 6)
 
     lifecycle_scores: dict[str, float] = {}
+    lifecycle_background_pixels: dict[str, int] = {}
     for category in CONTINUITY_ROWS:
         row = _one(rows, category)
+        normal_row = _one(rows, "far_normal", row["powerId"])
         score = _jaccard(normal_masks[row["powerId"]], masks[row["captureId"]])
         if score < MIN_REDUCED_OUTLINE_JACCARD:
             raise ValueError(f"lifecycle outline mismatch: {category} jaccard={score:.4f}")
         lifecycle_scores[category] = round(score, 6)
+        background_pixels = len(_outside_mask(images[row["captureId"]],
+                                              images[normal_row["captureId"]], SILHOUETTE_ROI))
+        if background_pixels > MAX_LIFECYCLE_BACKGROUND_DRIFT_PIXELS:
+            raise ValueError(f"lifecycle background mismatch: {category} has "
+                             f"{background_pixels} changed pixels outside silhouette ROI")
+        lifecycle_background_pixels[category] = background_pixels
 
     near = images[_one(rows, "near")["captureId"]]
     if _mask(near, baseline, CROSSHAIR_ROI):
         raise ValueError("crosshair intrusion: near silhouette changed the protected center ROI")
+    near_body_pixels = sum(1 for pixel in near.crop(NEAR_BODY_ROI).get_flattened_data()
+                           if max(pixel) < 100)
+    if near_body_pixels < MIN_NEAR_BODY_PIXELS:
+        raise ValueError(f"near body obstruction: only {near_body_pixels} body pixels remain")
     wall_baseline = images[_one(rows, "wall_baseline")["captureId"]]
     wall = images[_one(rows, "wall")["captureId"]]
-    wall_pixels = len(_mask(wall, wall_baseline))
+    wall_pixels = len(_mask(wall, wall_baseline, FULL_FRAME_ROI))
     if wall_pixels != 0:
         raise ValueError(f"wall leakage: {wall_pixels} silhouette-region pixels remain")
 
@@ -222,6 +277,8 @@ def validate(screenshots: Path, manifest: Path) -> dict[str, Any]:
             "farReducedCount": 23, "pairwiseComparisons": 253,
             "minimumReducedOutlineJaccard": min(outline_scores.values()),
             "minimumLifecycleOutlineJaccard": min(lifecycle_scores.values()),
+            "maximumLifecycleBackgroundDriftPixels": max(lifecycle_background_pixels.values()),
+            "nearBodyVisiblePixels": near_body_pixels,
             "wallLeakagePixels": wall_pixels, "crosshairIntrusionPixels": 0,
             "rows": output_rows}
 
