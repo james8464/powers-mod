@@ -22,8 +22,8 @@ POWER_IDS = (
 ALIGNMENT_VARIANT_IDS = ("flight", "forcefield")
 EXPECTED_SIZE = (1280, 720)
 # Retained production captures have a far-silhouette union of
-# [628,401,652,424). Four pixels of bounded placement tolerance are allowed.
-FAR_SILHOUETTE_ENVELOPE = (624, 397, 656, 428)
+# [628,401,652,425). Four pixels of bounded placement tolerance are allowed.
+FAR_SILHOUETTE_ENVELOPE = (624, 397, 656, 429)
 CROSSHAIR_ROI = (624, 344, 657, 377)
 NEAR_FOREGROUND_ROI = (430, 220, 850, 610)
 WALL_FOREGROUND_ROI = (240, 0, 1040, 600)

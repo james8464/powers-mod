@@ -248,8 +248,8 @@ OK
 ### Tight envelope, pairing, and alpha formulas
 
 The retained far silhouettes have a measured half-open union of
-`[628,401,652,424)`. Normal, reduced, alignment, baseline, and lifecycle rows now receive only the
-four-pixel-margin envelope `[624,397,656,428)`. Every max-channel RGB difference of at least 12
+`[628,401,652,425)`. Normal, reduced, alignment, baseline, and lifecycle rows now receive only the
+four-pixel-margin envelope `[624,397,656,429)`. Every max-channel RGB difference of at least 12
 outside that envelope counts toward the all-row background limit; 256 is accepted and 257 is
 rejected. Baseline remains checked reciprocally against the canonical normal size-shift anchor.
 Near and wall rows retain their separately reviewed body/world envelopes.
@@ -297,7 +297,43 @@ crosshair intrusion 0. The artifacts are byte-identical:
 The retained frame hashes remain unchanged: baseline `e9573465…ec6`, alignment flight
 `47becb82…69f`, near flight `5db5865b…184`, and the identical wall pair `d826d481…354f`.
 
+## Review fix round 4
+
+The round-3 report had treated inclusive pixel y=424 as if the half-open bottom were 424. Direct
+threshold-mask inspection proves that normal and reduced `plant_healing_acceleration`, normal and
+reduced `double_health`, and post-reconnect `double_health` each contain two silhouette pixels at
+y=424. The actual half-open union is therefore `[628,401,652,425)`. The prior envelope bottom 428
+provided only the three empty rows y=425–427; the corrected bottom 429 provides the intended four
+rows y=425–428.
+
+The regression was written before the coordinate change. A paired normal/reduced synthetic profile
+whose foreground spans y=424–428 remained accepted, but the reported normal mask contained only 42
+pixels instead of the independently derived 43, proving y=428 was excluded. After changing only the
+half-open bottom from 428 to 429, that test records all 43 pixels. A separate 288-pixel overlay
+starting immediately outside at y=429 is rejected by the background gate, so the test does not
+derive either boundary from the verifier constant.
+
+```text
+python3 -m unittest \
+  scripts.tests.test_verify_vfx005_captures.Vfx005CaptureVerifierTest.test_far_foreground_includes_four_pixel_margin_below_y424 \
+  scripts.tests.test_verify_vfx005_captures.Vfx005CaptureVerifierTest.test_overlay_immediately_below_far_envelope_is_rejected -v
+
+RED: AssertionError: 43 != 42
+GREEN: Ran 2 tests in 1.356s; OK
+
+python3 -m unittest scripts.tests.test_verify_vfx005_captures -v
+Ran 32 tests in 37.008s
+OK
+```
+
+No Java, gallery fixture, manifest, or screenshot changed, so the literal gallery was not rerun.
+Both verifier executions over the retained 56 captures pass with the same metrics, and because the
+retained silhouette pixels were already inside the old bound, the regenerated JSON remains
+byte-identical at SHA-256
+`5771be8b457e53f08ba4e414c29df4bcf7ee776c5e33d8c5954fcc89f9493f58` for both
+`build/vfx005-verification.json` and `/tmp/vfx005-capture-verification.json`.
+
 ## Concerns
 
-The Fabric shutdown deadlock was transient and did not recur on the clean accepted run. Round 3 is
+The Fabric shutdown deadlock was transient and did not recur on the clean accepted run. Round 4 is
 verifier-only and found no product, fixture, or retained-evidence concern.

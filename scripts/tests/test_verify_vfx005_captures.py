@@ -266,6 +266,30 @@ class Vfx005CaptureVerifierTest(unittest.TestCase):
             image.save(target)
         self.mutate(overlay, "background mismatch")
 
+    def test_far_foreground_includes_four_pixel_margin_below_y424(self):
+        with tempfile.TemporaryDirectory() as raw:
+            screenshots, manifest = self.make_fixture(Path(raw))
+            for pattern in ("*far_normal-plant_healing_acceleration.png",
+                            "*far_reduced-plant_healing_acceleration.png"):
+                target = next(screenshots.glob(pattern))
+                image = Image.open(target).convert("RGBA")
+                ImageDraw.Draw(image).line((650, 424, 650, 428),
+                                           fill=(255, 210, 70, 255), width=1)
+                image.save(target)
+            result = VERIFY.validate(screenshots, manifest)
+            normal = next(row for row in result["rows"] if row["captureId"] ==
+                          "vfx005-far_normal-plant_healing_acceleration")
+            self.assertEqual(43, normal["foregroundPixels"])
+
+    def test_overlay_immediately_below_far_envelope_is_rejected(self):
+        def overlay(screenshots, _manifest):
+            target = next(screenshots.glob("*alignment_variant-flight.png"))
+            image = Image.open(target).convert("RGBA")
+            ImageDraw.Draw(image).rectangle((624, 429, 655, 437),
+                                            fill=(239, 50, 61, 255))
+            image.save(target)
+        self.mutate(overlay, "background mismatch")
+
     def test_alignment_variant_outline_mismatch_is_rejected(self):
         def mismatch(screenshots, _manifest):
             baseline = next(screenshots.glob("*baseline-size_shift.png"))
