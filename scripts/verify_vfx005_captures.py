@@ -21,7 +21,9 @@ POWER_IDS = (
 )
 ALIGNMENT_VARIANT_IDS = ("flight", "forcefield")
 EXPECTED_SIZE = (1280, 720)
-SILHOUETTE_ROI = (430, 220, 850, 590)
+# Retained production captures have a far-silhouette union of
+# [628,401,652,424). Four pixels of bounded placement tolerance are allowed.
+FAR_SILHOUETTE_ENVELOPE = (624, 397, 656, 428)
 CROSSHAIR_ROI = (624, 344, 657, 377)
 NEAR_FOREGROUND_ROI = (430, 220, 850, 610)
 WALL_FOREGROUND_ROI = (240, 0, 1040, 600)
@@ -39,6 +41,7 @@ MIN_BODY_RETENTION = 0.90
 MIN_BODY_ROW_COVERAGE = 113
 MIN_BODY_COLUMN_COVERAGE = 36
 MIN_REDUCED_OUTLINE_JACCARD = 0.82
+MIN_ALIGNMENT_OUTLINE_JACCARD = 0.82
 MAX_BACKGROUND_DRIFT_PIXELS = 256
 EXPECTED_ROW_COUNT = 56
 BASE_EPOCH = 1_000_002
@@ -152,11 +155,16 @@ def _open_capture(screenshots: Path, row: dict[str, Any]) -> Image.Image:
             raise ValueError(f"capture must be an actual decoded PNG: {row['imagePath']}")
         if opened.size != EXPECTED_SIZE:
             raise ValueError(f"capture must be exact 1280x720: {row['imagePath']} is {opened.size}")
-        return opened.convert("RGB")
+        if opened.mode != "RGBA":
+            raise ValueError(f"capture has unsupported source mode {opened.mode}; "
+                             f"expected RGBA: {row['imagePath']}")
+        if opened.getchannel("A").getextrema() != (255, 255):
+            raise ValueError(f"capture must be fully opaque: {row['imagePath']}")
+        return opened.copy()
 
 
 def _mask(image: Image.Image, baseline: Image.Image,
-          roi: tuple[int, int, int, int] = SILHOUETTE_ROI) -> frozenset[int]:
+          roi: tuple[int, int, int, int] = FAR_SILHOUETTE_ENVELOPE) -> frozenset[int]:
     difference = ImageChops.difference(image.crop(roi), baseline.crop(roi)).convert("RGB")
     return frozenset(index for index, pixel in enumerate(difference.get_flattened_data())
                      if max(pixel) >= PIXEL_DELTA)
@@ -185,7 +193,7 @@ def _allowed_foreground(row: dict[str, Any]) -> tuple[int, int, int, int]:
         return NEAR_FOREGROUND_ROI
     if row["category"] in {"wall_baseline", "wall"}:
         return WALL_FOREGROUND_ROI
-    return SILHOUETTE_ROI
+    return FAR_SILHOUETTE_ENVELOPE
 
 
 def _toast_pixels(image: Image.Image) -> int:
@@ -241,7 +249,7 @@ def validate(screenshots: Path, manifest: Path) -> dict[str, Any]:
     for row in rows:
         if row["category"] in {"baseline", "wall_baseline", "wall"}:
             continue
-        mask = _mask(images[row["captureId"]], baseline)
+        mask = _mask(images[row["captureId"]], baseline, _allowed_foreground(row))
         if len(mask) < MIN_FOREGROUND_PIXELS:
             raise ValueError(f"blank foreground: {row['captureId']} has {len(mask)} changed pixels")
         masks[row["captureId"]] = mask
@@ -263,6 +271,14 @@ def validate(screenshots: Path, manifest: Path) -> dict[str, Any]:
             raise ValueError(f"reduced outline mismatch: {power_id} jaccard={score:.4f}")
         outline_scores[power_id] = round(score, 6)
 
+    alignment_scores: dict[str, float] = {}
+    for power_id in ALIGNMENT_VARIANT_IDS:
+        variant = masks[_one(rows, "alignment_variant", power_id)["captureId"]]
+        score = _jaccard(normal_masks[power_id], variant)
+        if score < MIN_ALIGNMENT_OUTLINE_JACCARD:
+            raise ValueError(f"alignment outline mismatch: {power_id} jaccard={score:.4f}")
+        alignment_scores[power_id] = round(score, 6)
+
     lifecycle_scores: dict[str, float] = {}
     lifecycle_background_pixels: dict[str, int] = {}
     for category in CONTINUITY_ROWS:
@@ -274,7 +290,7 @@ def validate(screenshots: Path, manifest: Path) -> dict[str, Any]:
         lifecycle_scores[category] = round(score, 6)
         background_pixels = _outside_changed_pixels(images[row["captureId"]],
                                                     images[normal_row["captureId"]],
-                                                    SILHOUETTE_ROI)
+                                                    FAR_SILHOUETTE_ENVELOPE)
         if background_pixels > MAX_BACKGROUND_DRIFT_PIXELS:
             raise ValueError(f"lifecycle background mismatch: {category} has "
                              f"{background_pixels} changed pixels outside silhouette ROI")
@@ -287,7 +303,7 @@ def validate(screenshots: Path, manifest: Path) -> dict[str, Any]:
     body_positions = frozenset(
         (index % body_crop.width, index // body_crop.width)
         for index, pixel in enumerate(body_crop.get_flattened_data())
-        if pixel in BODY_RENDER_PALETTE)
+        if pixel[:3] in BODY_RENDER_PALETTE)
     body_retention = len(body_positions) / EXPECTED_BODY_IDENTITY_PIXELS
     body_rows = len({y for _, y in body_positions})
     body_columns = len({x for x, _ in body_positions})
@@ -308,9 +324,10 @@ def validate(screenshots: Path, manifest: Path) -> dict[str, Any]:
         output_rows.append({"captureId": row["captureId"], "category": row["category"],
                             "imagePath": row["imagePath"], "sha256": _sha256(path),
                             "foregroundPixels": len(masks.get(row["captureId"], frozenset()))})
-    return {"schemaVersion": 1, "rowCount": len(rows), "farNormalCount": 23,
+    return {"schemaVersion": 2, "rowCount": len(rows), "farNormalCount": 23,
             "farReducedCount": 23, "pairwiseComparisons": 253,
             "minimumReducedOutlineJaccard": min(outline_scores.values()),
+            "minimumAlignmentOutlineJaccard": min(alignment_scores.values()),
             "minimumLifecycleOutlineJaccard": min(lifecycle_scores.values()),
             "maximumBackgroundDriftPixels": max(row_background_pixels.values()),
             "maximumLifecycleBackgroundDriftPixels": max(lifecycle_background_pixels.values()),

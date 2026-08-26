@@ -26,36 +26,36 @@ class Vfx005CaptureVerifierTest(unittest.TestCase):
         screenshots.mkdir()
         manifest = root / "vfx005-manifest.jsonl"
         rows = []
-        baseline = Image.new("RGB", VERIFY.EXPECTED_SIZE, (42, 67, 91))
+        baseline = Image.new("RGBA", VERIFY.EXPECTED_SIZE, (42, 67, 91, 255))
         baseline_draw = ImageDraw.Draw(baseline)
-        baseline_draw.line((635, 360, 645, 360), fill=(220, 220, 220), width=1)
-        baseline_draw.line((640, 355, 640, 365), fill=(220, 220, 220), width=1)
+        baseline_draw.line((635, 360, 645, 360), fill=(220, 220, 220, 255), width=1)
+        baseline_draw.line((640, 355, 640, 365), fill=(220, 220, 220, 255), width=1)
         self.add(rows, screenshots, baseline, "baseline", "size_shift", "radiant", 96,
                  False, "all", 0, VERIFY.BASE_EPOCH)
         for index, power_id in enumerate(VERIFY.POWER_IDS):
             normal = baseline.copy()
-            self.draw_shape(normal, index, (255, 210, 70))
+            self.draw_shape(normal, index, (255, 210, 70, 255))
             self.add(rows, screenshots, normal, "far_normal", power_id,
                      "radiant", 96, False, "all", 0, VERIFY.BASE_EPOCH)
         for index, power_id in enumerate(VERIFY.POWER_IDS):
             reduced = baseline.copy()
-            self.draw_shape(reduced, index, (205, 175, 85))
+            self.draw_shape(reduced, index, (205, 175, 85, 255))
             self.add(rows, screenshots, reduced, "far_reduced", power_id,
                      "radiant", 96, True, "minimal", 0, VERIFY.BASE_EPOCH)
         for index, power_id in enumerate(VERIFY.ALIGNMENT_VARIANT_IDS):
             image = baseline.copy()
-            self.draw_shape(image, VERIFY.POWER_IDS.index(power_id), (190, 30, 220))
+            self.draw_shape(image, VERIFY.POWER_IDS.index(power_id), (190, 30, 220, 255))
             self.add(rows, screenshots, image, "alignment_variant", power_id,
                      "darkness", 96, False, "all", 0, VERIFY.BASE_EPOCH)
         special = baseline.copy()
-        self.draw_shape(special, 2, (255, 210, 70), offset=(0, 70))
+        self.draw_shape(special, 2, (255, 210, 70, 255), offset=(0, 70))
         body = ImageDraw.Draw(special)
         # Literal 4,704-pixel identity footprint measured from the fixed production actor.
-        body.rectangle((620, 385, 657, 411), fill=(38, 42, 52))
-        body.rectangle((620, 412, 659, 452), fill=(38, 42, 52))
-        body.rectangle((620, 453, 658, 462), fill=(38, 42, 52))
-        body.rectangle((620, 463, 657, 463), fill=(38, 42, 52))
-        body.rectangle((622, 464, 656, 509), fill=(38, 42, 52))
+        body.rectangle((620, 385, 657, 411), fill=(38, 42, 52, 255))
+        body.rectangle((620, 412, 659, 452), fill=(38, 42, 52, 255))
+        body.rectangle((620, 453, 658, 462), fill=(38, 42, 52, 255))
+        body.rectangle((620, 463, 657, 463), fill=(38, 42, 52, 255))
+        body.rectangle((622, 464, 656, 509), fill=(38, 42, 52, 255))
         self.add(rows, screenshots, special, "near", "flight", "radiant", 8,
                  False, "all", 0, VERIFY.BASE_EPOCH)
         self.add(rows, screenshots, baseline.copy(), "wall_baseline", "forcefield",
@@ -68,7 +68,7 @@ class Vfx005CaptureVerifierTest(unittest.TestCase):
                 ("post_dimension", "time_freeze", "all", 1, VERIFY.DIMENSION_EPOCH),
                 ("post_reconnect", "double_health", "all", 1, VERIFY.RECONNECT_EPOCH)):
             image = baseline.copy()
-            self.draw_shape(image, VERIFY.POWER_IDS.index(power_id), (255, 210, 70))
+            self.draw_shape(image, VERIFY.POWER_IDS.index(power_id), (255, 210, 70, 255))
             self.add(rows, screenshots, image, category, power_id, "radiant", 96,
                      False, particles, revision, epoch)
         manifest.write_text("".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
@@ -76,18 +76,17 @@ class Vfx005CaptureVerifierTest(unittest.TestCase):
         return screenshots, manifest
 
     @staticmethod
-    def draw_shape(image: Image.Image, index: int, color: tuple[int, int, int],
+    def draw_shape(image: Image.Image, index: int, color: tuple[int, int, int, int],
                    offset: tuple[int, int] = (0, 0)) -> None:
         draw = ImageDraw.Draw(image)
-        cx, cy = 640 + offset[0], 420 + offset[1]
-        # Every mask shares an anchor but receives a unique two-arm binary signature.
-        draw.line((cx, cy - 28, cx, cy + 28), fill=color, width=4)
-        first = index % 7
-        second = index // 7
-        draw.line((cx, cy - 24 + first * 7, cx + 24 + first * 3,
-                   cy - 18 + first * 5), fill=color, width=4)
-        draw.line((cx, cy + 24 - second * 9, cx - 28 - second * 4,
-                   cy + 18 - second * 6), fill=color, width=4)
+        cx, cy = 640 + offset[0], 412 + offset[1]
+        # The production far-mask union is [628,401,652,424). Each mask shares
+        # a compact anchor and receives a unique literal signature inside it.
+        draw.line((cx, cy - 8, cx, cy + 8), fill=color, width=2)
+        signature_x = 628 + index % 10 + offset[0]
+        signature_y = 401 + index // 10 + offset[1]
+        draw.rectangle((signature_x, signature_y, signature_x + 1, signature_y + 1),
+                       fill=color)
 
     @staticmethod
     def add(rows: list[dict], screenshots: Path, image: Image.Image, category: str,
@@ -111,6 +110,7 @@ class Vfx005CaptureVerifierTest(unittest.TestCase):
             self.assertEqual(23, first["farNormalCount"])
             self.assertEqual(23, first["farReducedCount"])
             self.assertEqual(56, first["rowCount"])
+            self.assertEqual(1.0, first["minimumAlignmentOutlineJaccard"])
             self.assertEqual(json.dumps(first, sort_keys=True),
                              json.dumps(second, sort_keys=True))
 
@@ -130,7 +130,7 @@ class Vfx005CaptureVerifierTest(unittest.TestCase):
     def test_wrong_dimensions_are_rejected(self):
         def resize(screenshots, _manifest):
             path = next(screenshots.glob("*far_normal-size_shift.png"))
-            Image.new("RGB", (640, 360)).save(path)
+            Image.new("RGBA", (640, 360), (0, 0, 0, 255)).save(path)
         self.mutate(resize, "1280x720")
 
     def test_blank_foreground_is_rejected(self):
@@ -150,37 +150,38 @@ class Vfx005CaptureVerifierTest(unittest.TestCase):
     def test_reduced_outline_mismatch_is_rejected(self):
         def mismatch(screenshots, _manifest):
             target = next(screenshots.glob("*far_reduced-flight.png"))
-            image = Image.open(target).convert("RGB")
+            image = Image.open(target).convert("RGBA")
             draw = ImageDraw.Draw(image)
-            draw.rectangle((590, 390, 690, 465), fill=(255, 0, 0))
+            draw.rectangle((624, 397, 655, 427), fill=(255, 0, 0, 255))
             image.save(target)
         self.mutate(mismatch, "reduced outline mismatch")
 
     def test_crosshair_intrusion_is_rejected(self):
         def intrude(screenshots, _manifest):
             target = next(screenshots.glob("*near-flight.png"))
-            image = Image.open(target).convert("RGB")
-            ImageDraw.Draw(image).rectangle(VERIFY.CROSSHAIR_ROI, fill=(255, 210, 70))
+            image = Image.open(target).convert("RGBA")
+            ImageDraw.Draw(image).rectangle(VERIFY.CROSSHAIR_ROI, fill=(255, 210, 70, 255))
             image.save(target)
         self.mutate(intrude, "crosshair intrusion")
 
     def test_wall_leakage_is_rejected(self):
         def leak(screenshots, _manifest):
             target = next(screenshots.glob("*wall-forcefield.png"))
-            image = Image.open(target).convert("RGB")
-            self.draw_shape(image, 15, (255, 210, 70))
+            image = Image.open(target).convert("RGBA")
+            self.draw_shape(image, 15, (255, 210, 70, 255))
             image.save(target)
         self.mutate(leak, "wall leakage")
 
     def test_lifecycle_capture_with_reload_overlay_is_rejected(self):
         def overlay(screenshots, _manifest):
             target = next(screenshots.glob("*post_reload-void_beam.png"))
-            Image.new("RGB", VERIFY.EXPECTED_SIZE, (239, 50, 61)).save(target)
+            Image.new("RGBA", VERIFY.EXPECTED_SIZE, (239, 50, 61, 255)).save(target)
         self.mutate(overlay, "background mismatch")
 
     def test_extra_screenshot_file_is_rejected(self):
         def extra(screenshots, _manifest):
-            Image.new("RGB", VERIFY.EXPECTED_SIZE).save(screenshots / "extra.png")
+            Image.new("RGBA", VERIFY.EXPECTED_SIZE, (0, 0, 0, 255)).save(
+                screenshots / "extra.png")
         self.mutate(extra, "screenshot inventory")
 
     def test_noncanonical_capture_id_is_rejected(self):
@@ -219,57 +220,132 @@ class Vfx005CaptureVerifierTest(unittest.TestCase):
     def test_outside_roi_lifecycle_overlay_is_rejected(self):
         def overlay(screenshots, _manifest):
             target = next(screenshots.glob("*post_reload-void_beam.png"))
-            image = Image.open(target).convert("RGB")
-            ImageDraw.Draw(image).rectangle((400, 20, 560, 120), fill=(239, 50, 61))
+            image = Image.open(target).convert("RGBA")
+            ImageDraw.Draw(image).rectangle((400, 20, 560, 120), fill=(239, 50, 61, 255))
             image.save(target)
         self.mutate(overlay, "background mismatch")
 
     def test_outside_roi_wall_leakage_is_rejected(self):
         def leak(screenshots, _manifest):
             target = next(screenshots.glob("*wall-forcefield.png"))
-            image = Image.open(target).convert("RGB")
-            ImageDraw.Draw(image).rectangle((400, 20, 560, 120), fill=(255, 210, 70))
+            image = Image.open(target).convert("RGBA")
+            ImageDraw.Draw(image).rectangle((400, 20, 560, 120), fill=(255, 210, 70, 255))
             image.save(target)
         self.mutate(leak, "wall leakage")
 
     def test_advancement_toast_is_rejected(self):
         def toast(screenshots, _manifest):
             target = next(screenshots.glob("*far_normal-size_shift.png"))
-            image = Image.open(target).convert("RGB")
-            ImageDraw.Draw(image).rectangle((1000, 20, 1260, 100), fill=(20, 20, 20))
+            image = Image.open(target).convert("RGBA")
+            ImageDraw.Draw(image).rectangle((1000, 20, 1260, 100), fill=(20, 20, 20, 255))
             image.save(target)
         self.mutate(toast, "toast or overlay")
 
     def test_near_silhouette_obstructing_body_is_rejected(self):
         def obstruct(screenshots, _manifest):
             target = next(screenshots.glob("*near-flight.png"))
-            image = Image.open(target).convert("RGB")
-            ImageDraw.Draw(image).rectangle(NEAR_BODY_ROI, fill=(255, 255, 255))
+            image = Image.open(target).convert("RGBA")
+            ImageDraw.Draw(image).rectangle(NEAR_BODY_ROI, fill=(255, 255, 255, 255))
             image.save(target)
         self.mutate(obstruct, "near body obstruction")
 
     def test_uniform_full_frame_tint_on_alignment_variant_is_rejected(self):
         def tint(screenshots, _manifest):
             target = next(screenshots.glob("*alignment_variant-flight.png"))
-            image = Image.open(target).convert("RGB")
+            image = Image.open(target).convert("RGBA")
             image = image.point(lambda channel: min(255, channel + 20))
             image.save(target)
         self.mutate(tint, "background mismatch")
 
+    def test_overlay_inside_old_roi_outside_far_envelope_is_rejected(self):
+        def overlay(screenshots, _manifest):
+            target = next(screenshots.glob("*alignment_variant-flight.png"))
+            image = Image.open(target).convert("RGBA")
+            ImageDraw.Draw(image).rectangle((500, 280, 560, 330),
+                                            fill=(239, 50, 61, 255))
+            image.save(target)
+        self.mutate(overlay, "background mismatch")
+
+    def test_alignment_variant_outline_mismatch_is_rejected(self):
+        def mismatch(screenshots, _manifest):
+            baseline = next(screenshots.glob("*baseline-size_shift.png"))
+            target = next(screenshots.glob("*alignment_variant-flight.png"))
+            image = Image.open(baseline).convert("RGBA")
+            ImageDraw.Draw(image).rectangle((624, 397, 629, 402),
+                                            fill=(190, 30, 220, 255))
+            image.save(target)
+        self.mutate(mismatch, "alignment outline mismatch")
+
+    def test_rgb_png_source_mode_is_rejected(self):
+        def rgb_mode(screenshots, _manifest):
+            target = next(screenshots.glob("*far_normal-size_shift.png"))
+            image = Image.open(target).convert("RGB")
+            image.save(target, format="PNG")
+        self.mutate(rgb_mode, "source mode")
+
+    def test_transparent_hidden_rgb_is_rejected(self):
+        def transparent(screenshots, _manifest):
+            target = next(screenshots.glob("*alignment_variant-flight.png"))
+            image = Image.open(target).convert("RGBA")
+            red, green, blue, _ = image.getpixel((500, 300))
+            image.putpixel((500, 300), (red, green, blue, 0))
+            image.save(target)
+        self.mutate(transparent, "fully opaque")
+
+    def test_alpha_only_wall_difference_is_rejected(self):
+        def alpha_difference(screenshots, _manifest):
+            target = next(screenshots.glob("*wall-forcefield.png"))
+            image = Image.open(target).convert("RGBA")
+            red, green, blue, _ = image.getpixel((400, 20))
+            image.putpixel((400, 20), (red, green, blue, 254))
+            image.save(target)
+        self.mutate(alpha_difference, "fully opaque")
+
+    @staticmethod
+    def set_background_drift(path: Path, pixel_count: int) -> None:
+        image = Image.open(path).convert("RGBA")
+        for index in range(pixel_count):
+            x = 100 + index % 32
+            y = 100 + index // 32
+            red, green, blue, alpha = image.getpixel((x, y))
+            image.putpixel((x, y), (min(255, red + 20), green, blue, alpha))
+        image.save(path)
+
+    def test_exactly_256_all_row_background_pixels_are_accepted(self):
+        with tempfile.TemporaryDirectory() as raw:
+            screenshots, manifest = self.make_fixture(Path(raw))
+            target = next(screenshots.glob("*far_normal-size_shift.png"))
+            self.set_background_drift(target, 256)
+            result = VERIFY.validate(screenshots, manifest)
+            self.assertEqual(256, result["maximumBackgroundDriftPixels"])
+
+    def test_257_all_row_background_pixels_are_rejected(self):
+        def drift(screenshots, _manifest):
+            target = next(screenshots.glob("*far_normal-size_shift.png"))
+            self.set_background_drift(target, 257)
+        self.mutate(drift, "background mismatch")
+
+    def test_reciprocal_baseline_background_direction_is_rejected(self):
+        def drift(screenshots, _manifest):
+            target = next(screenshots.glob("*baseline-size_shift.png"))
+            self.set_background_drift(target, 257)
+        self.mutate(drift, "background mismatch")
+
     def test_one_channel_wall_leakage_is_rejected(self):
         def leak(screenshots, _manifest):
             target = next(screenshots.glob("*wall-forcefield.png"))
-            image = Image.open(target).convert("RGB")
-            red, green, blue = image.getpixel((400, 20))
-            image.putpixel((400, 20), (red + 1, green, blue))
+            image = Image.open(target).convert("RGBA")
+            red, green, blue, alpha = image.getpixel((400, 20))
+            image.putpixel((400, 20), (red + 1, green, blue, alpha))
             image.save(target)
         self.mutate(leak, "wall leakage")
 
     def test_partial_near_body_occlusion_is_rejected(self):
         def obstruct(screenshots, _manifest):
             target = next(screenshots.glob("*near-flight.png"))
-            image = Image.open(target).convert("RGB")
-            ImageDraw.Draw(image).rectangle((628, 405, 651, 484), fill=(255, 255, 255))
+            image = Image.open(target).convert("RGBA")
+            ImageDraw.Draw(image).rectangle((628, 405, 651, 484),
+                                            fill=(255, 255, 255, 255))
             image.save(target)
         self.mutate(obstruct, "near body obstruction")
 
