@@ -1,5 +1,6 @@
 package com.powers.client.visual;
 
+import com.google.gson.JsonParser;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -83,11 +84,21 @@ class LightRealmSkyGalleryContractTest {
 				"the pinned Sodium gallery must enter the client runtime through an explicit property");
 		assertTrue(build.contains("line.contains(\"com.powers.gametest.PowersClientGameTests\")")
 					&& build.contains("line.contains(\"com.powers.client.VfxGalleryClientGameTests\")"),
-				"VFX-009-only runs must exclude only the two unrelated client entrypoints");
+				"VFX-009-only runs must exclude the base and independent VFX-011 client entrypoints");
 		String descriptor = Files.readString(ROOT.resolve("src/gametest/resources/fabric.mod.json"));
-		assertTrue(descriptor.indexOf("com.powers.client.VfxGalleryClientGameTests")
-					< descriptor.indexOf("com.powers.client.LightRealmSkyClientGameTests\"\n"),
-				"the retained VFX-009 entrypoint must be terminal after filtering");
+		String defaultDescriptor = descriptor.replace("${connectedProfileEntrypoint}", "")
+				.replace("${restartSoakEntrypoint}", "")
+				.replace("${perf016BenchmarkEntrypoint}", "")
+				.replace("${compatibilityEntrypoint}", "");
+		var clientEntrypoints = JsonParser.parseString(defaultDescriptor).getAsJsonObject()
+				.getAsJsonObject("entrypoints").getAsJsonArray("fabric-client-gametest").asList()
+				.stream().map(element -> element.getAsString()).toList();
+		assertTrue(clientEntrypoints.contains("com.powers.client.VfxGalleryClientGameTests"),
+				"the independent VFX-011 matrix must remain registered for its own profile");
+		assertTrue(clientEntrypoints.contains("com.powers.client.LightRealmSkyClientGameTests"),
+				"the retained VFX-009 entrypoint must remain registered regardless of array position");
+		assertTrue(clientEntrypoints.contains("com.powers.client.RankTenSilhouetteClientGameTests"),
+				"additive client galleries must not displace the retained VFX-009 entrypoint");
 	}
 
 	private static String gallery() throws IOException {
