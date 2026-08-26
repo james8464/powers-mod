@@ -51,6 +51,17 @@ class RankTenSilhouettePacketsTest {
 	}
 
 	@Test
+	void dimensionUtf8BudgetAcceptsExactly128BytesAndRejects129() {
+		String exact = "powers:" + "a".repeat(121);
+		String oversized = exact + "a";
+		var payload = new RankTenSilhouettePackets.Payload(1, 0, CASTER, exact,
+				0, 0, 0, 0, 0, 0, 1, 40);
+		assertEquals(128, payload.dimension().getBytes(java.nio.charset.StandardCharsets.UTF_8).length);
+		assertThrows(IllegalArgumentException.class, () -> new RankTenSilhouettePackets.Payload(
+				1, 0, CASTER, oversized, 0, 0, 0, 0, 0, 0, 1, 40));
+	}
+
+	@Test
 	void decoderRejectsAnOversizedUtf8DimensionBeforeConstruction() {
 		ByteBuf bytes = Unpooled.buffer();
 		try {

@@ -59,6 +59,13 @@ public final class RankTenSilhouetteService {
 		MinecraftServer server = level.getServer();
 		ServerState serverState = state(server);
 		String dimension = level.dimension().identifier().toString();
+		CastOffer cast = new CastOffer(server.getTickCount(), caster.getUUID(),
+				SkillSystem.effectiveLevel(caster), powerId, dimension, caster.getX(), caster.getY(),
+				caster.getZ(), caster.getYRot(), caster.getXRot(), SkillSystem.hasDarknessTag(caster) ? 1 : 0,
+				visualSeed(caster, powerId, server.getTickCount()));
+		Decision decision = admit(serverState.policy, cast);
+		serverState.policy = decision.state();
+		if (!decision.accepted()) return;
 		List<ServerPlayer> players = List.copyOf(level.players());
 		Map<UUID, ServerPlayer> byId = new LinkedHashMap<>();
 		List<ObserverOffer> observers = new ArrayList<>(players.size());
@@ -74,13 +81,8 @@ public final class RankTenSilhouetteService {
 					observer.level().dimension().identifier().toString(), observer.getX(), observer.getY(),
 					observer.getZ(), supported, live(server, level, observer, observer.connection)));
 		}
-		CastOffer cast = new CastOffer(server.getTickCount(), caster.getUUID(),
-				SkillSystem.effectiveLevel(caster), powerId, dimension, caster.getX(), caster.getY(),
-				caster.getZ(), caster.getYRot(), caster.getXRot(), SkillSystem.hasDarknessTag(caster) ? 1 : 0,
-				visualSeed(caster, powerId, server.getTickCount()));
-		Decision decision = offer(serverState.policy, cast, observers);
+		decision = selectObservers(decision, observers);
 		serverState.policy = decision.state();
-		if (!decision.accepted()) return;
 		for (UUID recipientId : decision.recipients()) {
 			ServerPlayer observer = byId.get(recipientId);
 			if (observer == null) {
@@ -125,10 +127,18 @@ public final class RankTenSilhouetteService {
 
 	/** Pure immutable admission path shared exactly by unit tests and production delivery. */
 	static Decision offer(PolicyState input, CastOffer cast, List<ObserverOffer> observers) {
+		Decision admitted = admit(input, cast);
+		return admitted.accepted() ? selectObservers(admitted, observers) : admitted;
+	}
+
+	private static Decision admit(PolicyState input, CastOffer cast) {
 		Objects.requireNonNull(input, "input");
 		Objects.requireNonNull(cast, "cast");
-		observers = List.copyOf(observers);
 		PolicyState state = input.forTick(cast.tick());
+		if (state.offeredThisTick() >= MAX_OFFERS_PER_TICK) {
+			return rejected(state.withDiagnostics(state.diagnostics().budgetRejection()));
+		}
+		state = state.consumeOffer();
 		var resolved = RankTenSilhouetteProfile.forPower(cast.powerId());
 		if (resolved.isEmpty()) return rejected(state.withDiagnostics(state.diagnostics().invalidProfile()));
 		if (cast.rank() < 10) return rejected(state.withDiagnostics(state.diagnostics().belowRankEvent()));
@@ -137,41 +147,46 @@ public final class RankTenSilhouetteService {
 		if (state.used().contains(key)) {
 			return rejected(state.withDiagnostics(state.diagnostics().coalescedEvent()));
 		}
-		if (state.offeredThisTick() >= MAX_OFFERS_PER_TICK) {
-			return rejected(state.withDiagnostics(state.diagnostics().budgetRejection()));
-		}
 		if (state.nextEventId() == Long.MAX_VALUE) {
 			return rejected(state.withDiagnostics(state.diagnostics().exhaustedEvent()));
 		}
-		List<UUID> recipients = new ArrayList<>();
-		Diagnostics diagnostics = state.diagnostics();
-		for (ObserverOffer observer : observers) {
-			if (!cast.dimension().equals(observer.dimension())) diagnostics = diagnostics.dimensionObserver();
-			else if (distanceSquared(cast, observer) > OBSERVER_RADIUS_SQUARED) diagnostics = diagnostics.rangeObserver();
-			else if (!observer.supported()) diagnostics = diagnostics.unsupportedObserver();
-			else if (!observer.liveSession()) diagnostics = diagnostics.staleObserver();
-			else recipients.add(observer.player());
-		}
-		diagnostics = diagnostics.accepted(profile.powerId(), recipients.size());
+		Diagnostics diagnostics = state.diagnostics().accepted(profile.powerId());
 		Set<CasterProfile> used = new LinkedHashSet<>(state.used());
 		used.add(key);
 		long eventId = state.nextEventId();
-		PolicyState accepted = new PolicyState(eventId + 1, cast.tick(), state.offeredThisTick() + 1,
+		PolicyState accepted = new PolicyState(eventId + 1, cast.tick(), state.offeredThisTick(),
 				used, diagnostics);
 		var payload = new RankTenSilhouettePackets.Payload(eventId, profile.networkId(), cast.caster(),
 				cast.dimension(), cast.x(), cast.y(), cast.z(), cast.yaw(), cast.pitch(), cast.alignmentId(),
 				cast.visualSeed(), ClientRankTenSilhouetteState.AUTHORED_LIFETIME_TICKS);
-		return new Decision(accepted, profile, payload, recipients, true);
+		return new Decision(accepted, profile, payload, List.of(), true);
+	}
+
+	private static Decision selectObservers(Decision admitted, List<ObserverOffer> input) {
+		if (!admitted.accepted()) return admitted;
+		List<ObserverOffer> observers = List.copyOf(input);
+		List<UUID> recipients = new ArrayList<>();
+		Diagnostics diagnostics = admitted.diagnostics();
+		for (ObserverOffer observer : observers) {
+			if (!admitted.payload().dimension().equals(observer.dimension())) diagnostics = diagnostics.dimensionObserver();
+			else if (distanceSquared(admitted.payload(), observer) > OBSERVER_RADIUS_SQUARED) diagnostics = diagnostics.rangeObserver();
+			else if (!observer.supported()) diagnostics = diagnostics.unsupportedObserver();
+			else if (!observer.liveSession()) diagnostics = diagnostics.staleObserver();
+			else recipients.add(observer.player());
+		}
+		diagnostics = diagnostics.eligible(recipients.size());
+		PolicyState completed = admitted.state().withDiagnostics(diagnostics);
+		return new Decision(completed, admitted.profile(), admitted.payload(), recipients, true);
 	}
 
 	private static Decision rejected(PolicyState state) {
 		return new Decision(state, null, null, List.of(), false);
 	}
 
-	private static double distanceSquared(CastOffer cast, ObserverOffer observer) {
-		double x = observer.x() - cast.x();
-		double y = observer.y() - cast.y();
-		double z = observer.z() - cast.z();
+	private static double distanceSquared(RankTenSilhouettePackets.Payload payload, ObserverOffer observer) {
+		double x = observer.x() - payload.x();
+		double y = observer.y() - payload.y();
+		double z = observer.z() - payload.z();
 		return x * x + y * y + z * z;
 	}
 
@@ -208,6 +223,9 @@ public final class RankTenSilhouetteService {
 		PolicyState withDiagnostics(Diagnostics changed) {
 			return new PolicyState(nextEventId, tick, offeredThisTick, used, changed);
 		}
+		PolicyState consumeOffer() {
+			return new PolicyState(nextEventId, tick, offeredThisTick + 1, used, diagnostics);
+		}
 	}
 
 	static record Decision(PolicyState state, RankTenSilhouetteProfile profile,
@@ -243,10 +261,13 @@ public final class RankTenSilhouetteService {
 		Diagnostics rangeObserver() { return copy(0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, null); }
 		Diagnostics unsupportedObserver() { return copy(0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, null); }
 		Diagnostics staleObserver() { return copy(0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, null); }
-		Diagnostics accepted(String power, int recipients) {
+		Diagnostics accepted(String power) {
 			Set<String> powers = new LinkedHashSet<>(acceptedProfiles);
 			powers.add(power);
-			return copy(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, recipients, powers);
+			return copy(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, powers);
+		}
+		Diagnostics eligible(int recipients) {
+			return copy(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, recipients, null);
 		}
 		Diagnostics withDelivery(long succeeded, long failed, long services) {
 			return new Diagnostics(acceptedEvents, invalidProfiles, belowRank, coalescedEvents,
