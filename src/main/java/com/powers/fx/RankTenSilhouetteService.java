@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.function.Predicate;
 
 /** Server owner for rank-ten silhouette admission, observer selection, and guarded delivery. */
 public final class RankTenSilhouetteService {
@@ -58,55 +59,8 @@ public final class RankTenSilhouetteService {
 		if (!(caster.level() instanceof ServerLevel level)) return;
 		MinecraftServer server = level.getServer();
 		ServerState serverState = state(server);
-		String dimension = level.dimension().identifier().toString();
-		CastOffer cast = new CastOffer(server.getTickCount(), caster.getUUID(),
-				SkillSystem.effectiveLevel(caster), powerId, dimension, caster.getX(), caster.getY(),
-				caster.getZ(), caster.getYRot(), caster.getXRot(), SkillSystem.hasDarknessTag(caster) ? 1 : 0,
-				visualSeed(caster, powerId, server.getTickCount()));
-		Decision decision = admit(serverState.policy, cast);
-		serverState.policy = decision.state();
-		if (!decision.accepted()) return;
-		List<ServerPlayer> players = List.copyOf(level.players());
-		Map<UUID, ServerPlayer> byId = new LinkedHashMap<>();
-		List<ObserverOffer> observers = new ArrayList<>(players.size());
-		for (ServerPlayer observer : players) {
-			byId.put(observer.getUUID(), observer);
-			boolean supported;
-			try {
-				supported = ServerPlayNetworking.canSend(observer, RankTenSilhouettePackets.Payload.TYPE);
-			} catch (RuntimeException exception) {
-				supported = false;
-			}
-			observers.add(new ObserverOffer(observer.getUUID(),
-					observer.level().dimension().identifier().toString(), observer.getX(), observer.getY(),
-					observer.getZ(), supported, live(server, level, observer, observer.connection)));
-		}
-		decision = selectObservers(decision, observers);
-		serverState.policy = decision.state();
-		for (UUID recipientId : decision.recipients()) {
-			ServerPlayer observer = byId.get(recipientId);
-			if (observer == null) {
-				serverState.deliveryFailed++;
-				continue;
-			}
-			Object connection = observer.connection;
-			try {
-				PowersPlayNetworking.sendGuarded(observer, decision.payload(),
-						current -> live(server, level, current, connection)
-								&& current.getUUID().equals(recipientId),
-						() -> serverState.deliverySucceeded++, failure -> serverState.deliveryFailed++);
-			} catch (RuntimeException exception) {
-				serverState.deliveryFailed++;
-			}
-		}
-	}
-
-	private static boolean live(MinecraftServer server, ServerLevel level,
-			ServerPlayer player, Object connection) {
-		return player != null && player.connection != null && player.connection == connection
-				&& server.getPlayerList().getPlayer(player.getUUID()) == player
-				&& player.level() == level && !player.hasDisconnected()
-				&& player.isAlive() && !player.isRemoved();
+		execute(serverState.policy, powerId,
+				new MinecraftRuntime(caster, level, server, serverState));
 	}
 
 	private static int visualSeed(ServerPlayer caster, String powerId, long tick) {
@@ -134,11 +88,21 @@ public final class RankTenSilhouetteService {
 	private static Decision admit(PolicyState input, CastOffer cast) {
 		Objects.requireNonNull(input, "input");
 		Objects.requireNonNull(cast, "cast");
-		PolicyState state = input.forTick(cast.tick());
+		Reservation reservation = reserve(input, cast.tick());
+		return reservation.accepted() ? admitReserved(reservation.state(), cast)
+				: rejected(reservation.state());
+	}
+
+	private static Reservation reserve(PolicyState input, long tick) {
+		PolicyState state = Objects.requireNonNull(input, "input").forTick(tick);
 		if (state.offeredThisTick() >= MAX_OFFERS_PER_TICK) {
-			return rejected(state.withDiagnostics(state.diagnostics().budgetRejection()));
+			return new Reservation(state.withDiagnostics(state.diagnostics().budgetRejection()), false);
 		}
-		state = state.consumeOffer();
+		return new Reservation(state.consumeOffer(), true);
+	}
+
+	private static Decision admitReserved(PolicyState state, CastOffer cast) {
+		if (state.tick() != cast.tick()) throw new IllegalArgumentException("cast tick was not reserved");
 		var resolved = RankTenSilhouetteProfile.forPower(cast.powerId());
 		if (resolved.isEmpty()) return rejected(state.withDiagnostics(state.diagnostics().invalidProfile()));
 		if (cast.rank() < 10) return rejected(state.withDiagnostics(state.diagnostics().belowRankEvent()));
@@ -160,6 +124,55 @@ public final class RankTenSilhouetteService {
 				cast.dimension(), cast.x(), cast.y(), cast.z(), cast.yaw(), cast.pitch(), cast.alignmentId(),
 				cast.visualSeed(), ClientRankTenSilhouetteState.AUTHORED_LIFETIME_TICKS);
 		return new Decision(accepted, profile, payload, List.of(), true);
+	}
+
+	/** Executable production seam: reservation, preparation, bounded enumeration, and guarded sends. */
+	static RuntimeResult execute(PolicyState input, String powerId, RuntimeAccess access) {
+		Objects.requireNonNull(access, "access");
+		long tick = access.tick();
+		Reservation reservation = reserve(input, tick);
+		access.persist(reservation.state());
+		if (!reservation.accepted()) return new RuntimeResult(rejected(reservation.state()));
+		Decision admitted = admitReserved(reservation.state(), access.prepareCast(powerId, tick));
+		access.persist(admitted.state());
+		if (!admitted.accepted()) return new RuntimeResult(admitted);
+
+		List<RuntimeObserver> players = List.copyOf(access.players());
+		Map<UUID, RuntimeObserver> recipientsById = new LinkedHashMap<>();
+		List<UUID> recipients = new ArrayList<>();
+		Diagnostics diagnostics = admitted.diagnostics();
+		for (RuntimeObserver observer : players) {
+			if (!admitted.payload().dimension().equals(observer.dimension())) {
+				diagnostics = diagnostics.dimensionObserver();
+			} else if (distanceSquared(admitted.payload(), observer.x(), observer.y(), observer.z())
+					> OBSERVER_RADIUS_SQUARED) {
+				diagnostics = diagnostics.rangeObserver();
+			} else if (!access.canSend(observer)) {
+				diagnostics = diagnostics.unsupportedObserver();
+			} else if (!sessionCurrent(observer, access.current(observer))) {
+				diagnostics = diagnostics.staleObserver();
+			} else {
+				recipients.add(observer.player());
+				recipientsById.put(observer.player(), observer);
+			}
+		}
+		diagnostics = diagnostics.eligible(recipients.size());
+		Decision selected = new Decision(admitted.state().withDiagnostics(diagnostics),
+				admitted.profile(), admitted.payload(), recipients, true);
+		access.persist(selected.state());
+		for (UUID recipient : recipients) {
+			RuntimeObserver snapshot = recipientsById.get(recipient);
+			access.sendGuarded(snapshot, selected.payload(),
+					current -> sessionCurrent(snapshot, current));
+		}
+		return new RuntimeResult(selected);
+	}
+
+	private static boolean sessionCurrent(RuntimeObserver snapshot, RuntimeObserver current) {
+		return snapshot != null && current != null && snapshot.handle() == current.handle()
+				&& snapshot.connection() != null && snapshot.connection() == current.connection()
+				&& snapshot.player().equals(current.player())
+				&& snapshot.dimension().equals(current.dimension()) && current.liveSession();
 	}
 
 	private static Decision selectObservers(Decision admitted, List<ObserverOffer> input) {
@@ -184,10 +197,42 @@ public final class RankTenSilhouetteService {
 	}
 
 	private static double distanceSquared(RankTenSilhouettePackets.Payload payload, ObserverOffer observer) {
-		double x = observer.x() - payload.x();
-		double y = observer.y() - payload.y();
-		double z = observer.z() - payload.z();
+		return distanceSquared(payload, observer.x(), observer.y(), observer.z());
+	}
+
+	private static double distanceSquared(RankTenSilhouettePackets.Payload payload,
+			double observerX, double observerY, double observerZ) {
+		double x = observerX - payload.x();
+		double y = observerY - payload.y();
+		double z = observerZ - payload.z();
 		return x * x + y * y + z * z;
+	}
+
+	interface RuntimeAccess {
+		long tick();
+		void persist(PolicyState state);
+		CastOffer prepareCast(String powerId, long reservedTick);
+		List<RuntimeObserver> players();
+		boolean canSend(RuntimeObserver observer);
+		RuntimeObserver current(RuntimeObserver observer);
+		void sendGuarded(RuntimeObserver observer, RankTenSilhouettePackets.Payload payload,
+				Predicate<RuntimeObserver> guard);
+	}
+
+	static record RuntimeObserver(UUID player, String dimension, double x, double y, double z,
+			Object handle, Object connection, boolean liveSession) {
+		RuntimeObserver {
+			Objects.requireNonNull(player, "player");
+			Objects.requireNonNull(dimension, "dimension");
+			Objects.requireNonNull(handle, "handle");
+			if (!finite(x, y, z)) throw new IllegalArgumentException("invalid runtime observer");
+		}
+	}
+
+	static record RuntimeResult(Decision decision) {
+	}
+
+	private record Reservation(PolicyState state, boolean accepted) {
 	}
 
 	static record CastOffer(long tick, UUID caster, int rank, String powerId, String dimension,
@@ -284,6 +329,87 @@ public final class RankTenSilhouetteService {
 					unsupportedObservers + unsupported, staleObservers + stale,
 					eligibleObservers + eligible, deliverySucceeded, deliveryFailed, serviceFailures,
 					chunkTicketsRequested, profiles == null ? acceptedProfiles : profiles);
+		}
+	}
+
+	private static final class MinecraftRuntime implements RuntimeAccess {
+		private final ServerPlayer caster;
+		private final ServerLevel level;
+		private final MinecraftServer server;
+		private final ServerState state;
+
+		private MinecraftRuntime(ServerPlayer caster, ServerLevel level,
+				MinecraftServer server, ServerState state) {
+			this.caster = caster;
+			this.level = level;
+			this.server = server;
+			this.state = state;
+		}
+
+		@Override
+		public long tick() {
+			return server.getTickCount();
+		}
+
+		@Override
+		public void persist(PolicyState policy) {
+			state.policy = policy;
+		}
+
+		@Override
+		public CastOffer prepareCast(String powerId, long reservedTick) {
+			return new CastOffer(reservedTick, caster.getUUID(), SkillSystem.effectiveLevel(caster),
+					powerId, level.dimension().identifier().toString(), caster.getX(), caster.getY(),
+					caster.getZ(), caster.getYRot(), caster.getXRot(),
+					SkillSystem.hasDarknessTag(caster) ? 1 : 0,
+					visualSeed(caster, powerId, reservedTick));
+		}
+
+		@Override
+		public List<RuntimeObserver> players() {
+			return List.copyOf(level.players()).stream().map(this::snapshot).toList();
+		}
+
+		@Override
+		public boolean canSend(RuntimeObserver observer) {
+			try {
+				return observer.handle() instanceof ServerPlayer player
+						&& ServerPlayNetworking.canSend(player, RankTenSilhouettePackets.Payload.TYPE);
+			} catch (RuntimeException exception) {
+				return false;
+			}
+		}
+
+		@Override
+		public RuntimeObserver current(RuntimeObserver observer) {
+			ServerPlayer current = server.getPlayerList().getPlayer(observer.player());
+			return current == null ? null : snapshot(current);
+		}
+
+		@Override
+		public void sendGuarded(RuntimeObserver observer, RankTenSilhouettePackets.Payload payload,
+				Predicate<RuntimeObserver> guard) {
+			if (!(observer.handle() instanceof ServerPlayer player)) {
+				state.deliveryFailed++;
+				return;
+			}
+			try {
+				PowersPlayNetworking.sendGuarded(player, payload,
+						current -> guard.test(snapshot(current)),
+						() -> state.deliverySucceeded++, failure -> state.deliveryFailed++);
+			} catch (RuntimeException exception) {
+				state.deliveryFailed++;
+			}
+		}
+
+		private RuntimeObserver snapshot(ServerPlayer player) {
+			boolean live = player.connection != null
+					&& server.getPlayerList().getPlayer(player.getUUID()) == player
+					&& player.level() == level && !player.hasDisconnected()
+					&& player.isAlive() && !player.isRemoved();
+			return new RuntimeObserver(player.getUUID(),
+					player.level().dimension().identifier().toString(), player.getX(), player.getY(),
+					player.getZ(), player, player.connection, live);
 		}
 	}
 

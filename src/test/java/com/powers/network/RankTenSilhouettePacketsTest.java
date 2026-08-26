@@ -57,6 +57,14 @@ class RankTenSilhouettePacketsTest {
 		var payload = new RankTenSilhouettePackets.Payload(1, 0, CASTER, exact,
 				0, 0, 0, 0, 0, 0, 1, 40);
 		assertEquals(128, payload.dimension().getBytes(java.nio.charset.StandardCharsets.UTF_8).length);
+		ByteBuf bytes = Unpooled.buffer();
+		try {
+			RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(bytes, RegistryAccess.EMPTY);
+			RankTenSilhouettePackets.Payload.STREAM_CODEC.encode(buffer, payload);
+			assertEquals(payload, RankTenSilhouettePackets.Payload.STREAM_CODEC.decode(buffer));
+		} finally {
+			bytes.release();
+		}
 		assertThrows(IllegalArgumentException.class, () -> new RankTenSilhouettePackets.Payload(
 				1, 0, CASTER, oversized, 0, 0, 0, 0, 0, 0, 1, 40));
 	}

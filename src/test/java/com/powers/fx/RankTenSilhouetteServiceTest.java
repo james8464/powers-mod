@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.AbstractList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -118,12 +120,18 @@ class RankTenSilhouetteServiceTest {
 						0, 0, 0, 0, 0, 0, 1),
 				List.of(observerAt(uuid(20), 0, 384, true, true),
 						observerAt(uuid(21), 0, 384.01, true, true)));
-		var second = RankTenSilhouetteService.offer(first.state(),
+		var invalid = RankTenSilhouetteService.offer(first.state(),
+				cast(2, uuid(30), "not_a_power"), List.of());
+		var coalesced = RankTenSilhouetteService.offer(invalid.state(),
+				cast(2, CASTER, "flight"), List.of());
+		var second = RankTenSilhouetteService.offer(coalesced.state(),
 				cast(2, uuid(30), "fireball"), List.of());
 
 		assertTrue(first.accepted());
 		assertEquals(List.of(uuid(20)), first.recipients());
 		assertEquals(1L, first.payload().eventId());
+		assertFalse(invalid.accepted());
+		assertFalse(coalesced.accepted());
 		assertEquals(2L, second.payload().eventId());
 		assertEquals(1, second.diagnostics().rangeObservers());
 		assertThrows(UnsupportedOperationException.class,
@@ -131,15 +139,60 @@ class RankTenSilhouetteServiceTest {
 	}
 
 	@Test
+	void executableProductionSeamReservesBeforePreparationAndOwnsAllDeliveryBoundaries() {
+		var state = RankTenSilhouetteService.initialPolicy(1);
+		for (int index = 0; index < 32; index++) {
+			state = RankTenSilhouetteService.offer(state,
+					cast(30, uuid(1000 + index), "flight"), List.of()).state();
+		}
+		FakeRuntime capped = new FakeRuntime(30);
+		var rejected = RankTenSilhouetteService.execute(state, "fireball", capped);
+		assertFalse(rejected.decision().accepted());
+		assertEquals(1, capped.tickCalls);
+		assertEquals(1, capped.persistCalls);
+		assertEquals(0, capped.castPreparationCalls);
+		assertEquals(0, capped.playerEnumerationCalls);
+		assertEquals(0, capped.capabilityCalls);
+		assertEquals(0, capped.guardedSendAttempts);
+		assertEquals(List.of("tick", "persist"), capped.callOrder);
+
+		FakeRuntime runtime = new FakeRuntime(31);
+		runtime.add(observerAt(uuid(1), 10, 0, true, true));
+		runtime.add(observerAt(uuid(2), 385, 0, true, true));
+		runtime.add(observer(3, "powers:dark_realm", 1, 0, true, true));
+		runtime.add(observerAt(uuid(4), 10, 0, false, true));
+		runtime.add(observerAt(uuid(5), 10, 0, true, false));
+		runtime.add(observerAt(uuid(6), 10, 0, true, true));
+		runtime.staleDuringSend.add(uuid(6));
+		var delivered = RankTenSilhouetteService.execute(
+				RankTenSilhouetteService.initialPolicy(1), "fireball", runtime);
+
+		assertTrue(delivered.decision().accepted());
+		assertEquals(1, runtime.castPreparationCalls);
+		assertEquals(1, runtime.playerEnumerationCalls);
+		assertEquals(4, runtime.capabilityCalls);
+		assertEquals(2, runtime.guardedSendAttempts);
+		assertEquals(1, runtime.guardedSendSuccesses);
+		assertEquals(0, runtime.chunkOrTicketRequests);
+		assertEquals(java.util.Set.of("tick", "persist", "prepareCast", "players", "canSend",
+				"current", "sendGuarded"), java.util.Arrays.stream(
+						RankTenSilhouetteService.RuntimeAccess.class.getDeclaredMethods())
+						.map(java.lang.reflect.Method::getName).collect(java.util.stream.Collectors.toSet()));
+		assertEquals(List.of(uuid(1), uuid(6)), delivered.decision().recipients());
+	}
+
+	@Test
 	void productionPathUsesOnlyBoundedPlayerEnumerationGuardedSendAndNoTickets() throws Exception {
 		String source = Files.readString(Path.of("src/main/java/com/powers/fx/RankTenSilhouetteService.java"));
+		assertTrue(source.contains("execute(serverState.policy, powerId"));
 		assertTrue(source.contains("List.copyOf(level.players())"));
-		assertTrue(source.contains("ServerPlayNetworking.canSend(observer"));
-		assertTrue(source.contains("PowersPlayNetworking.sendGuarded(observer"));
+		assertTrue(source.contains("ServerPlayNetworking.canSend(player"));
+		assertTrue(source.contains("PowersPlayNetworking.sendGuarded(player"));
 		assertTrue(source.contains("server.getPlayerList().getPlayer(player.getUUID()) == player"));
-		assertTrue(source.contains("Decision decision = admit("));
-		assertTrue(source.indexOf("Decision decision = admit(")
-				< source.indexOf("List.copyOf(level.players())"));
+		int reservation = source.indexOf("Reservation reservation = reserve(input, tick)");
+		int preparation = source.indexOf("access.prepareCast(powerId, tick)");
+		int enumeration = source.indexOf("List.copyOf(access.players())");
+		assertTrue(reservation >= 0 && reservation < preparation && preparation < enumeration);
 		for (String forbidden : List.of("getChunk(", "getChunkSource(", "addRegionTicket(",
 				"setChunkForced(", "forceLoad(", "TicketType")) {
 			assertFalse(source.contains(forbidden), forbidden);
@@ -179,6 +232,69 @@ class RankTenSilhouetteServiceTest {
 			}
 			@Override public int size() { return 1; }
 		};
+	}
+
+	private static final class FakeRuntime implements RankTenSilhouetteService.RuntimeAccess {
+		private final long tick;
+		private final List<RankTenSilhouetteService.RuntimeObserver> players = new ArrayList<>();
+		private final Map<UUID, RankTenSilhouetteService.RuntimeObserver> current = new HashMap<>();
+		private final java.util.Set<UUID> staleDuringSend = new java.util.HashSet<>();
+		private int tickCalls;
+		private int persistCalls;
+		private int castPreparationCalls;
+		private int playerEnumerationCalls;
+		private int capabilityCalls;
+		private int guardedSendAttempts;
+		private int guardedSendSuccesses;
+		private int chunkOrTicketRequests;
+		private final List<String> callOrder = new ArrayList<>();
+
+		private FakeRuntime(long tick) { this.tick = tick; }
+
+		private void add(RankTenSilhouetteService.ObserverOffer observer) {
+			Object handle = new Object();
+			Object connection = new Object();
+			var runtime = new RankTenSilhouetteService.RuntimeObserver(observer.player(),
+					observer.dimension(), observer.x(), observer.y(), observer.z(), handle, connection,
+					observer.liveSession());
+			players.add(runtime);
+			current.put(observer.player(), runtime);
+		}
+
+		@Override public long tick() { tickCalls++; callOrder.add("tick"); return tick; }
+		@Override public void persist(RankTenSilhouetteService.PolicyState state) {
+			persistCalls++;
+			callOrder.add("persist");
+		}
+		@Override public RankTenSilhouetteService.CastOffer prepareCast(String powerId, long reservedTick) {
+			castPreparationCalls++;
+			callOrder.add("prepare");
+			return cast(reservedTick, CASTER, powerId);
+		}
+		@Override public List<RankTenSilhouetteService.RuntimeObserver> players() {
+			playerEnumerationCalls++;
+			return players;
+		}
+		@Override public boolean canSend(RankTenSilhouetteService.RuntimeObserver observer) {
+			capabilityCalls++;
+			return observer.player().getLeastSignificantBits() != 4;
+		}
+		@Override public RankTenSilhouetteService.RuntimeObserver current(
+				RankTenSilhouetteService.RuntimeObserver observer) {
+			return current.get(observer.player());
+		}
+		@Override public void sendGuarded(RankTenSilhouetteService.RuntimeObserver observer,
+				com.powers.network.RankTenSilhouettePackets.Payload payload,
+				java.util.function.Predicate<RankTenSilhouetteService.RuntimeObserver> guard) {
+			guardedSendAttempts++;
+			var candidate = current(observer);
+			if (staleDuringSend.contains(observer.player())) {
+				candidate = new RankTenSilhouetteService.RuntimeObserver(candidate.player(),
+						"powers:dark_realm", candidate.x(), candidate.y(), candidate.z(),
+						candidate.handle(), candidate.connection(), true);
+			}
+			if (guard.test(candidate)) guardedSendSuccesses++;
+		}
 	}
 
 	private static UUID uuid(int value) {
