@@ -1,0 +1,15 @@
+{
+  "task": "VFX-004",
+  "implementation_commit": "7bde6695fe7b09bab416bf863bb98d356277205a",
+  "base_commit": "92b76b68c7dee2e4bb962daa3ebd04e27f475512",
+  "minecraft": "26.2",
+  "fabric_loader": "0.19.3",
+  "fabric_api": "0.156.0+26.2",
+  "java_home": "/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home",
+  "matrix_frames": 30,
+  "retained_screenshots": 33,
+  "required_gametests": 134,
+  "python_tests": 147,
+  "front_saturated_pixels": 5921,
+  "opaque_wall_saturated_pixels": 0
+}

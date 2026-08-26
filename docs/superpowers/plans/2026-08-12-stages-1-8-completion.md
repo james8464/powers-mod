@@ -65,7 +65,9 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
 - [x] `PERF-010` + `UX-004`: one fixed-widget virtual scrolling catalogue with search, filters, favourites, recents, direct binding, stable revisions, narration, and a 10,000-action fixture.
 - [x] `VFX-011`: accepted exact-build successor retains all 971 raw gallery PNGs and original emitted metadata, binds 2,080 explicit review decisions, and passes the finalized-head literal aggregate (131 GameTests, 1,680 JUnit tests, and 143 Python tests); historical provisional evidence remains preserved.
 - [x] `VFX-009`: dedicated ancient-white Light Realm sky renderer with Sodium-safe boundary and static fallback; full implementation/evidence commit `e78bf8f01fc79d6e05838c083685d348c214502c` binds digest-bound Java 25 Fabric and Sodium upward-camera normal/reduced/fallback galleries covering distances, reload, and rain-command observation. Normal and reduced silhouettes are visibly distinct from the fallback; the no-skylight client observed `weather=clear` after the successful rain command, so this does not assert rendered rain. The Sodium JAR remains external to Git.
-- [ ] `VFX-004`: protected, no-drop, reversible material-aware scar service under hard budgets.
+- [x] `VFX-004`: protected presentation-only scars for five impact motifs and six material profiles;
+  admission/revalidation/delivery remain hard-bounded, real 1%/5% loss converges, reload preserves
+  semantic state, and exact 30-cell plus opaque-wall captures pass deterministic verification.
 - [ ] `VFX-005`: unique long-distance silhouettes for every rank-10 transformation.
 - [ ] `VFX-006`: synchronised bounded casting poses for player-like magical entities without a heavy animation dependency.
 - [ ] `VFX-007`: authored near/mid/far sound layers, obstruction falloff, subtitles, mixing, and reduced-tinnitus support.

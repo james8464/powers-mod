@@ -66,6 +66,10 @@ Every cast resolves its applicable targeting, protection, amethyst, safe-zone, r
 
 Terrain effects are authored, capped transformations rather than unbounded vanilla explosions. They obey configuration, protected blocks, block entities, world borders, safe zones, and the `#powers:living_force_immune`/related tags unless a feature explicitly documents its catastrophic policy.
 
+Energy Beam, Breezy Bash, Thunderclap, Ice Manipulation, and Fireball also leave short-lived
+presentation-only surface scars. Their five motifs adapt to stone, earth, wood, metal, sand, or cold
+supports; they never replace blocks, load chunks, persist world state, create collision, or alter loot.
+
 ## Innate powers
 
 Random assignment guarantees one allegiance-exclusive option and never duplicates a slot. Radiant characters may uniquely receive Starfall and Plant & Healing Acceleration; Darkness characters may uniquely receive Void Beam and Energy Drain. Alignment changes preserve compatible powers and deterministically migrate forbidden or retired slots. Merely owning a power grants no passive potion effects or ambient particle cloud.

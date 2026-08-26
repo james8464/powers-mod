@@ -1,6 +1,7 @@
 # VFX-004 Transient Visual Scars Implementation Plan
 
-> Task 1 pure core is focused GREEN. Runtime/server/client integration remains intentionally RED.
+> Accepted: all five tasks are implemented and verified by focused, real-client, visual, and full
+> repository gates. Evidence is retained in `docs/verification/evidence/2026-08-26-vfx-004`.
 
 ## Task 1 — Pure contracts
 

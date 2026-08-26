@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Closed VFX-004 with presentation-only, material-aware transient scars for Energy Beam, Breezy Bash,
+  Thunderclap, Ice Manipulation, and Fireball. Server admission, revalidation, expiry, observer resync,
+  and delivery are hard-bounded and loaded-only; support terrain is never mutated. The real integrated
+  client converges through delay, duplicate, reorder, 1%/5% loss, and dimension transitions; resource
+  reload preserves semantic records. A deterministic 30-cell impact/material gallery and representative
+  front/opaque-wall captures verify distinct motifs and depth occlusion.
+
 - Closed VFX-009 at full implementation/evidence commit `e78bf8f01fc79d6e05838c083685d348c214502c` with retained POWERS JAR SHA-256 `80147beb0793e37bc19d49133d11bde57b4c9c07dfff5b80c32bce25ce15d074`: an additive, client-only ancient-white Light Realm sky and fail-closed pure-white fallback. Java 25 Fabric and pinned Sodium 0.9.1+mc26.2 each have a digest-bound nine-row upward-camera normal/reduced/fallback gallery, including render distances 4/12/24, resource reload, and a rain-command observation. Normal mode visibly shows the large warm-white/gold rune/halo; reduced motion uses two large static lower-contrast silhouettes; fallback positively shows no enhancement. Angular velocity advances exactly once from client world time and remains zero under reduced motion. Light Realm has no skylight, so the successful rain command is recorded alongside client-observed `weather=clear` rather than claimed as rendered rain. The third-party Sodium JAR remains outside Git with identity and loaded-runtime receipts retained. No third-party resource-pack live matrix was captured; untextured-pipeline/source checks are architecture evidence, not visual proof. Retained accepted and rejected text evidence is privacy-sanitized and checksum-bound. QA-001 remains open and VFX-011 remains independently accepted.
 
 - Added the still-open QA-001 exact-build release envelope: a closed no-shell gate catalogue, atomic command receipts, typed evidence validation, clean single-branch/origin verification, deterministic JSON/Markdown/checksum output, and a manual minimal-permission `actions/attest@v4` workflow for both JARs and both reports. The committed evidence index uses a fail-closed `@HEAD` binding resolved only after proving the full SHA. This infrastructure does not close QA-001; final Stage 1–8 evidence, remote attestation, and all four `gh attestation verify` results remain required before tagging.

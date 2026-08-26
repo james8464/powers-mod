@@ -1,0 +1,259 @@
+{
+  "schema": 1,
+  "matrixRows": [
+    {
+      "captureId": "vfx004-scar-matrix-beam-stone",
+      "file": "0001_vfx004-scar-matrix-beam-stone.png",
+      "sha256": "4445c641e71b981704bea975ef839d18f61a57e67fd45db9344820cb67ccc03b",
+      "roiLumaDeviation": 20.623,
+      "roiSaturatedPixels": 0,
+      "roiUniqueColors": 220
+    },
+    {
+      "captureId": "vfx004-scar-matrix-beam-earth",
+      "file": "0002_vfx004-scar-matrix-beam-earth.png",
+      "sha256": "921710d960b4a58f30ae99e314ff88eeee0426370377c30a0f14f8304dfda048",
+      "roiLumaDeviation": 21.152,
+      "roiSaturatedPixels": 430,
+      "roiUniqueColors": 410
+    },
+    {
+      "captureId": "vfx004-scar-matrix-beam-wood",
+      "file": "0003_vfx004-scar-matrix-beam-wood.png",
+      "sha256": "ba89af24027aa5bf220e64738b4a771d40b16da60dd1b283831f0cd6d21d54e9",
+      "roiLumaDeviation": 29.64,
+      "roiSaturatedPixels": 681,
+      "roiUniqueColors": 432
+    },
+    {
+      "captureId": "vfx004-scar-matrix-beam-metal",
+      "file": "0004_vfx004-scar-matrix-beam-metal.png",
+      "sha256": "640e7b354208504b098c0a5de541f671edc28358e1151304616bf50e36033fa9",
+      "roiLumaDeviation": 49.458,
+      "roiSaturatedPixels": 0,
+      "roiUniqueColors": 234
+    },
+    {
+      "captureId": "vfx004-scar-matrix-beam-sand",
+      "file": "0005_vfx004-scar-matrix-beam-sand.png",
+      "sha256": "42fb95e0a023fb98bccee6c7d4e4381904786ab80cbdd0c2e2133a0fe20782f8",
+      "roiLumaDeviation": 47.306,
+      "roiSaturatedPixels": 1272,
+      "roiUniqueColors": 276
+    },
+    {
+      "captureId": "vfx004-scar-matrix-beam-cold",
+      "file": "0006_vfx004-scar-matrix-beam-cold.png",
+      "sha256": "2b2650aff558b25bb0641652019a8f87684af24b18071850aa0db23d79a7ba61",
+      "roiLumaDeviation": 47.235,
+      "roiSaturatedPixels": 5496,
+      "roiUniqueColors": 235
+    },
+    {
+      "captureId": "vfx004-scar-matrix-slam-stone",
+      "file": "0007_vfx004-scar-matrix-slam-stone.png",
+      "sha256": "91558aa18cf2c35e52c2b4182c7b2c9d2e065fa1d6b2f04029b585e9d37b923d",
+      "roiLumaDeviation": 17.767,
+      "roiSaturatedPixels": 0,
+      "roiUniqueColors": 211
+    },
+    {
+      "captureId": "vfx004-scar-matrix-slam-earth",
+      "file": "0008_vfx004-scar-matrix-slam-earth.png",
+      "sha256": "f6866b9d8d4af7d4d7377e94d797f34b7cd4589dc5dd585b5fab7cd8aadd365a",
+      "roiLumaDeviation": 19.022,
+      "roiSaturatedPixels": 161,
+      "roiUniqueColors": 384
+    },
+    {
+      "captureId": "vfx004-scar-matrix-slam-wood",
+      "file": "0009_vfx004-scar-matrix-slam-wood.png",
+      "sha256": "df08e5ae87f0b1c48b2752af199c2a0af84d8126c446fd78950773617b8cbff9",
+      "roiLumaDeviation": 24.887,
+      "roiSaturatedPixels": 438,
+      "roiUniqueColors": 419
+    },
+    {
+      "captureId": "vfx004-scar-matrix-slam-metal",
+      "file": "0010_vfx004-scar-matrix-slam-metal.png",
+      "sha256": "634ec334085925cbefb7ee419192977a38d78b6efa548c38cdf9c7bdc0608775",
+      "roiLumaDeviation": 48.325,
+      "roiSaturatedPixels": 0,
+      "roiUniqueColors": 234
+    },
+    {
+      "captureId": "vfx004-scar-matrix-slam-sand",
+      "file": "0011_vfx004-scar-matrix-slam-sand.png",
+      "sha256": "08c164e7a2949204db41548f6a9bf65fde6ffb59313490f9f418149f83db70a4",
+      "roiLumaDeviation": 44.079,
+      "roiSaturatedPixels": 1008,
+      "roiUniqueColors": 258
+    },
+    {
+      "captureId": "vfx004-scar-matrix-slam-cold",
+      "file": "0012_vfx004-scar-matrix-slam-cold.png",
+      "sha256": "a7fa497d05e94bafc26f7bba33c82e28bea4f0a1cb52baf25c8d69422bf5212f",
+      "roiLumaDeviation": 40.067,
+      "roiSaturatedPixels": 5371,
+      "roiUniqueColors": 248
+    },
+    {
+      "captureId": "vfx004-scar-matrix-thunderclap-stone",
+      "file": "0013_vfx004-scar-matrix-thunderclap-stone.png",
+      "sha256": "c956a29da965fd82ba1aee7dc7a6ceda589662da69ea0dcb68a085287f49e81e",
+      "roiLumaDeviation": 16.219,
+      "roiSaturatedPixels": 0,
+      "roiUniqueColors": 197
+    },
+    {
+      "captureId": "vfx004-scar-matrix-thunderclap-earth",
+      "file": "0014_vfx004-scar-matrix-thunderclap-earth.png",
+      "sha256": "efd8cefe9eefc332aac020d9526c04e85d8e03e16f557e305b6315e0f108a5b4",
+      "roiLumaDeviation": 16.19,
+      "roiSaturatedPixels": 0,
+      "roiUniqueColors": 352
+    },
+    {
+      "captureId": "vfx004-scar-matrix-thunderclap-wood",
+      "file": "0015_vfx004-scar-matrix-thunderclap-wood.png",
+      "sha256": "44e56af7e4030c34dde791dc9658f4144d16578b2ca435461f4d1f0b0b9eaac6",
+      "roiLumaDeviation": 22.777,
+      "roiSaturatedPixels": 9,
+      "roiUniqueColors": 398
+    },
+    {
+      "captureId": "vfx004-scar-matrix-thunderclap-metal",
+      "file": "0016_vfx004-scar-matrix-thunderclap-metal.png",
+      "sha256": "a42a3a35f19fd4fe837804892d011e7ae5fb5962698ac63f79cd63a8acb251fe",
+      "roiLumaDeviation": 46.854,
+      "roiSaturatedPixels": 0,
+      "roiUniqueColors": 224
+    },
+    {
+      "captureId": "vfx004-scar-matrix-thunderclap-sand",
+      "file": "0017_vfx004-scar-matrix-thunderclap-sand.png",
+      "sha256": "f9e482c148011a123a9ab646a22a8993f7f0e4ac89f8e30534f970578fc4a08e",
+      "roiLumaDeviation": 42.035,
+      "roiSaturatedPixels": 270,
+      "roiUniqueColors": 246
+    },
+    {
+      "captureId": "vfx004-scar-matrix-thunderclap-cold",
+      "file": "0018_vfx004-scar-matrix-thunderclap-cold.png",
+      "sha256": "79752c915f52452c7f0de2b1b02b730585644d384089d778184677f8fd1bf43c",
+      "roiLumaDeviation": 38.248,
+      "roiSaturatedPixels": 5652,
+      "roiUniqueColors": 231
+    },
+    {
+      "captureId": "vfx004-scar-matrix-ice-stone",
+      "file": "0019_vfx004-scar-matrix-ice-stone.png",
+      "sha256": "e49fb835759bfcdde7d21d56903ad2e3e65e4bf0f5030e4e2cf79ee8502b0f30",
+      "roiLumaDeviation": 18.081,
+      "roiSaturatedPixels": 0,
+      "roiUniqueColors": 213
+    },
+    {
+      "captureId": "vfx004-scar-matrix-ice-earth",
+      "file": "0020_vfx004-scar-matrix-ice-earth.png",
+      "sha256": "91ea3a5fb4cbff0c34669c3bb581e621ebde4721bf8e51e718473e0f8917e152",
+      "roiLumaDeviation": 19.615,
+      "roiSaturatedPixels": 0,
+      "roiUniqueColors": 386
+    },
+    {
+      "captureId": "vfx004-scar-matrix-ice-wood",
+      "file": "0021_vfx004-scar-matrix-ice-wood.png",
+      "sha256": "2190c3fa7a9f50fc29f1e29038683ee1ed4a2765ba9f915d3ba680f0723a8153",
+      "roiLumaDeviation": 24.81,
+      "roiSaturatedPixels": 30,
+      "roiUniqueColors": 421
+    },
+    {
+      "captureId": "vfx004-scar-matrix-ice-metal",
+      "file": "0022_vfx004-scar-matrix-ice-metal.png",
+      "sha256": "77706b911beb80e5da237df2690f5fb1f2e0f0a767f67ebda40dd458ca7fb758",
+      "roiLumaDeviation": 48.156,
+      "roiSaturatedPixels": 249,
+      "roiUniqueColors": 232
+    },
+    {
+      "captureId": "vfx004-scar-matrix-ice-sand",
+      "file": "0023_vfx004-scar-matrix-ice-sand.png",
+      "sha256": "d7b142c1c5eabd32a9317b5c484ba82c3b1bda5b3355f2d23d8dd1a63a5a1edd",
+      "roiLumaDeviation": 44.435,
+      "roiSaturatedPixels": 470,
+      "roiUniqueColors": 268
+    },
+    {
+      "captureId": "vfx004-scar-matrix-ice-cold",
+      "file": "0024_vfx004-scar-matrix-ice-cold.png",
+      "sha256": "b37440f8c020d249482e7dde48444ad9b0b7693ba237dcba44bf47797807e3c3",
+      "roiLumaDeviation": 41.78,
+      "roiSaturatedPixels": 5548,
+      "roiUniqueColors": 248
+    },
+    {
+      "captureId": "vfx004-scar-matrix-fire-stone",
+      "file": "0025_vfx004-scar-matrix-fire-stone.png",
+      "sha256": "6ee84293673c934b84277a4cbb9b7c0ec790f7c904e0818a86c8003e14f7a878",
+      "roiLumaDeviation": 15.776,
+      "roiSaturatedPixels": 197,
+      "roiUniqueColors": 212
+    },
+    {
+      "captureId": "vfx004-scar-matrix-fire-earth",
+      "file": "0026_vfx004-scar-matrix-fire-earth.png",
+      "sha256": "769318731b0d080aa22b102eee3f0f95b786e1a3d55952e93b9769a6f1cbfcfd",
+      "roiLumaDeviation": 15.479,
+      "roiSaturatedPixels": 214,
+      "roiUniqueColors": 371
+    },
+    {
+      "captureId": "vfx004-scar-matrix-fire-wood",
+      "file": "0027_vfx004-scar-matrix-fire-wood.png",
+      "sha256": "6b034ab3f8a5c07136188a1769b961685fedd7f3fd0be2ac97be317fffdba431",
+      "roiLumaDeviation": 20.918,
+      "roiSaturatedPixels": 282,
+      "roiUniqueColors": 418
+    },
+    {
+      "captureId": "vfx004-scar-matrix-fire-metal",
+      "file": "0028_vfx004-scar-matrix-fire-metal.png",
+      "sha256": "2d50f5a75f8fae1bda1004eb7740e629e0918c5467e568cbaf8f19ce7b36335e",
+      "roiLumaDeviation": 46.315,
+      "roiSaturatedPixels": 314,
+      "roiUniqueColors": 228
+    },
+    {
+      "captureId": "vfx004-scar-matrix-fire-sand",
+      "file": "0029_vfx004-scar-matrix-fire-sand.png",
+      "sha256": "799728ebc6b54031d8857c6c83c3d61c3dee56ba9e806e29f4bd4bfc1dc086dc",
+      "roiLumaDeviation": 41.232,
+      "roiSaturatedPixels": 710,
+      "roiUniqueColors": 258
+    },
+    {
+      "captureId": "vfx004-scar-matrix-fire-cold",
+      "file": "0030_vfx004-scar-matrix-fire-cold.png",
+      "sha256": "2c84ee791afc4687281b49a8b90835a41b4a4e8c60183d4b2160a35a4b1eba55",
+      "roiLumaDeviation": 35.396,
+      "roiSaturatedPixels": 5921,
+      "roiUniqueColors": 230
+    }
+  ],
+  "visibleFront": {
+    "file": "0032_vfx004-scar-visible-front.png",
+    "sha256": "b320cd0aa9295841cebf64066b1e5bec63bb4231dd43c8ce3b2da45c879a9684",
+    "roiSaturatedPixels": 5921
+  },
+  "occludedWall": {
+    "file": "0033_vfx004-scar-occluded-wall.png",
+    "sha256": "cd99b30f0232852f2128b6323742946d1626214dceac67bfa8803e1f1a062c13",
+    "roiSaturatedPixels": 0
+  },
+  "postResourceReload": {
+    "file": "0031_vfx004-scar-post-resource-reload.png",
+    "sha256": "69b4194a8cfade2cfd218762168287cc223560970e0d57a9d231f48660e18400"
+  }
+}

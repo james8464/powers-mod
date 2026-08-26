@@ -1,6 +1,7 @@
 # VFX-004 — Transient Material-Aware Visual Scars
 
-Status: pure-core Task 1 focused GREEN; runtime integration and acceptance are not started.
+Status: accepted on the exact implementation commit; production runtime, real fault-path recovery, visual matrix,
+resource-reload continuity, opaque-wall occlusion, and full repository gates are GREEN.
 
 ## Presentation-only boundary
 
