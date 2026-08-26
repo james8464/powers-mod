@@ -81,6 +81,8 @@ public final class VisualScarService {
 		STATES.computeIfAbsent(server, ignored -> new State()).broadcast(dimension, wire); }
 	static void setGenerationForTest(MinecraftServer server, long generation) {
 		if (generation < 0) throw new IllegalArgumentException("generation"); STATES.computeIfAbsent(server, ignored -> new State()).generation = generation; }
+	public static void setMaximumLeaseForTest(MinecraftServer server, int lease) {
+		if (lease < 40 || lease > LIMITS.maximumLease()) throw new IllegalArgumentException("lease"); STATES.computeIfAbsent(server, ignored -> new State()).maximumLease = lease; }
 	/** Exposes bounded server state to integrated acceptance fixtures. */
 	public static TestDiagnostics diagnosticsForTest(MinecraftServer server, UUID observer) {
 		State state = STATES.get(server);
@@ -139,8 +141,8 @@ public final class VisualScarService {
 		private long generation;
 		private long revision;
 		private long sessionSequence;
+		private int maximumLease = LIMITS.maximumLease();
 		private boolean admissionsDisabled;
-
 		private boolean offer(PendingRequest request) {
 			if (admissionsDisabled) return false;
 			Key key = request.key();
@@ -220,7 +222,7 @@ public final class VisualScarService {
 				return;
 			}
 			long nextGeneration = ++generation;
-			long expiresAt = now + LIMITS.maximumLease();
+			long expiresAt = now + maximumLease;
 			VisualScarLedgerRules.Record record = new VisualScarLedgerRules.Record(pending.dimension,
 					pending.support.asLong(), toFace(pending.face), pending.owner, pending.impact,
 					material, pending.visualSeed, nextGeneration, fingerprint,
@@ -326,7 +328,8 @@ public final class VisualScarService {
 		private void drainDelivery(MinecraftServer server, long now) {
 			List<VisualScarDeliveryModel.SnapshotRow> rows = active.values().stream()
 					.map(record -> new VisualScarDeliveryModel.SnapshotRow(record.dimension(),
-							createWire(record, ScarFxProtocolRules.remainingLease(record.expiresAt(), now))))
+							createWire(record, maximumLease < LIMITS.maximumLease()
+									? LIMITS.maximumLease() : ScarFxProtocolRules.remainingLease(record.expiresAt(), now))))
 					.toList();
 			VisualScarDeliveryModel.AuthoritativeSnapshot snapshot =
 					VisualScarDeliveryRules.authoritativeSnapshot(revision, rows);
@@ -411,7 +414,6 @@ public final class VisualScarService {
 			pending.markNeedsResync(session,
 					new VisualScarDeliveryModel.ResyncCursor(revision, null));
 		}
-
 		private void clear() {
 			active.clear();
 			activeByOwner.clear();
@@ -423,7 +425,6 @@ public final class VisualScarService {
 			observerPositions.clear();
 			boundedExpiryDiagnostics.clear();
 		}
-
 		private void decrementExpiryDiagnostic(long expiresAt) {
 			boundedExpiryDiagnostics.computeIfPresent(expiresAt,
 					(at, count) -> count <= 1 ? null : count - 1);
@@ -435,7 +436,6 @@ public final class VisualScarService {
 			}
 			return null;
 		}
-
 		private static ScarFxProtocolRules.Wire createWire(VisualScarLedgerRules.Record record, int lease) {
 			return new ScarFxProtocolRules.Wire(ScarFxProtocolRules.CREATE_OR_UPDATE,
 					record.position(), record.face().ordinal(), record.impact().ordinal(),

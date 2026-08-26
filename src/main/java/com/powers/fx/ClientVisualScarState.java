@@ -7,7 +7,6 @@ import java.util.Optional;
 
 /** Models bounded client semantic scar state independently from renderer and Minecraft lifecycle APIs. */
 public final class ClientVisualScarState {
-	private static final long LOCAL_EXPIRY_GRACE_TICKS = 100;
 	private final int capacity;
 	private final long connectionEpoch;
 	private final long lifecycleTick;
@@ -67,9 +66,8 @@ public final class ClientVisualScarState {
 			return new ReceiveResult(this, ReceiveOutcome.REJECTED_CAP, true);
 		}
 		Map<Key, Entry> changed = new HashMap<>(entries);
-		long localLifetime = wire.leaseTicks() + LOCAL_EXPIRY_GRACE_TICKS;
-		long expiresAt = receiptTick > Long.MAX_VALUE - localLifetime
-				? Long.MAX_VALUE : receiptTick + localLifetime;
+		long expiresAt = receiptTick > Long.MAX_VALUE - wire.leaseTicks()
+				? Long.MAX_VALUE : receiptTick + wire.leaseTicks();
 		changed.put(key, new Entry(wire, expiresAt));
 		return new ReceiveResult(new ClientVisualScarState(capacity, connectionEpoch,
 				Math.max(lifecycleTick, receiptTick), changed), ReceiveOutcome.APPLIED, false);

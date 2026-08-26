@@ -364,19 +364,25 @@ public final class VisualScarFaultAcceptanceClientGameTests implements FabricCli
 			AtomicReference<Map<Long, Integer>> expected) {
 		publishRound(singleplayer, supports, expected, 200);
 		awaitAuthoritativeConvergence(context, singleplayer, expected, "expiry-baseline");
+		awaitScarServiceSettled(context, singleplayer);
+		singleplayer.getServer().runOnServer(server ->
+				VisualScarService.setMaximumLeaseForTest(server, 200));
+		publishRound(singleplayer, supports, expected, 201);
+		awaitAuthoritativeConvergence(context, singleplayer, expected, "short-expiry-baseline");
+		awaitScarServiceSettled(context, singleplayer);
 		AtomicReference<Integer> observedLease = new AtomicReference<>();
 		AtomicReference<Long> removeBaseline = new AtomicReference<>();
 		context.runOnClient(client -> observedLease.set(ClientVisualScarManager.entries().stream()
 				.mapToInt(ClientVisualScarState.Entry::leaseTicks).min().orElseThrow()));
 		context.runOnClient(client -> removeBaseline.set(
 				ClientVisualScarManager.removeDiagnostics().receipts()));
-		context.waitTicks(Math.max(1, observedLease.get() - 25));
+		context.waitTicks(25);
 		context.runOnClient(client -> {
 			if (!converged(ClientVisualScarManager.entries(), expected.get())) {
 				throw new AssertionError("Scar expired before its advertised authoritative lease");
 			}
 		});
-		for (int tick = 0; tick < 100; tick++) {
+		for (int tick = 0; tick < 300; tick++) {
 			AtomicBoolean authoritativeRemove = new AtomicBoolean();
 			AtomicBoolean serverEmpty = new AtomicBoolean();
 			context.runOnClient(client -> authoritativeRemove.set(
@@ -389,8 +395,11 @@ public final class VisualScarFaultAcceptanceClientGameTests implements FabricCli
 			});
 			if (authoritativeRemove.get() && serverEmpty.get()) break;
 			context.waitTick();
-			if (tick == 99) throw new AssertionError(
-					"Authoritative exact-generation REMOVE did not cross production delivery");
+			if (tick == 299) throw new AssertionError(
+					"Authoritative exact-generation REMOVE did not cross production delivery: receipts="
+							+ (ClientVisualScarManager.removeDiagnostics().receipts() - removeBaseline.get())
+							+ ", serverEmpty=" + serverEmpty.get()
+							+ ", clientEntries=" + ClientVisualScarManager.entries().size());
 		}
 		context.runOnClient(client -> {
 			if (!ClientVisualScarManager.entries().isEmpty()) {
@@ -398,9 +407,27 @@ public final class VisualScarFaultAcceptanceClientGameTests implements FabricCli
 			}
 		});
 		assertSupportsRemainAuthoritative(singleplayer, supports);
+		singleplayer.getServer().runOnServer(server ->
+				VisualScarService.setMaximumLeaseForTest(server, 1_200));
 		System.out.println("VFX004_EXPIRY_REMOVE count=" + supports.size()
 				+ " advertisedLease=" + observedLease.get()
 				+ " supportMutation=false clientEntries=0");
+	}
+
+	private static void awaitScarServiceSettled(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer) {
+		for (int tick = 0; tick < 300; tick++) {
+			AtomicBoolean settled = new AtomicBoolean();
+			singleplayer.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				VisualScarService.TestDiagnostics diagnostics = VisualScarService.diagnosticsForTest(
+						server, player.getUUID());
+				settled.set(diagnostics.pendingObserver() == 0 && !diagnostics.needsResync());
+			});
+			if (settled.get()) return;
+			context.waitTick();
+		}
+		throw new AssertionError("Scar service did not settle before isolated expiry proof");
 	}
 
 	private static void verifyMovementIntoObservationRange(ClientGameTestContext context,

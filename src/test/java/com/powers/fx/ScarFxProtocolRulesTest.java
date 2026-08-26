@@ -142,8 +142,8 @@ class ScarFxProtocolRulesTest {
 				() -> ScarFxProtocolRules.remainingLease(-1, 0));
 		var state = ClientVisualScarState.empty(2_048, 7)
 				.receive(wire(0, 42, 1, 0, 0, 1, 1, 46), 10_006, 7);
-		assertEquals(10_152, state.get(42, 1).orElseThrow().localExpiresAt());
-		for (int index = 0; index < 145; index++) state = state.tickLifecycle(true);
+		assertEquals(10_052, state.get(42, 1).orElseThrow().localExpiresAt());
+		for (int index = 0; index < 45; index++) state = state.tickLifecycle(true);
 		assertEquals(1, state.size());
 		state = state.tickLifecycle(true);
 		assertEquals(0, state.size());
