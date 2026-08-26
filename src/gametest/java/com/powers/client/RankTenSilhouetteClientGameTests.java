@@ -149,7 +149,9 @@ public final class RankTenSilhouetteClientGameTests implements FabricClientGameT
 				&& ClientRankTenSilhouetteManager.entries().isEmpty());
 		// Rank synchronization emits legitimate advancement toasts and first-awakening HUD text.
 		// Let those production overlays and the first sky/time synchronization settle before baseline.
-		context.waitTicks(160);
+		// Client sky/fog interpolation continues after the server's fixed-noon state arrives.
+		// Five hundred ticks covers that bounded transition on both initial load and reconnect.
+		context.waitTicks(500);
 		quiesceUi(context);
 	}
 

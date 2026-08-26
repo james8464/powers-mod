@@ -23,14 +23,23 @@ ALIGNMENT_VARIANT_IDS = ("flight", "forcefield")
 EXPECTED_SIZE = (1280, 720)
 SILHOUETTE_ROI = (430, 220, 850, 590)
 CROSSHAIR_ROI = (624, 344, 657, 377)
-NEAR_BODY_ROI = (606, 382, 674, 500)
+NEAR_FOREGROUND_ROI = (430, 220, 850, 610)
+WALL_FOREGROUND_ROI = (240, 0, 1040, 600)
+BODY_IDENTITY_ROI = (620, 385, 660, 510)
 TOAST_ROI = (962, 0, 1280, 320)
-FULL_FRAME_ROI = (0, 0, 1280, 720)
 PIXEL_DELTA = 12
 MIN_FOREGROUND_PIXELS = 18
-MIN_NEAR_BODY_PIXELS = 128
+BODY_RENDER_PALETTE = frozenset({
+    (15, 17, 21), (16, 17, 21), (24, 26, 32), (24, 26, 33), (24, 27, 33),
+    (25, 27, 33), (25, 27, 34), (37, 41, 51), (38, 42, 52), (39, 43, 53),
+    (51, 56, 69),
+})
+EXPECTED_BODY_IDENTITY_PIXELS = 4_704
+MIN_BODY_RETENTION = 0.90
+MIN_BODY_ROW_COVERAGE = 113
+MIN_BODY_COLUMN_COVERAGE = 36
 MIN_REDUCED_OUTLINE_JACCARD = 0.82
-MAX_LIFECYCLE_BACKGROUND_DRIFT_PIXELS = 256
+MAX_BACKGROUND_DRIFT_PIXELS = 256
 EXPECTED_ROW_COUNT = 56
 BASE_EPOCH = 1_000_002
 DIMENSION_EPOCH = 1_000_004
@@ -38,16 +47,6 @@ RECONNECT_EPOCH = 2_000_002
 REQUIRED_KEYS = {
     "captureId", "category", "powerId", "alignment", "distance",
     "reducedMotion", "particles", "reloadRevision", "epoch", "imagePath",
-}
-SPECIAL_ROWS = {
-    "baseline": ("size_shift", 96, False, "all"),
-    "near": ("flight", 8, False, "all"),
-    "wall_baseline": ("forcefield", 96, False, "all"),
-    "wall": ("forcefield", 96, False, "all"),
-    "minimal_particles": ("starfall", 96, False, "minimal"),
-    "post_reload": ("void_beam", 96, False, "all"),
-    "post_dimension": ("time_freeze", 96, False, "all"),
-    "post_reconnect": ("double_health", 96, False, "all"),
 }
 CONTINUITY_ROWS = ("minimal_particles", "post_reload", "post_dimension", "post_reconnect")
 
@@ -163,14 +162,30 @@ def _mask(image: Image.Image, baseline: Image.Image,
                      if max(pixel) >= PIXEL_DELTA)
 
 
-def _outside_mask(image: Image.Image, baseline: Image.Image,
-                  excluded: tuple[int, int, int, int]) -> frozenset[int]:
+def _changed_pixel_count(difference: Image.Image, threshold: int) -> int:
+    red, green, blue = difference.convert("RGB").split()
+    maximum = ImageChops.lighter(ImageChops.lighter(red, green), blue)
+    return sum(maximum.histogram()[threshold:])
+
+
+def _outside_changed_pixels(image: Image.Image, baseline: Image.Image,
+                            excluded: tuple[int, int, int, int]) -> int:
     difference = ImageChops.difference(image, baseline).convert("RGB")
     x0, y0, x1, y1 = excluded
-    return frozenset(index for index, pixel in enumerate(difference.get_flattened_data())
-                     if max(pixel) >= PIXEL_DELTA
-                     and not (x0 <= index % EXPECTED_SIZE[0] < x1
-                              and y0 <= index // EXPECTED_SIZE[0] < y1))
+    regions = ((0, 0, EXPECTED_SIZE[0], y0),
+               (0, y1, EXPECTED_SIZE[0], EXPECTED_SIZE[1]),
+               (0, y0, x0, y1),
+               (x1, y0, EXPECTED_SIZE[0], y1))
+    return sum(_changed_pixel_count(difference.crop(region), PIXEL_DELTA)
+               for region in regions if region[0] < region[2] and region[1] < region[3])
+
+
+def _allowed_foreground(row: dict[str, Any]) -> tuple[int, int, int, int]:
+    if row["category"] == "near":
+        return NEAR_FOREGROUND_ROI
+    if row["category"] in {"wall_baseline", "wall"}:
+        return WALL_FOREGROUND_ROI
+    return SILHOUETTE_ROI
 
 
 def _toast_pixels(image: Image.Image) -> int:
@@ -212,6 +227,16 @@ def validate(screenshots: Path, manifest: Path) -> dict[str, Any]:
             raise ValueError(f"toast or overlay present: {row['captureId']}")
     baseline_row = _one(rows, "baseline")
     baseline = images[baseline_row["captureId"]]
+    normal_anchor = images[_one(rows, "far_normal", "size_shift")["captureId"]]
+    row_background_pixels: dict[str, int] = {}
+    for row in rows:
+        reference = normal_anchor if row["category"] == "baseline" else baseline
+        changed = _outside_changed_pixels(images[row["captureId"]], reference,
+                                          _allowed_foreground(row))
+        if changed > MAX_BACKGROUND_DRIFT_PIXELS:
+            raise ValueError(f"background mismatch: {row['captureId']} has {changed} "
+                             "changed pixels outside allowed foreground")
+        row_background_pixels[row["captureId"]] = changed
     masks: dict[str, frozenset[int]] = {}
     for row in rows:
         if row["category"] in {"baseline", "wall_baseline", "wall"}:
@@ -247,9 +272,10 @@ def validate(screenshots: Path, manifest: Path) -> dict[str, Any]:
         if score < MIN_REDUCED_OUTLINE_JACCARD:
             raise ValueError(f"lifecycle outline mismatch: {category} jaccard={score:.4f}")
         lifecycle_scores[category] = round(score, 6)
-        background_pixels = len(_outside_mask(images[row["captureId"]],
-                                              images[normal_row["captureId"]], SILHOUETTE_ROI))
-        if background_pixels > MAX_LIFECYCLE_BACKGROUND_DRIFT_PIXELS:
+        background_pixels = _outside_changed_pixels(images[row["captureId"]],
+                                                    images[normal_row["captureId"]],
+                                                    SILHOUETTE_ROI)
+        if background_pixels > MAX_BACKGROUND_DRIFT_PIXELS:
             raise ValueError(f"lifecycle background mismatch: {category} has "
                              f"{background_pixels} changed pixels outside silhouette ROI")
         lifecycle_background_pixels[category] = background_pixels
@@ -257,13 +283,22 @@ def validate(screenshots: Path, manifest: Path) -> dict[str, Any]:
     near = images[_one(rows, "near")["captureId"]]
     if _mask(near, baseline, CROSSHAIR_ROI):
         raise ValueError("crosshair intrusion: near silhouette changed the protected center ROI")
-    near_body_pixels = sum(1 for pixel in near.crop(NEAR_BODY_ROI).get_flattened_data()
-                           if max(pixel) < 100)
-    if near_body_pixels < MIN_NEAR_BODY_PIXELS:
-        raise ValueError(f"near body obstruction: only {near_body_pixels} body pixels remain")
+    body_crop = near.crop(BODY_IDENTITY_ROI)
+    body_positions = frozenset(
+        (index % body_crop.width, index // body_crop.width)
+        for index, pixel in enumerate(body_crop.get_flattened_data())
+        if pixel in BODY_RENDER_PALETTE)
+    body_retention = len(body_positions) / EXPECTED_BODY_IDENTITY_PIXELS
+    body_rows = len({y for _, y in body_positions})
+    body_columns = len({x for x, _ in body_positions})
+    if (body_retention < MIN_BODY_RETENTION or body_rows < MIN_BODY_ROW_COVERAGE
+            or body_columns < MIN_BODY_COLUMN_COVERAGE):
+        raise ValueError(f"near body obstruction: retention={body_retention:.4f}, "
+                         f"rows={body_rows}, columns={body_columns}")
     wall_baseline = images[_one(rows, "wall_baseline")["captureId"]]
     wall = images[_one(rows, "wall")["captureId"]]
-    wall_pixels = len(_mask(wall, wall_baseline, FULL_FRAME_ROI))
+    wall_difference = ImageChops.difference(wall, wall_baseline).convert("RGB")
+    wall_pixels = _changed_pixel_count(wall_difference, 1)
     if wall_pixels != 0:
         raise ValueError(f"wall leakage: {wall_pixels} silhouette-region pixels remain")
 
@@ -277,8 +312,12 @@ def validate(screenshots: Path, manifest: Path) -> dict[str, Any]:
             "farReducedCount": 23, "pairwiseComparisons": 253,
             "minimumReducedOutlineJaccard": min(outline_scores.values()),
             "minimumLifecycleOutlineJaccard": min(lifecycle_scores.values()),
+            "maximumBackgroundDriftPixels": max(row_background_pixels.values()),
             "maximumLifecycleBackgroundDriftPixels": max(lifecycle_background_pixels.values()),
-            "nearBodyVisiblePixels": near_body_pixels,
+            "nearBodyIdentityPixels": len(body_positions),
+            "nearBodyRetention": round(body_retention, 6),
+            "nearBodyRowCoverage": body_rows,
+            "nearBodyColumnCoverage": body_columns,
             "wallLeakagePixels": wall_pixels, "crosshairIntrusionPixels": 0,
             "rows": output_rows}
 

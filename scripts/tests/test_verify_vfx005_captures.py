@@ -49,7 +49,13 @@ class Vfx005CaptureVerifierTest(unittest.TestCase):
                      "darkness", 96, False, "all", 0, VERIFY.BASE_EPOCH)
         special = baseline.copy()
         self.draw_shape(special, 2, (255, 210, 70), offset=(0, 70))
-        ImageDraw.Draw(special).rectangle(NEAR_BODY_ROI, fill=(31, 34, 42))
+        body = ImageDraw.Draw(special)
+        # Literal 4,704-pixel identity footprint measured from the fixed production actor.
+        body.rectangle((620, 385, 657, 411), fill=(38, 42, 52))
+        body.rectangle((620, 412, 659, 452), fill=(38, 42, 52))
+        body.rectangle((620, 453, 658, 462), fill=(38, 42, 52))
+        body.rectangle((620, 463, 657, 463), fill=(38, 42, 52))
+        body.rectangle((622, 464, 656, 509), fill=(38, 42, 52))
         self.add(rows, screenshots, special, "near", "flight", "radiant", 8,
                  False, "all", 0, VERIFY.BASE_EPOCH)
         self.add(rows, screenshots, baseline.copy(), "wall_baseline", "forcefield",
@@ -170,7 +176,7 @@ class Vfx005CaptureVerifierTest(unittest.TestCase):
         def overlay(screenshots, _manifest):
             target = next(screenshots.glob("*post_reload-void_beam.png"))
             Image.new("RGB", VERIFY.EXPECTED_SIZE, (239, 50, 61)).save(target)
-        self.mutate(overlay, "lifecycle outline mismatch")
+        self.mutate(overlay, "background mismatch")
 
     def test_extra_screenshot_file_is_rejected(self):
         def extra(screenshots, _manifest):
@@ -216,7 +222,7 @@ class Vfx005CaptureVerifierTest(unittest.TestCase):
             image = Image.open(target).convert("RGB")
             ImageDraw.Draw(image).rectangle((400, 20, 560, 120), fill=(239, 50, 61))
             image.save(target)
-        self.mutate(overlay, "lifecycle background mismatch")
+        self.mutate(overlay, "background mismatch")
 
     def test_outside_roi_wall_leakage_is_rejected(self):
         def leak(screenshots, _manifest):
@@ -239,6 +245,31 @@ class Vfx005CaptureVerifierTest(unittest.TestCase):
             target = next(screenshots.glob("*near-flight.png"))
             image = Image.open(target).convert("RGB")
             ImageDraw.Draw(image).rectangle(NEAR_BODY_ROI, fill=(255, 255, 255))
+            image.save(target)
+        self.mutate(obstruct, "near body obstruction")
+
+    def test_uniform_full_frame_tint_on_alignment_variant_is_rejected(self):
+        def tint(screenshots, _manifest):
+            target = next(screenshots.glob("*alignment_variant-flight.png"))
+            image = Image.open(target).convert("RGB")
+            image = image.point(lambda channel: min(255, channel + 20))
+            image.save(target)
+        self.mutate(tint, "background mismatch")
+
+    def test_one_channel_wall_leakage_is_rejected(self):
+        def leak(screenshots, _manifest):
+            target = next(screenshots.glob("*wall-forcefield.png"))
+            image = Image.open(target).convert("RGB")
+            red, green, blue = image.getpixel((400, 20))
+            image.putpixel((400, 20), (red + 1, green, blue))
+            image.save(target)
+        self.mutate(leak, "wall leakage")
+
+    def test_partial_near_body_occlusion_is_rejected(self):
+        def obstruct(screenshots, _manifest):
+            target = next(screenshots.glob("*near-flight.png"))
+            image = Image.open(target).convert("RGB")
+            ImageDraw.Draw(image).rectangle((628, 405, 651, 484), fill=(255, 255, 255))
             image.save(target)
         self.mutate(obstruct, "near body obstruction")
 
