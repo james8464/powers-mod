@@ -80,7 +80,7 @@ class Vfx005CaptureVerifierTest(unittest.TestCase):
                    offset: tuple[int, int] = (0, 0)) -> None:
         draw = ImageDraw.Draw(image)
         cx, cy = 640 + offset[0], 412 + offset[1]
-        # The production far-mask union is [628,401,652,424). Each mask shares
+        # The production far-mask union is [628,401,652,425). Each mask shares
         # a compact anchor and receives a unique literal signature inside it.
         draw.line((cx, cy - 8, cx, cy + 8), fill=color, width=2)
         signature_x = 628 + index % 10 + offset[0]
