@@ -16,15 +16,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 /** Live server acceptance for the VFX-005 successful-cast boundary and bounded admission policy. */
 public final class RankTenSilhouetteGameTests {
 	@GameTest(maxTicks = 40)
 	@SuppressWarnings("removal")
-	public void everyExactRankTenInnateIdTraversesTheCommittedCastHook(GameTestHelper helper) {
+	public void everyExactRankTenInnateIdUsesItsRegisteredProductionRoute(GameTestHelper helper) {
 		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
 		var data = PlayerPowers.get(caster);
 		data.setSkillLevel(caster, 10);
@@ -33,18 +36,48 @@ public final class RankTenSilhouetteGameTests {
 		try {
 			Set<String> exactIds = InnatePowerLevels.powerIds();
 			helper.assertTrue(exactIds.size() == 23, "Rank-ten catalogue did not contain 23 IDs");
+			RankTenSilhouetteService.PolicyState profilePolicy =
+					RankTenSilhouetteService.initialPolicy(1);
+			int profileIndex = 0;
 			for (String id : exactIds) {
-				helper.assertTrue(PowerRegistry.get(id) != null, "Missing production innate " + id);
-				AbilityActivationService.Result result = AbilityActivationService.activate(
-						caster, new ProbeAbility(id, 0, false, true), "powers:" + id);
-				helper.assertTrue(result == AbilityActivationService.Result.ACTIVATED,
-						"Committed cast probe failed for " + id);
+				var power = PowerRegistry.get(id);
+				helper.assertTrue(power != null, "Missing production innate " + id);
+				Ability ability = power.ability();
+				helper.assertTrue(ability.id().getPath().equals(id),
+						"Registered ability identity drifted for " + id);
+				helper.assertTrue(AbilityActivationService.activationRoute(caster, ability)
+						== expectedRoute(id), "Production activation route drifted for " + id);
+				ExecutableRuntime runtime = new ExecutableRuntime(cast(1,
+						new UUID(0xA11CEL, ++profileIndex), id,
+						helper.getLevel().dimension().identifier().toString()), List.of());
+				helper.assertTrue(RankTenSilhouetteService.execute(profilePolicy, id, runtime)
+						.decision().accepted(), "Executable profile admission rejected " + id);
+				profilePolicy = runtime.persisted;
 			}
+			helper.assertTrue(profilePolicy.diagnostics().acceptedProfiles().equals(exactIds),
+					"Executable profile admission differed from the exact rank-ten catalogue");
+
+			Ability ordinary = PowerRegistry.get("forcefield").ability();
+			helper.assertTrue(AbilityActivationService.activate(caster, ordinary, "powers:forcefield", true)
+					== AbilityActivationService.Result.ACTIVATED,
+					"Registered ordinary route did not commit");
+			Ability input = PowerRegistry.get("time_shift").ability();
+			helper.assertTrue(AbilityActivationService.activate(caster, input, "powers:time_shift", true)
+					== AbilityActivationService.Result.REQUIRES_INPUT,
+					"Registered input route did not request input");
+			helper.assertTrue(AbilityActivationService.activateInput(caster, input, true, () -> true)
+					== AbilityActivationService.Result.ACTIVATED,
+					"Registered input route did not commit");
+			Ability toggle = PowerRegistry.get("flight").ability();
+			helper.assertTrue(AbilityActivationService.activate(caster, toggle, "powers:flight")
+					== AbilityActivationService.Result.ACTIVATED,
+					"Registered toggle route did not commit");
 			var diagnostics = RankTenSilhouetteService.diagnostics(helper.getLevel().getServer());
-			helper.assertTrue(diagnostics.acceptedEvents() == 23,
-					"Expected one accepted event for every production ID");
-			helper.assertTrue(diagnostics.acceptedProfiles().equals(exactIds),
-					"Accepted profiles differed from InnatePowerLevels.powerIds()");
+			helper.assertTrue(diagnostics.acceptedEvents() == 3,
+					"Each registered route representative must emit exactly once");
+			helper.assertTrue(diagnostics.acceptedProfiles().equals(
+					Set.of("forcefield", "time_shift", "flight")),
+					"Registered route representatives emitted the wrong profiles");
 			helper.assertTrue(diagnostics.chunkTicketsRequested() == 0,
 					"Presentation requested a chunk ticket");
 		} finally {
@@ -135,41 +168,58 @@ public final class RankTenSilhouetteGameTests {
 	}
 
 	@GameTest(maxTicks = 40)
-	public void admissionCapsSessionsRangeAndTicketsRemainFailClosed(GameTestHelper helper) {
+	public void executableDeliveryCapsSessionsRangeAndTicketsRemainFailClosed(GameTestHelper helper) {
 		String overworld = helper.getLevel().dimension().identifier().toString();
 		var state = RankTenSilhouetteService.initialPolicy(1);
 		List<RankTenSilhouetteService.Decision> decisions = new ArrayList<>();
 		for (int index = 0; index < 33; index++) {
-			var decision = RankTenSilhouetteService.offer(state,
+			ExecutableRuntime runtime = new ExecutableRuntime(
 					cast(20, new UUID(0xA11CEL, index + 1L), "flight", overworld), List.of());
+			var decision = RankTenSilhouetteService.execute(state, "flight", runtime).decision();
 			decisions.add(decision);
-			state = decision.state();
+			state = runtime.persisted;
 		}
 		helper.assertTrue(decisions.stream().filter(RankTenSilhouetteService.Decision::accepted).count() == 32,
 				"Global admission cap did not stop the 33rd offer");
 		helper.assertFalse(decisions.getLast().accepted(), "Over-cap offer was accepted");
 		helper.assertTrue(state.diagnostics().budgetRejected() == 1, "Over-cap rejection was not diagnosed");
 
+		Object connection = new Object();
 		var observers = List.of(
-				observer(101, overworld, 384.0, true, true),
-				observer(102, overworld, 384.01, true, true),
-				observer(103, "powers:dark_realm", 1.0, true, true),
-				observer(104, overworld, 1.0, false, true),
-				observer(105, overworld, 1.0, true, false));
-		var filtered = RankTenSilhouetteService.offer(RankTenSilhouetteService.initialPolicy(1),
+				runtimeObserver(101, overworld, 384.0, connection),
+				runtimeObserver(102, overworld, 384.01, connection),
+				runtimeObserver(103, "powers:dark_realm", 1.0, connection),
+				runtimeObserver(104, overworld, 1.0, connection),
+				runtimeObserver(105, overworld, 1.0, connection),
+				runtimeObserver(106, overworld, 1.0, connection));
+		ExecutableRuntime runtime = new ExecutableRuntime(
 				cast(21, new UUID(0xA11CEL, 200), "fireball", overworld), observers);
+		runtime.unsupported.add(observers.get(3).player());
+		runtime.current.put(observers.get(4).player(), runtimeObserver(
+				105, overworld, 1.0, new Object()));
+		runtime.staleDuringSend.add(observers.get(5).player());
+		var filtered = RankTenSilhouetteService.execute(
+				RankTenSilhouetteService.initialPolicy(1), "fireball", runtime).decision();
 		helper.assertTrue(filtered.accepted(), "Boundary observer offer was rejected");
-		helper.assertTrue(filtered.recipients().equals(List.of(new UUID(0xA11CEL, 101))),
+		helper.assertTrue(filtered.recipients().equals(List.of(
+				new UUID(0xA11CEL, 101), new UUID(0xA11CEL, 106))),
 				"Range/session/dimension filtering selected the wrong observer");
 		helper.assertTrue(filtered.diagnostics().rangeObservers() == 1
 				&& filtered.diagnostics().dimensionObservers() == 1
 				&& filtered.diagnostics().unsupportedObservers() == 1
 				&& filtered.diagnostics().staleObservers() == 1,
 				"Observer rejection diagnostics were incomplete");
+		helper.assertTrue(runtime.playersCalls == 1 && runtime.canSendCalls == 4
+				&& runtime.currentCalls == 3,
+				"Executable path did not enumerate, capability-check, and revalidate sessions exactly");
+		helper.assertTrue(runtime.sendAttempts == 2 && runtime.sent == 1,
+				"Guarded delivery did not suppress the session made stale before send");
 
-		var exhausted = RankTenSilhouetteService.offer(
-				RankTenSilhouetteService.initialPolicy(Long.MAX_VALUE),
+		ExecutableRuntime exhaustedRuntime = new ExecutableRuntime(
 				cast(22, new UUID(0xA11CEL, 201), "double_health", overworld), List.of());
+		var exhausted = RankTenSilhouetteService.execute(
+				RankTenSilhouetteService.initialPolicy(Long.MAX_VALUE),
+				"double_health", exhaustedRuntime).decision();
 		helper.assertFalse(exhausted.accepted(), "Exhausted event ID was accepted");
 		helper.assertTrue(exhausted.diagnostics().exhaustedEvents() == 1,
 				"Event exhaustion was not diagnosed");
@@ -178,6 +228,13 @@ public final class RankTenSilhouetteGameTests {
 				&& exhausted.diagnostics().chunkTicketsRequested() == 0,
 				"Presentation admission requested chunk tickets");
 		helper.succeed();
+	}
+
+	private static AbilityActivationService.ActivationRoute expectedRoute(String id) {
+		if (id.equals("time_shift")) return AbilityActivationService.ActivationRoute.INPUT;
+		if (Set.of("size_shift", "flight", "invisibility", "time_freeze", "double_health")
+				.contains(id)) return AbilityActivationService.ActivationRoute.TOGGLE;
+		return AbilityActivationService.ActivationRoute.CAST;
 	}
 
 	private static long accepted(GameTestHelper helper) {
@@ -190,10 +247,61 @@ public final class RankTenSilhouetteGameTests {
 				0, 0, 0, 0, 0, 0, 0x5EED);
 	}
 
-	private static RankTenSilhouetteService.ObserverOffer observer(int id, String dimension,
-			double x, boolean supported, boolean live) {
-		return new RankTenSilhouetteService.ObserverOffer(new UUID(0xA11CEL, id), dimension,
-				x, 0, 0, supported, live);
+	private static RankTenSilhouetteService.RuntimeObserver runtimeObserver(int id, String dimension,
+			double x, Object connection) {
+		return new RankTenSilhouetteService.RuntimeObserver(new UUID(0xA11CEL, id), dimension,
+				x, 0, 0, new Object(), connection, true);
+	}
+
+	private static final class ExecutableRuntime implements RankTenSilhouetteService.RuntimeAccess {
+		private final RankTenSilhouetteService.CastOffer cast;
+		private final List<RankTenSilhouetteService.RuntimeObserver> observers;
+		private final Map<UUID, RankTenSilhouetteService.RuntimeObserver> current = new LinkedHashMap<>();
+		private final Set<UUID> unsupported = new java.util.HashSet<>();
+		private final Set<UUID> staleDuringSend = new java.util.HashSet<>();
+		private RankTenSilhouetteService.PolicyState persisted;
+		private int playersCalls;
+		private int canSendCalls;
+		private int currentCalls;
+		private int sendAttempts;
+		private int sent;
+
+		private ExecutableRuntime(RankTenSilhouetteService.CastOffer cast,
+				List<RankTenSilhouetteService.RuntimeObserver> observers) {
+			this.cast = cast;
+			this.observers = List.copyOf(observers);
+			for (var observer : observers) current.put(observer.player(), observer);
+		}
+
+		@Override public long tick() { return cast.tick(); }
+		@Override public void persist(RankTenSilhouetteService.PolicyState state) { persisted = state; }
+		@Override public RankTenSilhouetteService.CastOffer prepareCast(String powerId, long tick) {
+			return cast;
+		}
+		@Override public List<RankTenSilhouetteService.RuntimeObserver> players() {
+			playersCalls++;
+			return observers;
+		}
+		@Override public boolean canSend(RankTenSilhouetteService.RuntimeObserver observer) {
+			canSendCalls++;
+			return !unsupported.contains(observer.player());
+		}
+		@Override public RankTenSilhouetteService.RuntimeObserver current(
+				RankTenSilhouetteService.RuntimeObserver observer) {
+			currentCalls++;
+			return current.get(observer.player());
+		}
+		@Override public void sendGuarded(RankTenSilhouetteService.RuntimeObserver observer,
+				com.powers.network.RankTenSilhouettePackets.Payload payload,
+				Predicate<RankTenSilhouetteService.RuntimeObserver> guard) {
+			sendAttempts++;
+			var now = current.get(observer.player());
+			if (staleDuringSend.contains(observer.player())) {
+				now = new RankTenSilhouetteService.RuntimeObserver(observer.player(), observer.dimension(),
+						observer.x(), observer.y(), observer.z(), observer.handle(), new Object(), true);
+			}
+			if (guard.test(now)) sent++;
+		}
 	}
 
 	private static void cleanup(ServerPlayer caster, GameTestHelper helper) {

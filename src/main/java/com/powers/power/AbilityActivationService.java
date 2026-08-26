@@ -36,6 +36,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class AbilityActivationService {
 	public enum Result { ACTIVATED, FAILED, REQUIRES_INPUT }
+	/** Observable production route used by activation diagnostics and acceptance tests. */
+	public enum ActivationRoute { INPUT, SELECTION, TOGGLE, CAST }
 
 	private AbilityActivationService() {
 	}
@@ -69,20 +71,30 @@ public final class AbilityActivationService {
 			Integer cooldownOverride, CastSource source) {
 		if (ability == null) return Result.FAILED;
 		if (!passesCasterChecks(player, ability.id().getPath())) return Result.FAILED;
-		if (ability.requiresInput()) return Result.REQUIRES_INPUT;
-
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
-		if (ability.isSelectionAction(player)) {
-			boolean selected = ability.activate(player, data);
-			if (selected) PowersPackets.syncTo(player);
-			return selected ? Result.ACTIVATED : Result.FAILED;
-		}
-		if (ability.isToggle()) {
-			return toggle(player, data, ability, toggleKey, source);
-		}
+		return switch (activationRoute(player, ability)) {
+			case INPUT -> Result.REQUIRES_INPUT;
+			case SELECTION -> {
+				boolean selected = ability.activate(player, data);
+				if (selected) PowersPackets.syncTo(player);
+				yield selected ? Result.ACTIVATED : Result.FAILED;
+			}
+			case TOGGLE -> toggle(player, data, ability, toggleKey, source);
+			case CAST -> cast(player, data, ability, cooldownOverride, source,
+					() -> ability.activate(player, data));
+		};
+	}
 
-		return cast(player, data, ability, cooldownOverride, source,
-				() -> ability.activate(player, data));
+	/**
+	 * Resolves the exact branch that {@link #activate} will use after caster checks.
+	 * Keeping this executable seam in the production path lets registry acceptance
+	 * prove route ownership without replacing production abilities with probes.
+	 */
+	public static ActivationRoute activationRoute(ServerPlayer player, Ability ability) {
+		if (ability.requiresInput()) return ActivationRoute.INPUT;
+		if (ability.isSelectionAction(player)) return ActivationRoute.SELECTION;
+		if (ability.isToggle()) return ActivationRoute.TOGGLE;
+		return ActivationRoute.CAST;
 	}
 
 	/** Completes a server-owned input flow such as picking a Time Shift landing point. */
