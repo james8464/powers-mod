@@ -1,6 +1,7 @@
 package com.powers.power;
 
 import com.powers.cooldown.CooldownPresentation;
+import com.powers.fx.RankTenSilhouetteService;
 import com.powers.magic.runtime.PreparedMagicCast;
 import com.powers.magic.runtime.ServerMagicCasts;
 import com.powers.magic.runtime.CastScalingContext;
@@ -182,7 +183,10 @@ public final class AbilityActivationService {
 			}
 		} else {
 			SkillQuestTracker.recordPowerUse(player, ability);
-			if (source == CastSource.INNATE) ConcordCastManager.record(player, ability);
+			if (source == CastSource.INNATE) {
+				ConcordCastManager.record(player, ability);
+				RankTenSilhouetteService.afterSuccessfulInnateCast(player, ability.id().getPath());
+			}
 		}
 		PowersPackets.syncTo(player);
 		return activated ? Result.ACTIVATED : Result.FAILED;
@@ -246,7 +250,10 @@ public final class AbilityActivationService {
 				data.setToggleActive(player, previousOwner, false);
 			}
 			SkillQuestTracker.recordPowerUse(player, ability);
-			if (source == CastSource.INNATE) ConcordCastManager.record(player, ability);
+			if (source == CastSource.INNATE) {
+				ConcordCastManager.record(player, ability);
+				RankTenSilhouetteService.afterSuccessfulInnateCast(player, ability.id().getPath());
+			}
 			PowerMessages.overlay(player, Component.translatable("ability.powers.toggle_on", ability.name()));
 		} else if (transaction.failedPhase() == CastTransaction.Phase.COST) {
 			MagicAttemptReporter.failure(player, actionId, MagicFailureReason.INSUFFICIENT_ENERGY,
