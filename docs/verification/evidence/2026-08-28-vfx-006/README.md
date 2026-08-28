@@ -27,9 +27,10 @@ This bundle binds the real integrated-client gallery to immutable production imp
   terminal attempts, exact-dimension tracker delivery revalidated at dispatch, UUID/sequence binding,
   and bounded five-tick future-skew retention without rendering early. Explicit terminal packets clear
   interruption state even when the start lane is saturated.
-- The hardened-head literal unfiltered Java 25 aggregate and its exact test totals remain pending a
-  quiet-host run. `logs/final-check.log` is retained temporarily from the earlier green head and is
-  not acceptance evidence for `5492b279`; it will be replaced before closure.
+- `logs/final-check.log` proves the literal unfiltered Java 25 aggregate passed on verification head
+  `e6fa35e92d6ea7cd3f7aeb9eafd4d920b30ee08e`: 153/153 required GameTests, 1,773/1,773 JUnit tests,
+  and 195/195 Python tests, plus Java/source/assets/docs audits, access-widener validation, and
+  resource validation.
 
 ## Commands
 

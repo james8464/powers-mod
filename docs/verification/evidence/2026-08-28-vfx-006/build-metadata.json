@@ -5,10 +5,10 @@
   "fabricLoader": "0.19.3",
   "fullGate": {
     "command": "./gradlew check --rerun-tasks --no-daemon --console=plain",
-    "gameTests": null,
-    "junitTests": null,
-    "pythonTests": null,
-    "result": "PENDING"
+    "gameTests": 153,
+    "junitTests": 1773,
+    "pythonTests": 195,
+    "result": "PASS"
   },
   "gallery": {
     "galleryRows": 48,
@@ -21,5 +21,5 @@
   "java": "25",
   "minecraft": "26.2",
   "schemaVersion": 2,
-  "verificationSha": null
+  "verificationSha": "e6fa35e92d6ea7cd3f7aeb9eafd4d920b30ee08e"
 }

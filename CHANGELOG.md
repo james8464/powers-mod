@@ -13,7 +13,8 @@
   The checksum-bound schema-2 gallery proves real delayed delivery, server-driven locomotion, and
   actual receipt timing. Source/unit gates separately prove bounded future skew, dispatch-time tracker
   validation, and terminal clears reserved beyond the start lane under a hard 64-attempt-per-tick
-  intake ceiling. The unfiltered Java 25 aggregate remains the final integration gate.
+  intake ceiling. The unfiltered Java 25 aggregate passes 153 GameTests, 1,773 JUnit tests, and
+  195 Python tests.
 
 - Completed the VFX-005 exact-build closure candidate at implementation commit
   `562f092a1393cb05485499fbbfc9b6782ae9b5cc`: all 23 rank-ten innate powers emit a unique,
