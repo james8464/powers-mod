@@ -40,6 +40,7 @@ AUDIT_MARKER = "powers_layered_audio_audit "
 
 def render_primary_scenario() -> str:
     lines = [
+        "70\tcommand\tgamemode creative @s",
         "80\tcommand\ttp @s 0 200 0",
         "90\tlook\t0 0",
         "100\tcommand\tfill -2 198 2 2 204 2 air",

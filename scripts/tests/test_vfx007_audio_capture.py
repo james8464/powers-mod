@@ -18,6 +18,9 @@ SPEC.loader.exec_module(CAPTURE)
 class Vfx007AudioCaptureTest(unittest.TestCase):
     def test_primary_scenario_covers_open_wall_burst_comfort_reload_dimension_and_subtitles(self):
         lines = CAPTURE.render_primary_scenario().splitlines()
+        creative = lines.index("70\tcommand\tgamemode creative @s")
+        teleport = lines.index("80\tcommand\ttp @s 0 200 0")
+        self.assertLess(creative, teleport)
         emits = [line for line in lines if "\taudio_emit\t" in line]
         self.assertEqual(77 - 1, len(emits))  # reconnect is captured by the second real client
         self.assertEqual(48, sum(line.endswith(" open") and "interaction_clash 1 open" not in line
