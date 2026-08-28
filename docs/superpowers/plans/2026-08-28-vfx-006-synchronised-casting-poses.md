@@ -44,7 +44,7 @@
 - Produces: `CastingPoseRules.progress(long worldGameTime, CastingPoseEvent event)` and `CastingPoseRules.active(long, CastingPoseEvent)`.
 - Produces: `CastingPosePackets.Payload` with `event()` conversion and clientbound codec registration.
 
-- [ ] **Step 1: Write a reflection-backed failing contract test so missing production types fail as an assertion, not a compiler error.**
+- [x] **Step 1: Write a reflection-backed failing contract test so missing production types fail as an assertion, not a compiler error.**
 
 ```java
 @Test
@@ -65,13 +65,13 @@ void invalidDurationCannotConstructPoseEvent() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the test and witness RED.**
+- [x] **Step 2: Run the test and witness RED.**
 
 Run: `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew test --tests com.powers.animation.CastingPoseContractTest --rerun-tasks --no-daemon --console=plain`
 
 Expected: assertion failure `CastingPoseEvent is not implemented`.
 
-- [ ] **Step 3: Implement the closed enums, validated event, and pure time rules.**
+- [x] **Step 3: Implement the closed enums, validated event, and pure time rules.**
 
 ```java
 public enum CastingPose {
@@ -102,7 +102,7 @@ public static double progress(long gameTime, CastingPoseEvent event) {
 }
 ```
 
-- [ ] **Step 4: Add direct table tests for all enum IDs, zero UUID, sequence, start-time/duration bounds, expiry, and latency-derived literal progress.**
+- [x] **Step 4: Add direct table tests for all enum IDs, zero UUID, sequence, start-time/duration bounds, expiry, and latency-derived literal progress.**
 
 ```java
 @Test
@@ -114,13 +114,13 @@ void lateReceiptUsesAuthoritativeStartInsteadOfRestarting() {
 }
 ```
 
-- [ ] **Step 5: Run contract tests GREEN, then write payload codec/constructor tests RED and implement `CastingPosePackets.Payload`.**
+- [x] **Step 5: Run contract tests GREEN, then write payload codec/constructor tests RED and implement `CastingPosePackets.Payload`.**
 
 Run: `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew test --tests 'com.powers.animation.*' --tests com.powers.network.CastingPosePacketsTest --rerun-tasks --no-daemon --console=plain`
 
 Payload encoding order: entity ID, UUID, sequence, pose ID, style ID, hand ID, start game time, duration. Decode unknown IDs by throwing `IllegalArgumentException`; register once from `PowersMod.onInitialize()`.
 
-- [ ] **Step 6: Commit the shared contract.**
+- [x] **Step 6: Commit the shared contract.**
 
 ```bash
 git add src/main/java/com/powers/animation src/main/java/com/powers/network/CastingPosePackets.java \
