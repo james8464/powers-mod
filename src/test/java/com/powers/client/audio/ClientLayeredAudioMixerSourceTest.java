@@ -24,6 +24,14 @@ final class ClientLayeredAudioMixerSourceTest {
 	}
 
 	@Test
+	void localCelestialUsesItsOriginAndSharedSpatialClassification() throws Exception {
+		String mixer = Files.readString(CLIENT_AUDIO.resolve("ClientLayeredAudioMixer.java"));
+		assertTrue(mixer.contains("playLocalCelestial(Vec3 origin, float gain, float pitch)"));
+		assertEquals(2, occurrences(mixer, "spatial(minecraft,"));
+		assertFalse(mixer.contains("Vec3 origin = minecraft.player.position()"));
+	}
+
+	@Test
 	void positionalSoundRetainsOriginPlayerCategoryAndLinearAttenuation() throws Exception {
 		String sound = Files.readString(CLIENT_AUDIO.resolve("PositionalLayeredSound.java"));
 		assertTrue(sound.contains("SoundSource.PLAYERS"));

@@ -48,18 +48,17 @@ public final class ClientLayeredAudioMixer {
 			record(payload, rawLayer, distance, false, 0.0F, false, "dropped");
 			return;
 		}
-		HitResult obstruction = minecraft.level.clip(new ClipContext(camera, origin,
-				ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, minecraft.player));
-		boolean obstructed = obstruction.getType() != HitResult.Type.MISS;
+		Spatial spatial = spatial(minecraft, payload.cue(), origin);
+		boolean obstructed = spatial.obstructed();
 		ClientLayeredAudioState.Admission admission = STATE.admit(payload.cue(),
 				payload.x(), payload.y(), payload.z(), gameTime);
 		if (admission.result() != ClientLayeredAudioState.AdmissionResult.ADMITTED) {
 			record(payload, rawLayer, distance, obstructed, 0.0F, false, "dropped");
 			return;
 		}
-		LayeredAudioRules.ResolvedLayer resolved = LayeredAudioRules.resolve(payload.cue(), distance,
+		LayeredAudioRules.ResolvedLayer resolved = LayeredAudioRules.resolve(payload.cue(), spatial.distance(),
 				obstructed, ClientAudioComfortConfig.reducedTinnitus(), payload.gain(),
-				admission.concurrentInGroup()).orElse(null);
+				admission.concurrentGlobal()).orElse(null);
 		if (resolved == null) {
 			record(payload, rawLayer, distance, obstructed, 0.0F, false, "dropped");
 			return;
@@ -80,21 +79,30 @@ public final class ClientLayeredAudioMixer {
 		PowersMod.LOGGER.info("powers_layered_audio_audit {}", row.json());
 	}
 
-	/** Plays the existing client-authoritative Celestial ringing cadence through comfort selection. */
-	public static void playLocalCelestial(float gain, float pitch) {
+	/** Plays the existing client-authoritative Celestial cadence at its server-authored origin. */
+	public static void playLocalCelestial(Vec3 origin, float gain, float pitch) {
 		Minecraft minecraft = Minecraft.getInstance();
-		if (minecraft.player == null || minecraft.level == null || !Float.isFinite(pitch)
+		if (origin == null || minecraft.player == null || minecraft.level == null || !Float.isFinite(pitch)
 				|| pitch < 0.25F || pitch > 4.0F) return;
-		Vec3 origin = minecraft.player.position();
+		Spatial spatial = spatial(minecraft, LayeredAudioCue.CELESTIAL_RING, origin);
+		if (LayeredAudioCue.CELESTIAL_RING.profile().layer(spatial.distance()).isEmpty()) return;
 		long gameTime = minecraft.level.getGameTime();
 		ClientLayeredAudioState.Admission admission = STATE.admit(LayeredAudioCue.CELESTIAL_RING,
 				origin.x, origin.y, origin.z, gameTime);
 		if (admission.result() != ClientLayeredAudioState.AdmissionResult.ADMITTED) return;
 		LayeredAudioRules.ResolvedLayer resolved = LayeredAudioRules.resolve(
-				LayeredAudioCue.CELESTIAL_RING, 0.0, false,
+				LayeredAudioCue.CELESTIAL_RING, spatial.distance(), spatial.obstructed(),
 				ClientAudioComfortConfig.reducedTinnitus(), gain,
-				admission.concurrentInGroup()).orElse(null);
+				admission.concurrentGlobal()).orElse(null);
 		if (resolved != null) play(minecraft, LayeredAudioCue.CELESTIAL_RING, resolved, pitch, origin);
+	}
+
+	private static Spatial spatial(Minecraft minecraft, LayeredAudioCue cue, Vec3 origin) {
+		Vec3 camera = minecraft.gameRenderer.mainCamera().position();
+		double distance = camera.distanceTo(origin);
+		HitResult obstruction = minecraft.level.clip(new ClipContext(camera, origin,
+				ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, minecraft.player));
+		return new Spatial(distance, obstruction.getType() != HitResult.Type.MISS);
 	}
 
 	private static void play(Minecraft minecraft, LayeredAudioCue cue,
@@ -128,4 +136,6 @@ public final class ClientLayeredAudioMixer {
 	public static ClientLayeredAudioState.Metrics metrics() {
 		return STATE.metrics();
 	}
+
+	private record Spatial(double distance, boolean obstructed) { }
 }

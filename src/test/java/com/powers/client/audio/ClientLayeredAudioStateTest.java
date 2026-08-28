@@ -65,6 +65,24 @@ final class ClientLayeredAudioStateTest {
 	}
 
 	@Test
+	void admittedCrossGroupBurstReportsGlobalConcurrencyForHeadroom() {
+		var state = new ClientLayeredAudioState();
+		LayeredAudioCue[] cues = {
+				LayeredAudioCue.RUNE_HUM, LayeredAudioCue.CRYSTAL_RESONATE,
+				LayeredAudioCue.AMETHYST_FRACTURE, LayeredAudioCue.TIME_SUSPEND,
+				LayeredAudioCue.CELESTIAL_RING, LayeredAudioCue.RIFT_OPEN,
+				LayeredAudioCue.LIGHT_CHORUS, LayeredAudioCue.SOUL_TETHER,
+		};
+		ClientLayeredAudioState.Admission admission = null;
+		for (int index = 0; index < cues.length; index++) {
+			admission = state.admit(cues[index], index, 64, 0, 20);
+		}
+
+		assertEquals(ClientLayeredAudioState.AdmissionResult.ADMITTED, admission.result());
+		assertEquals(8, admission.concurrentGlobal());
+	}
+
+	@Test
 	void resetClearsIdentifiersBurstBookkeepingAndCounters() {
 		var state = new ClientLayeredAudioState();
 		assertTrue(state.acceptEvent(7));

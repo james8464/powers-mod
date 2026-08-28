@@ -72,7 +72,7 @@ public final class ClientLayeredAudioState {
 		}
 		burst.addLast(new BurstOffer(cue, cell, gameTime));
 		admittedOffers++;
-		return new Admission(AdmissionResult.ADMITTED, groupCount + 1);
+		return new Admission(AdmissionResult.ADMITTED, burst.size());
 	}
 
 	public void reset() {
@@ -107,7 +107,7 @@ public final class ClientLayeredAudioState {
 
 	public enum AdmissionResult { ADMITTED, COALESCED, GROUP_LIMIT, GLOBAL_LIMIT }
 
-	public record Admission(AdmissionResult result, int concurrentInGroup) { }
+	public record Admission(AdmissionResult result, int concurrentGlobal) { }
 
 	public record Metrics(long acceptedEvents, long duplicateEvents, long staleEvents,
 			long admittedOffers, long coalescedOffers, long droppedOffers,

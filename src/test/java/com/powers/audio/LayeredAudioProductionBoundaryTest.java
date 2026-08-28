@@ -36,9 +36,12 @@ final class LayeredAudioProductionBoundaryTest {
 	}
 
 	@Test
-	void celestialRingingUsesOneComfortAwareMixerApiAtBothExistingTimings() throws Exception {
+	void celestialRingingRetainsAuthoritativeOriginAtBothExistingTimings() throws Exception {
 		String source = Files.readString(CLIENT.resolve("com/powers/client/fx/ClientCelestialRuinFx.java"));
 		assertEquals(2, occurrences(source, "ClientLayeredAudioMixer.playLocalCelestial("));
+		assertTrue(source.contains("private final Vec3 center"));
+		assertTrue(source.contains("ClientLayeredAudioMixer.playLocalCelestial(origin,"));
+		assertTrue(source.contains("ClientLayeredAudioMixer.playLocalCelestial(strongestOrigin,"));
 		assertFalse(source.contains("PowersSounds.CELESTIAL_RING"));
 	}
 

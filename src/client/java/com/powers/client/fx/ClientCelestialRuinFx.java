@@ -30,6 +30,7 @@ public final class ClientCelestialRuinFx {
 		Minecraft client = Minecraft.getInstance();
 		if (client.level == null) return;
 		var dimension = client.level.dimension();
+		Vec3 origin = new Vec3(payload.x(), payload.y(), payload.z());
 		long key = key(dimension.identifier().hashCode(), payload.x(), payload.y(), payload.z());
 		if (payload.phase() == CelestialRuinPackets.Phase.END) {
 			COLUMNS.remove(key);
@@ -41,13 +42,13 @@ public final class ClientCelestialRuinFx {
 			while (RINGING_EVENTS.size() >= MAX_RINGING_EVENTS) {
 				RINGING_EVENTS.remove(RINGING_EVENTS.keySet().iterator().next());
 			}
-			RINGING_EVENTS.put(key, new Ringing(CelestialRuinPresentation.RINGING_TICKS,
+			RINGING_EVENTS.put(key, new Ringing(origin, CelestialRuinPresentation.RINGING_TICKS,
 					payload.lod(), dimension));
-			if (client.player != null) ClientLayeredAudioMixer.playLocalCelestial(
+			if (client.player != null) ClientLayeredAudioMixer.playLocalCelestial(origin,
 					CelestialRuinPresentation.audioGain(payload.lod()), 1.0F);
 			return;
 		}
-		COLUMNS.put(key, new Column(new Vec3(payload.x(), payload.y(), payload.z()),
+		COLUMNS.put(key, new Column(origin,
 				CelestialRuinPresentation.BEAM_LEASE_TICKS, payload.age(), dimension, payload.lod()));
 	}
 
@@ -82,6 +83,7 @@ public final class ClientCelestialRuinFx {
 	private static void tickRinging(Minecraft client) {
 		float strongestVolume = 0.0F;
 		float strongestPitch = 1.0F;
+		Vec3 strongestOrigin = null;
 		for (Iterator<Ringing> iterator = RINGING_EVENTS.values().iterator(); iterator.hasNext();) {
 			Ringing ringing = iterator.next();
 			if (!ringing.dimension.equals(client.level.dimension()) || --ringing.remainingTicks <= 0) {
@@ -95,9 +97,11 @@ public final class ClientCelestialRuinFx {
 			strongestVolume = volume;
 			strongestPitch = 1.18F + (CelestialRuinPresentation.RINGING_TICKS
 					- ringing.remainingTicks) * 0.002F;
+			strongestOrigin = ringing.center;
 		}
-		if (strongestVolume > 0.0F) {
-			ClientLayeredAudioMixer.playLocalCelestial(strongestVolume, strongestPitch);
+		if (strongestVolume > 0.0F && strongestOrigin != null) {
+			ClientLayeredAudioMixer.playLocalCelestial(strongestOrigin,
+					strongestVolume, strongestPitch);
 		}
 	}
 
@@ -177,12 +181,14 @@ public final class ClientCelestialRuinFx {
 	}
 
 	private static final class Ringing {
+		private final Vec3 center;
 		private int remainingTicks;
 		private final com.powers.fx.FxLodTier lod;
 		private final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension;
 
-		private Ringing(int remainingTicks, com.powers.fx.FxLodTier lod,
+		private Ringing(Vec3 center, int remainingTicks, com.powers.fx.FxLodTier lod,
 				net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension) {
+			this.center = center;
 			this.remainingTicks = remainingTicks;
 			this.lod = lod;
 			this.dimension = dimension;
