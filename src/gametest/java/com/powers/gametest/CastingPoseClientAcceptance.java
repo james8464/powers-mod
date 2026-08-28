@@ -131,7 +131,7 @@ public final class CastingPoseClientAcceptance {
 			TestSingleplayerContext singleplayer, String scenario, boolean lateTracking) {
 		setReduced(context, false);
 		Subject subject = spawn(context, singleplayer, CastingStyle.RADIANT,
-				lateTracking ? 240.0 : 6.0, null);
+				lateTracking ? 180.0 : 6.0, null);
 		CastingPoseEvent event = start(singleplayer, subject, CastingPose.PROJECT,
 				CastingStyle.RADIANT, CastingHand.RIGHT, DURATION);
 		if (lateTracking) {
@@ -223,7 +223,7 @@ public final class CastingPoseClientAcceptance {
 			}
 			result.set(new Subject(entity.getId(), entity.getUUID(), entityType(style)));
 		});
-		if (distance < 200.0) {
+		if (distance <= 160.0) {
 			context.waitFor(client -> result.get() != null && client.level != null
 					&& client.level.getEntity(result.get().entityId()) != null
 					&& client.level.getEntity(result.get().entityId()).getUUID()
