@@ -45,7 +45,7 @@ public final class PacketFaultFamilies {
 			case "shape_fx" -> PacketFaultFamily.SHAPE_FX;
 			case "semantic_fx_batch" -> PacketFaultFamily.SEMANTIC_BATCH;
 			case "celestial_ruin_fx" -> PacketFaultFamily.CELESTIAL_RUIN;
-			case "event_audio" -> PacketFaultFamily.EVENT_AUDIO;
+			case "event_audio", "layered_audio" -> PacketFaultFamily.EVENT_AUDIO;
 			default -> PacketFaultFamily.OTHER;
 		};
 	}

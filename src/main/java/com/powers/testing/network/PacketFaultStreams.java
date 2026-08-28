@@ -5,6 +5,7 @@ import com.powers.network.ActionSubmissionService;
 import com.powers.network.CelestialRuinPackets;
 import com.powers.network.CompanionPackets;
 import com.powers.network.GrimoirePackets;
+import com.powers.network.LayeredAudioPackets;
 import com.powers.network.MagicFxPackets;
 import com.powers.network.PowersPackets;
 import com.powers.network.RankPackets;
@@ -67,6 +68,9 @@ public final class PacketFaultStreams {
 			long position = mix(Double.doubleToLongBits(value.x()), Double.doubleToLongBits(value.y()),
 					Double.doubleToLongBits(value.z()));
 			return compact(type, Long.toUnsignedString(position, 16));
+		}
+		if (payload instanceof LayeredAudioPackets.Payload value) {
+			return compact(type, Long.toUnsignedString(value.eventId()));
 		}
 		if (payload instanceof MagicFxPackets.ScarFxPayload value) {
 			String discriminator = value.operation() == com.powers.fx.ScarFxProtocolRules.RESET_DIMENSION
