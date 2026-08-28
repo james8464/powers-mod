@@ -415,7 +415,7 @@ def test_gallery_rejects_missing_release_pose(self):
 
 Run: `python3 -B -m unittest scripts.tests.test_verify_vfx006_gallery scripts.tests.test_package_vfx006_evidence`
 
-- [x] **Step 3: Add `CastingPoseClientAcceptance.run(context, singleplayer)` scenarios for all six styles × four poses in normal/reduced modes plus latency, late tracking, interruption, expiry, reconnect, and entity-ID reuse; call it from the existing `PowersClientGameTests.runTest` entrypoint.**
+- [x] **Step 3: Add `CastingPoseClientAcceptance.run(context, singleplayer)` scenarios for all six styles × four poses in normal/reduced modes plus real delayed delivery, late tracking, moving locomotion, interruption, expiry, reconnect, and entity-ID reuse; call it from the existing `PowersClientGameTests.runTest` entrypoint.**
 
 Reuse the existing acceptance client capture transport and run-directory isolation. Each screenshot is 1280×720 and the scenario writes its semantic metadata before capture.
 

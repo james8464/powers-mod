@@ -6,9 +6,11 @@
   both Heralds, and First Vessel. Four semantic pose families synchronize from authoritative start
   time through bounded tracker-only delivery and UUID/sequence-safe client playback; scoped model
   adapters preserve vanilla locomotion and held items, while reduced motion uses static lower-amplitude
-  poses. A digest-bound 54-frame real-client gallery covers all six styles/four poses/modes plus
-  latency, late tracking, interruption, expiry, entity-ID reuse, and reconnect. The unfiltered Java 25
-  aggregate passes 145 GameTests, 1,760 JUnit tests, and 191 Python tests.
+  poses. A digest-bound 55-frame real-client gallery covers all six styles/four poses/modes plus
+  real delayed delivery, late tracking, moving locomotion, interruption, expiry, entity-ID reuse,
+  and reconnect. Production-action tests prove pose emission occurs only after committed effects;
+  exact-dimension delivery, terminal clears, bounded future skew, and replay rejection are covered.
+  The unfiltered Java 25 aggregate passes 153 GameTests, 1,770 JUnit tests, and 193 Python tests.
 
 - Completed the VFX-005 exact-build closure candidate at implementation commit
   `562f092a1393cb05485499fbbfc9b6782ae9b5cc`: all 23 rank-ten innate powers emit a unique,

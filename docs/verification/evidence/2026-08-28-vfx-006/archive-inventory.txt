@@ -56,7 +56,8 @@ screenshots/0046_vfx006-gallery-first_vessel-channel-reduced-1.png
 screenshots/0047_vfx006-gallery-first_vessel-release-reduced-1.png
 screenshots/0048_vfx006-latency-radiant-project-1.png
 screenshots/0049_vfx006-late_tracking-radiant-project-1.png
-screenshots/0050_vfx006-interruption-first_vessel-channel-1.png
-screenshots/0051_vfx006-expiry-first_vessel-channel-1.png
-screenshots/0052_vfx006-entity_id_reuse-radiant-project-1.png
-screenshots/0053_vfx006-reconnect-radiant-channel-1.png
+screenshots/0050_vfx006-locomotion_walk-radiant-channel-1.png
+screenshots/0051_vfx006-interruption-first_vessel-channel-1.png
+screenshots/0052_vfx006-expiry-first_vessel-channel-1.png
+screenshots/0053_vfx006-entity_id_reuse-radiant-project-1.png
+screenshots/0054_vfx006-reconnect-radiant-channel-1.png

@@ -74,7 +74,8 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
   the literal aggregate is green. Independent review returned READY; the closure-head check passed and VFX-005 is integrated into and pushed on `main`.
 - [x] `VFX-006`: compact server-authoritative casting poses for six scoped player-like magical
   styles, with tracker-only delivery, latency-correct bounded playback, reduced motion, and a
-  checksum-bound 54-frame real-client/lifecycle gallery; the literal aggregate is green.
+  checksum-bound 55-frame real-client/lifecycle gallery including delayed delivery and moving
+  locomotion; the literal aggregate is green.
 - [ ] `VFX-007`: authored near/mid/far sound layers, obstruction falloff, subtitles, mixing, and reduced-tinnitus support.
 
 ### Stage 4 — cross-system interactions

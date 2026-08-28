@@ -1,25 +1,25 @@
 {
-  "captureCommand": "./gradlew runClientGameTest -Pvfx006ClientOnly -PpowersVfx006ImplementationSha=49a8b81ad11d70992861d557709fb0a822f66210 --rerun-tasks --no-daemon --console=plain",
+  "captureCommand": "./gradlew runClientGameTest -Pvfx006ClientOnly -Pvfx006ImplementationSha=28d58dd6b0da50c52111417dea82994f4b6b1b52 --rerun-tasks --no-daemon --console=plain",
   "evidenceDate": "2026-08-28",
   "fabricApi": "0.156.0+26.2",
   "fabricLoader": "0.19.3",
   "fullGate": {
     "command": "./gradlew check --rerun-tasks --no-daemon --console=plain",
-    "gameTests": 145,
-    "junitTests": 1760,
-    "pythonTests": 191,
+    "gameTests": 153,
+    "junitTests": 1770,
+    "pythonTests": 193,
     "result": "PASS"
   },
   "gallery": {
     "galleryRows": 48,
-    "lifecycleRows": 6,
+    "lifecycleRows": 7,
     "normalRows": 24,
     "reducedMotionRows": 24,
-    "totalRows": 54
+    "totalRows": 55
   },
-  "implementationSha": "49a8b81ad11d70992861d557709fb0a822f66210",
+  "implementationSha": "28d58dd6b0da50c52111417dea82994f4b6b1b52",
   "java": "25",
   "minecraft": "26.2",
   "schemaVersion": 1,
-  "verificationSha": "d0270c013d4b84eeb952e38cdef101e95a3baa7e"
+  "verificationSha": "28d58dd6b0da50c52111417dea82994f4b6b1b52"
 }
