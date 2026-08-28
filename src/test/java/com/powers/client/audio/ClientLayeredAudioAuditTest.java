@@ -28,6 +28,7 @@ class ClientLayeredAudioAuditTest {
 		assertEquals(128, ClientLayeredAudioAudit.rows().size());
 		assertEquals(2L, ClientLayeredAudioAudit.rows().getFirst().eventId());
 		String json = ClientLayeredAudioAudit.rows().getLast().json();
+		assertTrue(json.contains("\"schemaVersion\":1"));
 		assertTrue(json.contains("\"cue\":\"rune_hum\""));
 		assertTrue(json.contains("\"subtitleKey\":\"subtitles.powers.rune_hum\""));
 		assertTrue(json.contains("\"implementationSha\":\"abcdef1\""));

@@ -54,6 +54,7 @@ public final class ClientLayeredAudioAudit {
 
 		public String json() {
 			JsonObject object = new JsonObject();
+			object.addProperty("schemaVersion", 1);
 			object.addProperty("cue", cue.semanticName());
 			object.addProperty("layer", layer.serializedName());
 			object.addProperty("distance", distance);
