@@ -11,7 +11,7 @@ public final class AcceptanceClientScript {
 	public enum Operation {
 		COMMAND, CHAT, ACTIVATE, SELECT, USE, ATTACK, GRIMOIRE, CRYSTAL, ARTIFACT,
 		ARTIFACT_TELEPORT, TELEPORT, RESPAWN, CLOSE, LOCATOR, KEY, LOOK, SETTING, CLEAN,
-		AUDIO_EMIT, AUDIO_COMFORT, AUDIO_ASSERT, SCREENSHOT
+		AUDIO_EMIT, AUDIO_COMFORT, AUDIO_ASSERT, AUDIO_RELOAD, SCREENSHOT
 	}
 
 	public record Step(int tick, Operation operation, String argument) {
@@ -172,6 +172,11 @@ public final class AcceptanceClientScript {
 						|| !(values[1].equals("admitted") || values[1].equals("dropped"))) {
 					throw malformed(lineNumber,
 							"audio assertion needs layer and admitted/dropped result");
+				}
+			}
+			case AUDIO_RELOAD -> {
+				if (!argument.equals("now")) {
+					throw malformed(lineNumber, "audio reload argument must be now");
 				}
 			}
 			case COMMAND, CHAT -> { }

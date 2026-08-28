@@ -167,6 +167,7 @@ public final class AcceptanceClientAgent {
 			case AUDIO_EMIT -> LayeredAudioAcceptance.emit(client, step.argument());
 			case AUDIO_COMFORT -> LayeredAudioAcceptance.comfort(step.argument());
 			case AUDIO_ASSERT -> LayeredAudioAcceptance.assertLast(step.argument());
+			case AUDIO_RELOAD -> client.reloadResourcePacks();
 		}
 		PowersMod.LOGGER.info("QA client role={} executed {} [{}] at connected tick {}",
 				CONFIG.role(), step.operation(), step.argument(), connectedTicks);

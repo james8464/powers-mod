@@ -127,11 +127,13 @@ class AcceptanceClientScriptTest {
 		var steps = AcceptanceClientScript.parse(List.of(
 				"1\taudio_emit\trune_hum 28 wall",
 				"2\taudio_comfort\treduced",
-				"3\taudio_assert\tnear admitted"));
+				"3\taudio_assert\tnear admitted",
+				"4\taudio_reload\tnow"));
 
 		assertEquals(AcceptanceClientScript.Operation.AUDIO_EMIT, steps.get(0).operation());
 		assertEquals(AcceptanceClientScript.Operation.AUDIO_COMFORT, steps.get(1).operation());
 		assertEquals(AcceptanceClientScript.Operation.AUDIO_ASSERT, steps.get(2).operation());
+		assertEquals(AcceptanceClientScript.Operation.AUDIO_RELOAD, steps.get(3).operation());
 		assertThrows(IllegalArgumentException.class,
 				() -> AcceptanceClientScript.parse(List.of("1\taudio_emit\tunknown 1 open")));
 		assertThrows(IllegalArgumentException.class,
@@ -148,6 +150,8 @@ class AcceptanceClientScriptTest {
 				() -> AcceptanceClientScript.parse(List.of("1\taudio_assert\tnear admitted extra")));
 		assertThrows(IllegalArgumentException.class,
 				() -> AcceptanceClientScript.parse(List.of("1\taudio_assert\tnear maybe")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("1\taudio_reload\tlater")));
 	}
 
 	@Test
