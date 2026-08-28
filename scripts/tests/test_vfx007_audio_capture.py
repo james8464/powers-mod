@@ -2,6 +2,7 @@
 
 import importlib.util
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -39,6 +40,12 @@ class Vfx007AudioCaptureTest(unittest.TestCase):
                "identity=AudioCapture\n[INFO] powers_layered_audio_audit "
                + json.dumps(second) + "\n")
         self.assertEqual([first, second], CAPTURE.extract_audit_rows(log))
+
+    def test_launch_argument_resolution_uses_the_generated_client_capable_file(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            (root / "runGameTest").write_text("client classpath\n", encoding="utf-8")
+            self.assertEqual(root / "runGameTest", CAPTURE.resolve_argument_file(root))
 
 
 if __name__ == "__main__":

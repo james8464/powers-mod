@@ -103,6 +103,14 @@ def extract_audit_rows(log: str) -> list[dict]:
     return rows
 
 
+def resolve_argument_file(directory: Path) -> Path:
+    for name in ("runClient", "runGameTest"):
+        candidate = directory / name
+        if candidate.is_file():
+            return candidate
+    raise RuntimeError(f"Missing generated client argument file in {directory}")
+
+
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -177,8 +185,8 @@ def _prepare_launch() -> tuple[Path, Path, Path]:
     java_home = os.environ.get("JAVA_HOME", "")
     java = Path(java_home) / "bin" / "java"
     launch = ROOT / ".gradle" / "loom-cache" / "launch.cfg"
-    arguments = ROOT / "build" / "loom-cache" / "argFiles" / "runClient"
-    for path in (java, launch, arguments):
+    arguments = resolve_argument_file(ROOT / "build" / "loom-cache" / "argFiles")
+    for path in (java, launch):
         if not path.is_file():
             raise RuntimeError(f"Missing launch input: {path}")
     return java.resolve(), launch.resolve(), arguments.resolve()
