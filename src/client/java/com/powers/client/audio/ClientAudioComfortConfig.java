@@ -16,6 +16,7 @@ public final class ClientAudioComfortConfig {
 	private static final int MAX_CONFIG_BYTES = 4_096;
 	private static final AtomicBoolean MALFORMED_WARNING_EMITTED = new AtomicBoolean();
 	private static volatile boolean reducedTinnitus;
+	private static volatile Boolean acceptanceOverride;
 
 	private ClientAudioComfortConfig() {
 	}
@@ -30,7 +31,21 @@ public final class ClientAudioComfortConfig {
 	}
 
 	public static boolean reducedTinnitus() {
-		return reducedTinnitus;
+		Boolean override = acceptanceOverride;
+		return override == null ? reducedTinnitus : override;
+	}
+
+	/** Applies a transient development-client acceptance value without mutating user config. */
+	public static void setAcceptanceOverride(boolean reduced) {
+		if (!FabricLoader.getInstance().isDevelopmentEnvironment()) {
+			throw new IllegalStateException("Audio comfort override is development-only");
+		}
+		acceptanceOverride = reduced;
+	}
+
+	/** Clears transient acceptance state at every connection or world boundary. */
+	public static void clearAcceptanceOverride() {
+		acceptanceOverride = null;
 	}
 
 	static boolean read(Path path) {

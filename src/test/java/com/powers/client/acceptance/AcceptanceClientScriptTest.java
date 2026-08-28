@@ -123,6 +123,34 @@ class AcceptanceClientScriptTest {
 	}
 
 	@Test
+	void parsesOnlyTheBoundedLayeredAudioAcceptanceVocabulary() {
+		var steps = AcceptanceClientScript.parse(List.of(
+				"1\taudio_emit\trune_hum 28 wall",
+				"2\taudio_comfort\treduced",
+				"3\taudio_assert\tnear admitted"));
+
+		assertEquals(AcceptanceClientScript.Operation.AUDIO_EMIT, steps.get(0).operation());
+		assertEquals(AcceptanceClientScript.Operation.AUDIO_COMFORT, steps.get(1).operation());
+		assertEquals(AcceptanceClientScript.Operation.AUDIO_ASSERT, steps.get(2).operation());
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("1\taudio_emit\tunknown 1 open")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("1\taudio_emit\trune_hum NaN open")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("1\taudio_emit\trune_hum -1 open")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("1\taudio_emit\trune_hum 73 open")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("1\taudio_emit\trune_hum 1 maybe")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("1\taudio_comfort\treduced extra")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("1\taudio_assert\tnear admitted extra")));
+		assertThrows(IllegalArgumentException.class,
+				() -> AcceptanceClientScript.parse(List.of("1\taudio_assert\tnear maybe")));
+	}
+
+	@Test
 	void advancementPressQueuesTheVanillaClickConsumedByTheClientLoop() {
 		var mapping = new KeyMapping("key.powers.acceptance_test",
 				InputConstants.Type.KEYSYM, 299, KeyMapping.Category.MISC);

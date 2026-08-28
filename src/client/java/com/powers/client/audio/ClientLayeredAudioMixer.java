@@ -1,6 +1,7 @@
 package com.powers.client.audio;
 
 import com.powers.PowersSounds;
+import com.powers.PowersMod;
 import com.powers.audio.LayeredAudioCue;
 import com.powers.audio.LayeredAudioRules;
 import com.powers.network.LayeredAudioPackets;
@@ -26,27 +27,57 @@ public final class ClientLayeredAudioMixer {
 	public static void handle(LayeredAudioPackets.Payload payload) {
 		Minecraft minecraft = Minecraft.getInstance();
 		if (payload == null || minecraft.player == null || minecraft.level == null) return;
-		Identifier dimension = minecraft.level.dimension().identifier();
-		if (!dimension.equals(payload.dimension())) return;
-		long gameTime = minecraft.level.getGameTime();
-		long age = gameTime - payload.emittedGameTime();
-		if (age < 0 || age > 100 || !STATE.acceptEvent(payload.eventId())) return;
-
 		Vec3 origin = new Vec3(payload.x(), payload.y(), payload.z());
 		Vec3 camera = minecraft.gameRenderer.mainCamera().position();
 		double distance = camera.distanceTo(origin);
-		if (payload.cue().profile().layer(distance).isEmpty()) return;
+		var rawLayer = payload.cue().profile().layer(distance).orElse(
+				com.powers.audio.LayeredAudioLayer.FAR);
+		Identifier dimension = minecraft.level.dimension().identifier();
+		if (!dimension.equals(payload.dimension())) {
+			record(payload, rawLayer, distance, false, 0.0F, false, "dropped");
+			return;
+		}
+		long gameTime = minecraft.level.getGameTime();
+		long age = gameTime - payload.emittedGameTime();
+		if (age < 0 || age > 100 || !STATE.acceptEvent(payload.eventId())) {
+			record(payload, rawLayer, distance, false, 0.0F, false, "dropped");
+			return;
+		}
+
+		if (payload.cue().profile().layer(distance).isEmpty()) {
+			record(payload, rawLayer, distance, false, 0.0F, false, "dropped");
+			return;
+		}
 		HitResult obstruction = minecraft.level.clip(new ClipContext(camera, origin,
 				ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, minecraft.player));
 		boolean obstructed = obstruction.getType() != HitResult.Type.MISS;
 		ClientLayeredAudioState.Admission admission = STATE.admit(payload.cue(),
 				payload.x(), payload.y(), payload.z(), gameTime);
-		if (admission.result() != ClientLayeredAudioState.AdmissionResult.ADMITTED) return;
+		if (admission.result() != ClientLayeredAudioState.AdmissionResult.ADMITTED) {
+			record(payload, rawLayer, distance, obstructed, 0.0F, false, "dropped");
+			return;
+		}
 		LayeredAudioRules.ResolvedLayer resolved = LayeredAudioRules.resolve(payload.cue(), distance,
 				obstructed, ClientAudioComfortConfig.reducedTinnitus(), payload.gain(),
 				admission.concurrentInGroup()).orElse(null);
-		if (resolved == null) return;
+		if (resolved == null) {
+			record(payload, rawLayer, distance, obstructed, 0.0F, false, "dropped");
+			return;
+		}
 		play(minecraft, payload.cue(), resolved, payload.pitch(), origin);
+		record(payload, resolved.layer(), distance, obstructed, resolved.gain(),
+				resolved.reducedTinnitus(), "admitted");
+	}
+
+	private static void record(LayeredAudioPackets.Payload payload,
+			com.powers.audio.LayeredAudioLayer layer, double distance, boolean obstructed,
+			float effectiveGain, boolean reducedTinnitus, String result) {
+		String sha = System.getProperty("powers.vfx007.implementationSha",
+				System.getProperty("powers.qa.implementationSha", ""));
+		var row = new ClientLayeredAudioAudit.Row(payload.cue(), layer, distance, obstructed,
+				effectiveGain, result, reducedTinnitus, payload.dimension(), payload.eventId(), sha);
+		ClientLayeredAudioAudit.record(row);
+		PowersMod.LOGGER.info("powers_layered_audio_audit {}", row.json());
 	}
 
 	/** Plays the existing client-authoritative Celestial ringing cadence through comfort selection. */
@@ -76,6 +107,8 @@ public final class ClientLayeredAudioMixer {
 	/** Clears all packet IDs and burst metrics at connection and world boundaries. */
 	public static void resetConnectionEpoch() {
 		STATE.reset();
+		ClientLayeredAudioAudit.reset();
+		ClientAudioComfortConfig.clearAcceptanceOverride();
 		lastDimension = null;
 	}
 
@@ -88,7 +121,7 @@ public final class ClientLayeredAudioMixer {
 	/** Detects dimension replacement even when no semantic sound packet arrives. */
 	public static void tick(Minecraft minecraft) {
 		Identifier dimension = minecraft.level == null ? null : minecraft.level.dimension().identifier();
-		if (lastDimension != null && !lastDimension.equals(dimension)) STATE.reset();
+		if (lastDimension != null && !lastDimension.equals(dimension)) resetConnectionEpoch();
 		lastDimension = dimension;
 	}
 

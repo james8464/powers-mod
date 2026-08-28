@@ -1,5 +1,7 @@
 package com.powers.client.acceptance;
 
+import com.powers.audio.LayeredAudioCue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -9,7 +11,7 @@ public final class AcceptanceClientScript {
 	public enum Operation {
 		COMMAND, CHAT, ACTIVATE, SELECT, USE, ATTACK, GRIMOIRE, CRYSTAL, ARTIFACT,
 		ARTIFACT_TELEPORT, TELEPORT, RESPAWN, CLOSE, LOCATOR, KEY, LOOK, SETTING, CLEAN,
-		SCREENSHOT
+		AUDIO_EMIT, AUDIO_COMFORT, AUDIO_ASSERT, SCREENSHOT
 	}
 
 	public record Step(int tick, Operation operation, String argument) {
@@ -144,6 +146,33 @@ public final class AcceptanceClientScript {
 			case SETTING -> {
 				if (!argument.equals("reduced_motion")) throw malformed(lineNumber,
 						"setting argument must be reduced_motion");
+			}
+			case AUDIO_EMIT -> {
+				String[] values = argument.split(" ");
+				if (values.length != 3) throw malformed(lineNumber,
+						"audio emit needs cue, distance and obstruction");
+				LayeredAudioCue cue = LayeredAudioCue.forSemanticName(values[0])
+						.orElseThrow(() -> malformed(lineNumber, "unknown audio cue"));
+				parseBoundedDouble(values[1], 0.0, cue.profile().maximumRadius(),
+						lineNumber, "distance");
+				if (!(values[2].equals("wall") || values[2].equals("open"))) {
+					throw malformed(lineNumber, "audio obstruction must be wall or open");
+				}
+			}
+			case AUDIO_COMFORT -> {
+				if (!(argument.equals("ordinary") || argument.equals("reduced"))) {
+					throw malformed(lineNumber, "audio comfort must be ordinary or reduced");
+				}
+			}
+			case AUDIO_ASSERT -> {
+				String[] values = argument.split(" ");
+				if (values.length != 2
+						|| !(values[0].equals("near") || values[0].equals("mid")
+						|| values[0].equals("far"))
+						|| !(values[1].equals("admitted") || values[1].equals("dropped"))) {
+					throw malformed(lineNumber,
+							"audio assertion needs layer and admitted/dropped result");
+				}
 			}
 			case COMMAND, CHAT -> { }
 		}

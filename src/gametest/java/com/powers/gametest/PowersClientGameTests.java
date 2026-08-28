@@ -473,13 +473,7 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 
 	private static void verifyDistantEventAudio(ClientGameTestContext context,
 			TestSingleplayerContext singleplayer) {
-		context.runOnClient(client -> ClientLayeredAudioMixer.resetConnectionEpoch());
-		singleplayer.getServer().runOnServer(server -> {
-			var player = server.getPlayerList().getPlayers().getFirst();
-			PowerFx.sound(player.level(), player.position().add(96.0, 0.0, 0.0),
-					PowersSounds.LIGHT_CHORUS, 3.0F, 0.65F);
-		});
-		context.waitFor(client -> ClientLayeredAudioMixer.metrics().acceptedEvents() == 1);
+		LayeredAudioClientAcceptance.verify(context, singleplayer);
 	}
 
 	private static void quiesceVisuals(ClientGameTestContext context) {
