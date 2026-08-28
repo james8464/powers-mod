@@ -38,6 +38,12 @@ DISTANCES = {
 AUDIT_MARKER = "powers_layered_audio_audit "
 
 
+def render_server_properties() -> str:
+    return (f"online-mode=false\nserver-port={PORT}\nlevel-name=world\nmax-players=2\n"
+            "view-distance=6\nsimulation-distance=5\ndifficulty=peaceful\n"
+            "level-type=minecraft:flat\nlevel-seed=7007\n")
+
+
 def render_primary_scenario() -> str:
     lines = [
         "70\tcommand\tgamemode creative @s",
@@ -292,10 +298,7 @@ def capture(output: Path) -> Path:
     runtime = output / "runtime"
     runtime.mkdir()
     (runtime / "eula.txt").write_text("eula=true\n", encoding="utf-8")
-    (runtime / "server.properties").write_text(
-        f"online-mode=false\nserver-port={PORT}\nlevel-name=world\nmax-players=2\n"
-        "view-distance=6\nsimulation-distance=5\ndifficulty=peaceful\n",
-        encoding="utf-8")
+    (runtime / "server.properties").write_text(render_server_properties(), encoding="utf-8")
     primary_script = output / "primary.tsv"
     reconnect_script = output / "reconnect.tsv"
     primary_script.write_text(render_primary_scenario(), encoding="utf-8")

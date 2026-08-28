@@ -16,6 +16,11 @@ SPEC.loader.exec_module(CAPTURE)
 
 
 class Vfx007AudioCaptureTest(unittest.TestCase):
+    def test_server_fixture_is_deterministic_flat_airspace(self):
+        properties = CAPTURE.render_server_properties()
+        self.assertIn("level-type=minecraft:flat\n", properties)
+        self.assertIn("level-seed=7007\n", properties)
+
     def test_primary_scenario_covers_open_wall_burst_comfort_reload_dimension_and_subtitles(self):
         lines = CAPTURE.render_primary_scenario().splitlines()
         creative = lines.index("70\tcommand\tgamemode creative @s")
