@@ -20,7 +20,12 @@ class Vfx007AudioCaptureTest(unittest.TestCase):
         lines = CAPTURE.render_primary_scenario().splitlines()
         creative = lines.index("70\tcommand\tgamemode creative @s")
         teleport = lines.index("80\tcommand\ttp @s 0 200 0")
+        platform = lines.index("81\tcommand\tfill -2 199 -2 2 199 0 stone")
         self.assertLess(creative, teleport)
+        self.assertLess(teleport, platform)
+        self.assertEqual(2, lines.count("100\tcommand\tfill -2 198 1 2 204 170 air")
+                         + sum(line.endswith("\tcommand\tfill -2 198 1 2 204 170 air")
+                               for line in lines if not line.startswith("100\t")))
         emits = [line for line in lines if "\taudio_emit\t" in line]
         self.assertEqual(77 - 1, len(emits))  # reconnect is captured by the second real client
         self.assertEqual(48, sum(line.endswith(" open") and "interaction_clash 1 open" not in line

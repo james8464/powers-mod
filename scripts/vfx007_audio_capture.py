@@ -42,8 +42,9 @@ def render_primary_scenario() -> str:
     lines = [
         "70\tcommand\tgamemode creative @s",
         "80\tcommand\ttp @s 0 200 0",
+        "81\tcommand\tfill -2 199 -2 2 199 0 stone",
         "90\tlook\t0 0",
-        "100\tcommand\tfill -2 198 2 2 204 2 air",
+        "100\tcommand\tfill -2 198 1 2 204 170 air",
         "180\taudio_comfort\tordinary",
     ]
     tick = 200
@@ -63,7 +64,7 @@ def render_primary_scenario() -> str:
         lines.append(f"{tick}\taudio_emit\t{cue} {distance} wall")
         lines.append(f"{tick}\taudio_assert\tmid admitted")
         tick += 4
-    lines.append(f"{tick}\tcommand\tfill -2 198 2 2 204 2 air")
+    lines.append(f"{tick}\tcommand\tfill -2 198 1 2 204 170 air")
     tick += 20
     for distance in range(1, 10):
         lines.append(f"{tick}\taudio_emit\tinteraction_clash {distance} open")
