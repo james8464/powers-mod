@@ -147,6 +147,17 @@ class Vfx007AudioVerifierTest(unittest.TestCase):
             self.assertEqual(16, result["wallCount"])
             self.assertEqual(16, result["subtitleCount"])
 
+    def test_retina_backing_resolution_passes(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = self.make_fixture(Path(raw))
+            subtitles = json.loads((root / "subtitles.json").read_text())
+            for capture in subtitles["captures"]:
+                path = root / "screenshots" / capture["imagePath"]
+                Image.new("RGB", (2560, 1440), (20, 30, 40)).save(path)
+                capture["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+            self.write_json(root / "subtitles.json", subtitles)
+            self.assertEqual(16, VERIFY.validate(root)["subtitleCount"])
+
     def test_missing_open_layer_is_rejected(self):
         def remove(root):
             rows = [json.loads(line) for line in (root / "audio-audit.jsonl").read_text().splitlines()]

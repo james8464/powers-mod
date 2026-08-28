@@ -1,0 +1,17 @@
+{
+  "captureCommand": "JAVA_HOME=<java25> python3 scripts/vfx007_audio_capture.py",
+  "coverage": {
+    "burst": 9,
+    "open": 48,
+    "rows": 77,
+    "subtitles": 16,
+    "wall": 16
+  },
+  "dedicatedServer": true,
+  "implementationSha": "b80c4067aa3a1a7f182cbd909eab314297620149",
+  "java": "25",
+  "minecraft": "26.2",
+  "realClientProcesses": 2,
+  "result": "PENDING",
+  "schemaVersion": 1
+}

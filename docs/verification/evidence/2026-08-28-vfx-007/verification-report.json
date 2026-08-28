@@ -1,0 +1,14 @@
+{
+  "burstCount": 9,
+  "implementationSha": "b80c4067aa3a1a7f182cbd909eab314297620149",
+  "lifecycleScenarios": [
+    "dimension",
+    "reconnect",
+    "reload"
+  ],
+  "openCount": 48,
+  "rowCount": 77,
+  "schemaVersion": 1,
+  "subtitleCount": 16,
+  "wallCount": 16
+}

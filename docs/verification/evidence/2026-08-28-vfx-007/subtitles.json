@@ -1,0 +1,86 @@
+{
+  "captures": [
+    {
+      "imagePath": "00-rune_hum.png",
+      "sha256": "7bcb5d34d44f49e4aa00a219de43b73642fa59c4281b7bb5cb323c8b9ca32d92",
+      "subtitleKey": "subtitles.powers.rune_hum"
+    },
+    {
+      "imagePath": "01-crystal_resonate.png",
+      "sha256": "1658e550dc4b80b241b256d166470b7d326d2fb7da9bf507a396fcc5e4e9b677",
+      "subtitleKey": "subtitles.powers.crystal_resonate"
+    },
+    {
+      "imagePath": "02-amethyst_fracture.png",
+      "sha256": "2d7b85d341a926c9ec3938450f24f89b056cd37c3c2d41dc30b8da81f5c55f89",
+      "subtitleKey": "subtitles.powers.amethyst_fracture"
+    },
+    {
+      "imagePath": "03-time_suspend.png",
+      "sha256": "96b5868cdd62a2554605f8f88b3f4ec39a3a6c0d3853d218ed810af28a49230f",
+      "subtitleKey": "subtitles.powers.time_suspend"
+    },
+    {
+      "imagePath": "04-celestial_ring.png",
+      "sha256": "33d9913e75665843c2251d379cbba46964b3b37edf0f4119a62e5ffd9aac51f6",
+      "subtitleKey": "subtitles.powers.celestial_ring"
+    },
+    {
+      "imagePath": "05-beam_ring.png",
+      "sha256": "bb9153e9e9fa167bb67d6385315080a8fab1121f857d70427deb2664b0422203",
+      "subtitleKey": "subtitles.powers.beam_ring"
+    },
+    {
+      "imagePath": "06-boss_impact_ring.png",
+      "sha256": "899e6da0941c6ca49025e1b26158b4b23d307060dae2f7bcb6236d2e05d3711c",
+      "subtitleKey": "subtitles.powers.boss_impact_ring"
+    },
+    {
+      "imagePath": "07-time_release.png",
+      "sha256": "04fdf63554471d3615eb376326eab962e2ea456fe3227b5d264a54db77d636fe",
+      "subtitleKey": "subtitles.powers.time_release"
+    },
+    {
+      "imagePath": "08-rift_open.png",
+      "sha256": "f85205257656492f0d447decdf1bfbb250552a5d2e8796ab5540bd948de08c9f",
+      "subtitleKey": "subtitles.powers.rift_open"
+    },
+    {
+      "imagePath": "09-rift_close.png",
+      "sha256": "0de2a9618c1525ce3ada27bec8739132f52da89037987dfd49cfbc150f465396",
+      "subtitleKey": "subtitles.powers.rift_close"
+    },
+    {
+      "imagePath": "10-soul_tether.png",
+      "sha256": "a079511b665c8b578584780b21cd462185ab79f3df1685f5c2c0af787479d4b5",
+      "subtitleKey": "subtitles.powers.soul_tether"
+    },
+    {
+      "imagePath": "11-light_chorus.png",
+      "sha256": "a7c8e630034b4209c3254e5367c63a79b90ab4c54b0e6183953f54c7b2a5a00b",
+      "subtitleKey": "subtitles.powers.light_chorus"
+    },
+    {
+      "imagePath": "12-dark_whisper.png",
+      "sha256": "668cd75a6d7adf66b1f5e1d53a803bdaf64be596e33549dc870a40784258a727",
+      "subtitleKey": "subtitles.powers.dark_whisper"
+    },
+    {
+      "imagePath": "13-ward_impact.png",
+      "sha256": "ae535a787837fb1c3bbeb89128b9c039f703877dfb2ef735389ad161f5220afa",
+      "subtitleKey": "subtitles.powers.ward_impact"
+    },
+    {
+      "imagePath": "14-rank_awaken.png",
+      "sha256": "3014717d8547307bd4493163abde7c2f45aa9ba08789ddcbeb5ad6338a0ff45a",
+      "subtitleKey": "subtitles.powers.rank_awaken"
+    },
+    {
+      "imagePath": "15-interaction_clash.png",
+      "sha256": "462fe2f653e539afc813e72c5794fbba6c064be395b66661374c3869e50dd9ee",
+      "subtitleKey": "subtitles.powers.interaction_clash"
+    }
+  ],
+  "implementationSha": "b80c4067aa3a1a7f182cbd909eab314297620149",
+  "schemaVersion": 1
+}

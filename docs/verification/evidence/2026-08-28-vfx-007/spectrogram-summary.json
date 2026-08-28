@@ -1,0 +1,86 @@
+{
+  "cues": [
+    {
+      "cue": "rune_hum",
+      "farCentroid": 93.09115748108867,
+      "nearCentroid": 137.07976038807158
+    },
+    {
+      "cue": "crystal_resonate",
+      "farCentroid": 270.2289869557426,
+      "nearCentroid": 410.1309739773715
+    },
+    {
+      "cue": "amethyst_fracture",
+      "farCentroid": 159.1193741810796,
+      "nearCentroid": 249.94317070222954
+    },
+    {
+      "cue": "time_suspend",
+      "farCentroid": 55.996819289979584,
+      "nearCentroid": 72.68441896990967
+    },
+    {
+      "cue": "celestial_ring",
+      "farCentroid": 2795.5300811200837,
+      "nearCentroid": 7031.968648149899
+    },
+    {
+      "cue": "beam_ring",
+      "farCentroid": 1087.305495455676,
+      "nearCentroid": 8102.79211199944
+    },
+    {
+      "cue": "boss_impact_ring",
+      "farCentroid": 1865.7700719212658,
+      "nearCentroid": 5671.905457569704
+    },
+    {
+      "cue": "time_release",
+      "farCentroid": 145.36068480382076,
+      "nearCentroid": 224.20945070800073
+    },
+    {
+      "cue": "rift_open",
+      "farCentroid": 61.76507014300747,
+      "nearCentroid": 95.31577594779877
+    },
+    {
+      "cue": "rift_close",
+      "farCentroid": 94.25342886383996,
+      "nearCentroid": 128.58348267235309
+    },
+    {
+      "cue": "soul_tether",
+      "farCentroid": 120.19361407485637,
+      "nearCentroid": 167.45710291563918
+    },
+    {
+      "cue": "light_chorus",
+      "farCentroid": 275.1316360557302,
+      "nearCentroid": 419.23076832813035
+    },
+    {
+      "cue": "dark_whisper",
+      "farCentroid": 53.510335425726765,
+      "nearCentroid": 73.10954081120389
+    },
+    {
+      "cue": "ward_impact",
+      "farCentroid": 119.40888373133099,
+      "nearCentroid": 215.585407708632
+    },
+    {
+      "cue": "rank_awaken",
+      "farCentroid": 178.8393862510972,
+      "nearCentroid": 270.24504792680955
+    },
+    {
+      "cue": "interaction_clash",
+      "farCentroid": 99.18351527851922,
+      "nearCentroid": 163.44114354129533
+    }
+  ],
+  "implementationSha": "b80c4067aa3a1a7f182cbd909eab314297620149",
+  "schemaVersion": 1
+}

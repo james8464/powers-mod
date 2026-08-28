@@ -277,8 +277,8 @@ def validate(root: Path) -> dict:
             raise ValueError("subtitle screenshot identity/checksum mismatch")
         image_names.add(name)
         with Image.open(path) as image:
-            if image.format != "PNG" or image.size != (1280, 720):
-                raise ValueError("subtitle screenshot must be 1280x720 PNG")
+            if image.format != "PNG" or image.size not in {(1280, 720), (2560, 1440)}:
+                raise ValueError("subtitle screenshot must be a 1280x720 capture at 1x or 2x")
     screenshots = root / "screenshots"
     actual_images = {path.name for path in screenshots.iterdir() if path.is_file()}
     if actual_images != image_names:

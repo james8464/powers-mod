@@ -1,0 +1,22 @@
+{
+  "burstEventIds": [
+    44826624,
+    44826625,
+    44826626,
+    44826627,
+    44826628,
+    44826629,
+    44826630,
+    44826631,
+    44826632
+  ],
+  "implementationSha": "b80c4067aa3a1a7f182cbd909eab314297620149",
+  "lifecycleEventIds": {
+    "dimension": 59965440,
+    "reconnect": 81395712,
+    "reload": 52690944
+  },
+  "ordinaryCelestialEventId": 28573696,
+  "reducedCelestialEventId": 45547520,
+  "schemaVersion": 1
+}
