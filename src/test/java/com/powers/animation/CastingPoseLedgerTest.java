@@ -35,23 +35,63 @@ final class CastingPoseLedgerTest {
 	}
 
 	@Test
-	void sameEntitySameTickIsRejectedAndCannotSendTwice() {
+	void duplicateAttemptsConsumeTheBoundedStartLane() {
 		var ledger = new CastingPoseLedger();
 		assertTrue(offer(ledger, 1, ONE, 50L).isPresent());
-		assertTrue(ledger.offer(1, ONE, CastingPose.CHANNEL, CastingStyle.RADIANT,
-				CastingHand.BOTH, 50L, 40).isEmpty());
-		for (int index = 0; index < 63; index++) {
-			assertTrue(offer(ledger, index + 2, uuid(index + 2), 50L).isPresent());
+		for (int index = 1; index < CastingPoseLedger.MAX_START_ATTEMPTS_PER_TICK; index++) {
+			assertTrue(ledger.offer(1, ONE, CastingPose.CHANNEL, CastingStyle.RADIANT,
+					CastingHand.BOTH, 50L, 40).isEmpty());
 		}
 		assertTrue(offer(ledger, 66, uuid(66), 50L).isEmpty());
-		assertEquals(1L, ledger.metrics().rejectedSameEntityTick());
+		assertEquals(CastingPoseLedger.MAX_START_ATTEMPTS_PER_TICK - 1L,
+				ledger.metrics().rejectedSameEntityTick());
+		assertEquals(CastingPoseLedger.MAX_START_ATTEMPTS_PER_TICK,
+				ledger.metrics().startAttemptsThisTick());
+		assertEquals(1L, ledger.metrics().rejectedTickBudget());
+	}
+
+	@Test
+	void reservedTerminalLaneClearsAfterSaturatedStartsWithoutExceedingTotalBudget() {
+		var ledger = new CastingPoseLedger();
+		assertTrue(offer(ledger, 1, ONE, 49L).isPresent());
+		for (int index = 0; index < CastingPoseLedger.MAX_START_ATTEMPTS_PER_TICK; index++) {
+			assertTrue(offer(ledger, index + 2, uuid(index + 2), 50L).isPresent());
+		}
+		var terminal = ledger.terminate(1, ONE, "legacy", 50L).orElseThrow();
+		assertTrue(terminal.terminal());
+		assertTrue(ledger.snapshot(ONE, 50L).isEmpty());
+		for (int index = 0; index < CastingPoseLedger.RESERVED_TERMINAL_ATTEMPTS_PER_TICK - 1;
+				index++) {
+			assertTrue(ledger.terminate(index + 2, uuid(index + 2), "legacy", 50L).isPresent());
+		}
+		assertTrue(ledger.terminate(99, uuid(99), "legacy", 50L).isEmpty());
+		assertEquals(CastingPoseLedger.MAX_ATTEMPTS_PER_TICK,
+				ledger.metrics().attemptsThisTick());
+	}
+
+	@Test
+	void saturatedTerminalStillClearsClientAndRejectsDelayedOldStart() {
+		var ledger = new CastingPoseLedger();
+		CastingPoseEvent started = offer(ledger, 1, ONE, 49L).orElseThrow();
+		for (int index = 0; index < CastingPoseLedger.MAX_START_ATTEMPTS_PER_TICK; index++) {
+			assertTrue(offer(ledger, index + 2, uuid(index + 2), 50L).isPresent());
+		}
+		CastingPoseEvent terminal = ledger.terminate(1, ONE, "legacy", 50L).orElseThrow();
+		var client = new ClientCastingPoseState();
+		var stamp = new ClientCastingPoseState.HandlerStamp(1, 1);
+		var world = new ClientCastingPoseState.WorldIdentity(1, 1);
+		var entity = new ClientCastingPoseState.EntityIdentity(1, ONE, true);
+		assertTrue(client.accept(wire(started), stamp, world, entity, 49L));
+		assertTrue(client.accept(wire(terminal), stamp, world, entity, 50L));
+		assertTrue(client.resolve(ONE, 50L).isEmpty());
+		assertTrue(!client.accept(wire(started), stamp, world, entity, 51L));
 	}
 
 	@Test
 	void identityBookkeepingIsBoundedAndDimensionCleanupIsExact() {
 		var ledger = new CastingPoseLedger();
 		for (int index = 0; index < CastingPoseLedger.MAX_IDENTITIES; index++) {
-			long tick = index / CastingPoseLedger.MAX_OFFERS_PER_TICK;
+			long tick = index / CastingPoseLedger.MAX_START_ATTEMPTS_PER_TICK;
 			assertTrue(ledger.offer(index, uuid(index), "overworld", CastingPose.CHANNEL,
 					CastingStyle.FIRST_VESSEL, CastingHand.BOTH, tick, 120).isPresent());
 		}
@@ -78,7 +118,7 @@ final class CastingPoseLedgerTest {
 	void activeCapacityRejectsNewIdentityWithoutEvictingLivePose() {
 		var ledger = new CastingPoseLedger();
 		for (int index = 0; index < CastingPoseLedger.MAX_ACTIVE; index++) {
-			long tick = index / CastingPoseLedger.MAX_OFFERS_PER_TICK;
+			long tick = index / CastingPoseLedger.MAX_START_ATTEMPTS_PER_TICK;
 			assertTrue(ledger.offer(index, uuid(index), CastingPose.CHANNEL,
 					CastingStyle.FIRST_VESSEL, CastingHand.BOTH, tick, 120).isPresent());
 		}
@@ -107,11 +147,15 @@ final class CastingPoseLedgerTest {
 	@Test
 	void metricsExposeAcceptedAndBoundedRejections() throws Exception {
 		var ledger = new CastingPoseLedger();
-		for (int index = 0; index < 65; index++) offer(ledger, index, uuid(index), 8L);
+		for (int index = 0; index < CastingPoseLedger.MAX_START_ATTEMPTS_PER_TICK + 1; index++) {
+			offer(ledger, index, uuid(index), 8L);
+		}
 		Object metrics = CastingPoseLedger.class.getMethod("metrics").invoke(ledger);
-		assertEquals(64L, metrics.getClass().getMethod("accepted").invoke(metrics));
+		assertEquals((long) CastingPoseLedger.MAX_START_ATTEMPTS_PER_TICK,
+				metrics.getClass().getMethod("accepted").invoke(metrics));
 		assertEquals(1L, metrics.getClass().getMethod("rejectedTickBudget").invoke(metrics));
-		assertEquals(64, metrics.getClass().getMethod("activeEntries").invoke(metrics));
+		assertEquals(CastingPoseLedger.MAX_START_ATTEMPTS_PER_TICK,
+				metrics.getClass().getMethod("activeEntries").invoke(metrics));
 	}
 
 	@Test
@@ -148,5 +192,11 @@ final class CastingPoseLedgerTest {
 
 	private static UUID uuid(int value) {
 		return new UUID(0x1234L, value + 1L);
+	}
+
+	private static ClientCastingPoseState.Wire wire(CastingPoseEvent event) {
+		return new ClientCastingPoseState.Wire(event.entityId(), event.entityUuid(),
+				event.sequence(), event.pose(), event.style(), event.hand(), event.startGameTime(),
+				event.durationTicks(), event.terminal());
 	}
 }

@@ -47,7 +47,8 @@ REQUIRED_FIELDS = {
     "schemaVersion", "implementationSha", "captureId", "scenario", "entityType",
     "entityId", "entityUuid", "resolvedEntityUuid", "sequence", "pose", "style",
     "hand", "authoritativeStartTick", "durationTicks", "receiptTick", "captureTick",
-    "reducedMotion", "active", "progress", "angles", "imagePath", "sha256",
+    "reducedMotion", "active", "progress", "angles", "movementDistance",
+    "observedWalkSpeed", "imagePath", "sha256",
 }
 
 
@@ -97,7 +98,7 @@ def _read_rows(manifest: Path) -> list[dict]:
 
 
 def _validate_row(root: Path, row: dict, implementation_sha: str | None) -> tuple[str, str]:
-    if row["schemaVersion"] != 1:
+    if row["schemaVersion"] != 2:
         raise ValueError("unsupported manifest schema")
     sha = row["implementationSha"]
     if not isinstance(sha, str) or SHA_PATTERN.fullmatch(sha) is None:
@@ -130,6 +131,8 @@ def _validate_row(root: Path, row: dict, implementation_sha: str | None) -> tupl
         raise ValueError("invalid receipt timing")
     if row["captureTick"] < row["receiptTick"]:
         raise ValueError("invalid capture timing")
+    if row["receiptTick"] >= row["authoritativeStartTick"] + row["durationTicks"]:
+        raise ValueError("receipt must identify the active event")
     progress = row["progress"]
     if not isinstance(progress, (int, float)) or not math.isfinite(progress) or not 0 <= progress <= 1:
         raise ValueError("invalid pose progress")
@@ -159,6 +162,17 @@ def _validate_row(root: Path, row: dict, implementation_sha: str | None) -> tupl
             raise ValueError("authoritative progress mismatch")
     if scenario == "locomotion_walk" and (not row["active"] or not 0.2 <= progress <= 0.75):
         raise ValueError("locomotion capture is outside authored hold")
+    movement = row["movementDistance"]
+    walk_speed = row["observedWalkSpeed"]
+    if (not isinstance(movement, (int, float)) or not math.isfinite(movement)
+            or not isinstance(walk_speed, (int, float)) or not math.isfinite(walk_speed)
+            or movement < 0 or walk_speed < 0):
+        raise ValueError("invalid locomotion metadata")
+    if scenario == "locomotion_walk":
+        if movement < 0.4 or walk_speed <= 0.05:
+            raise ValueError("locomotion scenario lacks observed movement")
+    elif movement != 0 or walk_speed != 0:
+        raise ValueError("unexpected locomotion metadata")
     if scenario in {"interruption", "expiry", "reconnect", "entity_id_reuse"} and row["active"]:
         raise ValueError(f"{scenario} did not clear pose state")
     if scenario == "entity_id_reuse":
@@ -232,7 +246,7 @@ def validate(root: Path) -> dict:
     if actual != images or any(path.is_symlink() for path in screenshots.iterdir()):
         raise ValueError("screenshot inventory mismatch")
     return {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "implementationSha": implementation_sha,
         "rowCount": len(rows),
         "galleryCount": len(gallery_keys),

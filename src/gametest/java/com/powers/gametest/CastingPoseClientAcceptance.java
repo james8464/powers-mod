@@ -45,6 +45,7 @@ public final class CastingPoseClientAcceptance {
 	private static final String SUBJECT_TAG = "powers_vfx006_subject";
 	private static final int DURATION = 40;
 	private static final double CAMERA_Y = 100.0;
+	private static final double GALLERY_PITCH = -15.0;
 
 	private CastingPoseClientAcceptance() {
 	}
@@ -100,7 +101,7 @@ public final class CastingPoseClientAcceptance {
 			VfxGalleryFixture.stabilize(player);
 			player.teleportTo(0.5, CAMERA_Y, 0.5);
 			player.setYRot(0.0F);
-			player.setXRot(0.0F);
+			player.setXRot((float) GALLERY_PITCH);
 			player.setNoGravity(true);
 			player.setInvulnerable(true);
 			player.setDeltaMovement(Vec3.ZERO);
@@ -114,7 +115,7 @@ public final class CastingPoseClientAcceptance {
 			client.options.screenEffectScale().set(1.0);
 			client.gui.toastManager().clear();
 			client.player.setYRot(0.0F);
-			client.player.setXRot(0.0F);
+			client.player.setXRot((float) GALLERY_PITCH);
 		});
 		context.waitTicks(40);
 	}
@@ -169,20 +170,19 @@ public final class CastingPoseClientAcceptance {
 		CastingPoseEvent event = start(singleplayer, subject, CastingPose.CHANNEL,
 				CastingStyle.RADIANT, CastingHand.BOTH, DURATION);
 		long receipt = awaitActive(context, subject, event.sequence());
-		for (int step = 0; step < 4; step++) {
+		double initialX = context.computeOnClient(client ->
+				client.level.getEntity(subject.entityId()).getX());
+		for (int step = 0; step < 10; step++) {
 			singleplayer.getServer().runOnServer(server -> {
 				Entity entity = server.overworld().getEntity(subject.entityUuid());
 				if (!(entity instanceof LivingEntity living)) {
 					throw new AssertionError("Locomotion subject vanished");
 				}
-				living.move(MoverType.SELF, new Vec3(0.2, 0.0, 0.0));
+				living.move(MoverType.SELF, new Vec3(0.12, 0.0, 0.0));
 			});
 			context.waitTick();
 		}
-		long now = context.computeOnClient(client -> client.level.getGameTime());
-		int wait = (int) Math.max(0L, event.startGameTime() + 12 - now);
-		if (wait > 0) context.waitTicks(wait);
-		captureActive(context, "locomotion_walk", subject, event, receipt, false);
+		captureActive(context, "locomotion_walk", subject, event, receipt, false, initialX);
 		discard(context, singleplayer, subject);
 	}
 
@@ -193,7 +193,7 @@ public final class CastingPoseClientAcceptance {
 		int duration = interrupt ? DURATION : 4;
 		CastingPoseEvent event = start(singleplayer, subject, CastingPose.CHANNEL,
 				CastingStyle.FIRST_VESSEL, CastingHand.BOTH, duration);
-		awaitActive(context, subject, event.sequence());
+		long receipt = awaitActive(context, subject, event.sequence());
 		if (interrupt) {
 			singleplayer.getServer().runOnServer(server -> {
 				LivingEntity entity = (LivingEntity) server.overworld().getEntity(subject.entityUuid());
@@ -204,7 +204,7 @@ public final class CastingPoseClientAcceptance {
 		} else {
 			context.waitTicks(duration + 2);
 		}
-		captureInactive(context, scenario, event, subject, subject.entityUuid(), null);
+		captureInactive(context, scenario, event, subject, subject.entityUuid(), receipt);
 		discard(context, singleplayer, subject);
 	}
 
@@ -214,7 +214,7 @@ public final class CastingPoseClientAcceptance {
 		Subject original = spawn(context, singleplayer, CastingStyle.RADIANT, 6.0, null);
 		CastingPoseEvent event = start(singleplayer, original, CastingPose.PROJECT,
 				CastingStyle.RADIANT, CastingHand.RIGHT, DURATION);
-		awaitActive(context, original, event.sequence());
+		long receipt = awaitActive(context, original, event.sequence());
 		AtomicReference<Subject> replacement = new AtomicReference<>();
 		singleplayer.getServer().runOnServer(server -> {
 			Entity before = server.overworld().getEntity(original.entityUuid());
@@ -235,7 +235,7 @@ public final class CastingPoseClientAcceptance {
 						.equals(replacement.get().entityUuid()));
 		context.waitTicks(3);
 		captureInactive(context, "entity_id_reuse", event, original,
-				replacement.get().entityUuid(), null);
+				replacement.get().entityUuid(), receipt);
 		discard(context, singleplayer, replacement.get());
 	}
 
@@ -329,25 +329,38 @@ public final class CastingPoseClientAcceptance {
 
 	private static void captureActive(ClientGameTestContext context, String scenario,
 			Subject subject, CastingPoseEvent event, long receiptTick, boolean reduced) {
+		captureActive(context, scenario, subject, event, receiptTick, reduced, Double.NaN);
+	}
+
+	private static void captureActive(ClientGameTestContext context, String scenario,
+			Subject subject, CastingPoseEvent event, long receiptTick, boolean reduced,
+			double movementStartX) {
 		Resolved resolved = context.computeOnClient(client -> {
 			LivingEntity entity = (LivingEntity) client.level.getEntity(subject.entityId());
-			if ("locomotion_walk".equals(scenario)) {
-				entity.walkAnimation.update(0.8F, 1.0F, 1.0F);
-			}
 			var state = ClientCastingPoseManager.resolve(entity).orElseThrow();
+			double movementDistance = "locomotion_walk".equals(scenario)
+					? Math.abs(entity.getX() - movementStartX) : 0.0;
+			double observedWalkSpeed = "locomotion_walk".equals(scenario)
+					? entity.walkAnimation.speed(1.0F) : 0.0;
+			if ("locomotion_walk".equals(scenario)
+					&& (movementDistance < 0.4 || observedWalkSpeed <= 0.05)) {
+				throw new AssertionError("Locomotion capture lacks real observed movement");
+			}
 			CastingPoseAngles angles = CastingPoseAngles.resolve(state.event().pose(),
 					state.event().style(), state.event().hand(), state.progress(), reduced).scale(
 							CastingPoseLocomotion.scale(entity.isFallFlying(),
 									entity.isVisuallySwimming(), entity.getSwimAmount(1.0F),
 									entity.walkAnimation.speed(1.0F), entity.isPassenger()));
-			return new Resolved(client.level.getGameTime(), state.progress(), angles);
+			return new Resolved(client.level.getGameTime(), state.progress(), angles,
+					movementDistance, observedWalkSpeed);
 		});
 		capture(context, scenario, subject, subject.entityUuid(), event, receiptTick,
-				resolved.tick(), reduced, true, resolved.progress(), resolved.angles());
+				resolved.tick(), reduced, true, resolved.progress(), resolved.angles(),
+				resolved.movementDistance(), resolved.observedWalkSpeed());
 	}
 
 	private static void captureInactive(ClientGameTestContext context, String scenario,
-			CastingPoseEvent event, Subject subject, UUID resolvedUuid, Long priorReceiptTick) {
+			CastingPoseEvent event, Subject subject, UUID resolvedUuid, long receiptTick) {
 		long tick = context.computeOnClient(client -> {
 			Entity entity = client.level.getEntity(subject.entityId());
 			if (entity != null && ClientCastingPoseManager.resolve(entity).isPresent()) {
@@ -355,24 +368,25 @@ public final class CastingPoseClientAcceptance {
 			}
 			return client.level.getGameTime();
 		});
-		capture(context, scenario, subject, resolvedUuid, event,
-				priorReceiptTick == null ? tick : priorReceiptTick, tick,
-				false, false, 1.0, CastingPoseAngles.ZERO);
+		capture(context, scenario, subject, resolvedUuid, event, receiptTick, tick,
+				false, false, 1.0, CastingPoseAngles.ZERO, 0.0, 0.0);
 	}
 
 	private static void capture(ClientGameTestContext context, String scenario, Subject subject,
 			UUID resolvedUuid, CastingPoseEvent event, long receiptTick, long captureTick,
-			boolean reduced, boolean active, double progress, CastingPoseAngles angles) {
+			boolean reduced, boolean active, double progress, CastingPoseAngles angles,
+			double movementDistance, double observedWalkSpeed) {
 		String mode = "gallery".equals(scenario) ? (reduced ? "-reduced" : "-normal") : "";
 		String captureId = "vfx006-" + scenario + '-' + event.style().name().toLowerCase()
 				+ '-' + event.pose().name().toLowerCase() + mode + '-' + event.sequence();
 		Path screenshot = context.takeScreenshot(captureId);
 		context.waitTick();
 		context.runOnClient(client -> appendManifest(client.gameDirectory.toPath(), new ManifestRow(
-				1, implementationSha(), captureId, scenario, subject.entityType(), subject.entityId(),
+				2, implementationSha(), captureId, scenario, subject.entityType(), subject.entityId(),
 				event.entityUuid(), resolvedUuid, event.sequence(), event.pose(), event.style(),
 				event.hand(), event.startGameTime(), event.durationTicks(), receiptTick, captureTick,
-				reduced, active, progress, angles, screenshot.getFileName().toString(), sha256(screenshot))));
+				reduced, active, progress, angles, movementDistance, observedWalkSpeed,
+				screenshot.getFileName().toString(), sha256(screenshot))));
 	}
 
 	private static void setReduced(ClientGameTestContext context, boolean reduced) {
@@ -451,7 +465,8 @@ public final class CastingPoseClientAcceptance {
 	private record Subject(int entityId, UUID entityUuid, String entityType) {
 	}
 
-	private record Resolved(long tick, double progress, CastingPoseAngles angles) {
+	private record Resolved(long tick, double progress, CastingPoseAngles angles,
+			double movementDistance, double observedWalkSpeed) {
 	}
 
 	private record ManifestRow(int schemaVersion, String implementationSha, String captureId,
@@ -459,6 +474,7 @@ public final class CastingPoseClientAcceptance {
 			long sequence, CastingPose pose, CastingStyle style, CastingHand hand,
 			long authoritativeStartTick, int durationTicks, long receiptTick, long captureTick,
 			boolean reducedMotion, boolean active, double progress, CastingPoseAngles angles,
+			double movementDistance, double observedWalkSpeed,
 			String imagePath, String sha256) {
 	}
 }

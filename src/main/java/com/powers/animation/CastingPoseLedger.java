@@ -13,12 +13,18 @@ import java.util.function.Predicate;
 public final class CastingPoseLedger {
 	public static final int MAX_ACTIVE = 256;
 	public static final int MAX_IDENTITIES = 256;
-	public static final int MAX_OFFERS_PER_TICK = 64;
+	public static final int MAX_ATTEMPTS_PER_TICK = 64;
+	public static final int RESERVED_TERMINAL_ATTEMPTS_PER_TICK = 8;
+	public static final int MAX_START_ATTEMPTS_PER_TICK =
+			MAX_ATTEMPTS_PER_TICK - RESERVED_TERMINAL_ATTEMPTS_PER_TICK;
+	/** Compatibility alias; the bound now covers all start and terminal attempts. */
+	public static final int MAX_OFFERS_PER_TICK = MAX_ATTEMPTS_PER_TICK;
 	private static final String LEGACY_DIMENSION = "legacy";
 
 	private final Map<UUID, IdentityState> identities = new HashMap<>();
 	private long budgetTick = Long.MIN_VALUE;
-	private int offeredThisTick;
+	private int startAttemptsThisTick;
+	private int terminalAttemptsThisTick;
 	private long accepted;
 	private long rejectedTickBudget;
 	private long rejectedCapacity;
@@ -35,6 +41,11 @@ public final class CastingPoseLedger {
 		Objects.requireNonNull(entityUuid, "entityUuid");
 		dimension = requireDimension(dimension);
 		rollBudget(tick);
+		if (startAttemptsThisTick >= MAX_START_ATTEMPTS_PER_TICK) {
+			rejectedTickBudget++;
+			return Optional.empty();
+		}
+		startAttemptsThisTick++;
 		IdentityState state = identities.get(entityUuid);
 		if (state != null && !state.dimension().equals(dimension)) {
 			identities.remove(entityUuid);
@@ -42,10 +53,6 @@ public final class CastingPoseLedger {
 		}
 		if (state != null && state.lastStartTick() == tick) {
 			rejectedSameEntityTick++;
-			return Optional.empty();
-		}
-		if (offeredThisTick >= MAX_OFFERS_PER_TICK) {
-			rejectedTickBudget++;
 			return Optional.empty();
 		}
 		if (state == null && identities.size() >= MAX_IDENTITIES) {
@@ -61,7 +68,6 @@ public final class CastingPoseLedger {
 		CastingPoseEvent event = new CastingPoseEvent(entityId, entityUuid, next.getAsLong(), pose,
 				style, hand, tick, durationTicks, false);
 		identities.put(entityUuid, new IdentityState(dimension, event.sequence(), tick, event));
-		offeredThisTick++;
 		accepted++;
 		return Optional.of(event);
 	}
@@ -69,14 +75,16 @@ public final class CastingPoseLedger {
 	/** Creates an explicit ordered terminal packet and removes the active channel. */
 	public Optional<CastingPoseEvent> terminate(int entityId, UUID entityUuid, String dimension,
 			long tick) {
+		Objects.requireNonNull(entityUuid, "entityUuid");
 		dimension = requireDimension(dimension);
 		rollBudget(tick);
-		IdentityState state = identities.get(entityUuid);
-		if (state == null || !state.dimension().equals(dimension) || state.active() == null) {
+		if (startAttemptsThisTick + terminalAttemptsThisTick >= MAX_ATTEMPTS_PER_TICK) {
+			rejectedTickBudget++;
 			return Optional.empty();
 		}
-		if (offeredThisTick >= MAX_OFFERS_PER_TICK) {
-			rejectedTickBudget++;
+		terminalAttemptsThisTick++;
+		IdentityState state = identities.get(entityUuid);
+		if (state == null || !state.dimension().equals(dimension) || state.active() == null) {
 			return Optional.empty();
 		}
 		OptionalLong next = nextSequence(state.sequence());
@@ -89,7 +97,6 @@ public final class CastingPoseLedger {
 				current.pose(), current.style(), current.hand(), tick, 1, true);
 		identities.put(entityUuid, new IdentityState(dimension, terminal.sequence(),
 				state.lastStartTick(), null));
-		offeredThisTick++;
 		accepted++;
 		return Optional.of(terminal);
 	}
@@ -125,13 +132,15 @@ public final class CastingPoseLedger {
 	public Metrics metrics() {
 		int active = (int) identities.values().stream().filter(state -> state.active() != null).count();
 		return new Metrics(accepted, rejectedTickBudget, rejectedCapacity, rejectedSequence,
-				rejectedSameEntityTick, active, identities.size(), offeredThisTick);
+				rejectedSameEntityTick, active, identities.size(), startAttemptsThisTick,
+				terminalAttemptsThisTick);
 	}
 
 	public void clear() {
 		identities.clear();
 		budgetTick = Long.MIN_VALUE;
-		offeredThisTick = 0;
+		startAttemptsThisTick = 0;
+		terminalAttemptsThisTick = 0;
 		accepted = 0;
 		rejectedTickBudget = 0;
 		rejectedCapacity = 0;
@@ -154,7 +163,8 @@ public final class CastingPoseLedger {
 	private void rollBudget(long tick) {
 		if (budgetTick == tick) return;
 		budgetTick = tick;
-		offeredThisTick = 0;
+		startAttemptsThisTick = 0;
+		terminalAttemptsThisTick = 0;
 	}
 
 	private static String requireDimension(String dimension) {
@@ -168,6 +178,13 @@ public final class CastingPoseLedger {
 
 	public record Metrics(long accepted, long rejectedTickBudget, long rejectedCapacity,
 			long rejectedSequence, long rejectedSameEntityTick, int activeEntries,
-			int identityEntries, int offeredThisTick) {
+			int identityEntries, int startAttemptsThisTick, int terminalAttemptsThisTick) {
+		public int attemptsThisTick() {
+			return startAttemptsThisTick + terminalAttemptsThisTick;
+		}
+
+		public int offeredThisTick() {
+			return attemptsThisTick();
+		}
 	}
 }

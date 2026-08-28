@@ -112,6 +112,14 @@ final class CastingPoseServiceTest {
 				CastingPose.PROJECT, CastingStyle.RADIANT, CastingHand.RIGHT, 20));
 	}
 
+	@Test
+	void finalDelayedGuardRejectsObserverThatStoppedTracking() {
+		assertTrue(CastingPoseService.guardValid(OBSERVER_A, OBSERVER_A, 33, 33,
+				ENTITY, ENTITY, true, true));
+		assertFalse(CastingPoseService.guardValid(OBSERVER_A, OBSERVER_A, 33, 33,
+				ENTITY, ENTITY, true, false));
+	}
+
 	private static Class<?> requireRuntimeType() {
 		try {
 			return Class.forName("com.powers.animation.CastingPoseService$RuntimeAccess");

@@ -57,6 +57,7 @@ public final class ClientCastingPoseState {
 			removeNonTerminal(entityUuid);
 			return Optional.empty();
 		}
+		if (gameTime < event.startGameTime()) return Optional.empty();
 		return Optional.of(new Resolved(event, CastingPoseRules.progress(gameTime, event)));
 	}
 
@@ -133,7 +134,10 @@ public final class ClientCastingPoseState {
 
 	private void ensureCapacity(UUID incoming) {
 		if (sequences.containsKey(incoming) || sequences.size() < MAX_ENTRIES) return;
-		UUID evict = sequences.keySet().iterator().next();
+		UUID evict = sequences.keySet().stream().min(java.util.Comparator
+				.comparingLong((UUID uuid) -> entries.containsKey(uuid)
+						? entries.get(uuid).endGameTime() : Long.MIN_VALUE)
+				.thenComparing(UUID::toString)).orElseThrow();
 		sequences.remove(evict);
 		entries.remove(evict);
 		terminalTombstones.remove(evict);

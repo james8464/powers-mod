@@ -41,12 +41,13 @@ final class ClientCastingPoseStateTest {
 	}
 
 	@Test
-	void boundedFutureSkewIsRetainedAtZeroProgressUntilAuthoritativeStart() {
+	void boundedFutureSkewIsRetainedButCannotRenderBeforeAuthoritativeStart() {
 		var state = new ClientCastingPoseState();
 		assertTrue(state.accept(wire(12, ONE, 1, 25, 20), STAMP, WORLD,
 				entity(12, ONE), 20));
-		assertEquals(0.0, state.resolve(ONE, 20).orElseThrow().progress());
-		assertEquals(0.0, state.resolve(ONE, 24).orElseThrow().progress());
+		assertTrue(state.resolve(ONE, 20).isEmpty());
+		assertTrue(state.resolve(ONE, 24).isEmpty());
+		assertTrue(state.entries().containsKey(ONE));
 		assertEquals(0.05, state.resolve(ONE, 26).orElseThrow().progress(), 0.0001);
 	}
 
@@ -98,13 +99,16 @@ final class ClientCastingPoseStateTest {
 		var state = new ClientCastingPoseState();
 		for (int index = 0; index < ClientCastingPoseState.MAX_ENTRIES; index++) {
 			UUID uuid = new UUID(9, index + 1L);
-			assertTrue(state.accept(wire(index, uuid, 1, 20, index == 0 ? 5 : 100),
+			assertTrue(state.accept(wire(index, uuid, 1, 20,
+					index == ClientCastingPoseState.MAX_ENTRIES - 1 ? 5 : 100),
 					STAMP, WORLD, entity(index, uuid), 20));
 		}
 		assertTrue(state.accept(wire(200, TWO, 1, 20, 100), STAMP, WORLD,
 				entity(200, TWO), 20));
 		assertEquals(ClientCastingPoseState.MAX_ENTRIES, state.entries().size());
-		assertFalse(state.entries().containsKey(new UUID(9, 1)));
+		assertTrue(state.entries().containsKey(new UUID(9, 1)));
+		assertFalse(state.entries().containsKey(new UUID(9,
+				ClientCastingPoseState.MAX_ENTRIES)));
 		assertTrue(state.entries().containsKey(TWO));
 	}
 

@@ -128,9 +128,17 @@ public final class CastingPoseService {
 		PowersPlayNetworking.sendGuarded(observer, payload, current -> {
 			if (server.getPlayerList().getPlayer(observerUuid) != current) return false;
 			Entity live = current.level().getEntity(entityId);
-			return live != null && live.getUUID().equals(entityUuid)
-					&& !live.isRemoved() && live.isAlive();
+			return live != null && guardValid(observerUuid, current.getUUID(), entityId,
+					live.getId(), entityUuid, live.getUUID(), !live.isRemoved() && live.isAlive(),
+					PlayerLookup.tracking(live).contains(current));
 		}, () -> { }, failure -> { });
+	}
+
+	static boolean guardValid(UUID expectedObserver, UUID currentObserver, int expectedEntityId,
+			int currentEntityId, UUID expectedEntity, UUID currentEntity, boolean alive,
+			boolean tracking) {
+		return expectedObserver.equals(currentObserver) && expectedEntityId == currentEntityId
+				&& expectedEntity.equals(currentEntity) && alive && tracking;
 	}
 
 	/** Narrow runtime boundary guarantees delivery cannot enumerate non-tracking players. */

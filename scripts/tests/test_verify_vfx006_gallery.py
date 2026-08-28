@@ -55,7 +55,7 @@ class Vfx006GalleryVerifierTest(unittest.TestCase):
         scale = 0.0 if not active else (0.55 if reduced else 0.8)
         entity_uuid = f"11111111-1111-1111-1111-{sequence:012d}"
         return {
-            "schemaVersion": 1,
+            "schemaVersion": 2,
             "implementationSha": "a" * 40,
             "captureId": capture_id,
             "scenario": scenario,
@@ -77,6 +77,8 @@ class Vfx006GalleryVerifierTest(unittest.TestCase):
             "progress": progress,
             "angles": {name: scale * VERIFY.ANGLE_LIMITS[name]
                        for name in VERIFY.ANGLE_FIELDS},
+            "movementDistance": 0.8 if scenario == "locomotion_walk" else 0.0,
+            "observedWalkSpeed": 0.4 if scenario == "locomotion_walk" else 0.0,
             "imagePath": image_path,
             "sha256": digest,
         }
@@ -124,6 +126,24 @@ class Vfx006GalleryVerifierTest(unittest.TestCase):
             row["progress"] = 0.25
             self.write_rows(root, rows)
         self.mutate(change_progress, "authoritative progress mismatch")
+
+    def test_receipt_must_precede_event_expiry(self):
+        def expire_receipt(root):
+            rows = self.rows(root)
+            row = next(item for item in rows if item["scenario"] == "expiry")
+            row["receiptTick"] = row["authoritativeStartTick"] + row["durationTicks"]
+            row["captureTick"] = row["receiptTick"]
+            self.write_rows(root, rows)
+        self.mutate(expire_receipt, "receipt must identify the active event")
+
+    def test_locomotion_requires_real_observed_displacement_and_speed(self):
+        def stop(root):
+            rows = self.rows(root)
+            row = next(item for item in rows if item["scenario"] == "locomotion_walk")
+            row["movementDistance"] = 0.0
+            row["observedWalkSpeed"] = 0.0
+            self.write_rows(root, rows)
+        self.mutate(stop, "locomotion scenario lacks observed movement")
 
     def test_missing_release_pose_is_rejected(self):
         def remove(root):

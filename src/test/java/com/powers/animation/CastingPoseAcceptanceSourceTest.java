@@ -16,5 +16,8 @@ final class CastingPoseAcceptanceSourceTest {
 		assertTrue(acceptance.contains("PacketFaultProfile.named(\"delay300\""));
 		assertTrue(acceptance.contains("captureLocomotionWalk("));
 		assertTrue(acceptance.contains("entity.walkAnimation.speed(1.0F)"));
+		assertTrue(acceptance.contains("movementDistance < 0.4"));
+		assertTrue(acceptance.contains("observedWalkSpeed <= 0.05"));
+		assertTrue(!acceptance.contains("walkAnimation.update("));
 	}
 }
