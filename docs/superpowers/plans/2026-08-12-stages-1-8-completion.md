@@ -72,7 +72,9 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
   provides unique bounded long-distance silhouettes for all 23 rank-ten innate transformations; a
   fresh 56-frame gallery passes pairwise identity, accessibility, occlusion, and lifecycle gates, and
   the literal aggregate is green. Independent review returned READY; the closure-head check passed and VFX-005 is integrated into and pushed on `main`.
-- [ ] `VFX-006`: synchronised bounded casting poses for player-like magical entities without a heavy animation dependency.
+- [x] `VFX-006`: compact server-authoritative casting poses for six scoped player-like magical
+  styles, with tracker-only delivery, latency-correct bounded playback, reduced motion, and a
+  checksum-bound 54-frame real-client/lifecycle gallery; the literal aggregate is green.
 - [ ] `VFX-007`: authored near/mid/far sound layers, obstruction falloff, subtitles, mixing, and reduced-tinnitus support.
 
 ### Stage 4 — cross-system interactions

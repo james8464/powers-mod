@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Closed VFX-006 with compact server-authoritative casting poses for Shadow, both artifact guardians,
+  both Heralds, and First Vessel. Four semantic pose families synchronize from authoritative start
+  time through bounded tracker-only delivery and UUID/sequence-safe client playback; scoped model
+  adapters preserve vanilla locomotion and held items, while reduced motion uses static lower-amplitude
+  poses. A digest-bound 54-frame real-client gallery covers all six styles/four poses/modes plus
+  latency, late tracking, interruption, expiry, entity-ID reuse, and reconnect. The unfiltered Java 25
+  aggregate passes 145 GameTests, 1,760 JUnit tests, and 191 Python tests.
+
 - Completed the VFX-005 exact-build closure candidate at implementation commit
   `562f092a1393cb05485499fbbfc9b6782ae9b5cc`: all 23 rank-ten innate powers emit a unique,
   bounded semantic silhouette only after a committed successful cast. The depth-tested renderer is

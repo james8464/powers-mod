@@ -419,7 +419,7 @@ Run: `python3 -B -m unittest scripts.tests.test_verify_vfx006_gallery scripts.te
 
 Reuse the existing acceptance client capture transport and run-directory isolation. Each screenshot is 1280×720 and the scenario writes its semantic metadata before capture.
 
-- [ ] **Step 4: Run the real integrated-client gallery and retain only deterministic owned evidence.**
+- [x] **Step 4: Run the real integrated-client gallery and retain only deterministic owned evidence.**
 
 Run the repository's existing client GameTest command with a fresh ignored run directory, then invoke:
 
@@ -428,15 +428,15 @@ python3 scripts/verify_vfx006_gallery.py --root docs/verification/evidence/2026-
 python3 scripts/package_vfx006_evidence.py --root docs/verification/evidence/2026-08-28-vfx-006
 ```
 
-- [ ] **Step 5: Run a targeted visual review and fix any clipping/readability defect through a new failing angle or acceptance test before recapture.**
+- [x] **Step 5: Run a targeted visual review and fix any clipping/readability defect through a new failing angle or acceptance test before recapture.**
 
 Review held items, locomotion compatibility, normal/reduced distinction, pose-family readability, and lifecycle resets. Record findings and disposition in the evidence README.
 
-- [ ] **Step 6: Run the literal full gate on the immutable implementation head and bind evidence to that SHA.**
+- [x] **Step 6: Run the literal full gate on the immutable implementation head and bind evidence to that SHA.**
 
 Run: `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew check --rerun-tasks --no-daemon --console=plain`
 
-- [ ] **Step 7: Update truthful closure docs, checksums, archive inventory, and plan/backlog state; commit closure.**
+- [x] **Step 7: Update truthful closure docs, checksums, archive inventory, and plan/backlog state; commit closure.**
 
 ```bash
 git add README.md CHANGELOG.md docs/planning/IMPROVEMENT_BACKLOG.md \
