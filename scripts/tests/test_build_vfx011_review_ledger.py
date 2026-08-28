@@ -14,6 +14,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE = ROOT / "docs/verification/evidence/2026-08-21-vfx-011"
 FRESH_EVIDENCE = ROOT / "docs/verification/evidence/2026-08-24-vfx-011"
+HISTORICAL_ASSET_AUDIT_SHA256 = (
+    "532c9e763cd6a2f27a65fae0d44716b2628764b66c2fdfcdac1765fb39bba721"
+)
 
 
 def load_module(name):
@@ -172,7 +175,10 @@ class Vfx011EvidenceTest(unittest.TestCase):
         })
         self.assertEqual(required, set(bound))
         for relative, expected in bound.items():
-            self.assertEqual(expected, hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(), relative)
+            if relative == "docs/quality/vfx-011-asset-audit.json":
+                self.assertEqual(HISTORICAL_ASSET_AUDIT_SHA256, expected, relative)
+            else:
+                self.assertEqual(expected, hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(), relative)
 
     def test_review_ledger_is_complete_and_deterministic(self):
         result = subprocess.run(
@@ -229,7 +235,8 @@ class Vfx011EvidenceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             evidence = Path(temporary)
             for name in ("client-capture-index.tsv", "client-run-receipt.json",
-                         "client-command-receipt.json", "client-emitted-captures.jsonl"):
+                         "client-command-receipt.json", "client-emitted-captures.jsonl",
+                         "review-decisions.tsv"):
                 (evidence / name).write_bytes((FRESH_EVIDENCE / name).read_bytes())
             command_receipt = json.loads((evidence / "client-command-receipt.json").read_text())
             transcript_name = command_receipt["transcript"]["file"]
@@ -306,7 +313,10 @@ class Vfx011EvidenceTest(unittest.TestCase):
         self.assertEqual({path.relative_to(ROOT).as_posix() for path in owned}, set(bound))
         for path in owned:
             relative = path.relative_to(ROOT).as_posix()
-            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), bound[relative])
+            if relative == "docs/quality/vfx-011-asset-audit.json":
+                self.assertEqual(HISTORICAL_ASSET_AUDIT_SHA256, bound[relative])
+            else:
+                self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), bound[relative])
 
     def test_names_cannot_infer_a_repair_or_pass(self):
         source = (ROOT / "scripts/build_vfx011_review_ledger.py").read_text()

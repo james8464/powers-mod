@@ -81,6 +81,22 @@ def validate_client_command_receipt(evidence: Path, run_receipt: dict) -> None:
 
 def inputs(evidence: Path = EVIDENCE) -> tuple[dict, list[dict], dict | None]:
     manifest = json.loads(MANIFEST.read_text())
+    decision_rows = list(csv.DictReader(
+        (evidence / "review-decisions.tsv").read_text().splitlines(), delimiter="\t"))
+    reviewed_asset_digests = {
+        row["id"]: row["sha256"]
+        for row in decision_rows if row["kind"] == "asset_source"
+    }
+    reviewed_asset_ids = set(reviewed_asset_digests)
+    reviewed_assets = [
+        {**asset, "sha256": reviewed_asset_digests[asset["path"]]}
+        for asset in manifest["assets"] if asset["path"] in reviewed_asset_ids
+    ]
+    if {asset["path"] for asset in reviewed_assets} != reviewed_asset_ids:
+        raise ValueError("reviewed asset inventory is missing from the current manifest")
+    # VFX-011 is a historical, digest-bound review. Later tasks may append assets to
+    # the live inventory, but they must not silently expand or invalidate that review.
+    manifest = {**manifest, "assets": reviewed_assets}
     client_rows = list(csv.DictReader(
         (evidence / "client-capture-index.tsv").read_text().splitlines(), delimiter="\t"))
     if len(manifest["assets"]) != 970 or len(manifest["pageDigests"]) != 90:
