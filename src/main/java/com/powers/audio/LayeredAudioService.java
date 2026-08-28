@@ -38,8 +38,9 @@ public final class LayeredAudioService {
 		long gameTime = runtime.gameTime();
 		long eventId = nextEventId(gameTime);
 		Identifier dimension = Objects.requireNonNull(runtime.dimension(), "dimension");
+		float payloadGain = Float.isFinite(gain) ? Math.min(gain, 4.0F) : gain;
 		LayeredAudioPackets.Payload payload = new LayeredAudioPackets.Payload(eventId, cue,
-				dimension, origin.x, origin.y, origin.z, gain, pitch, gameTime);
+				dimension, origin.x, origin.y, origin.z, payloadGain, pitch, gameTime);
 		double radius = cue.profile().maximumRadius();
 		double radiusSquared = radius * radius;
 		int sent = 0;

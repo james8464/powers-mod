@@ -57,6 +57,16 @@ final class LayeredAudioServiceTest {
 				runtime.sent.get(2).payload().eventId());
 	}
 
+	@Test
+	void catastrophicAuthoredGainIsBoundedBeforePayloadConstruction() {
+		FakeRuntime runtime = new FakeRuntime(9L,
+				List.of(new LayeredAudioService.Observer(NEAR, OVERWORLD, 0, 64, 0)));
+
+		assertEquals(1, LayeredAudioService.deliver(runtime, new Vec3(0, 64, 0),
+				LayeredAudioCue.INTERACTION_CLASH, 12.0F, 0.5F));
+		assertEquals(4.0F, runtime.sent.getFirst().payload().gain());
+	}
+
 	private record Send(UUID observer, LayeredAudioPackets.Payload payload) { }
 
 	private static final class FakeRuntime implements LayeredAudioService.RuntimeAccess {
