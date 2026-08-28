@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Closed VFX-007 with 16 semantic magical cues backed by 51 deterministic near/mid/far and
+  reduced-tinnitus assets, server-authoritative bounded delivery, obstruction-aware positional
+  playback, subtitles, lifecycle-safe client admission, global burst headroom, and restrained
+  missing-resource behavior. Exact implementation commit
+  `1e04d2c2534120a234ebba2d04229a6f44a240d1` was exercised by a dedicated server and two real
+  clients: the checksum-bound schema-1 package retains 77 audit rows, all 16 subtitle screenshots,
+  ordinary/reduced Celestial cases, capped bursts, and reload/reconnect/dimension resets. Independent
+  review returned READY, while the unfiltered Java 25 aggregate passes 155 GameTests, 1,810 JUnit
+  tests, and 218 Python tests.
+
 - Closed VFX-006 with compact server-authoritative casting poses for Shadow, both artifact guardians,
   both Heralds, and First Vessel. Four semantic pose families synchronize from authoritative start
   time through bounded tracker-only delivery and UUID/sequence-safe client playback; scoped model

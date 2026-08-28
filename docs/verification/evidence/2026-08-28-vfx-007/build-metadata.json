@@ -8,10 +8,19 @@
     "wall": 16
   },
   "dedicatedServer": true,
+  "evidenceCommitSha": "22d9b39a7e611ef5a5d44acd783d19cd651d3f15",
+  "fullGate": {
+    "command": "./gradlew check --rerun-tasks --no-daemon --console=plain",
+    "gameTests": 155,
+    "junitTests": 1810,
+    "pythonTests": 218,
+    "result": "PASS"
+  },
   "implementationSha": "1e04d2c2534120a234ebba2d04229a6f44a240d1",
   "java": "25",
   "minecraft": "26.2",
   "realClientProcesses": 2,
-  "result": "PENDING",
-  "schemaVersion": 1
+  "result": "PASS",
+  "schemaVersion": 1,
+  "verificationSha": "fe79079965f89d9d147a664740bc11d6073aa254"
 }

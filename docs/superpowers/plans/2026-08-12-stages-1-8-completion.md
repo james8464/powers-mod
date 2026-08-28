@@ -76,7 +76,11 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
   styles, with tracker-only delivery, latency-correct bounded playback, reduced motion, and a
   checksum-bound 55-frame real-client/lifecycle gallery including delayed delivery and moving
   locomotion; the literal aggregate is green.
-- [ ] `VFX-007`: authored near/mid/far sound layers, obstruction falloff, subtitles, mixing, and reduced-tinnitus support.
+- [x] `VFX-007`: 16 semantic cues use 51 deterministic near/mid/far and reduced-tinnitus assets,
+  bounded server delivery, obstruction-aware positional mixing, subtitles, lifecycle resets, and
+  global headroom. Exact implementation commit `1e04d2c2534120a234ebba2d04229a6f44a240d1`
+  is bound to a 77-row dedicated-server/two-client evidence package; independent review returned
+  READY and the literal aggregate passes 155 GameTests, 1,810 JUnit tests, and 218 Python tests.
 
 ### Stage 4 — cross-system interactions
 

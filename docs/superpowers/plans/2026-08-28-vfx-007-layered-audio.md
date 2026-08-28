@@ -39,7 +39,7 @@
 - Consumes: no VFX-007 code.
 - Produces: `LayeredAudioCue.fromNetworkId(int)` and `forSemanticName(String)`; `LayeredAudioRules.resolve(cue, distance, obstructed, reducedTinnitus, baseGain, concurrent)` returning `Optional<ResolvedLayer>`.
 
-- [ ] **Step 1: Write catalogue tests that require 16 stable IDs and complete metadata**
+- [x] **Step 1: Write catalogue tests that require 16 stable IDs and complete metadata**
 
 ```java
 assertEquals(16, LayeredAudioCue.values().length);
@@ -55,7 +55,7 @@ assertEquals(Optional.empty(), LayeredAudioCue.fromNetworkId(-1));
 assertEquals(Optional.empty(), LayeredAudioCue.fromNetworkId(16));
 ```
 
-- [ ] **Step 2: Write RED boundary tests for layer, obstruction, comfort, and headroom**
+- [x] **Step 2: Write RED boundary tests for layer, obstruction, comfort, and headroom**
 
 ```java
 assertEquals(NEAR, resolve(RUNE_HUM, 8.0, false).layer());
@@ -69,13 +69,13 @@ assertFalse(resolve(BEAM_RING, 4.0, false, true).reducedTinnitus());
 assertEquals(0.45F, LayeredAudioRules.headroom(4, 0.90F), 0.0001F);
 ```
 
-- [ ] **Step 3: Run the focused tests and confirm RED**
+- [x] **Step 3: Run the focused tests and confirm RED**
 
 Run: `./gradlew test --tests 'com.powers.audio.*' --no-daemon --console=plain`
 
 Expected: compilation fails because the audio catalogue and rules do not exist.
 
-- [ ] **Step 4: Implement the immutable catalogue and pure resolver**
+- [x] **Step 4: Implement the immutable catalogue and pure resolver**
 
 ```java
 public static Optional<ResolvedLayer> resolve(LayeredAudioCue cue, double distance,
@@ -93,7 +93,7 @@ public static Optional<ResolvedLayer> resolve(LayeredAudioCue cue, double distan
 }
 ```
 
-- [ ] **Step 5: Run tests, source audit, and commit**
+- [x] **Step 5: Run tests, source audit, and commit**
 
 Run: `./gradlew test --tests 'com.powers.audio.*' auditJavaSources --no-daemon --console=plain`
 
@@ -121,7 +121,7 @@ git commit -m "feat(audio): define bounded layered cue rules"
 - Consumes: `LayeredAudioCue.assetId(layer, reduced)` and the 16 committed base masters.
 - Produces: 51 deterministic resources, 16 subtitle strings, `PowersSounds.layer(cue, layer, reduced)`, and JSON audio metrics.
 
-- [ ] **Step 1: Write RED Python tests for inventory and quantitative acceptance**
+- [x] **Step 1: Write RED Python tests for inventory and quantitative acceptance**
 
 ```python
 report = validate_layered_audio.validate(ROOT)
@@ -135,13 +135,13 @@ for cue in report["cues"]:
 self.assertLessEqual(report["reducedCelestialHighBandRatio"], 0.30)
 ```
 
-- [ ] **Step 2: Run the validator test and confirm RED**
+- [x] **Step 2: Run the validator test and confirm RED**
 
 Run: `python3 -m unittest scripts.tests.test_validate_layered_audio -v`
 
 Expected: FAIL because the generator, validator, and 51 layered assets are absent.
 
-- [ ] **Step 3: Implement deterministic DSP from committed masters**
+- [x] **Step 3: Implement deterministic DSP from committed masters**
 
 ```python
 def layer(master, kind):
@@ -158,15 +158,15 @@ def layer(master, kind):
 
 Use deterministic seeds and fixed SoundFile Vorbis settings. Generate reduced Celestial from a low-mid contour derived from the master envelope, with the 4–12 kHz band removed rather than simple gain reduction.
 
-- [ ] **Step 4: Register layered events and subtitles**
+- [x] **Step 4: Register layered events and subtitles**
 
 For each cue, add `cue.near`, `cue.mid`, and `cue.far` entries with the same `subtitle` key. Add three `celestial_ring.reduced.*` entries. Add exactly 16 `subtitles.powers.<cue>` English strings. Extend `PowersSounds` with a `LayeredSoundSet` map while preserving the existing base constants for compatibility and `fromSound` lookup.
 
-- [ ] **Step 5: Extend strict resource validation**
+- [x] **Step 5: Extend strict resource validation**
 
 Require exact layered entry/file inventory, mono 44.1 kHz Vorbis, translation coverage, no duplicate JSON keys, and the quantitative validator's zero-error report. Do not make generation part of ordinary Gradle builds; committed binaries must be reproducible by an explicit generator run.
 
-- [ ] **Step 6: Generate twice and prove byte stability**
+- [x] **Step 6: Generate twice and prove byte stability**
 
 Run:
 
@@ -180,7 +180,7 @@ diff -u /tmp/vfx007-a /tmp/vfx007-b
 
 Expected: no diff and 51 rows.
 
-- [ ] **Step 7: Run resource tests and commit**
+- [x] **Step 7: Run resource tests and commit**
 
 Run: `python3 -m unittest scripts.tests.test_validate_layered_audio -v && ./gradlew validatePowerResources test --tests com.powers.audio.LayeredAudioResourcesTest --no-daemon --console=plain`
 
@@ -207,17 +207,17 @@ git commit -m "feat(audio): author distance-layered magic bank"
 - Consumes: `LayeredAudioCue` and profile maximum range.
 - Produces: `LayeredAudioPackets.Payload(long eventId, LayeredAudioCue cue, Identifier dimension, double x, double y, double z, float gain, float pitch, long emittedGameTime)` and `LayeredAudioService.emit(ServerLevel, Vec3, LayeredAudioCue, float, float)`.
 
-- [ ] **Step 1: Write RED codec, validation, recipient, and packet-family tests**
+- [x] **Step 1: Write RED codec, validation, recipient, and packet-family tests**
 
 Require round-trip equality, unknown cue refusal, finite world bounds, gain `[0.01,4.0]`, pitch `[0.25,4.0]`, no recipients across dimensions/outside far range, exactly one send for each eligible payload-capable listener, and stable fault-stream key from event ID.
 
-- [ ] **Step 2: Run focused tests and confirm RED**
+- [x] **Step 2: Run focused tests and confirm RED**
 
 Run: `./gradlew test --tests 'com.powers.network.LayeredAudioPacketsTest' --tests 'com.powers.audio.LayeredAudioServiceTest' --tests 'com.powers.testing.network.PacketFaultFamiliesTest' --no-daemon --console=plain`
 
 Expected: compilation fails because payload/service types are absent.
 
-- [ ] **Step 3: Implement strict payload construction and codec**
+- [x] **Step 3: Implement strict payload construction and codec**
 
 ```java
 public Payload {
@@ -233,11 +233,11 @@ public Payload {
 
 Decode cue IDs through `Optional`; malformed IDs throw the codec's normal decode exception rather than mapping to a fallback cue.
 
-- [ ] **Step 4: Implement bounded fan-out and registration**
+- [x] **Step 4: Implement bounded fan-out and registration**
 
 Use the level's player list, exact dimension equality, squared eye distance, `ServerPlayNetworking.canSend`, and `PowersPlayNetworking.send`. Event IDs combine server tick with a bounded per-tick sequence that resets each tick; no collection is allocated or persisted.
 
-- [ ] **Step 5: Run focused tests and commit**
+- [x] **Step 5: Run focused tests and commit**
 
 Run: `./gradlew test --tests 'com.powers.network.LayeredAudioPacketsTest' --tests 'com.powers.audio.LayeredAudioServiceTest' --tests 'com.powers.testing.network.PacketFaultFamiliesTest' --no-daemon --console=plain`
 
@@ -265,33 +265,33 @@ git commit -m "feat(audio): send bounded semantic sound events"
 - Consumes: `LayeredAudioPackets.Payload`, `LayeredAudioRules`, and `PowersSounds.layer`.
 - Produces: `ClientLayeredAudioMixer.handle(payload)`, `resetConnectionEpoch()`, `reload()`, `metrics()`, and config `reducedTinnitus()`.
 
-- [ ] **Step 1: Write RED config, bounded-ledger, burst, and lifecycle tests**
+- [x] **Step 1: Write RED config, bounded-ledger, burst, and lifecycle tests**
 
 Test absent/malformed config defaults false; valid JSON enables only reduced tinnitus; duplicate and older event IDs are ignored; the 257th accepted ID evicts deterministically; same cue/origin cell coalesces within four ticks; fifth group and ninth global offers are dropped; resets clear IDs and counters.
 
-- [ ] **Step 2: Write a RED source-boundary test for real positional playback**
+- [x] **Step 2: Write a RED source-boundary test for real positional playback**
 
 Require one `SoundSource.PLAYERS` sound instance at payload coordinates, linear attenuation, exactly one selected event, one `ClipContext` obstruction query, and no `SimpleSoundInstance.forUI` or three-layer loop.
 
-- [ ] **Step 3: Run focused tests and confirm RED**
+- [x] **Step 3: Run focused tests and confirm RED**
 
 Run: `./gradlew test --tests 'com.powers.client.audio.*' --no-daemon --console=plain`
 
 Expected: compilation fails because client audio classes are absent.
 
-- [ ] **Step 4: Implement config and pure client state**
+- [x] **Step 4: Implement config and pure client state**
 
 Parse only `{"reducedTinnitus":true|false}` from `config/powers-client.json`; ignore unknown fields, cap file size at 4 KiB, and log malformed input once. Implement the 256-entry ID ledger with access-ordered `LinkedHashMap` and explicit eldest removal.
 
-- [ ] **Step 5: Implement listener classification and one positional sound**
+- [x] **Step 5: Implement listener classification and one positional sound**
 
 On the client thread: reject missing player/level, dimension mismatch, payload age outside `[0,100]`, or duplicate ID; measure camera-to-origin distance; perform one collider-only clip; resolve the cue/layer/gain; apply group admission; and play one `PositionalLayeredSound` using the matching registered layer event. The sound's coordinates remain the server origin and `relative=false`.
 
-- [ ] **Step 6: Wire receiver and lifecycle resets**
+- [x] **Step 6: Wire receiver and lifecycle resets**
 
 Register the payload in `PowersClient`; reset on DISCONNECT and dimension transition; recreate config/state on resource reload. Preserve diagnostics as bounded scalar counters.
 
-- [ ] **Step 7: Run focused tests and commit**
+- [x] **Step 7: Run focused tests and commit**
 
 Run: `./gradlew test --tests 'com.powers.client.audio.*' auditJavaSources --no-daemon --console=plain`
 
@@ -322,17 +322,17 @@ git commit -m "feat(audio): mix listener-specific layered cues"
 - Consumes: `PowersSounds.fromSound`, `LayeredAudioService.emit`, and client mixer local-Celestial entry.
 - Produces: one central semantic routing boundary in `PowerFx.sound` and no direct production playback of a registered POWERS base cue.
 
-- [ ] **Step 1: Write RED exhaustive source-boundary tests**
+- [x] **Step 1: Write RED exhaustive source-boundary tests**
 
 Scan main/client sources and require that every `PowersSounds` base event routed through `PowerFx.sound` reaches `LayeredAudioService`, legacy EventAudio types are absent, direct `player.playSound(PowersSounds.CELESTIAL_RING...)` is absent, vanilla `SoundEvents` calls remain vanilla, and all 16 catalogue cues have at least one production or acceptance emission path.
 
-- [ ] **Step 2: Run focused tests and confirm RED**
+- [x] **Step 2: Run focused tests and confirm RED**
 
 Run: `./gradlew test --tests com.powers.audio.LayeredAudioProductionBoundaryTest --no-daemon --console=plain`
 
 Expected: FAIL on legacy direct semantic playback.
 
-- [ ] **Step 3: Route registered semantic events centrally**
+- [x] **Step 3: Route registered semantic events centrally**
 
 ```java
 public static void sound(ServerLevel level, Vec3 pos, SoundEvent sound, float volume, float pitch) {
@@ -347,11 +347,11 @@ public static void sound(ServerLevel level, Vec3 pos, SoundEvent sound, float vo
 
 Collapse `eventSound` into the same service and migrate its two semantic enum cases to catalogue cues. Do not alter call ordering around committed gameplay effects.
 
-- [ ] **Step 4: Route Celestial ringing through the mixer comfort decision**
+- [x] **Step 4: Route Celestial ringing through the mixer comfort decision**
 
 Replace both local base-ring calls with one mixer API that accepts the existing authoritative volume/pitch and selects ordinary or reduced layered Celestial assets. Retain current whiteout/ringing timing and strongest-event aggregation.
 
-- [ ] **Step 5: Update packet-fault and client tests, run broad focused gate, and commit**
+- [x] **Step 5: Update packet-fault and client tests, run broad focused gate, and commit**
 
 Run: `./gradlew test --tests 'com.powers.audio.*' --tests 'com.powers.network.*Audio*' --tests 'com.powers.client.audio.*' --tests 'com.powers.spell.CelestialRuinPresentationTest' --no-daemon --console=plain`
 
@@ -377,25 +377,25 @@ git commit -m "refactor(audio): route semantic cues through layered mixer"
 - Consumes: production server service and client mixer metrics.
 - Produces: live recipient/lifecycle GameTests and bounded JSONL audit rows for evidence capture.
 
-- [ ] **Step 1: Write RED GameTests for recipients and lifecycle**
+- [x] **Step 1: Write RED GameTests for recipients and lifecycle**
 
 Cover exact near/mid/far/final-radius boundaries, outside radius, different dimension, unsupported capability, one payload per listener, packet delay/loss/duplication convergence, stale delivery rejection, reconnect, dimension transition, and zero changes to energy/health/world blocks.
 
-- [ ] **Step 2: Add RED acceptance-script commands**
+- [x] **Step 2: Add RED acceptance-script commands**
 
 Add strict commands `audio_emit <cue> <distance> <wall|open>`, `audio_comfort <ordinary|reduced>`, and `audio_assert <layer> <admitted|dropped>`. Unknown cue/mode/layer or extra fields fail parsing.
 
-- [ ] **Step 3: Implement audit rows and fixture**
+- [x] **Step 3: Implement audit rows and fixture**
 
 Each admitted or rejected event writes cue, layer, distance, obstructed, effective gain, result, subtitle key, reduced-tinnitus flag, dimension, event ID, and implementation SHA. Bound one session to 128 rows and redact absolute paths/player identities.
 
-- [ ] **Step 4: Run GameTests and focused parser tests**
+- [x] **Step 4: Run GameTests and focused parser tests**
 
 Run: `./gradlew runGameTest test --tests 'com.powers.client.acceptance.*' --rerun-tasks --no-daemon --console=plain`
 
 Expected: all required GameTests and focused JUnit tests pass without lag warnings.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/gametest src/client/java/com/powers/client/acceptance src/test/java/com/powers/client/acceptance
@@ -415,25 +415,25 @@ git commit -m "test(audio): prove layered delivery and lifecycle"
 - Consumes: 51 assets, metrics validator, client JSONL audit, subtitle screenshots, exact implementation SHA, and build logs.
 - Produces: deterministic report, inventory, SHA256SUMS, privacy-clean archive, and evidence README.
 
-- [ ] **Step 1: Write RED verifier/package tests**
+- [x] **Step 1: Write RED verifier/package tests**
 
 Require 16×3 open rows, 16 wall rows, one burst set, ordinary/reduced Celestial rows, reload/reconnect/dimension lifecycle rows, all 16 subtitle keys, exact SHA equality, quantitative metrics, sorted inventory, checksum recomputation, archive byte determinism, and rejection of private paths or identities.
 
-- [ ] **Step 2: Run tests and confirm RED**
+- [x] **Step 2: Run tests and confirm RED**
 
 Run: `python3 -m unittest scripts.tests.test_verify_vfx007_audio scripts.tests.test_package_vfx007_evidence -v`
 
 Expected: FAIL because verifier/package scripts and evidence are absent.
 
-- [ ] **Step 3: Implement verifier and deterministic packager**
+- [x] **Step 3: Implement verifier and deterministic packager**
 
 Use strict schema version 1, duplicate-key rejection, exact finite cue/layer sets, normalized LF text, sorted POSIX paths, fixed archive mtimes/modes, and SHA-256 over every committed evidence file except the checksum file itself.
 
-- [ ] **Step 4: Capture production-client evidence**
+- [x] **Step 4: Capture production-client evidence**
 
 Run the exact implementation SHA with a real client and dedicated server. Exercise 48 open distance rows, 16 wall rows, capped burst, subtitles, resource reload, reconnect, dimension change, and ordinary/reduced Celestial. Retain audit logs, subtitle screenshots, audio metric report, spectrogram summary, and limitations stating that no microphone recording is used as source-faithful proof.
 
-- [ ] **Step 5: Verify, package twice, compare, and privacy-scan**
+- [x] **Step 5: Verify, package twice, compare, and privacy-scan**
 
 Run:
 
@@ -447,7 +447,7 @@ rg -n '/Users/|\.worktrees|file://|james8464' docs/verification/evidence/2026-08
 
 Expected: verifier PASS, archives identical, privacy scan empty.
 
-- [ ] **Step 6: Run focused tests and commit evidence**
+- [x] **Step 6: Run focused tests and commit evidence**
 
 Run: `python3 -m unittest scripts.tests.test_verify_vfx007_audio scripts.tests.test_package_vfx007_evidence scripts.tests.test_validate_layered_audio -v`
 
@@ -473,21 +473,21 @@ git commit -m "docs(audio): package layered sound acceptance"
 - Consumes: exact implementation/evidence SHA and all task gates.
 - Produces: independently reviewed VFX-007 closure integrated and pushed on `main`.
 
-- [ ] **Step 1: Run the literal finalized-head aggregate**
+- [x] **Step 1: Run the literal finalized-head aggregate**
 
 Run: `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew check --rerun-tasks --no-daemon --console=plain`
 
 Expected: all GameTests, JUnit tests, Python tests, resource validation, and audits pass with `BUILD SUCCESSFUL`. Diagnose failures from evidence; do not filter the gate or alter unrelated workloads.
 
-- [ ] **Step 2: Obtain independent code/evidence review**
+- [x] **Step 2: Obtain independent code/evidence review**
 
 Reviewer checks all spec requirements, catalogue completeness, commit-bound hooks, payload validation, bounded fan-out, obstruction and comfort behavior, mixer limits, quantitative audio metrics, client evidence, checksums, privacy, and claim truthfulness. Resolve every P0/P1/P2 finding, rerun the focused command from its owning task plus the literal full gate, and repeat review until READY.
 
-- [ ] **Step 3: Reconcile public claims only after acceptance**
+- [x] **Step 3: Reconcile public claims only after acceptance**
 
 Mark VFX-007 complete in the stage plan, remove only the VFX-007 backlog row, and record exact test totals and implementation/evidence SHA in README, CHANGELOG, and evidence metadata. Regenerate checksums and rerun verifier/package/privacy gates.
 
-- [ ] **Step 4: Commit and push closure**
+- [x] **Step 4: Commit and push closure**
 
 ```bash
 git add README.md CHANGELOG.md docs/planning/IMPROVEMENT_BACKLOG.md docs/superpowers/plans/2026-08-12-stages-1-8-completion.md docs/verification/evidence/2026-08-28-vfx-007
