@@ -6,6 +6,7 @@ import com.powers.audio.LayeredAudioService;
 import com.powers.network.LayeredAudioPackets;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 
@@ -60,6 +61,7 @@ public final class LayeredAudioGameTests {
 		int inventoryCount = player.getInventory().countItem(net.minecraft.world.item.Items.STONE);
 		Fixture runtime = new Fixture(List.of(new LayeredAudioService.Observer(player.getUUID(),
 				OVERWORLD, 0, 0, 0)), null);
+		UUID playerId = player.getUUID();
 
 		LayeredAudioService.deliver(runtime, Vec3.ZERO, LayeredAudioCue.RUNE_HUM, 1.0F, 1.0F);
 
@@ -67,7 +69,12 @@ public final class LayeredAudioGameTests {
 		helper.assertTrue(player.getHealth() == health && player.position().equals(position)
 				&& player.getInventory().countItem(net.minecraft.world.item.Items.STONE) == inventoryCount,
 				"Layered audio mutated health, position, or inventory");
-		helper.succeed();
+		player.connection.disconnect(Component.literal("VFX-007 audio fixture complete"));
+		helper.runAfterDelay(2, () -> {
+			helper.assertTrue(helper.getLevel().getServer().getPlayerList().getPlayer(playerId) == null,
+					"Layered-audio fixture leaked a mock player into later GameTests");
+			helper.succeed();
+		});
 	}
 
 	private static LayeredAudioService.Observer observer(UUID id, Identifier dimension, double x) {
