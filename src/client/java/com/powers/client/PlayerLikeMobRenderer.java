@@ -2,6 +2,7 @@ package com.powers.client;
 
 import com.powers.PowersMod;
 import com.powers.animation.CastingPoseAngles;
+import com.powers.animation.CastingPoseLocomotion;
 import com.powers.client.animation.CastingHumanoidModel;
 import com.powers.client.animation.CastingHumanoidRenderState;
 import com.powers.client.animation.ClientCastingPoseManager;
@@ -49,7 +50,10 @@ public final class PlayerLikeMobRenderer extends MobRenderer<AbstractPlayerLikeM
 		state.castingAngles = ClientCastingPoseManager.resolve(entity)
 				.map(resolved -> CastingPoseAngles.resolve(resolved.event().pose(),
 						resolved.event().style(), resolved.event().hand(), resolved.progress(),
-						FxAccessibility.reducedMotion(Minecraft.getInstance())))
+						FxAccessibility.reducedMotion(Minecraft.getInstance())).scale(
+								CastingPoseLocomotion.scale(state.isFallFlying,
+										state.isVisuallySwimming, state.swimAmount,
+										state.walkAnimationSpeed, state.isPassenger)))
 				.orElse(CastingPoseAngles.ZERO);
 	}
 }

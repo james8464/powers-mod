@@ -65,6 +65,18 @@ final class CastingPoseAnglesTest {
 		assertTrue(Math.abs(early.rightArmX()) > Math.abs(early.leftArmX()));
 	}
 
+	@Test
+	void locomotionPolicySuppressesIncompatibleFlightAndSwimmingButPreservesWalkingReadability() {
+		assertEquals(0.0, CastingPoseLocomotion.scale(true, false, 0.0F, 0.0F, false));
+		assertEquals(0.0, CastingPoseLocomotion.scale(false, true, 1.0F, 0.0F, false));
+		assertEquals(0.5, CastingPoseLocomotion.scale(false, false, 0.0F, 0.0F, true));
+		double walking = CastingPoseLocomotion.scale(false, false, 0.0F, 0.8F, false);
+		assertTrue(walking >= 0.55 && walking < 1.0);
+		var base = CastingPoseAngles.resolve(CastingPose.PROJECT, CastingStyle.RADIANT,
+				CastingHand.RIGHT, 0.5, false);
+		assertEquals(base.rightArmX() * walking, base.scale(walking).rightArmX(), 1.0E-9);
+	}
+
 	private static double maxArm(CastingPoseAngles value) {
 		return Math.max(Math.max(Math.abs(value.leftArmX()), Math.abs(value.leftArmY())),
 				Math.max(Math.max(Math.abs(value.leftArmZ()), Math.abs(value.rightArmX())),

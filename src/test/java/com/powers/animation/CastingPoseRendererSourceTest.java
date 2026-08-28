@@ -25,5 +25,7 @@ final class CastingPoseRendererSourceTest {
 		assertTrue(shadow.contains("ClientCastingPoseManager.resolve(entity)"));
 		assertTrue(mobs.contains("FxAccessibility.reducedMotion(Minecraft.getInstance())"));
 		assertTrue(shadow.contains("FxAccessibility.reducedMotion(Minecraft.getInstance())"));
+		assertTrue(mobs.contains("CastingPoseLocomotion.scale("));
+		assertTrue(shadow.contains("CastingPoseLocomotion.scale("));
 	}
 }

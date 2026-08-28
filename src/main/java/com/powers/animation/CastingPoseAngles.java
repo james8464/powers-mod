@@ -65,6 +65,17 @@ public record CastingPoseAngles(double headX, double headY, double bodyX, double
 				clamp(rightY * factor, 1.25), clamp(rightZ * factor, 1.25));
 	}
 
+	public CastingPoseAngles scale(double factor) {
+		if (!Double.isFinite(factor) || factor < 0.0 || factor > 1.0) {
+			throw new IllegalArgumentException("factor");
+		}
+		if (factor == 0.0) return ZERO;
+		if (factor == 1.0) return this;
+		return new CastingPoseAngles(headX * factor, headY * factor, bodyX * factor,
+				bodyY * factor, leftArmX * factor, leftArmY * factor, leftArmZ * factor,
+				rightArmX * factor, rightArmY * factor, rightArmZ * factor);
+	}
+
 	private static double amplitude(double progress) {
 		if (progress <= 0 || progress >= 1) return 0;
 		if (progress < 0.2) return smoothstep(progress / 0.2);

@@ -3,6 +3,7 @@ package com.powers.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.powers.companion.ShadowCompanionEntity;
 import com.powers.animation.CastingPoseAngles;
+import com.powers.animation.CastingPoseLocomotion;
 import com.powers.client.animation.CastingAvatarRenderState;
 import com.powers.client.animation.CastingPlayerModel;
 import com.powers.client.animation.ClientCastingPoseManager;
@@ -61,7 +62,10 @@ public final class ShadowCompanionRenderer extends MobRenderer<ShadowCompanionEn
 		state.castingAngles = ClientCastingPoseManager.resolve(entity)
 				.map(resolved -> CastingPoseAngles.resolve(resolved.event().pose(),
 						resolved.event().style(), resolved.event().hand(), resolved.progress(),
-						FxAccessibility.reducedMotion(Minecraft.getInstance())))
+						FxAccessibility.reducedMotion(Minecraft.getInstance())).scale(
+								CastingPoseLocomotion.scale(state.isFallFlying,
+										state.isVisuallySwimming, state.swimAmount,
+										state.walkAnimationSpeed, state.isPassenger)))
 				.orElse(CastingPoseAngles.ZERO);
 	}
 
