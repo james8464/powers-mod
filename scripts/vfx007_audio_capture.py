@@ -104,11 +104,10 @@ def extract_audit_rows(log: str) -> list[dict]:
 
 
 def resolve_argument_file(directory: Path) -> Path:
-    for name in ("runClient", "runGameTest"):
-        candidate = directory / name
-        if candidate.is_file():
-            return candidate
-    raise RuntimeError(f"Missing generated client argument file in {directory}")
+    candidate = directory / "runClient"
+    if candidate.is_file() and candidate.stat().st_size > 0:
+        return candidate
+    raise RuntimeError(f"Missing generated runClient argument file in {directory}")
 
 
 def _sha256(path: Path) -> str:
@@ -185,7 +184,29 @@ def _prepare_launch() -> tuple[Path, Path, Path]:
     java_home = os.environ.get("JAVA_HOME", "")
     java = Path(java_home) / "bin" / "java"
     launch = ROOT / ".gradle" / "loom-cache" / "launch.cfg"
-    arguments = resolve_argument_file(ROOT / "build" / "loom-cache" / "argFiles")
+    argument_directory = ROOT / "build" / "loom-cache" / "argFiles"
+    try:
+        arguments = resolve_argument_file(argument_directory)
+    except RuntimeError:
+        bootstrap = subprocess.Popen(
+            ["./gradlew", "runClient", "--rerun", "--no-daemon", "--console=plain"],
+            cwd=ROOT, env=os.environ.copy(), stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT, start_new_session=True)
+        try:
+            deadline = time.monotonic() + 120
+            while time.monotonic() < deadline:
+                try:
+                    arguments = resolve_argument_file(argument_directory)
+                    time.sleep(0.1)
+                    break
+                except RuntimeError:
+                    if bootstrap.poll() is not None:
+                        raise RuntimeError("Loom exited before creating the runClient argument file")
+                    time.sleep(0.05)
+            else:
+                raise TimeoutError("Loom did not create the runClient argument file")
+        finally:
+            _stop_group(bootstrap)
     for path in (java, launch):
         if not path.is_file():
             raise RuntimeError(f"Missing launch input: {path}")

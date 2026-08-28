@@ -41,11 +41,19 @@ class Vfx007AudioCaptureTest(unittest.TestCase):
                + json.dumps(second) + "\n")
         self.assertEqual([first, second], CAPTURE.extract_audit_rows(log))
 
-    def test_launch_argument_resolution_uses_the_generated_client_capable_file(self):
+    def test_launch_argument_resolution_rejects_gametest_classpath(self):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             (root / "runGameTest").write_text("client classpath\n", encoding="utf-8")
-            self.assertEqual(root / "runGameTest", CAPTURE.resolve_argument_file(root))
+            with self.assertRaisesRegex(RuntimeError, "runClient"):
+                CAPTURE.resolve_argument_file(root)
+
+    def test_launch_argument_resolution_accepts_only_run_client(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            expected = root / "runClient"
+            expected.write_text("full LWJGL client classpath\n", encoding="utf-8")
+            self.assertEqual(expected, CAPTURE.resolve_argument_file(root))
 
 
 if __name__ == "__main__":
