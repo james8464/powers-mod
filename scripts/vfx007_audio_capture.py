@@ -70,7 +70,7 @@ def render_primary_scenario() -> str:
         lines.append(f"{tick}\taudio_emit\t{cue} {distance} wall")
         lines.append(f"{tick}\taudio_assert\tmid admitted")
         tick += 4
-    lines.append(f"{tick}\tcommand\tfill -2 198 1 2 204 170 air")
+    lines.append(f"{tick}\tlook\t90 0")
     tick += 20
     for distance in range(1, 10):
         lines.append(f"{tick}\taudio_emit\tinteraction_clash {distance} open")
