@@ -31,7 +31,7 @@ class Vfx006GalleryVerifierTest(unittest.TestCase):
                                          reduced, active=True))
                     sequence += 1
         for scenario in VERIFY.LIFECYCLE_SCENARIOS:
-            active = scenario in {"latency", "late_tracking"}
+            active = scenario in {"latency", "late_tracking", "locomotion_walk"}
             rows.append(self.row(screenshots, sequence, scenario, "RADIANT", "PROJECT",
                                  False, active=active,
                                  progress=0.5 if active else 1.0,
@@ -105,9 +105,25 @@ class Vfx006GalleryVerifierTest(unittest.TestCase):
             first = VERIFY.validate(root)
             second = VERIFY.validate(root)
             self.assertEqual(first, second)
-            self.assertEqual(54, first["rowCount"])
+            self.assertEqual(55, first["rowCount"])
             self.assertEqual(48, first["galleryCount"])
-            self.assertEqual(6, first["lifecycleCount"])
+            self.assertEqual(7, first["lifecycleCount"])
+
+    def test_latency_requires_actual_delayed_receipt(self):
+        def remove_delay(root):
+            rows = self.rows(root)
+            row = next(item for item in rows if item["scenario"] == "latency")
+            row["receiptTick"] = row["authoritativeStartTick"]
+            self.write_rows(root, rows)
+        self.mutate(remove_delay, "latency receipt was not delayed")
+
+    def test_latency_progress_uses_authoritative_elapsed_time(self):
+        def change_progress(root):
+            rows = self.rows(root)
+            row = next(item for item in rows if item["scenario"] == "latency")
+            row["progress"] = 0.25
+            self.write_rows(root, rows)
+        self.mutate(change_progress, "authoritative progress mismatch")
 
     def test_missing_release_pose_is_rejected(self):
         def remove(root):

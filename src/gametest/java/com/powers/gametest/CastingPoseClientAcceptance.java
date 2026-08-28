@@ -6,11 +6,14 @@ import com.powers.animation.CastingHand;
 import com.powers.animation.CastingPose;
 import com.powers.animation.CastingPoseAngles;
 import com.powers.animation.CastingPoseEvent;
+import com.powers.animation.CastingPoseLocomotion;
 import com.powers.animation.CastingPoseService;
 import com.powers.animation.CastingStyle;
 import com.powers.client.animation.ClientCastingPoseManager;
 import com.powers.companion.ShadowCompanionData;
 import com.powers.companion.ShadowCompanionEntity;
+import com.powers.testing.network.PacketFaultController;
+import com.powers.testing.network.PacketFaultProfile;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.minecraft.server.level.ParticleStatus;
@@ -58,6 +61,7 @@ public final class CastingPoseClientAcceptance {
 		}
 		captureLatency(context, singleplayer, "latency", false);
 		captureLatency(context, singleplayer, "late_tracking", true);
+		captureLocomotionWalk(context, singleplayer);
 		captureCleared(context, singleplayer, "interruption", true);
 		captureCleared(context, singleplayer, "expiry", false);
 		captureEntityIdReuse(context, singleplayer);
@@ -134,6 +138,11 @@ public final class CastingPoseClientAcceptance {
 		setReduced(context, false);
 		Subject subject = spawn(context, singleplayer, CastingStyle.RADIANT,
 				lateTracking ? 180.0 : 6.0, null);
+		if (!lateTracking) {
+			singleplayer.getServer().runOnServer(server -> PacketFaultController.configureScoped(
+					server, PacketFaultProfile.named("delay300", 0xC457006L),
+					server.getPlayerList().getPlayers().getFirst()));
+		}
 		CastingPoseEvent event = start(singleplayer, subject, CastingPose.PROJECT,
 				CastingStyle.RADIANT, CastingHand.RIGHT, DURATION);
 		if (lateTracking) {
@@ -141,10 +150,40 @@ public final class CastingPoseClientAcceptance {
 			move(singleplayer, subject, 6.0);
 		}
 		long receipt = awaitActive(context, subject, event.sequence());
+		if (!lateTracking) {
+			singleplayer.getServer().runOnServer(server -> PacketFaultController.clearScoped(
+					server, server.getPlayerList().getPlayers().getFirst()));
+		}
 		long now = context.computeOnClient(client -> client.level.getGameTime());
 		int wait = (int) Math.max(0L, event.startGameTime() + 10 - now);
 		if (wait > 0) context.waitTicks(wait);
 		captureActive(context, scenario, subject, event, receipt, false);
+		discard(context, singleplayer, subject);
+	}
+
+	private static void captureLocomotionWalk(ClientGameTestContext context,
+			TestSingleplayerContext singleplayer) {
+		setReduced(context, false);
+		Subject subject = spawn(context, singleplayer, CastingStyle.RADIANT, 6.0, null);
+		CastingPoseEvent event = start(singleplayer, subject, CastingPose.CHANNEL,
+				CastingStyle.RADIANT, CastingHand.BOTH, DURATION);
+		long receipt = awaitActive(context, subject, event.sequence());
+		singleplayer.getServer().runOnServer(server -> {
+			Entity entity = server.overworld().getEntity(subject.entityUuid());
+			if (!(entity instanceof LivingEntity living)) {
+				throw new AssertionError("Locomotion subject vanished");
+			}
+			living.setDeltaMovement(new Vec3(0.35, 0.0, 0.0));
+		});
+		context.waitFor(client -> {
+			Entity entity = client.level == null ? null : client.level.getEntity(subject.entityId());
+			return entity instanceof LivingEntity living
+					&& living.walkAnimation.speed(1.0F) > 0.25F;
+		});
+		long now = context.computeOnClient(client -> client.level.getGameTime());
+		int wait = (int) Math.max(0L, event.startGameTime() + 12 - now);
+		if (wait > 0) context.waitTicks(wait);
+		captureActive(context, "locomotion_walk", subject, event, receipt, false);
 		discard(context, singleplayer, subject);
 	}
 
@@ -292,10 +331,13 @@ public final class CastingPoseClientAcceptance {
 	private static void captureActive(ClientGameTestContext context, String scenario,
 			Subject subject, CastingPoseEvent event, long receiptTick, boolean reduced) {
 		Resolved resolved = context.computeOnClient(client -> {
-			Entity entity = client.level.getEntity(subject.entityId());
+			LivingEntity entity = (LivingEntity) client.level.getEntity(subject.entityId());
 			var state = ClientCastingPoseManager.resolve(entity).orElseThrow();
 			CastingPoseAngles angles = CastingPoseAngles.resolve(state.event().pose(),
-					state.event().style(), state.event().hand(), state.progress(), reduced);
+					state.event().style(), state.event().hand(), state.progress(), reduced).scale(
+							CastingPoseLocomotion.scale(entity.isFallFlying(),
+									entity.isVisuallySwimming(), entity.getSwimAmount(1.0F),
+									entity.walkAnimation.speed(1.0F), entity.isPassenger()));
 			return new Resolved(client.level.getGameTime(), state.progress(), angles);
 		});
 		capture(context, scenario, subject, subject.entityUuid(), event, receiptTick,

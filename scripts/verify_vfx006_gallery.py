@@ -29,7 +29,7 @@ ENTITY_TYPES = {
 HANDS = {"NONE", "LEFT", "RIGHT", "BOTH"}
 LIFECYCLE_SCENARIOS = (
     "latency", "late_tracking", "interruption", "expiry", "reconnect",
-    "entity_id_reuse",
+    "entity_id_reuse", "locomotion_walk",
 )
 ANGLE_FIELDS = (
     "headX", "headY", "bodyX", "bodyY", "leftArmX", "leftArmY", "leftArmZ",
@@ -150,6 +150,15 @@ def _validate_row(root: Path, row: dict, implementation_sha: str | None) -> tupl
         raise ValueError("gallery capture is outside authored hold")
     if scenario in {"latency", "late_tracking"} and (not row["active"] or progress < 0.25):
         raise ValueError(f"{scenario} did not preserve authoritative age")
+    if scenario == "latency" and row["receiptTick"] <= row["authoritativeStartTick"]:
+        raise ValueError("latency receipt was not delayed")
+    if scenario in {"latency", "late_tracking"}:
+        expected = min(1.0, max(0.0, (row["captureTick"]
+                                     - row["authoritativeStartTick"]) / row["durationTicks"]))
+        if not math.isclose(progress, expected, rel_tol=0.0, abs_tol=1e-9):
+            raise ValueError("authoritative progress mismatch")
+    if scenario == "locomotion_walk" and (not row["active"] or not 0.2 <= progress <= 0.75):
+        raise ValueError("locomotion capture is outside authored hold")
     if scenario in {"interruption", "expiry", "reconnect", "entity_id_reuse"} and row["active"]:
         raise ValueError(f"{scenario} did not clear pose state")
     if scenario == "entity_id_reuse":
