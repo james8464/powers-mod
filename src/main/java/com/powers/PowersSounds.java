@@ -1,11 +1,15 @@
 package com.powers;
 
+import com.powers.audio.LayeredAudioCue;
+import com.powers.audio.LayeredAudioLayer;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 
+import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 
 /** Registers the original compact sound bank used by semantic magic cues. */
 public final class PowersSounds {
@@ -36,6 +40,8 @@ public final class PowersSounds {
 			Map.entry("light_chorus", LIGHT_CHORUS), Map.entry("dark_whisper", DARK_WHISPER),
 			Map.entry("ward_impact", WARD_IMPACT), Map.entry("rank_awaken", RANK_AWAKEN),
 			Map.entry("interaction_clash", INTERACTION_CLASH));
+	private static final Map<LayeredAudioCue, Map<LayeredAudioLayer, SoundEvent>> LAYERED = layered();
+	private static final Map<LayeredAudioLayer, SoundEvent> REDUCED_CELESTIAL = reducedCelestial();
 
 	private PowersSounds() {
 	}
@@ -48,6 +54,45 @@ public final class PowersSounds {
 	/** Resolves an untrusted semantic cue to a safe registered fallback. */
 	public static SoundEvent forCue(String cue) {
 		return BY_CUE.getOrDefault(cue, INTERACTION_CLASH);
+	}
+
+	/** Resolves one catalogue cue to its registered listener-specific layer. */
+	public static SoundEvent layer(LayeredAudioCue cue, LayeredAudioLayer layer,
+			boolean reducedTinnitus) {
+		java.util.Objects.requireNonNull(cue, "cue");
+		java.util.Objects.requireNonNull(layer, "layer");
+		if (reducedTinnitus && cue.tinnitusSensitive()) return REDUCED_CELESTIAL.get(layer);
+		return LAYERED.get(cue).get(layer);
+	}
+
+	/** Maps only the original compatibility events back to their finite semantic identity. */
+	public static Optional<LayeredAudioCue> fromSound(SoundEvent sound) {
+		if (sound == null) return Optional.empty();
+		return LayeredAudioCue.forSemanticName(BY_CUE.entrySet().stream()
+				.filter(entry -> entry.getValue() == sound)
+				.map(Map.Entry::getKey)
+				.findFirst().orElse(null));
+	}
+
+	private static Map<LayeredAudioCue, Map<LayeredAudioLayer, SoundEvent>> layered() {
+		EnumMap<LayeredAudioCue, Map<LayeredAudioLayer, SoundEvent>> result =
+				new EnumMap<>(LayeredAudioCue.class);
+		for (LayeredAudioCue cue : LayeredAudioCue.values()) {
+			EnumMap<LayeredAudioLayer, SoundEvent> layers = new EnumMap<>(LayeredAudioLayer.class);
+			for (LayeredAudioLayer layer : LayeredAudioLayer.values()) {
+				layers.put(layer, register(cue.eventPath(layer, false)));
+			}
+			result.put(cue, Map.copyOf(layers));
+		}
+		return Map.copyOf(result);
+	}
+
+	private static Map<LayeredAudioLayer, SoundEvent> reducedCelestial() {
+		EnumMap<LayeredAudioLayer, SoundEvent> result = new EnumMap<>(LayeredAudioLayer.class);
+		for (LayeredAudioLayer layer : LayeredAudioLayer.values()) {
+			result.put(layer, register(LayeredAudioCue.CELESTIAL_RING.eventPath(layer, true)));
+		}
+		return Map.copyOf(result);
 	}
 
 	private static SoundEvent register(String path) {

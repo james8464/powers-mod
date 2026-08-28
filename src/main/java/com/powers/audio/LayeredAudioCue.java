@@ -64,6 +64,13 @@ public enum LayeredAudioCue {
 		return tinnitusSensitive;
 	}
 
+	/** Exact registered event path for one listener layer and comfort state. */
+	public String eventPath(LayeredAudioLayer layer, boolean reducedTinnitus) {
+		java.util.Objects.requireNonNull(layer, "layer");
+		String comfort = reducedTinnitus && tinnitusSensitive ? ".reduced" : "";
+		return semanticName + comfort + "." + layer.serializedName();
+	}
+
 	public static Optional<LayeredAudioCue> fromNetworkId(int networkId) {
 		return networkId >= 0 && networkId < values().length
 				? Optional.of(values()[networkId]) : Optional.empty();

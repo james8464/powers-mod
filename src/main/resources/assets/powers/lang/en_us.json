@@ -1091,5 +1091,21 @@
 	"screen.powers.artifact.release_cast.on": "Artifact release-to-cast enabled",
 	"screen.powers.artifact.release_cast.off": "Artifact release-to-cast disabled",
 	"screen.powers.crystal_selector.title": "Sevenfold Convergence",
-	"screen.powers.crystal_selector.hint": "Choose with mouse, Tab/Enter, or keys 1–7"
+	"screen.powers.crystal_selector.hint": "Choose with mouse, Tab/Enter, or keys 1–7",
+	"subtitles.powers.rune_hum": "Runes hum",
+	"subtitles.powers.crystal_resonate": "Crystal resonates",
+	"subtitles.powers.amethyst_fracture": "Amethyst fractures",
+	"subtitles.powers.time_suspend": "Time suspends",
+	"subtitles.powers.celestial_ring": "Celestial ruin rings",
+	"subtitles.powers.beam_ring": "Energy beam rings",
+	"subtitles.powers.boss_impact_ring": "Vessel impact rings",
+	"subtitles.powers.time_release": "Time releases",
+	"subtitles.powers.rift_open": "Rift opens",
+	"subtitles.powers.rift_close": "Rift closes",
+	"subtitles.powers.soul_tether": "Soul tether binds",
+	"subtitles.powers.light_chorus": "Light chorus rises",
+	"subtitles.powers.dark_whisper": "Darkness whispers",
+	"subtitles.powers.ward_impact": "Ward absorbs impact",
+	"subtitles.powers.rank_awaken": "Power awakens",
+	"subtitles.powers.interaction_clash": "Magic clashes"
 }

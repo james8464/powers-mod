@@ -10,6 +10,7 @@
 /config/lithium.properties
 /config/sodium-mixins.properties
 /config/voicechat/
+__pycache__/
 .DS_Store
 *.iml
 .idea/

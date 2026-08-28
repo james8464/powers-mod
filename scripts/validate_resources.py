@@ -38,7 +38,9 @@ REQUIRED_MAGIC_SOUNDS = {
     "rune_hum", "crystal_resonate", "amethyst_fracture", "time_suspend",
     "time_release", "rift_open", "rift_close", "soul_tether", "light_chorus",
     "dark_whisper", "ward_impact", "rank_awaken", "interaction_clash",
+    "celestial_ring", "beam_ring", "boss_impact_ring",
 }
+LAYERED_AUDIO_LAYERS = ("near", "mid", "far")
 
 
 def unique_object(pairs):
@@ -337,6 +339,43 @@ def validate(root: Path) -> list[str]:
                 raise ValueError("magic sound must be mono")
         except Exception as error:
             errors.append(f"{ogg}: {error}")
+        subtitle = f"subtitles.powers.{sound_id}"
+        if not isinstance(lang.get(subtitle), str) or not lang[subtitle].strip():
+            errors.append(f"missing en_us sound subtitle: {subtitle}")
+        for layer in LAYERED_AUDIO_LAYERS:
+            event = f"{sound_id}.{layer}"
+            resource = f"powers:magic/layered/{sound_id}_{layer}"
+            expected = {"subtitle": subtitle, "sounds": [resource]}
+            if sounds.get(event) != expected:
+                errors.append(f"{sounds_path}: {event} must resolve exactly to {expected}")
+            layered_ogg = assets / "sounds" / "magic" / "layered" / f"{sound_id}_{layer}.ogg"
+            try:
+                data = layered_ogg.read_bytes()
+                marker = data.find(b"\x01vorbis")
+                if data[:4] != b"OggS" or marker < 0:
+                    raise ValueError("expected Ogg/Vorbis audio")
+                if marker + 11 >= len(data) or data[marker + 11] != 1:
+                    raise ValueError("layered magic sound must be mono")
+            except Exception as error:
+                errors.append(f"{layered_ogg}: {error}")
+
+    celestial_subtitle = "subtitles.powers.celestial_ring"
+    for layer in LAYERED_AUDIO_LAYERS:
+        event = f"celestial_ring.reduced.{layer}"
+        resource = f"powers:magic/layered/celestial_ring_reduced_{layer}"
+        expected = {"subtitle": celestial_subtitle, "sounds": [resource]}
+        if sounds.get(event) != expected:
+            errors.append(f"{sounds_path}: {event} must resolve exactly to {expected}")
+        reduced_ogg = assets / "sounds" / "magic" / "layered" / f"celestial_ring_reduced_{layer}.ogg"
+        try:
+            data = reduced_ogg.read_bytes()
+            marker = data.find(b"\x01vorbis")
+            if data[:4] != b"OggS" or marker < 0:
+                raise ValueError("expected Ogg/Vorbis audio")
+            if marker + 11 >= len(data) or data[marker + 11] != 1:
+                raise ValueError("reduced magic sound must be mono")
+        except Exception as error:
+            errors.append(f"{reduced_ogg}: {error}")
 
     particles = assets / "particles"
     for particle in ("mote", "shard", "glyph", "ribbon", "spark", "eclipse", "root", "fracture"):

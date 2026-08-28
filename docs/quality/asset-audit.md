@@ -9,7 +9,7 @@ This historical integrity-only manifest covers every tracked POWERS namespace as
 | `blockstates/darkness.json` | blockstates | `9a3e8bb90dd6` | integrity | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/pure_light.json` | blockstates | `c4375fe29f91` | integrity | JSON decoded; references are covered by strict resource validation. |
 | `icon.png` | icon.png | `00ea24abeb49` | integrity | PNG 128×128, alpha; decoded for structural/pixel evidence only. |
-| `lang/en_us.json` | lang | `6b83f7784d05` | integrity | JSON decoded; references are covered by strict resource validation. |
+| `lang/en_us.json` | lang | `3be155319d9d` | integrity | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward.json` | models | `ec18f4c15589` | integrity | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward_powered.json` | models | `e82316d2c639` | integrity | JSON decoded; references are covered by strict resource validation. |
 | `models/block/arcane_crucible.json` | models | `7590e3936646` | integrity | JSON decoded; references are covered by strict resource validation. |
@@ -24,7 +24,7 @@ This historical integrity-only manifest covers every tracked POWERS namespace as
 | `particles/root.json` | particles | `e09411967ede` | integrity | JSON decoded; references are covered by strict resource validation. |
 | `particles/shard.json` | particles | `aabb8e3d848a` | integrity | JSON decoded; references are covered by strict resource validation. |
 | `particles/spark.json` | particles | `ab031656cf84` | integrity | JSON decoded; references are covered by strict resource validation. |
-| `sounds.json` | sounds.json | `2b1400f53c95` | integrity | JSON decoded; references are covered by strict resource validation. |
+| `sounds.json` | sounds.json | `5dff1095b695` | integrity | JSON decoded; references are covered by strict resource validation. |
 | `sounds/magic/amethyst_fracture.ogg` | sounds | `cf4b766784c8` | integrity | Ogg/Vorbis, 1 channel(s), 10547 bytes; stream decoded. |
 | `sounds/magic/beam_ring.ogg` | sounds | `153bbff46127` | integrity | Ogg/Vorbis, 1 channel(s), 10618 bytes; stream decoded. |
 | `sounds/magic/boss_impact_ring.ogg` | sounds | `38431cc37124` | integrity | Ogg/Vorbis, 1 channel(s), 14859 bytes; stream decoded. |
@@ -32,6 +32,57 @@ This historical integrity-only manifest covers every tracked POWERS namespace as
 | `sounds/magic/crystal_resonate.ogg` | sounds | `c60c2c2d529f` | integrity | Ogg/Vorbis, 1 channel(s), 11263 bytes; stream decoded. |
 | `sounds/magic/dark_whisper.ogg` | sounds | `928def201581` | integrity | Ogg/Vorbis, 1 channel(s), 14442 bytes; stream decoded. |
 | `sounds/magic/interaction_clash.ogg` | sounds | `7705651a85ef` | integrity | Ogg/Vorbis, 1 channel(s), 11348 bytes; stream decoded. |
+| `sounds/magic/layered/amethyst_fracture_far.ogg` | sounds | `30c8500f8eee` | integrity | Ogg/Vorbis, 1 channel(s), 7771 bytes; stream decoded. |
+| `sounds/magic/layered/amethyst_fracture_mid.ogg` | sounds | `c57448cd1f23` | integrity | Ogg/Vorbis, 1 channel(s), 9298 bytes; stream decoded. |
+| `sounds/magic/layered/amethyst_fracture_near.ogg` | sounds | `b2d18b324919` | integrity | Ogg/Vorbis, 1 channel(s), 10293 bytes; stream decoded. |
+| `sounds/magic/layered/beam_ring_far.ogg` | sounds | `7f0f3685fedb` | integrity | Ogg/Vorbis, 1 channel(s), 8008 bytes; stream decoded. |
+| `sounds/magic/layered/beam_ring_mid.ogg` | sounds | `9fdd140dc225` | integrity | Ogg/Vorbis, 1 channel(s), 8859 bytes; stream decoded. |
+| `sounds/magic/layered/beam_ring_near.ogg` | sounds | `c885661408f7` | integrity | Ogg/Vorbis, 1 channel(s), 10077 bytes; stream decoded. |
+| `sounds/magic/layered/boss_impact_ring_far.ogg` | sounds | `bd918b2049c6` | integrity | Ogg/Vorbis, 1 channel(s), 10337 bytes; stream decoded. |
+| `sounds/magic/layered/boss_impact_ring_mid.ogg` | sounds | `ac9297af212e` | integrity | Ogg/Vorbis, 1 channel(s), 10782 bytes; stream decoded. |
+| `sounds/magic/layered/boss_impact_ring_near.ogg` | sounds | `ef7185f38210` | integrity | Ogg/Vorbis, 1 channel(s), 14840 bytes; stream decoded. |
+| `sounds/magic/layered/celestial_ring_far.ogg` | sounds | `88b7b7e422f5` | integrity | Ogg/Vorbis, 1 channel(s), 22762 bytes; stream decoded. |
+| `sounds/magic/layered/celestial_ring_mid.ogg` | sounds | `d6efb4779cde` | integrity | Ogg/Vorbis, 1 channel(s), 25139 bytes; stream decoded. |
+| `sounds/magic/layered/celestial_ring_near.ogg` | sounds | `bbf1d771a7f1` | integrity | Ogg/Vorbis, 1 channel(s), 28811 bytes; stream decoded. |
+| `sounds/magic/layered/celestial_ring_reduced_far.ogg` | sounds | `a021f62b82ba` | integrity | Ogg/Vorbis, 1 channel(s), 16010 bytes; stream decoded. |
+| `sounds/magic/layered/celestial_ring_reduced_mid.ogg` | sounds | `7858df0c79cf` | integrity | Ogg/Vorbis, 1 channel(s), 17717 bytes; stream decoded. |
+| `sounds/magic/layered/celestial_ring_reduced_near.ogg` | sounds | `a6f87aa78a2f` | integrity | Ogg/Vorbis, 1 channel(s), 20863 bytes; stream decoded. |
+| `sounds/magic/layered/crystal_resonate_far.ogg` | sounds | `f53754e797cb` | integrity | Ogg/Vorbis, 1 channel(s), 7875 bytes; stream decoded. |
+| `sounds/magic/layered/crystal_resonate_mid.ogg` | sounds | `73054bf503e8` | integrity | Ogg/Vorbis, 1 channel(s), 9381 bytes; stream decoded. |
+| `sounds/magic/layered/crystal_resonate_near.ogg` | sounds | `76d45ded07b2` | integrity | Ogg/Vorbis, 1 channel(s), 11177 bytes; stream decoded. |
+| `sounds/magic/layered/dark_whisper_far.ogg` | sounds | `fd5ff13d64b0` | integrity | Ogg/Vorbis, 1 channel(s), 9952 bytes; stream decoded. |
+| `sounds/magic/layered/dark_whisper_mid.ogg` | sounds | `a0de57cbd5a6` | integrity | Ogg/Vorbis, 1 channel(s), 11900 bytes; stream decoded. |
+| `sounds/magic/layered/dark_whisper_near.ogg` | sounds | `8fdd5679a4b3` | integrity | Ogg/Vorbis, 1 channel(s), 14140 bytes; stream decoded. |
+| `sounds/magic/layered/interaction_clash_far.ogg` | sounds | `7626f6525802` | integrity | Ogg/Vorbis, 1 channel(s), 8331 bytes; stream decoded. |
+| `sounds/magic/layered/interaction_clash_mid.ogg` | sounds | `15919b2cf941` | integrity | Ogg/Vorbis, 1 channel(s), 9850 bytes; stream decoded. |
+| `sounds/magic/layered/interaction_clash_near.ogg` | sounds | `436d62949937` | integrity | Ogg/Vorbis, 1 channel(s), 11092 bytes; stream decoded. |
+| `sounds/magic/layered/light_chorus_far.ogg` | sounds | `648c1306811d` | integrity | Ogg/Vorbis, 1 channel(s), 8435 bytes; stream decoded. |
+| `sounds/magic/layered/light_chorus_mid.ogg` | sounds | `bfa25e0215fa` | integrity | Ogg/Vorbis, 1 channel(s), 9709 bytes; stream decoded. |
+| `sounds/magic/layered/light_chorus_near.ogg` | sounds | `15e23044734f` | integrity | Ogg/Vorbis, 1 channel(s), 11373 bytes; stream decoded. |
+| `sounds/magic/layered/rank_awaken_far.ogg` | sounds | `2776d04f23f9` | integrity | Ogg/Vorbis, 1 channel(s), 9380 bytes; stream decoded. |
+| `sounds/magic/layered/rank_awaken_mid.ogg` | sounds | `483c84d9fd04` | integrity | Ogg/Vorbis, 1 channel(s), 10570 bytes; stream decoded. |
+| `sounds/magic/layered/rank_awaken_near.ogg` | sounds | `dc3c2a25ccf6` | integrity | Ogg/Vorbis, 1 channel(s), 12616 bytes; stream decoded. |
+| `sounds/magic/layered/rift_close_far.ogg` | sounds | `36717c38c4c1` | integrity | Ogg/Vorbis, 1 channel(s), 8103 bytes; stream decoded. |
+| `sounds/magic/layered/rift_close_mid.ogg` | sounds | `35aa561e44fc` | integrity | Ogg/Vorbis, 1 channel(s), 9686 bytes; stream decoded. |
+| `sounds/magic/layered/rift_close_near.ogg` | sounds | `99058b687655` | integrity | Ogg/Vorbis, 1 channel(s), 11027 bytes; stream decoded. |
+| `sounds/magic/layered/rift_open_far.ogg` | sounds | `5ab9a439e3c6` | integrity | Ogg/Vorbis, 1 channel(s), 9554 bytes; stream decoded. |
+| `sounds/magic/layered/rift_open_mid.ogg` | sounds | `25d1181431c2` | integrity | Ogg/Vorbis, 1 channel(s), 11388 bytes; stream decoded. |
+| `sounds/magic/layered/rift_open_near.ogg` | sounds | `ccb53f4639ae` | integrity | Ogg/Vorbis, 1 channel(s), 13483 bytes; stream decoded. |
+| `sounds/magic/layered/rune_hum_far.ogg` | sounds | `366fdd315057` | integrity | Ogg/Vorbis, 1 channel(s), 7946 bytes; stream decoded. |
+| `sounds/magic/layered/rune_hum_mid.ogg` | sounds | `32283d83cab2` | integrity | Ogg/Vorbis, 1 channel(s), 9602 bytes; stream decoded. |
+| `sounds/magic/layered/rune_hum_near.ogg` | sounds | `0dc2f7fb9475` | integrity | Ogg/Vorbis, 1 channel(s), 10954 bytes; stream decoded. |
+| `sounds/magic/layered/soul_tether_far.ogg` | sounds | `8ed5292c09e5` | integrity | Ogg/Vorbis, 1 channel(s), 8978 bytes; stream decoded. |
+| `sounds/magic/layered/soul_tether_mid.ogg` | sounds | `d1550c04b30d` | integrity | Ogg/Vorbis, 1 channel(s), 10418 bytes; stream decoded. |
+| `sounds/magic/layered/soul_tether_near.ogg` | sounds | `dfea94060504` | integrity | Ogg/Vorbis, 1 channel(s), 12515 bytes; stream decoded. |
+| `sounds/magic/layered/time_release_far.ogg` | sounds | `b254751e60be` | integrity | Ogg/Vorbis, 1 channel(s), 7633 bytes; stream decoded. |
+| `sounds/magic/layered/time_release_mid.ogg` | sounds | `63ef6ec4e42a` | integrity | Ogg/Vorbis, 1 channel(s), 9297 bytes; stream decoded. |
+| `sounds/magic/layered/time_release_near.ogg` | sounds | `92566e28b547` | integrity | Ogg/Vorbis, 1 channel(s), 10573 bytes; stream decoded. |
+| `sounds/magic/layered/time_suspend_far.ogg` | sounds | `817f0b69c750` | integrity | Ogg/Vorbis, 1 channel(s), 9274 bytes; stream decoded. |
+| `sounds/magic/layered/time_suspend_mid.ogg` | sounds | `22b22cee05a4` | integrity | Ogg/Vorbis, 1 channel(s), 11051 bytes; stream decoded. |
+| `sounds/magic/layered/time_suspend_near.ogg` | sounds | `1c35605fdddd` | integrity | Ogg/Vorbis, 1 channel(s), 13185 bytes; stream decoded. |
+| `sounds/magic/layered/ward_impact_far.ogg` | sounds | `4997fccc245d` | integrity | Ogg/Vorbis, 1 channel(s), 7405 bytes; stream decoded. |
+| `sounds/magic/layered/ward_impact_mid.ogg` | sounds | `99e555563cc4` | integrity | Ogg/Vorbis, 1 channel(s), 8805 bytes; stream decoded. |
+| `sounds/magic/layered/ward_impact_near.ogg` | sounds | `1ae7ba8782a1` | integrity | Ogg/Vorbis, 1 channel(s), 9582 bytes; stream decoded. |
 | `sounds/magic/light_chorus.ogg` | sounds | `1a3d2a9cc636` | integrity | Ogg/Vorbis, 1 channel(s), 11555 bytes; stream decoded. |
 | `sounds/magic/rank_awaken.ogg` | sounds | `2ecb05ec2ac3` | integrity | Ogg/Vorbis, 1 channel(s), 12854 bytes; stream decoded. |
 | `sounds/magic/rift_close.ogg` | sounds | `bd9d9a613fbe` | integrity | Ogg/Vorbis, 1 channel(s), 11390 bytes; stream decoded. |
