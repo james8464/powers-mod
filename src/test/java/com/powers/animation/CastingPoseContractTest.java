@@ -19,7 +19,7 @@ final class CastingPoseContractTest {
 	@Test
 	void invalidDurationCannotConstructPoseEvent() throws Exception {
 		Class<?> type = requireType("CastingPoseEvent");
-		Constructor<?> constructor = type.getConstructors()[0];
+		Constructor<?> constructor = eventConstructor(type);
 		Object[] valid = eventArguments();
 		assertRejected(constructor, replacing(valid, 7, 0));
 		assertRejected(constructor, replacing(valid, 7, 121));
@@ -27,7 +27,7 @@ final class CastingPoseContractTest {
 
 	@Test
 	void invalidIdentitySequenceAndOverflowAreRejected() throws Exception {
-		Constructor<?> constructor = requireType("CastingPoseEvent").getConstructors()[0];
+		Constructor<?> constructor = eventConstructor(requireType("CastingPoseEvent"));
 		Object[] valid = eventArguments();
 		assertRejected(constructor, replacing(valid, 0, -1));
 		assertRejected(constructor, replacing(valid, 1, new UUID(0L, 0L)));
@@ -48,7 +48,7 @@ final class CastingPoseContractTest {
 	@Test
 	void authoritativeTimeDeterminesProgressAndExpiry() throws Exception {
 		Class<?> eventType = requireType("CastingPoseEvent");
-		Object event = eventType.getConstructors()[0].newInstance(7,
+		Object event = eventConstructor(eventType).newInstance(7,
 				UUID.fromString("11111111-1111-1111-1111-111111111111"), 1L,
 				enumValue("com.powers.animation.CastingPose", "PROJECT"),
 				enumValue("com.powers.animation.CastingStyle", "RADIANT"),
@@ -80,6 +80,13 @@ final class CastingPoseContractTest {
 				enumValue("com.powers.animation.CastingPose", "PROJECT"),
 				enumValue("com.powers.animation.CastingStyle", "RADIANT"),
 				enumValue("com.powers.animation.CastingHand", "RIGHT"), 100L, 20};
+	}
+
+	private static Constructor<?> eventConstructor(Class<?> eventType) {
+		return java.util.Arrays.stream(eventType.getConstructors())
+				.filter(constructor -> constructor.getParameterCount() == 8)
+				.findFirst()
+				.orElseThrow(() -> new AssertionError("eight-argument pose constructor is missing"));
 	}
 
 	private static Object[] replacing(Object[] values, int index, Object replacement) {
