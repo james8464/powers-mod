@@ -1,9 +1,9 @@
 package com.powers.realm;
 
 import com.powers.PowersEntities;
+import com.powers.PowersSounds;
 import com.powers.entity.RealmHerald;
 import com.powers.fx.PowerFx;
-import com.powers.network.EventAudioPackets;
 import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
@@ -50,8 +50,8 @@ public final class RealmHeraldManager {
 		int color = kind == RealmKind.LIGHT ? 0xFFF2A8 : 0x54206E;
 		PowerFx.eventRune(level, herald.position(), 7.0, color, 64, 0.0);
 		PowerFx.eventSpiral(level, herald.position(), 2.0, 9.0, color, 54, 0.0);
-		PowerFx.eventSound(level, herald.position(), kind == RealmKind.LIGHT
-				? EventAudioPackets.Cue.LIGHT_HERALD : EventAudioPackets.Cue.DARK_EVENT, 3.0F,
+		PowerFx.sound(level, herald.position(), kind == RealmKind.LIGHT
+				? PowersSounds.LIGHT_CHORUS : PowersSounds.DARK_WHISPER, 3.0F,
 				kind == RealmKind.LIGHT ? 0.65F : 0.35F);
 	}
 }

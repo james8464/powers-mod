@@ -1,7 +1,7 @@
 package com.powers.client.fx;
 
 import com.powers.PowersParticles;
-import com.powers.PowersSounds;
+import com.powers.client.audio.ClientLayeredAudioMixer;
 import com.powers.network.CelestialRuinPackets;
 import com.powers.spell.CelestialRuinPresentation;
 import net.minecraft.client.Minecraft;
@@ -43,10 +43,8 @@ public final class ClientCelestialRuinFx {
 			}
 			RINGING_EVENTS.put(key, new Ringing(CelestialRuinPresentation.RINGING_TICKS,
 					payload.lod(), dimension));
-			if (client.player != null) {
-				client.player.playSound(PowersSounds.CELESTIAL_RING,
-						CelestialRuinPresentation.audioGain(payload.lod()), 1.0F);
-			}
+			if (client.player != null) ClientLayeredAudioMixer.playLocalCelestial(
+					CelestialRuinPresentation.audioGain(payload.lod()), 1.0F);
 			return;
 		}
 		COLUMNS.put(key, new Column(new Vec3(payload.x(), payload.y(), payload.z()),
@@ -99,7 +97,7 @@ public final class ClientCelestialRuinFx {
 					- ringing.remainingTicks) * 0.002F;
 		}
 		if (strongestVolume > 0.0F) {
-			client.player.playSound(PowersSounds.CELESTIAL_RING, strongestVolume, strongestPitch);
+			ClientLayeredAudioMixer.playLocalCelestial(strongestVolume, strongestPitch);
 		}
 	}
 

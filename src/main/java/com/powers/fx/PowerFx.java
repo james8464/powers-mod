@@ -2,8 +2,8 @@ package com.powers.fx;
 
 import com.powers.PowersParticles;
 import com.powers.PowersSounds;
+import com.powers.audio.LayeredAudioService;
 import com.powers.power.abilities.VoidBeamRules;
-import com.powers.network.EventAudioPackets;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
@@ -123,14 +123,12 @@ public final class PowerFx {
 
 	/** plays a sound to everyone around a point */
 	public static void sound(ServerLevel level, Vec3 pos, SoundEvent sound, float volume, float pitch) {
+		var cue = PowersSounds.fromSound(sound);
+		if (cue.isPresent()) {
+			LayeredAudioService.emit(level, pos, cue.orElseThrow(), volume, pitch);
+			return;
+		}
 		level.playSound(null, pos.x, pos.y, pos.z, sound, SoundSource.PLAYERS, volume, pitch);
-	}
-
-	/** Adds a quiet local layer only for observers beyond a rare event's positional sound range. */
-	public static void eventSound(ServerLevel level, Vec3 pos, EventAudioPackets.Cue cue,
-			float positionalVolume, float pitch) {
-		sound(level, pos, cue.sound(), positionalVolume, pitch);
-		ServerFxTransport.eventAudio(level, pos, cue, positionalVolume, pitch);
 	}
 
 	// A dedicated restrained burst keeps refusal feedback distinct from successful impact FX.

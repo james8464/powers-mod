@@ -528,8 +528,8 @@ public final class PacketFaultGameTests {
 				0, 64, 0, 0, FxLodTier.NEAR));
 		PowersPlayNetworking.send(player, new CelestialRuinPackets.Payload(CelestialRuinPackets.Phase.BEGIN,
 				100, 64, 100, 0, FxLodTier.NEAR));
-		PowersPlayNetworking.send(player, new EventAudioPackets.Payload(
-				EventAudioPackets.Cue.DARK_EVENT, FxLodTier.NEAR, 1.0F));
+		PowersPlayNetworking.send(player, layeredAudio(player, 601L,
+				com.powers.audio.LayeredAudioCue.DARK_WHISPER, 1.0F));
 		helper.runAfterDelay(2, () -> helper.assertTrue(payloads.isEmpty(), "150 ms profile delivered early"));
 		helper.runAfterDelay(5, () -> {
 			helper.assertTrue(count(payloads, BodyProxyPackets.BodySnapshotPayload.class) == 2,
@@ -540,7 +540,7 @@ public final class PacketFaultGameTests {
 					&& count(payloads, VesselControlPackets.StatePayload.class) == 1,
 					"Companion/vessel streams were conflated: " + payloads);
 			helper.assertTrue(count(payloads, CelestialRuinPackets.Payload.class) == 2
-					&& count(payloads, EventAudioPackets.Payload.class) == 1,
+					&& count(payloads, LayeredAudioPackets.Payload.class) == 1,
 					"World presentation was lost: " + payloads);
 			helper.assertTrue(count(payloads, PowerStatePayload.class) == 1
 					&& count(payloads, MagicFxPackets.MagicFxPayload.class) == 1
@@ -611,21 +611,29 @@ public final class PacketFaultGameTests {
 	private static void reconnect(GameTestHelper helper, ServerPlayer player, List<Object> payloads) {
 		payloads.clear();
 		PacketFaultController.configureScoped(helper.getLevel().getServer(), PacketFaultProfile.named("delay300", 23L), player);
-		PowersPlayNetworking.send(player, new EventAudioPackets.Payload(
-				EventAudioPackets.Cue.DARK_EVENT, FxLodTier.NEAR, 0.8F));
+		PowersPlayNetworking.send(player, layeredAudio(player, 701L,
+				com.powers.audio.LayeredAudioCue.DARK_WHISPER, 0.8F));
 		PacketFaultController.disconnected(helper.getLevel().getServer(), player.getUUID());
 		PacketFaultController.joined(player);
-		PowersPlayNetworking.send(player, new EventAudioPackets.Payload(
-				EventAudioPackets.Cue.LIGHT_HERALD, FxLodTier.NEAR, 1.2F));
+		PowersPlayNetworking.send(player, layeredAudio(player, 702L,
+				com.powers.audio.LayeredAudioCue.LIGHT_CHORUS, 1.2F));
 		helper.runAfterDelay(8, () -> {
-			helper.assertTrue(count(payloads, EventAudioPackets.Payload.class) == 1
-					&& ((EventAudioPackets.Payload) payloads.getFirst()).cue() == EventAudioPackets.Cue.LIGHT_HERALD,
+			helper.assertTrue(count(payloads, LayeredAudioPackets.Payload.class) == 1
+					&& ((LayeredAudioPackets.Payload) payloads.getFirst()).cue()
+							== com.powers.audio.LayeredAudioCue.LIGHT_CHORUS,
 					"Pre-reconnect envelope survived: " + payloads);
 			helper.assertTrue(PacketFaultController.diagnostics(helper.getLevel().getServer(), player).metrics().duplicateSideEffects() == 0L,
 					"Faults duplicated authority effects");
 		PacketFaultController.clearScoped(helper.getLevel().getServer(), player);
 		locatorNonceCannotBeReplayedByAnotherPlayer(helper, player);
 		});
+	}
+
+	private static LayeredAudioPackets.Payload layeredAudio(ServerPlayer player, long eventId,
+			com.powers.audio.LayeredAudioCue cue, float gain) {
+		return new LayeredAudioPackets.Payload(eventId, cue,
+				player.level().dimension().identifier(), player.getX(), player.getY(), player.getZ(),
+				gain, 1.0F, player.level().getGameTime());
 	}
 
 	private static void receive(ServerPlayer player,

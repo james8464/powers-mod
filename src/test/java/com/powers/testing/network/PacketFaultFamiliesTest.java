@@ -7,7 +7,6 @@ import com.powers.network.BodyProxyPackets;
 import com.powers.network.CelestialRuinPackets;
 import com.powers.network.CompanionPackets;
 import com.powers.network.CrystalSelectorPackets;
-import com.powers.network.EventAudioPackets;
 import com.powers.network.GrimoirePackets;
 import com.powers.network.LayeredAudioPackets;
 import com.powers.network.MagicFxPackets;
@@ -53,8 +52,6 @@ final class PacketFaultFamiliesTest {
 				PacketFaultFamilies.classify(MagicFxPackets.SemanticFxBatchPayload.TYPE));
 		assertEquals(PacketFaultFamily.CELESTIAL_RUIN,
 				PacketFaultFamilies.classify(CelestialRuinPackets.Payload.TYPE));
-		assertEquals(PacketFaultFamily.EVENT_AUDIO,
-				PacketFaultFamilies.classify(EventAudioPackets.Payload.TYPE));
 		assertEquals(PacketFaultFamily.EVENT_AUDIO,
 				PacketFaultFamilies.classify(LayeredAudioPackets.Payload.TYPE));
 		assertEquals(PacketFaultFamily.COMPANION_SNAPSHOT,

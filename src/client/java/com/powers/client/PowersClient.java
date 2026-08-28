@@ -16,7 +16,6 @@ import com.powers.client.fx.ClientMagicFx;
 import com.powers.client.fx.ClientShapeFx;
 import com.powers.client.fx.ClientBeamFx;
 import com.powers.client.fx.ClientCelestialRuinFx;
-import com.powers.client.fx.ClientEventAudio;
 import com.powers.client.audio.ClientLayeredAudioMixer;
 import com.powers.client.fx.ClientVisualScarManager;
 import com.powers.client.fx.ClientVisualScarRenderer;
@@ -36,7 +35,6 @@ import com.powers.network.MagicFxPackets;
 import com.powers.network.RankTenSilhouettePackets;
 import com.powers.network.CastingPosePackets;
 import com.powers.network.CelestialRuinPackets;
-import com.powers.network.EventAudioPackets;
 import com.powers.network.LayeredAudioPackets;
 import com.powers.network.ShadowSwordPackets;
 import com.powers.network.BodyProxyPackets;
@@ -207,8 +205,6 @@ public class PowersClient implements ClientModInitializer {
 				}));
 		ClientPlayNetworking.registerGlobalReceiver(CelestialRuinPackets.Payload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientCelestialRuinFx.handle(payload)));
-		ClientPlayNetworking.registerGlobalReceiver(EventAudioPackets.Payload.TYPE,
-				(payload, context) -> context.client().execute(() -> ClientEventAudio.handle(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(LayeredAudioPackets.Payload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientLayeredAudioMixer.handle(payload)));
 		// Disconnect owns the client cache boundary; no server-authored power state may cross sessions.
@@ -225,7 +221,6 @@ public class PowersClient implements ClientModInitializer {
 			PrivateCompanionClient.clear();
 			VesselControlClient.setActive(false);
 			ClientCelestialRuinFx.reset();
-			ClientEventAudio.resetMetrics();
 			ClientLayeredAudioMixer.resetConnectionEpoch();
 		});
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {

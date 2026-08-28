@@ -4,7 +4,6 @@ import com.powers.config.PowersConfigLoader;
 import com.powers.diagnostics.ServerRuntimeMetrics;
 import com.powers.network.FxPayloadBatch;
 import com.powers.network.MagicFxPackets;
-import com.powers.network.EventAudioPackets;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -54,14 +53,6 @@ final class ServerFxTransport {
 					nearSamples, midSamples, farSamples, nearAudio, midAudio, farAudio);
 		}
 
-		private void recordAudio(FxLodTier tier) {
-			switch (tier) {
-				case NEAR -> nearAudio++;
-				case MID -> midAudio++;
-				case FAR -> farAudio++;
-				case HIDDEN -> { }
-			}
-		}
 	}
 
 	private ServerFxTransport() {
@@ -131,22 +122,6 @@ final class ServerFxTransport {
 	static void eventShape(ServerLevel level, Vec3 center, double radius, double height,
 			int rgb, int points, double phase, ShapeFxKind kind) {
 		shape(level, center, radius, height, rgb, points, phase, kind, FxLodScope.EVENT_SCALE);
-	}
-
-	static void eventAudio(ServerLevel level, Vec3 position, EventAudioPackets.Cue cue,
-			float positionalVolume, float pitch) {
-		if (!finite(position)) return;
-		double ordinaryRange = Math.max(16.0, Math.max(0.0F, positionalVolume) * 16.0);
-		long tick = level.getServer().getTickCount();
-		for (ServerPlayer viewer : nearby(level, position, FxLodScope.EVENT_SCALE.maximumRange())) {
-			double distance = viewer.getEyePosition().distanceTo(position);
-			if (distance <= ordinaryRange) continue;
-			var lod = FxLodPolicy.decide(distance, 1, FxLodScope.EVENT_SCALE, FxShapeFamily.MAGIC);
-			if (!lod.visible() || !EventAudioPackets.send(viewer, cue, lod.tier(), pitch)) continue;
-			LOD_METRICS.computeIfAbsent(level.getServer(), ignored -> new LodCounters())
-					.recordAudio(lod.tier());
-			ServerRuntimeMetrics.recordPacket(level.getServer(), tick);
-		}
 	}
 
 	private static void shape(ServerLevel level, Vec3 center, double radius, double height,

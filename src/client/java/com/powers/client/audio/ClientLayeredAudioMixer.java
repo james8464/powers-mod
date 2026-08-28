@@ -1,6 +1,7 @@
 package com.powers.client.audio;
 
 import com.powers.PowersSounds;
+import com.powers.audio.LayeredAudioCue;
 import com.powers.audio.LayeredAudioRules;
 import com.powers.network.LayeredAudioPackets;
 import net.minecraft.client.Minecraft;
@@ -45,9 +46,31 @@ public final class ClientLayeredAudioMixer {
 				obstructed, ClientAudioComfortConfig.reducedTinnitus(), payload.gain(),
 				admission.concurrentInGroup()).orElse(null);
 		if (resolved == null) return;
-		var sound = PowersSounds.layer(payload.cue(), resolved.layer(), resolved.reducedTinnitus());
+		play(minecraft, payload.cue(), resolved, payload.pitch(), origin);
+	}
+
+	/** Plays the existing client-authoritative Celestial ringing cadence through comfort selection. */
+	public static void playLocalCelestial(float gain, float pitch) {
+		Minecraft minecraft = Minecraft.getInstance();
+		if (minecraft.player == null || minecraft.level == null || !Float.isFinite(pitch)
+				|| pitch < 0.25F || pitch > 4.0F) return;
+		Vec3 origin = minecraft.player.position();
+		long gameTime = minecraft.level.getGameTime();
+		ClientLayeredAudioState.Admission admission = STATE.admit(LayeredAudioCue.CELESTIAL_RING,
+				origin.x, origin.y, origin.z, gameTime);
+		if (admission.result() != ClientLayeredAudioState.AdmissionResult.ADMITTED) return;
+		LayeredAudioRules.ResolvedLayer resolved = LayeredAudioRules.resolve(
+				LayeredAudioCue.CELESTIAL_RING, 0.0, false,
+				ClientAudioComfortConfig.reducedTinnitus(), gain,
+				admission.concurrentInGroup()).orElse(null);
+		if (resolved != null) play(minecraft, LayeredAudioCue.CELESTIAL_RING, resolved, pitch, origin);
+	}
+
+	private static void play(Minecraft minecraft, LayeredAudioCue cue,
+			LayeredAudioRules.ResolvedLayer resolved, float pitch, Vec3 origin) {
+		var sound = PowersSounds.layer(cue, resolved.layer(), resolved.reducedTinnitus());
 		minecraft.getSoundManager().play(new PositionalLayeredSound(sound, resolved.gain(),
-				payload.pitch(), payload.x(), payload.y(), payload.z()));
+				pitch, origin.x, origin.y, origin.z));
 	}
 
 	/** Clears all packet IDs and burst metrics at connection and world boundaries. */

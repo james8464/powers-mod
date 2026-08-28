@@ -1,11 +1,12 @@
 package com.powers.gametest;
 
 import com.powers.PowersItems;
+import com.powers.PowersSounds;
 import com.powers.PowersWeapons;
 import com.powers.client.ClientPowerState;
 import com.powers.client.ClientSemanticFxMetrics;
 import com.powers.client.fx.ClientMagicFx;
-import com.powers.client.fx.ClientEventAudio;
+import com.powers.client.audio.ClientLayeredAudioMixer;
 import com.powers.client.fx.ClientCelestialRuinFx;
 import com.powers.client.fx.ClientVisualScarManager;
 import com.powers.client.fx.ClientVisualScarRenderer;
@@ -33,7 +34,6 @@ import com.powers.network.RelicPackets;
 import com.powers.network.MagicFxPackets;
 import com.powers.fx.BeamFxStyle;
 import com.powers.fx.PowerFx;
-import com.powers.network.EventAudioPackets;
 import com.powers.network.CelestialRuinPackets;
 import com.powers.fx.FxLodTier;
 import com.powers.fx.ClientVisualScarState;
@@ -473,13 +473,13 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 
 	private static void verifyDistantEventAudio(ClientGameTestContext context,
 			TestSingleplayerContext singleplayer) {
-		context.runOnClient(client -> ClientEventAudio.resetMetrics());
+		context.runOnClient(client -> ClientLayeredAudioMixer.resetConnectionEpoch());
 		singleplayer.getServer().runOnServer(server -> {
 			var player = server.getPlayerList().getPlayers().getFirst();
-			PowerFx.eventSound(player.level(), player.position().add(1_800.0, 0.0, 0.0),
-					EventAudioPackets.Cue.LIGHT_HERALD, 3.0F, 0.65F);
+			PowerFx.sound(player.level(), player.position().add(96.0, 0.0, 0.0),
+					PowersSounds.LIGHT_CHORUS, 3.0F, 0.65F);
 		});
-		context.waitFor(client -> ClientEventAudio.handledCount() == 1);
+		context.waitFor(client -> ClientLayeredAudioMixer.metrics().acceptedEvents() == 1);
 	}
 
 	private static void quiesceVisuals(ClientGameTestContext context) {
