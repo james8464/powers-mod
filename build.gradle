@@ -274,6 +274,7 @@ def vfx004ClientOnly = providers.gradleProperty("vfx004ClientOnly").isPresent()
 def vfx004FaultClientOnly = providers.gradleProperty("vfx004FaultClientOnly").isPresent()
 def vfx004RestartClientOnly = providers.gradleProperty("vfx004RestartClientOnly").isPresent()
 def vfx005ClientOnly = providers.gradleProperty("vfx005ClientOnly").isPresent()
+def vfx006ClientOnly = providers.gradleProperty("vfx006ClientOnly").isPresent()
 tasks.named("processGametestResources") {
 	inputs.property("connectedProfileEnabled", connectedProfileEnabled)
 	inputs.property("restartSoakEnabled", restartSoakEnabled)
@@ -285,12 +286,18 @@ tasks.named("processGametestResources") {
 	inputs.property("vfx004FaultClientOnly", vfx004FaultClientOnly)
 	inputs.property("vfx004RestartClientOnly", vfx004RestartClientOnly)
 	inputs.property("vfx005ClientOnly", vfx005ClientOnly)
+	inputs.property("vfx006ClientOnly", vfx006ClientOnly)
 	filesMatching("fabric.mod.json") {
 		filter { line ->
 			!vfx005ClientOnly && line.contains("com.powers.client.RankTenSilhouetteClientGameTests")
 					? null
 					: vfx005ClientOnly && (line.contains("com.powers.gametest.PowersClientGameTests")
 							|| line.contains("com.powers.client.VfxGalleryClientGameTests")
+							|| line.contains("com.powers.client.LightRealmSkyClientGameTests"))
+					? null
+					: vfx006ClientOnly && line.contains("com.powers.gametest.PowersClientGameTests")
+					? line.replace("\",", "\"")
+					: vfx006ClientOnly && (line.contains("com.powers.client.VfxGalleryClientGameTests")
 							|| line.contains("com.powers.client.LightRealmSkyClientGameTests"))
 					? null
 					: vfx004RestartClientOnly && (line.contains("com.powers.gametest.PowersClientGameTests")
@@ -333,6 +340,14 @@ tasks.named("processGametestResources") {
 				compatibilityEntrypoint: compatibilityGameTestsEnabled
 						? ',\n\t\t\t"com.powers.gametest.CompatibilityInventoryGameTests"'
 						: ''
+	}
+}
+
+tasks.named("runClientGameTest") {
+	if (vfx006ClientOnly) {
+		systemProperty "powers.vfx006.clientOnly", "true"
+		systemProperty "powers.vfx006.implementationSha",
+				providers.gradleProperty("vfx006ImplementationSha").getOrElse("0" * 40)
 	}
 }
 

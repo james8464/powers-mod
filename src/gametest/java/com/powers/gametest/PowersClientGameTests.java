@@ -63,6 +63,7 @@ import com.powers.testing.TestingOverrides;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
+import net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldSave;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -90,6 +91,19 @@ public final class PowersClientGameTests implements FabricClientGameTest {
     public void runTest(ClientGameTestContext context) {
         context.restoreDefaultGameOptions();
         context.getInput().resizeWindow(1280, 720);
+		if (Boolean.getBoolean("powers.vfx006.clientOnly")) {
+			TestWorldSave worldSave;
+			CastingPoseClientAcceptance.ReconnectSeed reconnect;
+			try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
+				reconnect = CastingPoseClientAcceptance.run(context, singleplayer);
+				worldSave = singleplayer.getWorldSave();
+			}
+			context.waitFor(client -> client.level == null && client.player == null);
+			try (TestSingleplayerContext reopened = worldSave.open()) {
+				CastingPoseClientAcceptance.captureReconnect(context, reopened, reconnect);
+			}
+			return;
+		}
 
         try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
             context.waitFor(client -> client.player != null && client.level != null);

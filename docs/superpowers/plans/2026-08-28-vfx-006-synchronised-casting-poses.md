@@ -392,7 +392,7 @@ git commit -m "feat(vfx): render accessible casting poses"
 - Create: `scripts/package_vfx006_evidence.py`
 - Create: `scripts/tests/test_verify_vfx006_gallery.py`
 - Create: `scripts/tests/test_package_vfx006_evidence.py`
-- Create: `docs/testing/evidence/2026-08-28-vfx-006/README.md` plus generated manifest/checksums/report/archive inventory.
+- Create: `docs/verification/evidence/2026-08-28-vfx-006/README.md` plus generated manifest/checksums/report/archive inventory.
 - Modify: `README.md`
 - Modify: `CHANGELOG.md`
 - Modify: `docs/planning/IMPROVEMENT_BACKLOG.md`
@@ -403,7 +403,7 @@ git commit -m "feat(vfx): render accessible casting poses"
 - Acceptance metadata fields: implementation SHA, entity type, entity UUID, sequence, pose, style, hand, authoritative start tick, duration, receipt tick, reduced-motion flag, scenario, image path, SHA-256.
 - Verifier rejects missing scope/pose/style/mode/scenario coverage, non-1280×720 images, identity mismatch, out-of-bounds angles, lifecycle mismatch, privacy leaks, checksum drift, or undeclared archive members.
 
-- [ ] **Step 1: Write Python verifier/package tests RED using temporary literal fixtures with one missing pose, one bad dimension, one stale checksum, and one path-privacy leak.**
+- [x] **Step 1: Write Python verifier/package tests RED using temporary literal fixtures with one missing pose, one bad dimension, one stale checksum, and one path-privacy leak.**
 
 ```python
 def test_gallery_rejects_missing_release_pose(self):
@@ -411,11 +411,11 @@ def test_gallery_rejects_missing_release_pose(self):
     self.assertIn("missing pose coverage: RELEASE", result.errors)
 ```
 
-- [ ] **Step 2: Implement deterministic verifier and packager, then run Python tests GREEN.**
+- [x] **Step 2: Implement deterministic verifier and packager, then run Python tests GREEN.**
 
 Run: `python3 -B -m unittest scripts.tests.test_verify_vfx006_gallery scripts.tests.test_package_vfx006_evidence`
 
-- [ ] **Step 3: Add `CastingPoseClientAcceptance.run(context, singleplayer)` scenarios for all six styles × four poses in normal/reduced modes plus latency, late tracking, interruption, expiry, reconnect, and entity-ID reuse; call it from the existing `PowersClientGameTests.runTest` entrypoint.**
+- [x] **Step 3: Add `CastingPoseClientAcceptance.run(context, singleplayer)` scenarios for all six styles × four poses in normal/reduced modes plus latency, late tracking, interruption, expiry, reconnect, and entity-ID reuse; call it from the existing `PowersClientGameTests.runTest` entrypoint.**
 
 Reuse the existing acceptance client capture transport and run-directory isolation. Each screenshot is 1280×720 and the scenario writes its semantic metadata before capture.
 
@@ -424,8 +424,8 @@ Reuse the existing acceptance client capture transport and run-directory isolati
 Run the repository's existing client GameTest command with a fresh ignored run directory, then invoke:
 
 ```bash
-python3 scripts/verify_vfx006_gallery.py --root docs/testing/evidence/2026-08-28-vfx-006
-python3 scripts/package_vfx006_evidence.py --root docs/testing/evidence/2026-08-28-vfx-006
+python3 scripts/verify_vfx006_gallery.py --root docs/verification/evidence/2026-08-28-vfx-006
+python3 scripts/package_vfx006_evidence.py --root docs/verification/evidence/2026-08-28-vfx-006
 ```
 
 - [ ] **Step 5: Run a targeted visual review and fix any clipping/readability defect through a new failing angle or acceptance test before recapture.**
@@ -442,7 +442,7 @@ Run: `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home .
 git add README.md CHANGELOG.md docs/planning/IMPROVEMENT_BACKLOG.md \
   docs/superpowers/plans/2026-08-12-stages-1-8-completion.md \
   docs/superpowers/plans/2026-08-28-vfx-006-synchronised-casting-poses.md \
-  docs/testing/evidence/2026-08-28-vfx-006 scripts/verify_vfx006_gallery.py \
+  docs/verification/evidence/2026-08-28-vfx-006 scripts/verify_vfx006_gallery.py \
   scripts/package_vfx006_evidence.py scripts/tests/test_verify_vfx006_gallery.py \
   scripts/tests/test_package_vfx006_evidence.py src/gametest/java/com/powers/gametest
 git commit -m "docs(vfx): accept synchronized casting poses"
