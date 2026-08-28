@@ -37,7 +37,8 @@ public final class ClientCastingPoseManager {
 		var event = payload.event();
 		state.accept(new ClientCastingPoseState.Wire(event.entityId(), event.entityUuid(),
 				event.sequence(), event.pose(), event.style(), event.hand(), event.startGameTime(),
-				event.durationTicks()), captured, world, identity, client.level.getGameTime());
+				event.durationTicks(), event.terminal()), captured, world, identity,
+				client.level.getGameTime());
 	}
 
 	public static synchronized Optional<ClientCastingPoseState.Resolved> resolve(Entity entity) {

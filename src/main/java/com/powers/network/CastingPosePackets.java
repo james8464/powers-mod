@@ -18,7 +18,8 @@ public final class CastingPosePackets {
 	}
 
 	public record Payload(int entityId, UUID entityUuid, long sequence,
-			int poseId, int styleId, int handId, long startGameTime, int durationTicks)
+			int poseId, int styleId, int handId, long startGameTime, int durationTicks,
+			boolean terminal)
 			implements CustomPacketPayload {
 		public static final Type<Payload> TYPE = new Type<>(PowersMod.id("casting_pose"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, Payload> STREAM_CODEC =
@@ -26,18 +27,19 @@ public final class CastingPosePackets {
 
 		public Payload {
 			new CastingPoseEvent(entityId, entityUuid, sequence,
-					pose(poseId), style(styleId), hand(handId), startGameTime, durationTicks);
+					pose(poseId), style(styleId), hand(handId), startGameTime, durationTicks,
+					terminal);
 		}
 
 		public Payload(CastingPoseEvent event) {
 			this(event.entityId(), event.entityUuid(), event.sequence(), event.pose().networkId(),
 					event.style().networkId(), event.hand().networkId(), event.startGameTime(),
-					event.durationTicks());
+					event.durationTicks(), event.terminal());
 		}
 
 		public CastingPoseEvent event() {
 			return new CastingPoseEvent(entityId, entityUuid, sequence, pose(poseId), style(styleId),
-					hand(handId), startGameTime, durationTicks);
+					hand(handId), startGameTime, durationTicks, terminal);
 		}
 
 		@Override
@@ -54,12 +56,13 @@ public final class CastingPosePackets {
 			buffer.writeVarInt(payload.handId);
 			buffer.writeVarLong(payload.startGameTime);
 			buffer.writeVarInt(payload.durationTicks);
+			buffer.writeBoolean(payload.terminal);
 		}
 
 		private static Payload decode(RegistryFriendlyByteBuf buffer) {
 			return new Payload(buffer.readVarInt(), buffer.readUUID(), buffer.readVarLong(),
 					buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt(),
-					buffer.readVarLong(), buffer.readVarInt());
+					buffer.readVarLong(), buffer.readVarInt(), buffer.readBoolean());
 		}
 	}
 

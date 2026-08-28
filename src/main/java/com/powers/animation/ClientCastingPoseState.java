@@ -1,20 +1,21 @@
 package com.powers.animation;
 
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /** Pure connection/world-epoch state for latency-correct client casting poses. */
 public final class ClientCastingPoseState {
 	public static final int MAX_ENTRIES = 128;
 	private final Map<UUID, CastingPoseEvent> entries = new HashMap<>();
+	private final LinkedHashMap<UUID, Long> sequences = new LinkedHashMap<>();
+	private final Set<UUID> terminalTombstones = new HashSet<>();
 	private WorldIdentity identity;
-
-	public ClientCastingPoseState() {
-	}
 
 	public boolean accept(Wire wire, HandlerStamp captured, WorldIdentity world,
 			EntityIdentity entity, long gameTime) {
@@ -33,26 +34,27 @@ public final class ClientCastingPoseState {
 		} catch (RuntimeException invalid) {
 			return false;
 		}
-		if (event.startGameTime() > gameTime + CastingPoseRules.MAX_FUTURE_SKEW_TICKS
-				|| !CastingPoseRules.active(gameTime, event)) return false;
-		CastingPoseEvent existing = entries.get(event.entityUuid());
-		if (existing != null && event.sequence() <= existing.sequence()) return false;
-		entries.entrySet().removeIf(entry -> !CastingPoseRules.active(gameTime, entry.getValue()));
-		if (existing == null && entries.size() >= MAX_ENTRIES) {
-			UUID evict = entries.entrySet().stream().min(Comparator
-					.comparingLong((Map.Entry<UUID, CastingPoseEvent> entry) -> finish(entry.getValue()))
-					.thenComparing(entry -> entry.getKey().toString()))
-					.map(Map.Entry::getKey).orElse(null);
-			if (evict != null) entries.remove(evict);
+		if (event.startGameTime() > gameTime + CastingPoseRules.MAX_FUTURE_SKEW_TICKS) return false;
+		long previous = sequences.getOrDefault(event.entityUuid(), 0L);
+		if (event.sequence() <= previous) return false;
+		if (!event.terminal() && gameTime >= event.endGameTime()) return false;
+		purgeExpired(gameTime);
+		ensureCapacity(event.entityUuid());
+		sequences.put(event.entityUuid(), event.sequence());
+		if (event.terminal()) {
+			entries.remove(event.entityUuid());
+			terminalTombstones.add(event.entityUuid());
+		} else {
+			terminalTombstones.remove(event.entityUuid());
+			entries.put(event.entityUuid(), event);
 		}
-		entries.put(event.entityUuid(), event);
 		return true;
 	}
 
 	public Optional<Resolved> resolve(UUID entityUuid, long gameTime) {
 		CastingPoseEvent event = entries.get(entityUuid);
-		if (event == null || !CastingPoseRules.active(gameTime, event)) {
-			entries.remove(entityUuid);
+		if (event == null || gameTime >= event.endGameTime()) {
+			removeNonTerminal(entityUuid);
 			return Optional.empty();
 		}
 		return Optional.of(new Resolved(event, CastingPoseRules.progress(gameTime, event)));
@@ -61,26 +63,33 @@ public final class ClientCastingPoseState {
 	public void reset(WorldIdentity world) {
 		identity = Objects.requireNonNull(world, "world");
 		entries.clear();
+		sequences.clear();
+		terminalTombstones.clear();
 	}
 
 	public void tick(long gameTime) {
-		entries.entrySet().removeIf(entry -> !CastingPoseRules.active(gameTime, entry.getValue()));
+		purgeExpired(gameTime);
 	}
 
 	public Map<UUID, CastingPoseEvent> entries() {
 		return Map.copyOf(entries);
 	}
 
+	public int trackedIdentities() {
+		return sequences.size();
+	}
+
 	public record Wire(int entityId, UUID entityUuid, long sequence, CastingPose pose,
-			CastingStyle style, CastingHand hand, long startGameTime, int durationTicks) {
+			CastingStyle style, CastingHand hand, long startGameTime, int durationTicks,
+			boolean terminal) {
 		public Wire {
 			new CastingPoseEvent(entityId, entityUuid, sequence, pose, style, hand,
-					startGameTime, durationTicks);
+					startGameTime, durationTicks, terminal);
 		}
 
 		public CastingPoseEvent event() {
 			return new CastingPoseEvent(entityId, entityUuid, sequence, pose, style, hand,
-					startGameTime, durationTicks);
+					startGameTime, durationTicks, terminal);
 		}
 	}
 
@@ -111,7 +120,22 @@ public final class ClientCastingPoseState {
 		}
 	}
 
-	private static long finish(CastingPoseEvent event) {
-		return event.startGameTime() + event.durationTicks();
+	private void purgeExpired(long gameTime) {
+		for (UUID uuid : Set.copyOf(entries.keySet())) {
+			if (gameTime >= entries.get(uuid).endGameTime()) removeNonTerminal(uuid);
+		}
+	}
+
+	private void removeNonTerminal(UUID uuid) {
+		entries.remove(uuid);
+		if (!terminalTombstones.contains(uuid)) sequences.remove(uuid);
+	}
+
+	private void ensureCapacity(UUID incoming) {
+		if (sequences.containsKey(incoming) || sequences.size() < MAX_ENTRIES) return;
+		UUID evict = sequences.keySet().iterator().next();
+		sequences.remove(evict);
+		entries.remove(evict);
+		terminalTombstones.remove(evict);
 	}
 }

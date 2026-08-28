@@ -41,6 +41,39 @@ final class ClientCastingPoseStateTest {
 	}
 
 	@Test
+	void boundedFutureSkewIsRetainedAtZeroProgressUntilAuthoritativeStart() {
+		var state = new ClientCastingPoseState();
+		assertTrue(state.accept(wire(12, ONE, 1, 25, 20), STAMP, WORLD,
+				entity(12, ONE), 20));
+		assertEquals(0.0, state.resolve(ONE, 20).orElseThrow().progress());
+		assertEquals(0.0, state.resolve(ONE, 24).orElseThrow().progress());
+		assertEquals(0.05, state.resolve(ONE, 26).orElseThrow().progress(), 0.0001);
+	}
+
+	@Test
+	void delayedTerminalClearsNewerChannelAndRejectsReorderedStart() {
+		var state = new ClientCastingPoseState();
+		assertTrue(state.accept(wire(12, ONE, 1, 20, 40), STAMP, WORLD,
+				entity(12, ONE), 20));
+		assertTrue(state.accept(terminal(12, ONE, 2, 21), STAMP, WORLD,
+				entity(12, ONE), 35));
+		assertTrue(state.resolve(ONE, 35).isEmpty());
+		assertFalse(state.accept(wire(12, ONE, 1, 20, 40), STAMP, WORLD,
+				entity(12, ONE), 35));
+	}
+
+	@Test
+	void terminalTombstonesRemainBounded() {
+		var state = new ClientCastingPoseState();
+		for (int index = 0; index < ClientCastingPoseState.MAX_ENTRIES + 5; index++) {
+			UUID uuid = new UUID(8, index + 1L);
+			assertTrue(state.accept(terminal(index, uuid, 1, 20), STAMP, WORLD,
+					entity(index, uuid), 30));
+		}
+		assertTrue(state.trackedIdentities() <= ClientCastingPoseState.MAX_ENTRIES);
+	}
+
+	@Test
 	void replayAndOlderSequenceCannotReplaceNewerPose() {
 		var state = new ClientCastingPoseState();
 		assertTrue(state.accept(wire(12, ONE, 2, 20, 20), STAMP, WORLD, entity(12, ONE), 20));
@@ -78,7 +111,13 @@ final class ClientCastingPoseStateTest {
 	private static ClientCastingPoseState.Wire wire(int entityId, UUID uuid, long sequence,
 			long start, int duration) {
 		return new ClientCastingPoseState.Wire(entityId, uuid, sequence, CastingPose.PROJECT,
-				CastingStyle.RADIANT, CastingHand.RIGHT, start, duration);
+				CastingStyle.RADIANT, CastingHand.RIGHT, start, duration, false);
+	}
+
+	private static ClientCastingPoseState.Wire terminal(int entityId, UUID uuid, long sequence,
+			long start) {
+		return new ClientCastingPoseState.Wire(entityId, uuid, sequence, CastingPose.PROJECT,
+				CastingStyle.RADIANT, CastingHand.RIGHT, start, 1, true);
 	}
 
 	private static ClientCastingPoseState.EntityIdentity entity(int id, UUID uuid) {

@@ -41,13 +41,17 @@ public final class CastingPoseService {
 			CastingPose pose, CastingStyle style, CastingHand hand, int durationTicks) {
 		if (!runtime.eligible()) return Optional.empty();
 		Optional<CastingPoseEvent> offered = ledger.offer(runtime.entityId(), runtime.entityUuid(),
-				pose, style, hand, runtime.gameTime(), durationTicks);
+				runtime.dimension(), pose, style, hand, runtime.gameTime(), durationTicks);
 		if (offered.isEmpty()) return Optional.empty();
-		CastingPosePackets.Payload payload = new CastingPosePackets.Payload(offered.orElseThrow());
+		send(runtime, offered.orElseThrow());
+		return offered;
+	}
+
+	private static void send(RuntimeAccess runtime, CastingPoseEvent event) {
+		CastingPosePackets.Payload payload = new CastingPosePackets.Payload(event);
 		for (UUID observer : runtime.trackingObservers()) {
 			if (runtime.canSend(observer)) runtime.sendGuarded(observer, payload);
 		}
-		return offered;
 	}
 
 	/** Starts one server-authored pose and sends it only to current tracking observers. */
@@ -72,20 +76,20 @@ public final class CastingPoseService {
 			LEDGER.clear(entity.getUUID());
 			return;
 		}
-		Optional<CastingPoseEvent> current = LEDGER.snapshot(entity.getUUID(), level.getGameTime());
-		if (current.isEmpty()) {
+		MinecraftRuntime runtime = new MinecraftRuntime(entity, level);
+		Optional<CastingPoseEvent> terminal = LEDGER.terminate(entity.getId(), entity.getUUID(),
+				runtime.dimension(), level.getGameTime());
+		if (terminal.isEmpty()) {
 			LEDGER.clear(entity.getUUID());
 			return;
 		}
-		CastingPoseEvent event = current.orElseThrow();
-		deliver(LEDGER, new MinecraftRuntime(entity, level), event.pose(), event.style(),
-				event.hand(), 1);
+		send(runtime, terminal.orElseThrow());
 	}
 
 	/** Expires state and forgets identities that are no longer loaded and alive. */
 	public static void tick(MinecraftServer server) {
 		long gameTime = server.overworld().getGameTime();
-		LEDGER.tick(gameTime, uuid -> alive(server, uuid));
+		LEDGER.tick(gameTime, (uuid, dimension) -> alive(server, uuid, dimension));
 	}
 
 	public static void clearAll() {
@@ -94,7 +98,7 @@ public final class CastingPoseService {
 
 	private static void trackingStarted(Entity entity, ServerPlayer observer) {
 		if (!scopeType(entity.getClass()) || !(entity.level() instanceof ServerLevel level)) return;
-		LEDGER.snapshot(entity.getUUID(), level.getGameTime()).ifPresent(event -> {
+		LEDGER.snapshot(entity.getUUID(), dimension(level), level.getGameTime()).ifPresent(event -> {
 			CastingPosePackets.Payload payload = new CastingPosePackets.Payload(event);
 			if (ServerPlayNetworking.canSend(observer, CastingPosePackets.Payload.TYPE)) {
 				sendGuarded(entity, observer, payload);
@@ -102,12 +106,17 @@ public final class CastingPoseService {
 		});
 	}
 
-	private static boolean alive(MinecraftServer server, UUID uuid) {
+	private static boolean alive(MinecraftServer server, UUID uuid, String dimension) {
 		for (ServerLevel level : server.getAllLevels()) {
+			if (!dimension(level).equals(dimension)) continue;
 			Entity entity = level.getEntity(uuid);
 			if (entity != null) return entity.isAlive() && !entity.isRemoved();
 		}
 		return false;
+	}
+
+	private static String dimension(ServerLevel level) {
+		return level.dimension().identifier().toString();
 	}
 
 	private static void sendGuarded(Entity entity, ServerPlayer observer,
@@ -128,6 +137,7 @@ public final class CastingPoseService {
 	public interface RuntimeAccess {
 		int entityId();
 		UUID entityUuid();
+		String dimension();
 		long gameTime();
 		boolean eligible();
 		List<UUID> trackingObservers();
@@ -152,6 +162,11 @@ public final class CastingPoseService {
 		@Override
 		public UUID entityUuid() {
 			return entity.getUUID();
+		}
+
+		@Override
+		public String dimension() {
+			return CastingPoseService.dimension(level);
 		}
 
 		@Override

@@ -35,16 +35,43 @@ final class CastingPoseLedgerTest {
 	}
 
 	@Test
-	void sameEntitySameTickReplacesWithoutSpendingTwoGlobalOffers() {
+	void sameEntitySameTickIsRejectedAndCannotSendTwice() {
 		var ledger = new CastingPoseLedger();
 		assertTrue(offer(ledger, 1, ONE, 50L).isPresent());
-		var replacement = ledger.offer(1, ONE, CastingPose.CHANNEL, CastingStyle.RADIANT,
-				CastingHand.BOTH, 50L, 40).orElseThrow();
-		assertEquals(2L, replacement.sequence());
+		assertTrue(ledger.offer(1, ONE, CastingPose.CHANNEL, CastingStyle.RADIANT,
+				CastingHand.BOTH, 50L, 40).isEmpty());
 		for (int index = 0; index < 63; index++) {
 			assertTrue(offer(ledger, index + 2, uuid(index + 2), 50L).isPresent());
 		}
 		assertTrue(offer(ledger, 66, uuid(66), 50L).isEmpty());
+		assertEquals(1L, ledger.metrics().rejectedSameEntityTick());
+	}
+
+	@Test
+	void identityBookkeepingIsBoundedAndDimensionCleanupIsExact() {
+		var ledger = new CastingPoseLedger();
+		for (int index = 0; index < CastingPoseLedger.MAX_IDENTITIES; index++) {
+			long tick = index / CastingPoseLedger.MAX_OFFERS_PER_TICK;
+			assertTrue(ledger.offer(index, uuid(index), "overworld", CastingPose.CHANNEL,
+					CastingStyle.FIRST_VESSEL, CastingHand.BOTH, tick, 120).isPresent());
+		}
+		assertTrue(ledger.offer(999, uuid(999), "overworld", CastingPose.INVOKE,
+				CastingStyle.FIRST_VESSEL, CastingHand.BOTH, 5L, 20).isEmpty());
+		assertEquals(CastingPoseLedger.MAX_IDENTITIES, ledger.metrics().identityEntries());
+		ledger.tick(6L, (uuid, dimension) -> !uuid.equals(uuid(0)) || !dimension.equals("overworld"));
+		assertTrue(ledger.offer(999, uuid(999), "overworld", CastingPose.INVOKE,
+				CastingStyle.FIRST_VESSEL, CastingHand.BOTH, 6L, 20).isPresent());
+	}
+
+	@Test
+	void terminalEventAdvancesSequenceAndClearsActiveChannel() {
+		var ledger = new CastingPoseLedger();
+		assertEquals(1L, ledger.offer(1, ONE, "overworld", CastingPose.PROJECT,
+				CastingStyle.RADIANT, CastingHand.RIGHT, 10L, 20).orElseThrow().sequence());
+		var terminal = ledger.terminate(1, ONE, "overworld", 12L).orElseThrow();
+		assertTrue(terminal.terminal());
+		assertEquals(2L, terminal.sequence());
+		assertTrue(ledger.snapshot(ONE, "overworld", 12L).isEmpty());
 	}
 
 	@Test
@@ -85,6 +112,17 @@ final class CastingPoseLedgerTest {
 		assertEquals(64L, metrics.getClass().getMethod("accepted").invoke(metrics));
 		assertEquals(1L, metrics.getClass().getMethod("rejectedTickBudget").invoke(metrics));
 		assertEquals(64, metrics.getClass().getMethod("activeEntries").invoke(metrics));
+	}
+
+	@Test
+	void clearAllResetsMetricsAsWellAsState() {
+		var ledger = new CastingPoseLedger();
+		offer(ledger, 1, ONE, 8L);
+		offer(ledger, 1, ONE, 8L);
+		ledger.clear();
+		assertEquals(0L, ledger.metrics().accepted());
+		assertEquals(0L, ledger.metrics().rejectedSameEntityTick());
+		assertEquals(0, ledger.metrics().identityEntries());
 	}
 
 	@Test

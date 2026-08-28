@@ -50,6 +50,7 @@ final class CastingPoseServiceTest {
 				new Class<?>[] {runtimeType}, (proxy, method, arguments) -> switch (method.getName()) {
 					case "entityId" -> 33;
 					case "entityUuid" -> ENTITY;
+					case "dimension" -> "overworld";
 					case "gameTime" -> 100L;
 					case "eligible" -> true;
 					case "trackingObservers" -> List.of(OBSERVER_A, OBSERVER_B);
@@ -68,12 +69,37 @@ final class CastingPoseServiceTest {
 	}
 
 	@Test
+	void duplicateStartInSameTickDoesNotSendSecondPacket() throws Exception {
+		Class<?> runtimeType = requireRuntimeType();
+		List<UUID> sent = new ArrayList<>();
+		Object runtime = Proxy.newProxyInstance(runtimeType.getClassLoader(),
+				new Class<?>[] {runtimeType}, (proxy, method, arguments) -> switch (method.getName()) {
+					case "entityId" -> 33;
+					case "entityUuid" -> ENTITY;
+					case "dimension" -> "overworld";
+					case "gameTime" -> 100L;
+					case "eligible" -> true;
+					case "trackingObservers" -> List.of(OBSERVER_A);
+					case "canSend" -> true;
+					case "sendGuarded" -> { sent.add((UUID) arguments[0]); yield null; }
+					default -> throw new UnsupportedOperationException(method.getName());
+				});
+		var ledger = new CastingPoseLedger();
+		CastingPoseService.deliver(ledger, (CastingPoseService.RuntimeAccess) runtime,
+				CastingPose.PROJECT, CastingStyle.RADIANT, CastingHand.RIGHT, 20);
+		CastingPoseService.deliver(ledger, (CastingPoseService.RuntimeAccess) runtime,
+				CastingPose.CHANNEL, CastingStyle.RADIANT, CastingHand.BOTH, 20);
+		assertEquals(List.of(OBSERVER_A), sent);
+	}
+
+	@Test
 	void ineligibleRuntimeCannotCreateOrDeliverPose() throws Exception {
 		Class<?> runtimeType = requireRuntimeType();
 		Object runtime = Proxy.newProxyInstance(runtimeType.getClassLoader(),
 				new Class<?>[] {runtimeType}, (proxy, method, arguments) -> switch (method.getName()) {
 					case "entityId" -> 33;
 					case "entityUuid" -> ENTITY;
+					case "dimension" -> "overworld";
 					case "gameTime" -> 100L;
 					case "eligible" -> false;
 					case "trackingObservers" -> fail("ineligible runtime scanned tracking observers");

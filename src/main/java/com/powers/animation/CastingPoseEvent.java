@@ -5,7 +5,7 @@ import java.util.UUID;
 /** Immutable, compact server-authored pose event. */
 public record CastingPoseEvent(int entityId, UUID entityUuid, long sequence,
 		CastingPose pose, CastingStyle style, CastingHand hand,
-		long startGameTime, int durationTicks) {
+		long startGameTime, int durationTicks, boolean terminal) {
 	private static final UUID ZERO_UUID = new UUID(0L, 0L);
 
 	public CastingPoseEvent {
@@ -23,6 +23,12 @@ public record CastingPoseEvent(int entityId, UUID entityUuid, long sequence,
 		} catch (ArithmeticException overflow) {
 			throw new IllegalArgumentException("pose timing overflow", overflow);
 		}
+	}
+
+	public CastingPoseEvent(int entityId, UUID entityUuid, long sequence,
+			CastingPose pose, CastingStyle style, CastingHand hand,
+			long startGameTime, int durationTicks) {
+		this(entityId, entityUuid, sequence, pose, style, hand, startGameTime, durationTicks, false);
 	}
 
 	public long endGameTime() {

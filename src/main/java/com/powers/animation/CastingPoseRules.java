@@ -9,7 +9,7 @@ public final class CastingPoseRules {
 	}
 
 	public static boolean active(long gameTime, CastingPoseEvent event) {
-		return gameTime >= event.startGameTime() && gameTime < event.endGameTime();
+		return !event.terminal() && gameTime >= event.startGameTime() && gameTime < event.endGameTime();
 	}
 
 	public static double progress(long gameTime, CastingPoseEvent event) {
