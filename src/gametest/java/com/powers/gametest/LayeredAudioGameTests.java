@@ -1,12 +1,17 @@
 package com.powers.gametest;
 
+import com.powers.PowersEntities;
 import com.powers.audio.LayeredAudioCue;
 import com.powers.audio.LayeredAudioLayer;
 import com.powers.audio.LayeredAudioService;
+import com.powers.entity.TestActorPowerState;
 import com.powers.network.LayeredAudioPackets;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -54,18 +59,27 @@ public final class LayeredAudioGameTests {
 
 	@GameTest(maxTicks = 20)
 	public void audioDeliveryHasZeroGameplayMutation(GameTestHelper helper) {
-		UUID playerId = new UUID(0, 7);
+		var actor = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 2));
+		actor.setHealth(13.0F);
+		TestActorPowerState.setEnergy(actor.getUUID(), 713);
+		BlockPos worldProbe = new BlockPos(1, 1, 1);
+		helper.setBlock(worldProbe, Blocks.GOLD_BLOCK);
+		UUID playerId = actor.getUUID();
 		Fixture runtime = new Fixture(List.of(new LayeredAudioService.Observer(playerId,
 				OVERWORLD, 0, 0, 0)), null);
-		GameplaySnapshot before = runtime.gameplaySnapshot();
+		GameplaySnapshot before = new GameplaySnapshot(actor.getHealth(), actor.position(),
+				TestActorPowerState.energy(playerId), helper.getBlockState(worldProbe));
 
 		LayeredAudioService.deliver(runtime, Vec3.ZERO, LayeredAudioCue.RUNE_HUM, 1.0F, 1.0F);
 
 		helper.assertTrue(runtime.sent.size() == 1, "Presentation payload was not delivered once");
-		helper.assertTrue(before.equals(runtime.gameplaySnapshot()),
-				"Layered audio mutated health, position, or inventory");
+		GameplaySnapshot after = new GameplaySnapshot(actor.getHealth(), actor.position(),
+				TestActorPowerState.energy(playerId), helper.getBlockState(worldProbe));
+		helper.assertTrue(before.equals(after),
+				"Layered audio mutated actor health, energy, position, or world state");
 		helper.assertTrue(helper.getLevel().getServer().getPlayerList().getPlayer(playerId) == null,
-				"Layered-audio policy test unexpectedly registered a server player");
+				"Isolated layered-audio fixture polluted the global player list");
+		TestActorPowerState.clear(playerId);
 		helper.succeed();
 	}
 
@@ -74,13 +88,12 @@ public final class LayeredAudioGameTests {
 	}
 
 	private record Send(UUID observer, LayeredAudioPackets.Payload payload) { }
-	private record GameplaySnapshot(float health, Vec3 position, int inventoryCount) { }
+	private record GameplaySnapshot(float health, Vec3 position, int energy, BlockState worldState) { }
 
 	private static final class Fixture implements LayeredAudioService.RuntimeAccess {
 		private final List<LayeredAudioService.Observer> observers;
 		private final UUID unsupported;
 		private final List<Send> sent = new ArrayList<>();
-		private final GameplaySnapshot gameplay = new GameplaySnapshot(20.0F, Vec3.ZERO, 0);
 
 		private Fixture(List<LayeredAudioService.Observer> observers, UUID unsupported) {
 			this.observers = observers;
@@ -94,7 +107,5 @@ public final class LayeredAudioGameTests {
 		@Override public void send(UUID observer, LayeredAudioPackets.Payload payload) {
 			sent.add(new Send(observer, payload));
 		}
-
-		private GameplaySnapshot gameplaySnapshot() { return gameplay; }
 	}
 }
