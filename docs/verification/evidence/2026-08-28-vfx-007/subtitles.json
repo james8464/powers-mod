@@ -2,85 +2,85 @@
   "captures": [
     {
       "imagePath": "00-rune_hum.png",
-      "sha256": "7bcb5d34d44f49e4aa00a219de43b73642fa59c4281b7bb5cb323c8b9ca32d92",
+      "sha256": "4d6fa4b9606153dadd09d2639422244c06a551299f6c11c1dea7af5701ce8a96",
       "subtitleKey": "subtitles.powers.rune_hum"
     },
     {
       "imagePath": "01-crystal_resonate.png",
-      "sha256": "1658e550dc4b80b241b256d166470b7d326d2fb7da9bf507a396fcc5e4e9b677",
+      "sha256": "61ffb8b1a861c81eefe216d33b3869956c05b32b5775cf8acf77fbb1b6685bff",
       "subtitleKey": "subtitles.powers.crystal_resonate"
     },
     {
       "imagePath": "02-amethyst_fracture.png",
-      "sha256": "2d7b85d341a926c9ec3938450f24f89b056cd37c3c2d41dc30b8da81f5c55f89",
+      "sha256": "ff5b39bf987cec4cc683a8d7542de0236519da794076784886a8c9eae7155e7e",
       "subtitleKey": "subtitles.powers.amethyst_fracture"
     },
     {
       "imagePath": "03-time_suspend.png",
-      "sha256": "96b5868cdd62a2554605f8f88b3f4ec39a3a6c0d3853d218ed810af28a49230f",
+      "sha256": "767d1d7eb09c7a84b2ad653d0728e38cc86314e8185aa2238147fe5ae206d88b",
       "subtitleKey": "subtitles.powers.time_suspend"
     },
     {
       "imagePath": "04-celestial_ring.png",
-      "sha256": "33d9913e75665843c2251d379cbba46964b3b37edf0f4119a62e5ffd9aac51f6",
+      "sha256": "90206e97d7d8aff0b2cdedb6da25449982dfab788e9297d262db28f4a856d3a5",
       "subtitleKey": "subtitles.powers.celestial_ring"
     },
     {
       "imagePath": "05-beam_ring.png",
-      "sha256": "bb9153e9e9fa167bb67d6385315080a8fab1121f857d70427deb2664b0422203",
+      "sha256": "3769b64dd1ff53aedd367b9c1a604d6a19b4583ab913d74ed65defc04ddcfe59",
       "subtitleKey": "subtitles.powers.beam_ring"
     },
     {
       "imagePath": "06-boss_impact_ring.png",
-      "sha256": "899e6da0941c6ca49025e1b26158b4b23d307060dae2f7bcb6236d2e05d3711c",
+      "sha256": "abf6d3b5bb19b15a27ed817db1450f9bbb8287076869b16db0f08a2f7a1f4cde",
       "subtitleKey": "subtitles.powers.boss_impact_ring"
     },
     {
       "imagePath": "07-time_release.png",
-      "sha256": "04fdf63554471d3615eb376326eab962e2ea456fe3227b5d264a54db77d636fe",
+      "sha256": "edf1ec386d9a807caa6f9dbb6dfa9b979f313e9555b95323d04b2ffba79aa9ef",
       "subtitleKey": "subtitles.powers.time_release"
     },
     {
       "imagePath": "08-rift_open.png",
-      "sha256": "f85205257656492f0d447decdf1bfbb250552a5d2e8796ab5540bd948de08c9f",
+      "sha256": "b1447c6ada6ebc1a55f55005b7f59fff385473350205f17663e586966b450dd2",
       "subtitleKey": "subtitles.powers.rift_open"
     },
     {
       "imagePath": "09-rift_close.png",
-      "sha256": "0de2a9618c1525ce3ada27bec8739132f52da89037987dfd49cfbc150f465396",
+      "sha256": "a5d1701caf85cbce130ea2c6c27405de8ff0abcfb809fa38b658971083bbd64b",
       "subtitleKey": "subtitles.powers.rift_close"
     },
     {
       "imagePath": "10-soul_tether.png",
-      "sha256": "a079511b665c8b578584780b21cd462185ab79f3df1685f5c2c0af787479d4b5",
+      "sha256": "b3f22897b7c5b6e66ada2ccae5b21780dc2415eada4b5bec7896677162c2c771",
       "subtitleKey": "subtitles.powers.soul_tether"
     },
     {
       "imagePath": "11-light_chorus.png",
-      "sha256": "a7c8e630034b4209c3254e5367c63a79b90ab4c54b0e6183953f54c7b2a5a00b",
+      "sha256": "4ad4a49b07b3fd1d2eb8488d64e9f60b660e40fc3d4c3b9630e7c8758c695586",
       "subtitleKey": "subtitles.powers.light_chorus"
     },
     {
       "imagePath": "12-dark_whisper.png",
-      "sha256": "668cd75a6d7adf66b1f5e1d53a803bdaf64be596e33549dc870a40784258a727",
+      "sha256": "5c59fd90aaf3466ea6c2d7e33aa251118790a49084d147f4c6fd7a8253d2d05d",
       "subtitleKey": "subtitles.powers.dark_whisper"
     },
     {
       "imagePath": "13-ward_impact.png",
-      "sha256": "ae535a787837fb1c3bbeb89128b9c039f703877dfb2ef735389ad161f5220afa",
+      "sha256": "1a7126ac3453563e04f2f32ddef0c5e269f9cbbe50e0f26e40d4b77cbb44f65f",
       "subtitleKey": "subtitles.powers.ward_impact"
     },
     {
       "imagePath": "14-rank_awaken.png",
-      "sha256": "3014717d8547307bd4493163abde7c2f45aa9ba08789ddcbeb5ad6338a0ff45a",
+      "sha256": "4523778835d7e3f43b5a85c83a6875ab81d2c97fa27acec71af81266a8faf41b",
       "subtitleKey": "subtitles.powers.rank_awaken"
     },
     {
       "imagePath": "15-interaction_clash.png",
-      "sha256": "462fe2f653e539afc813e72c5794fbba6c064be395b66661374c3869e50dd9ee",
+      "sha256": "458f620372e1bf1ec34581b5fa8b7735493b5041a1f9a69b8c135f43ef97560b",
       "subtitleKey": "subtitles.powers.interaction_clash"
     }
   ],
-  "implementationSha": "b80c4067aa3a1a7f182cbd909eab314297620149",
+  "implementationSha": "1e04d2c2534120a234ebba2d04229a6f44a240d1",
   "schemaVersion": 1
 }

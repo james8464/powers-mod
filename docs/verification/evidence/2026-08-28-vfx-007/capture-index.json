@@ -1,22 +1,22 @@
 {
   "burstEventIds": [
-    44826624,
-    44826625,
-    44826626,
-    44826627,
-    44826628,
-    44826629,
-    44826630,
-    44826631,
-    44826632
+    43646976,
+    43646977,
+    43646978,
+    43646979,
+    43646980,
+    43646981,
+    43646982,
+    43646983,
+    43646984
   ],
-  "implementationSha": "b80c4067aa3a1a7f182cbd909eab314297620149",
+  "implementationSha": "1e04d2c2534120a234ebba2d04229a6f44a240d1",
   "lifecycleEventIds": {
-    "dimension": 59965440,
-    "reconnect": 81395712,
-    "reload": 52690944
+    "dimension": 58785792,
+    "reconnect": 80412672,
+    "reload": 51511296
   },
-  "ordinaryCelestialEventId": 28573696,
-  "reducedCelestialEventId": 45547520,
+  "ordinaryCelestialEventId": 27328512,
+  "reducedCelestialEventId": 44367872,
   "schemaVersion": 1
 }
