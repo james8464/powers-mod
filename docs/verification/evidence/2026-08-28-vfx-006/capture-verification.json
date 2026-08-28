@@ -4,280 +4,280 @@
     {
       "captureId": "vfx006-entity_id_reuse-radiant-project-1",
       "imagePath": "0053_vfx006-entity_id_reuse-radiant-project-1.png",
-      "sha256": "8e45c09195608587e7d3fa7a224f320d33c9f17197b44464bee869fdd50f6e51"
+      "sha256": "14a9eb3f8997e9c5459bce74abd53ce358ffbf25413593d97fcbcff42af91027"
     },
     {
       "captureId": "vfx006-expiry-first_vessel-channel-1",
       "imagePath": "0052_vfx006-expiry-first_vessel-channel-1.png",
-      "sha256": "efb1d3a07705ebed15c0b4273c91c5244afe746e1520c94b9ea7ea41106aa1f4"
+      "sha256": "8345573b6ac90043a383fbfeb1d0b003957b723c93973fa1515ec5f0e9bc1f32"
     },
     {
       "captureId": "vfx006-gallery-darkness-channel-normal-1",
       "imagePath": "0010_vfx006-gallery-darkness-channel-normal-1.png",
-      "sha256": "6e307dcbc086a86a3ee637ff9bc564268c9d7a6b3f66f779b63b7adfd096615f"
+      "sha256": "f333adadc0dc8317fab9a5132fb9123641fda1f8184e789d8128fb248991029c"
     },
     {
       "captureId": "vfx006-gallery-darkness-channel-reduced-1",
       "imagePath": "0034_vfx006-gallery-darkness-channel-reduced-1.png",
-      "sha256": "1ea2551c1e06ee78860b13a8be0414b70319b5294d368a4e93d3b7cc44baa159"
+      "sha256": "40675225bcc5e245e65b15c12c21bb353c56633925e888f2b5ffa89fea7cf450"
     },
     {
       "captureId": "vfx006-gallery-darkness-invoke-normal-1",
       "imagePath": "0008_vfx006-gallery-darkness-invoke-normal-1.png",
-      "sha256": "95c4ea3974964349b3b6142a7ea4f80d32235e2a1386694ad789f6b6557152ed"
+      "sha256": "b44a7206ce1ff42621870a2ff9ef4fcc65a42d225c4216760b7dcdfa795c338b"
     },
     {
       "captureId": "vfx006-gallery-darkness-invoke-reduced-1",
       "imagePath": "0032_vfx006-gallery-darkness-invoke-reduced-1.png",
-      "sha256": "179d7f956eb691f6dfd54cb04333ebacbbe801c7697970992e9956ec0b44aa80"
+      "sha256": "2d02d9dd3877d227b82081b95308bd275ca42d7d81f92b6d58ac2354e64b2da0"
     },
     {
       "captureId": "vfx006-gallery-darkness-project-normal-1",
       "imagePath": "0009_vfx006-gallery-darkness-project-normal-1.png",
-      "sha256": "fa6b9c221c255891507d2c447a0e816c2211cf0114393620aa06197ce09e1c87"
+      "sha256": "637f6f40893b3b4839c85ce6db6022192cdcc9d6379100d21c4d2e9ca3f6d2fc"
     },
     {
       "captureId": "vfx006-gallery-darkness-project-reduced-1",
       "imagePath": "0033_vfx006-gallery-darkness-project-reduced-1.png",
-      "sha256": "b757b292df327bf41b4f66556524f42aef7d8af8c0524f4dcf989ce12a13089c"
+      "sha256": "508c8f53d02d25a18f8a03bf9159879f06d1132bafa6bd832da43655974663b6"
     },
     {
       "captureId": "vfx006-gallery-darkness-release-normal-1",
       "imagePath": "0011_vfx006-gallery-darkness-release-normal-1.png",
-      "sha256": "351310cf0d4ee87307fa8d5c7e1831f0002d75210f6e1baad0cbbceec8c23720"
+      "sha256": "86e072e3699320295b8e604d2c7a0c305faf435375e7ed5313efd540846f161d"
     },
     {
       "captureId": "vfx006-gallery-darkness-release-reduced-1",
       "imagePath": "0035_vfx006-gallery-darkness-release-reduced-1.png",
-      "sha256": "f0f43f5e9f61f59d2c32d06ae521659aa5fbcdc605347d727c3eb11341866187"
+      "sha256": "8a27efc00b0f2ba8435738db277d371e92e054cd5207de04c2ac36be6e278a3b"
     },
     {
       "captureId": "vfx006-gallery-first_vessel-channel-normal-1",
       "imagePath": "0022_vfx006-gallery-first_vessel-channel-normal-1.png",
-      "sha256": "a8937f7b5b47d3b7f5a91ba8193008b3067ecae3358b8ed1a881624b6da8a6fb"
+      "sha256": "8fcbf5b9f03b2387153ff89be78b418b7cf8fc0e42078f49df8afa7e55fb7dde"
     },
     {
       "captureId": "vfx006-gallery-first_vessel-channel-reduced-1",
       "imagePath": "0046_vfx006-gallery-first_vessel-channel-reduced-1.png",
-      "sha256": "0d14b69ce469693f8cf0c5b311c548f2b4b7cff9cd5d484196337e9ffdc671cd"
+      "sha256": "a3b11d403d4a01078a5908448d26db478bc3d641077768500033b4299e9d173c"
     },
     {
       "captureId": "vfx006-gallery-first_vessel-invoke-normal-1",
       "imagePath": "0020_vfx006-gallery-first_vessel-invoke-normal-1.png",
-      "sha256": "4a44cb9d82ae2bd3cd7808845914b8a099ff950ea6c018b08863a9fa82db1959"
+      "sha256": "9a8d8bf900eab92874f2dea89bec19447e38f0de55f27ab26f9cc01fa059203f"
     },
     {
       "captureId": "vfx006-gallery-first_vessel-invoke-reduced-1",
       "imagePath": "0044_vfx006-gallery-first_vessel-invoke-reduced-1.png",
-      "sha256": "ca98e0e02f8dc3fafbfb68b005c8747c5a2874a946cac874c787558ff04905c6"
+      "sha256": "46b03a558d7a52b22587b2b006b0c01e7e21808700defc856b81d81e388e93bd"
     },
     {
       "captureId": "vfx006-gallery-first_vessel-project-normal-1",
       "imagePath": "0021_vfx006-gallery-first_vessel-project-normal-1.png",
-      "sha256": "7711b2c2093ff03c16d407e91c4f1dfe94d5125358262d699d5ed07c3435a97d"
+      "sha256": "ee5e4f4bb1b8bff1db80182afdb294981373e6ee5cf133bc57b45c08f6455914"
     },
     {
       "captureId": "vfx006-gallery-first_vessel-project-reduced-1",
       "imagePath": "0045_vfx006-gallery-first_vessel-project-reduced-1.png",
-      "sha256": "9dd6192a7f63144ddd9bc6b4bbe8f9a18cd380bc0ffc05531a5880ecc7ca695a"
+      "sha256": "02c465de52bfe57f80af6b0e2f5456b75c2e48facaca8306580721c028819695"
     },
     {
       "captureId": "vfx006-gallery-first_vessel-release-normal-1",
       "imagePath": "0023_vfx006-gallery-first_vessel-release-normal-1.png",
-      "sha256": "b685406c2da9b20f35a5d2c1b809beac1fc6b27de8d64fce843e110970aeae07"
+      "sha256": "b723fe1982a55628748eca1f9fb6ee9337974280fba285f81e56c298ce6aed04"
     },
     {
       "captureId": "vfx006-gallery-first_vessel-release-reduced-1",
       "imagePath": "0047_vfx006-gallery-first_vessel-release-reduced-1.png",
-      "sha256": "9fedb6f3d95dc76285f952ae3bdd3b815922010288a3f824f66fdaba42e7589e"
+      "sha256": "c360aa2b2b8629378db4a3d62d4e6cc5ec28e75b7b56f7a5559c49cad36416c2"
     },
     {
       "captureId": "vfx006-gallery-herald_dark-channel-normal-1",
       "imagePath": "0018_vfx006-gallery-herald_dark-channel-normal-1.png",
-      "sha256": "d13f7492649975f3dc8309183ca9ed6321592759f029a35b0e914a54442c8bbc"
+      "sha256": "86298a5adf03ea1ee27c9b3dbe179d651f452c26f478e73bcb095a72786a9353"
     },
     {
       "captureId": "vfx006-gallery-herald_dark-channel-reduced-1",
       "imagePath": "0042_vfx006-gallery-herald_dark-channel-reduced-1.png",
-      "sha256": "72a841a4a62f6edc2bffdabe1e19788cba000800a0b43f90895d4a72e2dd232c"
+      "sha256": "bc0a630958d8115bb8ad554f6b33650b1b765442058f3494c2644d653143427f"
     },
     {
       "captureId": "vfx006-gallery-herald_dark-invoke-normal-1",
       "imagePath": "0016_vfx006-gallery-herald_dark-invoke-normal-1.png",
-      "sha256": "bf59ccff040277889b9df8d99c56e886a9272a6c2bf378269162335e0faaf589"
+      "sha256": "02b7c86741c9d2456a2cc400a86daa422c764164ef56c6b4a6cc26cec74e00e7"
     },
     {
       "captureId": "vfx006-gallery-herald_dark-invoke-reduced-1",
       "imagePath": "0040_vfx006-gallery-herald_dark-invoke-reduced-1.png",
-      "sha256": "4ef26871d4a74f95ea3c247938291726a8cc6504537a8bb1976a7b88a0f109ee"
+      "sha256": "a09c15ec836bb68136ec96d99c1b658c18d90383b07c2c75d865119a952bb832"
     },
     {
       "captureId": "vfx006-gallery-herald_dark-project-normal-1",
       "imagePath": "0017_vfx006-gallery-herald_dark-project-normal-1.png",
-      "sha256": "103dda2ffa36dc15ffa0dfc2db6a102c3fb5f2ba4d786add6207f199790232c6"
+      "sha256": "4293d994d595fc4800bef3dde0311d1b212333fa07e6830b5a712fb34b3eaf51"
     },
     {
       "captureId": "vfx006-gallery-herald_dark-project-reduced-1",
       "imagePath": "0041_vfx006-gallery-herald_dark-project-reduced-1.png",
-      "sha256": "9fc0d53aa2d0c5b93b1d7a300d4cbff015ce56ca32e3e5ca0889f661734c8921"
+      "sha256": "2b2b84a0a689b4877257955f1c3b16d115454359c5d50656beff2c440687d627"
     },
     {
       "captureId": "vfx006-gallery-herald_dark-release-normal-1",
       "imagePath": "0019_vfx006-gallery-herald_dark-release-normal-1.png",
-      "sha256": "e7e0ca6302421f5f9a10cdb0e71e267d2bdd4c01738a29772f45188c22cbb921"
+      "sha256": "d4045acab4319bea43b0122703cfb11e28f91d265d2ddb9e17eaf144ff464e92"
     },
     {
       "captureId": "vfx006-gallery-herald_dark-release-reduced-1",
       "imagePath": "0043_vfx006-gallery-herald_dark-release-reduced-1.png",
-      "sha256": "99fc666dc194c5c7ef2b1c095d11c27936a8e81961d31348d9f0803abf2cdd9c"
+      "sha256": "373eb9a18ebfd5c6d5467e596b63700305d00eac096a4b8ba658adc2517a6762"
     },
     {
       "captureId": "vfx006-gallery-herald_light-channel-normal-1",
       "imagePath": "0014_vfx006-gallery-herald_light-channel-normal-1.png",
-      "sha256": "399edc35cf03f27f6bb96df62578b78c2fcddb54b94eff7b01383b096ef7d461"
+      "sha256": "c5b1dc290cc0bda427315367db490e2a8107c33bb8bea7bbef4df1e1ed6bd52f"
     },
     {
       "captureId": "vfx006-gallery-herald_light-channel-reduced-1",
       "imagePath": "0038_vfx006-gallery-herald_light-channel-reduced-1.png",
-      "sha256": "da6eddf88bf4dcf8da4a50da6ac935a743b5e1703a544584e5e847473ea976d0"
+      "sha256": "4c73b558c865d92bee4dba1b4e668de3a5aaad19fd2d1fd73bbf5211e56adc5d"
     },
     {
       "captureId": "vfx006-gallery-herald_light-invoke-normal-1",
       "imagePath": "0012_vfx006-gallery-herald_light-invoke-normal-1.png",
-      "sha256": "121a69d2c01099240d9acdfddc849dc36c3bf19542b08fea47be5d1d4716f14e"
+      "sha256": "f8fc0e0529c541eb2f0cbec9c0d9ccd586d0bf6d02688c224376656e494358d5"
     },
     {
       "captureId": "vfx006-gallery-herald_light-invoke-reduced-1",
       "imagePath": "0036_vfx006-gallery-herald_light-invoke-reduced-1.png",
-      "sha256": "a6ebb41c87ed3b84a94b609ff4561aae912dca1ef900af4d7f59d3d055efa209"
+      "sha256": "82688fd4aefda3d5091e39e8f7309b4d4da4d1135b005ec00b628904a3ad54a3"
     },
     {
       "captureId": "vfx006-gallery-herald_light-project-normal-1",
       "imagePath": "0013_vfx006-gallery-herald_light-project-normal-1.png",
-      "sha256": "68e4ffaf861a0157a4a815d4aba4dc28aca19c8d36f8df7feced3c52a4b153b3"
+      "sha256": "d74b9710cd5078d8abe689025584208f1f2b73e0f132530ee61010592cca3217"
     },
     {
       "captureId": "vfx006-gallery-herald_light-project-reduced-1",
       "imagePath": "0037_vfx006-gallery-herald_light-project-reduced-1.png",
-      "sha256": "d1daed999d18a7ff6744e5a9594047bee643f42890e2eeeee47cd64c7d44044f"
+      "sha256": "c0f2ba3b68279002c3ce00d7d50e9a24e0398160fd485e6ac0d79ae463bbc7ba"
     },
     {
       "captureId": "vfx006-gallery-herald_light-release-normal-1",
       "imagePath": "0015_vfx006-gallery-herald_light-release-normal-1.png",
-      "sha256": "2b93b86f7bc16b550b4b5b2981110f3ccaf714c721fd6c07793ff126ebbfc03f"
+      "sha256": "a7c5695ba1a74d40fc4610a23eb19bc9e95c8284916223d6d20c05602179bbe1"
     },
     {
       "captureId": "vfx006-gallery-herald_light-release-reduced-1",
       "imagePath": "0039_vfx006-gallery-herald_light-release-reduced-1.png",
-      "sha256": "18a3a6ba8d58186d020150f841b3eb4d484427e7a41ae85071a3de2f90613fc1"
+      "sha256": "589a9dc9d1c175e1d4e99fc5e99361338384dc995e3cb1572786b8dfafbad0bf"
     },
     {
       "captureId": "vfx006-gallery-radiant-channel-normal-1",
       "imagePath": "0006_vfx006-gallery-radiant-channel-normal-1.png",
-      "sha256": "5a776f668da790db494593af03da38da722184f4306bd220be295d1fadc17d10"
+      "sha256": "819e984bc8ad8512fe5d3f42e15d02465085341ad02b42117b12a64bf5f20ade"
     },
     {
       "captureId": "vfx006-gallery-radiant-channel-reduced-1",
       "imagePath": "0030_vfx006-gallery-radiant-channel-reduced-1.png",
-      "sha256": "cef2e4d4663dcc6bd7c22875f9df6bc5c0ce00c2f7d4d353da483654771c2a98"
+      "sha256": "d77935dc252213db1a9c674eec7d94a28216dcfde4d29741594d7aa218610490"
     },
     {
       "captureId": "vfx006-gallery-radiant-invoke-normal-1",
       "imagePath": "0004_vfx006-gallery-radiant-invoke-normal-1.png",
-      "sha256": "3afcfa3d7cce59e14e704053434b01396a346e58cad3a90fdbe43cc2ce1fe483"
+      "sha256": "c7e1b912a9548b009d86279ee2f47b0f91348d11c409131bfb0e6f844de03ab1"
     },
     {
       "captureId": "vfx006-gallery-radiant-invoke-reduced-1",
       "imagePath": "0028_vfx006-gallery-radiant-invoke-reduced-1.png",
-      "sha256": "1c4952678f6ce8eb247ba0b2397a92d473dd64674f43377217bc2cf93d5fe08a"
+      "sha256": "6a3ba823608ac8afb1d248f5ee32b5885d2a0150f49457b95b6aceffd89a37f7"
     },
     {
       "captureId": "vfx006-gallery-radiant-project-normal-1",
       "imagePath": "0005_vfx006-gallery-radiant-project-normal-1.png",
-      "sha256": "437d5bd33a1f8a1c9debc2bd54f77a08d977728ddae0cc7c17a83f06575791af"
+      "sha256": "b90cdde2bdf6886f223e236797aaf07ce305e4a456dfffcdcdeb2fe471b199c8"
     },
     {
       "captureId": "vfx006-gallery-radiant-project-reduced-1",
       "imagePath": "0029_vfx006-gallery-radiant-project-reduced-1.png",
-      "sha256": "01dff382b92c7d15aebe1ee7716100a48d0fc3a4355afc024dcc0be228f04c46"
+      "sha256": "c31908e1194d8f882a9596f3f6b293103fcca5e1eb7ce2653baa47a1feb605a1"
     },
     {
       "captureId": "vfx006-gallery-radiant-release-normal-1",
       "imagePath": "0007_vfx006-gallery-radiant-release-normal-1.png",
-      "sha256": "2970ce788e8b198056a8ab1bf90652fc6485be64091166b7b2a6ffb51286cc5f"
+      "sha256": "69a6c74057f13626b8fd1125bcff28f6daac6c51cce215092d33856c5c5a707f"
     },
     {
       "captureId": "vfx006-gallery-radiant-release-reduced-1",
       "imagePath": "0031_vfx006-gallery-radiant-release-reduced-1.png",
-      "sha256": "22a670c06481af0c02b2a5adf7dd750915d677b36eae2e772d3f71f8d387352f"
+      "sha256": "e41fd73a41da72c77c36388c02a7e75760935182196e17399327dd9b7962dc6a"
     },
     {
       "captureId": "vfx006-gallery-shadow-channel-normal-1",
       "imagePath": "0002_vfx006-gallery-shadow-channel-normal-1.png",
-      "sha256": "c81de38c0941eef75adda818d8832017bca725c1117e65f1d77fc4a29fe52328"
+      "sha256": "43a45cf8ffca151637ccd5136e04dfc5ed29b9e3f57c4bd1e3b8f6000f8ef491"
     },
     {
       "captureId": "vfx006-gallery-shadow-channel-reduced-1",
       "imagePath": "0026_vfx006-gallery-shadow-channel-reduced-1.png",
-      "sha256": "cb1ac9015e5b67d28f5e3c856bba4b8749424bd907fec3137292e8b5b42767e1"
+      "sha256": "00f552e0b635ebb4407d211e466a7ab61211e0c0b6dab73ecba8a97de5678b9a"
     },
     {
       "captureId": "vfx006-gallery-shadow-invoke-normal-1",
       "imagePath": "0000_vfx006-gallery-shadow-invoke-normal-1.png",
-      "sha256": "c6562a561fd5e35c0c6f5e1503d5753b686f5e6e5a63d58c19bbbc53e2b128c2"
+      "sha256": "d43dd6496497ea446dc6c1c0011c585d1083c047c8e3177ea727f37221f60269"
     },
     {
       "captureId": "vfx006-gallery-shadow-invoke-reduced-1",
       "imagePath": "0024_vfx006-gallery-shadow-invoke-reduced-1.png",
-      "sha256": "520084405a6c5929e2edc1633a87e9fb01298baa0cb8fbbda94aa786a2ea9daf"
+      "sha256": "5778a803161f2d07d84ea7ecc1c56efb0acf2bc372acb68c092e15b7a4250268"
     },
     {
       "captureId": "vfx006-gallery-shadow-project-normal-1",
       "imagePath": "0001_vfx006-gallery-shadow-project-normal-1.png",
-      "sha256": "44a3acd52807a7929d544c234c616c842cffb428766e2249e78e8475387dadce"
+      "sha256": "072d671065a78125084a41e8af914e24cb23992a119b9c08e644410c179e3739"
     },
     {
       "captureId": "vfx006-gallery-shadow-project-reduced-1",
       "imagePath": "0025_vfx006-gallery-shadow-project-reduced-1.png",
-      "sha256": "5c50f5f21c960497f6a8032ef727f42c5b5b9053bc42d8b2d73ce5be865cbcea"
+      "sha256": "c0081c7cb584366498826fc5d56540199fe293061b089719bc00feceabc4706a"
     },
     {
       "captureId": "vfx006-gallery-shadow-release-normal-1",
       "imagePath": "0003_vfx006-gallery-shadow-release-normal-1.png",
-      "sha256": "3a76009040b4727993f03cc3da51d7a2c438a93eecc8ec0a233f8cbc05a7ce5a"
+      "sha256": "20d79d8e14a34ca16c77cf2ad515a1f15ef4ce3bbb28a52bfead9108a0990b11"
     },
     {
       "captureId": "vfx006-gallery-shadow-release-reduced-1",
       "imagePath": "0027_vfx006-gallery-shadow-release-reduced-1.png",
-      "sha256": "80a022c771e768081f6008b10d00ff1d2d4932d802f9183d29970c4946bf4f49"
+      "sha256": "dc35d26ab76665b9dc2996639d3cca936d0a1f81f61a8cb32b4e5b84ce50309e"
     },
     {
       "captureId": "vfx006-interruption-first_vessel-channel-1",
       "imagePath": "0051_vfx006-interruption-first_vessel-channel-1.png",
-      "sha256": "9b2cdb6756c41b33f126b065077aad057376cdea629a0fdbb635cbd973c8bcda"
+      "sha256": "a853c6318f52aa957f3f0011e508c7659f18bb7dddc3512e3291d0a1dd52f4da"
     },
     {
       "captureId": "vfx006-late_tracking-radiant-project-1",
       "imagePath": "0049_vfx006-late_tracking-radiant-project-1.png",
-      "sha256": "47341b4cfeb6343686a1ecdb8f483de6b1eda93acfca89d93d8274a296c437da"
+      "sha256": "76e99ffd2fc118b6e489157f42d1352458b96ef9e598e066496f9d21563061c7"
     },
     {
       "captureId": "vfx006-latency-radiant-project-1",
       "imagePath": "0048_vfx006-latency-radiant-project-1.png",
-      "sha256": "3f27d30330617ec1110e6b726fa3acbd5dd0ae94bb56755b82ddc274810cbb8f"
+      "sha256": "9c479ea91a618dd300ff5b55106deb2d048005d8b48de4a1d660a8dd1715b4c3"
     },
     {
       "captureId": "vfx006-locomotion_walk-radiant-channel-1",
       "imagePath": "0050_vfx006-locomotion_walk-radiant-channel-1.png",
-      "sha256": "221d929822a982aed0e50da64352873b7dea5cde4b55598783a86ebf657caf8e"
+      "sha256": "b0452c05ebf9a2e045f2c61edfd7cf8e362c2f2ed39941d5e03f55aff7b84c5b"
     },
     {
       "captureId": "vfx006-reconnect-radiant-channel-1",
       "imagePath": "0054_vfx006-reconnect-radiant-channel-1.png",
-      "sha256": "391d52efea45ff88903941b15be38973c1848dca57c826213aa8deed918e1f2d"
+      "sha256": "69eec2b12d09276d489bd4fe4309b7fb5fbea4cdc9c3ec7b767de0c5e3de9411"
     }
   ],
-  "implementationSha": "28d58dd6b0da50c52111417dea82994f4b6b1b52",
+  "implementationSha": "5492b2798f65fa73766d433362a914fd41c2a701",
   "lifecycleCount": 7,
   "lifecycleScenarios": [
     "latency",
@@ -309,7 +309,7 @@
   ],
   "reducedCount": 24,
   "rowCount": 55,
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "styles": [
     "SHADOW",
     "RADIANT",

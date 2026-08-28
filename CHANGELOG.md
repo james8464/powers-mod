@@ -10,7 +10,10 @@
   real delayed delivery, late tracking, moving locomotion, interruption, expiry, entity-ID reuse,
   and reconnect. Production-action tests prove pose emission occurs only after committed effects;
   exact-dimension delivery, terminal clears, bounded future skew, and replay rejection are covered.
-  The unfiltered Java 25 aggregate passes 153 GameTests, 1,770 JUnit tests, and 193 Python tests.
+  The checksum-bound schema-2 gallery proves real delayed delivery, server-driven locomotion, and
+  actual receipt timing. Source/unit gates separately prove bounded future skew, dispatch-time tracker
+  validation, and terminal clears reserved beyond the start lane under a hard 64-attempt-per-tick
+  intake ceiling. The unfiltered Java 25 aggregate remains the final integration gate.
 
 - Completed the VFX-005 exact-build closure candidate at implementation commit
   `562f092a1393cb05485499fbbfc9b6782ae9b5cc`: all 23 rank-ten innate powers emit a unique,
