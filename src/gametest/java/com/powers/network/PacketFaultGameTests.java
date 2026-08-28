@@ -492,9 +492,12 @@ public final class PacketFaultGameTests {
 		List<Object> payloads = capture(player);
 		player.setNoGravity(true);
 		player.setInvulnerable(true);
+		player.setGameMode(GameType.SPECTATOR);
 		Vec3 fixture = Vec3.atCenterOf(helper.absolutePos(new BlockPos(4, 2, 4)));
 		// Other required GameTests include event-scale damage. Keep this presentation-only
-		// assertion outside every other fixture's loaded combat radius without deleting players.
+		// assertion outside every other fixture's loaded combat radius and in spectator mode.
+		// Invulnerability alone does not exclude environmental damage while the unloaded
+		// far fixture is materialized, which made this packet-only assertion position-dependent.
 		player.teleportTo(fixture.x + (fixture.x > 0.0 ? -100_000.0 : 100_000.0),
 				fixture.y, fixture.z + (fixture.z > 0.0 ? -100_000.0 : 100_000.0));
 		// Full health excludes unrelated natural-regeneration phases from this presentation-only assertion.
@@ -549,6 +552,7 @@ public final class PacketFaultGameTests {
 					"Presentation faulting altered physical damage state: before=" + health
 							+ ", after=" + player.getHealth() + ", currentMax=" + player.getMaxHealth());
 			player.setInvulnerable(false);
+			player.setGameMode(GameType.SURVIVAL);
 			locator(helper, player, payloads);
 		});
 	}
