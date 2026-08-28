@@ -94,7 +94,7 @@ def render_primary_scenario() -> str:
 
 def render_reconnect_scenario() -> str:
     return ("80\tcommand\texecute in minecraft:overworld run tp @s 0 200 0\n"
-            "140\tlook\t0 0\n"
+            "140\tlook\t90 0\n"
             "160\taudio_emit\trune_hum 4 open\n"
             "160\taudio_assert\tnear admitted\n")
 

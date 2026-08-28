@@ -48,6 +48,7 @@ class Vfx007AudioCaptureTest(unittest.TestCase):
     def test_reconnect_scenario_emits_one_post_join_row(self):
         text = CAPTURE.render_reconnect_scenario()
         self.assertEqual(1, text.count("\taudio_emit\t"))
+        self.assertIn("140\tlook\t90 0", text)
         self.assertIn("rune_hum 4 open", text)
 
     def test_audit_extraction_keeps_only_schema_one_json_rows(self):
