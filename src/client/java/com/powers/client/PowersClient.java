@@ -17,6 +17,7 @@ import com.powers.client.fx.ClientShapeFx;
 import com.powers.client.fx.ClientBeamFx;
 import com.powers.client.fx.ClientCelestialRuinFx;
 import com.powers.client.fx.ClientEventAudio;
+import com.powers.client.audio.ClientLayeredAudioMixer;
 import com.powers.client.fx.ClientVisualScarManager;
 import com.powers.client.fx.ClientVisualScarRenderer;
 import com.powers.client.fx.ClientRankTenSilhouetteManager;
@@ -36,6 +37,7 @@ import com.powers.network.RankTenSilhouettePackets;
 import com.powers.network.CastingPosePackets;
 import com.powers.network.CelestialRuinPackets;
 import com.powers.network.EventAudioPackets;
+import com.powers.network.LayeredAudioPackets;
 import com.powers.network.ShadowSwordPackets;
 import com.powers.network.BodyProxyPackets;
 import com.powers.network.CompanionPackets;
@@ -84,6 +86,7 @@ public class PowersClient implements ClientModInitializer {
 		ClientProtocolHandshake.initialize();
 		ClientHudPreferences.initialize();
 		ClientInteractionPreferences.initialize();
+		ClientLayeredAudioMixer.initialize();
 		MenuScreens.register(PowersMenus.ARCANE_CRUCIBLE, ArcaneCrucibleScreen::new);
 		CrucibleWeaponTooltip.register();
 		RelicTooltip.register();
@@ -206,6 +209,8 @@ public class PowersClient implements ClientModInitializer {
 				(payload, context) -> context.client().execute(() -> ClientCelestialRuinFx.handle(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(EventAudioPackets.Payload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientEventAudio.handle(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(LayeredAudioPackets.Payload.TYPE,
+				(payload, context) -> context.client().execute(() -> ClientLayeredAudioMixer.handle(payload)));
 		// Disconnect owns the client cache boundary; no server-authored power state may cross sessions.
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			ClientCastingPoseManager.resetConnectionEpoch();
@@ -221,9 +226,11 @@ public class PowersClient implements ClientModInitializer {
 			VesselControlClient.setActive(false);
 			ClientCelestialRuinFx.reset();
 			ClientEventAudio.resetMetrics();
+			ClientLayeredAudioMixer.resetConnectionEpoch();
 		});
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			ClientCastingPoseManager.resetConnectionEpoch();
+			ClientLayeredAudioMixer.resetConnectionEpoch();
 			ClientVisualScarRenderer.recreateResources();
 			ClientRankTenSilhouetteRenderer.recreateResources();
 		});
@@ -242,6 +249,7 @@ public class PowersClient implements ClientModInitializer {
 						ClientVisualScarRenderer.recreateResources();
 						ClientRankTenSilhouetteRenderer.closeResources();
 						ClientRankTenSilhouetteRenderer.recreateResources();
+						ClientLayeredAudioMixer.reload();
 					}
 				});
 
@@ -300,6 +308,7 @@ public class PowersClient implements ClientModInitializer {
 		ClientVisualScarManager.tick(client);
 		ClientRankTenSilhouetteManager.tick(client);
 		ClientCastingPoseManager.tick(client);
+		ClientLayeredAudioMixer.tick(client);
 		ClientMagicFx.tick();
 		ClientCelestialRuinFx.tick();
 		ClientPowerState.tickCooldowns();

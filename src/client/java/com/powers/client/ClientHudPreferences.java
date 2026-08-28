@@ -20,13 +20,19 @@ public final class ClientHudPreferences {
 
 	/** Loads or creates powers-client.json; malformed input safely resets to vanilla alignment. */
 	public static void initialize() {
-		Path path = FabricLoader.getInstance().getConfigDir().resolve("powers-client.json");
+		load(FabricLoader.getInstance().getConfigDir().resolve("powers-client.json"));
+	}
+
+	/** Reads existing shared config without rewriting fields owned by other client features. */
+	static void load(Path path) {
 		try {
 			if (Files.exists(path)) {
 				HudPlacement decoded = GSON.fromJson(Files.readString(path), HudPlacement.class);
 				current = decoded == null ? HudPlacement.defaults() : new HudPlacement(decoded.anchor(),
 						decoded.horizontalMargin(), decoded.verticalMargin(), decoded.powerRailMargin());
+				return;
 			}
+			current = HudPlacement.defaults();
 			Files.createDirectories(path.getParent());
 			Files.writeString(path, GSON.toJson(current));
 		} catch (IOException | RuntimeException error) {
