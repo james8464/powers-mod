@@ -332,7 +332,7 @@ git commit -m "feat(vfx): resolve latency-correct client casting poses"
 - Render states copy resolved semantic state from `ClientCastingPoseManager`.
 - Models call `super.setupAnim(state)` then add the resolved clamped deltas.
 
-- [ ] **Step 1: Write angle tests RED for each pose family, handed mirroring, ease boundaries, hard angle caps, and reduced-motion static/lower amplitude.**
+- [x] **Step 1: Write angle tests RED for each pose family, handed mirroring, ease boundaries, hard angle caps, and reduced-motion static/lower amplitude.**
 
 ```java
 @Test
@@ -347,11 +347,11 @@ void reducedMotionPreservesDirectionButRemovesTemporalOscillation() {
 }
 ```
 
-- [ ] **Step 2: Implement pure angle resolution and run GREEN.**
+- [x] **Step 2: Implement pure angle resolution and run GREEN.**
 
 Use deterministic ease-in/hold/ease-out `amplitude`: 0–0.2 smoothstep in, 0.2–0.75 hold, 0.75–1 smoothstep out. Reduced motion uses constant 0.55 amplitude while active.
 
-- [ ] **Step 3: Implement typed render states/models and compile RED/GREEN against the exact 26.2 renderer API.**
+- [x] **Step 3: Implement typed render states/models and compile RED/GREEN against the exact 26.2 renderer API.**
 
 ```java
 @Override
@@ -365,15 +365,15 @@ public void setupAnim(CastingHumanoidRenderState state) {
 }
 ```
 
-- [ ] **Step 4: Replace models/states only in `PlayerLikeMobRenderer` and `ShadowCompanionRenderer`; leave test actor and Echo Clone unanimated by resolving scope to empty.**
+- [x] **Step 4: Replace models/states only in `PlayerLikeMobRenderer` and `ShadowCompanionRenderer`; leave test actor and Echo Clone unanimated by resolving scope to empty.**
 
 During extraction, query the manager, compute accessibility through `FxAccessibility.reducedMotion(Minecraft.getInstance())`, and store a zero-delta fallback when absent.
 
-- [ ] **Step 5: Run angle tests, `compileClientJava`, and renderer-focused tests GREEN.**
+- [x] **Step 5: Run angle tests, `compileClientJava`, and renderer-focused tests GREEN.**
 
 Run: `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew test --tests com.powers.animation.CastingPoseAnglesTest compileClientJava --rerun-tasks --no-daemon --console=plain`
 
-- [ ] **Step 6: Commit renderer integration.**
+- [x] **Step 6: Commit renderer integration.**
 
 ```bash
 git add src/main/java/com/powers/animation/CastingPoseAngles.java \
