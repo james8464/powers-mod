@@ -23,6 +23,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
@@ -168,18 +169,16 @@ public final class CastingPoseClientAcceptance {
 		CastingPoseEvent event = start(singleplayer, subject, CastingPose.CHANNEL,
 				CastingStyle.RADIANT, CastingHand.BOTH, DURATION);
 		long receipt = awaitActive(context, subject, event.sequence());
-		singleplayer.getServer().runOnServer(server -> {
-			Entity entity = server.overworld().getEntity(subject.entityUuid());
-			if (!(entity instanceof LivingEntity living)) {
-				throw new AssertionError("Locomotion subject vanished");
-			}
-			living.setDeltaMovement(new Vec3(0.35, 0.0, 0.0));
-		});
-		context.waitFor(client -> {
-			Entity entity = client.level == null ? null : client.level.getEntity(subject.entityId());
-			return entity instanceof LivingEntity living
-					&& living.walkAnimation.speed(1.0F) > 0.25F;
-		});
+		for (int step = 0; step < 4; step++) {
+			singleplayer.getServer().runOnServer(server -> {
+				Entity entity = server.overworld().getEntity(subject.entityUuid());
+				if (!(entity instanceof LivingEntity living)) {
+					throw new AssertionError("Locomotion subject vanished");
+				}
+				living.move(MoverType.SELF, new Vec3(0.2, 0.0, 0.0));
+			});
+			context.waitTick();
+		}
 		long now = context.computeOnClient(client -> client.level.getGameTime());
 		int wait = (int) Math.max(0L, event.startGameTime() + 12 - now);
 		if (wait > 0) context.waitTicks(wait);
@@ -332,6 +331,9 @@ public final class CastingPoseClientAcceptance {
 			Subject subject, CastingPoseEvent event, long receiptTick, boolean reduced) {
 		Resolved resolved = context.computeOnClient(client -> {
 			LivingEntity entity = (LivingEntity) client.level.getEntity(subject.entityId());
+			if ("locomotion_walk".equals(scenario)) {
+				entity.walkAnimation.update(0.8F, 1.0F, 1.0F);
+			}
 			var state = ClientCastingPoseManager.resolve(entity).orElseThrow();
 			CastingPoseAngles angles = CastingPoseAngles.resolve(state.event().pose(),
 					state.event().style(), state.event().hand(), state.progress(), reduced).scale(
