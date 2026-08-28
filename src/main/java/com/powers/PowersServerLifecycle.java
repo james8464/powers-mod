@@ -1,6 +1,7 @@
 package com.powers;
 
 import com.powers.ai.PerceptionSnapshotService;
+import com.powers.animation.CastingPoseService;
 import com.powers.api.v1.PowersApiRuntime;
 import com.powers.companion.DialogueProviderRuntime;
 import com.powers.audit.OperatorAudit;
@@ -203,6 +204,7 @@ final class PowersServerLifecycle {
 		com.powers.player.PlayerEnergyHistory.clear();
 		PersistentDimensionDiagnostics.clear();
 		ControlResistance.clear();
+		CastingPoseService.clearAll();
 		// Delayed owners may enqueue cleanup while their own shutdown hooks run.
 		// Clear the scheduler last so none of that work can cross into the next server epoch.
 		ServerMagicScheduler.clear();
@@ -230,5 +232,6 @@ final class PowersServerLifecycle {
 		ServerMagicScheduler.tick(server);
 		MagicFxPackets.flush(server);
 		VisualScarService.tick(server);
+		CastingPoseService.tick(server);
 	}
 }

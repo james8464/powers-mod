@@ -143,7 +143,7 @@ git commit -m "feat(vfx): define synchronized casting pose contract"
 - Produces: `CastingPoseLedger.offer(Key, Request, long tick)`, `snapshot(UUID,long)`, `tick(long, Predicate<UUID>)`, and immutable `Metrics`.
 - Produces: `CastingPoseService.start(LivingEntity, CastingPose, CastingStyle, CastingHand, int)`, `clear(LivingEntity)`, `current(UUID)`, `trackingStarted(Entity, ServerPlayer)`, `tick(MinecraftServer)`, `clearAll()`.
 
-- [ ] **Step 1: Write failing ledger tests for monotonic replacement, same-tick coalescing, 64/tick and 256-entry caps, expiry, exhaustion, and snapshot age preservation.**
+- [x] **Step 1: Write failing ledger tests for monotonic replacement, same-tick coalescing, 64/tick and 256-entry caps, expiry, exhaustion, and snapshot age preservation.**
 
 ```java
 @Test
@@ -156,13 +156,13 @@ void sameEntitySameTickReplacesWithoutConsumingTwoOffers() {
 }
 ```
 
-- [ ] **Step 2: Run ledger tests RED, implement a pure UUID-keyed ledger with primitive identity snapshots, and run GREEN.**
+- [x] **Step 2: Run ledger tests RED, implement a pure UUID-keyed ledger with primitive identity snapshots, and run GREEN.**
 
 Run: `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew test --tests com.powers.animation.CastingPoseLedgerTest --rerun-tasks --no-daemon --console=plain`
 
 `offer` increments per-entity sequence with `Math.addExact`; overflow rejects without wrap. Capacity saturation evicts only expired entries; otherwise reject presentation.
 
-- [ ] **Step 3: Write service boundary tests RED using a narrow `RuntimeAccess` fake that records tracking observers and guarded sends.**
+- [x] **Step 3: Write service boundary tests RED using a narrow `RuntimeAccess` fake that records tracking observers and guarded sends.**
 
 ```java
 assertEquals(List.of(OBSERVER_A), runtime.sentTo());
@@ -170,7 +170,7 @@ assertEquals(0L, runtime.chunkTicketsRequested());
 assertFalse(runtime.allPlayersScanned());
 ```
 
-- [ ] **Step 4: Implement service delivery through `PlayerLookup.tracking(entity)`, `ServerPlayNetworking.canSend`, and `PowersPlayNetworking.sendGuarded`; register `EntityTrackingEvents.START_TRACKING`.**
+- [x] **Step 4: Implement service delivery through `PlayerLookup.tracking(entity)`, `ServerPlayNetworking.canSend`, and `PowersPlayNetworking.sendGuarded`; register `EntityTrackingEvents.START_TRACKING`.**
 
 ```java
 for (ServerPlayer observer : PlayerLookup.tracking(entity)) {
@@ -182,11 +182,11 @@ for (ServerPlayer observer : PlayerLookup.tracking(entity)) {
 }
 ```
 
-- [ ] **Step 5: Wire server tick and stop cleanup and run service + lifecycle tests GREEN.**
+- [x] **Step 5: Wire server tick and stop cleanup and run service + lifecycle tests GREEN.**
 
 Add `CastingPoseService.tick(server)` after authoritative action systems and `CastingPoseService.clearAll()` in `onServerStopped`.
 
-- [ ] **Step 6: Commit the bounded server runtime.**
+- [x] **Step 6: Commit the bounded server runtime.**
 
 ```bash
 git add src/main/java/com/powers/animation/CastingPoseLedger.java \

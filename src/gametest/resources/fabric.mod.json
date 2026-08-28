@@ -25,6 +25,7 @@
 			,"com.powers.fx.RankTenSilhouetteGameTests"
 			,"com.powers.gametest.HostileEnvironmentGameTests"
 			,"com.powers.gametest.VfxGalleryGameTests"
+			,"com.powers.gametest.CastingPoseGameTests"
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests",

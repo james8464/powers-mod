@@ -1,6 +1,7 @@
 package com.powers;
 
 import com.powers.magic.runtime.MagicRuntime;
+import com.powers.animation.CastingPoseService;
 import com.powers.network.RankTenSilhouettePackets;
 import com.powers.network.CastingPosePackets;
 import com.powers.power.PowerRegistry;
@@ -38,6 +39,7 @@ public final class PowersMod implements ModInitializer {
 		PowersBootstrap.initialize();
 		RankTenSilhouettePackets.initialize();
 		CastingPosePackets.initialize();
+		CastingPoseService.initialize();
 		PowersServerLifecycle.initialize();
 		LOGGER.info("Magic collision kernel loaded: {} actions, {} exhaustive interactions",
 				MagicRuntime.catalogue().definitions().size(), MagicRuntime.global().interactionCount());
