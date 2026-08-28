@@ -63,9 +63,9 @@ public final class ClientLayeredAudioMixer {
 			record(payload, rawLayer, distance, obstructed, 0.0F, false, "dropped");
 			return;
 		}
-		play(minecraft, payload.cue(), resolved, payload.pitch(), origin);
-		record(payload, resolved.layer(), distance, obstructed, resolved.gain(),
-				resolved.reducedTinnitus(), "admitted");
+		float playedGain = play(minecraft, payload.cue(), resolved, payload.pitch(), origin);
+		record(payload, resolved.layer(), distance, obstructed, playedGain,
+				resolved.reducedTinnitus(), playedGain > 0.0F ? "admitted" : "dropped");
 	}
 
 	private static void record(LayeredAudioPackets.Payload payload,
@@ -105,16 +105,29 @@ public final class ClientLayeredAudioMixer {
 		return new Spatial(distance, obstruction.getType() != HitResult.Type.MISS);
 	}
 
-	private static void play(Minecraft minecraft, LayeredAudioCue cue,
+	private static float play(Minecraft minecraft, LayeredAudioCue cue,
 			LayeredAudioRules.ResolvedLayer resolved, float pitch, Vec3 origin) {
-		var sound = PowersSounds.layer(cue, resolved.layer(), resolved.reducedTinnitus());
-		minecraft.getSoundManager().play(new PositionalLayeredSound(sound, resolved.gain(),
+		ClientLayeredAudioResourcePolicy.Decision decision = ClientLayeredAudioResourcePolicy.resolve(
+				cue, resolved.layer(), resolved.reducedTinnitus(),
+				id -> minecraft.getResourceManager().getResource(id).isPresent());
+		if (decision.logMissing()) {
+			PowersMod.LOGGER.warn("Missing layered-audio resource {}; fallback={}",
+					decision.missingResource(), decision.mode());
+		}
+		if (decision.mode() == ClientLayeredAudioResourcePolicy.Mode.SILENT) return 0.0F;
+		var sound = decision.mode() == ClientLayeredAudioResourcePolicy.Mode.BASE
+				? PowersSounds.forCue(cue.semanticName())
+				: PowersSounds.layer(cue, resolved.layer(), resolved.reducedTinnitus());
+		float gain = resolved.gain() * decision.gainScale();
+		minecraft.getSoundManager().play(new PositionalLayeredSound(sound, gain,
 				pitch, origin.x, origin.y, origin.z));
+		return gain;
 	}
 
 	/** Clears all packet IDs and burst metrics at connection and world boundaries. */
 	public static void resetConnectionEpoch() {
 		STATE.reset();
+		ClientLayeredAudioResourcePolicy.reset();
 		ClientLayeredAudioAudit.reset();
 		ClientAudioComfortConfig.clearAcceptanceOverride();
 		lastDimension = null;
