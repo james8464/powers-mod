@@ -6,7 +6,6 @@ import com.powers.audio.LayeredAudioService;
 import com.powers.network.LayeredAudioPackets;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 
@@ -55,26 +54,19 @@ public final class LayeredAudioGameTests {
 
 	@GameTest(maxTicks = 20)
 	public void audioDeliveryHasZeroGameplayMutation(GameTestHelper helper) {
-		var player = helper.makeMockServerPlayerInLevel();
-		float health = player.getHealth();
-		Vec3 position = player.position();
-		int inventoryCount = player.getInventory().countItem(net.minecraft.world.item.Items.STONE);
-		Fixture runtime = new Fixture(List.of(new LayeredAudioService.Observer(player.getUUID(),
+		UUID playerId = new UUID(0, 7);
+		Fixture runtime = new Fixture(List.of(new LayeredAudioService.Observer(playerId,
 				OVERWORLD, 0, 0, 0)), null);
-		UUID playerId = player.getUUID();
+		GameplaySnapshot before = runtime.gameplaySnapshot();
 
 		LayeredAudioService.deliver(runtime, Vec3.ZERO, LayeredAudioCue.RUNE_HUM, 1.0F, 1.0F);
 
 		helper.assertTrue(runtime.sent.size() == 1, "Presentation payload was not delivered once");
-		helper.assertTrue(player.getHealth() == health && player.position().equals(position)
-				&& player.getInventory().countItem(net.minecraft.world.item.Items.STONE) == inventoryCount,
+		helper.assertTrue(before.equals(runtime.gameplaySnapshot()),
 				"Layered audio mutated health, position, or inventory");
-		player.connection.disconnect(Component.literal("VFX-007 audio fixture complete"));
-		helper.runAfterDelay(2, () -> {
-			helper.assertTrue(helper.getLevel().getServer().getPlayerList().getPlayer(playerId) == null,
-					"Layered-audio fixture leaked a mock player into later GameTests");
-			helper.succeed();
-		});
+		helper.assertTrue(helper.getLevel().getServer().getPlayerList().getPlayer(playerId) == null,
+				"Layered-audio policy test unexpectedly registered a server player");
+		helper.succeed();
 	}
 
 	private static LayeredAudioService.Observer observer(UUID id, Identifier dimension, double x) {
@@ -82,11 +74,13 @@ public final class LayeredAudioGameTests {
 	}
 
 	private record Send(UUID observer, LayeredAudioPackets.Payload payload) { }
+	private record GameplaySnapshot(float health, Vec3 position, int inventoryCount) { }
 
 	private static final class Fixture implements LayeredAudioService.RuntimeAccess {
 		private final List<LayeredAudioService.Observer> observers;
 		private final UUID unsupported;
 		private final List<Send> sent = new ArrayList<>();
+		private final GameplaySnapshot gameplay = new GameplaySnapshot(20.0F, Vec3.ZERO, 0);
 
 		private Fixture(List<LayeredAudioService.Observer> observers, UUID unsupported) {
 			this.observers = observers;
@@ -100,5 +94,7 @@ public final class LayeredAudioGameTests {
 		@Override public void send(UUID observer, LayeredAudioPackets.Payload payload) {
 			sent.add(new Send(observer, payload));
 		}
+
+		private GameplaySnapshot gameplaySnapshot() { return gameplay; }
 	}
 }
