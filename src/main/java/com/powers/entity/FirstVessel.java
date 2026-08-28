@@ -129,8 +129,6 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 		if (phase != FirstVesselPhase.AWAKENING && tickCount % 240 == 0) {
 			announce(level, "boss.powers.first_vessel.world_suture");
 			FirstVesselCombat.worldSuture(level, this);
-			CastingPoseService.start(this, CastingPose.RELEASE, CastingStyle.FIRST_VESSEL,
-					CastingHand.BOTH, 20);
 			lastCastAt = tickCount;
 			return;
 		}
@@ -139,8 +137,6 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 			lastFirmamentUsed = true;
 			announce(level, "boss.powers.first_vessel.last_firmament");
 			FirstVesselCombat.lastFirmament(level, this);
-			CastingPoseService.start(this, CastingPose.RELEASE, CastingStyle.FIRST_VESSEL,
-					CastingHand.BOTH, 20);
 			lastCastAt = tickCount;
 			return;
 		}
@@ -189,16 +185,17 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 		scaledPlayers = players;
 	}
 
-	private void castFromDeck(ServerLevel level, LivingEntity target) {
+	private boolean castFromDeck(ServerLevel level, LivingEntity target) {
 		var deck = FirstVesselPowerCatalogue.deck(phase);
 		FirstVesselTacticalPlanner.Decision decision = planner.choose(deck,
 				encounterFacts(level, target), tickCount, lastActionAt);
-		if (decision == null) return;
+		if (decision == null) return false;
 		FirstVesselPowerAction action = decision.action();
+		if (!FirstVesselCombat.cast(level, this, target, action, phase)) return false;
 		lastActionAt.put(action.powerId(), tickCount);
 		previousAction = action.powerId();
 		lastCastAt = tickCount;
-		FirstVesselCombat.cast(level, this, target, action, phase);
+		return true;
 	}
 
 	private FirstVesselEncounterFacts encounterFacts(ServerLevel level, LivingEntity target) {
@@ -229,7 +226,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 					.filter(candidate -> candidate.powerId().equals(path)).findFirst().orElse(null);
 			if (action == null) continue;
 			announce(level, "boss.powers.first_vessel.power_theft");
-			FirstVesselCombat.cast(level, this, target, action, phase);
+			if (!FirstVesselCombat.cast(level, this, target, action, phase)) continue;
 			lastActionAt.put(action.powerId(), tickCount);
 			previousAction = action.powerId();
 			lastCastAt = tickCount;

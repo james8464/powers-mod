@@ -84,6 +84,11 @@ public final class RealmHerald extends AbstractPlayerLikeMob {
 	}
 
 	@Override
+	protected boolean usesSharedRangedCombat() {
+		return false;
+	}
+
+	@Override
 	protected void customServerAiStep(ServerLevel level) {
 		super.customServerAiStep(level);
 		bossBar.setProgress(getHealth() / getMaxHealth());
