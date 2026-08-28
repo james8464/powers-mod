@@ -1,6 +1,8 @@
 package com.powers.companion.combat;
 
 import com.powers.PowerStatusEffects;
+import com.powers.animation.CastingPoseMapping;
+import com.powers.animation.CastingPoseService;
 import com.powers.companion.ShadowCompanionEntity;
 import com.powers.companion.ShadowMagicState;
 import com.powers.entity.DarknessFireballProjectile;
@@ -105,6 +107,9 @@ public final class ShadowPowerExecutor {
 		shadow.setEnergy(shadow.energy() - action.cost());
 		ShadowPowerFx.cast(level, shadow, target, action);
 		ShadowPowerRuntime.recordCast();
+		CastingPoseService.start(shadow, CastingPoseMapping.forShadow(handler),
+				CastingPoseMapping.style(shadow), CastingPoseMapping.hand(action.id()),
+				CastingPoseMapping.duration(handler));
 		return new ExecutionResult(true, "cast", action.cost(), handler, List.of());
 	}
 

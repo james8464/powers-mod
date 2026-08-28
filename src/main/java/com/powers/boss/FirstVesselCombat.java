@@ -2,6 +2,8 @@ package com.powers.boss;
 
 import com.powers.PowerStatusEffects;
 import com.powers.PowersSounds;
+import com.powers.animation.CastingPoseMapping;
+import com.powers.animation.CastingPoseService;
 import com.powers.boss.FirstVesselPowerAction.Kind;
 import com.powers.entity.FirstVessel;
 import com.powers.fx.PowerFx;
@@ -53,6 +55,17 @@ public final class FirstVesselCombat {
 		if (phase == FirstVesselPhase.LAST_COVENANT) {
 			PowerFx.ring(level, boss.position().add(0.0, 0.08, 0.0), 2.2,
 					0x9A4FB4, 18, level.getGameTime() * 0.13);
+		}
+		boolean targetPresentation = switch (action.kind()) {
+			case PROJECTILE, BEAM, AREA, CONTROL -> !PowerProtection.isSafeZone(level, target.position())
+					&& !SpellFieldManager.isSanctuaryProtected(level, target)
+					&& !AmethystDampening.isDampened(target);
+			case MOBILITY, DEFENSE, RECOVERY -> true;
+		};
+		if (targetPresentation) {
+			CastingPoseService.start(boss, CastingPoseMapping.forFirstVessel(action.kind()),
+					CastingPoseMapping.style(boss), CastingPoseMapping.hand(action.powerId()),
+					CastingPoseMapping.duration(action.kind()));
 		}
 	}
 

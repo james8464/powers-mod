@@ -213,7 +213,7 @@ git commit -m "feat(vfx): deliver bounded tracked casting poses"
 - Produces: `CastingPoseMapping.forFirstVessel(Kind)`, `forShadow(Handler)`, `style(LivingEntity)`, `hand(String actionId)`, and `duration(ShadowPowerExecutor.Handler)`.
 - Production seams call `CastingPoseService.start` only after the gameplay action commits.
 
-- [ ] **Step 1: Write mapping tables RED with literal expectations for every First Vessel kind and every supported Shadow handler.**
+- [x] **Step 1: Write mapping tables RED with literal expectations for every First Vessel kind and every supported Shadow handler.**
 
 ```java
 @ParameterizedTest
@@ -223,11 +223,11 @@ void firstVesselKindsMapToStablePoseFamilies(FirstVesselPowerAction.Kind kind, C
 }
 ```
 
-- [ ] **Step 2: Implement mapping and run unit tests GREEN.**
+- [x] **Step 2: Implement mapping and run unit tests GREEN.**
 
 Use `PROJECT` for guardian lightning/fireball and Shadow `PROJECTILE`; `CHANNEL` for beams/recovery; `INVOKE` for area/control/defense/summon/terrain/apotheosis; `RELEASE` only for explicit exceptional First Vessel flows.
 
-- [ ] **Step 3: Write production-seam GameTests RED by clearing pose metrics, forcing each existing action path, and asserting the resulting semantic event; assert protected/countered actions emit none.**
+- [x] **Step 3: Write production-seam GameTests RED by clearing pose metrics, forcing each existing action path, and asserting the resulting semantic event; assert protected/countered actions emit none.**
 
 ```java
 helper.runAfterDelay(2, () -> {
@@ -237,7 +237,7 @@ helper.runAfterDelay(2, () -> {
 });
 ```
 
-- [ ] **Step 4: Add hooks after successful guardian, Herald, First Vessel, and Shadow commits; add explicit clear calls for Reconstitution interruption/completion.**
+- [x] **Step 4: Add hooks after successful guardian, Herald, First Vessel, and Shadow commits; add explicit clear calls for Reconstitution interruption/completion.**
 
 ```java
 boolean success = /* existing action */;
@@ -248,11 +248,11 @@ if (success) CastingPoseService.start(shadow, CastingPoseMapping.forShadow(handl
 
 Do not emit before target/protection/dampening checks or from movement, melee, hide, dismiss, or dialogue.
 
-- [ ] **Step 5: Run targeted GameTests and unit tests GREEN.**
+- [x] **Step 5: Run targeted GameTests and unit tests GREEN.**
 
 Run: `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew runGameTest --rerun-tasks --no-daemon --console=plain`
 
-- [ ] **Step 6: Commit production seams.**
+- [x] **Step 6: Commit production seams.**
 
 ```bash
 git add src/main/java/com/powers/animation/CastingPoseMapping.java \

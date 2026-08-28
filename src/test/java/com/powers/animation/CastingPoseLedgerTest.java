@@ -87,6 +87,21 @@ final class CastingPoseLedgerTest {
 		assertEquals(64, metrics.getClass().getMethod("activeEntries").invoke(metrics));
 	}
 
+	@Test
+	void explicitChannelClearRemovesOnlyThatEntityPose() throws Exception {
+		var ledger = new CastingPoseLedger();
+		UUID two = uuid(2);
+		offer(ledger, 1, ONE, 8L);
+		offer(ledger, 2, two, 8L);
+		try {
+			CastingPoseLedger.class.getMethod("clear", UUID.class).invoke(ledger, ONE);
+		} catch (NoSuchMethodException missing) {
+			fail("CastingPoseLedger.clear(UUID) is not implemented");
+		}
+		assertTrue(ledger.snapshot(ONE, 8L).isEmpty());
+		assertTrue(ledger.snapshot(two, 8L).isPresent());
+	}
+
 	private static Optional<CastingPoseEvent> offer(CastingPoseLedger ledger, int entityId,
 			UUID uuid, long tick) {
 		return ledger.offer(entityId, uuid, CastingPose.PROJECT, CastingStyle.RADIANT,

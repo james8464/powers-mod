@@ -1,6 +1,10 @@
 package com.powers.entity;
 
 import com.powers.PowersSounds;
+import com.powers.animation.CastingHand;
+import com.powers.animation.CastingPose;
+import com.powers.animation.CastingPoseService;
+import com.powers.animation.CastingStyle;
 import com.powers.boss.FirstVesselCombat;
 import com.powers.boss.FirstVesselPhase;
 import com.powers.boss.FirstVesselPowerAction;
@@ -125,6 +129,8 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 		if (phase != FirstVesselPhase.AWAKENING && tickCount % 240 == 0) {
 			announce(level, "boss.powers.first_vessel.world_suture");
 			FirstVesselCombat.worldSuture(level, this);
+			CastingPoseService.start(this, CastingPose.RELEASE, CastingStyle.FIRST_VESSEL,
+					CastingHand.BOTH, 20);
 			lastCastAt = tickCount;
 			return;
 		}
@@ -133,6 +139,8 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 			lastFirmamentUsed = true;
 			announce(level, "boss.powers.first_vessel.last_firmament");
 			FirstVesselCombat.lastFirmament(level, this);
+			CastingPoseService.start(this, CastingPose.RELEASE, CastingStyle.FIRST_VESSEL,
+					CastingHand.BOTH, 20);
 			lastCastAt = tickCount;
 			return;
 		}
@@ -249,6 +257,8 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 		reconstitutionDamage = 0.0F;
 		announce(level, "boss.powers.first_vessel.reconstitution");
 		PowerFx.sound(level, position(), PowersSounds.DARK_WHISPER, 2.0F, 0.4F);
+		CastingPoseService.start(this, CastingPose.CHANNEL, CastingStyle.FIRST_VESSEL,
+				CastingHand.BOTH, RECONSTITUTION_TICKS);
 	}
 
 	private void tickReconstitution(ServerLevel level) {
@@ -259,6 +269,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 		if (suppressed || FirstVesselRules.channelInterrupted(
 				reconstitutionDamage, effectiveMaximumHealth)) {
 			reconstitutionTicks = 0;
+			CastingPoseService.clear(this);
 			announce(level, "boss.powers.first_vessel.interrupted");
 			PowerFx.cancelled(level, position().add(0, 1, 0), 0xA878BC);
 			return;
@@ -270,6 +281,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 			PowerFx.spiral(level, position(), 1.8, 6.0, 0xC697D5, 24, progress * Math.PI * 2.0);
 		}
 		if (--reconstitutionTicks == 0) {
+			CastingPoseService.clear(this);
 			heal(effectiveMaximumHealth * 0.25F);
 			announce(level, "boss.powers.first_vessel.restored");
 			PowerFx.burst(level, position().add(0, 1, 0),

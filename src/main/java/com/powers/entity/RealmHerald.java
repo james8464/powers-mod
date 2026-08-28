@@ -2,6 +2,10 @@ package com.powers.entity;
 
 import com.powers.PowersEntities;
 import com.powers.PowersSounds;
+import com.powers.animation.CastingHand;
+import com.powers.animation.CastingPose;
+import com.powers.animation.CastingPoseMapping;
+import com.powers.animation.CastingPoseService;
 import com.powers.fx.PowerFx;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
@@ -104,6 +108,8 @@ public final class RealmHerald extends AbstractPlayerLikeMob {
 		PowerFx.sound(level, target.position(), realmKind() == RealmKind.LIGHT
 				? PowersSounds.LIGHT_CHORUS : PowersSounds.DARK_WHISPER, 2.0F,
 				realmKind() == RealmKind.LIGHT ? 0.85F : 0.48F);
+		CastingPoseService.start(this, CastingPose.CHANNEL, CastingPoseMapping.style(this),
+				CastingHand.BOTH, 20);
 	}
 
 	@Override

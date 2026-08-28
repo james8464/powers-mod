@@ -1,6 +1,10 @@
 package com.powers.entity;
 
 import com.powers.PowersSounds;
+import com.powers.animation.CastingHand;
+import com.powers.animation.CastingPose;
+import com.powers.animation.CastingPoseMapping;
+import com.powers.animation.CastingPoseService;
 import com.powers.fx.PowerFx;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
@@ -176,6 +180,7 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 		PowerFx.beam(level, getEyePosition(), target.getEyePosition(), ParticleTypes.ELECTRIC_SPARK, 16);
 		PowerFx.rune(level, target.position().add(0.0, 0.08, 0.0), 1.5, 0x7C68FF, 20, 0.0);
 		PowerFx.sound(level, target.position(), PowersSounds.INTERACTION_CLASH, 1.4F, 0.65F);
+		emitGuardianProjectPose();
 	}
 
 	private void castFireball(ServerLevel level, LivingEntity target) {
@@ -189,6 +194,14 @@ public abstract class AbstractPlayerLikeMob extends Monster {
 		PowerFx.sound(level, getEyePosition(), radiantCombat()
 				? PowersSounds.LIGHT_CHORUS : PowersSounds.DARK_WHISPER, 1.1F,
 				radiantCombat() ? 1.35F : 0.8F);
+		emitGuardianProjectPose();
+	}
+
+	private void emitGuardianProjectPose() {
+		if (CastingPoseService.scopeType(getClass())) {
+			CastingPoseService.start(this, CastingPose.PROJECT, CastingPoseMapping.style(this),
+					CastingHand.RIGHT, 14);
+		}
 	}
 
 	@Override

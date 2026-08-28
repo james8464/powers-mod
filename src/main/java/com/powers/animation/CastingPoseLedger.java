@@ -83,6 +83,10 @@ public final class CastingPoseLedger {
 		offeredThisTick = 0;
 	}
 
+	public void clear(UUID entityUuid) {
+		active.remove(entityUuid);
+	}
+
 	private void rollBudget(long tick) {
 		if (budgetTick == tick) return;
 		budgetTick = tick;

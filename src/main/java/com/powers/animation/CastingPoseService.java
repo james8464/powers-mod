@@ -66,6 +66,22 @@ public final class CastingPoseService {
 		return LEDGER.metrics();
 	}
 
+	/** Replaces an active channel with a one-tick terminal event, then lets tick cleanup remove it. */
+	public static void clear(LivingEntity entity) {
+		if (!(entity.level() instanceof ServerLevel level)) {
+			LEDGER.clear(entity.getUUID());
+			return;
+		}
+		Optional<CastingPoseEvent> current = LEDGER.snapshot(entity.getUUID(), level.getGameTime());
+		if (current.isEmpty()) {
+			LEDGER.clear(entity.getUUID());
+			return;
+		}
+		CastingPoseEvent event = current.orElseThrow();
+		deliver(LEDGER, new MinecraftRuntime(entity, level), event.pose(), event.style(),
+				event.hand(), 1);
+	}
+
 	/** Expires state and forgets identities that are no longer loaded and alive. */
 	public static void tick(MinecraftServer server) {
 		long gameTime = server.overworld().getGameTime();
