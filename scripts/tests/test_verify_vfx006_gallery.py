@@ -149,6 +149,15 @@ class Vfx006GalleryVerifierTest(unittest.TestCase):
             self.write_rows(root, rows)
         self.mutate(angle, "angle bounds")
 
+    def test_gallery_outside_authored_hold_is_rejected(self):
+        def early(root):
+            rows = self.rows(root)
+            row = next(item for item in rows if item["scenario"] == "gallery"
+                       and not item["reducedMotion"])
+            row["progress"] = 0.1
+            self.write_rows(root, rows)
+        self.mutate(early, "gallery capture is outside authored hold")
+
     def test_entity_id_reuse_requires_distinct_resolved_uuid(self):
         def identity(root):
             rows = self.rows(root)

@@ -146,6 +146,8 @@ def _validate_row(root: Path, row: dict, implementation_sha: str | None) -> tupl
             raise ValueError("inactive lifecycle has non-zero angles")
     if scenario == "gallery" and not row["active"]:
         raise ValueError("gallery pose is inactive")
+    if scenario == "gallery" and not 0.2 <= progress <= 0.75:
+        raise ValueError("gallery capture is outside authored hold")
     if scenario in {"latency", "late_tracking"} and (not row["active"] or progress < 0.25):
         raise ValueError(f"{scenario} did not preserve authoritative age")
     if scenario in {"interruption", "expiry", "reconnect", "entity_id_reuse"} and row["active"]:

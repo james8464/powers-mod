@@ -122,7 +122,9 @@ public final class CastingPoseClientAcceptance {
 		CastingPoseEvent event = start(singleplayer, subject, pose, style,
 				pose == CastingPose.PROJECT ? CastingHand.RIGHT : CastingHand.BOTH, DURATION);
 		long receipt = awaitActive(context, subject, event.sequence());
-		context.waitTicks(4);
+		long now = context.computeOnClient(client -> client.level.getGameTime());
+		int wait = (int) Math.max(0L, event.startGameTime() + DURATION / 2 - now);
+		if (wait > 0) context.waitTicks(wait);
 		captureActive(context, "gallery", subject, event, receipt, reduced);
 		discard(context, singleplayer, subject);
 	}
