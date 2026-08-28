@@ -276,7 +276,7 @@ git commit -m "feat(vfx): emit poses from magical entity actions"
 - Produces: pure `ClientCastingPoseState.accept(Wire, HandlerStamp, WorldIdentity, EntityIdentity, long)` and `resolve(UUID,long)`.
 - Produces: `ClientCastingPoseManager.captureHandlerStamp(Minecraft)`, `handle(Payload, HandlerStamp)`, `resolve(Entity)`, `resetConnectionEpoch()`, and `tick(Minecraft)`.
 
-- [ ] **Step 1: Write client-state tests RED for sequence replay, entity-ID reuse, UUID mismatch, five-tick future skew, expired receipt, stale handler/world, capacity eviction, and latency progress.**
+- [x] **Step 1: Write client-state tests RED for sequence replay, entity-ID reuse, UUID mismatch, five-tick future skew, expired receipt, stale handler/world, capacity eviction, and latency progress.**
 
 ```java
 @Test
@@ -287,11 +287,11 @@ void reusedNumericIdCannotAnimateDifferentUuid() {
 }
 ```
 
-- [ ] **Step 2: Implement the pure state machine and run GREEN.**
+- [x] **Step 2: Implement the pure state machine and run GREEN.**
 
 Keep immutable value records only; capacity 128 evicts the entry with the earliest `start + duration`, except never replace a same-UUID newer sequence with an older one.
 
-- [ ] **Step 3: Write manager boundary tests RED, then implement world/entity lookup, handler stamps, join/disconnect reset, and client tick expiry.**
+- [x] **Step 3: Write manager boundary tests RED, then implement world/entity lookup, handler stamps, join/disconnect reset, and client tick expiry.**
 
 ```java
 ClientPlayNetworking.registerGlobalReceiver(CastingPosePackets.Payload.TYPE,
@@ -301,11 +301,11 @@ ClientPlayNetworking.registerGlobalReceiver(CastingPosePackets.Payload.TYPE,
         });
 ```
 
-- [ ] **Step 4: Run client-state tests and `compileClientJava` GREEN.**
+- [x] **Step 4: Run client-state tests and `compileClientJava` GREEN.**
 
 Run: `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew test --tests com.powers.animation.ClientCastingPoseStateTest compileClientJava --rerun-tasks --no-daemon --console=plain`
 
-- [ ] **Step 5: Commit the client lifecycle.**
+- [x] **Step 5: Commit the client lifecycle.**
 
 ```bash
 git add src/main/java/com/powers/animation/ClientCastingPoseState.java \

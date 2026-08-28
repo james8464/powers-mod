@@ -21,6 +21,7 @@ import com.powers.client.fx.ClientVisualScarManager;
 import com.powers.client.fx.ClientVisualScarRenderer;
 import com.powers.client.fx.ClientRankTenSilhouetteManager;
 import com.powers.client.fx.ClientRankTenSilhouetteRenderer;
+import com.powers.client.animation.ClientCastingPoseManager;
 import com.powers.client.acceptance.AcceptanceClientAgent;
 import com.powers.client.body.ClientBodySnapshots;
 import com.powers.client.fx.particle.ArcaneParticle;
@@ -32,6 +33,7 @@ import com.powers.network.PowerStatePayload;
 import com.powers.network.PowersPackets;
 import com.powers.network.MagicFxPackets;
 import com.powers.network.RankTenSilhouettePackets;
+import com.powers.network.CastingPosePackets;
 import com.powers.network.CelestialRuinPackets;
 import com.powers.network.EventAudioPackets;
 import com.powers.network.ShadowSwordPackets;
@@ -110,6 +112,12 @@ public class PowersClient implements ClientModInitializer {
 					var captured = ClientRankTenSilhouetteManager.captureHandlerStamp(context.client());
 					context.client().execute(() ->
 							ClientRankTenSilhouetteManager.handle(payload, captured));
+				});
+		ClientPlayNetworking.registerGlobalReceiver(CastingPosePackets.Payload.TYPE,
+				(payload, context) -> {
+					var captured = ClientCastingPoseManager.captureHandlerStamp(context.client());
+					context.client().execute(() ->
+							ClientCastingPoseManager.handle(payload, captured));
 				});
 		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.MagicFxPayload.TYPE,
 				(payload, context) -> context.client().execute(() -> {
@@ -200,6 +208,7 @@ public class PowersClient implements ClientModInitializer {
 				(payload, context) -> context.client().execute(() -> ClientEventAudio.handle(payload)));
 		// Disconnect owns the client cache boundary; no server-authored power state may cross sessions.
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			ClientCastingPoseManager.resetConnectionEpoch();
 			ClientVisualScarManager.resetConnectionEpoch();
 			ClientVisualScarRenderer.closeResources();
 			ClientRankTenSilhouetteManager.resetConnectionEpoch();
@@ -214,6 +223,7 @@ public class PowersClient implements ClientModInitializer {
 			ClientEventAudio.resetMetrics();
 		});
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+			ClientCastingPoseManager.resetConnectionEpoch();
 			ClientVisualScarRenderer.recreateResources();
 			ClientRankTenSilhouetteRenderer.recreateResources();
 		});
@@ -289,6 +299,7 @@ public class PowersClient implements ClientModInitializer {
 		AcceptanceClientAgent.tick(client);
 		ClientVisualScarManager.tick(client);
 		ClientRankTenSilhouetteManager.tick(client);
+		ClientCastingPoseManager.tick(client);
 		ClientMagicFx.tick();
 		ClientCelestialRuinFx.tick();
 		ClientPowerState.tickCooldowns();
