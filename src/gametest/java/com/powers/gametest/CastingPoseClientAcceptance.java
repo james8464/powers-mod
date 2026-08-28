@@ -223,10 +223,12 @@ public final class CastingPoseClientAcceptance {
 			}
 			result.set(new Subject(entity.getId(), entity.getUUID(), entityType(style)));
 		});
-		context.waitFor(client -> result.get() != null && client.level != null
-				&& client.level.getEntity(result.get().entityId()) != null
-				&& client.level.getEntity(result.get().entityId()).getUUID()
-						.equals(result.get().entityUuid()));
+		if (distance < 200.0) {
+			context.waitFor(client -> result.get() != null && client.level != null
+					&& client.level.getEntity(result.get().entityId()) != null
+					&& client.level.getEntity(result.get().entityId()).getUUID()
+							.equals(result.get().entityUuid()));
+		}
 		return result.get();
 	}
 
