@@ -1,4 +1,3 @@
-532c9e763cd6a2f27a65fae0d44716b2628764b66c2fdfcdac1765fb39bba721  docs/quality/vfx-011-asset-audit.json
 7bb28113068a78da97e0730e2e76ef49749d897614f364b6efe8a7522934460c  docs/quality/vfx-011-asset-pages/pixels-checker-000.png
 e29ed3eb792d302405e8929b607a96c75f81fecf762d6f523b49c2f6c9c91caa  docs/quality/vfx-011-asset-pages/pixels-checker-001.png
 d93ad5d6a5bc7aa2408a783ca3a6d3780a442beea682ec0c8e96fe84141e8067  docs/quality/vfx-011-asset-pages/pixels-checker-002.png
@@ -90,6 +89,7 @@ d967772df519ad391654761801b84f84d063ec9f747bd710ce5355e08851d8d2  docs/quality/v
 1436b291c2f5303bb4644c567933c27d2f5ef63e877f9187cca2e241a764cbdc  docs/quality/vfx-011-asset-pages/pixels-light-028.png
 65a508c3ffcba96e4572e6f111d245bb69598004b4d9c3c09ff6155fd1f0412b  docs/quality/vfx-011-asset-pages/pixels-light-029.png
 9b59500ad7ba5518d6574059ca16ab5bb1b08cb92dab85fb30a8f4c50e5e929f  docs/quality/vfx-011-reviewed-exceptions.json
+532c9e763cd6a2f27a65fae0d44716b2628764b66c2fdfcdac1765fb39bba721  docs/verification/evidence/2026-08-21-vfx-011/accepted-asset-audit.json
 697ffd78f9e7a366916ad700cfe01d606fc6104f5b594fb5991f858f73b17c93  docs/verification/evidence/2026-08-24-vfx-011/README.md
 719d3bad57029d2e372eb628fc9efe6a23bf5d3d847e7026ca545f1de785a4e6  docs/verification/evidence/2026-08-24-vfx-011/build-metadata.json
 ed86d75637cf2ad1f37d5a92741e481c529446c787c8ca650ddc35d3e6f67576  docs/verification/evidence/2026-08-24-vfx-011/client-capture-index.tsv

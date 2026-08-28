@@ -11,9 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs/verification/evidence/2026-08-21-vfx-011"
 CHECKSUMS = EVIDENCE / "SHA256SUMS"
-HISTORICAL_ASSET_AUDIT_SHA256 = (
-    "532c9e763cd6a2f27a65fae0d44716b2628764b66c2fdfcdac1765fb39bba721"
-)
+ACCEPTED_MANIFEST = EVIDENCE / "accepted-asset-audit.json"
 
 
 def digest(path: Path) -> str:
@@ -27,14 +25,11 @@ def main() -> None:
     evidence = args.evidence.resolve()
     checksums = evidence / "SHA256SUMS"
     files = [path for path in evidence.rglob("*") if path.is_file() and path != checksums]
-    files.extend((
-        ROOT / "docs/quality/vfx-011-asset-audit.json",
-        ROOT / "docs/quality/vfx-011-reviewed-exceptions.json",
-    ))
+    files.extend((ACCEPTED_MANIFEST, ROOT / "docs/quality/vfx-011-reviewed-exceptions.json"))
     files.extend((ROOT / "docs/quality/vfx-011-asset-pages").glob("*.png"))
-    files = sorted(files, key=lambda path: path.relative_to(ROOT).as_posix())
+    files = sorted(set(files), key=lambda path: path.relative_to(ROOT).as_posix())
     checksums.write_text("".join(
-        f"{(HISTORICAL_ASSET_AUDIT_SHA256 if path == ROOT / 'docs/quality/vfx-011-asset-audit.json' else digest(path))}  "
+        f"{digest(path)}  "
         f"{path.relative_to(ROOT).as_posix()}\n"
         for path in files))
     print(f"bound {len(files)} files")

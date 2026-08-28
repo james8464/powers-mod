@@ -168,23 +168,33 @@ class Vfx011EvidenceTest(unittest.TestCase):
             for path in EVIDENCE.rglob("*") if path.is_file() and path != checksum_path
         }
         required.update({
-            "docs/quality/vfx-011-asset-audit.json",
+            "docs/verification/evidence/2026-08-21-vfx-011/accepted-asset-audit.json",
             "docs/quality/vfx-011-reviewed-exceptions.json",
             *(path.relative_to(ROOT).as_posix()
               for path in (ROOT / "docs/quality/vfx-011-asset-pages").glob("*.png")),
         })
         self.assertEqual(required, set(bound))
         for relative, expected in bound.items():
-            if relative == "docs/quality/vfx-011-asset-audit.json":
-                self.assertEqual(HISTORICAL_ASSET_AUDIT_SHA256, expected, relative)
-            else:
-                self.assertEqual(expected, hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(), relative)
+            self.assertEqual(expected, hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(), relative)
 
     def test_review_ledger_is_complete_and_deterministic(self):
         result = subprocess.run(
             [sys.executable, "scripts/build_vfx011_review_ledger.py", "--check"],
             cwd=ROOT, capture_output=True, text=True, check=False)
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_ledger_uses_digest_verified_immutable_accepted_manifest(self):
+        module = load_module("build_vfx011_review_ledger")
+        snapshot = EVIDENCE / "accepted-asset-audit.json"
+        self.assertEqual(snapshot, module.ACCEPTED_MANIFEST)
+        self.assertEqual(HISTORICAL_ASSET_AUDIT_SHA256,
+                         hashlib.sha256(snapshot.read_bytes()).hexdigest())
+        with tempfile.TemporaryDirectory() as temporary:
+            tampered = Path(temporary) / "accepted-asset-audit.json"
+            tampered.write_bytes(snapshot.read_bytes() + b"\n")
+            module.ACCEPTED_MANIFEST = tampered
+            with self.assertRaisesRegex(ValueError, "accepted manifest digest"):
+                module.inputs()
 
     def test_representatives_are_twenty_ids_backed_by_fifteen_unique_images(self):
         rows = (EVIDENCE / "representative-index.tsv").read_text().splitlines()
@@ -306,17 +316,14 @@ class Vfx011EvidenceTest(unittest.TestCase):
         owned = [path for path in FRESH_EVIDENCE.rglob("*")
                  if path.is_file() and path != checksum_path]
         owned.extend((
-            ROOT / "docs/quality/vfx-011-asset-audit.json",
+            EVIDENCE / "accepted-asset-audit.json",
             ROOT / "docs/quality/vfx-011-reviewed-exceptions.json",
         ))
         owned.extend((ROOT / "docs/quality/vfx-011-asset-pages").glob("*.png"))
         self.assertEqual({path.relative_to(ROOT).as_posix() for path in owned}, set(bound))
         for path in owned:
             relative = path.relative_to(ROOT).as_posix()
-            if relative == "docs/quality/vfx-011-asset-audit.json":
-                self.assertEqual(HISTORICAL_ASSET_AUDIT_SHA256, bound[relative])
-            else:
-                self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), bound[relative])
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), bound[relative])
 
     def test_names_cannot_infer_a_repair_or_pass(self):
         source = (ROOT / "scripts/build_vfx011_review_ledger.py").read_text()

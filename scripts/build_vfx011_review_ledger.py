@@ -13,8 +13,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = ROOT / "docs/quality/vfx-011-asset-audit.json"
 EVIDENCE = ROOT / "docs/verification/evidence/2026-08-21-vfx-011"
+ACCEPTED_MANIFEST = EVIDENCE / "accepted-asset-audit.json"
+ACCEPTED_MANIFEST_SHA256 = "532c9e763cd6a2f27a65fae0d44716b2628764b66c2fdfcdac1765fb39bba721"
 DECISIONS = EVIDENCE / "review-decisions.tsv"
 LEDGER = EVIDENCE / "review-ledger.tsv"
 VERDICTS = {"PASS", "REPAIRED", "LIMITED", "PENDING_RAW_RECAPTURE"}
@@ -80,23 +81,9 @@ def validate_client_command_receipt(evidence: Path, run_receipt: dict) -> None:
 
 
 def inputs(evidence: Path = EVIDENCE) -> tuple[dict, list[dict], dict | None]:
-    manifest = json.loads(MANIFEST.read_text())
-    decision_rows = list(csv.DictReader(
-        (evidence / "review-decisions.tsv").read_text().splitlines(), delimiter="\t"))
-    reviewed_asset_digests = {
-        row["id"]: row["sha256"]
-        for row in decision_rows if row["kind"] == "asset_source"
-    }
-    reviewed_asset_ids = set(reviewed_asset_digests)
-    reviewed_assets = [
-        {**asset, "sha256": reviewed_asset_digests[asset["path"]]}
-        for asset in manifest["assets"] if asset["path"] in reviewed_asset_ids
-    ]
-    if {asset["path"] for asset in reviewed_assets} != reviewed_asset_ids:
-        raise ValueError("reviewed asset inventory is missing from the current manifest")
-    # VFX-011 is a historical, digest-bound review. Later tasks may append assets to
-    # the live inventory, but they must not silently expand or invalidate that review.
-    manifest = {**manifest, "assets": reviewed_assets}
+    if not ACCEPTED_MANIFEST.is_file() or digest(ACCEPTED_MANIFEST) != ACCEPTED_MANIFEST_SHA256:
+        raise ValueError("accepted manifest digest drift")
+    manifest = json.loads(ACCEPTED_MANIFEST.read_text())
     client_rows = list(csv.DictReader(
         (evidence / "client-capture-index.tsv").read_text().splitlines(), delimiter="\t"))
     if len(manifest["assets"]) != 970 or len(manifest["pageDigests"]) != 90:
