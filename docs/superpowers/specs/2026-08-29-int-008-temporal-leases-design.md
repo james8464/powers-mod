@@ -48,9 +48,11 @@ clears its toggle/journal, and leaves the external clock value untouched. A norm
 unfreezes only when vanilla is still frozen and the lease was never superseded.
 
 Acquisition is transactional: journal first, then freeze. If persistence fails, no lease or clock
-mutation remains. Release removes process authority before writing the clock, then clears the
-journal. Shutdown and disconnect use the same source-aware release path. Startup recovery may undo
-only a persisted active POWERS lease; an empty journal never changes a pre-existing external freeze.
+mutation remains. Release removes durable authority before writing the clock, then clears the
+journal. Shutdown and disconnect use the same source-aware release path. At startup, a stale active
+journal is retired without changing the vanilla clock: after a crash it is impossible to distinguish
+a POWERS-owned freeze from a later external supersession whose journal retirement could not be
+persisted. This conservative policy never thaws an administrator/mod freeze.
 
 ## Production behavior
 
@@ -87,8 +89,8 @@ diagnostics.
 - Tokens are positive saturating sequence values; wrap clears authority rather than reusing an
   active token.
 - Malformed persisted UUIDs, sources, tokens, or deadlines are rejected into stale-journal cleanup.
-- Persistence failure aborts acquisition; clear failure is logged after in-memory authority and
-  safe clock handling complete.
+- Persistence failure aborts acquisition; clear failure is logged and retried while process lease
+  state remains. Startup retires stale authority without changing an ambiguous vanilla clock.
 - External mutation always wins. POWERS emits one release presentation but never calls `setFrozen`
   on behalf of the external owner.
 - No scan is added beyond the existing bounded player observer list and existing subsystem work.

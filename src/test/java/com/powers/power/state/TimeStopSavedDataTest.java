@@ -44,7 +44,7 @@ class TimeStopSavedDataTest {
 		assertEquals(1, decoded.snapshot().schemaVersion());
 		assertEquals(0L, decoded.snapshot().leaseToken());
 		assertTrue(decoded.snapshot().staleRecoveryOnly());
-		assertEquals(TimeStopSavedData.RecoveryDecision.CLEAR_AND_UNFREEZE,
+		assertEquals(TimeStopSavedData.RecoveryDecision.CLEAR_CONFIRMED,
 				decoded.snapshot().recoveryDecision());
 	}
 
@@ -76,7 +76,7 @@ class TimeStopSavedDataTest {
 	}
 
 	@Test
-	void onlySemanticallyValidPowersJournalsAuthorizeStartupThaw() {
+	void evenValidPowersJournalsRetireWithoutThawingAnAmbiguousStartupClock() {
 		String owner = "00000000-0000-0000-0000-000000000001";
 		String body = "00000000-0000-0000-0000-000000000002";
 		assertEquals(TimeStopSavedData.RecoveryDecision.NONE,
@@ -86,7 +86,7 @@ class TimeStopSavedDataTest {
 				new TimeStopSavedData.Snapshot(2, true, 2, owner, "CRYSTAL", 4, 1_204, ""),
 				new TimeStopSavedData.Snapshot(2, true, 3, owner, "SHADOW", 4, Long.MAX_VALUE, body)
 		}) {
-			assertEquals(TimeStopSavedData.RecoveryDecision.CLEAR_AND_UNFREEZE,
+			assertEquals(TimeStopSavedData.RecoveryDecision.CLEAR_CONFIRMED,
 					valid.recoveryDecision(), valid.toString());
 		}
 	}

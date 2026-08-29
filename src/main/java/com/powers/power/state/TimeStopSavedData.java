@@ -12,25 +12,20 @@ import java.util.UUID;
 /** Crash journal proving that a persisted frozen clock belonged to POWERS. */
 public final class TimeStopSavedData extends SavedData {
 	public enum RecoveryDecision {
-		NONE(false, false),
-		CLEAR_ONLY(true, false),
-		CLEAR_AND_UNFREEZE(true, true);
+		NONE(false),
+		CLEAR_ONLY(true),
+		CLEAR_CONFIRMED(true);
 
 		private final boolean clearJournal;
-		private final boolean unfreeze;
 
-		RecoveryDecision(boolean clearJournal, boolean unfreeze) {
+		RecoveryDecision(boolean clearJournal) {
 			this.clearJournal = clearJournal;
-			this.unfreeze = unfreeze;
 		}
 
 		public boolean clearJournal() {
 			return clearJournal;
 		}
 
-		public boolean unfreeze() {
-			return unfreeze;
-		}
 	}
 
 	public record Snapshot(int schemaVersion, boolean active, long leaseToken,
@@ -52,10 +47,10 @@ public final class TimeStopSavedData extends SavedData {
 			return active && (schemaVersion < 2 || leaseToken <= 0L);
 		}
 
-		/** A malformed journal may be cleared, but never proves authority to thaw vanilla. */
+		/** A stale journal is retired, but cannot disambiguate an external startup freeze. */
 		public RecoveryDecision recoveryDecision() {
 			if (!active) return RecoveryDecision.NONE;
-			return validRecoveryIdentity() ? RecoveryDecision.CLEAR_AND_UNFREEZE
+			return validRecoveryIdentity() ? RecoveryDecision.CLEAR_CONFIRMED
 					: RecoveryDecision.CLEAR_ONLY;
 		}
 

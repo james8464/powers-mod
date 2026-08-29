@@ -206,7 +206,7 @@ public final class GlobalTimeStopManager {
 		clearAll(server);
 	}
 
-	/** Clears a crash journal before players enter play and never steals an unjournalled admin freeze. */
+	/** Clears a crash journal before players enter play without changing an ambiguous startup clock. */
 	public static void reconcileStartup(MinecraftServer server) {
 		TimeStopSavedData.RecoveryDecision recovery;
 		try {
@@ -221,14 +221,8 @@ public final class GlobalTimeStopManager {
 			return;
 		}
 		BOOKS.remove(server);
-		if (recovery.unfreeze() && server.tickRateManager().isFrozen()) {
-			server.tickRateManager().setFrozen(false);
-		}
-		if (recovery.unfreeze()) {
-			PowersMod.LOGGER.warn("Recovered a validated stale POWERS Time Stop ownership journal");
-		} else {
-			PowersMod.LOGGER.warn("Cleared a malformed Time Stop journal without changing vanilla freeze state");
-		}
+		PowersMod.LOGGER.warn(
+				"Retired stale Time Stop journal without changing the ambiguous vanilla freeze state");
 	}
 
 	/** Called by the tick-manager mixin whenever code outside this manager writes freeze state. */
