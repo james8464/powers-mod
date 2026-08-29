@@ -204,12 +204,19 @@ public final class GlobalTimeStopManager {
 	/** Clears a crash journal before players enter play and never steals an unjournalled admin freeze. */
 	public static void reconcileStartup(MinecraftServer server) {
 		TimeStopSavedData data = savedData(server);
-		if (!data.snapshot().active()) return;
+		TimeStopSavedData.RecoveryDecision recovery = data.snapshot().recoveryDecision();
+		if (!recovery.clearJournal()) return;
 		BOOKS.remove(server);
-		if (server.tickRateManager().isFrozen()) server.tickRateManager().setFrozen(false);
+		if (recovery.unfreeze() && server.tickRateManager().isFrozen()) {
+			server.tickRateManager().setFrozen(false);
+		}
 		data.clear();
 		server.overworld().getDataStorage().saveAndJoin();
-		PowersMod.LOGGER.warn("Recovered a stale POWERS Time Stop ownership journal from a prior shutdown");
+		if (recovery.unfreeze()) {
+			PowersMod.LOGGER.warn("Recovered a validated stale POWERS Time Stop ownership journal");
+		} else {
+			PowersMod.LOGGER.warn("Cleared a malformed Time Stop journal without changing vanilla freeze state");
+		}
 	}
 
 	/** Called by the tick-manager mixin whenever code outside this manager writes freeze state. */
@@ -264,15 +271,11 @@ public final class GlobalTimeStopManager {
 	}
 
 	private static boolean persist(MinecraftServer server, TimeStopLease lease) {
-		try {
-			TimeStopSavedData data = savedData(server);
-			data.activate(lease);
-			server.overworld().getDataStorage().saveAndJoin();
-			return true;
-		} catch (RuntimeException failure) {
-			PowersMod.LOGGER.error("Could not persist Time Stop ownership", failure);
-			return false;
-		}
+		TimeStopSavedData data = savedData(server);
+		return data.activateAndSave(lease,
+				() -> server.overworld().getDataStorage().saveAndJoin(),
+				failure -> PowersMod.LOGGER.error(
+						"Could not persist Time Stop ownership", failure));
 	}
 
 	private static void clearPersisted(MinecraftServer server) {
