@@ -56,7 +56,7 @@ public final class TemporalOwnershipGameTests {
 			FREEZE_PROBES.remove(server);
 		});
 	}
-	@GameTest(environment = "powers:temporal_ownership_isolated", maxTicks = 20)
+	@GameTest(environment = "powers:temporal_admin_isolated", maxTicks = 20)
 	public void administratorFreezeRejectsAcquisitionAndRemainsAuthoritative(GameTestHelper helper) {
 		MinecraftServer server = helper.getLevel().getServer();
 		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
@@ -78,7 +78,7 @@ public final class TemporalOwnershipGameTests {
 		helper.succeed();
 	}
 
-	@GameTest(environment = "powers:temporal_ownership_isolated", maxTicks = 20)
+	@GameTest(environment = "powers:temporal_supersession_isolated", maxTicks = 20)
 	public void externalSameValueWriteSupersedesLeaseWithoutBeingUndone(GameTestHelper helper) {
 		MinecraftServer server = helper.getLevel().getServer();
 		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
@@ -101,7 +101,7 @@ public final class TemporalOwnershipGameTests {
 		helper.succeed();
 	}
 
-	@GameTest(environment = "powers:temporal_ownership_isolated", maxTicks = 1_230)
+	@GameTest(environment = "powers:temporal_deadline_isolated", maxTicks = 1_230)
 	public void crystalDeadlineUsesExactlyTwelveHundredControlTicks(GameTestHelper helper) {
 		MinecraftServer server = helper.getLevel().getServer();
 		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
@@ -119,10 +119,21 @@ public final class TemporalOwnershipGameTests {
 				"Lease diagnostics mislabeled the authoritative clock");
 		helper.assertTrue(server.getPlayerList().getPlayer(owner.getUUID()) == owner,
 				"Deadline fixture is not present through the real online-player boundary");
-		DEADLINE_PROBES.put(server, new DeadlineProbe(helper, owner, acquired, worldTick));
+		DeadlineProbe probe = new DeadlineProbe(helper, acquired, worldTick);
+		DEADLINE_PROBES.put(server, probe);
+		// The exact boundary is observed from the server control clock while vanilla
+		// simulation is parked. Complete from the resumed GameTest ticker so its
+		// batch tracker can advance to the next isolated environment normally.
+		helper.succeedWhen(() -> {
+			helper.assertTrue(probe.releasedAt1200,
+					"Crystal lease never reached its exact control-clock deadline");
+			helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty()
+					&& !server.tickRateManager().isFrozen(),
+					"Released crystal lease reappeared after simulation resumed");
+		});
 	}
 
-	@GameTest(environment = "powers:temporal_ownership_isolated", maxTicks = 20)
+	@GameTest(environment = "powers:temporal_world_managers_isolated", maxTicks = 20)
 	public void externalAndOwnedFreezeParkSeededWorldManagers(GameTestHelper helper) {
 		MinecraftServer server = helper.getLevel().getServer();
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
@@ -191,7 +202,7 @@ public final class TemporalOwnershipGameTests {
 		});
 	}
 
-	@GameTest(environment = "powers:temporal_ownership_isolated", maxTicks = 20)
+	@GameTest(environment = "powers:temporal_lifecycle_isolated", maxTicks = 20)
 	public void ownerLifecycleCleanupReleasesOnlyItsLease(GameTestHelper helper) {
 		MinecraftServer server = helper.getLevel().getServer();
 		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
@@ -310,15 +321,13 @@ public final class TemporalOwnershipGameTests {
 
 	private static final class DeadlineProbe {
 		private final GameTestHelper helper;
-		private final ServerPlayer owner;
 		private final long acquiredAt;
 		private final long worldTick;
 		private boolean activeAt1199;
+		private boolean releasedAt1200;
 
-		private DeadlineProbe(GameTestHelper helper, ServerPlayer owner,
-				long acquiredAt, long worldTick) {
+		private DeadlineProbe(GameTestHelper helper, long acquiredAt, long worldTick) {
 			this.helper = helper;
-			this.owner = owner;
 			this.acquiredAt = acquiredAt;
 			this.worldTick = worldTick;
 		}
@@ -344,16 +353,22 @@ public final class TemporalOwnershipGameTests {
 				helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty()
 						&& !server.tickRateManager().isFrozen(),
 						"Crystal lease was not released on control tick 1,200");
+				// GameTest runs in accelerated batches. Refresh its public tick-rate state
+				// immediately after the exact-boundary thaw so the next batch can advance;
+				// a production server performs this refresh at the next wall-clock tick.
+				server.tickRateManager().tick();
 				helper.assertTrue(helper.getLevel().getGameTime() == worldTick,
 						"World time advanced inside the crystal acceptance window");
 				emit("crystal-control-deadline", elapsed, 0,
 						"{\"activeAt1199\":true,\"clock\":\"CONTROL\",\"duration\":1200,"
 								+ "\"releasedAt1200\":true,\"worldTicksParked\":true}");
-				helper.succeed();
-			} finally {
+				releasedAt1200 = true;
+				DEADLINE_PROBES.remove(server);
+			} catch (RuntimeException failure) {
 				DEADLINE_PROBES.remove(server);
 				GlobalTimeStopManager.clearAll(server);
 				if (server.tickRateManager().isFrozen()) server.tickRateManager().setFrozen(false);
+				throw failure;
 			}
 		}
 	}
