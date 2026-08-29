@@ -8,15 +8,15 @@ import com.powers.power.ToggleKeyRules;
 import com.powers.util.PowerMessages;
 import com.powers.companion.PrivateCompanionManager;
 import com.powers.companion.ShadowCompanionEntity;
+import com.powers.time.ControlTick;
+import com.powers.time.TemporalClocks;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.IdentityHashMap;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.Optional;
 
@@ -29,148 +29,138 @@ import java.util.Optional;
  * projectiles, block entities and scheduled ticks in every dimension.</p>
  */
 public final class GlobalTimeStopManager {
-	private enum Source { INNATE, CRYSTAL, SHADOW }
-
 	private static final net.minecraft.resources.Identifier POWER_ID = PowersMod.id("time_freeze");
-	private static final Map<MinecraftServer, Stop> ACTIVE = new IdentityHashMap<>();
-	private static final Set<MinecraftServer> INTERNAL_CLOCK_WRITES =
-			Collections.newSetFromMap(new IdentityHashMap<>());
+	private static final Map<MinecraftServer, TimeStopLeaseBook> BOOKS = new IdentityHashMap<>();
+	private static final Map<MinecraftServer, Long> INTERNAL_CLOCK_WRITES = new IdentityHashMap<>();
 
 	private GlobalTimeStopManager() {
 	}
 
 	/** Attempts to claim and freeze the global server clock for this player. */
 	public static boolean start(ServerPlayer owner) {
-		return start(owner, Source.INNATE, Long.MAX_VALUE);
+		return start(owner, TimeStopLeaseSource.INNATE, Long.MAX_VALUE, null);
 	}
 
 	/** Claims the same global clock for a fixed-duration crystal rite. */
 	public static boolean startCrystal(ServerPlayer owner, int durationTicks) {
-		long deadline = owner.level().getServer().getTickCount()
-				+ Math.clamp(durationTicks, 1, 1_200);
-		return start(owner, Source.CRYSTAL, deadline);
+		return start(owner, TimeStopLeaseSource.CRYSTAL,
+				Math.clamp(durationTicks, 1, 1_200), null);
 	}
 
-	private static boolean start(ServerPlayer owner, Source source, long deadline) {
+	private static boolean start(ServerPlayer owner, TimeStopLeaseSource source,
+			long durationTicks, UUID shadowBody) {
 		MinecraftServer server = owner.level().getServer();
-		if (!GlobalTimeStopRules.mayStart(ACTIVE.containsKey(server),
-				server.tickRateManager().isFrozen())) {
+		Optional<TimeStopLease> acquired = book(server).acquire(owner.getUUID(), source,
+				TemporalClocks.control(server), durationTicks, shadowBody,
+				server.tickRateManager().isFrozen());
+		if (acquired.isEmpty()) {
 			PowerMessages.overlay(owner, Component.translatable(
 					"ability.powers.time_freeze.clock_owned"));
 			return false;
 		}
-		Stop stop = new Stop(owner.getUUID(), source, deadline, null);
-		ACTIVE.put(server, stop);
-		if (!persist(server, stop)) {
-			ACTIVE.remove(server);
+		TimeStopLease lease = acquired.orElseThrow();
+		if (!persist(server, lease)) {
+			book(server).release(lease.token(), lease.owner(), lease.source(), false);
 			PowerMessages.overlay(owner, Component.literal(
 					"Time refused to stop because its ownership journal could not be saved."));
 			return false;
 		}
-		setFrozenOwned(server, true);
+		try {
+			setFrozenOwned(server, true, lease.token());
+		} catch (RuntimeException failure) {
+			book(server).release(lease.token(), lease.owner(), lease.source(), false);
+			clearPersisted(server);
+			PowersMod.LOGGER.error("Could not acquire the vanilla frozen clock", failure);
+			return false;
+		}
 		for (ServerPlayer observer : server.getPlayerList().getPlayers()) {
 			PowerMessages.overlay(observer, Component.translatable(
 					"ability.powers.time_freeze.global_begin", owner.getDisplayName()));
 			TimeStopFx.globalBegin((ServerLevel) observer.level(), observer.position(),
-					stop.source == Source.CRYSTAL);
+					lease.source() == TimeStopLeaseSource.CRYSTAL);
 		}
 		return true;
 	}
 
 	/** A manifested Shadow freezes the clock for its owner and pays from its own pool. */
 	public static boolean startShadow(ServerPlayer owner, ShadowCompanionEntity shadow) {
-		MinecraftServer server = owner.level().getServer();
 		if (shadow == null || !shadow.isAlive() || shadow.ownerId() == null
-				|| !shadow.ownerId().equals(owner.getUUID())
-				|| !GlobalTimeStopRules.mayStart(ACTIVE.containsKey(server),
-				server.tickRateManager().isFrozen())) return false;
-		Stop stop = new Stop(owner.getUUID(), Source.SHADOW, Long.MAX_VALUE, shadow.getUUID());
-		ACTIVE.put(server, stop);
-		if (!persist(server, stop)) {
-			ACTIVE.remove(server);
-			return false;
-		}
-		setFrozenOwned(server, true);
-		for (ServerPlayer observer : server.getPlayerList().getPlayers()) {
-			PowerMessages.overlay(observer, Component.translatable(
-					"ability.powers.time_freeze.global_begin", owner.getDisplayName()));
-			TimeStopFx.globalBegin((ServerLevel) observer.level(), observer.position(), false);
-		}
-		return true;
+				|| !shadow.ownerId().equals(owner.getUUID())) return false;
+		return start(owner, TimeStopLeaseSource.SHADOW, Long.MAX_VALUE, shadow.getUUID());
 	}
 
 	/** Releases time only when the requester owns this server's clock. */
 	public static void stop(ServerPlayer owner) {
-		release(owner.level().getServer(), owner.getUUID(), true);
+		releaseCurrent(owner.level().getServer(), owner.getUUID(),
+				TimeStopLeaseSource.INNATE, true);
 	}
 
 	public static void stopShadow(ServerPlayer owner) {
-		Stop stop = ACTIVE.get(owner.level().getServer());
-		if (stop != null && stop.source == Source.SHADOW) {
-			release(owner.level().getServer(), owner.getUUID(), true);
-		}
+		releaseCurrent(owner.level().getServer(), owner.getUUID(),
+				TimeStopLeaseSource.SHADOW, true);
 	}
 
 	/** Releases only a crystal-owned stop; innate toggles retain their own authority. */
 	public static void stopCrystal(ServerPlayer owner) {
-		Stop stop = ACTIVE.get(owner.level().getServer());
-		if (stop != null && stop.source == Source.CRYSTAL) {
-			release(owner.level().getServer(), owner.getUUID(), true);
-		}
+		releaseCurrent(owner.level().getServer(), owner.getUUID(),
+				TimeStopLeaseSource.CRYSTAL, true);
 	}
 
 	public static boolean isCrystalOwnedBy(ServerPlayer player) {
 		if (player == null) return false;
-		Stop stop = ACTIVE.get(player.level().getServer());
-		return stop != null && stop.source == Source.CRYSTAL
-				&& stop.owner().equals(player.getUUID());
+		TimeStopLease lease = active(player.level().getServer());
+		return lease != null && lease.source() == TimeStopLeaseSource.CRYSTAL
+				&& lease.owner().equals(player.getUUID());
 	}
 
 	/** Read-only HUD snapshot of the same owner/deadline that controls the true server clock. */
 	public static Optional<ClockSnapshot> snapshot(MinecraftServer server) {
-		Stop stop = ACTIVE.get(server);
-		if (stop == null) return Optional.empty();
-		long remaining = stop.deadline == Long.MAX_VALUE ? -1L
-				: GlobalTimeStopRules.remainingTicks(server.getTickCount(), stop.deadline);
-		return Optional.of(new ClockSnapshot(stop.owner, stop.source.name(), stop.deadline, remaining));
+		TimeStopLease lease = active(server);
+		if (lease == null) return Optional.empty();
+		ControlTick now = TemporalClocks.control(server);
+		long remaining = lease.indefinite() ? -1L : now.remainingUntil(lease.deadline());
+		return Optional.of(new ClockSnapshot(lease.owner(), lease.source().name(),
+				lease.deadline().value(), remaining, lease.token(), "CONTROL"));
 	}
 
-	public record ClockSnapshot(UUID owner, String source, long deadline, long remainingTicks) { }
+	public record ClockSnapshot(UUID owner, String source, long deadline, long remainingTicks,
+			long leaseToken, String clock) { }
 
 	/** Advances lifecycle checks and sparse cross-dimensional clock visuals. */
 	public static void tick(MinecraftServer server) {
-		Stop stop = ACTIVE.get(server);
-		if (stop == null) return;
-		ServerPlayer owner = server.getPlayerList().getPlayer(stop.owner());
+		TimeStopLease lease = active(server);
+		if (lease == null) return;
+		ControlTick now = TemporalClocks.control(server);
+		ServerPlayer owner = server.getPlayerList().getPlayer(lease.owner());
 		boolean online = owner != null;
 		boolean alive = online && owner.isAlive();
-		ShadowCompanionEntity shadow = stop.source == Source.SHADOW && online
-				? PrivateCompanionManager.body(stop.owner()).orElse(null) : null;
-		boolean authorityActive = online && switch (stop.source) {
-			case CRYSTAL -> server.getTickCount() < stop.deadline;
+		ShadowCompanionEntity shadow = lease.source() == TimeStopLeaseSource.SHADOW && online
+				? PrivateCompanionManager.body(lease.owner()).orElse(null) : null;
+		boolean authorityActive = online && switch (lease.source()) {
+			case CRYSTAL -> !TimeStopLeaseRules.expired(lease, now);
 			case INNATE -> ToggleKeyRules.anyOwnsAbility(
 					PlayerPowers.get(owner).getActiveToggles(), POWER_ID);
 			case SHADOW -> shadow != null && shadow.isAlive()
-					&& shadow.getUUID().equals(stop.shadowBody)
+					&& shadow.getUUID().equals(lease.shadowBody())
 					&& shadow.energy() >= 300;
 		};
-		boolean dampened = online && (stop.source == Source.SHADOW
+		boolean dampened = online && (lease.source() == TimeStopLeaseSource.SHADOW
 				? shadow == null || AmethystDampening.isDampened(shadow)
 				: AmethystDampening.isDampened(owner));
 		if (GlobalTimeStopRules.shouldRelease(online, alive, authorityActive, dampened,
-				server.tickRateManager().isFrozen(), stop.externallyMutated)) {
-			release(server, stop.owner(), true);
+				server.tickRateManager().isFrozen(), lease.externallySuperseded())) {
+			releaseExact(server, lease, true);
 			return;
 		}
-		if (stop.source == Source.SHADOW && server.getTickCount() % 20 == 0) {
+		if (lease.source() == TimeStopLeaseSource.SHADOW && now.value() % 20L == 0L) {
 			shadow.setEnergy(shadow.energy() - 300);
 		}
-		if (server.getTickCount() % 20 == 0) {
+		if (now.value() % 20L == 0L) {
 			for (ServerPlayer observer : server.getPlayerList().getPlayers()) {
 				TimeStopFx.globalSustain((ServerLevel) observer.level(), observer.position(),
-						server.getTickCount(), stop.source == Source.CRYSTAL);
-				if (stop.source == Source.CRYSTAL) {
-					long seconds = (GlobalTimeStopRules.remainingTicks(server.getTickCount(), stop.deadline) + 19L) / 20L;
+						now.value(), lease.source() == TimeStopLeaseSource.CRYSTAL);
+				if (lease.source() == TimeStopLeaseSource.CRYSTAL) {
+					long seconds = (now.remainingUntil(lease.deadline()) + 19L) / 20L;
 					observer.sendSystemMessage(Component.translatable("crystal.powers.chrono_status",
 							owner.getDisplayName(), seconds), true);
 				}
@@ -180,8 +170,8 @@ public final class GlobalTimeStopManager {
 
 	/** Returns true when the actor is allowed to act under the current clock owner. */
 	public static boolean mayAct(ServerPlayer actor) {
-		Stop stop = ACTIVE.get(actor.level().getServer());
-		return GlobalTimeStopRules.mayAct(stop == null ? null : stop.owner(), actor.getUUID());
+		TimeStopLease lease = active(actor.level().getServer());
+		return GlobalTimeStopRules.mayAct(lease == null ? null : lease.owner(), actor.getUUID());
 	}
 
 	/** Rejects a non-owner action with concise feedback. */
@@ -194,26 +184,29 @@ public final class GlobalTimeStopManager {
 
 	/** True while this server has a player-owned clock freeze. */
 	public static boolean isStopped(MinecraftServer server) {
-		return ACTIVE.containsKey(server);
+		return active(server) != null;
 	}
 
 	/** Clears one departing/respawning owner and restores the server clock. */
 	public static void clear(MinecraftServer server, UUID owner) {
-		release(server, owner, true);
+		TimeStopLease lease = active(server);
+		if (lease != null && lease.owner().equals(owner)) releaseExact(server, lease, true);
 	}
 
 	/** Restores the clock before server-owned runtime state is discarded. */
 	public static void clearAll(MinecraftServer server) {
-		Stop stop = ACTIVE.get(server);
-		if (stop != null) release(server, stop.owner(), false);
+		TimeStopLease lease = active(server);
+		if (lease != null) releaseExact(server, lease, false);
+		BOOKS.remove(server);
+		INTERNAL_CLOCK_WRITES.remove(server);
 	}
 
 	/** Clears a crash journal before players enter play and never steals an unjournalled admin freeze. */
 	public static void reconcileStartup(MinecraftServer server) {
 		TimeStopSavedData data = savedData(server);
 		if (!data.snapshot().active()) return;
-		ACTIVE.remove(server);
-		if (server.tickRateManager().isFrozen()) setFrozenOwned(server, false);
+		BOOKS.remove(server);
+		if (server.tickRateManager().isFrozen()) server.tickRateManager().setFrozen(false);
 		data.clear();
 		server.overworld().getDataStorage().saveAndJoin();
 		PowersMod.LOGGER.warn("Recovered a stale POWERS Time Stop ownership journal from a prior shutdown");
@@ -221,23 +214,30 @@ public final class GlobalTimeStopManager {
 
 	/** Called by the tick-manager mixin whenever code outside this manager writes freeze state. */
 	public static void observeClockWrite(MinecraftServer server) {
-		Stop stop = ACTIVE.get(server);
-		if (stop != null && !INTERNAL_CLOCK_WRITES.contains(server)) {
-			stop.externallyMutated = true;
+		TimeStopLease lease = active(server);
+		if (lease == null) return;
+		Long internalToken = INTERNAL_CLOCK_WRITES.get(server);
+		if (internalToken == null || internalToken.longValue() != lease.token()) {
+			book(server).observeExternalWrite();
 		}
 	}
 
-	private static void release(MinecraftServer server, UUID expectedOwner, boolean announce) {
-		Stop stop = ACTIVE.get(server);
-		if (stop == null || !stop.owner().equals(expectedOwner)) return;
-		ACTIVE.remove(server);
-		if (GlobalTimeStopRules.shouldUnfreezeOnRelease(
-				server.tickRateManager().isFrozen(), stop.externallyMutated)) {
-			setFrozenOwned(server, false);
+	private static void releaseCurrent(MinecraftServer server, UUID owner,
+			TimeStopLeaseSource source, boolean announce) {
+		TimeStopLease lease = active(server);
+		if (lease != null && lease.owner().equals(owner) && lease.source() == source) {
+			releaseExact(server, lease, announce);
 		}
+	}
+
+	private static void releaseExact(MinecraftServer server, TimeStopLease lease, boolean announce) {
+		TimeStopLeaseBook.ReleaseDecision decision = book(server).release(lease.token(),
+				lease.owner(), lease.source(), server.tickRateManager().isFrozen());
+		if (!decision.matched()) return;
+		if (decision.unfreeze()) setFrozenOwned(server, false, lease.token());
 		clearPersisted(server);
-		ServerPlayer owner = server.getPlayerList().getPlayer(expectedOwner);
-		if (owner != null && stop.source == Source.INNATE) {
+		ServerPlayer owner = server.getPlayerList().getPlayer(lease.owner());
+		if (owner != null && lease.source() == TimeStopLeaseSource.INNATE) {
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(owner);
 			for (String toggleKey : java.util.List.copyOf(data.getActiveToggles())) {
 				if (ToggleKeyRules.ownsAbility(toggleKey, POWER_ID)) {
@@ -250,12 +250,12 @@ public final class GlobalTimeStopManager {
 			PowerMessages.overlay(observer, Component.translatable(
 					"ability.powers.time_freeze.global_release"));
 			TimeStopFx.globalRelease((ServerLevel) observer.level(), observer.position(),
-					stop.source == Source.CRYSTAL);
+					lease.source() == TimeStopLeaseSource.CRYSTAL);
 		}
 	}
 
-	private static void setFrozenOwned(MinecraftServer server, boolean frozen) {
-		INTERNAL_CLOCK_WRITES.add(server);
+	private static void setFrozenOwned(MinecraftServer server, boolean frozen, long leaseToken) {
+		INTERNAL_CLOCK_WRITES.put(server, leaseToken);
 		try {
 			server.tickRateManager().setFrozen(frozen);
 		} finally {
@@ -263,11 +263,10 @@ public final class GlobalTimeStopManager {
 		}
 	}
 
-	private static boolean persist(MinecraftServer server, Stop stop) {
+	private static boolean persist(MinecraftServer server, TimeStopLease lease) {
 		try {
 			TimeStopSavedData data = savedData(server);
-			data.activate(stop.owner().toString(), stop.source.name(), stop.deadline,
-					stop.shadowBody == null ? "" : stop.shadowBody.toString());
+			data.activate(lease);
 			server.overworld().getDataStorage().saveAndJoin();
 			return true;
 		} catch (RuntimeException failure) {
@@ -290,22 +289,12 @@ public final class GlobalTimeStopManager {
 		return server.overworld().getDataStorage().computeIfAbsent(TimeStopSavedData.TYPE);
 	}
 
-	private static final class Stop {
-		private final UUID owner;
-		private final Source source;
-		private final long deadline;
-		private final UUID shadowBody;
-		private boolean externallyMutated;
+	private static TimeStopLeaseBook book(MinecraftServer server) {
+		return BOOKS.computeIfAbsent(server, ignored -> new TimeStopLeaseBook());
+	}
 
-		private Stop(UUID owner, Source source, long deadline, UUID shadowBody) {
-			this.owner = owner;
-			this.source = source;
-			this.deadline = deadline;
-			this.shadowBody = shadowBody;
-		}
-
-		private UUID owner() {
-			return owner;
-		}
+	private static TimeStopLease active(MinecraftServer server) {
+		TimeStopLeaseBook book = BOOKS.get(server);
+		return book == null ? null : book.active().orElse(null);
 	}
 }

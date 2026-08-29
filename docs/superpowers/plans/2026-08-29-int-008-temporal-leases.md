@@ -76,12 +76,12 @@
 - Consumes: Task 2 lease decisions.
 - Produces: token-bound internal writes, source-aware stop paths, control-clock expiry/drain/snapshot, and transactional persistence.
 
-- [ ] Write RED boundary tests proving mismatched stops and external writes cannot unfreeze or retain authority.
-- [ ] Run focused tests and observe RED.
-- [ ] Replace manager-owned mutable `Stop` with leases; bind mixin writes to the active token.
-- [ ] Migrate innate/crystal/Shadow entry points without changing their public contracts.
-- [ ] Rerun focused power/state/companion tests and source audit; expect green.
-- [ ] Commit and push Task 3.
+- [x] Write RED boundary tests proving mismatched stops and external writes cannot unfreeze or retain authority.
+- [x] Run focused tests and observe RED.
+- [x] Replace manager-owned mutable `Stop` with leases; bind mixin writes to the active token.
+- [x] Migrate innate/crystal/Shadow entry points without changing their public contracts.
+- [x] Rerun focused power/state/companion tests and source audit; expect green.
+- [x] Commit and push Task 3.
 
 ### Task 4: Frozen/world-clock subsystem migration
 
