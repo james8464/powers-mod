@@ -23,6 +23,19 @@ class TemporalSourceBoundaryTest {
 		assertTrue(tests.contains("SpellCastingManager"));
 		assertTrue(tests.contains("CelestialRuinManager"));
 		assertTrue(tests.contains("RealmEventManager"));
+		assertTrue(tests.contains("INT008_TEMPORAL"),
+				"INT-008 live acceptance does not emit extractable runtime evidence");
+		assertTrue(tests.contains("powers.int008.implementationSha"),
+				"INT-008 runtime evidence is not bound to the exact implementation SHA");
+		for (String caseId : new String[] {
+				"admin-preservation", "external-supersession", "crystal-control-deadline",
+				"world-managers-paused", "projectile-pause-resume", "lifecycle-cleanup"
+		}) {
+			assertTrue(tests.contains(caseId), "Missing INT-008 evidence case: " + caseId);
+		}
+		String build = Files.readString(ROOT.resolve("build.gradle"));
+		assertTrue(build.contains("int008ImplementationSha"),
+				"runGameTest does not forward the exact INT-008 implementation SHA");
 
 		String metadata = Files.readString(ROOT.resolve("src/gametest/resources/fabric.mod.json"));
 		assertTrue(metadata.contains("com.powers.gametest.TemporalOwnershipGameTests"));

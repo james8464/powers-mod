@@ -24,6 +24,8 @@ import java.util.Map;
 /** Live dedicated-server acceptance for INT-008 temporal ownership boundaries. */
 @SuppressWarnings("removal")
 public final class TemporalOwnershipGameTests {
+	private static final String IMPLEMENTATION_SHA_PROPERTY = "powers.int008.implementationSha";
+	private static final String DIAGNOSTIC_SHA = "0".repeat(40);
 	private static final Map<MinecraftServer, FreezeProbe> FREEZE_PROBES = new IdentityHashMap<>();
 	private static boolean tickHookRegistered;
 
@@ -33,7 +35,8 @@ public final class TemporalOwnershipGameTests {
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			FreezeProbe probe = FREEZE_PROBES.get(server);
 			if (probe == null || server.getTickCount() < probe.thawAtControlTick) return;
-			probe.stationary = probe.projectile.position().distanceToSqr(probe.frozenAt) < 1.0E-8;
+			probe.frozenDistanceSquared = probe.projectile.position().distanceToSqr(probe.frozenAt);
+			probe.stationary = probe.frozenDistanceSquared < 1.0E-8;
 			probe.checked = true;
 			server.tickRateManager().setFrozen(false);
 			GlobalTimeStopManager.clearAll(server);
@@ -53,6 +56,8 @@ public final class TemporalOwnershipGameTests {
 					"Rejected acquisition thawed the administrator clock");
 			helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty(),
 					"Rejected acquisition created a lease journal");
+			emit("admin-preservation", 0, 0,
+					"{\"acquired\":false,\"leaseActive\":false,\"vanillaFrozen\":true}");
 		} finally {
 			server.tickRateManager().setFrozen(false);
 			GlobalTimeStopManager.clearAll(server);
@@ -74,6 +79,8 @@ public final class TemporalOwnershipGameTests {
 					"POWERS undid an external same-value clock write");
 			helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty(),
 					"Superseded lease authority remained active");
+			emit("external-supersession", 0, 0,
+					"{\"leaseActive\":false,\"superseded\":true,\"vanillaFrozen\":true}");
 		} finally {
 			server.tickRateManager().setFrozen(false);
 			GlobalTimeStopManager.clearAll(server);
@@ -97,6 +104,8 @@ public final class TemporalOwnershipGameTests {
 					"Fresh crystal lease did not expose the full control duration");
 			helper.assertTrue(snapshot.clock().equals("CONTROL"),
 					"Lease diagnostics mislabeled the authoritative clock");
+			emit("crystal-control-deadline", 1_200, 0,
+					"{\"clock\":\"CONTROL\",\"duration\":1200}");
 		} finally {
 			GlobalTimeStopManager.stopCrystal(owner);
 			reset(server);
@@ -123,6 +132,9 @@ public final class TemporalOwnershipGameTests {
 					"World time changed inside a synchronous frozen boundary");
 			helper.assertTrue(PlayerPowers.get(player).energy() == energy,
 					"A frozen world-owned manager mutated player energy");
+			emit("world-managers-paused", 0, 0,
+					"{\"celestialPaused\":true,\"channelsPaused\":true,\"energyMutated\":false,"
+							+ "\"realmPaused\":true,\"worldAdvanced\":false}");
 		} finally {
 			server.tickRateManager().setFrozen(false);
 			GlobalTimeStopManager.clearAll(server);
@@ -140,19 +152,28 @@ public final class TemporalOwnershipGameTests {
 		projectile.setPos(helper.absoluteVec(new Vec3(2.5, 3.0, 2.5)));
 		helper.getLevel().addFreshEntity(projectile);
 		Vec3 frozenAt = projectile.position();
+		long startedAtControlTick = server.getTickCount();
+		long startedAtWorldTick = helper.getLevel().getGameTime();
 		helper.assertTrue(GlobalTimeStopManager.startCrystal(owner, 20),
 				"Projectile fixture could not acquire the clock");
 		// The same-value external write keeps the global freeze authoritative even
 		// after the mock owner is intentionally absent from the real PlayerList.
 		server.tickRateManager().setFrozen(true);
-		FreezeProbe probe = new FreezeProbe(projectile, frozenAt, server.getTickCount() + 4L);
+		FreezeProbe probe = new FreezeProbe(projectile, frozenAt, startedAtControlTick,
+				startedAtWorldTick, startedAtControlTick + 4L);
 		FREEZE_PROBES.put(server, probe);
 		helper.runAfterDelay(4, () -> {
 			try {
 				helper.assertTrue(probe.checked && probe.stationary,
 						"Projectile moved while vanilla simulation was frozen");
-				helper.assertTrue(projectile.position().distanceToSqr(frozenAt) > 0.01,
+				double resumedDistanceSquared = projectile.position().distanceToSqr(frozenAt);
+				helper.assertTrue(resumedDistanceSquared > 0.01,
 						"Projectile did not resume after vanilla thawed");
+				emit("projectile-pause-resume",
+						Math.max(0L, server.getTickCount() - probe.startedAtControlTick),
+						Math.max(0L, helper.getLevel().getGameTime() - probe.startedAtWorldTick),
+						"{\"frozenDistanceSquared\":" + probe.frozenDistanceSquared
+								+ ",\"resumedDistanceSquared\":" + resumedDistanceSquared + "}");
 			} finally {
 				projectile.discard();
 				reset(server);
@@ -173,7 +194,20 @@ public final class TemporalOwnershipGameTests {
 				"Owner lifecycle cleanup left its clock frozen");
 		helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty(),
 				"Owner lifecycle cleanup retained lease authority");
+		emit("lifecycle-cleanup", 0, 0,
+				"{\"leaseActive\":false,\"matchingOwner\":true,\"vanillaFrozen\":false}");
 		helper.succeed();
+	}
+
+	private static void emit(String caseId, long controlTicks, long worldTicks, String facts) {
+		String implementationSha = System.getProperty(IMPLEMENTATION_SHA_PROPERTY, DIAGNOSTIC_SHA);
+		if (!implementationSha.matches("[0-9a-f]{40}")) {
+			throw new IllegalStateException("Invalid INT-008 implementation SHA");
+		}
+		System.out.println("INT008_TEMPORAL {\"schemaVersion\":2,\"implementationSha\":\""
+				+ implementationSha + "\",\"case\":\"" + caseId + "\",\"result\":\"PASS\","
+				+ "\"controlTicks\":" + controlTicks + ",\"worldTicks\":" + worldTicks
+				+ ",\"facts\":" + facts + "}");
 	}
 
 	private static void reset(MinecraftServer server) {
@@ -185,13 +219,19 @@ public final class TemporalOwnershipGameTests {
 	private static final class FreezeProbe {
 		private final Projectile projectile;
 		private final Vec3 frozenAt;
+		private final long startedAtControlTick;
+		private final long startedAtWorldTick;
 		private final long thawAtControlTick;
 		private boolean checked;
 		private boolean stationary;
+		private double frozenDistanceSquared;
 
-		private FreezeProbe(Projectile projectile, Vec3 frozenAt, long thawAtControlTick) {
+		private FreezeProbe(Projectile projectile, Vec3 frozenAt, long startedAtControlTick,
+				long startedAtWorldTick, long thawAtControlTick) {
 			this.projectile = projectile;
 			this.frozenAt = frozenAt;
+			this.startedAtControlTick = startedAtControlTick;
+			this.startedAtWorldTick = startedAtWorldTick;
 			this.thawAtControlTick = thawAtControlTick;
 		}
 	}

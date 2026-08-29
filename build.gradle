@@ -352,6 +352,8 @@ tasks.named("runClientGameTest") {
 }
 
 tasks.named("runGameTest") {
+	systemProperty "powers.int008.implementationSha",
+			providers.gradleProperty("int008ImplementationSha").getOrElse("0" * 40)
 	if (providers.gradleProperty("gameTestFilter").isPresent()) {
 		systemProperty "fabric-api.gametest.filter", providers.gradleProperty("gameTestFilter").get()
 	} else if (perf016BenchmarkEnabled) {
