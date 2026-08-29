@@ -47,7 +47,7 @@ public final class ApiCompatibilityGameTests {
 		actor.snapTo(13.5, 64, 0.5);
 		helper.assertTrue(rejected(() -> PowersApiRuntime.global().api().registerPresence(initialContext,
 				new PhysicalPresence(helper.getLevel(), 13.5, 64.5, 0.5, 1.0,
-						helper.getLevel().getServer().getTickCount() + 5, PresenceKind.FIELD))),
+						helper.getLevel().getGameTime() + 5, PresenceKind.FIELD))),
 				"Protected location entered the physical collision runtime");
 		actor.snapTo(originalPosition.x, originalPosition.y, originalPosition.z);
 		CastContext forged = new CastContext() {

@@ -130,7 +130,7 @@ public final class HostileEnvironmentGameTests {
 			try {
 				PowersApiRuntime.global().api().registerPresence(context, new PhysicalPresence(
 						helper.getLevel(), player.getX(), player.getY() + 1.0, player.getZ(), 1.0,
-						helper.getLevel().getServer().getTickCount() + 5, PresenceKind.FIELD));
+						helper.getLevel().getGameTime() + 5, PresenceKind.FIELD));
 			} catch (IllegalStateException expected) {
 				apiDenied = true;
 			}
