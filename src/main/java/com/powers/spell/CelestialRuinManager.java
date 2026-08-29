@@ -9,7 +9,8 @@ import com.powers.fx.CelestialRuinFx;
 import com.powers.mind.PersistentDimensionDiagnostics;
 import com.powers.protection.PowerProtection;
 import com.powers.power.PowerDamage;
-import com.powers.power.state.GlobalTimeStopManager;
+import com.powers.time.TemporalClocks;
+import com.powers.time.TemporalSubsystem;
 import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.BoundedSphereCursor;
 import com.powers.util.PowerMessages;
@@ -120,7 +121,7 @@ public final class CelestialRuinManager {
 
 	/** Advances countdowns independently of players and persists every state transition. */
 	public static void tick(MinecraftServer server) {
-		if (!CelestialRuinRules.mayAdvance(GlobalTimeStopManager.isStopped(server))) return;
+		if (!TemporalClocks.worldAdvances(server, TemporalSubsystem.CELESTIAL_RUIN)) return;
 		loadPersisted(server);
 		List<Ritual> rituals = ACTIVE.get(server);
 		if (rituals == null) return;
@@ -133,7 +134,10 @@ public final class CelestialRuinManager {
 			}
 		}
 		if (rituals.isEmpty()) ACTIVE.remove(server);
-		if (completed || server.getTickCount() % 20 == 0) persist(server);
+		if (completed || TemporalClocks.worldPulse(server, server.overworld(), JOURNAL_WINDOW_TICKS,
+				TemporalSubsystem.CELESTIAL_RUIN)) {
+			persist(server);
+		}
 	}
 
 	/** Clears only process-local references; SavedData remains authoritative across restarts. */

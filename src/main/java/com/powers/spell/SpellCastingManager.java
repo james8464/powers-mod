@@ -178,6 +178,8 @@ public final class SpellCastingManager {
 	}
 
 	public static void tick(MinecraftServer server) {
+		if (!com.powers.time.TemporalClocks.worldAdvances(server,
+				com.powers.time.TemporalSubsystem.CHANNELS)) return;
 		Iterator<Map.Entry<UUID, Session>> iterator = CHANNELS.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Map.Entry<UUID, Session> entry = iterator.next();
@@ -194,7 +196,7 @@ public final class SpellCastingManager {
 					player.getX(), player.getY(), player.getZ(), holding(player, session.grimoireKey()),
 					AmethystDampening.isDampened(player)) : ChannelStatus.INTERRUPTED;
 			if (status == ChannelStatus.CHANNELING) {
-				if (server.getTickCount() % 5 == 0) channelFx(player, session);
+				if (player.level().getGameTime() % 5L == 0L) channelFx(player, session);
 				continue;
 			}
 			iterator.remove();

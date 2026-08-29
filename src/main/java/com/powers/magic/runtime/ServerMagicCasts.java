@@ -17,6 +17,7 @@ import com.powers.network.MagicFxPackets;
 import com.powers.player.SkillSystem;
 import com.powers.progression.PowerScalingService;
 import com.powers.util.PowerMessages;
+import com.powers.time.TemporalClocks;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -51,7 +52,8 @@ public final class ServerMagicCasts {
 		MagicCastContext context = new MagicCastContext(definition, player.getUUID(),
 				player.level().dimension().identifier().toString(),
 				PresenceAnchor.fixed(player.getX(), player.getY() + 1.0, player.getZ()),
-				Math.max(4.0, definition.baseRange()), player.level().getServer().getTickCount(),
+				Math.max(4.0, definition.baseRange()),
+				TemporalClocks.world((ServerLevel) player.level()).value(),
 				InteractionContext.DEFAULT);
 		MagicRuntime runtime = MagicRuntime.global();
 		MagicCastPreview preview = runtime.previewCast(context);
@@ -75,7 +77,7 @@ public final class ServerMagicCasts {
 		MagicCastContext completed = prepared.context().rebased(
 				player.level().dimension().identifier().toString(),
 				PresenceAnchor.fixed(player.getX(), player.getY() + 1.0, player.getZ()),
-				player.level().getServer().getTickCount());
+				TemporalClocks.world((ServerLevel) player.level()).value());
 		MagicPresenceId presenceId = runtime.commitCast(completed, prepared.adjustment());
 		try {
 			emitCast((ServerLevel) player.level(), completed, presenceId, player, prepared.source());

@@ -214,8 +214,12 @@ final class PowersServerLifecycle {
 		int tick = server.getTickCount();
 		com.powers.testing.network.PacketFaultController.tick(server);
 		com.powers.testing.QuestTelemetryCampaignScenario.tick(server);
-		MagicRuntime.global().tick(tick);
-		PhysicalMagicPresences.tick(tick);
+		if (com.powers.time.TemporalClocks.worldAdvances(server,
+				com.powers.time.TemporalSubsystem.MAGIC_PRESENCES)) {
+			long worldTick = com.powers.time.TemporalClocks.world(server.overworld()).value();
+			MagicRuntime.global().tick(worldTick);
+			PhysicalMagicPresences.tick(worldTick);
+		}
 		PlayerTickCoordinator.tick(server, tick);
 		ArtifactInventoryRuntime.tickServer(server);
 		PowerAbilityRuntime.tick(server);

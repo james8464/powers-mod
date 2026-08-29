@@ -16,12 +16,6 @@ class CelestialRuinRulesTest {
 	}
 
 	@Test
-	void globalTimeStopPausesCountdownAndDetonationWork() {
-		assertFalse(CelestialRuinRules.mayAdvance(true));
-		assertTrue(CelestialRuinRules.mayAdvance(false));
-	}
-
-	@Test
 	void chunkTicketsAreDeferredAndGrowOnlyDuringTheFinalFiveSeconds() {
 		assertEquals(-1, CelestialRuinTicketRules.radiusForCountdown(1_200, false, 9));
 		assertEquals(-1, CelestialRuinTicketRules.radiusForCountdown(101, false, 9));

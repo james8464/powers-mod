@@ -22,11 +22,6 @@ public final class CelestialRuinRules {
 	private CelestialRuinRules() {
 	}
 
-	/** A server-wide Time Stop pauses both warning and destruction work. */
-	public static boolean mayAdvance(boolean globallyStopped) {
-		return !globallyStopped;
-	}
-
 	/** Exact integer-sphere boundary used by tests and the destructive cursor. */
 	public static boolean insideBlast(int x, int y, int z) {
 		return (long) x * x + (long) y * y + (long) z * z

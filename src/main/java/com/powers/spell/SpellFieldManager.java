@@ -4,10 +4,12 @@ import com.powers.PowerStatusEffects;
 import com.powers.fx.PowerFx;
 import com.powers.power.abilities.VoidBeamRules;
 import com.powers.power.state.PowerEntityState;
-import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.magic.MagicActionId;
 import com.powers.magic.runtime.MagicPresenceHandle;
 import com.powers.magic.runtime.PhysicalMagicPresences;
+import com.powers.time.TemporalClocks;
+import com.powers.time.TemporalSubsystem;
+import com.powers.time.WorldTick;
 import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.BoundedRoundRobinQueue;
 import com.powers.util.ChunkSpatialIndex;
@@ -73,10 +75,10 @@ public final class SpellFieldManager {
 		private final double radius;
 		private final int potencyTier;
 		private final MagicPresenceHandle presence;
-		private long nextPulseAt;
+		private WorldTick nextPulseAt;
 
 		private Field(SpellFieldKind kind, ResourceKey<Level> dimension, Vec3 center,
-				UUID owner, long expiresAt, double radius, int potencyTier, long nextPulseAt,
+				UUID owner, long expiresAt, double radius, int potencyTier, WorldTick nextPulseAt,
 				MagicPresenceHandle presence) {
 			if (!Double.isFinite(radius) || radius <= 0.0 || radius > MAX_FIELD_RADIUS || potencyTier < 0) {
 				throw new IllegalArgumentException("Field values must be finite and positive");
@@ -112,15 +114,13 @@ public final class SpellFieldManager {
 		remove(key);
 		if (FIELDS.size() >= MAX_FIELDS) remove(FIELDS.keySet().iterator().next());
 		double boundedRadius = Math.clamp(radius, 0.25, MAX_FIELD_RADIUS);
-		long gameTime = owner.level().getGameTime();
-		long serverTick = owner.level().getServer().getTickCount();
-		long expiresAt = gameTime + Math.max(1, durationTicks);
-		long presenceExpiresAt = serverTick + Math.max(1, durationTicks);
+		WorldTick worldTick = TemporalClocks.world((ServerLevel) owner.level());
+		long expiresAt = worldTick.plus(Math.max(1, durationTicks)).value();
 		MagicPresenceHandle presence = PhysicalMagicPresences.registerFixed(
 				new MagicActionId(actionId(kind)), owner.getUUID(), (ServerLevel) owner.level(),
-				owner.position(), boundedRadius, presenceExpiresAt, MagicPresenceHandle.Kind.FIELD);
+				owner.position(), boundedRadius, expiresAt, MagicPresenceHandle.Kind.FIELD);
 		Field field = new Field(kind, owner.level().dimension(), owner.position(), owner.getUUID(),
-				expiresAt, boundedRadius, Math.max(0, potencyTier), serverTick, presence);
+				expiresAt, boundedRadius, Math.max(0, potencyTier), worldTick, presence);
 		FIELDS.put(key, field);
 		INDEX.put(key, dimensionId(field.dimension()), field.center().x, field.center().z,
 				field.radius(), field);
@@ -218,7 +218,7 @@ public final class SpellFieldManager {
 	}
 
 	public static void tick(MinecraftServer server) {
-		if (!SpellFieldTiming.mayAdvance(GlobalTimeStopManager.isStopped(server))) return;
+		if (!TemporalClocks.worldAdvances(server, TemporalSubsystem.SPELL_FIELDS)) return;
 		for (FieldKey key : WORK.pollBatch(MAX_FIELD_WORK_PER_TICK)) {
 			Field field = FIELDS.get(key);
 			if (field == null) continue;
@@ -228,8 +228,9 @@ public final class SpellFieldManager {
 				continue;
 			}
 			WORK.offer(key);
-			if (!SpellFieldTiming.ready(server.getTickCount(), field.nextPulseAt)) continue;
-			field.nextPulseAt = SpellFieldTiming.nextPulseAt(server.getTickCount());
+			WorldTick worldTick = TemporalClocks.world(level);
+			if (!SpellFieldTiming.ready(worldTick, field.nextPulseAt)) continue;
+			field.nextPulseAt = SpellFieldTiming.nextPulseAt(worldTick);
 			int color = switch (field.kind()) {
 				case ANTI_PORTAL -> 0x3D2B73;
 				case KINETIC_WARD -> 0x70D6FF;
@@ -237,10 +238,10 @@ public final class SpellFieldManager {
 				case INFERNAL_SEAL -> 0xC62828;
 			};
 			PowerFx.ring(level, field.center().add(0, 0.08, 0), field.radius(), color, 18,
-					server.getTickCount() * 0.035);
+					worldTick.value() * 0.035);
 			PowerFx.rune(level, field.center().add(0, 0.1, 0), field.radius() * 0.55,
-					color, 12, -server.getTickCount() * 0.025);
-			if (server.getTickCount() % 40 == 0) {
+					color, 12, -worldTick.value() * 0.025);
+			if (worldTick.value() % 40L == 0L) {
 				PowerFx.sound(level, field.center(), SoundEvents.ENCHANTMENT_TABLE_USE, 0.35f,
 						0.75f + field.potencyTier() * 0.08f);
 			}

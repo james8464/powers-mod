@@ -102,11 +102,11 @@
 - Consumes: `TemporalClocks.world` and `worldAdvances`.
 - Produces: no world-owned mutation during any vanilla freeze; unchanged behavior when advancing.
 
-- [ ] Add RED tests that classify each selected subsystem's clock and prevent repeated modulo side effects at parked world time.
-- [ ] Observe focused failures before production edits.
-- [ ] Route all selected managers through the explicit clock adapter and delete ownership-only freeze predicates.
-- [ ] Rerun spell/realm/time tests and source audit; expect green.
-- [ ] Commit and push Task 4.
+- [x] Add RED tests that classify each selected subsystem's clock and prevent repeated modulo side effects at parked world time.
+- [x] Observe focused failures before production edits.
+- [x] Route all selected managers through the explicit clock adapter and delete ownership-only freeze predicates.
+- [x] Rerun spell/realm/time tests and source audit; expect green.
+- [x] Commit and push Task 4.
 
 ### Task 5: Live temporal GameTests
 

@@ -39,4 +39,14 @@ class TemporalClocksTest {
 		assertTrue(TemporalClocks.worldAdvances(false));
 		assertFalse(TemporalClocks.worldAdvances(true));
 	}
+
+	@Test
+	void parkedWorldTickNeverRepeatsCadenceWork() {
+		WorldTick parked = WorldTick.at(120L);
+		assertTrue(TemporalClocks.worldPulse(false, parked, 20L));
+		assertFalse(TemporalClocks.worldPulse(true, parked, 20L));
+		assertFalse(TemporalClocks.worldPulse(false, WorldTick.at(121L), 20L));
+		assertThrows(IllegalArgumentException.class,
+				() -> TemporalClocks.worldPulse(false, parked, 0L));
+	}
 }

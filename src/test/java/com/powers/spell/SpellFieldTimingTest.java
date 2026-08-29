@@ -1,5 +1,6 @@
 package com.powers.spell;
 
+import com.powers.time.WorldTick;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -8,14 +9,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SpellFieldTimingTest {
 	@Test
-	void pulsesUseOneMonotonicServerTickClock() {
-		assertEquals(125L, SpellFieldTiming.nextPulseAt(120L));
-		assertFalse(SpellFieldTiming.ready(124L, 125L));
-		assertTrue(SpellFieldTiming.ready(125L, 125L));
+	void pulsesUseTheWorldClockOnly() {
+		WorldTick next = SpellFieldTiming.nextPulseAt(WorldTick.at(120L));
+		assertEquals(WorldTick.at(125L), next);
+		assertFalse(SpellFieldTiming.ready(WorldTick.at(124L), next));
+		assertTrue(SpellFieldTiming.ready(WorldTick.at(125L), next));
 	}
 
 	@Test
-	void globalTimeStopPausesWorldOwnedFields() {
+	void allVanillaFreezesPauseWorldOwnedFields() {
 		assertFalse(SpellFieldTiming.mayAdvance(true));
 		assertTrue(SpellFieldTiming.mayAdvance(false));
 	}

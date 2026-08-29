@@ -6,6 +6,8 @@ import com.powers.entity.RealmHerald;
 import com.powers.fx.PowerFx;
 import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.LoadedChunks;
+import com.powers.time.TemporalClocks;
+import com.powers.time.TemporalSubsystem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -17,7 +19,8 @@ public final class RealmHeraldManager {
 	}
 
 	public static void tick(ServerLevel level, RealmKind kind) {
-		if (level.getGameTime() % 20 != 0) return;
+		if (!TemporalClocks.worldPulse(level.getServer(), level, 20L,
+				TemporalSubsystem.REALM_CYCLES)) return;
 		MemorySite court = RealmLayout.sites(kind).stream()
 				.filter(site -> site.landmarkType() == RealmLandmarkType.HERALD_COURT)
 				.findFirst().orElseThrow();

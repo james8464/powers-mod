@@ -2,6 +2,7 @@ package com.powers.magic.runtime;
 
 import com.powers.magic.MagicActionId;
 import com.powers.magic.InteractionContext;
+import com.powers.time.TemporalClocks;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -55,7 +56,7 @@ public final class PhysicalMagicPresences {
 		if (!MagicRuntime.global().rebindPresence(presenceId, dimension(level),
 				anchor(kind, entity), expiresAt)) return null;
 		put(handle, expiresAt);
-		collideNearby(handle, level, entity.position(), level.getServer().getTickCount());
+		collideNearby(handle, level, entity.position(), TemporalClocks.world(level).value());
 		return handle;
 	}
 
@@ -66,7 +67,7 @@ public final class PhysicalMagicPresences {
 		if (!MagicRuntime.global().rebindPresence(presenceId, dimension(level),
 				PresenceAnchor.fixed(point.x, point.y, point.z), expiresAt)) return null;
 		put(handle, expiresAt);
-		collideNearby(handle, level, point, level.getServer().getTickCount());
+		collideNearby(handle, level, point, TemporalClocks.world(level).value());
 		return handle;
 	}
 
@@ -79,7 +80,7 @@ public final class PhysicalMagicPresences {
 				PresenceAnchor.fixed(point.x, point.y, point.z), radius, expiresAt));
 		MagicPresenceHandle handle = MagicPresenceHandle.fixed(id, kind);
 		put(handle, expiresAt);
-		collideNearby(handle, level, point, level.getServer().getTickCount());
+		collideNearby(handle, level, point, TemporalClocks.world(level).value());
 		return handle;
 	}
 
@@ -93,7 +94,7 @@ public final class PhysicalMagicPresences {
 		MagicPresenceHandle handle = MagicPresenceHandle.entity(id,
 				MagicPresenceHandle.Kind.ENTITY, entity.getUUID());
 		put(handle, expiresAt);
-		collideNearby(handle, level, entity.position(), level.getServer().getTickCount());
+		collideNearby(handle, level, entity.position(), TemporalClocks.world(level).value());
 		return handle;
 	}
 
@@ -107,7 +108,7 @@ public final class PhysicalMagicPresences {
 			return;
 		}
 		MagicRuntime.global().movePresence(id, dimension(level), anchor(bound.handle().kind(), entity));
-		collideNearby(bound.handle(), level, entity.position(), level.getServer().getTickCount());
+		collideNearby(bound.handle(), level, entity.position(), TemporalClocks.world(level).value());
 	}
 
 	/** Converts a projectile presence into a short fixed impact without token duplication. */

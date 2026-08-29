@@ -8,6 +8,8 @@ import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.util.PowerMessages;
+import com.powers.time.TemporalClocks;
+import com.powers.time.TemporalSubsystem;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -28,9 +30,11 @@ public final class RealmEventManager {
 	}
 
 	public static void tickPlayer(ServerPlayer player, ServerLevel level, RealmKind kind) {
+		if (!TemporalClocks.worldAdvances(level.getServer(), TemporalSubsystem.REALM_CYCLES)) return;
 		RealmEventType event = RealmEventRules.eventAt(kind, level.getGameTime());
 		announceTransition(player, event);
-		if (level.getGameTime() % 20L != 0L) return;
+		if (!TemporalClocks.worldPulse(level.getServer(), level, 20L,
+				TemporalSubsystem.REALM_CYCLES)) return;
 		double dx = player.getX() - RealmLayout.ENTRY_X;
 		double dz = player.getZ() - RealmLayout.ENTRY_Z;
 		int tier = RealmEventRules.pressureTier(Math.sqrt(dx * dx + dz * dz),
