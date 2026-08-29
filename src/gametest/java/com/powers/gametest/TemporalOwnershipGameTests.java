@@ -1,24 +1,34 @@
 package com.powers.gametest;
 
+import com.powers.ImportedPackItems;
 import com.powers.entity.DarknessFireballProjectile;
+import com.powers.network.PacketRateLimiter;
 import com.powers.player.PlayerPowers;
 import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.realm.RealmEventManager;
 import com.powers.realm.RealmKind;
 import com.powers.spell.CelestialRuinManager;
+import com.powers.spell.CelestialRuinSavedData;
 import com.powers.spell.SpellCastingManager;
+import com.powers.spell.SpellFieldKind;
 import com.powers.spell.SpellFieldManager;
 import com.powers.time.TemporalClocks;
 import com.powers.time.TemporalSubsystem;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
 /** Live dedicated-server acceptance for INT-008 temporal ownership boundaries. */
@@ -27,12 +37,15 @@ public final class TemporalOwnershipGameTests {
 	private static final String IMPLEMENTATION_SHA_PROPERTY = "powers.int008.implementationSha";
 	private static final String DIAGNOSTIC_SHA = "0".repeat(40);
 	private static final Map<MinecraftServer, FreezeProbe> FREEZE_PROBES = new IdentityHashMap<>();
+	private static final Map<MinecraftServer, DeadlineProbe> DEADLINE_PROBES = new IdentityHashMap<>();
 	private static boolean tickHookRegistered;
 
 	public TemporalOwnershipGameTests() {
 		if (tickHookRegistered) return;
 		tickHookRegistered = true;
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
+			DeadlineProbe deadline = DEADLINE_PROBES.get(server);
+			if (deadline != null) deadline.tick(server);
 			FreezeProbe probe = FREEZE_PROBES.get(server);
 			if (probe == null || server.getTickCount() < probe.thawAtControlTick) return;
 			probe.frozenDistanceSquared = probe.projectile.position().distanceToSqr(probe.frozenAt);
@@ -88,56 +101,52 @@ public final class TemporalOwnershipGameTests {
 		helper.succeed();
 	}
 
-	@GameTest(environment = "powers:temporal_ownership_isolated", maxTicks = 20)
+	@GameTest(environment = "powers:temporal_ownership_isolated", maxTicks = 1_230)
 	public void crystalDeadlineUsesExactlyTwelveHundredControlTicks(GameTestHelper helper) {
 		MinecraftServer server = helper.getLevel().getServer();
 		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
 		reset(server);
 		long acquired = server.getTickCount();
-		try {
-			helper.assertTrue(GlobalTimeStopManager.startCrystal(owner, 1_200),
-					"Crystal lease could not acquire a free clock");
-			var snapshot = GlobalTimeStopManager.snapshot(server).orElseThrow();
-			helper.assertTrue(snapshot.deadline() - acquired == 1_200L,
-					"Crystal deadline drifted from the control clock: " + snapshot);
-			helper.assertTrue(snapshot.remainingTicks() == 1_200L,
-					"Fresh crystal lease did not expose the full control duration");
-			helper.assertTrue(snapshot.clock().equals("CONTROL"),
-					"Lease diagnostics mislabeled the authoritative clock");
-			emit("crystal-control-deadline", 1_200, 0,
-					"{\"clock\":\"CONTROL\",\"duration\":1200}");
-		} finally {
-			GlobalTimeStopManager.stopCrystal(owner);
-			reset(server);
-		}
-		helper.succeed();
+		long worldTick = helper.getLevel().getGameTime();
+		helper.assertTrue(GlobalTimeStopManager.startCrystal(owner, 1_200),
+				"Crystal lease could not acquire a free clock");
+		var snapshot = GlobalTimeStopManager.snapshot(server).orElseThrow();
+		helper.assertTrue(snapshot.deadline() - acquired == 1_200L,
+				"Crystal deadline drifted from the control clock: " + snapshot);
+		helper.assertTrue(snapshot.remainingTicks() == 1_200L,
+				"Fresh crystal lease did not expose the full control duration");
+		helper.assertTrue(snapshot.clock().equals("CONTROL"),
+				"Lease diagnostics mislabeled the authoritative clock");
+		helper.assertTrue(server.getPlayerList().getPlayer(owner.getUUID()) == owner,
+				"Deadline fixture is not present through the real online-player boundary");
+		DEADLINE_PROBES.put(server, new DeadlineProbe(helper, owner, acquired, worldTick));
 	}
 
 	@GameTest(environment = "powers:temporal_ownership_isolated", maxTicks = 20)
-	public void externalFreezeBlocksEverySelectedWorldManager(GameTestHelper helper) {
+	public void externalAndOwnedFreezeParkSeededWorldManagers(GameTestHelper helper) {
 		MinecraftServer server = helper.getLevel().getServer();
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		reset(server);
-		int energy = PlayerPowers.get(player).energy();
-		long worldTick = helper.getLevel().getGameTime();
+		long originalWorldTick = helper.getLevel().getGameTime();
 		try {
+			WorldFixture external = seedWorldFixture(helper, player);
 			server.tickRateManager().setFrozen(true);
-			helper.assertTrue(!TemporalClocks.worldAdvances(server,
-					TemporalSubsystem.CHANNELS), "External freeze still advanced the world clock");
-			SpellCastingManager.tick(server);
-			SpellFieldManager.tick(server);
-			CelestialRuinManager.tick(server);
-			RealmEventManager.tickPlayer(player, helper.getLevel(), RealmKind.LIGHT);
-			helper.assertTrue(helper.getLevel().getGameTime() == worldTick,
-					"World time changed inside a synchronous frozen boundary");
-			helper.assertTrue(PlayerPowers.get(player).energy() == energy,
-					"A frozen world-owned manager mutated player energy");
+			assertFixturePaused(helper, player, external, "external");
+			server.tickRateManager().setFrozen(false);
+			clearWorldFixture(server, player, external);
+
+			WorldFixture owned = seedWorldFixture(helper, player);
+			helper.assertTrue(GlobalTimeStopManager.startCrystal(player, 20),
+					"Owned-freeze fixture could not acquire the clock");
+			assertFixturePaused(helper, player, owned, "owned");
 			emit("world-managers-paused", 0, 0,
 					"{\"celestialPaused\":true,\"channelsPaused\":true,\"energyMutated\":false,"
+							+ "\"externalFreeze\":true,\"fieldsPaused\":true,\"ownedFreeze\":true,"
 							+ "\"realmPaused\":true,\"worldAdvanced\":false}");
 		} finally {
-			server.tickRateManager().setFrozen(false);
-			GlobalTimeStopManager.clearAll(server);
+			clearWorldFixture(server, player, null);
+			((ServerLevelData) helper.getLevel().getLevelData()).setGameTime(originalWorldTick);
+			reset(server);
 		}
 		helper.succeed();
 	}
@@ -189,14 +198,93 @@ public final class TemporalOwnershipGameTests {
 		reset(server);
 		helper.assertTrue(GlobalTimeStopManager.startCrystal(owner, 20),
 				"Lifecycle fixture could not acquire the clock");
-		GlobalTimeStopManager.clear(server, owner.getUUID());
+		GlobalTimeStopManager.stop(owner);
+		helper.assertTrue(server.tickRateManager().isFrozen()
+				&& GlobalTimeStopManager.snapshot(server).isPresent(),
+				"A mismatched innate release stole the crystal lease");
+		helper.assertTrue(owner.connection != null,
+				"Lifecycle fixture has no real server connection boundary");
+		ServerPlayConnectionEvents.DISCONNECT.invoker()
+				.onPlayDisconnect(owner.connection, server);
 		helper.assertTrue(!server.tickRateManager().isFrozen(),
-				"Owner lifecycle cleanup left its clock frozen");
+				"Disconnect lifecycle cleanup left its clock frozen");
 		helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty(),
-				"Owner lifecycle cleanup retained lease authority");
+				"Disconnect lifecycle cleanup retained lease authority");
 		emit("lifecycle-cleanup", 0, 0,
-				"{\"leaseActive\":false,\"matchingOwner\":true,\"vanillaFrozen\":false}");
+				"{\"disconnectReleased\":true,\"leaseActive\":false,"
+						+ "\"mismatchedSourcePreserved\":true,\"vanillaFrozen\":false}");
 		helper.succeed();
+	}
+
+	private static WorldFixture seedWorldFixture(GameTestHelper helper, ServerPlayer player) {
+		MinecraftServer server = helper.getLevel().getServer();
+		SpellCastingManager.clear(player);
+		SpellFieldManager.clearAll();
+		PacketRateLimiter.forgetPlayer(player.getUUID());
+		CelestialRuinSavedData data = server.overworld().getDataStorage()
+				.computeIfAbsent(CelestialRuinSavedData.TYPE);
+		data.replace(List.of());
+		CelestialRuinManager.clearAll();
+		PlayerPowers.PlayerPowersData powers = PlayerPowers.get(player);
+		powers.clearCooldown("spell:augury");
+		powers.forceRestoreEnergy();
+		player.setItemInHand(InteractionHand.MAIN_HAND,
+				ImportedPackItems.item("imported_book_grimoire_celestial").getDefaultInstance());
+		powers.setSelectedSpell("book_grimoire_celestial", 1);
+		SpellCastingManager.use(player, "book_grimoire_celestial");
+		helper.assertTrue(SpellCastingManager.isChanneling(player.getUUID()),
+				"Seeded Augury channel did not become active");
+		SpellFieldManager.add(SpellFieldKind.SANCTUARY, player, 1, 4.0, 1);
+		helper.assertTrue(SpellFieldManager.hasField(player.getUUID(), SpellFieldKind.SANCTUARY),
+				"Seeded spell field did not become active");
+		BlockPos focus = helper.absolutePos(new BlockPos(2, 2, 5));
+		helper.setBlock(new BlockPos(2, 2, 5), Blocks.STONE);
+		helper.assertTrue(CelestialRuinManager.begin(player, focus),
+				"Seeded Celestial Ruin did not become active");
+		long armedWorldTick = ((helper.getLevel().getGameTime() / 20L) + 2L) * 20L;
+		((ServerLevelData) helper.getLevel().getLevelData()).setGameTime(armedWorldTick);
+		powers.emptyEnergy();
+		return new WorldFixture(armedWorldTick, powers.energy(),
+				List.copyOf(data.snapshots()), focus);
+	}
+
+	private static void assertFixturePaused(GameTestHelper helper, ServerPlayer player,
+			WorldFixture fixture, String ownerKind) {
+		MinecraftServer server = helper.getLevel().getServer();
+		helper.assertTrue(!TemporalClocks.worldAdvances(server, TemporalSubsystem.CHANNELS),
+				ownerKind + " freeze still advanced the channel clock");
+		for (int attempt = 0; attempt < 20; attempt++) {
+			SpellCastingManager.tick(server);
+			SpellFieldManager.tick(server);
+			CelestialRuinManager.tick(server);
+			RealmEventManager.tickPlayer(player, helper.getLevel(), RealmKind.LIGHT);
+		}
+		helper.assertTrue(SpellCastingManager.isChanneling(player.getUUID()),
+				ownerKind + " freeze advanced an expired channel");
+		helper.assertTrue(SpellFieldManager.hasField(player.getUUID(), SpellFieldKind.SANCTUARY),
+				ownerKind + " freeze removed an expired field");
+		List<CelestialRuinSavedData.Snapshot> celestial = server.overworld().getDataStorage()
+				.computeIfAbsent(CelestialRuinSavedData.TYPE).snapshots();
+		helper.assertTrue(celestial.equals(fixture.celestialSnapshots),
+				ownerKind + " freeze advanced the Celestial Ruin journal");
+		helper.assertTrue(helper.getLevel().getGameTime() == fixture.worldTick,
+				ownerKind + " freeze advanced world time");
+		helper.assertTrue(PlayerPowers.get(player).energy() == fixture.energy,
+				ownerKind + " freeze advanced realm energy pressure");
+	}
+
+	private static void clearWorldFixture(MinecraftServer server, ServerPlayer player,
+			WorldFixture fixture) {
+		SpellCastingManager.clear(player);
+		SpellFieldManager.clearAll();
+		if (fixture != null) {
+			CelestialRuinManager.cancelNearest((net.minecraft.server.level.ServerLevel) player.level(),
+					Vec3.atCenterOf(fixture.celestialFocus));
+		}
+		server.overworld().getDataStorage().computeIfAbsent(CelestialRuinSavedData.TYPE)
+				.replace(List.of());
+		CelestialRuinManager.clearAll();
+		RealmEventManager.forget(player.getUUID());
 	}
 
 	private static void emit(String caseId, long controlTicks, long worldTicks, String facts) {
@@ -212,8 +300,62 @@ public final class TemporalOwnershipGameTests {
 
 	private static void reset(MinecraftServer server) {
 		FREEZE_PROBES.remove(server);
+		DEADLINE_PROBES.remove(server);
 		GlobalTimeStopManager.clearAll(server);
 		if (server.tickRateManager().isFrozen()) server.tickRateManager().setFrozen(false);
+	}
+
+	private record WorldFixture(long worldTick, int energy,
+			List<CelestialRuinSavedData.Snapshot> celestialSnapshots, BlockPos celestialFocus) { }
+
+	private static final class DeadlineProbe {
+		private final GameTestHelper helper;
+		private final ServerPlayer owner;
+		private final long acquiredAt;
+		private final long worldTick;
+		private boolean activeAt1199;
+
+		private DeadlineProbe(GameTestHelper helper, ServerPlayer owner,
+				long acquiredAt, long worldTick) {
+			this.helper = helper;
+			this.owner = owner;
+			this.acquiredAt = acquiredAt;
+			this.worldTick = worldTick;
+		}
+
+		private void tick(MinecraftServer server) {
+			long elapsed = server.getTickCount() - acquiredAt;
+			if (elapsed == 1_199L) {
+				activeAt1199 = GlobalTimeStopManager.snapshot(server).isPresent()
+						&& server.tickRateManager().isFrozen()
+						&& helper.getLevel().getGameTime() == worldTick;
+				return;
+			}
+			if (elapsed < 1_200L) return;
+			try {
+				helper.assertTrue(elapsed == 1_200L,
+						"Crystal lease exceeded its 1,200-control-tick deadline");
+				helper.assertTrue(activeAt1199,
+						"Crystal lease was not active through control tick 1,199");
+				// This test hook is registered before the production lifecycle hook, so invoke
+				// the same public production tick at this exact control-clock boundary before
+				// observing its result. The lifecycle invokes it again idempotently afterwards.
+				GlobalTimeStopManager.tick(server);
+				helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty()
+						&& !server.tickRateManager().isFrozen(),
+						"Crystal lease was not released on control tick 1,200");
+				helper.assertTrue(helper.getLevel().getGameTime() == worldTick,
+						"World time advanced inside the crystal acceptance window");
+				emit("crystal-control-deadline", elapsed, 0,
+						"{\"activeAt1199\":true,\"clock\":\"CONTROL\",\"duration\":1200,"
+								+ "\"releasedAt1200\":true,\"worldTicksParked\":true}");
+				helper.succeed();
+			} finally {
+				DEADLINE_PROBES.remove(server);
+				GlobalTimeStopManager.clearAll(server);
+				if (server.tickRateManager().isFrozen()) server.tickRateManager().setFrozen(false);
+			}
+		}
 	}
 
 	private static final class FreezeProbe {

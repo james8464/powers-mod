@@ -29,11 +29,14 @@ ROW_FIELDS = {"schemaVersion", "implementationSha", "case", "result",
 FACT_FIELDS = {
     "admin-preservation": {"acquired", "leaseActive", "vanillaFrozen"},
     "external-supersession": {"leaseActive", "superseded", "vanillaFrozen"},
-    "crystal-control-deadline": {"clock", "duration"},
+    "crystal-control-deadline": {"activeAt1199", "clock", "duration",
+                                 "releasedAt1200", "worldTicksParked"},
     "world-managers-paused": {"celestialPaused", "channelsPaused",
-                              "energyMutated", "realmPaused", "worldAdvanced"},
+                              "energyMutated", "externalFreeze", "fieldsPaused",
+                              "ownedFreeze", "realmPaused", "worldAdvanced"},
     "projectile-pause-resume": {"frozenDistanceSquared", "resumedDistanceSquared"},
-    "lifecycle-cleanup": {"leaseActive", "matchingOwner", "vanillaFrozen"},
+    "lifecycle-cleanup": {"disconnectReleased", "leaseActive",
+                          "mismatchedSourcePreserved", "vanillaFrozen"},
 }
 
 
@@ -152,19 +155,22 @@ def _validate_facts(case: str, facts: dict) -> None:
             "leaseActive": False, "superseded": True, "vanillaFrozen": True}:
         raise ValueError("external supersession proof failed")
     if case == "crystal-control-deadline" and facts != {
-            "clock": "CONTROL", "duration": 1200}:
+            "activeAt1199": True, "clock": "CONTROL", "duration": 1200,
+            "releasedAt1200": True, "worldTicksParked": True}:
         raise ValueError("control deadline proof failed")
     if case == "world-managers-paused" and facts != {
             "celestialPaused": True, "channelsPaused": True,
-            "energyMutated": False, "realmPaused": True,
-            "worldAdvanced": False}:
+            "energyMutated": False, "externalFreeze": True,
+            "fieldsPaused": True, "ownedFreeze": True,
+            "realmPaused": True, "worldAdvanced": False}:
         raise ValueError("world manager pause proof failed")
     if case == "projectile-pause-resume":
         if _finite(facts["frozenDistanceSquared"], "frozen distance") > 1.0E-8 \
                 or _finite(facts["resumedDistanceSquared"], "resumed distance") <= 0.01:
             raise ValueError("projectile pause/resume proof failed")
     if case == "lifecycle-cleanup" and facts != {
-            "leaseActive": False, "matchingOwner": True, "vanillaFrozen": False}:
+            "disconnectReleased": True, "leaseActive": False,
+            "mismatchedSourcePreserved": True, "vanillaFrozen": False}:
         raise ValueError("lifecycle cleanup proof failed")
 
 
