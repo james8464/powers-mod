@@ -201,6 +201,11 @@ public final class GlobalTimeStopManager {
 		INTERNAL_CLOCK_WRITES.remove(server);
 	}
 
+	/** Exact production lifecycle boundary registered for server shutdown. */
+	public static void onServerStopping(MinecraftServer server) {
+		clearAll(server);
+	}
+
 	/** Clears a crash journal before players enter play and never steals an unjournalled admin freeze. */
 	public static void reconcileStartup(MinecraftServer server) {
 		TimeStopSavedData.RecoveryDecision recovery;

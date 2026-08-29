@@ -71,7 +71,7 @@ final class PowersServerLifecycle {
 				onDisconnect(server, handler.getPlayer()));
 		ServerLifecycleEvents.SERVER_STOPPING.register(BodyProxyManager::returnAll);
 		ServerLifecycleEvents.SERVER_STOPPING.register(com.powers.util.ServerCallbackGate::clear);
-		ServerLifecycleEvents.SERVER_STOPPING.register(GlobalTimeStopManager::clearAll);
+		ServerLifecycleEvents.SERVER_STOPPING.register(GlobalTimeStopManager::onServerStopping);
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> PowersApiRuntime.global().stopServer());
 		ServerLifecycleEvents.SERVER_STARTED.register(com.powers.util.ServerCallbackGate::bind);
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> {

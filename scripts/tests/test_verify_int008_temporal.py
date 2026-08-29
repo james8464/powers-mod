@@ -56,13 +56,16 @@ class Int008TemporalVerifierTest(unittest.TestCase):
                      {"celestialPaused": True, "channelsPaused": True,
                       "energyMutated": False, "externalFreeze": True,
                       "fieldsPaused": True, "ownedFreeze": True,
-                      "realmPaused": True, "worldAdvanced": False}),
+                      "heraldCadencePaused": True, "realmPaused": True,
+                      "worldAdvanced": False}),
             self.row(implementation_sha, "projectile-pause-resume",
                      {"frozenDistanceSquared": 0.0,
                       "resumedDistanceSquared": 0.25}, 4, 4),
             self.row(implementation_sha, "lifecycle-cleanup",
-                     {"disconnectReleased": True, "leaseActive": False,
-                      "mismatchedSourcePreserved": True,
+                     {"dampeningReleased": True, "deathReleased": True,
+                      "disconnectReleased": True, "leaseActive": False,
+                      "mismatchedSourcePreserved": True, "shadowLossReleased": True,
+                      "shutdownReleased": True,
                       "vanillaFrozen": False}),
         ]
         encoded_rows = [json.dumps(row, separators=(",", ":")) for row in rows]
@@ -81,6 +84,16 @@ class Int008TemporalVerifierTest(unittest.TestCase):
         (root / "source-inventory.txt").write_text(
             "\n".join(sorted(inventory)) + "\n", encoding="utf-8")
         (root / "logs").mkdir()
+        self.write_json(root / "logs/junit-summary.json", {
+            "schemaVersion": 1, "implementationSha": implementation_sha,
+            "framework": "JUnit", "tests": 1825, "failures": 0,
+            "errors": 0, "skipped": 0,
+        })
+        self.write_json(root / "logs/python-summary.json", {
+            "schemaVersion": 1, "implementationSha": implementation_sha,
+            "framework": "Python", "tests": 226, "failures": 0,
+            "errors": 0, "skipped": 0,
+        })
         (root / "logs/gametest.log").write_text(
             "\n".join("INT008_TEMPORAL " + row for row in encoded_rows)
             + "\nAll 161 required tests passed :)\n", encoding="utf-8")
@@ -156,6 +169,36 @@ class Int008TemporalVerifierTest(unittest.TestCase):
             path.write_text(path.read_text().replace('"controlTicks":1200',
                                                      '"controlTicks":1199', 1))
         self.mutate(drift_log, "log rows")
+
+    def test_metadata_totals_must_exactly_match_machine_readable_summaries(self):
+        def drift_metadata(root):
+            path = root / "build-metadata.json"
+            metadata = json.loads(path.read_text())
+            metadata["junitTests"] += 1
+            self.write_json(path, metadata)
+        self.mutate(drift_metadata, "test summary mismatch")
+
+        def drift_summary(root):
+            path = root / "logs/python-summary.json"
+            summary = json.loads(path.read_text())
+            summary["tests"] -= 1
+            self.write_json(path, summary)
+        self.mutate(drift_summary, "test summary mismatch")
+
+    def test_test_summaries_require_exact_sha_and_zero_nonpasses(self):
+        def mixed_sha(root):
+            path = root / "logs/junit-summary.json"
+            summary = json.loads(path.read_text())
+            summary["implementationSha"] = "b" * 40
+            self.write_json(path, summary)
+        self.mutate(mixed_sha, "test summary mismatch")
+
+        def failed_test(root):
+            path = root / "logs/python-summary.json"
+            summary = json.loads(path.read_text())
+            summary["failures"] = 1
+            self.write_json(path, summary)
+        self.mutate(failed_test, "test summary mismatch")
 
 
 if __name__ == "__main__":

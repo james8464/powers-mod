@@ -1,11 +1,18 @@
 package com.powers.gametest;
 
 import com.powers.ImportedPackItems;
+import com.powers.PowerStatusEffects;
+import com.powers.PowersEffects;
+import com.powers.PowersWeapons;
+import com.powers.companion.PrivateCompanionManager;
+import com.powers.companion.ShadowCompanionEntity;
 import com.powers.entity.DarknessFireballProjectile;
 import com.powers.network.PacketRateLimiter;
 import com.powers.player.PlayerPowers;
+import com.powers.player.SkillSystem;
 import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.realm.RealmEventManager;
+import com.powers.realm.RealmHeraldManager;
 import com.powers.realm.RealmKind;
 import com.powers.spell.CelestialRuinManager;
 import com.powers.spell.CelestialRuinSavedData;
@@ -150,9 +157,14 @@ public final class TemporalOwnershipGameTests {
 			helper.assertTrue(GlobalTimeStopManager.startCrystal(player, 20),
 					"Owned-freeze fixture could not acquire the clock");
 			assertFixturePaused(helper, player, owned, "owned");
+			GlobalTimeStopManager.stopCrystal(player);
+			helper.assertTrue(RealmHeraldManager.tick(helper.getLevel(), RealmKind.LIGHT)
+					!= RealmHeraldManager.TickResult.PARKED,
+					"Herald cadence remained parked after the owned freeze released");
 			emit("world-managers-paused", 0, 0,
 					"{\"celestialPaused\":true,\"channelsPaused\":true,\"energyMutated\":false,"
-							+ "\"externalFreeze\":true,\"fieldsPaused\":true,\"ownedFreeze\":true,"
+							+ "\"externalFreeze\":true,\"fieldsPaused\":true,"
+							+ "\"heraldCadencePaused\":true,\"ownedFreeze\":true,"
 							+ "\"realmPaused\":true,\"worldAdvanced\":false}");
 		} finally {
 			clearWorldFixture(server, player, null);
@@ -213,6 +225,47 @@ public final class TemporalOwnershipGameTests {
 		helper.assertTrue(server.tickRateManager().isFrozen()
 				&& GlobalTimeStopManager.snapshot(server).isPresent(),
 				"A mismatched innate release stole the crystal lease");
+		owner.setHealth(0.0F);
+		GlobalTimeStopManager.tick(server);
+		helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty()
+				&& !server.tickRateManager().isFrozen(),
+				"Owner death did not release its crystal lease");
+		owner.setHealth(owner.getMaxHealth());
+
+		helper.assertTrue(GlobalTimeStopManager.startCrystal(owner, 20),
+				"Dampening fixture could not acquire the clock");
+		owner.addEffect(PowerStatusEffects.hidden(PowersEffects.AMETHYST_POISONING,
+				40, 0, true, true));
+		GlobalTimeStopManager.tick(server);
+		helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty()
+				&& !server.tickRateManager().isFrozen(),
+				"Amethyst dampening did not release its crystal lease");
+		owner.removeEffect(PowersEffects.AMETHYST_POISONING);
+
+		owner.addTag(SkillSystem.DARKNESS_TAG);
+		owner.getInventory().add(PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		helper.assertTrue(PrivateCompanionManager.handleChat(owner, "shadow, reveal yourself"),
+				"Shadow-loss fixture did not accept its manifestation command");
+		PrivateCompanionManager.tickPlayer(owner, server.getTickCount());
+		ShadowCompanionEntity shadow = PrivateCompanionManager.body(owner.getUUID()).orElseThrow();
+		helper.assertTrue(GlobalTimeStopManager.startShadow(owner, shadow),
+				"Shadow-loss fixture could not acquire the clock");
+		shadow.discard();
+		GlobalTimeStopManager.tick(server);
+		helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty()
+				&& !server.tickRateManager().isFrozen(),
+				"Lost Shadow body did not release its lease");
+		PrivateCompanionManager.forget(owner);
+
+		helper.assertTrue(GlobalTimeStopManager.startCrystal(owner, 20),
+				"Shutdown fixture could not acquire the clock");
+		GlobalTimeStopManager.onServerStopping(server);
+		helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty()
+				&& !server.tickRateManager().isFrozen(),
+				"Production shutdown handler retained lease authority");
+
+		helper.assertTrue(GlobalTimeStopManager.startCrystal(owner, 20),
+				"Disconnect fixture could not acquire the clock");
 		helper.assertTrue(owner.connection != null,
 				"Lifecycle fixture has no real server connection boundary");
 		ServerPlayConnectionEvents.DISCONNECT.invoker()
@@ -222,8 +275,10 @@ public final class TemporalOwnershipGameTests {
 		helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty(),
 				"Disconnect lifecycle cleanup retained lease authority");
 		emit("lifecycle-cleanup", 0, 0,
-				"{\"disconnectReleased\":true,\"leaseActive\":false,"
-						+ "\"mismatchedSourcePreserved\":true,\"vanillaFrozen\":false}");
+				"{\"dampeningReleased\":true,\"deathReleased\":true,"
+						+ "\"disconnectReleased\":true,\"leaseActive\":false,"
+						+ "\"mismatchedSourcePreserved\":true,\"shadowLossReleased\":true,"
+						+ "\"shutdownReleased\":true,\"vanillaFrozen\":false}");
 		helper.succeed();
 	}
 
@@ -269,6 +324,9 @@ public final class TemporalOwnershipGameTests {
 			SpellFieldManager.tick(server);
 			CelestialRuinManager.tick(server);
 			RealmEventManager.tickPlayer(player, helper.getLevel(), RealmKind.LIGHT);
+			helper.assertTrue(RealmHeraldManager.tick(helper.getLevel(), RealmKind.LIGHT)
+					== RealmHeraldManager.TickResult.PARKED,
+					ownerKind + " freeze advanced Herald cadence");
 		}
 		helper.assertTrue(SpellCastingManager.isChanneling(player.getUUID()),
 				ownerKind + " freeze advanced an expired channel");

@@ -33,11 +33,16 @@ FACT_FIELDS = {
                                  "releasedAt1200", "worldTicksParked"},
     "world-managers-paused": {"celestialPaused", "channelsPaused",
                               "energyMutated", "externalFreeze", "fieldsPaused",
-                              "ownedFreeze", "realmPaused", "worldAdvanced"},
+                              "heraldCadencePaused", "ownedFreeze", "realmPaused",
+                              "worldAdvanced"},
     "projectile-pause-resume": {"frozenDistanceSquared", "resumedDistanceSquared"},
-    "lifecycle-cleanup": {"disconnectReleased", "leaseActive",
-                          "mismatchedSourcePreserved", "vanillaFrozen"},
+    "lifecycle-cleanup": {"dampeningReleased", "deathReleased",
+                          "disconnectReleased", "leaseActive",
+                          "mismatchedSourcePreserved", "shadowLossReleased",
+                          "shutdownReleased", "vanillaFrozen"},
 }
+SUMMARY_FIELDS = {"schemaVersion", "implementationSha", "framework", "tests",
+                  "failures", "errors", "skipped"}
 
 
 def _duplicates(pairs):
@@ -145,6 +150,20 @@ def _finite(value, label: str) -> float:
     return value
 
 
+def _validate_summary(path: Path, implementation_sha: str, framework: str,
+                      expected_tests: int) -> None:
+    summary = _read_json(path)
+    if not isinstance(summary, dict) or set(summary) != SUMMARY_FIELDS \
+            or summary["schemaVersion"] != 1 \
+            or summary["implementationSha"] != implementation_sha \
+            or summary["framework"] != framework \
+            or _nonnegative_int(summary["tests"], f"{framework} summary tests") \
+            != expected_tests \
+            or any(_nonnegative_int(summary[field], f"{framework} summary {field}") != 0
+                   for field in ("failures", "errors", "skipped")):
+        raise ValueError(f"{framework} test summary mismatch")
+
+
 def _validate_facts(case: str, facts: dict) -> None:
     if not isinstance(facts, dict) or set(facts) != FACT_FIELDS[case]:
         raise ValueError(f"{case} fact schema mismatch")
@@ -161,7 +180,7 @@ def _validate_facts(case: str, facts: dict) -> None:
     if case == "world-managers-paused" and facts != {
             "celestialPaused": True, "channelsPaused": True,
             "energyMutated": False, "externalFreeze": True,
-            "fieldsPaused": True, "ownedFreeze": True,
+            "fieldsPaused": True, "heraldCadencePaused": True, "ownedFreeze": True,
             "realmPaused": True, "worldAdvanced": False}:
         raise ValueError("world manager pause proof failed")
     if case == "projectile-pause-resume":
@@ -169,8 +188,10 @@ def _validate_facts(case: str, facts: dict) -> None:
                 or _finite(facts["resumedDistanceSquared"], "resumed distance") <= 0.01:
             raise ValueError("projectile pause/resume proof failed")
     if case == "lifecycle-cleanup" and facts != {
+            "dampeningReleased": True, "deathReleased": True,
             "disconnectReleased": True, "leaseActive": False,
-            "mismatchedSourcePreserved": True, "vanillaFrozen": False}:
+            "mismatchedSourcePreserved": True, "shadowLossReleased": True,
+            "shutdownReleased": True, "vanillaFrozen": False}:
         raise ValueError("lifecycle cleanup proof failed")
 
 
@@ -201,6 +222,10 @@ def validate(root: Path, repository: Path) -> dict:
             or _nonnegative_int(metadata["junitTests"], "JUnit count") < 1825 \
             or _nonnegative_int(metadata["pythonTests"], "Python count") < 1:
         raise ValueError("build totals mismatch")
+    _validate_summary(root / "logs/junit-summary.json", implementation_sha, "JUnit",
+                      metadata["junitTests"])
+    _validate_summary(root / "logs/python-summary.json", implementation_sha, "Python",
+                      metadata["pythonTests"])
 
     rows = _read_rows(root / "temporal-assertions.jsonl")
     if len(rows) != len(CASES) or {row.get("case") for row in rows} != CASES:
