@@ -23,7 +23,6 @@ import com.powers.time.TemporalClocks;
 import com.powers.time.TemporalSubsystem;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.MinecraftServer;
@@ -219,6 +218,8 @@ public final class TemporalOwnershipGameTests {
 		MinecraftServer server = helper.getLevel().getServer();
 		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
 		reset(server);
+		helper.assertTrue(server.getPlayerList().getPlayer(owner.getUUID()) == owner,
+				"Lifecycle fixture is not present through the real online-player boundary");
 		helper.assertTrue(GlobalTimeStopManager.startCrystal(owner, 20),
 				"Lifecycle fixture could not acquire the clock");
 		GlobalTimeStopManager.stop(owner);
@@ -270,18 +271,23 @@ public final class TemporalOwnershipGameTests {
 				"Disconnect fixture could not acquire the clock");
 		helper.assertTrue(owner.connection != null,
 				"Lifecycle fixture has no real server connection boundary");
-		ServerPlayConnectionEvents.DISCONNECT.invoker()
-				.onPlayDisconnect(owner.connection, server);
-		helper.assertTrue(!server.tickRateManager().isFrozen(),
-				"Disconnect lifecycle cleanup left its clock frozen");
-		helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty(),
-				"Disconnect lifecycle cleanup retained lease authority");
-		emit("lifecycle-cleanup", 0, 0,
-				"{\"dampeningReleased\":true,\"deathReleased\":true,"
-						+ "\"disconnectReleased\":true,\"leaseActive\":false,"
-						+ "\"mismatchedSourcePreserved\":true,\"shadowLossReleased\":true,"
-						+ "\"shutdownReleased\":true,\"vanillaFrozen\":false}");
-		helper.succeed();
+		java.util.UUID ownerId = owner.getUUID();
+		owner.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(
+				net.minecraft.network.chat.Component.literal("INT-008 disconnect lifecycle")));
+		helper.runAfterDelay(2, () -> {
+			helper.assertTrue(server.getPlayerList().getPlayer(ownerId) == null,
+					"Disconnected lifecycle fixture remained in the live player list");
+			helper.assertTrue(!server.tickRateManager().isFrozen(),
+					"Disconnect lifecycle cleanup left its clock frozen");
+			helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty(),
+					"Disconnect lifecycle cleanup retained lease authority");
+			emit("lifecycle-cleanup", 0, 0,
+					"{\"dampeningReleased\":true,\"deathReleased\":true,"
+							+ "\"disconnectReleased\":true,\"leaseActive\":false,"
+							+ "\"mismatchedSourcePreserved\":true,\"shadowLossReleased\":true,"
+							+ "\"shutdownReleased\":true,\"vanillaFrozen\":false}");
+			helper.succeed();
+		});
 	}
 
 	private static WorldFixture seedWorldFixture(GameTestHelper helper, ServerPlayer player) {

@@ -88,24 +88,26 @@ def _archive(root: Path, paths: list[Path], output: Path) -> None:
                     archive.addfile(info, io.BytesIO(data))
 
 
-def package(root: Path, output: Path, repository: Path) -> dict:
+def package(root: Path, output: Path, repository: Path,
+            expected_base_sha: str = VERIFY_INT008.INT008_BASE_SHA) -> dict:
     root = root.resolve()
     if not root.is_dir() or root.is_symlink():
         raise ValueError("evidence root must be a directory")
     payload = _payload(root)
     _validate_files(root, payload)
-    VERIFY_INT008.validate(root, repository)
+    VERIFY_INT008.validate(root, repository, expected_base_sha)
     paths = _metadata(root, payload)
     _validate_files(root, paths)
     _archive(root, paths, output.resolve())
-    verify(root, repository)
-    verify_archive(output.resolve(), repository)
+    verify(root, repository, expected_base_sha)
+    verify_archive(output.resolve(), repository, expected_base_sha)
     return {"fileCount": len(paths),
             "files": [path.relative_to(root).as_posix() for path in paths],
             "archiveSha256": _sha256(output.resolve())}
 
 
-def verify(root: Path, repository: Path) -> bool:
+def verify(root: Path, repository: Path,
+           expected_base_sha: str = VERIFY_INT008.INT008_BASE_SHA) -> bool:
     root = root.resolve()
     payload = _payload(root)
     _validate_files(root, payload)
@@ -126,11 +128,12 @@ def verify(root: Path, repository: Path) -> bool:
             or checksum_file.read_text(encoding="utf-8") != expected_checksums:
         raise ValueError("checksum mismatch")
     _validate_files(root, payload + [root / name for name in GENERATED])
-    VERIFY_INT008.validate(root, repository)
+    VERIFY_INT008.validate(root, repository, expected_base_sha)
     return True
 
 
-def verify_archive(archive_path: Path, repository: Path) -> bool:
+def verify_archive(archive_path: Path, repository: Path,
+                   expected_base_sha: str = VERIFY_INT008.INT008_BASE_SHA) -> bool:
     archive_path = archive_path.resolve()
     if not archive_path.is_file() or archive_path.is_symlink():
         raise ValueError("archive must be a regular file")
@@ -158,7 +161,7 @@ def verify_archive(archive_path: Path, repository: Path) -> bool:
         inventory = (root / "archive-inventory.txt").read_text(encoding="utf-8").splitlines()
         if names != inventory:
             raise ValueError("archive inventory does not match members")
-        verify(root, repository)
+        verify(root, repository, expected_base_sha)
     return True
 
 

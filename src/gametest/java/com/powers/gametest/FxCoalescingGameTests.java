@@ -51,10 +51,12 @@ public final class FxCoalescingGameTests {
 		Vec3 center = Vec3.atCenterOf(helper.absolutePos(new BlockPos(4, 2, 4)));
 		long tick = helper.getLevel().getServer().getTickCount();
 		var first = PhysicalMagicPresences.registerFixed(new MagicActionId("energy_beam"),
-				firstOwner, helper.getLevel(), center.add(96.0, 0.0, 0.0), 1.0, tick + 100,
+				firstOwner, helper.getLevel(), center.add(96.0, 0.0, 0.0), 1.0,
+				com.powers.time.WorldTick.at(tick + 100),
 				MagicPresenceHandle.Kind.BEAM);
 		var second = PhysicalMagicPresences.registerFixed(new MagicActionId("void_beam"),
-				secondOwner, helper.getLevel(), center, 1.0, tick + 100,
+				secondOwner, helper.getLevel(), center, 1.0,
+				com.powers.time.WorldTick.at(tick + 100),
 				MagicPresenceHandle.Kind.BEAM);
 		try {
 			FxPacketCoalescer coalescer = new FxPacketCoalescer(128);

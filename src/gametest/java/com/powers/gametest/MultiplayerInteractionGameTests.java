@@ -528,7 +528,7 @@ public final class MultiplayerInteractionGameTests {
 		if (kind != MagicPresenceHandle.Kind.ENTITY
 				&& kind != MagicPresenceHandle.Kind.PROJECTILE) {
 			return new PhysicalFixture(PhysicalMagicPresences.registerFixed(action.id(), owner.getUUID(),
-					level, position, 1.0, tick + 200L, kind), null);
+					level, position, 1.0, com.powers.time.WorldTick.at(tick + 200L), kind), null);
 		}
 		Entity entity;
 		if (kind == MagicPresenceHandle.Kind.PROJECTILE) {
@@ -544,7 +544,7 @@ public final class MultiplayerInteractionGameTests {
 				level.dimension().identifier().toString(),
 				PresenceAnchor.fixed(position.x, position.y, position.z), 1.0, tick + 200L));
 		MagicPresenceHandle handle = PhysicalMagicPresences.bindExistingEntity(
-				id, entity, kind, tick + 200L);
+				id, entity, kind, com.powers.time.WorldTick.at(tick + 200L));
 		if (handle == null) throw new IllegalStateException("Could not bind physical test presence");
 		return new PhysicalFixture(handle, entity);
 	}

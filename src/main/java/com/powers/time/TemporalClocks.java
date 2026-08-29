@@ -5,11 +5,15 @@ import net.minecraft.server.level.ServerLevel;
 
 /** The only conversion boundary between Minecraft counters and typed POWERS clocks. */
 public final class TemporalClocks {
+	private static final java.util.Map<MinecraftServer, ControlTickCounter> CONTROL_COUNTERS =
+			java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
+
 	private TemporalClocks() {
 	}
 
 	public static ControlTick control(MinecraftServer server) {
-		return ControlTick.at(server.getTickCount());
+		return CONTROL_COUNTERS.computeIfAbsent(server, ignored -> new ControlTickCounter())
+				.observe(server.getTickCount());
 	}
 
 	public static WorldTick world(ServerLevel level) {

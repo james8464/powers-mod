@@ -93,7 +93,8 @@ public final class P1AcceptanceGameTests {
 				center.add(FAR_OFFSET, 0, 0), tick);
 		MagicPresenceHandle projectileField = PhysicalMagicPresences.registerFixed(
 				new MagicActionId("forcefield"), secondOwner.getUUID(), level,
-				center, 2.0, tick + 100, MagicPresenceHandle.Kind.FIELD);
+				center, 2.0, com.powers.time.WorldTick.at(tick + 100),
+				MagicPresenceHandle.Kind.FIELD);
 		move(projectile, level, center);
 		assertOnce(helper, projectile, level, center, tick, "projectile/field");
 		PhysicalMagicPresences.remove(projectile);
@@ -105,10 +106,12 @@ public final class P1AcceptanceGameTests {
 
 		MagicPresenceHandle force = PhysicalMagicPresences.registerFixed(
 				new MagicActionId("darkness_block"), firstOwner.getUUID(), level,
-				center, 1.0, tick + 100, MagicPresenceHandle.Kind.FORCE_BLOCK);
+				center, 1.0, com.powers.time.WorldTick.at(tick + 100),
+				MagicPresenceHandle.Kind.FORCE_BLOCK);
 		MagicPresenceHandle impact = PhysicalMagicPresences.registerFixed(
 				new MagicActionId("fireball"), secondOwner.getUUID(), level,
-				center.add(FAR_OFFSET, 0, 0), 1.0, tick + 100, MagicPresenceHandle.Kind.IMPACT);
+				center.add(FAR_OFFSET, 0, 0), 1.0,
+				com.powers.time.WorldTick.at(tick + 100), MagicPresenceHandle.Kind.IMPACT);
 		move(impact, level, center);
 		assertOnce(helper, impact, level, center, tick + 40, "force/block");
 		PhysicalMagicPresences.remove(force);
@@ -118,7 +121,8 @@ public final class P1AcceptanceGameTests {
 				center.add(FAR_OFFSET, 0, 0), tick, MagicPresenceHandle.Kind.ENTITY);
 		MagicPresenceHandle bodyField = PhysicalMagicPresences.registerFixed(
 				new MagicActionId("dimensional_anchor"), secondOwner.getUUID(), level,
-				center, 2.0, tick + 100, MagicPresenceHandle.Kind.FIELD);
+				center, 2.0, com.powers.time.WorldTick.at(tick + 100),
+				MagicPresenceHandle.Kind.FIELD);
 		move(body, level, center);
 		assertOnce(helper, body, level, center, tick + 60, "body/field");
 		PhysicalMagicPresences.remove(body);
@@ -462,7 +466,8 @@ public final class P1AcceptanceGameTests {
 		MagicRuntime.global().registerPresence(new MagicPresence(id, new MagicActionId(action), owner,
 				level.dimension().identifier().toString(), PresenceAnchor.fixed(
 				position.x, position.y, position.z), 1.0, tick + 100));
-		return PhysicalMagicPresences.bindExistingEntity(id, entity, kind, tick + 100);
+		return PhysicalMagicPresences.bindExistingEntity(id, entity, kind,
+				com.powers.time.WorldTick.at(tick + 100));
 	}
 
 	private static void move(MagicPresenceHandle handle, ServerLevel level, Vec3 position) {

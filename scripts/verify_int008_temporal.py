@@ -9,11 +9,15 @@ import json
 import math
 import re
 import subprocess
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
 SHA = re.compile(r"[0-9a-f]{40}")
-SOURCE_ROW = re.compile(r"[0-9a-f]{64}  [A-Za-z0-9_./@+-]+")
+SOURCE_ROW = re.compile(
+    r"[ADMT] (?:[0-9a-f]{64}|-) (?:[0-9a-f]{64}|-) [A-Za-z0-9_./@+-]+")
+INT008_BASE_SHA = "98b181671b1514a3695ccb8f1ba1985092bce3dd"
+POST_CAPTURE_PREFIX = "docs/verification/evidence/2026-08-29-int-008/"
 PRIVATE_MARKERS = (b"/Users/", b"\\Users\\", b".worktrees/", b"file://",
                    b"james8464")
 CASES = {
@@ -104,7 +108,7 @@ def _git(repository: Path, *arguments: str, text: bool = True):
 
 
 def _verify_git(repository: Path, base_sha: str, implementation_sha: str,
-                inventory_lines: list[str]) -> None:
+                inventory_lines: list[str], expected_base_sha: str) -> None:
     repository = repository.resolve()
     if not repository.is_dir():
         raise ValueError("Git repository is missing")
@@ -114,6 +118,8 @@ def _verify_git(repository: Path, base_sha: str, implementation_sha: str,
         resolved = _git(repository, "rev-parse", f"{sha}^{{commit}}").strip()
         if resolved != sha:
             raise ValueError(f"unresolved {label} SHA")
+    if base_sha != expected_base_sha:
+        raise ValueError("build metadata does not use the immutable INT-008 base")
     try:
         subprocess.run(["git", "merge-base", "--is-ancestor", base_sha,
                         implementation_sha], cwd=repository, check=True,
@@ -123,14 +129,25 @@ def _verify_git(repository: Path, base_sha: str, implementation_sha: str,
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except (OSError, subprocess.CalledProcessError) as error:
         raise ValueError("implementation ancestry mismatch") from error
-    paths = _git(repository, "diff", "--name-only", "--diff-filter=ACMRT",
-                 f"{base_sha}..{implementation_sha}").splitlines()
+    late_paths = _git(repository, "diff", "--name-only",
+                      f"{implementation_sha}..HEAD").splitlines()
+    if any(not path.startswith(POST_CAPTURE_PREFIX) for path in late_paths):
+        raise ValueError("post-capture changes are not evidence-package-only")
+    changes = _git(repository, "diff", "--name-status", "--no-renames",
+                   f"{base_sha}..{implementation_sha}").splitlines()
     expected = []
-    for relative in paths:
+    for change in changes:
+        parts = change.split("\t")
+        if len(parts) != 2 or parts[0] not in {"A", "D", "M", "T"}:
+            raise ValueError("unsupported Git source change")
+        status, relative = parts
         if not re.fullmatch(r"[A-Za-z0-9_./@+-]+", relative):
             raise ValueError("unsafe Git source path")
-        blob = _git(repository, "show", f"{implementation_sha}:{relative}", text=False)
-        expected.append(f"{hashlib.sha256(blob).hexdigest()}  {relative}")
+        old_digest = "-" if status == "A" else hashlib.sha256(
+            _git(repository, "show", f"{base_sha}:{relative}", text=False)).hexdigest()
+        new_digest = "-" if status == "D" else hashlib.sha256(
+            _git(repository, "show", f"{implementation_sha}:{relative}", text=False)).hexdigest()
+        expected.append(f"{status} {old_digest} {new_digest} {relative}")
     if inventory_lines != sorted(expected):
         raise ValueError("Git source inventory does not match the exact changed-file set")
 
@@ -164,6 +181,37 @@ def _validate_summary(path: Path, implementation_sha: str, framework: str,
         raise ValueError(f"{framework} test summary mismatch")
 
 
+def _junit_totals(root: Path) -> tuple[int, int, int, int]:
+    directory = root / "logs/junit"
+    paths = sorted(directory.glob("TEST-*.xml")) if directory.is_dir() else []
+    if not paths:
+        raise ValueError("JUnit raw results are missing")
+    totals = [0, 0, 0, 0]
+    for path in paths:
+        try:
+            suite = ET.fromstring(_read(path))
+        except ET.ParseError as error:
+            raise ValueError("JUnit raw results are malformed") from error
+        if suite.tag != "testsuite":
+            raise ValueError("JUnit raw results must contain test suites")
+        for index, field in enumerate(("tests", "failures", "errors", "skipped")):
+            try:
+                value = int(suite.attrib.get(field, "0"))
+            except ValueError as error:
+                raise ValueError("JUnit raw results contain invalid totals") from error
+            totals[index] += _nonnegative_int(value, f"JUnit raw {field}")
+    return tuple(totals)
+
+
+def _python_total(root: Path) -> int:
+    output = _read(root / "logs/aggregate-check.log").decode("utf-8")
+    matches = re.findall(r"(?m)^Ran ([0-9]+) tests? in [0-9.]+s$", output)
+    if len(matches) != 1 or not re.search(r"(?m)^OK$", output) \
+            or "BUILD SUCCESSFUL" not in output or "BUILD FAILED" in output:
+        raise ValueError("Python raw results do not prove a green aggregate run")
+    return int(matches[0])
+
+
 def _validate_facts(case: str, facts: dict) -> None:
     if not isinstance(facts, dict) or set(facts) != FACT_FIELDS[case]:
         raise ValueError(f"{case} fact schema mismatch")
@@ -195,7 +243,8 @@ def _validate_facts(case: str, facts: dict) -> None:
         raise ValueError("lifecycle cleanup proof failed")
 
 
-def validate(root: Path, repository: Path) -> dict:
+def validate(root: Path, repository: Path,
+             expected_base_sha: str = INT008_BASE_SHA) -> dict:
     root = root.resolve()
     if not root.is_dir() or root.is_symlink():
         raise ValueError("evidence root must be a directory")
@@ -226,6 +275,11 @@ def validate(root: Path, repository: Path) -> dict:
                       metadata["junitTests"])
     _validate_summary(root / "logs/python-summary.json", implementation_sha, "Python",
                       metadata["pythonTests"])
+    junit_totals = _junit_totals(root)
+    if junit_totals != (metadata["junitTests"], 0, 0, 0):
+        raise ValueError("JUnit raw results do not match build metadata")
+    if _python_total(root) != metadata["pythonTests"]:
+        raise ValueError("Python raw results do not match build metadata")
 
     rows = _read_rows(root / "temporal-assertions.jsonl")
     if len(rows) != len(CASES) or {row.get("case") for row in rows} != CASES:
@@ -244,8 +298,12 @@ def validate(root: Path, repository: Path) -> dict:
             or len(inventory_lines) != len(set(inventory_lines)) \
             or any(SOURCE_ROW.fullmatch(line) is None for line in inventory_lines):
         raise ValueError("source inventory must be sorted, unique, and digest-bound")
-    _verify_git(repository, base_sha, implementation_sha, inventory_lines)
+    _verify_git(repository, base_sha, implementation_sha, inventory_lines,
+                expected_base_sha)
     log = _read(root / "logs/gametest.log").decode("utf-8")
+    if f"INT-008 checkout verified: {implementation_sha}" not in log \
+            or "BUILD SUCCESSFUL" not in log or "BUILD FAILED" in log:
+        raise ValueError("GameTest checkout verification is missing or failed")
     if "All 161 required tests passed" not in log \
             or any(case not in log for case in CASES):
         raise ValueError("GameTest log coverage mismatch")

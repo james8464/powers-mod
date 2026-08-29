@@ -25,12 +25,14 @@ class Int008TemporalVerifierTest(unittest.TestCase):
         self.git(repository, "config", "user.name", "INT-008 Test")
         self.git(repository, "config", "user.email", "int008@example.invalid")
         (repository / "clock.txt").write_text("base\n", encoding="utf-8")
-        self.git(repository, "add", "clock.txt")
+        (repository / "removed.txt").write_text("deleted by implementation\n", encoding="utf-8")
+        self.git(repository, "add", "clock.txt", "removed.txt")
         self.git(repository, "commit", "-qm", "base")
         base_sha = self.git(repository, "rev-parse", "HEAD")
         (repository / "clock.txt").write_text("implementation\n", encoding="utf-8")
         (repository / "lease.txt").write_text("owned\n", encoding="utf-8")
-        self.git(repository, "add", "clock.txt", "lease.txt")
+        (repository / "removed.txt").unlink()
+        self.git(repository, "add", "-A")
         self.git(repository, "commit", "-qm", "implementation")
         implementation_sha = self.git(repository, "rev-parse", "HEAD")
         return repository, base_sha, implementation_sha
@@ -42,6 +44,7 @@ class Int008TemporalVerifierTest(unittest.TestCase):
 
     def make_fixture(self, parent: Path) -> tuple[Path, Path]:
         repository, base_sha, implementation_sha = self.make_repository(parent)
+        self.base_sha = base_sha
         root = parent / "evidence"
         root.mkdir()
         rows = [
@@ -76,14 +79,31 @@ class Int008TemporalVerifierTest(unittest.TestCase):
             "implementationSha": implementation_sha, "result": "PENDING",
             "gameTests": 161, "junitTests": 1825, "pythonTests": 226,
         })
-        inventory = []
-        for relative in ("clock.txt", "lease.txt"):
-            blob = subprocess.check_output(
-                ["git", "show", f"{implementation_sha}:{relative}"], cwd=repository)
-            inventory.append(f"{hashlib.sha256(blob).hexdigest()}  {relative}")
+        old_clock = subprocess.check_output(
+            ["git", "show", f"{base_sha}:clock.txt"], cwd=repository)
+        new_clock = subprocess.check_output(
+            ["git", "show", f"{implementation_sha}:clock.txt"], cwd=repository)
+        lease = subprocess.check_output(
+            ["git", "show", f"{implementation_sha}:lease.txt"], cwd=repository)
+        removed = subprocess.check_output(
+            ["git", "show", f"{base_sha}:removed.txt"], cwd=repository)
+        inventory = [
+            f"M {hashlib.sha256(old_clock).hexdigest()} {hashlib.sha256(new_clock).hexdigest()} clock.txt",
+            f"A - {hashlib.sha256(lease).hexdigest()} lease.txt",
+            f"D {hashlib.sha256(removed).hexdigest()} - removed.txt",
+        ]
         (root / "source-inventory.txt").write_text(
             "\n".join(sorted(inventory)) + "\n", encoding="utf-8")
         (root / "logs").mkdir()
+        (root / "logs/junit").mkdir()
+        (root / "logs/junit/TEST-first.xml").write_text(
+            '<testsuite name="first" tests="1800" failures="0" errors="0" skipped="0"/>\n',
+            encoding="utf-8")
+        (root / "logs/junit/TEST-second.xml").write_text(
+            '<testsuite name="second" tests="25" failures="0" errors="0" skipped="0"/>\n',
+            encoding="utf-8")
+        (root / "logs/aggregate-check.log").write_text(
+            "Ran 226 tests in 1.000s\n\nOK\nBUILD SUCCESSFUL in 2m\n", encoding="utf-8")
         self.write_json(root / "logs/junit-summary.json", {
             "schemaVersion": 1, "implementationSha": implementation_sha,
             "framework": "JUnit", "tests": 1825, "failures": 0,
@@ -95,8 +115,10 @@ class Int008TemporalVerifierTest(unittest.TestCase):
             "errors": 0, "skipped": 0,
         })
         (root / "logs/gametest.log").write_text(
-            "\n".join("INT008_TEMPORAL " + row for row in encoded_rows)
-            + "\nAll 161 required tests passed :)\n", encoding="utf-8")
+            f"INT-008 checkout verified: {implementation_sha}\n"
+            + "\n".join("INT008_TEMPORAL " + row for row in encoded_rows)
+            + "\nAll 161 required tests passed :)\nBUILD SUCCESSFUL in 1m\n",
+            encoding="utf-8")
         (root / "README.md").write_text("# INT-008 evidence\n", encoding="utf-8")
         return root, repository
 
@@ -115,12 +137,12 @@ class Int008TemporalVerifierTest(unittest.TestCase):
             root, repository = self.make_fixture(Path(raw))
             operation(root)
             with self.assertRaisesRegex(ValueError, message):
-                VERIFY.validate(root, repository)
+                VERIFY.validate(root, repository, self.base_sha)
 
     def test_complete_exact_sha_evidence_passes(self):
         with tempfile.TemporaryDirectory() as raw:
             root, repository = self.make_fixture(Path(raw))
-            result = VERIFY.validate(root, repository)
+            result = VERIFY.validate(root, repository, self.base_sha)
             self.assertEqual(6, result["caseCount"])
 
     def test_missing_case_is_rejected(self):
@@ -156,12 +178,42 @@ class Int008TemporalVerifierTest(unittest.TestCase):
     def test_git_blob_digest_and_changed_set_are_enforced(self):
         def alter_digest(root):
             rows = (root / "source-inventory.txt").read_text().splitlines()
-            rows[0] = "f" * 64 + rows[0][64:]
+            rows[0] = rows[0].replace(rows[0].split()[1], "f" * 64, 1)
             (root / "source-inventory.txt").write_text("\n".join(sorted(rows)) + "\n")
         self.mutate(alter_digest, "Git source inventory")
         self.mutate(lambda root: (root / "source-inventory.txt").write_text(
             (root / "source-inventory.txt").read_text().splitlines()[0] + "\n"),
                     "Git source inventory")
+
+    def test_base_is_pinned_and_deleted_blobs_are_required(self):
+        def shorten_base(root):
+            path = root / "build-metadata.json"
+            metadata = json.loads(path.read_text())
+            metadata["baseSha"] = metadata["implementationSha"]
+            self.write_json(path, metadata)
+        self.mutate(shorten_base, "immutable INT-008 base")
+
+        def omit_deletion(root):
+            rows = [row for row in (root / "source-inventory.txt").read_text().splitlines()
+                    if not row.startswith("D ")]
+            (root / "source-inventory.txt").write_text("\n".join(rows) + "\n")
+        self.mutate(omit_deletion, "Git source inventory")
+
+    def test_post_capture_code_is_rejected_but_evidence_only_commit_is_allowed(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root, repository = self.make_fixture(Path(raw))
+            evidence_note = repository / "docs/verification/evidence/2026-08-29-int-008/note.txt"
+            evidence_note.parent.mkdir(parents=True)
+            evidence_note.write_text("retained\n", encoding="utf-8")
+            self.git(repository, "add", ".")
+            self.git(repository, "commit", "-qm", "evidence")
+            VERIFY.validate(root, repository, self.base_sha)
+
+            (repository / "production.txt").write_text("late code\n", encoding="utf-8")
+            self.git(repository, "add", "production.txt")
+            self.git(repository, "commit", "-qm", "late production")
+            with self.assertRaisesRegex(ValueError, "post-capture"):
+                VERIFY.validate(root, repository, self.base_sha)
 
     def test_log_rows_must_equal_jsonl_rows_byte_for_byte(self):
         def drift_log(root):
@@ -199,6 +251,25 @@ class Int008TemporalVerifierTest(unittest.TestCase):
             summary["failures"] = 1
             self.write_json(path, summary)
         self.mutate(failed_test, "test summary mismatch")
+
+    def test_totals_are_recomputed_from_retained_machine_outputs(self):
+        def drift_junit_xml(root):
+            path = root / "logs/junit/TEST-second.xml"
+            path.write_text(path.read_text().replace('tests="25"', 'tests="24"'),
+                            encoding="utf-8")
+        self.mutate(drift_junit_xml, "JUnit raw results")
+
+        def drift_python_output(root):
+            path = root / "logs/aggregate-check.log"
+            path.write_text(path.read_text().replace("Ran 226 tests", "Ran 225 tests"),
+                            encoding="utf-8")
+        self.mutate(drift_python_output, "Python raw results")
+
+        def remove_checkout_proof(root):
+            path = root / "logs/gametest.log"
+            path.write_text("\n".join(path.read_text().splitlines()[1:]) + "\n",
+                            encoding="utf-8")
+        self.mutate(remove_checkout_proof, "checkout verification")
 
 
 if __name__ == "__main__":
