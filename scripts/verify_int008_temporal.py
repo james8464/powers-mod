@@ -4,9 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import re
+import subprocess
 from pathlib import Path
 
 
@@ -84,6 +86,47 @@ def _read_rows(path: Path) -> list[dict]:
     return rows
 
 
+def _git(repository: Path, *arguments: str, text: bool = True):
+    try:
+        return subprocess.check_output(
+            ["git", *arguments], cwd=repository, text=text,
+            stderr=subprocess.PIPE)
+    except (OSError, subprocess.CalledProcessError) as error:
+        raise ValueError(f"Git verification failed: {' '.join(arguments)}") from error
+
+
+def _verify_git(repository: Path, base_sha: str, implementation_sha: str,
+                inventory_lines: list[str]) -> None:
+    repository = repository.resolve()
+    if not repository.is_dir():
+        raise ValueError("Git repository is missing")
+    for sha, label in ((base_sha, "base"), (implementation_sha, "implementation")):
+        if SHA.fullmatch(sha) is None:
+            raise ValueError(f"invalid {label} SHA")
+        resolved = _git(repository, "rev-parse", f"{sha}^{{commit}}").strip()
+        if resolved != sha:
+            raise ValueError(f"unresolved {label} SHA")
+    try:
+        subprocess.run(["git", "merge-base", "--is-ancestor", base_sha,
+                        implementation_sha], cwd=repository, check=True,
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(["git", "merge-base", "--is-ancestor", implementation_sha,
+                        "HEAD"], cwd=repository, check=True,
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except (OSError, subprocess.CalledProcessError) as error:
+        raise ValueError("implementation ancestry mismatch") from error
+    paths = _git(repository, "diff", "--name-only", "--diff-filter=ACMRT",
+                 f"{base_sha}..{implementation_sha}").splitlines()
+    expected = []
+    for relative in paths:
+        if not re.fullmatch(r"[A-Za-z0-9_./@+-]+", relative):
+            raise ValueError("unsafe Git source path")
+        blob = _git(repository, "show", f"{implementation_sha}:{relative}", text=False)
+        expected.append(f"{hashlib.sha256(blob).hexdigest()}  {relative}")
+    if inventory_lines != sorted(expected):
+        raise ValueError("Git source inventory does not match the exact changed-file set")
+
+
 def _nonnegative_int(value, label: str) -> int:
     if isinstance(value, bool) or not isinstance(value, int) or value < 0:
         raise ValueError(f"{label} must be a non-negative integer")
@@ -125,7 +168,7 @@ def _validate_facts(case: str, facts: dict) -> None:
         raise ValueError("lifecycle cleanup proof failed")
 
 
-def validate(root: Path) -> dict:
+def validate(root: Path, repository: Path) -> dict:
     root = root.resolve()
     if not root.is_dir() or root.is_symlink():
         raise ValueError("evidence root must be a directory")
@@ -136,7 +179,7 @@ def validate(root: Path) -> dict:
             _privacy(path.read_bytes(), path.name)
 
     metadata = _read_json(root / "build-metadata.json")
-    expected_metadata = {"schemaVersion", "task", "implementationSha", "result",
+    expected_metadata = {"schemaVersion", "task", "baseSha", "implementationSha", "result",
                          "gameTests", "junitTests", "pythonTests"}
     if not isinstance(metadata, dict) or set(metadata) != expected_metadata \
             or metadata["schemaVersion"] != 2 or metadata["task"] != "INT-008" \
@@ -145,6 +188,9 @@ def validate(root: Path) -> dict:
     implementation_sha = metadata["implementationSha"]
     if not isinstance(implementation_sha, str) or SHA.fullmatch(implementation_sha) is None:
         raise ValueError("invalid implementation SHA")
+    base_sha = metadata["baseSha"]
+    if not isinstance(base_sha, str) or SHA.fullmatch(base_sha) is None:
+        raise ValueError("invalid base SHA")
     if _nonnegative_int(metadata["gameTests"], "GameTest count") != 161 \
             or _nonnegative_int(metadata["junitTests"], "JUnit count") < 1825 \
             or _nonnegative_int(metadata["pythonTests"], "Python count") < 1:
@@ -167,10 +213,16 @@ def validate(root: Path) -> dict:
             or len(inventory_lines) != len(set(inventory_lines)) \
             or any(SOURCE_ROW.fullmatch(line) is None for line in inventory_lines):
         raise ValueError("source inventory must be sorted, unique, and digest-bound")
+    _verify_git(repository, base_sha, implementation_sha, inventory_lines)
     log = _read(root / "logs/gametest.log").decode("utf-8")
     if "All 161 required tests passed" not in log \
             or any(case not in log for case in CASES):
         raise ValueError("GameTest log coverage mismatch")
+    row_lines = _read(root / "temporal-assertions.jsonl").decode("utf-8").splitlines()
+    log_rows = [line.split("INT008_TEMPORAL ", 1)[1]
+                for line in log.splitlines() if "INT008_TEMPORAL " in line]
+    if log_rows != row_lines:
+        raise ValueError("GameTest log rows do not byte-match temporal JSONL rows")
     _read(root / "README.md")
     return {"implementationSha": implementation_sha, "caseCount": len(rows),
             "result": metadata["result"]}
@@ -179,8 +231,9 @@ def validate(root: Path) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("root", type=Path)
+    parser.add_argument("--repository", type=Path, default=Path.cwd())
     options = parser.parse_args()
-    result = validate(options.root)
+    result = validate(options.root, options.repository)
     print(f"INT-008 evidence verified: {result['caseCount']} cases; "
           f"sha={result['implementationSha']}; result={result['result']}")
     return 0

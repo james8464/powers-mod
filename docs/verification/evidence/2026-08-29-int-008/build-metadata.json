@@ -1,6 +1,7 @@
 {
   "schemaVersion": 2,
   "task": "INT-008",
+  "baseSha": "98b181671b1514a3695ccb8f1ba1985092bce3dd",
   "implementationSha": "4e5fed0a92374140af8f28cc42773d2aeb6a9267",
   "result": "PENDING",
   "gameTests": 161,

@@ -354,6 +354,9 @@ tasks.named("runClientGameTest") {
 tasks.named("runGameTest") {
 	systemProperty "powers.int008.implementationSha",
 			providers.gradleProperty("int008ImplementationSha").getOrElse("0" * 40)
+	if (providers.gradleProperty("int008ImplementationSha").isPresent()) {
+		dependsOn("verifyInt008ImplementationSha")
+	}
 	if (providers.gradleProperty("gameTestFilter").isPresent()) {
 		systemProperty "fabric-api.gametest.filter", providers.gradleProperty("gameTestFilter").get()
 	} else if (perf016BenchmarkEnabled) {
@@ -394,6 +397,14 @@ tasks.named("runGameTest") {
 			eula.text = "eula=true\n"
 		}
 	}
+}
+
+tasks.register("verifyInt008ImplementationSha", Exec) {
+	group = "verification"
+	description = "Rejects an INT-008 capture unless its supplied SHA is checked-out HEAD."
+	def expected = providers.gradleProperty("int008ImplementationSha").getOrElse("")
+	commandLine "python3", "scripts/verify_int008_checkout.py",
+			"--repository", projectDir.absolutePath, "--expected", expected
 }
 
 tasks.named("runServer") {

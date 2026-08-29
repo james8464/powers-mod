@@ -6,8 +6,10 @@ from __future__ import annotations
 import argparse
 import gzip
 import hashlib
+import importlib.util
 import io
 import tarfile
+import tempfile
 from pathlib import Path
 
 
@@ -15,6 +17,12 @@ GENERATED = {"SHA256SUMS", "evidence-inventory.txt", "archive-inventory.txt"}
 TEXT_SUFFIXES = {".json", ".jsonl", ".md", ".txt", ".log", ".csv"}
 PRIVATE_MARKERS = (b"/Users/", b"\\Users\\", b".worktrees/", b"file://",
                    b"james8464")
+VERIFY_SPEC = importlib.util.spec_from_file_location(
+    "verify_int008_temporal_for_package",
+    Path(__file__).resolve().with_name("verify_int008_temporal.py"))
+VERIFY_INT008 = importlib.util.module_from_spec(VERIFY_SPEC)
+assert VERIFY_SPEC.loader is not None
+VERIFY_SPEC.loader.exec_module(VERIFY_INT008)
 
 
 def _sha256(path: Path) -> str:
@@ -80,22 +88,24 @@ def _archive(root: Path, paths: list[Path], output: Path) -> None:
                     archive.addfile(info, io.BytesIO(data))
 
 
-def package(root: Path, output: Path) -> dict:
+def package(root: Path, output: Path, repository: Path) -> dict:
     root = root.resolve()
     if not root.is_dir() or root.is_symlink():
         raise ValueError("evidence root must be a directory")
     payload = _payload(root)
     _validate_files(root, payload)
+    VERIFY_INT008.validate(root, repository)
     paths = _metadata(root, payload)
     _validate_files(root, paths)
     _archive(root, paths, output.resolve())
-    verify(root)
+    verify(root, repository)
+    verify_archive(output.resolve(), repository)
     return {"fileCount": len(paths),
             "files": [path.relative_to(root).as_posix() for path in paths],
             "archiveSha256": _sha256(output.resolve())}
 
 
-def verify(root: Path) -> bool:
+def verify(root: Path, repository: Path) -> bool:
     root = root.resolve()
     payload = _payload(root)
     _validate_files(root, payload)
@@ -116,6 +126,39 @@ def verify(root: Path) -> bool:
             or checksum_file.read_text(encoding="utf-8") != expected_checksums:
         raise ValueError("checksum mismatch")
     _validate_files(root, payload + [root / name for name in GENERATED])
+    VERIFY_INT008.validate(root, repository)
+    return True
+
+
+def verify_archive(archive_path: Path, repository: Path) -> bool:
+    archive_path = archive_path.resolve()
+    if not archive_path.is_file() or archive_path.is_symlink():
+        raise ValueError("archive must be a regular file")
+    with tempfile.TemporaryDirectory() as raw:
+        root = Path(raw)
+        with tarfile.open(archive_path, mode="r:gz") as archive:
+            members = archive.getmembers()
+            names = [member.name for member in members]
+            if names != sorted(names) or len(names) != len(set(names)):
+                raise ValueError("archive members must be sorted and unique")
+            for member in members:
+                relative = Path(member.name)
+                if member.name.startswith("/") or ".." in relative.parts \
+                        or not member.isfile():
+                    raise ValueError("unsafe archive member")
+                if member.mtime != 0 or member.mode != 0o644 or member.uid != 0 \
+                        or member.gid != 0 or member.uname or member.gname:
+                    raise ValueError("non-deterministic archive metadata")
+                source = archive.extractfile(member)
+                if source is None:
+                    raise ValueError("unreadable archive member")
+                destination = root / relative
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(source.read())
+        inventory = (root / "archive-inventory.txt").read_text(encoding="utf-8").splitlines()
+        if names != inventory:
+            raise ValueError("archive inventory does not match members")
+        verify(root, repository)
     return True
 
 
@@ -123,8 +166,9 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("root", type=Path)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--repository", type=Path, default=Path.cwd())
     options = parser.parse_args()
-    result = package(options.root, options.output)
+    result = package(options.root, options.output, options.repository)
     print(f"INT-008 evidence packaged: {result['fileCount']} files; "
           f"sha256={result['archiveSha256']}")
     return 0
