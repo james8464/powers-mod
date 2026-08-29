@@ -54,11 +54,11 @@
 - Consumes: typed `ControlTick` from Task 1.
 - Produces: immutable acquire/reconcile/release decisions and schema-2 lease snapshots.
 
-- [ ] Write RED tests for acquisition refusal, three sources, exact identity release, external supersession, deadlines, token saturation, and schema-1 migration.
-- [ ] Run the focused state tests and observe the intended failures.
-- [ ] Implement the smallest pure records/rules and journal codec changes.
-- [ ] Rerun state tests plus serialization/resource audits; expect green.
-- [ ] Commit and push Task 2.
+- [x] Write RED tests for acquisition refusal, three sources, exact identity release, external supersession, deadlines, token saturation, and schema-1 migration.
+- [x] Run the focused state tests and observe the intended failures.
+- [x] Implement the smallest pure records/rules and journal codec changes.
+- [x] Rerun state tests plus serialization/resource audits; expect green.
+- [x] Commit and push Task 2.
 
 ### Task 3: Production lease manager and tick-manager boundary
 
