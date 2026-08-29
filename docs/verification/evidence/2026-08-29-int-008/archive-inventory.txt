@@ -1,0 +1,9 @@
+README.md
+SHA256SUMS
+archive-inventory.txt
+build-metadata.json
+evidence-inventory.txt
+logs/gametest.log
+privacy-report.txt
+source-inventory.txt
+temporal-assertions.jsonl
