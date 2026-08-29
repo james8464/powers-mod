@@ -119,11 +119,11 @@
 **Interfaces:**
 - Produces: live proof for admin preservation, external supersession, expiry, projectile pause/resume, world-owned pause, and lifecycle cleanup.
 
-- [ ] Register RED GameTests and source-boundary assertions before changing any remaining production behavior.
-- [ ] Run focused JUnit and the unfiltered GameTest task; retain expected RED evidence.
-- [ ] Add only the minimal test hooks needed for deterministic observation; no test-only production policy.
-- [ ] Rerun all GameTests until 155 plus the new temporal cases pass without a lag invalidation.
-- [ ] Commit and push Task 5.
+- [x] Register RED GameTests and source-boundary assertions before changing any remaining production behavior.
+- [x] Run focused JUnit and the unfiltered GameTest task; retain expected RED evidence.
+- [x] Add only the minimal test hooks needed for deterministic observation; no test-only production policy.
+- [x] Rerun all GameTests until 155 plus the new temporal cases pass without a lag invalidation.
+- [x] Commit and push Task 5.
 
 ### Task 6: Exact-SHA evidence and independent review
 

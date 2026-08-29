@@ -27,6 +27,7 @@
 			,"com.powers.gametest.VfxGalleryGameTests"
 			,"com.powers.gametest.CastingPoseGameTests"
 			,"com.powers.gametest.LayeredAudioGameTests"
+			,"com.powers.gametest.TemporalOwnershipGameTests"
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests",
