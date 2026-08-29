@@ -76,7 +76,11 @@ public final class LightningStrikeAbility extends Ability {
 		StormTribunal tribunal = ACTIVE.get(player.getUUID());
 		if (tribunal == null || !(player.level() instanceof ServerLevel level)) return;
 		PhysicalMagicPresences.bindExistingFixed(presenceId, level, tribunal.center,
-				MagicPresenceHandle.Kind.IMPACT, tribunal.expiresAt);
+				MagicPresenceHandle.Kind.IMPACT,
+				com.powers.magic.runtime.MagicPresenceDeadline.fromControlRemaining(
+						com.powers.time.TemporalClocks.world(level),
+						com.powers.time.ControlTick.at(level.getServer().getTickCount()),
+						com.powers.time.ControlTick.at(tribunal.expiresAt)));
 	}
 
 	/** Validates and captures the paid Lightning source. */

@@ -238,8 +238,8 @@ public final class GlobalTimeStopManager {
 		Long internalToken = INTERNAL_CLOCK_WRITES.get(server);
 		if (internalToken == null || internalToken.longValue() != lease.token()) {
 			if (!book(server).observeExternalWrite(() -> clearPersisted(server))) {
-				throw new IllegalStateException(
-						"External clock write refused because POWERS authority could not be retired");
+				PowersMod.LOGGER.error(
+						"External clock write superseded POWERS, but journal retirement must be retried");
 			}
 		}
 	}

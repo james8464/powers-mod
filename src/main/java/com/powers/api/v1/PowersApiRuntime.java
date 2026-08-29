@@ -252,10 +252,12 @@ public final class PowersApiRuntime implements PowersApiV1 {
 		}
 		Vec3 point = new Vec3(presence.x(), presence.y(), presence.z());
 		long now = server.getTickCount();
+		com.powers.time.WorldTick worldNow = com.powers.time.TemporalClocks.world(presence.level());
 		long maxLifetime = Math.max(1, Math.max(definition.baseDurationTicks(), definition.residueTicks()));
 		double maxRange = definition.baseRange();
 		if (presence.radius() > maxRange || authorized.actor.position().distanceToSqr(point) > maxRange * maxRange
-				|| presence.expiresAt() <= now || presence.expiresAt() - now > maxLifetime) {
+				|| presence.expiresAt() <= worldNow.value()
+				|| presence.expiresAt() - worldNow.value() > maxLifetime) {
 			throw new IllegalArgumentException("Presence exceeds registered action bounds");
 		}
 		if (authorized.actor.isSpectator() || !MagicUseGate.passes(authorized.actor, true, authorized.actionId)
@@ -264,7 +266,7 @@ public final class PowersApiRuntime implements PowersApiV1 {
 						net.minecraft.core.BlockPos.containing(point))) {
 			throw new IllegalStateException("Presence denied by authoritative policy");
 		}
-		pruneExpiredPresences(now);
+		pruneExpiredPresences(worldNow.value());
 		if (presences.size() >= MAX_PRESENCES_PER_EPOCH
 				|| presenceCounts.getOrDefault(authorized.extensionId, 0) >= MAX_PRESENCES_PER_EXTENSION) {
 			throw new IllegalStateException("Presence work limit reached");
@@ -291,7 +293,7 @@ public final class PowersApiRuntime implements PowersApiV1 {
 		MagicPresenceHandle internal;
 		try {
 			internal = PhysicalMagicPresences.registerFixed(action, authorized.actor.getUUID(), presence.level(),
-					point, presence.radius(), presence.expiresAt(),
+					point, presence.radius(), com.powers.time.WorldTick.at(presence.expiresAt()),
 					MagicPresenceHandle.Kind.valueOf(presence.kind().name()));
 		} catch (RuntimeException | LinkageError failure) {
 			if (!TestingOverrides.energyDisabled(authorized.actor.getUUID())) {
@@ -311,7 +313,8 @@ public final class PowersApiRuntime implements PowersApiV1 {
 
 	@Override public boolean removePresence(PresenceHandle handle) {
 		checkThread();
-		if (server != null) pruneExpiredPresences(server.getTickCount());
+		if (server != null) pruneExpiredPresences(
+				com.powers.time.TemporalClocks.world(server.overworld()).value());
 		return releasePresence(handle);
 	}
 

@@ -218,7 +218,7 @@ final class PowersServerLifecycle {
 				com.powers.time.TemporalSubsystem.MAGIC_PRESENCES)) {
 			long worldTick = com.powers.time.TemporalClocks.world(server.overworld()).value();
 			MagicRuntime.global().tick(worldTick);
-			PhysicalMagicPresences.tick(worldTick);
+			PhysicalMagicPresences.tick(com.powers.time.WorldTick.at(worldTick));
 		}
 		PlayerTickCoordinator.tick(server, tick);
 		ArtifactInventoryRuntime.tickServer(server);

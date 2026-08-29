@@ -105,7 +105,7 @@ public final class BodyProxyManager {
 		BY_OWNER.put(player.getUUID(), active);
 		BY_BODY.put(body.getUUID(), active);
 		PhysicalMagicPresences.registerEntity(new MagicActionId("astral_projection"),
-				player.getUUID(), body, 0.9, Long.MAX_VALUE);
+				player.getUUID(), body, 0.9, com.powers.time.WorldTick.at(Long.MAX_VALUE));
 		BodyProxyPackets.sendToTracking(body, snapshot);
 		PowerFx.rune(level, player.position(), 1.4, 0xBCA7FF, 20, 0.0);
 		return true;

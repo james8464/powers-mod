@@ -16,6 +16,8 @@ import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.PowerEntityState;
 import com.powers.progression.ScaledMagicValues;
 import com.powers.spell.SpellFieldManager;
+import com.powers.time.ControlTick;
+import com.powers.time.TemporalClocks;
 import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -112,8 +114,12 @@ public final class FireballAbility extends Ability {
 		Cinderheart heart = BY_OWNER.get(player.getUUID());
 		LargeFireball projectile = findProjectile(player.level().getServer(), heart);
 		if (heart != null && projectile != null) {
+			ServerLevel level = (ServerLevel) projectile.level();
 			PhysicalMagicPresences.bindExistingEntity(presenceId, projectile,
-					MagicPresenceHandle.Kind.PROJECTILE, heart.expiresAt);
+					MagicPresenceHandle.Kind.PROJECTILE,
+					com.powers.magic.runtime.MagicPresenceDeadline.fromControlRemaining(
+							TemporalClocks.world(level), ControlTick.at(level.getServer().getTickCount()),
+							ControlTick.at(heart.expiresAt)));
 		}
 	}
 
@@ -412,7 +418,9 @@ public final class FireballAbility extends Ability {
 		level.gameEvent(GameEvent.PROJECTILE_LAND, point,
 				GameEvent.Context.of(projectile, null));
 		PhysicalMagicPresences.fixEntity(projectile, level, point,
-				MagicPresenceHandle.Kind.IMPACT, level.getServer().getTickCount() + 20L);
+				MagicPresenceHandle.Kind.IMPACT,
+				com.powers.magic.runtime.MagicPresenceDeadline.after(
+						TemporalClocks.world(level), 20L));
 		removeState(heart, projectile, true);
 	}
 

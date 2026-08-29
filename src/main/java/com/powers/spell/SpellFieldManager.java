@@ -118,7 +118,7 @@ public final class SpellFieldManager {
 		long expiresAt = worldTick.plus(Math.max(1, durationTicks)).value();
 		MagicPresenceHandle presence = PhysicalMagicPresences.registerFixed(
 				new MagicActionId(actionId(kind)), owner.getUUID(), (ServerLevel) owner.level(),
-				owner.position(), boundedRadius, expiresAt, MagicPresenceHandle.Kind.FIELD);
+				owner.position(), boundedRadius, WorldTick.at(expiresAt), MagicPresenceHandle.Kind.FIELD);
 		Field field = new Field(kind, owner.level().dimension(), owner.position(), owner.getUUID(),
 				expiresAt, boundedRadius, Math.max(0, potencyTier), worldTick, presence);
 		FIELDS.put(key, field);

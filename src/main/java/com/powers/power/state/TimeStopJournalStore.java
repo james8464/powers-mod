@@ -17,13 +17,31 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 
 /** Synchronous, atomic, read-back-verified persistence for clock ownership authority. */
 final class TimeStopJournalStore {
+	enum WriteBoundary {
+		AFTER_RENAME,
+		AFTER_DIRECTORY_SYNC,
+		AFTER_READBACK
+	}
+
+	@FunctionalInterface
+	interface FaultInjector {
+		void reach(WriteBoundary boundary) throws IOException;
+	}
+
 	private final Path target;
+	private final FaultInjector faultInjector;
 
 	TimeStopJournalStore(Path target) {
+		this(target, ignored -> { });
+	}
+
+	TimeStopJournalStore(Path target, FaultInjector faultInjector) {
 		this.target = target.toAbsolutePath().normalize();
+		this.faultInjector = faultInjector;
 	}
 
 	static TimeStopJournalStore forServer(MinecraftServer server) {
@@ -54,7 +72,9 @@ final class TimeStopJournalStore {
 		Path parent = target.getParent();
 		if (parent == null) throw new IOException("Time Stop journal has no parent directory");
 		Files.createDirectories(parent);
+		byte[] previous = Files.isRegularFile(target) ? Files.readAllBytes(target) : null;
 		Path temporary = Files.createTempFile(parent, ".time-stop-ownership-", ".tmp");
+		boolean installed = false;
 		try {
 			Files.write(temporary, encode(snapshot), StandardOpenOption.TRUNCATE_EXISTING,
 					StandardOpenOption.WRITE, StandardOpenOption.SYNC);
@@ -63,14 +83,53 @@ final class TimeStopJournalStore {
 			}
 			Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE,
 					StandardCopyOption.REPLACE_EXISTING);
-			try (FileChannel directory = FileChannel.open(parent, StandardOpenOption.READ)) {
-				directory.force(true);
-			}
+			installed = true;
+			faultInjector.reach(WriteBoundary.AFTER_RENAME);
+			syncDirectory(parent);
+			faultInjector.reach(WriteBoundary.AFTER_DIRECTORY_SYNC);
 			if (!snapshot.equals(read())) {
 				throw new IOException("Time Stop journal read-back did not match the requested state");
 			}
+			faultInjector.reach(WriteBoundary.AFTER_READBACK);
+		} catch (IOException | RuntimeException failure) {
+			if (installed) {
+				try {
+					restore(parent, previous);
+				} catch (IOException rollbackFailure) {
+					failure.addSuppressed(rollbackFailure);
+				}
+			}
+			throw failure;
 		} finally {
 			Files.deleteIfExists(temporary);
+		}
+	}
+
+	private void restore(Path parent, byte[] previous) throws IOException {
+		if (previous == null) {
+			Files.deleteIfExists(target);
+			syncDirectory(parent);
+			if (Files.exists(target)) throw new IOException("Time Stop journal rollback left a target");
+			return;
+		}
+		Path rollback = Files.createTempFile(parent, ".time-stop-rollback-", ".tmp");
+		try {
+			Files.write(rollback, previous, StandardOpenOption.TRUNCATE_EXISTING,
+					StandardOpenOption.WRITE, StandardOpenOption.SYNC);
+			Files.move(rollback, target, StandardCopyOption.ATOMIC_MOVE,
+					StandardCopyOption.REPLACE_EXISTING);
+			syncDirectory(parent);
+			if (!Arrays.equals(previous, Files.readAllBytes(target))) {
+				throw new IOException("Time Stop journal rollback did not restore prior bytes");
+			}
+		} finally {
+			Files.deleteIfExists(rollback);
+		}
+	}
+
+	private static void syncDirectory(Path parent) throws IOException {
+		try (FileChannel directory = FileChannel.open(parent, StandardOpenOption.READ)) {
+			directory.force(true);
 		}
 	}
 

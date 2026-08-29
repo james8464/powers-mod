@@ -3,6 +3,7 @@ package com.powers.magic.runtime;
 import com.powers.magic.MagicActionId;
 import com.powers.magic.InteractionContext;
 import com.powers.time.TemporalClocks;
+import com.powers.time.WorldTick;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -49,51 +50,51 @@ public final class PhysicalMagicPresences {
 
 	/** Reanchors an already committed cast residue to a live entity or projectile. */
 	public static MagicPresenceHandle bindExistingEntity(MagicPresenceId presenceId, Entity entity,
-			MagicPresenceHandle.Kind kind, long expiresAt) {
+			MagicPresenceHandle.Kind kind, WorldTick expiresAt) {
 		Objects.requireNonNull(entity, "entity");
 		if (!(entity.level() instanceof ServerLevel level)) return null;
 		MagicPresenceHandle handle = MagicPresenceHandle.entity(presenceId, kind, entity.getUUID());
 		if (!MagicRuntime.global().rebindPresence(presenceId, dimension(level),
-				anchor(kind, entity), expiresAt)) return null;
-		put(handle, expiresAt);
+				anchor(kind, entity), expiresAt.value())) return null;
+		put(handle, expiresAt.value());
 		collideNearby(handle, level, entity.position(), TemporalClocks.world(level).value());
 		return handle;
 	}
 
 	/** Reanchors a committed cast at an authoritative beam or impact point. */
 	public static MagicPresenceHandle bindExistingFixed(MagicPresenceId presenceId, ServerLevel level,
-			Vec3 point, MagicPresenceHandle.Kind kind, long expiresAt) {
+			Vec3 point, MagicPresenceHandle.Kind kind, WorldTick expiresAt) {
 		MagicPresenceHandle handle = MagicPresenceHandle.fixed(presenceId, kind);
 		if (!MagicRuntime.global().rebindPresence(presenceId, dimension(level),
-				PresenceAnchor.fixed(point.x, point.y, point.z), expiresAt)) return null;
-		put(handle, expiresAt);
+				PresenceAnchor.fixed(point.x, point.y, point.z), expiresAt.value())) return null;
+		put(handle, expiresAt.value());
 		collideNearby(handle, level, point, TemporalClocks.world(level).value());
 		return handle;
 	}
 
 	/** Registers a physical field or force block that was not created by an ability residue. */
 	public static MagicPresenceHandle registerFixed(MagicActionId action, UUID owner,
-			ServerLevel level, Vec3 point, double radius, long expiresAt,
+			ServerLevel level, Vec3 point, double radius, WorldTick expiresAt,
 			MagicPresenceHandle.Kind kind) {
 		MagicPresenceId id = MagicPresenceId.random();
 		MagicRuntime.global().registerPresence(new MagicPresence(id, action, owner, dimension(level),
-				PresenceAnchor.fixed(point.x, point.y, point.z), radius, expiresAt));
+				PresenceAnchor.fixed(point.x, point.y, point.z), radius, expiresAt.value()));
 		MagicPresenceHandle handle = MagicPresenceHandle.fixed(id, kind);
-		put(handle, expiresAt);
+		put(handle, expiresAt.value());
 		collideNearby(handle, level, point, TemporalClocks.world(level).value());
 		return handle;
 	}
 
 	/** Registers a body/entity presence for real body-field collision handling. */
 	public static MagicPresenceHandle registerEntity(MagicActionId action, UUID owner,
-			Entity entity, double radius, long expiresAt) {
+			Entity entity, double radius, WorldTick expiresAt) {
 		if (!(entity.level() instanceof ServerLevel level)) return null;
 		MagicPresenceId id = MagicPresenceId.random();
 		MagicRuntime.global().registerPresence(new MagicPresence(id, action, owner, dimension(level),
-				anchor(MagicPresenceHandle.Kind.ENTITY, entity), radius, expiresAt));
+				anchor(MagicPresenceHandle.Kind.ENTITY, entity), radius, expiresAt.value()));
 		MagicPresenceHandle handle = MagicPresenceHandle.entity(id,
 				MagicPresenceHandle.Kind.ENTITY, entity.getUUID());
-		put(handle, expiresAt);
+		put(handle, expiresAt.value());
 		collideNearby(handle, level, entity.position(), TemporalClocks.world(level).value());
 		return handle;
 	}
@@ -113,7 +114,7 @@ public final class PhysicalMagicPresences {
 
 	/** Converts a projectile presence into a short fixed impact without token duplication. */
 	public static void fixEntity(Entity entity, ServerLevel level, Vec3 point,
-			MagicPresenceHandle.Kind kind, long expiresAt) {
+			MagicPresenceHandle.Kind kind, WorldTick expiresAt) {
 		MagicPresenceId id = BY_ENTITY.remove(entity.getUUID());
 		if (id == null) return;
 		bindExistingFixed(id, level, point, kind, expiresAt);
@@ -139,8 +140,8 @@ public final class PhysicalMagicPresences {
 	}
 
 	/** Prunes only handle buckets whose authoritative world-time expiry has elapsed. */
-	public static void tick(long gameTime) {
-		if (gameTime < 0L) throw new IllegalArgumentException("Game time cannot be negative");
+	public static void tick(WorldTick tick) {
+		long gameTime = tick.value();
 		for (MagicPresenceId id : BY_EXPIRY.headMap(gameTime, true).values().stream()
 				.flatMap(Collection::stream).toList()) {
 			Bound removed = BOUND.remove(id);

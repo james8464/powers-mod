@@ -125,7 +125,9 @@ public final class LivingForceManager {
 			PhysicalMagicPresences.registerFixed(new MagicActionId(
 					kind == LivingForceKind.DARKNESS ? "darkness_block" : "pure_light_block"),
 					WORLD_MAGIC_OWNER, level, Vec3.atCenterOf(target), 1.5,
-					level.getServer().getTickCount() + 200L, MagicPresenceHandle.Kind.FORCE_BLOCK);
+					com.powers.magic.runtime.MagicPresenceDeadline.after(
+							com.powers.time.TemporalClocks.world(level), 200L),
+					MagicPresenceHandle.Kind.FORCE_BLOCK);
 			emitSpreadCue(level, source, target, kind, random);
 		}
 	}

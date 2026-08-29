@@ -46,16 +46,21 @@ class TimeStopLeaseBookTest {
 	}
 
 	@Test
-	void externalWriteCannotSupersedeUntilAuthorityIsDurablyRetired() {
+	void externalWriteAlwaysSupersedesProcessAuthorityEvenWhenJournalRetirementFails() {
 		TimeStopLeaseBook book = new TimeStopLeaseBook();
 		TimeStopLease lease = book.acquire(OWNER, TimeStopLeaseSource.INNATE,
 				ControlTick.at(10L), Long.MAX_VALUE, null, false).orElseThrow();
 
 		assertFalse(book.observeExternalWrite(() -> false));
-		assertEquals(lease, book.active().orElseThrow());
-		assertFalse(book.active().orElseThrow().externallySuperseded());
+		assertTrue(book.active().orElseThrow().externallySuperseded());
+		assertFalse(book.release(lease.token(), OWNER,
+				TimeStopLeaseSource.INNATE, true).unfreeze());
+
+		TimeStopLease replacement = book.acquire(OWNER, TimeStopLeaseSource.INNATE,
+				ControlTick.at(20L), Long.MAX_VALUE, null, false).orElseThrow();
 		assertTrue(book.observeExternalWrite(() -> true));
 		assertTrue(book.active().orElseThrow().externallySuperseded());
+		assertEquals(replacement.token(), book.active().orElseThrow().token());
 	}
 
 	@Test

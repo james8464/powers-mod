@@ -168,7 +168,8 @@ final class MagicReactionEffects {
 	private static void fractureExistingWard(ServerLevel level, MagicReactionEvent event) {
 		if (!event.existing().action().value().equals("forcefield")) return;
 		MagicShieldManager.global().absorb(event.existing().owner(),
-				4.0f + event.resolution().cue().intensity() * 2.0f, event.cast().gameTime());
+				4.0f + event.resolution().cue().intensity() * 2.0f,
+				level.getServer().getTickCount());
 	}
 
 	private static void groundStorm(ServerLevel level, Vec3 midpoint) {

@@ -34,9 +34,8 @@ final class TimeStopLeaseBook {
 
 	boolean observeExternalWrite(BooleanSupplier retireJournal) {
 		if (active == null) return true;
-		if (!retireJournal.getAsBoolean()) return false;
 		active = TimeStopLeaseRules.externallySupersede(active);
-		return true;
+		return retireJournal.getAsBoolean();
 	}
 
 	ReleaseDecision release(long token, UUID owner, TimeStopLeaseSource source,

@@ -46,4 +46,25 @@ class TimeStopJournalStoreTest {
 		assertThrows(IOException.class,
 				() -> blocked.writeVerified(TimeStopSavedData.emptySnapshot()));
 	}
+
+	@Test
+	void postRenameFailuresRestoreThePreviouslyAcknowledgedJournal() throws IOException {
+		SharedConstants.tryDetectVersion();
+		Path target = temporary.resolve("transaction/data/powers/time_stop_ownership.dat");
+		TimeStopJournalStore stable = new TimeStopJournalStore(target);
+		stable.writeVerified(TimeStopSavedData.emptySnapshot());
+		TimeStopSavedData data = new TimeStopSavedData();
+		data.activate(TimeStopLeaseRules.create(19L,
+				UUID.fromString("00000000-0000-0000-0000-000000000001"),
+				TimeStopLeaseSource.CRYSTAL, ControlTick.at(4_000L), 1_200L, null));
+
+		for (TimeStopJournalStore.WriteBoundary boundary : TimeStopJournalStore.WriteBoundary.values()) {
+			TimeStopJournalStore failing = new TimeStopJournalStore(target, reached -> {
+				if (reached == boundary) throw new IOException("injected " + boundary);
+			});
+
+			assertThrows(IOException.class, () -> failing.writeVerified(data.snapshot()), boundary.name());
+			assertEquals(TimeStopSavedData.emptySnapshot(), stable.read(), boundary.name());
+		}
+	}
 }
