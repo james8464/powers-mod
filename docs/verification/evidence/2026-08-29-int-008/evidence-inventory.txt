@@ -4,6 +4,8 @@ archive-inventory.txt
 build-metadata.json
 evidence-inventory.txt
 logs/gametest.log
+logs/junit-summary.json
+logs/python-summary.json
 privacy-report.txt
 source-inventory.txt
 temporal-assertions.jsonl

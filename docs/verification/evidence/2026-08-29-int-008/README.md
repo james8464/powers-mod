@@ -1,7 +1,7 @@
 # INT-008 temporal lease evidence
 
 This pending package binds live dedicated-server acceptance to exact implementation commit
-`707cf3f829347a813365a7bfe81367ac7252c719`. The retained JSONL rows are copied verbatim from the
+`f096b7232810173dd4a86003b73b618a95fa0592`. The retained JSONL rows are copied verbatim from the
 successful unfiltered GameTest process; they are not reconstructed from expected values.
 
 ## Coverage
@@ -10,17 +10,19 @@ successful unfiltered GameTest process; they are not reconstructed from expected
 - An external same-value write supersedes the lease and is not undone by POWERS cleanup.
 - Crystal time stop remains active through control tick 1,199 and releases at exactly tick 1,200
   while world time is parked.
-- Seeded channel, field, Celestial, realm-energy, and world-time state remains unchanged under both
-  external and POWERS-owned vanilla freeze.
+- Seeded channel, field, Celestial, realm-energy, Herald cadence, and world-time state remains
+  unchanged under both external and POWERS-owned vanilla freeze.
 - A real Darkness projectile remains stationary during freeze and resumes after the server-end thaw probe.
-- A mismatched innate stop preserves a crystal lease while the real Fabric disconnect path releases it.
+- A mismatched innate stop preserves a crystal lease; real death, dampening, Shadow loss, shutdown,
+  and Fabric disconnect lifecycle paths release their leases.
 - The unchanged unfiltered suite passed all 161 required GameTests. The aggregate closure gate and
-  independent review remain pending, so `build-metadata.json` intentionally reports `PENDING`.
+  its exact implementation head also passed 1,830 JUnit and 231 Python tests. Independent review
+  remains pending, so `build-metadata.json` intentionally reports `PENDING`.
 
 ## Reproduction
 
 ```text
-JAVA_HOME=<java25> ./gradlew runGameTest -Pint008ImplementationSha=707cf3f829347a813365a7bfe81367ac7252c719 --rerun-tasks --no-daemon --console=plain
+JAVA_HOME=<java25> ./gradlew runGameTest -Pint008ImplementationSha=f096b7232810173dd4a86003b73b618a95fa0592 --rerun-tasks --no-daemon --console=plain
 python3 -m unittest discover -s scripts/tests -p test_*.py
 python3 scripts/verify_int008_temporal.py docs/verification/evidence/2026-08-29-int-008
 python3 scripts/package_int008_evidence.py docs/verification/evidence/2026-08-29-int-008 --output <archive.tar.gz>
