@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.realm.RealmConfinementRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:48.553Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+  <properties/>
+  <testcase name="deathCannotBypassLightRealmDepartureRequirements()" classname="com.powers.realm.RealmConfinementRulesTest" time="0.0"/>
+  <testcase name="missingRequiredRealmFailsClosedIntoARecoveryHold()" classname="com.powers.realm.RealmConfinementRulesTest" time="0.0"/>
+  <testcase name="deathCannotBypassDarkRealmDepartureRequirements()" classname="com.powers.realm.RealmConfinementRulesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

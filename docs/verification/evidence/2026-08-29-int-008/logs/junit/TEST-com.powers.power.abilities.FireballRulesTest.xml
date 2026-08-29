@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.power.abilities.FireballRulesTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:14.748Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="lifecycleRequiresEveryOwnerInvariant()" classname="com.powers.power.abilities.FireballRulesTest" time="0.0"/>
+  <testcase name="reflectionsIncludeRankBonusesAndNeverBecomeInfinite()" classname="com.powers.power.abilities.FireballRulesTest" time="0.0"/>
+  <testcase name="deliberateReleaseKeepsExactOwnershipAndStartsBoundedFlight()" classname="com.powers.power.abilities.FireballRulesTest" time="0.0"/>
+  <testcase name="semanticImpactTerminalsUseAStablePriority()" classname="com.powers.power.abilities.FireballRulesTest" time="0.0"/>
+  <testcase name="chargeTiersAreFiniteAndAncientMasteryUnlocksTheFourthSeal()" classname="com.powers.power.abilities.FireballRulesTest" time="0.0"/>
+  <testcase name="distanceFalloffAndTrailSamplingRemainFinite()" classname="com.powers.power.abilities.FireballRulesTest" time="0.0"/>
+  <testcase name="hoverAndLaunchLifetimesUseExclusiveBoundaries()" classname="com.powers.power.abilities.FireballRulesTest" time="0.0"/>
+  <testcase name="tierAndMightScaleImpactWithoutUnboundedValues()" classname="com.powers.power.abilities.FireballRulesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

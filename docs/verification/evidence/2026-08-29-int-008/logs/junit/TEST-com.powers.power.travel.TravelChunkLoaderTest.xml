@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.power.travel.TravelChunkLoaderTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:14.851Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="diagnosticReasonsAreBoundedAndControlFree()" classname="com.powers.power.travel.TravelChunkLoaderTest" time="0.001"/>
+  <testcase name="loadingTicketOutlivesTheWaitAndLongestTeleportStorm()" classname="com.powers.power.travel.TravelChunkLoaderTest" time="0.0"/>
+  <testcase name="admissionAppliesGlobalAndPerDimensionBackpressureButAllowsReplacement()" classname="com.powers.power.travel.TravelChunkLoaderTest" time="0.0"/>
+  <testcase name="readinessMustArriveWithinTheServerTickDeadline()" classname="com.powers.power.travel.TravelChunkLoaderTest" time="0.0"/>
+  <testcase name="requestStateSettlesExactlyOnceAcrossReadyTimeoutAndReplacement()" classname="com.powers.power.travel.TravelChunkLoaderTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

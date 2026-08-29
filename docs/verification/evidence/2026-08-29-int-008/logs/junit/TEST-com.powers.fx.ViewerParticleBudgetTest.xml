@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.fx.ViewerParticleBudgetTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:12.185Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="rejectsInvalidRequestsWithoutConsumingBudget()" classname="com.powers.fx.ViewerParticleBudgetTest" time="0.0"/>
+  <testcase name="cullsDistantViewersAndResetsAllCountersOnTheNextTick()" classname="com.powers.fx.ViewerParticleBudgetTest" time="0.0"/>
+  <testcase name="chargesEveryActualRecipientAgainstServerAndViewerCaps()" classname="com.powers.fx.ViewerParticleBudgetTest" time="0.001"/>
+  <testcase name="enforcesPerViewerCapBeforeTheServerIsFull()" classname="com.powers.fx.ViewerParticleBudgetTest" time="0.0"/>
+  <testcase name="duplicateProfilesRetainIndependentLiveViewerAllowances()" classname="com.powers.fx.ViewerParticleBudgetTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

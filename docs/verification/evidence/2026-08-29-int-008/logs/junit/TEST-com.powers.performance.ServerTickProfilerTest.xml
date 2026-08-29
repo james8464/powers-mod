@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.performance.ServerTickProfilerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:13.128Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="emptyProfilesHaveZeroPercentiles()" classname="com.powers.performance.ServerTickProfilerTest" time="0.001"/>
+  <testcase name="realTimeHarnessUsesACumulativeTwentyTpsDeadlineWithoutDrift()" classname="com.powers.performance.ServerTickProfilerTest" time="0.0"/>
+  <testcase name="percentilesUseNearestRankAndConvertNanosToMspt()" classname="com.powers.performance.ServerTickProfilerTest" time="0.0"/>
+  <testcase name="completionRequiresBothTheExactSampleCountAndFullWallDuration()" classname="com.powers.performance.ServerTickProfilerTest" time="0.0"/>
+  <testcase name="duplicateLifecycleCallbacksCannotSampleOneLogicalTickTwice()" classname="com.powers.performance.ServerTickProfilerTest" time="0.0"/>
+  <testcase name="samplingStopsAtTheRequestedCountWhileWallTimeCatchesUp()" classname="com.powers.performance.ServerTickProfilerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

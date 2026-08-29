@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.fx.FxLodPolicyTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:12.060Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+  <properties/>
+  <testcase name="celestialRangePreservesCatastrophicSilhouetteToSixThousandBlocks()" classname="com.powers.fx.FxLodPolicyTest" time="0.0"/>
+  <testcase name="eventScaleFarTierRetainsMinimumReadableGeometryAndAudio()" classname="com.powers.fx.FxLodPolicyTest" time="0.0"/>
+  <testcase name="localGeometryKeepsFullNearDensityAndBoundedMidSilhouette()" classname="com.powers.fx.FxLodPolicyTest" time="0.0"/>
+  <testcase name="invalidDistanceAndEmptyRequestsFailClosed()" classname="com.powers.fx.FxLodPolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,7 +1,7 @@
 # INT-008 temporal lease evidence
 
 This pending package binds live dedicated-server acceptance to exact implementation commit
-`f096b7232810173dd4a86003b73b618a95fa0592`. The retained JSONL rows are copied verbatim from the
+`7242e601fd651dc1e7b95215e2259c1699bc38a5`. The retained JSONL rows are copied verbatim from the
 successful unfiltered GameTest process; they are not reconstructed from expected values.
 
 ## Coverage
@@ -16,13 +16,13 @@ successful unfiltered GameTest process; they are not reconstructed from expected
 - A mismatched innate stop preserves a crystal lease; real death, dampening, Shadow loss, shutdown,
   and Fabric disconnect lifecycle paths release their leases.
 - The unchanged unfiltered suite passed all 161 required GameTests. The aggregate closure gate and
-  its exact implementation head also passed 1,830 JUnit and 231 Python tests. Independent review
+  its exact implementation head also passed 1,835 JUnit and 234 Python tests. Independent review
   remains pending, so `build-metadata.json` intentionally reports `PENDING`.
 
 ## Reproduction
 
 ```text
-JAVA_HOME=<java25> ./gradlew runGameTest -Pint008ImplementationSha=f096b7232810173dd4a86003b73b618a95fa0592 --rerun-tasks --no-daemon --console=plain
+JAVA_HOME=<java25> ./gradlew runGameTest -Pint008ImplementationSha=7242e601fd651dc1e7b95215e2259c1699bc38a5 --rerun-tasks --no-daemon --console=plain
 python3 -m unittest discover -s scripts/tests -p test_*.py
 python3 scripts/verify_int008_temporal.py docs/verification/evidence/2026-08-29-int-008
 python3 scripts/package_int008_evidence.py docs/verification/evidence/2026-08-29-int-008 --output <archive.tar.gz>

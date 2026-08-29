@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.force.LivingForceIndexTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:12.043Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="movingAForceUpdatesItsKindWithoutDuplicatingPosition()" classname="com.powers.force.LivingForceIndexTest" time="0.0"/>
+  <testcase name="boundedQueriesStopAfterTheirInspectionLimit()" classname="com.powers.force.LivingForceIndexTest" time="0.0"/>
+  <testcase name="auraIterationVisitsOnlyChunkBucketsContainingTheRequestedForce()" classname="com.powers.force.LivingForceIndexTest" time="0.0"/>
+  <testcase name="diagnosticsExposeQueryCandidatesMissesStaleRepairsAndMemory()" classname="com.powers.force.LivingForceIndexTest" time="0.001"/>
+  <testcase name="removalAndChunkEvictionDiscardStalePositions()" classname="com.powers.force.LivingForceIndexTest" time="0.0"/>
+  <testcase name="rangeQueriesReturnOnlyMatchingInSpherePositions()" classname="com.powers.force.LivingForceIndexTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

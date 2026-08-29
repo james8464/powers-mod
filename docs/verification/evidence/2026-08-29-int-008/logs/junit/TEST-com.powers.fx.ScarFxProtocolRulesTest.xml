@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.fx.ScarFxProtocolRulesTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:12.074Z" hostname="MacBook-Pro-de-James.local" time="0.085">
+  <properties/>
+  <testcase name="counterExhaustionPermanentlyDisablesAdmissionsUntilActualServerRestart()" classname="com.powers.fx.ScarFxProtocolRulesTest" time="0.001"/>
+  <testcase name="wireHasExactEightValidatedFields()" classname="com.powers.fx.ScarFxProtocolRulesTest" time="0.0"/>
+  <testcase name="remainingServerLeaseMapsToReceiptLocalLifecycleTickAcrossDelayAndFreeze()" classname="com.powers.fx.ScarFxProtocolRulesTest" time="0.001"/>
+  <testcase name="resetDimensionClearsCurrentSessionStateBeforeSnapshotCreates()" classname="com.powers.fx.ScarFxProtocolRulesTest" time="0.001"/>
+  <testcase name="exactRemoveWinsButDelayedOldRemoveCannotEraseReplacement()" classname="com.powers.fx.ScarFxProtocolRulesTest" time="0.0"/>
+  <testcase name="generationNotSeedOrTickOrdersSameKeyRecreationAndReorder()" classname="com.powers.fx.ScarFxProtocolRulesTest" time="0.0"/>
+  <testcase name="clientCapAllowsExistingUpdateButRejectsNewKeyAndInvalidBeforeMutation()" classname="com.powers.fx.ScarFxProtocolRulesTest" time="0.081"/>
+  <testcase name="handlerCapturedBeforeConnectionOrDimensionResetIsIgnored()" classname="com.powers.fx.ScarFxProtocolRulesTest" time="0.0"/>
+  <testcase name="reconnectAndDimensionResetEpochButResourceReloadPreservesSemanticState()" classname="com.powers.fx.ScarFxProtocolRulesTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

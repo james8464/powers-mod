@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.power.abilities.PossessionRulesTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:14.752Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="possessionHasAThirtySecondCeilingAndCannotOverpowerAHigherRankPlayer()" classname="com.powers.power.abilities.PossessionRulesTest" time="0.0"/>
+  <testcase name="dreamwalkingUsesTheSharedControlChannelWithoutInnateRankScaling()" classname="com.powers.power.abilities.PossessionRulesTest" time="0.001"/>
+  <testcase name="consentRemainsMandatoryForPlayersButNotMobs()" classname="com.powers.power.abilities.PossessionRulesTest" time="0.0"/>
+  <testcase name="selfDeadRemovedAndBodyProxyTargetsAreRefused()" classname="com.powers.power.abilities.PossessionRulesTest" time="0.0"/>
+  <testcase name="livingPlayersAndMobsAreSuitableButOtherLivingEntitiesAreNot()" classname="com.powers.power.abilities.PossessionRulesTest" time="0.0"/>
+  <testcase name="aCameraSessionCannotSurviveEitherParticipantChangingDimension()" classname="com.powers.power.abilities.PossessionRulesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

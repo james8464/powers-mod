@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.item.artifact.ArtifactCatalogueRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:12.519Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+  <properties/>
+  <testcase name="searchMatchesLocalizedLabelsStableIdsAndSelectedTab()" classname="com.powers.item.artifact.ArtifactCatalogueRulesTest" time="0.001"/>
+  <testcase name="layoutFitsSmallScreensAndExpandsToTwoColumns()" classname="com.powers.item.artifact.ArtifactCatalogueRulesTest" time="0.0"/>
+  <testcase name="nonBlankQuerySearchesGloballyFromTheDefaultFavouritesTab()" classname="com.powers.item.artifact.ArtifactCatalogueRulesTest" time="0.001"/>
+  <testcase name="combatTabsSeparateFavouritesInnateCrystalsAndSwordActions()" classname="com.powers.item.artifact.ArtifactCatalogueRulesTest" time="0.0"/>
+  <testcase name="virtualSlotsRetainTheReleasedColumnMajorReadingMap()" classname="com.powers.item.artifact.ArtifactCatalogueRulesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

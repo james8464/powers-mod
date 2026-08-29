@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.network.RankTenSilhouettePacketsTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:13.065Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="dimensionUtf8BudgetAcceptsExactly128BytesAndRejects129()" classname="com.powers.network.RankTenSilhouettePacketsTest" time="0.0"/>
+  <testcase name="constructorRejectsUnknownIdentitySessionAndGeometry()" classname="com.powers.network.RankTenSilhouettePacketsTest" time="0.001"/>
+  <testcase name="everyFieldSurvivesNetworkRoundTrip()" classname="com.powers.network.RankTenSilhouettePacketsTest" time="0.0"/>
+  <testcase name="decoderRejectsAnOversizedUtf8DimensionBeforeConstruction()" classname="com.powers.network.RankTenSilhouettePacketsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

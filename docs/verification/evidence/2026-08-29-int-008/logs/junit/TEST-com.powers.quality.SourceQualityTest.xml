@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.quality.SourceQualityTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:28.645Z" hostname="MacBook-Pro-de-James.local" time="19.907">
+  <properties/>
+  <testcase name="productionSourcesContainNoUnfinishedDebugOrWildcardShortcuts()" classname="com.powers.quality.SourceQualityTest" time="6.92"/>
+  <testcase name="responsibilityClassesStayWithinTheReviewedSizeBoundary()" classname="com.powers.quality.SourceQualityTest" time="6.563"/>
+  <testcase name="powerOwnedEffectsCannotReintroduceVanillaPotionClouds()" classname="com.powers.quality.SourceQualityTest" time="0.017"/>
+  <testcase name="playerTravelPathsNeverSynchronouslyLoadOrGenerateDestinationChunks()" classname="com.powers.quality.SourceQualityTest" time="0.0"/>
+  <testcase name="everyProductionJavaFileIsAuditedAndPublicContractsAreDocumented()" classname="com.powers.quality.SourceQualityTest" time="6.407"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

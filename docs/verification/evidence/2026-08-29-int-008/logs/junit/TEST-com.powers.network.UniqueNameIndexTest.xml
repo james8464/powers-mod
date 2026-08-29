@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.network.UniqueNameIndexTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:13.114Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="formattingCompatibilityAndConfusablesCannotForgeUniqueness()" classname="com.powers.network.UniqueNameIndexTest" time="0.001"/>
+  <testcase name="candidateReadsStopAtTheAmbiguityThreshold()" classname="com.powers.network.UniqueNameIndexTest" time="0.0"/>
+  <testcase name="renameMovesAnIdentityBetweenNormalizedBuckets()" classname="com.powers.network.UniqueNameIndexTest" time="0.0"/>
+  <testcase name="controlOnlyAndOversizedNamesAreNotIndexed()" classname="com.powers.network.UniqueNameIndexTest" time="0.0"/>
+  <testcase name="diagnosticsExposeCandidateAndStaleWork()" classname="com.powers.network.UniqueNameIndexTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

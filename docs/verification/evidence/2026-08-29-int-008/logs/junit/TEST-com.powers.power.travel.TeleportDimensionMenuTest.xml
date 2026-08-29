@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.power.travel.TeleportDimensionMenuTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:14.851Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+  <properties/>
+  <testcase name="filtersOnlyTheDarkRealmWhenTheServerStateHidesIt()" classname="com.powers.power.travel.TeleportDimensionMenuTest" time="0.0"/>
+  <testcase name="keepsCompleteServerSuppliedModdedIdentifiers()" classname="com.powers.power.travel.TeleportDimensionMenuTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

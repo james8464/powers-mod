@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.client.visual.VfxAssetAuditTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:05.314Z" hostname="MacBook-Pro-de-James.local" time="6.224">
+  <properties/>
+  <testcase name="explicitAnimationTimelinePreservesIndicesAndPerFrameDurations()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.512"/>
+  <testcase name="rejectsMalformedDisplayTriples()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.002"/>
+  <testcase name="rejectsReversedElementBounds()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.002"/>
+  <testcase name="rejectsNonFiniteDisplayTriples()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.002"/>
+  <testcase name="rejectsCyclicTextureVariables()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.002"/>
+  <testcase name="rejectsUnresolvedTextureVariables()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.002"/>
+  <testcase name="rejectsUvsOutsideMinecraftElementSpace()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.003"/>
+  <testcase name="rejectsUnknownNamespacedModelReferences()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.001"/>
+  <testcase name="rejectsZeroAreaUvs()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.001"/>
+  <testcase name="spawnEggRequiresEveryAuthoredRendererContext()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.003"/>
+  <testcase name="everyProductionPngOwnsExactPixelEvidenceAndContactSheetPages()" classname="com.powers.client.visual.VfxAssetAuditTest" time="5.693"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

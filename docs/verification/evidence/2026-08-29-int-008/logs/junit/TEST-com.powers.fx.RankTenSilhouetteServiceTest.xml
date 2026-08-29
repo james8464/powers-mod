@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.fx.RankTenSilhouetteServiceTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:12.071Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+  <properties/>
+  <testcase name="everyInvocationConsumesBudgetBeforeRejectedOrCoalescedObserverWork()" classname="com.powers.fx.RankTenSilhouetteServiceTest" time="0.001"/>
+  <testcase name="productionPathUsesOnlyBoundedPlayerEnumerationGuardedSendAndNoTickets()" classname="com.powers.fx.RankTenSilhouetteServiceTest" time="0.0"/>
+  <testcase name="executableProductionSeamReservesBeforePreparationAndOwnsAllDeliveryBoundaries()" classname="com.powers.fx.RankTenSilhouetteServiceTest" time="0.001"/>
+  <testcase name="filtersOnlyLiveSupportedSameDimensionObserversInsideInclusiveRange()" classname="com.powers.fx.RankTenSilhouetteServiceTest" time="0.0"/>
+  <testcase name="eventIdsRanksVerticalDistanceAndDiagnosticsCollectionsKeepExactBoundaries()" classname="com.powers.fx.RankTenSilhouetteServiceTest" time="0.0"/>
+  <testcase name="hardGlobalCapResetsOnNextTickWithoutCreatingTickets()" classname="com.powers.fx.RankTenSilhouetteServiceTest" time="0.0"/>
+  <testcase name="eventIdExhaustionRejectsPresentationWithoutMutatingGameplayFacingInputs()" classname="com.powers.fx.RankTenSilhouetteServiceTest" time="0.0"/>
+  <testcase name="canonicalRankAndSameTickCoalescingAreFailClosed()" classname="com.powers.fx.RankTenSilhouetteServiceTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.progression.RankMazeLayoutTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:14.860Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+  <properties/>
+  <testcase name="nodesAtTheSameDepthDoNotOverlapAtMinimumSize()" classname="com.powers.progression.RankMazeLayoutTest" time="0.0"/>
+  <testcase name="edgesExactlyMatchDeclaredParents()" classname="com.powers.progression.RankMazeLayoutTest" time="0.0"/>
+  <testcase name="denseBandsReserveReadableNodeWidth()" classname="com.powers.progression.RankMazeLayoutTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
