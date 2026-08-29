@@ -34,11 +34,11 @@
 **Interfaces:**
 - Produces: `ControlTick.at(long)`, `WorldTick.at(long)`, deadline/elapsed helpers, `TemporalClocks.control(MinecraftServer)`, `world(ServerLevel)`, and `worldAdvances(MinecraftServer)`.
 
-- [ ] Write tests for negative rejection, saturating deadlines, elapsed/remaining boundaries, and external/owned vanilla freeze equivalence.
-- [ ] Run `./gradlew test --tests 'com.powers.time.*' --no-daemon --console=plain` and observe RED from missing types.
-- [ ] Implement the minimal immutable clock types and Minecraft adapter.
-- [ ] Rerun focused tests and `auditJavaSources`; expect green.
-- [ ] Commit and push Task 1.
+- [x] Write tests for negative rejection, saturating deadlines, elapsed/remaining boundaries, and external/owned vanilla freeze equivalence.
+- [x] Run `./gradlew test --tests 'com.powers.time.*' --no-daemon --console=plain` and observe RED from missing types.
+- [x] Implement the minimal immutable clock types and Minecraft adapter.
+- [x] Rerun focused tests and `auditJavaSources`; expect green.
+- [x] Commit and push Task 1.
 
 ### Task 2: Pure source-scoped lease state machine and schema-2 journal
 
