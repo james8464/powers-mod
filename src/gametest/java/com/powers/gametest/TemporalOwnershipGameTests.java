@@ -256,6 +256,8 @@ public final class TemporalOwnershipGameTests {
 				&& !server.tickRateManager().isFrozen(),
 				"Lost Shadow body did not release its lease");
 		PrivateCompanionManager.forget(owner);
+		owner.removeTag(SkillSystem.DARKNESS_TAG);
+		owner.getInventory().clearContent();
 
 		helper.assertTrue(GlobalTimeStopManager.startCrystal(owner, 20),
 				"Shutdown fixture could not acquire the clock");
