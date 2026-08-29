@@ -7,7 +7,6 @@ import com.powers.time.ControlTick;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -38,7 +37,7 @@ class TimeStopSavedDataTest {
 	void schemaOneJournalDecodesOnlyAsStaleRecoveryAuthority() {
 		JsonElement schemaOne = JsonParser.parseString("""
 				{"active":true,"owner":"00000000-0000-0000-0000-000000000001",
-				 "source":"INNATE","deadline":9000,"shadow_body":""}
+				 "source":"INNATE","deadline":9223372036854775807,"shadow_body":""}
 				""");
 		TimeStopSavedData decoded = TimeStopSavedData.CODEC.parse(JsonOps.INSTANCE, schemaOne).getOrThrow();
 		assertTrue(decoded.snapshot().active());
@@ -59,6 +58,7 @@ class TimeStopSavedDataTest {
 				new TimeStopSavedData.Snapshot(2, true, 1, owner, "UNKNOWN", 4, Long.MAX_VALUE, ""),
 				new TimeStopSavedData.Snapshot(2, true, 0, owner, "INNATE", 4, Long.MAX_VALUE, ""),
 				new TimeStopSavedData.Snapshot(2, true, 1, owner, "CRYSTAL", 8, 7, ""),
+				new TimeStopSavedData.Snapshot(2, true, 1, owner, "CRYSTAL", 8, 1_209, ""),
 				new TimeStopSavedData.Snapshot(2, true, 1, owner, "CRYSTAL", -1, 7, ""),
 				new TimeStopSavedData.Snapshot(2, true, 1, owner, "INNATE", 4, Long.MAX_VALUE, body),
 				new TimeStopSavedData.Snapshot(2, true, 1, owner, "SHADOW", 4, Long.MAX_VALUE, ""),
@@ -66,6 +66,12 @@ class TimeStopSavedDataTest {
 		}) {
 			assertEquals(TimeStopSavedData.RecoveryDecision.CLEAR_ONLY,
 					malformed.recoveryDecision(), malformed.toString());
+		}
+		for (String source : new String[] {"INNATE", "SHADOW"}) {
+			String shadowBody = source.equals("SHADOW") ? body : "";
+			assertEquals(TimeStopSavedData.RecoveryDecision.CLEAR_ONLY,
+					new TimeStopSavedData.Snapshot(1, true, 0, owner, source,
+							0, 9_000, shadowBody).recoveryDecision());
 		}
 	}
 
@@ -85,22 +91,4 @@ class TimeStopSavedDataTest {
 		}
 	}
 
-	@Test
-	void failedJournalSaveRestoresThePriorSnapshotAtEveryFailureStage() {
-		TimeStopLease lease = TimeStopLeaseRules.create(17L,
-				UUID.fromString("00000000-0000-0000-0000-000000000001"),
-				TimeStopLeaseSource.CRYSTAL, ControlTick.at(2_000L), 1_200L, null);
-		for (int failureStage = 0; failureStage < 3; failureStage++) {
-			TimeStopSavedData data = new TimeStopSavedData();
-			TimeStopSavedData.Snapshot before = data.snapshot();
-			AtomicInteger observed = new AtomicInteger(-1);
-			int stage = failureStage;
-			assertFalse(data.activateAndSave(lease, () -> {
-				observed.set(stage);
-				throw new IllegalStateException("save failure " + stage);
-			}));
-			assertEquals(stage, observed.get());
-			assertEquals(before, data.snapshot(), "abandoned journal remained at stage " + stage);
-		}
-	}
 }

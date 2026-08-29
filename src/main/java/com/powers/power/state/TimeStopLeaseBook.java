@@ -5,6 +5,7 @@ import com.powers.time.ControlTick;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 
 /** Bounded mutable holder that applies the pure lease rules for one server. */
 final class TimeStopLeaseBook {
@@ -31,8 +32,11 @@ final class TimeStopLeaseBook {
 		return Optional.ofNullable(active);
 	}
 
-	void observeExternalWrite() {
-		if (active != null) active = TimeStopLeaseRules.externallySupersede(active);
+	boolean observeExternalWrite(BooleanSupplier retireJournal) {
+		if (active == null) return true;
+		if (!retireJournal.getAsBoolean()) return false;
+		active = TimeStopLeaseRules.externallySupersede(active);
+		return true;
 	}
 
 	ReleaseDecision release(long token, UUID owner, TimeStopLeaseSource source,

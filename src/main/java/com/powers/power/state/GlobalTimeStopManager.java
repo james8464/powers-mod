@@ -203,15 +203,22 @@ public final class GlobalTimeStopManager {
 
 	/** Clears a crash journal before players enter play and never steals an unjournalled admin freeze. */
 	public static void reconcileStartup(MinecraftServer server) {
-		TimeStopSavedData data = savedData(server);
-		TimeStopSavedData.RecoveryDecision recovery = data.snapshot().recoveryDecision();
+		TimeStopSavedData.RecoveryDecision recovery;
+		try {
+			recovery = TimeStopJournalStore.forServer(server).read().recoveryDecision();
+		} catch (java.io.IOException malformed) {
+			recovery = TimeStopSavedData.RecoveryDecision.CLEAR_ONLY;
+			PowersMod.LOGGER.error("Could not decode Time Stop ownership journal", malformed);
+		}
 		if (!recovery.clearJournal()) return;
+		if (!clearPersisted(server)) {
+			PowersMod.LOGGER.error("Could not retire Time Stop recovery authority; vanilla clock unchanged");
+			return;
+		}
 		BOOKS.remove(server);
 		if (recovery.unfreeze() && server.tickRateManager().isFrozen()) {
 			server.tickRateManager().setFrozen(false);
 		}
-		data.clear();
-		server.overworld().getDataStorage().saveAndJoin();
 		if (recovery.unfreeze()) {
 			PowersMod.LOGGER.warn("Recovered a validated stale POWERS Time Stop ownership journal");
 		} else {
@@ -225,7 +232,10 @@ public final class GlobalTimeStopManager {
 		if (lease == null) return;
 		Long internalToken = INTERNAL_CLOCK_WRITES.get(server);
 		if (internalToken == null || internalToken.longValue() != lease.token()) {
-			book(server).observeExternalWrite();
+			if (!book(server).observeExternalWrite(() -> clearPersisted(server))) {
+				throw new IllegalStateException(
+						"External clock write refused because POWERS authority could not be retired");
+			}
 		}
 	}
 
@@ -238,6 +248,11 @@ public final class GlobalTimeStopManager {
 	}
 
 	private static void releaseExact(MinecraftServer server, TimeStopLease lease, boolean announce) {
+		TimeStopLease current = active(server);
+		if (current == null || !current.equals(lease)) return;
+		// Retire durable thaw authority before either process ownership or the
+		// vanilla clock changes. A failed tombstone leaves the owned freeze intact.
+		if (!clearPersisted(server)) return;
 		TimeStopLeaseBook.ReleaseDecision decision = book(server).release(lease.token(),
 				lease.owner(), lease.source(), server.tickRateManager().isFrozen());
 		if (!decision.matched()) return;
@@ -272,19 +287,31 @@ public final class GlobalTimeStopManager {
 
 	private static boolean persist(MinecraftServer server, TimeStopLease lease) {
 		TimeStopSavedData data = savedData(server);
-		return data.activateAndSave(lease,
-				() -> server.overworld().getDataStorage().saveAndJoin(),
-				failure -> PowersMod.LOGGER.error(
-						"Could not persist Time Stop ownership", failure));
+		TimeStopSavedData.Snapshot previous = data.snapshot();
+		data.activate(lease);
+		try {
+			TimeStopJournalStore.forServer(server).writeVerified(data.snapshot());
+			data.replacePersisted(data.snapshot());
+			return true;
+		} catch (java.io.IOException | RuntimeException failure) {
+			data.replacePersisted(previous);
+			PowersMod.LOGGER.error("Could not persist Time Stop ownership", failure);
+			return false;
+		}
 	}
 
-	private static void clearPersisted(MinecraftServer server) {
+	private static boolean clearPersisted(MinecraftServer server) {
+		TimeStopSavedData data = savedData(server);
+		TimeStopSavedData.Snapshot previous = data.snapshot();
 		try {
-			TimeStopSavedData data = savedData(server);
-			data.clear();
-			server.overworld().getDataStorage().saveAndJoin();
-		} catch (RuntimeException failure) {
+			TimeStopJournalStore.forServer(server).writeVerified(
+					TimeStopSavedData.emptySnapshot());
+			data.replacePersisted(TimeStopSavedData.emptySnapshot());
+			return true;
+		} catch (java.io.IOException | RuntimeException failure) {
+			data.replacePersisted(previous);
 			PowersMod.LOGGER.error("Could not clear Time Stop ownership journal", failure);
+			return false;
 		}
 	}
 

@@ -8,7 +8,6 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
 import java.util.UUID;
-import java.util.function.Consumer;
 
 /** Crash journal proving that a persisted frozen clock belonged to POWERS. */
 public final class TimeStopSavedData extends SavedData {
@@ -74,10 +73,17 @@ public final class TimeStopSavedData extends SavedData {
 			long acquired = schemaVersion == 1 ? 0L : acquiredControlTick;
 			if (deadline < acquired) return false;
 			if (schemaVersion == 1) {
-				// Schema 1 had no acquisition tick or typed deadline semantics. A non-negative
-				// value is the strongest legacy validation available.
+				// Schema 1 had no acquisition tick. Indefinite sources still authored the
+				// exact sentinel, while a legacy crystal stored only a positive absolute
+				// deadline and cannot be duration-validated after restart.
+				if (parsedSource != TimeStopLeaseSource.CRYSTAL
+						&& deadline != Long.MAX_VALUE) return false;
+				if (parsedSource == TimeStopLeaseSource.CRYSTAL
+						&& (deadline <= 0L || deadline == Long.MAX_VALUE)) return false;
 			} else if (parsedSource == TimeStopLeaseSource.CRYSTAL) {
-				if (deadline == Long.MAX_VALUE || deadline <= acquired) return false;
+				long duration = deadline - acquired;
+				if (deadline == Long.MAX_VALUE || deadline <= acquired
+						|| duration < 1L || duration > 1_200L) return false;
 			} else if (deadline != Long.MAX_VALUE) {
 				return false;
 			}
@@ -110,8 +116,12 @@ public final class TimeStopSavedData extends SavedData {
 		this(EMPTY);
 	}
 
-	private TimeStopSavedData(Snapshot snapshot) {
+	TimeStopSavedData(Snapshot snapshot) {
 		this.snapshot = snapshot == null ? EMPTY : snapshot;
+	}
+
+	static Snapshot emptySnapshot() {
+		return EMPTY;
 	}
 
 	public Snapshot snapshot() {
@@ -131,24 +141,6 @@ public final class TimeStopSavedData extends SavedData {
 		replace(replacement);
 	}
 
-	boolean activateAndSave(TimeStopLease lease, Runnable save) {
-		return activateAndSave(lease, save, ignored -> { });
-	}
-
-	boolean activateAndSave(TimeStopLease lease, Runnable save,
-			Consumer<RuntimeException> failureHandler) {
-		Snapshot previous = snapshot;
-		try {
-			activate(lease);
-			save.run();
-			return true;
-		} catch (RuntimeException failure) {
-			replace(previous);
-			failureHandler.accept(failure);
-			return false;
-		}
-	}
-
 	private void replace(Snapshot replacement) {
 		if (replacement.equals(snapshot)) return;
 		snapshot = replacement;
@@ -159,6 +151,11 @@ public final class TimeStopSavedData extends SavedData {
 		if (EMPTY.equals(snapshot)) return;
 		snapshot = EMPTY;
 		setDirty();
+	}
+
+	void replacePersisted(Snapshot replacement) {
+		snapshot = replacement == null ? EMPTY : replacement;
+		setDirty(false);
 	}
 
 	private static String safe(String value) {
