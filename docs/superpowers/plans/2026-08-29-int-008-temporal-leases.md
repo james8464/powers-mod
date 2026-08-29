@@ -138,8 +138,8 @@
 **Interfaces:**
 - Produces: deterministic exact-SHA evidence package, strict verifier, checksums, privacy report, and review bundle.
 
-- [ ] Write verifier/package tests first and observe RED.
-- [ ] Implement strict schema, sorted inventory, deterministic archive, checksum recomputation, and privacy rejection.
+- [x] Write verifier/package tests first and observe RED.
+- [x] Implement strict schema, sorted inventory, deterministic archive, checksum recomputation, and privacy rejection.
 - [ ] Capture real dedicated-server/GameTest evidence for the clean implementation SHA; do not synthesize runtime rows.
 - [ ] Verify/package twice and prove byte-identical archives.
 - [ ] Run focused gates and request independent code/evidence review; resolve every finding through TDD.
