@@ -287,7 +287,7 @@ def validate(root: Path, repository: Path,
     base_sha = metadata["baseSha"]
     if not isinstance(base_sha, str) or SHA.fullmatch(base_sha) is None:
         raise ValueError("invalid base SHA")
-    if _nonnegative_int(metadata["gameTests"], "GameTest count") != 161 \
+    if _nonnegative_int(metadata["gameTests"], "GameTest count") != 162 \
             or _nonnegative_int(metadata["junitTests"], "JUnit count") < 1825 \
             or _nonnegative_int(metadata["pythonTests"], "Python count") < 1:
         raise ValueError("build totals mismatch")
@@ -327,7 +327,7 @@ def validate(root: Path, repository: Path,
     if f"INT-008 checkout verified: {implementation_sha}" not in log \
             or "BUILD SUCCESSFUL" not in log or "BUILD FAILED" in log:
         raise ValueError("GameTest checkout verification is missing or failed")
-    if "All 161 required tests passed" not in log \
+    if "All 162 required tests passed" not in log \
             or any(case not in log for case in CASES):
         raise ValueError("GameTest log coverage mismatch")
     row_lines = _read(root / "temporal-assertions.jsonl").decode("utf-8").splitlines()

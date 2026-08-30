@@ -77,7 +77,7 @@ class Int008TemporalVerifierTest(unittest.TestCase):
         self.write_json(root / "build-metadata.json", {
             "schemaVersion": 2, "task": "INT-008", "baseSha": base_sha,
             "implementationSha": implementation_sha, "result": "PENDING",
-            "gameTests": 161, "junitTests": 1825, "pythonTests": 226,
+            "gameTests": 162, "junitTests": 1825, "pythonTests": 226,
         })
         old_clock = subprocess.check_output(
             ["git", "show", f"{base_sha}:clock.txt"], cwd=repository)
@@ -124,7 +124,7 @@ class Int008TemporalVerifierTest(unittest.TestCase):
         (root / "logs/gametest.log").write_text(
             f"INT-008 checkout verified: {implementation_sha}\n"
             + "\n".join("INT008_TEMPORAL " + row for row in encoded_rows)
-            + "\nAll 161 required tests passed :)\nBUILD SUCCESSFUL in 1m\n",
+            + "\nAll 162 required tests passed :)\nBUILD SUCCESSFUL in 1m\n",
             encoding="utf-8")
         (root / "README.md").write_text("# INT-008 evidence\n", encoding="utf-8")
         return root, repository
