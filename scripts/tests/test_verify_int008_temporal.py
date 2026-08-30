@@ -96,14 +96,21 @@ class Int008TemporalVerifierTest(unittest.TestCase):
             "\n".join(sorted(inventory)) + "\n", encoding="utf-8")
         (root / "logs").mkdir()
         (root / "logs/junit").mkdir()
-        (root / "logs/junit/TEST-first.xml").write_text(
-            '<testsuite name="first" tests="1800" failures="0" errors="0" skipped="0"/>\n',
-            encoding="utf-8")
-        (root / "logs/junit/TEST-second.xml").write_text(
-            '<testsuite name="second" tests="25" failures="0" errors="0" skipped="0"/>\n',
-            encoding="utf-8")
+        first_xml = '<testsuite name="first" tests="1800" failures="0" errors="0" skipped="0"/>\n'
+        second_xml = '<testsuite name="second" tests="25" failures="0" errors="0" skipped="0"/>\n'
+        (root / "logs/junit/TEST-first.xml").write_text(first_xml, encoding="utf-8")
+        (root / "logs/junit/TEST-second.xml").write_text(second_xml, encoding="utf-8")
+        junit_inventory = "".join(sorted((
+            f"{hashlib.sha256(first_xml.encode()).hexdigest()}  TEST-first.xml\n",
+            f"{hashlib.sha256(second_xml.encode()).hexdigest()}  TEST-second.xml\n",
+        )))
+        junit_digest = hashlib.sha256(junit_inventory.encode()).hexdigest()
         (root / "logs/aggregate-check.log").write_text(
-            "Ran 226 tests in 1.000s\n\nOK\nBUILD SUCCESSFUL in 2m\n", encoding="utf-8")
+            f"INT-008 aggregate preflight verified: {implementation_sha}; clean=true\n"
+            "Ran 226 tests in 1.000s\n\nOK\nBUILD SUCCESSFUL in 2m\n"
+            f"INT-008 aggregate postflight verified: {implementation_sha}; clean=true\n"
+            f"INT-008 JUnit capture verified: files=2; tests=1825; sha256={junit_digest}\n",
+            encoding="utf-8")
         self.write_json(root / "logs/junit-summary.json", {
             "schemaVersion": 1, "implementationSha": implementation_sha,
             "framework": "JUnit", "tests": 1825, "failures": 0,
@@ -270,6 +277,29 @@ class Int008TemporalVerifierTest(unittest.TestCase):
             path.write_text("\n".join(path.read_text().splitlines()[1:]) + "\n",
                             encoding="utf-8")
         self.mutate(remove_checkout_proof, "checkout verification")
+
+    def test_aggregate_requires_matching_clean_preflight_and_postflight_receipts(self):
+        def wrong_preflight(root):
+            path = root / "logs/aggregate-check.log"
+            path.write_text(path.read_text().replace(
+                "aggregate preflight verified: ",
+                "aggregate preflight verified: " + "b" * 40 + "; ignored=" , 1),
+                encoding="utf-8")
+        self.mutate(wrong_preflight, "aggregate checkout")
+
+        def missing_postflight(root):
+            path = root / "logs/aggregate-check.log"
+            lines = [line for line in path.read_text().splitlines()
+                     if "aggregate postflight verified" not in line]
+            path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        self.mutate(missing_postflight, "aggregate checkout")
+
+    def test_aggregate_binds_the_exact_raw_junit_inventory(self):
+        def preserve_totals_but_change_xml(root):
+            path = root / "logs/junit/TEST-first.xml"
+            path.write_text(path.read_text().replace('name="first"', 'name="altered"'),
+                            encoding="utf-8")
+        self.mutate(preserve_totals_but_change_xml, "JUnit capture digest")
 
 
 if __name__ == "__main__":

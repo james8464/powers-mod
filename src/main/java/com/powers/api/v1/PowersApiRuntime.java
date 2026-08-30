@@ -282,7 +282,8 @@ public final class PowersApiRuntime implements PowersApiV1 {
 		}
 		MagicCastContext cast = new MagicCastContext(definition, authorized.actor.getUUID(),
 				presence.level().dimension().identifier().toString(),
-				PresenceAnchor.fixed(point.x, point.y, point.z), Math.max(1.0, presence.radius()), now,
+				PresenceAnchor.fixed(point.x, point.y, point.z), Math.max(1.0, presence.radius()),
+				worldNow.value(),
 				InteractionContext.DEFAULT);
 		if (!MagicRuntime.global().previewCast(cast).adjustment().allowed()) {
 			throw new IllegalStateException("Presence blocked by canonical magic collision policy");

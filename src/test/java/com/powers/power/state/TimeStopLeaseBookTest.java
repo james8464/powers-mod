@@ -4,6 +4,7 @@ import com.powers.time.ControlTick;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -38,29 +39,29 @@ class TimeStopLeaseBookTest {
 				ControlTick.at(10L), Long.MAX_VALUE, null, false).orElseThrow();
 		assertTrue(book.observeExternalWrite(() -> true));
 
-		assertTrue(book.active().orElseThrow().externallySuperseded());
+		assertTrue(book.active().isEmpty());
 		TimeStopLeaseBook.ReleaseDecision retired = book.release(lease.token(), OWNER,
 				TimeStopLeaseSource.INNATE, true);
-		assertTrue(retired.matched());
+		assertFalse(retired.matched());
 		assertFalse(retired.unfreeze());
 	}
 
 	@Test
 	void externalWriteAlwaysSupersedesProcessAuthorityEvenWhenJournalRetirementFails() {
 		TimeStopLeaseBook book = new TimeStopLeaseBook();
-		TimeStopLease lease = book.acquire(OWNER, TimeStopLeaseSource.INNATE,
+		book.acquire(OWNER, TimeStopLeaseSource.INNATE,
 				ControlTick.at(10L), Long.MAX_VALUE, null, false).orElseThrow();
+		AtomicInteger retirementAttempts = new AtomicInteger();
 
-		assertFalse(book.observeExternalWrite(() -> false));
-		assertTrue(book.active().orElseThrow().externallySuperseded());
-		assertFalse(book.release(lease.token(), OWNER,
-				TimeStopLeaseSource.INNATE, true).unfreeze());
+		assertFalse(book.observeExternalWrite(() -> retirementAttempts.incrementAndGet() > 1));
+		assertTrue(book.active().isEmpty());
+		assertTrue(book.observeExternalWrite(() -> retirementAttempts.incrementAndGet() > 1));
+		assertEquals(2, retirementAttempts.get());
 
-		TimeStopLease replacement = book.acquire(OWNER, TimeStopLeaseSource.INNATE,
+		book.acquire(OWNER, TimeStopLeaseSource.INNATE,
 				ControlTick.at(20L), Long.MAX_VALUE, null, false).orElseThrow();
 		assertTrue(book.observeExternalWrite(() -> true));
-		assertTrue(book.active().orElseThrow().externallySuperseded());
-		assertEquals(replacement.token(), book.active().orElseThrow().token());
+		assertTrue(book.active().isEmpty());
 	}
 
 	@Test

@@ -128,6 +128,13 @@ public final class GlobalTimeStopManager {
 
 	/** Advances lifecycle checks and sparse cross-dimensional clock visuals. */
 	public static void tick(MinecraftServer server) {
+		TimeStopLeaseBook leaseBook = BOOKS.get(server);
+		if (leaseBook != null && leaseBook.active().isEmpty()) {
+			// External writes revoke process authority immediately. A failed durable
+			// tombstone is retried without ever reclaiming or changing their clock.
+			leaseBook.observeExternalWrite(() -> clearPersisted(server));
+			return;
+		}
 		TimeStopLease lease = active(server);
 		if (lease == null) return;
 		ControlTick now = TemporalClocks.control(server);

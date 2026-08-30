@@ -181,15 +181,18 @@ def _validate_summary(path: Path, implementation_sha: str, framework: str,
         raise ValueError(f"{framework} test summary mismatch")
 
 
-def _junit_totals(root: Path) -> tuple[int, int, int, int]:
+def _junit_capture(root: Path) -> tuple[tuple[int, int, int, int], int, str]:
     directory = root / "logs/junit"
     paths = sorted(directory.glob("TEST-*.xml")) if directory.is_dir() else []
     if not paths:
         raise ValueError("JUnit raw results are missing")
     totals = [0, 0, 0, 0]
+    inventory = []
     for path in paths:
+        data = _read(path)
+        inventory.append(f"{hashlib.sha256(data).hexdigest()}  {path.name}\n")
         try:
-            suite = ET.fromstring(_read(path))
+            suite = ET.fromstring(data)
         except ET.ParseError as error:
             raise ValueError("JUnit raw results are malformed") from error
         if suite.tag != "testsuite":
@@ -200,7 +203,24 @@ def _junit_totals(root: Path) -> tuple[int, int, int, int]:
             except ValueError as error:
                 raise ValueError("JUnit raw results contain invalid totals") from error
             totals[index] += _nonnegative_int(value, f"JUnit raw {field}")
-    return tuple(totals)
+    digest = hashlib.sha256("".join(inventory).encode("utf-8")).hexdigest()
+    return tuple(totals), len(paths), digest
+
+
+def _validate_aggregate_receipts(output: str, implementation_sha: str,
+        junit_tests: int, junit_files: int, junit_digest: str) -> None:
+    preflight = f"INT-008 aggregate preflight verified: {implementation_sha}; clean=true"
+    postflight = f"INT-008 aggregate postflight verified: {implementation_sha}; clean=true"
+    junit = (f"INT-008 JUnit capture verified: files={junit_files}; "
+             f"tests={junit_tests}; sha256={junit_digest}")
+    if output.count(preflight) != 1 or output.count(postflight) != 1:
+        raise ValueError("aggregate checkout receipts do not match the implementation SHA")
+    if output.count(junit) != 1:
+        raise ValueError("JUnit capture digest does not match the retained raw inventory")
+    build = output.find("BUILD SUCCESSFUL")
+    if not (0 <= output.find(preflight) < build < output.find(postflight)
+            < output.find(junit)):
+        raise ValueError("aggregate checkout receipts are not ordered around the full gate")
 
 
 def _python_total(root: Path) -> int:
@@ -275,11 +295,14 @@ def validate(root: Path, repository: Path,
                       metadata["junitTests"])
     _validate_summary(root / "logs/python-summary.json", implementation_sha, "Python",
                       metadata["pythonTests"])
-    junit_totals = _junit_totals(root)
+    junit_totals, junit_files, junit_digest = _junit_capture(root)
     if junit_totals != (metadata["junitTests"], 0, 0, 0):
         raise ValueError("JUnit raw results do not match build metadata")
     if _python_total(root) != metadata["pythonTests"]:
         raise ValueError("Python raw results do not match build metadata")
+    aggregate_output = _read(root / "logs/aggregate-check.log").decode("utf-8")
+    _validate_aggregate_receipts(aggregate_output, implementation_sha,
+                                 metadata["junitTests"], junit_files, junit_digest)
 
     rows = _read_rows(root / "temporal-assertions.jsonl")
     if len(rows) != len(CASES) or {row.get("case") for row in rows} != CASES:

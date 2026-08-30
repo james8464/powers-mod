@@ -3,7 +3,10 @@ package com.powers.api.v1;
 import net.minecraft.server.level.ServerLevel;
 import java.util.Objects;
 
-/** Bounded fixed presence; action and owner authority come only from its {@link CastContext}. */
+/**
+ * Bounded fixed presence; action and owner authority come only from its {@link CastContext}.
+ * {@code expiresAt} is an absolute {@link ServerLevel#getGameTime()} tick in the presence level.
+ */
 public record PhysicalPresence(ServerLevel level, double x, double y,
 		double z, double radius, long expiresAt, PresenceKind kind) {
 	/** Validates finite geometry and bounded lifetime metadata before registration. */

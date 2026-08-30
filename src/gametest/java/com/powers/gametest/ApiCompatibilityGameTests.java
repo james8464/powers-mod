@@ -9,7 +9,10 @@ import com.powers.api.v1.PresenceHandle;
 import com.powers.api.v1.PresenceKind;
 import com.powers.example.ExamplePowersExtension;
 import com.powers.magic.MagicActionId;
+import com.powers.magic.runtime.MagicPresence;
+import com.powers.magic.runtime.MagicPresenceId;
 import com.powers.magic.runtime.MagicRuntime;
+import com.powers.magic.runtime.PresenceAnchor;
 import com.powers.protection.PowerProtectionAdapters;
 import com.powers.protection.ProtectionAction;
 import com.powers.protection.ProtectionQuery;
@@ -21,12 +24,53 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.storage.ServerLevelData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /** Dedicated-server proof that the independently compiled v1 extension reaches production owners. */
 public final class ApiCompatibilityGameTests {
+	@GameTest(maxTicks = 20)
+	@SuppressWarnings("removal")
+	public void apiPresencePreviewExpiresWorldMagicInMatureParkedWorld(GameTestHelper helper) {
+		ServerPlayer actor = helper.makeMockServerPlayerInLevel();
+		long originalWorldTick = helper.getLevel().getGameTime();
+		long matureWorldTick = Math.max(originalWorldTick + 2_000_000L,
+				helper.getLevel().getServer().getTickCount() + 2_000_000L);
+		((ServerLevelData) helper.getLevel().getLevelData()).setGameTime(matureWorldTick);
+		Vec3 castPoint = actor.position().add(0.0, 1.0, 0.0);
+		MagicPresenceId expiredId = new MagicPresenceId(
+				UUID.fromString("00000000-0000-0000-0000-00000000a008"));
+		MagicRuntime.global().registerPresence(new MagicPresence(expiredId,
+				new MagicActionId("amethyst_ward"), actor.getUUID(),
+				helper.getLevel().dimension().identifier().toString(),
+				PresenceAnchor.fixed(castPoint.x, castPoint.y, castPoint.z),
+				1.0, matureWorldTick - 1L));
+		int countWithExpiredPresence = MagicRuntime.global().activePresenceCount();
+		TestingOverrides.setAll(actor.getUUID(), true);
+		PresenceHandle accepted = null;
+		try {
+			CastContext context = PowersApiRuntime.global().api().castContext(actor,
+					ExamplePowersExtension.ACTION_ID);
+			accepted = PowersApiRuntime.global().api().registerPresence(context,
+					new PhysicalPresence(helper.getLevel(), castPoint.x, castPoint.y, castPoint.z,
+							1.0, matureWorldTick + 5L, PresenceKind.FIELD));
+			helper.assertTrue(MagicRuntime.global().activePresenceCount() == countWithExpiredPresence,
+					"API preview used restart-local control time and retained expired world magic");
+			helper.assertTrue(!MagicRuntime.global().removePresence(expiredId),
+					"Expired world presence survived the API collision preview");
+		} finally {
+			if (accepted != null) PowersApiRuntime.global().api().removePresence(accepted);
+			MagicRuntime.global().removePresence(expiredId);
+			TestingOverrides.clear(actor.getUUID());
+			((ServerLevelData) helper.getLevel().getLevelData()).setGameTime(originalWorldTick);
+			actor.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
+		}
+		helper.succeed();
+	}
+
 	@GameTest(maxTicks = 20)
 	@SuppressWarnings("removal")
 	public void exampleExtensionUsesActionPresenceProtectionAndLifecycleProductionPaths(GameTestHelper helper) {

@@ -17,6 +17,7 @@ final class TimeStopLeaseBook {
 
 	private long lastToken;
 	private TimeStopLease active;
+	private boolean retirementPending;
 
 	Optional<TimeStopLease> acquire(UUID owner, TimeStopLeaseSource source,
 			ControlTick now, long durationTicks, UUID shadowBody, boolean vanillaFrozen) {
@@ -33,9 +34,14 @@ final class TimeStopLeaseBook {
 	}
 
 	boolean observeExternalWrite(BooleanSupplier retireJournal) {
-		if (active == null) return true;
-		active = TimeStopLeaseRules.externallySupersede(active);
-		return retireJournal.getAsBoolean();
+		if (active != null) {
+			active = null;
+			retirementPending = true;
+		}
+		if (!retirementPending) return true;
+		if (!retireJournal.getAsBoolean()) return false;
+		retirementPending = false;
+		return true;
 	}
 
 	ReleaseDecision release(long token, UUID owner, TimeStopLeaseSource source,
