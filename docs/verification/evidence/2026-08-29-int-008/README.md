@@ -1,5 +1,9 @@
 # INT-008 temporal lease evidence
 
+Historical reviewed capture: subsequent non-evidence closure documentation requires
+a new clean-SHA capture before this package can support final acceptance. See
+[the closure ledger](closure.md). PENDING is not final integration approval.
+
 This PENDING package binds dedicated-server acceptance to clean implementation
 `051d105f52b845f8f399995211050b627d03f113`, with immutable base `98b181671b1514a3695ccb8f1ba1985092bce3dd`.
 The six schema-2 JSONL rows are copied byte-for-byte from the successful unfiltered

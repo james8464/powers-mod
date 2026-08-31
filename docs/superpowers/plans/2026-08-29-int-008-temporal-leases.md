@@ -10,11 +10,13 @@
 
 **Spec:** `docs/superpowers/specs/2026-08-29-int-008-temporal-leases-design.md`
 
-**Current acceptance:** NOT READY. The 2026-08-31 independent review found
-additional gameplay and verifier gaps; see [the repair report](../../verification/task-int-008-report.md).
-Earlier checked capture/package steps describe historical PENDING evidence only.
-The repaired implementation requires fresh 163-GameTest capture, aggregate receipts,
-and independent review before closure.
+**Current acceptance:** Implementation/evidence review returned READY on 2026-08-31 for
+`051d105f52b845f8f399995211050b627d03f113`, packaged at
+`a6fd807515529115d96e5eef011ff36ea8b54084`, with no new findings.
+All 166 GameTests, 1,836 JUnit tests, and 240 Python tests passed the literal gate.
+These closure-document changes require a final clean-SHA recapture. Final review,
+integration gates, and synchronization remain pending in the
+[closure ledger](../../verification/evidence/2026-08-29-int-008/closure.md).
 
 ## Global Constraints
 
@@ -148,8 +150,8 @@ and independent review before closure.
 - [x] Implement strict schema, sorted inventory, deterministic archive, checksum recomputation, and privacy rejection.
 - [x] Capture real dedicated-server/GameTest evidence for the clean implementation SHA; do not synthesize runtime rows.
 - [x] Verify/package twice and prove byte-identical archives.
-- [ ] Run focused gates and request independent code/evidence review; resolve every finding through TDD.
-- [ ] Commit and push accepted implementation evidence.
+- [x] Run focused gates and request independent code/evidence review; resolve every finding through TDD.
+- [x] Commit and push accepted implementation evidence.
 
 ### Task 7: Closure, full gates, integration, and hygiene
 
@@ -161,10 +163,14 @@ and independent review before closure.
 - Modify: `docs/superpowers/plans/2026-08-29-int-008-temporal-leases.md`
 - Modify: `docs/verification/evidence/2026-08-29-int-008/**`
 
-- [ ] Run focused verifier/package/checksum/privacy gates.
-- [ ] Run literal `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew check --rerun-tasks --no-daemon --console=plain` on implementation head.
-- [ ] Obtain independent READY review before closure claims.
-- [ ] Reconcile task/plan/backlog/docs and commit/push closure.
-- [ ] Rerun the literal gate and final READY review on closure head.
-- [ ] Fast-forward merge to `main`, rerun the literal gate, and push `origin/main` only when green.
-- [ ] Prove `main == origin/main`, every POWERS worktree clean, then continue strict order with `INT-009`.
+- [x] Run focused verifier/package/checksum/privacy gates.
+- [x] Run literal `JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home ./gradlew check --rerun-tasks --no-daemon --console=plain` on implementation head.
+- [x] Obtain independent READY review before closure claims.
+- [x] Reconcile task/plan/backlog/docs before final clean-SHA recapture.
+
+The remaining final-capture, closure-head review/gate, fast-forward merge, merged-main
+gate, push, and all-worktree hygiene checklist is maintained in the evidence
+[closure ledger](../../verification/evidence/2026-08-29-int-008/closure.md). Keeping
+those completion receipts inside the evidence prefix preserves the rule that no
+non-evidence commit may follow the final implementation capture. Pending entries
+are not claims of successful integration.

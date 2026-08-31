@@ -2,6 +2,7 @@ README.md
 SHA256SUMS
 archive-inventory.txt
 build-metadata.json
+closure.md
 evidence-inventory.txt
 logs/aggregate-check.log
 logs/gametest.log

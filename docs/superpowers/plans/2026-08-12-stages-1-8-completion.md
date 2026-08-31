@@ -84,7 +84,12 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
 
 ### Stage 4 — cross-system interactions
 
-- [ ] `INT-008`: lease-based temporal ownership over vanilla tick freeze; preserve external freeze and distinguish frozen/control clocks.
+- [x] `INT-008` implementation accepted: source/token/body-scoped temporal leases preserve external
+  freeze, and typed clocks separate lifecycle upkeep from parked world simulation. Independent
+  code/evidence review returned READY after 166 GameTests, 1,836 JUnit tests, and 240 Python tests.
+  This checkbox records reviewed implementation acceptance, not completion of the final integration
+  gates; those live in the [INT-008 closure ledger](../../verification/evidence/2026-08-29-int-008/closure.md).
+  `INT-009` cannot start until that ledger records completed integration and clean synchronized worktrees.
 - [ ] `INT-009`: one authoritative mind-session owner and complete death/return/confinement matrix.
 - [ ] `INT-010`: data-driven allegiance across players, Shadow, artifacts, forces, bosses, food, amethyst, and parties.
 - [ ] `INT-011`: forcefield → Soul Link → health damage ordering with overkill sacrifice and numerical debug accounting.

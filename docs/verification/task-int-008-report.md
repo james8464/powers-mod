@@ -1,16 +1,25 @@
 # INT-008 verification status
 
-Status: **NOT READY — repaired findings require fresh exact-SHA capture and review.**
+Status: **Implementation/evidence READY; final recapture and integration pending.**
 
-The PENDING package at `deeb3cdae69e7b0eb2825350b26773c0d2019599`
-faithfully records implementation `d629acb8c86beff3ef52dacb8fd85f12d00ea57e`:
-163 GameTests, 1,835 JUnit tests, and 239 Python tests passed. Its 424 raw
-JUnit suites, ordered clean-SHA receipts, exact runtime rows, and deterministic
-archive were independently verified. Archive SHA-256:
-`e6481c45f590684b12ef4819282b47bec1fa4cc06555cb3abbd003d840bc7e17`.
-The review nevertheless returned NOT READY. Those bytes remain historical
-PENDING evidence, not acceptance of the subsequent repairs below. No closure or
-merge is claimed; the earlier `49e1c652` / `b7acf4a2` package is also historical.
+Independent reviewer `int008_review5` returned READY for closure reconciliation,
+with no Critical, Important, or Minor findings, on implementation
+`051d105f52b845f8f399995211050b627d03f113` and PENDING evidence commit
+`a6fd807515529115d96e5eef011ff36ea8b54084`. This was not final merge approval.
+Both the clean exact-SHA capture and unchanged literal Java 25 full gate passed
+166 GameTests; the latter also passed 1,836 JUnit tests across 424 raw XML suites
+and 240 Python tests. All 22 focused checkout/verifier/package tests passed.
+The reviewer independently checked every XML and runtime row against its raw
+capture, ordered clean-SHA receipts, source inventories, checksums, and privacy.
+Three deterministic 436-file archives matched SHA-256
+`c5546585e4d98612e8fe87b9100189bd1af8693abed0261dc1900a1856e8c666`.
+
+These non-evidence documentation changes precede a new clean-SHA recapture.
+The [evidence closure ledger](evidence/2026-08-29-int-008/closure.md) is authoritative
+for the remaining capture, final-head review/gate, merged-main gate, push, and
+clean-worktree receipts. No final integration is claimed here. Earlier packages
+at `deeb3cda` / `d629acb8`, `49e1c652` / `b7acf4a2`, and their predecessors remain
+historical evidence in Git history; they must not substitute for final capture.
 
 ## Fourth independent review repair, 2026-08-31
 
@@ -64,12 +73,12 @@ the regenerated production source audit, and GameTest compilation also pass.
 ## Remaining acceptance sequence
 
 1. Preserve the observed focused regression results; they do not replace full gates.
-2. Commit the repaired implementation, then capture the clean exact SHA with all
+2. Commit the reconciled closure documentation, then capture the clean exact SHA with all
    166 GameTests and the unchanged literal Java 25 full check.
 3. Retain actual clean-SHA pre/post receipts and raw-JUnit digest, derive totals,
    regenerate PENDING evidence, prove deterministic packages/checksums/privacy,
    and obtain fresh independent READY review.
-4. Reconcile non-evidence closure documentation before the final clean-SHA
-   recapture. Only evidence-package changes may follow that capture.
+4. Keep all subsequent status receipts within the evidence closure ledger.
+   Only evidence-package changes may follow the final capture.
 5. Complete closure-head and merged-main literal gates, final READY review,
    fast-forward integration, push, and clean-worktree proof before INT-009.
