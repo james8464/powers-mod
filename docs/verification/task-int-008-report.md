@@ -1,8 +1,42 @@
 # INT-008 verification status
 
-Status: **Implementation/evidence READY; final recapture and integration pending.**
+Status: **NOT READY; Void Scar regression repaired, new exact-SHA evidence/review pending.**
 
-Independent reviewer `int008_review5` returned READY for closure reconciliation,
+The final independent review of `73d81c13` found one Important regression:
+the shared presence index now expires against world time, but Void Scar still
+registers a control-time deadline. A mature world's next index tick can remove
+the scar's collision presence prematurely. The earlier READY verdict below is
+historical, not current acceptance. Repair requires observed RED/GREEN, a new
+clean-SHA capture and literal aggregate, rebuilt evidence, and fresh review.
+The clean `73d81c13` literal gate passed, but does not override this finding.
+
+## Final review repair, 2026-08-31
+
+The new isolated production-path GameTest sets world time two million ticks ahead
+of control time, creates a real Void Scar, and advances the real shared index.
+It observed the intended RED: the scar's live collision presence disappeared on
+the next world tick. The repair supplies a typed world-time deadline to the index
+while retaining the scar manager's authored control-time gameplay lifetime,
+pulse cadence, damage and cleanup. The same live test now passes, including the
+last-live/deadline boundary and owner cleanup. The full required count is **167**.
+
+Behavioral RED and GREEN transcripts: `powers-int008-review6-scar-red3.log` and
+`powers-int008-review6-scar-green.log`. Earlier `scar-red.log` failed compilation
+on the existing deprecated mock-player helper; `scar-red2.log` selected no tests.
+Neither is behavioral RED. Verifier fixtures were advanced to 167 before the
+strict count: `powers-int008-review6-verifier-red.log` recorded rejection of that
+new full-suite count; the count was then raised without weakening any checks.
+All 22 checkout/verifier/package tests pass in `powers-int008-review6-verifier-green.log`.
+Focused Void Beam rules, magic-runtime, typed-time and temporal-boundary JUnit tests,
+the regenerated Java source audit, and item/magic/rank documentation gates pass in
+`powers-int008-review6-focused-green.log`. The live GREEN is diagnostic, not full
+acceptance; fresh unfiltered evidence is still required.
+
+The ca1469d4 capture and 73d81c13 package/gate remain historical PENDING evidence.
+They cannot stand in for acceptance of the repaired source. The final reviewer
+reported no other Critical, Important or Minor findings.
+
+Earlier independent reviewer `int008_review5` returned READY for closure reconciliation,
 with no Critical, Important, or Minor findings, on implementation
 `051d105f52b845f8f399995211050b627d03f113` and PENDING evidence commit
 `a6fd807515529115d96e5eef011ff36ea8b54084`. This was not final merge approval.
@@ -73,8 +107,8 @@ the regenerated production source audit, and GameTest compilation also pass.
 ## Remaining acceptance sequence
 
 1. Preserve the observed focused regression results; they do not replace full gates.
-2. Commit the reconciled closure documentation, then capture the clean exact SHA with all
-   166 GameTests and the unchanged literal Java 25 full check.
+2. Commit the repaired source and reconciled documentation, then capture the clean exact SHA with all
+   167 GameTests and the unchanged literal Java 25 full check.
 3. Retain actual clean-SHA pre/post receipts and raw-JUnit digest, derive totals,
    regenerate PENDING evidence, prove deterministic packages/checksums/privacy,
    and obtain fresh independent READY review.

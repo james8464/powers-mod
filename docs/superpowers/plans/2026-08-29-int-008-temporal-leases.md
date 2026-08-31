@@ -10,7 +10,11 @@
 
 **Spec:** `docs/superpowers/specs/2026-08-29-int-008-temporal-leases-design.md`
 
-**Current acceptance:** Implementation/evidence review returned READY on 2026-08-31 for
+**Current acceptance:** NOT READY pending new evidence/review after the final
+review's Void Scar presence-clock repair. The real divergent-clock GameTest was
+observed RED then GREEN; the full required count is now 167. Clean-SHA recapture
+and the unchanged literal full gate remain required.
+The earlier implementation/evidence review returned READY on 2026-08-31 for
 `051d105f52b845f8f399995211050b627d03f113`, packaged at
 `a6fd807515529115d96e5eef011ff36ea8b54084`, with no new findings.
 All 166 GameTests, 1,836 JUnit tests, and 240 Python tests passed the literal gate.

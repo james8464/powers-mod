@@ -1,7 +1,9 @@
 # INT-008 final integration ledger
 
-Status: PENDING final-head verification, independent review and integration.
-No merge is claimed.
+Status: NOT READY. Final independent review of `73d81c13` found an Important
+Void Scar presence-clock regression, since repaired through observed RED/GREEN.
+The retained ca1469d4 package is historical PENDING evidence, not acceptance of
+the repair. The new full suite requires 167 GameTests. No merge is claimed.
 
 The initial independent review accepted implementation
 `051d105f52b845f8f399995211050b627d03f113` and evidence commit
@@ -15,7 +17,8 @@ The aggregate required unchanged retries for unrelated intermittent GameTests;
 only the complete successful run is acceptance evidence. Earlier transcripts
 remain retained as diagnostics, not passing evidence.
 
-- [x] Final clean-SHA unfiltered GameTest capture and literal aggregate with ordered receipts/raw XML.
+- [x] Repair the Void Scar presence-clock regression through observed RED/GREEN.
+- [ ] New clean-SHA unfiltered GameTest capture and literal aggregate with ordered receipts/raw XML.
 - [ ] Mechanically derived exact inventory/counts, deterministic packages, checksums/privacy, evidence commit/push.
 - [ ] Unchanged literal full gate on final evidence head and fresh independent READY review.
 - [ ] Fast-forward main, unchanged merged-main literal full gate, then push origin/main.

@@ -30,6 +30,7 @@
 			,"com.powers.gametest.TemporalOwnershipGameTests"
 			,"com.powers.gametest.TemporalProjectileGameTests"
 			,"com.powers.gametest.TemporalShadowGameTests"
+			,"com.powers.power.abilities.TemporalVoidScarGameTests"
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests",

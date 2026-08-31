@@ -6,9 +6,9 @@
   External tick-state writes immediately supersede POWERS without being undone; recovery retires
   ambiguous journals without thawing them. Chrono Stop keeps its 1,200-control-tick deadline,
   innate/Shadow upkeep remains control-owned, and world-owned magic and Cinderheart simulation
-  park under every vanilla freeze. Independent implementation/evidence review returned READY
-  after the unchanged full gate passed 166 GameTests, 1,836 JUnit tests, and 240 Python tests.
-  Final recapture and integration receipts are tracked in the INT-008 verification report.
+  park under every vanilla freeze. Final review identified a remaining Void Scar presence-clock
+  regression; earlier green captures are historical, not current acceptance. Repair, recapture
+  and integration receipts are tracked in the INT-008 verification report.
 
 - Closed VFX-007 with 16 semantic magical cues backed by 51 deterministic near/mid/far and
   reduced-tinnitus assets, server-authoritative bounded delivery, obstruction-aware positional

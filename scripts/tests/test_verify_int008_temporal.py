@@ -77,7 +77,7 @@ class Int008TemporalVerifierTest(unittest.TestCase):
         self.write_json(root / "build-metadata.json", {
             "schemaVersion": 2, "task": "INT-008", "baseSha": base_sha,
             "implementationSha": implementation_sha, "result": "PENDING",
-            "gameTests": 166, "junitTests": 1825, "pythonTests": 226,
+            "gameTests": 167, "junitTests": 1825, "pythonTests": 226,
         })
         old_clock = subprocess.check_output(
             ["git", "show", f"{base_sha}:clock.txt"], cwd=repository)
@@ -110,7 +110,7 @@ class Int008TemporalVerifierTest(unittest.TestCase):
             "> Task :auditJavaSources\n> Task :auditNonItemAssets\n"
             "> Task :compileJava\n> Task :compileClientJava\n"
             "> Task :compileExampleExtensionJava\n> Task :compileGametestJava\n"
-            "> Task :runGameTest\nAll 166 required tests passed :)\n"
+            "> Task :runGameTest\nAll 167 required tests passed :)\n"
             "> Task :compileTestJava\n> Task :test\n> Task :testPythonScripts\n"
             "> Task :validatePowerResources\n> Task :verifyItemDocs\n"
             "> Task :verifyMagicDocs\n> Task :verifyRankDocs\n"
@@ -133,7 +133,7 @@ class Int008TemporalVerifierTest(unittest.TestCase):
         (root / "logs/gametest.log").write_text(
             f"INT-008 checkout verified: {implementation_sha}\n"
             + "\n".join("INT008_TEMPORAL " + row for row in encoded_rows)
-            + "\nAll 166 required tests passed :)\nBUILD SUCCESSFUL in 1m\n",
+            + "\nAll 167 required tests passed :)\nBUILD SUCCESSFUL in 1m\n",
             encoding="utf-8")
         (root / "README.md").write_text("# INT-008 evidence\n", encoding="utf-8")
         return root, repository
@@ -312,7 +312,7 @@ class Int008TemporalVerifierTest(unittest.TestCase):
 
     def test_aggregate_requires_executed_full_gate_and_gametests(self):
         for removed in ("> Task :runGameTest", "> Task :test", "> Task :check",
-                        "> Task :auditJavaSources", "All 166 required tests passed :)"):
+                        "> Task :auditJavaSources", "All 167 required tests passed :)"):
             with self.subTest(removed=removed):
                 def strip(root):
                     path = root / "logs/aggregate-check.log"

@@ -1,5 +1,9 @@
 # INT-008 temporal lease evidence
 
+Historical PENDING capture only: final review of `73d81c13` found a Void Scar
+presence-clock regression. These retained results do not accept the subsequent
+repair. New clean-SHA capture, aggregate, packaging and review are required.
+
 This PENDING package binds dedicated-server acceptance to clean implementation
 `ca1469d40a261288bae891317dac000e6d4a482e`, with immutable base `98b181671b1514a3695ccb8f1ba1985092bce3dd`.
 The six schema-2 JSONL rows are copied byte-for-byte from the successful unfiltered

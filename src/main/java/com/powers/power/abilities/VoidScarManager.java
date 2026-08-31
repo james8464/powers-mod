@@ -65,9 +65,11 @@ final class VoidScarManager {
 		if (boundedDamage <= 0.0F) return false;
 		MagicPresenceId presenceId = MagicPresenceId.random();
 		long expiresAt = now + boundedDuration;
+		// The shared collision index owns WORLD deadlines; scar gameplay retains its control lifetime.
+		long presenceExpiresAt = com.powers.time.TemporalClocks.world(level).plus(boundedDuration).value();
 		MagicRuntime.global().registerPresence(new MagicPresence(presenceId, ACTION, owner.getUUID(),
 				level.dimension().identifier().toString(),
-				PresenceAnchor.fixed(center.x, center.y, center.z), boundedRadius, expiresAt));
+				PresenceAnchor.fixed(center.x, center.y, center.z), boundedRadius, presenceExpiresAt));
 		SCARS.add(new Scar(level.dimension(), owner.getUUID(), center, now, expiresAt,
 				boundedRadius, boundedDamage, Math.max(0, Math.min(4, witherAmplifier)),
 				Math.max(10, Math.min(80, witherTicks)), ancientMastery, presenceId));
