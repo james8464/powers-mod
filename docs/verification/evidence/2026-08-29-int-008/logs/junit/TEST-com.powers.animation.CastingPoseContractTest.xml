@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.animation.CastingPoseContractTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:12.964Z" hostname="MacBook-Pro-de-James.local" time="0.005">
+<testsuite name="com.powers.animation.CastingPoseContractTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:33.587Z" hostname="MacBook-Pro-de-James.local" time="0.007">
   <properties/>
   <testcase name="invalidDurationCannotConstructPoseEvent()" classname="com.powers.animation.CastingPoseContractTest" time="0.002"/>
-  <testcase name="closedNetworkIdsRoundTripAndRejectUnknownValues()" classname="com.powers.animation.CastingPoseContractTest" time="0.0"/>
-  <testcase name="authoritativeTimeDeterminesProgressAndExpiry()" classname="com.powers.animation.CastingPoseContractTest" time="0.002"/>
+  <testcase name="closedNetworkIdsRoundTripAndRejectUnknownValues()" classname="com.powers.animation.CastingPoseContractTest" time="0.002"/>
+  <testcase name="authoritativeTimeDeterminesProgressAndExpiry()" classname="com.powers.animation.CastingPoseContractTest" time="0.001"/>
   <testcase name="invalidIdentitySequenceAndOverflowAreRejected()" classname="com.powers.animation.CastingPoseContractTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

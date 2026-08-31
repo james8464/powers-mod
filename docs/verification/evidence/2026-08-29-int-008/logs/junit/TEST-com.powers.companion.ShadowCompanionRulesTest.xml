@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.companion.ShadowCompanionRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:20.819Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.companion.ShadowCompanionRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.031Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="hiddenAndRevealedStatesHaveExplicitPhysicalContracts()" classname="com.powers.companion.ShadowCompanionRulesTest" time="0.0"/>
   <testcase name="followAndTeleportBandsDoNotFightEachOther()" classname="com.powers.companion.ShadowCompanionRulesTest" time="0.0"/>

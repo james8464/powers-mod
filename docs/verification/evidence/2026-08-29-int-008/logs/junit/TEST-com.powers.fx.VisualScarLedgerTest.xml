@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.fx.VisualScarLedgerTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.518Z" hostname="MacBook-Pro-de-James.local" time="0.01">
+<testsuite name="com.powers.fx.VisualScarLedgerTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.692Z" hostname="MacBook-Pro-de-James.local" time="0.009">
   <properties/>
-  <testcase name="hierarchicalRequestQueueAdvancesSparseDimensionsOwnersPoliciesAndImpacts()" classname="com.powers.fx.VisualScarLedgerTest" time="0.002"/>
+  <testcase name="hierarchicalRequestQueueAdvancesSparseDimensionsOwnersPoliciesAndImpacts()" classname="com.powers.fx.VisualScarLedgerTest" time="0.001"/>
   <testcase name="midPageDimensionReconnectAndExpiryInvalidateStaleTail()" classname="com.powers.fx.VisualScarLedgerTest" time="0.0"/>
   <testcase name="observationRangeIncludesTheBoundaryAndRejectsBeyondIt()" classname="com.powers.fx.VisualScarLedgerTest" time="0.0"/>
   <testcase name="activeAndQueuedOwnerGlobalCapsAreIndependent()" classname="com.powers.fx.VisualScarLedgerTest" time="0.0"/>
   <testcase name="treeExpiryIsBoundedAndSkipsFutureBuckets()" classname="com.powers.fx.VisualScarLedgerTest" time="0.001"/>
-  <testcase name="movementAndTeleportIntoRangeStartBoundedResyncWithoutCopies()" classname="com.powers.fx.VisualScarLedgerTest" time="0.001"/>
-  <testcase name="intrusiveKeyRingHasOneNodePerMemberAndCoversContinuousMembersUnderMaximumChurn()" classname="com.powers.fx.VisualScarLedgerTest" time="0.005"/>
-  <testcase name="revalidationNeverLoadsAndOnlyRemovesChangedLoadedSupport()" classname="com.powers.fx.VisualScarLedgerTest" time="0.001"/>
+  <testcase name="movementAndTeleportIntoRangeStartBoundedResyncWithoutCopies()" classname="com.powers.fx.VisualScarLedgerTest" time="0.0"/>
+  <testcase name="intrusiveKeyRingHasOneNodePerMemberAndCoversContinuousMembersUnderMaximumChurn()" classname="com.powers.fx.VisualScarLedgerTest" time="0.006"/>
+  <testcase name="revalidationNeverLoadsAndOnlyRemovesChangedLoadedSupport()" classname="com.powers.fx.VisualScarLedgerTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

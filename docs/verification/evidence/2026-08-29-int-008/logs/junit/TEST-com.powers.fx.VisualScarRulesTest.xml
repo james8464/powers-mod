@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.fx.VisualScarRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.551Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.fx.VisualScarRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.725Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
-  <testcase name="hardCapsCannotBeRaisedAndContractCannotMutateOrPersist()" classname="com.powers.fx.VisualScarRulesTest" time="0.0"/>
+  <testcase name="hardCapsCannotBeRaisedAndContractCannotMutateOrPersist()" classname="com.powers.fx.VisualScarRulesTest" time="0.001"/>
   <testcase name="sameKeyRequestsCoalesceLatestWithoutOwnerCapLaundering()" classname="com.powers.fx.VisualScarRulesTest" time="0.001"/>
   <testcase name="supportAndFaceOriginFactsAreIndependentlyDeniedIncludingCrossChunkCases()" classname="com.powers.fx.VisualScarRulesTest" time="0.0"/>
-  <testcase name="exactSupportClassificationIsClosedAndAmbiguityFails()" classname="com.powers.fx.VisualScarRulesTest" time="0.0"/>
+  <testcase name="exactSupportClassificationIsClosedAndAmbiguityFails()" classname="com.powers.fx.VisualScarRulesTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

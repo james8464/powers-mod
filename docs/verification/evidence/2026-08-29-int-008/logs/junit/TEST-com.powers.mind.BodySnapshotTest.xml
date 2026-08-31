@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.mind.BodySnapshotTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.951Z" hostname="MacBook-Pro-de-James.local" time="0.004">
+<testsuite name="com.powers.mind.BodySnapshotTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:42.115Z" hostname="MacBook-Pro-de-James.local" time="0.004">
   <properties/>
-  <testcase name="rejectsUnboundedOrNonFiniteSnapshotData()" classname="com.powers.mind.BodySnapshotTest" time="0.002"/>
-  <testcase name="codecRoundTripsEveryFrozenAppearanceField()" classname="com.powers.mind.BodySnapshotTest" time="0.002"/>
+  <testcase name="rejectsUnboundedOrNonFiniteSnapshotData()" classname="com.powers.mind.BodySnapshotTest" time="0.003"/>
+  <testcase name="codecRoundTripsEveryFrozenAppearanceField()" classname="com.powers.mind.BodySnapshotTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

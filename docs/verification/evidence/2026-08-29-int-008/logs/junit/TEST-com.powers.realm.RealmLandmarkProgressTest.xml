@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.realm.RealmLandmarkProgressTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:01:02.272Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.realm.RealmLandmarkProgressTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:46:24.101Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="completionIsTrackedPerSiteAndDimension()" classname="com.powers.realm.RealmLandmarkProgressTest" time="0.0"/>
   <testcase name="encodedSnapshotRoundTripsWorldPersistence()" classname="com.powers.realm.RealmLandmarkProgressTest" time="0.0"/>

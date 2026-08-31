@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.spell.VerdantTendingRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:01:02.285Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.spell.VerdantTendingRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:46:24.114Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="classifiesOnlyAuthoredRestorationTargets()" classname="com.powers.spell.VerdantTendingRulesTest" time="0.0"/>
   <testcase name="workCapsAreFiniteAndIndependent()" classname="com.powers.spell.VerdantTendingRulesTest" time="0.0"/>

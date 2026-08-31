@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.magic.ActionRegistrySnapshotTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.846Z" hostname="MacBook-Pro-de-James.local" time="0.004">
+<testsuite name="com.powers.magic.ActionRegistrySnapshotTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:42.019Z" hostname="MacBook-Pro-de-James.local" time="0.004">
   <properties/>
   <testcase name="submissionMustMatchRevisionAndCanonicalKey()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.001"/>
   <testcase name="onlyQualifiedKeysOwnedByThePublishedMenuCatalogueAreCanonical()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.0"/>
-  <testcase name="qualifiedMenuAliasesPreserveEveryCanonicalNamespace()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.001"/>
+  <testcase name="qualifiedMenuAliasesPreserveEveryCanonicalNamespace()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.0"/>
   <testcase name="qualifiedCanonicalKeysRemainCollisionAndCycleSafe()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.0"/>
   <testcase name="invalidReloadLeavesPriorSnapshotAndRevisionUntouched()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.001"/>
   <testcase name="aliasesAreCollisionSafeAndMustResolveToCanonicalDefinitions()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.0"/>

@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.quality.SourceAuditPolicyTest" tests="28" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:38.424Z" hostname="MacBook-Pro-de-James.local" time="0.492">
+<testsuite name="com.powers.quality.SourceAuditPolicyTest" tests="28" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:58.628Z" hostname="MacBook-Pro-de-James.local" time="0.496">
   <properties/>
   <testcase name="annotatedSameLinePublicTypeStillRequiresDocumentation()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.109"/>
-  <testcase name="inlinePublicApiMethodsStillRequireContracts()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.024"/>
+  <testcase name="inlinePublicApiMethodsStillRequireContracts()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.022"/>
   <testcase name="shortFactualCommentIsAcceptedWithoutMandatorySignalWords()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.016"/>
   <testcase name="mechanicalNarrationCannotBorrowWeakIntentTokens()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.015"/>
-  <testcase name="nearLimitSourceMayKeepPrivateCoupledHelpers()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.014"/>
-  <testcase name="overrideMayInheritItsContract()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.015"/>
+  <testcase name="nearLimitSourceMayKeepPrivateCoupledHelpers()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.015"/>
+  <testcase name="overrideMayInheritItsContract()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.014"/>
   <testcase name="implicitPublicInterfaceMemberTypesRequireTheirOwnMeaningfulContract()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.014"/>
   <testcase name="commentFindingsReportTheExactOffendingLineInsideMultilineComments()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.013"/>
-  <testcase name="apiContractsCoverMultilineConstructorsNestedInterfacesAndMeaningfulDocs()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.015"/>
-  <testcase name="onlyExactOverrideAnnotationsMayInheritAnApiContract()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.013"/>
+  <testcase name="apiContractsCoverMultilineConstructorsNestedInterfacesAndMeaningfulDocs()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.014"/>
+  <testcase name="onlyExactOverrideAnnotationsMayInheritAnApiContract()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.014"/>
   <testcase name="nearLimitSourceCountsImplicitlyPublicInterfaceOwners()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.014"/>
-  <testcase name="interfaceMemberTypesAreImplicitlyPublicApiSurfaces()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.014"/>
-  <testcase name="nearLimitSourceMayExposeConstructorOnlyDataClasses()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.014"/>
+  <testcase name="interfaceMemberTypesAreImplicitlyPublicApiSurfaces()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.013"/>
+  <testcase name="nearLimitSourceMayExposeConstructorOnlyDataClasses()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.015"/>
   <testcase name="escapedDelimiterLikeSequenceDoesNotEndATextBlock()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.014"/>
   <testcase name="genericMechanicalNarrationIsRejectedWithItsLine()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.013"/>
-  <testcase name="packagePrivateNestedTypesDoNotCreatePublicApiContracts()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.016"/>
+  <testcase name="packagePrivateNestedTypesDoNotCreatePublicApiContracts()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.012"/>
   <testcase name="isolatedOutcomeVerbIsNotAMeaningfulApiContract()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.014"/>
   <testcase name="nearLimitSourceMayKeepPackagePrivateTopLevelHelpers()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.015"/>
-  <testcase name="topLevelApiTypesRequireMeaningfulContractsNotPlaceholderProse()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.015"/>
-  <testcase name="nearLimitSourceWithIndependentExternallyVisibleOwnersIsRejected()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.014"/>
+  <testcase name="topLevelApiTypesRequireMeaningfulContractsNotPlaceholderProse()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.014"/>
+  <testcase name="nearLimitSourceWithIndependentExternallyVisibleOwnersIsRejected()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.013"/>
   <testcase name="staleMarkersAreReadFromCommentsButNotStringLiterals()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.013"/>
   <testcase name="nearLimitSourceMayKeepPackagePrivateNestedBehavioralHelpers()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.013"/>
   <testcase name="adjacentInlineCommentsAreAuditedIndependently()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.013"/>
-  <testcase name="intentAndInvariantCommentsRemainAccepted()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.012"/>
-  <testcase name="nearLimitSourceMayExposeDataOnlyNestedRecords()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.012"/>
-  <testcase name="explicitPublicNestedApiTypesRequireTheirOwnMeaningfulContract()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.013"/>
-  <testcase name="unsupportedCertaintyClaimsAreRejected()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.012"/>
+  <testcase name="intentAndInvariantCommentsRemainAccepted()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.016"/>
+  <testcase name="nearLimitSourceMayExposeDataOnlyNestedRecords()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.014"/>
+  <testcase name="explicitPublicNestedApiTypesRequireTheirOwnMeaningfulContract()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.016"/>
+  <testcase name="unsupportedCertaintyClaimsAreRejected()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.013"/>
   <testcase name="callablePublicApiMembersRequireContracts()" classname="com.powers.quality.SourceAuditPolicyTest" time="0.012"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

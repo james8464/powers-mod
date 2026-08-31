@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.client.visual.VfxPixelAuditTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:20.516Z" hostname="MacBook-Pro-de-James.local" time="0.005">
+<testsuite name="com.powers.client.visual.VfxPixelAuditTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:40.748Z" hostname="MacBook-Pro-de-James.local" time="0.005">
   <properties/>
-  <testcase name="eachAnimationFrameOwnsItsMipChainWithoutCrossFrameBleed()" classname="com.powers.client.visual.VfxPixelAuditTest" time="0.0"/>
+  <testcase name="eachAnimationFrameOwnsItsMipChainWithoutCrossFrameBleed()" classname="com.powers.client.visual.VfxPixelAuditTest" time="0.001"/>
   <testcase name="reviewedExceptionIsBoundToExactPathAndDigest()" classname="com.powers.client.visual.VfxPixelAuditTest" time="0.001"/>
-  <testcase name="transparentRgbBesideVisiblePixelsRequiresReview()" classname="com.powers.client.visual.VfxPixelAuditTest" time="0.0"/>
-  <testcase name="rejectsAnimationFramesOutsideTheSourceImage()" classname="com.powers.client.visual.VfxPixelAuditTest" time="0.001"/>
+  <testcase name="transparentRgbBesideVisiblePixelsRequiresReview()" classname="com.powers.client.visual.VfxPixelAuditTest" time="0.001"/>
+  <testcase name="rejectsAnimationFramesOutsideTheSourceImage()" classname="com.powers.client.visual.VfxPixelAuditTest" time="0.0"/>
   <testcase name="pageOwnershipRejectsMissingExtraAndStalePages()" classname="com.powers.client.visual.VfxPixelAuditTest" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

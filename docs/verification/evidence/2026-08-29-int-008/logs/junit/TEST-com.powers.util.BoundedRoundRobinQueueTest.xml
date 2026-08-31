@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.util.BoundedRoundRobinQueueTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:01:02.430Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.util.BoundedRoundRobinQueueTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:46:24.278Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="duplicateOffersAndRemovalCannotCreateDuplicateWork()" classname="com.powers.util.BoundedRoundRobinQueueTest" time="0.001"/>
+  <testcase name="duplicateOffersAndRemovalCannotCreateDuplicateWork()" classname="com.powers.util.BoundedRoundRobinQueueTest" time="0.0"/>
   <testcase name="singlePollSupportsBoundedReofferWithoutScanningTheQueue()" classname="com.powers.util.BoundedRoundRobinQueueTest" time="0.0"/>
   <testcase name="taskCountAboveCapacityStillCompletesOneRoundWithinTheBound()" classname="com.powers.util.BoundedRoundRobinQueueTest" time="0.001"/>
   <testcase name="pollingIsBoundedStableAndReofferRotatesWork()" classname="com.powers.util.BoundedRoundRobinQueueTest" time="0.0"/>

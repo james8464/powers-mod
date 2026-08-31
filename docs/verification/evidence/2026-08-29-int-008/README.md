@@ -1,18 +1,14 @@
 # INT-008 temporal lease evidence
 
-Historical PENDING capture only: final review of `73d81c13` found a Void Scar
-presence-clock regression. These retained results do not accept the subsequent
-repair. New clean-SHA capture, aggregate, packaging and review are required.
-
 This PENDING package binds dedicated-server acceptance to clean implementation
-`ca1469d40a261288bae891317dac000e6d4a482e`, with immutable base `98b181671b1514a3695ccb8f1ba1985092bce3dd`.
+`aaff0b0f88312b66d232f6e1f4ef0741a8690928`, with immutable base `98b181671b1514a3695ccb8f1ba1985092bce3dd`.
 The six schema-2 JSONL rows are copied byte-for-byte from the successful unfiltered
 production GameTest transcript, not reconstructed from expected values.
 
 ## Retained results
 
-- Exact-SHA capture: all 166 required GameTests passed.
-- Literal full check: all 166 GameTests, 1,836 JUnit tests across
+- Exact-SHA capture: all 167 required GameTests passed.
+- Literal full check: all 167 GameTests, 1,836 JUnit tests across
   424 raw XML suites, and 240 Python tests passed.
 - Ordered preflight/postflight receipts verify the actual clean checkout around
   the full check. The subsequent receipt binds every retained raw JUnit XML file
@@ -34,19 +30,22 @@ Three further isolated tests cover hovering/launched Cinderheart lifetime under
 external and both owned-freeze cases, parked overdue expiry with active lifecycle
 cleanup, executor-started indefinite Shadow freeze with finite Flight expiry, and
 body-scoped marker retirement after explicit stop, supersession, and body loss.
+A further isolated real Void Scar test covers a mature world clock ahead of
+control time, shared-index lifetime boundaries, and owner cleanup.
 
 ## Reproduction
 
 ```text
-JAVA_HOME=<java25> ./gradlew runGameTest -Pint008ImplementationSha=ca1469d40a261288bae891317dac000e6d4a482e --rerun-tasks --no-daemon --console=plain
+JAVA_HOME=<java25> ./gradlew runGameTest -Pint008ImplementationSha=aaff0b0f88312b66d232f6e1f4ef0741a8690928 --rerun-tasks --no-daemon --console=plain
 JAVA_HOME=<java25> ./gradlew check --rerun-tasks --no-daemon --console=plain
 python3 scripts/verify_int008_temporal.py docs/verification/evidence/2026-08-29-int-008
 python3 scripts/package_int008_evidence.py docs/verification/evidence/2026-08-29-int-008 --output <archive.tar.gz>
 ```
 
-The initial implementation review returned READY without findings. This final
-recapture follows the reconciled closure documentation without gameplay changes.
-Fresh final-head READY review and integration gates remain outstanding; see
+The previous final review found a Void Scar presence-clock regression, since
+reproduced and repaired through observed RED/GREEN. The reviewer confirmed that
+repair without new findings. This package is the new post-repair capture;
+fresh independent READY review and integration gates remain outstanding; see
 [the closure ledger](closure.md). This package does not claim closure.
 Inventories include deletions and digest both base and implementation blobs;
 only evidence-package commits may follow this capture.

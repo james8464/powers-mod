@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.loot.LootDistributionSimulatorTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.657Z" hostname="MacBook-Pro-de-James.local" time="0.185">
+<testsuite name="com.powers.loot.LootDistributionSimulatorTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.827Z" hostname="MacBook-Pro-de-James.local" time="0.188">
   <properties/>
-  <testcase name="countRangeAndEqualItemWeightsAreReproducible()" classname="com.powers.loot.LootDistributionSimulatorTest" time="0.014"/>
-  <testcase name="everyInjectedPoolMatchesItsAuthoredProbabilityAndIgnoresForeignWeights()" classname="com.powers.loot.LootDistributionSimulatorTest" time="0.17"/>
+  <testcase name="countRangeAndEqualItemWeightsAreReproducible()" classname="com.powers.loot.LootDistributionSimulatorTest" time="0.015"/>
+  <testcase name="everyInjectedPoolMatchesItsAuthoredProbabilityAndIgnoresForeignWeights()" classname="com.powers.loot.LootDistributionSimulatorTest" time="0.172"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

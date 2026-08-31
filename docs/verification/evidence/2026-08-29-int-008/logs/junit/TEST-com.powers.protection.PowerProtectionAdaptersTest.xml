@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.protection.PowerProtectionAdaptersTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.941Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.protection.PowerProtectionAdaptersTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.144Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
   <testcase name="oneClaimProviderCanDenyEveryDocumentedActionConsistently()" classname="com.powers.protection.PowerProtectionAdaptersTest" time="0.0"/>
   <testcase name="blockWorkPolicyIdentityIsBoundedAndTracksTheProviderSet()" classname="com.powers.protection.PowerProtectionAdaptersTest" time="0.0"/>
-  <testcase name="providerFailureFailsClosedAndDuplicateIdentityCannotReplacePolicy()" classname="com.powers.protection.PowerProtectionAdaptersTest" time="0.001"/>
-  <testcase name="unknownActionLinkageFailuresFromOlderAdaptersFailClosed()" classname="com.powers.protection.PowerProtectionAdaptersTest" time="0.002"/>
-  <system-out><![CDATA[[06:00:23] [Test worker/ERROR]: Protection adapter broken failed closed for RITUAL
+  <testcase name="providerFailureFailsClosedAndDuplicateIdentityCannotReplacePolicy()" classname="com.powers.protection.PowerProtectionAdaptersTest" time="0.002"/>
+  <testcase name="unknownActionLinkageFailuresFromOlderAdaptersFailClosed()" classname="com.powers.protection.PowerProtectionAdaptersTest" time="0.001"/>
+  <system-out><![CDATA[[06:45:44] [Test worker/ERROR]: Protection adapter broken failed closed for RITUAL
 java.lang.IllegalStateException: boom
 	at com.powers.protection.PowerProtectionAdaptersTest.lambda$providerFailureFailsClosedAndDuplicateIdentityCannotReplacePolicy$2(PowerProtectionAdaptersTest.java:37)
 	at com.powers.protection.PowerProtectionAdapters.allows(PowerProtectionAdapters.java:33)
@@ -101,7 +101,7 @@ java.lang.IllegalStateException: boom
 	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:72)
 	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
 	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
-[06:00:23] [Test worker/ERROR]: Protection adapter legacy_exhaustive_switch failed closed for OBSERVE
+[06:45:44] [Test worker/ERROR]: Protection adapter legacy_exhaustive_switch failed closed for OBSERVE
 java.lang.IncompatibleClassChangeError: new enum constant
 	at com.powers.protection.PowerProtectionAdaptersTest.lambda$unknownActionLinkageFailuresFromOlderAdaptersFailClosed$0(PowerProtectionAdaptersTest.java:59)
 	at com.powers.protection.PowerProtectionAdapters.allows(PowerProtectionAdapters.java:33)

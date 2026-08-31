@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.PowerRegistryTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.817Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.power.PowerRegistryTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.025Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
   <testcase name="affinityRostersExposeOnlyCompatibleInnatePowers()" classname="com.powers.power.PowerRegistryTest" time="0.0"/>
   <testcase name="allegianceMigrationPreservesCompatiblePowersAndReplacesForbiddenOnes()" classname="com.powers.power.PowerRegistryTest" time="0.0"/>
   <testcase name="randomLoadoutsGuaranteeAnAlignmentExclusivePower()" classname="com.powers.power.PowerRegistryTest" time="0.002"/>
   <testcase name="assignableRosterPromotesSizeMorphingAndRemovesSlowWorldRuntime()" classname="com.powers.power.PowerRegistryTest" time="0.0"/>
   <testcase name="retiredPowersAreAbsentFromTheInnateRoster()" classname="com.powers.power.PowerRegistryTest" time="0.0"/>
-  <testcase name="retiredSelectionsMigrateToStableSafeDefaults()" classname="com.powers.power.PowerRegistryTest" time="0.001"/>
+  <testcase name="retiredSelectionsMigrateToStableSafeDefaults()" classname="com.powers.power.PowerRegistryTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

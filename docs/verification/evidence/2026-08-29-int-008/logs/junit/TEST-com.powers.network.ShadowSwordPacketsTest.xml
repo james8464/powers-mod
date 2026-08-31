@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.network.ShadowSwordPacketsTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:22.262Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.network.ShadowSwordPacketsTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:42.454Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="menuSnapshotRoundTripsBoundedRecentCanonicalKeys()" classname="com.powers.network.ShadowSwordPacketsTest" time="0.001"/>
+  <testcase name="menuSnapshotRoundTripsBoundedRecentCanonicalKeys()" classname="com.powers.network.ShadowSwordPacketsTest" time="0.0"/>
   <testcase name="oversizedTargetNamesAreRejectedDuringEncoding()" classname="com.powers.network.ShadowSwordPacketsTest" time="0.0"/>
   <testcase name="oversizedActionKeysAreRejectedDuringEncoding()" classname="com.powers.network.ShadowSwordPacketsTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

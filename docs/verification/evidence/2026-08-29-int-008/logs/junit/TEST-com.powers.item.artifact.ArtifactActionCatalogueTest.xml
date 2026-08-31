@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.item.artifact.ArtifactActionCatalogueTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.605Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.item.artifact.ArtifactActionCatalogueTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.776Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="shadowRoutesEverythingWhilePartisanUsesAStrictRadiantSubset()" classname="com.powers.item.artifact.ArtifactActionCatalogueTest" time="0.0"/>
+  <testcase name="shadowRoutesEverythingWhilePartisanUsesAStrictRadiantSubset()" classname="com.powers.item.artifact.ArtifactActionCatalogueTest" time="0.001"/>
   <testcase name="lightKeepsEightCuratedPartisanRites()" classname="com.powers.item.artifact.ArtifactActionCatalogueTest" time="0.0"/>
   <testcase name="darknessExposesOnlyTheThreeCanonicalOriginals()" classname="com.powers.item.artifact.ArtifactActionCatalogueTest" time="0.0"/>
-  <testcase name="everyActionHasVisibleCostGateAndCooldownMetadata()" classname="com.powers.item.artifact.ArtifactActionCatalogueTest" time="0.001"/>
+  <testcase name="everyActionHasVisibleCostGateAndCooldownMetadata()" classname="com.powers.item.artifact.ArtifactActionCatalogueTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

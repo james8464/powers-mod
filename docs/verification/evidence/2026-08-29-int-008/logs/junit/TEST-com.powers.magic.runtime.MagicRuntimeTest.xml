@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.magic.runtime.MagicRuntimeTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.942Z" hostname="MacBook-Pro-de-James.local" time="0.004">
+<testsuite name="com.powers.magic.runtime.MagicRuntimeTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:42.105Z" hostname="MacBook-Pro-de-James.local" time="0.005">
   <properties/>
   <testcase name="anchorCancelsTravelBeforeAResidueCanCommit()" classname="com.powers.magic.runtime.MagicRuntimeTest" time="0.002"/>
   <testcase name="repeatedPairInOneCellAndTickEmitsOneReactionCue()" classname="com.powers.magic.runtime.MagicRuntimeTest" time="0.0"/>
-  <testcase name="rejectedPreviewEmitsOnlyTheReactionThatActuallyBlockedTheCast()" classname="com.powers.magic.runtime.MagicRuntimeTest" time="0.0"/>
+  <testcase name="rejectedPreviewEmitsOnlyTheReactionThatActuallyBlockedTheCast()" classname="com.powers.magic.runtime.MagicRuntimeTest" time="0.001"/>
   <testcase name="ownerAndServerCleanupRemoveRuntimeStateAndDedupeKeys()" classname="com.powers.magic.runtime.MagicRuntimeTest" time="0.0"/>
   <testcase name="successfulCommitRegistersAdjustedResidueOnlyAfterExecution()" classname="com.powers.magic.runtime.MagicRuntimeTest" time="0.0"/>
   <testcase name="explicitlyRemovedImpactPresenceCannotCollideAgain()" classname="com.powers.magic.runtime.MagicRuntimeTest" time="0.0"/>

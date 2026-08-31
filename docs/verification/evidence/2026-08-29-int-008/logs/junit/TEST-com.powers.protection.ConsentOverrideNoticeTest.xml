@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.protection.ConsentOverrideNoticeTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.939Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.protection.ConsentOverrideNoticeTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.143Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="targetNoticeIsPersistentAndNamesKindAndSurcharge()" classname="com.powers.protection.ConsentOverrideNoticeTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.testing.network.PacketFaultEngineTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:01:02.308Z" hostname="MacBook-Pro-de-James.local" time="0.093">
+<testsuite name="com.powers.testing.network.PacketFaultEngineTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:46:24.137Z" hostname="MacBook-Pro-de-James.local" time="0.105">
   <properties/>
   <testcase name="latestWinsIsScopedToTheLogicalStateOwner()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.002"/>
-  <testcase name="seededLossHasAnExactRepeatableCount()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.032"/>
-  <testcase name="boundedQueueFailsClosedAndExpiresOldWork()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.0"/>
-  <testcase name="duplicatedDiscreteCastRunsOnceWhileDistinctCastsArePreserved()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.001"/>
-  <testcase name="seededDecisionsAreRepeatableButIndependentAcrossLogicalStreams()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.001"/>
+  <testcase name="seededLossHasAnExactRepeatableCount()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.034"/>
+  <testcase name="boundedQueueFailsClosedAndExpiresOldWork()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.001"/>
+  <testcase name="duplicatedDiscreteCastRunsOnceWhileDistinctCastsArePreserved()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.0"/>
+  <testcase name="seededDecisionsAreRepeatableButIndependentAcrossLogicalStreams()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.002"/>
   <testcase name="disabledProfileExecutesInlineWithoutCreatingFaultWork()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.0"/>
   <testcase name="familyAndDirectionFiltersBypassWithoutFaultAccounting()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.0"/>
-  <testcase name="idleLogicalStreamMetadataIsReleasedAfterDelivery()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.025"/>
-  <testcase name="lifecycleCancellationInvokesFailClosedCallbacksAndAccountsThem()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.0"/>
+  <testcase name="idleLogicalStreamMetadataIsReleasedAfterDelivery()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.028"/>
+  <testcase name="lifecycleCancellationInvokesFailClosedCallbacksAndAccountsThem()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.001"/>
   <testcase name="acceptanceMatrixIsDeterministicAndHasNoDuplicateAuthorityEffects()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.007"/>
-  <testcase name="perConnectionWorkAllowanceMakesFairProgress()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.0"/>
+  <testcase name="perConnectionWorkAllowanceMakesFairProgress()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.001"/>
   <testcase name="duplicateCopyOverflowNeverInvalidatesTheQueuedOriginal()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.001"/>
   <testcase name="duplicateAndReorderCannotApplyAnOlderStatefulRequest()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.0"/>
   <testcase name="disconnectAndServerStopClearQueuedPayloadsAndCounters()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.0"/>
   <testcase name="delayUsesGameTicksAndNeverWallClockTime()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.0"/>
-  <testcase name="globalQueueAndTickWorkRemainHardBounded()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.023"/>
-  <system-out><![CDATA[[06:01:02] [Test worker/INFO]: [STDOUT]: QA009_MATRIX delay150 seed=630793 offered=1000 dropped=0 duplicated=0 delayed=1000 reordered=0 delivered=1000 expired=0 overflowed=0 stale=0 cancelled=0 maxQueue=4 maxAge=3
-[06:01:02] [Test worker/INFO]: [STDOUT]: QA009_MATRIX delay300 seed=630793 offered=1000 dropped=0 duplicated=0 delayed=1000 reordered=0 delivered=1000 expired=0 overflowed=0 stale=0 cancelled=0 maxQueue=7 maxAge=6
-[06:01:02] [Test worker/INFO]: [STDOUT]: QA009_MATRIX loss1 seed=630793 offered=1000 dropped=4 duplicated=0 delayed=0 reordered=0 delivered=996 expired=0 overflowed=0 stale=0 cancelled=0 maxQueue=1 maxAge=0
-[06:01:02] [Test worker/INFO]: [STDOUT]: QA009_MATRIX loss5 seed=630793 offered=1000 dropped=41 duplicated=0 delayed=0 reordered=0 delivered=959 expired=0 overflowed=0 stale=0 cancelled=0 maxQueue=1 maxAge=0
-[06:01:02] [Test worker/INFO]: [STDOUT]: QA009_MATRIX duplicate seed=630793 offered=1000 dropped=0 duplicated=1000 delayed=0 reordered=0 delivered=1000 expired=0 overflowed=0 stale=1000 cancelled=0 maxQueue=2 maxAge=0
-[06:01:02] [Test worker/INFO]: [STDOUT]: QA009_MATRIX reorder seed=630793 offered=1000 dropped=0 duplicated=0 delayed=667 reordered=666 delivered=334 expired=0 overflowed=0 stale=666 cancelled=0 maxQueue=3 maxAge=2
+  <testcase name="globalQueueAndTickWorkRemainHardBounded()" classname="com.powers.testing.network.PacketFaultEngineTest" time="0.028"/>
+  <system-out><![CDATA[[06:46:24] [Test worker/INFO]: [STDOUT]: QA009_MATRIX delay150 seed=630793 offered=1000 dropped=0 duplicated=0 delayed=1000 reordered=0 delivered=1000 expired=0 overflowed=0 stale=0 cancelled=0 maxQueue=4 maxAge=3
+[06:46:24] [Test worker/INFO]: [STDOUT]: QA009_MATRIX delay300 seed=630793 offered=1000 dropped=0 duplicated=0 delayed=1000 reordered=0 delivered=1000 expired=0 overflowed=0 stale=0 cancelled=0 maxQueue=7 maxAge=6
+[06:46:24] [Test worker/INFO]: [STDOUT]: QA009_MATRIX loss1 seed=630793 offered=1000 dropped=4 duplicated=0 delayed=0 reordered=0 delivered=996 expired=0 overflowed=0 stale=0 cancelled=0 maxQueue=1 maxAge=0
+[06:46:24] [Test worker/INFO]: [STDOUT]: QA009_MATRIX loss5 seed=630793 offered=1000 dropped=41 duplicated=0 delayed=0 reordered=0 delivered=959 expired=0 overflowed=0 stale=0 cancelled=0 maxQueue=1 maxAge=0
+[06:46:24] [Test worker/INFO]: [STDOUT]: QA009_MATRIX duplicate seed=630793 offered=1000 dropped=0 duplicated=1000 delayed=0 reordered=0 delivered=1000 expired=0 overflowed=0 stale=1000 cancelled=0 maxQueue=2 maxAge=0
+[06:46:24] [Test worker/INFO]: [STDOUT]: QA009_MATRIX reorder seed=630793 offered=1000 dropped=0 duplicated=0 delayed=667 reordered=666 delivered=334 expired=0 overflowed=0 stale=666 cancelled=0 maxQueue=3 maxAge=2
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

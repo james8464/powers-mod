@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.abilities.VoidBeamRulesTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.837Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.power.abilities.VoidBeamRulesTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.044Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="releaseAndScarDamageRejectMalformedValuesAndStayBounded()" classname="com.powers.power.abilities.VoidBeamRulesTest" time="0.0"/>
   <testcase name="scarAdmissionAndPulseSelectionStayInsideGlobalWorkCaps()" classname="com.powers.power.abilities.VoidBeamRulesTest" time="0.0"/>
   <testcase name="scarCadenceAndBoundsAreHardCapped()" classname="com.powers.power.abilities.VoidBeamRulesTest" time="0.0"/>
   <testcase name="rankVariantsAddFinitePenetration()" classname="com.powers.power.abilities.VoidBeamRulesTest" time="0.0"/>
-  <testcase name="penetrationDamageFallsAndNeverBecomesMalformed()" classname="com.powers.power.abilities.VoidBeamRulesTest" time="0.001"/>
+  <testcase name="penetrationDamageFallsAndNeverBecomesMalformed()" classname="com.powers.power.abilities.VoidBeamRulesTest" time="0.0"/>
   <testcase name="segmentSphereReturnsTheNearestEntryDistance()" classname="com.powers.power.abilities.VoidBeamRulesTest" time="0.0"/>
   <testcase name="nearestValidWardInterceptWinsBeforeTheTerminalBlock()" classname="com.powers.power.abilities.VoidBeamRulesTest" time="0.0"/>
   <testcase name="candidatesAreNearestFirstDeduplicatedAndCapped()" classname="com.powers.power.abilities.VoidBeamRulesTest" time="0.0"/>

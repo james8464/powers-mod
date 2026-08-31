@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.network.MagicFxWireSizeTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:22.209Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.network.MagicFxWireSizeTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:42.398Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
   <testcase name="transportPlanUsesExactFramesAndFallsBackWhenBatchSupportIsAbsent()" classname="com.powers.network.MagicFxWireSizeTest" time="0.0"/>
-  <testcase name="exposesAResettableCaptureSnapshotWithoutResettingOtherNetworkState()" classname="com.powers.network.MagicFxWireSizeTest" time="0.0"/>
+  <testcase name="exposesAResettableCaptureSnapshotWithoutResettingOtherNetworkState()" classname="com.powers.network.MagicFxWireSizeTest" time="0.001"/>
   <testcase name="resolvesTheExactMinecraft262ClientboundCustomPayloadPacketId()" classname="com.powers.network.MagicFxWireSizeTest" time="0.0"/>
   <testcase name="reportsTheExactPayloadBodySizeWrittenByEachCodec()" classname="com.powers.network.MagicFxWireSizeTest" time="0.0"/>
   <testcase name="mixedSemanticBatchCodecPreservesEntryOrderAndPayloads()" classname="com.powers.network.MagicFxWireSizeTest" time="0.001"/>

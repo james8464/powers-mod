@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.quality.LauncherContractTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:24.205Z" hostname="MacBook-Pro-de-James.local" time="0.059">
+<testsuite name="com.powers.quality.LauncherContractTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.414Z" hostname="MacBook-Pro-de-James.local" time="0.059">
   <properties/>
   <testcase name="dedicatedServerTaskSeedsItsOwnRuntimeFiles()" classname="com.powers.quality.LauncherContractTest" time="0.0"/>
   <testcase name="explicitJavaHomeWorksFromOutsideTheRepository()" classname="com.powers.quality.LauncherContractTest" time="0.058"/>
-  <testcase name="compatibilityGameTestOwnsVerifiedIsolatedRuntime()" classname="com.powers.quality.LauncherContractTest" time="0.001"/>
+  <testcase name="compatibilityGameTestOwnsVerifiedIsolatedRuntime()" classname="com.powers.quality.LauncherContractTest" time="0.0"/>
   <testcase name="launcherExposesEverySupportedVerificationMode()" classname="com.powers.quality.LauncherContractTest" time="0.0"/>
   <testcase name="gameTestTaskSeedsItsOwnRuntimeFiles()" classname="com.powers.quality.LauncherContractTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

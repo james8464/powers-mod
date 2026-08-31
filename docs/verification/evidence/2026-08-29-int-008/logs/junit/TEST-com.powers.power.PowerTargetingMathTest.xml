@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.PowerTargetingMathTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.820Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.power.PowerTargetingMathTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.027Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="entityWinsWhenItIsInFrontOfTheBlock()" classname="com.powers.power.PowerTargetingMathTest" time="0.0"/>
+  <testcase name="entityWinsWhenItIsInFrontOfTheBlock()" classname="com.powers.power.PowerTargetingMathTest" time="0.001"/>
   <testcase name="missWinsOnlyWhenThereIsNoHit()" classname="com.powers.power.PowerTargetingMathTest" time="0.0"/>
   <testcase name="squaresProjectileSearchRange()" classname="com.powers.power.PowerTargetingMathTest" time="0.0"/>
   <testcase name="blockWinsWhenItIsInFrontOfTheEntity()" classname="com.powers.power.PowerTargetingMathTest" time="0.0"/>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.player.PlayerTickCadenceTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.812Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.player.PlayerTickCadenceTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.020Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="oneCoordinatorPassScalesLinearlyAtTwentyAndFiftyPlayers()" classname="com.powers.player.PlayerTickCadenceTest" time="0.0"/>
   <testcase name="derivesAllPlayerWorkCadencesFromOneTick()" classname="com.powers.player.PlayerTickCadenceTest" time="0.0"/>

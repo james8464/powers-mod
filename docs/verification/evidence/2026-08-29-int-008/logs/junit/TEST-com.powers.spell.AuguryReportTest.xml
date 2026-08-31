@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.spell.AuguryReportTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:01:02.274Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.spell.AuguryReportTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:46:24.104Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
-  <testcase name="weatherClassificationUsesTheStrongestObservedState()" classname="com.powers.spell.AuguryReportTest" time="0.001"/>
+  <testcase name="weatherClassificationUsesTheStrongestObservedState()" classname="com.powers.spell.AuguryReportTest" time="0.0"/>
   <testcase name="moonNamesCoverEveryVanillaPhase()" classname="com.powers.spell.AuguryReportTest" time="0.0"/>
   <testcase name="realmEventCountdownIsDeterministicAcrossCycleBoundaries()" classname="com.powers.spell.AuguryReportTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

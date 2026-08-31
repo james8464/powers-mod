@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.config.ConfigValidationReportTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:20.981Z" hostname="MacBook-Pro-de-James.local" time="0.011">
+<testsuite name="com.powers.config.ConfigValidationReportTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.154Z" hostname="MacBook-Pro-de-James.local" time="0.012">
   <properties/>
   <testcase name="reportRetainsOnlyABoundedNumberOfFieldReasons()" classname="com.powers.config.ConfigValidationReportTest" time="0.001"/>
-  <testcase name="nullSafeZoneEntriesDefaultSafelyWithoutCoordinatesInTheReport()" classname="com.powers.config.ConfigValidationReportTest" time="0.006"/>
-  <testcase name="parseReportsDefaultSubstitutionAndClampWithoutRawValues()" classname="com.powers.config.ConfigValidationReportTest" time="0.001"/>
-  <testcase name="malformedPolicyPatchesFailClosedAndAreReportedWithoutRawValues()" classname="com.powers.config.ConfigValidationReportTest" time="0.001"/>
-  <testcase name="parsesWorldAndDimensionPolicyPatchesWithoutFlatteningTheirOrigins()" classname="com.powers.config.ConfigValidationReportTest" time="0.001"/>
+  <testcase name="nullSafeZoneEntriesDefaultSafelyWithoutCoordinatesInTheReport()" classname="com.powers.config.ConfigValidationReportTest" time="0.005"/>
+  <testcase name="parseReportsDefaultSubstitutionAndClampWithoutRawValues()" classname="com.powers.config.ConfigValidationReportTest" time="0.002"/>
+  <testcase name="malformedPolicyPatchesFailClosedAndAreReportedWithoutRawValues()" classname="com.powers.config.ConfigValidationReportTest" time="0.0"/>
+  <testcase name="parsesWorldAndDimensionPolicyPatchesWithoutFlatteningTheirOrigins()" classname="com.powers.config.ConfigValidationReportTest" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.network.PacketRateLimiterTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:22.211Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.network.PacketRateLimiterTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:42.401Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="eachLaneHasAnIndependentHardPerSecondBudget()" classname="com.powers.network.PacketRateLimiterTest" time="0.001"/>
   <testcase name="aNewWindowClockRollbackAndDisconnectAllReleaseTheBudget()" classname="com.powers.network.PacketRateLimiterTest" time="0.0"/>
