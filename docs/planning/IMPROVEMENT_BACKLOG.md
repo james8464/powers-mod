@@ -185,7 +185,6 @@ Kinds: **Defect** = reproduced source/content contradiction; **Guarantee** = pre
 | --- | --- | --- | --- | --- |
 | INT-006 | Enhancement | P2 | Expand conductive networks across Lightning, water, copper, Pure Light, amethyst, and forcefields. | Graph is capped and each terminal has distinct visuals/damage. |
 | INT-007 | Enhancement | P2 | Expand thermal rules across Fireball/Inferno, Ice, water, snow, plants, and realm blocks. | State table prevents contradictory conversions and scheduled-tick storms. |
-| INT-008 | Enhancement | P2 | Complete temporal leases and explicit clocks; repair the final-review Void Scar presence-clock regression. | Observed RED/GREEN, fresh exact-SHA evidence, independent READY, and integration gates are required. |
 | INT-009 | Enhancement | P2 | Expand mind rules across possession, Dreamwalking, projection, Soul Compass, Shadow, body death, and Soul Link. | Nested sessions are refused with precise reason; fatal outcomes match lifecycle matrix. |
 | INT-010 | Enhancement | P2 | Expand alignment rules for Light/Dark artifacts, forces, bosses, Concord, food, and amethyst. | One data-driven allegiance matrix replaces scattered boolean assumptions. |
 | INT-011 | Enhancement | P2 | Add forcefield/linked-soul ordering visualization and damage accounting. | No damage multiplication, recursion, or ward double-consumption. |

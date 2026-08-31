@@ -1,5 +1,11 @@
 # INT-008 temporal lease evidence
 
+Historical reviewed PENDING capture: `int008_review7` accepted this repaired
+implementation and evidence commit `9b245015` for closure reconciliation.
+Non-evidence documentation is now reconciled; a new final clean-SHA capture must
+replace this package before final acceptance. No current-head gate or integration
+is claimed by these retained results.
+
 This PENDING package binds dedicated-server acceptance to clean implementation
 `aaff0b0f88312b66d232f6e1f4ef0741a8690928`, with immutable base `98b181671b1514a3695ccb8f1ba1985092bce3dd`.
 The six schema-2 JSONL rows are copied byte-for-byte from the successful unfiltered
@@ -45,7 +51,8 @@ python3 scripts/package_int008_evidence.py docs/verification/evidence/2026-08-29
 The previous final review found a Void Scar presence-clock regression, since
 reproduced and repaired through observed RED/GREEN. The reviewer confirmed that
 repair without new findings. This package is the new post-repair capture;
-fresh independent READY review and integration gates remain outstanding; see
+fresh independent READY review accepted closure reconciliation. Final clean-SHA
+recapture, final-head review and integration gates remain outstanding; see
 [the closure ledger](closure.md). This package does not claim closure.
 Inventories include deletions and digest both base and implementation blobs;
 only evidence-package commits may follow this capture.

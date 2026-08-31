@@ -84,9 +84,10 @@ Stage 2 may start only after every row above except the deliberately open `QA-00
 
 ### Stage 4 — cross-system interactions
 
-- [ ] `INT-008`: final review withdrew readiness after identifying a Void Scar presence-clock
-  regression. Earlier 166-GameTest, 1,836-JUnit and 240-Python green captures are historical;
-  repair, new exact-SHA evidence and fresh review are required. Remaining integration
+- [x] `INT-008`: reviewed implementation acceptance after the Void Scar presence-clock
+  repair. Fresh independent review returned READY for `aaff0b0f` / evidence `9b245015`,
+  with 167 GameTests, 1,836 JUnit and 240 Python passing the implementation gate.
+  This checkbox records implementation acceptance, not completed integration. Remaining
   gates live in the [INT-008 closure ledger](../../verification/evidence/2026-08-29-int-008/closure.md).
   `INT-009` cannot start until that ledger records completed integration and clean synchronized worktrees.
 - [ ] `INT-009`: one authoritative mind-session owner and complete death/return/confinement matrix.

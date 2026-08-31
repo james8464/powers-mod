@@ -1,14 +1,26 @@
 # INT-008 verification status
 
-Status: **NOT READY; Void Scar regression repaired, new exact-SHA evidence/review pending.**
+Status: **READY for closure reconciliation; final recapture and integration pending.**
 
-The final independent review of `73d81c13` found one Important regression:
-the shared presence index now expires against world time, but Void Scar still
-registers a control-time deadline. A mature world's next index tick can remove
-the scar's collision presence prematurely. The earlier READY verdict below is
-historical, not current acceptance. Repair requires observed RED/GREEN, a new
-clean-SHA capture and literal aggregate, rebuilt evidence, and fresh review.
-The clean `73d81c13` literal gate passed, but does not override this finding.
+Fresh independent reviewer `int008_review7` returned READY with no Critical,
+Important, or Minor findings for implementation
+`aaff0b0f88312b66d232f6e1f4ef0741a8690928` and PENDING evidence commit
+`9b245015bcfe4a852fb625f58895ae9c9d3c9159`. This is not final merge approval.
+The repaired source passed the exact unfiltered capture and literal Java 25
+aggregate: 167 GameTests, 1,836 JUnit tests across 424 raw XML suites, and
+240 Python tests. All 22 checkout/verifier/package tests independently passed.
+The reviewer checked production ownership/clock paths, byte-identical XML and
+runtime rows, ordered clean-SHA receipts, immutable-base/deletion inventory,
+checksums, privacy, and deterministic archives. Three 437-file archives match
+SHA-256 `e6bd35f53a629e78f0ac040b912d43d4fb729caf03a9e296a3c01c29d22b2dd8`.
+
+The additional literal gate on evidence head `9b245015` failed a portal fixture
+at tick 0 before JUnit. It is not a passing final-head gate. The failing fixture
+is unchanged and review found no established temporal cause. The successful
+`aaff0b0f` gate and that failed diagnostic are kept distinct.
+These documentation changes precede a mandatory new clean-SHA recapture.
+Final-head verification/review, main integration and synchronization remain
+pending in the [closure ledger](evidence/2026-08-29-int-008/closure.md).
 
 ## Final review repair, 2026-08-31
 
@@ -29,8 +41,8 @@ new full-suite count; the count was then raised without weakening any checks.
 All 22 checkout/verifier/package tests pass in `powers-int008-review6-verifier-green.log`.
 Focused Void Beam rules, magic-runtime, typed-time and temporal-boundary JUnit tests,
 the regenerated Java source audit, and item/magic/rank documentation gates pass in
-`powers-int008-review6-focused-green.log`. The live GREEN is diagnostic, not full
-acceptance; fresh unfiltered evidence is still required.
+`powers-int008-review6-focused-green.log`. The focused live GREEN is diagnostic;
+the subsequent full post-repair capture and independent review are recorded above.
 
 The ca1469d4 capture and 73d81c13 package/gate remain historical PENDING evidence.
 They cannot stand in for acceptance of the repaired source. The final reviewer

@@ -10,14 +10,14 @@
 
 **Spec:** `docs/superpowers/specs/2026-08-29-int-008-temporal-leases-design.md`
 
-**Current acceptance:** NOT READY pending new evidence/review after the final
-review's Void Scar presence-clock repair. The real divergent-clock GameTest was
-observed RED then GREEN; the full required count is now 167. Clean-SHA recapture
-and the unchanged literal full gate remain required.
-The earlier implementation/evidence review returned READY on 2026-08-31 for
-`051d105f52b845f8f399995211050b627d03f113`, packaged at
-`a6fd807515529115d96e5eef011ff36ea8b54084`, with no new findings.
-All 166 GameTests, 1,836 JUnit tests, and 240 Python tests passed the literal gate.
+**Current acceptance:** READY for closure reconciliation after the Void Scar
+presence-clock repair and fresh independent `int008_review7` review, with no
+Critical, Important, or Minor findings. Implementation
+`aaff0b0f88312b66d232f6e1f4ef0741a8690928`, packaged at
+`9b245015bcfe4a852fb625f58895ae9c9d3c9159`, passed all 167 GameTests,
+1,836 JUnit tests, and 240 Python tests in the unchanged literal gate.
+The extra `9b245015` gate failed an unchanged portal fixture and is not a green
+final-head receipt. This review accepts closure reconciliation, not integration.
 These closure-document changes require a final clean-SHA recapture. Final review,
 integration gates, and synchronization remain pending in the
 [closure ledger](../../verification/evidence/2026-08-29-int-008/closure.md).
