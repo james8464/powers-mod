@@ -51,13 +51,21 @@ public final class ShadowPowerRuntime {
 		return state != null && state.toggles().containsKey(id);
 	}
 
+	/** Retires only this body's lease marker, without recursively releasing a clock. */
+	public static void retireTimeFreeze(UUID owner, UUID body) {
+		State state = STATES.get(owner);
+		if (state == null || !state.body().equals(body)) return;
+		state.toggles().remove("time_freeze");
+		if (state.toggles().isEmpty()) STATES.remove(owner, state);
+	}
+
 	/** Runs on the existing staggered five-tick companion pulse. */
 	public static void tick(ServerPlayer owner, ShadowCompanionEntity shadow, long tick) {
 		State state = STATES.get(owner.getUUID());
 		if (state == null || !state.body().equals(shadow.getUUID())) return;
 		Set<String> expired = new HashSet<>();
 		state.toggles().entrySet().removeIf(entry -> {
-			boolean remove = tick >= entry.getValue();
+			boolean remove = entry.getValue() != Long.MAX_VALUE && tick >= entry.getValue();
 			if (remove) expired.add(entry.getKey());
 			return remove;
 		});
@@ -81,6 +89,7 @@ public final class ShadowPowerRuntime {
 
 	public static void stop(ServerPlayer owner, ShadowCompanionEntity shadow, String id) {
 		State state = STATES.get(owner.getUUID());
+		if (state != null && !state.body().equals(shadow.getUUID())) return;
 		if (state != null) {
 			state.toggles().remove(id);
 			if (state.toggles().isEmpty()) STATES.remove(owner.getUUID());
@@ -89,6 +98,8 @@ public final class ShadowPowerRuntime {
 	}
 
 	public static void clearOwner(ServerPlayer owner, ShadowCompanionEntity shadow) {
+		State state = STATES.get(owner.getUUID());
+		if (state != null && !state.body().equals(shadow.getUUID())) return;
 		State removed = STATES.remove(owner.getUUID());
 		cleanup(owner, shadow, removed == null ? Set.of() : Set.copyOf(removed.toggles().keySet()));
 	}
@@ -116,7 +127,7 @@ public final class ShadowPowerRuntime {
 	}
 
 	private static void cleanup(ServerPlayer owner, ShadowCompanionEntity shadow, Set<String> ids) {
-		if (ids.contains("time_freeze")) GlobalTimeStopManager.stopShadow(owner);
+		if (ids.contains("time_freeze")) GlobalTimeStopManager.stopShadow(owner, shadow.getUUID());
 		if (ids.contains("forcefield")) MagicShieldManager.global().remove(shadow.getUUID());
 		if (ids.contains("size_shift")) shadow.getAttribute(Attributes.SCALE).setBaseValue(1.0);
 		if (ids.contains("flight")) shadow.setNoGravity(false);

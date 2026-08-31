@@ -230,7 +230,7 @@ def _validate_aggregate_receipts(output: str, implementation_sha: str,
     }
     executed = re.findall(r"(?m)^> Task :([A-Za-z]+)$", gate)
     if any(executed.count(task) != 1 for task in required_tasks) \
-            or "All 163 required tests passed" not in gate:
+            or "All 166 required tests passed" not in gate:
         raise ValueError("aggregate execution does not prove the complete rerun gate")
 
 
@@ -246,6 +246,11 @@ def _python_total(root: Path) -> int:
 def _validate_facts(case: str, facts: dict) -> None:
     if not isinstance(facts, dict) or set(facts) != FACT_FIELDS[case]:
         raise ValueError(f"{case} fact schema mismatch")
+    if case != "projectile-pause-resume":
+        for field, value in facts.items():
+            expected_type = (str if field == "clock" else int if field == "duration" else bool)
+            if type(value) is not expected_type:
+                raise ValueError(f"{case}.{field} fact type mismatch")
     if case == "admin-preservation" and facts != {
             "acquired": False, "leaseActive": False, "vanillaFrozen": True}:
         raise ValueError("administrator preservation proof failed")
@@ -298,7 +303,7 @@ def validate(root: Path, repository: Path,
     base_sha = metadata["baseSha"]
     if not isinstance(base_sha, str) or SHA.fullmatch(base_sha) is None:
         raise ValueError("invalid base SHA")
-    if _nonnegative_int(metadata["gameTests"], "GameTest count") != 163 \
+    if _nonnegative_int(metadata["gameTests"], "GameTest count") != 166 \
             or _nonnegative_int(metadata["junitTests"], "JUnit count") < 1825 \
             or _nonnegative_int(metadata["pythonTests"], "Python count") < 1:
         raise ValueError("build totals mismatch")
@@ -344,7 +349,7 @@ def validate(root: Path, repository: Path,
     if f"INT-008 checkout verified: {implementation_sha}" not in log \
             or "BUILD SUCCESSFUL" not in log or "BUILD FAILED" in log:
         raise ValueError("GameTest checkout verification is missing or failed")
-    if "All 163 required tests passed" not in log \
+    if "All 166 required tests passed" not in log \
             or any(case not in log for case in CASES):
         raise ValueError("GameTest log coverage mismatch")
     row_lines = _read(root / "temporal-assertions.jsonl").decode("utf-8").splitlines()

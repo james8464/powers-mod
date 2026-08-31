@@ -28,6 +28,8 @@
 			,"com.powers.gametest.CastingPoseGameTests"
 			,"com.powers.gametest.LayeredAudioGameTests"
 			,"com.powers.gametest.TemporalOwnershipGameTests"
+			,"com.powers.gametest.TemporalProjectileGameTests"
+			,"com.powers.gametest.TemporalShadowGameTests"
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests",

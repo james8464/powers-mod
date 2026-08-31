@@ -10,14 +10,14 @@ import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
-import com.powers.power.MagicUseGate;
 import com.powers.power.Power;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.PowerEntityState;
 import com.powers.progression.ScaledMagicValues;
 import com.powers.spell.SpellFieldManager;
-import com.powers.time.ControlTick;
 import com.powers.time.TemporalClocks;
+import com.powers.time.TemporalSubsystem;
+import com.powers.time.WorldTick;
 import com.powers.util.PowerMessages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -63,7 +63,7 @@ public final class FireballAbility extends Ability {
 		if (existing != null) {
 			LargeFireball projectile = findProjectile(level.getServer(), existing);
 			if (projectile == null || !existing.dimension.equals(level.dimension())
-					|| level.getServer().getTickCount() >= existing.expiresAt) {
+					|| TemporalClocks.world(level).value() >= existing.expiresAt) {
 				if (projectile != null) {
 					FireballFx.extinguish(level, projectile.position(), existing.tier,
 							true, false, false);
@@ -90,7 +90,7 @@ public final class FireballAbility extends Ability {
 		PowerEntityState.markPowerProjectile(projectile);
 		if (!level.addFreshEntity(projectile)) return false;
 
-		long now = level.getServer().getTickCount();
+		long now = TemporalClocks.world(level).value();
 		ScaledMagicValues profile = scaling(player);
 		Set<String> variants = profile.unlockedVariants();
 		int hoverTicks = Math.min(360, scaledDuration(player, BASE_HOVER_TICKS));
@@ -114,37 +114,35 @@ public final class FireballAbility extends Ability {
 		Cinderheart heart = BY_OWNER.get(player.getUUID());
 		LargeFireball projectile = findProjectile(player.level().getServer(), heart);
 		if (heart != null && projectile != null) {
-			ServerLevel level = (ServerLevel) projectile.level();
 			PhysicalMagicPresences.bindExistingEntity(presenceId, projectile,
 					MagicPresenceHandle.Kind.PROJECTILE,
-					com.powers.magic.runtime.MagicPresenceDeadline.fromControlRemaining(
-							TemporalClocks.world(level), ControlTick.at(level.getServer().getTickCount()),
-							ControlTick.at(heart.expiresAt)));
+					WorldTick.at(heart.expiresAt));
 		}
 	}
 
-	/** Advances all owned hearts without retaining Minecraft entity references. */
+	/** Checks lifecycle on control callbacks; simulates hearts only on their world clock. */
 	public static void tickAll(MinecraftServer server) {
-		long now = server.getTickCount();
+		boolean worldAdvances = TemporalClocks.worldAdvances(server, TemporalSubsystem.PROJECTILES);
 		Iterator<Map.Entry<UUID, Cinderheart>> iterator = BY_OWNER.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Cinderheart heart = iterator.next().getValue();
 			ServerPlayer originalOwner = server.getPlayerList().getPlayer(heart.originalOwner);
 			ServerLevel level = server.getLevel(heart.dimension);
 			LargeFireball projectile = findProjectile(server, heart);
+			long now = level == null ? 0L : TemporalClocks.world(level).value();
 			boolean sameDimension = originalOwner != null
 					&& originalOwner.level().dimension().equals(heart.dimension);
 			boolean dampened = originalOwner != null && AmethystDampening.isDampened(originalOwner);
-			boolean frozen = MagicUseGate.timeLocked(originalOwner);
-			boolean continues = FireballRules.continues(originalOwner != null, sameDimension,
+			boolean frozen = originalOwner != null && EntityFreezeController.isFrozen(originalOwner);
+			boolean expired = worldAdvances && now >= heart.expiresAt;
+			boolean continues = FireballRules.ownerContinues(originalOwner != null, sameDimension,
 					originalOwner != null && originalOwner.isAlive() && !originalOwner.isRemoved(),
 					dampened, frozen, originalOwner != null && ServerCastLifecycle.mayContinue(
-							originalOwner, heart.castSource, ownsFireSource(originalOwner)),
-					now, heart.expiresAt);
-			if (level == null || projectile == null || !continues) {
+							originalOwner, heart.castSource, ownsFireSource(originalOwner)));
+			if (level == null || projectile == null || !continues || expired) {
 				if (level != null) {
 					Vec3 point = projectile == null ? heart.lastPosition : projectile.position();
-					FireballFx.extinguish(level, point, heart.tier, now >= heart.expiresAt,
+					FireballFx.extinguish(level, point, heart.tier, expired,
 							dampened, frozen);
 				}
 				BY_PROJECTILE.remove(heart.projectile);
@@ -161,6 +159,7 @@ public final class FireballAbility extends Ability {
 				iterator.remove();
 				continue;
 			}
+			if (!worldAdvances) continue;
 			if (!observeExternalController(projectile, heart)) {
 				BY_PROJECTILE.remove(heart.projectile);
 				projectile.discard();
@@ -226,7 +225,7 @@ public final class FireballAbility extends Ability {
 			}
 			heart.launched = true;
 			heart.controller = controller.getUUID();
-			heart.expiresAt = FireballRules.launchExpiry(level.getServer().getTickCount());
+			heart.expiresAt = FireballRules.launchExpiry(TemporalClocks.world(level).value());
 			heart.lastPosition = projectile.position();
 			FireballFx.launch(level, projectile.position(), controller.getLookAngle(),
 					heart.tier, heart.ancientMastery);
@@ -273,7 +272,7 @@ public final class FireballAbility extends Ability {
 		heart.controller = release.controller();
 		heart.reflections = release.reflections();
 		heart.expiresAt = FireballRules.launchExpiry(
-				player.level().getServer().getTickCount());
+				TemporalClocks.world((ServerLevel) projectile.level()).value());
 		heart.lastPosition = projectile.position();
 		projectile.setOwner(player);
 		projectile.setDeltaMovement(release.velocity());
@@ -308,7 +307,7 @@ public final class FireballAbility extends Ability {
 		heart.tier = FireballRules.nextTier(heart.tier, heart.ancientMastery);
 		heart.potencyMultiplier = Math.max(heart.potencyMultiplier, profile.potencyMultiplier());
 		heart.expiresAt = FireballRules.extendedHoverExpiry(
-				heart.startedAt, heart.expiresAt, level.getServer().getTickCount());
+				heart.startedAt, heart.expiresAt, TemporalClocks.world(level).value());
 		FireballFx.charge(level, projectile.position(), heart.tier,
 				heart.empoweredImpact, heart.ancientMastery);
 		PowerMessages.send(player, "ability.powers.fireball.charge", 4, heart.tier);
@@ -365,7 +364,7 @@ public final class FireballAbility extends Ability {
 		if (!heart.launched) {
 			heart.launched = true;
 			heart.expiresAt = FireballRules.launchExpiry(
-					projectile.level().getServer().getTickCount());
+					TemporalClocks.world((ServerLevel) projectile.level()).value());
 		} else {
 			heart.reflections++;
 		}

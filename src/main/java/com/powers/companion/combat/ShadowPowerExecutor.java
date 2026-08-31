@@ -103,7 +103,7 @@ public final class ShadowPowerExecutor {
 		};
 		if (!success) return failed("countered_or_blocked", handler);
 		if (action.toggle()) ShadowPowerRuntime.activate(context.owner().getUUID(), shadow.getUUID(),
-				action.id(), context.serverTick() + 1_200L);
+				action.id(), action.id().equals("time_freeze") ? Long.MAX_VALUE : context.serverTick() + 1_200L);
 		shadow.setEnergy(shadow.energy() - action.cost());
 		ShadowPowerFx.cast(level, shadow, target, action);
 		ShadowPowerRuntime.recordCast();

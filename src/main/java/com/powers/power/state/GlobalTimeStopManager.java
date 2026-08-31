@@ -8,6 +8,7 @@ import com.powers.power.ToggleKeyRules;
 import com.powers.util.PowerMessages;
 import com.powers.companion.PrivateCompanionManager;
 import com.powers.companion.ShadowCompanionEntity;
+import com.powers.companion.combat.ShadowPowerRuntime;
 import com.powers.time.ControlTick;
 import com.powers.time.TemporalClocks;
 import net.minecraft.network.chat.Component;
@@ -98,6 +99,16 @@ public final class GlobalTimeStopManager {
 	public static void stopShadow(ServerPlayer owner) {
 		releaseCurrent(owner.level().getServer(), owner.getUUID(),
 				TimeStopLeaseSource.SHADOW, true);
+	}
+
+	/** A departing body's callback cannot release a replacement body's lease. */
+	public static void stopShadow(ServerPlayer owner, UUID body) {
+		MinecraftServer server = owner.level().getServer();
+		TimeStopLease lease = active(server);
+		if (lease != null && lease.source() == TimeStopLeaseSource.SHADOW
+				&& lease.owner().equals(owner.getUUID()) && lease.shadowBody().equals(body)) {
+			releaseExact(server, lease, true);
+		}
 	}
 
 	/** Releases only a crystal-owned stop; innate toggles retain their own authority. */
@@ -272,6 +283,9 @@ public final class GlobalTimeStopManager {
 	}
 
 	private static void finishRelease(MinecraftServer server, TimeStopLease lease, boolean announce) {
+		if (lease.source() == TimeStopLeaseSource.SHADOW) {
+			ShadowPowerRuntime.retireTimeFreeze(lease.owner(), lease.shadowBody());
+		}
 		ServerPlayer owner = server.getPlayerList().getPlayer(lease.owner());
 		if (owner != null && lease.source() == TimeStopLeaseSource.INNATE) {
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(owner);

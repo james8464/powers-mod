@@ -2,11 +2,44 @@
 
 Status: **NOT READY — repaired findings require fresh exact-SHA capture and review.**
 
-The prior PENDING package at `49e1c65284fff0a5a8cc0bd16485c5904f6e1f04`
-faithfully records implementation `b7acf4a2c98107c582f6617850caede41ea0aa6f`:
-162 GameTests, 1,835 JUnit tests, and 236 Python tests passed. Its independently
-verified bytes remain historical evidence, not acceptance of the subsequent fixes.
-No closure or merge is claimed.
+The PENDING package at `deeb3cdae69e7b0eb2825350b26773c0d2019599`
+faithfully records implementation `d629acb8c86beff3ef52dacb8fd85f12d00ea57e`:
+163 GameTests, 1,835 JUnit tests, and 239 Python tests passed. Its 424 raw
+JUnit suites, ordered clean-SHA receipts, exact runtime rows, and deterministic
+archive were independently verified. Archive SHA-256:
+`e6481c45f590684b12ef4819282b47bec1fa4cc06555cb3abbd003d840bc7e17`.
+The review nevertheless returned NOT READY. Those bytes remain historical
+PENDING evidence, not acceptance of the subsequent repairs below. No closure or
+merge is claimed; the earlier `49e1c652` / `b7acf4a2` package is also historical.
+
+## Fourth independent review repair, 2026-08-31
+
+Two Important gameplay findings and one Minor fact-schema finding were reproduced
+before repair:
+
+| Finding | Observed RED | Repair and observed GREEN |
+| --- | --- | --- |
+| Cinderheart advanced control-time simulation during global freeze | A real hovering Cinderheart disappeared during 400 frozen control ticks. A strengthened boundary also proved overdue expiry ran while world simulation was parked. | Creation, charge, launch, deflection, presence binding, and expiry use owning-world time. Simulation and expiry park under every vanilla freeze; owner lifecycle and local-freeze interruption remain control-owned. Hovering and launched cases retain their remaining world lifetime under external, own-Crystal, and other-owner Crystal freezes. |
+| Shadow executor imposed a finite toggle deadline and left stale lease markers | Executor-started Time Freeze failed the 1,300-control-tick survival check. A stale body's stop callback removed a newer body's lease/marker. | Time Freeze's marker is indefinite, unlike other finite toggles. Matching lease exits retire its marker without recursive release; stale-body callbacks cannot release replacement authority. Explicit stop, both external clock values, body loss, unrelated-toggle preservation, diagnostic counts, and finite Flight expiry pass live checks. |
+| Numeric JSON values impersonated booleans/integers | Seven matching transcript/JSONL mutations were incorrectly accepted, including numeric booleans and a floating-point duration. | Exact fact types are checked before values. All 22 checkout/verifier/package tests pass. |
+
+The combined diagnostic temporal suite passes all 10 tests, including the three
+new tests in isolated environments. The required full suite is now **166**, and
+the verifier's fixtures and acceptance count are raised accordingly. Diagnostic
+runs are not exact-SHA acceptance evidence. Initial Cinderheart selectors selected
+no tests and do not count as RED; the behavioral RED used the exact registered id.
+Its launch fixture was also corrected to use both crouch input and pose before
+asserting measured launch velocity.
+
+Focused Fireball, companion, lease-state, typed-time, magic-runtime, and temporal
+source-boundary JUnit regressions pass, as do the regenerated Java source audit
+and GameTest compilation. A prior diagnostic audit attempt detected a stale
+manifest after the final source cleanup; regeneration and the unchanged rerun
+passed. No failed attempt is represented as acceptance.
+
+Retained diagnostic transcripts use the prefix `powers-int008-review4-`:
+`fireball-red3.log`, `fireball-expiry-red.log`, `shadow-red.log`,
+`types-red.log`, `live-green.log`, and `verifier-green.log`.
 
 ## Independent review repair, 2026-08-31
 
@@ -32,7 +65,7 @@ the regenerated production source audit, and GameTest compilation also pass.
 
 1. Preserve the observed focused regression results; they do not replace full gates.
 2. Commit the repaired implementation, then capture the clean exact SHA with all
-   163 GameTests and the unchanged literal Java 25 full check.
+   166 GameTests and the unchanged literal Java 25 full check.
 3. Retain actual clean-SHA pre/post receipts and raw-JUnit digest, derive totals,
    regenerate PENDING evidence, prove deterministic packages/checksums/privacy,
    and obtain fresh independent READY review.

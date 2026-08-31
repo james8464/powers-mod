@@ -14,6 +14,7 @@ final class Cinderheart {
 	final CastSource castSource;
 	final int terrainTier;
 	final ResourceKey<Level> dimension;
+	/** Owning-world game ticks, never server control ticks. */
 	final long startedAt;
 	UUID controller;
 	long expiresAt;

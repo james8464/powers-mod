@@ -173,8 +173,15 @@ public final class FireballRules {
 	public static boolean continues(boolean ownerPresent, boolean sameDimension,
 			boolean ownerAlive, boolean ownerDampened, boolean ownerFrozen,
 			boolean ownsPower, long currentTick, long expiresAt) {
+		return ownerContinues(ownerPresent, sameDimension, ownerAlive, ownerDampened,
+				ownerFrozen, ownsPower) && currentTick < expiresAt;
+	}
+
+	/** Lifecycle validity remains control-owned even when projectile simulation is parked. */
+	public static boolean ownerContinues(boolean ownerPresent, boolean sameDimension,
+			boolean ownerAlive, boolean ownerDampened, boolean ownerFrozen, boolean ownsPower) {
 		return ownerPresent && sameDimension && ownerAlive && !ownerDampened
-				&& !ownerFrozen && ownsPower && currentTick < expiresAt;
+				&& !ownerFrozen && ownsPower;
 	}
 
 	private static int boundedTier(int tier) {
