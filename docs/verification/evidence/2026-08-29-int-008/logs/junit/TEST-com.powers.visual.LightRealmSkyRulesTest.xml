@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.visual.LightRealmSkyRulesTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:48.706Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.visual.LightRealmSkyRulesTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:48.752Z" hostname="MacBook-Pro-de-James.local" time="0.004">
   <properties/>
   <testcase name="nonLightRealmNeverClaimsTheVanillaSky()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
-  <testcase name="publicProfilesPreserveModeAndExactWhiteFallbackInvariants()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
+  <testcase name="publicProfilesPreserveModeAndExactWhiteFallbackInvariants()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.001"/>
   <testcase name="modeSpecificContrastAndReducedMotionAreConstructorInvariants()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.001"/>
   <testcase name="effectiveRuntimeRotationAdvancesExactlyOnceByLayerVelocityWithoutAnimatingReducedMotion()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.001"/>
   <testcase name="ordinaryProfileUsesDistinctBoundedAncientGeometryWithoutAssetDependencies()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
   <testcase name="enhancedProfileConstructorsEnforceAuthoredShapePaletteAndCardinality()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
   <testcase name="unavailableEnhancementRetainsExactStaticWhiteFallback()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
-  <testcase name="profileLayersCannotBeMutatedAfterResolution()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
+  <testcase name="profileLayersCannotBeMutatedAfterResolution()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.001"/>
   <testcase name="publicLayersRejectValuesOutsideRendererSafeBounds()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
   <testcase name="malformedTimeCannotCreateNonFiniteFrameValues()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
   <testcase name="publicProfilesCannotEnableTextureOrCustomShaderDependencies()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>

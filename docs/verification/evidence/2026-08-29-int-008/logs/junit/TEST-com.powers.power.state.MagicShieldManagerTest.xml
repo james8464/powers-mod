@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.state.MagicShieldManagerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:14.766Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.power.state.MagicShieldManagerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:09.198Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
-  <testcase name="sameOwnerRecastsRepairAndMergeWithoutReplacingOwnership()" classname="com.powers.power.state.MagicShieldManagerTest" time="0.001"/>
+  <testcase name="sameOwnerRecastsRepairAndMergeWithoutReplacingOwnership()" classname="com.powers.power.state.MagicShieldManagerTest" time="0.0"/>
   <testcase name="activeOwnerSnapshotIsBoundedByActualShieldsAndDropsExpiredEntries()" classname="com.powers.power.state.MagicShieldManagerTest" time="0.0"/>
   <testcase name="sharingRequiresAPlayerCompatibleTarget()" classname="com.powers.power.state.MagicShieldManagerTest" time="0.0"/>
   <testcase name="expiredUnknownAndInvalidImpactsCannotCreateImmortality()" classname="com.powers.power.state.MagicShieldManagerTest" time="0.0"/>

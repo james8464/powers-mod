@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.fx.VisualScarDeliveryRulesTest" tests="19" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:12.187Z" hostname="MacBook-Pro-de-James.local" time="0.241">
+<testsuite name="com.powers.fx.VisualScarDeliveryRulesTest" tests="19" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:06.410Z" hostname="MacBook-Pro-de-James.local" time="0.241">
   <properties/>
-  <testcase name="oneAndFivePercentInjectedLossProfilesConvergeWhileAuthorityRemainsActive()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.005"/>
-  <testcase name="sessionOwnershipIsConstantTimeAndFailureCallbacksRequireExactSend()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
+  <testcase name="oneAndFivePercentInjectedLossProfilesConvergeWhileAuthorityRemainsActive()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.006"/>
+  <testcase name="sessionOwnershipIsConstantTimeAndFailureCallbacksRequireExactSend()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.001"/>
   <testcase name="resyncOwnsFairShareUnderContinuousLiveSaturationAndLendsUnusedCapacity()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.005"/>
-  <testcase name="resyncOnlySessionOwnershipIsHardBoundedAcrossReconnectAndDimensionChurn()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
+  <testcase name="resyncOnlySessionOwnershipIsHardBoundedAcrossReconnectAndDimensionChurn()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.001"/>
   <testcase name="revisionedStableKeyResyncRestartsOnMutationAndNeverCrossesDimension()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
-  <testcase name="heldSnapshotFinishesStableTailDuringPerTickRevisionChurnThenSchedulesNextPass()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.221"/>
-  <testcase name="reconnectDimensionAndLogoutCancelStaleSessionTail()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
-  <testcase name="activeResyncIsIdempotentAndDelayedResetRemainsCurrent()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.001"/>
-  <testcase name="globalDrainIsFairBoundedConnectionScopedAndEventuallyConverges()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
+  <testcase name="heldSnapshotFinishesStableTailDuringPerTickRevisionChurnThenSchedulesNextPass()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.216"/>
+  <testcase name="reconnectDimensionAndLogoutCancelStaleSessionTail()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.001"/>
+  <testcase name="activeResyncIsIdempotentAndDelayedResetRemainsCurrent()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
+  <testcase name="globalDrainIsFairBoundedConnectionScopedAndEventuallyConverges()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.001"/>
   <testcase name="deliveryEpochPersistsAfterPassAndOnlyDistinctPassAdvancesIt()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
   <testcase name="repeatedUpdatesCoalesceAndExactRemoveTakesPrecedence()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
-  <testcase name="authoritativeSnapshotRejectsResetRows()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.001"/>
-  <testcase name="resyncSkipsRemovedHeldRowsAndCurrentTombstoneWins()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
+  <testcase name="authoritativeSnapshotRejectsResetRows()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
+  <testcase name="resyncSkipsRemovedHeldRowsAndCurrentTombstoneWins()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.001"/>
   <testcase name="lostSnapshotRowRetriesThatRowWithoutRestartingThePass()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
   <testcase name="saturatedDrainRefillConvergesToEvolvingNonemptyAuthorityWithoutLeaseExpiry()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
-  <testcase name="guardedSendFailuresResyncOnlyCurrentSupportedSessions()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.001"/>
-  <testcase name="exactRemoveEvictsCreateAndMarksCrossObserverVictimForResync()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
+  <testcase name="guardedSendFailuresResyncOnlyCurrentSupportedSessions()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
+  <testcase name="exactRemoveEvictsCreateAndMarksCrossObserverVictimForResync()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.001"/>
   <testcase name="resetBarrierRecoversLostRemoveAndTombstoneSaturationBeforeActiveCreates()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.0"/>
   <testcase name="observerAndGlobalFloodsSetCursorInsteadOfMaterialisingCartesianState()" classname="com.powers.fx.VisualScarDeliveryRulesTest" time="0.007"/>
   <system-out><![CDATA[]]></system-out>

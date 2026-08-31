@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.ai.PerceptionSnapshotRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:04.971Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.ai.PerceptionSnapshotRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:49:58.326Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
   <testcase name="queryProfilesPreserveLegacyCapsAndGrowOnlyOnDemand()" classname="com.powers.ai.PerceptionSnapshotRulesTest" time="0.001"/>
   <testcase name="selectionIsBoundedDeterministicAndImmutable()" classname="com.powers.ai.PerceptionSnapshotRulesTest" time="0.001"/>

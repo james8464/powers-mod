@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.performance.SyntheticMultiplayerSoakTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:13.130Z" hostname="MacBook-Pro-de-James.local" time="1.594">
+<testsuite name="com.powers.performance.SyntheticMultiplayerSoakTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:07.442Z" hostname="MacBook-Pro-de-James.local" time="1.716">
   <properties/>
-  <testcase name="serverBudgetsRemainBoundedAcrossAdvertisedPlayerCounts()" classname="com.powers.performance.SyntheticMultiplayerSoakTest" time="0.972"/>
-  <testcase name="representativeHundredPlayerWorkloadHasAnAllocationRegressionBudget()" classname="com.powers.performance.SyntheticMultiplayerSoakTest" time="0.622"/>
+  <testcase name="serverBudgetsRemainBoundedAcrossAdvertisedPlayerCounts()" classname="com.powers.performance.SyntheticMultiplayerSoakTest" time="1.055"/>
+  <testcase name="representativeHundredPlayerWorkloadHasAnAllocationRegressionBudget()" classname="com.powers.performance.SyntheticMultiplayerSoakTest" time="0.661"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

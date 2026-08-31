@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.magic.fx.MagicCastPresentationTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:12.801Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.magic.fx.MagicCastPresentationTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:07.078Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
-  <testcase name="mechanicalAspectsChooseDistinctSoundLanguages()" classname="com.powers.magic.fx.MagicCastPresentationTest" time="0.001"/>
-  <testcase name="everyCatalogueActionResolvesToABoundedAuthoredProfile()" classname="com.powers.magic.fx.MagicCastPresentationTest" time="0.0"/>
+  <testcase name="mechanicalAspectsChooseDistinctSoundLanguages()" classname="com.powers.magic.fx.MagicCastPresentationTest" time="0.0"/>
+  <testcase name="everyCatalogueActionResolvesToABoundedAuthoredProfile()" classname="com.powers.magic.fx.MagicCastPresentationTest" time="0.001"/>
   <testcase name="ancientMasteryAddsAThirdBoundedCeremonyStep()" classname="com.powers.magic.fx.MagicCastPresentationTest" time="0.0"/>
-  <testcase name="strongerOriginsAndFieldsReadMoreIntenselyThanUtilityToggles()" classname="com.powers.magic.fx.MagicCastPresentationTest" time="0.001"/>
-  <testcase name="everyRankedCatalogueProfileRemainsInsideTheClientContract()" classname="com.powers.magic.fx.MagicCastPresentationTest" time="0.0"/>
+  <testcase name="strongerOriginsAndFieldsReadMoreIntenselyThanUtilityToggles()" classname="com.powers.magic.fx.MagicCastPresentationTest" time="0.0"/>
+  <testcase name="everyRankedCatalogueProfileRemainsInsideTheClientContract()" classname="com.powers.magic.fx.MagicCastPresentationTest" time="0.001"/>
   <testcase name="significanceControlsGenericCeremonyWithoutDuplicatingBespokeEffects()" classname="com.powers.magic.fx.MagicCastPresentationTest" time="0.0"/>
   <testcase name="legacyDepthCrossesTwoVisibleMasteryThresholds()" classname="com.powers.magic.fx.MagicCastPresentationTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>

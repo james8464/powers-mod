@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.quality.LongRunHarnessContractTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:15.164Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.quality.LongRunHarnessContractTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:09.627Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="connectedBotProfilesAreManualThirtyMinuteJfrRuns()" classname="com.powers.quality.LongRunHarnessContractTest" time="0.0"/>
   <testcase name="restartSoakIsIsolatedPersistentAndDefaultsToTwentyFourHours()" classname="com.powers.quality.LongRunHarnessContractTest" time="0.0"/>

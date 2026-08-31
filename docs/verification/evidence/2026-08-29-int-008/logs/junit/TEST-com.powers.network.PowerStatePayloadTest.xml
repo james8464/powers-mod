@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.network.PowerStatePayloadTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:13.062Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.network.PowerStatePayloadTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:07.373Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
-  <testcase name="stateSurvivesNetworkRoundTrip()" classname="com.powers.network.PowerStatePayloadTest" time="0.001"/>
-  <testcase name="stateSnapshotDoesNotAliasMutableSources()" classname="com.powers.network.PowerStatePayloadTest" time="0.001"/>
+  <testcase name="stateSurvivesNetworkRoundTrip()" classname="com.powers.network.PowerStatePayloadTest" time="0.002"/>
+  <testcase name="stateSnapshotDoesNotAliasMutableSources()" classname="com.powers.network.PowerStatePayloadTest" time="0.0"/>
   <testcase name="authoritativeEnergyHistorySurvivesNetworkRoundTrip()" classname="com.powers.network.PowerStatePayloadTest" time="0.0"/>
   <testcase name="reactivationTimersAreNonNegativeAndAlignedToPowerSlots()" classname="com.powers.network.PowerStatePayloadTest" time="0.0"/>
   <testcase name="sizeSelectionSurvivesPayloadConstruction()" classname="com.powers.network.PowerStatePayloadTest" time="0.0"/>

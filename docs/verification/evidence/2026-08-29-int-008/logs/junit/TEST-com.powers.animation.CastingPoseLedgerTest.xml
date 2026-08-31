@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.animation.CastingPoseLedgerTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:04.982Z" hostname="MacBook-Pro-de-James.local" time="0.007">
+<testsuite name="com.powers.animation.CastingPoseLedgerTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:49:58.341Z" hostname="MacBook-Pro-de-James.local" time="0.01">
   <properties/>
-  <testcase name="duplicateAttemptsConsumeTheBoundedStartLane()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.0"/>
+  <testcase name="duplicateAttemptsConsumeTheBoundedStartLane()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.001"/>
   <testcase name="cleanupPreservesSequenceForLiveEntityAndResetsRemovedIdentity()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.001"/>
   <testcase name="sequenceExhaustionFailsClosedInsteadOfWrapping()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.0"/>
   <testcase name="identityBookkeepingIsBoundedAndDimensionCleanupIsExact()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.001"/>
   <testcase name="activeCapacityRejectsNewIdentityWithoutEvictingLivePose()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.0"/>
-  <testcase name="explicitChannelClearRemovesOnlyThatEntityPose()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.001"/>
-  <testcase name="acceptedOfferCanBeSnapshottedWithoutRestartingItsClock()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.001"/>
-  <testcase name="clearAllResetsMetricsAsWellAsState()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.001"/>
-  <testcase name="metricsExposeAcceptedAndBoundedRejections()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.0"/>
+  <testcase name="explicitChannelClearRemovesOnlyThatEntityPose()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.0"/>
+  <testcase name="acceptedOfferCanBeSnapshottedWithoutRestartingItsClock()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.003"/>
+  <testcase name="clearAllResetsMetricsAsWellAsState()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.0"/>
+  <testcase name="metricsExposeAcceptedAndBoundedRejections()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.001"/>
   <testcase name="terminalEventAdvancesSequenceAndClearsActiveChannel()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.0"/>
-  <testcase name="saturatedTerminalStillClearsClientAndRejectsDelayedOldStart()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.001"/>
+  <testcase name="saturatedTerminalStillClearsClientAndRejectsDelayedOldStart()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.002"/>
   <testcase name="reservedTerminalLaneClearsAfterSaturatedStartsWithoutExceedingTotalBudget()" classname="com.powers.animation.CastingPoseLedgerTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

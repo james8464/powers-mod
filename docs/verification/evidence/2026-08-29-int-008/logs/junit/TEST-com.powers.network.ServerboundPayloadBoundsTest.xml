@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.network.ServerboundPayloadBoundsTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:13.067Z" hostname="MacBook-Pro-de-James.local" time="0.008">
+<testsuite name="com.powers.network.ServerboundPayloadBoundsTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:07.380Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
-  <testcase name="teleportTargetNamesAreBoundedToAuthoredEntityNameLength()" classname="com.powers.network.ServerboundPayloadBoundsTest" time="0.007"/>
-  <testcase name="locatorNamesAreBoundedToAuthoredMobNameLength()" classname="com.powers.network.ServerboundPayloadBoundsTest" time="0.001"/>
-  <testcase name="rankNodeIdentifiersAreBoundedToTheirGrammar()" classname="com.powers.network.ServerboundPayloadBoundsTest" time="0.0"/>
+  <testcase name="teleportTargetNamesAreBoundedToAuthoredEntityNameLength()" classname="com.powers.network.ServerboundPayloadBoundsTest" time="0.002"/>
+  <testcase name="locatorNamesAreBoundedToAuthoredMobNameLength()" classname="com.powers.network.ServerboundPayloadBoundsTest" time="0.0"/>
+  <testcase name="rankNodeIdentifiersAreBoundedToTheirGrammar()" classname="com.powers.network.ServerboundPayloadBoundsTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

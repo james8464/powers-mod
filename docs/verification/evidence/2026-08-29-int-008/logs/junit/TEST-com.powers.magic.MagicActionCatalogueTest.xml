@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.magic.MagicActionCatalogueTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:12.757Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.magic.MagicActionCatalogueTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:07.024Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
-  <testcase name="everyActionDeclaresItsPresentationSignificanceExplicitly()" classname="com.powers.magic.MagicActionCatalogueTest" time="0.001"/>
+  <testcase name="everyActionDeclaresItsPresentationSignificanceExplicitly()" classname="com.powers.magic.MagicActionCatalogueTest" time="0.0"/>
   <testcase name="defaultsContainEverySupportedActionExactlyOnce()" classname="com.powers.magic.MagicActionCatalogueTest" time="0.0"/>
-  <testcase name="catalogueUsesStableIdsForEveryExistingRegistry()" classname="com.powers.magic.MagicActionCatalogueTest" time="0.001"/>
+  <testcase name="catalogueUsesStableIdsForEveryExistingRegistry()" classname="com.powers.magic.MagicActionCatalogueTest" time="0.0"/>
   <testcase name="everyRegisteredActionDeclaresAnEntityTargetContract()" classname="com.powers.magic.MagicActionCatalogueTest" time="0.0"/>
   <testcase name="definitionsRejectIncompleteOrUnsafeValues()" classname="com.powers.magic.MagicActionCatalogueTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

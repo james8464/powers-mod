@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.fx.ShapeFxKindTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:12.184Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.fx.ShapeFxKindTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:06.407Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="clampsInvalidOrExtremeAuthoredPointCounts()" classname="com.powers.fx.ShapeFxKindTest" time="0.0"/>
   <testcase name="accountsForTheActualParticlesInEachSemanticShape()" classname="com.powers.fx.ShapeFxKindTest" time="0.0"/>

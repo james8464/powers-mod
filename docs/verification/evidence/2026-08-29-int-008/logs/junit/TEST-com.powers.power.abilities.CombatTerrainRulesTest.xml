@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.abilities.CombatTerrainRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:14.744Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.power.abilities.CombatTerrainRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:09.178Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="serverMinimumAndMaximumRemainBounded()" classname="com.powers.power.abilities.CombatTerrainRulesTest" time="0.0"/>
   <testcase name="rankInputsAreClampedBeforeWorkBudgetsAreAllocated()" classname="com.powers.power.abilities.CombatTerrainRulesTest" time="0.0"/>

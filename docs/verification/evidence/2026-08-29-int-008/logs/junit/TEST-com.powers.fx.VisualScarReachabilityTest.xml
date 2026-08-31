@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.fx.VisualScarReachabilityTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:12.454Z" hostname="MacBook-Pro-de-James.local" time="0.016">
+<testsuite name="com.powers.fx.VisualScarReachabilityTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:06.683Z" hostname="MacBook-Pro-de-James.local" time="0.024">
   <properties/>
-  <testcase name="exactlyFiveCallersRequestAndFireGameplayRemains()" classname="com.powers.fx.VisualScarReachabilityTest" time="0.015"/>
-  <testcase name="runtimeGalleryIncludesOpaqueWallOcclusionAcceptance()" classname="com.powers.fx.VisualScarReachabilityTest" time="0.0"/>
-  <testcase name="noWorldRegistrationAndSemanticLifecycleIsFullyReachable()" classname="com.powers.fx.VisualScarReachabilityTest" time="0.001"/>
+  <testcase name="exactlyFiveCallersRequestAndFireGameplayRemains()" classname="com.powers.fx.VisualScarReachabilityTest" time="0.022"/>
+  <testcase name="runtimeGalleryIncludesOpaqueWallOcclusionAcceptance()" classname="com.powers.fx.VisualScarReachabilityTest" time="0.001"/>
+  <testcase name="noWorldRegistrationAndSemanticLifecycleIsFullyReachable()" classname="com.powers.fx.VisualScarReachabilityTest" time="0.0"/>
   <testcase name="serviceLoadsNeitherSupportNorOriginAndReadsOnlyAfterBothChecks()" classname="com.powers.fx.VisualScarReachabilityTest" time="0.0"/>
-  <testcase name="directAndFaultDelayedDeliveryRecheckExactSessionImmediatelyBeforeFabricSend()" classname="com.powers.fx.VisualScarReachabilityTest" time="0.0"/>
+  <testcase name="directAndFaultDelayedDeliveryRecheckExactSessionImmediatelyBeforeFabricSend()" classname="com.powers.fx.VisualScarReachabilityTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

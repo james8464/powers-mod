@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.spell.SpellFieldTimingTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:48.564Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.spell.SpellFieldTimingTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:48.589Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="allVanillaFreezesPauseWorldOwnedFields()" classname="com.powers.spell.SpellFieldTimingTest" time="0.0"/>
   <testcase name="pulsesUseTheWorldClockOnly()" classname="com.powers.spell.SpellFieldTimingTest" time="0.0"/>

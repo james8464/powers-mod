@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.progression.QuestTelemetryLedgerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:14.857Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.progression.QuestTelemetryLedgerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:09.282Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
-  <testcase name="malformedRowsAreIgnoredAndClockRegressionCannotCreateNegativeDuration()" classname="com.powers.progression.QuestTelemetryLedgerTest" time="0.0"/>
-  <testcase name="publicationRequiresTheApprovedTenIndependentSamplesPerThreshold()" classname="com.powers.progression.QuestTelemetryLedgerTest" time="0.001"/>
+  <testcase name="malformedRowsAreIgnoredAndClockRegressionCannotCreateNegativeDuration()" classname="com.powers.progression.QuestTelemetryLedgerTest" time="0.001"/>
+  <testcase name="publicationRequiresTheApprovedTenIndependentSamplesPerThreshold()" classname="com.powers.progression.QuestTelemetryLedgerTest" time="0.0"/>
   <testcase name="oneDeedCompletingSeveralLevelsDoesNotManufactureZeroDurationSamples()" classname="com.powers.progression.QuestTelemetryLedgerTest" time="0.0"/>
   <testcase name="summariesPublishMedianP90AndSufficiencyWithoutPlayerIdentity()" classname="com.powers.progression.QuestTelemetryLedgerTest" time="0.0"/>
   <testcase name="completionsAreAnonymousBoundedAndRoundTripExactly()" classname="com.powers.progression.QuestTelemetryLedgerTest" time="0.001"/>

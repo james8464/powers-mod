@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.config.ResolvedPowerPolicyTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:11.960Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.config.ResolvedPowerPolicyTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:06.158Z" hostname="MacBook-Pro-de-James.local" time="0.005">
   <properties/>
   <testcase name="everyScopedFieldIsResolvedFromOneImmutableDimensionPatch()" classname="com.powers.config.ResolvedPowerPolicyTest" time="0.0"/>
   <testcase name="diagnosticsNameEveryEffectiveOriginWithoutCoordinates()" classname="com.powers.config.ResolvedPowerPolicyTest" time="0.001"/>
-  <testcase name="overrideScopesRejectOversizedKeysAndRemainHardBounded()" classname="com.powers.config.ResolvedPowerPolicyTest" time="0.001"/>
+  <testcase name="overrideScopesRejectOversizedKeysAndRemainHardBounded()" classname="com.powers.config.ResolvedPowerPolicyTest" time="0.0"/>
   <testcase name="dimensionOverridesWorldWhichOverridesGlobalPerField()" classname="com.powers.config.ResolvedPowerPolicyTest" time="0.0"/>
   <testcase name="runtimeResolverCachesOneSnapshotPerRevisionAndScope()" classname="com.powers.config.ResolvedPowerPolicyTest" time="0.001"/>
   <testcase name="safeZoneDenialPrecedesEveryResolvedTerrainSetting()" classname="com.powers.config.ResolvedPowerPolicyTest" time="0.0"/>
-  <testcase name="unicodeAndWhitespaceWorldNamesRemainExact()" classname="com.powers.config.ResolvedPowerPolicyTest" time="0.0"/>
+  <testcase name="unicodeAndWhitespaceWorldNamesRemainExact()" classname="com.powers.config.ResolvedPowerPolicyTest" time="0.001"/>
   <testcase name="externalProtectionDenialCannotBeOverriddenByScopedAllow()" classname="com.powers.config.ResolvedPowerPolicyTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

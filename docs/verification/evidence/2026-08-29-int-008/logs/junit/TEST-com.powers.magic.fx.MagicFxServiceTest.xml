@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.magic.fx.MagicFxServiceTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:12.804Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.magic.fx.MagicFxServiceTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:07.081Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
-  <testcase name="duplicatePairCellTickProducesOneEvent()" classname="com.powers.magic.fx.MagicFxServiceTest" time="0.0"/>
+  <testcase name="duplicatePairCellTickProducesOneEvent()" classname="com.powers.magic.fx.MagicFxServiceTest" time="0.001"/>
   <testcase name="castFactoryRetainsItsSemanticKind()" classname="com.powers.magic.fx.MagicFxServiceTest" time="0.0"/>
   <testcase name="eventIsSemanticAndBoundedInsteadOfCarryingParticleArrays()" classname="com.powers.magic.fx.MagicFxServiceTest" time="0.0"/>
-  <testcase name="payloadConversionPreservesCastChoreographyKind()" classname="com.powers.magic.fx.MagicFxServiceTest" time="0.001"/>
-  <testcase name="unknownNetworkKindCannotMasqueradeAsAValidEffect()" classname="com.powers.magic.fx.MagicFxServiceTest" time="0.0"/>
+  <testcase name="payloadConversionPreservesCastChoreographyKind()" classname="com.powers.magic.fx.MagicFxServiceTest" time="0.0"/>
+  <testcase name="unknownNetworkKindCannotMasqueradeAsAValidEffect()" classname="com.powers.magic.fx.MagicFxServiceTest" time="0.001"/>
   <testcase name="cosmicCastRetainsSixBeatClientContract()" classname="com.powers.magic.fx.MagicFxServiceTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

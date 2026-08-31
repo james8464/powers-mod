@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.hud.EnergySymbolAssetTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:12.473Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.hud.EnergySymbolAssetTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:06.710Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
-  <testcase name="atlasKeepsFifteenNinePixelVanillaWeightSymbols()" classname="com.powers.hud.EnergySymbolAssetTest" time="0.0"/>
-  <testcase name="allFiveEmptyStatesHaveDistinctNonColourShapeCuesAndUseTheReviewedRedraw()" classname="com.powers.hud.EnergySymbolAssetTest" time="0.0"/>
+  <testcase name="atlasKeepsFifteenNinePixelVanillaWeightSymbols()" classname="com.powers.hud.EnergySymbolAssetTest" time="0.001"/>
+  <testcase name="allFiveEmptyStatesHaveDistinctNonColourShapeCuesAndUseTheReviewedRedraw()" classname="com.powers.hud.EnergySymbolAssetTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

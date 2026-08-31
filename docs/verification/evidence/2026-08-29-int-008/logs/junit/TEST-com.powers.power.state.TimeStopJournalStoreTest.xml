@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.state.TimeStopJournalStoreTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:14.767Z" hostname="MacBook-Pro-de-James.local" time="0.078">
+<testsuite name="com.powers.power.state.TimeStopJournalStoreTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:09.199Z" hostname="MacBook-Pro-de-James.local" time="0.071">
   <properties/>
-  <testcase name="atomicJournalAcknowledgesExactActiveAndClearedSnapshots()" classname="com.powers.power.state.TimeStopJournalStoreTest" time="0.041"/>
+  <testcase name="atomicJournalAcknowledgesExactActiveAndClearedSnapshots()" classname="com.powers.power.state.TimeStopJournalStoreTest" time="0.034"/>
   <testcase name="malformedOrUnwritableJournalNeverReturnsAcknowledgedSuccess()" classname="com.powers.power.state.TimeStopJournalStoreTest" time="0.001"/>
-  <testcase name="postRenameFailuresRestoreThePreviouslyAcknowledgedJournal()" classname="com.powers.power.state.TimeStopJournalStoreTest" time="0.036"/>
+  <testcase name="postRenameFailuresRestoreThePreviouslyAcknowledgedJournal()" classname="com.powers.power.state.TimeStopJournalStoreTest" time="0.035"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

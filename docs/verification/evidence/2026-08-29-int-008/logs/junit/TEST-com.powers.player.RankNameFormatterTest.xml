@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.player.RankNameFormatterTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:14.732Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.player.RankNameFormatterTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:09.168Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
-  <testcase name="disabledCompatibilityPathReturnsOriginalTeamOrNicknameComponent()" classname="com.powers.player.RankNameFormatterTest" time="0.001"/>
+  <testcase name="disabledCompatibilityPathReturnsOriginalTeamOrNicknameComponent()" classname="com.powers.player.RankNameFormatterTest" time="0.0"/>
   <testcase name="prependsTheSyncedTitleWithoutFlatteningTheVanillaName()" classname="com.powers.player.RankNameFormatterTest" time="0.0"/>
   <testcase name="decorationDoesNotMutateSignedMessageContent()" classname="com.powers.player.RankNameFormatterTest" time="0.0"/>
   <testcase name="emptyPrefixLeavesTheVanillaDisplayNameAlone()" classname="com.powers.player.RankNameFormatterTest" time="0.0"/>

@@ -1,32 +1,39 @@
 # INT-008 temporal lease evidence
 
-This pending package binds live dedicated-server acceptance to exact implementation commit
-`7242e601fd651dc1e7b95215e2259c1699bc38a5`. The retained JSONL rows are copied verbatim from the
-successful unfiltered GameTest process; they are not reconstructed from expected values.
+This PENDING package binds dedicated-server acceptance to clean implementation
+`b7acf4a2c98107c582f6617850caede41ea0aa6f`, with immutable base `98b181671b1514a3695ccb8f1ba1985092bce3dd`.
+The six schema-2 JSONL rows are copied byte-for-byte from the successful unfiltered
+production GameTest transcript, not reconstructed from expected values.
 
-## Coverage
+## Retained results
 
-- Administrator-owned freeze remains authoritative and rejects POWERS lease acquisition.
-- An external same-value write supersedes the lease and is not undone by POWERS cleanup.
-- Crystal time stop remains active through control tick 1,199 and releases at exactly tick 1,200
-  while world time is parked.
-- Seeded channel, field, Celestial, realm-energy, Herald cadence, and world-time state remains
-  unchanged under both external and POWERS-owned vanilla freeze.
-- A real Darkness projectile remains stationary during freeze and resumes after the server-end thaw probe.
-- A mismatched innate stop preserves a crystal lease; real death, dampening, Shadow loss, shutdown,
-  and Fabric disconnect lifecycle paths release their leases.
-- The unchanged unfiltered suite passed all 161 required GameTests. The aggregate closure gate and
-  its exact implementation head also passed 1,835 JUnit and 234 Python tests. Independent review
-  remains pending, so `build-metadata.json` intentionally reports `PENDING`.
+- Exact-SHA capture: all 162 required GameTests passed.
+- Literal full check: all 162 GameTests, 1,835 JUnit tests across
+  424 raw XML suites, and 236 Python tests passed.
+- Ordered preflight/postflight receipts verify the actual clean checkout around
+  the full check. The subsequent receipt binds every retained raw JUnit XML file
+  by sorted filename, exact total, and SHA-256 inventory digest.
+- Only private home/repository path prefixes in transcripts were redacted;
+  JSONL rows and raw JUnit XML were preserved byte-for-byte.
+
+## Live cases
+
+Administrator preservation; external same-value supersession; measured 1,200
+control-tick Crystal expiry with parked world time; seeded channel, field,
+Celestial, realm-energy and Herald cadence parking under owned/external freeze;
+real projectile pause/resume; and source-matched disconnect, death, dampening,
+Shadow loss and shutdown cleanup. The suite also exercises API presence expiry
+against a mature parked world's authoritative game time.
 
 ## Reproduction
 
 ```text
-JAVA_HOME=<java25> ./gradlew runGameTest -Pint008ImplementationSha=7242e601fd651dc1e7b95215e2259c1699bc38a5 --rerun-tasks --no-daemon --console=plain
-python3 -m unittest discover -s scripts/tests -p test_*.py
+JAVA_HOME=<java25> ./gradlew runGameTest -Pint008ImplementationSha=b7acf4a2c98107c582f6617850caede41ea0aa6f --rerun-tasks --no-daemon --console=plain
+JAVA_HOME=<java25> ./gradlew check --rerun-tasks --no-daemon --console=plain
 python3 scripts/verify_int008_temporal.py docs/verification/evidence/2026-08-29-int-008
 python3 scripts/package_int008_evidence.py docs/verification/evidence/2026-08-29-int-008 --output <archive.tar.gz>
 ```
 
-All retained text is UTF-8/LF, privacy-scanned, inventory-bound, and checksum-bound. Acceptance also
-requires two independent package generations to be byte-identical.
+Independent READY review and integration gates remain outstanding. This package
+does not claim closure. Inventories include deletions and digest both base and
+implementation blobs; only evidence-package commits may follow capture.

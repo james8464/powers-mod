@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.api.v1.PowersApiV1Test" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-29T23:34:05.048Z" hostname="MacBook-Pro-de-James.local" time="0.041">
+<testsuite name="com.powers.api.v1.PowersApiV1Test" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:49:58.413Z" hostname="MacBook-Pro-de-James.local" time="0.053">
   <properties/>
-  <testcase name="stopClearsExternalActionsProtectionAndHooksAtTheServerBoundary()" classname="com.powers.api.v1.PowersApiV1Test" time="0.009"/>
+  <testcase name="stopClearsExternalActionsProtectionAndHooksAtTheServerBoundary()" classname="com.powers.api.v1.PowersApiV1Test" time="0.011"/>
   <testcase name="registrationIsDeterministicDuplicateSafeAndClosedAfterStartup()" classname="com.powers.api.v1.PowersApiV1Test" time="0.001"/>
   <testcase name="discoveryStopsBeforeCallingIdentityBeyondHardEntrypointLimit()" classname="com.powers.api.v1.PowersApiV1Test" time="0.001"/>
-  <testcase name="extensionAndProtectionFailuresFailClosedWithoutPreventingOtherExtensions()" classname="com.powers.api.v1.PowersApiV1Test" time="0.015"/>
+  <testcase name="extensionAndProtectionFailuresFailClosedWithoutPreventingOtherExtensions()" classname="com.powers.api.v1.PowersApiV1Test" time="0.012"/>
   <testcase name="mutationMethodsRejectCallsOutsideTheBoundServerThread()" classname="com.powers.api.v1.PowersApiV1Test" time="0.002"/>
   <testcase name="exposesStableSemanticVersionAndBinaryFacingInterfaceShape()" classname="com.powers.api.v1.PowersApiV1Test" time="0.001"/>
-  <testcase name="lifecycleStartedHookWaitsForActualStartedBoundaryAndStopRemainsOrdered()" classname="com.powers.api.v1.PowersApiV1Test" time="0.0"/>
-  <testcase name="publicApiDoesNotLinkClientOnlyMinecraftClasses()" classname="com.powers.api.v1.PowersApiV1Test" time="0.001"/>
-  <testcase name="exceedingPerExtensionRegistrationLimitsRollsBackEachExtension()" classname="com.powers.api.v1.PowersApiV1Test" time="0.011"/>
-  <system-out><![CDATA[[01:34:05] [Test worker/ERROR]: POWERS API extension a.broken rejected
+  <testcase name="lifecycleStartedHookWaitsForActualStartedBoundaryAndStopRemainsOrdered()" classname="com.powers.api.v1.PowersApiV1Test" time="0.001"/>
+  <testcase name="publicApiDoesNotLinkClientOnlyMinecraftClasses()" classname="com.powers.api.v1.PowersApiV1Test" time="0.0"/>
+  <testcase name="exceedingPerExtensionRegistrationLimitsRollsBackEachExtension()" classname="com.powers.api.v1.PowersApiV1Test" time="0.022"/>
+  <system-out><![CDATA[[02:49:58] [Test worker/ERROR]: POWERS API extension a.broken rejected
 java.lang.IllegalStateException: boom
 	at com.powers.api.v1.PowersApiV1Test$6.register(PowersApiV1Test.java:147)
 	at com.powers.api.v1.PowersApiRuntime.load(PowersApiRuntime.java:147)
@@ -116,7 +116,7 @@ java.lang.IllegalStateException: boom
 	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:72)
 	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
 	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
-[01:34:05] [Test worker/ERROR]: Protection adapter broken_guard failed closed for RITUAL
+[02:49:58] [Test worker/ERROR]: Protection adapter broken_guard failed closed for RITUAL
 java.lang.LinkageError: old adapter
 	at com.powers.api.v1.PowersApiV1Test$7.lambda$register$1(PowersApiV1Test.java:157)
 	at com.powers.api.v1.PowersApiRuntime.lambda$registerProtectionService$0(PowersApiRuntime.java:208)
