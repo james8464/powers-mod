@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.animation.ClientCastingPoseStateTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:49:58.404Z" hostname="MacBook-Pro-de-James.local" time="0.007">
+<testsuite name="com.powers.animation.ClientCastingPoseStateTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:43.927Z" hostname="MacBook-Pro-de-James.local" time="0.007">
   <properties/>
   <testcase name="replayAndOlderSequenceCannotReplaceNewerPose()" classname="com.powers.animation.ClientCastingPoseStateTest" time="0.0"/>
   <testcase name="staleEpochUuidMismatchFutureSkewAndExpiredReceiptFailClosed()" classname="com.powers.animation.ClientCastingPoseStateTest" time="0.0"/>
   <testcase name="capacityEvictsEarliestFinishingEntry()" classname="com.powers.animation.ClientCastingPoseStateTest" time="0.004"/>
-  <testcase name="terminalTombstonesRemainBounded()" classname="com.powers.animation.ClientCastingPoseStateTest" time="0.001"/>
+  <testcase name="terminalTombstonesRemainBounded()" classname="com.powers.animation.ClientCastingPoseStateTest" time="0.002"/>
   <testcase name="boundedFutureSkewIsRetainedButCannotRenderBeforeAuthoritativeStart()" classname="com.powers.animation.ClientCastingPoseStateTest" time="0.001"/>
   <testcase name="entityIdReuseCannotAnimateDifferentUuidAndWorldResetClearsState()" classname="com.powers.animation.ClientCastingPoseStateTest" time="0.0"/>
   <testcase name="lateReceiptResolvesFromAuthoritativeStartTime()" classname="com.powers.animation.ClientCastingPoseStateTest" time="0.0"/>

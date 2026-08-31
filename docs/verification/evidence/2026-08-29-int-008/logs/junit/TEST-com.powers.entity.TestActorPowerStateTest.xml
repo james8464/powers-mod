@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.entity.TestActorPowerStateTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:06.182Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.entity.TestActorPowerStateTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:51.347Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="anchorExpiresAtItsExactDeadline()" classname="com.powers.entity.TestActorPowerStateTest" time="0.001"/>
   <testcase name="simulatedEnergyIsFiniteAndSaturating()" classname="com.powers.entity.TestActorPowerStateTest" time="0.0"/>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.fx.ClientRankTenSilhouetteStateTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:06.265Z" hostname="MacBook-Pro-de-James.local" time="0.007">
+<testsuite name="com.powers.fx.ClientRankTenSilhouetteStateTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:51.438Z" hostname="MacBook-Pro-de-James.local" time="0.006">
   <properties/>
   <testcase name="outOfOrderReceiptThatHasAlreadyExpiredNeverEntersState()" classname="com.powers.fx.ClientRankTenSilhouetteStateTest" time="0.005"/>
-  <testcase name="capAndExactEventReplayAreBoundedAndIdempotent()" classname="com.powers.fx.ClientRankTenSilhouetteStateTest" time="0.001"/>
-  <testcase name="defaultWireLifetimeIsTheAuthoredFortyTicks()" classname="com.powers.fx.ClientRankTenSilhouetteStateTest" time="0.0"/>
+  <testcase name="capAndExactEventReplayAreBoundedAndIdempotent()" classname="com.powers.fx.ClientRankTenSilhouetteStateTest" time="0.0"/>
+  <testcase name="defaultWireLifetimeIsTheAuthoredFortyTicks()" classname="com.powers.fx.ClientRankTenSilhouetteStateTest" time="0.001"/>
   <testcase name="outOfRangeFiniteWorldCoordinatesAreRejectedBeforeMutation()" classname="com.powers.fx.ClientRankTenSilhouetteStateTest" time="0.0"/>
   <testcase name="outOfOrderReceiptIsRejectedEvenWhenItsLifetimeWouldReachTheCurrentTick()" classname="com.powers.fx.ClientRankTenSilhouetteStateTest" time="0.0"/>
-  <testcase name="resetClearsConnectionOrDimensionStateButReloadPreservesIt()" classname="com.powers.fx.ClientRankTenSilhouetteStateTest" time="0.001"/>
+  <testcase name="resetClearsConnectionOrDimensionStateButReloadPreservesIt()" classname="com.powers.fx.ClientRankTenSilhouetteStateTest" time="0.0"/>
   <testcase name="receiptLocalExpiryIsExactAndSaturatesAtTheMaximumTick()" classname="com.powers.fx.ClientRankTenSilhouetteStateTest" time="0.0"/>
   <testcase name="expiredEventIdIsNeverResurrectedByReplay()" classname="com.powers.fx.ClientRankTenSilhouetteStateTest" time="0.0"/>
   <testcase name="validationHappensBeforeMutationAndStaleEpochOrDimensionIsRejected()" classname="com.powers.fx.ClientRankTenSilhouetteStateTest" time="0.0"/>

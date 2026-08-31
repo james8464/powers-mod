@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.animation.CastingPoseMappingTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:49:58.351Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.animation.CastingPoseMappingTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:43.875Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
   <testcase name="actionHandsAreLiteralAndStable()" classname="com.powers.animation.CastingPoseMappingTest" time="0.001"/>
-  <testcase name="everySupportedShadowHandlerHasOneStablePoseAndDuration()" classname="com.powers.animation.CastingPoseMappingTest" time="0.001"/>
-  <testcase name="everyFirstVesselKindHasOneStablePoseFamily()" classname="com.powers.animation.CastingPoseMappingTest" time="0.0"/>
+  <testcase name="everySupportedShadowHandlerHasOneStablePoseAndDuration()" classname="com.powers.animation.CastingPoseMappingTest" time="0.0"/>
+  <testcase name="everyFirstVesselKindHasOneStablePoseFamily()" classname="com.powers.animation.CastingPoseMappingTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

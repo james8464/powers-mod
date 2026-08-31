@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.abilities.LightningStrikeRulesTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:09.185Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.power.abilities.LightningStrikeRulesTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:54.137Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="conductorDamageMetadataIsMediumSpecificAndBounded()" classname="com.powers.power.abilities.LightningStrikeRulesTest" time="0.0"/>
   <testcase name="allWorkBudgetsRemainHardCapped()" classname="com.powers.power.abilities.LightningStrikeRulesTest" time="0.0"/>
   <testcase name="trackingAndProjectileGroundingRejectMalformedGeometry()" classname="com.powers.power.abilities.LightningStrikeRulesTest" time="0.0"/>
   <testcase name="authoredScheduleWarnsBeforeEitherFiniteVerdict()" classname="com.powers.power.abilities.LightningStrikeRulesTest" time="0.0"/>
   <testcase name="damageRadiusFalloffAndConductionAreFiniteAndRankAware()" classname="com.powers.power.abilities.LightningStrikeRulesTest" time="0.0"/>
-  <testcase name="environmentUsesProtectionFirstPriorityAndExplicitTransformations()" classname="com.powers.power.abilities.LightningStrikeRulesTest" time="0.001"/>
+  <testcase name="environmentUsesProtectionFirstPriorityAndExplicitTransformations()" classname="com.powers.power.abilities.LightningStrikeRulesTest" time="0.0"/>
   <testcase name="lifecycleRequiresEveryOwnerInvariantUntilExclusiveExpiry()" classname="com.powers.power.abilities.LightningStrikeRulesTest" time="0.0"/>
   <testcase name="everyBodyProtectionPrecedesDamageAndSecondaryEffects()" classname="com.powers.power.abilities.LightningStrikeRulesTest" time="0.0"/>
   <testcase name="conductorClassificationIsExplicitAndRetainsTheNodeCap()" classname="com.powers.power.abilities.LightningStrikeRulesTest" time="0.0"/>

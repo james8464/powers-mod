@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.resource.OptionalAssetFallbackTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:48.580Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.resource.OptionalAssetFallbackTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:07:32.314Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="onlyMissingPowersItemModelsUseTheRuntimeBarrierFallback()" classname="com.powers.resource.OptionalAssetFallbackTest" time="0.0"/>
-  <testcase name="missingOptionalModelSelectsBakedVanillaBarrier()" classname="com.powers.resource.OptionalAssetFallbackTest" time="0.0"/>
-  <testcase name="missingOptionalArtUsesVisibleCoreAssetWithoutThrowing()" classname="com.powers.resource.OptionalAssetFallbackTest" time="0.001"/>
+  <testcase name="missingOptionalModelSelectsBakedVanillaBarrier()" classname="com.powers.resource.OptionalAssetFallbackTest" time="0.001"/>
+  <testcase name="missingOptionalArtUsesVisibleCoreAssetWithoutThrowing()" classname="com.powers.resource.OptionalAssetFallbackTest" time="0.0"/>
   <testcase name="presentOptionalArtIsRetained()" classname="com.powers.resource.OptionalAssetFallbackTest" time="0.0"/>
   <testcase name="missingEnergyAtlasSelectsSameContractProceduralSymbols()" classname="com.powers.resource.OptionalAssetFallbackTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

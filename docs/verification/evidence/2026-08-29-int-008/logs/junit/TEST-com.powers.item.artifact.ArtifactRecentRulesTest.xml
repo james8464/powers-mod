@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.item.artifact.ArtifactRecentRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:06.814Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.item.artifact.ArtifactRecentRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:51.970Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="persistenceCodecRejectsOversizedHistoriesBeforeMaterializingGameplayState()" classname="com.powers.item.artifact.ArtifactRecentRulesTest" time="0.001"/>
   <testcase name="recordingMovesCanonicalKeyToFrontDeduplicatesAndCapsHistory()" classname="com.powers.item.artifact.ArtifactRecentRulesTest" time="0.0"/>

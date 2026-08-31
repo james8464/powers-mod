@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.abilities.StarfallRulesTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:09.188Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.power.abilities.StarfallRulesTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:54.140Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="goldenAngleOffsetsAreDeterministicUniqueAndInsideTheField()" classname="com.powers.power.abilities.StarfallRulesTest" time="0.0"/>
   <testcase name="motionTrackingIsLeashedAndStepCapped()" classname="com.powers.power.abilities.StarfallRulesTest" time="0.0"/>
@@ -9,7 +9,7 @@
   <testcase name="damageFalloffAndTargetCapsAreBounded()" classname="com.powers.power.abilities.StarfallRulesTest" time="0.0"/>
   <testcase name="impactCounterplayUsesStableProtectionFirstPriority()" classname="com.powers.power.abilities.StarfallRulesTest" time="0.0"/>
   <testcase name="shockPressureCountersResolveBeforeAnyVelocityWrite()" classname="com.powers.power.abilities.StarfallRulesTest" time="0.0"/>
-  <testcase name="phasesExposeOmenRainCrownAndExclusiveFinish()" classname="com.powers.power.abilities.StarfallRulesTest" time="0.0"/>
+  <testcase name="phasesExposeOmenRainCrownAndExclusiveFinish()" classname="com.powers.power.abilities.StarfallRulesTest" time="0.001"/>
   <testcase name="repeatHitsEchoesAndImpactRadiiHaveHardCaps()" classname="com.powers.power.abilities.StarfallRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

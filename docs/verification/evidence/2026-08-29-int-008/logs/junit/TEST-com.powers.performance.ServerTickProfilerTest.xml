@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.performance.ServerTickProfilerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:07.440Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.performance.ServerTickProfilerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:52.597Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="emptyProfilesHaveZeroPercentiles()" classname="com.powers.performance.ServerTickProfilerTest" time="0.0"/>
   <testcase name="realTimeHarnessUsesACumulativeTwentyTpsDeadlineWithoutDrift()" classname="com.powers.performance.ServerTickProfilerTest" time="0.0"/>
-  <testcase name="percentilesUseNearestRankAndConvertNanosToMspt()" classname="com.powers.performance.ServerTickProfilerTest" time="0.0"/>
+  <testcase name="percentilesUseNearestRankAndConvertNanosToMspt()" classname="com.powers.performance.ServerTickProfilerTest" time="0.001"/>
   <testcase name="completionRequiresBothTheExactSampleCountAndFullWallDuration()" classname="com.powers.performance.ServerTickProfilerTest" time="0.0"/>
   <testcase name="duplicateLifecycleCallbacksCannotSampleOneLogicalTickTwice()" classname="com.powers.performance.ServerTickProfilerTest" time="0.0"/>
   <testcase name="samplingStopsAtTheRequestedCountWhileWallTimeCatchesUp()" classname="com.powers.performance.ServerTickProfilerTest" time="0.0"/>

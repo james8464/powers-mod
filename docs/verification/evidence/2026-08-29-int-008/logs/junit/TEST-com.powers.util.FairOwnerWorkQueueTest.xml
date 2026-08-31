@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.util.FairOwnerWorkQueueTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:48.747Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.util.FairOwnerWorkQueueTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:07:32.475Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="capacityAndOwnerRemovalAreExact()" classname="com.powers.util.FairOwnerWorkQueueTest" time="0.001"/>
+  <testcase name="capacityAndOwnerRemovalAreExact()" classname="com.powers.util.FairOwnerWorkQueueTest" time="0.0"/>
   <testcase name="oneOwnerCannotStarveAnotherInsideTheGlobalBudget()" classname="com.powers.util.FairOwnerWorkQueueTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

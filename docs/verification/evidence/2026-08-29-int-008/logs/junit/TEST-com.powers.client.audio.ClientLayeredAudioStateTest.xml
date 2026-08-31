@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.client.audio.ClientLayeredAudioStateTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:49:58.657Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.client.audio.ClientLayeredAudioStateTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:44.162Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="duplicateAndOlderEventIdsAreIgnored()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.001"/>
+  <testcase name="duplicateAndOlderEventIdsAreIgnored()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.0"/>
   <testcase name="eventLedgerRetainsOnlyTheNewest256AcceptedIds()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.0"/>
   <testcase name="duplicateCueAndOriginCellCoalescesInsideFourTickWindow()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.001"/>
   <testcase name="resetClearsIdentifiersBurstBookkeepingAndCounters()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.0"/>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.companion.ShadowTaskPlanTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:06.106Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.companion.ShadowTaskPlanTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:51.273Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="controllerExposesCurrentStepAndCancellationRollback()" classname="com.powers.companion.ShadowTaskPlanTest" time="0.0"/>
   <testcase name="everyExecutableIntentHasBoundedPrerequisiteCostAndRollbackSteps()" classname="com.powers.companion.ShadowTaskPlanTest" time="0.0"/>

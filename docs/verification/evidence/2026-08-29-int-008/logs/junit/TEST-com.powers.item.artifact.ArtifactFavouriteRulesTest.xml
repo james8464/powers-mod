@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.item.artifact.ArtifactFavouriteRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:06.811Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.item.artifact.ArtifactFavouriteRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:51.968Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="reconcileMigratesRetiredKeysDeduplicatesAndFillsDefaults()" classname="com.powers.item.artifact.ArtifactFavouriteRulesTest" time="0.001"/>
   <testcase name="assigningAnExistingFavouriteSwapsSlotsWithoutDuplicates()" classname="com.powers.item.artifact.ArtifactFavouriteRulesTest" time="0.0"/>
-  <testcase name="cyclingUsesOnlyNonBlankFavouriteSlots()" classname="com.powers.item.artifact.ArtifactFavouriteRulesTest" time="0.001"/>
+  <testcase name="cyclingUsesOnlyNonBlankFavouriteSlots()" classname="com.powers.item.artifact.ArtifactFavouriteRulesTest" time="0.0"/>
   <testcase name="darknessDefaultsUseTheLockedCombatOrder()" classname="com.powers.item.artifact.ArtifactFavouriteRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

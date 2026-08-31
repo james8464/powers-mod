@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.spell.CelestialRuinRulesTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:48.583Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.spell.CelestialRuinRulesTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:07:32.318Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="damageQueryCoversTheDimensionsEntireBuildHeight()" classname="com.powers.spell.CelestialRuinRulesTest" time="0.0"/>
   <testcase name="ritualCountsDownForExactlyOneMinute()" classname="com.powers.spell.CelestialRuinRulesTest" time="0.0"/>
   <testcase name="aftershockFireObeysTerrainAndSafeZoneProtection()" classname="com.powers.spell.CelestialRuinRulesTest" time="0.0"/>
-  <testcase name="livingForceCleanupSurvivesOptionalTerrainSafetyPolicy()" classname="com.powers.spell.CelestialRuinRulesTest" time="0.001"/>
+  <testcase name="livingForceCleanupSurvivesOptionalTerrainSafetyPolicy()" classname="com.powers.spell.CelestialRuinRulesTest" time="0.0"/>
   <testcase name="chunkTicketsAreDeferredAndGrowOnlyDuringTheFinalFiveSeconds()" classname="com.powers.spell.CelestialRuinRulesTest" time="0.0"/>
   <testcase name="damageAndKnockbackFollowTheExactAuthoredFalloff()" classname="com.powers.spell.CelestialRuinRulesTest" time="0.0"/>
   <testcase name="detonationIsAtLeastTwentyTimesTheLivingForcePeakDamage()" classname="com.powers.spell.CelestialRuinRulesTest" time="0.0"/>

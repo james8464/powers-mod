@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.item.ArtifactEnergyReservoirTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:06.738Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.item.ArtifactEnergyReservoirTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:51.909Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
   <testcase name="capacitiesFollowAuthoredStoneSize()" classname="com.powers.item.ArtifactEnergyReservoirTest" time="0.0"/>
-  <testcase name="serverPresetNeverAcceptsAClientAuthoredQuantity()" classname="com.powers.item.ArtifactEnergyReservoirTest" time="0.001"/>
+  <testcase name="serverPresetNeverAcceptsAClientAuthoredQuantity()" classname="com.powers.item.ArtifactEnergyReservoirTest" time="0.0"/>
   <testcase name="storedEnergyIsAlwaysClampedToItsReservoir()" classname="com.powers.item.ArtifactEnergyReservoirTest" time="0.0"/>
   <testcase name="transferPreviewIsExactAndAtomicInEitherDirection()" classname="com.powers.item.ArtifactEnergyReservoirTest" time="0.0"/>
-  <testcase name="debitIsDeterministicAndAllOrNothing()" classname="com.powers.item.ArtifactEnergyReservoirTest" time="0.0"/>
+  <testcase name="debitIsDeterministicAndAllOrNothing()" classname="com.powers.item.ArtifactEnergyReservoirTest" time="0.001"/>
   <testcase name="pendingCastShortfallUsesAuthoritativeCombinedBalances()" classname="com.powers.item.ArtifactEnergyReservoirTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

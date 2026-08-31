@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.quality.ReadmeContractTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:23.519Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.quality.ReadmeContractTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:07:08.226Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
   <testcase name="documentedOperatorExportsAndGeneratedAppendicesStayDiscoverable()" classname="com.powers.quality.ReadmeContractTest" time="0.001"/>
   <testcase name="everyLocalMarkdownLinkResolves()" classname="com.powers.quality.ReadmeContractTest" time="0.0"/>
-  <testcase name="registryTotalMatchesAuthoritativeItemDefinitions()" classname="com.powers.quality.ReadmeContractTest" time="0.001"/>
+  <testcase name="registryTotalMatchesAuthoritativeItemDefinitions()" classname="com.powers.quality.ReadmeContractTest" time="0.0"/>
   <testcase name="documentedRuntimeVersionsMatchTheBuild()" classname="com.powers.quality.ReadmeContractTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

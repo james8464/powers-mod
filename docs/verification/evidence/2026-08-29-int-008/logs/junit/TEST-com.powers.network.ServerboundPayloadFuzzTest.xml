@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.network.ServerboundPayloadFuzzTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:07.383Z" hostname="MacBook-Pro-de-James.local" time="0.04">
+<testsuite name="com.powers.network.ServerboundPayloadFuzzTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:52.541Z" hostname="MacBook-Pro-de-James.local" time="0.039">
   <properties/>
-  <testcase name="everyPlayStageCodecRejectsOrConsumesBoundedInputWithoutHanging()" classname="com.powers.network.ServerboundPayloadFuzzTest" time="0.036"/>
-  <testcase name="configurationResponseCodecIsBoundedUnderHostileInput()" classname="com.powers.network.ServerboundPayloadFuzzTest" time="0.004"/>
+  <testcase name="everyPlayStageCodecRejectsOrConsumesBoundedInputWithoutHanging()" classname="com.powers.network.ServerboundPayloadFuzzTest" time="0.035"/>
+  <testcase name="configurationResponseCodecIsBoundedUnderHostileInput()" classname="com.powers.network.ServerboundPayloadFuzzTest" time="0.003"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

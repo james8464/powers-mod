@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.travel.SafeDestinationPolicyTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:09.274Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.power.travel.SafeDestinationPolicyTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:54.241Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="rejectsNanAndInfinity()" classname="com.powers.power.travel.SafeDestinationPolicyTest" time="0.0"/>
+  <testcase name="rejectsNanAndInfinity()" classname="com.powers.power.travel.SafeDestinationPolicyTest" time="0.001"/>
   <testcase name="acceptsAFinitePointInsideBorderAndHeight()" classname="com.powers.power.travel.SafeDestinationPolicyTest" time="0.0"/>
-  <testcase name="everyRouteMayMoveWithinTheSameMindscapeButOnlyRecoveryCanBypassDeparture()" classname="com.powers.power.travel.SafeDestinationPolicyTest" time="0.001"/>
+  <testcase name="everyRouteMayMoveWithinTheSameMindscapeButOnlyRecoveryCanBypassDeparture()" classname="com.powers.power.travel.SafeDestinationPolicyTest" time="0.0"/>
   <testcase name="darkRealmDepartureRequiresReturningToTheBodyBeforeAnyOtherModTravel()" classname="com.powers.power.travel.SafeDestinationPolicyTest" time="0.0"/>
   <testcase name="qualifiedBodyReturnMayLeaveTheMindscape()" classname="com.powers.power.travel.SafeDestinationPolicyTest" time="0.0"/>
   <testcase name="lightRealmDepartureStillRequiresAnExplicitBodyReturnAtLevelFive()" classname="com.powers.power.travel.SafeDestinationPolicyTest" time="0.0"/>

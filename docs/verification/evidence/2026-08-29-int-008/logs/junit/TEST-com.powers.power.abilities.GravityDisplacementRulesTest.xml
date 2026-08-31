@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.abilities.GravityDisplacementRulesTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:09.183Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.power.abilities.GravityDisplacementRulesTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:54.135Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="rankVariantsIncreaseButBoundRuntimeWork()" classname="com.powers.power.abilities.GravityDisplacementRulesTest" time="0.0"/>
-  <testcase name="fieldRequiresLiveUnsuppressedOwnerBeforeExclusiveExpiry()" classname="com.powers.power.abilities.GravityDisplacementRulesTest" time="0.001"/>
+  <testcase name="fieldRequiresLiveUnsuppressedOwnerBeforeExclusiveExpiry()" classname="com.powers.power.abilities.GravityDisplacementRulesTest" time="0.0"/>
   <testcase name="nearestOrreryWinsSharedTargetOnlyBeyondHysteresis()" classname="com.powers.power.abilities.GravityDisplacementRulesTest" time="0.0"/>
   <testcase name="seededOrbitIsDeterministicAndBounded()" classname="com.powers.power.abilities.GravityDisplacementRulesTest" time="0.0"/>
   <testcase name="ancientProjectileCurvePreservesFiniteBoundedMotion()" classname="com.powers.power.abilities.GravityDisplacementRulesTest" time="0.0"/>

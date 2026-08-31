@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.abilities.ForcefieldRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:50:09.183Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.power.abilities.ForcefieldRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:54.135Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="wardSharesWithinTwoBlocksAndNeverExpiresByTime()" classname="com.powers.power.abilities.ForcefieldRulesTest" time="0.0"/>
   <testcase name="onlyAdministrativeAndVoidDamageBypassTheWard()" classname="com.powers.power.abilities.ForcefieldRulesTest" time="0.0"/>

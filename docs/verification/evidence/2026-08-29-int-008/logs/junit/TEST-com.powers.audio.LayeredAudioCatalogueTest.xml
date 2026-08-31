@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.audio.LayeredAudioCatalogueTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T00:49:58.467Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.audio.LayeredAudioCatalogueTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:43.979Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
   <testcase name="unknownNetworkAndSemanticIdentitiesAreRejected()" classname="com.powers.audio.LayeredAudioCatalogueTest" time="0.001"/>
-  <testcase name="allProductionCuesHaveStableNetworkIdentityAndCompleteMetadata()" classname="com.powers.audio.LayeredAudioCatalogueTest" time="0.001"/>
+  <testcase name="allProductionCuesHaveStableNetworkIdentityAndCompleteMetadata()" classname="com.powers.audio.LayeredAudioCatalogueTest" time="0.0"/>
   <testcase name="onlyCelestialRingIsTinnitusSensitive()" classname="com.powers.audio.LayeredAudioCatalogueTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
