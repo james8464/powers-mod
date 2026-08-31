@@ -221,6 +221,17 @@ def _validate_aggregate_receipts(output: str, implementation_sha: str,
     if not (0 <= output.find(preflight) < build < output.find(postflight)
             < output.find(junit)):
         raise ValueError("aggregate checkout receipts are not ordered around the full gate")
+    gate = output[output.find(preflight):build]
+    required_tasks = {
+        "auditJavaSources", "auditNonItemAssets", "compileJava", "compileClientJava",
+        "compileExampleExtensionJava", "compileGametestJava", "runGameTest",
+        "compileTestJava", "test", "testPythonScripts", "validatePowerResources",
+        "verifyItemDocs", "verifyMagicDocs", "verifyRankDocs", "verifyVfxAssetAudit", "check",
+    }
+    executed = re.findall(r"(?m)^> Task :([A-Za-z]+)$", gate)
+    if any(executed.count(task) != 1 for task in required_tasks) \
+            or "All 163 required tests passed" not in gate:
+        raise ValueError("aggregate execution does not prove the complete rerun gate")
 
 
 def _python_total(root: Path) -> int:
@@ -287,7 +298,7 @@ def validate(root: Path, repository: Path,
     base_sha = metadata["baseSha"]
     if not isinstance(base_sha, str) or SHA.fullmatch(base_sha) is None:
         raise ValueError("invalid base SHA")
-    if _nonnegative_int(metadata["gameTests"], "GameTest count") != 162 \
+    if _nonnegative_int(metadata["gameTests"], "GameTest count") != 163 \
             or _nonnegative_int(metadata["junitTests"], "JUnit count") < 1825 \
             or _nonnegative_int(metadata["pythonTests"], "Python count") < 1:
         raise ValueError("build totals mismatch")
@@ -314,6 +325,12 @@ def validate(root: Path, repository: Path,
             raise ValueError("implementation identity mismatch")
         _nonnegative_int(row["controlTicks"], "control ticks")
         _nonnegative_int(row["worldTicks"], "world ticks")
+        control, world = row["controlTicks"], row["worldTicks"]
+        if (row["case"] == "crystal-control-deadline" and (control, world) != (1200, 0)) \
+                or (row["case"] == "world-managers-paused" and world != 0) \
+                or (row["case"] == "projectile-pause-resume"
+                    and (world < 4 or control - world < 4)):
+            raise ValueError(f"{row['case']} measured clock proof failed")
         _validate_facts(row["case"], row["facts"])
 
     inventory_lines = _read(root / "source-inventory.txt").decode("utf-8").splitlines()
@@ -327,7 +344,7 @@ def validate(root: Path, repository: Path,
     if f"INT-008 checkout verified: {implementation_sha}" not in log \
             or "BUILD SUCCESSFUL" not in log or "BUILD FAILED" in log:
         raise ValueError("GameTest checkout verification is missing or failed")
-    if "All 162 required tests passed" not in log \
+    if "All 163 required tests passed" not in log \
             or any(case not in log for case in CASES):
         raise ValueError("GameTest log coverage mismatch")
     row_lines = _read(root / "temporal-assertions.jsonl").decode("utf-8").splitlines()

@@ -2,6 +2,7 @@ package com.powers.magic.runtime;
 
 import com.powers.magic.MagicActionId;
 import com.powers.magic.MagicDelivery;
+import com.powers.time.TemporalClocks;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
@@ -30,7 +31,8 @@ public final class MagicRayCollisionRuntime {
 				MagicRuntime.global().resolveInteraction(value.submitted().action(),
 						value.existing().action())));
 		if (collision.isPresent()) return collision.map(MagicRayCollisionIndex.Collision::point);
-		return PhysicalMagicPresences.collideRayWithFields(level, action, owner, start, end, gameTime);
+		return PhysicalMagicPresences.collideRayWithFields(level, action, owner, start, end,
+				TemporalClocks.world(level));
 	}
 
 	public static void tick(long gameTime) {

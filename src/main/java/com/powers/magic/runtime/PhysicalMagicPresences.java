@@ -167,12 +167,13 @@ public final class PhysicalMagicPresences {
 		RAY_COLLISION_COOLDOWNS.clear();
 	}
 
-	/** Resolves the first exact ray/field capsule intersection without a broad beam sphere. */
+	/** Resolves exact ray/field intersections against world-clock field expiry and repeat windows. */
 	public static Optional<Vec3> collideRayWithFields(ServerLevel level, String action, UUID owner,
-			Vec3 start, Vec3 end, long gameTime) {
+			Vec3 start, Vec3 end, WorldTick worldTick) {
 		if (level == null || action == null || owner == null || start == null || end == null) {
 			return Optional.empty();
 		}
+		long gameTime = worldTick.value();
 		Vec3 delta = end.subtract(start);
 		double length = delta.length();
 		if (!Double.isFinite(length) || length < 1.0E-6 || length > 256.0) return Optional.empty();

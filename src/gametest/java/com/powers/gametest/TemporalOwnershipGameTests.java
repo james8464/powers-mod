@@ -56,9 +56,15 @@ public final class TemporalOwnershipGameTests {
 			if (probe == null || server.getTickCount() < probe.thawAtControlTick) return;
 			probe.frozenDistanceSquared = probe.projectile.position().distanceToSqr(probe.frozenAt);
 			probe.stationary = probe.frozenDistanceSquared < 1.0E-8;
+			probe.ownedAtThaw = GlobalTimeStopManager.snapshot(server)
+					.map(snapshot -> snapshot.leaseToken() == probe.leaseToken
+							&& snapshot.owner().equals(probe.owner.getUUID())
+							&& snapshot.source().equals("CRYSTAL")).orElse(false);
 			probe.checked = true;
-			server.tickRateManager().setFrozen(false);
-			GlobalTimeStopManager.clearAll(server);
+			GlobalTimeStopManager.stopCrystal(probe.owner);
+			probe.releasedByOwner = GlobalTimeStopManager.snapshot(server).isEmpty()
+					&& !server.tickRateManager().isFrozen();
+			if (!probe.releasedByOwner) reset(server);
 			FREEZE_PROBES.remove(server);
 		});
 	}
@@ -90,6 +96,7 @@ public final class TemporalOwnershipGameTests {
 		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
 		reset(server);
 		try {
+			assertInnateSupersessionClearsToggle(helper, owner);
 			helper.assertTrue(GlobalTimeStopManager.startCrystal(owner, 20),
 					"Crystal lease could not acquire a free clock");
 			server.tickRateManager().setFrozen(true);
@@ -105,6 +112,38 @@ public final class TemporalOwnershipGameTests {
 			GlobalTimeStopManager.clearAll(server);
 		}
 		helper.succeed();
+	}
+
+	private static void assertInnateSupersessionClearsToggle(GameTestHelper helper, ServerPlayer owner) {
+		MinecraftServer server = owner.level().getServer();
+		var data = PlayerPowers.get(owner);
+		var ability = new com.powers.power.abilities.TimeFreezeToggleAbility();
+		String innate = "powers:time_freeze";
+		String routed = "artifact/darkness/innate/time_freeze";
+		String unrelated = "powers:flight";
+		try {
+			for (boolean externalFrozen : new boolean[] {false, true}) {
+				helper.assertTrue(ability.activateToggleOn(owner, data), "Innate freeze setup failed");
+				data.setToggleActive(owner, innate, true);
+				data.setToggleActive(owner, routed, true);
+				data.setToggleActive(owner, unrelated, true);
+				server.tickRateManager().setFrozen(externalFrozen);
+				helper.assertTrue(GlobalTimeStopManager.snapshot(server).isEmpty(),
+						"External write retained innate lease authority");
+				helper.assertTrue(!data.isToggleActive(innate) && !data.isToggleActive(routed),
+						"External supersession left a Time Freeze toggle draining energy");
+				helper.assertTrue(data.isToggleActive(unrelated), "Supersession cleared an unrelated toggle");
+				GlobalTimeStopManager.tick(server);
+				helper.assertTrue(server.tickRateManager().isFrozen() == externalFrozen,
+						"Supersession cleanup changed the external clock value");
+				server.tickRateManager().setFrozen(false);
+			}
+		} finally {
+			data.setToggleActive(owner, innate, false);
+			data.setToggleActive(owner, routed, false);
+			data.setToggleActive(owner, unrelated, false);
+			reset(server);
+		}
 	}
 
 	@GameTest(environment = "powers:temporal_deadline_isolated", maxTicks = 1_230)
@@ -173,6 +212,39 @@ public final class TemporalOwnershipGameTests {
 		helper.succeed();
 	}
 
+	@GameTest(environment = "powers:temporal_ray_fields_isolated", maxTicks = 20)
+	public void beamQueryPreservesFieldsWhenControlClockLeadsWorldClock(GameTestHelper helper) {
+		MinecraftServer server = helper.getLevel().getServer();
+		ServerPlayer fieldOwner = helper.makeMockServerPlayerInLevel();
+		ServerPlayer beamOwner = helper.makeMockServerPlayerInLevel();
+		long originalWorldTick = helper.getLevel().getGameTime();
+		var levelData = (ServerLevelData) helper.getLevel().getLevelData();
+		var runtime = com.powers.magic.runtime.MagicRuntime.global();
+		com.powers.magic.runtime.MagicPresenceHandle field = null;
+		reset(server);
+		try {
+			levelData.setGameTime(0L);
+			helper.assertTrue(server.getTickCount() > 1, "Divergent-clock fixture needs elapsed control time");
+			Vec3 center = helper.absoluteVec(new Vec3(3.0, 3.0, 3.0));
+			field = com.powers.magic.runtime.PhysicalMagicPresences.registerFixed(
+					new com.powers.magic.MagicActionId("forcefield"), fieldOwner.getUUID(),
+					helper.getLevel(), center, 1.0, com.powers.time.WorldTick.at(1L),
+					com.powers.magic.runtime.MagicPresenceHandle.Kind.FIELD);
+			var hit = com.powers.magic.runtime.MagicRayCollisionRuntime.publish(helper.getLevel(),
+					"energy_beam", beamOwner.getUUID(), center.add(-3, 0, 0), center.add(3, 0, 0),
+					server.getTickCount());
+			helper.assertTrue(runtime.removePresence(field.presenceId()),
+					"Control-clock beam query prematurely expired a world-clock field");
+			helper.assertTrue(hit.isPresent(), "Beam lost its live field collision after clock divergence");
+		} finally {
+			com.powers.magic.runtime.PhysicalMagicPresences.remove(field);
+			com.powers.magic.runtime.MagicRayCollisionRuntime.clear(beamOwner.getUUID());
+			levelData.setGameTime(originalWorldTick);
+			reset(server);
+		}
+		helper.succeed();
+	}
+
 	@GameTest(environment = "powers:temporal_projectile_isolated", maxTicks = 30)
 	public void projectilePausesAndResumesAcrossVanillaFreeze(GameTestHelper helper) {
 		MinecraftServer server = helper.getLevel().getServer();
@@ -187,14 +259,16 @@ public final class TemporalOwnershipGameTests {
 		long startedAtWorldTick = helper.getLevel().getGameTime();
 		helper.assertTrue(GlobalTimeStopManager.startCrystal(owner, 20),
 				"Projectile fixture could not acquire the clock");
-		// The same-value external write keeps the global freeze authoritative even
-		// after the mock owner is intentionally absent from the real PlayerList.
-		server.tickRateManager().setFrozen(true);
-		FreezeProbe probe = new FreezeProbe(projectile, frozenAt, startedAtControlTick,
+		long leaseToken = GlobalTimeStopManager.snapshot(server).orElseThrow().leaseToken();
+		helper.assertTrue(server.getPlayerList().getPlayer(owner.getUUID()) == owner,
+				"Projectile fixture owner is not online through the production PlayerList");
+		FreezeProbe probe = new FreezeProbe(owner, leaseToken, projectile, frozenAt, startedAtControlTick,
 				startedAtWorldTick, startedAtControlTick + 4L);
 		FREEZE_PROBES.put(server, probe);
 		helper.runAfterDelay(4, () -> {
 			try {
+				helper.assertTrue(probe.ownedAtThaw, "Projectile pause was not covered by its owned lease");
+				helper.assertTrue(probe.releasedByOwner, "Matching crystal release did not thaw the projectile");
 				helper.assertTrue(probe.checked && probe.stationary,
 						"Projectile moved while vanilla simulation was frozen");
 				double resumedDistanceSquared = projectile.position().distanceToSqr(frozenAt);
@@ -440,6 +514,8 @@ public final class TemporalOwnershipGameTests {
 	}
 
 	private static final class FreezeProbe {
+		private final ServerPlayer owner;
+		private final long leaseToken;
 		private final Projectile projectile;
 		private final Vec3 frozenAt;
 		private final long startedAtControlTick;
@@ -447,10 +523,15 @@ public final class TemporalOwnershipGameTests {
 		private final long thawAtControlTick;
 		private boolean checked;
 		private boolean stationary;
+		private boolean ownedAtThaw;
+		private boolean releasedByOwner;
 		private double frozenDistanceSquared;
 
-		private FreezeProbe(Projectile projectile, Vec3 frozenAt, long startedAtControlTick,
+		private FreezeProbe(ServerPlayer owner, long leaseToken, Projectile projectile,
+				Vec3 frozenAt, long startedAtControlTick,
 				long startedAtWorldTick, long thawAtControlTick) {
+			this.owner = owner;
+			this.leaseToken = leaseToken;
 			this.projectile = projectile;
 			this.frozenAt = frozenAt;
 			this.startedAtControlTick = startedAtControlTick;

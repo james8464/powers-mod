@@ -63,7 +63,7 @@ class Int008TemporalVerifierTest(unittest.TestCase):
                       "worldAdvanced": False}),
             self.row(implementation_sha, "projectile-pause-resume",
                      {"frozenDistanceSquared": 0.0,
-                      "resumedDistanceSquared": 0.25}, 4, 4),
+                      "resumedDistanceSquared": 0.25}, 8, 4),
             self.row(implementation_sha, "lifecycle-cleanup",
                      {"dampeningReleased": True, "deathReleased": True,
                       "disconnectReleased": True, "leaseActive": False,
@@ -77,7 +77,7 @@ class Int008TemporalVerifierTest(unittest.TestCase):
         self.write_json(root / "build-metadata.json", {
             "schemaVersion": 2, "task": "INT-008", "baseSha": base_sha,
             "implementationSha": implementation_sha, "result": "PENDING",
-            "gameTests": 162, "junitTests": 1825, "pythonTests": 226,
+            "gameTests": 163, "junitTests": 1825, "pythonTests": 226,
         })
         old_clock = subprocess.check_output(
             ["git", "show", f"{base_sha}:clock.txt"], cwd=repository)
@@ -107,7 +107,16 @@ class Int008TemporalVerifierTest(unittest.TestCase):
         junit_digest = hashlib.sha256(junit_inventory.encode()).hexdigest()
         (root / "logs/aggregate-check.log").write_text(
             f"INT-008 aggregate preflight verified: {implementation_sha}; clean=true\n"
+            "> Task :auditJavaSources\n> Task :auditNonItemAssets\n"
+            "> Task :compileJava\n> Task :compileClientJava\n"
+            "> Task :compileExampleExtensionJava\n> Task :compileGametestJava\n"
+            "> Task :runGameTest\nAll 163 required tests passed :)\n"
+            "> Task :compileTestJava\n> Task :test\n> Task :testPythonScripts\n"
+            "> Task :validatePowerResources\n> Task :verifyItemDocs\n"
+            "> Task :verifyMagicDocs\n> Task :verifyRankDocs\n"
+            "> Task :verifyVfxAssetAudit\n> Task :check\n"
             "Ran 226 tests in 1.000s\n\nOK\nBUILD SUCCESSFUL in 2m\n"
+            "24 actionable tasks: 24 executed\n"
             f"INT-008 aggregate postflight verified: {implementation_sha}; clean=true\n"
             f"INT-008 JUnit capture verified: files=2; tests=1825; sha256={junit_digest}\n",
             encoding="utf-8")
@@ -124,7 +133,7 @@ class Int008TemporalVerifierTest(unittest.TestCase):
         (root / "logs/gametest.log").write_text(
             f"INT-008 checkout verified: {implementation_sha}\n"
             + "\n".join("INT008_TEMPORAL " + row for row in encoded_rows)
-            + "\nAll 162 required tests passed :)\nBUILD SUCCESSFUL in 1m\n",
+            + "\nAll 163 required tests passed :)\nBUILD SUCCESSFUL in 1m\n",
             encoding="utf-8")
         (root / "README.md").write_text("# INT-008 evidence\n", encoding="utf-8")
         return root, repository
@@ -300,6 +309,48 @@ class Int008TemporalVerifierTest(unittest.TestCase):
             path.write_text(path.read_text().replace('name="first"', 'name="altered"'),
                             encoding="utf-8")
         self.mutate(preserve_totals_but_change_xml, "JUnit capture digest")
+
+    def test_aggregate_requires_executed_full_gate_and_gametests(self):
+        for removed in ("> Task :runGameTest", "> Task :test", "> Task :check",
+                        "> Task :auditJavaSources", "All 163 required tests passed :)"):
+            with self.subTest(removed=removed):
+                def strip(root):
+                    path = root / "logs/aggregate-check.log"
+                    path.write_text("\n".join(line for line in path.read_text().splitlines()
+                                               if line != removed) + "\n")
+                self.mutate(strip, "aggregate execution")
+
+    def test_aggregate_rejects_cached_or_skipped_gate_tasks(self):
+        for suffix in (" UP-TO-DATE", " FROM-CACHE", " SKIPPED"):
+            with self.subTest(suffix=suffix):
+                def cached(root):
+                    path = root / "logs/aggregate-check.log"
+                    path.write_text(path.read_text().replace("> Task :test\n",
+                                                            "> Task :test" + suffix + "\n"))
+                self.mutate(cached, "aggregate execution")
+
+    def test_matching_transcript_and_rows_cannot_contradict_measured_clocks(self):
+        for case, control, world in (("crystal-control-deadline", 1, 0),
+                                     ("crystal-control-deadline", 1200, 99),
+                                     ("world-managers-paused", 0, 1),
+                                     ("projectile-pause-resume", 4, 4),
+                                     ("projectile-pause-resume", 8, 0)):
+            with self.subTest(case=case, control=control, world=world):
+                def contradict(root):
+                    path = root / "temporal-assertions.jsonl"
+                    lines = path.read_text().splitlines()
+                    log_path = root / "logs/gametest.log"
+                    log = log_path.read_text()
+                    for index, line in enumerate(lines):
+                        row = json.loads(line)
+                        if row["case"] != case:
+                            continue
+                        row.update(controlTicks=control, worldTicks=world)
+                        lines[index] = json.dumps(row, separators=(",", ":"))
+                        log = log.replace(line, lines[index])
+                    path.write_text("\n".join(lines) + "\n")
+                    log_path.write_text(log)
+                self.mutate(contradict, "measured clock")
 
 
 if __name__ == "__main__":

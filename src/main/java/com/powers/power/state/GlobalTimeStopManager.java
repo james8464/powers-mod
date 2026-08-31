@@ -238,7 +238,11 @@ public final class GlobalTimeStopManager {
 		if (lease == null) return;
 		Long internalToken = INTERNAL_CLOCK_WRITES.get(server);
 		if (internalToken == null || internalToken.longValue() != lease.token()) {
-			if (!book(server).observeExternalWrite(() -> clearPersisted(server))) {
+			boolean retired = book(server).observeExternalWrite(() -> clearPersisted(server));
+			// The lease is already revoked: stop upkeep and presentation once even
+			// when its independent durable tombstone must be retried on later ticks.
+			finishRelease(server, lease, true);
+			if (!retired) {
 				PowersMod.LOGGER.error(
 						"External clock write superseded POWERS, but journal retirement must be retried");
 			}
@@ -264,6 +268,10 @@ public final class GlobalTimeStopManager {
 		if (!decision.matched()) return;
 		if (decision.unfreeze()) setFrozenOwned(server, false, lease.token());
 		clearPersisted(server);
+		finishRelease(server, lease, announce);
+	}
+
+	private static void finishRelease(MinecraftServer server, TimeStopLease lease, boolean announce) {
 		ServerPlayer owner = server.getPlayerList().getPlayer(lease.owner());
 		if (owner != null && lease.source() == TimeStopLeaseSource.INNATE) {
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(owner);

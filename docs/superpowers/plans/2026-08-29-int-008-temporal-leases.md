@@ -10,6 +10,12 @@
 
 **Spec:** `docs/superpowers/specs/2026-08-29-int-008-temporal-leases-design.md`
 
+**Current acceptance:** NOT READY. The 2026-08-31 independent review found
+additional gameplay and verifier gaps; see [the repair report](../../verification/task-int-008-report.md).
+Earlier checked capture/package steps describe historical PENDING evidence only.
+The repaired implementation requires fresh 163-GameTest capture, aggregate receipts,
+and independent review before closure.
+
 ## Global Constraints
 
 - Preserve all existing authored durations, costs, damage, protection, and gameplay outcomes.
