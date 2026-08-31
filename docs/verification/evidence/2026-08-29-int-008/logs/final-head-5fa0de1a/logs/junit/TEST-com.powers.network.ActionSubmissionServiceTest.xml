@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.network.ActionSubmissionServiceTest" tests="21" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:35:25.701Z" hostname="MacBook-Pro-de-James.local" time="0.008">
+  <properties/>
+  <testcase name="&quot;artifact-select&quot; context mismatch refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.001"/>
+  <testcase name="&quot;artifact-commit&quot; context mismatch refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;artifact-cycle&quot; context mismatch refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;artifact-bind&quot; context mismatch refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;artifact-teleport&quot; context mismatch refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.001"/>
+  <testcase name="&quot;grimoire-select&quot; context mismatch refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;crystal-select&quot; context mismatch refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;artifact-select&quot; stale submission refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.001"/>
+  <testcase name="&quot;artifact-commit&quot; stale submission refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;artifact-cycle&quot; stale submission refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;artifact-bind&quot; stale submission refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.001"/>
+  <testcase name="&quot;artifact-teleport&quot; stale submission refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;grimoire-select&quot; stale submission refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;crystal-select&quot; stale submission refreshes before limiter" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;artifact-select&quot; valid submission preserves validation order" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;artifact-commit&quot; valid submission preserves validation order" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;artifact-cycle&quot; valid submission preserves validation order" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;artifact-bind&quot; valid submission preserves validation order" classname="com.powers.network.ActionSubmissionServiceTest" time="0.001"/>
+  <testcase name="&quot;artifact-teleport&quot; valid submission preserves validation order" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;grimoire-select&quot; valid submission preserves validation order" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <testcase name="&quot;crystal-select&quot; valid submission preserves validation order" classname="com.powers.network.ActionSubmissionServiceTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

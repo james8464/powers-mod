@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.testing.QuestTelemetryCampaignPlanTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:36:05.272Z" hostname="MacBook-Pro-de-James.local" time="0.014">
+  <properties/>
+  <testcase name="suppliesTenDistinctHumanCadenceSessionsForEachAlignment()" classname="com.powers.testing.QuestTelemetryCampaignPlanTest" time="0.006"/>
+  <testcase name="darknessPredictionCountsAChildVillagerAsBothAuthoredDeeds()" classname="com.powers.testing.QuestTelemetryCampaignPlanTest" time="0.0"/>
+  <testcase name="cadenceEventsNeverFireAtSessionStartOrOffInterval()" classname="com.powers.testing.QuestTelemetryCampaignPlanTest" time="0.0"/>
+  <testcase name="everyThresholdHasANondecreasingExpectedCompletionTime()" classname="com.powers.testing.QuestTelemetryCampaignPlanTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

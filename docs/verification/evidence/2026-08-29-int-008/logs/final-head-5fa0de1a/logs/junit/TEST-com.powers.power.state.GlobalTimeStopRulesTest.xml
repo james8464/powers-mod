@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.power.state.GlobalTimeStopRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:35:27.596Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="onlyTheOwnerMayActWhileGlobalTimeIsStopped()" classname="com.powers.power.state.GlobalTimeStopRulesTest" time="0.0"/>
+  <testcase name="ownerHudUsesTheAuthoritativeDeadline()" classname="com.powers.power.state.GlobalTimeStopRulesTest" time="0.0"/>
+  <testcase name="lifecycleFailureAlwaysReleasesOwnedTime()" classname="com.powers.power.state.GlobalTimeStopRulesTest" time="0.0"/>
+  <testcase name="externalClockMutationEndsPowerOwnershipWithoutUndoingAdministratorState()" classname="com.powers.power.state.GlobalTimeStopRulesTest" time="0.0"/>
+  <testcase name="doesNotStealAnAdministrativeOrAnotherPlayersFreeze()" classname="com.powers.power.state.GlobalTimeStopRulesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.visual.LightRealmSkyRulesTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:36:05.423Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+  <properties/>
+  <testcase name="nonLightRealmNeverClaimsTheVanillaSky()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.001"/>
+  <testcase name="publicProfilesPreserveModeAndExactWhiteFallbackInvariants()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
+  <testcase name="modeSpecificContrastAndReducedMotionAreConstructorInvariants()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.001"/>
+  <testcase name="effectiveRuntimeRotationAdvancesExactlyOnceByLayerVelocityWithoutAnimatingReducedMotion()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
+  <testcase name="ordinaryProfileUsesDistinctBoundedAncientGeometryWithoutAssetDependencies()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
+  <testcase name="enhancedProfileConstructorsEnforceAuthoredShapePaletteAndCardinality()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
+  <testcase name="unavailableEnhancementRetainsExactStaticWhiteFallback()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.001"/>
+  <testcase name="profileLayersCannotBeMutatedAfterResolution()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
+  <testcase name="publicLayersRejectValuesOutsideRendererSafeBounds()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
+  <testcase name="malformedTimeCannotCreateNonFiniteFrameValues()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
+  <testcase name="publicProfilesCannotEnableTextureOrCustomShaderDependencies()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
+  <testcase name="reducedMotionPreservesLargeSilhouetteButRemovesAnimationAndPulse()" classname="com.powers.visual.LightRealmSkyRulesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

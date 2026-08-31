@@ -1,6 +1,6 @@
 # INT-008 temporal lease evidence
 
-This PENDING package binds dedicated-server acceptance to clean implementation
+This PASS package binds dedicated-server acceptance to clean implementation
 `100efb814308a70aff228a877c2f9aca5cb9e550`, with immutable base `98b181671b1514a3695ccb8f1ba1985092bce3dd`.
 The six schema-2 JSONL rows are copied byte-for-byte from the successful unfiltered
 production GameTest transcript, not reconstructed from expected values.
@@ -46,8 +46,13 @@ Fresh independent review `int008_review7` accepted repaired implementation
 `aaff0b0f88312b66d232f6e1f4ef0741a8690928` and evidence head `9b245015` with
 no findings. Non-evidence closure documents were then reconciled without gameplay
 changes. This new capture binds those documents to the final clean SHA;
-final-head verification, fresh independent READY review and integration remain
-outstanding; see
-[the closure ledger](closure.md). This package does not claim closure.
+evidence head `5fa0de1a5944a3e3f31589014db32ea8c3ba3dc6` subsequently passed
+its unchanged literal full gate and fresh independent `int008_final_review8`
+review with no findings. Its gate and all 424 byte-preserved XML suites are
+retained separately under `logs/final-head-5fa0de1a/`; the original clean-capture
+evidence is unchanged. PASS records captured-source and reviewed-head acceptance,
+not integration or verification of a later receipt commit. The resulting
+evidence-only closure head still requires its own full gate and fresh review;
+main integration remains outstanding in [the closure ledger](closure.md).
 Inventories include deletions and digest both base and implementation blobs;
 only evidence-package commits may follow this capture.

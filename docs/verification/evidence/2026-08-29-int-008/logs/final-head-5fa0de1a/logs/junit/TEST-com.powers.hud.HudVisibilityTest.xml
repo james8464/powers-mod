@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.hud.HudVisibilityTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:35:25.259Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="energyFollowsTheVanillaSurvivalBarVisibility()" classname="com.powers.hud.HudVisibilityTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

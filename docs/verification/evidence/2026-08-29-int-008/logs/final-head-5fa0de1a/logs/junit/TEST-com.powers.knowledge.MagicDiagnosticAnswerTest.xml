@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.knowledge.MagicDiagnosticAnswerTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:35:25.330Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="typedFactsCannotExposeCoordinatesOrIdentity()" classname="com.powers.knowledge.MagicDiagnosticAnswerTest" time="0.001"/>
+  <testcase name="reportsExactEnergyFactsDeterministically()" classname="com.powers.knowledge.MagicDiagnosticAnswerTest" time="0.0"/>
+  <testcase name="cooldownTicksAreRoundedUpToWholeSeconds()" classname="com.powers.knowledge.MagicDiagnosticAnswerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

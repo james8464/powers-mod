@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.force.FactionInvasionRulesTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:35:24.789Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+  <properties/>
+  <testcase name="truncatedNumericCursorStaysBoundedAndIndexValidAcrossRealIdentityChurn()" classname="com.powers.force.FactionInvasionRulesTest" time="0.002"/>
+  <testcase name="playerAnchorCursorHasAnExplicitLifecycleReset()" classname="com.powers.force.FactionInvasionRulesTest" time="0.0"/>
+  <testcase name="opposingForceInvadesButAlignedForceDoesNot()" classname="com.powers.force.FactionInvasionRulesTest" time="0.0"/>
+  <testcase name="invasionAndScarWorkStayHardCapped()" classname="com.powers.force.FactionInvasionRulesTest" time="0.0"/>
+  <testcase name="playerAnchorWindowsVisitEveryIndexWithoutExceedingThePerPulseCap()" classname="com.powers.force.FactionInvasionRulesTest" time="0.0"/>
+  <testcase name="truncatedNearCapWindowResumesAfterTheLastActuallyVisitedAnchor()" classname="com.powers.force.FactionInvasionRulesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

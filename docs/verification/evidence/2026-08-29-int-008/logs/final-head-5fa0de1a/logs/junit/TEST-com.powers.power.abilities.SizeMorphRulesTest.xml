@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.power.abilities.SizeMorphRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:35:27.586Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="selectableScalesIncludeSymmetricShrinkNormalAndGrowthSteps()" classname="com.powers.power.abilities.SizeMorphRulesTest" time="0.0"/>
+  <testcase name="ongoingDrainIsProportionalToDistanceFromNormalScale()" classname="com.powers.power.abilities.SizeMorphRulesTest" time="0.001"/>
+  <testcase name="extremeFormsUnlockAtAuthoredRankBreakpointsWithoutChangingSavedIndices()" classname="com.powers.power.abilities.SizeMorphRulesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

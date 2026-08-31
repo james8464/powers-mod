@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.magic.MagicInteractionResolverTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:35:25.563Z" hostname="MacBook-Pro-de-James.local" time="0.011">
+  <properties/>
+  <testcase name="lightAndDarknessFormAnEclipseContest()" classname="com.powers.magic.MagicInteractionResolverTest" time="0.0"/>
+  <testcase name="dimensionalAnchorCancelsTravelBeforeItCanCommit()" classname="com.powers.magic.MagicInteractionResolverTest" time="0.0"/>
+  <testcase name="sameAspectActionsResonateWhileUnrelatedActionsSafelyCoexist()" classname="com.powers.magic.MagicInteractionResolverTest" time="0.0"/>
+  <testcase name="poweredAmethystWardOvercomesCrystalPriorityWithAFractureCue()" classname="com.powers.magic.MagicInteractionResolverTest" time="0.0"/>
+  <testcase name="crossingEnergyAndVoidBeamsDestabilizeWithTheirAuthoredClash()" classname="com.powers.magic.MagicInteractionResolverTest" time="0.0"/>
+  <testcase name="completeInteractionMatrixHasAnExactMutationSensitiveContract()" classname="com.powers.magic.MagicInteractionResolverTest" time="0.006"/>
+  <testcase name="opposedRealmMatterMutuallyAnnihilates()" classname="com.powers.magic.MagicInteractionResolverTest" time="0.0"/>
+  <testcase name="flameAndFrostTransformIntoSteamInEitherOrder()" classname="com.powers.magic.MagicInteractionResolverTest" time="0.0"/>
+  <testcase name="everyUnorderedPairIncludingSelfHasMechanicsAndPresentation()" classname="com.powers.magic.MagicInteractionResolverTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

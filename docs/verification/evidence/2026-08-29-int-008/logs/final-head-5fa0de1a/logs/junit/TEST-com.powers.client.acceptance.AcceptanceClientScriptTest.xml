@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.client.acceptance.AcceptanceClientScriptTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:35:17.491Z" hostname="MacBook-Pro-de-James.local" time="0.008">
+  <properties/>
+  <testcase name="acceptsOnlyTheExplicitUiCleanupBoundary()" classname="com.powers.client.acceptance.AcceptanceClientScriptTest" time="0.002"/>
+  <testcase name="powersScreenPressQueuesTheCustomClickConsumedByTheClientLoop()" classname="com.powers.client.acceptance.AcceptanceClientScriptTest" time="0.002"/>
+  <testcase name="parsesOnlyTheBoundedLayeredAudioAcceptanceVocabulary()" classname="com.powers.client.acceptance.AcceptanceClientScriptTest" time="0.0"/>
+  <testcase name="parsesACompleteOrderedClientScenario()" classname="com.powers.client.acceptance.AcceptanceClientScriptTest" time="0.001"/>
+  <testcase name="advancementPressQueuesTheVanillaClickConsumedByTheClientLoop()" classname="com.powers.client.acceptance.AcceptanceClientScriptTest" time="0.0"/>
+  <testcase name="rejectsMalformedUnsafeOrOutOfOrderSteps()" classname="com.powers.client.acceptance.AcceptanceClientScriptTest" time="0.001"/>
+  <testcase name="acceptsOnlyAuditableReducedMotionSettings()" classname="com.powers.client.acceptance.AcceptanceClientScriptTest" time="0.0"/>
+  <testcase name="acceptsTheVanillaAdvancementsKeyForLiveScreenEvidence()" classname="com.powers.client.acceptance.AcceptanceClientScriptTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

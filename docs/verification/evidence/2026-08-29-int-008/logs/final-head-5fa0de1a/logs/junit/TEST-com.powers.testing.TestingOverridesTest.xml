@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.testing.TestingOverridesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:36:05.288Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="masterSwitchEnablesBothLimitsForOnlyThatPlayer()" classname="com.powers.testing.TestingOverridesTest" time="0.0"/>
+  <testcase name="disabledLimitsSuppressPaymentDrainAndRecoveryTime()" classname="com.powers.testing.TestingOverridesTest" time="0.0"/>
+  <testcase name="individualSwitchesRemainIndependentAndCanBeCleared()" classname="com.powers.testing.TestingOverridesTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

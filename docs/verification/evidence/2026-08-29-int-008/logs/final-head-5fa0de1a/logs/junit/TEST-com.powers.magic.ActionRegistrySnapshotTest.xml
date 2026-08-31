@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.magic.ActionRegistrySnapshotTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:35:25.527Z" hostname="MacBook-Pro-de-James.local" time="0.004">
+  <properties/>
+  <testcase name="submissionMustMatchRevisionAndCanonicalKey()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.0"/>
+  <testcase name="onlyQualifiedKeysOwnedByThePublishedMenuCatalogueAreCanonical()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.0"/>
+  <testcase name="qualifiedMenuAliasesPreserveEveryCanonicalNamespace()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.001"/>
+  <testcase name="qualifiedCanonicalKeysRemainCollisionAndCycleSafe()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.0"/>
+  <testcase name="invalidReloadLeavesPriorSnapshotAndRevisionUntouched()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.001"/>
+  <testcase name="aliasesAreCollisionSafeAndMustResolveToCanonicalDefinitions()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.0"/>
+  <testcase name="successfulReloadPublishesOneNewImmutableRevision()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.0"/>
+  <testcase name="aliasTargetsMustTerminateAtARealQualifiedOwnerKey()" classname="com.powers.magic.ActionRegistrySnapshotTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

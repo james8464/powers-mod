@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.force.BlockWorkBudgetTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:35:24.728Z" hostname="MacBook-Pro-de-James.local" time="0.061">
+  <properties/>
+  <testcase name="rotatesRemainderWithoutDependingOnInputOrderOrDuplicates()" classname="com.powers.force.BlockWorkBudgetTest" time="0.0"/>
+  <testcase name="dividesOneHardCapAcrossDimensionsForOneProtectionPolicySnapshot()" classname="com.powers.force.BlockWorkBudgetTest" time="0.0"/>
+  <testcase name="moreLanesThanCapacityReceiveWorkWithinOneRound()" classname="com.powers.force.BlockWorkBudgetTest" time="0.06"/>
+  <testcase name="zeroCapacityNeverManufacturesWork()" classname="com.powers.force.BlockWorkBudgetTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

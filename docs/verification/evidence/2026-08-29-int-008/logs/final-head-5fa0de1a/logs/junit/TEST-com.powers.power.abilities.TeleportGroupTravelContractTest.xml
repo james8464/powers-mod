@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.power.abilities.TeleportGroupTravelContractTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:35:27.589Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+  <properties/>
+  <testcase name="coordinateActivationDoesNotConsultTeleportConsent()" classname="com.powers.power.abilities.TeleportGroupTravelContractTest" time="0.0"/>
+  <testcase name="teleportingDevicesAndArtifactGatesUseTheSameCohort()" classname="com.powers.power.abilities.TeleportGroupTravelContractTest" time="0.0"/>
+  <testcase name="timeShiftUsesSharedCohortAndExactCoordinates()" classname="com.powers.power.abilities.TeleportGroupTravelContractTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.util.ScheduledTaskQueueTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T06:36:05.420Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+  <properties/>
+  <testcase name="cancellationFreesCapacityAndPreventsExecution()" classname="com.powers.util.ScheduledTaskQueueTest" time="0.0"/>
+  <testcase name="ownedDescriptorsExposeStableIdentityAndCancelEveryLifecycleCallback()" classname="com.powers.util.ScheduledTaskQueueTest" time="0.001"/>
+  <testcase name="runsOnlyDueTasksInStableOrderAndAllowsSchedulingFromCallbacks()" classname="com.powers.util.ScheduledTaskQueueTest" time="0.0"/>
+  <testcase name="isolatesCallbackExceptionsAndContinuesTheDueBatch()" classname="com.powers.util.ScheduledTaskQueueTest" time="0.0"/>
+  <testcase name="enforcesCapacityAndPerTickExecutionBudgetWithStableSpillover()" classname="com.powers.util.ScheduledTaskQueueTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
