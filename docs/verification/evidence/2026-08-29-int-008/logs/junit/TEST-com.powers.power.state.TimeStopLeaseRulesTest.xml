@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.state.TimeStopLeaseRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.119Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.power.state.TimeStopLeaseRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:57.186Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="staleOrWrongSourceReleaseCannotTouchAnotherLease()" classname="com.powers.power.state.TimeStopLeaseRulesTest" time="0.0"/>
   <testcase name="externalSupersessionRetiresAuthorityWithoutUnfreezing()" classname="com.powers.power.state.TimeStopLeaseRulesTest" time="0.0"/>
-  <testcase name="leasesCarrySourceSpecificIdentityAndControlDeadlines()" classname="com.powers.power.state.TimeStopLeaseRulesTest" time="0.001"/>
+  <testcase name="leasesCarrySourceSpecificIdentityAndControlDeadlines()" classname="com.powers.power.state.TimeStopLeaseRulesTest" time="0.0"/>
   <testcase name="acquisitionNeverStealsOwnedOrExternalTime()" classname="com.powers.power.state.TimeStopLeaseRulesTest" time="0.0"/>
   <testcase name="tokensNeverWrapIntoAnActiveIdentity()" classname="com.powers.power.state.TimeStopLeaseRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

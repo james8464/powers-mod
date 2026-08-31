@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.entity.PlayerLikeEntityResourcesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.187Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.entity.PlayerLikeEntityResourcesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:54.157Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
   <testcase name="darkRealmNaturallySpawnsTheDarknessCreature()" classname="com.powers.entity.PlayerLikeEntityResourcesTest" time="0.001"/>
   <testcase name="everyPlayerLikeSkinUsesTheVanillaCanvasAndPaintsEveryBaseFace()" classname="com.powers.entity.PlayerLikeEntityResourcesTest" time="0.001"/>

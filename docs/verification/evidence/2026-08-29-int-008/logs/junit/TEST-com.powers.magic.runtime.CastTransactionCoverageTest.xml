@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.magic.runtime.CastTransactionCoverageTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:42.091Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.magic.runtime.CastTransactionCoverageTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:55.055Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="everyMultiStageCastingRouteOwnsAnExplicitTransaction()" classname="com.powers.magic.runtime.CastTransactionCoverageTest" time="0.0"/>
+  <testcase name="everyMultiStageCastingRouteOwnsAnExplicitTransaction()" classname="com.powers.magic.runtime.CastTransactionCoverageTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

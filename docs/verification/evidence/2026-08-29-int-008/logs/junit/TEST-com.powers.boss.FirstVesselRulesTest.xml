@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.boss.FirstVesselRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:33.878Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.boss.FirstVesselRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:47.025Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="tacticalWorkRunsOnOneBoundedCadence()" classname="com.powers.boss.FirstVesselRulesTest" time="0.0"/>
+  <testcase name="tacticalWorkRunsOnOneBoundedCadence()" classname="com.powers.boss.FirstVesselRulesTest" time="0.001"/>
   <testcase name="phasesAndMultiplayerScalingAreBounded()" classname="com.powers.boss.FirstVesselRulesTest" time="0.0"/>
   <testcase name="corruptedSavedVitalityFallsBackToFiniteBossBounds()" classname="com.powers.boss.FirstVesselRulesTest" time="0.0"/>
   <testcase name="reconstitutionIsOnceOnlyAndInterruptibleByMeaningfulDamage()" classname="com.powers.boss.FirstVesselRulesTest" time="0.0"/>

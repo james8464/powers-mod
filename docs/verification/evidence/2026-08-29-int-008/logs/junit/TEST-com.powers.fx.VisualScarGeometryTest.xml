@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.fx.VisualScarGeometryTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.667Z" hostname="MacBook-Pro-de-James.local" time="0.025">
+<testsuite name="com.powers.fx.VisualScarGeometryTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:54.645Z" hostname="MacBook-Pro-de-James.local" time="0.023">
   <properties/>
-  <testcase name="nearMidFarLodRetainsRecognisableMotifsWithinMonotonicBudgets()" classname="com.powers.fx.VisualScarGeometryTest" time="0.003"/>
-  <testcase name="debugQuadsPipelineAndSingleBatchHaveExactTopologyDepthAndCullContract()" classname="com.powers.fx.VisualScarGeometryTest" time="0.012"/>
-  <testcase name="allThirtyProfilesOnSixFacesProduceBoundedFiniteSurfaceMeshesAtWorldLimits()" classname="com.powers.fx.VisualScarGeometryTest" time="0.005"/>
-  <testcase name="motifsHaveDistinctTopologyAndEveryGeometryParameterChangesVertices()" classname="com.powers.fx.VisualScarGeometryTest" time="0.001"/>
-  <testcase name="visibilityHidesWithoutDeletingSemanticRecord()" classname="com.powers.fx.VisualScarGeometryTest" time="0.001"/>
+  <testcase name="nearMidFarLodRetainsRecognisableMotifsWithinMonotonicBudgets()" classname="com.powers.fx.VisualScarGeometryTest" time="0.006"/>
+  <testcase name="debugQuadsPipelineAndSingleBatchHaveExactTopologyDepthAndCullContract()" classname="com.powers.fx.VisualScarGeometryTest" time="0.01"/>
+  <testcase name="allThirtyProfilesOnSixFacesProduceBoundedFiniteSurfaceMeshesAtWorldLimits()" classname="com.powers.fx.VisualScarGeometryTest" time="0.003"/>
+  <testcase name="motifsHaveDistinctTopologyAndEveryGeometryParameterChangesVertices()" classname="com.powers.fx.VisualScarGeometryTest" time="0.0"/>
+  <testcase name="visibilityHidesWithoutDeletingSemanticRecord()" classname="com.powers.fx.VisualScarGeometryTest" time="0.0"/>
   <testcase name="presentationIsAClosedUniqueFiveBySixBoundedProfileMatrix()" classname="com.powers.fx.VisualScarGeometryTest" time="0.001"/>
   <testcase name="rendererBoundaryConvertsPackedRgbaToMinecraftArgb()" classname="com.powers.fx.VisualScarGeometryTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

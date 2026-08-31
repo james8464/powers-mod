@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.testing.network.PacketFaultFamiliesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:46:24.242Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.testing.network.PacketFaultFamiliesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:02:35.605Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
-  <testcase name="everyAcceptancePayloadMapsToItsSemanticFamily()" classname="com.powers.testing.network.PacketFaultFamiliesTest" time="0.002"/>
+  <testcase name="everyAcceptancePayloadMapsToItsSemanticFamily()" classname="com.powers.testing.network.PacketFaultFamiliesTest" time="0.003"/>
   <testcase name="foreignPayloadIdentifiersAreExplicitlyOutsideTheFaultBoundary()" classname="com.powers.testing.network.PacketFaultFamiliesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

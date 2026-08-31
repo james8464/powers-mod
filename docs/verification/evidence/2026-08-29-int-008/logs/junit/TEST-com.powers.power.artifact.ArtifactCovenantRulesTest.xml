@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.artifact.ArtifactCovenantRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.045Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.power.artifact.ArtifactCovenantRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:57.109Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
-  <testcase name="sharesHalfOfRealDamageWithoutCreatingOrOverhealingDamage()" classname="com.powers.power.artifact.ArtifactCovenantRulesTest" time="0.001"/>
+  <testcase name="sharesHalfOfRealDamageWithoutCreatingOrOverhealingDamage()" classname="com.powers.power.artifact.ArtifactCovenantRulesTest" time="0.0"/>
   <testcase name="ownerLinkCountIsStrictlyBounded()" classname="com.powers.power.artifact.ArtifactCovenantRulesTest" time="0.0"/>
   <testcase name="expiryUsesOneMonotonicWorldClockAtItsExactBoundary()" classname="com.powers.power.artifact.ArtifactCovenantRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

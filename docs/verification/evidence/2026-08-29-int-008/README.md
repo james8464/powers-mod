@@ -1,13 +1,7 @@
 # INT-008 temporal lease evidence
 
-Historical reviewed PENDING capture: `int008_review7` accepted this repaired
-implementation and evidence commit `9b245015` for closure reconciliation.
-Non-evidence documentation is now reconciled; a new final clean-SHA capture must
-replace this package before final acceptance. No current-head gate or integration
-is claimed by these retained results.
-
 This PENDING package binds dedicated-server acceptance to clean implementation
-`aaff0b0f88312b66d232f6e1f4ef0741a8690928`, with immutable base `98b181671b1514a3695ccb8f1ba1985092bce3dd`.
+`100efb814308a70aff228a877c2f9aca5cb9e550`, with immutable base `98b181671b1514a3695ccb8f1ba1985092bce3dd`.
 The six schema-2 JSONL rows are copied byte-for-byte from the successful unfiltered
 production GameTest transcript, not reconstructed from expected values.
 
@@ -42,17 +36,18 @@ control time, shared-index lifetime boundaries, and owner cleanup.
 ## Reproduction
 
 ```text
-JAVA_HOME=<java25> ./gradlew runGameTest -Pint008ImplementationSha=aaff0b0f88312b66d232f6e1f4ef0741a8690928 --rerun-tasks --no-daemon --console=plain
+JAVA_HOME=<java25> ./gradlew runGameTest -Pint008ImplementationSha=100efb814308a70aff228a877c2f9aca5cb9e550 --rerun-tasks --no-daemon --console=plain
 JAVA_HOME=<java25> ./gradlew check --rerun-tasks --no-daemon --console=plain
 python3 scripts/verify_int008_temporal.py docs/verification/evidence/2026-08-29-int-008
 python3 scripts/package_int008_evidence.py docs/verification/evidence/2026-08-29-int-008 --output <archive.tar.gz>
 ```
 
-The previous final review found a Void Scar presence-clock regression, since
-reproduced and repaired through observed RED/GREEN. The reviewer confirmed that
-repair without new findings. This package is the new post-repair capture;
-fresh independent READY review accepted closure reconciliation. Final clean-SHA
-recapture, final-head review and integration gates remain outstanding; see
+Fresh independent review `int008_review7` accepted repaired implementation
+`aaff0b0f88312b66d232f6e1f4ef0741a8690928` and evidence head `9b245015` with
+no findings. Non-evidence closure documents were then reconciled without gameplay
+changes. This new capture binds those documents to the final clean SHA;
+final-head verification, fresh independent READY review and integration remain
+outstanding; see
 [the closure ledger](closure.md). This package does not claim closure.
 Inventories include deletions and digest both base and implementation blobs;
 only evidence-package commits may follow this capture.

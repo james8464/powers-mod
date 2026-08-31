@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.fx.FxOrientationTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.290Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.fx.FxOrientationTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:54.263Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="automaticOrientationBillboardsOnlyVerticalSignatureFamilies()" classname="com.powers.fx.FxOrientationTest" time="0.0"/>
   <testcase name="groundOrientationLaysTheVerticalPlaneAcrossXZ()" classname="com.powers.fx.FxOrientationTest" time="0.0"/>
   <testcase name="invalidAnglesCannotReachParticleCoordinates()" classname="com.powers.fx.FxOrientationTest" time="0.0"/>
   <testcase name="rotationsPreserveDistanceFromTheEffectOrigin()" classname="com.powers.fx.FxOrientationTest" time="0.0"/>
-  <testcase name="billboardOrientationRotatesAroundWorldY()" classname="com.powers.fx.FxOrientationTest" time="0.001"/>
+  <testcase name="billboardOrientationRotatesAroundWorldY()" classname="com.powers.fx.FxOrientationTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

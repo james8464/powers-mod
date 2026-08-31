@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.abilities.SpeedBurstRulesTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.039Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.power.abilities.SpeedBurstRulesTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:57.103Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="dashNormalizesDirectionAndCapsVerticalAcceleration()" classname="com.powers.power.abilities.SpeedBurstRulesTest" time="0.0"/>
   <testcase name="malformedOrPowerlessDashInputsProduceNoMovement()" classname="com.powers.power.abilities.SpeedBurstRulesTest" time="0.0"/>
   <testcase name="secondStepUsesAnInclusiveOpeningAndExclusiveExpiry()" classname="com.powers.power.abilities.SpeedBurstRulesTest" time="0.0"/>
   <testcase name="impactImpulsePointsOutwardWithBoundedLift()" classname="com.powers.power.abilities.SpeedBurstRulesTest" time="0.0"/>
   <testcase name="collisionFractionStopsAtTheFirstBlockedBodySample()" classname="com.powers.power.abilities.SpeedBurstRulesTest" time="0.0"/>
-  <testcase name="secondStepRemainingIsNonNegativeAndOverflowSafe()" classname="com.powers.power.abilities.SpeedBurstRulesTest" time="0.0"/>
+  <testcase name="secondStepRemainingIsNonNegativeAndOverflowSafe()" classname="com.powers.power.abilities.SpeedBurstRulesTest" time="0.001"/>
   <testcase name="traceConcludesOnPredictionCollisionOrExhaustedLifetime()" classname="com.powers.power.abilities.SpeedBurstRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

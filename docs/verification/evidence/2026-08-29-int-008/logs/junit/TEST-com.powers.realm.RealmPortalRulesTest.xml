@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.realm.RealmPortalRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:46:24.102Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.realm.RealmPortalRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:02:35.465Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="underQualifiedPlayersCannotUseVanillaPortalsToEscapeEitherRealm()" classname="com.powers.realm.RealmPortalRulesTest" time="0.0"/>
   <testcase name="qualifiedAndOrdinaryWorldPlayersMayUseVanillaPortals()" classname="com.powers.realm.RealmPortalRulesTest" time="0.0"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.command.PermissionNodePolicyTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:40.754Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.command.PermissionNodePolicyTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:53.675Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
-  <testcase name="supportedFabricPermissionApiAdapterIsDiscovered()" classname="com.powers.command.PermissionNodePolicyTest" time="0.001"/>
+  <testcase name="supportedFabricPermissionApiAdapterIsDiscovered()" classname="com.powers.command.PermissionNodePolicyTest" time="0.002"/>
   <testcase name="commandControlsMapToSixDistinctDocumentedNodes()" classname="com.powers.command.PermissionNodePolicyTest" time="0.001"/>
   <testcase name="absentProviderFallsBackToVanillaOperatorLevel()" classname="com.powers.command.PermissionNodePolicyTest" time="0.0"/>
   <testcase name="installedProviderCanSeparateEverySensitiveControl()" classname="com.powers.command.PermissionNodePolicyTest" time="0.0"/>

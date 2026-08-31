@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.network.LayeredAudioPacketsTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:42.395Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.network.LayeredAudioPacketsTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:55.334Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
   <testcase name="malformedCueIdFailsClosedInsteadOfSelectingFallback()" classname="com.powers.network.LayeredAudioPacketsTest" time="0.0"/>
   <testcase name="constructorRejectsInvalidIdentifiersCoordinatesAndScalars()" classname="com.powers.network.LayeredAudioPacketsTest" time="0.001"/>
   <testcase name="semanticPayloadSurvivesNetworkRoundTrip()" classname="com.powers.network.LayeredAudioPacketsTest" time="0.0"/>
-  <testcase name="faultStreamKeyIsStablePerEventAndDistinctAcrossEvents()" classname="com.powers.network.LayeredAudioPacketsTest" time="0.001"/>
+  <testcase name="faultStreamKeyIsStablePerEventAndDistinctAcrossEvents()" classname="com.powers.network.LayeredAudioPacketsTest" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

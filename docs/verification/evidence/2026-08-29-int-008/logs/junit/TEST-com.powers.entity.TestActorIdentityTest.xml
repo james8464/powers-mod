@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.entity.TestActorIdentityTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.191Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.entity.TestActorIdentityTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:54.161Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="emptyOrInvalidUsernameRecoversToDefault()" classname="com.powers.entity.TestActorIdentityTest" time="0.001"/>
   <testcase name="requestedUsernameIsTrimmedSanitizedAndBounded()" classname="com.powers.entity.TestActorIdentityTest" time="0.0"/>

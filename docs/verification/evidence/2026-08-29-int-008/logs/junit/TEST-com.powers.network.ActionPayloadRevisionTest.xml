@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.network.ActionPayloadRevisionTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:42.214Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.network.ActionPayloadRevisionTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:55.164Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
   <testcase name="contextLossHasAnExplicitAuthoritativeRefreshPayload()" classname="com.powers.network.ActionPayloadRevisionTest" time="0.001"/>
   <testcase name="everyActionSelectionCarriesRegistryRevisionAndCanonicalKey()" classname="com.powers.network.ActionPayloadRevisionTest" time="0.002"/>

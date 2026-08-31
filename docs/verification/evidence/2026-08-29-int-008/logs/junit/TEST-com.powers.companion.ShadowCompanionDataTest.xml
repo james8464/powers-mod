@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.companion.ShadowCompanionDataTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.026Z" hostname="MacBook-Pro-de-James.local" time="0.005">
+<testsuite name="com.powers.companion.ShadowCompanionDataTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:53.962Z" hostname="MacBook-Pro-de-James.local" time="0.011">
   <properties/>
-  <testcase name="codecRoundTripsOnlySanitizedSaveSafeValues()" classname="com.powers.companion.ShadowCompanionDataTest" time="0.005"/>
+  <testcase name="codecRoundTripsOnlySanitizedSaveSafeValues()" classname="com.powers.companion.ShadowCompanionDataTest" time="0.011"/>
   <testcase name="defaultsAndMutationsClampPersistentGameplayState()" classname="com.powers.companion.ShadowCompanionDataTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

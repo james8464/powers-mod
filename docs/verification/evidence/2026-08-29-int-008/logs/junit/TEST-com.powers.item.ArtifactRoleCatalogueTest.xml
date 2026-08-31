@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.item.ArtifactRoleCatalogueTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.756Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.item.ArtifactRoleCatalogueTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:54.728Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
   <testcase name="everyVisibleNonFoodImportHasAnExplicitPurpose()" classname="com.powers.item.ArtifactRoleCatalogueTest" time="0.002"/>
   <testcase name="importantFamiliesKeepDistinctEnergyOnlyRoles()" classname="com.powers.item.ArtifactRoleCatalogueTest" time="0.0"/>

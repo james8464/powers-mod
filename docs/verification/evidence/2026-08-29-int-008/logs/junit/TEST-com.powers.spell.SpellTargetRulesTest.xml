@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.spell.SpellTargetRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:46:24.113Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.spell.SpellTargetRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:02:35.478Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="dispelReleaseRevalidatesTheExactInspectedField()" classname="com.powers.spell.SpellTargetRulesTest" time="0.0"/>
-  <testcase name="dispelInspectionSkipsAnIllegalNearerField()" classname="com.powers.spell.SpellTargetRulesTest" time="0.001"/>
+  <testcase name="dispelReleaseRevalidatesTheExactInspectedField()" classname="com.powers.spell.SpellTargetRulesTest" time="0.001"/>
+  <testcase name="dispelInspectionSkipsAnIllegalNearerField()" classname="com.powers.spell.SpellTargetRulesTest" time="0.0"/>
   <testcase name="purificationNeverHealsAnUnalliedHostileMob()" classname="com.powers.spell.SpellTargetRulesTest" time="0.0"/>
   <testcase name="channeledTargetsMustStillBeAliveVisibleAndInTheCastersDimension()" classname="com.powers.spell.SpellTargetRulesTest" time="0.0"/>
   <testcase name="aTargetThatLeavesTheLockedRangeCannotBeHitAtChannelCompletion()" classname="com.powers.spell.SpellTargetRulesTest" time="0.0"/>

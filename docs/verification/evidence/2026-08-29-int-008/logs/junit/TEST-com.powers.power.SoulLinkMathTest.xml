@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.SoulLinkMathTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.028Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.power.SoulLinkMathTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:57.091Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="mirroredDamageIsCappedPerTargetAcrossTheWholeLink()" classname="com.powers.power.SoulLinkMathTest" time="0.0"/>
+  <testcase name="mirroredDamageIsCappedPerTargetAcrossTheWholeLink()" classname="com.powers.power.SoulLinkMathTest" time="0.001"/>
   <testcase name="topologyNeverExceedsEightAndMirroredBaselineExcludesPriorReflection()" classname="com.powers.power.SoulLinkMathTest" time="0.0"/>
   <testcase name="findsLargestRealWoundAndSnapshotsPostMirrorHealth()" classname="com.powers.power.SoulLinkMathTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

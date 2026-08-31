@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.companion.ShadowParserFuzzTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.040Z" hostname="MacBook-Pro-de-James.local" time="0.079">
+<testsuite name="com.powers.companion.ShadowParserFuzzTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:53.989Z" hostname="MacBook-Pro-de-James.local" time="0.093">
   <properties/>
-  <testcase name="randomUnicodeAndControlInputNeverEscapesOutputBounds()" classname="com.powers.companion.ShadowParserFuzzTest" time="0.071"/>
-  <testcase name="millionCharacterRequestIsRejectedBeforeCommandNormalization()" classname="com.powers.companion.ShadowParserFuzzTest" time="0.005"/>
+  <testcase name="randomUnicodeAndControlInputNeverEscapesOutputBounds()" classname="com.powers.companion.ShadowParserFuzzTest" time="0.082"/>
+  <testcase name="millionCharacterRequestIsRejectedBeforeCommandNormalization()" classname="com.powers.companion.ShadowParserFuzzTest" time="0.008"/>
   <testcase name="signedChatIsInspectedOnceAndRevealedSpeechIsSystemAuthored()" classname="com.powers.companion.ShadowParserFuzzTest" time="0.001"/>
   <testcase name="confusablePrefixesNeverConsumeOrdinarySignedChat()" classname="com.powers.companion.ShadowParserFuzzTest" time="0.0"/>
   <testcase name="noParserResultCanAuthorizeWithoutEveryOwnerFact()" classname="com.powers.companion.ShadowParserFuzzTest" time="0.0"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.companion.combat.ShadowPowerExecutorTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.149Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.companion.combat.ShadowPowerExecutorTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:54.118Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
-  <testcase name="allTwentySixActionsHaveNamedNonFallbackHandlers()" classname="com.powers.companion.combat.ShadowPowerExecutorTest" time="0.001"/>
+  <testcase name="allTwentySixActionsHaveNamedNonFallbackHandlers()" classname="com.powers.companion.combat.ShadowPowerExecutorTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

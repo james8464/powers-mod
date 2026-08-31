@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.testing.network.PacketFaultServerBudgetTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:46:24.244Z" hostname="MacBook-Pro-de-James.local" time="0.03">
+<testsuite name="com.powers.testing.network.PacketFaultServerBudgetTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:02:35.608Z" hostname="MacBook-Pro-de-James.local" time="0.024">
   <properties/>
-  <testcase name="simultaneousSessionsShareOneQueueAndFairTickCap()" classname="com.powers.testing.network.PacketFaultServerBudgetTest" time="0.03"/>
+  <testcase name="simultaneousSessionsShareOneQueueAndFairTickCap()" classname="com.powers.testing.network.PacketFaultServerBudgetTest" time="0.024"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.client.visual.VfxAssetAuditTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:33.986Z" hostname="MacBook-Pro-de-James.local" time="6.759">
+<testsuite name="com.powers.client.visual.VfxAssetAuditTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:47.136Z" hostname="MacBook-Pro-de-James.local" time="6.531">
   <properties/>
-  <testcase name="explicitAnimationTimelinePreservesIndicesAndPerFrameDurations()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.312"/>
+  <testcase name="explicitAnimationTimelinePreservesIndicesAndPerFrameDurations()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.36"/>
   <testcase name="rejectsMalformedDisplayTriples()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.003"/>
-  <testcase name="rejectsReversedElementBounds()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.003"/>
+  <testcase name="rejectsReversedElementBounds()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.002"/>
   <testcase name="rejectsNonFiniteDisplayTriples()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.002"/>
-  <testcase name="rejectsCyclicTextureVariables()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.003"/>
+  <testcase name="rejectsCyclicTextureVariables()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.002"/>
   <testcase name="rejectsUnresolvedTextureVariables()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.002"/>
-  <testcase name="rejectsUvsOutsideMinecraftElementSpace()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.003"/>
+  <testcase name="rejectsUvsOutsideMinecraftElementSpace()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.002"/>
   <testcase name="rejectsUnknownNamespacedModelReferences()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.002"/>
   <testcase name="rejectsZeroAreaUvs()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.002"/>
   <testcase name="spawnEggRequiresEveryAuthoredRendererContext()" classname="com.powers.client.visual.VfxAssetAuditTest" time="0.003"/>
-  <testcase name="everyProductionPngOwnsExactPixelEvidenceAndContactSheetPages()" classname="com.powers.client.visual.VfxAssetAuditTest" time="6.424"/>
+  <testcase name="everyProductionPngOwnsExactPixelEvidenceAndContactSheetPages()" classname="com.powers.client.visual.VfxAssetAuditTest" time="6.149"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

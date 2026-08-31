@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.travel.WorldBoundaryRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.126Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.power.travel.WorldBoundaryRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:57.193Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="contractionClampsRecoveriesButRejectsOrdinaryDestinations()" classname="com.powers.power.travel.WorldBoundaryRulesTest" time="0.0"/>
   <testcase name="committedRuinClipsWhileUncommittedEventsCancel()" classname="com.powers.power.travel.WorldBoundaryRulesTest" time="0.0"/>

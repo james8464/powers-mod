@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.audio.LayeredAudioRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:33.869Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.audio.LayeredAudioRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:47.016Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
-  <testcase name="eachProfileUsesInclusiveInnerThresholdsAndRejectsBeyondItsFarRadius()" classname="com.powers.audio.LayeredAudioRulesTest" time="0.0"/>
+  <testcase name="eachProfileUsesInclusiveInnerThresholdsAndRejectsBeyondItsFarRadius()" classname="com.powers.audio.LayeredAudioRulesTest" time="0.001"/>
   <testcase name="invalidOrSilentInputsDoNotResolveAndFiniteValuesAreClamped()" classname="com.powers.audio.LayeredAudioRulesTest" time="0.0"/>
-  <testcase name="obstructionAdvancesOneLayerAndAppliesExactFalloff()" classname="com.powers.audio.LayeredAudioRulesTest" time="0.001"/>
-  <testcase name="concurrentSoundsReceiveBoundedInverseSquareRootHeadroom()" classname="com.powers.audio.LayeredAudioRulesTest" time="0.0"/>
+  <testcase name="obstructionAdvancesOneLayerAndAppliesExactFalloff()" classname="com.powers.audio.LayeredAudioRulesTest" time="0.0"/>
+  <testcase name="concurrentSoundsReceiveBoundedInverseSquareRootHeadroom()" classname="com.powers.audio.LayeredAudioRulesTest" time="0.001"/>
   <testcase name="comfortAlternativeAppliesOnlyToCelestialRing()" classname="com.powers.audio.LayeredAudioRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

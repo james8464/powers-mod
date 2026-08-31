@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.client.audio.ClientAudioComfortConfigTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:33.909Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.client.audio.ClientAudioComfortConfigTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:47.056Z" hostname="MacBook-Pro-de-James.local" time="0.004">
   <properties/>
-  <testcase name="onlyAnExplicitBooleanEnablesReducedTinnitus()" classname="com.powers.client.audio.ClientAudioComfortConfigTest" time="0.002"/>
-  <testcase name="absentMalformedAndOversizedFilesDefaultToOrdinaryAudio()" classname="com.powers.client.audio.ClientAudioComfortConfigTest" time="0.001"/>
-  <system-out><![CDATA[[06:45:33] [Test worker/WARN]: Could not load client audio comfort preference; using ordinary audio: java.io.EOFException: End of input at line 1 column 10 path $.not-json
+  <testcase name="onlyAnExplicitBooleanEnablesReducedTinnitus()" classname="com.powers.client.audio.ClientAudioComfortConfigTest" time="0.001"/>
+  <testcase name="absentMalformedAndOversizedFilesDefaultToOrdinaryAudio()" classname="com.powers.client.audio.ClientAudioComfortConfigTest" time="0.002"/>
+  <system-out><![CDATA[[07:01:47] [Test worker/WARN]: Could not load client audio comfort preference; using ordinary audio: java.io.EOFException: End of input at line 1 column 10 path $.not-json
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

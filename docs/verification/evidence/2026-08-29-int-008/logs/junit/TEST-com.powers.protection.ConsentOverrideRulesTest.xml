@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.protection.ConsentOverrideRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.143Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.protection.ConsentOverrideRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:57.210Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="overrideRequiresExactlyOneCarriedJewelAndEnoughEnergy()" classname="com.powers.protection.ConsentOverrideRulesTest" time="0.0"/>
+  <testcase name="overrideRequiresExactlyOneCarriedJewelAndEnoughEnergy()" classname="com.powers.protection.ConsentOverrideRulesTest" time="0.001"/>
   <testcase name="selfAndOrdinaryConsentPassWithoutACharge()" classname="com.powers.protection.ConsentOverrideRulesTest" time="0.0"/>
   <testcase name="safeZonesRemainAuthoritativeOverTheJewel()" classname="com.powers.protection.ConsentOverrideRulesTest" time="0.0"/>
   <testcase name="everyPersistentConsentCategoryUsesTheSameOverridePolicy()" classname="com.powers.protection.ConsentOverrideRulesTest" time="0.0"/>

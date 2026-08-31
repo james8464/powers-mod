@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.item.artifact.ArtifactScrollRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.816Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.item.artifact.ArtifactScrollRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:54.791Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="packetDirectionIsAlwaysBoundedToOneStep()" classname="com.powers.item.artifact.ArtifactScrollRulesTest" time="0.0"/>
   <testcase name="scrollInterceptionRequiresGameplayCrouchAndHeldArtifact()" classname="com.powers.item.artifact.ArtifactScrollRulesTest" time="0.0"/>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.magic.fx.FxChoreographyTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:42.072Z" hostname="MacBook-Pro-de-James.local" time="0.004">
+<testsuite name="com.powers.magic.fx.FxChoreographyTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:55.038Z" hostname="MacBook-Pro-de-James.local" time="0.005">
   <properties/>
   <testcase name="framesRejectNonFiniteOrNegativeScales()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.0"/>
-  <testcase name="impactActuallyExpandsBeyondAnticipation()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.001"/>
+  <testcase name="impactActuallyExpandsBeyondAnticipation()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.0"/>
   <testcase name="authoredSignificanceUsesOneTwoFourOrSixActualFrames()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.002"/>
   <testcase name="interactionsRemainCentredAndAccessibilityPreservesPlacement()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.0"/>
   <testcase name="castsStageGroundBodyAndRisingAftermathPlanes()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.0"/>

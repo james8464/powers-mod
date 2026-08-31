@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.item.artifact.ArtifactActionSnapshotTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.777Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.item.artifact.ArtifactActionSnapshotTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:54.752Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="rejectsBlankOrOversizedKeys()" classname="com.powers.item.artifact.ArtifactActionSnapshotTest" time="0.001"/>
   <testcase name="clampsUntrustedLiveNumbersWithoutLosingState()" classname="com.powers.item.artifact.ArtifactActionSnapshotTest" time="0.0"/>

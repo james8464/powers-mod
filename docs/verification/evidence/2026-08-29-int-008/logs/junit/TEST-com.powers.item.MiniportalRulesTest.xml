@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.item.MiniportalRulesTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.771Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.item.MiniportalRulesTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:54.747Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
-  <testcase name="newAndCorruptDevicesNormalizeToTheBoundedTwoChargeLifecycle()" classname="com.powers.item.MiniportalRulesTest" time="0.0"/>
-  <testcase name="delayedCommitRequiresTheOriginalOwnedDeviceAtTheReservedCharge()" classname="com.powers.item.MiniportalRulesTest" time="0.001"/>
+  <testcase name="newAndCorruptDevicesNormalizeToTheBoundedTwoChargeLifecycle()" classname="com.powers.item.MiniportalRulesTest" time="0.001"/>
+  <testcase name="delayedCommitRequiresTheOriginalOwnedDeviceAtTheReservedCharge()" classname="com.powers.item.MiniportalRulesTest" time="0.0"/>
   <testcase name="vanillaItemBarReflectsTheTwoChargeState()" classname="com.powers.item.MiniportalRulesTest" time="0.0"/>
   <testcase name="previewAndTravelShareFirstInventoryAnchorSelection()" classname="com.powers.item.MiniportalRulesTest" time="0.001"/>
   <testcase name="namedAnchorPresentationIsBoundedAndNeverBlank()" classname="com.powers.item.MiniportalRulesTest" time="0.0"/>

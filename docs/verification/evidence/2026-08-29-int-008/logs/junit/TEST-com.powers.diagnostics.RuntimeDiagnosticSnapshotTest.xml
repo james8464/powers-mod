@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.diagnostics.RuntimeDiagnosticSnapshotTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.182Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.diagnostics.RuntimeDiagnosticSnapshotTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:54.151Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="summaryExposesEveryRequiredRuntimeFamily()" classname="com.powers.diagnostics.RuntimeDiagnosticSnapshotTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>

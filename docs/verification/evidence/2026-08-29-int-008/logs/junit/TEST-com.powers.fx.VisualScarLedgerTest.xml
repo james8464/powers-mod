@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.fx.VisualScarLedgerTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:41.692Z" hostname="MacBook-Pro-de-James.local" time="0.009">
+<testsuite name="com.powers.fx.VisualScarLedgerTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:54.668Z" hostname="MacBook-Pro-de-James.local" time="0.01">
   <properties/>
-  <testcase name="hierarchicalRequestQueueAdvancesSparseDimensionsOwnersPoliciesAndImpacts()" classname="com.powers.fx.VisualScarLedgerTest" time="0.001"/>
+  <testcase name="hierarchicalRequestQueueAdvancesSparseDimensionsOwnersPoliciesAndImpacts()" classname="com.powers.fx.VisualScarLedgerTest" time="0.002"/>
   <testcase name="midPageDimensionReconnectAndExpiryInvalidateStaleTail()" classname="com.powers.fx.VisualScarLedgerTest" time="0.0"/>
   <testcase name="observationRangeIncludesTheBoundaryAndRejectsBeyondIt()" classname="com.powers.fx.VisualScarLedgerTest" time="0.0"/>
   <testcase name="activeAndQueuedOwnerGlobalCapsAreIndependent()" classname="com.powers.fx.VisualScarLedgerTest" time="0.0"/>

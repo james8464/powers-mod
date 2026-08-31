@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.progression.PowerScalingServiceTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:44.128Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.progression.PowerScalingServiceTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:57.194Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
   <testcase name="oldScopedPercentagePerksCannotOverrideAuthoredPowerIdentity()" classname="com.powers.progression.PowerScalingServiceTest" time="0.001"/>
-  <testcase name="costsCooldownsAndOutputsRemainFiniteAndCapped()" classname="com.powers.progression.PowerScalingServiceTest" time="0.001"/>
+  <testcase name="costsCooldownsAndOutputsRemainFiniteAndCapped()" classname="com.powers.progression.PowerScalingServiceTest" time="0.0"/>
   <testcase name="branchSelectionChangesVariantsWithoutReintroducingGenericPercentageScaling()" classname="com.powers.progression.PowerScalingServiceTest" time="0.0"/>
   <testcase name="insightAndAbyssBranchesExposeTheirNamedVariants()" classname="com.powers.progression.PowerScalingServiceTest" time="0.0"/>
   <testcase name="unrankedCrystalAndSpellBaselinesDoNotInheritPlayerProgression()" classname="com.powers.progression.PowerScalingServiceTest" time="0.0"/>

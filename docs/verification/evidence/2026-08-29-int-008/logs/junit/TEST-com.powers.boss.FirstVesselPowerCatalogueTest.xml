@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.boss.FirstVesselPowerCatalogueTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:33.876Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.boss.FirstVesselPowerCatalogueTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:47.023Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
-  <testcase name="phaseDecksNeverEscapeTheTwentyFourCandidateBudget()" classname="com.powers.boss.FirstVesselPowerCatalogueTest" time="0.001"/>
-  <testcase name="everyInnatePowerHasExactlyOneEntitySafeAdapter()" classname="com.powers.boss.FirstVesselPowerCatalogueTest" time="0.0"/>
+  <testcase name="phaseDecksNeverEscapeTheTwentyFourCandidateBudget()" classname="com.powers.boss.FirstVesselPowerCatalogueTest" time="0.0"/>
+  <testcase name="everyInnatePowerHasExactlyOneEntitySafeAdapter()" classname="com.powers.boss.FirstVesselPowerCatalogueTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

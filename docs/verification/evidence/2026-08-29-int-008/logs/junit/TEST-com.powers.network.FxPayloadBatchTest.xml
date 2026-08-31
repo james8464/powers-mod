@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.network.FxPayloadBatchTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:45:42.394Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.network.FxPayloadBatchTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T05:01:55.333Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
-  <testcase name="eventScalePayloadVariantsCarryOnlyTheExplicitDistanceOverride()" classname="com.powers.network.FxPayloadBatchTest" time="0.001"/>
+  <testcase name="eventScalePayloadVariantsCarryOnlyTheExplicitDistanceOverride()" classname="com.powers.network.FxPayloadBatchTest" time="0.0"/>
   <testcase name="distanceOverrideDoesNotAliasTheOrdinaryCanonicalVariant()" classname="com.powers.network.FxPayloadBatchTest" time="0.0"/>
   <testcase name="shapeBatchAllocatesOnceForRepeatedObserverCount()" classname="com.powers.network.FxPayloadBatchTest" time="0.0"/>
   <testcase name="beamBatchAllocatesOnceForRepeatedObserverCount()" classname="com.powers.network.FxPayloadBatchTest" time="0.0"/>
