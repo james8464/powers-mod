@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.magic.fx.FxChoreographyTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.713Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.magic.fx.FxChoreographyTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.899Z" hostname="MacBook-Pro-de-James.local" time="0.008">
   <properties/>
-  <testcase name="framesRejectNonFiniteOrNegativeScales()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.001"/>
-  <testcase name="impactActuallyExpandsBeyondAnticipation()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.0"/>
-  <testcase name="authoredSignificanceUsesOneTwoFourOrSixActualFrames()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.001"/>
-  <testcase name="interactionsRemainCentredAndAccessibilityPreservesPlacement()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.0"/>
+  <testcase name="framesRejectNonFiniteOrNegativeScales()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.002"/>
+  <testcase name="impactActuallyExpandsBeyondAnticipation()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.001"/>
+  <testcase name="authoredSignificanceUsesOneTwoFourOrSixActualFrames()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.002"/>
+  <testcase name="interactionsRemainCentredAndAccessibilityPreservesPlacement()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.001"/>
   <testcase name="castsStageGroundBodyAndRisingAftermathPlanes()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.0"/>
   <testcase name="castsUseACompactFourBeatCeremony()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.0"/>
   <testcase name="negativeAgesAreRejectedAsProgrammingErrors()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.0"/>
-  <testcase name="reducedMotionClampsExpansionAndVelocity()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.0"/>
+  <testcase name="reducedMotionClampsExpansionAndVelocity()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.001"/>
   <testcase name="interactionsRetainTheirLongerCollisionRhythm()" classname="com.powers.magic.fx.FxChoreographyTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

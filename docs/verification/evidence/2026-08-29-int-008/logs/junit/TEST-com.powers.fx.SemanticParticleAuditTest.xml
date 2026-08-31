@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.fx.SemanticParticleAuditTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.032Z" hostname="MacBook-Pro-de-James.local" time="0.028">
+<testsuite name="com.powers.fx.SemanticParticleAuditTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.224Z" hostname="MacBook-Pro-de-James.local" time="0.029">
   <properties/>
-  <testcase name="genericMagicPlaceholdersCannotReturnToProductionVisuals()" classname="com.powers.fx.SemanticParticleAuditTest" time="0.028"/>
+  <testcase name="genericMagicPlaceholdersCannotReturnToProductionVisuals()" classname="com.powers.fx.SemanticParticleAuditTest" time="0.029"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

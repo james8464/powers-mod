@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.entity.GuardianFactionRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:20.816Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.entity.GuardianFactionRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.013Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="ownedSummonsExpireWhileNaturalRealmCreaturesPersist()" classname="com.powers.entity.GuardianFactionRulesTest" time="0.0"/>
+  <testcase name="ownedSummonsExpireWhileNaturalRealmCreaturesPersist()" classname="com.powers.entity.GuardianFactionRulesTest" time="0.001"/>
   <testcase name="corruptedGuardianLifetimeIsBoundedWithoutChangingNaturalMobs()" classname="com.powers.entity.GuardianFactionRulesTest" time="0.0"/>
-  <testcase name="guardiansNeverInvertOwnerOrFactionTargeting()" classname="com.powers.entity.GuardianFactionRulesTest" time="0.001"/>
+  <testcase name="guardiansNeverInvertOwnerOrFactionTargeting()" classname="com.powers.entity.GuardianFactionRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

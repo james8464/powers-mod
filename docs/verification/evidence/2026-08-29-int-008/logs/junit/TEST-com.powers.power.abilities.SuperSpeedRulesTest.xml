@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.abilities.SuperSpeedRulesTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.766Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.power.abilities.SuperSpeedRulesTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.834Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="ownedSpeedModifierIsFiniteAndWaterGrounded()" classname="com.powers.power.abilities.SuperSpeedRulesTest" time="0.0"/>
   <testcase name="durationUsesExclusiveServerTickBoundary()" classname="com.powers.power.abilities.SuperSpeedRulesTest" time="0.0"/>
-  <testcase name="pressureCounterplayUsesAStablePriority()" classname="com.powers.power.abilities.SuperSpeedRulesTest" time="0.0"/>
+  <testcase name="pressureCounterplayUsesAStablePriority()" classname="com.powers.power.abilities.SuperSpeedRulesTest" time="0.001"/>
   <testcase name="secondStepReboundMovesBackFromTheCollision()" classname="com.powers.power.abilities.SuperSpeedRulesTest" time="0.0"/>
   <testcase name="pressureAndProjectileMotionStayCapped()" classname="com.powers.power.abilities.SuperSpeedRulesTest" time="0.0"/>
   <testcase name="trailRejectsStillnessAndTeleportDiscontinuities()" classname="com.powers.power.abilities.SuperSpeedRulesTest" time="0.0"/>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.item.ImportedArtifactRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.388Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.item.ImportedArtifactRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.586Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="ordinaryFoodsAndTextureLayersAreNotPromotedToRelics()" classname="com.powers.item.ImportedArtifactRulesTest" time="0.0"/>
-  <testcase name="passiveBudgetsAreFiniteAcrossStackCounts()" classname="com.powers.item.ImportedArtifactRulesTest" time="0.001"/>
+  <testcase name="ordinaryFoodsAndTextureLayersAreNotPromotedToRelics()" classname="com.powers.item.ImportedArtifactRulesTest" time="0.001"/>
+  <testcase name="passiveBudgetsAreFiniteAcrossStackCounts()" classname="com.powers.item.ImportedArtifactRulesTest" time="0.0"/>
   <testcase name="attunementsAndHeartsHaveDistinctBoundedIdentities()" classname="com.powers.item.ImportedArtifactRulesTest" time="0.0"/>
   <testcase name="registeredRelicFamiliesHaveExplicitGameplayRoles()" classname="com.powers.item.ImportedArtifactRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

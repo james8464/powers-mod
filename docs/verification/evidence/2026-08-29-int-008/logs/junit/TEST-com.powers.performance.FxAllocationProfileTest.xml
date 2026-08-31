@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.performance.FxAllocationProfileTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:22.056Z" hostname="MacBook-Pro-de-James.local" time="0.012">
+<testsuite name="com.powers.performance.FxAllocationProfileTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:22.265Z" hostname="MacBook-Pro-de-James.local" time="0.013">
   <properties/>
-  <testcase name="productionHotPathAllocatesAtLeastTwentyPercentLessThanExactBaseline()" classname="com.powers.performance.FxAllocationProfileTest" time="0.011"/>
-  <testcase name="profileCountsSemanticOperationsAndReportsBoundedRetention()" classname="com.powers.performance.FxAllocationProfileTest" time="0.0"/>
+  <testcase name="productionHotPathAllocatesAtLeastTwentyPercentLessThanExactBaseline()" classname="com.powers.performance.FxAllocationProfileTest" time="0.012"/>
+  <testcase name="profileCountsSemanticOperationsAndReportsBoundedRetention()" classname="com.powers.performance.FxAllocationProfileTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

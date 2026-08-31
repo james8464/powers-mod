@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.network.FxPacketCoalescerTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.997Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.network.FxPacketCoalescerTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:22.203Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="repeatedActionChunkObserverUpdatesCoalesceForOneTickOnly()" classname="com.powers.network.FxPacketCoalescerTest" time="0.0"/>
-  <testcase name="semanticPhasesRemainVisuallyDistinctAndTrafficIsMeasured()" classname="com.powers.network.FxPacketCoalescerTest" time="0.001"/>
+  <testcase name="repeatedActionChunkObserverUpdatesCoalesceForOneTickOnly()" classname="com.powers.network.FxPacketCoalescerTest" time="0.001"/>
+  <testcase name="semanticPhasesRemainVisuallyDistinctAndTrafficIsMeasured()" classname="com.powers.network.FxPacketCoalescerTest" time="0.0"/>
   <testcase name="boundedCapacityFailsOpenInsteadOfHidingNewMeaning()" classname="com.powers.network.FxPacketCoalescerTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

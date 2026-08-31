@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.abilities.StarfallRulesTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.765Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.power.abilities.StarfallRulesTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.833Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="goldenAngleOffsetsAreDeterministicUniqueAndInsideTheField()" classname="com.powers.power.abilities.StarfallRulesTest" time="0.0"/>
+  <testcase name="goldenAngleOffsetsAreDeterministicUniqueAndInsideTheField()" classname="com.powers.power.abilities.StarfallRulesTest" time="0.001"/>
   <testcase name="motionTrackingIsLeashedAndStepCapped()" classname="com.powers.power.abilities.StarfallRulesTest" time="0.0"/>
   <testcase name="wardcraftDiversionIsFiniteAndDoesNotTransferOwnership()" classname="com.powers.power.abilities.StarfallRulesTest" time="0.0"/>
   <testcase name="strikeScheduleAndRankBonusesRemainFinite()" classname="com.powers.power.abilities.StarfallRulesTest" time="0.0"/>

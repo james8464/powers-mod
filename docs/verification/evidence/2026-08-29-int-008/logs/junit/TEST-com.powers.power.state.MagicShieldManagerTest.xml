@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.state.MagicShieldManagerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.775Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.power.state.MagicShieldManagerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.842Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="sameOwnerRecastsRepairAndMergeWithoutReplacingOwnership()" classname="com.powers.power.state.MagicShieldManagerTest" time="0.0"/>
   <testcase name="activeOwnerSnapshotIsBoundedByActualShieldsAndDropsExpiredEntries()" classname="com.powers.power.state.MagicShieldManagerTest" time="0.0"/>

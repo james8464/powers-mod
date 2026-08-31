@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.force.LivingForceRulesTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:20.909Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.force.LivingForceRulesTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.101Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="spreadingReplacesOnlyBreakableSolidNonContainerTerrain()" classname="com.powers.force.LivingForceRulesTest" time="0.001"/>
+  <testcase name="spreadingReplacesOnlyBreakableSolidNonContainerTerrain()" classname="com.powers.force.LivingForceRulesTest" time="0.0"/>
   <testcase name="bothLivingForcesProjectOpposedFactionAuras()" classname="com.powers.force.LivingForceRulesTest" time="0.0"/>
   <testcase name="clashDamageFallsQuadraticallyToZeroAtTheBoundary()" classname="com.powers.force.LivingForceRulesTest" time="0.0"/>
   <testcase name="sphereBoundaryIsInclusiveWithoutLeakingIntoCubeCorners()" classname="com.powers.force.LivingForceRulesTest" time="0.0"/>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.testing.RestartSoakScenarioPlanTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:13:01.688Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.testing.RestartSoakScenarioPlanTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:01:02.305Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="rolloverLeavesEnoughTimeToPersistBeforeTheFiveMinuteBoundary()" classname="com.powers.testing.RestartSoakScenarioPlanTest" time="0.001"/>
-  <testcase name="theTwelfthCycleUsesFlushedSigtermAndOtherCyclesStopCleanly()" classname="com.powers.testing.RestartSoakScenarioPlanTest" time="0.0"/>
+  <testcase name="rolloverLeavesEnoughTimeToPersistBeforeTheFiveMinuteBoundary()" classname="com.powers.testing.RestartSoakScenarioPlanTest" time="0.0"/>
+  <testcase name="theTwelfthCycleUsesFlushedSigtermAndOtherCyclesStopCleanly()" classname="com.powers.testing.RestartSoakScenarioPlanTest" time="0.001"/>
   <testcase name="everyAcceptanceCycleExercisesAllRequiredLongLivedSystems()" classname="com.powers.testing.RestartSoakScenarioPlanTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

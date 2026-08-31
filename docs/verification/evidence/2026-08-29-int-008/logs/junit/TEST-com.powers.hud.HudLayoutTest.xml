@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.hud.HudLayoutTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.358Z" hostname="MacBook-Pro-de-James.local" time="0.025">
+<testsuite name="com.powers.hud.HudLayoutTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.556Z" hostname="MacBook-Pro-de-James.local" time="0.025">
   <properties/>
   <testcase name="resetPlacementIsExactlyTheVanillaAlignedDefault()" classname="com.powers.hud.HudLayoutTest" time="0.0"/>
   <testcase name="[1] &quot;320&quot;, &quot;240&quot;" classname="com.powers.hud.HudLayoutTest" time="0.005"/>
@@ -9,7 +9,7 @@
   <testcase name="airAndVehicleRowsMoveEnergyUpWithoutChangingHungerAlignment()" classname="com.powers.hud.HudLayoutTest" time="0.0"/>
   <testcase name="configurableAnchorsAndMarginsClampInsideTheScreen()" classname="com.powers.hud.HudLayoutTest" time="0.0"/>
   <testcase name="tenSymbolCoordinatesExactlyMatchTheVanillaHungerStride()" classname="com.powers.hud.HudLayoutTest" time="0.0"/>
-  <testcase name="verticalPowerRailDoesNotCoverTheHotbarOnNormalScaledWindows()" classname="com.powers.hud.HudLayoutTest" time="0.001"/>
+  <testcase name="verticalPowerRailDoesNotCoverTheHotbarOnNormalScaledWindows()" classname="com.powers.hud.HudLayoutTest" time="0.0"/>
   <testcase name="energyUsesTenVanillaScaleSymbolsAlignedAboveHunger()" classname="com.powers.hud.HudLayoutTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

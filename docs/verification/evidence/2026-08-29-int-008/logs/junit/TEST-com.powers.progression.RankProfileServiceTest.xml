@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.progression.RankProfileServiceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.861Z" hostname="MacBook-Pro-de-James.local" time="0.004">
+<testsuite name="com.powers.progression.RankProfileServiceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.934Z" hostname="MacBook-Pro-de-James.local" time="0.004">
   <properties/>
   <testcase name="focusStrengthensOneNodeWithoutRemovingOtherUnlockedPaths()" classname="com.powers.progression.RankProfileServiceTest" time="0.0"/>
-  <testcase name="everyNodeHasAtLeastOneMechanicalPerk()" classname="com.powers.progression.RankProfileServiceTest" time="0.0"/>
+  <testcase name="everyNodeHasAtLeastOneMechanicalPerk()" classname="com.powers.progression.RankProfileServiceTest" time="0.001"/>
   <testcase name="aggregationAppliesExplicitSafetyCapsAfterFocus()" classname="com.powers.progression.RankProfileServiceTest" time="0.0"/>
-  <system-out><![CDATA[[05:12:23] [Test worker/INFO]: Loaded rank mazes: 28 light nodes, 28 darkness nodes
+  <system-out><![CDATA[[06:00:23] [Test worker/INFO]: Loaded rank mazes: 28 light nodes, 28 darkness nodes
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

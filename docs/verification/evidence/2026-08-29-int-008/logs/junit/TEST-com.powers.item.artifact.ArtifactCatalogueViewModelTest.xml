@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.item.artifact.ArtifactCatalogueViewModelTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.412Z" hostname="MacBook-Pro-de-James.local" time="0.036">
+<testsuite name="com.powers.item.artifact.ArtifactCatalogueViewModelTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.610Z" hostname="MacBook-Pro-de-James.local" time="0.031">
   <properties/>
-  <testcase name="tenThousandActionsReuseOneFixedVisiblePoolWhileScrollingAndSearching()" classname="com.powers.item.artifact.ArtifactCatalogueViewModelTest" time="0.033"/>
+  <testcase name="tenThousandActionsReuseOneFixedVisiblePoolWhileScrollingAndSearching()" classname="com.powers.item.artifact.ArtifactCatalogueViewModelTest" time="0.027"/>
   <testcase name="revisionRefreshPreservesAndClampsTheScrolledWindowInPlace()" classname="com.powers.item.artifact.ArtifactCatalogueViewModelTest" time="0.001"/>
-  <testcase name="keyboardSelectionMovesWithinFilteredResultsAndScrollsItIntoView()" classname="com.powers.item.artifact.ArtifactCatalogueViewModelTest" time="0.0"/>
+  <testcase name="keyboardSelectionMovesWithinFilteredResultsAndScrollsItIntoView()" classname="com.powers.item.artifact.ArtifactCatalogueViewModelTest" time="0.001"/>
   <testcase name="searchResultBindsInSelectThenSlotInteractionAndRecentFilterIsBounded()" classname="com.powers.item.artifact.ArtifactCatalogueViewModelTest" time="0.001"/>
   <testcase name="nonBlankSearchFromDefaultFavouritesSurfaceFindsAnUnboundActionGlobally()" classname="com.powers.item.artifact.ArtifactCatalogueViewModelTest" time="0.0"/>
   <testcase name="selectionSurvivesRevisionRefreshByCanonicalKeyAndFallsBackWhenRemoved()" classname="com.powers.item.artifact.ArtifactCatalogueViewModelTest" time="0.001"/>

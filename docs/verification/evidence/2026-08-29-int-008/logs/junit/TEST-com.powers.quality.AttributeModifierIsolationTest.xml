@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.quality.AttributeModifierIsolationTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.870Z" hostname="MacBook-Pro-de-James.local" time="0.023">
+<testsuite name="com.powers.quality.AttributeModifierIsolationTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.944Z" hostname="MacBook-Pro-de-James.local" time="0.022">
   <properties/>
-  <testcase name="everyOwnedScaleSpeedHealthAndKnockbackRemovalPreservesForeignModifiers()" classname="com.powers.quality.AttributeModifierIsolationTest" time="0.001"/>
+  <testcase name="everyOwnedScaleSpeedHealthAndKnockbackRemovalPreservesForeignModifiers()" classname="com.powers.quality.AttributeModifierIsolationTest" time="0.0"/>
   <testcase name="authorisedPropulsionResetsOnlyTheOwningPlayersVanillaFloatingCounter()" classname="com.powers.quality.AttributeModifierIsolationTest" time="0.0"/>
   <testcase name="productionNeverClearsAnEntireAttributeOrMutatesCreativeFlightAuthority()" classname="com.powers.quality.AttributeModifierIsolationTest" time="0.022"/>
   <system-out><![CDATA[]]></system-out>

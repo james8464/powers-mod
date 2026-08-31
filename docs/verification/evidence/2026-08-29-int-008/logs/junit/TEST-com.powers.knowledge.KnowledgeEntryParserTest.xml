@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.knowledge.KnowledgeEntryParserTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.459Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.knowledge.KnowledgeEntryParserTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.652Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="parsesBoundedDatapackEntryAndAddsResourceSource()" classname="com.powers.knowledge.KnowledgeEntryParserTest" time="0.0"/>
   <testcase name="rejectsOversizedAnswersAndMalformedKeywords()" classname="com.powers.knowledge.KnowledgeEntryParserTest" time="0.001"/>

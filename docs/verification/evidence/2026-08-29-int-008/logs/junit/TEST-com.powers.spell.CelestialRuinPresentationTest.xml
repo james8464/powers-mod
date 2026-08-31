@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.spell.CelestialRuinPresentationTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:13:01.661Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.spell.CelestialRuinPresentationTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:01:02.276Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="detonationAudioUsesARestrainedObserverTierGain()" classname="com.powers.spell.CelestialRuinPresentationTest" time="0.0"/>
+  <testcase name="detonationAudioUsesARestrainedObserverTierGain()" classname="com.powers.spell.CelestialRuinPresentationTest" time="0.001"/>
   <testcase name="detonationFlashHoldsThenFadesAcrossTwentySeconds()" classname="com.powers.spell.CelestialRuinPresentationTest" time="0.0"/>
   <testcase name="beamPacketsRefreshBeforeTheirClientLeaseExpires()" classname="com.powers.spell.CelestialRuinPresentationTest" time="0.0"/>
   <testcase name="tinnitusOutlastsTheOpaqueFlashAndFadesCleanly()" classname="com.powers.spell.CelestialRuinPresentationTest" time="0.0"/>

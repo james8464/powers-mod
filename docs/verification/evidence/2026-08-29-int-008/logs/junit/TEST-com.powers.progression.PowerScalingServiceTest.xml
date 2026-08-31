@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.progression.PowerScalingServiceTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.852Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.progression.PowerScalingServiceTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.924Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
   <testcase name="oldScopedPercentagePerksCannotOverrideAuthoredPowerIdentity()" classname="com.powers.progression.PowerScalingServiceTest" time="0.001"/>
   <testcase name="costsCooldownsAndOutputsRemainFiniteAndCapped()" classname="com.powers.progression.PowerScalingServiceTest" time="0.0"/>

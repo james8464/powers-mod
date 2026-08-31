@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.mind.BodyProxyTicketRulesTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.753Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.mind.BodyProxyTicketRulesTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.950Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
-  <testcase name="eachFrozenBodyKeepsOnlyItsOwnChunkSimulated()" classname="com.powers.mind.BodyProxyTicketRulesTest" time="0.001"/>
+  <testcase name="eachFrozenBodyKeepsOnlyItsOwnChunkSimulated()" classname="com.powers.mind.BodyProxyTicketRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

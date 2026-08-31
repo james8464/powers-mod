@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.spell.CelestialRuinSavedDataTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:13:01.662Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.spell.CelestialRuinSavedDataTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:01:02.278Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
   <testcase name="codecPreservesWriteAheadDestructiveCommit()" classname="com.powers.spell.CelestialRuinSavedDataTest" time="0.002"/>
   <testcase name="codecRoundTripPreservesCountdownAndDestructionCursor()" classname="com.powers.spell.CelestialRuinSavedDataTest" time="0.0"/>

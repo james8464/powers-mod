@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.util.FairOwnerWorkQueueTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:13:01.815Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.util.FairOwnerWorkQueueTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:01:02.435Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="capacityAndOwnerRemovalAreExact()" classname="com.powers.util.FairOwnerWorkQueueTest" time="0.0"/>
   <testcase name="oneOwnerCannotStarveAnotherInsideTheGlobalBudget()" classname="com.powers.util.FairOwnerWorkQueueTest" time="0.0"/>

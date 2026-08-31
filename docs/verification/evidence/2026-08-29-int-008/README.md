@@ -1,11 +1,7 @@
 # INT-008 temporal lease evidence
 
-Historical reviewed capture: subsequent non-evidence closure documentation requires
-a new clean-SHA capture before this package can support final acceptance. See
-[the closure ledger](closure.md). PENDING is not final integration approval.
-
 This PENDING package binds dedicated-server acceptance to clean implementation
-`051d105f52b845f8f399995211050b627d03f113`, with immutable base `98b181671b1514a3695ccb8f1ba1985092bce3dd`.
+`ca1469d40a261288bae891317dac000e6d4a482e`, with immutable base `98b181671b1514a3695ccb8f1ba1985092bce3dd`.
 The six schema-2 JSONL rows are copied byte-for-byte from the successful unfiltered
 production GameTest transcript, not reconstructed from expected values.
 
@@ -38,12 +34,15 @@ body-scoped marker retirement after explicit stop, supersession, and body loss.
 ## Reproduction
 
 ```text
-JAVA_HOME=<java25> ./gradlew runGameTest -Pint008ImplementationSha=051d105f52b845f8f399995211050b627d03f113 --rerun-tasks --no-daemon --console=plain
+JAVA_HOME=<java25> ./gradlew runGameTest -Pint008ImplementationSha=ca1469d40a261288bae891317dac000e6d4a482e --rerun-tasks --no-daemon --console=plain
 JAVA_HOME=<java25> ./gradlew check --rerun-tasks --no-daemon --console=plain
 python3 scripts/verify_int008_temporal.py docs/verification/evidence/2026-08-29-int-008
 python3 scripts/package_int008_evidence.py docs/verification/evidence/2026-08-29-int-008 --output <archive.tar.gz>
 ```
 
-Independent READY review and integration gates remain outstanding. This package
-does not claim closure. Inventories include deletions and digest both base and
-implementation blobs; only evidence-package commits may follow capture.
+The initial implementation review returned READY without findings. This final
+recapture follows the reconciled closure documentation without gameplay changes.
+Fresh final-head READY review and integration gates remain outstanding; see
+[the closure ledger](closure.md). This package does not claim closure.
+Inventories include deletions and digest both base and implementation blobs;
+only evidence-package commits may follow this capture.

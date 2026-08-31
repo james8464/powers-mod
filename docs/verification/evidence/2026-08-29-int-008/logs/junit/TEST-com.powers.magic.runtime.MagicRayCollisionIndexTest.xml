@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.magic.runtime.MagicRayCollisionIndexTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.737Z" hostname="MacBook-Pro-de-James.local" time="0.007">
+<testsuite name="com.powers.magic.runtime.MagicRayCollisionIndexTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.935Z" hostname="MacBook-Pro-de-James.local" time="0.007">
   <properties/>
   <testcase name="dimensionHistoryNeverExceedsItsFixedWorkBound()" classname="com.powers.magic.runtime.MagicRayCollisionIndexTest" time="0.003"/>
   <testcase name="collisionWorkStopsAtThePerTickBudget()" classname="com.powers.magic.runtime.MagicRayCollisionIndexTest" time="0.002"/>
   <testcase name="oneOwnerCannotConsumeTheWholeCollisionBudget()" classname="com.powers.magic.runtime.MagicRayCollisionIndexTest" time="0.001"/>
-  <testcase name="expiryAndOwnerCleanupRemoveOnlyRelevantBoundedHistory()" classname="com.powers.magic.runtime.MagicRayCollisionIndexTest" time="0.001"/>
-  <testcase name="secondCrossingRayProducesOneCollisionThenPairCooldownSuppressesSpam()" classname="com.powers.magic.runtime.MagicRayCollisionIndexTest" time="0.0"/>
+  <testcase name="expiryAndOwnerCleanupRemoveOnlyRelevantBoundedHistory()" classname="com.powers.magic.runtime.MagicRayCollisionIndexTest" time="0.0"/>
+  <testcase name="secondCrossingRayProducesOneCollisionThenPairCooldownSuppressesSpam()" classname="com.powers.magic.runtime.MagicRayCollisionIndexTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

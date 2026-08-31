@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.magic.runtime.CastTransactionTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.730Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.magic.runtime.CastTransactionTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:21.928Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="successfulCastCommitsEveryPhaseOnce()" classname="com.powers.magic.runtime.CastTransactionTest" time="0.001"/>
   <testcase name="explicitRejectionUsesTheSameRollbackPathAsAnException()" classname="com.powers.magic.runtime.CastTransactionTest" time="0.0"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.abilities.BreezyBashRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.754Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.power.abilities.BreezyBashRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.821Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="rankCapsRemainFinite()" classname="com.powers.power.abilities.BreezyBashRulesTest" time="0.0"/>
+  <testcase name="rankCapsRemainFinite()" classname="com.powers.power.abilities.BreezyBashRulesTest" time="0.001"/>
   <testcase name="ownershipAndLifecycleRejectCompetingOrInvalidRites()" classname="com.powers.power.abilities.BreezyBashRulesTest" time="0.0"/>
   <testcase name="captureCountersResolveInPrivacyFirstOrder()" classname="com.powers.power.abilities.BreezyBashRulesTest" time="0.0"/>
   <testcase name="projectileCurvaturePushesOutwardUnderSpeedCap()" classname="com.powers.power.abilities.BreezyBashRulesTest" time="0.0"/>

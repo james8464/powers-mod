@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.abilities.PossessionEndRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.763Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.power.abilities.PossessionEndRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.831Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="divineWrathIsSevereButCannotKillTheReturnedControllerByItself()" classname="com.powers.power.abilities.PossessionEndRulesTest" time="0.0"/>
-  <testcase name="deadVesselHasPriorityOverExpiryAndProtectionChanges()" classname="com.powers.power.abilities.PossessionEndRulesTest" time="0.0"/>
+  <testcase name="deadVesselHasPriorityOverExpiryAndProtectionChanges()" classname="com.powers.power.abilities.PossessionEndRulesTest" time="0.001"/>
   <testcase name="nonfatalTerminationReasonsRemainDistinctAndNeverInvokeWrath()" classname="com.powers.power.abilities.PossessionEndRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

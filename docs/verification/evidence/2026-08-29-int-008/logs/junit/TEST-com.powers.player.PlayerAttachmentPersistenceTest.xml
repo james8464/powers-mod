@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.player.PlayerAttachmentPersistenceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.742Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.player.PlayerAttachmentPersistenceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:23.810Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="togglesAndFlightSnapshotsAreSessionOnly()" classname="com.powers.player.PlayerAttachmentPersistenceTest" time="0.0"/>
   <testcase name="attachmentSchemaRegistersDuringModBootstrapBeforePlayersDecode()" classname="com.powers.player.PlayerAttachmentPersistenceTest" time="0.0"/>

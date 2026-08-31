@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.companion.combat.ShadowPowerCatalogueTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:20.749Z" hostname="MacBook-Pro-de-James.local" time="0.021">
+<testsuite name="com.powers.companion.combat.ShadowPowerCatalogueTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T04:00:20.955Z" hostname="MacBook-Pro-de-James.local" time="0.02">
   <properties/>
-  <testcase name="manifestMatchesEveryInnateAndExactlyThreeSwordUniquesWithoutCrystals()" classname="com.powers.companion.combat.ShadowPowerCatalogueTest" time="0.005"/>
+  <testcase name="manifestMatchesEveryInnateAndExactlyThreeSwordUniquesWithoutCrystals()" classname="com.powers.companion.combat.ShadowPowerCatalogueTest" time="0.004"/>
   <testcase name="everyActionHasAuthoredCombatMetadata()" classname="com.powers.companion.combat.ShadowPowerCatalogueTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
