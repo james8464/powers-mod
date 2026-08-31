@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.magic.MagicActionCatalogueTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:52.187Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.magic.MagicActionCatalogueTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.668Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
   <testcase name="everyActionDeclaresItsPresentationSignificanceExplicitly()" classname="com.powers.magic.MagicActionCatalogueTest" time="0.0"/>
   <testcase name="defaultsContainEverySupportedActionExactlyOnce()" classname="com.powers.magic.MagicActionCatalogueTest" time="0.001"/>

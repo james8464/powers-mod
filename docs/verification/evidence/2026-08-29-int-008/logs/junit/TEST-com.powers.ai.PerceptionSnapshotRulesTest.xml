@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.ai.PerceptionSnapshotRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:43.853Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.ai.PerceptionSnapshotRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:13.022Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
-  <testcase name="queryProfilesPreserveLegacyCapsAndGrowOnlyOnDemand()" classname="com.powers.ai.PerceptionSnapshotRulesTest" time="0.001"/>
-  <testcase name="selectionIsBoundedDeterministicAndImmutable()" classname="com.powers.ai.PerceptionSnapshotRulesTest" time="0.001"/>
-  <testcase name="sharedSnapshotPassesThirtyPercentInspectionGate()" classname="com.powers.ai.PerceptionSnapshotRulesTest" time="0.001"/>
+  <testcase name="queryProfilesPreserveLegacyCapsAndGrowOnlyOnDemand()" classname="com.powers.ai.PerceptionSnapshotRulesTest" time="0.0"/>
+  <testcase name="selectionIsBoundedDeterministicAndImmutable()" classname="com.powers.ai.PerceptionSnapshotRulesTest" time="0.002"/>
+  <testcase name="sharedSnapshotPassesThirtyPercentInspectionGate()" classname="com.powers.ai.PerceptionSnapshotRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

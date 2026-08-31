@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.abilities.EnergyBeamRulesTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:54.131Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.power.abilities.EnergyBeamRulesTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.756Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="rankVariantsHaveHardTargetAndFlareCaps()" classname="com.powers.power.abilities.EnergyBeamRulesTest" time="0.0"/>
-  <testcase name="waterSamplingAndSteamImpulseAreFiniteAndCapped()" classname="com.powers.power.abilities.EnergyBeamRulesTest" time="0.001"/>
+  <testcase name="waterSamplingAndSteamImpulseAreFiniteAndCapped()" classname="com.powers.power.abilities.EnergyBeamRulesTest" time="0.0"/>
   <testcase name="consecutiveScorchEscalatesThenCapsAndResets()" classname="com.powers.power.abilities.EnergyBeamRulesTest" time="0.0"/>
   <testcase name="nearestFiniteTerminalWinsInsideRange()" classname="com.powers.power.abilities.EnergyBeamRulesTest" time="0.0"/>
   <testcase name="lifecycleRequiresLiveUnsuppressedUnfrozenOwnerAndPower()" classname="com.powers.power.abilities.EnergyBeamRulesTest" time="0.0"/>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.animation.CastingPoseAnglesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:43.857Z" hostname="MacBook-Pro-de-James.local" time="0.004">
+<testsuite name="com.powers.animation.CastingPoseAnglesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:13.025Z" hostname="MacBook-Pro-de-James.local" time="0.005">
   <properties/>
   <testcase name="handedProjectPoseMirrorsTheDominantArm()" classname="com.powers.animation.CastingPoseAnglesTest" time="0.001"/>
-  <testcase name="normalMotionEasesInHoldsAndEasesOut()" classname="com.powers.animation.CastingPoseAnglesTest" time="0.001"/>
+  <testcase name="normalMotionEasesInHoldsAndEasesOut()" classname="com.powers.animation.CastingPoseAnglesTest" time="0.002"/>
   <testcase name="reducedMotionIsStaticDirectionalAndLowerAmplitude()" classname="com.powers.animation.CastingPoseAnglesTest" time="0.0"/>
   <testcase name="locomotionPolicySuppressesIncompatibleFlightAndSwimmingButPreservesWalkingReadability()" classname="com.powers.animation.CastingPoseAnglesTest" time="0.001"/>
   <testcase name="everyPoseAndStyleStaysInsideJointCaps()" classname="com.powers.animation.CastingPoseAnglesTest" time="0.001"/>

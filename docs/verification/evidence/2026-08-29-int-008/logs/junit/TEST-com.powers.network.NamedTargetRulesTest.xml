@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.network.NamedTargetRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:52.529Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.network.NamedTargetRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:22.004Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="uniqueNamesResolveCaseInsensitivelyAcrossPlayerAndMobCandidates()" classname="com.powers.network.NamedTargetRulesTest" time="0.001"/>
+  <testcase name="uniqueNamesResolveCaseInsensitivelyAcrossPlayerAndMobCandidates()" classname="com.powers.network.NamedTargetRulesTest" time="0.0"/>
   <testcase name="formattedAndUnicodeCompatibilityNamesShareOneAuthenticatedIdentity()" classname="com.powers.network.NamedTargetRulesTest" time="0.0"/>
-  <testcase name="duplicateCustomNamesRefuseToRevealEitherTarget()" classname="com.powers.network.NamedTargetRulesTest" time="0.001"/>
+  <testcase name="duplicateCustomNamesRefuseToRevealEitherTarget()" classname="com.powers.network.NamedTargetRulesTest" time="0.0"/>
   <testcase name="anIncompleteWorldScanCanNeverPretendANameIsUnique()" classname="com.powers.network.NamedTargetRulesTest" time="0.0"/>
   <testcase name="missingAndBlankNamesDoNotResolve()" classname="com.powers.network.NamedTargetRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

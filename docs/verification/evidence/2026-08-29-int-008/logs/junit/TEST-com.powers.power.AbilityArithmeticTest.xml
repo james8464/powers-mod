@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.AbilityArithmeticTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:54.121Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.power.AbilityArithmeticTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.746Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="energyDrainDistributesRemaindersAndAlwaysReachesZero()" classname="com.powers.power.AbilityArithmeticTest" time="0.0"/>
-  <testcase name="scaledMissEndpointUsesTheActualSkillRange()" classname="com.powers.power.AbilityArithmeticTest" time="0.001"/>
+  <testcase name="scaledMissEndpointUsesTheActualSkillRange()" classname="com.powers.power.AbilityArithmeticTest" time="0.0"/>
   <testcase name="selectingTheNextCrystalModeCostsNoEnergy()" classname="com.powers.power.AbilityArithmeticTest" time="0.0"/>
   <testcase name="cozyCampfireRunsForExactlyTwoHundredTicks()" classname="com.powers.power.AbilityArithmeticTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.spell.CelestialRuinStagingRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:07:32.321Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.spell.CelestialRuinStagingRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:13:01.664Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="warningPersistsUntilPreparedImpactActuallyBegins()" classname="com.powers.spell.CelestialRuinStagingRulesTest" time="0.0"/>
   <testcase name="cancellationEndsExactlyWhenChunkCommitPreparationBegins()" classname="com.powers.spell.CelestialRuinStagingRulesTest" time="0.0"/>
-  <testcase name="previewChunkFootprintsAreFiniteAndConservative()" classname="com.powers.spell.CelestialRuinStagingRulesTest" time="0.001"/>
+  <testcase name="previewChunkFootprintsAreFiniteAndConservative()" classname="com.powers.spell.CelestialRuinStagingRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

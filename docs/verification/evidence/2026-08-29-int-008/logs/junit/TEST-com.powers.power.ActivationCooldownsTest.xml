@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.ActivationCooldownsTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:54.122Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.power.ActivationCooldownsTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.747Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="readyOrMalformedCooldownNeverBlocksAFirstCast()" classname="com.powers.power.ActivationCooldownsTest" time="0.0"/>
   <testcase name="activeCooldownBlocksOrdinaryCastsButAllowsAnExplicitReactivation()" classname="com.powers.power.ActivationCooldownsTest" time="0.0"/>

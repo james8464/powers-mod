@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.boss.FirstVesselRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:44.125Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.boss.FirstVesselRulesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:13.316Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
-  <testcase name="tacticalWorkRunsOnOneBoundedCadence()" classname="com.powers.boss.FirstVesselRulesTest" time="0.001"/>
+  <testcase name="tacticalWorkRunsOnOneBoundedCadence()" classname="com.powers.boss.FirstVesselRulesTest" time="0.0"/>
   <testcase name="phasesAndMultiplayerScalingAreBounded()" classname="com.powers.boss.FirstVesselRulesTest" time="0.0"/>
   <testcase name="corruptedSavedVitalityFallsBackToFiniteBossBounds()" classname="com.powers.boss.FirstVesselRulesTest" time="0.0"/>
-  <testcase name="reconstitutionIsOnceOnlyAndInterruptibleByMeaningfulDamage()" classname="com.powers.boss.FirstVesselRulesTest" time="0.0"/>
+  <testcase name="reconstitutionIsOnceOnlyAndInterruptibleByMeaningfulDamage()" classname="com.powers.boss.FirstVesselRulesTest" time="0.002"/>
   <testcase name="hostileControlStillYieldsToCounterplay()" classname="com.powers.boss.FirstVesselRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

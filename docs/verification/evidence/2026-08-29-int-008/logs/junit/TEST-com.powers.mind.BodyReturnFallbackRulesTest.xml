@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.mind.BodyReturnFallbackRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:52.271Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.mind.BodyReturnFallbackRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.754Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="activeAnchorsNeverFallBackToUncheckedTeleportation()" classname="com.powers.mind.BodyReturnFallbackRulesTest" time="0.0"/>
   <testcase name="onlyMissingLegacyAnchorsCanUseRecordedFallback()" classname="com.powers.mind.BodyReturnFallbackRulesTest" time="0.0"/>

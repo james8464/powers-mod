@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.client.audio.ClientLayeredAudioStateTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:44.162Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.client.audio.ClientLayeredAudioStateTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:13.357Z" hostname="MacBook-Pro-de-James.local" time="0.002">
   <properties/>
-  <testcase name="duplicateAndOlderEventIdsAreIgnored()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.0"/>
+  <testcase name="duplicateAndOlderEventIdsAreIgnored()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.001"/>
   <testcase name="eventLedgerRetainsOnlyTheNewest256AcceptedIds()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.0"/>
-  <testcase name="duplicateCueAndOriginCellCoalescesInsideFourTickWindow()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.001"/>
-  <testcase name="resetClearsIdentifiersBurstBookkeepingAndCounters()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.0"/>
+  <testcase name="duplicateCueAndOriginCellCoalescesInsideFourTickWindow()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.0"/>
+  <testcase name="resetClearsIdentifiersBurstBookkeepingAndCounters()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.001"/>
   <testcase name="fifthGroupAndNinthGlobalOffersAreDropped()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.0"/>
   <testcase name="admittedCrossGroupBurstReportsGlobalConcurrencyForHeadroom()" classname="com.powers.client.audio.ClientLayeredAudioStateTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

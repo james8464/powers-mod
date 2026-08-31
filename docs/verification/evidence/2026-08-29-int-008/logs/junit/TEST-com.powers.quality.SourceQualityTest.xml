@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.quality.SourceQualityTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:07:08.729Z" hostname="MacBook-Pro-de-James.local" time="23.58">
+<testsuite name="com.powers.quality.SourceQualityTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:37.864Z" hostname="MacBook-Pro-de-James.local" time="23.788">
   <properties/>
-  <testcase name="productionSourcesContainNoUnfinishedDebugOrWildcardShortcuts()" classname="com.powers.quality.SourceQualityTest" time="8.297"/>
-  <testcase name="responsibilityClassesStayWithinTheReviewedSizeBoundary()" classname="com.powers.quality.SourceQualityTest" time="7.755"/>
-  <testcase name="powerOwnedEffectsCannotReintroduceVanillaPotionClouds()" classname="com.powers.quality.SourceQualityTest" time="0.02"/>
+  <testcase name="productionSourcesContainNoUnfinishedDebugOrWildcardShortcuts()" classname="com.powers.quality.SourceQualityTest" time="8.538"/>
+  <testcase name="responsibilityClassesStayWithinTheReviewedSizeBoundary()" classname="com.powers.quality.SourceQualityTest" time="7.701"/>
+  <testcase name="powerOwnedEffectsCannotReintroduceVanillaPotionClouds()" classname="com.powers.quality.SourceQualityTest" time="0.018"/>
   <testcase name="playerTravelPathsNeverSynchronouslyLoadOrGenerateDestinationChunks()" classname="com.powers.quality.SourceQualityTest" time="0.0"/>
-  <testcase name="everyProductionJavaFileIsAuditedAndPublicContractsAreDocumented()" classname="com.powers.quality.SourceQualityTest" time="7.508"/>
+  <testcase name="everyProductionJavaFileIsAuditedAndPublicContractsAreDocumented()" classname="com.powers.quality.SourceQualityTest" time="7.531"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

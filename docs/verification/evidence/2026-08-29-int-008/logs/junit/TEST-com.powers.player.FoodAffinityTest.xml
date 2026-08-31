@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.player.FoodAffinityTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:54.115Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.player.FoodAffinityTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.740Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
-  <testcase name="classifiesVanillaRottenFleshAsAbnormal()" classname="com.powers.player.FoodAffinityTest" time="0.001"/>
+  <testcase name="classifiesVanillaRottenFleshAsAbnormal()" classname="com.powers.player.FoodAffinityTest" time="0.0"/>
   <testcase name="doesNotMisclassifyAnotherModsMatchingPath()" classname="com.powers.player.FoodAffinityTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

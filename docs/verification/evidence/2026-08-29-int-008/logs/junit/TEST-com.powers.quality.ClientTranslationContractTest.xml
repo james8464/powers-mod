@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.quality.ClientTranslationContractTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:54.289Z" hostname="MacBook-Pro-de-James.local" time="0.044">
+<testsuite name="com.powers.quality.ClientTranslationContractTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.895Z" hostname="MacBook-Pro-de-James.local" time="0.044">
   <properties/>
   <testcase name="everyNumberedPowerMessageHasEveryAdvertisedVariant()" classname="com.powers.quality.ClientTranslationContractTest" time="0.021"/>
-  <testcase name="everyLiteralServerTranslationKeyExists()" classname="com.powers.quality.ClientTranslationContractTest" time="0.019"/>
-  <testcase name="cartographerScreenTeachesTheAcceptedQueryGrammar()" classname="com.powers.quality.ClientTranslationContractTest" time="0.001"/>
+  <testcase name="everyLiteralServerTranslationKeyExists()" classname="com.powers.quality.ClientTranslationContractTest" time="0.02"/>
+  <testcase name="cartographerScreenTeachesTheAcceptedQueryGrammar()" classname="com.powers.quality.ClientTranslationContractTest" time="0.0"/>
   <testcase name="everyLiteralClientTranslationKeyExists()" classname="com.powers.quality.ClientTranslationContractTest" time="0.003"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

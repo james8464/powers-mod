@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.diagnostics.DiagnosticExportTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:51.329Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.diagnostics.DiagnosticExportTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:20.802Z" hostname="MacBook-Pro-de-James.local" time="0.005">
   <properties/>
-  <testcase name="schemaContainsOnlyVersionedBoundedAggregateData()" classname="com.powers.diagnostics.DiagnosticExportTest" time="0.003"/>
+  <testcase name="schemaContainsOnlyVersionedBoundedAggregateData()" classname="com.powers.diagnostics.DiagnosticExportTest" time="0.005"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.util.PowerMessagesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:07:32.476Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.util.PowerMessagesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:13:01.815Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="commonFeedbackUsesOnlyTheOverlaySink()" classname="com.powers.util.PowerMessagesTest" time="0.0"/>
+  <testcase name="commonFeedbackUsesOnlyTheOverlaySink()" classname="com.powers.util.PowerMessagesTest" time="0.001"/>
   <testcase name="importantFeedbackUsesOnlyTheChatSink()" classname="com.powers.util.PowerMessagesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

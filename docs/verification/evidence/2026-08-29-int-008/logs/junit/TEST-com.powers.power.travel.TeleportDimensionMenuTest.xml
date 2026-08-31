@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.travel.TeleportDimensionMenuTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:54.242Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.power.travel.TeleportDimensionMenuTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.849Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
   <testcase name="filtersOnlyTheDarkRealmWhenTheServerStateHidesIt()" classname="com.powers.power.travel.TeleportDimensionMenuTest" time="0.0"/>
   <testcase name="keepsCompleteServerSuppliedModdedIdentifiers()" classname="com.powers.power.travel.TeleportDimensionMenuTest" time="0.0"/>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.fx.RankTenSilhouetteGeometryTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:51.451Z" hostname="MacBook-Pro-de-James.local" time="0.003">
+<testsuite name="com.powers.fx.RankTenSilhouetteGeometryTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:20.930Z" hostname="MacBook-Pro-de-James.local" time="0.003">
   <properties/>
   <testcase name="everyProfileExpandsToAFiniteCappedMeshAndKeepsItsOwnPrimitiveSignature()" classname="com.powers.fx.RankTenSilhouetteGeometryTest" time="0.001"/>
   <testcase name="reducedMotionFreezesPhaseAndLowersOnlyFillNotTheOuterOutline()" classname="com.powers.fx.RankTenSilhouetteGeometryTest" time="0.001"/>
   <testcase name="defaultEventLifetimeIsTheAuthoredFortyTicks()" classname="com.powers.fx.RankTenSilhouetteGeometryTest" time="0.0"/>
-  <testcase name="invalidEventsOrCameraCannotReachGeometryAndScaleIsClamped()" classname="com.powers.fx.RankTenSilhouetteGeometryTest" time="0.001"/>
+  <testcase name="invalidEventsOrCameraCannotReachGeometryAndScaleIsClamped()" classname="com.powers.fx.RankTenSilhouetteGeometryTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

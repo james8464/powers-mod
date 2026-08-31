@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.client.ClientHudPreferencesTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:44.136Z" hostname="MacBook-Pro-de-James.local" time="0.008">
+<testsuite name="com.powers.client.ClientHudPreferencesTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:13.329Z" hostname="MacBook-Pro-de-James.local" time="0.008">
   <properties/>
-  <testcase name="loadingExistingSharedConfigPreservesAudioComfortField()" classname="com.powers.client.ClientHudPreferencesTest" time="0.007"/>
+  <testcase name="loadingExistingSharedConfigPreservesAudioComfortField()" classname="com.powers.client.ClientHudPreferencesTest" time="0.008"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

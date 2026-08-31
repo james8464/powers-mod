@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.mind.ParticipantPowerLockTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:52.358Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.mind.ParticipantPowerLockTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.838Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
   <testcase name="oneSessionLocksEveryParticipantAndRejectsNestedSessions()" classname="com.powers.mind.ParticipantPowerLockTest" time="0.001"/>
   <testcase name="releasingASessionUnlocksOnlyItsParticipants()" classname="com.powers.mind.ParticipantPowerLockTest" time="0.0"/>

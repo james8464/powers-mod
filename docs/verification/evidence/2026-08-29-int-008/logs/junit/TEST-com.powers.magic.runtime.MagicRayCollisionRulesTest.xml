@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.magic.runtime.MagicRayCollisionRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:52.261Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.magic.runtime.MagicRayCollisionRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:21.744Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
-  <testcase name="crossingSegmentsResolveAtTheirPhysicalIntersection()" classname="com.powers.magic.runtime.MagicRayCollisionRulesTest" time="0.001"/>
+  <testcase name="crossingSegmentsResolveAtTheirPhysicalIntersection()" classname="com.powers.magic.runtime.MagicRayCollisionRulesTest" time="0.0"/>
   <testcase name="parallelDistantStaleAndSameOwnerSegmentsDoNotCollide()" classname="com.powers.magic.runtime.MagicRayCollisionRulesTest" time="0.0"/>
   <testcase name="aRayCounteredAtItsOriginIsAValidNoGeometryOutcome()" classname="com.powers.magic.runtime.MagicRayCollisionRulesTest" time="0.0"/>
   <testcase name="recentDistinctOwnersAndFiniteSegmentsAreComparable()" classname="com.powers.magic.runtime.MagicRayCollisionRulesTest" time="0.0"/>

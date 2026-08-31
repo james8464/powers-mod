@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.realm.RealmPortalRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:07:32.313Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.realm.RealmPortalRulesTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:13:01.656Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="underQualifiedPlayersCannotUseVanillaPortalsToEscapeEitherRealm()" classname="com.powers.realm.RealmPortalRulesTest" time="0.0"/>
+  <testcase name="underQualifiedPlayersCannotUseVanillaPortalsToEscapeEitherRealm()" classname="com.powers.realm.RealmPortalRulesTest" time="0.001"/>
   <testcase name="qualifiedAndOrdinaryWorldPlayersMayUseVanillaPortals()" classname="com.powers.realm.RealmPortalRulesTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

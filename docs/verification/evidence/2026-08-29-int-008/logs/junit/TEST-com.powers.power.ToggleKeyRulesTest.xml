@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.ToggleKeyRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:54.128Z" hostname="MacBook-Pro-de-James.local" time="0.001">
+<testsuite name="com.powers.power.ToggleKeyRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.753Z" hostname="MacBook-Pro-de-James.local" time="0.0">
   <properties/>
-  <testcase name="canonicalAndSwordOwnedKeysShareOneLogicalToggle()" classname="com.powers.power.ToggleKeyRulesTest" time="0.001"/>
+  <testcase name="canonicalAndSwordOwnedKeysShareOneLogicalToggle()" classname="com.powers.power.ToggleKeyRulesTest" time="0.0"/>
   <testcase name="onlyCurrentArtifactNamespacesSurviveInnateLoadoutReplacement()" classname="com.powers.power.ToggleKeyRulesTest" time="0.0"/>
   <testcase name="removesEveryInvocationOfAResetOnlyToggleWithoutTouchingOthers()" classname="com.powers.power.ToggleKeyRulesTest" time="0.0"/>
   <testcase name="detectsAnAbilityAcrossCanonicalAndArtifactToggleSets()" classname="com.powers.power.ToggleKeyRulesTest" time="0.0"/>

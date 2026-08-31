@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.power.AbilityRankScopeTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:06:54.122Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+<testsuite name="com.powers.power.AbilityRankScopeTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:12:23.746Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="onlyInnatePlayerPowersOptIntoRankScaling()" classname="com.powers.power.AbilityRankScopeTest" time="0.0"/>
+  <testcase name="onlyInnatePlayerPowersOptIntoRankScaling()" classname="com.powers.power.AbilityRankScopeTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

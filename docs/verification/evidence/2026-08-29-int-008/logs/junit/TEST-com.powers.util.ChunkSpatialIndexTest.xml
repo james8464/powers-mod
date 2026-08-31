@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.powers.util.ChunkSpatialIndexTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T02:07:32.473Z" hostname="MacBook-Pro-de-James.local" time="0.002">
+<testsuite name="com.powers.util.ChunkSpatialIndexTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-31T03:13:01.814Z" hostname="MacBook-Pro-de-James.local" time="0.001">
   <properties/>
-  <testcase name="diagnosticsAreAttributedToTheQueriedDimension()" classname="com.powers.util.ChunkSpatialIndexTest" time="0.001"/>
-  <testcase name="nearbyUsesDimensionAndExactRadiusWhileReplacementRemovesGhostCells()" classname="com.powers.util.ChunkSpatialIndexTest" time="0.0"/>
+  <testcase name="diagnosticsAreAttributedToTheQueriedDimension()" classname="com.powers.util.ChunkSpatialIndexTest" time="0.0"/>
+  <testcase name="nearbyUsesDimensionAndExactRadiusWhileReplacementRemovesGhostCells()" classname="com.powers.util.ChunkSpatialIndexTest" time="0.001"/>
   <testcase name="diagnosticsExposeBoundedQueryWorkAndStaleCleanup()" classname="com.powers.util.ChunkSpatialIndexTest" time="0.0"/>
   <testcase name="removalAndClearReleaseEveryMembership()" classname="com.powers.util.ChunkSpatialIndexTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
