@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.item.artifact.ArtifactRecentRulesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-09-01T02:49:34.411Z" hostname="MacBook-Pro-de-James.local" time="0.0">
+  <properties/>
+  <testcase name="persistenceCodecRejectsOversizedHistoriesBeforeMaterializingGameplayState()" classname="com.powers.item.artifact.ArtifactRecentRulesTest" time="0.0"/>
+  <testcase name="recordingMovesCanonicalKeyToFrontDeduplicatesAndCapsHistory()" classname="com.powers.item.artifact.ArtifactRecentRulesTest" time="0.0"/>
+  <testcase name="reconciliationDropsUnknownAndMalformedKeysWithoutChangingOrder()" classname="com.powers.item.artifact.ArtifactRecentRulesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

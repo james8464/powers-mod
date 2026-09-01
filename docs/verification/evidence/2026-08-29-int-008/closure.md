@@ -1,10 +1,16 @@
 # INT-008 final integration ledger
 
-Status: Captured implementation and evidence head `5fa0de1a` PASS/READY;
-resulting receipt-head gate/review and main integration PENDING.
+Status: INT-008 integrated and pushed on `main` at exact reviewed head
+`922873d85ff77ee4a02473492b1b92eb6f8b0a64`. The resulting evidence-only
+integration-receipt head remains subject to its own unchanged full gate and
+fresh independent review before INT-009 starts.
+
 Fresh independent reviewer `int008_review7` accepted implementation `aaff0b0f`
 and evidence head `9b245015` with no Critical, Important, or Minor findings.
-This is not final merge approval. No merge is claimed.
+Fresh clean-context reviewer `int008_pass_review9` subsequently accepted exact
+evidence head `922873d8` with no findings after independently checking the
+production diff, retained evidence, prior failure uncertainty, and exact-head
+gate receipts. See `review-evidence-head-922873d8.md`.
 
 After that review, non-evidence closure documents were reconciled without any
 gameplay/build/script changes. The final unfiltered capture and literal Java 25
@@ -62,7 +68,39 @@ Only evidence-prefix changes may follow the final capture. PASS now records
 the captured implementation and exact reviewed `5fa0de1a` acceptance. This
 receipt-only update creates a later head which is NOT covered by that gate:
 it must pass its own unchanged literal full gate and fresh independent review
-before fast-forward integration. Main integration is not yet claimed.
+before fast-forward integration. At that stage, main integration was not yet
+claimed; the subsequent observed closure is recorded below.
+
+## Observed integration closure
+
+Evidence-only receipt head `922873d85ff77ee4a02473492b1b92eb6f8b0a64`
+passed its unchanged literal Java 25 full gate and fresh independent
+`int008_pass_review9` review before integration. Local `main` was then
+fast-forwarded to that exact head while all 11 POWERS worktrees were clean.
+
+The third unchanged merged-main retry passed all 167 GameTests, all six
+INT-008 temporal rows, 1,836 JUnit tests across 424 raw XML suites, 240 Python
+tests, and all 24 tasks. Ordered clean-SHA preflight/postflight receipts bind
+the run to `922873d8`; the recomputed JUnit inventory digest is
+`c794655c8864a620f9d9f25ee8798d36ea0f51a4ab47301379b63b6b6965aa82`.
+The original transcript SHA-256 is
+`197a4cec003f8fc274a8708ef0a99e8af6945d340b9794725cbc80c3554fc7a5`;
+the private-prefix-only redacted retained transcript SHA-256 is
+`33cbf99881656fc0edeb95e6db4f9108aded800cde6ac3d55332a726be8147d3`.
+The transcript and byte-identical XML are under `logs/merged-main-922873d8/`.
+
+BUILD SUCCESSFUL reported 1h 5m 45s and the raw transcript contains a large
+host wall-clock jump. This receipt does not describe the host as stable for the
+whole run. The three earlier merged-main failures and their diagnostic
+uncertainty remain preserved; the green run does not establish that those
+failures were unrelated to INT-008.
+
+After the green merged-main gate, `origin/main` was pushed and a fresh fetch
+proved local `main`, `HEAD`, `origin/main`, and
+`origin/int-008-temporal-leases` all equal `922873d8`; all 11 worktrees were
+clean. This evidence-only integration receipt necessarily creates a later head,
+which must pass its own unchanged full gate and fresh independent review before
+it is treated as verified or INT-009 starts.
 
 - [x] Repair the Void Scar presence-clock regression through observed RED/GREEN.
 - [x] New clean-SHA unfiltered GameTest capture and literal aggregate with ordered receipts/raw XML.
@@ -71,9 +109,9 @@ before fast-forward integration. Main integration is not yet claimed.
 - [x] Final clean-SHA unfiltered recapture and literal aggregate with ordered receipts/raw XML.
 - [x] Final PENDING evidence-only commit/push at `5fa0de1a`.
 - [x] Unchanged literal full gate on exact `5fa0de1a` and fresh independent READY review.
-- [ ] PASS/receipt-only closure commit/push, its own unchanged full gate and fresh READY review.
-- [ ] Fast-forward main, unchanged merged-main literal full gate, then push origin/main.
-- [ ] Prove main equals origin/main and every POWERS worktree is clean before INT-009.
+- [x] PASS/receipt-only closure commit/push, its own unchanged full gate and fresh READY review.
+- [x] Fast-forward main, unchanged merged-main literal full gate, then push origin/main.
+- [x] Prove main equals origin/main and every POWERS worktree is clean before INT-009.
 
 All remaining ledger updates and retained receipts must stay within this evidence
 directory. They do not authorize changing captured source or weakening gates.

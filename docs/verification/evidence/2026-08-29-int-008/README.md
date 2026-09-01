@@ -52,7 +52,20 @@ review with no findings. Its gate and all 424 byte-preserved XML suites are
 retained separately under `logs/final-head-5fa0de1a/`; the original clean-capture
 evidence is unchanged. PASS records captured-source and reviewed-head acceptance,
 not integration or verification of a later receipt commit. The resulting
-evidence-only closure head still requires its own full gate and fresh review;
-main integration remains outstanding in [the closure ledger](closure.md).
+At that point, the evidence-only closure head still required its own full gate
+and fresh review, and main integration remained outstanding in
+[the closure ledger](closure.md).
 Inventories include deletions and digest both base and implementation blobs;
 only evidence-package commits may follow this capture.
+
+Exact evidence head `922873d85ff77ee4a02473492b1b92eb6f8b0a64`
+subsequently passed its unchanged full gate and fresh independent
+`int008_pass_review9` review, was fast-forwarded to local `main`, passed the
+unchanged merged-main full gate on retry 3, and was pushed to `origin/main`.
+Fresh fetch and status checks proved local/remote equality and all 11 POWERS
+worktrees clean. The private-prefix-only redacted merged-main transcript and
+all 424 byte-identical raw XML suites are retained under
+`logs/merged-main-922873d8/`; the full timing and prior-failure caveats remain
+in [the closure ledger](closure.md). This integration-receipt update is itself
+evidence-only and therefore requires its own exact-head full gate and fresh
+review before it is treated as verified or INT-009 starts.

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.powers.quality.ProductionReachabilityTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-01T02:49:36.787Z" hostname="MacBook-Pro-de-James.local" time="12.039">
+  <properties/>
+  <testcase name="everyTopLevelProductionTypeHasAProductionOrResourceConsumer()" classname="com.powers.quality.ProductionReachabilityTest" time="12.039"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
