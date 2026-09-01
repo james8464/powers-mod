@@ -51,8 +51,8 @@ its unchanged literal full gate and fresh independent `int008_final_review8`
 review with no findings. Its gate and all 424 byte-preserved XML suites are
 retained separately under `logs/final-head-5fa0de1a/`; the original clean-capture
 evidence is unchanged. PASS records captured-source and reviewed-head acceptance,
-not integration or verification of a later receipt commit. The resulting
-At that point, the evidence-only closure head still required its own full gate
+not integration or verification of a later receipt commit. At that point, the
+evidence-only closure head still required its own full gate
 and fresh review, and main integration remained outstanding in
 [the closure ledger](closure.md).
 Inventories include deletions and digest both base and implementation blobs;
