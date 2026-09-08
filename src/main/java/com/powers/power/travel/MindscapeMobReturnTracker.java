@@ -1,6 +1,7 @@
 package com.powers.power.travel;
 
 import com.powers.companion.ShadowCompanionEntity;
+import com.powers.mind.MindSessionManager;
 import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
@@ -28,7 +29,7 @@ public final class MindscapeMobReturnTracker {
 		SKIP_SHADOW
 	}
 
-	private record Origin(UUID journeyOwner, ResourceKey<Level> dimension,
+	private record Origin(UUID journeyOwner, UUID mindSessionId, ResourceKey<Level> dimension,
 			Vec3 position, float yRot, float xRot) {
 	}
 
@@ -54,8 +55,11 @@ public final class MindscapeMobReturnTracker {
 			UUID eldest = ORIGINS.keySet().iterator().next();
 			ORIGINS.remove(eldest);
 		}
-		ORIGINS.put(entity.getUUID(), new Origin(journeyOwner, entity.level().dimension(), entity.position(),
-				entity.getYRot(), entity.getXRot()));
+		UUID mindSessionId = MindSessionManager.activeFor(entity.getUUID())
+				.filter(session -> session.kind() == MindSessionManager.Kind.REALM)
+				.map(MindSessionManager.Session::id).orElse(null);
+		ORIGINS.put(entity.getUUID(), new Origin(journeyOwner, mindSessionId,
+				entity.level().dimension(), entity.position(), entity.getYRot(), entity.getXRot()));
 		return true;
 	}
 
@@ -94,7 +98,7 @@ public final class MindscapeMobReturnTracker {
 		if (originLevel == null) return false;
 		LivingEntity current = find(server, entityId);
 		if (current == null) {
-			ORIGINS.remove(entityId);
+			forget(entityId, origin);
 			return false;
 		}
 		BlockPos block = BlockPos.containing(origin.position());
@@ -104,7 +108,10 @@ public final class MindscapeMobReturnTracker {
 	}
 
 	public static void forget(LivingEntity entity) {
-		if (entity != null) ORIGINS.remove(entity.getUUID());
+		if (entity == null) return;
+		UUID entityId = entity.getUUID();
+		Origin origin = ORIGINS.get(entityId);
+		if (origin != null) forget(entityId, origin);
 	}
 
 	public static int trackedCount() {
@@ -134,14 +141,20 @@ public final class MindscapeMobReturnTracker {
 
 	private static boolean complete(LivingEntity entity, Origin origin, ServerLevel originLevel) {
 		if (!entity.isAlive() || entity.isRemoved()) {
-			ORIGINS.remove(entity.getUUID());
+			forget(entity.getUUID(), origin);
 			return false;
 		}
+		UUID entityId = entity.getUUID();
 		Entity moved = entity.teleport(new TeleportTransition(originLevel, origin.position(), Vec3.ZERO,
 				origin.yRot(), origin.xRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 		if (moved == null) return false;
-		ORIGINS.remove(entity.getUUID());
+		forget(entityId, origin);
 		return true;
+	}
+
+	private static void forget(UUID entityId, Origin origin) {
+		if (!ORIGINS.remove(entityId, origin) || origin.mindSessionId() == null) return;
+		MindSessionManager.realmParticipantReturned(origin.mindSessionId(), entityId);
 	}
 
 	private static LivingEntity find(MinecraftServer server, UUID entityId) {

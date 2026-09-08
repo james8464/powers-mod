@@ -1324,6 +1324,195 @@ public final class PowersGameTests {
 		});
 	}
 
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void realmOwnerFirstReturnKeepsDistantMemberExclusiveUntilIndependentReturn(GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		ServerPlayer member = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		owner.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		member.setPos(origin.getX() + 1.5, origin.getY(), origin.getZ() + 0.5);
+		java.util.UUID sessionId = java.util.UUID.randomUUID();
+		helper.assertTrue(MindSessionManager.acquire(sessionId, MindSessionManager.Kind.REALM,
+				owner.getUUID(), java.util.List.of(
+						new MindSessionManager.Participant(owner.getUUID(), MindSessionManager.Role.OWNER),
+						new MindSessionManager.Participant(member.getUUID(), MindSessionManager.Role.TARGET)))
+				.accepted(), "Realm fixture could not acquire both players atomically");
+		helper.assertTrue(BodyProxyManager.startAttached(owner, BodyProxyKind.REALM, sessionId, true),
+				"Realm fixture could not create the owner's vulnerable body");
+		helper.assertTrue(BodyProxyManager.startAttached(member, BodyProxyKind.REALM, sessionId, false),
+				"Realm fixture could not create the member's independent vulnerable body");
+		member.setPos(origin.getX() + 20.5, origin.getY(), origin.getZ() + 0.5);
+
+		helper.assertTrue(BodyProxyManager.returnToBody(owner), "Owner-first Realm return failed");
+		helper.assertFalse(MindSessionManager.isParticipating(owner.getUUID()),
+				"Returned owner retained Realm authority");
+		helper.assertTrue(BodyProxyManager.hasSession(member, BodyProxyKind.REALM)
+				&& MindSessionManager.activeFor(member.getUUID())
+						.filter(session -> session.id().equals(sessionId)).isPresent(),
+				"Owner-first return unlocked or recalled the distant detached member");
+		MindSessionManager.Admission nested = MindSessionManager.acquire(java.util.UUID.randomUUID(),
+				MindSessionManager.Kind.ASTRAL_PROJECTION, member.getUUID(), java.util.List.of(
+						new MindSessionManager.Participant(member.getUUID(), MindSessionManager.Role.OWNER)));
+		helper.assertTrue(!nested.accepted()
+				&& nested.refusal() == MindSessionManager.Refusal.PARTICIPANT_BUSY,
+				"Distant Realm member could enter a nested mind session after owner-first return");
+
+		helper.assertTrue(BodyProxyManager.returnToBody(member),
+				"Independent Realm member return failed after authority transfer");
+		helper.assertTrue(MindSessionManager.session(sessionId).isEmpty()
+				&& !MindSessionManager.isParticipating(member.getUUID()),
+				"Final Realm member return retained stale session authority");
+		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 40)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void realmNonOwnerDisconnectKeepsSurvivingDetachedOwnerExclusive(GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		ServerPlayer member = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		owner.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		member.setPos(origin.getX() + 1.5, origin.getY(), origin.getZ() + 0.5);
+		java.util.UUID sessionId = java.util.UUID.randomUUID();
+		helper.assertTrue(MindSessionManager.acquire(sessionId, MindSessionManager.Kind.REALM,
+				owner.getUUID(), java.util.List.of(
+						new MindSessionManager.Participant(owner.getUUID(), MindSessionManager.Role.OWNER),
+						new MindSessionManager.Participant(member.getUUID(), MindSessionManager.Role.TARGET)))
+				.accepted(), "Disconnect fixture could not acquire both Realm players");
+		helper.assertTrue(BodyProxyManager.startAttached(owner, BodyProxyKind.REALM, sessionId, true)
+				&& BodyProxyManager.startAttached(member, BodyProxyKind.REALM, sessionId, false),
+				"Disconnect fixture could not create independent vulnerable bodies");
+		java.util.UUID memberId = member.getUUID();
+		member.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(
+				net.minecraft.network.chat.Component.literal("INT-009 non-owner disconnect")));
+		helper.runAfterDelay(2, () -> {
+			helper.assertTrue(helper.getLevel().getServer().getPlayerList().getPlayer(memberId) == null,
+					"Disconnected Realm member remained in the player list");
+			helper.assertFalse(MindSessionManager.isParticipating(memberId),
+					"Disconnected Realm member retained participant authority");
+			helper.assertTrue(BodyProxyManager.hasSession(owner, BodyProxyKind.REALM)
+					&& MindSessionManager.activeFor(owner.getUUID())
+							.filter(session -> session.id().equals(sessionId)).isPresent(),
+					"Non-owner disconnect unlocked the surviving detached Realm owner");
+			MindSessionManager.Admission nested = MindSessionManager.acquire(java.util.UUID.randomUUID(),
+					MindSessionManager.Kind.ASTRAL_PROJECTION, owner.getUUID(), java.util.List.of(
+							new MindSessionManager.Participant(owner.getUUID(), MindSessionManager.Role.OWNER)));
+			helper.assertTrue(!nested.accepted()
+					&& nested.refusal() == MindSessionManager.Refusal.PARTICIPANT_BUSY,
+					"Surviving Realm owner entered a nested mind session after member disconnect");
+			BodyProxyManager.finish(owner);
+			helper.succeed();
+		});
+	}
+
+	@GameTest(maxTicks = 40)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void realmMobAndShadowDeathRemoveOnlyTheirOwnParticipantAuthority(GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		var mob = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE, new BlockPos(2, 1, 3));
+		ShadowCompanionEntity shadow = helper.spawn(PowersEntities.SHADOW_COMPANION,
+				new BlockPos(3, 1, 2));
+		shadow.setRevealed(true);
+		java.util.UUID sessionId = java.util.UUID.randomUUID();
+		helper.assertTrue(MindSessionManager.acquire(sessionId, MindSessionManager.Kind.REALM,
+				owner.getUUID(), java.util.List.of(
+						new MindSessionManager.Participant(owner.getUUID(), MindSessionManager.Role.OWNER),
+						new MindSessionManager.Participant(mob.getUUID(), MindSessionManager.Role.TARGET),
+						new MindSessionManager.Participant(shadow.getUUID(), MindSessionManager.Role.SHADOW)))
+				.accepted(), "Death fixture could not acquire its Realm cohort");
+		helper.assertTrue(com.powers.power.travel.MindscapeMobReturnTracker.track(owner.getUUID(), mob),
+				"Death fixture could not record its Realm mob return origin");
+		helper.assertTrue(mob.hurtServer(helper.getLevel(), mob.damageSources().generic(), 10_000.0F),
+				"Realm mob death fixture rejected fatal damage");
+		helper.assertTrue(shadow.hurtServer(helper.getLevel(), shadow.damageSources().generic(), 10_000.0F),
+				"Realm Shadow death fixture rejected fatal damage");
+		helper.runAfterDelay(2, () -> {
+			helper.assertFalse(MindSessionManager.isParticipating(mob.getUUID()),
+					"Dead Realm mob retained participant authority");
+			helper.assertFalse(com.powers.power.travel.MindscapeMobReturnTracker.tracked(mob),
+					"Dead Realm mob retained a stale return-origin record");
+			helper.assertFalse(MindSessionManager.isParticipating(shadow.getUUID()),
+					"Dead Realm Shadow retained participant authority");
+			helper.assertTrue(MindSessionManager.activeFor(owner.getUUID())
+					.filter(session -> session.id().equals(sessionId)).isPresent(),
+					"Mob or Shadow death unlocked the surviving Realm owner");
+			MindSessionManager.release(sessionId);
+			helper.succeed();
+		});
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void realmShadowIndependentReturnClearsOnlyItsParticipantAuthority(GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		owner.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		owner.addTag(SkillSystem.DARKNESS_TAG);
+		owner.getInventory().add(PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		PrivateCompanionManager.handleChat(owner, "shadow, reveal yourself");
+		PrivateCompanionManager.tickPlayer(owner, 0);
+		ShadowCompanionEntity shadow = PrivateCompanionManager.body(owner.getUUID()).orElseThrow();
+		java.util.UUID shadowId = shadow.getUUID();
+		java.util.UUID sessionId = java.util.UUID.randomUUID();
+		helper.assertTrue(MindSessionManager.acquire(sessionId, MindSessionManager.Kind.REALM,
+				owner.getUUID(), java.util.List.of(
+						new MindSessionManager.Participant(owner.getUUID(), MindSessionManager.Role.OWNER),
+						new MindSessionManager.Participant(shadowId, MindSessionManager.Role.SHADOW)))
+				.accepted(), "Shadow-return fixture could not acquire Realm authority");
+		var darkRealm = helper.getLevel().getServer().getLevel(net.minecraft.resources.ResourceKey.create(
+				net.minecraft.core.registries.Registries.DIMENSION, com.powers.PowersMod.id("dark_realm")));
+		helper.assertTrue(darkRealm != null, "GameTest server did not expose the Dark Realm");
+		darkRealm.getChunkAt(new BlockPos(8, 80, 8));
+		helper.assertTrue(PrivateCompanionManager.travelBody(shadow, darkRealm,
+				new net.minecraft.world.phys.Vec3(8.5, 80.0, 8.5)),
+				"Shadow could not enter the Realm with its physical body");
+		ShadowCompanionEntity travelled = PrivateCompanionManager.body(owner.getUUID()).orElseThrow();
+		helper.assertTrue(MindSessionManager.activeFor(shadowId)
+				.filter(session -> session.id().equals(sessionId)).isPresent(),
+				"Shadow entry released its Realm participant authority too early");
+		helper.assertTrue(PrivateCompanionManager.travelBody(travelled, helper.getLevel(), owner.position()),
+				"Shadow could not return independently from the Realm");
+		helper.assertFalse(MindSessionManager.isParticipating(shadowId),
+				"Returned Shadow retained its Realm participant authority");
+		helper.assertTrue(MindSessionManager.activeFor(owner.getUUID())
+				.filter(session -> session.id().equals(sessionId)).isPresent(),
+				"Independent Shadow return unlocked the surviving Realm owner");
+		MindSessionManager.participantUnavailable(owner.getUUID());
+		PrivateCompanionManager.forget(owner);
+		owner.removeTag(SkillSystem.DARKNESS_TAG);
+		owner.getInventory().clearContent();
+		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 80)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void realmTrackedMobReturnClearsOnlyItsParticipantIndex(GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		owner.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		var mob = helper.spawn(net.minecraft.world.entity.EntityTypes.COW, new BlockPos(2, 1, 3));
+		java.util.UUID mobId = mob.getUUID();
+		java.util.UUID sessionId = java.util.UUID.randomUUID();
+		helper.assertTrue(MindSessionManager.acquire(sessionId, MindSessionManager.Kind.REALM,
+				owner.getUUID(), java.util.List.of(
+						new MindSessionManager.Participant(owner.getUUID(), MindSessionManager.Role.OWNER),
+						new MindSessionManager.Participant(mobId, MindSessionManager.Role.TARGET)))
+				.accepted(), "Mob-return fixture could not acquire Realm authority");
+		helper.assertTrue(com.powers.power.travel.MindscapeMobReturnTracker.track(owner.getUUID(), mob),
+				"Mob-return fixture could not record the Realm origin");
+		mob.setPos(origin.getX() + 6.5, origin.getY(), origin.getZ() + 0.5);
+		helper.assertTrue(com.powers.power.travel.MindscapeMobReturnTracker.returnToOrigin(mob),
+				"Tracked Realm mob could not return independently");
+		helper.assertFalse(MindSessionManager.isParticipating(mobId),
+				"Returned tracked Realm mob retained its participant index");
+		helper.assertTrue(MindSessionManager.activeFor(owner.getUUID())
+				.filter(session -> session.id().equals(sessionId)).isPresent(),
+				"Independent mob return unlocked the surviving Realm owner");
+		MindSessionManager.participantUnavailable(owner.getUUID());
+		helper.succeed();
+	}
+
 	@GameTest(maxTicks = 80)
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void realmJourneyReturnsOwnedMobAfterItLeavesTheCasterRadius(GameTestHelper helper) {

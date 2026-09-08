@@ -151,11 +151,44 @@ public final class MindSessionManager {
 		return true;
 	}
 
-	/** Applies target-loss cleanup without letting one Soul Link death erase surviving links. */
+	/**
+	 * Ends one returned Realm member's authority without unlocking survivors. If the declared owner
+	 * returns first, ownership moves deterministically to the first remaining participant; the
+	 * session is released only after its final member returns.
+	 */
+	public static synchronized UnavailableOutcome realmParticipantReturned(UUID sessionId,
+			UUID participantId) {
+		Session session = SESSIONS.get(sessionId);
+		if (session == null || session.kind() != Kind.REALM || participantId == null
+				|| !sessionId.equals(SESSION_BY_PARTICIPANT.get(participantId))) {
+			return UnavailableOutcome.NONE;
+		}
+		List<Participant> remaining = session.participants().stream()
+				.filter(participant -> !participant.id().equals(participantId)).toList();
+		SESSION_BY_PARTICIPANT.remove(participantId, sessionId);
+		if (remaining.isEmpty()) {
+			SESSIONS.remove(sessionId, session);
+			return UnavailableOutcome.RELEASED_SESSION;
+		}
+		if (participantId.equals(session.ownerId())) {
+			UUID successor = remaining.getFirst().id();
+			remaining = remaining.stream().map(participant -> participant.id().equals(successor)
+					? new Participant(successor, Role.OWNER) : participant).toList();
+			SESSIONS.put(sessionId, new Session(session.id(), session.kind(), successor, remaining));
+		} else {
+			SESSIONS.put(sessionId, new Session(session.id(), session.kind(), session.ownerId(), remaining));
+		}
+		return UnavailableOutcome.REMOVED_PARTICIPANT;
+	}
+
+	/** Applies participant-loss cleanup without letting one independent member erase survivors. */
 	public static synchronized UnavailableOutcome participantUnavailable(UUID participantId) {
 		Optional<Session> active = activeFor(participantId);
 		if (active.isEmpty()) return UnavailableOutcome.NONE;
 		Session session = active.get();
+		if (session.kind() == Kind.REALM) {
+			return realmParticipantReturned(session.id(), participantId);
+		}
 		if (session.kind() == Kind.SOUL_LINK && !session.ownerId().equals(participantId)) {
 			return removeParticipant(session.id(), participantId)
 					? UnavailableOutcome.REMOVED_PARTICIPANT : UnavailableOutcome.NONE;

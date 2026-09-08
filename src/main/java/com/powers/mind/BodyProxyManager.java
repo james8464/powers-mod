@@ -349,8 +349,7 @@ public final class BodyProxyManager {
 			active.body().discard();
 			active.level().getChunkSource().removeTicketWithRadius(BODY_TICKET, active.chunk(),
 					BodyProxyTicketRules.radius());
-			if (active.ownsMindSession()) MindSessionManager.release(active.mindSessionId());
-			else MindSessionManager.removeParticipant(active.mindSessionId(), active.ownerId());
+			releaseParticipantAuthority(active);
 		}
 		PlayerPowers.get(player).setMindBody(null);
 	}
@@ -403,7 +402,15 @@ public final class BodyProxyManager {
 		active.body().discard();
 		active.level().getChunkSource().removeTicketWithRadius(BODY_TICKET, active.chunk(),
 				BodyProxyTicketRules.radius());
-		if (active.ownsMindSession()) MindSessionManager.release(active.mindSessionId());
+		releaseParticipantAuthority(active);
+	}
+
+	private static void releaseParticipantAuthority(Active active) {
+		boolean realm = MindSessionManager.session(active.mindSessionId())
+				.map(session -> session.kind() == MindSessionManager.Kind.REALM).orElse(false);
+		if (realm) {
+			MindSessionManager.realmParticipantReturned(active.mindSessionId(), active.ownerId());
+		} else if (active.ownsMindSession()) MindSessionManager.release(active.mindSessionId());
 		else MindSessionManager.removeParticipant(active.mindSessionId(), active.ownerId());
 	}
 

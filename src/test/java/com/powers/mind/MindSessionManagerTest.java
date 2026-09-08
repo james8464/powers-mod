@@ -16,6 +16,8 @@ class MindSessionManagerTest {
 	private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-000000000010");
 	private static final UUID HOST = UUID.fromString("00000000-0000-0000-0000-000000000020");
 	private static final UUID OTHER = UUID.fromString("00000000-0000-0000-0000-000000000030");
+	private static final UUID MOB = UUID.fromString("00000000-0000-0000-0000-000000000040");
+	private static final UUID SHADOW = UUID.fromString("00000000-0000-0000-0000-000000000050");
 
 	@AfterEach
 	void clearSessions() {
@@ -115,6 +117,62 @@ class MindSessionManagerTest {
 		assertEquals(MindSessionManager.UnavailableOutcome.RELEASED_SESSION,
 				MindSessionManager.participantUnavailable(HOST));
 		assertFalse(MindSessionManager.isParticipating(OWNER));
+	}
+
+	@Test
+	void unavailableRealmMembersLeaveEverySurvivorExclusiveUntilItsOwnLifecycleEnds() {
+		MindSessionManager.acquire(FIRST_SESSION, MindSessionManager.Kind.REALM, OWNER,
+				List.of(new MindSessionManager.Participant(OWNER, MindSessionManager.Role.OWNER),
+						new MindSessionManager.Participant(HOST, MindSessionManager.Role.TARGET),
+						new MindSessionManager.Participant(MOB, MindSessionManager.Role.TARGET),
+						new MindSessionManager.Participant(SHADOW, MindSessionManager.Role.SHADOW)));
+
+		assertEquals(MindSessionManager.UnavailableOutcome.REMOVED_PARTICIPANT,
+				MindSessionManager.participantUnavailable(HOST));
+		assertEquals(MindSessionManager.UnavailableOutcome.REMOVED_PARTICIPANT,
+				MindSessionManager.participantUnavailable(MOB));
+		assertEquals(MindSessionManager.UnavailableOutcome.REMOVED_PARTICIPANT,
+				MindSessionManager.participantUnavailable(SHADOW));
+
+		assertFalse(MindSessionManager.isParticipating(HOST));
+		assertFalse(MindSessionManager.isParticipating(MOB));
+		assertFalse(MindSessionManager.isParticipating(SHADOW));
+		assertTrue(MindSessionManager.isParticipating(OWNER));
+		MindSessionManager.Admission nested = MindSessionManager.acquire(SECOND_SESSION,
+				MindSessionManager.Kind.ASTRAL_PROJECTION, OWNER,
+				List.of(new MindSessionManager.Participant(OWNER, MindSessionManager.Role.OWNER)));
+		assertFalse(nested.accepted());
+		assertEquals(MindSessionManager.Refusal.PARTICIPANT_BUSY, nested.refusal());
+		assertEquals(MindSessionManager.Kind.REALM, nested.existingKind());
+	}
+
+	@Test
+	void ownerFirstRealmReturnTransfersAuthorityUntilEachRemainingMemberReturns() {
+		MindSessionManager.acquire(FIRST_SESSION, MindSessionManager.Kind.REALM, OWNER,
+				List.of(new MindSessionManager.Participant(OWNER, MindSessionManager.Role.OWNER),
+						new MindSessionManager.Participant(HOST, MindSessionManager.Role.TARGET),
+						new MindSessionManager.Participant(OTHER, MindSessionManager.Role.TARGET)));
+
+		assertEquals(MindSessionManager.UnavailableOutcome.REMOVED_PARTICIPANT,
+				MindSessionManager.realmParticipantReturned(FIRST_SESSION, OWNER));
+		MindSessionManager.Session afterOwner = MindSessionManager.session(FIRST_SESSION).orElseThrow();
+		assertEquals(HOST, afterOwner.ownerId());
+		assertEquals(List.of(HOST, OTHER), afterOwner.participants().stream()
+				.map(MindSessionManager.Participant::id).toList());
+		assertEquals(MindSessionManager.Role.OWNER, afterOwner.participants().getFirst().role());
+		assertFalse(MindSessionManager.isParticipating(OWNER));
+		assertTrue(MindSessionManager.isParticipating(HOST));
+		assertTrue(MindSessionManager.isParticipating(OTHER));
+
+		assertEquals(MindSessionManager.UnavailableOutcome.REMOVED_PARTICIPANT,
+				MindSessionManager.realmParticipantReturned(FIRST_SESSION, HOST));
+		assertEquals(OTHER, MindSessionManager.session(FIRST_SESSION).orElseThrow().ownerId());
+		assertTrue(MindSessionManager.isParticipating(OTHER));
+		assertEquals(MindSessionManager.UnavailableOutcome.RELEASED_SESSION,
+				MindSessionManager.realmParticipantReturned(FIRST_SESSION, OTHER));
+		assertEquals(MindSessionManager.UnavailableOutcome.NONE,
+				MindSessionManager.realmParticipantReturned(FIRST_SESSION, OTHER));
+		assertTrue(MindSessionManager.session(FIRST_SESSION).isEmpty());
 	}
 
 	@Test

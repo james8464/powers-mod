@@ -180,6 +180,10 @@ There are ten usable crystal items exposing 11 distinct actions. Multi-mode crys
 | Light | Vulnerable group travel to the Light Realm for the caster and up to 15 living players, mobs, or Shadow bodies within two blocks. No consent or special group mode is required; each player receives an independent vulnerable body session and ordinary mobs retain a bounded return origin. |
 | Dark | Equivalent automatic vulnerable group travel to the Dark Realm under corrupted presentation. |
 
+Realm authority retires with each member's independent body or return lifecycle. Death, disconnect,
+and owner-first return do not unlock surviving detached travellers; the bounded cohort authority
+transfers deterministically until its final member leaves.
+
 ## Mythic artifacts and combat UI
 
 Crouch-right-click the Shadow Sword or Heavenly Partisan for a non-pausing eight-segment wheel. Hover and release crouch, click, or press `1`–`8` to select a favourite; release-to-cast is a separately persisted opt-in and defaults off. The centre opens a virtual scrolling icon library with Favourites, Recent, Innate, Crystals, and alignment-action tabs plus localized global search. Its fixed visible widget pool does not grow or rebuild while scrolling thousands of datapack actions. Entries show glyph, translated name, registry key, exact live cost/savings, cooldown progress, toggle, rank lock, and applicable size/gravity variant. Click a searched result and then slot `1`–`8` to request a bind in two interactions; the server validates it and refreshes the loadout before that action can execute. Loadouts and decode-bounded per-alignment recents persist, retired keys reconcile without duplicates, and newer revision refreshes retain the scroll position and any still-canonical selection.

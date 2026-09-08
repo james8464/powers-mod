@@ -214,6 +214,7 @@ public final class PrivateCompanionManager {
 			session.body = result.body();
 			BODY_OWNERS.put(result.body().getUUID(), owner.getUUID());
 		}
+		if (result.moved()) session.completedRealmTravel(previous, (ServerLevel) owner.level());
 		return result.moved();
 	}
 
@@ -229,10 +230,12 @@ public final class PrivateCompanionManager {
 		ShadowCompanionEntity movedShadow = ShadowTravelRuntime.move(body, targetLevel,
 				destination, body.getYRot(), body.getXRot());
 		if (movedShadow == null) return false;
-		if (movedShadow == body) return true;
-		BODY_OWNERS.remove(body.getUUID());
-		session.body = movedShadow;
-		BODY_OWNERS.put(movedShadow.getUUID(), ownerId);
+		if (movedShadow != body) {
+			BODY_OWNERS.remove(body.getUUID());
+			session.body = movedShadow;
+			BODY_OWNERS.put(movedShadow.getUUID(), ownerId);
+		}
+		session.completedRealmTravel(body, targetLevel);
 		return true;
 	}
 
@@ -274,6 +277,7 @@ public final class PrivateCompanionManager {
 		ShadowCombatController.clearBody(body.getUUID());
 		ShadowConjurationManager.abandon(ownerId);
 		PrivateCompanionSession session = SESSIONS.remove(ownerId);
+		if (session != null) session.releaseRealmParticipation();
 		REQUESTED.remove(ownerId);
 		REVEALED.remove(ownerId);
 		ServerPlayer owner = entity.level().getServer().getPlayerList().getPlayer(ownerId);
@@ -293,6 +297,7 @@ public final class PrivateCompanionManager {
 		REQUESTED.remove(owner.getUUID());
 		REVEALED.remove(owner.getUUID());
 		SESSIONS.remove(owner.getUUID(), session);
+		session.releaseRealmParticipation();
 		removeClientViewers(owner, session);
 		if (session.body != null) BODY_OWNERS.remove(session.body.getUUID());
 		if (session.body != null) ShadowCombatController.clearBody(session.body.getUUID());
@@ -394,6 +399,7 @@ public final class PrivateCompanionManager {
 			ShadowStatusSync.inactive(owner);
 			return;
 		}
+		removed.releaseRealmParticipation();
 		removeClientViewers(owner, removed);
 		if (removed.body != null) {
 			if (ShadowConjurationManager.active(owner.getUUID())) {
@@ -412,6 +418,7 @@ public final class PrivateCompanionManager {
 	public static void clear() {
 		for (Map.Entry<UUID, PrivateCompanionSession> entry : Map.copyOf(SESSIONS).entrySet()) {
 			PrivateCompanionSession session = entry.getValue();
+			session.releaseRealmParticipation();
 			ServerPlayer owner = session.body == null ? null : session.body.level().getServer()
 					.getPlayerList().getPlayer(entry.getKey());
 			if (session.body != null && ShadowConjurationManager.active(entry.getKey())) {
@@ -434,4 +441,5 @@ public final class PrivateCompanionManager {
 		com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
 		com.powers.knowledge.MagicAttemptJournal.global().clear();
 	}
+
 }

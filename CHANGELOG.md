@@ -6,7 +6,10 @@
   teleport marking, possession, Dreamwalking, Soul Compass, Soul Link, and Shadow participation.
   Nested sessions now fail atomically with the conflicting participant and session kind, while
   body/host death, return, disconnect, expiry, and target loss follow the generated 924-row
-  lifecycle contract without disturbing unrelated sessions or surviving Soul Link targets.
+  lifecycle contract without disturbing unrelated sessions or surviving Soul Link targets. Realm
+  authority now retires per member, so death, disconnect, independent return, or owner-first return
+  cannot unlock a surviving detached traveller; tracked mobs and Shadow release their exact member
+  authority when their own return lifecycle ends.
 
 - Added INT-008 source/token/body-scoped temporal leases and explicit control/world clocks.
   External tick-state writes immediately supersede POWERS without being undone; recovery retires
