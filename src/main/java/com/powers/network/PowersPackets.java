@@ -8,6 +8,8 @@ import com.powers.player.PlayerEnergyHistory;
 import com.powers.power.Ability;
 import com.powers.power.AbilityActivationService;
 import com.powers.power.Power;
+import com.powers.power.PowerEnergy;
+import com.powers.power.PowerRegistry;
 import com.powers.power.ActivationCooldowns;
 import com.powers.power.AmethystDampening;
 import com.powers.power.state.EntityFreezeController;
@@ -308,6 +310,8 @@ public final class PowersPackets {
 					? 0 : Math.max(0, ability.reactivationTicks(player, data)));
 		}
 		var energyHistory = PlayerEnergyHistory.snapshot(player);
+		Ability sizeMorph = PowerRegistry.get("size_shift").ability();
+		boolean sizeMorphActive = data.isToggleActive("powers:size_shift");
 		PowerStatePayload payload = new PowerStatePayload(
 				data.getSlotIds(),
 				data.getActiveToggles(),
@@ -326,7 +330,11 @@ public final class PowersPackets {
 				energyHistory.consumed(),
 				energyHistory.restored(),
 				energyHistory.breakdown().stream()
-						.map(com.powers.player.EnergyHistorySnapshot.Breakdown::amount).toList());
+						.map(com.powers.player.EnergyHistorySnapshot.Breakdown::amount).toList(),
+				sizeMorphActive ? player.getScale() : 1.0,
+				player.blockInteractionRange(),
+				player.entityInteractionRange(),
+				sizeMorphActive ? PowerEnergy.ongoingCost(player, sizeMorph) : 0);
 		if (payload.equals(LAST_SENT_STATE.get(player.getUUID()))) return;
 		LAST_SENT_STATE.put(player.getUUID(), payload);
 		PowersPlayNetworking.send(player, payload, () -> LAST_SENT_STATE.remove(player.getUUID()));

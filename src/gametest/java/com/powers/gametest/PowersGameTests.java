@@ -118,6 +118,187 @@ public final class PowersGameTests {
 
 	@GameTest
 	@SuppressWarnings("removal")
+	public void innateSizeMorphRejectsMountedActivationWithoutChangingEitherBody(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		var horse = net.minecraft.world.entity.EntityTypes.HORSE.create(helper.getLevel(),
+				net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
+		helper.assertTrue(horse != null, "Mount fixture could not create a horse");
+		horse.snapTo(player.getX(), player.getY(), player.getZ());
+		helper.getLevel().addFreshEntity(horse);
+		helper.assertTrue(player.startRiding(horse, true, true),
+				"Mount fixture could not attach its player passenger");
+		var data = com.powers.player.PlayerPowers.get(player);
+		var ability = new com.powers.power.abilities.SizeMorphAbility();
+		data.setSizeMorphOption(1);
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		try {
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+					player, ability, ability.id().toString())
+					== com.powers.power.AbilityActivationService.Result.FAILED,
+					"Mounted Size Morphing entered the authoritative toggle pipeline");
+			helper.assertTrue(Math.abs(player.getScale() - 1.0F) < 0.001F,
+					"Rejected mounted activation changed the passenger scale");
+			helper.assertFalse(data.isToggleActive(ability.id().toString()),
+					"Rejected mounted activation retained toggle ownership");
+			helper.assertTrue(player.getVehicle() == horse,
+					"Rejected mounted activation silently dismounted the player");
+		} finally {
+			TestingOverrides.clear(player.getUUID());
+			player.stopRiding();
+			horse.discard();
+		}
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
+	public void innateSizeMorphRelinquishesItsBodyWhenThePlayerMounts(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		var data = com.powers.player.PlayerPowers.get(player);
+		var ability = new com.powers.power.abilities.SizeMorphAbility();
+		data.setSizeMorphOption(1);
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		var horse = net.minecraft.world.entity.EntityTypes.HORSE.create(helper.getLevel(),
+				net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
+		helper.assertTrue(horse != null, "Mount fixture could not create a horse");
+		try {
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+					player, ability, ability.id().toString())
+					== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+					"Unmounted half-scale form did not activate");
+			horse.snapTo(player.getX(), player.getY(), player.getZ());
+			helper.getLevel().addFreshEntity(horse);
+			helper.assertTrue(player.startRiding(horse, true, true),
+					"Mount fixture could not attach its morphed passenger");
+			ability.tickActive(player, data);
+			helper.assertTrue(Math.abs(player.getScale() - 1.0F) < 0.001F,
+					"Mounted player retained the transformed body");
+			helper.assertFalse(data.isToggleActive(ability.id().toString()),
+					"Mounted player retained stale Size Morphing toggle ownership");
+			helper.assertTrue(player.getVehicle() == horse,
+					"Size Morphing cleanup silently dismounted the player");
+		} finally {
+			TestingOverrides.clear(player.getUUID());
+			player.stopRiding();
+			horse.discard();
+		}
+		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 20)
+	@SuppressWarnings("removal")
+	public void innateSizeMorphUsesDoorwayFallbackThenRestoresAuthoritativeReachAndMass(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos feet = helper.absolutePos(new BlockPos(4, 2, 2));
+		player.snapTo(feet.getX() + 0.5, feet.getY(), feet.getZ() + 0.5);
+		player.setYRot(0.0F);
+		player.setXRot(0.0F);
+		for (int x = -5; x <= 5; x++) for (int y = 0; y <= 9; y++) for (int z = -2; z <= 12; z++) {
+			helper.getLevel().setBlockAndUpdate(feet.offset(x, y, z), Blocks.AIR.defaultBlockState());
+		}
+		for (int x = -3; x <= 3; x++) {
+			for (int y = 0; y <= 7; y++) {
+				helper.getLevel().setBlockAndUpdate(feet.offset(x, y, 2),
+						x == 0 && y < 2 ? Blocks.AIR.defaultBlockState()
+								: Blocks.STONE.defaultBlockState());
+			}
+		}
+		var data = com.powers.player.PlayerPowers.get(player);
+		data.setSkillLevel(player, 10);
+		data.setSizeMorphOption(11);
+		var ability = new com.powers.power.abilities.SizeMorphAbility();
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		try {
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+					player, ability, ability.id().toString())
+					== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+					"Doorway prediction rejected the safe fallback with the selected form");
+			helper.assertTrue(Math.abs(player.getScale() - 1.0F) < 0.001F,
+					"Fourfold form did not fall back before the vanilla doorway");
+			helper.assertTrue(com.powers.power.PowerEnergy.ongoingCost(player, ability) == 0,
+					"Recurring drain did not follow the actually applied doorway form");
+			helper.assertTrue(Math.abs(player.blockInteractionRange() - 4.5) < 0.001,
+					"Doorway fallback desynchronized authoritative block reach");
+			helper.assertTrue(Math.abs(player.entityInteractionRange() - 3.0) < 0.001,
+					"Doorway fallback desynchronized authoritative entity reach");
+			player.snapTo(feet.getX() + 0.5, feet.getY(), feet.getZ() + 2.5);
+			ability.tickActive(player, data);
+			helper.assertTrue(helper.getLevel().noCollision(player, player.getBoundingBox()),
+					"Fallback body suffocated inside the standard doorway fixture");
+
+			for (int x = -3; x <= 3; x++) {
+				for (int y = 0; y <= 7; y++) {
+					helper.getLevel().setBlockAndUpdate(feet.offset(x, y, 2), Blocks.AIR.defaultBlockState());
+				}
+			}
+			player.snapTo(feet.getX() + 0.5, feet.getY(), feet.getZ() + 4.5);
+			ability.tickActive(player, data);
+			helper.assertTrue(Math.abs(player.getScale() - 4.0F) < 0.001F,
+					"Clear space did not restore the selected fourfold form: scale="
+							+ player.getScale() + ", pose=" + player.getPose()
+							+ ", box=" + player.getBoundingBox());
+			helper.assertTrue(Math.abs(player.blockInteractionRange() - 12.0) < 0.001,
+					"Fourfold block reach exceeded or missed its authoritative cap");
+			helper.assertTrue(Math.abs(player.entityInteractionRange() - 10.0) < 0.001,
+					"Fourfold entity reach exceeded or missed its authoritative cap");
+			helper.assertTrue(Math.abs(player.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE) - 0.8) < 0.001,
+					"Fourfold body mass did not apply bounded knockback resistance");
+			helper.assertTrue(com.powers.power.PowerEnergy.ongoingCost(player, ability) == 9,
+					"Rank-adjusted recurring drain did not restore with the selected fourfold form");
+		} finally {
+			if (data.isToggleActive(ability.id().toString())) {
+				com.powers.power.AbilityActivationService.activate(
+						player, ability, ability.id().toString(), true);
+			}
+			TestingOverrides.clear(player.getUUID());
+		}
+		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 20)
+	@SuppressWarnings("removal")
+	public void innateSizeMorphCrawlPoseIsReleasedWhenTheToggleEnds(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos feet = helper.absolutePos(new BlockPos(4, 2, 4));
+		player.snapTo(feet.getX() + 0.5, feet.getY(), feet.getZ() + 0.5);
+		player.setYRot(0.0F);
+		for (int z = -1; z <= 3; z++) {
+			helper.getLevel().setBlockAndUpdate(feet.offset(0, 1, z), Blocks.STONE.defaultBlockState());
+		}
+		var data = com.powers.player.PlayerPowers.get(player);
+		data.setSizeMorphOption(com.powers.power.abilities.SizeMorphRules.normalOption());
+		var ability = new com.powers.power.abilities.SizeMorphAbility();
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		try {
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+					player, ability, ability.id().toString())
+					== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+					"One-block tunnel rejected the volume-aware crawl body");
+			helper.assertTrue(player.getPose() == net.minecraft.world.entity.Pose.SWIMMING,
+					"One-block tunnel did not enter the compact crawl pose");
+			helper.assertTrue(helper.getLevel().noCollision(player, player.getBoundingBox()),
+					"Compact crawl body collided with the one-block tunnel");
+			for (int z = -1; z <= 3; z++) {
+				helper.getLevel().setBlockAndUpdate(feet.offset(0, 1, z), Blocks.AIR.defaultBlockState());
+			}
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+					player, ability, ability.id().toString(), true)
+					== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+					"Clear-space toggle-off was rejected after crawling");
+			helper.assertTrue(player.getPose() == net.minecraft.world.entity.Pose.STANDING,
+					"Toggle-off retained the forced crawl pose in clear space");
+		} finally {
+			if (data.isToggleActive(ability.id().toString())) {
+				com.powers.power.AbilityActivationService.activate(
+						player, ability, ability.id().toString(), true);
+			}
+			TestingOverrides.clear(player.getUUID());
+		}
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
 	public void doubleHealthHasARealBaselineAndCleansUpOnToggleOff(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		var data = com.powers.player.PlayerPowers.get(player);
