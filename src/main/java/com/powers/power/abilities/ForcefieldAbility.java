@@ -5,6 +5,8 @@ import com.powers.entity.PlayerLikeTarget;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.state.MagicShieldManager;
+import com.powers.power.damage.LayeredDamageLedger;
+import com.powers.power.damage.LayeredDamageResolver;
 import com.powers.power.state.PowerEntityState;
 import com.powers.progression.ScaledMagicValues;
 import com.powers.protection.PowerProtection;
@@ -88,6 +90,9 @@ public class ForcefieldAbility extends Ability {
 		MagicShieldManager.Impact impact = MagicShieldManager.global().absorb(
 				shieldOwner.getUUID(), amount, tick);
 		if (!impact.blocked()) return false;
+		LayeredDamageLedger.global().recordWard(new LayeredDamageResolver.WardDecision(
+				true, amount, impact.blockedDamage(), impact.integritySpent(),
+				impact.integrity(), impact.shattered()));
 		ServerLevel level = (ServerLevel) visualTarget.level();
 		Vec3 center = visualTarget.position().add(0, 1, 0);
 		int color = impact.shattered() ? 0xE8F8FF : impact.fractureStage() == 0 ? 0x40C4FF : 0x8ADCF7;

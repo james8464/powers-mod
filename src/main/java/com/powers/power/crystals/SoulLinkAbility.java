@@ -11,6 +11,8 @@ import com.powers.power.PowerDamage;
 import com.powers.power.AmethystDampening;
 import com.powers.power.MagicUseGate;
 import com.powers.power.SoulLinkMath;
+import com.powers.power.damage.LayeredDamageLedger;
+import com.powers.power.damage.LayeredDamageResolver;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
@@ -135,6 +137,7 @@ public class SoulLinkAbility extends Ability {
 				MirrorBaseline mirror = MIRROR_BASELINES.get(entity.getUUID());
 				float suffered = SoulLinkMath.woundAfterMirror(link.lastHealth(),
 						mirror == null ? null : mirror.health(), entity.getHealth());
+				if (mirror != null) LayeredDamageLedger.global().recordRecursiveMirrorSuppressed();
 				if (suffered > damage) {
 					damage = suffered;
 					wounded = entity;
@@ -149,13 +152,15 @@ public class SoulLinkAbility extends Ability {
 					LivingEntity entity = link.entity();
 					// the wounded soul itself doesn't take its own wound twice
 					if (entity != null && entity != wounded) {
-						float mirrored = SoulLinkMath.cappedMirror(
-								(float) (damage * active.damageMultiplier()), link.remainingMirrorCap());
+						LayeredDamageResolver.MirrorDecision mirror = LayeredDamageResolver.mirror(
+								damage, active.damageMultiplier(), link.remainingMirrorCap());
+						float mirrored = mirror.forwardedDamage();
 						if (mirrored <= 0.0F) continue;
 						float beforeMirror = entity.getHealth();
 						entity.hurtServer(level, PowerDamage.source(caster), mirrored);
-						appliedThisPass.put(entity.getUUID(),
-								SoulLinkMath.wound(beforeMirror, entity.getHealth()));
+						float applied = LayeredDamageResolver.health(beforeMirror, entity.getHealth());
+						appliedThisPass.put(entity.getUUID(), applied);
+						LayeredDamageLedger.global().recordMirror(mirror, applied);
 						MIRROR_BASELINES.put(entity.getUUID(),
 								new MirrorBaseline(entity.getHealth(), now));
 						PowerFx.coloredBurst(level, entity.position().add(0, 1, 0), 0x9C27B0, 6, 0.4);

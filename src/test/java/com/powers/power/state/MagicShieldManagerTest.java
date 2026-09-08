@@ -29,6 +29,8 @@ class MagicShieldManagerTest {
 		assertEquals(13.0f, first.integrity(), 0.001f);
 		assertTrue(second.blocked());
 		assertTrue(second.shattered());
+		assertEquals(20.0F, second.blockedDamage());
+		assertEquals(13.0F, second.integritySpent());
 		assertFalse(manager.active(owner, 11));
 	}
 

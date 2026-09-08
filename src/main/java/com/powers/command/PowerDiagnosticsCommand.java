@@ -20,6 +20,7 @@ import com.powers.mind.PersistentDimensionDiagnostics;
 import com.powers.network.NamedLivingTargetIndex;
 import com.powers.power.AmethystDampening;
 import com.powers.power.ConcordCastManager;
+import com.powers.power.damage.LayeredDamageLedger;
 import com.powers.power.artifact.ArtifactFieldManager;
 import com.powers.power.artifact.ArtifactGuardianSummons;
 import com.powers.power.travel.TravelChunkLoader;
@@ -43,6 +44,7 @@ final class PowerDiagnosticsCommand {
 		var server = context.getSource().getServer();
 		RuntimeDiagnosticSnapshot snapshot = snapshot(server);
 		for (String line : snapshot.lines()) send(context, line);
+		send(context, LayeredDamageLedger.global().snapshot().line());
 		send(context, "configValidation: " + PowersConfigLoader.validationReport().summary());
 		var audit = OperatorAudit.snapshot();
 		send(context, "operatorAudit: total=" + audit.total());

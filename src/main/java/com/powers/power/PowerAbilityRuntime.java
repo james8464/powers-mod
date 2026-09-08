@@ -151,6 +151,7 @@ public final class PowerAbilityRuntime {
 		DreamwalkingAbility.clearAll(server);
 		InfernoAbility.clearAll();
 		SoulLinkAbility.clearAll();
+		com.powers.power.damage.LayeredDamageLedger.global().clear();
 		SizeShiftAbility.clearAll();
 		SpeedBurstAbility.clearAll();
 		EnergyBeamAbility.clearAll();

@@ -654,6 +654,85 @@ public final class PowersGameTests {
 		helper.succeed();
 	}
 
+	@GameTest
+	@SuppressWarnings("removal")
+	public void layeredDamageUsesWardThenSoulLinkThenHealthExactlyOnce(GameTestHelper helper) {
+		MagicShieldManager.global().clear();
+		com.powers.power.crystals.SoulLinkAbility.clearAll();
+		com.powers.power.damage.LayeredDamageLedger.global().clear();
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		var first = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE,
+				new BlockPos(3, 1, 2));
+		var second = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE,
+				new BlockPos(4, 1, 2));
+		first.setNoAi(true);
+		second.setNoAi(true);
+		MagicShieldManager.global().raise(first.getUUID(), 40.0F, Long.MAX_VALUE);
+		helper.assertTrue(com.powers.magic.runtime.CastScalingContext.withSource(
+				com.powers.magic.runtime.CastSource.CRYSTAL,
+				() -> new com.powers.power.crystals.SoulLinkAbility().activate(
+						caster, com.powers.player.PlayerPowers.get(caster))),
+				"Soul Link activation failed");
+		float firstBefore = first.getHealth();
+		float secondBefore = second.getHealth();
+
+		helper.assertFalse(first.hurtServer(helper.getLevel(), first.damageSources().generic(), 50_000.0F),
+				"Forcefield overkill reached health before Soul Link");
+		com.powers.power.crystals.SoulLinkAbility.tickAll(helper.getLevel().getServer());
+		helper.assertTrue(first.getHealth() == firstBefore && second.getHealth() == secondBefore,
+				"A shielded wound leaked into Soul Link or health");
+		helper.assertFalse(MagicShieldManager.global().active(first.getUUID(),
+				helper.getLevel().getServer().getTickCount()), "Overkill did not sacrifice the ward");
+
+		MagicShieldManager.global().raise(second.getUUID(), 2.0F, Long.MAX_VALUE);
+		boolean primaryDamaged = first.hurtServer(
+				helper.getLevel(), first.damageSources().generic(), 3.0F);
+		helper.assertTrue(primaryDamaged && first.getHealth() < firstBefore,
+				"The first unshielded wound never reached health: result=" + primaryDamaged
+						+ "; firstHealth=" + first.getHealth() + "; links="
+						+ com.powers.power.crystals.SoulLinkAbility.snapshots());
+		com.powers.power.crystals.SoulLinkAbility.tickAll(helper.getLevel().getServer());
+		helper.assertTrue(second.getHealth() == secondBefore,
+				"Mirrored damage reached health before the recipient's forcefield");
+		helper.assertFalse(MagicShieldManager.global().active(second.getUUID(),
+				helper.getLevel().getServer().getTickCount()),
+				"The mirrored wound did not sacrifice the recipient ward: "
+						+ com.powers.power.damage.LayeredDamageLedger.global().snapshot().line()
+						+ "; links=" + com.powers.power.crystals.SoulLinkAbility.snapshots());
+
+		// This GameTest deliberately exercises two independent wounds in one server
+		// tick, so remove vanilla's post-hit immunity between those stimuli.
+		first.invulnerableTime = 0;
+		boolean secondPrimaryDamaged = first.hurtServer(
+				helper.getLevel(), first.damageSources().generic(), 3.0F);
+		helper.assertTrue(secondPrimaryDamaged,
+				"The second independent wound was rejected before layer ordering");
+		com.powers.power.crystals.SoulLinkAbility.tickAll(helper.getLevel().getServer());
+		float secondAfterMirror = second.getHealth();
+		helper.assertTrue(secondAfterMirror < secondBefore,
+				"Soul Link did not forward the unshielded health wound");
+		com.powers.power.crystals.SoulLinkAbility.tickAll(helper.getLevel().getServer());
+		helper.assertTrue(second.getHealth() == secondAfterMirror,
+				"Mirrored damage recursively bounced through the link");
+
+		var accounting = com.powers.power.damage.LayeredDamageLedger.global().snapshot();
+		helper.assertTrue(accounting.wardBlockedDamage() >= 50_000.0,
+				"Diagnostics omitted sacrificial no-overflow absorption");
+		helper.assertTrue(accounting.wardIntegritySpent() == 42.0,
+				"Diagnostics double-consumed or invented ward integrity");
+		helper.assertTrue(accounting.mirrorForwardedDamage() > accounting.mirrorHealthDamage()
+				&& accounting.mirrorHealthDamage() > 0.0,
+				"Diagnostics did not distinguish shielded forwarding from health damage");
+		helper.assertTrue(accounting.recursiveMirrorsSuppressed() > 0L,
+				"Diagnostics did not observe the recursion guard");
+		com.powers.power.crystals.SoulLinkAbility.clearAll();
+		MagicShieldManager.global().clear();
+		com.powers.power.damage.LayeredDamageLedger.global().clear();
+		helper.succeed();
+	}
+
 	@GameTest(maxTicks = 90)
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void hearthSanctuaryRaisesIndependentSacrificialWards(GameTestHelper helper) {
