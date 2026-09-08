@@ -19,6 +19,7 @@ import com.powers.entity.RealmHerald;
 import com.powers.companion.ShadowCompanionEntity;
 import com.powers.boss.FirstVesselPowerCatalogue;
 import com.powers.boss.FirstVesselRitual;
+import com.powers.boss.BossReactionManager;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.FantasyWeaponItem;
 import com.powers.player.SkillSystem;
@@ -86,6 +87,60 @@ import net.minecraft.world.effect.MobEffects;
 /** Small runtime suite for mechanics that pure unit tests cannot exercise. */
 public final class PowersGameTests {
 	public PowersGameTests() {
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
+	public void bossReactionsRewardOppositionWithoutRequiringOneAlignment(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		caster.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(2, 2, 2))));
+		caster.addTag(SkillSystem.DARKNESS_TAG);
+		com.powers.player.PlayerPowers.get(caster).setDarknessLevel(caster, 10);
+		caster.setItemInHand(InteractionHand.MAIN_HAND,
+				PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		TestingOverrides.setEnergyDisabled(caster.getUUID(), true);
+		RealmHerald lightHerald = helper.spawn(PowersEntities.LIGHT_HERALD,
+				new BlockPos(4, 2, 2));
+		RealmHerald darkHerald = helper.spawn(PowersEntities.DARK_HERALD,
+				new BlockPos(6, 2, 2));
+		FirstVessel vessel = helper.spawn(PowersEntities.FIRST_VESSEL,
+				new BlockPos(8, 2, 2));
+		lightHerald.setNoAi(true);
+		darkHerald.setNoAi(true);
+		vessel.setNoAi(true);
+
+		helper.assertTrue(ArtifactWeaponManager.select(caster, ArtifactAlignment.DARKNESS,
+				"innate/forcefield", -1), "Shadow Sword rejected Forcefield");
+		helper.assertTrue(ArtifactWeaponManager.activateSelected(caster, ArtifactAlignment.DARKNESS)
+				== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+				"Dark artifact did not activate through its authoritative owner");
+		helper.assertTrue(lightHerald.hasEffect(MobEffects.GLOWING),
+				"Opposing artifact did not expose the Light Herald");
+		helper.assertFalse(darkHerald.hasEffect(MobEffects.GLOWING),
+				"Matching artifact incorrectly became mandatory boss counterplay");
+		helper.assertTrue(vessel.hasEffect(MobEffects.WEAKNESS),
+				"First Vessel did not accept the dark-aligned setup");
+
+		TestingOverrides.clear(caster.getUUID());
+
+		ConcordCastManager.clear();
+		ServerPlayer first = helper.makeMockServerPlayerInLevel();
+		ServerPlayer second = helper.makeMockServerPlayerInLevel();
+		BlockPos concordCenter = helper.absolutePos(new BlockPos(10, 2, 2));
+		first.setPos(concordCenter.getX() - 1.0, concordCenter.getY(), concordCenter.getZ());
+		second.setPos(concordCenter.getX() + 1.0, concordCenter.getY(), concordCenter.getZ());
+		FirstVessel radiantVessel = helper.spawn(PowersEntities.FIRST_VESSEL,
+				new BlockPos(10, 2, 4));
+		radiantVessel.setNoAi(true);
+		var ability = new ForcefieldAbility();
+		helper.assertFalse(ConcordCastManager.record(first, ability),
+				"First complementary cast incorrectly concorded alone");
+		helper.assertTrue(ConcordCastManager.record(second, ability),
+				"Radiant Concord did not form against the First Vessel");
+		helper.assertTrue(radiantVessel.hasEffect(MobEffects.GLOWING),
+				"Radiant Concord reaction was not readable");
+		ConcordCastManager.clear();
+		helper.succeed();
 	}
 
 	@GameTest

@@ -2,6 +2,7 @@ package com.powers.item;
 
 import com.powers.fx.PowerFx;
 import com.powers.fx.ShadowSwordFx;
+import com.powers.boss.BossReactionManager;
 import com.powers.item.artifact.ArtifactActionCatalogue;
 import com.powers.item.artifact.ArtifactActionCategory;
 import com.powers.item.artifact.ArtifactActionDefinition;
@@ -117,6 +118,10 @@ public final class ArtifactWeaponManager {
 				player, action.ability(), toggleKey(action), cooldown, CastSource.ARTIFACT);
 		if (result == AbilityActivationService.Result.ACTIVATED) {
 			castFx(player, alignment, action);
+			if (!action.ability().isToggle()
+					|| PlayerPowers.get(player).isToggleActive(toggleKey(action))) {
+				BossReactionManager.onArtifactActivated(player, alignment);
+			}
 		}
 		return result;
 	}

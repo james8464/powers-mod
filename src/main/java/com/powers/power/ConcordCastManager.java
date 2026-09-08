@@ -1,6 +1,7 @@
 package com.powers.power;
 
 import com.powers.PowerStatusEffects;
+import com.powers.boss.BossReactionManager;
 import com.powers.PowersParticles;
 import com.powers.PowersSounds;
 import com.powers.fx.PowerFx;
@@ -91,13 +92,17 @@ public final class ConcordCastManager {
 		for (LivingEntity target : BoundedEntityCandidates.living(level, bounds,
 				ConcordCastRules.MAX_IMPACT_TARGETS, target -> target != first && target != second
 						&& target.isAlive()
-						&& target.entityTags().contains(SkillSystem.DARKNESS_TAG) != darkness,
+						&& (target.entityTags().contains(SkillSystem.DARKNESS_TAG) != darkness
+								|| BossReactionManager.acceptsConcordTarget(target, darkness)),
 				Comparator.comparingDouble((LivingEntity target) -> target.position().distanceToSqr(center))
 						.thenComparing(target -> target.getUUID().toString()))) {
-			if (PowerProtection.isSafeZone(level, target.position())) continue;
-			target.hurtServer(level, PowerDamage.source(second), 48.0F);
+			if (!PowerProtection.mayHarm(second, target)) continue;
+			boolean harmed = target.hurtServer(level, PowerDamage.source(second), 48.0F);
+			if (harmed) BossReactionManager.onConcordImpact(level, target, darkness);
 			Vec3 away = target.position().subtract(center);
-			if (away.lengthSqr() > 1.0E-4) target.push(away.normalize().scale(1.4));
+			if (away.lengthSqr() > 1.0E-4 && PowerProtection.mayForceMove(second, target)) {
+				target.push(away.normalize().scale(1.4));
+			}
 			PowerFx.burst(level, target.getEyePosition(), PowersParticles.FRACTURE, 8, 0.45, 0.12);
 		}
 	}
