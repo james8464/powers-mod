@@ -6,6 +6,8 @@ import com.powers.item.ArtifactWeaponManager;
 import com.powers.power.travel.SafeDestinationResolver;
 import com.powers.power.travel.TravelKind;
 import com.powers.power.travel.TravelCohort;
+import com.powers.power.abilities.DimensionalStabilizationRules;
+import com.powers.protection.PowerProtection;
 import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
@@ -80,6 +82,44 @@ public final class ArtifactGateManager {
 		}
 	}
 
+	/**
+	 * Extends one already-existing owner gate without searching chunks or creating
+	 * a route. Both endpoints must be loaded, local, nearby, and currently legal.
+	 */
+	public static Stabilization stabilizeExisting(ServerPlayer caster, UUID gateOwner,
+			Vec3 anchorPoint, int requestedTicks) {
+		Gate gate = gateOwner == null ? null : GATES.get(gateOwner);
+		ServerLevel level = caster == null || !(caster.level() instanceof ServerLevel serverLevel)
+				? null : serverLevel;
+		boolean sameDimension = gate != null && level != null
+				&& gate.dimension().equals(level.dimension());
+		boolean entranceLoaded = sameDimension
+				&& LoadedChunks.contains(level, BlockPos.containing(gate.entrance()));
+		boolean exitLoaded = sameDimension
+				&& LoadedChunks.contains(level, BlockPos.containing(gate.exit()));
+		boolean nearby = gate != null && anchorPoint != null
+				&& (anchorPoint.distanceToSqr(gate.entrance()) <= 64.0
+				|| anchorPoint.distanceToSqr(gate.exit()) <= 64.0);
+		boolean entranceLegal = entranceLoaded && PowerProtection.mayPortal(
+				caster, level, BlockPos.containing(gate.entrance()));
+		boolean exitLegal = exitLoaded && PowerProtection.mayPortal(
+				caster, level, BlockPos.containing(gate.exit()));
+		DimensionalStabilizationRules.Decision decision =
+				DimensionalStabilizationRules.existingRoute(gate != null,
+						entranceLoaded, exitLoaded, sameDimension, nearby,
+						entranceLegal, exitLegal);
+		if (!decision.allowed()) {
+			return new Stabilization(false, decision.refusal(), 0L, 0L);
+		}
+		long now = level.getServer().getTickCount();
+		long extended = DimensionalStabilizationRules.extendedDeadline(
+				now, gate.expiresAt(), requestedTicks);
+		GATES.put(gateOwner, new Gate(gate.dimension(), gate.entrance(), gate.exit(),
+				gate.alignment(), extended));
+		return new Stabilization(true, DimensionalStabilizationRules.Refusal.NONE,
+				gate.expiresAt(), extended);
+	}
+
 	private static Vec3 findExit(ServerPlayer player, ServerLevel level) {
 		Vec3 look = player.getLookAngle();
 		for (int distance = 32; distance >= 4; distance--) {
@@ -117,4 +157,8 @@ public final class ArtifactGateManager {
 		GATES.clear();
 		RECENT_TRAVEL.clear();
 	}
+
+	public record Stabilization(boolean stabilized,
+			DimensionalStabilizationRules.Refusal refusal,
+			long previousDeadline, long deadline) { }
 }

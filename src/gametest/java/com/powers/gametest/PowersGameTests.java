@@ -819,6 +819,45 @@ public final class PowersGameTests {
 		helper.succeed();
 	}
 
+	@GameTest(padding = 64)
+	@SuppressWarnings("removal")
+	public void dimensionalAnchorStabilizesOnlyLoadedExistingLocalState(GameTestHelper helper) {
+		com.powers.power.artifact.ArtifactGateManager.clear();
+		com.powers.power.abilities.LocalBodyAnchorRegistry.global().clear();
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		caster.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		caster.setYRot(0.0F);
+		helper.assertTrue(com.powers.power.artifact.ArtifactGateManager.open(
+				caster, ArtifactAlignment.LIGHT), "Could not create the existing local gate fixture");
+
+		var gate = com.powers.power.artifact.ArtifactGateManager.stabilizeExisting(
+				caster, caster.getUUID(), caster.position(), 400);
+		helper.assertTrue(gate.stabilized() && gate.deadline() > gate.previousDeadline(),
+				"Dimensional Anchor did not extend the already-existing loaded legal gate");
+		var missing = com.powers.power.artifact.ArtifactGateManager.stabilizeExisting(
+				caster, java.util.UUID.randomUUID(), caster.position(), 400);
+		helper.assertTrue(!missing.stabilized()
+				&& missing.refusal() == com.powers.power.abilities.DimensionalStabilizationRules.Refusal.MISSING,
+				"Stabilization invented a missing gate");
+
+		ServerPlayer traveller = helper.makeMockServerPlayerInLevel();
+		traveller.setPos(origin.getX() + 2.5, origin.getY(), origin.getZ() + 0.5);
+		helper.assertTrue(BodyProxyManager.start(traveller, BodyProxyKind.ASTRAL),
+				"Could not create the loaded local body fixture");
+		java.util.UUID bodyId = BodyProxyManager.bodyIdForOwner(traveller.getUUID());
+		var body = (net.minecraft.world.entity.LivingEntity) helper.getLevel().getEntity(bodyId);
+		helper.assertTrue(body != null && DimensionalAnchorAbility.apply(caster, body),
+				"Dimensional Anchor rejected a loaded local body proxy");
+		helper.assertTrue(DimensionalAnchorAbility.anchorDimension(body)
+				== helper.getLevel().dimension(), "Body proxy did not retain its local dimension");
+		BodyProxyManager.finish(traveller);
+		helper.assertTrue(com.powers.power.abilities.LocalBodyAnchorRegistry.global().size() == 0,
+				"Body cleanup retained a stabilization lease");
+		com.powers.power.artifact.ArtifactGateManager.clear();
+		helper.succeed();
+	}
+
 	@GameTest(maxTicks = 80)
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void energyDrainUsesTheTestActorsPlayerEnergyWell(GameTestHelper helper) {

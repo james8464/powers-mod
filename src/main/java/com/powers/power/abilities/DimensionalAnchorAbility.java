@@ -4,6 +4,7 @@ import com.powers.PowersMod;
 import com.powers.entity.PlayerLikeTarget;
 import com.powers.entity.TestActorPowerState;
 import com.powers.fx.PowerFx;
+import com.powers.mind.BodyProxyManager;
 import com.powers.mind.PersistentDimensionDiagnostics;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -58,6 +59,10 @@ public class DimensionalAnchorAbility extends Ability {
 			dimensionId = TestActorPowerState.anchorDimensionId(
 					target.getUUID(), target.level().getGameTime());
 			if (dimensionId == null) return null;
+		} else if (BodyProxyManager.isProxy(target)) {
+			dimensionId = LocalBodyAnchorRegistry.global().dimensionId(
+					target.getUUID(), target.level().getGameTime());
+			if (dimensionId == null) return null;
 		} else {
 			return null;
 		}
@@ -68,7 +73,8 @@ public class DimensionalAnchorAbility extends Ability {
 			PersistentDimensionDiagnostics.record("anchor", dimensionId);
 		}
 		if (target instanceof ServerPlayer player) PlayerPowers.get(player).clearDimensionalAnchor();
-		else TestActorPowerState.clearAnchor(target.getUUID());
+		else if (target instanceof PlayerLikeTarget) TestActorPowerState.clearAnchor(target.getUUID());
+		else LocalBodyAnchorRegistry.global().remove(target.getUUID());
 		return null;
 	}
 
@@ -77,7 +83,10 @@ public class DimensionalAnchorAbility extends Ability {
 		ResourceKey<Level> dimension = anchorDimension(target);
 		if (dimension == null) return null;
 		long deadline = target instanceof ServerPlayer player
-				? PlayerPowers.get(player).dimensionalAnchor().expiresAt() : target.level().getGameTime() + 1L;
+				? PlayerPowers.get(player).dimensionalAnchor().expiresAt()
+				: target instanceof PlayerLikeTarget ? target.level().getGameTime() + 1L
+				: LocalBodyAnchorRegistry.global().deadline(
+						target.getUUID(), target.level().getGameTime());
 		return new AnchorSnapshot(dimension.identifier().toString(), deadline,
 				remainingTicks(target.level().getGameTime(), deadline));
 	}
@@ -88,7 +97,7 @@ public class DimensionalAnchorAbility extends Ability {
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		LivingEntity target = PowerTargeting.findLivingTarget(player,
 				PowerScalingService.range(player, "dimensional_anchor", 32.0));
-		if (!PlayerLikeTarget.isCompatible(target)) {
+		if (!anchorable(target)) {
 			com.powers.knowledge.MagicAttemptReporter.failure(player, "dimensional_anchor",
 					com.powers.knowledge.MagicFailureReason.NO_TARGET);
 			PowerMessages.send(player, "ability.powers.no_player_target", 4);
@@ -100,7 +109,7 @@ public class DimensionalAnchorAbility extends Ability {
 
 	/** Shared by the Deep Grimoire; the former random power now delegates here. */
 	public static boolean apply(ServerPlayer player, LivingEntity target) {
-		if (!PlayerLikeTarget.isCompatible(target) || AmethystDampening.isDampened(target)
+		if (!anchorable(target) || AmethystDampening.isDampened(target)
 				|| !com.powers.protection.PowerProtection.mayForceMove(player, target)) {
 			PowerMessages.send(player, "amethyst.powers.target_protected", 4);
 			return false;
@@ -114,10 +123,18 @@ public class DimensionalAnchorAbility extends Ability {
 		long now = target.level().getGameTime();
 		long currentDeadline = target instanceof ServerPlayer targetPlayer
 				&& PlayerPowers.get(targetPlayer).dimensionalAnchor() != null
-				? PlayerPowers.get(targetPlayer).dimensionalAnchor().expiresAt() : now;
+				? PlayerPowers.get(targetPlayer).dimensionalAnchor().expiresAt()
+				: BodyProxyManager.isProxy(target)
+				? LocalBodyAnchorRegistry.global().deadline(target.getUUID(), now) : now;
 		long expiresAt = renewedDeadline(now, currentDeadline, duration);
 		if (target instanceof ServerPlayer targetPlayer) {
 			PlayerPowers.get(targetPlayer).setDimensionalAnchor(dim.identifier().toString(), expiresAt);
+			com.powers.power.artifact.ArtifactGateManager.stabilizeExisting(
+					player, targetPlayer.getUUID(), target.position(), duration);
+		} else if (BodyProxyManager.isProxy(target)) {
+			if (!LocalBodyAnchorRegistry.global().bind(target.getUUID(),
+					dim.identifier().toString(), now, duration)) return false;
+			expiresAt = LocalBodyAnchorRegistry.global().deadline(target.getUUID(), now);
 		} else {
 			TestActorPowerState.anchor(target.getUUID(), dim.identifier().toString(), expiresAt);
 		}
@@ -146,7 +163,7 @@ public class DimensionalAnchorAbility extends Ability {
 		AABB circle = AABB.ofSize(target.position(), 8.0, 4.0, 8.0);
 		for (LivingEntity ally : BoundedEntityCandidates.living(targetLevel, circle, 16,
 				candidate -> candidate != target && candidate.isAlive() && target.isAlliedTo(candidate)
-						&& PlayerLikeTarget.isCompatible(candidate))) {
+						&& anchorable(candidate))) {
 			if (!com.powers.protection.PowerProtection.mayForceMove(player, ally)) continue;
 			if (ally instanceof ServerPlayer allyPlayer) {
 				PlayerPowers.AnchorState existing = PlayerPowers.get(allyPlayer).dimensionalAnchor();
@@ -155,6 +172,9 @@ public class DimensionalAnchorAbility extends Ability {
 				PlayerPowers.get(allyPlayer).setDimensionalAnchor(dim.identifier().toString(), allyDeadline);
 				allyPlayer.sendSystemMessage(Component.literal("Group anchor: "
 						+ remainingTicks(now, allyDeadline) + " ticks remaining"), true);
+			} else if (BodyProxyManager.isProxy(ally)) {
+				LocalBodyAnchorRegistry.global().bind(ally.getUUID(),
+						dim.identifier().toString(), now, duration);
 			} else {
 				TestActorPowerState.anchor(ally.getUUID(), dim.identifier().toString(), expiresAt);
 			}
@@ -163,5 +183,14 @@ public class DimensionalAnchorAbility extends Ability {
 		}
 
 		return true;
+	}
+
+	private static boolean anchorable(LivingEntity target) {
+		if (target == null) return false;
+		boolean loadedBody = target.level() instanceof ServerLevel level
+				&& DimensionalStabilizationRules.localBody(
+						com.powers.util.LoadedChunks.contains(level, target.blockPosition()),
+						BodyProxyManager.isProxy(target));
+		return PlayerLikeTarget.isCompatible(target) || loadedBody;
 	}
 }

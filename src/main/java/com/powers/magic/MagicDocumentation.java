@@ -79,6 +79,7 @@ public final class MagicDocumentation {
 				| Amethyst item | Portable amethyst dampens magical potency and duration without blanket immunity. | Low amethyst hum. |
 				| Amethyst block / ward | Anchored amethyst cancels the incoming presence; wards use the stronger fracture cue. | Grounding lattice or crystal fracture. |
 				| Anchor × travel/projection | The attempted route is cancelled before energy or cooldown commits. | Dimensional chains closing a gate. |
+				| Anchor × local body/existing gate | A loaded body proxy can retain only its current dimension; an already-existing same-dimension artifact gate gains a finite lease only when both loaded endpoints remain nearby and legal. No route, realm exit, or chunk ticket is created. | Bound body rune or renewed dimensional gate chains. |
 				| Purification × hostile/darkness | Hostile residue is unmade while unrelated effects remain owned by their source. | Cleansing rain. |
 				| Soul Link × Purification | The owned soul tether is severed symmetrically. | Purifying severance. |
 				| Gravity orrery × protected body | Consent/safe zones, amethyst, soul-anchored projection bodies, personal forcefields, powered wards, and time locks resist capture without consuming or moving the target. | Privacy-blue boundary, amethyst fracture, soul tether, cyan shield, green-gold seal, or pale time fracture. |
