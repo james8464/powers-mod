@@ -11,6 +11,8 @@ import com.powers.power.state.MagicShieldManager;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
+import com.powers.thermal.ThermalInfluence;
+import com.powers.thermal.ThermalWorldService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -20,7 +22,6 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -115,6 +116,10 @@ final class FireballImpactResolver {
 	static void resolveSteam(ServerLevel level, LargeFireball projectile,
 			Cinderheart heart, Vec3 point, boolean frost) {
 		ServerPlayer controller = level.getServer().getPlayerList().getPlayer(heart.controller);
+		if (controller != null) {
+			ThermalWorldService.applySurface(controller, level, BlockPos.containing(point),
+					ThermalInfluence.FIREBALL);
+		}
 		resolveArea(level, heart, controller, point, true);
 		FireballFx.steam(level, point,
 				FireballRules.impactRadius(heart.tier, heart.empoweredImpact), frost, heart.tier);
@@ -221,10 +226,8 @@ final class FireballImpactResolver {
 			for (int dx = -1; dx <= 1 && placed < limit; dx++) {
 				for (int dz = -1; dz <= 1 && placed < limit; dz++) {
 					BlockPos pos = origin.offset(dx, dy, dz);
-					BlockState fire = Blocks.FIRE.defaultBlockState();
-					if (!level.getBlockState(pos).isAir() || !fire.canSurvive(level, pos)
-							|| !PowerProtection.mayAffectBlock(controller, level, pos)) continue;
-					level.setBlockAndUpdate(pos, fire);
+					if (!ThermalWorldService.apply(controller, level, pos,
+							ThermalInfluence.FIREBALL)) continue;
 					FireballFx.terrainScorch(level, Vec3.atCenterOf(pos), placed++);
 				}
 			}

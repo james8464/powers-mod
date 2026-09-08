@@ -30,7 +30,9 @@ class VisualScarReachabilityTest {
 				"power/abilities/IceManipulationAbility.java",
 				"power/abilities/ThunderclapAbility.java"), requesters.stream().sorted().toList());
 		String fire = source("power/abilities/FireballImpactResolver.java");
-		assertTrue(fire.contains("level.setBlockAndUpdate(pos, fire)"));
+		assertTrue(fire.contains("ThermalWorldService.apply"));
+		assertTrue(source("thermal/ThermalWorldService.java")
+				.contains("Blocks.FIRE.defaultBlockState()"));
 		assertTrue(fire.indexOf(REQUEST) < fire.indexOf("CombatTerrainImpact.crater"));
 		String bash = source("power/abilities/BreezyBashAbility.java");
 		assertTrue(bash.indexOf(REQUEST) < bash.indexOf("CombatTerrainImpact.crater"));
@@ -38,8 +40,8 @@ class VisualScarReachabilityTest {
 		assertTrue(thunderclap.indexOf(REQUEST) < thunderclap.indexOf("CombatTerrainImpact.thunderclap"));
 		String ice = source("power/abilities/IceManipulationAbility.java");
 		assertTrue(ice.contains("blockHit.getDirection()"));
-		assertTrue(ice.indexOf(REQUEST) < ice.indexOf(
-				"for (Map.Entry<BlockPos, BlockState> mutation : mutations.entrySet())"));
+		assertTrue(ice.indexOf(REQUEST) < ice.lastIndexOf(
+				"for (ThermalBlockPlan mutation : mutations.values())"));
 		String beam = source("power/abilities/EnergyBeamAbility.java");
 		assertTrue(beam.contains("ray.surfaceSupport()") && beam.contains("ray.surfaceFace()"));
 		assertFalse(source("power/abilities/CombatTerrainImpact.java").contains("VisualScarService"));

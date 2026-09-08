@@ -13,6 +13,9 @@ import com.powers.power.PowerDamage;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
+import com.powers.thermal.ThermalInfluence;
+import com.powers.thermal.ThermalWorldService;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -92,6 +95,8 @@ public class InfernoAbility extends Ability {
 				for (int i = 0; i < 6; i++) {
 					Vec3 impact = origin.add((level.getRandom().nextDouble() - 0.5) * 2 * field.radius(),
 							-1.0, (level.getRandom().nextDouble() - 0.5) * 2 * field.radius());
+					ThermalWorldService.applySurface(player, level, BlockPos.containing(impact),
+							ThermalInfluence.INFERNO);
 					PowerFx.beam(level, impact.add(0, 8, 0), impact, ParticleTypes.FLAME, 10);
 					PowerFx.burst(level, impact, ParticleTypes.LARGE_SMOKE, 4, 0.4, 0.04);
 				}
