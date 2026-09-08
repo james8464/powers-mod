@@ -8,6 +8,7 @@
 		"ItemEntityMixin",
 		"LargeFireballMixin",
 		"LevelBlockChangeMixin",
+		"LivingEntityDamageMixin",
 		"MobMixin",
 		"MinecraftServerCrashReportMixin",
 		"PlayerRankDisplayMixin",

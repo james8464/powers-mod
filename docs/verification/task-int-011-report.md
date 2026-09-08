@@ -1,14 +1,17 @@
 # INT-011 verification status
 
-Status: **implementation staged; focused verification green; independent review pending.**
+Status: **repair staged; complete JUnit and exact filtered live verification green;
+independent review pending.**
 
 The implementation defines one typed order—forcefield, Soul Link, then final
 health—and uses it in both ward and mirror calculations. A sacrificial ward
 accounts separately for the complete blocked hit and the finite integrity it
 spent. Soul Link accounts separately for requested, capped-forwarded, and
-observed health damage, while its mirrored-health baseline remains the
-recursion boundary. The bounded aggregate is visible through `powers diagnose`
-and is cleared with server-owned ability state.
+actual mirrored health removed. Total health accounting is captured around the
+authoritative `LivingEntity.hurtServer` return boundary, so it reports net
+before/after health removed after armor and on lethal hits. The bounded
+aggregate is visible through `powers diagnose` and is cleared with server-owned
+ability state.
 
 ## Test-driven record
 
@@ -27,11 +30,39 @@ and is cleared with server-owned ability state.
 - GREEN (live): the test now identifies the cast as crystal-sourced and resets
   vanilla hit immunity only between its two independent stimuli. The exact
   filtered GameTest ran once and passed under Java 25.
+- RED (repair): `SourceQualityTest` rejected the missing damage-package
+  documentation. The new ledger contract tests then failed to compile against
+  the old `healthDamage`/`mirrorHealthDamage` names and callback-shaped API.
+- GREEN (repair): package documentation is present; the ledger exposes
+  `actualHealthRemoved` and `mirrorActualHealthRemoved`; and a registered
+  `LivingEntity` return hook records the exact before/after health transition.
+- RED (live repair): the first armor fixture used `generic` damage, which is in
+  Minecraft 26.2's armor-bypass tag. The corrected hostile-attack fixture then
+  demonstrated a positive health loss strictly below its 8.0 incoming damage.
+- GREEN (live repair): the exact filtered test passed with one test selected.
+  It asserts that the aggregate increases by exactly the armor-reduced health
+  delta and then by exactly the lethal target's remaining 3.0 health.
 
-The new live GameTest exercises an overkill warded wound, a warded mirrored
-wound, an unshielded mirrored wound, and a following tick with no recursive
-bounce. It also checks the aggregate blocked-damage, integrity-spend,
-forwarded-damage, health-damage, and recursion-guard values.
+The live GameTest exercises an overkill warded wound, a warded mirrored wound,
+an unshielded mirrored wound, and a following production crystal tick with no
+recursive bounce. It also checks the aggregate blocked-damage, integrity-spend,
+forwarded-damage, mirrored actual-health removal, armor-reduced actual-health
+removal, and lethal actual-health removal. The former
+`recursiveMirrorsSuppressed` counter was removed: baseline presence did not
+prove that a recursive wound had been excluded, while the behavioral no-bounce
+assertion directly proves the required outcome.
 
-No unfiltered GameTest, full aggregate, stage checkbox, backlog removal,
-integration, merge, push, or final acceptance is claimed here.
+## Repair verification
+
+- `./gradlew test`: 1,845 tests across 427 suites; zero failures, errors, or
+  skips. This includes the complete `SourceQualityTest` and new production
+  boundary source coverage from server lifecycle through the crystal registry
+  to Soul Link.
+- Exact filtered live GameTest: one selected, one passed under Java 25 and
+  Minecraft 26.2.
+- `compileJava`, `compileGametestJava`, `auditJavaSources`,
+  `auditNonItemAssets`, `verifyMagicDocs`, `verifyItemDocs`, `verifyRankDocs`,
+  and `validatePowerResources`: passed.
+
+No unfiltered GameTest, stage checkbox, backlog removal, integration, merge,
+push, or final acceptance is claimed here.

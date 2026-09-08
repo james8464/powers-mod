@@ -11,9 +11,8 @@ public final class LayeredDamageLedger {
 	private double wardIntegritySpent;
 	private double mirrorRequestedDamage;
 	private double mirrorForwardedDamage;
-	private double mirrorHealthDamage;
-	private double healthDamage;
-	private long recursiveMirrorsSuppressed;
+	private double mirrorActualHealthRemoved;
+	private double actualHealthRemoved;
 
 	public static LayeredDamageLedger global() {
 		return GLOBAL;
@@ -30,24 +29,21 @@ public final class LayeredDamageLedger {
 	}
 
 	public synchronized void recordMirror(LayeredDamageResolver.MirrorDecision decision,
-			float observedHealthDamage) {
+			float healthRemoved) {
 		mirrorRequestedDamage = add(mirrorRequestedDamage, decision.requestedDamage());
 		mirrorForwardedDamage = add(mirrorForwardedDamage, decision.forwardedDamage());
-		mirrorHealthDamage = add(mirrorHealthDamage, observedHealthDamage);
+		mirrorActualHealthRemoved = add(mirrorActualHealthRemoved, healthRemoved);
 	}
 
-	public synchronized void recordHealth(float observedHealthDamage) {
-		healthDamage = add(healthDamage, observedHealthDamage);
-	}
-
-	public synchronized void recordRecursiveMirrorSuppressed() {
-		if (recursiveMirrorsSuppressed < Long.MAX_VALUE) recursiveMirrorsSuppressed++;
+	/** Records only health removed between entry and return of one damage call. */
+	public synchronized void recordHealthTransition(float before, float after) {
+		actualHealthRemoved = add(actualHealthRemoved, LayeredDamageResolver.health(before, after));
 	}
 
 	public synchronized Snapshot snapshot() {
 		return new Snapshot(incomingDamage, wardBlockedDamage, wardIntegritySpent,
-				mirrorRequestedDamage, mirrorForwardedDamage, mirrorHealthDamage,
-				healthDamage, recursiveMirrorsSuppressed);
+				mirrorRequestedDamage, mirrorForwardedDamage, mirrorActualHealthRemoved,
+				actualHealthRemoved);
 	}
 
 	public synchronized void clear() {
@@ -56,9 +52,8 @@ public final class LayeredDamageLedger {
 		wardIntegritySpent = 0.0;
 		mirrorRequestedDamage = 0.0;
 		mirrorForwardedDamage = 0.0;
-		mirrorHealthDamage = 0.0;
-		healthDamage = 0.0;
-		recursiveMirrorsSuppressed = 0L;
+		mirrorActualHealthRemoved = 0.0;
+		actualHealthRemoved = 0.0;
 	}
 
 	private static double add(double total, double value) {
@@ -68,17 +63,17 @@ public final class LayeredDamageLedger {
 
 	public record Snapshot(double incomingDamage, double wardBlockedDamage,
 			double wardIntegritySpent, double mirrorRequestedDamage,
-			double mirrorForwardedDamage, double mirrorHealthDamage,
-			double healthDamage, long recursiveMirrorsSuppressed) {
+			double mirrorForwardedDamage, double mirrorActualHealthRemoved,
+			double actualHealthRemoved) {
 		public String line() {
 			return String.format(Locale.ROOT,
 					"damageLayers: order=forcefield>soul_link>health; incoming=%.1f; "
 							+ "wardBlocked=%.1f; wardIntegritySpent=%.1f; "
-							+ "mirrorRequested=%.1f; mirrorForwarded=%.1f; mirrorHealth=%.1f; "
-							+ "health=%.1f; recursiveMirrorsSuppressed=%d",
+							+ "mirrorRequested=%.1f; mirrorForwarded=%.1f; "
+							+ "mirrorActualHealthRemoved=%.1f; actualHealthRemoved=%.1f",
 					incomingDamage, wardBlockedDamage, wardIntegritySpent,
-					mirrorRequestedDamage, mirrorForwardedDamage, mirrorHealthDamage,
-					healthDamage, recursiveMirrorsSuppressed);
+					mirrorRequestedDamage, mirrorForwardedDamage,
+					mirrorActualHealthRemoved, actualHealthRemoved);
 		}
 	}
 }

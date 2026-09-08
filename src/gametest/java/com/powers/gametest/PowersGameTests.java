@@ -680,7 +680,7 @@ public final class PowersGameTests {
 
 		helper.assertFalse(first.hurtServer(helper.getLevel(), first.damageSources().generic(), 50_000.0F),
 				"Forcefield overkill reached health before Soul Link");
-		com.powers.power.crystals.SoulLinkAbility.tickAll(helper.getLevel().getServer());
+		CrystalPowerRegistry.tick(helper.getLevel().getServer());
 		helper.assertTrue(first.getHealth() == firstBefore && second.getHealth() == secondBefore,
 				"A shielded wound leaked into Soul Link or health");
 		helper.assertFalse(MagicShieldManager.global().active(first.getUUID(),
@@ -693,7 +693,7 @@ public final class PowersGameTests {
 				"The first unshielded wound never reached health: result=" + primaryDamaged
 						+ "; firstHealth=" + first.getHealth() + "; links="
 						+ com.powers.power.crystals.SoulLinkAbility.snapshots());
-		com.powers.power.crystals.SoulLinkAbility.tickAll(helper.getLevel().getServer());
+		CrystalPowerRegistry.tick(helper.getLevel().getServer());
 		helper.assertTrue(second.getHealth() == secondBefore,
 				"Mirrored damage reached health before the recipient's forcefield");
 		helper.assertFalse(MagicShieldManager.global().active(second.getUUID(),
@@ -709,24 +709,56 @@ public final class PowersGameTests {
 				helper.getLevel(), first.damageSources().generic(), 3.0F);
 		helper.assertTrue(secondPrimaryDamaged,
 				"The second independent wound was rejected before layer ordering");
-		com.powers.power.crystals.SoulLinkAbility.tickAll(helper.getLevel().getServer());
+		CrystalPowerRegistry.tick(helper.getLevel().getServer());
 		float secondAfterMirror = second.getHealth();
 		helper.assertTrue(secondAfterMirror < secondBefore,
 				"Soul Link did not forward the unshielded health wound");
-		com.powers.power.crystals.SoulLinkAbility.tickAll(helper.getLevel().getServer());
+		CrystalPowerRegistry.tick(helper.getLevel().getServer());
 		helper.assertTrue(second.getHealth() == secondAfterMirror,
-				"Mirrored damage recursively bounced through the link");
+				"The production crystal tick recursively bounced mirrored damage through Soul Link");
 
 		var accounting = com.powers.power.damage.LayeredDamageLedger.global().snapshot();
 		helper.assertTrue(accounting.wardBlockedDamage() >= 50_000.0,
 				"Diagnostics omitted sacrificial no-overflow absorption");
 		helper.assertTrue(accounting.wardIntegritySpent() == 42.0,
 				"Diagnostics double-consumed or invented ward integrity");
-		helper.assertTrue(accounting.mirrorForwardedDamage() > accounting.mirrorHealthDamage()
-				&& accounting.mirrorHealthDamage() > 0.0,
+		helper.assertTrue(accounting.mirrorForwardedDamage() > accounting.mirrorActualHealthRemoved()
+				&& accounting.mirrorActualHealthRemoved() > 0.0,
 				"Diagnostics did not distinguish shielded forwarding from health damage");
-		helper.assertTrue(accounting.recursiveMirrorsSuppressed() > 0L,
-				"Diagnostics did not observe the recursion guard");
+
+		double healthBeforeMitigationChecks = accounting.actualHealthRemoved();
+		var armored = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE,
+				new BlockPos(7, 1, 2));
+		armored.setNoAi(true);
+		armored.getAttribute(Attributes.ARMOR).setBaseValue(10.0);
+		var armorAttacker = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE,
+				new BlockPos(9, 1, 2));
+		armorAttacker.setNoAi(true);
+		float armoredBefore = armored.getHealth();
+		helper.assertTrue(armored.hurtServer(helper.getLevel(),
+				armored.damageSources().mobAttack(armorAttacker), 8.0F),
+				"Armored diagnostic stimulus was rejected");
+		float armorReducedHealthRemoved = armoredBefore - armored.getHealth();
+		helper.assertTrue(armorReducedHealthRemoved > 0.0F && armorReducedHealthRemoved < 8.0F,
+				"Armor did not reduce the diagnostic stimulus: removed=" + armorReducedHealthRemoved);
+		var afterArmor = com.powers.power.damage.LayeredDamageLedger.global().snapshot();
+		helper.assertTrue(Math.abs(afterArmor.actualHealthRemoved()
+				- (healthBeforeMitigationChecks + armorReducedHealthRemoved)) < 0.0001,
+				"Armor-reduced accounting differed from actual health removed: " + afterArmor.line());
+
+		var lethal = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE,
+				new BlockPos(8, 1, 2));
+		lethal.setNoAi(true);
+		lethal.setHealth(3.0F);
+		double healthBeforeLethal = afterArmor.actualHealthRemoved();
+		helper.assertTrue(lethal.hurtServer(helper.getLevel(), lethal.damageSources().generic(), 50.0F),
+				"Lethal diagnostic stimulus was rejected");
+		helper.assertTrue(lethal.getHealth() == 0.0F,
+				"Lethal diagnostic stimulus did not remove the remaining three health");
+		var afterLethal = com.powers.power.damage.LayeredDamageLedger.global().snapshot();
+		helper.assertTrue(Math.abs(afterLethal.actualHealthRemoved()
+				- (healthBeforeLethal + 3.0)) < 0.0001,
+				"Lethal accounting omitted final health removed: " + afterLethal.line());
 		com.powers.power.crystals.SoulLinkAbility.clearAll();
 		MagicShieldManager.global().clear();
 		com.powers.power.damage.LayeredDamageLedger.global().clear();

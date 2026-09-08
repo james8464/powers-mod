@@ -137,7 +137,6 @@ public class SoulLinkAbility extends Ability {
 				MirrorBaseline mirror = MIRROR_BASELINES.get(entity.getUUID());
 				float suffered = SoulLinkMath.woundAfterMirror(link.lastHealth(),
 						mirror == null ? null : mirror.health(), entity.getHealth());
-				if (mirror != null) LayeredDamageLedger.global().recordRecursiveMirrorSuppressed();
 				if (suffered > damage) {
 					damage = suffered;
 					wounded = entity;

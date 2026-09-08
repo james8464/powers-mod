@@ -51,7 +51,6 @@ final class PowerCombatEvents {
 		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damageTaken, blocked) -> {
 			BodyProxyManager.afterDamage(entity, source, damageTaken);
 			if (damageTaken <= 0) return;
-			LayeredDamageLedger.global().recordHealth(damageTaken);
 			ArtifactCovenantManager.shareDamage(entity, source, damageTaken);
 			SpellCastingManager.markDamaged(entity);
 			EnergyDrainAbility.markDamaged(entity);
