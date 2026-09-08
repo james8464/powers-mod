@@ -5,6 +5,9 @@ import com.powers.fx.PowerFx;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
 import com.powers.magic.runtime.ServerCastLifecycle;
+import com.powers.mind.BodyProxyManager;
+import com.powers.mind.MindSessionFeedback;
+import com.powers.mind.MindSessionManager;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.PowerDamage;
@@ -25,9 +28,11 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -47,7 +52,7 @@ public class SoulLinkAbility extends Ability {
 	private record Link(LivingEntity entity, float lastHealth, float remainingMirrorCap) {
 	}
 
-	private record ActiveLink(CastSource castSource, int ticksLeft,
+	private record ActiveLink(UUID sessionId, CastSource castSource, int ticksLeft,
 			List<Link> links, double damageMultiplier) {
 	}
 
@@ -72,16 +77,18 @@ public class SoulLinkAbility extends Ability {
 		double radius = scaledRange(player, RADIUS);
 		int maxLinks = SoulLinkMath.maximumLinks();
 		List<Link> links = new ArrayList<>();
+		Set<UUID> linkedIdentities = new HashSet<>();
 		for (LivingEntity target : BoundedEntityCandidates.living(level,
 				AABB.ofSize(player.position().add(0, 1, 0), radius * 2, radius * 2, radius * 2),
 				128,
 				 e -> e.isAlive() && e != player && !player.isAlliedTo(e)
+						 && !BodyProxyManager.mindIdentity(e).equals(player.getUUID())
 						 && e.distanceToSqr(player) <= radius * radius
 						 && !AmethystDampening.isDampened(e)
 						 && PowerProtection.mayHarm(player, e)
 						 && !SpellFieldManager.isSanctuaryProtected(level, e))) {
+			if (!linkedIdentities.add(BodyProxyManager.mindIdentity(target))) continue;
 			links.add(new Link(target, target.getHealth(), MIRROR_CAP_PER_TARGET));
-			PowerFx.coloredBurst(level, target.position().add(0, 1, 0), 0x9C27B0, 10, 0.5);
 			if (links.size() >= maxLinks) {
 				break;
 			}
@@ -89,12 +96,31 @@ public class SoulLinkAbility extends Ability {
 		if (links.isEmpty()) {
 			return false;
 		}
+		UUID sessionId = UUID.randomUUID();
+		List<MindSessionManager.Participant> participants = new ArrayList<>(links.size() + 1);
+		participants.add(new MindSessionManager.Participant(player.getUUID(), MindSessionManager.Role.OWNER));
+		for (Link link : links) {
+			participants.add(new MindSessionManager.Participant(BodyProxyManager.mindIdentity(link.entity()),
+					link.entity() instanceof com.powers.companion.ShadowCompanionEntity
+							? MindSessionManager.Role.SHADOW : MindSessionManager.Role.TARGET));
+		}
+		MindSessionManager.Admission admission = MindSessionManager.acquire(sessionId,
+				MindSessionManager.Kind.SOUL_LINK, player.getUUID(), participants);
+		if (!admission.accepted()) {
+			List<LivingEntity> candidates = new ArrayList<>(links.size() + 1);
+			candidates.add(player);
+			for (Link link : links) candidates.add(link.entity());
+			MindSessionFeedback.refuse(player, "soul_link", MindSessionManager.Kind.SOUL_LINK,
+					admission, candidates);
+			return false;
+		}
 		Vec3 previous = player.getEyePosition();
 		for (Link link : links) {
+			PowerFx.coloredBurst(level, link.entity().position().add(0, 1, 0), 0x9C27B0, 10, 0.5);
 			PowerFx.beam(level, previous, link.entity().getEyePosition(), PowerFx.dust(0x9C27B0, 0.75F), 12);
 			previous = link.entity().getEyePosition();
 		}
-		ACTIVE.put(player.getUUID(), new ActiveLink(CastScalingContext.currentSource(),
+		ACTIVE.put(player.getUUID(), new ActiveLink(sessionId, CastScalingContext.currentSource(),
 				scaledDuration(player, DURATION_TICKS), links,
 				scaling(player).potencyMultiplier()));
 		PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x9C27B0, 24, 1.2);
@@ -115,6 +141,7 @@ public class SoulLinkAbility extends Ability {
 			// caster logged off or died, so the link dies with them
 			if (!MagicUseGate.ongoingAllowed(caster) || !ServerCastLifecycle.mayContinue(
 					caster, active.castSource(), false)) {
+				MindSessionManager.release(active.sessionId());
 				it.remove();
 				continue;
 			}
@@ -129,6 +156,7 @@ public class SoulLinkAbility extends Ability {
 						|| AmethystDampening.isDampened(entity)
 						|| !PowerProtection.mayHarm(caster, entity)
 						|| SpellFieldManager.isSanctuaryProtected((ServerLevel) caster.level(), entity)) {
+					MindSessionManager.removeParticipant(active.sessionId(), BodyProxyManager.mindIdentity(entity));
 					continue;
 				}
 				// Retain only the largest fresh wound so one tick transfers damage once.
@@ -195,9 +223,10 @@ public class SoulLinkAbility extends Ability {
 			// the link ends when time runs out or no souls remain
 			int left = active.ticksLeft() - 1;
 			if (left <= 0 || updated.isEmpty()) {
+				MindSessionManager.release(active.sessionId());
 				it.remove();
 			} else {
-				entry.setValue(new ActiveLink(active.castSource(), left,
+				entry.setValue(new ActiveLink(active.sessionId(), active.castSource(), left,
 						updated, active.damageMultiplier()));
 			}
 		}
@@ -205,18 +234,26 @@ public class SoulLinkAbility extends Ability {
 
 	/** drop one caster's link when they log off */
 	public static void clear(UUID player) {
-		ACTIVE.remove(player);
+		ActiveLink active = ACTIVE.remove(player);
+		if (active != null) MindSessionManager.release(active.sessionId());
 	}
 
 	/** Unweaves every active link containing the purified soul. */
 	public static void clearLinksTouching(UUID entityId) {
-		ACTIVE.entrySet().removeIf(entry -> entry.getKey().equals(entityId)
-				|| entry.getValue().links().stream()
-						.anyMatch(link -> link.entity().getUUID().equals(entityId)));
+		Iterator<Map.Entry<UUID, ActiveLink>> iterator = ACTIVE.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Map.Entry<UUID, ActiveLink> entry = iterator.next();
+			if (entry.getKey().equals(entityId) || entry.getValue().links().stream()
+					.anyMatch(link -> BodyProxyManager.mindIdentity(link.entity()).equals(entityId))) {
+				MindSessionManager.release(entry.getValue().sessionId());
+				iterator.remove();
+			}
+		}
 	}
 
 	/** release every link on server stop */
 	public static void clearAll() {
+		for (ActiveLink active : ACTIVE.values()) MindSessionManager.release(active.sessionId());
 		ACTIVE.clear();
 		MIRROR_BASELINES.clear();
 	}

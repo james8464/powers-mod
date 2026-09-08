@@ -41,6 +41,7 @@ import com.powers.power.ActivationCooldowns;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
+import com.powers.mind.MindSessionManager;
 import com.powers.network.NamedLivingTargetIndex;
 import com.powers.network.NamedTargetRules;
 import com.powers.testing.TestingOverrides;
@@ -706,6 +707,43 @@ public final class PowersGameTests {
 				"The sacrificed tethered shield retained integrity");
 		BodyProxyManager.finish(owner);
 		MagicShieldManager.global().clear();
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void astralEntrypointOwnsTheParticipantAndRefusesNestedSoulLink(GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		com.powers.knowledge.MagicAttemptJournal.global().forget(owner.getUUID());
+		owner.setGameMode(GameType.SURVIVAL);
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		owner.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 5));
+
+		helper.assertTrue(BodyProxyManager.start(owner, BodyProxyKind.ASTRAL),
+				"Astral production entrypoint could not create its vulnerable body");
+		MindSessionManager.Session astral = MindSessionManager.activeFor(owner.getUUID()).orElse(null);
+		helper.assertTrue(astral != null && astral.kind() == MindSessionManager.Kind.ASTRAL_PROJECTION,
+				"Astral production entrypoint did not acquire authoritative participant ownership");
+		helper.assertFalse(new com.powers.power.crystals.SoulLinkAbility().activate(owner,
+				com.powers.player.PlayerPowers.get(owner)),
+				"Soul Link nested inside an existing Astral session");
+		helper.assertTrue(MindSessionManager.activeFor(owner.getUUID())
+				.map(session -> session.id().equals(astral.id())
+						&& session.kind() == MindSessionManager.Kind.ASTRAL_PROJECTION).orElse(false),
+				"Rejected nested activation disturbed the original Astral session");
+		helper.assertTrue(com.powers.power.crystals.SoulLinkAbility.snapshots().stream()
+				.noneMatch(snapshot -> snapshot.owner().equals(owner.getUUID())),
+				"Rejected nested Soul Link left runtime state behind");
+		var refusal = com.powers.knowledge.MagicAttemptJournal.global().latestFailure(
+				owner.getUUID(), "Why did Soul Link fail?", helper.getLevel().getGameTime()).orElse(null);
+		helper.assertTrue(refusal != null
+				&& refusal.reason() == com.powers.knowledge.MagicFailureReason.MIND_SESSION_ACTIVE,
+				"Nested refusal did not retain the precise authoritative diagnostic reason");
+		BodyProxyManager.finish(owner);
+		helper.assertFalse(MindSessionManager.isParticipating(owner.getUUID()),
+				"Astral return leaked authoritative participant ownership");
+		com.powers.knowledge.MagicAttemptJournal.global().forget(owner.getUUID());
 		helper.succeed();
 	}
 

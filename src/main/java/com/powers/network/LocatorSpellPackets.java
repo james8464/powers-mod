@@ -11,6 +11,9 @@ import com.powers.power.MagicUseGate;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.power.crystals.DreamwalkingAbility;
 import com.powers.magic.runtime.CastSource;
+import com.powers.mind.BodyProxyManager;
+import com.powers.mind.MindSessionFeedback;
+import com.powers.mind.MindSessionManager;
 import com.powers.progression.PowerScalingService;
 import com.powers.progression.RankVariantRules;
 import com.powers.protection.PowerProtection;
@@ -152,8 +155,22 @@ final class LocatorSpellPackets {
 
 		// The selection packet names only a target. Payment and the selected
 		// celestial spell are revalidated immediately before the ritual commits.
+		UUID sessionId = UUID.randomUUID();
+		MindSessionManager.Admission admission = MindSessionManager.acquire(sessionId,
+				MindSessionManager.Kind.SOUL_COMPASS, player.getUUID(), List.of(
+						new MindSessionManager.Participant(player.getUUID(), MindSessionManager.Role.OWNER),
+						new MindSessionManager.Participant(BodyProxyManager.mindIdentity(target),
+								target instanceof com.powers.companion.ShadowCompanionEntity
+										? MindSessionManager.Role.SHADOW : MindSessionManager.Role.HOST)));
+		if (!admission.accepted()) {
+			MindSessionFeedback.refuse(player, "soul_compass", MindSessionManager.Kind.SOUL_COMPASS,
+					admission, List.of(player, target));
+			return;
+		}
 		if (SpellCastingManager.commitSoulCompass(player)) {
-			cast(player, level, castPosition, target, piercedWithTrueSight);
+			cast(player, level, castPosition, target, piercedWithTrueSight, sessionId);
+		} else {
+			MindSessionManager.release(sessionId);
 		}
 	}
 
@@ -242,7 +259,7 @@ final class LocatorSpellPackets {
 	}
 
 	private static void cast(ServerPlayer player, ServerLevel level, Vec3 position, LivingEntity target,
-			boolean trueSight) {
+			boolean trueSight, UUID mindSessionId) {
 		PowerFx.sound(level, position, SoundEvents.EVOKER_CAST_SPELL, 1.0f, 0.9f);
 		PowerFx.rune(level, position, 2.2, CELESTIAL_COLOR, 26, 0.0);
 		PowerFx.spiral(level, position.add(0, 0.1, 0), 0.7, 3.4, CELESTIAL_COLOR, 20, 0.0);
@@ -261,7 +278,7 @@ final class LocatorSpellPackets {
 		TargetRef targetRef = new TargetRef(target.getUUID(), target.level().dimension());
 		PowersMod.scheduleDelayed(server, 48, ownerId, ritualDimension, ownerId,
 				"locator_reveal", (current, task) -> revealTarget(current, task.subjectId(),
-						ritualDimension, position, targetRef, trueSight));
+						ritualDimension, position, targetRef, trueSight, mindSessionId));
 	}
 
 	private static void swellRitual(MinecraftServer server, UUID ownerId,
@@ -286,14 +303,19 @@ final class LocatorSpellPackets {
 	}
 
 	private static void revealTarget(MinecraftServer server, UUID ownerId,
-			ResourceKey<Level> dimension, Vec3 position, TargetRef targetRef, boolean trueSight) {
+			ResourceKey<Level> dimension, Vec3 position, TargetRef targetRef, boolean trueSight,
+			UUID mindSessionId) {
 		ServerPlayer player = server.getPlayerList().getPlayer(ownerId);
 		ServerLevel level = server.getLevel(dimension);
-		if (!ritualOwnerValid(player, level)) return;
+		if (!ritualOwnerValid(player, level)) {
+			MindSessionManager.release(mindSessionId);
+			return;
+		}
 		ServerLevel targetLevel = server.getLevel(targetRef.dimension());
 		LivingEntity target = targetLevel == null ? null
 				: targetLevel.getEntity(targetRef.id()) instanceof LivingEntity living ? living : null;
 		if (target == null || !target.isAlive()) {
+			MindSessionManager.release(mindSessionId);
 			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.view_lost"));
 			return;
 		}
@@ -319,10 +341,10 @@ final class LocatorSpellPackets {
 				.append(Component.literal((int) Math.floor(targetPosition.x) + " "
 						+ (int) Math.floor(targetPosition.y) + " " + (int) Math.floor(targetPosition.z))
 						.withStyle(style -> style.withColor(GOLD_COLOR).withBold(true))));
-		if (DreamwalkingAbility.beginRemoteView(player, target, 20 * 60, CastSource.SPELL)) {
+		if (DreamwalkingAbility.beginRemoteViewAttached(player, target, 20 * 60, mindSessionId)) {
 			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.view_started",
 					target.getName()));
-		}
+		} else MindSessionManager.release(mindSessionId);
 	}
 
 	private static boolean ritualOwnerValid(ServerPlayer player, ServerLevel level) {

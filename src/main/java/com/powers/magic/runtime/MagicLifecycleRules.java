@@ -9,7 +9,8 @@ import java.util.Objects;
 public final class MagicLifecycleRules {
 	public enum Form {
 		PHYSICAL, REALM_AVATAR, ASTRAL_AVATAR, TELEPORT_MARKER,
-		POSSESSION_CONTROLLER, DREAMWALK_CONTROLLER, SHADOW_HIDDEN, SHADOW_REVEALED
+		POSSESSION_CONTROLLER, DREAMWALK_CONTROLLER, SOUL_COMPASS_CONTROLLER,
+		SOUL_LINK_OWNER, SOUL_LINK_TARGET, SHADOW_HIDDEN, SHADOW_REVEALED
 	}
 
 	public enum Source {
@@ -25,7 +26,7 @@ public final class MagicLifecycleRules {
 
 	public enum Outcome {
 		NONE, DIE, RETURN_AND_DIE, RETURN_WITH_WRATH, RETURN_ONLY,
-		DEACTIVATE_SOURCE, DEACTIVATE_ALL, DISMISS_SHADOW, CLEANUP
+		DEACTIVATE_SOURCE, DEACTIVATE_ALL, DISMISS_SHADOW, REMOVE_PARTICIPANT, CLEANUP
 	}
 
 	public record Decision(Outcome outcome, String motif, String mechanics) {
@@ -58,7 +59,8 @@ public final class MagicLifecycleRules {
 					: shadow(form) ? Outcome.DISMISS_SHADOW : Outcome.DIE);
 			case VESSEL_FATAL -> decision(form == Form.POSSESSION_CONTROLLER
 					|| form == Form.DREAMWALK_CONTROLLER
-					? Outcome.RETURN_WITH_WRATH : Outcome.NONE);
+					? Outcome.RETURN_WITH_WRATH
+					: form == Form.SOUL_COMPASS_CONTROLLER ? Outcome.RETURN_ONLY : Outcome.NONE);
 			case SOURCE_LOST -> decision(shadow(form) ? Outcome.DISMISS_SHADOW
 					: artifact(source) ? Outcome.DEACTIVATE_SOURCE : Outcome.NONE);
 			case POWER_LOST -> decision(source == Source.INNATE
@@ -67,8 +69,12 @@ public final class MagicLifecycleRules {
 					? Outcome.NONE : Outcome.DEACTIVATE_SOURCE);
 			case SUPPRESSED -> decision(detached(form) ? Outcome.RETURN_ONLY
 					: source == Source.NONE ? Outcome.NONE : Outcome.DEACTIVATE_SOURCE);
-			case EXPIRED, TARGET_UNAVAILABLE, DIMENSION_INVALID, MANUAL_END ->
+			case TARGET_UNAVAILABLE -> decision(form == Form.SOUL_LINK_TARGET
+					? Outcome.REMOVE_PARTICIPANT : detached(form) ? Outcome.RETURN_ONLY
+					: shadow(form) ? Outcome.DISMISS_SHADOW : Outcome.NONE);
+			case EXPIRED, DIMENSION_INVALID, MANUAL_END ->
 					decision(detached(form) ? Outcome.RETURN_ONLY
+							: soulLink(form) ? Outcome.CLEANUP
 							: shadow(form) ? Outcome.DISMISS_SHADOW : Outcome.NONE);
 		};
 	}
@@ -76,11 +82,15 @@ public final class MagicLifecycleRules {
 	private static boolean detached(Form form) {
 		return form == Form.REALM_AVATAR || form == Form.ASTRAL_AVATAR
 				|| form == Form.TELEPORT_MARKER || form == Form.POSSESSION_CONTROLLER
-				|| form == Form.DREAMWALK_CONTROLLER;
+				|| form == Form.DREAMWALK_CONTROLLER || form == Form.SOUL_COMPASS_CONTROLLER;
 	}
 
 	private static boolean shadow(Form form) {
 		return form == Form.SHADOW_HIDDEN || form == Form.SHADOW_REVEALED;
+	}
+
+	private static boolean soulLink(Form form) {
+		return form == Form.SOUL_LINK_OWNER || form == Form.SOUL_LINK_TARGET;
 	}
 
 	private static boolean artifact(Source source) {
@@ -105,6 +115,8 @@ public final class MagicLifecycleRules {
 					"Death deactivates every innate and artifact-routed toggle before respawn continues.");
 			case DISMISS_SHADOW -> new Decision(outcome, "shadow_collapse",
 					"The current Shadow body disappears while player-keyed memories remain available.");
+			case REMOVE_PARTICIPANT -> new Decision(outcome, "soul_unlink",
+					"The unavailable linked target leaves the tether without disturbing surviving participants.");
 			case CLEANUP -> new Decision(outcome, "session_unweave",
 					"Connection or server shutdown releases runtime-only state exactly once.");
 		};

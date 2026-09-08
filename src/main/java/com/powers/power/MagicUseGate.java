@@ -1,8 +1,9 @@
 package com.powers.power;
 
-import com.powers.mind.ParticipantPowerLock;
+import com.powers.mind.MindSessionManager;
 import com.powers.power.state.EntityFreezeController;
 import com.powers.power.state.GlobalTimeStopManager;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import com.powers.knowledge.MagicAttemptReporter;
 import com.powers.knowledge.MagicFailureReason;
@@ -21,8 +22,13 @@ public final class MagicUseGate {
 	/** Suppression gate with an authoritative action ID for Shadow diagnostics. */
 	public static boolean passes(ServerPlayer player, boolean punishAmethyst, String actionId) {
 		if (player == null) return false;
-		if (ParticipantPowerLock.isLocked(player.getUUID())) {
-			MagicAttemptReporter.failure(player, actionId, MagicFailureReason.TIME_LOCKED);
+		if (MindSessionManager.blocksOrdinaryMagic(player.getUUID())) {
+			MagicAttemptReporter.failure(player, actionId, MagicFailureReason.MIND_SESSION_ACTIVE);
+			MindSessionManager.activeFor(player.getUUID()).ifPresent(session ->
+					com.powers.util.PowerMessages.overlay(player,
+							Component.translatable("ability.powers.mind_session_active",
+									Component.translatable("mind_session.powers.kind."
+											+ session.kind().serializedName()))));
 			return false;
 		}
 		if (GlobalTimeStopManager.rejectIfStopped(player)) {

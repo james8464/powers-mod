@@ -9,6 +9,8 @@ import com.powers.magic.runtime.CastSource;
 import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
+import com.powers.mind.MindSessionFeedback;
+import com.powers.mind.MindSessionManager;
 import com.powers.network.PowersPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
@@ -60,14 +62,15 @@ public abstract class MindscapeCrystalAbility extends Ability {
 			ResourceKey<Level> source, ResourceKey<Level> destination, Vec3 requested,
 			Vec3 sourceOrigin, List<SubjectArrival> arrivals, CastSource castSource,
 			AsyncAbilityTransaction transaction, PowersMod.StormTheme departureTheme,
-			int color) {
+			int color, UUID mindSessionId) {
 		PendingJourney withPrepared(Vec3 origin, List<Vec3> positions) {
 			List<SubjectArrival> prepared = new ArrayList<>(subjectIds.size());
 			for (int index = 0; index < subjectIds.size(); index++) {
 				prepared.add(new SubjectArrival(subjectIds.get(index), positions.get(index)));
 			}
 			return new PendingJourney(casterId, subjectIds, source, destination, requested,
-					origin, List.copyOf(prepared), castSource, transaction, departureTheme, color);
+					origin, List.copyOf(prepared), castSource, transaction, departureTheme, color,
+					mindSessionId);
 		}
 	}
 	private static final Map<UUID, PendingJourney> PENDING = new HashMap<>();
@@ -107,9 +110,6 @@ public abstract class MindscapeCrystalAbility extends Ability {
 		ServerLevel sourceLevel = (ServerLevel) caster.level();
 		TravelCohort.Snapshot cohort = TravelCohort.capture(sourceLevel, caster, caster);
 		List<LivingEntity> subjects = travellers(cohort);
-		for (LivingEntity subject : subjects) {
-			PowerFx.beam(sourceLevel, caster.getEyePosition(), subject.getEyePosition(), particle(), 12);
-		}
 		return beginJourney(caster, subjects, sourceLevel, destinationLevel, data,
 				CastScalingContext.currentSource());
 	}
@@ -146,6 +146,26 @@ public abstract class MindscapeCrystalAbility extends Ability {
 				return false;
 			}
 		}
+		UUID sessionId = UUID.randomUUID();
+		List<MindSessionManager.Participant> participants = new ArrayList<>(subjects.size());
+		for (LivingEntity subject : subjects) {
+			UUID participantId = BodyProxyManager.mindIdentity(subject);
+			MindSessionManager.Role role = participantId.equals(caster.getUUID())
+					? MindSessionManager.Role.OWNER
+					: subject instanceof ShadowCompanionEntity
+							? MindSessionManager.Role.SHADOW : MindSessionManager.Role.TARGET;
+			participants.add(new MindSessionManager.Participant(participantId, role));
+		}
+		MindSessionManager.Admission admission = MindSessionManager.acquire(sessionId,
+				MindSessionManager.Kind.REALM, caster.getUUID(), participants);
+		if (!admission.accepted()) {
+			MindSessionFeedback.refuse(caster, id().getPath(), MindSessionManager.Kind.REALM,
+					admission, subjects);
+			return false;
+		}
+		for (LivingEntity subject : subjects) {
+			PowerFx.beam(sourceLevel, caster.getEyePosition(), subject.getEyePosition(), particle(), 12);
+		}
 		AsyncAbilityTransaction transaction = new AsyncAbilityTransaction(caster, data, this);
 		PowerMessages.overlay(caster, Component.translatable("ability.powers.realm_focusing",
 				destination.identifier().toString()));
@@ -153,12 +173,15 @@ public abstract class MindscapeCrystalAbility extends Ability {
 		PENDING.put(ownerId, new PendingJourney(ownerId,
 				subjects.stream().map(Entity::getUUID).toList(), sourceLevel.dimension(),
 				destinationLevel.dimension(), requested, caster.position(), List.of(), castSource,
-				transaction, departureTheme, color));
+				transaction, departureTheme, color, sessionId));
 		boolean accepted = TravelChunkLoader.request(ownerId, destinationLevel,
 				BlockPos.containing(requested), "mindscape_crystal",
 				MindscapeCrystalAbility::prepareLoadedJourney,
 				MindscapeCrystalAbility::failLoadedJourney);
-		if (!accepted) PENDING.remove(ownerId);
+		if (!accepted) {
+			PENDING.remove(ownerId);
+			MindSessionManager.release(sessionId);
+		}
 		return accepted;
 	}
 
@@ -178,6 +201,7 @@ public abstract class MindscapeCrystalAbility extends Ability {
 		if (arrivals.size() != subjects.size()) {
 			pending.transaction().fail(server);
 			PENDING.remove(ownerId, pending);
+			MindSessionManager.release(pending.mindSessionId());
 			PowerMessages.send(caster, "ability.powers.no_room", 3);
 			return;
 		}
@@ -220,14 +244,15 @@ public abstract class MindscapeCrystalAbility extends Ability {
 			return;
 		}
 		List<Journey> journeys = eligibleJourneys(caster, subjects, arrivals, pending.sourceOrigin(),
-				sourceLevel, destinationLevel, pending.castSource());
+				sourceLevel, destinationLevel, pending.castSource(), pending.mindSessionId());
 		List<ServerPlayer> startedPlayers = new ArrayList<>();
 		List<LivingEntity> trackedMobs = new ArrayList<>();
 		for (Journey journey : journeys) {
 			LivingEntity subject = journey.subject();
 			if (subject instanceof ServerPlayer player) {
-				if (!BodyProxyManager.start(player, BodyProxyKind.REALM)) {
-					rollback(startedPlayers, trackedMobs);
+				if (!BodyProxyManager.startAttached(player, BodyProxyKind.REALM,
+						pending.mindSessionId(), player.getUUID().equals(ownerId))) {
+					rollback(startedPlayers, trackedMobs, pending.mindSessionId());
 					failJourney(server, ownerId, "ability.powers.realm_body_occupied");
 					return;
 				}
@@ -241,7 +266,7 @@ public abstract class MindscapeCrystalAbility extends Ability {
 			Vec3 arrival = journey.arrival();
 			Entity moved = move(subject, destinationLevel, arrival);
 			if (!(moved instanceof LivingEntity living) || living.level() != destinationLevel) {
-				rollback(startedPlayers, trackedMobs);
+				rollback(startedPlayers, trackedMobs, pending.mindSessionId());
 				failJourney(server, ownerId, "ability.powers.realm_journey_interrupted");
 				return;
 			}
@@ -262,17 +287,19 @@ public abstract class MindscapeCrystalAbility extends Ability {
 				subject.getYRot(), subject.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 	}
 
-	private static void rollback(List<ServerPlayer> players, List<LivingEntity> mobs) {
+	private static void rollback(List<ServerPlayer> players, List<LivingEntity> mobs,
+			UUID mindSessionId) {
 		for (ServerPlayer player : players) {
 			if (!BodyProxyManager.recoverToBody(player)) BodyProxyManager.finish(player);
 		}
 		for (LivingEntity mob : mobs) MindscapeMobReturnTracker.returnToOrigin(mob);
+		MindSessionManager.release(mindSessionId);
 	}
 
 	private static List<Journey> eligibleJourneys(ServerPlayer caster, List<LivingEntity> subjects,
 			List<Vec3> arrivals, Vec3 sourceOrigin,
 			ServerLevel sourceLevel, ServerLevel destinationLevel,
-			CastSource castSource) {
+			CastSource castSource, UUID mindSessionId) {
 		List<Journey> eligible = new ArrayList<>(subjects.size());
 		for (int index = 0; index < subjects.size(); index++) {
 			String failure = eligibilityFailure(caster, subjects.get(index), sourceOrigin, sourceLevel,
@@ -280,6 +307,8 @@ public abstract class MindscapeCrystalAbility extends Ability {
 			if (failure != null) {
 				PowersMod.LOGGER.info("Mindscape companion skipped: caster={}, subject={}, reason={}",
 						caster.getUUID(), subjects.get(index).getUUID(), failure);
+				MindSessionManager.removeParticipant(mindSessionId,
+						BodyProxyManager.mindIdentity(subjects.get(index)));
 				continue;
 			}
 			eligible.add(new Journey(subjects.get(index), arrivals.get(index)));
@@ -336,7 +365,10 @@ public abstract class MindscapeCrystalAbility extends Ability {
 
 	private static void failJourney(MinecraftServer server, UUID ownerId, String messageKey) {
 		PendingJourney pending = PENDING.remove(ownerId);
-		if (pending != null) pending.transaction().fail(server);
+		if (pending != null) {
+			pending.transaction().fail(server);
+			MindSessionManager.release(pending.mindSessionId());
+		}
 		ServerPlayer caster = server.getPlayerList().getPlayer(ownerId);
 		if (caster != null) PowerMessages.overlay(caster, Component.translatable(messageKey));
 	}
@@ -344,7 +376,10 @@ public abstract class MindscapeCrystalAbility extends Ability {
 	/** Lifecycle cancellation releases a paid journey without retaining player or level objects. */
 	public static void cancel(MinecraftServer server, UUID ownerId) {
 		PendingJourney pending = PENDING.remove(ownerId);
-		if (pending != null) pending.transaction().fail(server);
+		if (pending != null) {
+			pending.transaction().fail(server);
+			MindSessionManager.release(pending.mindSessionId());
+		}
 	}
 
 	public static void clearAll(MinecraftServer server) {

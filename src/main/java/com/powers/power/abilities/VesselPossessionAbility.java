@@ -6,7 +6,8 @@ import com.powers.magic.runtime.CastSource;
 import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
-import com.powers.mind.ParticipantPowerLock;
+import com.powers.mind.MindSessionFeedback;
+import com.powers.mind.MindSessionManager;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.power.Ability;
@@ -132,19 +133,30 @@ public class VesselPossessionAbility extends Ability {
 
 		UUID sessionId = UUID.randomUUID();
 		Vec3 bodyPosition = player.position();
-		if (!ParticipantPowerLock.acquire(sessionId, java.util.List.of(
-				player.getUUID(), target.getUUID()))) return false;
+		MindSessionManager.Kind sessionKind = kind == PossessionRules.SessionKind.DREAMWALK
+				? MindSessionManager.Kind.DREAMWALK : MindSessionManager.Kind.POSSESSION;
+		MindSessionManager.Admission admission = MindSessionManager.acquire(sessionId, sessionKind,
+				player.getUUID(), java.util.List.of(
+						new MindSessionManager.Participant(player.getUUID(), MindSessionManager.Role.OWNER),
+						new MindSessionManager.Participant(target.getUUID(), target instanceof com.powers.companion.ShadowCompanionEntity
+								? MindSessionManager.Role.SHADOW : MindSessionManager.Role.HOST)));
+		if (!admission.accepted()) {
+			MindSessionFeedback.refuse(player, kind == PossessionRules.SessionKind.DREAMWALK
+					? "dreamwalking" : "vessel_possession", sessionKind, admission,
+					java.util.List.of(player, target));
+			return false;
+		}
 		BodyProxyKind bodyKind = kind == PossessionRules.SessionKind.DREAMWALK
 				? BodyProxyKind.DREAMWALK : BodyProxyKind.POSSESSION;
-		if (!BodyProxyManager.start(player, bodyKind)) {
-			ParticipantPowerLock.release(sessionId);
+		if (!BodyProxyManager.startAttached(player, bodyKind, sessionId, true)) {
+			MindSessionManager.release(sessionId);
 			return false;
 		}
 		if (crossDimension) {
 			player.teleport(new TeleportTransition(targetLevel, target.position(), Vec3.ZERO,
 					target.getYRot(), target.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 			if (player.level() != targetLevel) {
-				ParticipantPowerLock.release(sessionId);
+				MindSessionManager.release(sessionId);
 				BodyProxyManager.returnToBody(player);
 				return false;
 			}
@@ -210,7 +222,7 @@ public class VesselPossessionAbility extends Ability {
 
 	private static void end(Possession possession, ServerPlayer owner,
 			PossessionEndRules.Reason reason) {
-		ParticipantPowerLock.release(possession.sessionId());
+		MindSessionManager.release(possession.sessionId());
 		if (possession.target() instanceof Mob mob) {
 			mob.setNoAi(possession.targetOriginallyNoAi());
 		}

@@ -283,7 +283,7 @@ The powered Ward suppresses magic in a configurable default 20-block radius. Nat
 
 POWERS adds `powers:light_realm`, `powers:dark_realm`, and `powers:middleworld`.
 
-Light and Dark are mindscapes, not invulnerability dimensions. Crystal entry automatically captures the caster and up to 15 living entities within two blocks without consent. Each player leaves an independent vulnerable owner-skinned body at the exact physical origin while retaining normal game mode; ordinary mobs use a bounded caster-owned origin record and return with that journey even if separated inside the realm; Shadow travels as its real persistent body. Damage to a player's body mirrors to that player, and fatal body or avatar damage recalls and kills the physical player. Astral projection, possession, Dreamwalking, named-target travel, Middleworld, and mindscapes share one mutually exclusive session channel and lifecycle cleanup. A controlled host's death returns the controller with Divine Wrath instead of killing the controller.
+Light and Dark are mindscapes, not invulnerability dimensions. Crystal entry automatically captures the caster and up to 15 living entities within two blocks without consent. Each player leaves an independent vulnerable owner-skinned body at the exact physical origin while retaining normal game mode; ordinary mobs use a bounded caster-owned origin record and return with that journey even if separated inside the realm; Shadow travels as its real persistent body. Damage to a player's body mirrors to that player, and fatal body or avatar damage recalls and kills the physical player. Astral projection, possession, Dreamwalking, Soul Compass, Soul Link, Shadow participation, named-target travel, Middleworld, and mindscapes share one mutually exclusive session authority and lifecycle cleanup. A controlled host's death returns the controller with Divine Wrath instead of killing the controller; a lost Soul Link target leaves surviving links intact.
 
 Each force realm progressively constructs six protected persistent sites—Archive, Labyrinth, Shrine, Settlement, Font, and Herald Court—at a fixed hex around the first thought. Construction spends at most 128 edits per five-tick pulse. Force Pressure grows at 24/48/72-block tiers from entry; alignment restores/resists while intrusion drains and applies Weakness, Slowness, or Wither. Every 12-minute cycle ends in a two-minute Whiteout or Dark Eclipse. Courts respawn their defeated Herald after 20 minutes.
 
@@ -322,7 +322,7 @@ Delayed magic and queued play packets retain stable UUID, dimension, deadline, c
 
 The live hostile-environment suite exercises those shared owners against external claim denial, an actual world border, solid low ceilings, exact void-floor travel, water and lava, nested mount/passenger graphs, physical Nether portals in ordinary and confined realms, and a real GameTest-only foreign dimension. Its [coverage and result matrix](docs/verification/evidence/2026-08-21-qa-010/README.md) records authoritative payment, mutation, and cleanup outcomes without changing direct-coordinate travel semantics.
 
-The generated [lifecycle matrix](docs/interactions/lifecycle-matrix.csv) covers eight forms, six cast sources, and 14 termination events (672 outcomes). [Interaction rules](docs/interactions/interaction-rules.md) explain targeting, protection, forcefield, amethyst, terrain, body, and cleanup precedence.
+The generated [lifecycle matrix](docs/interactions/lifecycle-matrix.csv) covers eleven forms, six cast sources, and 14 termination events (924 outcomes). [Interaction rules](docs/interactions/interaction-rules.md) explain targeting, protection, forcefield, amethyst, terrain, body, and cleanup precedence.
 
 ## Magic interactions and presentation
 
@@ -488,7 +488,7 @@ The exact generated appendices are:
 - [Innate levels](docs/gameplay/innate-levels.md): every rank profile and transformation.
 - [Action catalogue](docs/interactions/action-catalogue.md): all 64 canonical magic actions.
 - [Interaction matrix](docs/interactions/interaction-matrix.csv): all 2,080 unordered action pairs.
-- [Lifecycle matrix](docs/interactions/lifecycle-matrix.csv): all 672 form/source/termination outcomes.
+- [Lifecycle matrix](docs/interactions/lifecycle-matrix.csv): all 924 form/source/termination outcomes.
 - [System catalogue](docs/interactions/system-catalogue.md): collision and runtime systems.
 - [Requirement matrix](docs/verification/final-requirement-matrix.md): prompt-to-evidence coverage without claiming hashes prove semantic review.
 

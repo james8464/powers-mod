@@ -503,6 +503,258 @@ DREAMWALK_CONTROLLER,PARTISAN,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remo
 DREAMWALK_CONTROLLER,PARTISAN,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
 DREAMWALK_CONTROLLER,PARTISAN,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
 DREAMWALK_CONTROLLER,PARTISAN,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,NONE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_COMPASS_CONTROLLER,NONE,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+SOUL_COMPASS_CONTROLLER,NONE,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+SOUL_COMPASS_CONTROLLER,NONE,VESSEL_FATAL,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,NONE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_COMPASS_CONTROLLER,NONE,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_COMPASS_CONTROLLER,NONE,ENERGY_EXHAUSTED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_COMPASS_CONTROLLER,NONE,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,NONE,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,NONE,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,NONE,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,NONE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_COMPASS_CONTROLLER,NONE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_COMPASS_CONTROLLER,NONE,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,INNATE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_COMPASS_CONTROLLER,INNATE,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+SOUL_COMPASS_CONTROLLER,INNATE,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+SOUL_COMPASS_CONTROLLER,INNATE,VESSEL_FATAL,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,INNATE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_COMPASS_CONTROLLER,INNATE,POWER_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_COMPASS_CONTROLLER,INNATE,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_COMPASS_CONTROLLER,INNATE,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,INNATE,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,INNATE,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,INNATE,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,INNATE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_COMPASS_CONTROLLER,INNATE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_COMPASS_CONTROLLER,INNATE,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,CRYSTAL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_COMPASS_CONTROLLER,CRYSTAL,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+SOUL_COMPASS_CONTROLLER,CRYSTAL,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+SOUL_COMPASS_CONTROLLER,CRYSTAL,VESSEL_FATAL,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,CRYSTAL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_COMPASS_CONTROLLER,CRYSTAL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_COMPASS_CONTROLLER,CRYSTAL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_COMPASS_CONTROLLER,CRYSTAL,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,CRYSTAL,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,CRYSTAL,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,CRYSTAL,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,CRYSTAL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_COMPASS_CONTROLLER,CRYSTAL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_COMPASS_CONTROLLER,CRYSTAL,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,SPELL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_COMPASS_CONTROLLER,SPELL,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+SOUL_COMPASS_CONTROLLER,SPELL,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+SOUL_COMPASS_CONTROLLER,SPELL,VESSEL_FATAL,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,SPELL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_COMPASS_CONTROLLER,SPELL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_COMPASS_CONTROLLER,SPELL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_COMPASS_CONTROLLER,SPELL,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,SPELL,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,SPELL,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,SPELL,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,SPELL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_COMPASS_CONTROLLER,SPELL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_COMPASS_CONTROLLER,SPELL,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,VESSEL_FATAL,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_COMPASS_CONTROLLER,SHADOW_SWORD,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,PARTISAN,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_COMPASS_CONTROLLER,PARTISAN,AVATAR_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+SOUL_COMPASS_CONTROLLER,PARTISAN,BODY_FATAL,RETURN_AND_DIE,soul_recoil,The detached mind returns to its physical body before fatal damage and respawn.
+SOUL_COMPASS_CONTROLLER,PARTISAN,VESSEL_FATAL,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,PARTISAN,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_COMPASS_CONTROLLER,PARTISAN,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_COMPASS_CONTROLLER,PARTISAN,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_COMPASS_CONTROLLER,PARTISAN,SUPPRESSED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,PARTISAN,EXPIRED,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,PARTISAN,TARGET_UNAVAILABLE,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,PARTISAN,DIMENSION_INVALID,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_COMPASS_CONTROLLER,PARTISAN,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_COMPASS_CONTROLLER,PARTISAN,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_COMPASS_CONTROLLER,PARTISAN,MANUAL_END,RETURN_ONLY,soul_recall,The remote session closes and safely restores the recorded physical body.
+SOUL_LINK_OWNER,NONE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_LINK_OWNER,NONE,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_OWNER,NONE,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_OWNER,NONE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,NONE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,NONE,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,NONE,ENERGY_EXHAUSTED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,NONE,SUPPRESSED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,NONE,EXPIRED,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,NONE,TARGET_UNAVAILABLE,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,NONE,DIMENSION_INVALID,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,NONE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,NONE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,NONE,MANUAL_END,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,INNATE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_LINK_OWNER,INNATE,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_OWNER,INNATE,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_OWNER,INNATE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,INNATE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,INNATE,POWER_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_OWNER,INNATE,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_OWNER,INNATE,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_OWNER,INNATE,EXPIRED,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,INNATE,TARGET_UNAVAILABLE,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,INNATE,DIMENSION_INVALID,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,INNATE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,INNATE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,INNATE,MANUAL_END,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,CRYSTAL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_LINK_OWNER,CRYSTAL,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_OWNER,CRYSTAL,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_OWNER,CRYSTAL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,CRYSTAL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,CRYSTAL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,CRYSTAL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_OWNER,CRYSTAL,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_OWNER,CRYSTAL,EXPIRED,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,CRYSTAL,TARGET_UNAVAILABLE,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,CRYSTAL,DIMENSION_INVALID,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,CRYSTAL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,CRYSTAL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,CRYSTAL,MANUAL_END,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,SPELL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_LINK_OWNER,SPELL,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_OWNER,SPELL,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_OWNER,SPELL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,SPELL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,SPELL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,SPELL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_OWNER,SPELL,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_OWNER,SPELL,EXPIRED,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,SPELL,TARGET_UNAVAILABLE,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,SPELL,DIMENSION_INVALID,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,SPELL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,SPELL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,SPELL,MANUAL_END,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,SHADOW_SWORD,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_LINK_OWNER,SHADOW_SWORD,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_OWNER,SHADOW_SWORD,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_OWNER,SHADOW_SWORD,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,SHADOW_SWORD,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_OWNER,SHADOW_SWORD,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,SHADOW_SWORD,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_OWNER,SHADOW_SWORD,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_OWNER,SHADOW_SWORD,EXPIRED,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,SHADOW_SWORD,TARGET_UNAVAILABLE,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,SHADOW_SWORD,DIMENSION_INVALID,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,SHADOW_SWORD,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,SHADOW_SWORD,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,SHADOW_SWORD,MANUAL_END,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,PARTISAN,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_LINK_OWNER,PARTISAN,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_OWNER,PARTISAN,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_OWNER,PARTISAN,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,PARTISAN,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_OWNER,PARTISAN,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,PARTISAN,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_OWNER,PARTISAN,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_OWNER,PARTISAN,EXPIRED,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,PARTISAN,TARGET_UNAVAILABLE,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_OWNER,PARTISAN,DIMENSION_INVALID,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,PARTISAN,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,PARTISAN,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_OWNER,PARTISAN,MANUAL_END,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,NONE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_LINK_TARGET,NONE,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_TARGET,NONE,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_TARGET,NONE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,NONE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,NONE,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,NONE,ENERGY_EXHAUSTED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,NONE,SUPPRESSED,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,NONE,EXPIRED,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,NONE,TARGET_UNAVAILABLE,REMOVE_PARTICIPANT,soul_unlink,The unavailable linked target leaves the tether without disturbing surviving participants.
+SOUL_LINK_TARGET,NONE,DIMENSION_INVALID,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,NONE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,NONE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,NONE,MANUAL_END,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,INNATE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_LINK_TARGET,INNATE,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_TARGET,INNATE,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_TARGET,INNATE,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,INNATE,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,INNATE,POWER_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_TARGET,INNATE,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_TARGET,INNATE,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_TARGET,INNATE,EXPIRED,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,INNATE,TARGET_UNAVAILABLE,REMOVE_PARTICIPANT,soul_unlink,The unavailable linked target leaves the tether without disturbing surviving participants.
+SOUL_LINK_TARGET,INNATE,DIMENSION_INVALID,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,INNATE,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,INNATE,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,INNATE,MANUAL_END,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,CRYSTAL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_LINK_TARGET,CRYSTAL,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_TARGET,CRYSTAL,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_TARGET,CRYSTAL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,CRYSTAL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,CRYSTAL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,CRYSTAL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_TARGET,CRYSTAL,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_TARGET,CRYSTAL,EXPIRED,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,CRYSTAL,TARGET_UNAVAILABLE,REMOVE_PARTICIPANT,soul_unlink,The unavailable linked target leaves the tether without disturbing surviving participants.
+SOUL_LINK_TARGET,CRYSTAL,DIMENSION_INVALID,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,CRYSTAL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,CRYSTAL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,CRYSTAL,MANUAL_END,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,SPELL,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_LINK_TARGET,SPELL,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_TARGET,SPELL,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_TARGET,SPELL,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,SPELL,SOURCE_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,SPELL,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,SPELL,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_TARGET,SPELL,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_TARGET,SPELL,EXPIRED,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,SPELL,TARGET_UNAVAILABLE,REMOVE_PARTICIPANT,soul_unlink,The unavailable linked target leaves the tether without disturbing surviving participants.
+SOUL_LINK_TARGET,SPELL,DIMENSION_INVALID,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,SPELL,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,SPELL,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,SPELL,MANUAL_END,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,SHADOW_SWORD,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_LINK_TARGET,SHADOW_SWORD,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_TARGET,SHADOW_SWORD,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_TARGET,SHADOW_SWORD,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,SHADOW_SWORD,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_TARGET,SHADOW_SWORD,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,SHADOW_SWORD,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_TARGET,SHADOW_SWORD,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_TARGET,SHADOW_SWORD,EXPIRED,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,SHADOW_SWORD,TARGET_UNAVAILABLE,REMOVE_PARTICIPANT,soul_unlink,The unavailable linked target leaves the tether without disturbing surviving participants.
+SOUL_LINK_TARGET,SHADOW_SWORD,DIMENSION_INVALID,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,SHADOW_SWORD,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,SHADOW_SWORD,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,SHADOW_SWORD,MANUAL_END,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,PARTISAN,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
+SOUL_LINK_TARGET,PARTISAN,AVATAR_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_TARGET,PARTISAN,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
+SOUL_LINK_TARGET,PARTISAN,VESSEL_FATAL,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,PARTISAN,SOURCE_LOST,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_TARGET,PARTISAN,POWER_LOST,NONE,quiet_continuance,"The event does not own this form or source, so unrelated state continues."
+SOUL_LINK_TARGET,PARTISAN,ENERGY_EXHAUSTED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_TARGET,PARTISAN,SUPPRESSED,DEACTIVATE_SOURCE,source_severance,Only toggles and sessions owned by the lost or exhausted source are switched off.
+SOUL_LINK_TARGET,PARTISAN,EXPIRED,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,PARTISAN,TARGET_UNAVAILABLE,REMOVE_PARTICIPANT,soul_unlink,The unavailable linked target leaves the tether without disturbing surviving participants.
+SOUL_LINK_TARGET,PARTISAN,DIMENSION_INVALID,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,PARTISAN,LOGOUT,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,PARTISAN,SERVER_STOP,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
+SOUL_LINK_TARGET,PARTISAN,MANUAL_END,CLEANUP,session_unweave,Connection or server shutdown releases runtime-only state exactly once.
 SHADOW_HIDDEN,NONE,OWNER_DEATH,DEACTIVATE_ALL,death_unbinding,Death deactivates every innate and artifact-routed toggle before respawn continues.
 SHADOW_HIDDEN,NONE,AVATAR_FATAL,DISMISS_SHADOW,shadow_collapse,The current Shadow body disappears while player-keyed memories remain available.
 SHADOW_HIDDEN,NONE,BODY_FATAL,DIE,mortal_severance,Ordinary physical death proceeds through vanilla respawn.
