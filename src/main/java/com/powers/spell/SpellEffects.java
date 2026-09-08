@@ -112,16 +112,58 @@ final class SpellEffects {
 		AuguryReport report = AuguryReport.create(level, caster.blockPosition());
 		caster.sendSystemMessage(Component.translatable("spell.powers.augury.sky",
 				report.weather().name().toLowerCase(java.util.Locale.ROOT), report.moon()));
-		if (report.ticksUntilRealmEvent() >= 0L) {
-			caster.sendSystemMessage(Component.translatable("spell.powers.augury.event",
-					(report.ticksUntilRealmEvent() + 19L) / 20L));
+		if (report.realm().event() == com.powers.realm.RealmEventType.NONE) {
+			caster.sendSystemMessage(Component.translatable("spell.powers.augury.event.unknown"));
+		} else if (report.realm().active()) {
+			caster.sendSystemMessage(Component.translatable("spell.powers.augury.event.active",
+					eventName(report.realm().event()),
+					report.realm().severityTier(), seconds(report.realm().ticksUntilTransition())));
+		} else {
+			caster.sendSystemMessage(Component.translatable("spell.powers.augury.event.upcoming",
+					eventName(report.realm().event()),
+					report.realm().severityTier(), seconds(report.realm().ticksUntilTransition())));
 		}
-		caster.sendSystemMessage(Component.translatable("spell.powers.augury.force",
-				report.darknessNear(), report.pureLightNear()));
+		reportFront(caster, "block.powers.darkness", report.darknessFront());
+		reportFront(caster, "block.powers.pure_light", report.pureLightFront());
+		String ritualKey = switch (report.ritualWindow().safety()) {
+			case PROVISIONAL_WINDOW -> report.ritualWindow().ticksUntilTransition() >= 0L
+					? "spell.powers.augury.ritual.provisional_timed"
+					: "spell.powers.augury.ritual.provisional_unknown";
+			case EVENT_HAZARD -> "spell.powers.augury.ritual.event_hazard";
+			case LOADED_FRONT_HAZARD -> "spell.powers.augury.ritual.front_hazard";
+		};
+		if (report.ritualWindow().ticksUntilTransition() >= 0L) {
+			caster.sendSystemMessage(Component.translatable(ritualKey,
+					seconds(report.ritualWindow().ticksUntilTransition())));
+		} else {
+			caster.sendSystemMessage(Component.translatable(ritualKey));
+		}
+		caster.sendSystemMessage(Component.translatable("spell.powers.augury.uncertainty"));
 		PowerFx.ring(level, caster.position().add(0.0, 0.08, 0.0), 3.2,
 				0xD9E9FF, 28, level.getGameTime() * 0.04);
 		PowerFx.sound(level, caster.position(), SoundEvents.AMETHYST_BLOCK_CHIME, 1.0F, 1.55F);
 		return true;
+	}
+
+	private static void reportFront(ServerPlayer caster, String forceName,
+			com.powers.force.LoadedFrontForecast front) {
+		if (!front.observed()) {
+			caster.sendSystemMessage(Component.translatable("spell.powers.augury.front.none",
+					Component.translatable(forceName)));
+			return;
+		}
+		caster.sendSystemMessage(Component.translatable(front.truncated()
+					? "spell.powers.augury.front.sampled" : "spell.powers.augury.front.observed",
+				Component.translatable(forceName), front.observedFronts(), front.nearestDistanceBlocks()));
+	}
+
+	private static long seconds(long ticks) {
+		return (ticks + 19L) / 20L;
+	}
+
+	private static Component eventName(com.powers.realm.RealmEventType event) {
+		return Component.translatable(event == com.powers.realm.RealmEventType.DARK_ECLIPSE
+				? "spell.powers.augury.event.dark_eclipse" : "spell.powers.augury.event.whiteout");
 	}
 
 	private static boolean bloodReading(ServerPlayer caster, LivingEntity target) {

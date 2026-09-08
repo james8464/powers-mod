@@ -1,0 +1,48 @@
+# SPL-004 Augury forecast verification
+
+Base revision: `8c7c50b74c9e2b2d09500340a4ca81ef02b4216a`.
+
+## Implemented contract
+
+- Augury reads living-force spread fronts only through `LivingForceManager`'s
+  authoritative in-memory index. Each force observation is capped at 128 frontier
+  entries within 96 blocks and labels a capped result as a sample.
+- Every force result says that it covers loaded chunks only. A negative observation
+  never claims that unloaded chunks are empty, and the query uses non-generating
+  chunk-presence checks before reading a block.
+- Dark Eclipse and Whiteout forecasts reuse `RealmEventRules` for event phase and
+  pressure severity. They report the upcoming or active event, its predicted
+  severity tier, and the next phase boundary.
+- A ritual window is always provisional. An active realm event or an observed
+  loaded spread front marks it hazardous; otherwise a known realm schedule bounds
+  the provisional window, while other dimensions report an unknown duration.
+
+## Test-first evidence
+
+The deterministic Augury tests were added before production changes. The first
+valid Java 25 run was:
+
+```text
+JAVA_HOME=/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home \
+./gradlew test --tests com.powers.spell.AuguryReportTest \
+  --no-daemon --max-workers=2 --console=plain
+```
+
+It failed at `:compileTestJava` with 21 expected `cannot find symbol` errors for
+the absent `RealmForecast`, `RitualWindow`, `RitualSafety`, `Uncertainty`,
+`LoadedFrontForecast`, `realmForecast(...)`, and `ritualWindow(...)` contracts.
+The preceding attempt without `JAVA_HOME` did not reach compilation and is not
+counted as RED evidence.
+
+After the minimal implementation, the focused Augury JUnit class passed. The
+production-entrypoint GameTest
+`powers-gametest:powers_game_tests_augury_completes_as_an_unranked_practical_ritual`
+passed after observing a real loaded Darkness frontier, classifying its ritual
+window as hazardous, completing the real grimoire channel, and proving a distant
+unknown chunk remained unloaded.
+
+The final focused verification passed 102 JUnit tests across 31 selected suites
+covering spells, force rules/indexes, realm-event rules, translation integrity,
+and source quality. Resource validation, GameTest compilation, and the regenerated
+exact-source audit also passed. No unfiltered GameTest or machine-wide gate is
+claimed by this work unit.
