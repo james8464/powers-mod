@@ -57,7 +57,20 @@ query but observed zero. The minimal repair now records the query and exactly te
 charged candidates in that fixture. Both new tests pass. The live no-load fixture was also moved
 from 640 blocks away to 80 blocks away, inside the actual Augury query radius.
 
-The final post-review verification passed 104 JUnit tests across 31 selected suites
+## Second independent-rereview repair
+
+Rereview found that an exhausted sample with zero observed matches still opened a
+provisional ritual window and used the definitive no-front presentation. Focused
+tests were added first. The first Java 25 RED failed at `:compileTestJava` with
+the two expected missing symbols `INDETERMINATE_SAMPLE` and
+`frontTranslationKey(...)`. A separate resource RED then ran two presentation
+tests and failed one because both incomplete-sample translations were absent.
+The minimal implementation now refuses to forecast a safe window from an empty
+truncated sample, selects the incomplete-sample message before the ordinary empty
+message, and tells the caster that no front was found within the bounded sample
+while loaded frontier entries remain uninspected.
+
+The final post-rereview verification passed 107 JUnit tests across 32 selected suites
 covering spells, force rules/indexes, realm-event rules, translation integrity,
 and source quality. Resource validation, GameTest compilation, and the regenerated
 exact-source audit also passed. No unfiltered GameTest or machine-wide gate is

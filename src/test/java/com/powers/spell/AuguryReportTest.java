@@ -82,4 +82,16 @@ class AuguryReportTest {
 		assertEquals(-1L, window.ticksUntilTransition());
 		assertEquals(AuguryReport.Uncertainty.LOADED_CHUNKS_ONLY, window.uncertainty());
 	}
+
+	@Test
+	void exhaustedEmptyFrontSampleMakesTheRitualWindowIndeterminate() {
+		AuguryReport.RealmForecast event = AuguryReport.realmForecast(null, 4_000L, 0.0);
+		LoadedFrontForecast incomplete = new LoadedFrontForecast(0, -1, true);
+
+		AuguryReport.RitualWindow window = AuguryReport.ritualWindow(event, incomplete,
+				LoadedFrontForecast.none());
+
+		assertEquals(AuguryReport.RitualSafety.INDETERMINATE_SAMPLE, window.safety());
+		assertEquals(-1L, window.ticksUntilTransition());
+	}
 }

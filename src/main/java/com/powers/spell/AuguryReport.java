@@ -17,7 +17,9 @@ public record AuguryReport(Weather weather, String moon, RealmForecast realm,
 	private static final int FORCE_FORECAST_RADIUS = 96;
 
 	public enum Weather { CLEAR, RAIN, THUNDER }
-	public enum RitualSafety { PROVISIONAL_WINDOW, EVENT_HAZARD, LOADED_FRONT_HAZARD }
+	public enum RitualSafety {
+		PROVISIONAL_WINDOW, EVENT_HAZARD, LOADED_FRONT_HAZARD, INDETERMINATE_SAMPLE
+	}
 	public enum Uncertainty { LOADED_CHUNKS_ONLY }
 	public record RealmForecast(RealmEventType event, boolean active, int severityTier,
 			long ticksUntilTransition) { }
@@ -66,6 +68,10 @@ public record AuguryReport(Weather weather, String moon, RealmForecast realm,
 		}
 		if (darkness.observed() || pureLight.observed()) {
 			return new RitualWindow(RitualSafety.LOADED_FRONT_HAZARD, -1L,
+					Uncertainty.LOADED_CHUNKS_ONLY);
+		}
+		if (darkness.truncated() || pureLight.truncated()) {
+			return new RitualWindow(RitualSafety.INDETERMINATE_SAMPLE, -1L,
 					Uncertainty.LOADED_CHUNKS_ONLY);
 		}
 		return new RitualWindow(RitualSafety.PROVISIONAL_WINDOW, realm.ticksUntilTransition(),

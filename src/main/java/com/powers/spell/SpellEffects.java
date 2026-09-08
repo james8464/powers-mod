@@ -131,6 +131,7 @@ final class SpellEffects {
 					: "spell.powers.augury.ritual.provisional_unknown";
 			case EVENT_HAZARD -> "spell.powers.augury.ritual.event_hazard";
 			case LOADED_FRONT_HAZARD -> "spell.powers.augury.ritual.front_hazard";
+			case INDETERMINATE_SAMPLE -> "spell.powers.augury.ritual.indeterminate";
 		};
 		if (report.ritualWindow().ticksUntilTransition() >= 0L) {
 			caster.sendSystemMessage(Component.translatable(ritualKey,
@@ -147,14 +148,21 @@ final class SpellEffects {
 
 	private static void reportFront(ServerPlayer caster, String forceName,
 			com.powers.force.LoadedFrontForecast front) {
+		String translationKey = frontTranslationKey(front);
 		if (!front.observed()) {
-			caster.sendSystemMessage(Component.translatable("spell.powers.augury.front.none",
+			caster.sendSystemMessage(Component.translatable(translationKey,
 					Component.translatable(forceName)));
 			return;
 		}
-		caster.sendSystemMessage(Component.translatable(front.truncated()
-					? "spell.powers.augury.front.sampled" : "spell.powers.augury.front.observed",
+		caster.sendSystemMessage(Component.translatable(translationKey,
 				Component.translatable(forceName), front.observedFronts(), front.nearestDistanceBlocks()));
+	}
+
+	static String frontTranslationKey(com.powers.force.LoadedFrontForecast front) {
+		if (front.truncated() && !front.observed()) return "spell.powers.augury.front.incomplete";
+		if (!front.observed()) return "spell.powers.augury.front.none";
+		return front.truncated()
+				? "spell.powers.augury.front.sampled" : "spell.powers.augury.front.observed";
 	}
 
 	private static long seconds(long ticks) {
