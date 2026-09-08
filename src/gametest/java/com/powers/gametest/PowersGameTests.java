@@ -5,6 +5,8 @@ import com.powers.PowersItems;
 import com.powers.PowersDataComponents;
 import com.powers.PowersWeapons;
 import com.powers.PowersBlocks;
+import com.powers.allegiance.AllegianceMatrix;
+import com.powers.allegiance.AllegianceReloadListener;
 import com.powers.forge.ArcaneCrucibleBlockEntity;
 import com.powers.forge.CrucibleEligibility;
 import com.powers.forge.CrucibleTransactionEngine;
@@ -227,6 +229,46 @@ public final class PowersGameTests {
 				"Dark Herald violated its faction boundary");
 		helper.assertTrue(light.canAttack(infected) && !light.canAttack(ordinary),
 				"Light Herald violated its faction boundary");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void datapackAllegiancePolicyOwnsEveryAlignedCategory(GameTestHelper helper) {
+		var snapshot = AllegianceReloadListener.snapshot();
+		helper.assertTrue(snapshot.revision() > 0L,
+				"The server-data reload listener never published the allegiance policy");
+		AllegianceMatrix matrix = snapshot.matrix();
+		var radiantPlayer = new AllegianceMatrix.Profile(
+				AllegianceMatrix.Faction.RADIANT, AllegianceMatrix.Role.PLAYER);
+		var darknessShadow = new AllegianceMatrix.Profile(
+				AllegianceMatrix.Faction.DARKNESS, AllegianceMatrix.Role.SHADOW);
+		var radiantArtifact = new AllegianceMatrix.Profile(
+				AllegianceMatrix.Faction.RADIANT, AllegianceMatrix.Role.ARTIFACT);
+		var darknessForce = new AllegianceMatrix.Profile(
+				AllegianceMatrix.Faction.DARKNESS, AllegianceMatrix.Role.FORCE);
+		var radiantBoss = new AllegianceMatrix.Profile(
+				AllegianceMatrix.Faction.RADIANT, AllegianceMatrix.Role.BOSS);
+		var darknessFood = new AllegianceMatrix.Profile(
+				AllegianceMatrix.Faction.DARKNESS, AllegianceMatrix.Role.FOOD);
+		var alliedParty = new AllegianceMatrix.Profile(
+				AllegianceMatrix.Faction.DARKNESS, AllegianceMatrix.Role.PARTY);
+		var amethyst = new AllegianceMatrix.Profile(
+				AllegianceMatrix.Faction.NEUTRAL, AllegianceMatrix.Role.AMETHYST);
+		helper.assertTrue(matrix.resolve(radiantPlayer, darknessShadow, false)
+				== AllegianceMatrix.Relationship.HOSTILE,
+				"Player-to-Shadow opposition bypassed the shared policy");
+		helper.assertTrue(matrix.resolve(radiantArtifact, darknessForce, false)
+				== AllegianceMatrix.Relationship.HOSTILE,
+				"Artifact-to-force opposition bypassed the shared policy");
+		helper.assertTrue(matrix.resolve(radiantBoss, darknessFood, false)
+				== AllegianceMatrix.Relationship.HOSTILE,
+				"Boss-to-food opposition bypassed the shared policy");
+		helper.assertTrue(matrix.resolve(radiantPlayer, alliedParty, true)
+				== AllegianceMatrix.Relationship.ALLY,
+				"Party allegiance did not override opposing factions");
+		helper.assertTrue(matrix.resolve(radiantPlayer, amethyst, true)
+				== AllegianceMatrix.Relationship.SUPPRESSED,
+				"Amethyst suppression did not override party allegiance");
 		helper.succeed();
 	}
 

@@ -2,6 +2,8 @@ package com.powers.player;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.powers.allegiance.AllegianceMatrix;
+
 import org.junit.jupiter.api.Test;
 
 import net.minecraft.resources.Identifier;
@@ -17,5 +19,12 @@ class FoodAffinityTest {
 	void doesNotMisclassifyAnotherModsMatchingPath() {
 		assertEquals(FoodAffinity.NORMAL,
 				FoodAffinity.of(Identifier.fromNamespaceAndPath("example", "rotten_flesh")));
+	}
+
+	@Test
+	void authoredFoodClassesMapIntoTheSharedAllegianceMatrix() {
+		assertEquals(AllegianceMatrix.Faction.RADIANT, FoodAffinity.faction(FoodAffinity.NORMAL));
+		assertEquals(AllegianceMatrix.Faction.DARKNESS, FoodAffinity.faction(FoodAffinity.ABNORMAL));
+		assertEquals(AllegianceMatrix.Faction.NEUTRAL, FoodAffinity.faction(FoodAffinity.NEUTRAL));
 	}
 }

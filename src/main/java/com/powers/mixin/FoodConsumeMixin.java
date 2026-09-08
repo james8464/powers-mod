@@ -1,6 +1,8 @@
 package com.powers.mixin;
 
 import com.powers.PowerStatusEffects;
+import com.powers.allegiance.AllegianceMatrix;
+import com.powers.allegiance.AllegianceReloadListener;
 import com.powers.player.FoodAffinity;
 import com.powers.player.SkillSystem;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,17 +29,24 @@ public abstract class FoodConsumeMixin {
 			return;
 		}
 		String affinity = FoodAffinity.of(stack);
-		if (affinity == FoodAffinity.NEUTRAL) {
+		AllegianceMatrix.Relationship relationship = AllegianceReloadListener.snapshot().matrix()
+				.resolve(new AllegianceMatrix.Profile(AllegianceMatrix.Faction.DARKNESS,
+						AllegianceMatrix.Role.PLAYER),
+						new AllegianceMatrix.Profile(FoodAffinity.faction(affinity),
+								AllegianceMatrix.Role.FOOD), false);
+		if (relationship == AllegianceMatrix.Relationship.NEUTRALITY) {
 			foodData.eat(food);
 			return;
 		}
-		if (affinity == FoodAffinity.NORMAL) {
+		if (relationship == AllegianceMatrix.Relationship.HOSTILE) {
 			foodData.eat(new FoodProperties(4, 0.8F, food.canAlwaysEat()));
 			player.addEffect(PowerStatusEffects.hidden(MobEffects.HUNGER, 600, 0, false, true));
-		} else {
+		} else if (relationship == AllegianceMatrix.Relationship.ALLY) {
 			int nutrition = Math.max(6, (int) Math.ceil(food.nutrition() * 1.5));
 			float saturation = Math.max(0.9F, food.saturation() * 3.0F);
 			foodData.eat(new FoodProperties(nutrition, saturation, food.canAlwaysEat()));
+		} else {
+			foodData.eat(food);
 		}
 	}
 }
