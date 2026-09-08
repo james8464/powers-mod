@@ -6,7 +6,8 @@ Base revision: `8c7c50b74c9e2b2d09500340a4ca81ef02b4216a`.
 
 - Augury reads living-force spread fronts only through `LivingForceManager`'s
   authoritative in-memory index. Each force observation is capped at 128 frontier
-  entries within 96 blocks and labels a capped result as a sample.
+  entries and 512 inspected entries within 96 blocks, skips buckets that contain
+  only the opposite force, and labels a capped result as a sample.
 - Every force result says that it covers loaded chunks only. A negative observation
   never claims that unloaded chunks are empty, and the query uses non-generating
   chunk-presence checks before reading a block.
@@ -39,9 +40,24 @@ production-entrypoint GameTest
 `powers-gametest:powers_game_tests_augury_completes_as_an_unranked_practical_ritual`
 passed after observing a real loaded Darkness frontier, classifying its ritual
 window as hazardous, completing the real grimoire channel, and proving a distant
-unknown chunk remained unloaded.
+unknown chunk inside the 96-block forecast horizon remained unloaded.
 
-The final focused verification passed 102 JUnit tests across 31 selected suites
+## Independent-review repair
+
+Review found that the original 129-result cap bounded matches rather than index
+entries inspected. Before the repair, two deterministic index tests were added.
+The Java 25 run of `LivingForceIndexTest` failed at `:compileTestJava` with four
+expected `cannot find symbol` errors for the absent `Sample` result and
+`sampleWithin(...)` API. The implementation now counts every inspected entry,
+stops at 512, skips an entire chunk bucket when its existing per-kind counter
+proves the requested force absent, and propagates budget exhaustion as explicit
+sample uncertainty. A follow-up diagnostic assertion then produced a behavioral
+RED: `forecastSamplingStopsAtTheEntryInspectionBudget()` expected one recorded
+query but observed zero. The minimal repair now records the query and exactly ten
+charged candidates in that fixture. Both new tests pass. The live no-load fixture was also moved
+from 640 blocks away to 80 blocks away, inside the actual Augury query radius.
+
+The final post-review verification passed 104 JUnit tests across 31 selected suites
 covering spells, force rules/indexes, realm-event rules, translation integrity,
 and source quality. Resource validation, GameTest compilation, and the regenerated
 exact-source audit also passed. No unfiltered GameTest or machine-wide gate is

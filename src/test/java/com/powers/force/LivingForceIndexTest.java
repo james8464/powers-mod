@@ -75,6 +75,40 @@ class LivingForceIndexTest {
 	}
 
 	@Test
+	void forecastSamplingStopsAtTheEntryInspectionBudget() {
+		LivingForceIndex index = new LivingForceIndex();
+		index.add(BlockPos.asLong(1, 64, 1), DARKNESS);
+		for (int y = -64; y < 320; y++) {
+			index.add(BlockPos.asLong(2, y, 2), PURE_LIGHT);
+		}
+
+		LivingForceIndex.Sample sample = index.sampleWithin(
+				8.0, 128.0, 8.0, 256.0, DARKNESS, 128, 10);
+
+		assertEquals(10, sample.inspectedEntries());
+		assertTrue(sample.truncated());
+		assertEquals(1, index.diagnostics().queries());
+		assertEquals(10, index.diagnostics().candidates());
+	}
+
+	@Test
+	void forecastSamplingSkipsBucketsWithoutTheRequestedKind() {
+		LivingForceIndex index = new LivingForceIndex();
+		for (int y = -64; y < 320; y++) {
+			index.add(BlockPos.asLong(2, y, 2), PURE_LIGHT);
+		}
+		long darkness = BlockPos.asLong(17, 64, 1);
+		index.add(darkness, DARKNESS);
+
+		LivingForceIndex.Sample sample = index.sampleWithin(
+				16.0, 64.0, 8.0, 64.0, DARKNESS, 128, 1);
+
+		assertEquals(List.of(darkness), sample.positions());
+		assertEquals(1, sample.inspectedEntries());
+		assertTrue(!sample.truncated());
+	}
+
+	@Test
 	void diagnosticsExposeQueryCandidatesMissesStaleRepairsAndMemory() {
 		LivingForceIndex index = new LivingForceIndex();
 		long position = BlockPos.asLong(1, 64, 1);

@@ -1355,7 +1355,7 @@ public final class PowersGameTests {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
 		BlockPos loadedFront = origin.offset(4, 0, 0);
-		BlockPos unloadedUnknown = origin.offset(640, 0, 0);
+		BlockPos unloadedUnknown = origin.offset(80, 0, 0);
 		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
 		helper.getLevel().setBlockAndUpdate(loadedFront, PowersBlocks.DARKNESS.defaultBlockState());
 		helper.assertFalse(com.powers.util.LoadedChunks.contains(helper.getLevel(), unloadedUnknown),

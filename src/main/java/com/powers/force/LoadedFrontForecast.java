@@ -11,6 +11,7 @@ import java.util.List;
 public record LoadedFrontForecast(int observedFronts, int nearestDistanceBlocks,
 		boolean truncated) {
 	private static final int MAX_OBSERVED_FRONTS = 128;
+	private static final int MAX_INSPECTED_ENTRIES = 512;
 
 	public static LoadedFrontForecast none() {
 		return new LoadedFrontForecast(0, -1, false);
@@ -29,8 +30,9 @@ public record LoadedFrontForecast(int observedFronts, int nearestDistanceBlocks,
 	static LoadedFrontForecast observe(ServerLevel level, LivingForceIndex index, BlockPos center,
 			int radius, LivingForceKind kind) {
 		Vec3 origin = Vec3.atCenterOf(center);
-		List<Long> candidates = index.within(origin.x, origin.y, origin.z, radius,
-				kind, MAX_OBSERVED_FRONTS + 1);
+		LivingForceIndex.Sample sample = index.sampleWithin(origin.x, origin.y, origin.z, radius,
+				kind, MAX_OBSERVED_FRONTS + 1, MAX_INSPECTED_ENTRIES);
+		List<Long> candidates = sample.positions();
 		int observed = 0;
 		double nearestSquared = Double.POSITIVE_INFINITY;
 		for (long packed : candidates) {
@@ -45,7 +47,7 @@ public record LoadedFrontForecast(int observedFronts, int nearestDistanceBlocks,
 			nearestSquared = Math.min(nearestSquared,
 					position.distToCenterSqr(origin.x, origin.y, origin.z));
 		}
-		boolean truncated = candidates.size() > MAX_OBSERVED_FRONTS;
+		boolean truncated = sample.truncated() || candidates.size() > MAX_OBSERVED_FRONTS;
 		if (observed == 0) return new LoadedFrontForecast(0, -1, truncated);
 		return new LoadedFrontForecast(observed, (int) Math.ceil(Math.sqrt(nearestSquared)), truncated);
 	}
