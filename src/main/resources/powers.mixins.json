@@ -23,6 +23,7 @@
 		"LightRealmSkyMixin",
 		"OptionalItemModelFallbackMixin",
 		"RainbowCrystalVisualMixin",
+		"SuperSpeedCameraMixin",
 		"VesselControlUseMixin"
 	],
 	"injectors": {

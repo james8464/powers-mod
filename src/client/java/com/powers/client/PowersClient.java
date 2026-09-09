@@ -30,6 +30,7 @@ import com.powers.PowersEntities;
 import com.powers.PowersMenus;
 import com.powers.client.screen.ArcaneCrucibleScreen;
 import com.powers.network.PowerStatePayload;
+import com.powers.network.SuperSpeedComfortPackets;
 import com.powers.network.PowersPackets;
 import com.powers.network.MagicFxPackets;
 import com.powers.network.RankTenSilhouettePackets;
@@ -103,6 +104,9 @@ public class PowersClient implements ClientModInitializer {
 				GLFW.GLFW_KEY_UNKNOWN, CATEGORY));
 		ClientPlayNetworking.registerGlobalReceiver(PowerStatePayload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientPowerState.update(payload)));
+		ClientPlayNetworking.registerGlobalReceiver(SuperSpeedComfortPackets.Payload.TYPE,
+				(payload, context) -> context.client().execute(() ->
+						ClientSuperSpeedComfort.handle(payload)));
 		ClientPlayNetworking.registerGlobalReceiver(MagicFxPackets.ScarFxPayload.TYPE,
 				(payload, context) -> {
 					var captured = ClientVisualScarManager.captureHandlerStamp(context.client());
@@ -215,6 +219,7 @@ public class PowersClient implements ClientModInitializer {
 			ClientRankTenSilhouetteManager.resetConnectionEpoch();
 			ClientRankTenSilhouetteRenderer.closeResources();
 			ClientPowerState.reset();
+			ClientSuperSpeedComfort.clear();
 			ClientActionRegistry.reset();
 			ClientMagicFx.reset();
 			ClientBodySnapshots.clear();
@@ -307,6 +312,7 @@ public class PowersClient implements ClientModInitializer {
 		ClientMagicFx.tick();
 		ClientCelestialRuinFx.tick();
 		ClientPowerState.tickCooldowns();
+		ClientSuperSpeedComfort.tick();
 		PrivateCompanionClient.tick();
 		VesselControlClient.tick(client);
 		// the marking window for a player teleport counts down here and closes itself

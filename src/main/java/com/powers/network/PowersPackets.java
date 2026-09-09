@@ -186,6 +186,7 @@ public final class PowersPackets {
 		CrystalSelectorPackets.initialize();
 		CompanionPackets.initialize();
 		VesselControlPackets.initialize();
+		SuperSpeedComfortPackets.initialize();
 		CelestialRuinPackets.initialize();
 		LayeredAudioPackets.initialize();
 
