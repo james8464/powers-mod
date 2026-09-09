@@ -6,6 +6,8 @@ Branch: `int-009-mind-sessions`
 
 Required base: `8c7c50b74c9e2b2d09500340a4ca81ef02b4216a`
 
+Status: **STAGED — fresh independent review pending; not integrated or pushed.**
+
 ## Outcome
 
 `MindSessionManager` is the sole participant-admission owner for realm travel, Astral projection,
@@ -99,9 +101,24 @@ accepted. They were independently inspected, retained because they enforce the r
 invariant without mutation, and covered both by the focused `MindSessionManagerTest` pass and an
 independent one-method rerun. No foreign-task path remains.
 
-## Constraints
+## Deterministic branch gate and constraints
 
-This lane intentionally did not run the machine-wide check or the full Fabric GameTest suite while
-parallel worktrees were active. Validation is limited to the focused unit, generated-contract,
-resource/source-audit, compilation, and 11 production GameTests listed above. INT-008 evidence,
-the master stage checklist, and the INT-009 backlog row were not modified.
+After the focused proof was committed, the exact Java 25 branch gate was run serially:
+
+`./gradlew check compileGametestJava -x runGameTest --rerun-tasks --no-daemon --console=plain`
+
+The first attempt stopped on the strict stale non-item-asset manifest check. Regenerating that
+mechanical manifest exposed matching VFX-audit drift on the second attempt. After regenerating both
+audits, the unchanged command completed **GREEN** in 2m 1s. Mechanical XML aggregation found **424
+suites, 1,842 JUnit tests, 0 failures, 0 errors, and 0 skipped**; Python reported **240/240 passed**.
+Resource validation, generated documentation, source/non-item/visual audits, example-extension
+compilation, and GameTest compilation all passed.
+
+Final log: `/tmp/powers-int009-deterministic-green-retry2-20260909.log`
+
+SHA-256: `44c5c0c432976e38573145b6d53d6e8e371f8f8fac9123f75845e078036b564f`
+
+The full Fabric GameTest suite remains deferred; the 11 exact production GameTests listed above are
+the authoritative live evidence for this lane. INT-008 evidence, protected main, the master stage
+checklist, and the INT-009 backlog row were not modified. A fresh independent review must return
+READY before integration.
