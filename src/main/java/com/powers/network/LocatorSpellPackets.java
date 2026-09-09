@@ -6,6 +6,7 @@ import com.powers.fx.PowerFx;
 import com.powers.item.GrimoireItem;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
+import com.powers.player.CartographerJournalStore;
 import com.powers.power.AmethystDampening;
 import com.powers.power.MagicUseGate;
 import com.powers.power.state.EntityFreezeController;
@@ -16,7 +17,9 @@ import com.powers.progression.RankVariantRules;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.GrimoireDefinition;
 import com.powers.spell.CartographerQuery;
+import com.powers.spell.CartographerBreadcrumbs;
 import com.powers.spell.CartographerSearch;
+import com.powers.player.CartographerSite;
 import com.powers.spell.CelestialSearchMode;
 import com.powers.spell.SpellEffect;
 import com.powers.spell.SpellCastingManager;
@@ -164,20 +167,35 @@ final class LocatorSpellPackets {
 			return;
 		}
 		ServerLevel level = (ServerLevel) player.level();
+		if (!CartographerSearch.mayReveal(player, query)) {
+			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.world.locked"));
+			return;
+		}
 		if (!CartographerSearch.isKnownTarget(level, query)) {
 			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.world.unknown",
 					query.target()));
 			return;
 		}
 		if (!SpellCastingManager.commitLocator(player, SpellEffect.CARTOGRAPHERS_STAR)) return;
-		CartographerSearch.Result result = CartographerSearch.find(level, player.blockPosition(), query)
+		String dimensionId = level.dimension().identifier().toString();
+		String queryKind = query.kind().name().toLowerCase(java.util.Locale.ROOT);
+		CartographerSite known = CartographerJournalStore.find(player, dimensionId, queryKind, query.target())
 				.orElse(null);
+		CartographerSearch.Result result = known == null
+				? CartographerSearch.find(level, player.blockPosition(), query).orElse(null)
+				: new CartographerSearch.Result(new BlockPos(known.x(), known.y(), known.z()),
+						known.registryId());
 		if (result == null) {
 			PowerMessages.overlay(player, Component.translatable("grimoire.celestial.world.not_found",
 					query.target()));
 			return;
 		}
+		CartographerSite discovered = known == null ? new CartographerSite(queryKind, query.target(),
+				result.registryId(), dimensionId, result.position().getX(), result.position().getY(),
+				result.position().getZ(), level.getGameTime()) : known;
+		if (known == null) CartographerJournalStore.discover(player, discovered);
 		revealWorldResult(player, level, result);
+		CartographerBreadcrumbs.schedule(player, discovered);
 	}
 
 	private static void revealWorldResult(ServerPlayer player, ServerLevel level,

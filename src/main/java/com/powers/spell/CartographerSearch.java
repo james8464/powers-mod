@@ -2,6 +2,8 @@ package com.powers.spell;
 
 import com.mojang.datafixers.util.Pair;
 import com.powers.PowersMod;
+import com.powers.player.PlayerPowers;
+import com.powers.player.SkillSystem;
 import com.powers.realm.MemorySite;
 import com.powers.realm.RealmKind;
 import com.powers.realm.RealmLayout;
@@ -12,6 +14,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.structure.Structure;
 
@@ -47,6 +50,14 @@ public final class CartographerSearch {
 			case BIOME -> biome(level, origin, query.target());
 			case LANDMARK -> landmark(level, query.target());
 		};
+	}
+
+	/** Prevents carried or otherwise under-qualified players from revealing locked realm sites. */
+	public static boolean mayReveal(ServerPlayer player, CartographerQuery query) {
+		var powers = PlayerPowers.get(player);
+		return CartographerVisibilityRules.mayReveal(query.kind() == CartographerQuery.Kind.LANDMARK,
+				realmKind((ServerLevel) player.level()), SkillSystem.hasDarknessTag(player),
+				powers.skillLevel(), powers.darknessLevel());
 	}
 
 	private static Optional<Result> structure(ServerLevel level, BlockPos origin, String rawId) {

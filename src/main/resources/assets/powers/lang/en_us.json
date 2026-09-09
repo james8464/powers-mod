@@ -859,6 +859,7 @@
 	"grimoire.celestial.world.syntax": "Use: biome <id>, structure <id>, or landmark <name>.",
 	"grimoire.celestial.world.unknown": "Unknown world target: %s",
 	"grimoire.celestial.world.not_found": "No %s answered within the bounded search.",
+	"grimoire.celestial.world.locked": "That landmark remains veiled by your unfinished path.",
 	"grimoire.celestial.world.result": "%s lies %s, %s blocks away.",
 	"grimoire.celestial.world.coordinates": "Coordinates: %s · %s, %s, %s",
 	"spell.powers.celestial_ruin": "Heavenfall: Celestial Ruin",
