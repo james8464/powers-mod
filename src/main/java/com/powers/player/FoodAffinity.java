@@ -67,7 +67,11 @@ public final class FoodAffinity {
 	private FoodAffinity() {
 	}
 
-	/** how the darkness touched experiences this item, ordinary food by default */
+	/**
+	 * How the darkness touched experiences this item. Data tags are authoritative;
+	 * untagged third-party foods remain neutral so an integration cannot create a
+	 * hidden starvation penalty merely by registering something edible.
+	 */
 	public static String of(ItemStack stack) {
 		if (stack.is(NEUTRAL_TAG)) return NEUTRAL;
 		if (stack.is(ABNORMAL_TAG)) return ABNORMAL;
@@ -78,9 +82,10 @@ public final class FoodAffinity {
 	static String of(Identifier id) {
 		String namespace = id.getNamespace();
 		String path = id.getPath();
-		if (!namespace.equals("minecraft") && !namespace.equals(PowersMod.MOD_ID)) return NORMAL;
+		if (!namespace.equals("minecraft") && !namespace.equals(PowersMod.MOD_ID)) return NEUTRAL;
 		if (NEUTRAL_FOODS.contains(path)) return NEUTRAL;
 		if (ABNORMAL_FOODS.contains(path)) return ABNORMAL;
+		if (NORMAL_FOODS.contains(path)) return NORMAL;
 		return NORMAL;
 	}
 }

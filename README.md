@@ -255,7 +255,7 @@ The registry currently contains 260 gameplay/block rows. The exact ID, family, i
 
 There are 82 non-mythic fantasy weapons across 12 real archetypes: Frostbound slows/weakens; Quicksteel grants speed; Reaper executes wounded targets; Crusher launches/weakens; Berserker adds damage/strength; Arcane returns energy; Vital heals; Radiant burns/reveals; Abyssal withers/lifesteals; Guardian shields; Hunter marks/poisons; Piercer deals armour-ignoring magic damage. Procs have cooldowns, hidden vanilla particles, authored magic FX, and amethyst/safe-zone suppression. Every ordinary weapon belongs to one low-chance additive survival loot family and can enter the Arcane Crucible; mythic artifacts cannot.
 
-The 68 provisions use real nutrition/saturation and additive mob/block/structure acquisition. Raw staples normally restore 4 hunger and cooked staples 6. Darkness affinity turns ordinary cooked food into meagre nourishment plus hidden Hunger while foul/raw food becomes more sustaining. Ten cooked/smoked variants have recipes.
+The 68 provisions use real nutrition/saturation and additive mob/block/structure acquisition. Raw staples normally restore 4 hunger and cooked staples 6. Darkness affinity turns explicitly tagged ordinary cooked food into meagre nourishment plus hidden Hunger while tagged foul/raw food becomes more sustaining. Food-affinity tags are authoritative extension points; unknown third-party foods default neutral and cannot silently create a starvation penalty. Ten cooked/smoked variants have recipes.
 
 ## Arcane Crucible
 
