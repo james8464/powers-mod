@@ -43,6 +43,7 @@ public class FlightAbility extends ToggleAbility {
 
 	@Override
 	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		FlightRules.Step flightStep = null;
 		if (!player.gameMode().isCreative() && !player.isSpectator()) {
 			// Propulsion is an authorised server-side movement source. Reset only
 			// this connection's vanilla floating counter while the toggle is active;
@@ -50,21 +51,57 @@ public class FlightAbility extends ToggleAbility {
 			// untouched for every other player.
 			player.connection.resetFlyingTicks();
 			var input = player.getLastClientInput();
-			FlightRules.Motion motion = FlightRules.motion(player.getYRot(), input.forward(), input.backward(),
-					input.left(), input.right(), input.jump(), input.shift(), input.sprint(),
+			int snapshot = Math.max(0, data.flightSnapshot());
+			boolean wasSonic = (snapshot & 1) != 0;
+			boolean wasInWater = (snapshot & 2) != 0;
+			boolean inWater = player.isInWater();
+			var velocity = player.getDeltaMovement();
+			FlightRules.Step step = FlightRules.step(
+					new FlightRules.Motion(velocity.x, velocity.y, velocity.z), player.getYRot(),
+					new FlightRules.Input(input.forward(), input.backward(), input.left(), input.right(),
+							input.jump(), input.shift(), input.sprint()),
+					new FlightRules.Environment(inWater, data.energy(), data.energyCapacity(), wasSonic),
 					com.powers.player.SkillSystem.effectiveLevel(player));
-			player.setDeltaMovement(motion.x(), motion.y(), motion.z());
+			player.setDeltaMovement(step.motion().x(), step.motion().y(), step.motion().z());
+			flightStep = step;
+			data.setFlightSnapshot((step.sonic() ? 1 : 0) | (inWater ? 2 : 0));
 			player.hurtMarked = true;
 			player.resetFallDistance();
+			if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+				flightFeedback(level, player, step, wasInWater != inWater);
+			}
 		}
 		if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
 			// rainbow trail while actually airborne
 			int rgb = com.powers.fx.PowerFx.rainbow(level.getServer().getTickCount(), 4);
-			com.powers.fx.PowerFx.coloredBurst(level, player.position().add(0, 0.3, 0), rgb, 2, 0.12);
+			net.minecraft.world.phys.Vec3 trail = player.position().add(0, 0.3, 0);
+			if (flightStep != null && flightStep.motion().horizontalSpeed() > 1.0E-8) {
+				double bank = flightStep.tiltDegrees() / FlightRules.MAX_TILT_DEGREES * 0.35;
+				trail = trail.add(-flightStep.motion().z() / flightStep.motion().horizontalSpeed() * bank,
+						0.0, flightStep.motion().x() / flightStep.motion().horizontalSpeed() * bank);
+			}
+			com.powers.fx.PowerFx.coloredBurst(level, trail, rgb, 2, 0.12);
 			if (scaling(player).unlockedVariants().contains("second_step") && level.getServer().getTickCount() % 10 == 0) {
 				com.powers.fx.PowerFx.ring(level, player.position().add(0, 0.1, 0), 0.8, rgb, 12,
 						level.getServer().getTickCount() * 0.1);
 			}
+		}
+	}
+
+	private static void flightFeedback(net.minecraft.server.level.ServerLevel level,
+			ServerPlayer player, FlightRules.Step step, boolean waterTransition) {
+		int tick = level.getServer().getTickCount();
+		if (step.sonicCrossed()) {
+			com.powers.fx.PowerFx.sound(level, player.position(),
+					net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE.value(), 0.9f, 1.8f);
+			com.powers.fx.PowerFx.ring(level, player.position(), 2.2, 0xF8FFFF, 32, 0.0);
+		} else if (waterTransition) {
+			com.powers.fx.PowerFx.sound(level, player.position(),
+					net.minecraft.sounds.SoundEvents.ELYTRA_FLYING, 0.45f, 0.65f);
+		} else if (tick % 20 == 0) {
+			float pitch = step.soundCue() == FlightRules.SoundCue.LOW_ENERGY ? 0.65f : 1.25f;
+			com.powers.fx.PowerFx.sound(level, player.position(),
+					net.minecraft.sounds.SoundEvents.ELYTRA_FLYING, 0.28f, pitch);
 		}
 	}
 
