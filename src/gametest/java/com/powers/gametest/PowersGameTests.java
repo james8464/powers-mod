@@ -230,6 +230,45 @@ public final class PowersGameTests {
 		helper.succeed();
 	}
 
+	@GameTest(maxTicks = 40)
+	@SuppressWarnings("removal")
+	public void heraldCourtPhaseAppliesExpiringHazardAndCleansItsBoundedSummon(
+			GameTestHelper helper) {
+		RealmHerald herald = helper.spawn(PowersEntities.LIGHT_HERALD, new BlockPos(2, 2, 2));
+		herald.beginCourtEncounter();
+		ServerPlayer opposed = helper.makeMockServerPlayerInLevel();
+		opposed.setGameMode(GameType.CREATIVE);
+		opposed.addTag(SkillSystem.DARKNESS_TAG);
+		opposed.snapTo(helper.absoluteVec(new Vec3(4.0, 2.0, 2.0)), 0.0F, 0.0F);
+		herald.setHealth(herald.getMaxHealth() * 0.5F);
+		herald.tickCount = 0;
+		try {
+			var ai = RealmHerald.class.getDeclaredMethod("customServerAiStep",
+					net.minecraft.server.level.ServerLevel.class);
+			ai.setAccessible(true);
+			ai.invoke(herald, helper.getLevel());
+			helper.assertTrue(herald.courtPhase()
+					== com.powers.realm.RealmHeraldCourtRules.Phase.ASCENDANT,
+					"Herald health did not advance the persistent three-phase court");
+			helper.assertTrue(opposed.hasEffect(MobEffects.SLOWNESS)
+					&& opposed.hasEffect(MobEffects.GLOWING),
+					"Light Court did not apply its finite, non-terrain hazard");
+			var summons = com.powers.util.BoundedEntityCandidates.ofClass(helper.getLevel(),
+					RadiantSentinel.class,
+					new net.minecraft.world.phys.AABB(herald.blockPosition()).inflate(24.0),
+					com.powers.realm.RealmHeraldCourtRules.MAX_SUMMONS + 1,
+					RadiantSentinel::temporaryGuardian);
+			helper.assertTrue(summons.size() == 1,
+					"Herald Court did not create exactly one bounded first summon");
+			herald.die(PowerDamage.source(opposed));
+			helper.assertTrue(summons.getFirst().isRemoved(),
+					"Defeated Herald left a loaded court summon behind");
+			helper.succeed();
+		} catch (ReflectiveOperationException failure) {
+			helper.fail("Herald Court production seam missing: " + failure.getMessage());
+		}
+	}
+
 	@GameTest
 	public void mythicArtifactsCarryUnbreakableRegisteredIdentity(GameTestHelper helper) {
 		var shadow = PowersWeapons.weapon("lycanbane").getDefaultInstance();
