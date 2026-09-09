@@ -1,48 +1,71 @@
 # PWR-004 implementation report
 
+Status: **review repair staged; fresh independent rereview and full gate pending.**
+
 ## Scope
 
-This unit implements the Stage 5 Size Morphing improvement without changing the stage checkbox or
-removing the backlog row. The existing `SizeMorphAbility` remains the authoritative owner.
+This unit implements and repairs the Stage 5 Size Morphing improvement without changing the stage
+checkbox or removing the backlog row. `SizeMorphAbility` remains the authoritative owner.
 
 ## Implemented contract
 
-- A transition previews both the candidate body and its 1.5-block forward sweep. A requested form
-  that overlaps the current cavity still fails atomically; a form blocked only by the route ahead
-  falls back through authored smaller scales and restores itself when clear.
-- Normal-or-smaller bodies may use crouching and crawling dimensions. A crawl pose owned by Size
-  Morphing is released on safe toggle-off.
-- Mounted activation is rejected with explicit action-bar feedback. If a player mounts after
-  activation, the next authoritative tick restores the normal body, releases toggle ownership,
-  and leaves the rider attached to the vehicle.
-- Block reach grows from 4.5 blocks to a 12-block cap; entity reach grows from 3 blocks to a
-  10-block cap. Body mass is cubic in scale and contributes at most 0.8 knockback resistance.
-- Recurring energy cost follows the actually applied fallback form and retains innate rank
-  efficiency. The normal sync packet carries applied scale, both reach values, and resolved drain;
-  the active HUD slot renders those server-authored values.
+- Every scale transition previews the candidate body and its 1.5-block forward sweep. Fallbacks
+  remain monotonic, use only authored scales unlocked at the player's effective rank, and restore the
+  selected form when the route clears.
+- Normalization performs a vanilla-scale collision preflight across standing, current, crouching,
+  and swimming poses before removing the scale modifier. Toggle-off uses a safe compact pose where
+  available and is rejected atomically where no vanilla pose fits.
+- Mounted activation is rejected. A player who mounts while morphed is normalized without
+  dismounting when a vanilla pose fits; if none fits, the unsafe mount is rejected while the safe
+  transformed body and toggle ownership remain intact.
+- Block reach grows from a morph-owned 4.5-block baseline contribution to a 12-block profile cap;
+  entity reach similarly grows from 3 to 10 blocks. Morph modifiers compose with rank and third-party
+  modifiers and remove only their own identifiers.
+- Body mass is cubic in scale and contributes at most 0.8 knockback resistance. Recurring drain and
+  HUD values use the actually applied fallback scale and retain innate rank efficiency.
+- Fallback and restoration call the normal production sync path immediately. The real outbound
+  connection test observes applied scale, live reach, and resolved drain in `PowerStatePayload`.
+- Disconnect/respawn cleanup forgets the per-player forced-crawler preference, and server shutdown
+  clears the complete UUID set.
 
 ## TDD evidence
 
-The following focused tests were observed failing before their corresponding production changes:
+The repair was developed in red/green cycles. The following focused regressions were observed failing
+before their corresponding production changes:
 
-- `powers_game_tests_innate_size_morph_rejects_mounted_activation_without_changing_either_body`:
-  `Mounted Size Morphing entered the authoritative toggle pipeline on tick 0`.
-- `SizeMorphRulesTest.transitionPolicyExposesSafeFallbackReachDrainAndMassFeedback`:
-  `NoSuchMethodException: com.powers.power.abilities.SizeMorphRules.transitionCandidates(int)`.
-- `powers_game_tests_innate_size_morph_uses_doorway_fallback_then_restores_authoritative_reach_and_mass`:
-  `Doorway prediction rejected the safe fallback with the selected form on tick 0`.
-- `powers_game_tests_innate_size_morph_crawl_pose_is_released_when_the_toggle_ends`:
-  `Toggle-off retained the forced crawl pose in clear space on tick 0`.
-- `PowerStatePayloadTest.sizeMorphFeedbackCarriesAppliedScaleReachAndRankAdjustedDrain`:
-  `NoSuchMethodException: com.powers.network.PowerStatePayload.sizeMorphAppliedScale()`.
-- `powers_game_tests_innate_size_morph_relinquishes_its_body_when_the_player_mounts`:
-  `Mounted player retained stale Size Morphing toggle ownership on tick 0`.
+- `SizeMorphRulesTest.transitionPolicyExposesSafeFallbackReachDrainAndMassFeedback`: compilation
+  failed because rank-aware `transitionCandidates(int, int)` did not exist.
+- `innateSizeMorphPreservesForeignReachAndRankMassModifiers`: failed with
+  `Size Morphing replaced a foreign block-reach contribution`.
+- `innateSizeMorphToggleOffNormalizesThroughASafeCompactPose`: failed with
+  `Confined toggle-off did not choose the collision-free vanilla crawl pose`.
+- `innateSizeMorphRejectsToggleOffWhenNoVanillaPoseFits`: failed because toggle-off succeeded in a
+  half-block cavity with no collision-free vanilla pose.
+- `sizeMorphFallbackAndRestorationSyncActualProfileImmediately`: failed because fallback emitted no
+  immediate production state payload.
+- `innateSizeMorphDisconnectForgetsForcedCrawlerPreference`: failed because disconnect retained the
+  old UUID's standing-first crawler preference.
 
-## Focused verification
+## Verification
 
-- `SizeMorphRulesTest` and `PowerStatePayloadTest`: green.
-- Filter `powers-gametest:*size_morph*`: five production-entrypoint GameTests green.
-- Existing hostile low-ceiling collision regression: green.
+- Focused JUnit: `SizeMorphRulesTest` and `PowerStatePayloadTest`, 10 tests, green.
+- Complete JUnit: 1,838 tests, zero failures, green.
+- Exact focused Fabric GameTests: filter `powers-gametest:*size_morph*`, 11/11 required tests, green.
+- Common, client, example-extension, and GameTest Java compilation: green.
+- Main resource processing and strict POWERS resource validation: green.
+- Java-source and non-item-asset audits were regenerated; both exact-manifest checks are green.
+- Generated item, magic, and rank documentation checks: green.
+- `git diff --check`: green.
 
-The full machine-wide check and complete GameTest suite were intentionally not run while parallel
-lanes were active.
+Fresh repair evidence:
+
+| Evidence | SHA-256 |
+| --- | --- |
+| `/tmp/powers-pwr004-repair-focused-final-20260909.log` | `7c81de4c86ec97dcfaac6cf531d95fd138800a0dc477a004821b9733d4d7088d` |
+| `/tmp/powers-pwr004-repair-live-final-20260909.log` | `78e1d0c2ec8227e86a743cf917914563c859101be4b4114224cbcb081266c159` |
+
+## Explicit limitations
+
+Per task instruction, the machine-wide main gate and unfiltered Fabric GameTest suite were not run.
+No real-client visual capture is claimed; HUD correctness is covered at the serialized production
+connection boundary and by the client-state/unit coverage already in the PWR-004 unit.

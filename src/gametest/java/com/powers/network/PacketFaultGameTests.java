@@ -141,6 +141,67 @@ public final class PacketFaultGameTests {
 				dimension, generation);
 	}
 
+	@GameTest(maxTicks = 20)
+	public void sizeMorphFallbackAndRestorationSyncActualProfileImmediately(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos feet = helper.absolutePos(new BlockPos(4, 2, 4));
+		player.snapTo(feet.getX() + 0.5, feet.getY(), feet.getZ() + 0.5);
+		player.setYRot(0.0F);
+		player.setXRot(0.0F);
+		for (int x = -5; x <= 5; x++) for (int y = 0; y <= 9; y++) for (int z = -2; z <= 12; z++) {
+			helper.getLevel().setBlockAndUpdate(feet.offset(x, y, z),
+					net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+		}
+		var data = PlayerPowers.get(player);
+		data.setSkillLevel(player, 10);
+		data.setSizeMorphOption(11);
+		var ability = new com.powers.power.abilities.SizeMorphAbility();
+		com.powers.testing.TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		List<Object> payloads = capture(player);
+		try {
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+					player, ability, ability.id().toString())
+					== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+					"Fourfold sync fixture did not activate");
+			helper.assertTrue(Math.abs(player.getScale() - 4.0F) < 0.001F,
+					"Clear-space sync fixture did not reach fourfold scale");
+			payloads.clear();
+			for (int x = -3; x <= 3; x++) for (int y = 0; y <= 7; y++) {
+				helper.getLevel().setBlockAndUpdate(feet.offset(x, y, 2),
+						x == 0 && y < 2 ? net.minecraft.world.level.block.Blocks.AIR.defaultBlockState()
+								: net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+			}
+			ability.tickActive(player, data);
+			helper.assertTrue(payloads.stream().filter(PowerStatePayload.class::isInstance)
+					.map(PowerStatePayload.class::cast).anyMatch(payload ->
+							Math.abs(payload.sizeMorphAppliedScale() - 1.0) < 0.001
+							&& Math.abs(payload.sizeMorphBlockReach() - 4.5) < 0.001
+							&& Math.abs(payload.sizeMorphEntityReach() - 3.0) < 0.001
+							&& payload.sizeMorphDrainPerSecond() == 0),
+					"Fallback did not immediately traverse the production sync path with actual values");
+			payloads.clear();
+			for (int x = -3; x <= 3; x++) for (int y = 0; y <= 7; y++) {
+				helper.getLevel().setBlockAndUpdate(feet.offset(x, y, 2),
+						net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+			}
+			ability.tickActive(player, data);
+			helper.assertTrue(payloads.stream().filter(PowerStatePayload.class::isInstance)
+					.map(PowerStatePayload.class::cast).anyMatch(payload ->
+							Math.abs(payload.sizeMorphAppliedScale() - 4.0) < 0.001
+							&& Math.abs(payload.sizeMorphBlockReach() - 12.0) < 0.001
+							&& Math.abs(payload.sizeMorphEntityReach() - 10.0) < 0.001
+							&& payload.sizeMorphDrainPerSecond() == 9),
+					"Restoration did not immediately traverse the production sync path with actual values");
+		} finally {
+			if (data.isToggleActive(ability.id().toString())) {
+				com.powers.power.AbilityActivationService.activate(
+						player, ability, ability.id().toString(), true);
+			}
+			com.powers.testing.TestingOverrides.clear(player.getUUID());
+		}
+		helper.succeed();
+	}
+
 	@GameTest(environment = "powers:packet_fault_matrix_isolated", maxTicks = 40)
 	public void sixProfilesConvergeThroughRegisteredProductionBoundaries(GameTestHelper helper) {
 		PacketRateLimiter.clearGlobal();

@@ -63,10 +63,11 @@ public final class SizeMorphRules {
 	}
 
 	/** Tries the requested form first, then monotonically smaller authored bodies. */
-	public static List<Integer> transitionCandidates(int requestedOption) {
+	public static List<Integer> transitionCandidates(int requestedOption, int rank) {
 		double requestedScale = scale(requestedOption);
 		return IntStream.range(0, SCALES.size()).boxed()
 				.filter(option -> SCALES.get(option) <= requestedScale)
+				.filter(option -> minimumRank(option) <= rank)
 				.sorted(Comparator.comparingDouble((Integer option) -> SCALES.get(option)).reversed())
 				.toList();
 	}
@@ -85,5 +86,15 @@ public final class SizeMorphRules {
 
 	/** Compact value shared by physical attributes, recurring payment, and HUD sync. */
 	public record ScaleProfile(double scale, double bodyMass, double blockReach,
-			double entityReach, int drainPerSecond, double knockbackResistance) { }
+			double entityReach, int drainPerSecond, double knockbackResistance) {
+		/** Morph-owned reach contribution, preserving rank and third-party modifiers. */
+		public double blockReachBonus() {
+			return blockReach - VANILLA_BLOCK_REACH;
+		}
+
+		/** Morph-owned entity-reach contribution, preserving unrelated modifiers. */
+		public double entityReachBonus() {
+			return entityReach - VANILLA_ENTITY_REACH;
+		}
+	}
 }

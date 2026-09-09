@@ -83,15 +83,21 @@ public final class SizeMorphAbility extends ToggleAbility {
 
 	@Override
 	public void activateToggleOff(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
-		removeModifier(player);
-		showChange(player, 1.0);
+		if (removeModifier(player)) showChange(player, 1.0);
+	}
+
+	@Override
+	public boolean canDeactivateToggle(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		return player.level() instanceof ServerLevel level
+				&& findNormalTransition(level, player) != null;
 	}
 
 	@Override
 	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 		if (player.isPassenger()) {
-			normalizeActiveScale(player, data);
-			data.setToggleActive(player, id().toString(), false);
+			boolean normalized = normalizeActiveScale(player, data);
+			if (normalized) data.setToggleActive(player, id().toString(), false);
+			else player.stopRiding();
 			com.powers.util.PowerMessages.overlay(player,
 					Component.translatable("ability.powers.size_morph.mounted"));
 			com.powers.network.PowersPackets.syncTo(player);
@@ -100,6 +106,9 @@ public final class SizeMorphAbility extends ToggleAbility {
 		if (!applySelectedScale(player, data, true)) {
 			normalizeActiveScale(player, data);
 		}
+		// The sync cache makes unchanged five-tick checks free while fallback and
+		// restoration reach the HUD in the same authoritative transition.
+		com.powers.network.PowersPackets.syncTo(player);
 	}
 
 	private static boolean applySelectedScale(ServerPlayer player, PlayerPowers.PlayerPowersData data,
@@ -122,7 +131,8 @@ public final class SizeMorphAbility extends ToggleAbility {
 			boolean allowOverlapFallback) {
 		double currentScale = Math.max(0.001, player.getScale());
 		boolean requested = true;
-		for (int option : SizeMorphRules.transitionCandidates(requestedOption)) {
+		int rank = com.powers.player.SkillSystem.effectiveLevel(player);
+		for (int option : SizeMorphRules.transitionCandidates(requestedOption, rank)) {
 			double candidateScale = SizeMorphRules.scale(option);
 			boolean currentPositionClear = false;
 			for (Pose pose : candidatePoses(player, candidateScale)) {
@@ -168,51 +178,71 @@ public final class SizeMorphAbility extends ToggleAbility {
 	}
 
 	private static void applyPhysicalProfile(ServerPlayer player, SizeMorphRules.ScaleProfile profile) {
-		setAbsolute(player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE), BLOCK_REACH_ID,
-				profile.blockReach());
-		setAbsolute(player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE), ENTITY_REACH_ID,
-				profile.entityReach());
-		setAbsolute(player.getAttribute(Attributes.KNOCKBACK_RESISTANCE), MASS_KNOCKBACK_ID,
+		setContribution(player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE), BLOCK_REACH_ID,
+				profile.blockReachBonus());
+		setContribution(player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE), ENTITY_REACH_ID,
+				profile.entityReachBonus());
+		setContribution(player.getAttribute(Attributes.KNOCKBACK_RESISTANCE), MASS_KNOCKBACK_ID,
 				profile.knockbackResistance());
 	}
 
-	private static void setAbsolute(AttributeInstance attribute,
+	private static void setContribution(AttributeInstance attribute,
 			net.minecraft.resources.Identifier id, double value) {
 		if (attribute == null) return;
 		attribute.removeModifier(id);
-		double delta = value - attribute.getValue();
-		if (Math.abs(delta) > 1.0E-9) attribute.addTransientModifier(
-				new AttributeModifier(id, delta, AttributeModifier.Operation.ADD_VALUE));
+		if (Math.abs(value) > 1.0E-9) attribute.addTransientModifier(
+				new AttributeModifier(id, value, AttributeModifier.Operation.ADD_VALUE));
 	}
 
-	private static void normalizeActiveScale(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+	private static boolean normalizeActiveScale(ServerPlayer player,
+			PlayerPowers.PlayerPowersData data) {
+		if (!removeModifier(player)) return false;
 		data.setSizeMorphOption(SizeMorphRules.normalOption());
-		removeModifier(player);
+		return true;
 	}
 
-	private static void removeModifier(ServerPlayer player) {
-		boolean forcedCrawler = FORCED_CRAWLERS.remove(player.getUUID());
+	private static boolean removeModifier(ServerPlayer player) {
+		if (!(player.level() instanceof ServerLevel level)) return false;
+		Transition normal = findNormalTransition(level, player);
+		if (normal == null) return false;
+		player.setPose(normal.pose());
+		player.refreshDimensions();
 		AttributeInstance scale = player.getAttribute(Attributes.SCALE);
 		if (scale != null) {
 			scale.removeModifier(MODIFIER_ID);
 			player.refreshDimensions();
 		}
-		if (forcedCrawler && player.level() instanceof ServerLevel level) {
-			AABB standing = player.getDimensions(Pose.STANDING)
-					.makeBoundingBox(player.position()).deflate(1.0E-7);
-			if (level.noCollision(player, standing)) {
-				player.setPose(Pose.STANDING);
-				player.refreshDimensions();
-			}
-		}
+		FORCED_CRAWLERS.remove(player.getUUID());
 		removeOwned(player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE), BLOCK_REACH_ID);
 		removeOwned(player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE), ENTITY_REACH_ID);
 		removeOwned(player.getAttribute(Attributes.KNOCKBACK_RESISTANCE), MASS_KNOCKBACK_ID);
+		return level.noCollision(player, player.getBoundingBox());
+	}
+
+	private static Transition findNormalTransition(ServerLevel level, ServerPlayer player) {
+		double currentScale = Math.max(0.001, player.getScale());
+		for (Pose pose : List.of(Pose.STANDING, player.getPose(), Pose.CROUCHING, Pose.SWIMMING)
+				.stream().distinct().toList()) {
+			AABB body = dimensionsAt(player, pose, 1.0, currentScale)
+					.makeBoundingBox(player.position()).deflate(1.0E-7);
+			if (level.noCollision(player, body)) return new Transition(1.0, pose);
+		}
+		return null;
 	}
 
 	private static void removeOwned(AttributeInstance attribute,
 			net.minecraft.resources.Identifier id) {
 		if (attribute != null) attribute.removeModifier(id);
+	}
+
+	/** Drops pose preference owned by a departing player entity. */
+	public static void forget(UUID player) {
+		FORCED_CRAWLERS.remove(player);
+	}
+
+	/** Drops all UUID-keyed pose preference at server shutdown. */
+	public static void clearAll() {
+		FORCED_CRAWLERS.clear();
 	}
 
 	private static void showChange(ServerPlayer player, double scale) {

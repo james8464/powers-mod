@@ -123,6 +123,11 @@ public abstract class Ability {
 	public void activateToggleOff(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 	}
 
+	/** Allows stateful toggles to reject a user-requested shutdown that is not yet safe. */
+	public boolean canDeactivateToggle(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		return true;
+	}
+
 	/** runs every few server ticks while the toggle is on, to drain energy or keep the effect going */
 	public void tickActive(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
 	}

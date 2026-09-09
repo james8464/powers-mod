@@ -51,7 +51,9 @@ class SizeMorphRulesTest {
 	@Test
 	void transitionPolicyExposesSafeFallbackReachDrainAndMassFeedback() {
 		assertEquals(List.of(11, 10, 9, 7, 6, 5, 4, 3, 2, 1, 0, 8),
-				SizeMorphRules.transitionCandidates(11));
+				SizeMorphRules.transitionCandidates(11, 10));
+		assertEquals(List.of(0), SizeMorphRules.transitionCandidates(0, 0),
+				"fallback candidates must not bypass the rank-six eighth-scale gate");
 		SizeMorphRules.ScaleProfile giant = SizeMorphRules.profile(4.0);
 		assertEquals(64.0, giant.bodyMass());
 		assertEquals(12.0, giant.blockReach());

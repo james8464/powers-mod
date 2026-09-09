@@ -212,6 +212,7 @@ public final class AbilityActivationService {
 			Ability ability, String toggleKey, CastSource source) {
 		if (toggleKey == null || toggleKey.isBlank()) return Result.FAILED;
 		if (data.isToggleActive(toggleKey)) {
+			if (!ability.canDeactivateToggle(player, data)) return Result.FAILED;
 			ability.activateToggleOff(player, data);
 			data.setToggleActive(player, toggleKey, false);
 			PowerMessages.overlay(player, Component.translatable("ability.powers.toggle_off", ability.name()));

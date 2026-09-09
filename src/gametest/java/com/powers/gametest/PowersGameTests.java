@@ -154,6 +154,8 @@ public final class PowersGameTests {
 	@SuppressWarnings("removal")
 	public void innateSizeMorphRelinquishesItsBodyWhenThePlayerMounts(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos feet = helper.absolutePos(new BlockPos(4, 2, 4));
+		player.snapTo(feet.getX() + 0.5, feet.getY(), feet.getZ() + 0.5);
 		var data = com.powers.player.PlayerPowers.get(player);
 		var ability = new com.powers.power.abilities.SizeMorphAbility();
 		data.setSizeMorphOption(1);
@@ -170,6 +172,8 @@ public final class PowersGameTests {
 			helper.getLevel().addFreshEntity(horse);
 			helper.assertTrue(player.startRiding(horse, true, true),
 					"Mount fixture could not attach its morphed passenger");
+			player.snapTo(feet.getX() + 0.5, feet.getY(), feet.getZ() + 0.5);
+			helper.getLevel().setBlockAndUpdate(feet.above(), Blocks.STONE.defaultBlockState());
 			ability.tickActive(player, data);
 			helper.assertTrue(Math.abs(player.getScale() - 1.0F) < 0.001F,
 					"Mounted player retained the transformed body");
@@ -177,7 +181,57 @@ public final class PowersGameTests {
 					"Mounted player retained stale Size Morphing toggle ownership");
 			helper.assertTrue(player.getVehicle() == horse,
 					"Size Morphing cleanup silently dismounted the player");
+			helper.assertTrue(player.getPose() == net.minecraft.world.entity.Pose.SWIMMING
+					&& helper.getLevel().noCollision(player, player.getBoundingBox()),
+					"Mounted normalization expanded into the one-block ceiling");
 		} finally {
+			TestingOverrides.clear(player.getUUID());
+			player.stopRiding();
+			horse.discard();
+		}
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
+	public void innateSizeMorphRejectsMountWhenNoVanillaPoseFits(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos feet = helper.absolutePos(new BlockPos(4, 2, 4));
+		player.snapTo(feet.getX() + 0.5, feet.getY(), feet.getZ() + 0.5);
+		var data = com.powers.player.PlayerPowers.get(player);
+		var ability = new com.powers.power.abilities.SizeMorphAbility();
+		data.setSizeMorphOption(0);
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		var horse = net.minecraft.world.entity.EntityTypes.HORSE.create(helper.getLevel(),
+				net.minecraft.world.entity.EntitySpawnReason.MOB_SUMMONED);
+		helper.assertTrue(horse != null, "Mount-rejection fixture could not create a horse");
+		try {
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+					player, ability, ability.id().toString())
+					== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+					"Quarter-scale mount-rejection fixture did not activate");
+			horse.snapTo(player.getX(), player.getY(), player.getZ());
+			helper.getLevel().addFreshEntity(horse);
+			helper.assertTrue(player.startRiding(horse, true, true),
+					"Mount-rejection fixture could not attach its passenger");
+			player.snapTo(feet.getX() + 0.5, feet.getY(), feet.getZ() + 0.5);
+			helper.getLevel().setBlockAndUpdate(feet,
+					Blocks.STONE_SLAB.defaultBlockState().setValue(
+							net.minecraft.world.level.block.SlabBlock.TYPE,
+							net.minecraft.world.level.block.state.properties.SlabType.TOP));
+			ability.tickActive(player, data);
+			helper.assertFalse(player.isPassenger(),
+					"Impossible vanilla-scale transition retained the unsafe mount");
+			helper.assertTrue(data.isToggleActive(ability.id().toString())
+					&& Math.abs(player.getScale() - 0.25F) < 0.001F
+					&& helper.getLevel().noCollision(player, player.getBoundingBox()),
+					"Rejected mount lost the collision-safe transformed body");
+		} finally {
+			helper.getLevel().setBlockAndUpdate(feet, Blocks.AIR.defaultBlockState());
+			if (data.isToggleActive(ability.id().toString())) {
+				com.powers.power.AbilityActivationService.activate(
+						player, ability, ability.id().toString(), true);
+			}
 			TestingOverrides.clear(player.getUUID());
 			player.stopRiding();
 			horse.discard();
@@ -257,6 +311,78 @@ public final class PowersGameTests {
 
 	@GameTest(maxTicks = 20)
 	@SuppressWarnings("removal")
+	public void innateSizeMorphToggleOffNormalizesThroughASafeCompactPose(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos feet = helper.absolutePos(new BlockPos(4, 2, 4));
+		player.snapTo(feet.getX() + 0.5, feet.getY(), feet.getZ() + 0.5);
+		for (int z = -1; z <= 2; z++) {
+			helper.getLevel().setBlockAndUpdate(feet.offset(0, 1, z), Blocks.STONE.defaultBlockState());
+		}
+		var data = com.powers.player.PlayerPowers.get(player);
+		data.setSizeMorphOption(0);
+		var ability = new com.powers.power.abilities.SizeMorphAbility();
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		try {
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+					player, ability, ability.id().toString())
+					== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+					"Quarter-scale tunnel fixture did not activate");
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+					player, ability, ability.id().toString(), true)
+					== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+					"Confined toggle-off did not complete");
+			helper.assertTrue(Math.abs(player.getScale() - 1.0F) < 0.001F,
+					"Confined toggle-off retained the quarter-scale modifier");
+			helper.assertTrue(player.getPose() == net.minecraft.world.entity.Pose.SWIMMING,
+					"Confined toggle-off did not choose the collision-free vanilla crawl pose");
+			helper.assertTrue(helper.getLevel().noCollision(player, player.getBoundingBox()),
+					"Confined toggle-off expanded the player into the tunnel ceiling");
+		} finally {
+			TestingOverrides.clear(player.getUUID());
+		}
+		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 20)
+	@SuppressWarnings("removal")
+	public void innateSizeMorphRejectsToggleOffWhenNoVanillaPoseFits(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos feet = helper.absolutePos(new BlockPos(4, 2, 4));
+		player.snapTo(feet.getX() + 0.5, feet.getY(), feet.getZ() + 0.5);
+		helper.getLevel().setBlockAndUpdate(feet,
+				Blocks.STONE_SLAB.defaultBlockState().setValue(
+						net.minecraft.world.level.block.SlabBlock.TYPE,
+						net.minecraft.world.level.block.state.properties.SlabType.TOP));
+		var data = com.powers.player.PlayerPowers.get(player);
+		data.setSizeMorphOption(0);
+		var ability = new com.powers.power.abilities.SizeMorphAbility();
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		try {
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+					player, ability, ability.id().toString())
+					== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+					"Half-block cavity did not accept the collision-free quarter-scale body");
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+					player, ability, ability.id().toString(), true)
+					== com.powers.power.AbilityActivationService.Result.FAILED,
+					"Toggle-off succeeded where no vanilla-scale pose could fit");
+			helper.assertTrue(data.isToggleActive(ability.id().toString())
+					&& Math.abs(player.getScale() - 0.25F) < 0.001F
+					&& helper.getLevel().noCollision(player, player.getBoundingBox()),
+					"Rejected toggle-off lost safe morph ownership or entered collision");
+		} finally {
+			helper.getLevel().setBlockAndUpdate(feet, Blocks.AIR.defaultBlockState());
+			if (data.isToggleActive(ability.id().toString())) {
+				com.powers.power.AbilityActivationService.activate(
+						player, ability, ability.id().toString(), true);
+			}
+			TestingOverrides.clear(player.getUUID());
+		}
+		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 20)
+	@SuppressWarnings("removal")
 	public void innateSizeMorphCrawlPoseIsReleasedWhenTheToggleEnds(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		BlockPos feet = helper.absolutePos(new BlockPos(4, 2, 4));
@@ -292,6 +418,91 @@ public final class PowersGameTests {
 				com.powers.power.AbilityActivationService.activate(
 						player, ability, ability.id().toString(), true);
 			}
+			TestingOverrides.clear(player.getUUID());
+		}
+		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 20)
+	@SuppressWarnings("removal")
+	public void innateSizeMorphDisconnectForgetsForcedCrawlerPreference(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos feet = helper.absolutePos(new BlockPos(4, 2, 4));
+		player.snapTo(feet.getX() + 0.5, feet.getY(), feet.getZ() + 0.5);
+		for (int z = -1; z <= 2; z++) {
+			helper.getLevel().setBlockAndUpdate(feet.offset(0, 1, z), Blocks.STONE.defaultBlockState());
+		}
+		var data = com.powers.player.PlayerPowers.get(player);
+		data.setSizeMorphOption(com.powers.power.abilities.SizeMorphRules.normalOption());
+		var ability = new com.powers.power.abilities.SizeMorphAbility();
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+				player, ability, ability.id().toString())
+				== com.powers.power.AbilityActivationService.Result.ACTIVATED
+				&& player.getPose() == net.minecraft.world.entity.Pose.SWIMMING,
+				"Disconnect fixture did not acquire forced crawler state");
+		for (int z = -1; z <= 2; z++) {
+			helper.getLevel().setBlockAndUpdate(feet.offset(0, 1, z), Blocks.AIR.defaultBlockState());
+		}
+		com.powers.power.PowerAbilityRuntime.onDisconnect(helper.getLevel().getServer(), player);
+		ability.tickActive(player, data);
+		helper.assertTrue(player.getPose() == net.minecraft.world.entity.Pose.SWIMMING,
+				"Disconnect leaked the prior entity's forced-crawler standing preference");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
+	public void innateSizeMorphPreservesForeignReachAndRankMassModifiers(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		var data = com.powers.player.PlayerPowers.get(player);
+		var ability = new com.powers.power.abilities.SizeMorphAbility();
+		data.setSizeMorphOption(4);
+		var foreignId = net.minecraft.resources.Identifier.fromNamespaceAndPath(
+				"example_mod", "size_morph_composition");
+		for (var attribute : java.util.List.of(Attributes.BLOCK_INTERACTION_RANGE,
+				Attributes.ENTITY_INTERACTION_RANGE, Attributes.KNOCKBACK_RESISTANCE)) {
+			player.getAttribute(attribute).addTransientModifier(new AttributeModifier(
+					foreignId, 0.1, AttributeModifier.Operation.ADD_VALUE));
+		}
+		RankAttributeManager.reconcile(player, new RankProfile(
+				java.util.Map.of(RankPerkType.WARD_INTEGRITY, 0.25),
+				java.util.Map.of(), java.util.Map.of(), "size-morph-composition"));
+		double blockBefore = player.blockInteractionRange();
+		double entityBefore = player.entityInteractionRange();
+		double knockbackBefore = player.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
+		var morphProfile = com.powers.power.abilities.SizeMorphRules.profile(1.25);
+		TestingOverrides.setEnergyDisabled(player.getUUID(), true);
+		try {
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+					player, ability, ability.id().toString())
+					== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+					"Composed Size Morphing fixture did not activate");
+			helper.assertTrue(Math.abs(player.blockInteractionRange()
+					- (blockBefore + morphProfile.blockReach() - 4.5)) < 0.001,
+					"Size Morphing replaced a foreign block-reach contribution");
+			helper.assertTrue(Math.abs(player.entityInteractionRange()
+					- (entityBefore + morphProfile.entityReach() - 3.0)) < 0.001,
+					"Size Morphing replaced a foreign entity-reach contribution");
+			helper.assertTrue(player.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)
+					> knockbackBefore + morphProfile.knockbackResistance(),
+					"Size Morphing replaced a rank or foreign mass contribution");
+			for (var attribute : java.util.List.of(Attributes.BLOCK_INTERACTION_RANGE,
+					Attributes.ENTITY_INTERACTION_RANGE, Attributes.KNOCKBACK_RESISTANCE)) {
+				helper.assertTrue(player.getAttribute(attribute).hasModifier(foreignId),
+						"Size Morphing removed a foreign attribute owner");
+			}
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(
+					player, ability, ability.id().toString(), true)
+					== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+					"Composed Size Morphing fixture did not deactivate");
+			helper.assertTrue(Math.abs(player.blockInteractionRange() - blockBefore) < 0.001
+					&& Math.abs(player.entityInteractionRange() - entityBefore) < 0.001
+					&& Math.abs(player.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)
+							- knockbackBefore) < 0.001,
+					"Toggle-off did not restore the unrelated attribute totals");
+		} finally {
+			RankAttributeManager.clear(player);
 			TestingOverrides.clear(player.getUUID());
 		}
 		helper.succeed();
