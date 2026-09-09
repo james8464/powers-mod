@@ -20,8 +20,4 @@ public final class RuneTierRules {
 		if (texture.contains("inert")) return 40;
 		return 75;
 	}
-
-	public static int cooldownTicks(int energy) {
-		return Math.clamp(60 + Math.max(0, energy) / 4, 60, 300);
-	}
 }

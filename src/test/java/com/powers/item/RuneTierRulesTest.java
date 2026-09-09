@@ -15,9 +15,4 @@ class RuneTierRulesTest {
 		assertEquals(600, RuneTierRules.energyFor("artifact_runestone_dark_inscribed_large"));
 	}
 
-	@Test
-	void largerRunesHaveLongerButBoundedChannelRecovery() {
-		assertEquals(70, RuneTierRules.cooldownTicks(40));
-		assertEquals(210, RuneTierRules.cooldownTicks(600));
-	}
 }
