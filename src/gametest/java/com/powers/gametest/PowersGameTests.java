@@ -1399,6 +1399,63 @@ public final class PowersGameTests {
 		});
 	}
 
+	@GameTest(maxTicks = 90)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void purificationUsesEnergyOnlyExclusiveModesAndPreservesAmethyst(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		player.addEffect(com.powers.PowerStatusEffects.hidden(MobEffects.WITHER, 200, 0, false, true));
+		player.addEffect(com.powers.PowerStatusEffects.hidden(com.powers.PowersEffects.EXHAUSTION,
+				200, 0, false, true));
+		player.addEffect(com.powers.PowerStatusEffects.hidden(
+				com.powers.PowersEffects.AMETHYST_POISONING, 200, 0, false, true));
+		com.powers.spell.PurificationService.apply(player, 8.0, 0,
+				com.powers.spell.PurificationModeRules.Mode.CLEANSE);
+		helper.assertFalse(player.hasEffect(MobEffects.WITHER),
+				"Cleanse mode left an ordinary harmful effect");
+		helper.assertTrue(player.hasEffect(com.powers.PowersEffects.EXHAUSTION),
+				"Cleanse mode crossed into corruption relief");
+		helper.assertTrue(player.hasEffect(com.powers.PowersEffects.AMETHYST_POISONING),
+				"Cleanse mode removed Amethyst Poisoning");
+		com.powers.spell.PurificationService.apply(player, 8.0, 0,
+				com.powers.spell.PurificationModeRules.Mode.CORRUPTION_RELIEF);
+		helper.assertFalse(player.hasEffect(com.powers.PowersEffects.EXHAUSTION),
+				"Corruption-relief mode left Exhaustion behind");
+		helper.assertTrue(player.hasEffect(com.powers.PowersEffects.AMETHYST_POISONING),
+				"Corruption relief removed Amethyst Poisoning");
+		player.removeEffect(com.powers.PowersEffects.AMETHYST_POISONING);
+
+		var powers = com.powers.player.PlayerPowers.get(player);
+		powers.clearCooldown("spell:purification_circle");
+		powers.forceRestoreEnergy();
+		powers.setDimensionalAnchor(player.level().dimension().identifier().toString(),
+				player.level().getGameTime() + 200L);
+		player.addEffect(com.powers.PowerStatusEffects.hidden(MobEffects.WITHER, 200, 0, false, true));
+		player.setItemInHand(InteractionHand.MAIN_HAND, com.powers.ImportedPackItems.item(
+				"imported_book_grimoire_wild").getDefaultInstance());
+		player.setItemInHand(InteractionHand.OFF_HAND, com.powers.ImportedPackItems.item(
+				"imported_magic_essence_blood_dust").getDefaultInstance());
+		int energyBefore = powers.energy();
+		int catalystBefore = player.getItemInHand(InteractionHand.OFF_HAND).getCount();
+		powers.setSelectedSpell("book_grimoire_wild", 0);
+		SpellCastingManager.use(player, "book_grimoire_wild");
+		helper.assertTrue(SpellCastingManager.isChanneling(player.getUUID()),
+				"Purification variant did not enter its authored channel");
+		helper.assertTrue(powers.energy() == energyBefore - 20,
+				"Purification variant did not reserve its fixed energy payment");
+		helper.runAfterDelay(60, () -> {
+			helper.assertTrue(player.getItemInHand(InteractionHand.OFF_HAND).getCount() == catalystBefore,
+					"Purification consumed its mode catalyst");
+			helper.assertTrue(powers.dimensionalAnchor() == null,
+					"Corruption-relief ritual did not clear the dimensional anchor");
+			helper.assertTrue(player.hasEffect(MobEffects.WITHER),
+					"Corruption-relief ritual crossed into ordinary cleanse mode");
+			player.removeEffect(MobEffects.WITHER);
+			helper.succeed();
+		});
+	}
+
 	@GameTest(maxTicks = 80)
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void verdantTendingGrowsHydratesAndExtinguishesWithinItsWorkBudget(GameTestHelper helper) {

@@ -155,7 +155,7 @@ Crouch-use turns the selected page; normal use casts. A channel locks its item, 
 | Deep — Dimensional Anchor | 22 / 60s / 2s | Anchors a consent-valid living target against teleport and dimension movement. Renewals preserve the shared group circle, tether and authoritative remaining-duration feedback. This is the Deep Grimoire's only active spell. |
 | Blight — Blood Reading | 12 / 10s / 1s | Reports health, maximum health, armour, alignment, and active effect IDs; player consent applies. |
 | Blight — Grave Recall | 10 / 10s / instant | Reports the dimension and block coordinates of the caster's last retained death; in the same dimension it also gives a private compass bearing. Death memories expire after seven in-game days; legacy untimed records remain readable. |
-| Wild — Purification Circle | 20 / 30s / 2.5s | Heals allies, removes ordinary harmful effects except Amethyst Poisoning, clears anchors, and severs Soul Links in eight blocks. |
+| Wild — Purification Circle | 20 / 30s / 2.5s | Heals allies in eight blocks. A retained offhand sacred/inert, soul/bound, or blood/dark catalyst selects ordinary cleanse, Soul Link severance, or Exhaustion/anchor relief; unknown or empty catalysts default to cleanse. Amethyst Poisoning is never cleansed. |
 | Wild — Verdant Tending | 22 / 30s / 2s | Bounded plant growth, farmland hydration, and local fire extinguishing. |
 | Wild — Hearth Sanctuary | 28 / 50s / 2s | Gives every living entity in a strict three-block radius an independent 40-integrity sacrificial forcefield. |
 | Abyssal — Ward-Breaking Ritual | 26 / 60s / 4s | Suppresses the aimed powered Amethyst Ward for 45 seconds without destroying it. |

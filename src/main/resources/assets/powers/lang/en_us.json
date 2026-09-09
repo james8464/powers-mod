@@ -923,6 +923,7 @@
 	"spell.powers.blood_reading.vitals": "%s — %s/%s health (%s%%).",
 	"spell.powers.blood_reading.warding": "Armour: %s. Alignment: %s.",
 	"spell.powers.blood_reading.effects": "Active effects: %s.",
+	"spell.powers.purification_circle.mode": "Purification mode: %s (catalyst retained).",
 	"spell.powers.grave_recall.none": "No death memory has been written for you yet.",
 	"spell.powers.grave_recall.dimension": "Last death dimension: %s",
 	"spell.powers.grave_recall.coordinates": "Last death coordinates: %s, %s, %s",
