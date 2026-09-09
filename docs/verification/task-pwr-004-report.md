@@ -1,6 +1,6 @@
 # PWR-004 implementation report
 
-Status: **review repair staged; fresh independent rereview and full gate pending.**
+Status: **review repair staged; fresh independent rereview pending.**
 
 ## Scope
 
@@ -56,6 +56,7 @@ before their corresponding production changes:
 - Java-source and non-item-asset audits were regenerated; both exact-manifest checks are green.
 - Generated item, magic, and rank documentation checks: green.
 - `git diff --check`: green.
+- Serialized Java 25 branch gate: 1,838 JUnit and 240 Python tests, zero failures, green.
 
 Fresh repair evidence:
 
@@ -63,9 +64,20 @@ Fresh repair evidence:
 | --- | --- |
 | `/tmp/powers-pwr004-repair-focused-final-20260909.log` | `7c81de4c86ec97dcfaac6cf531d95fd138800a0dc477a004821b9733d4d7088d` |
 | `/tmp/powers-pwr004-repair-live-final-20260909.log` | `78e1d0c2ec8227e86a743cf917914563c859101be4b4114224cbcb081266c159` |
+| `/tmp/powers-pwr004-deterministic-green-retry1-20260909.log` | `1f066ee3f436b7448ec6b4e842d83b0ff7d2913b3afa9a3c7556e646705cf290` |
+
+The exact branch command was:
+
+`./gradlew check compileGametestJava -x runGameTest --rerun-tasks --no-daemon --console=plain`
+
+The first attempt passed JUnit, Python, resource, and documentation checks before the strict VFX
+manifest detected the changed language resource. After regenerating that exact manifest, the
+unchanged command completed in 2m 3s. Mechanical XML aggregation found 424 suites, 1,838 tests,
+0 failures, 0 errors, and 0 skipped.
 
 ## Explicit limitations
 
-Per task instruction, the machine-wide main gate and unfiltered Fabric GameTest suite were not run.
-No real-client visual capture is claimed; HUD correctness is covered at the serialized production
-connection boundary and by the client-state/unit coverage already in the PWR-004 unit.
+The protected-main gate and unfiltered Fabric GameTest suite were not run. No real-client visual
+capture is claimed; HUD correctness is covered at the serialized production connection boundary
+and by the client-state/unit coverage already in the PWR-004 unit. No merge, push, or publication
+was performed; fresh independent rereview must return READY before integration.
