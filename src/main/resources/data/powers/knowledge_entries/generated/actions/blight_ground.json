@@ -1,0 +1,20 @@
+{
+  "title": "Blight Ground",
+  "keywords": [
+    "knowledge_lookup_f390d11734648375",
+    "powers:generated/actions/blight_ground",
+    "magic action blight ground",
+    "blight_ground",
+    "blight ground",
+    "Blight Ground",
+    "ARTIFACT",
+    "CREATION, DARKNESS",
+    "FIELD",
+    "WORLD_INTERACTION"
+  ],
+  "answer": "Blight Ground is a artifact field action with world_interaction intent. Aspects: CREATION, DARKNESS. Baseline potency 19, range 12.000, duration 200, energy 40, cooldown 800, residue 100, priority 22, and 2 generic presentation beats. Its standard signature uses the darkness motif, artifact_darkness sound, and colours #55265F / #FF9D42.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

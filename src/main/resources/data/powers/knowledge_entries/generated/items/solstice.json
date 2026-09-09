@@ -1,0 +1,16 @@
+{
+  "title": "Solstice",
+  "keywords": [
+    "knowledge_lookup_de6ecd0d068d58ce",
+    "powers:generated/items/solstice",
+    "powers:solstice",
+    "solstice",
+    "Solstice",
+    "Fantasy weapon"
+  ],
+  "answer": "Solstice is a fantasy weapon. One of twelve named combat archetypes; tooltip identifies its proc. Survival acquisition/status: Low-chance archetype-themed chest or mob loot.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

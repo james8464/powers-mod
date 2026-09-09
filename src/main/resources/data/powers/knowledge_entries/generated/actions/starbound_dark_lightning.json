@@ -1,0 +1,20 @@
+{
+  "title": "Starbound Dark Lightning",
+  "keywords": [
+    "knowledge_lookup_598d24666a9aaaae",
+    "powers:generated/actions/starbound_dark_lightning",
+    "magic action starbound dark lightning",
+    "starbound_dark_lightning",
+    "starbound dark lightning",
+    "Starbound Dark Lightning",
+    "ARTIFACT",
+    "DARKNESS, STORM",
+    "INSTANT",
+    "HARM"
+  ],
+  "answer": "Starbound Dark Lightning is a artifact instant action with harm intent. Aspects: DARKNESS, STORM. Baseline potency 24, range 16.000, duration 20, energy 48, cooldown 800, residue 30, priority 22, and 0 generic presentation beats. Its minimal signature uses the storm motif, artifact_storm sound, and colours #FFF59D / #55265F.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

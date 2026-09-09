@@ -1,0 +1,17 @@
+{
+  "title": "Blood Arcane Energy Dust",
+  "keywords": [
+    "knowledge_lookup_1e70841b8f99615b",
+    "powers:generated/items/imported_magic_essence_blood_dust",
+    "powers:imported_magic_essence_blood_dust",
+    "imported_magic_essence_blood_dust",
+    "imported magic essence blood dust",
+    "Blood Arcane Energy Dust",
+    "Arcane energy dust"
+  ],
+  "answer": "Blood Arcane Energy Dust is a arcane energy dust. A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource. Survival acquisition/status: Buried-treasure, fortress, and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

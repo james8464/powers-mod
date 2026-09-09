@@ -1,0 +1,17 @@
+{
+  "title": "Power Test Actor Spawn Egg",
+  "keywords": [
+    "knowledge_lookup_8c8f35a4268ac13d",
+    "powers:generated/items/power_test_actor_spawn_egg",
+    "powers:power_test_actor_spawn_egg",
+    "power_test_actor_spawn_egg",
+    "power test actor spawn egg",
+    "Power Test Actor Spawn Egg",
+    "Testing tool"
+  ],
+  "answer": "Power Test Actor Spawn Egg is a testing tool. Spawns Power Test Actor for controlled testing. Survival acquisition/status: Creative/operator testing only.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

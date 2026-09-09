@@ -188,6 +188,19 @@ tasks.register("verifyRankDocs", Exec) {
 	commandLine "python3", "scripts/generate_rank_docs.py", "--check"
 }
 
+tasks.register("generateKnowledgeDocs", Exec) {
+	group = "documentation"
+	description = "Regenerates exhaustive source-linked Shadow offline knowledge."
+	commandLine "python3", "scripts/generate_knowledge_docs.py"
+}
+
+tasks.register("verifyKnowledgeDocs", Exec) {
+	group = "verification"
+	description = "Rejects incomplete or stale generated Shadow offline knowledge."
+	dependsOn("verifyMagicDocs", "verifyItemDocs", "verifyRankDocs")
+	commandLine "python3", "scripts/generate_knowledge_docs.py", "--check"
+}
+
 tasks.register("testPythonScripts", Exec) {
 	group = "verification"
 	description = "Runs deterministic generator and resource-validator fixture tests."
@@ -433,6 +446,7 @@ tasks.named("check") {
 	dependsOn("verifyMagicDocs")
 	dependsOn("verifyItemDocs")
 	dependsOn("verifyRankDocs")
+	dependsOn("verifyKnowledgeDocs")
 	dependsOn("testPythonScripts")
 }
 

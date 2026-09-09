@@ -1,0 +1,17 @@
+{
+  "title": "Wisdomfruit",
+  "keywords": [
+    "knowledge_lookup_c3c8324953ea1569",
+    "powers:generated/items/imported_food_wisdomfruit",
+    "powers:imported_food_wisdomfruit",
+    "imported_food_wisdomfruit",
+    "imported food wisdomfruit",
+    "Wisdomfruit",
+    "Provision"
+  ],
+  "answer": "Wisdomfruit is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: 3.5% additive drop from Archivist realm-memory caches.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

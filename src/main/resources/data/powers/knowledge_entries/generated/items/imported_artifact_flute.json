@@ -1,0 +1,17 @@
+{
+  "title": "Flute",
+  "keywords": [
+    "knowledge_lookup_381c02fe3c52e673",
+    "powers:generated/items/imported_artifact_flute",
+    "powers:imported_artifact_flute",
+    "imported_artifact_flute",
+    "imported artifact flute",
+    "Flute",
+    "Command relic"
+  ],
+  "answer": "Flute is a command relic. Recalls, heals, and aligns nearby player-shaped guardians. Survival acquisition/status: Jungle-temple and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

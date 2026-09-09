@@ -1,0 +1,17 @@
+{
+  "title": "Large Soulstone",
+  "keywords": [
+    "knowledge_lookup_ad8022552c93eb44",
+    "powers:generated/items/imported_artifact_soulstone_large",
+    "powers:imported_artifact_soulstone_large",
+    "imported_artifact_soulstone_large",
+    "imported artifact soulstone large",
+    "Large Soulstone",
+    "Energy reservoir"
+  ],
+  "answer": "Large Soulstone is a energy reservoir. Stores 800 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls. Survival acquisition/status: Nether-fortress and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

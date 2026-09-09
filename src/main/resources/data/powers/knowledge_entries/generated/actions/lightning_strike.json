@@ -1,0 +1,20 @@
+{
+  "title": "Lightning Strike",
+  "keywords": [
+    "knowledge_lookup_89db512b86159281",
+    "powers:generated/actions/lightning_strike",
+    "magic action lightning strike",
+    "lightning_strike",
+    "lightning strike",
+    "Lightning Strike",
+    "INNATE",
+    "STORM",
+    "INSTANT",
+    "HARM"
+  ],
+  "answer": "Lightning Strike is a innate instant action with harm intent. Aspects: STORM. Baseline potency 10, range 16.000, duration 20, energy 26, cooldown 200, residue 30, priority 10, and 0 generic presentation beats. Its minimal signature uses the storm motif, innate_storm sound, and colours #FFF59D / #FFF59D.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

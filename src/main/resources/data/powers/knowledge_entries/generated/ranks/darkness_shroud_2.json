@@ -1,0 +1,18 @@
+{
+  "title": "Darkness rank: Shroud-Born",
+  "keywords": [
+    "knowledge_lookup_ad7b060c5156722f",
+    "powers:generated/ranks/darkness_shroud_2",
+    "darkness shroud_2",
+    "shroud_2",
+    "Shroud-Born",
+    "veil",
+    "Darkness rank"
+  ],
+  "answer": "Shroud-Born is a depth-2 Darkness rank on the veil branch. It is a optional route with parents mist_1. Perks: STEALTH +14%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/darkness.json"
+  ],
+  "reveal_rank": 0
+}

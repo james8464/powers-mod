@@ -1,0 +1,20 @@
+{
+  "title": "Life Bloom",
+  "keywords": [
+    "knowledge_lookup_e7bf35ed0988bfcb",
+    "powers:generated/actions/life_bloom",
+    "magic action life bloom",
+    "life_bloom",
+    "life bloom",
+    "Life Bloom",
+    "CRYSTAL",
+    "LIFE, LIGHT",
+    "FIELD",
+    "SUPPORT"
+  ],
+  "answer": "Life Bloom is a crystal field action with support intent. Aspects: LIFE, LIGHT. Baseline potency 15, range 12.000, duration 200, energy 55, cooldown 1200, residue 100, priority 20, and 2 generic presentation beats. Its standard signature uses the life motif, crystal_life sound, and colours #78E06B / #FFF2B0.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

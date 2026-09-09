@@ -1,0 +1,17 @@
+{
+  "title": "Tattered Grimoire",
+  "keywords": [
+    "knowledge_lookup_ee97b028b6d3bd1c",
+    "powers:generated/items/imported_book_tattered",
+    "powers:imported_book_tattered",
+    "imported_book_tattered",
+    "imported book tattered",
+    "Tattered Grimoire",
+    "Lore"
+  ],
+  "answer": "Tattered Grimoire is a lore. Archaeological grimoire fragment interpreted by Shadow. Survival acquisition/status: Stronghold discovery.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

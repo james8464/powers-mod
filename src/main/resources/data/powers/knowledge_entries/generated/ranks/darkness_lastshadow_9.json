@@ -1,0 +1,18 @@
+{
+  "title": "Darkness rank: The Last Shadow",
+  "keywords": [
+    "knowledge_lookup_ec45fc4f54e80b45",
+    "powers:generated/ranks/darkness_lastshadow_9",
+    "darkness lastshadow_9",
+    "lastshadow_9",
+    "The Last Shadow",
+    "veil",
+    "Darkness rank"
+  ],
+  "answer": "The Last Shadow is a depth-9 Darkness rank on the veil branch. It is a optional route with parents voidsinger_8. Perks: STEALTH +20% (dark).",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/darkness.json"
+  ],
+  "reveal_rank": 0
+}

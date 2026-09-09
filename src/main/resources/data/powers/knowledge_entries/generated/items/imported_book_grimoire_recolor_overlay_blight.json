@@ -1,0 +1,17 @@
+{
+  "title": "Blighted Grimoire Leaf",
+  "keywords": [
+    "knowledge_lookup_b40867141b356895",
+    "powers:generated/items/imported_book_grimoire_recolor_overlay_blight",
+    "powers:imported_book_grimoire_recolor_overlay_blight",
+    "imported_book_grimoire_recolor_overlay_blight",
+    "imported book grimoire recolor overlay blight",
+    "Blighted Grimoire Leaf",
+    "Grimoire"
+  ],
+  "answer": "Blighted Grimoire Leaf is a grimoire. Selects and channels the documented spells of one school. Survival acquisition/status: Stronghold library/corridor discovery.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

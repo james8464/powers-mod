@@ -1,0 +1,17 @@
+{
+  "title": "Unbound Grimoire",
+  "keywords": [
+    "knowledge_lookup_3efb56a2abf535c0",
+    "powers:generated/items/imported_book_grimoire_recolor",
+    "powers:imported_book_grimoire_recolor",
+    "imported_book_grimoire_recolor",
+    "imported book grimoire recolor",
+    "Unbound Grimoire",
+    "Grimoire"
+  ],
+  "answer": "Unbound Grimoire is a grimoire. Selects and channels the documented spells of one school. Survival acquisition/status: Stronghold library/corridor discovery.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Celestial Grimoire Leaf",
+  "keywords": [
+    "knowledge_lookup_87dbe550a6710f7a",
+    "powers:generated/items/imported_book_grimoire_recolor_overlay_celestial",
+    "powers:imported_book_grimoire_recolor_overlay_celestial",
+    "imported_book_grimoire_recolor_overlay_celestial",
+    "imported book grimoire recolor overlay celestial",
+    "Celestial Grimoire Leaf",
+    "Grimoire"
+  ],
+  "answer": "Celestial Grimoire Leaf is a grimoire. Selects and channels the documented spells of one school. Survival acquisition/status: Stronghold library/corridor discovery.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

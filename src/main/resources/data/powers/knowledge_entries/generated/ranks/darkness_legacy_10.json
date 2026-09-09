@@ -1,0 +1,18 @@
+{
+  "title": "Darkness rank: Nightfall",
+  "keywords": [
+    "knowledge_lookup_f2460cd3d804b300",
+    "powers:generated/ranks/darkness_legacy_10",
+    "darkness legacy_10",
+    "legacy_10",
+    "Nightfall",
+    "abyss",
+    "Darkness rank"
+  ],
+  "answer": "Nightfall is a depth-10 Darkness rank on the abyss branch. It is a canonical route with parents legacy_9. Perks: DURATION +2% (dark).",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/darkness.json"
+  ],
+  "reveal_rank": 0
+}

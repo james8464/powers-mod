@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Adept",
+  "keywords": [
+    "knowledge_lookup_3ecf8dbb0b8e6dd1",
+    "powers:generated/ranks/light_legacy_4",
+    "light legacy_4",
+    "legacy_4",
+    "Adept",
+    "origin",
+    "Light rank"
+  ],
+  "answer": "Adept is a depth-4 Light rank on the origin branch. It is a canonical route with parents legacy_3. Perks: COOLDOWN_REDUCTION +1%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

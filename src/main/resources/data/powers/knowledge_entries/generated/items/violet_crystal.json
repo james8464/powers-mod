@@ -1,0 +1,17 @@
+{
+  "title": "Violet Crystal",
+  "keywords": [
+    "knowledge_lookup_171b8dbd76973b0d",
+    "powers:generated/items/violet_crystal",
+    "powers:violet_crystal",
+    "violet_crystal",
+    "violet crystal",
+    "Violet Crystal",
+    "Crystal"
+  ],
+  "answer": "Violet Crystal is a crystal. Selects the crystal powers documented in README. Survival acquisition/status: Story acquisition intentionally deferred; no crafting recipe; operator testing only.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

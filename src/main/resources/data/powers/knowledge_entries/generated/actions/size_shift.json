@@ -1,0 +1,20 @@
+{
+  "title": "Size Shift",
+  "keywords": [
+    "knowledge_lookup_5c8f74bd43d69262",
+    "powers:generated/actions/size_shift",
+    "magic action size shift",
+    "size_shift",
+    "size shift",
+    "Size Shift",
+    "CRYSTAL",
+    "CREATION, GRAVITY",
+    "AURA",
+    "CONTROL"
+  ],
+  "answer": "Size Shift is a crystal aura action with control intent. Aspects: CREATION, GRAVITY. Baseline potency 16, range 8.000, duration 200, energy 63, cooldown 1200, residue 100, priority 20, and 2 generic presentation beats. Its standard signature uses the creation motif, crystal_creation sound, and colours #FF9D42 / #8C66FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

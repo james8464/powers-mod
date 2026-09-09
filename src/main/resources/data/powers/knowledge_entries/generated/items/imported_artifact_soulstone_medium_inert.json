@@ -1,0 +1,17 @@
+{
+  "title": "Medium Inert Soulstone",
+  "keywords": [
+    "knowledge_lookup_79472ba6ce9d67b2",
+    "powers:generated/items/imported_artifact_soulstone_medium_inert",
+    "powers:imported_artifact_soulstone_medium_inert",
+    "imported_artifact_soulstone_medium_inert",
+    "imported artifact soulstone medium inert",
+    "Medium Inert Soulstone",
+    "Energy reservoir"
+  ],
+  "answer": "Medium Inert Soulstone is a energy reservoir. Stores 400 magic energy (starts empty); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls. Survival acquisition/status: Nether-fortress and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

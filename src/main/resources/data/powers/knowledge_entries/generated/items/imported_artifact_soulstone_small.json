@@ -1,0 +1,17 @@
+{
+  "title": "Small Soulstone",
+  "keywords": [
+    "knowledge_lookup_8a1621db4679048e",
+    "powers:generated/items/imported_artifact_soulstone_small",
+    "powers:imported_artifact_soulstone_small",
+    "imported_artifact_soulstone_small",
+    "imported artifact soulstone small",
+    "Small Soulstone",
+    "Energy reservoir"
+  ],
+  "answer": "Small Soulstone is a energy reservoir. Stores 200 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls. Survival acquisition/status: Nether-fortress and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

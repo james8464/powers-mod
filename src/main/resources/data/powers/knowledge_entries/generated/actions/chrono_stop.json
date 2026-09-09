@@ -1,0 +1,20 @@
+{
+  "title": "Chrono Stop",
+  "keywords": [
+    "knowledge_lookup_6e6bac5e244d6106",
+    "powers:generated/actions/chrono_stop",
+    "magic action chrono stop",
+    "chrono_stop",
+    "chrono stop",
+    "Chrono Stop",
+    "CRYSTAL",
+    "FORCE, TIME",
+    "FIELD",
+    "CONTROL"
+  ],
+  "answer": "Chrono Stop is a crystal field action with control intent. Aspects: FORCE, TIME. Baseline potency 16, range 12.000, duration 200, energy 63, cooldown 1200, residue 100, priority 20, and 6 generic presentation beats. Its cosmic signature uses the time motif, crystal_time sound, and colours #68E0D5 / #B9E7FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

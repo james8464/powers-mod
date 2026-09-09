@@ -1,0 +1,17 @@
+{
+  "title": "Coconut with Straw",
+  "keywords": [
+    "knowledge_lookup_94a3909e8f781d1a",
+    "powers:generated/items/imported_food_coconut_straw",
+    "powers:imported_food_coconut_straw",
+    "imported_food_coconut_straw",
+    "imported food coconut straw",
+    "Coconut with Straw",
+    "Provision"
+  ],
+  "answer": "Coconut with Straw is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

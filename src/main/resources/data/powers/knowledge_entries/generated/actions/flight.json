@@ -1,0 +1,19 @@
+{
+  "title": "Flight",
+  "keywords": [
+    "knowledge_lookup_ab65656e654530e3",
+    "powers:generated/actions/flight",
+    "magic action flight",
+    "flight",
+    "Flight",
+    "INNATE",
+    "MOTION",
+    "TOGGLE",
+    "MOVEMENT"
+  ],
+  "answer": "Flight is a innate toggle action with movement intent. Aspects: MOTION. Baseline potency 5, range 8.000, duration 600, energy 18, cooldown 0, residue 100, priority 10, and 2 generic presentation beats. Its standard signature uses the motion motif, innate_motion sound, and colours #D7F8FF / #D7F8FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

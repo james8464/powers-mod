@@ -1,0 +1,18 @@
+{
+  "title": "Interaction: Storm Tribunal × rank maze / lifecycle",
+  "keywords": [
+    "knowledge_lookup_5bb612c2f4678f0d",
+    "powers:generated/interaction_rules/43_storm_tribunal_rank_maze_lifecycle",
+    "magic interaction Storm Tribunal   rank maze / lifecycle",
+    "Storm Tribunal × rank maze / lifecycle",
+    "Storm Tribunal and rank maze / lifecycle",
+    "magic interaction",
+    "interaction rule"
+  ],
+  "answer": "Storm Tribunal × rank maze / lifecycle: Might expands damage, radius, body cap, chain range, and one link; Motion leashes the warned column to the original target; Insight reveals only after accepted damage; Wardcraft grounds at most eight hostile projectiles without owner transfer; Communion forks exactly once from the second successful link at 38%; Veil spends one false-storm memory slip against at most six visible hostile mobs; Dominion adds body/link budgets and the crown. Death, disconnect, respawn, dimension change, exact captured source-power loss, suppression, time freeze, expiry, unload, a blocked crown, and shutdown clear state exactly once without false completion. Each rank traversal inspects at most 32 typed entities before filtering and ordering. Signature: Stronger gold circuitry, cyan tracking ribbon, third-eye glyph, descending projectile rune, soul-lavender branch, three false storm images, or crown-and-thunder closure.",
+  "sources": [
+    "docs/interactions/interaction-rules.md",
+    "docs/interactions/interaction-matrix.csv"
+  ],
+  "reveal_rank": 0
+}

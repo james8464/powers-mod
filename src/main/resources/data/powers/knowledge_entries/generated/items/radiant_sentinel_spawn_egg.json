@@ -1,0 +1,17 @@
+{
+  "title": "Radiant Sentinel Spawn Egg",
+  "keywords": [
+    "knowledge_lookup_79c8f162736cee84",
+    "powers:generated/items/radiant_sentinel_spawn_egg",
+    "powers:radiant_sentinel_spawn_egg",
+    "radiant_sentinel_spawn_egg",
+    "radiant sentinel spawn egg",
+    "Radiant Sentinel Spawn Egg",
+    "Testing tool"
+  ],
+  "answer": "Radiant Sentinel Spawn Egg is a testing tool. Spawns Radiant Sentinel for controlled testing. Survival acquisition/status: Creative/operator testing only.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

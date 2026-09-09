@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Sevenfold Paragon",
+  "keywords": [
+    "knowledge_lookup_9df507e925e25555",
+    "powers:generated/ranks/light_paragon_7",
+    "light paragon_7",
+    "paragon_7",
+    "Sevenfold Paragon",
+    "dominion",
+    "Light rank"
+  ],
+  "answer": "Sevenfold Paragon is a depth-7 Light rank on the dominion branch. It is a optional route with parents ancient_6. Perks: COOLDOWN_REDUCTION +8%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

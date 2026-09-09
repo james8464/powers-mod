@@ -1,0 +1,17 @@
+{
+  "title": "Blackberry",
+  "keywords": [
+    "knowledge_lookup_046708caa3ec905d",
+    "powers:generated/items/imported_food_blackberry",
+    "powers:imported_food_blackberry",
+    "imported_food_blackberry",
+    "imported food blackberry",
+    "Blackberry",
+    "Provision"
+  ],
+  "answer": "Blackberry is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

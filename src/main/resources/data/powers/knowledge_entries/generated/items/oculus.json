@@ -1,0 +1,16 @@
+{
+  "title": "Oculus",
+  "keywords": [
+    "knowledge_lookup_aab976e6b80fba5d",
+    "powers:generated/items/oculus",
+    "powers:oculus",
+    "oculus",
+    "Oculus",
+    "Fantasy weapon"
+  ],
+  "answer": "Oculus is a fantasy weapon. One of twelve named combat archetypes; tooltip identifies its proc. Survival acquisition/status: Low-chance archetype-themed chest or mob loot.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Blueberries",
+  "keywords": [
+    "knowledge_lookup_b08a6c30de8acf66",
+    "powers:generated/items/imported_food_blueberries",
+    "powers:imported_food_blueberries",
+    "imported_food_blueberries",
+    "imported food blueberries",
+    "Blueberries",
+    "Provision"
+  ],
+  "answer": "Blueberries is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

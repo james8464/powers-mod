@@ -1,0 +1,17 @@
+{
+  "title": "Legacy Fractured Crystal",
+  "keywords": [
+    "knowledge_lookup_bc05ed3ef0a2756c",
+    "powers:generated/items/infected_rainbow_crystal",
+    "powers:infected_rainbow_crystal",
+    "infected_rainbow_crystal",
+    "infected rainbow crystal",
+    "Legacy Fractured Crystal",
+    "Compatibility alias"
+  ],
+  "answer": "Legacy Fractured Crystal is a compatibility alias. Inert; Rainbow appearance now derives from holder alignment. Survival acquisition/status: Hidden; old-save compatibility only.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

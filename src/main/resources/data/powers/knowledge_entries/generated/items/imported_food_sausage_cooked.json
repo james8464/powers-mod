@@ -1,0 +1,17 @@
+{
+  "title": "Cooked Sausage",
+  "keywords": [
+    "knowledge_lookup_18fa41b0410f8895",
+    "powers:generated/items/imported_food_sausage_cooked",
+    "powers:imported_food_sausage_cooked",
+    "imported_food_sausage_cooked",
+    "imported food sausage cooked",
+    "Cooked Sausage",
+    "Provision"
+  ],
+  "answer": "Cooked Sausage is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

@@ -1,0 +1,20 @@
+{
+  "title": "Void Beam",
+  "keywords": [
+    "knowledge_lookup_be3b9e827e81be27",
+    "powers:generated/actions/void_beam",
+    "magic action void beam",
+    "void_beam",
+    "void beam",
+    "Void Beam",
+    "INNATE",
+    "DARKNESS, VOID",
+    "BEAM",
+    "HARM"
+  ],
+  "answer": "Void Beam is a innate beam action with harm intent. Aspects: DARKNESS, VOID. Baseline potency 10, range 32.000, duration 20, energy 26, cooldown 200, residue 30, priority 10, and 2 generic presentation beats. Its standard signature uses the void motif, innate_void sound, and colours #241044 / #55265F.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

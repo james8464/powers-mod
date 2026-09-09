@@ -1,0 +1,17 @@
+{
+  "title": "Dark Crystal",
+  "keywords": [
+    "knowledge_lookup_a02607036297e5b4",
+    "powers:generated/items/dark_crystal",
+    "powers:dark_crystal",
+    "dark_crystal",
+    "dark crystal",
+    "Dark Crystal",
+    "Crystal"
+  ],
+  "answer": "Dark Crystal is a crystal. Selects the crystal powers documented in README. Survival acquisition/status: No crafting recipe; operator testing or Shadow's full-energy 60-second manifestation rite.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

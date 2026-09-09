@@ -1,0 +1,17 @@
+{
+  "title": "Clockwork Heart",
+  "keywords": [
+    "knowledge_lookup_42cf19dcedc6dc32",
+    "powers:generated/items/imported_artifact_heart_mechanism",
+    "powers:imported_artifact_heart_mechanism",
+    "imported_artifact_heart_mechanism",
+    "imported artifact heart mechanism",
+    "Clockwork Heart",
+    "Heart relic"
+  ],
+  "answer": "Clockwork Heart is a heart relic. Raises a timed clockwork absorption ward. Survival acquisition/status: Settlement and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

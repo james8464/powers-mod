@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Ascendant",
+  "keywords": [
+    "knowledge_lookup_e18c4b65b1f26ee2",
+    "powers:generated/ranks/light_legacy_9",
+    "light legacy_9",
+    "legacy_9",
+    "Ascendant",
+    "origin",
+    "Light rank"
+  ],
+  "answer": "Ascendant is a depth-9 Light rank on the origin branch. It is a canonical route with parents legacy_8. Perks: DURATION +1.5%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

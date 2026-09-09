@@ -1,0 +1,18 @@
+{
+  "title": "Dark Realm",
+  "keywords": [
+    "knowledge_lookup_0434fe485769e23a",
+    "powers:generated/realms/dark_realm",
+    "dark_realm",
+    "powers:dark_realm",
+    "dark realm",
+    "realm",
+    "dimension"
+  ],
+  "answer": "Dark Realm is the Darkness mindscape. Travel uses a vulnerable body proxy and an exact safe return route; living Darkness and its landmarks inhabit the realm.",
+  "sources": [
+    "docs/interactions/system-catalogue.md",
+    "data/powers/dimension/dark_realm.json"
+  ],
+  "reveal_rank": 0
+}

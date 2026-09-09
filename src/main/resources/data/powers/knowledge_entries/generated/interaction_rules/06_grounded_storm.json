@@ -1,0 +1,17 @@
+{
+  "title": "Interaction: Grounded storm",
+  "keywords": [
+    "knowledge_lookup_e7aefe0d16d9b9d6",
+    "powers:generated/interaction_rules/06_grounded_storm",
+    "magic interaction Grounded storm",
+    "Grounded storm",
+    "magic interaction",
+    "interaction rule"
+  ],
+  "answer": "Grounded storm: Environmental grounding visibly diverts storm power into the earth. Signature: Forks terminating in ground runes.",
+  "sources": [
+    "docs/interactions/interaction-rules.md",
+    "docs/interactions/interaction-matrix.csv"
+  ],
+  "reveal_rank": 0
+}

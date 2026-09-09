@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Soul-Whisperer",
+  "keywords": [
+    "knowledge_lookup_2e3073950fe7e033",
+    "powers:generated/ranks/light_communion_2",
+    "light communion_2",
+    "communion_2",
+    "Soul-Whisperer",
+    "communion",
+    "Light rank"
+  ],
+  "answer": "Soul-Whisperer is a depth-2 Light rank on the communion branch. It is a optional route with parents insight_1. Perks: SOUL +8%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

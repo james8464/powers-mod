@@ -1,0 +1,20 @@
+{
+  "title": "Breezy Bash",
+  "keywords": [
+    "knowledge_lookup_7ad7626a65bad1b2",
+    "powers:generated/actions/breezy_bash",
+    "magic action breezy bash",
+    "breezy_bash",
+    "breezy bash",
+    "Breezy Bash",
+    "INNATE",
+    "FORCE, MOTION",
+    "FIELD",
+    "CONTROL"
+  ],
+  "answer": "Breezy Bash is a innate field action with control intent. Aspects: FORCE, MOTION. Baseline potency 8, range 12.000, duration 200, energy 26, cooldown 200, residue 100, priority 10, and 2 generic presentation beats. Its standard signature uses the motion motif, innate_motion sound, and colours #D7F8FF / #B9E7FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

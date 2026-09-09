@@ -1,0 +1,19 @@
+{
+  "title": "Forcefield",
+  "keywords": [
+    "knowledge_lookup_a5119a4f3bedaa1f",
+    "powers:generated/actions/forcefield",
+    "magic action forcefield",
+    "forcefield",
+    "Forcefield",
+    "INNATE",
+    "FORCE, PROTECTION",
+    "AURA",
+    "DEFENCE"
+  ],
+  "answer": "Forcefield is a innate aura action with defence intent. Aspects: FORCE, PROTECTION. Baseline potency 7, range 8.000, duration 200, energy 18, cooldown 200, residue 100, priority 10, and 2 generic presentation beats. Its standard signature uses the protection motif, innate_protection sound, and colours #58C7FF / #B9E7FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

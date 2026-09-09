@@ -1,0 +1,20 @@
+{
+  "title": "Blood Reading",
+  "keywords": [
+    "knowledge_lookup_38e0b3a423f4c1d7",
+    "powers:generated/actions/blood_reading",
+    "magic action blood reading",
+    "blood_reading",
+    "blood reading",
+    "Blood Reading",
+    "SPELL",
+    "LIFE, SOUL",
+    "CHANNEL",
+    "INFORMATION"
+  ],
+  "answer": "Blood Reading is a spell channel action with information intent. Aspects: LIFE, SOUL. Baseline potency 8, range 20.000, duration 80, energy 20, cooldown 600, residue 60, priority 15, and 4 generic presentation beats. Its ritual signature uses the life motif, spell_life sound, and colours #78E06B / #8FE9FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

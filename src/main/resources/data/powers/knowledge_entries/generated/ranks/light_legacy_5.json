@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Weaver",
+  "keywords": [
+    "knowledge_lookup_2b792e23ca8d1389",
+    "powers:generated/ranks/light_legacy_5",
+    "light legacy_5",
+    "legacy_5",
+    "Weaver",
+    "origin",
+    "Light rank"
+  ],
+  "answer": "Weaver is a depth-5 Light rank on the origin branch. It is a canonical route with parents legacy_4. Perks: ENERGY_COST_REDUCTION +1%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

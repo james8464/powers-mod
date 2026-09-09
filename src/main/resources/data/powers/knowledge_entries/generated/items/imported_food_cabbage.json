@@ -1,0 +1,17 @@
+{
+  "title": "Cabbage",
+  "keywords": [
+    "knowledge_lookup_b8be2bbe5b680850",
+    "powers:generated/items/imported_food_cabbage",
+    "powers:imported_food_cabbage",
+    "imported_food_cabbage",
+    "imported food cabbage",
+    "Cabbage",
+    "Provision"
+  ],
+  "answer": "Cabbage is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

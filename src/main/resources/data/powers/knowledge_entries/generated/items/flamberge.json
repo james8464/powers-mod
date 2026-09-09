@@ -1,0 +1,16 @@
+{
+  "title": "Flamberge",
+  "keywords": [
+    "knowledge_lookup_bc3e7d0332b8743d",
+    "powers:generated/items/flamberge",
+    "powers:flamberge",
+    "flamberge",
+    "Flamberge",
+    "Fantasy weapon"
+  ],
+  "answer": "Flamberge is a fantasy weapon. One of twelve named combat archetypes; tooltip identifies its proc. Survival acquisition/status: Low-chance archetype-themed chest or mob loot.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

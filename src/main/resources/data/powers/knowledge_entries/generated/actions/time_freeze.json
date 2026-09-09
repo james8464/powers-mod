@@ -1,0 +1,20 @@
+{
+  "title": "Time Freeze",
+  "keywords": [
+    "knowledge_lookup_a0582f811a0eadf7",
+    "powers:generated/actions/time_freeze",
+    "magic action time freeze",
+    "time_freeze",
+    "time freeze",
+    "Time Freeze",
+    "INNATE",
+    "TIME",
+    "TOGGLE",
+    "CONTROL"
+  ],
+  "answer": "Time Freeze is a innate toggle action with control intent. Aspects: TIME. Baseline potency 8, range 8.000, duration 600, energy 26, cooldown 0, residue 100, priority 10, and 6 generic presentation beats. Its cosmic signature uses the time motif, innate_time sound, and colours #68E0D5 / #68E0D5.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

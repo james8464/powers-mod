@@ -1,0 +1,17 @@
+{
+  "title": "Iron Halberd",
+  "keywords": [
+    "knowledge_lookup_b6168f80935e4ae4",
+    "powers:generated/items/iron_halberd",
+    "powers:iron_halberd",
+    "iron_halberd",
+    "iron halberd",
+    "Iron Halberd",
+    "Fantasy weapon"
+  ],
+  "answer": "Iron Halberd is a fantasy weapon. One of twelve named combat archetypes; tooltip identifies its proc. Survival acquisition/status: Low-chance archetype-themed chest or mob loot.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

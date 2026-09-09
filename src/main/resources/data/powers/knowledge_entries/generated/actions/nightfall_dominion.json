@@ -1,0 +1,20 @@
+{
+  "title": "Nightfall Dominion",
+  "keywords": [
+    "knowledge_lookup_65b8093dbaf9b8d8",
+    "powers:generated/actions/nightfall_dominion",
+    "magic action nightfall dominion",
+    "nightfall_dominion",
+    "nightfall dominion",
+    "Nightfall Dominion",
+    "ARTIFACT",
+    "DARKNESS, PROTECTION, SOUL",
+    "AURA",
+    "DEFENCE"
+  ],
+  "answer": "Nightfall Dominion is a artifact aura action with defence intent. Aspects: DARKNESS, PROTECTION, SOUL. Baseline potency 21, range 8.000, duration 200, energy 40, cooldown 800, residue 100, priority 22, and 6 generic presentation beats. Its cosmic signature uses the darkness motif, artifact_darkness sound, and colours #55265F / #8FE9FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

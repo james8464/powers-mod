@@ -1,0 +1,20 @@
+{
+  "title": "Grave Recall",
+  "keywords": [
+    "knowledge_lookup_a2c3f2d35c2e09df",
+    "powers:generated/actions/grave_recall",
+    "magic action grave recall",
+    "grave_recall",
+    "grave recall",
+    "Grave Recall",
+    "SPELL",
+    "MIND, SOUL",
+    "INSTANT",
+    "INFORMATION"
+  ],
+  "answer": "Grave Recall is a spell instant action with information intent. Aspects: MIND, SOUL. Baseline potency 8, range 16.000, duration 20, energy 20, cooldown 600, residue 30, priority 15, and 4 generic presentation beats. Its ritual signature uses the soul motif, spell_soul sound, and colours #8FE9FF / #C27CFF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

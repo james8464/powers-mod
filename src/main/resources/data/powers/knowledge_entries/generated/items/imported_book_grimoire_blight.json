@@ -1,0 +1,17 @@
+{
+  "title": "The Blighted Testament",
+  "keywords": [
+    "knowledge_lookup_2ae978b57c1ac83d",
+    "powers:generated/items/imported_book_grimoire_blight",
+    "powers:imported_book_grimoire_blight",
+    "imported_book_grimoire_blight",
+    "imported book grimoire blight",
+    "The Blighted Testament",
+    "Grimoire"
+  ],
+  "answer": "The Blighted Testament is a grimoire. Selects and channels the documented spells of one school. Survival acquisition/status: Stronghold library/corridor discovery.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

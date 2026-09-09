@@ -29,6 +29,7 @@ class ReleasePipelineContractTest {
 				"./gradlew clean check", "./test.sh gametest", "server_smoke.py",
 				"saveMigrationCorpus", "pitest", "validatePowerResources",
 				"verifyMagicDocs", "verifyItemDocs", "verifyRankDocs", "generateRankDocs",
+				"verifyKnowledgeDocs", "generateKnowledgeDocs",
 				"verifyScreenshots",
 				"./gradlew syntheticSoak", "git diff --exit-code"
 		}) {
@@ -47,6 +48,8 @@ class ReleasePipelineContractTest {
 		assertTrue(build.contains("\"-m\", \"unittest\""));
 		assertTrue(build.contains("tasks.register(\"generateRankDocs\", Exec)"));
 		assertTrue(build.contains("tasks.register(\"verifyRankDocs\", Exec)"));
+		assertTrue(build.contains("tasks.register(\"generateKnowledgeDocs\", Exec)"));
+		assertTrue(build.contains("tasks.register(\"verifyKnowledgeDocs\", Exec)"));
 	}
 
 	@Test

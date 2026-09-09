@@ -1,0 +1,17 @@
+{
+  "title": "Slice Cantaloupe",
+  "keywords": [
+    "knowledge_lookup_43d10e01e0fa5ef8",
+    "powers:generated/items/imported_food_slice_cantaloupe",
+    "powers:imported_food_slice_cantaloupe",
+    "imported_food_slice_cantaloupe",
+    "imported food slice cantaloupe",
+    "Slice Cantaloupe",
+    "Provision"
+  ],
+  "answer": "Slice Cantaloupe is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

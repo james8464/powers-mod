@@ -1,0 +1,17 @@
+{
+  "title": "Raw Pork Slab",
+  "keywords": [
+    "knowledge_lookup_5dfa397a7e6705a8",
+    "powers:generated/items/imported_food_slab_pork_raw",
+    "powers:imported_food_slab_pork_raw",
+    "imported_food_slab_pork_raw",
+    "imported food slab pork raw",
+    "Raw Pork Slab",
+    "Provision"
+  ],
+  "answer": "Raw Pork Slab is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

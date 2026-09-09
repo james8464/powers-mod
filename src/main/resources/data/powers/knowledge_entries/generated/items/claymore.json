@@ -1,0 +1,16 @@
+{
+  "title": "Claymore",
+  "keywords": [
+    "knowledge_lookup_1831e1c1b67fc123",
+    "powers:generated/items/claymore",
+    "powers:claymore",
+    "claymore",
+    "Claymore",
+    "Fantasy weapon"
+  ],
+  "answer": "Claymore is a fantasy weapon. One of twelve named combat archetypes; tooltip identifies its proc. Survival acquisition/status: Low-chance archetype-themed chest or mob loot.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

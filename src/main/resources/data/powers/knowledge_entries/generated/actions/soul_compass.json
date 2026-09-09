@@ -1,0 +1,20 @@
+{
+  "title": "Soul Compass",
+  "keywords": [
+    "knowledge_lookup_87fa035674edd21a",
+    "powers:generated/actions/soul_compass",
+    "magic action soul compass",
+    "soul_compass",
+    "soul compass",
+    "Soul Compass",
+    "SPELL",
+    "MIND, SOUL",
+    "INSTANT",
+    "INFORMATION"
+  ],
+  "answer": "Soul Compass is a spell instant action with information intent. Aspects: MIND, SOUL. Baseline potency 8, range 16.000, duration 20, energy 20, cooldown 600, residue 30, priority 15, and 4 generic presentation beats. Its ritual signature uses the soul motif, spell_soul sound, and colours #8FE9FF / #C27CFF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

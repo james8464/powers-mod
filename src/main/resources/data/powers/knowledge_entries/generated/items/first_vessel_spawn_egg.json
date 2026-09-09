@@ -1,0 +1,17 @@
+{
+  "title": "First Vessel Spawn Egg",
+  "keywords": [
+    "knowledge_lookup_1f8ddc8fffa4f360",
+    "powers:generated/items/first_vessel_spawn_egg",
+    "powers:first_vessel_spawn_egg",
+    "first_vessel_spawn_egg",
+    "first vessel spawn egg",
+    "First Vessel Spawn Egg",
+    "Testing tool"
+  ],
+  "answer": "First Vessel Spawn Egg is a testing tool. Spawns The First Vessel for controlled testing. Survival acquisition/status: Creative/operator testing only.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

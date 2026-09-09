@@ -1,0 +1,17 @@
+{
+  "title": "Ritual Dagger",
+  "keywords": [
+    "knowledge_lookup_640afa8c6a32a8d1",
+    "powers:generated/items/imported_artifact_ritualdagger",
+    "powers:imported_artifact_ritualdagger",
+    "imported_artifact_ritualdagger",
+    "imported artifact ritualdagger",
+    "Ritual Dagger",
+    "Energy catalyst"
+  ],
+  "answer": "Ritual Dagger is a energy catalyst. Directly sacrifices 4 health to restore 80 magic energy. Survival acquisition/status: Woodland-mansion and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

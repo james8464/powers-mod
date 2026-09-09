@@ -1,0 +1,20 @@
+{
+  "title": "Consecrate Ground",
+  "keywords": [
+    "knowledge_lookup_66bb84a180d0f589",
+    "powers:generated/actions/consecrate_ground",
+    "magic action consecrate ground",
+    "consecrate_ground",
+    "consecrate ground",
+    "Consecrate Ground",
+    "ARTIFACT",
+    "CREATION, LIGHT",
+    "FIELD",
+    "WORLD_INTERACTION"
+  ],
+  "answer": "Consecrate Ground is a artifact field action with world_interaction intent. Aspects: CREATION, LIGHT. Baseline potency 19, range 12.000, duration 200, energy 40, cooldown 800, residue 100, priority 22, and 2 generic presentation beats. Its standard signature uses the light motif, artifact_light sound, and colours #FFF2B0 / #FF9D42.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

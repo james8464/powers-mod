@@ -1,0 +1,17 @@
+{
+  "title": "Silver Pear",
+  "keywords": [
+    "knowledge_lookup_ecd747f1b74d9b97",
+    "powers:generated/items/imported_food_silver_pear",
+    "powers:imported_food_silver_pear",
+    "imported_food_silver_pear",
+    "imported food silver pear",
+    "Silver Pear",
+    "Provision"
+  ],
+  "answer": "Silver Pear is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

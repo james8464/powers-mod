@@ -336,6 +336,40 @@ public final class PowersGameTests {
 		});
 	}
 
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void generatedShadowKnowledgeLoadsAndAnswersEveryRequiredDomain(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		helper.assertTrue(KnowledgeService.entryCount() == 447,
+				"Shadow did not load fourteen authored plus 433 generated knowledge entries");
+		var item = KnowledgeService.answer(player,
+				"How do I get powers:imported_food_wisdomfruit?");
+		var action = KnowledgeService.answer(player,
+				"Explain the magic action fireball");
+		var rank = KnowledgeService.answer(player,
+				"Explain the Light rank Worldsinger");
+		var realm = KnowledgeService.answer(player,
+				"What is the powers:middleworld realm?");
+		var interaction = KnowledgeService.answer(player,
+				"Explain the magic interaction Cinderheart reflection");
+		helper.assertTrue(item.entryId().equals(
+				"powers:generated/items/imported_food_wisdomfruit"),
+				"Shadow did not retrieve the generated item catalogue entry");
+		helper.assertTrue(action.entryId().equals(
+				"powers:generated/actions/fireball"),
+				"Shadow did not retrieve the generated action catalogue entry: " + action.entryId());
+		helper.assertTrue(rank.entryId().equals(
+				"powers:generated/ranks/light_worldsinger_8"),
+				"Shadow did not retrieve the generated rank catalogue entry: " + rank.entryId());
+		helper.assertTrue(realm.entryId().equals(
+				"powers:generated/realms/middleworld"),
+				"Shadow did not retrieve the generated realm catalogue entry: " + realm.entryId());
+		helper.assertTrue(interaction.entryId().equals(
+				"powers:generated/interaction_rules/26_cinderheart_reflection"),
+				"Shadow did not retrieve the generated interaction-rule entry: " + interaction.entryId());
+		helper.succeed();
+	}
+
 	@GameTest(maxTicks = 80)
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void shadowConjuresAndExecutesItsBoundedCombatArsenal(GameTestHelper helper) {

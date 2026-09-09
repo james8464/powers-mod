@@ -1,0 +1,19 @@
+{
+  "title": "Dispel",
+  "keywords": [
+    "knowledge_lookup_050ecd745bc9b241",
+    "powers:generated/actions/dispel",
+    "magic action dispel",
+    "dispel",
+    "Dispel",
+    "SPELL",
+    "LIGHT, SUPPRESSION",
+    "INSTANT",
+    "SUPPORT"
+  ],
+  "answer": "Dispel is a spell instant action with support intent. Aspects: LIGHT, SUPPRESSION. Baseline potency 10, range 16.000, duration 20, energy 20, cooldown 600, residue 30, priority 15, and 4 generic presentation beats. Its ritual signature uses the suppression motif, spell_suppression sound, and colours #B36BFF / #FFF2B0.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

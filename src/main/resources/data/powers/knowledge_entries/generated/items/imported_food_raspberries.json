@@ -1,0 +1,17 @@
+{
+  "title": "Raspberries",
+  "keywords": [
+    "knowledge_lookup_2c59579baad67a64",
+    "powers:generated/items/imported_food_raspberries",
+    "powers:imported_food_raspberries",
+    "imported_food_raspberries",
+    "imported food raspberries",
+    "Raspberries",
+    "Provision"
+  ],
+  "answer": "Raspberries is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

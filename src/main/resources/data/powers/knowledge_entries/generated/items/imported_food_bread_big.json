@@ -1,0 +1,17 @@
+{
+  "title": "Large Loaf",
+  "keywords": [
+    "knowledge_lookup_bc7317fd2e04cafe",
+    "powers:generated/items/imported_food_bread_big",
+    "powers:imported_food_bread_big",
+    "imported_food_bread_big",
+    "imported food bread big",
+    "Large Loaf",
+    "Provision"
+  ],
+  "answer": "Large Loaf is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

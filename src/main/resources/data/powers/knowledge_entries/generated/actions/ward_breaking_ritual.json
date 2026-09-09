@@ -1,0 +1,20 @@
+{
+  "title": "Ward Breaking Ritual",
+  "keywords": [
+    "knowledge_lookup_bade5d5692572724",
+    "powers:generated/actions/ward_breaking_ritual",
+    "magic action ward breaking ritual",
+    "ward_breaking_ritual",
+    "ward breaking ritual",
+    "Ward Breaking Ritual",
+    "SPELL",
+    "SUPPRESSION, VOID",
+    "CHANNEL",
+    "HARM"
+  ],
+  "answer": "Ward Breaking Ritual is a spell channel action with harm intent. Aspects: SUPPRESSION, VOID. Baseline potency 13, range 20.000, duration 80, energy 28, cooldown 600, residue 60, priority 15, and 4 generic presentation beats. Its ritual signature uses the suppression motif, spell_suppression sound, and colours #B36BFF / #241044.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

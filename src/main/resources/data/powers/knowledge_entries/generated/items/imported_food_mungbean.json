@@ -1,0 +1,17 @@
+{
+  "title": "Mungbean",
+  "keywords": [
+    "knowledge_lookup_7b8a9d6055d0f112",
+    "powers:generated/items/imported_food_mungbean",
+    "powers:imported_food_mungbean",
+    "imported_food_mungbean",
+    "imported food mungbean",
+    "Mungbean",
+    "Provision"
+  ],
+  "answer": "Mungbean is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

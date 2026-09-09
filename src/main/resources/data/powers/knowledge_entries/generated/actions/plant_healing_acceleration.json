@@ -1,0 +1,20 @@
+{
+  "title": "Plant Healing Acceleration",
+  "keywords": [
+    "knowledge_lookup_437257f42f593ad9",
+    "powers:generated/actions/plant_healing_acceleration",
+    "magic action plant healing acceleration",
+    "plant_healing_acceleration",
+    "plant healing acceleration",
+    "Plant Healing Acceleration",
+    "INNATE",
+    "LIFE",
+    "FIELD",
+    "SUPPORT"
+  ],
+  "answer": "Plant Healing Acceleration is a innate field action with support intent. Aspects: LIFE. Baseline potency 7, range 12.000, duration 200, energy 18, cooldown 200, residue 100, priority 10, and 2 generic presentation beats. Its standard signature uses the life motif, innate_life sound, and colours #78E06B / #78E06B.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

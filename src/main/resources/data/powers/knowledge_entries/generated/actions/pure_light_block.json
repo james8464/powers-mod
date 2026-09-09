@@ -1,0 +1,20 @@
+{
+  "title": "Pure Light Block",
+  "keywords": [
+    "knowledge_lookup_7596992beedd677a",
+    "powers:generated/actions/pure_light_block",
+    "magic action pure light block",
+    "pure_light_block",
+    "pure light block",
+    "Pure Light Block",
+    "REALM",
+    "LIGHT",
+    "FIELD",
+    "WORLD_INTERACTION"
+  ],
+  "answer": "Pure Light Block is a realm field action with world_interaction intent. Aspects: LIGHT. Baseline potency 25, range 12.000, duration 200, energy 0, cooldown 0, residue 100, priority 30, and 0 generic presentation beats. Its none signature uses the light motif, realm_light sound, and colours #FFF2B0 / #FFF2B0.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

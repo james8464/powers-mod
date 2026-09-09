@@ -1,0 +1,17 @@
+{
+  "title": "Tomato",
+  "keywords": [
+    "knowledge_lookup_73f48259d6918df4",
+    "powers:generated/items/imported_food_tomato",
+    "powers:imported_food_tomato",
+    "imported_food_tomato",
+    "imported food tomato",
+    "Tomato",
+    "Provision"
+  ],
+  "answer": "Tomato is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

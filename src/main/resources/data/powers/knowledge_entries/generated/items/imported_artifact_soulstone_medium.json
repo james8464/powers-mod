@@ -1,0 +1,17 @@
+{
+  "title": "Medium Soulstone",
+  "keywords": [
+    "knowledge_lookup_8f18a83fb0e601f5",
+    "powers:generated/items/imported_artifact_soulstone_medium",
+    "powers:imported_artifact_soulstone_medium",
+    "imported_artifact_soulstone_medium",
+    "imported artifact soulstone medium",
+    "Medium Soulstone",
+    "Energy reservoir"
+  ],
+  "answer": "Medium Soulstone is a energy reservoir. Stores 400 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls. Survival acquisition/status: Nether-fortress and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

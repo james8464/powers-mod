@@ -1,0 +1,18 @@
+{
+  "title": "Light Realm",
+  "keywords": [
+    "knowledge_lookup_af45b038f096fae6",
+    "powers:generated/realms/light_realm",
+    "light_realm",
+    "powers:light_realm",
+    "light realm",
+    "realm",
+    "dimension"
+  ],
+  "answer": "Light Realm is the radiant mindscape. Travel uses a vulnerable body proxy and an exact safe return route; Pure Light and its landmarks inhabit the realm.",
+  "sources": [
+    "docs/interactions/system-catalogue.md",
+    "data/powers/dimension/light_realm.json"
+  ],
+  "reveal_rank": 0
+}

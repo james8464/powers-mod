@@ -1,0 +1,18 @@
+{
+  "title": "Darkness rank: Dusk Reaper",
+  "keywords": [
+    "knowledge_lookup_330642e46f89db88",
+    "powers:generated/ranks/darkness_reaper_3",
+    "darkness reaper_3",
+    "reaper_3",
+    "Dusk Reaper",
+    "might",
+    "Darkness rank"
+  ],
+  "answer": "Dusk Reaper is a depth-3 Darkness rank on the might branch. It is a optional route with parents fang_1`, `hex_2. Perks: POWER_DAMAGE +12% (soul).",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/darkness.json"
+  ],
+  "reveal_rank": 0
+}

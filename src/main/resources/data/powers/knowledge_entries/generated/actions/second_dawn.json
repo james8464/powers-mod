@@ -1,0 +1,20 @@
+{
+  "title": "Second Dawn",
+  "keywords": [
+    "knowledge_lookup_e5be30ec5cb5a0ee",
+    "powers:generated/actions/second_dawn",
+    "magic action second dawn",
+    "second_dawn",
+    "second dawn",
+    "Second Dawn",
+    "ARTIFACT",
+    "LIFE, LIGHT, PROTECTION",
+    "AURA",
+    "DEFENCE"
+  ],
+  "answer": "Second Dawn is a artifact aura action with defence intent. Aspects: LIFE, LIGHT, PROTECTION. Baseline potency 21, range 8.000, duration 200, energy 40, cooldown 800, residue 100, priority 22, and 4 generic presentation beats. Its ritual signature uses the light motif, artifact_light sound, and colours #FFF2B0 / #78E06B.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

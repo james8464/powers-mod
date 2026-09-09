@@ -1,0 +1,17 @@
+{
+  "title": "Corroded Copper Ring",
+  "keywords": [
+    "knowledge_lookup_54ed846324a48110",
+    "powers:generated/items/imported_artifact_corroded_copper_ring",
+    "powers:imported_artifact_corroded_copper_ring",
+    "imported_artifact_corroded_copper_ring",
+    "imported artifact corroded copper ring",
+    "Corroded Copper Ring",
+    "Attunement"
+  ],
+  "answer": "Corroded Copper Ring is a attunement. Restores 1 energy per second; carried attunements jointly cap at 6 and grant bounded resistance. Survival acquisition/status: Thematic archaeology and structure salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

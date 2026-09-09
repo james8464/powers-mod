@@ -1,0 +1,19 @@
+{
+  "title": "Fireball",
+  "keywords": [
+    "knowledge_lookup_5f51e9e8257d397a",
+    "powers:generated/actions/fireball",
+    "magic action fireball",
+    "fireball",
+    "Fireball",
+    "INNATE",
+    "FLAME, FORCE",
+    "PROJECTILE",
+    "HARM"
+  ],
+  "answer": "Fireball is a innate projectile action with harm intent. Aspects: FLAME, FORCE. Baseline potency 10, range 32.000, duration 20, energy 26, cooldown 200, residue 30, priority 10, and 0 generic presentation beats. Its minimal signature uses the flame motif, innate_flame sound, and colours #FF5A24 / #B9E7FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

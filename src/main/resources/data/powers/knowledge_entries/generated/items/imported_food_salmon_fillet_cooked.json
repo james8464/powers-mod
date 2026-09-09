@@ -1,0 +1,17 @@
+{
+  "title": "Cooked Salmon Fillet",
+  "keywords": [
+    "knowledge_lookup_a09db107fb7c87b4",
+    "powers:generated/items/imported_food_salmon_fillet_cooked",
+    "powers:imported_food_salmon_fillet_cooked",
+    "imported_food_salmon_fillet_cooked",
+    "imported food salmon fillet cooked",
+    "Cooked Salmon Fillet",
+    "Provision"
+  ],
+  "answer": "Cooked Salmon Fillet is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

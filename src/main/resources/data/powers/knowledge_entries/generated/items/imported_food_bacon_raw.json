@@ -1,0 +1,17 @@
+{
+  "title": "Raw Bacon",
+  "keywords": [
+    "knowledge_lookup_1972a8b8b9b4c31b",
+    "powers:generated/items/imported_food_bacon_raw",
+    "powers:imported_food_bacon_raw",
+    "imported_food_bacon_raw",
+    "imported food bacon raw",
+    "Raw Bacon",
+    "Provision"
+  ],
+  "answer": "Raw Bacon is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}
