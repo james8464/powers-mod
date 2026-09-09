@@ -58,6 +58,11 @@ public final class EnergyBeamRules {
 		return Math.max(0, FOCUS_TICKS - (int) Math.min(FOCUS_TICKS, age(startedAt, currentTick)));
 	}
 
+	/** Refreshes live-aim presentation on every firing server tick, independent of frame rate. */
+	public static boolean visualFrame(long startedAt, long currentTick) {
+		return phase(startedAt, currentTick) == Phase.FIRING;
+	}
+
 	/** Returns true only for the four authored damage beats after focus. */
 	public static boolean damageBeat(long startedAt, long currentTick) {
 		long age = age(startedAt, currentTick);

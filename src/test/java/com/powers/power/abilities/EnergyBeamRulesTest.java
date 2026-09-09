@@ -41,6 +41,19 @@ class EnergyBeamRulesTest {
 	}
 
 	@Test
+	void firingVisualsRefreshEveryServerTickWhileDamageRemainsDiscrete() {
+		long start = 100L;
+		int visualFrames = 0;
+		int damageBeats = 0;
+		for (long tick = start; tick <= start + EnergyBeamRules.TOTAL_TICKS; tick++) {
+			if (EnergyBeamRules.visualFrame(start, tick)) visualFrames++;
+			if (EnergyBeamRules.damageBeat(start, tick)) damageBeats++;
+		}
+		assertEquals(32, visualFrames);
+		assertEquals(4, damageBeats);
+	}
+
+	@Test
 	void consecutiveScorchEscalatesThenCapsAndResets() {
 		assertEquals(1, EnergyBeamRules.nextStreak(false, 0));
 		assertEquals(2, EnergyBeamRules.nextStreak(true, 1));
