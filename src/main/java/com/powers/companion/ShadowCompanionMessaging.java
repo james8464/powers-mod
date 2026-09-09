@@ -32,9 +32,10 @@ final class ShadowCompanionMessaging {
 	}
 
 	static void replyAndRemember(ServerPlayer owner, String request, String line) {
+		String voiced = ShadowAgendaVoice.compose(line, ShadowCompanionStore.get(owner).memory());
 		ShadowCompanionStore.update(owner, state -> state.withMemory(
-				state.memory().remember(request, line)));
-		reply(owner, line);
+				state.memory().remember(request, voiced).advanceAgenda(request)));
+		reply(owner, voiced);
 	}
 
 	static void reply(ServerPlayer owner, String line) {
