@@ -74,6 +74,12 @@ final class ShadowCommandRuntime {
 				PrivateCompanionManager.request(owner);
 				ShadowCompanionMessaging.answer(owner, request.original());
 			}
+			case FEEDBACK_GOOD, FEEDBACK_BAD -> explicitFeedback(owner, request);
+			case RESET_LEARNING -> {
+				PrivateCompanionManager.resetLearning(owner);
+				ShadowCompanionMessaging.replyAndRemember(owner, request.original(),
+						"What combat taught me is quiet again.");
+			}
 			case ATTACK, DEFEND, USE_POWER, STOP_POWER, GET_ITEM, CONJURE_ITEM, SCOUT,
 					RANGE_PREFERENCE -> submit(owner, request);
 			case NONE -> {
@@ -81,6 +87,15 @@ final class ShadowCommandRuntime {
 			}
 		}
 		return true;
+	}
+
+	private static void explicitFeedback(ServerPlayer owner, ShadowRequest request) {
+		boolean positive = request.kind() == ShadowRequest.Kind.FEEDBACK_GOOD;
+		boolean applied = PrivateCompanionManager.applyFeedback(owner, positive);
+		String reply = applied
+				? positive ? "I will remember that choice." : "I will weigh that choice less."
+				: "I have no completed combat choice to judge yet.";
+		ShadowCompanionMessaging.replyAndRemember(owner, request.original(), reply);
 	}
 
 	static void tickConjuration(ServerPlayer owner, PrivateCompanionSession session) {

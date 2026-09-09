@@ -89,6 +89,8 @@ public final class ShadowCombatController {
 			state.creditTarget = target.getUUID();
 			state.creditReadyAt = serverTick + CREDIT_WINDOW_TICKS;
 		}
+		state.learning.rememberChoice(context, type, decision.action().id());
+		updated = state.learning.encode();
 		return new TickResult(true, updated, decision);
 	}
 

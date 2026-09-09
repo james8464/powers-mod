@@ -15,6 +15,11 @@ public final class ShadowRequestParser {
 	private static final Set<String> HIDE = Set.of("hide yourself", "hide", "be unseen", "conceal yourself");
 	private static final Set<String> DISMISS = Set.of("leave me", "dismiss", "vanish", "go away");
 	private static final Set<String> SUMMON = Set.of("come to me", "appear", "come", "manifest");
+	private static final Set<String> GOOD_FEEDBACK = Set.of("good", "good job", "well done");
+	private static final Set<String> BAD_FEEDBACK = Set.of(
+			"don't do that", "dont do that", "do not do that");
+	private static final Set<String> RESET_LEARNING = Set.of(
+			"reset what you learned", "forget combat feedback", "reset combat learning");
 
 	private ShadowRequestParser() {
 	}
@@ -32,6 +37,9 @@ public final class ShadowRequestParser {
 			return request(ShadowRequest.Kind.TOO_LONG, "", 1, "");
 		}
 		String command = normalize(original);
+		if (GOOD_FEEDBACK.contains(command)) return request(ShadowRequest.Kind.FEEDBACK_GOOD, "", 1, original);
+		if (BAD_FEEDBACK.contains(command)) return request(ShadowRequest.Kind.FEEDBACK_BAD, "", 1, original);
+		if (RESET_LEARNING.contains(command)) return request(ShadowRequest.Kind.RESET_LEARNING, "", 1, original);
 		if (REVEAL.contains(command)) return request(ShadowRequest.Kind.REVEAL, "", 1, original);
 		if (HIDE.contains(command)) return request(ShadowRequest.Kind.HIDE, "", 1, original);
 		if (DISMISS.contains(command)) return request(ShadowRequest.Kind.DISMISS, "", 1, original);

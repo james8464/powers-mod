@@ -34,7 +34,25 @@ class ShadowRequestParserTest {
 		assertEquals(ShadowRequest.Kind.CONJURE_ITEM, parse("conjure a torch", memory).kind());
 		assertEquals(ShadowRequest.Kind.SCOUT, parse("scout ahead", memory).kind());
 		assertEquals(ShadowRequest.Kind.DIAGNOSE, parse("why did it fail?", memory).kind());
+		assertEquals(ShadowRequest.Kind.FEEDBACK_GOOD, parse("good", memory).kind());
+		assertEquals(ShadowRequest.Kind.FEEDBACK_BAD, parse("don't do that", memory).kind());
+		assertEquals(ShadowRequest.Kind.RESET_LEARNING,
+				parse("reset what you learned", memory).kind());
 		assertEquals(ShadowRequest.Kind.CONVERSE, parse("what do you want?", memory).kind());
+	}
+
+	@Test
+	void feedbackPhrasesAreExactAndRemainExplicitlyAddressed() {
+		ShadowConversationMemory memory = ShadowConversationMemory.empty();
+		assertFalse(ShadowRequestParser.parse("good", memory, NAMES).addressed());
+		assertEquals(ShadowRequest.Kind.FEEDBACK_GOOD, parse("good job!", memory).kind());
+		assertEquals(ShadowRequest.Kind.FEEDBACK_GOOD, parse("well done", memory).kind());
+		assertEquals(ShadowRequest.Kind.FEEDBACK_BAD, parse("dont do that", memory).kind());
+		assertEquals(ShadowRequest.Kind.FEEDBACK_BAD, parse("do not do that", memory).kind());
+		assertEquals(ShadowRequest.Kind.RESET_LEARNING,
+				parse("forget combat feedback", memory).kind());
+		assertEquals(ShadowRequest.Kind.CONVERSE,
+				parse("good creatures live here", memory).kind());
 	}
 
 	@Test
