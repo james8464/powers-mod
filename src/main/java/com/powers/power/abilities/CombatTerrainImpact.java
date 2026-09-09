@@ -13,8 +13,11 @@ import com.powers.power.AmethystDampening;
 import com.powers.protection.PowerProtection;
 import com.powers.util.LoadedChunks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,6 +25,9 @@ import net.minecraft.world.phys.Vec3;
 
 /** Bounded loaded-chunk terrain mutations shared by boss-scale innate attacks. */
 public final class CombatTerrainImpact {
+	private static final TagKey<Block> THUNDERCLAP_FRAGILE = TagKey.create(
+			Registries.BLOCK, com.powers.PowersMod.id("thunderclap_fragile"));
+
 	private CombatTerrainImpact() {
 	}
 
@@ -61,7 +67,7 @@ public final class CombatTerrainImpact {
 			int dy = -(index % Math.max(1, 1 + rank / 3));
 			BlockPos candidate = origin.offset(dx, dy, dz);
 			BlockPos block = solidNear(level, candidate, 2);
-			if (block != null && breakBlock(level, caster, block, rank)) removed++;
+			if (block != null && breakBlock(level, caster, block, rank, false)) removed++;
 		}
 		if (removed > 0) PowerFx.coloredBurst(level, center, 0x5D3928,
 				Math.min(18, 4 + removed / 6), Math.min(2.5, radius * 0.5));
@@ -84,7 +90,7 @@ public final class CombatTerrainImpact {
 			double lateral = ((index * 37 % 101) / 50.0 - 1.0) * width;
 			Vec3 sample = origin.add(horizontal.scale(distance)).add(side.scale(lateral));
 			BlockPos block = solidNear(level, BlockPos.containing(sample), 5);
-			if (block != null && breakBlock(level, caster, block, rank)) removed++;
+			if (block != null && breakBlock(level, caster, block, rank, true)) removed++;
 		}
 		if (removed > 0) PowerFx.coloredBurst(level, origin.add(horizontal.scale(3.0)),
 				0xD8EEF5, Math.min(16, 5 + removed / 5), 1.3);
@@ -107,7 +113,7 @@ public final class CombatTerrainImpact {
 			double fraction = 1.0 - index / (double) Math.max(1, budget * 3);
 			BlockPos candidate = BlockPos.containing(from.add(delta.scale(fraction)));
 			BlockPos block = solidNear(level, candidate, 1);
-			if (block != null && breakBlock(level, caster, block, rank)) removed++;
+			if (block != null && breakBlock(level, caster, block, rank, false)) removed++;
 		}
 		if (removed > 0) PowerFx.coloredBurst(level, to, color,
 				Math.min(12, 3 + removed), 0.65 + removed * 0.08);
@@ -128,17 +134,22 @@ public final class CombatTerrainImpact {
 				PowersConfigLoader.get().terrainScars().maxBlocksPerCast());
 	}
 
-	private static boolean breakBlock(ServerLevel level, LivingEntity caster, BlockPos pos, int rank) {
+	private static boolean breakBlock(ServerLevel level, LivingEntity caster, BlockPos pos,
+			int rank, boolean thunderclap) {
 		BlockState state = level.getBlockState(pos);
-		if (state.isAir() || !PowerProtection.mayAffectBlock(caster, level, pos)
-				|| state.is(Blocks.BEDROCK) || state.is(Blocks.END_PORTAL_FRAME)
+		boolean forbidden = state.is(Blocks.BEDROCK) || state.is(Blocks.END_PORTAL_FRAME)
 				|| state.is(Blocks.END_PORTAL) || state.is(Blocks.NETHER_PORTAL)
 				|| state.is(PowersBlocks.DARKNESS) || state.is(PowersBlocks.PURE_LIGHT)
 				|| state.is(AmethystDampening.AMETHYST_BLOCKS)
-				|| !state.getFluidState().isEmpty()) return false;
+				|| !state.getFluidState().isEmpty();
+		if (state.isAir() || !PowerProtection.mayAffectBlock(caster, level, pos)) return false;
 		float hardness = state.getDestroySpeed(level, pos);
-		return Float.isFinite(hardness) && hardness >= 0.0F
-				&& hardness <= CombatTerrainRules.maximumHardness(rank)
+		boolean breakable = thunderclap
+				? ThunderclapRules.mayBreakTerrain(state.is(THUNDERCLAP_FRAGILE), forbidden,
+						hardness, rank)
+				: !forbidden && Float.isFinite(hardness) && hardness >= 0.0F
+						&& hardness <= CombatTerrainRules.maximumHardness(rank);
+		return breakable
 				&& level.destroyBlock(pos, false, caster);
 	}
 

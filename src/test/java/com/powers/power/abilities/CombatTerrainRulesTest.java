@@ -20,6 +20,17 @@ class CombatTerrainRulesTest {
 	}
 
 	@Test
+	void everyThunderclapRankHasAPositiveMonotonicHardBudget() {
+		int previous = 0;
+		for (int rank = 0; rank <= 10; rank++) {
+			int budget = CombatTerrainRules.thunderclapBudget(rank);
+			assertTrue(budget > 0);
+			assertTrue(budget >= previous);
+			previous = budget;
+		}
+	}
+
+	@Test
 	void rankInputsAreClampedBeforeWorkBudgetsAreAllocated() {
 		assertEquals(CombatTerrainRules.craterBudget(0), CombatTerrainRules.craterBudget(-50));
 		assertEquals(CombatTerrainRules.rayBudget(10), CombatTerrainRules.rayBudget(99));
