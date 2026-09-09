@@ -11,17 +11,25 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
+import java.util.Set;
 
 /** Combat-safe six-force Rainbow selector using the artifact glyph language. */
 public final class RainbowConvergenceScreen extends Screen {
 	private final List<String> modes;
 	private final long revision;
 	private final int selected;
+	private final Set<String> discovered;
 
 	public RainbowConvergenceScreen(long revision, List<String> modes, int selected) {
+		this(revision, modes, modes, selected);
+	}
+
+	public RainbowConvergenceScreen(long revision, List<String> modes,
+			List<String> discovered, int selected) {
 		super(Component.translatable("screen.powers.crystal_selector.title"));
 		this.modes = List.copyOf(modes);
 		this.revision = revision;
+		this.discovered = Set.copyOf(discovered);
 		this.selected = Math.clamp(selected, 0, Math.max(0, modes.size() - 1));
 	}
 
@@ -36,10 +44,13 @@ public final class RainbowConvergenceScreen extends Screen {
 					* layout.verticalRadius()) - 10;
 			int target = slot;
 			String abilityId = modes.get(slot);
+			boolean known = discovered.contains(abilityId);
 			String translation = abilityId.equals("middleworld")
 					? "ability.powers.middleworld.short" : "ability.powers." + abilityId;
-			Component label = Component.literal((slot + 1) + ". ").append(
-					Component.translatableWithFallback(translation, abilityId));
+			Component label = known
+					? Component.literal((slot + 1) + ". ").append(
+							Component.translatableWithFallback(translation, abilityId))
+					: Component.translatable("screen.powers.crystal_selector.unknown", slot + 1);
 			addRenderableWidget(Button.builder(label,
 					ignored -> choose(target)).bounds(x, y, layout.buttonWidth(), 20).build());
 		}
@@ -74,7 +85,8 @@ public final class RainbowConvergenceScreen extends Screen {
 					* layout.horizontalRadius() * 0.52);
 			int y = layout.centerY() + (int) Math.round(Math.sin(angle)
 					* layout.verticalRadius() * 0.52);
-			AbilityGlyphRenderer.draw(graphics, modes.get(slot), x, y,
+			String abilityId = modes.get(slot);
+			AbilityGlyphRenderer.draw(graphics, discovered.contains(abilityId) ? abilityId : "unknown", x, y,
 					slot == selected ? 0xFFFFFFFF : 0xFFFF9CEB);
 		}
 		graphics.centeredText(font, Component.translatable("screen.powers.crystal_selector.hint"),

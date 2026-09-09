@@ -21,12 +21,22 @@ public final class CrystalSelectorPackets {
 	private static final StreamCodec<io.netty.buffer.ByteBuf, String> MODE_CODEC =
 			ByteBufCodecs.stringUtf8(64);
 
-	public record OpenPayload(long revision, List<String> modes, int selected) implements CustomPacketPayload {
+	public record OpenPayload(long revision, List<String> modes, List<String> discovered, int selected)
+			implements CustomPacketPayload {
 		public static final Type<OpenPayload> TYPE = new Type<>(PowersMod.id("open_crystal_selector"));
 		public static final StreamCodec<RegistryFriendlyByteBuf, OpenPayload> STREAM_CODEC =
 				StreamCodec.composite(ByteBufCodecs.VAR_LONG, OpenPayload::revision,
 						MODE_CODEC.apply(ByteBufCodecs.list(8)), OpenPayload::modes,
+						MODE_CODEC.apply(ByteBufCodecs.list(8)), OpenPayload::discovered,
 						ByteBufCodecs.VAR_INT, OpenPayload::selected, OpenPayload::new);
+		public OpenPayload {
+			modes = List.copyOf(modes);
+			discovered = discovered.stream().filter(modes::contains).distinct().limit(8).toList();
+			selected = Math.clamp(selected, 0, Math.max(0, modes.size() - 1));
+		}
+		public OpenPayload(long revision, List<String> modes, int selected) {
+			this(revision, modes, modes, selected);
+		}
 		@Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
 	}
 
@@ -51,7 +61,8 @@ public final class CrystalSelectorPackets {
 	public static void open(ServerPlayer player, ModeCrystalAbility convergence) {
 		PowersPlayNetworking.send(player,
 				new OpenPayload(MagicRuntime.catalogue().snapshot().revision(),
-						convergence.modeIds(), convergence.selectedIndex(player)));
+						convergence.modeIds(), convergence.discoveredModes(player),
+						convergence.selectedIndex(player)));
 	}
 
 	private static void select(ServerPlayer player, SelectPayload payload) {

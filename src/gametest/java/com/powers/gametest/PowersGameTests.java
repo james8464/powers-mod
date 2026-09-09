@@ -23,6 +23,7 @@ import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.FantasyWeaponItem;
 import com.powers.player.SkillSystem;
 import com.powers.player.PlayerGuide;
+import com.powers.player.PlayerPowers;
 import com.powers.power.artifact.ArtifactDeathWardManager;
 import com.powers.power.PowerDamage;
 import com.powers.item.ArtifactWeaponManager;
@@ -82,6 +83,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.effect.MobEffects;
+
+import java.util.List;
 
 /** Small runtime suite for mechanics that pure unit tests cannot exercise. */
 public final class PowersGameTests {
@@ -628,6 +631,35 @@ public final class PowersGameTests {
 		helper.assertTrue(before >= 5_000.0F, "Test boss did not start at full layered vitality");
 		helper.assertTrue(boss.effectiveHealth() <= 0.0F || !boss.isAlive(),
 				"Celestial Ruin barely damaged the First Vessel");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
+	public void crystalDiscoveryMigratesLegacySelectionAndPersistsFirstUse(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		var convergence = (com.powers.power.crystals.ModeCrystalAbility)
+				com.powers.power.crystals.CrystalPowerRegistry.get(PowersItems.RAINBOW_CRYSTAL);
+		List<String> modes = convergence.modeIds();
+		helper.assertTrue(convergence.discoveredModes(player).isEmpty(),
+				"new player crystal identities were revealed before use");
+		helper.assertTrue(convergence.selectMode(player, 1), "new selector rejected a valid unknown mode");
+		helper.assertTrue(convergence.discoveredModes(player).isEmpty(),
+				"selecting an unknown mode revealed it before successful use");
+		helper.assertTrue(com.powers.player.CrystalDiscoveryStore.discover(player,
+				"rainbow_crystal", modes, modes.get(1)), "first use was not discovered");
+
+		ServerPlayer legacyPlayer = helper.makeMockServerPlayerInLevel();
+		PlayerPowers.get(legacyPlayer).setSelectedCrystalMode("rainbow_crystal", 2);
+		List<String> migrated = convergence.discoveredModes(legacyPlayer);
+		helper.assertTrue(migrated.equals(List.of(modes.get(2))),
+				"legacy crystal selection did not migrate to one stable discovery");
+		helper.assertTrue(com.powers.player.CrystalDiscoveryStore.discover(legacyPlayer,
+				"rainbow_crystal", modes, modes.get(4)), "first use was not discovered");
+		helper.assertTrue(convergence.discoveredModes(legacyPlayer).equals(
+				List.of(modes.get(2), modes.get(4))), "discovery did not persist in canonical order");
+		helper.assertTrue(!com.powers.player.CrystalDiscoveryStore.discover(legacyPlayer,
+				"rainbow_crystal", modes, modes.get(4)), "duplicate use rewrote discovery state");
 		helper.succeed();
 	}
 

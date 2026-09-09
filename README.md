@@ -165,7 +165,7 @@ Infernal grimoire IDs are hidden, inert compatibility aliases for old saves. Rec
 
 ## Crystals
 
-There are ten usable crystal items exposing 11 distinct actions. Multi-mode crystals change mode without paying energy or cooldown; ordinary use activates the selected action. Underlying convergence cooldowns are shared so item swapping cannot bypass recharge. Crystals are fireproof, single-stack, immune to despawn and mob pickup, and intentionally have no crafting recipes.
+There are ten usable crystal items exposing 11 distinct actions. Multi-mode crystals change mode without paying energy or cooldown; ordinary use activates the selected action. Rainbow modes begin as numbered, selectable unknown silhouettes and reveal their stable identity after first successful use. Discovery persists per player, and legacy selections migrate as one known attunement without revealing the rest. Underlying convergence cooldowns are shared so item swapping cannot bypass recharge. Crystals are fireproof, single-stack, immune to despawn and mob pickup, and intentionally have no crafting recipes.
 
 | Crystal | Actions |
 | --- | --- |
