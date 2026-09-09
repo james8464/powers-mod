@@ -96,6 +96,26 @@ class BoundedDialogueProviderTest {
 		assertFalse(response.contains("§") || response.contains("\u202e") || response.contains("\n"));
 	}
 
+	@Test
+	void loopbackOpenAiEndpointNeedsNoCredentialButRemoteHttpsStillDoes() {
+		FakeTransport transport = new FakeTransport();
+		transport.response = CompletableFuture.completedFuture(
+				"{\"choices\":[{\"message\":{\"content\":\"Local lore.\"}}]}");
+		var local = provider(new PowersConfig.DialogueProvider(true,
+				"http://127.0.0.1:11434/v1/chat/completions", "qwen3.5:9b",
+				"POWERS_TEST_KEY", 2_500, 1, 30), transport, "");
+		assertTrue(local.enabled());
+		assertEquals("Local lore.", local.request(UUID.randomUUID(), context(), false,
+				"fallback", 1_000).join());
+		assertEquals("", transport.credential);
+
+		var remote = provider(settings(true, 1, 30), transport, "");
+		assertFalse(remote.enabled());
+		assertEquals("fallback", remote.request(UUID.randomUUID(), context(), false,
+				"fallback", 1_000).join());
+		assertEquals(1, transport.calls);
+	}
+
 	private static BoundedDialogueProvider provider(PowersConfig.DialogueProvider settings,
 			FakeTransport transport, String credential) {
 		return new BoundedDialogueProvider(settings, transport, credential);

@@ -64,6 +64,25 @@ class BoundedKnowledgeProviderTest {
 		assertEquals("Operator /give @a op", answer.answer());
 	}
 
+	@Test
+	void loopbackOpenAiEndpointNeedsNoCredentialButRemoteHttpsStillDoes() {
+		FakeTransport transport = new FakeTransport();
+		transport.response = CompletableFuture.completedFuture(
+				"{\"choices\":[{\"message\":{\"content\":\"Local answer.\"}}]}");
+		var localSettings = new PowersConfig.DialogueProvider(true,
+				"http://localhost:11434/v1/chat/completions", "qwen3.5:9b",
+				"POWERS_TEST_KEY", 2_500, 1, 30);
+		var local = new BoundedKnowledgeProvider(localSettings, transport, "");
+		assertTrue(local.enabled());
+		assertEquals("Local answer.", local.request(UUID.randomUUID(), query(), offline(), 1_000)
+				.join().answer());
+
+		var remote = new BoundedKnowledgeProvider(settings(true), transport, "");
+		assertFalse(remote.enabled());
+		assertEquals(offline(), remote.request(UUID.randomUUID(), query(), offline(), 1_000).join());
+		assertEquals(1, transport.calls);
+	}
+
 	private static PowersConfig.DialogueProvider settings(boolean enabled) {
 		return new PowersConfig.DialogueProvider(enabled, "https://example.invalid/chat", "lore",
 				"POWERS_TEST_KEY", 2_500, 2, 30).sanitized();
