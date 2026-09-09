@@ -190,7 +190,7 @@ Crouch-right-click the Shadow Sword or Heavenly Partisan for a non-pausing eight
 
 - A non-Darkness carrier cannot use it, receives hidden-particle Blindness II and Wither III, and periodically provokes lightning-marked Hollowed protectors.
 - A Darkness wielder receives very fast rank-based energy restoration; rank 10 gains up to 900 energy/second through apotheosis.
-- Starting an invocation requires the artifact in hand. A multi-tick or toggled invocation remains authorised while that artifact stays in a top-level inventory slot; moving it into a nested container, dropping it, losing alignment, dying, or disconnecting ends the state safely.
+- Starting an invocation requires the artifact in hand. A multi-tick or toggled invocation remains authorised while that artifact stays in a directly exposed top-level player-inventory slot, including Inventory Extended slots. POWERS never traverses shulkers, bundles, vanilla container components, or unknown mod container components; moving the artifact into any such nested container, dropping it, losing alignment, dying, or disconnecting ends the state safely.
 - It routes every one of the 23 innates and all 11 crystal actions using corrupted presentation and artifact—not innate—scaling.
 - Darkness level 10 ignores existing artifact cooldowns and starts no new gameplay cooldown. Energy, validation, safe zones, amethyst, and workload budgets remain.
 - Its default wheel is Lightning, Fireball, Teleport, Forcefield, Flight, Call the Hollowed, Blight Ground, and Nightfall Dominion.
