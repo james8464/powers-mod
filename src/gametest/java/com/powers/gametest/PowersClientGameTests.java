@@ -91,6 +91,13 @@ public final class PowersClientGameTests implements FabricClientGameTest {
     public void runTest(ClientGameTestContext context) {
         context.restoreDefaultGameOptions();
         context.getInput().resizeWindow(1280, 720);
+		if (Boolean.getBoolean("powers.spl007.clientOnly")) {
+			try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
+				context.waitFor(client -> client.player != null && client.level != null);
+				verifyOverlappingRuinRinging(context, singleplayer);
+			}
+			return;
+		}
 		if (Boolean.getBoolean("powers.vfx006.clientOnly")) {
 			TestWorldSave worldSave;
 			CastingPoseClientAcceptance.ReconnectSeed reconnect;
@@ -435,7 +442,9 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 					new CelestialRuinPackets.Payload(CelestialRuinPackets.Phase.DETONATE,
 							player.getX() + 1_800.0, player.getY(), player.getZ(), 0, FxLodTier.FAR));
 		});
-		context.waitFor(client -> ClientCelestialRuinFx.activeRingingCount() == 2);
+		context.waitFor(client -> ClientCelestialRuinFx.activeRingingCount() == 2
+				&& ClientCelestialRuinFx.activeAftermathCount() == 2
+				&& particleCount(client.particleEngine.countParticles()) > 0);
 	}
 
 	private static void verifyDistantSemanticRendering(ClientGameTestContext context,

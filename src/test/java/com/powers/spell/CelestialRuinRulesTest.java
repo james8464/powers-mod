@@ -107,4 +107,14 @@ class CelestialRuinRulesTest {
 		assertFalse(CelestialRuinRules.shouldIgnite(false, false));
 		assertFalse(CelestialRuinRules.shouldIgnite(true, true));
 	}
+
+	@Test
+	void structuralScarsLoseDepthAcrossTheSixThousandBlockReach() {
+		assertEquals(6, CelestialRuinRules.structuralScarDepth(0.0, 5));
+		assertEquals(4, CelestialRuinRules.structuralScarDepth(1_200.0, 3));
+		assertEquals(2, CelestialRuinRules.structuralScarDepth(3_600.0, 1));
+		assertEquals(1, CelestialRuinRules.structuralScarDepth(5_999.0, 99));
+		assertEquals(0, CelestialRuinRules.structuralScarDepth(6_000.0, 0));
+		assertEquals(0, CelestialRuinRules.structuralScarDepth(Double.NaN, 0));
+	}
 }

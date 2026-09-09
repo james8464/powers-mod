@@ -67,6 +67,19 @@ public final class CelestialRuinRules {
 				(int) Math.round(Math.sin(angle) * distance));
 	}
 
+	/**
+	 * Distance-scaled structural depth for a deterministic scar sample. The outer
+	 * bands remain visible without allowing distant loaded chunks to receive the
+	 * same excavation depth as the epicentre.
+	 */
+	public static int structuralScarDepth(double distance, int sample) {
+		if (!Double.isFinite(distance) || distance < 0.0 || distance >= DAMAGE_RADIUS) return 0;
+		int maximum = distance < 1_200.0 ? 6
+				: distance < 3_600.0 ? 4
+				: distance < 5_400.0 ? 2 : 1;
+		return 1 + Math.floorMod(sample, maximum);
+	}
+
 	/** Living-force cleanup is mandatory; other terrain follows its dedicated catastrophic policy. */
 	public static boolean shouldDestroy(boolean livingForce, boolean terrainEnabled,
 			boolean hasBlockEntity, boolean blockEntityDamageEnabled) {

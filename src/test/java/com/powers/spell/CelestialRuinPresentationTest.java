@@ -17,8 +17,8 @@ class CelestialRuinPresentationTest {
 				"src/client/java/com/powers/client/fx/ClientCelestialRuinFx.java"));
 		assertFalse(source.contains("client.level.addParticle("),
 				"ordinary client particles are culled beyond 32 blocks");
-		assertEquals(3, source.split("addAlwaysVisibleParticle\\(", -1).length - 1);
-		assertEquals(3, source.split("true,", -1).length - 1,
+		assertEquals(5, source.split("addAlwaysVisibleParticle\\(", -1).length - 1);
+		assertEquals(5, source.split("true,", -1).length - 1,
 				"always-visible particles must also override vanilla's 32-block limiter");
 	}
 
@@ -73,5 +73,21 @@ class CelestialRuinPresentationTest {
 		assertEquals(0.55F, CelestialRuinPresentation.audioGain(FxLodTier.MID));
 		assertEquals(0.28F, CelestialRuinPresentation.audioGain(FxLodTier.FAR));
 		assertEquals(0.0F, CelestialRuinPresentation.audioGain(FxLodTier.HIDDEN));
+	}
+
+	@Test
+	void falloutAndCloudDisplacementRemainFiniteAtEveryLod() {
+		assertEquals(600, CelestialRuinPresentation.AFTERMATH_TICKS);
+		assertEquals(4, CelestialRuinPresentation.MAX_AFTERMATH_EVENTS);
+		for (FxLodTier tier : FxLodTier.values()) {
+			var density = CelestialRuinPresentation.aftermathDensity(tier);
+			assertTrue(density.ashParticles() >= 0 && density.ashParticles() <= 24);
+			assertTrue(density.cloudParticles() >= 0 && density.cloudParticles() <= 32);
+		}
+		assertTrue(CelestialRuinPresentation.aftermathDensity(FxLodTier.NEAR).particleCount()
+				> CelestialRuinPresentation.aftermathDensity(FxLodTier.FAR).particleCount());
+		assertEquals(0, CelestialRuinPresentation.aftermathDensity(FxLodTier.HIDDEN).particleCount());
+		assertEquals(1.0F, CelestialRuinPresentation.ashStrength(600), 0.001F);
+		assertEquals(0.0F, CelestialRuinPresentation.ashStrength(0), 0.001F);
 	}
 }

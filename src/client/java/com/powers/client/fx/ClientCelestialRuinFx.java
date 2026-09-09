@@ -4,6 +4,7 @@ import com.powers.PowersParticles;
 import com.powers.client.audio.ClientLayeredAudioMixer;
 import com.powers.network.CelestialRuinPackets;
 import com.powers.spell.CelestialRuinPresentation;
+import com.powers.spell.CelestialRuinRules;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -19,6 +20,7 @@ public final class ClientCelestialRuinFx {
 	private static final Map<Long, Column> COLUMNS = new HashMap<>();
 	private static final int MAX_RINGING_EVENTS = 4;
 	private static final Map<Long, Ringing> RINGING_EVENTS = new LinkedHashMap<>();
+	private static final Map<Long, Aftermath> AFTERMATH_EVENTS = new LinkedHashMap<>();
 	private static int flashTicks;
 	private static net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> flashDimension;
 	private static int clientTick;
@@ -44,6 +46,11 @@ public final class ClientCelestialRuinFx {
 			}
 			RINGING_EVENTS.put(key, new Ringing(origin, CelestialRuinPresentation.RINGING_TICKS,
 					payload.lod(), dimension));
+			while (AFTERMATH_EVENTS.size() >= CelestialRuinPresentation.MAX_AFTERMATH_EVENTS) {
+				AFTERMATH_EVENTS.remove(AFTERMATH_EVENTS.keySet().iterator().next());
+			}
+			AFTERMATH_EVENTS.put(key, new Aftermath(origin,
+					CelestialRuinPresentation.AFTERMATH_TICKS, payload.lod(), dimension));
 			if (client.player != null) ClientLayeredAudioMixer.playLocalCelestial(origin,
 					CelestialRuinPresentation.audioGain(payload.lod()), 1.0F);
 			return;
@@ -58,6 +65,7 @@ public final class ClientCelestialRuinFx {
 		if (client.level == null || client.player == null) {
 			COLUMNS.clear();
 			RINGING_EVENTS.clear();
+			AFTERMATH_EVENTS.clear();
 			flashTicks = 0;
 			flashDimension = null;
 			return;
@@ -67,6 +75,7 @@ public final class ClientCelestialRuinFx {
 			flashDimension = null;
 		} else if (flashTicks > 0) flashTicks--;
 		tickRinging(client);
+		tickAftermath(client);
 		for (Iterator<Column> iterator = COLUMNS.values().iterator(); iterator.hasNext();) {
 			Column column = iterator.next();
 			if (!column.dimension.equals(client.level.dimension()) || --column.lease <= 0) {
@@ -77,6 +86,46 @@ public final class ClientCelestialRuinFx {
 					> (double) CelestialRuinPresentation.BEAM_VIEW_RADIUS
 					* CelestialRuinPresentation.BEAM_VIEW_RADIUS) continue;
 			spawnColumn(client, column);
+		}
+	}
+
+	private static void tickAftermath(Minecraft client) {
+		for (Iterator<Aftermath> iterator = AFTERMATH_EVENTS.values().iterator(); iterator.hasNext();) {
+			Aftermath aftermath = iterator.next();
+			if (!aftermath.dimension.equals(client.level.dimension()) || --aftermath.remainingTicks <= 0) {
+				iterator.remove();
+				continue;
+			}
+			if (client.player.position().distanceToSqr(aftermath.center)
+					> (double) CelestialRuinRules.DAMAGE_RADIUS * CelestialRuinRules.DAMAGE_RADIUS) continue;
+			spawnAftermath(client, aftermath);
+		}
+	}
+
+	private static void spawnAftermath(Minecraft client, Aftermath aftermath) {
+		var density = CelestialRuinPresentation.aftermathDensity(aftermath.lod);
+		float strength = CelestialRuinPresentation.ashStrength(aftermath.remainingTicks);
+		int ashCount = Math.max(0, Math.round(density.ashParticles() * strength));
+		for (int index = 0; index < ashCount; index++) {
+			double angle = index * 2.399963 + clientTick * 0.041;
+			double radius = 5.0 + ((index * 17 + clientTick * 3) & 31);
+			double y = client.player.getY() + 6.0 + ((index * 11 + clientTick) & 15);
+			client.level.addAlwaysVisibleParticle(net.minecraft.core.particles.ParticleTypes.ASH, true,
+					client.player.getX() + Math.cos(angle) * radius, y,
+					client.player.getZ() + Math.sin(angle) * radius,
+					0.03 * Math.cos(angle), -0.04, 0.03 * Math.sin(angle));
+		}
+		int elapsed = CelestialRuinPresentation.AFTERMATH_TICKS - aftermath.remainingTicks;
+		if (elapsed > 100 || elapsed % 2 != 0) return;
+		double cloudY = Math.clamp(client.level.getMaxY() - 18.0,
+				client.level.getMinY() + 16.0, client.level.getMaxY() - 2.0);
+		for (int index = 0; index < density.cloudParticles(); index++) {
+			double angle = Math.PI * 2.0 * index / Math.max(1, density.cloudParticles());
+			double radius = 52.0 + elapsed * 1.5;
+			client.level.addAlwaysVisibleParticle(net.minecraft.core.particles.ParticleTypes.CLOUD, true,
+					aftermath.center.x + Math.cos(angle) * radius, cloudY,
+					aftermath.center.z + Math.sin(angle) * radius,
+					Math.cos(angle) * 0.8, 0.05, Math.sin(angle) * 0.8);
 		}
 	}
 
@@ -148,6 +197,7 @@ public final class ClientCelestialRuinFx {
 	public static void reset() {
 		COLUMNS.clear();
 		RINGING_EVENTS.clear();
+		AFTERMATH_EVENTS.clear();
 		flashTicks = 0;
 		flashDimension = null;
 		clientTick = 0;
@@ -156,6 +206,10 @@ public final class ClientCelestialRuinFx {
 	/** Bounded receiver state used by the real-client overlapping-event proof. */
 	public static int activeRingingCount() {
 		return RINGING_EVENTS.size();
+	}
+
+	public static int activeAftermathCount() {
+		return AFTERMATH_EVENTS.size();
 	}
 
 	private static long key(int dimension, double x, double y, double z) {
@@ -187,6 +241,21 @@ public final class ClientCelestialRuinFx {
 		private final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension;
 
 		private Ringing(Vec3 center, int remainingTicks, com.powers.fx.FxLodTier lod,
+				net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension) {
+			this.center = center;
+			this.remainingTicks = remainingTicks;
+			this.lod = lod;
+			this.dimension = dimension;
+		}
+	}
+
+	private static final class Aftermath {
+		private final Vec3 center;
+		private int remainingTicks;
+		private final com.powers.fx.FxLodTier lod;
+		private final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension;
+
+		private Aftermath(Vec3 center, int remainingTicks, com.powers.fx.FxLodTier lod,
 				net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension) {
 			this.center = center;
 			this.remainingTicks = remainingTicks;

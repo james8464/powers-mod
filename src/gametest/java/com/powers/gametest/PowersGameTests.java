@@ -632,6 +632,39 @@ public final class PowersGameTests {
 	}
 
 	@GameTest
+	public void celestialRuinAtmosphereAndScarsStayBoundedAcrossSixThousandBlocks(
+			GameTestHelper helper) {
+		var near = com.powers.spell.CelestialRuinPresentation.aftermathDensity(
+				com.powers.fx.FxLodTier.NEAR);
+		var far = com.powers.spell.CelestialRuinPresentation.aftermathDensity(
+				com.powers.fx.FxLodTier.FAR);
+		helper.assertTrue(near.particleCount() <= 56 && far.particleCount() <= 16,
+				"Celestial fallout exceeded its per-event client budget");
+		helper.assertTrue(com.powers.spell.CelestialRuinPresentation.MAX_AFTERMATH_EVENTS
+				* near.particleCount() <= 224,
+				"Overlapping Celestial fallout exceeded its global client budget");
+		double[] distances = {0.0, 1_200.0, 3_600.0, 5_999.0};
+		int previousCap = Integer.MAX_VALUE;
+		for (int index = 0; index < distances.length; index++) {
+			double distance = distances[index];
+			int depth = com.powers.spell.CelestialRuinRules.structuralScarDepth(distance, index * 31);
+			int cap = distance < 1_200.0 ? 6 : distance < 3_600.0 ? 4
+					: distance < 5_400.0 ? 2 : 1;
+			helper.assertTrue(depth >= 1 && depth <= cap && cap <= previousCap,
+					"Structural scar depth escaped its distance band");
+			previousCap = cap;
+		}
+		var last = com.powers.spell.CelestialRuinRules.aftershockOffset(
+				com.powers.spell.CelestialRuinRules.aftershockTotalSteps() - 1);
+		helper.assertTrue(Math.hypot(last.x(), last.z())
+				<= com.powers.spell.CelestialRuinRules.DAMAGE_RADIUS + 1.0,
+				"A distant scar escaped the authored event radius");
+		helper.assertTrue(com.powers.spell.CelestialRuinRules.AFTERSHOCK_WORK_PER_TICK == 2_048,
+				"Server scar work no longer has the authored hard tick budget");
+		helper.succeed();
+	}
+
+	@GameTest
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void forcefieldSharesAndSacrificesItselfAgainstOverkill(GameTestHelper helper) {
 		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
