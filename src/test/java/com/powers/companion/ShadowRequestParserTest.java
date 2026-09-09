@@ -33,8 +33,17 @@ class ShadowRequestParserTest {
 		assertEquals(ShadowRequest.Kind.GET_ITEM, parse("bring me 16 torches", memory).kind());
 		assertEquals(ShadowRequest.Kind.CONJURE_ITEM, parse("conjure a torch", memory).kind());
 		assertEquals(ShadowRequest.Kind.SCOUT, parse("scout ahead", memory).kind());
+		assertEquals(ShadowRequest.Kind.CALLOUT_MODE, parse("callouts critical", memory).kind());
 		assertEquals(ShadowRequest.Kind.DIAGNOSE, parse("why did it fail?", memory).kind());
 		assertEquals(ShadowRequest.Kind.CONVERSE, parse("what do you want?", memory).kind());
+	}
+
+	@Test
+	void calloutFrequencyModeIsExplicitAndBounded() {
+		ShadowConversationMemory memory = ShadowConversationMemory.empty();
+		assertEquals("normal", parse("callouts normal", memory).subject());
+		assertEquals("verbose", parse("callouts verbose", memory).subject());
+		assertEquals(ShadowRequest.Kind.CONVERSE, parse("callouts constantly", memory).kind());
 	}
 
 	@Test

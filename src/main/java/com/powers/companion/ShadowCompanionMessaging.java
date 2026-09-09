@@ -51,6 +51,19 @@ final class ShadowCompanionMessaging {
 		sendReply(owner, owner, line);
 	}
 
+	static void callout(ServerPlayer owner, String spoken, String visual, boolean critical) {
+		List<UUID> online = owner.level().getServer().getPlayerList().getPlayers().stream()
+				.map(ServerPlayer::getUUID).toList();
+		for (UUID id : PrivateCompanionRules.recipients(owner.getUUID(), online,
+				PrivateCompanionManager.isRevealed(owner.getUUID()))) {
+			ServerPlayer recipient = owner.level().getServer().getPlayerList().getPlayer(id);
+			if (recipient == null) continue;
+			sendReply(recipient, owner, spoken);
+			recipient.sendSystemMessage(Component.literal(visual).withStyle(critical
+					? ChatFormatting.RED : ChatFormatting.DARK_PURPLE), true);
+		}
+	}
+
 	static void broadcastAddress(ServerPlayer owner, String line) {
 		Component message = Component.literal("<" + owner.getScoreboardName() + "> shadow, " + line)
 				.withStyle(ChatFormatting.GRAY);

@@ -10,8 +10,8 @@ import java.util.UUID;
 /** Small owner-keyed save record; runtime entity references never enter it. */
 public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance stance,
 		boolean revealed, String bodyId, long recallReadyAt, ShadowConversationMemory memory,
-		String combatRange, String learnedCombat) {
-	public static final int CURRENT_SCHEMA_VERSION = 3;
+		String combatRange, String learnedCombat, String calloutMode) {
+	public static final int CURRENT_SCHEMA_VERSION = 4;
 	public static final Codec<ShadowCompanionData> CODEC = RecordCodecBuilder.create(instance ->
 			instance.group(
 					Codec.INT.optionalFieldOf("schema", CURRENT_SCHEMA_VERSION)
@@ -31,7 +31,9 @@ public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance st
 					Codec.STRING.optionalFieldOf("combat_range", "auto")
 							.forGetter(ShadowCompanionData::combatRange),
 					Codec.STRING.optionalFieldOf("learned_combat", "")
-							.forGetter(ShadowCompanionData::learnedCombat))
+							.forGetter(ShadowCompanionData::learnedCombat),
+					Codec.STRING.optionalFieldOf("callout_mode", "normal")
+							.forGetter(ShadowCompanionData::calloutMode))
 					.apply(instance, ShadowCompanionData::new));
 
 	public ShadowCompanionData {
@@ -43,11 +45,13 @@ public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance st
 		memory = memory == null ? ShadowConversationMemory.empty() : memory;
 		combatRange = parseRange(combatRange).name().toLowerCase(java.util.Locale.ROOT);
 		learnedCombat = learnedCombat == null || learnedCombat.length() > 32_768 ? "" : learnedCombat;
+		calloutMode = ShadowCalloutMode.parse(calloutMode).savedName();
 	}
 
 	public static ShadowCompanionData defaults() {
 		return new ShadowCompanionData(CURRENT_SCHEMA_VERSION, ShadowCompanionRules.MAX_ENERGY,
-				ShadowStance.FOLLOW, false, "", 0L, ShadowConversationMemory.empty(), "auto", "");
+				ShadowStance.FOLLOW, false, "", 0L, ShadowConversationMemory.empty(), "auto", "",
+				"normal");
 	}
 
 	public Optional<UUID> bodyUuid() {
@@ -95,6 +99,16 @@ public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance st
 		return copy(energy, stance, revealed, bodyId, recallReadyAt, memory, combatRange, value);
 	}
 
+	public ShadowCompanionData withCalloutMode(ShadowCalloutMode value) {
+		return new ShadowCompanionData(schemaVersion, energy, stance, revealed, bodyId,
+				recallReadyAt, memory, combatRange, learnedCombat,
+				(value == null ? ShadowCalloutMode.NORMAL : value).savedName());
+	}
+
+	public ShadowCalloutMode preferredCalloutMode() {
+		return ShadowCalloutMode.parse(calloutMode);
+	}
+
 	public ShadowRequestRange preferredCombatRange() {
 		return parseRange(combatRange);
 	}
@@ -103,7 +117,7 @@ public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance st
 			boolean nextRevealed, String nextBody, long nextRecall,
 			ShadowConversationMemory nextMemory, String nextRange, String nextLearned) {
 		return new ShadowCompanionData(schemaVersion, nextEnergy, nextStance, nextRevealed,
-				nextBody, nextRecall, nextMemory, nextRange, nextLearned);
+				nextBody, nextRecall, nextMemory, nextRange, nextLearned, calloutMode);
 	}
 
 	private static ShadowRequestRange parseRange(String value) {

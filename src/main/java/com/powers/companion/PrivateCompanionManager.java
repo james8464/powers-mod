@@ -85,6 +85,9 @@ public final class PrivateCompanionManager {
 						combat.learnedState()));
 			}
 		}
+		LivingEntity combatTarget = body.getTarget();
+		ShadowCalloutRuntime.observe(player, body, serverTick,
+				combatTarget != null && combatTarget.isAlive());
 		ShadowTask.Result taskState = session.tasks.tick(player.level().getGameTime());
 		if (taskState.state() == ShadowTask.State.FAILED) {
 			ShadowCompanionMessaging.rememberFailure(player, taskState.reason());
@@ -388,6 +391,7 @@ public final class PrivateCompanionManager {
 	}
 
 	private static void despawn(ServerPlayer owner) {
+		ShadowCalloutRuntime.clearOwner(owner.getUUID());
 		PrivateCompanionSession removed = SESSIONS.remove(owner.getUUID());
 		if (removed == null) {
 			ShadowCompanionStore.clearBody(owner);
@@ -431,6 +435,7 @@ public final class PrivateCompanionManager {
 		ShadowCommandRuntime.clear();
 		ShadowStatusSync.clear();
 		ShadowChatContext.clear();
+		ShadowCalloutRuntime.clear();
 		com.powers.knowledge.KnowledgeRemoteProviderRuntime.clear();
 		com.powers.knowledge.MagicAttemptJournal.global().clear();
 	}

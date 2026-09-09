@@ -396,6 +396,59 @@ public final class PowersGameTests {
 		helper.succeed();
 	}
 
+	@GameTest(maxTicks = 60)
+	@SuppressWarnings("removal")
+	public void shadowCalloutsPreserveCriticalWarningsPrivacyAndFrequencyModes(
+			GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		owner.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(2, 1, 2))));
+		owner.addTag(SkillSystem.DARKNESS_TAG);
+		owner.getInventory().add(PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		PrivateCompanionManager.handleChat(owner, "shadow, come");
+		PrivateCompanionManager.tickPlayer(owner, 0);
+		ShadowCompanionEntity shadow = PrivateCompanionManager.body(owner.getUUID()).orElseThrow();
+		var before = PrivateCompanionManager.diagnostics();
+
+		PrivateCompanionManager.handleChat(owner, "shadow, callouts critical");
+		owner.setHealth(4.0F);
+		PrivateCompanionManager.tickPlayer(owner, 1);
+		var danger = PrivateCompanionManager.diagnostics();
+		helper.assertTrue(danger.criticalWarnings() == before.criticalWarnings() + 1
+				&& danger.chatterCallouts() == before.chatterCallouts()
+				&& danger.privateCallouts() == before.privateCallouts() + 1,
+				"Critical-only mode suppressed or publicly leaked a hidden danger warning");
+
+		owner.setHealth(owner.getMaxHealth());
+		PrivateCompanionManager.handleChat(owner, "shadow, callouts verbose");
+		PowerTestActor target = helper.spawn(PowersEntities.POWER_TEST_ACTOR,
+				new BlockPos(2, 1, 7));
+		target.setNoAi(true);
+		target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1_000.0);
+		target.setHealth(target.getMaxHealth());
+		shadow.setTarget(target);
+		PrivateCompanionManager.tickPlayer(owner, 6);
+		var engaged = PrivateCompanionManager.diagnostics();
+		helper.assertTrue(engaged.chatterCallouts() == danger.chatterCallouts() + 1,
+				"Verbose mode did not emit the combat-state transition");
+
+		PrivateCompanionManager.handleChat(owner, "shadow, reveal yourself");
+		BlockPos amethyst = helper.absolutePos(new BlockPos(2, 1, 2));
+		helper.getLevel().setBlock(amethyst, Blocks.AMETHYST_BLOCK.defaultBlockState(), 3);
+		com.powers.power.AmethystDampening.blockChanged(helper.getLevel(), amethyst,
+				Blocks.AMETHYST_BLOCK.defaultBlockState());
+		helper.assertTrue(PrivateCompanionManager.isRevealed(owner.getUUID()),
+				"Reveal command did not expose the live Shadow session");
+		PrivateCompanionManager.tickPlayer(owner, 11);
+		var revealed = PrivateCompanionManager.diagnostics();
+		helper.assertTrue(revealed.criticalWarnings() == engaged.criticalWarnings() + 1
+				&& revealed.globalCallouts() == engaged.globalCallouts() + 1,
+				"A revealed critical warning did not survive chatter or global delivery: before="
+						+ engaged.summary() + ", after=" + revealed.summary());
+
+		PrivateCompanionManager.handleChat(owner, "shadow, leave me");
+		helper.succeed();
+	}
+
 	@GameTest
 	@SuppressWarnings("removal")
 	public void crossingEnergyAndVoidRaysCreatePhysicalConsequences(GameTestHelper helper) {
