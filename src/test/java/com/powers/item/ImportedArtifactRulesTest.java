@@ -2,6 +2,9 @@ package com.powers.item;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ImportedArtifactRulesTest {
@@ -52,5 +55,64 @@ class ImportedArtifactRulesTest {
 				ImportedArtifactRules.heartSpecialization("artifact_heart_mechanism"));
 		assertEquals(ImportedArtifactRules.HeartSpecialization.WILDWOOD,
 				ImportedArtifactRules.heartSpecialization("artifact_woodheart"));
+	}
+
+	@Test
+	void everyRingAndAmuletHasOneNamedNumericalAttunement() {
+		assertProfile("artifact_diamond_ring", ImportedArtifactRules.AttunementSchool.WARDING,
+				ImportedArtifactRules.AttunementEffect.WOUNDED_RESISTANCE, 2);
+		assertProfile("artifact_emerald_ring", ImportedArtifactRules.AttunementSchool.VERDANCY,
+				ImportedArtifactRules.AttunementEffect.WOUNDED_REGENERATION, 1);
+		assertProfile("artifact_amulet", ImportedArtifactRules.AttunementSchool.CHANNELING,
+				ImportedArtifactRules.AttunementEffect.CHANNEL_RECOVERY, 2);
+		assertProfile("artifact_plain_copper_ring", ImportedArtifactRules.AttunementSchool.RECOVERY,
+				ImportedArtifactRules.AttunementEffect.LOW_ENERGY_RECOVERY, 2);
+		assertProfile("artifact_corroded_copper_ring", ImportedArtifactRules.AttunementSchool.RECOVERY,
+				ImportedArtifactRules.AttunementEffect.LOW_ENERGY_RECOVERY, 1);
+	}
+
+	@Test
+	void strongestProfilePerSchoolWinsWithoutMultiplicativeStacking() {
+		Map<ImportedArtifactRules.AttunementSchool, ImportedArtifactRules.AttunementProfile> strongest =
+				ImportedArtifactRules.strongestAttunements(List.of(
+						"artifact_corroded_copper_ring", "artifact_plain_copper_ring",
+						"artifact_plain_copper_ring", "artifact_amulet", "artifact_amulet"));
+		assertEquals(2, strongest.size());
+		assertEquals("artifact_plain_copper_ring",
+				strongest.get(ImportedArtifactRules.AttunementSchool.RECOVERY).texture());
+		assertEquals(2,
+				strongest.get(ImportedArtifactRules.AttunementSchool.CHANNELING).magnitude());
+	}
+
+	@Test
+	void situationalEnergyRecoveryRemainsExplicitAndGloballyBounded() {
+		Map<ImportedArtifactRules.AttunementSchool, ImportedArtifactRules.AttunementProfile> strongest =
+				ImportedArtifactRules.strongestAttunements(List.of(
+						"artifact_plain_copper_ring", "artifact_corroded_copper_ring",
+						"artifact_amulet", "artifact_diamond_ring"));
+		assertEquals(0, ImportedArtifactRules.attunementEnergy(strongest, false, false));
+		assertEquals(2, ImportedArtifactRules.attunementEnergy(strongest, true, false));
+		assertEquals(2, ImportedArtifactRules.attunementEnergy(strongest, false, true));
+		assertEquals(4, ImportedArtifactRules.attunementEnergy(strongest, true, true));
+		assertEquals(6, ImportedArtifactRules.cappedPassiveEnergy(99, true, true));
+	}
+
+	@Test
+	void situationalThresholdsAreInclusiveAndRejectInvalidCapacities() {
+		assertEquals(true, ImportedArtifactRules.wounded(10.0F, 20.0F));
+		assertEquals(false, ImportedArtifactRules.wounded(10.01F, 20.0F));
+		assertEquals(false, ImportedArtifactRules.wounded(0.0F, 0.0F));
+		assertEquals(true, ImportedArtifactRules.lowEnergy(250, 1_000));
+		assertEquals(false, ImportedArtifactRules.lowEnergy(251, 1_000));
+		assertEquals(false, ImportedArtifactRules.lowEnergy(0, 0));
+	}
+
+	private static void assertProfile(String texture, ImportedArtifactRules.AttunementSchool school,
+			ImportedArtifactRules.AttunementEffect effect, int magnitude) {
+		ImportedArtifactRules.AttunementProfile profile = ImportedArtifactRules.attunementProfile(texture);
+		assertEquals(texture, profile.texture());
+		assertEquals(school, profile.school());
+		assertEquals(effect, profile.effect());
+		assertEquals(magnitude, profile.magnitude());
 	}
 }

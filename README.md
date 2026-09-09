@@ -242,7 +242,7 @@ The registry currently contains 260 gameplay/block rows. The exact ID, family, i
 
 | Family | Purpose |
 | --- | --- |
-| Rings and amulets | Inventory attunements with one-to-three recovery weight, combined energy cap six/second, and hidden-particle Resistance capped at II. |
+| Rings and amulets | Visible Warding, Verdancy, Channeling, and Recovery attunements. Diamond and emerald rings grant Resistance II or Regeneration I only at half health; amulets restore two energy/second only while using an item; copper rings restore one or two energy/second only below 25% energy. Duplicate and weaker relics in one school do not stack, and all passive relic energy remains capped at six/second. |
 | Soulstones / Soul Matrix | Persistent auxiliary energy reservoirs and atomic cast-shortfall payment. |
 | Ritual Dagger | Its tooltip previews exact health cost, survival floor and energy gain. Use sacrifices four real health above that floor for 80 energy; armour, forcefields, and cancelled damage cannot make it free. |
 | Five heart relics | Living Heart healing/regeneration; Wildwood stronger healing; Ghoul healing plus energy; Clockwork timed absorption; Bloodstone five-minute single lethal-damage ward. |

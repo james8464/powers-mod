@@ -7,6 +7,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 /** Applies one bounded per-second inventory pass for relic attunements. */
 public final class ImportedArtifactRuntime {
 	private ImportedArtifactRuntime() {
@@ -14,8 +18,7 @@ public final class ImportedArtifactRuntime {
 
 	public static void tickPlayer(ServerPlayer player, int tick) {
 		if (tick % 20 != 0) return;
-		int attunements = 0;
-		int attunementEnergy = 0;
+		List<String> attunementTextures = new ArrayList<>();
 		boolean livingHeart = false;
 		boolean ghoulHeart = false;
 		boolean clockworkHeart = false;
@@ -23,10 +26,7 @@ public final class ImportedArtifactRuntime {
 		for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
 			if (!(stack.getItem() instanceof ImportedArtifactItem relic)) continue;
 			switch (relic.kind()) {
-				case ATTUNEMENT -> {
-					attunements++;
-					attunementEnergy += ImportedArtifactRules.attunementEnergy(relic.texture());
-				}
+				case ATTUNEMENT -> attunementTextures.add(relic.texture());
 				case HEART_RELIC -> {
 					switch (ImportedArtifactRules.heartSpecialization(relic.texture())) {
 						case LIVING, WILDWOOD -> livingHeart = true;
@@ -39,11 +39,23 @@ public final class ImportedArtifactRuntime {
 			}
 			celestialFocus |= relic.role() == ArtifactRole.CELESTIAL_FOCUS;
 		}
-		int energy = Math.min(6, attunementEnergy) + (celestialFocus ? 1 : 0)
-				+ (ghoulHeart ? 1 : 0);
-		if (energy > 0 && PlayerPowers.get(player).regenerateEnergy(energy)) PowersPackets.syncTo(player);
-		if (attunements > 0) player.addEffect(PowerStatusEffects.hidden(
-				MobEffects.RESISTANCE, 40, Math.min(1, attunements - 1), true, true));
+		Map<ImportedArtifactRules.AttunementSchool, ImportedArtifactRules.AttunementProfile> attunements =
+				ImportedArtifactRules.strongestAttunements(attunementTextures);
+		PlayerPowers.PlayerPowersData powers = PlayerPowers.get(player);
+		int attunementEnergy = ImportedArtifactRules.attunementEnergy(attunements,
+				ImportedArtifactRules.lowEnergy(powers.energy(), powers.energyCapacity()), player.isUsingItem());
+		int energy = ImportedArtifactRules.cappedPassiveEnergy(
+				attunementEnergy, celestialFocus, ghoulHeart);
+		if (energy > 0 && powers.regenerateEnergy(energy)) PowersPackets.syncTo(player);
+		boolean wounded = ImportedArtifactRules.wounded(player.getHealth(), player.getMaxHealth());
+		ImportedArtifactRules.AttunementProfile warding = attunements.get(
+				ImportedArtifactRules.AttunementSchool.WARDING);
+		if (wounded && warding != null) player.addEffect(PowerStatusEffects.hidden(
+				MobEffects.RESISTANCE, 40, warding.magnitude() - 1, true, true));
+		ImportedArtifactRules.AttunementProfile verdancy = attunements.get(
+				ImportedArtifactRules.AttunementSchool.VERDANCY);
+		if (wounded && verdancy != null) player.addEffect(PowerStatusEffects.hidden(
+				MobEffects.REGENERATION, 40, verdancy.magnitude() - 1, true, true));
 		if (livingHeart) player.addEffect(PowerStatusEffects.hidden(
 				MobEffects.REGENERATION, 40, 0, true, true));
 		if (clockworkHeart) player.addEffect(PowerStatusEffects.hidden(

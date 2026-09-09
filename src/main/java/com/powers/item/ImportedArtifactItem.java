@@ -20,9 +20,11 @@ import com.powers.power.artifact.ArtifactDeathWardManager;
 import com.powers.util.BoundedEntityCandidates;
 import com.powers.util.PowerMessages;
 import com.powers.testing.TestingOverrides;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -34,6 +36,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -45,6 +49,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /** Gives imported relic families bounded server-authoritative actions. */
 public final class ImportedArtifactItem extends Item {
@@ -125,6 +130,19 @@ public final class ImportedArtifactItem extends Item {
 
 	public ArtifactRole role() {
 		return role;
+	}
+
+	@Override
+	@SuppressWarnings("deprecation")
+	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
+			Consumer<Component> output, TooltipFlag flag) {
+		super.appendHoverText(stack, context, display, output, flag);
+		ImportedArtifactRules.AttunementProfile profile = ImportedArtifactRules.attunementProfile(texture);
+		if (!profile.present()) return;
+		output.accept(Component.translatable("tooltip.powers.attunement.school",
+				Component.translatable(profile.school().translationKey())).withStyle(ChatFormatting.GOLD));
+		output.accept(Component.translatable(profile.effect().translationKey(), profile.magnitude())
+				.withStyle(ChatFormatting.GRAY));
 	}
 
 	@Override
