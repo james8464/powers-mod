@@ -14,6 +14,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.player.SkillQuestTracker;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellCastingManager;
+import com.powers.spell.BloodReadingHistoryService;
 import com.powers.entity.PlayerLikeTarget;
 import com.powers.entity.TestActorPowerState;
 import com.powers.companion.PrivateCompanionManager;
@@ -49,6 +50,7 @@ final class PowerCombatEvents {
 		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damageTaken, blocked) -> {
 			BodyProxyManager.afterDamage(entity, source, damageTaken);
 			if (damageTaken <= 0) return;
+			BloodReadingHistoryService.recordDamage(entity, damageTaken);
 			ArtifactCovenantManager.shareDamage(entity, source, damageTaken);
 			SpellCastingManager.markDamaged(entity);
 			EnergyDrainAbility.markDamaged(entity);
@@ -64,6 +66,7 @@ final class PowerCombatEvents {
 					|| !ArtifactDeathWardManager.preventDeath(player, source);
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+			BloodReadingHistoryService.clear(entity);
 			PrivateCompanionManager.afterDeath(entity);
 			if (entity instanceof ServerPlayer player) PlayerPowers.get(player).recordDeath(player);
 			if (entity instanceof PlayerLikeTarget) {

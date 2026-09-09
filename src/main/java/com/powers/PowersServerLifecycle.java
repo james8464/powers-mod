@@ -179,6 +179,7 @@ final class PowersServerLifecycle {
 		ConcordCastManager.clear();
 		PowerAbilityRuntime.onServerStopped(server);
 		SpellCastingManager.clearAll();
+		com.powers.spell.BloodReadingHistoryService.clearAll();
 		SpellFieldManager.clearAll();
 		CelestialRuinManager.clearAll();
 		RealmMindscapeManager.clearAll();

@@ -1399,6 +1399,34 @@ public final class PowersGameTests {
 		});
 	}
 
+	@GameTest
+	public void bloodReadingTracksRecentDamageAndHealing(GameTestHelper helper) {
+		PowerTestActor target = helper.spawn(PowersEntities.POWER_TEST_ACTOR, new BlockPos(2, 1, 2));
+		com.powers.spell.BloodReadingHistoryService.clear(target);
+		MagicShieldManager.global().remove(target.getUUID());
+		helper.assertTrue(target.hurtServer(helper.getLevel(), target.damageSources().generic(), 4.0F),
+				"Live damage was not applied to the Blood Reading target");
+		target.heal(2.0F);
+		long now = helper.getLevel().getServer().getTickCount();
+		MagicShieldManager.global().raise(target.getUUID(), 20.0F, now + 100L);
+		target.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+				com.powers.PowersEffects.AMETHYST_POISONING, 100, 0));
+		com.powers.spell.BloodReadingReport report =
+				com.powers.spell.BloodReadingReport.create(target);
+		helper.assertTrue(report.recentDamage() >= 4.0F && report.recentHealing() >= 2.0F,
+				"Blood Reading did not summarize live damage and healing");
+		helper.assertTrue(report.trend() == com.powers.spell.BloodReadingTrendRules.Trend.WORSENING,
+				"Blood Reading did not classify the live history as worsening");
+		helper.assertTrue(report.forceState() == com.powers.spell.BloodReadingReport.ForceState.INTACT,
+				"Blood Reading leaked or missed the categorical force ward state");
+		helper.assertTrue(report.amethystState()
+				== com.powers.spell.BloodReadingReport.AmethystState.DAMPENED,
+				"Blood Reading missed the categorical amethyst response");
+		com.powers.spell.BloodReadingHistoryService.clear(target);
+		MagicShieldManager.global().remove(target.getUUID());
+		helper.succeed();
+	}
+
 	@GameTest(maxTicks = 80)
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void verdantTendingGrowsHydratesAndExtinguishesWithinItsWorkBudget(GameTestHelper helper) {

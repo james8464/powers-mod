@@ -138,6 +138,12 @@ final class SpellEffects {
 				report.armour(), report.alignment().name().toLowerCase(java.util.Locale.ROOT)));
 		caster.sendSystemMessage(Component.translatable("spell.powers.blood_reading.effects",
 				report.effectIds().isEmpty() ? "none" : String.join(", ", report.effectIds())));
+		caster.sendSystemMessage(Component.translatable("spell.powers.blood_reading.trend",
+				report.recentDamage(), report.recentHealing(),
+				report.trend().name().toLowerCase(java.util.Locale.ROOT)));
+		caster.sendSystemMessage(Component.translatable("spell.powers.blood_reading.vulnerability",
+				report.forceState().name().toLowerCase(java.util.Locale.ROOT),
+				report.amethystState().name().toLowerCase(java.util.Locale.ROOT)));
 		ServerLevel level = (ServerLevel) caster.level();
 		PowerFx.beam(level, caster.getEyePosition(), target.getEyePosition(),
 				PowerFx.dust(0x9D1735, 0.8F), 12);

@@ -26,4 +26,16 @@ class BloodReadingReportTest {
 		assertEquals(BloodReadingReport.Alignment.AMETHYST_DAMPENED, report.alignment());
 		assertTrue(report.effectIds().isEmpty());
 	}
+
+	@Test
+	void diagnosisAddsOnlyBoundedTrendAndCategoricalVulnerability() {
+		BloodReadingReport report = BloodReadingReport.bounded(18.0F, 20.0F, 2.0,
+				false, true, List.of(), 7.5F, 3.0F,
+				BloodReadingTrendRules.Trend.WORSENING, BloodReadingReport.ForceState.FRACTURED);
+		assertEquals(7.5F, report.recentDamage());
+		assertEquals(3.0F, report.recentHealing());
+		assertEquals(BloodReadingTrendRules.Trend.WORSENING, report.trend());
+		assertEquals(BloodReadingReport.ForceState.FRACTURED, report.forceState());
+		assertEquals(BloodReadingReport.AmethystState.DAMPENED, report.amethystState());
+	}
 }
