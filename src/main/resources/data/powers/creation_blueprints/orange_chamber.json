@@ -1,0 +1,31 @@
+{
+  "name": "Orange chamber",
+  "blocks": [
+    {"pos": [-2, 0, -2], "block": "minecraft:orange_concrete"},
+    {"pos": [-2, 0, -1], "block": "minecraft:orange_concrete"},
+    {"pos": [-2, 0, 0], "block": "minecraft:orange_concrete"},
+    {"pos": [-2, 0, 1], "block": "minecraft:orange_concrete"},
+    {"pos": [-2, 0, 2], "block": "minecraft:orange_concrete"},
+    {"pos": [-1, 0, -2], "block": "minecraft:orange_concrete"},
+    {"pos": [-1, 0, 2], "block": "minecraft:orange_concrete"},
+    {"pos": [0, 0, -2], "block": "minecraft:orange_concrete"},
+    {"pos": [0, 0, 2], "block": "minecraft:orange_concrete"},
+    {"pos": [1, 0, -2], "block": "minecraft:orange_concrete"},
+    {"pos": [1, 0, 2], "block": "minecraft:orange_concrete"},
+    {"pos": [2, 0, -2], "block": "minecraft:orange_concrete"},
+    {"pos": [2, 0, -1], "block": "minecraft:orange_concrete"},
+    {"pos": [2, 0, 0], "block": "minecraft:orange_concrete"},
+    {"pos": [2, 0, 1], "block": "minecraft:orange_concrete"},
+    {"pos": [2, 0, 2], "block": "minecraft:orange_concrete"},
+    {"pos": [-1, 1, -1], "block": "minecraft:orange_stained_glass"},
+    {"pos": [-1, 1, 0], "block": "minecraft:orange_stained_glass"},
+    {"pos": [-1, 1, 1], "block": "minecraft:orange_stained_glass"},
+    {"pos": [0, 1, -1], "block": "minecraft:orange_stained_glass"},
+    {"pos": [0, 1, 0], "block": "minecraft:orange_stained_glass"},
+    {"pos": [0, 1, 1], "block": "minecraft:orange_stained_glass"},
+    {"pos": [1, 1, -1], "block": "minecraft:orange_stained_glass"},
+    {"pos": [1, 1, 0], "block": "minecraft:orange_stained_glass"},
+    {"pos": [1, 1, 1], "block": "minecraft:orange_stained_glass"},
+    {"pos": [0, 2, 0], "block": "minecraft:glowstone"}
+  ]
+}
