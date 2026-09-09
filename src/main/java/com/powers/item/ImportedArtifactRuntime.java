@@ -16,9 +16,8 @@ public final class ImportedArtifactRuntime {
 		if (tick % 20 != 0) return;
 		int attunements = 0;
 		int attunementEnergy = 0;
-		boolean livingHeart = false;
-		boolean ghoulHeart = false;
-		boolean clockworkHeart = false;
+		ImportedArtifactRules.HeartSpecialization strongestHeart =
+				ImportedArtifactRules.HeartSpecialization.NONE;
 		boolean celestialFocus = false;
 		for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
 			if (!(stack.getItem() instanceof ImportedArtifactItem relic)) continue;
@@ -28,11 +27,11 @@ public final class ImportedArtifactRuntime {
 					attunementEnergy += ImportedArtifactRules.attunementEnergy(relic.texture());
 				}
 				case HEART_RELIC -> {
-					switch (ImportedArtifactRules.heartSpecialization(relic.texture())) {
-						case LIVING, WILDWOOD -> livingHeart = true;
-						case GHOUL -> ghoulHeart = true;
-						case CLOCKWORK -> clockworkHeart = true;
-						default -> { }
+					ImportedArtifactRules.HeartSpecialization candidate =
+							ImportedArtifactRules.heartSpecialization(relic.texture());
+					if (ImportedArtifactRules.heartTier(candidate)
+							> ImportedArtifactRules.heartTier(strongestHeart)) {
+						strongestHeart = candidate;
 					}
 				}
 				default -> { }
@@ -40,13 +39,20 @@ public final class ImportedArtifactRuntime {
 			celestialFocus |= relic.role() == ArtifactRole.CELESTIAL_FOCUS;
 		}
 		int energy = Math.min(6, attunementEnergy) + (celestialFocus ? 1 : 0)
-				+ (ghoulHeart ? 1 : 0);
+				+ (strongestHeart == ImportedArtifactRules.HeartSpecialization.GHOUL ? 1 : 0);
 		if (energy > 0 && PlayerPowers.get(player).regenerateEnergy(energy)) PowersPackets.syncTo(player);
 		if (attunements > 0) player.addEffect(PowerStatusEffects.hidden(
 				MobEffects.RESISTANCE, 40, Math.min(1, attunements - 1), true, true));
-		if (livingHeart) player.addEffect(PowerStatusEffects.hidden(
-				MobEffects.REGENERATION, 40, 0, true, true));
-		if (clockworkHeart) player.addEffect(PowerStatusEffects.hidden(
-				MobEffects.ABSORPTION, 40, 0, true, true));
+		switch (strongestHeart) {
+			case LIVING -> player.addEffect(PowerStatusEffects.hidden(
+					MobEffects.REGENERATION, 40, 0, true, true));
+			case WILDWOOD -> player.addEffect(PowerStatusEffects.hidden(
+					MobEffects.REGENERATION, 40, 1, true, true));
+			case CLOCKWORK -> player.addEffect(PowerStatusEffects.hidden(
+					MobEffects.ABSORPTION, 40, 0, true, true));
+			case BLOOD_WARD -> player.addEffect(PowerStatusEffects.hidden(
+					MobEffects.RESISTANCE, 40, 0, true, true));
+			case GHOUL, NONE -> { }
+		}
 	}
 }

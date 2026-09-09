@@ -111,9 +111,9 @@ This generated table names every registered gameplay item family, including hidd
 | `powers:zenith` | Zenith | Fantasy weapon | One of twelve named combat archetypes; tooltip identifies its proc | Low-chance archetype-themed chest or mob loot |
 | `powers:imported_artifact_ammolite` | Ammolite | Celestial focus | Passively restores 1 energy per second and provides bounded Arcane Crucible infusion | Thematic archaeology and structure salvage |
 | `powers:imported_artifact_amulet` | Amulet | Attunement | Restores 2 energy per second; carried attunements jointly cap at 6 and grant bounded resistance | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_beating_heart` | Living Heart | Heart relic | Active healing plus passive regeneration | Settlement and archaeology salvage |
+| `powers:imported_artifact_beating_heart` | Living Heart | Heart relic | Light-eaten healing; tier-I regeneration when it is the strongest carried heart | Exactly one from every villager plus archaeology salvage |
 | `powers:imported_artifact_blackpearl` | Black Pearl | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
-| `powers:imported_artifact_bloodstone` | Bloodstone | Death ward | Arms one five-minute lethal-damage ward; the ward is consumed to prevent a legal death | Thematic archaeology and structure salvage |
+| `powers:imported_artifact_bloodstone` | Bloodstone | Death ward | Darkness-eaten five-minute lethal-damage ward; tier-V resistance suppresses every weaker heart passive | Thematic archaeology and structure salvage |
 | `powers:imported_artifact_bonefigurine` | Bone Figurine | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
 | `powers:imported_artifact_bound_runestone_active_1` | Bound Active 1 Runestone | Runestone | Finite tiered energy restoration and Arcane Crucible infusion | Crafting upgrade chain plus dungeon, ancient-city, and trial rewards |
 | `powers:imported_artifact_bound_runestone_active_2` | Bound Active 2 Runestone | Runestone | Finite tiered energy restoration and Arcane Crucible infusion | Crafting upgrade chain plus dungeon, ancient-city, and trial rewards |
@@ -132,8 +132,8 @@ This generated table names every registered gameplay item family, including hidd
 | `powers:imported_artifact_emerald_ring` | Emerald Ring | Attunement | Restores 2 energy per second; carried attunements jointly cap at 6 and grant bounded resistance | Thematic archaeology and structure salvage |
 | `powers:imported_artifact_emperyeanjewel` | Empyrean Jewel | Consent seal | Overrides every player-consent gate for one 40-energy surcharge; safe zones and server policy still win | Rare stronghold and archaeology salvage |
 | `powers:imported_artifact_flute` | Flute | Command relic | Recalls, heals, and aligns nearby player-shaped guardians | Jungle-temple and archaeology salvage |
-| `powers:imported_artifact_ghoul_heart` | Ghoul Heart | Heart relic | Trades weaker healing for active and passive energy restoration | Settlement and archaeology salvage |
-| `powers:imported_artifact_heart_mechanism` | Clockwork Heart | Heart relic | Raises a timed clockwork absorption ward | Settlement and archaeology salvage |
+| `powers:imported_artifact_ghoul_heart` | Ghoul Heart | Heart relic | Darkness-eaten healing/energy; tier-II energy restoration when strongest | Settlement and archaeology salvage |
+| `powers:imported_artifact_heart_mechanism` | Clockwork Heart | Heart relic | Either path can eat it for a timed ward; tier-IV absorption when strongest | Settlement and archaeology salvage |
 | `powers:imported_artifact_lodestone` | Lodestone | Travel relic | Binds a safe same-dimension destination for a Miniportal | Desert-pyramid and archaeology salvage |
 | `powers:imported_artifact_malignember` | Malign Ember | Destructive focus | Reduces explicit destructive magic activation costs by 20%, never below 1 | Nether-fortress and archaeology salvage |
 | `powers:imported_artifact_oddstone` | Oddstone | Relic or lore catalyst | Arcane Crucible reagent or memory fragment interpreted by Shadow | Thematic archaeology and structure salvage |
@@ -174,7 +174,7 @@ This generated table names every registered gameplay item family, including hidd
 | `powers:imported_artifact_star_animated` | Animated Star | Celestial focus | Passively restores 1 energy per second and provides bounded Arcane Crucible infusion | Thematic archaeology and structure salvage |
 | `powers:imported_artifact_trilobite_fossil` | Trilobite Fossil | Archaeology | Provides a bounded archaeology-themed Arcane Crucible infusion | Thematic archaeology and structure salvage |
 | `powers:imported_artifact_trilobitefossil` | Trilobite Fossil | Compatibility asset alias | Hidden; retained only for old saves and model composition | Deferred/hidden |
-| `powers:imported_artifact_woodheart` | Heart of the Wildwood | Heart relic | Strong active healing plus passive regeneration | Settlement and archaeology salvage |
+| `powers:imported_artifact_woodheart` | Heart of the Wildwood | Heart relic | Light-eaten strong healing; tier-III Regeneration II when strongest | Settlement and archaeology salvage |
 | `powers:imported_blood_salts_2` | Blood Salts | Arcane energy dust | A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource | Buried-treasure, fortress, and archaeology salvage |
 | `powers:imported_book_grimoire_abyssal` | The Abyssal Codex | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |
 | `powers:imported_book_grimoire_blight` | The Blighted Testament | Grimoire | Selects and channels the documented spells of one school | Stronghold library/corridor discovery |

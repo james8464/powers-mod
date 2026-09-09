@@ -55,4 +55,41 @@ public final class ImportedArtifactRules {
 		};
 	}
 
+	/**
+	 * Explicit heart hierarchy. Exactly one carried heart owns a passive; a higher
+	 * tier always suppresses every lower tier regardless of inventory ordering.
+	 */
+	public static int heartTier(HeartSpecialization specialization) {
+		return switch (specialization) {
+			case NONE -> 0;
+			case LIVING -> 1;
+			case GHOUL -> 2;
+			case WILDWOOD -> 3;
+			case CLOCKWORK -> 4;
+			case BLOOD_WARD -> 5;
+		};
+	}
+
+	/** Light eats living/wood hearts, Darkness eats ghoul/blood hearts, and clockwork is neutral. */
+	public static boolean mayEatHeart(HeartSpecialization specialization, boolean darknessUser) {
+		return switch (specialization) {
+			case LIVING, WILDWOOD -> !darknessUser;
+			case GHOUL, BLOOD_WARD -> darknessUser;
+			case CLOCKWORK -> true;
+			case NONE -> false;
+		};
+	}
+
+	/** Resolves one passive owner without allowing duplicate or mixed-heart stacking. */
+	public static HeartSpecialization strongestHeart(
+			Iterable<HeartSpecialization> specializations) {
+		HeartSpecialization strongest = HeartSpecialization.NONE;
+		for (HeartSpecialization candidate : specializations) {
+			if (candidate != null && heartTier(candidate) > heartTier(strongest)) {
+				strongest = candidate;
+			}
+		}
+		return strongest;
+	}
+
 }

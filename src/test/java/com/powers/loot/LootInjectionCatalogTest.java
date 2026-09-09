@@ -26,12 +26,30 @@ class LootInjectionCatalogTest {
 	}
 
 	@Test
+	void everyVillagerDropsExactlyOneLivingHeartBeforeOptionalProduce() {
+		var sources = LootInjectionCatalog.groups().stream()
+				.filter(group -> group.tableId().equals("minecraft:entities/villager"))
+				.toList();
+
+		assertEquals(2, sources.size());
+		var heart = sources.stream()
+				.filter(group -> group.itemIds().contains("imported_artifact_beating_heart"))
+				.findFirst().orElseThrow();
+		assertEquals(1.0F, heart.chance());
+		assertEquals(1, heart.minCount());
+		assertEquals(1, heart.maxCount());
+		assertEquals(java.util.List.of("imported_artifact_beating_heart"), heart.itemIds());
+	}
+
+	@Test
 	void augmentsEveryFormerOverrideWithoutReplacingVanillaTables() {
 		var groups = LootInjectionCatalog.groups();
 		assertTrue(groups.size() >= 28);
 		var tables = new HashSet<String>();
 		for (LootDropGroup group : groups) {
-			assertTrue(tables.add(group.tableId()), group.tableId());
+			if (!group.tableId().equals("minecraft:entities/villager")) {
+				assertTrue(tables.add(group.tableId()), group.tableId());
+			}
 			assertTrue(group.chance() > 0 && group.chance() <= 1);
 			assertTrue(group.itemIds().stream().allMatch(id -> id.startsWith("imported_")
 					|| id.startsWith("powers:")));

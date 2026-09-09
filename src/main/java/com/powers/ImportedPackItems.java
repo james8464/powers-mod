@@ -68,6 +68,14 @@ public final class ImportedPackItems {
 						.component(DataComponents.CUSTOM_MODEL_DATA,
 								new CustomModelData(List.of(), List.of(false), List.of(), List.of()));
 			}
+			if (ImportedArtifactRules.kind(texture) == ImportedArtifactKind.HEART_RELIC) {
+				properties.component(DataComponents.CONSUMABLE, Consumable.builder()
+						.consumeSeconds(1.6f)
+						.animation(ItemUseAnimation.EAT)
+						.sound(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(heartSound(texture)))
+						.hasConsumeParticles(true)
+						.build());
+			}
 			java.util.function.Function<Item.Properties, Item> factory = Item::new;
 			if (texture.startsWith("food_")) {
 				// Classification is explicit so prepared foods retain their stronger nutrition.
@@ -99,5 +107,16 @@ public final class ImportedPackItems {
 			}
 			ITEMS.put(id, ModItemIds.register(ModItemIds.create(id), factory, properties));
 		}
+	}
+
+	private static net.minecraft.sounds.SoundEvent heartSound(String texture) {
+		return switch (ImportedArtifactRules.heartSpecialization(texture)) {
+			case LIVING -> SoundEvents.WARDEN_HEARTBEAT;
+			case WILDWOOD -> SoundEvents.CREAKING_HEART_IDLE;
+			case GHOUL -> SoundEvents.ZOMBIE_HORSE_EAT;
+			case CLOCKWORK -> SoundEvents.COPPER_BULB_TURN_ON;
+			case BLOOD_WARD -> SoundEvents.SCULK_CATALYST_BLOOM;
+			case NONE -> SoundEvents.CAMEL_EAT;
+		};
 	}
 }

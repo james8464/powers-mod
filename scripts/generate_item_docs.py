@@ -55,14 +55,17 @@ def imported_role(texture: str) -> tuple[str, str, str]:
         return "Energy reservoir", f"Stores {capacity} magic energy ({initial}); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls", "Nether-fortress and archaeology salvage"
     if "heart" in texture:
         purpose = {
-            "artifact_beating_heart": "Active healing plus passive regeneration",
-            "artifact_woodheart": "Strong active healing plus passive regeneration",
-            "artifact_ghoul_heart": "Trades weaker healing for active and passive energy restoration",
-            "artifact_heart_mechanism": "Raises a timed clockwork absorption ward",
+            "artifact_beating_heart": "Light-eaten healing; tier-I regeneration when it is the strongest carried heart",
+            "artifact_woodheart": "Light-eaten strong healing; tier-III Regeneration II when strongest",
+            "artifact_ghoul_heart": "Darkness-eaten healing/energy; tier-II energy restoration when strongest",
+            "artifact_heart_mechanism": "Either path can eat it for a timed ward; tier-IV absorption when strongest",
         }.get(texture, "Specialised vitality restoration")
-        return "Heart relic", purpose, "Settlement and archaeology salvage"
+        acquisition = ("Exactly one from every villager plus archaeology salvage"
+                       if texture == "artifact_beating_heart" else
+                       "Settlement and archaeology salvage")
+        return "Heart relic", purpose, acquisition
     if "bloodstone" in texture:
-        return "Death ward", "Arms one five-minute lethal-damage ward; the ward is consumed to prevent a legal death", "Thematic archaeology and structure salvage"
+        return "Death ward", "Darkness-eaten five-minute lethal-damage ward; tier-V resistance suppresses every weaker heart passive", "Thematic archaeology and structure salvage"
     if "ritualdagger" in texture:
         return "Energy catalyst", "Directly sacrifices 4 health to restore 80 magic energy", "Woodland-mansion and archaeology salvage"
     if "philosopherstone" in texture:

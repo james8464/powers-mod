@@ -245,7 +245,7 @@ The registry currently contains 260 gameplay/block rows. The exact ID, family, i
 | Rings and amulets | Inventory attunements with one-to-three recovery weight, combined energy cap six/second, and hidden-particle Resistance capped at II. |
 | Soulstones / Soul Matrix | Persistent auxiliary energy reservoirs and atomic cast-shortfall payment. |
 | Ritual Dagger | Its tooltip previews exact health cost, survival floor and energy gain. Use sacrifices four real health above that floor for 80 energy; armour, forcefields, and cancelled damage cannot make it free. |
-| Five heart relics | Living Heart healing/regeneration; Wildwood stronger healing; Ghoul healing plus energy; Clockwork timed absorption; Bloodstone five-minute single lethal-damage ward. |
+| Five heart relics | Villagers drop exactly one Living Heart. Light can eat Living/Wildwood hearts, Darkness can eat Ghoul/Bloodstone, and either path can eat Clockwork. Each has distinct model/audio and active effect. Only the highest-tier carried heart grants a passive (Living I < Ghoul II < Wildwood III < Clockwork IV < Bloodstone V), so hearts never stack hidden bonuses. |
 | Philosopher's Stone | Protected 30-energy transmutation: stone/cobble to iron ore, deepslate variants, netherrack to quartz, end stone to amethyst. |
 | Lodestone / Miniportal | Bind a named same-dimension anchor; charged/empty model and durability tooltip expose two-charge state. Async return uses the first valid inventory anchor exactly and automatically carries the bounded nearby living cohort without consent. Empty Miniportal plus a dropped amethyst shard restores both charges. |
 | Flute | Recalls, heals, and rebinds nearby player-shaped guardians under owner/global caps. |
