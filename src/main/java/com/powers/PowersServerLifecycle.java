@@ -35,6 +35,7 @@ import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.power.travel.TravelChunkLoader;
 import com.powers.power.travel.MindscapeMobReturnTracker;
 import com.powers.protection.ConsentOverrideRuntime;
+import com.powers.progression.BossContributionManager;
 import com.powers.realm.RealmConfinementManager;
 import com.powers.realm.RealmEventManager;
 import com.powers.realm.RealmMindscapeManager;
@@ -204,6 +205,7 @@ final class PowersServerLifecycle {
 		com.powers.player.PlayerEnergyHistory.clear();
 		PersistentDimensionDiagnostics.clear();
 		ControlResistance.clear();
+		BossContributionManager.clear();
 		CastingPoseService.clearAll();
 		// Delayed owners may enqueue cleanup while their own shutdown hooks run.
 		// Clear the scheduler last so none of that work can cross into the next server epoch.

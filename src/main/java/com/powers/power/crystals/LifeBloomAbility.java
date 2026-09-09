@@ -43,15 +43,15 @@ public class LifeBloomAbility extends Ability {
 		// Server player storage is maintained separately from ordinary sectioned
 		// entities on some runtimes. Bless the caster explicitly so Life Bloom can
 		// never omit its source, then inspect only nearby companions below.
-		bless(player, blessingDuration, level);
+		bless(player, player, blessingDuration, level);
 		// A finite caster-centred box bounds companion inspection in every direction.
 		for (LivingEntity ally : BoundedEntityCandidates.living(level,
 				AABB.ofSize(origin, radius * 2, radius * 2, radius * 2),
 				256,
 				e -> e != player && e.isAlive()
 						&& CrystalTargeting.withinRadius(e.distanceToSqr(player), radius))) {
-			if (ally instanceof ServerPlayer orPlayer) {
-				bless(orPlayer, blessingDuration, level);
+			if (ally instanceof ServerPlayer otherPlayer) {
+				bless(player, otherPlayer, blessingDuration, level);
 			}
 		}
 		PowerFx.coloredBurst(level, origin, 0x00C853, 32, 2.0);
@@ -61,7 +61,7 @@ public class LifeBloomAbility extends Ability {
 		return true;
 	}
 
-	private static void bless(ServerPlayer player, int duration, ServerLevel level) {
+	private static void bless(ServerPlayer caster, ServerPlayer player, int duration, ServerLevel level) {
 		// Cleanse ailments without deleting beneficial effects owned by potions,
 		// beacons, other mods, or an active POWERS toggle.
 		for (MobEffectInstance effect : java.util.List.copyOf(player.getActiveEffects())) {
@@ -69,7 +69,10 @@ public class LifeBloomAbility extends Ability {
 				player.removeEffect(effect.getEffect());
 			}
 		}
+		float before = player.getHealth();
 		player.heal(player.getMaxHealth());
+		com.powers.progression.BossContributionManager.recordSupport(
+				caster, player, player.getHealth() - before);
 		player.addEffect(PowerStatusEffects.hidden(MobEffects.REGENERATION, duration, 4, true, true));
 		player.addEffect(PowerStatusEffects.hidden(MobEffects.ABSORPTION, duration, 3, true, true));
 		player.addEffect(PowerStatusEffects.hidden(MobEffects.SATURATION, duration, 0, true, true));

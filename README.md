@@ -308,6 +308,8 @@ Common player-shaped guardians use 100 health, 12 armour, 16 attack, 0.32 moveme
 
 The First Vessel scales virtual vitality by 55% per extra nearby participant up to 4×. Its phases are Waking Vessel above 70%, Broken Constellation at 70–35%, and Crownless God below 35%. Once below 50% it may channel a five-second Reconstitution, interrupted by 8% maximum damage, amethyst, or a Light dominion; below 15% it invokes Last Firmament. Its planner runs every ten ticks with at most 24 candidates and 40/28/18-tick cast intervals. It always drops a Miniportal, drops a Nether Star, and has a one-in-three Animated Artifact Star chance.
 
+Herald and First Vessel progression credit is shared once per encounter with at most 24 nearby Light-path contributors in stable UUID order. The finisher qualifies automatically; other players must contribute at least 8 damage, 6 actual healing to another active participant, or 20 ticks of applied control, remain alive and within 96 blocks at defeat, and have acted during the last 1,200 server ticks. Idle, stale, offline, spectator, out-of-range, Darkness-path, invalid-value, and duplicate-resolution entries receive no credit. Encounter and resolved-ID ledgers are hard-bounded and cleared on server stop.
+
 Spawn eggs exist for Darkness Creature, Power Test Actor, Radiant Sentinel, First Vessel, Dark Herald, and Light Herald. Echoes and Shadow are lifecycle-owned and have no eggs.
 
 ## Protection, consent, bodies, and lifecycle

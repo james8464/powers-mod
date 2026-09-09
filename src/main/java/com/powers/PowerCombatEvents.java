@@ -12,6 +12,7 @@ import com.powers.power.artifact.ArtifactCovenantManager;
 import com.powers.player.DarknessQuestTracker;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillQuestTracker;
+import com.powers.progression.BossContributionManager;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellCastingManager;
 import com.powers.entity.PlayerLikeTarget;
@@ -49,6 +50,7 @@ final class PowerCombatEvents {
 		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damageTaken, blocked) -> {
 			BodyProxyManager.afterDamage(entity, source, damageTaken);
 			if (damageTaken <= 0) return;
+			BossContributionManager.recordDamage(entity, source, damageTaken);
 			ArtifactCovenantManager.shareDamage(entity, source, damageTaken);
 			SpellCastingManager.markDamaged(entity);
 			EnergyDrainAbility.markDamaged(entity);
