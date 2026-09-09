@@ -11,7 +11,8 @@ import java.util.UUID;
 public record ShadowDiagnostics(int bodies, int hiddenBodies, int revealedBodies,
 		int activeTasks, int totalEnergy, int activeRites, int activeToggles,
 		long casts, long conjurations, int plannerBodies, int contexts,
-		int targetProfiles, int creditWindows, int forcedChunks, int leakedHandles) {
+		int targetProfiles, int creditWindows, String encounterRoles,
+		int forcedChunks, int leakedHandles) {
 	public ShadowDiagnostics {
 		bodies = nonNegative(bodies);
 		hiddenBodies = nonNegative(hiddenBodies);
@@ -26,6 +27,8 @@ public record ShadowDiagnostics(int bodies, int hiddenBodies, int revealedBodies
 		contexts = nonNegative(contexts);
 		targetProfiles = nonNegative(targetProfiles);
 		creditWindows = nonNegative(creditWindows);
+		encounterRoles = encounterRoles == null || encounterRoles.isBlank()
+				? "none" : encounterRoles.substring(0, Math.min(160, encounterRoles.length()));
 		forcedChunks = nonNegative(forcedChunks);
 		leakedHandles = nonNegative(leakedHandles);
 	}
@@ -37,6 +40,7 @@ public record ShadowDiagnostics(int bodies, int hiddenBodies, int revealedBodies
 				+ "; casts=" + casts + "; conjurations=" + conjurations
 				+ "; planner=" + plannerBodies + "; contexts=" + contexts
 				+ "; targetProfiles=" + targetProfiles + "; creditWindows=" + creditWindows
+				+ "; combatRoles=" + encounterRoles
 				+ "; forcedChunks=" + forcedChunks + "; leaks=" + leakedHandles;
 	}
 
@@ -62,7 +66,7 @@ public record ShadowDiagnostics(int bodies, int hiddenBodies, int revealedBodies
 		return new ShadowDiagnostics(bodies, bodies - revealed, revealed, tasks, energy,
 				ShadowConjurationManager.activeCount(), power.toggles(), power.casts(),
 				ShadowConjurationManager.completedCount(), combat.bodies(), combat.contexts(),
-				combat.targetTypes(), combat.creditWindows(), 0, leaked);
+				combat.targetTypes(), combat.creditWindows(), combat.roles(), 0, leaked);
 	}
 
 	private static int nonNegative(int value) {

@@ -14,6 +14,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ public final class ShadowCombatController {
 		private final ShadowLearningState learning;
 		private final BoundedCombatLearner learner;
 		private long lastCastAt = Long.MIN_VALUE / 2L;
+		private ShadowEncounterRole lastRole;
 		private UUID creditTarget;
 		private long creditReadyAt;
 
@@ -68,12 +70,14 @@ public final class ShadowCombatController {
 		List<ShadowPowerAction> legal = new ArrayList<>(26);
 		for (ShadowPowerAction action : ShadowPowerCatalogue.actions()) {
 			if (action.cost() <= shadow.energy()
+					&& ShadowPowerRuntime.canReserve(action.workClass(), serverTick)
 					&& !(unsafeFiringLane && action.range() == ShadowPowerAction.RangeMode.FAR
 					&& action.intent() == ShadowPowerAction.Intent.OFFENSE)) legal.add(action);
 		}
 		ShadowTacticalPlanner.Decision decision = ShadowTacticalPlanner.choose(legal, facts,
 				state.learning);
 		decision = maybeExplore(decision, legal, facts, shadow);
+		state.lastRole = decision.role();
 		move(shadow, owner, target, decision.movement());
 		if (decision.action() == null || serverTick - state.lastCastAt < CAST_INTERVAL) {
 			return new TickResult(false, updated, decision);
@@ -102,8 +106,9 @@ public final class ShadowCombatController {
 		for (ShadowPowerAction candidate : legal) {
 			if (!candidate.id().equals(chosen.action().id())
 					&& candidate.intent() == chosen.action().intent()) {
-				return new ShadowTacticalPlanner.Decision(chosen.mode(), candidate,
-						chosen.movement(), chosen.score(), chosen.evaluatedCount());
+				return new ShadowTacticalPlanner.Decision(chosen.role(), chosen.mode(), candidate,
+						chosen.movement(), chosen.score(), chosen.evaluatedCount(),
+						chosen.rejectedUnsafeCount());
 			}
 		}
 		return chosen;
@@ -117,18 +122,27 @@ public final class ShadowCombatController {
 		STATES.clear();
 	}
 
-	public record Diagnostics(int bodies, int contexts, int targetTypes, int creditWindows) { }
+	public record Diagnostics(int bodies, int contexts, int targetTypes, int creditWindows,
+			String roles) { }
 
 	public static Diagnostics diagnostics() {
 		int contexts = 0;
 		int types = 0;
 		int credits = 0;
+		Map<ShadowEncounterRole, Integer> roles = new EnumMap<>(ShadowEncounterRole.class);
 		for (RuntimeState state : STATES.values()) {
 			contexts += state.learning.contextCount();
 			types += state.learning.typeCount();
 			if (state.learner.activeCredit()) credits++;
+			if (state.lastRole != null) roles.merge(state.lastRole, 1, Integer::sum);
 		}
-		return new Diagnostics(STATES.size(), contexts, types, credits);
+		String roleSummary = java.util.Arrays.stream(ShadowEncounterRole.values())
+				.filter(role -> roles.containsKey(role))
+				.map(role -> role.name().toLowerCase(java.util.Locale.ROOT)
+						+ "=" + roles.get(role))
+				.collect(java.util.stream.Collectors.joining(","));
+		return new Diagnostics(STATES.size(), contexts, types, credits,
+				roleSummary.isEmpty() ? "none" : roleSummary);
 	}
 
 	private static String completeCredit(ServerLevel level, ServerPlayer owner,
@@ -162,7 +176,8 @@ public final class ShadowCombatController {
 	private static boolean valid(ServerPlayer owner, ShadowCompanionEntity shadow,
 			LivingEntity target) {
 		return target != null && target.isAlive() && target != owner && target != shadow
-				&& !target.entityTags().contains(SkillSystem.DARKNESS_TAG);
+				&& !target.entityTags().contains(SkillSystem.DARKNESS_TAG)
+				&& !owner.isAlliedTo(target) && !shadow.isAlliedTo(target);
 	}
 
 	private static ShadowCombatFacts facts(ServerPlayer owner, ShadowCompanionEntity shadow,
@@ -172,7 +187,7 @@ public final class ShadowCombatController {
 				Math.clamp(attack / 24.0, 0.0, 1.0), target instanceof RangedAttackMob,
 				target.getMaxHealth() >= 200.0F, ratio(owner), ratio(shadow),
 				shadow.energy() / 1850.0, com.powers.companion.ShadowMagicState.actionsSuppressed(shadow),
-				allyInLane, preference);
+				allyInLane, target == owner.getLastAttacker(), preference);
 	}
 
 	private static boolean allyInLane(ServerLevel level, ServerPlayer owner,
@@ -186,14 +201,11 @@ public final class ShadowCombatController {
 		Vec3 center = from.add(to).scale(0.5);
 		AABB lane = new AABB(from, to).inflate(1.5);
 		for (var observation : PerceptionSnapshotService.observe(level, lane, center, 16,
-				candidate -> (candidate.darknessAligned()
-						|| candidate.entityId().equals(owner.getUUID()))
-						&& !candidate.entityId().equals(shadow.getUUID())
+				candidate -> !candidate.entityId().equals(shadow.getUUID())
 						&& !candidate.entityId().equals(target.getUUID())
 						&& PerceptionSnapshotRules.withinSegmentLane(candidate, from, to, 1.5),
 				PerceptionQueryProfile.ALLY_LANE)) {
-			LivingEntity entity = PerceptionSnapshotService.resolve(level, observation);
-			if (entity != null) return true;
+			if (PerceptionSnapshotService.resolve(level, observation) != null) return true;
 		}
 		return false;
 	}

@@ -396,6 +396,61 @@ public final class PowersGameTests {
 		helper.succeed();
 	}
 
+	@GameTest(maxTicks = 80)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void shadowCombatRolesAreInspectableAndAreaAttacksSpareDarknessAllies(
+			GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(4, 1, 4));
+		owner.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		owner.addTag(SkillSystem.DARKNESS_TAG);
+		owner.getInventory().add(PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		PrivateCompanionManager.handleChat(owner, "shadow, reveal yourself");
+		PrivateCompanionManager.tickPlayer(owner, 0);
+		ShadowCompanionEntity shadow = PrivateCompanionManager.body(owner.getUUID()).orElseThrow();
+		shadow.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		shadow.setEnergy(com.powers.companion.ShadowCompanionRules.MAX_ENERGY);
+
+		PowerTestActor hostile = helper.spawn(PowersEntities.POWER_TEST_ACTOR,
+				new BlockPos(4, 1, 8));
+		PowerTestActor ally = helper.spawn(PowersEntities.POWER_TEST_ACTOR,
+				new BlockPos(7, 1, 4));
+		hostile.setNoAi(true);
+		ally.setNoAi(true);
+		ally.addTag(SkillSystem.DARKNESS_TAG);
+		float hostileBefore = hostile.getHealth();
+		float allyBefore = ally.getHealth();
+		var lightning = com.powers.companion.combat.ShadowPowerCatalogue.find("lightning_strike");
+		var rejected = com.powers.companion.combat.ShadowPowerExecutor.execute(
+				helper.getLevel(), shadow, ally, lightning,
+				new com.powers.companion.combat.ShadowPowerExecutor.ExecutionContext(
+						owner, false, helper.getLevel().getServer().getTickCount()));
+		helper.assertTrue(!rejected.success() && rejected.reason().equals("friendly_target")
+				&& ally.getHealth() == allyBefore,
+				"Shadow did not reject a direct attack against a Darkness-aligned ally");
+		var thunderclap = com.powers.companion.combat.ShadowPowerCatalogue.find("thunderclap");
+		var cast = com.powers.companion.combat.ShadowPowerExecutor.execute(
+				helper.getLevel(), shadow, hostile, thunderclap,
+				new com.powers.companion.combat.ShadowPowerExecutor.ExecutionContext(
+						owner, false, helper.getLevel().getServer().getTickCount()));
+		helper.assertTrue(cast.success() && hostile.getHealth() < hostileBefore,
+				"Shadow area attack did not affect the hostile encounter target");
+		helper.assertTrue(ally.getHealth() == allyBefore,
+				"Shadow area attack damaged a Darkness-aligned ally");
+
+		var facts = new com.powers.companion.combat.ShadowCombatFacts(
+				4, .8, .8, false, false, .9, .9, .8,
+				false, false, true, com.powers.companion.combat.ShadowRequestRange.AUTO);
+		var plan = com.powers.companion.combat.ShadowTacticalPlanner.choose(
+				com.powers.companion.combat.ShadowPowerCatalogue.actions(), facts,
+				new com.powers.companion.combat.ShadowLearningState());
+		helper.assertTrue(plan.role() == com.powers.companion.combat.ShadowEncounterRole.PEEL
+				&& plan.evaluatedCount() <= 26 && plan.action() != null,
+				"Live planner did not expose its bounded peel-role decision");
+		PrivateCompanionManager.handleChat(owner, "shadow, leave me");
+		helper.succeed();
+	}
+
 	@GameTest
 	@SuppressWarnings("removal")
 	public void crossingEnergyAndVoidRaysCreatePhysicalConsequences(GameTestHelper helper) {
