@@ -29,6 +29,7 @@ import com.powers.item.ArtifactWeaponManager;
 import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.abilities.FireballAbility;
 import com.powers.power.abilities.AstralProjectionAbility;
+import com.powers.power.abilities.AstralReturnIndicator;
 import com.powers.power.abilities.LightningConductanceRuntime;
 import com.powers.power.abilities.LightningStrikeRules;
 import com.powers.power.abilities.PlantHealingAbility;
@@ -736,6 +737,33 @@ public final class PowersGameTests {
 					"Recalled fatal damage was not replayed through vanilla death");
 			helper.succeed();
 		});
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void astralReturnIndicatorUsesOnlyTheOwnedAnchorWithoutForcingChunks(GameTestHelper helper) {
+		AstralProjectionAbility.clearAll(helper.getLevel().getServer());
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		owner.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		owner.setGameMode(GameType.SURVIVAL);
+		com.powers.player.PlayerPowers.get(owner).setSlots(owner,
+				java.util.List.of("powers:astral_projection"));
+		helper.assertTrue(new AstralProjectionAbility().activate(owner,
+				com.powers.player.PlayerPowers.get(owner)), "Astral Projection did not start");
+		owner.setPos(origin.getX() + 12.5, origin.getY() + 20.0, origin.getZ() + 12.5);
+		int travelTicketsBefore = com.powers.power.travel.TravelChunkLoader.diagnostics().active();
+		int bodyTicketsBefore = BodyProxyManager.activeProxyCount();
+
+		AstralReturnIndicator.Cue cue = AstralProjectionAbility.returnIndicatorFor(owner);
+		helper.assertTrue(cue != null && cue.sameDimension()
+				&& "NW".equals(cue.direction()) && cue.distanceBlocks() == 17,
+				"Return cue did not derive bounded owner-local direction and distance");
+		helper.assertTrue(com.powers.power.travel.TravelChunkLoader.diagnostics().active()
+				== travelTicketsBefore && BodyProxyManager.activeProxyCount() == bodyTicketsBefore,
+				"Deriving the return cue created a travel or body chunk ticket");
+		AstralProjectionAbility.clearAll(helper.getLevel().getServer());
+		helper.succeed();
 	}
 
 	@GameTest
