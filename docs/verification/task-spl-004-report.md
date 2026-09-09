@@ -2,6 +2,8 @@
 
 Base revision: `8c7c50b74c9e2b2d09500340a4ca81ef02b4216a`.
 
+Status: **STAGED — fresh independent rereview pending; not integrated or pushed.**
+
 ## Implemented contract
 
 - Augury reads living-force spread fronts only through `LivingForceManager`'s
@@ -70,8 +72,34 @@ truncated sample, selects the incomplete-sample message before the ordinary empt
 message, and tells the caster that no front was found within the bounded sample
 while loaded frontier entries remain uninspected.
 
-The final post-rereview verification passed 107 JUnit tests across 32 selected suites
+The final post-rereview focused verification passed 107 JUnit tests across 32 selected suites
 covering spells, force rules/indexes, realm-event rules, translation integrity,
 and source quality. Resource validation, GameTest compilation, and the regenerated
-exact-source audit also passed. No unfiltered GameTest or machine-wide gate is
-claimed by this work unit.
+exact-source audit also passed.
+
+## Final serialized verification
+
+The registered production-entrypoint GameTest was recaptured and passed **1/1 required** in 16s:
+
+`/tmp/powers-spl004-live-green-20260909.log`
+
+SHA-256: `99608497d2884c9ab3e7325296efc80835767e054bb92900028403686caaa070`
+
+The exact Java 25 branch command was then run serially:
+
+`./gradlew check compileGametestJava -x runGameTest --rerun-tasks --no-daemon --console=plain`
+
+The first attempt stopped on the strict stale non-item-asset manifest. After regenerating the
+non-item and VFX manifests for the changed language resource, the unchanged command completed
+**GREEN** in 2m 2s. Mechanical XML aggregation found **425 suites, 1,845 tests, 0 failures,
+0 errors, and 0 skipped**; Python reported **240/240 passed**. Resource validation, generated
+documentation, source/non-item/visual audits, example-extension compilation, and GameTest
+compilation all passed.
+
+Final log: `/tmp/powers-spl004-deterministic-green-retry1-20260909.log`
+
+SHA-256: `edf5808e474582b6013bd5d42443b5ef95e55f9507e8368237cb8da98ffe3079`
+
+The unfiltered Fabric GameTest suite and protected-main gate were not run. No plan checkbox or
+backlog row was closed, and no merge, push, or publication was performed. Fresh independent
+rereview must return READY before integration.
