@@ -28,6 +28,8 @@ import com.powers.power.PowerDamage;
 import com.powers.item.ArtifactWeaponManager;
 import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.abilities.FireballAbility;
+import com.powers.power.abilities.IceManipulationAbility;
+import com.powers.power.abilities.BrittleArmorManager;
 import com.powers.power.abilities.AstralProjectionAbility;
 import com.powers.power.abilities.LightningConductanceRuntime;
 import com.powers.power.abilities.LightningStrikeRules;
@@ -902,7 +904,7 @@ public final class PowersGameTests {
 		caster.snapTo(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
 		caster.setYRot(0.0F);
 		caster.setXRot(0.0F);
-		helper.getLevel().setBlockAndUpdate(impactPos, Blocks.ICE.defaultBlockState());
+		helper.getLevel().setBlockAndUpdate(impactPos, Blocks.FROSTED_ICE.defaultBlockState());
 		helper.getLevel().setBlockAndUpdate(lightPos,
 				com.powers.PowersBlocks.PURE_LIGHT.defaultBlockState());
 		helper.getLevel().setBlockAndUpdate(darknessPos,
@@ -931,6 +933,63 @@ public final class PowersGameTests {
 		} finally {
 			TestingOverrides.clear(caster.getUUID());
 		}
+	}
+
+	@GameTest(maxTicks = 130)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void iceHitAppliesFiniteBrittleArmourAndFireBreaksIt(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 2, 2));
+		caster.snapTo(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		caster.setYRot(0.0F);
+		caster.setXRot(0.0F);
+		var target = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE,
+				new BlockPos(2, 2, 6));
+		target.setNoAi(true);
+		var armour = target.getAttribute(Attributes.ARMOR);
+		helper.assertTrue(armour != null, "Brittle-armour target had no armour attribute");
+		armour.setBaseValue(20.0);
+		var data = com.powers.player.PlayerPowers.get(caster);
+		data.setSlots(caster, java.util.List.of("powers:ice_manipulation"));
+		TestingOverrides.setAll(caster.getUUID(), true);
+		try {
+			helper.assertTrue(com.powers.power.AbilityActivationService.activate(caster,
+					new IceManipulationAbility(), "powers:ice_manipulation", true)
+					== com.powers.power.AbilityActivationService.Result.ACTIVATED,
+					"Ice production entrypoint did not hit its armoured target");
+			helper.assertTrue(BrittleArmorManager.active(target.getUUID())
+					&& armour.getValue() == 15.0,
+					"Ice hit did not apply the exact finite 25% armour fracture");
+			target.invulnerableTime = 0;
+			helper.assertTrue(target.hurtServer(helper.getLevel(), target.damageSources().inFire(), 2.0F),
+					"Fire counterplay did not produce a successful damage event");
+			helper.assertTrue(!BrittleArmorManager.active(target.getUUID())
+					&& armour.getValue() == 20.0,
+					"Successful fire damage did not clear only the Ice-owned armour fracture");
+			BrittleArmorManager.apply(target);
+			helper.assertTrue(BrittleArmorManager.active(target.getUUID())
+					&& armour.getValue() == 15.0,
+					"Brittle armour could not begin a fresh finite lifecycle after fire cleanup");
+		} catch (RuntimeException | Error failure) {
+			BrittleArmorManager.clear(target);
+			TestingOverrides.clear(caster.getUUID());
+			target.discard();
+			caster.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
+			throw failure;
+		}
+		helper.runAfterDelay(101, () -> {
+			try {
+				helper.assertTrue(!BrittleArmorManager.active(target.getUUID())
+						&& armour.getValue() == 20.0,
+						"Production ticking did not expire and remove the finite armour fracture");
+			} finally {
+				BrittleArmorManager.clear(target);
+				TestingOverrides.clear(caster.getUUID());
+				target.discard();
+				caster.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
+			}
+			helper.succeed();
+		});
 	}
 
 	@GameTest

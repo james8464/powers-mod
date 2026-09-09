@@ -83,8 +83,9 @@ public class IceManipulationAbility extends Ability {
 					|| !PowerProtection.mayHarm(player, target)
 					|| SpellFieldManager.isSanctuaryProtected(level, target)) return false;
 			// 8 damage that scales with skill, a heavy slow, weakness and a deep freeze
-			target.hurtServer(level, PowerDamage.source(player),
+			boolean hurt = target.hurtServer(level, PowerDamage.source(player),
 					PowerScalingService.damage(player, "ice_manipulation", 8.0f));
+			if (hurt && target.isAlive()) BrittleArmorManager.apply(target);
 			target.addEffect(PowerStatusEffects.hidden(MobEffects.SLOWNESS,
 					scaledDuration(player, 120), 4, false, true));
 			target.addEffect(PowerStatusEffects.hidden(MobEffects.WEAKNESS,

@@ -95,7 +95,7 @@ public final class ThermalWorldService {
 			case IGNITE -> Blocks.FIRE.defaultBlockState();
 			case COAT -> Blocks.SNOW.defaultBlockState();
 			case EXTINGUISH, EVAPORATE, SCORCH -> Blocks.AIR.defaultBlockState();
-			case FREEZE -> Blocks.ICE.defaultBlockState();
+			case FREEZE -> Blocks.FROSTED_ICE.defaultBlockState();
 			case SOLIDIFY -> Blocks.OBSIDIAN.defaultBlockState();
 			case MELT -> Blocks.WATER.defaultBlockState();
 			case KEEP, GROW -> null;

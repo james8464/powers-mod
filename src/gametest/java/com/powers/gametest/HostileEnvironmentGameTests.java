@@ -417,7 +417,7 @@ public final class HostileEnvironmentGameTests {
 					"powers:ice_manipulation", false) == AbilityActivationService.Result.ACTIVATED,
 					"Authorized immutable Ice plan did not commit");
 			helper.assertTrue(target.getHealth() < health, "Immutable Ice plan did not damage its real entity hit");
-			helper.assertTrue(helper.getLevel().getBlockState(water).is(Blocks.ICE),
+			helper.assertTrue(helper.getLevel().getBlockState(water).is(Blocks.FROSTED_ICE),
 					"Immutable Ice plan did not apply its authorized fluid mutation");
 			helper.assertTrue(deniedAboveQueries.get() == 0
 					&& helper.getLevel().getBlockState(water.above()).isAir(),
@@ -481,7 +481,7 @@ public final class HostileEnvironmentGameTests {
 			helper.assertTrue(AbilityActivationService.activate(iceCaster, new IceManipulationAbility(),
 					"powers:ice_manipulation", true) == AbilityActivationService.Result.ACTIVATED,
 					"Ice production entrypoint rejected real water");
-			helper.assertTrue(helper.getLevel().getBlockState(water).is(Blocks.ICE),
+			helper.assertTrue(helper.getLevel().getBlockState(water).is(Blocks.FROSTED_ICE),
 					"Ice production entrypoint did not freeze real water exactly once");
 			helper.assertTrue(AbilityActivationService.activate(iceCaster, new IceManipulationAbility(),
 					"powers:ice_manipulation", true) == AbilityActivationService.Result.ACTIVATED,
@@ -513,7 +513,7 @@ public final class HostileEnvironmentGameTests {
 			InfernoAbility.clearAll();
 			helper.runAfterDelay(10, () -> {
 				try {
-					helper.assertTrue(helper.getLevel().getBlockState(water).is(Blocks.ICE)
+					helper.assertTrue(helper.getLevel().getBlockState(water).is(Blocks.FROSTED_ICE)
 							&& helper.getLevel().getBlockState(lava).is(Blocks.OBSIDIAN),
 							"Thermal results were not stable after scheduled fluid ticks");
 					helper.assertTrue(target.isAlive() && target.getHealth() == settledHealth,

@@ -6,6 +6,7 @@ import com.powers.power.PowerDamage;
 import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.abilities.InvisibilityToggleAbility;
+import com.powers.power.abilities.BrittleArmorManager;
 import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.power.artifact.ArtifactDeathWardManager;
 import com.powers.power.artifact.ArtifactCovenantManager;
@@ -20,6 +21,7 @@ import com.powers.companion.PrivateCompanionManager;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
 
 /** Registers damage policy, body-proxy mirroring, and cast interruption hooks. */
 final class PowerCombatEvents {
@@ -49,6 +51,7 @@ final class PowerCombatEvents {
 		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damageTaken, blocked) -> {
 			BodyProxyManager.afterDamage(entity, source, damageTaken);
 			if (damageTaken <= 0) return;
+			BrittleArmorManager.breakWithFire(entity, source.is(DamageTypeTags.IS_FIRE));
 			ArtifactCovenantManager.shareDamage(entity, source, damageTaken);
 			SpellCastingManager.markDamaged(entity);
 			EnergyDrainAbility.markDamaged(entity);
@@ -64,6 +67,7 @@ final class PowerCombatEvents {
 					|| !ArtifactDeathWardManager.preventDeath(player, source);
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+			BrittleArmorManager.clear(entity);
 			PrivateCompanionManager.afterDeath(entity);
 			if (entity instanceof ServerPlayer player) PlayerPowers.get(player).recordDeath(player);
 			if (entity instanceof PlayerLikeTarget) {
