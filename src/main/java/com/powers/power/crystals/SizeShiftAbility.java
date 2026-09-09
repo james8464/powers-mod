@@ -9,6 +9,8 @@ import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.MagicUseGate;
+import com.powers.power.scaling.SafeScaleTransitionService;
+import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -19,8 +21,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -58,30 +62,34 @@ public class SizeShiftAbility extends Ability {
 
 	@Override
 	public boolean activate(ServerPlayer player, PlayerPowers.PlayerPowersData data) {
+		if (!CrystalSizeShiftRules.mayActivate(player.isPassenger())) {
+			PowerMessages.overlay(player, Component.translatable("ability.powers.size_shift.mounted"));
+			return false;
+		}
 		int next = LAST_SIZE.getOrDefault(player.getUUID(), 2) == 1 ? 2 : 1;
-		LAST_SIZE.put(player.getUUID(), next);
-
 		ServerLevel level = (ServerLevel) player.level();
-		int duration = scaledDuration(player, DURATION_TICKS);
-		AttributeInstance scale = player.getAttribute(Attributes.SCALE);
-		AttributeInstance knockback = player.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+		double targetScale = CrystalSizeShiftRules.nextScale(
+				LAST_SIZE.getOrDefault(player.getUUID(), 2));
+		var transition = SafeScaleTransitionService.preview(
+				level, player, List.of(targetScale), true, false, 1.5);
+		if (transition == null) {
+			PowerMessages.overlay(player, Component.translatable("ability.powers.size_shift.blocked"));
+			return false;
+		}
 		removeOwnedModifiers(player);
+		var modifier = next == 1 ? SHRINK_MODIFIER : GROW_MODIFIER;
+		if (!SafeScaleTransitionService.apply(level, player, modifier.id(), transition)) return false;
+		LAST_SIZE.put(player.getUUID(), next);
+		int duration = scaledDuration(player, DURATION_TICKS);
+		AttributeInstance knockback = player.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
 		if (next == 1) {
-			if (scale != null) {
-				scale.addOrUpdateTransientModifier(SHRINK_MODIFIER);
-			}
 			player.addEffect(PowerStatusEffects.hidden(MobEffects.SPEED,
 					duration, 5, true, true));
 			player.addEffect(PowerStatusEffects.hidden(MobEffects.JUMP_BOOST,
 					duration, 6, true, true));
 			player.addEffect(PowerStatusEffects.hidden(MobEffects.SLOW_FALLING,
 					duration, 0, true, true));
-			PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0x00E5FF, 24, 0.8);
-			PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.POOF, 20, 0.7, 0.2);
 		} else {
-			if (scale != null) {
-				scale.addOrUpdateTransientModifier(GROW_MODIFIER);
-			}
 			if (knockback != null) {
 				knockback.addOrUpdateTransientModifier(ANTI_KNOCKBACK);
 			}
@@ -89,12 +97,12 @@ public class SizeShiftAbility extends Ability {
 					duration, 9, true, true));
 			player.addEffect(PowerStatusEffects.hidden(MobEffects.RESISTANCE,
 					duration, 3, true, true));
-			PowerFx.coloredBurst(level, player.position().add(0, 1, 0), 0xFFD600, 30, 1.6);
-			PowerFx.burst(level, player.position().add(0, 1, 0), ParticleTypes.POOF, 30, 1.0, 0.3);
 		}
+		emitShockwave(level, player, targetScale);
 		PowerFx.rune(level, player.position(), next == 1 ? 1.15 : 2.15,
 				next == 1 ? 0x00E5FF : 0xFFD600, 28, next == 1 ? 0.0 : Math.PI);
-		PowerFx.sound(level, player.position(), SoundEvents.PLAYER_HURT_FREEZE, 1.0f, 0.7f);
+		PowerFx.sound(level, player.position(), SoundEvents.PLAYER_HURT_FREEZE, 1.0f,
+				CrystalSizeShiftRules.comfortPitch(targetScale));
 
 		ACTIVE_CASTS.put(player.getUUID(), new ActiveCast(CastScalingContext.currentSource(),
 				level.getServer().getTickCount() + duration));
@@ -108,14 +116,49 @@ public class SizeShiftAbility extends Ability {
 			var entry = iterator.next();
 			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
 			ActiveCast active = entry.getValue();
+			if (player != null && player.isPassenger()) {
+				if (!normalizeIfSafe(player)) player.stopRiding();
+				else iterator.remove();
+				PowerMessages.overlay(player, Component.translatable("ability.powers.size_shift.mounted"));
+				continue;
+			}
 			if (player != null && now < active.expiresAt()
 					&& MagicUseGate.ongoingAllowed(player)
 					&& ServerCastLifecycle.mayContinue(player, active.castSource(), false)) continue;
+			if (player == null || player.isRemoved()) {
+				iterator.remove();
+				continue;
+			}
+			if (!normalizeIfSafe(player)) continue;
 			iterator.remove();
-			if (player == null || player.isRemoved()) continue;
-			removeOwnedModifiers(player);
 			PowerFx.burst((ServerLevel) player.level(), player.position().add(0, 1, 0),
 					ParticleTypes.POOF, 16, 0.8, 0.2);
+		}
+	}
+
+	private static boolean normalizeIfSafe(ServerPlayer player) {
+		if (!(player.level() instanceof ServerLevel level)) return false;
+		var transition = SafeScaleTransitionService.previewNormal(level, player);
+		if (transition == null) return false;
+		removeOwnedModifiers(player);
+		player.setPose(transition.pose());
+		player.refreshDimensions();
+		return level.noCollision(player, player.getBoundingBox());
+	}
+
+	private static void emitShockwave(ServerLevel level, ServerPlayer player, double scale) {
+		double radius = CrystalSizeShiftRules.shockwaveRadius(scale);
+		int color = scale >= 1.0 ? 0xFFD600 : 0x00E5FF;
+		PowerFx.ring(level, player.position().add(0, 0.15, 0), radius, color, 32, 0.0);
+		int affected = 0;
+		for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class,
+				player.getBoundingBox().inflate(radius), entity -> entity != player && entity.isAlive())) {
+			if (affected++ >= 16) break;
+			Vec3 outward = target.position().subtract(player.position());
+			double horizontal = Math.hypot(outward.x, outward.z);
+			if (horizontal < 1.0E-6) continue;
+			double strength = scale >= 1.0 ? 0.55 : 0.18;
+			target.push(outward.x / horizontal * strength, 0.12, outward.z / horizontal * strength);
 		}
 	}
 

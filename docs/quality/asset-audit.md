@@ -9,7 +9,7 @@ This historical integrity-only manifest covers every tracked POWERS namespace as
 | `blockstates/darkness.json` | blockstates | `9a3e8bb90dd6` | integrity | JSON decoded; references are covered by strict resource validation. |
 | `blockstates/pure_light.json` | blockstates | `c4375fe29f91` | integrity | JSON decoded; references are covered by strict resource validation. |
 | `icon.png` | icon.png | `00ea24abeb49` | integrity | PNG 128×128, alpha; decoded for structural/pixel evidence only. |
-| `lang/en_us.json` | lang | `d0320f7a1125` | integrity | JSON decoded; references are covered by strict resource validation. |
+| `lang/en_us.json` | lang | `8d86652b5bab` | integrity | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward.json` | models | `ec18f4c15589` | integrity | JSON decoded; references are covered by strict resource validation. |
 | `models/block/amethyst_ward_powered.json` | models | `e82316d2c639` | integrity | JSON decoded; references are covered by strict resource validation. |
 | `models/block/arcane_crucible.json` | models | `7590e3936646` | integrity | JSON decoded; references are covered by strict resource validation. |

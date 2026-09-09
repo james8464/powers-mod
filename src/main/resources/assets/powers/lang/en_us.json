@@ -82,6 +82,8 @@
 	"ability.powers.size_morph": "Size Morphing",
 	"ability.powers.size_morph.mounted": "Dismount before changing size.",
 	"ability.powers.size_shift": "Size Shift",
+	"ability.powers.size_shift.mounted": "Size Shift requires both feet on the ground; dismount first.",
+	"ability.powers.size_shift.blocked": "Size Shift blocked: your full body and forward path need clear space.",
 	"power.powers.size_shift": "Size Morphing",
 	"power.powers.size_shift.description": "Choose a body scale from 0.25× to 2×; greater deviation drains more energy each second.",
 	"ability.powers.life_bloom": "Life Bloom",

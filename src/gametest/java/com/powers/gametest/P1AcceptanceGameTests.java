@@ -275,6 +275,8 @@ public final class P1AcceptanceGameTests {
 			echoes.forEach(Entity::discard);
 
 			ServerPlayer yellow = crystalPlayer(helper, new BlockPos(8, 1, 8));
+			BlockPos yellowFixture = helper.absolutePos(new BlockPos(8, 3, 8));
+			yellow.setPos(yellowFixture.getX() + 0.5, 100.0, yellowFixture.getZ() + 0.5);
 			double scaleBefore = yellow.getAttributeValue(
 					net.minecraft.world.entity.ai.attributes.Attributes.SCALE);
 			helper.assertTrue(com.powers.power.crystals.CrystalPowerRegistry.tryActivate(
