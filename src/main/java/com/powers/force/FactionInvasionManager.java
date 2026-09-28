@@ -32,6 +32,7 @@ import java.util.UUID;
 public final class FactionInvasionManager {
 	private static final int PULSE_TICKS = 200;
 	private static final Map<UUID, ResourceKey<Level>> ACTIVE = new HashMap<>();
+	private static final Map<UUID, ResourceKey<Level>> PENDING_NEARBY_FORCES = new HashMap<>();
 	private static int nextPlayerAnchor = FactionInvasionRules.initialPlayerAnchor();
 
 	private FactionInvasionManager() {
@@ -43,6 +44,19 @@ public final class FactionInvasionManager {
 		if (ACTIVE.size() >= FactionInvasionRules.GLOBAL_INVADER_CAP) return;
 		var players = server.getPlayerList().getPlayers();
 		if (players.isEmpty()) return;
+		for (var iterator = PENDING_NEARBY_FORCES.entrySet().iterator(); iterator.hasNext();) {
+			var pending = iterator.next();
+			ServerPlayer player = server.getPlayerList().getPlayer(pending.getKey());
+			iterator.remove();
+			if (player == null || !player.level().dimension().equals(pending.getValue())
+					|| PowerProtection.isSafeZone((ServerLevel) player.level(), player.position())) continue;
+			LivingForceKind force = opposingForce((ServerLevel) player.level(), player);
+			if (force != null && nearbyInvaders((ServerLevel) player.level(), player)
+					< FactionInvasionRules.NEARBY_INVADER_CAP) {
+				spawn((ServerLevel) player.level(), player, force, server.getTickCount());
+				if (ACTIVE.size() >= FactionInvasionRules.GLOBAL_INVADER_CAP) return;
+			}
+		}
 		FactionInvasionRules.AnchorWindow anchors = FactionInvasionRules.playerAnchorWindow(
 				players.size(), nextPlayerAnchor);
 		int visited = 0;
@@ -61,6 +75,15 @@ public final class FactionInvasionManager {
 		// Keep the per-pulse bound while preventing stable PlayerList order from
 		// starving anchors beyond the first 64 on larger or test-heavy servers.
 		nextPlayerAnchor = anchors.nextAnchorAfterVisited(visited);
+	}
+
+	/** Queues only players already within a newly registered force's local radius for the next pulse. */
+	static void nearbyForceRegistered(ServerLevel level, BlockPos position) {
+		for (ServerPlayer player : level.players()) {
+			if (player.blockPosition().distSqr(position) <= 12 * 12) {
+				PENDING_NEARBY_FORCES.put(player.getUUID(), level.dimension());
+			}
+		}
 	}
 
 	private static LivingForceKind opposingForce(ServerLevel level, ServerPlayer player) {
@@ -157,6 +180,7 @@ public final class FactionInvasionManager {
 
 	public static void clear() {
 		ACTIVE.clear();
+		PENDING_NEARBY_FORCES.clear();
 		nextPlayerAnchor = FactionInvasionRules.initialPlayerAnchor();
 	}
 

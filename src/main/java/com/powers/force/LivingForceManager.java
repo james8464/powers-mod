@@ -81,6 +81,7 @@ public final class LivingForceManager {
 
 	static void register(ServerLevel level, BlockPos pos, LivingForceKind kind) {
 		refreshFrontier(level, pos);
+		FactionInvasionManager.nearbyForceRegistered(level, pos);
 	}
 
 	static void unregister(ServerLevel level, BlockPos pos) {
