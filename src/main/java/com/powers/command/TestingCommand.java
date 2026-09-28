@@ -10,6 +10,7 @@ import com.powers.PowersEntities;
 import com.powers.audit.OperatorAuditAction;
 import com.powers.audit.OperatorAuditResult;
 import com.powers.entity.PowerTestActor;
+import com.powers.entity.TestActorProfile;
 import com.powers.fx.BeamFxStyle;
 import com.powers.network.MagicFxPackets;
 import com.powers.network.PowersPackets;
@@ -107,10 +108,14 @@ final class TestingCommand {
 				.then(VfxTestingCommands.create())
 				.then(Commands.literal("actor")
 						.then(Commands.literal("spawn")
-								.executes(context -> spawnActor(context, null))
+								.executes(context -> TestActorCommandSupport.spawn(context, null, TestActorProfile.defaults()))
+								.then(Commands.literal("profile")
+										.then(Commands.argument("settings", StringArgumentType.word())
+												.executes(context -> TestActorCommandSupport.spawn(context, null,
+														TestActorCommandSupport.parse(StringArgumentType.getString(context, "settings"))))))
 								.then(Commands.argument("username", StringArgumentType.word())
-										.executes(context -> spawnActor(context,
-												StringArgumentType.getString(context, "username"))))));
+										.executes(context -> TestActorCommandSupport.spawn(context,
+												StringArgumentType.getString(context, "username"), TestActorProfile.defaults())))));
 	}
 
 	private static int captureDuplicateFx(CommandContext<CommandSourceStack> context)
@@ -427,20 +432,4 @@ final class TestingCommand {
 				.withStyle(disabled ? ChatFormatting.GREEN : ChatFormatting.GRAY);
 	}
 
-	private static int spawnActor(CommandContext<CommandSourceStack> context, String username) {
-		CommandSourceStack source = context.getSource();
-		PowerTestActor actor = PowersEntities.POWER_TEST_ACTOR.create(
-				source.getLevel(), EntitySpawnReason.COMMAND);
-		if (actor == null) {
-			source.sendFailure(Component.literal("A Power Test Actor could not be created."));
-			return 0;
-		}
-		if (username != null) actor.setTestingUsername(username);
-		var position = source.getPosition();
-		actor.setPos(position.x, position.y, position.z);
-		source.getLevel().addFreshEntity(actor);
-		source.sendSuccess(() -> Component.literal("Spawned test actor: ")
-				.append(Component.literal(actor.testingUsername()).withStyle(ChatFormatting.AQUA)), true);
-		return 1;
-	}
 }

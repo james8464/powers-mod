@@ -5,5 +5,10 @@ public enum MagicConsentAuthority {
 	PLAYER_SETTINGS,
 	OWNER_DELEGATED,
 	ALWAYS_ALLOW_TESTS,
-	NONE
+	NONE;
+
+	/** True only when an automated actor explicitly opted into a consent-gated action. */
+	public boolean permitsAutomatedTarget() {
+		return this == ALWAYS_ALLOW_TESTS;
+	}
 }
