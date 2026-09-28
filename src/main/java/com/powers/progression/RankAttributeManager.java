@@ -33,11 +33,11 @@ public final class RankAttributeManager {
 	public static List<ModifierSpec> specifications(RankProfile profile) {
 		List<ModifierSpec> result = new ArrayList<>();
 		add(result, MOVEMENT_ID, AttributeKind.MOVEMENT_SPEED,
-				Math.min(0.15, profile.value(RankPerkType.MOVEMENT) * 0.5));
+				Math.min(0.15, (profile.execute(RankPerkType.MOVEMENT, "", 1.0) - 1.0) * 0.5));
 		add(result, RESILIENCE_ID, AttributeKind.MAX_HEALTH,
-				Math.min(0.10, profile.value(RankPerkType.RESISTANCE) * 0.5));
+				Math.min(0.10, (profile.execute(RankPerkType.RESISTANCE, "", 1.0) - 1.0) * 0.5));
 		add(result, WARD_STABILITY_ID, AttributeKind.KNOCKBACK_RESISTANCE,
-				Math.min(0.20, profile.value(RankPerkType.WARD_INTEGRITY) * 0.4));
+				Math.min(0.20, (profile.execute(RankPerkType.WARD_INTEGRITY, "", 1.0) - 1.0) * 0.4));
 		return List.copyOf(result);
 	}
 

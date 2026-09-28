@@ -32,32 +32,33 @@ class GenerateRankDocsTest(unittest.TestCase):
             ]), encoding="utf-8")
 
             generated = subprocess.run(
-                ["python3", str(SCRIPT), "--root", str(project)],
+                ["python3", str(SCRIPT), "--root", str(project), "--expected-nodes", "3"],
                 capture_output=True, text=True, check=False)
             self.assertEqual(0, generated.returncode, generated.stderr)
             target = project / "docs/gameplay/rank-catalogue.md"
             self.assertEqual(
                 """# Rank catalogue
 
-This generated appendix is sourced from the Light and Darkness rank registries.
+This generated appendix is sourced from the Light and Darkness rank registries. Every row names
+the executable numerical mechanic and proves its ordinary/focused output from a baseline of 100.
 
-| Alignment | ID | Depth | Branch | Title | Route | Parents | Perks |
-|---|---|---:|---|---|---|---|---|
-| Light | `legacy_0` | 0 | `origin` | Dormant | Canonical | — | `ENERGY_CAPACITY +1%` |
-| Light | `might_1` | 1 | `might` | Ember-Blooded | Optional | `legacy_0` | `POWER_DAMAGE +6% (fire)` |
-| Darkness | `legacy_0` | 0 | `abyss` | Unmarked | Canonical | — | `STEALTH +1.8%` |
+| Alignment | ID | Depth | Branch | Title | Route | Parents | Mechanic | Profile proof (base → active → focused) |
+|---|---|---:|---|---|---|---|---|---|
+| Light | `legacy_0` | 0 | `origin` | Dormant | Canonical | — | Energy-capacity multiplier | `100 → 101 → 101.5` |
+| Light | `might_1` | 1 | `might` | Ember-Blooded | Optional | `legacy_0` | Potency multiplier (`fire`) | `100 → 106 → 109` |
+| Darkness | `legacy_0` | 0 | `abyss` | Unmarked | Canonical | — | Stealth-strength multiplier | `100 → 101.8 → 102.7` |
 """,
                 target.read_text(encoding="utf-8"),
             )
 
             current = subprocess.run(
-                ["python3", str(SCRIPT), "--root", str(project), "--check"],
+                ["python3", str(SCRIPT), "--root", str(project), "--expected-nodes", "3", "--check"],
                 capture_output=True, text=True, check=False)
             self.assertEqual(0, current.returncode, current.stderr)
 
             target.write_text("stale\n", encoding="utf-8")
             stale = subprocess.run(
-                ["python3", str(SCRIPT), "--root", str(project), "--check"],
+                ["python3", str(SCRIPT), "--root", str(project), "--expected-nodes", "3", "--check"],
                 capture_output=True, text=True, check=False)
             self.assertNotEqual(0, stale.returncode)
             self.assertEqual("stale\n", target.read_text(encoding="utf-8"))

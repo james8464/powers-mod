@@ -36,6 +36,11 @@ public record RankProfile(Map<RankPerkType, Double> globalValues,
 				.getOrDefault(type, 0.0);
 	}
 
+	/** Executes the capped global-plus-scope mechanic against a finite baseline. */
+	public double execute(RankPerkType type, String actionOrAspect, double baseline) {
+		return type.execute(baseline, value(type, actionOrAspect));
+	}
+
 	/** Weighted number of completed nodes in a branch; focused nodes count 1.5. */
 	public double branchWeight(String branch) {
 		return branchWeights.getOrDefault(branch, 0.0);
