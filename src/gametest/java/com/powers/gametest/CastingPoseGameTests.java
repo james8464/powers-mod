@@ -218,6 +218,8 @@ public final class CastingPoseGameTests {
 				"powers:flight", "powers:fireball", "powers:forcefield"));
 		FirstVessel stolen = helper.spawn(PowersEntities.FIRST_VESSEL, new BlockPos(2, 2, 2));
 		FirstVessel deck = helper.spawn(PowersEntities.FIRST_VESSEL, new BlockPos(2, 2, 10));
+		PowerTestActor deckTarget = helper.spawn(PowersEntities.POWER_TEST_ACTOR,
+				new BlockPos(8, 2, 8));
 		try {
 			Method stolenCast = FirstVessel.class.getDeclaredMethod("castStolenPower",
 					net.minecraft.server.level.ServerLevel.class, ServerPlayer.class);
@@ -230,7 +232,7 @@ public final class CastingPoseGameTests {
 					net.minecraft.server.level.ServerLevel.class, LivingEntity.class);
 			deckCast.setAccessible(true);
 			deck.setHealth(deck.getMaxHealth() * 0.5F);
-			helper.assertTrue((boolean) deckCast.invoke(deck, helper.getLevel(), target),
+			helper.assertTrue((boolean) deckCast.invoke(deck, helper.getLevel(), deckTarget),
 					"Deck production seam did not commit");
 			helper.assertTrue(CastingPoseService.current(deck.getUUID(),
 					helper.getLevel().getGameTime()).isPresent(), "Deck cast emitted no pose");
