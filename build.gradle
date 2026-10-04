@@ -194,6 +194,16 @@ tasks.register("testPythonScripts", Exec) {
 	commandLine "python3", "-B", "-m", "unittest", "discover", "-s", "scripts/tests", "-p", "test_*.py"
 }
 
+tasks.register("runDeterministicGameTests", Exec) {
+	group = "verification"
+	description = "Runs every server GameTest in an independently booted Fabric server."
+	commandLine "python3", "-B", "scripts/run_deterministic_gametests.py"
+	def deterministicGameTestFilter = providers.gradleProperty("deterministicGameTestFilter")
+	if (deterministicGameTestFilter.isPresent()) {
+		args "--test-id", deterministicGameTestFilter.get()
+	}
+}
+
 def compatibilityManifest = layout.projectDirectory.file("config/compatibility/net-011.json")
 def compatibilityCache = providers.gradleProperty("powersCompatibilityCache")
 		.orElse(layout.projectDirectory.dir(".compatibility-cache/net-011").asFile.absolutePath)
@@ -426,6 +436,10 @@ tasks.named("runServer") {
 }
 
 tasks.named("check") {
+	// Fabric registers one shared-server runGameTest dependency by default. The
+	// owned deterministic lane below executes the same registered tests in fresh
+	// server processes, so retaining both would reintroduce the flaky batch.
+	setDependsOn(getDependsOn().findAll { dependency -> dependency != "runGameTest" })
 	dependsOn("validatePowerResources")
 	dependsOn("auditJavaSources")
 	dependsOn("auditNonItemAssets")
@@ -434,6 +448,7 @@ tasks.named("check") {
 	dependsOn("verifyItemDocs")
 	dependsOn("verifyRankDocs")
 	dependsOn("testPythonScripts")
+	dependsOn("runDeterministicGameTests")
 }
 
 tasks.withType(JavaCompile).configureEach {
