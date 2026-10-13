@@ -33,6 +33,11 @@ class ShadowRequestParserTest {
 		assertEquals(ShadowRequest.Kind.GET_ITEM, parse("bring me 16 torches", memory).kind());
 		assertEquals(ShadowRequest.Kind.CONJURE_ITEM, parse("conjure a torch", memory).kind());
 		assertEquals(ShadowRequest.Kind.SCOUT, parse("scout ahead", memory).kind());
+		assertEquals(ShadowRequest.Kind.REMEMBER_PLACE,
+				parse("remember this place as camp", memory).kind());
+		assertEquals(ShadowRequest.Kind.GO_TO_PLACE, parse("go to camp", memory).kind());
+		assertEquals(ShadowRequest.Kind.FORGET_PLACE, parse("forget place camp", memory).kind());
+		assertEquals(ShadowRequest.Kind.LIST_PLACES, parse("list places", memory).kind());
 		assertEquals(ShadowRequest.Kind.DIAGNOSE, parse("why did it fail?", memory).kind());
 		assertEquals(ShadowRequest.Kind.FEEDBACK_GOOD, parse("good", memory).kind());
 		assertEquals(ShadowRequest.Kind.FEEDBACK_BAD, parse("don't do that", memory).kind());
@@ -53,6 +58,16 @@ class ShadowRequestParserTest {
 				parse("forget combat feedback", memory).kind());
 		assertEquals(ShadowRequest.Kind.CONVERSE,
 				parse("good creatures live here", memory).kind());
+	}
+
+	@Test
+	void namedPlaceCommandsRequireExplicitUnambiguousSyntax() {
+		ShadowConversationMemory memory = ShadowConversationMemory.empty();
+		assertEquals("north camp", parse("remember here as North Camp", memory).subject());
+		assertEquals("north camp", parse("go to North Camp", memory).subject());
+		assertEquals(ShadowRequest.Kind.CONVERSE,
+				parse("remember the old battle", memory).kind());
+		assertFalse(ShadowRequestParser.parse("go to camp", memory, NAMES).addressed());
 	}
 
 	@Test

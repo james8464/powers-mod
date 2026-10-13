@@ -17,6 +17,7 @@ class ShadowCompanionDataTest {
 		assertEquals(ShadowStance.FOLLOW, defaults.stance());
 		assertFalse(defaults.revealed());
 		assertTrue(defaults.bodyUuid().isEmpty());
+		assertEquals(0, defaults.places().size());
 
 		UUID body = UUID.fromString("2d4277a8-1716-4a35-bd28-1ba94484f9d4");
 		var changed = defaults.withEnergy(9_999).withStance(null)
@@ -33,7 +34,10 @@ class ShadowCompanionDataTest {
 		UUID body = UUID.fromString("2d4277a8-1716-4a35-bd28-1ba94484f9d4");
 		var original = ShadowCompanionData.defaults().withEnergy(417)
 				.withStance(ShadowStance.GUARD).withRevealed(true)
-				.withBodyId(body).withRecallReadyAt(12_345L);
+				.withBodyId(body).withRecallReadyAt(12_345L)
+				.withPlaces(ShadowPlaceMemory.empty().remember("home",
+						net.minecraft.resources.Identifier.parse("minecraft:overworld"),
+						new net.minecraft.core.BlockPos(4, 70, -8)).memory());
 		var encoded = ShadowCompanionData.CODEC.encodeStart(JsonOps.INSTANCE, original).getOrThrow();
 		var decoded = ShadowCompanionData.CODEC.parse(JsonOps.INSTANCE, encoded).getOrThrow();
 		assertEquals(original, decoded);

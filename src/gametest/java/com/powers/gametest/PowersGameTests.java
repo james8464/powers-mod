@@ -1092,6 +1092,62 @@ public final class PowersGameTests {
 		helper.succeed();
 	}
 
+	@GameTest(maxTicks = 80)
+	@SuppressWarnings("removal")
+	public void shadowNamedPlacesStayOwnerLocalAndUseOnlyLoadedNavigation(GameTestHelper helper) {
+		for (int x = 1; x <= 11; x++) {
+			for (int z = 0; z <= 3; z++) helper.setBlock(new BlockPos(x, 0, z), Blocks.STONE);
+		}
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		Vec3 camp = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(2, 1, 2)));
+		owner.setPos(camp);
+		owner.addTag(SkillSystem.DARKNESS_TAG);
+		owner.getInventory().add(PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		ServerPlayer other = helper.makeMockServerPlayerInLevel();
+		other.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(12, 1, 12))));
+
+		helper.assertTrue(PrivateCompanionManager.handleChat(owner,
+				"shadow, remember this place as camp"), "Named-place command was not consumed");
+		var saved = com.powers.companion.ShadowCompanionStore.get(owner).places();
+		helper.assertTrue(saved.size() == 1 && saved.find("camp").isPresent(),
+				"Owner-designated place was not stored");
+		helper.assertTrue(com.powers.companion.ShadowCompanionStore.get(other).places().size() == 0,
+				"Named place leaked to another owner");
+
+		owner.setPos(Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(10, 1, 2))));
+		owner.setYRot(-90.0F);
+		owner.setYHeadRot(-90.0F);
+		PrivateCompanionManager.handleChat(owner, "shadow, reveal yourself");
+		PrivateCompanionManager.tickPlayer(owner, 0);
+		ShadowCompanionEntity shadow = PrivateCompanionManager.body(owner.getUUID()).orElseThrow();
+		double before = shadow.distanceToSqr(camp);
+		helper.startSequence()
+				.thenWaitUntil(() -> helper.assertTrue(shadow.onGround(),
+						"Manifested Shadow did not settle on the prepared floor"))
+				.thenExecute(() -> {
+					helper.assertTrue(PrivateCompanionManager.handleChat(owner, "shadow, go to camp"),
+							"Loaded-place navigation command was not consumed");
+					helper.assertTrue(shadow.getNavigation().isInProgress(),
+							"Loaded local place did not create a navigation path: shadow="
+									+ shadow.position() + ", target=" + camp + ", onGround="
+									+ shadow.onGround() + ", noPhysics=" + shadow.noPhysics
+									+ ", below=" + shadow.level().getBlockState(
+											shadow.blockPosition().below()));
+					helper.assertTrue(PrivateCompanionManager.diagnostics().forcedChunks() == 0,
+							"Named-place navigation created a forced chunk");
+				})
+				.thenIdle(20)
+				.thenExecute(() -> {
+					helper.assertTrue(shadow.distanceToSqr(camp) < before,
+							"Shadow did not move toward the owner-designated loaded place");
+					PrivateCompanionManager.handleChat(owner, "shadow, forget place camp");
+					helper.assertTrue(com.powers.companion.ShadowCompanionStore.get(owner)
+							.places().size() == 0, "Explicit delete retained the named place");
+					PrivateCompanionManager.handleChat(owner, "shadow, leave me");
+				})
+				.thenSucceed();
+	}
+
 	@GameTest
 	@SuppressWarnings("removal")
 	public void crossingEnergyAndVoidRaysCreatePhysicalConsequences(GameTestHelper helper) {

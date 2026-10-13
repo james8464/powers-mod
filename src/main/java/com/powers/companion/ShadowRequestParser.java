@@ -11,6 +11,10 @@ public final class ShadowRequestParser {
 	private static final String PREFIX = "shadow,";
 	private static final Pattern COUNT_ITEM = Pattern.compile("^(?:please )?(?:bring|get|fetch)(?: me)?(?: (\\d{1,3}))? (.+)$");
 	private static final Pattern CONJURE = Pattern.compile("^(?:please )?(?:conjure|create|make)(?: me)?(?: (\\d{1,3}))? (.+)$");
+	private static final Pattern REMEMBER_PLACE = Pattern.compile(
+			"^(?:remember (?:this place|here)|mark (?:this place|here)) as (.+)$");
+	private static final Pattern GO_TO_PLACE = Pattern.compile("^(?:go|move) to (?:place )?(.+)$");
+	private static final Pattern FORGET_PLACE = Pattern.compile("^forget place (.+)$");
 	private static final Set<String> REVEAL = Set.of("reveal yourself", "show yourself", "be seen", "reveal");
 	private static final Set<String> HIDE = Set.of("hide yourself", "hide", "be unseen", "conceal yourself");
 	private static final Set<String> DISMISS = Set.of("leave me", "dismiss", "vanish", "go away");
@@ -40,6 +44,18 @@ public final class ShadowRequestParser {
 		if (GOOD_FEEDBACK.contains(command)) return request(ShadowRequest.Kind.FEEDBACK_GOOD, "", 1, original);
 		if (BAD_FEEDBACK.contains(command)) return request(ShadowRequest.Kind.FEEDBACK_BAD, "", 1, original);
 		if (RESET_LEARNING.contains(command)) return request(ShadowRequest.Kind.RESET_LEARNING, "", 1, original);
+		Matcher rememberPlace = REMEMBER_PLACE.matcher(command);
+		if (rememberPlace.matches()) return request(ShadowRequest.Kind.REMEMBER_PLACE,
+				rememberPlace.group(1), 1, original);
+		Matcher goToPlace = GO_TO_PLACE.matcher(command);
+		if (goToPlace.matches()) return request(ShadowRequest.Kind.GO_TO_PLACE,
+				goToPlace.group(1), 1, original);
+		Matcher forgetPlace = FORGET_PLACE.matcher(command);
+		if (forgetPlace.matches()) return request(ShadowRequest.Kind.FORGET_PLACE,
+				forgetPlace.group(1), 1, original);
+		if (command.equals("list places") || command.equals("what places do you remember")) {
+			return request(ShadowRequest.Kind.LIST_PLACES, "", 1, original);
+		}
 		if (REVEAL.contains(command)) return request(ShadowRequest.Kind.REVEAL, "", 1, original);
 		if (HIDE.contains(command)) return request(ShadowRequest.Kind.HIDE, "", 1, original);
 		if (DISMISS.contains(command)) return request(ShadowRequest.Kind.DISMISS, "", 1, original);

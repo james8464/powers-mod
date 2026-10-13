@@ -80,6 +80,10 @@ final class ShadowCommandRuntime {
 				ShadowCompanionMessaging.replyAndRemember(owner, request.original(),
 						"What combat taught me is quiet again.");
 			}
+			case REMEMBER_PLACE -> rememberPlace(owner, request);
+			case FORGET_PLACE -> forgetPlace(owner, request);
+			case LIST_PLACES -> listPlaces(owner, request);
+			case GO_TO_PLACE -> goToPlace(owner, request);
 			case ATTACK, DEFEND, USE_POWER, STOP_POWER, GET_ITEM, CONJURE_ITEM, SCOUT,
 					RANGE_PREFERENCE -> submit(owner, request);
 			case NONE -> {
@@ -95,6 +99,40 @@ final class ShadowCommandRuntime {
 		String reply = applied
 				? positive ? "I will remember that choice." : "I will weigh that choice less."
 				: "I have no completed combat choice to judge yet.";
+		ShadowCompanionMessaging.replyAndRemember(owner, request.original(), reply);
+	}
+
+	private static void rememberPlace(ServerPlayer owner, ShadowRequest request) {
+		var result = PrivateCompanionManager.rememberPlace(owner, request.subject());
+		String reply = result.accepted()
+				? result.updated() ? "I moved that remembered place." : "I will remember that place."
+				: "I can remember only sixteen named places; forget one first.";
+		ShadowCompanionMessaging.replyAndRemember(owner, request.original(), reply);
+	}
+
+	private static void forgetPlace(ServerPlayer owner, ShadowRequest request) {
+		boolean removed = PrivateCompanionManager.forgetPlace(owner, request.subject()).removed();
+		ShadowCompanionMessaging.replyAndRemember(owner, request.original(), removed
+				? "That place is forgotten." : "I do not remember a place by that name.");
+	}
+
+	private static void listPlaces(ServerPlayer owner, ShadowRequest request) {
+		String names = PrivateCompanionManager.placeNames(owner);
+		ShadowCompanionMessaging.replyAndRemember(owner, request.original(), names.isEmpty()
+				? "You have named no places for me." : "I remember: " + names + ".");
+	}
+
+	private static void goToPlace(ServerPlayer owner, ShadowRequest request) {
+		var result = PrivateCompanionManager.goToPlace(owner, request.subject());
+		String reply = switch (result.reason()) {
+			case "navigating" -> "I am moving there through the loaded world.";
+			case "wrong_dimension" -> "That place is in another dimension.";
+			case "chunk_unloaded" -> "That place is not currently loaded.";
+			case "too_far" -> "That place is beyond my local pathing range.";
+			case "manifest_first" -> "Manifest me first; a place needs a body.";
+			case "no_path" -> "No loaded path reaches that place.";
+			default -> "I do not remember a place by that name.";
+		};
 		ShadowCompanionMessaging.replyAndRemember(owner, request.original(), reply);
 	}
 
