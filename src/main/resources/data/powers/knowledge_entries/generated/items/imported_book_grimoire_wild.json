@@ -1,0 +1,17 @@
+{
+  "title": "The Verdant Canticle",
+  "keywords": [
+    "knowledge_lookup_2433faa5afb020e1",
+    "powers:generated/items/imported_book_grimoire_wild",
+    "powers:imported_book_grimoire_wild",
+    "imported_book_grimoire_wild",
+    "imported book grimoire wild",
+    "The Verdant Canticle",
+    "Grimoire"
+  ],
+  "answer": "The Verdant Canticle is a grimoire. Selects and channels the documented spells of one school. Survival acquisition/status: Stronghold library/corridor discovery.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

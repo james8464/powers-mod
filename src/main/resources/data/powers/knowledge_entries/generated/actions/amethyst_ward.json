@@ -1,0 +1,20 @@
+{
+  "title": "Amethyst Ward",
+  "keywords": [
+    "knowledge_lookup_de532a9da2a7f363",
+    "powers:generated/actions/amethyst_ward",
+    "magic action amethyst ward",
+    "amethyst_ward",
+    "amethyst ward",
+    "Amethyst Ward",
+    "AMETHYST",
+    "PROTECTION, SUPPRESSION",
+    "FIELD",
+    "DEFENCE"
+  ],
+  "answer": "Amethyst Ward is a amethyst field action with defence intent. Aspects: PROTECTION, SUPPRESSION. Baseline potency 7, range 12.000, duration 200, energy 0, cooldown 0, residue 100, priority 25, and 0 generic presentation beats. Its none signature uses the suppression motif, amethyst_suppression sound, and colours #B36BFF / #58C7FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

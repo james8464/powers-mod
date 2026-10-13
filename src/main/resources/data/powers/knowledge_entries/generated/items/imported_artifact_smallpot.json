@@ -1,0 +1,17 @@
+{
+  "title": "Small Ritual Pot",
+  "keywords": [
+    "knowledge_lookup_517c37e9105fe61c",
+    "powers:generated/items/imported_artifact_smallpot",
+    "powers:imported_artifact_smallpot",
+    "imported_artifact_smallpot",
+    "imported artifact smallpot",
+    "Small Ritual Pot",
+    "Ritual container"
+  ],
+  "answer": "Small Ritual Pot is a ritual container. Provides a bounded Arcane Crucible infusion catalyst. Survival acquisition/status: Thematic archaeology and structure salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

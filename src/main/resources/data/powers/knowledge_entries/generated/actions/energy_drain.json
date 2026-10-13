@@ -1,0 +1,20 @@
+{
+  "title": "Energy Drain",
+  "keywords": [
+    "knowledge_lookup_263e113e7e4aa43b",
+    "powers:generated/actions/energy_drain",
+    "magic action energy drain",
+    "energy_drain",
+    "energy drain",
+    "Energy Drain",
+    "INNATE",
+    "DARKNESS, SOUL",
+    "CHANNEL",
+    "HARM"
+  ],
+  "answer": "Energy Drain is a innate channel action with harm intent. Aspects: DARKNESS, SOUL. Baseline potency 10, range 20.000, duration 80, energy 26, cooldown 200, residue 60, priority 10, and 2 generic presentation beats. Its standard signature uses the soul motif, innate_soul sound, and colours #8FE9FF / #55265F.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

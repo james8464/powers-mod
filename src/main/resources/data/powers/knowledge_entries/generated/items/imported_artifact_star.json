@@ -1,0 +1,17 @@
+{
+  "title": "Star",
+  "keywords": [
+    "knowledge_lookup_b4d9cd7cb6623630",
+    "powers:generated/items/imported_artifact_star",
+    "powers:imported_artifact_star",
+    "imported_artifact_star",
+    "imported artifact star",
+    "Star",
+    "Celestial focus"
+  ],
+  "answer": "Star is a celestial focus. Passively restores 1 energy per second and provides bounded Arcane Crucible infusion. Survival acquisition/status: Thematic archaeology and structure salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

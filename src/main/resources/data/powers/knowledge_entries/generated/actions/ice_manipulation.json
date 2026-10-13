@@ -1,0 +1,20 @@
+{
+  "title": "Ice Manipulation",
+  "keywords": [
+    "knowledge_lookup_b82ca057cae39d96",
+    "powers:generated/actions/ice_manipulation",
+    "magic action ice manipulation",
+    "ice_manipulation",
+    "ice manipulation",
+    "Ice Manipulation",
+    "INNATE",
+    "CREATION, FROST",
+    "PROJECTILE",
+    "CONTROL"
+  ],
+  "answer": "Ice Manipulation is a innate projectile action with control intent. Aspects: CREATION, FROST. Baseline potency 8, range 32.000, duration 20, energy 26, cooldown 200, residue 30, priority 10, and 2 generic presentation beats. Its standard signature uses the frost motif, innate_frost sound, and colours #82E9FF / #FF9D42.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

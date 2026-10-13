@@ -1,0 +1,20 @@
+{
+  "title": "Heaven Gate",
+  "keywords": [
+    "knowledge_lookup_81e7570a3215e953",
+    "powers:generated/actions/heaven_gate",
+    "magic action heaven gate",
+    "heaven_gate",
+    "heaven gate",
+    "Heaven Gate",
+    "ARTIFACT",
+    "LIGHT, SPACE",
+    "TRAVEL",
+    "MOVEMENT"
+  ],
+  "answer": "Heaven Gate is a artifact travel action with movement intent. Aspects: LIGHT, SPACE. Baseline potency 19, range 48.000, duration 40, energy 40, cooldown 800, residue 20, priority 22, and 4 generic presentation beats. Its ritual signature uses the light motif, artifact_light sound, and colours #FFF2B0 / #5267D8.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

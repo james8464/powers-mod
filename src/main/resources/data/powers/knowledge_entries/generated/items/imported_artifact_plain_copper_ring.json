@@ -1,0 +1,17 @@
+{
+  "title": "Plain Copper Ring",
+  "keywords": [
+    "knowledge_lookup_2e973d4b62b3808c",
+    "powers:generated/items/imported_artifact_plain_copper_ring",
+    "powers:imported_artifact_plain_copper_ring",
+    "imported_artifact_plain_copper_ring",
+    "imported artifact plain copper ring",
+    "Plain Copper Ring",
+    "Attunement"
+  ],
+  "answer": "Plain Copper Ring is a attunement. Restores 1 energy per second; carried attunements jointly cap at 6 and grant bounded resistance. Survival acquisition/status: Thematic archaeology and structure salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

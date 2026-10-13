@@ -1,0 +1,20 @@
+{
+  "title": "Covenant Chain",
+  "keywords": [
+    "knowledge_lookup_5b12a831c2781a7f",
+    "powers:generated/actions/covenant_chain",
+    "magic action covenant chain",
+    "covenant_chain",
+    "covenant chain",
+    "Covenant Chain",
+    "ARTIFACT",
+    "LIFE, LIGHT, PROTECTION",
+    "CHANNEL",
+    "SUPPORT"
+  ],
+  "answer": "Covenant Chain is a artifact channel action with support intent. Aspects: LIFE, LIGHT, PROTECTION. Baseline potency 21, range 20.000, duration 80, energy 40, cooldown 800, residue 60, priority 22, and 2 generic presentation beats. Its standard signature uses the light motif, artifact_light sound, and colours #FFF2B0 / #78E06B.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

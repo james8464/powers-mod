@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Sigil-Bearer",
+  "keywords": [
+    "knowledge_lookup_fa54acfecc78716a",
+    "powers:generated/ranks/light_ward_2",
+    "light ward_2",
+    "ward_2",
+    "Sigil-Bearer",
+    "wardcraft",
+    "Light rank"
+  ],
+  "answer": "Sigil-Bearer is a depth-2 Light rank on the wardcraft branch. It is a optional route with parents might_1. Perks: WARD_INTEGRITY +12%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

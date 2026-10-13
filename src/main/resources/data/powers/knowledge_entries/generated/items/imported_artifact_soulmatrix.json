@@ -1,0 +1,17 @@
+{
+  "title": "Soul Matrix",
+  "keywords": [
+    "knowledge_lookup_9c69a15548a3da34",
+    "powers:generated/items/imported_artifact_soulmatrix",
+    "powers:imported_artifact_soulmatrix",
+    "imported_artifact_soulmatrix",
+    "imported artifact soulmatrix",
+    "Soul Matrix",
+    "Energy reservoir"
+  ],
+  "answer": "Soul Matrix is a energy reservoir. Stores 1600 magic energy (starts charged); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls. Survival acquisition/status: Nether-fortress and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

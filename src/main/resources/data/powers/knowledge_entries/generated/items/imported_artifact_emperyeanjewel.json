@@ -1,0 +1,17 @@
+{
+  "title": "Empyrean Jewel",
+  "keywords": [
+    "knowledge_lookup_8d60b94da0d816aa",
+    "powers:generated/items/imported_artifact_emperyeanjewel",
+    "powers:imported_artifact_emperyeanjewel",
+    "imported_artifact_emperyeanjewel",
+    "imported artifact emperyeanjewel",
+    "Empyrean Jewel",
+    "Consent seal"
+  ],
+  "answer": "Empyrean Jewel is a consent seal. Overrides every player-consent gate for one 40-energy surcharge; safe zones and server policy still win. Survival acquisition/status: Rare stronghold and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

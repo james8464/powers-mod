@@ -1,0 +1,17 @@
+{
+  "title": "Sacred Arcane Energy Dust",
+  "keywords": [
+    "knowledge_lookup_f67ffb94f911a765",
+    "powers:generated/items/imported_magic_essence_sacred_dust",
+    "powers:imported_magic_essence_sacred_dust",
+    "imported_magic_essence_sacred_dust",
+    "imported magic essence sacred dust",
+    "Sacred Arcane Energy Dust",
+    "Arcane energy dust"
+  ],
+  "answer": "Sacred Arcane Energy Dust is a arcane energy dust. A magic-energy-themed Arcane Crucible infusion reagent; it is not a second resource. Survival acquisition/status: Buried-treasure, fortress, and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

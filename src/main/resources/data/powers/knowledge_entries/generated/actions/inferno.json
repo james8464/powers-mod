@@ -1,0 +1,19 @@
+{
+  "title": "Inferno",
+  "keywords": [
+    "knowledge_lookup_bb002df1d38ffbd1",
+    "powers:generated/actions/inferno",
+    "magic action inferno",
+    "inferno",
+    "Inferno",
+    "CRYSTAL",
+    "FLAME, STORM",
+    "FIELD",
+    "HARM"
+  ],
+  "answer": "Inferno is a crystal field action with harm intent. Aspects: FLAME, STORM. Baseline potency 18, range 12.000, duration 200, energy 63, cooldown 1200, residue 100, priority 20, and 2 generic presentation beats. Its standard signature uses the flame motif, crystal_flame sound, and colours #FF5A24 / #FFF59D.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Radish",
+  "keywords": [
+    "knowledge_lookup_a9151d88f21a1967",
+    "powers:generated/items/imported_food_radish",
+    "powers:imported_food_radish",
+    "imported_food_radish",
+    "imported food radish",
+    "Radish",
+    "Provision"
+  ],
+  "answer": "Radish is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

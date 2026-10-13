@@ -1,0 +1,19 @@
+{
+  "title": "Augury",
+  "keywords": [
+    "knowledge_lookup_59010d78de7be8c3",
+    "powers:generated/actions/augury",
+    "magic action augury",
+    "augury",
+    "Augury",
+    "SPELL",
+    "LIGHT, MIND",
+    "CHANNEL",
+    "INFORMATION"
+  ],
+  "answer": "Augury is a spell channel action with information intent. Aspects: LIGHT, MIND. Baseline potency 8, range 20.000, duration 80, energy 20, cooldown 600, residue 60, priority 15, and 4 generic presentation beats. Its ritual signature uses the light motif, spell_light sound, and colours #FFF2B0 / #C27CFF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

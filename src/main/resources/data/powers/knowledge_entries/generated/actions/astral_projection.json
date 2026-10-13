@@ -1,0 +1,20 @@
+{
+  "title": "Astral Projection",
+  "keywords": [
+    "knowledge_lookup_23b06d7642d88eb3",
+    "powers:generated/actions/astral_projection",
+    "magic action astral projection",
+    "astral_projection",
+    "astral projection",
+    "Astral Projection",
+    "INNATE",
+    "MIND, SOUL",
+    "PROJECTION",
+    "INFORMATION"
+  ],
+  "answer": "Astral Projection is a innate projection action with information intent. Aspects: MIND, SOUL. Baseline potency 5, range 48.000, duration 600, energy 18, cooldown 200, residue 100, priority 10, and 2 generic presentation beats. Its standard signature uses the soul motif, innate_soul sound, and colours #8FE9FF / #C27CFF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

@@ -1,0 +1,20 @@
+{
+  "title": "Cartographers Star",
+  "keywords": [
+    "knowledge_lookup_5ffe1455565f3dff",
+    "powers:generated/actions/cartographers_star",
+    "magic action cartographers star",
+    "cartographers_star",
+    "cartographers star",
+    "Cartographers Star",
+    "SPELL",
+    "LIGHT, SPACE",
+    "INSTANT",
+    "INFORMATION"
+  ],
+  "answer": "Cartographers Star is a spell instant action with information intent. Aspects: LIGHT, SPACE. Baseline potency 8, range 16.000, duration 20, energy 20, cooldown 600, residue 30, priority 15, and 4 generic presentation beats. Its ritual signature uses the space motif, spell_space sound, and colours #5267D8 / #FFF2B0.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

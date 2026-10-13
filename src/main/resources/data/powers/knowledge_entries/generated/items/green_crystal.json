@@ -1,0 +1,17 @@
+{
+  "title": "Green Crystal",
+  "keywords": [
+    "knowledge_lookup_94d9122e28e88c41",
+    "powers:generated/items/green_crystal",
+    "powers:green_crystal",
+    "green_crystal",
+    "green crystal",
+    "Green Crystal",
+    "Crystal"
+  ],
+  "answer": "Green Crystal is a crystal. Selects the crystal powers documented in README. Survival acquisition/status: Story acquisition intentionally deferred; no crafting recipe; operator testing only.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

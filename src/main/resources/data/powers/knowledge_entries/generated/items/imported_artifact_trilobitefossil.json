@@ -1,0 +1,17 @@
+{
+  "title": "Trilobite Fossil",
+  "keywords": [
+    "knowledge_lookup_bfaf43dca791f785",
+    "powers:generated/items/imported_artifact_trilobitefossil",
+    "powers:imported_artifact_trilobitefossil",
+    "imported_artifact_trilobitefossil",
+    "imported artifact trilobitefossil",
+    "Trilobite Fossil",
+    "Compatibility asset alias"
+  ],
+  "answer": "Trilobite Fossil is a compatibility asset alias. Hidden; retained only for old saves and model composition. Survival acquisition/status: Deferred/hidden.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

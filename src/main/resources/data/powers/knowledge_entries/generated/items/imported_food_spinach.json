@@ -1,0 +1,17 @@
+{
+  "title": "Spinach",
+  "keywords": [
+    "knowledge_lookup_3e72621f9dbe02ed",
+    "powers:generated/items/imported_food_spinach",
+    "powers:imported_food_spinach",
+    "imported_food_spinach",
+    "imported food spinach",
+    "Spinach",
+    "Provision"
+  ],
+  "answer": "Spinach is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Dragon Sword",
+  "keywords": [
+    "knowledge_lookup_12ac9b37c7fbc337",
+    "powers:generated/items/dragon_sword",
+    "powers:dragon_sword",
+    "dragon_sword",
+    "dragon sword",
+    "Dragon Sword",
+    "Fantasy weapon"
+  ],
+  "answer": "Dragon Sword is a fantasy weapon. One of twelve named combat archetypes; tooltip identifies its proc. Survival acquisition/status: Low-chance archetype-themed chest or mob loot.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

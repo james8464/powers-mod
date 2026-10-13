@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Star-Listener",
+  "keywords": [
+    "knowledge_lookup_157e9e1804619065",
+    "powers:generated/ranks/light_insight_1",
+    "light insight_1",
+    "insight_1",
+    "Star-Listener",
+    "insight",
+    "Light rank"
+  ],
+  "answer": "Star-Listener is a depth-1 Light rank on the insight branch. It is a optional route with parents legacy_0. Perks: REVEAL +7%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Salted Pork Slab",
+  "keywords": [
+    "knowledge_lookup_10144fedfef57b47",
+    "powers:generated/items/imported_food_slab_pork_salted",
+    "powers:imported_food_slab_pork_salted",
+    "imported_food_slab_pork_salted",
+    "imported food slab pork salted",
+    "Salted Pork Slab",
+    "Provision"
+  ],
+  "answer": "Salted Pork Slab is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

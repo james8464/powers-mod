@@ -1,0 +1,18 @@
+{
+  "title": "Darkness rank: Soulblight",
+  "keywords": [
+    "knowledge_lookup_78d08c255e846c05",
+    "powers:generated/ranks/darkness_legacy_7",
+    "darkness legacy_7",
+    "legacy_7",
+    "Soulblight",
+    "abyss",
+    "Darkness rank"
+  ],
+  "answer": "Soulblight is a depth-7 Darkness rank on the abyss branch. It is a canonical route with parents legacy_6. Perks: ENERGY_COST_REDUCTION +1.2%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/darkness.json"
+  ],
+  "reveal_rank": 0
+}

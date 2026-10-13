@@ -1,0 +1,18 @@
+{
+  "title": "Darkness rank: Elder Hunger",
+  "keywords": [
+    "knowledge_lookup_082e7e8249b69b13",
+    "powers:generated/ranks/darkness_elder_6",
+    "darkness elder_6",
+    "elder_6",
+    "Elder Hunger",
+    "dominion",
+    "Darkness rank"
+  ],
+  "answer": "Elder Hunger is a depth-6 Darkness rank on the dominion branch. It is a optional route with parents dreadlord_5. Perks: SOUL +15%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/darkness.json"
+  ],
+  "reveal_rank": 0
+}

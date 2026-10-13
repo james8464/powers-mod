@@ -1,0 +1,18 @@
+{
+  "title": "Darkness rank: Crownless Dreadlord",
+  "keywords": [
+    "knowledge_lookup_daefcbaa4dc83ccf",
+    "powers:generated/ranks/darkness_dreadlord_5",
+    "darkness dreadlord_5",
+    "dreadlord_5",
+    "Crownless Dreadlord",
+    "dominion",
+    "Darkness rank"
+  ],
+  "answer": "Crownless Dreadlord is a depth-5 Darkness rank on the dominion branch. It is a optional route with parents eclipse_4`, `gravewarden_4. Perks: ENERGY_REGEN +15%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/darkness.json"
+  ],
+  "reveal_rank": 0
+}

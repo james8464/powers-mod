@@ -1,0 +1,20 @@
+{
+  "title": "Soul Link",
+  "keywords": [
+    "knowledge_lookup_e39810069fadde90",
+    "powers:generated/actions/soul_link",
+    "magic action soul link",
+    "soul_link",
+    "soul link",
+    "Soul Link",
+    "CRYSTAL",
+    "LIFE, SOUL",
+    "CHANNEL",
+    "CONTROL"
+  ],
+  "answer": "Soul Link is a crystal channel action with control intent. Aspects: LIFE, SOUL. Baseline potency 16, range 20.000, duration 80, energy 63, cooldown 1200, residue 60, priority 20, and 2 generic presentation beats. Its standard signature uses the soul motif, crystal_soul sound, and colours #8FE9FF / #78E06B.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

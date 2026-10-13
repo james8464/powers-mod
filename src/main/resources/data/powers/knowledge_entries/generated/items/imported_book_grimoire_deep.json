@@ -1,0 +1,17 @@
+{
+  "title": "The Deepbound Grimoire",
+  "keywords": [
+    "knowledge_lookup_3088c3dba6e40c21",
+    "powers:generated/items/imported_book_grimoire_deep",
+    "powers:imported_book_grimoire_deep",
+    "imported_book_grimoire_deep",
+    "imported book grimoire deep",
+    "The Deepbound Grimoire",
+    "Grimoire"
+  ],
+  "answer": "The Deepbound Grimoire is a grimoire. Selects and channels the documented spells of one school. Survival acquisition/status: Stronghold library/corridor discovery.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

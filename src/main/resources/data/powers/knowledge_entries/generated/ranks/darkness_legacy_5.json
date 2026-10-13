@@ -1,0 +1,18 @@
+{
+  "title": "Darkness rank: Revenant",
+  "keywords": [
+    "knowledge_lookup_8a252afa958d7ac9",
+    "powers:generated/ranks/darkness_legacy_5",
+    "darkness legacy_5",
+    "legacy_5",
+    "Revenant",
+    "abyss",
+    "Darkness rank"
+  ],
+  "answer": "Revenant is a depth-5 Darkness rank on the abyss branch. It is a canonical route with parents legacy_4. Perks: ENERGY_REGEN +1.8%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/darkness.json"
+  ],
+  "reveal_rank": 0
+}

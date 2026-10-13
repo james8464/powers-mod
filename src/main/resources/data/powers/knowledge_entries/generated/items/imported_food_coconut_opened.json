@@ -1,0 +1,17 @@
+{
+  "title": "Opened Coconut",
+  "keywords": [
+    "knowledge_lookup_fcb34f529f77af3e",
+    "powers:generated/items/imported_food_coconut_opened",
+    "powers:imported_food_coconut_opened",
+    "imported_food_coconut_opened",
+    "imported food coconut opened",
+    "Opened Coconut",
+    "Provision"
+  ],
+  "answer": "Opened Coconut is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

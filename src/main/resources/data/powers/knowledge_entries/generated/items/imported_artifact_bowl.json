@@ -1,0 +1,17 @@
+{
+  "title": "Bowl",
+  "keywords": [
+    "knowledge_lookup_fed0a9e3e2fbc73e",
+    "powers:generated/items/imported_artifact_bowl",
+    "powers:imported_artifact_bowl",
+    "imported_artifact_bowl",
+    "imported artifact bowl",
+    "Bowl",
+    "Ritual container"
+  ],
+  "answer": "Bowl is a ritual container. Provides a bounded Arcane Crucible infusion catalyst. Survival acquisition/status: Thematic archaeology and structure salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

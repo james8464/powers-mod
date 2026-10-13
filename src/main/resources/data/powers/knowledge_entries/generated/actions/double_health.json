@@ -1,0 +1,20 @@
+{
+  "title": "Double Health",
+  "keywords": [
+    "knowledge_lookup_3820c927abcc176a",
+    "powers:generated/actions/double_health",
+    "magic action double health",
+    "double_health",
+    "double health",
+    "Double Health",
+    "INNATE",
+    "LIFE, PROTECTION",
+    "AURA",
+    "DEFENCE"
+  ],
+  "answer": "Double Health is a innate aura action with defence intent. Aspects: LIFE, PROTECTION. Baseline potency 7, range 8.000, duration 200, energy 18, cooldown 200, residue 100, priority 10, and 2 generic presentation beats. Its standard signature uses the life motif, innate_life sound, and colours #78E06B / #58C7FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

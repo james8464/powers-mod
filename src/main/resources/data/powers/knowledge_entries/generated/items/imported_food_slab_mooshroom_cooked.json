@@ -1,0 +1,17 @@
+{
+  "title": "Cooked Mooshroom Slab",
+  "keywords": [
+    "knowledge_lookup_391419280e3afb9f",
+    "powers:generated/items/imported_food_slab_mooshroom_cooked",
+    "powers:imported_food_slab_mooshroom_cooked",
+    "imported_food_slab_mooshroom_cooked",
+    "imported food slab mooshroom cooked",
+    "Cooked Mooshroom Slab",
+    "Provision"
+  ],
+  "answer": "Cooked Mooshroom Slab is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

@@ -1,0 +1,18 @@
+{
+  "title": "Darkness rank: Abyssal",
+  "keywords": [
+    "knowledge_lookup_c12caf452cafc248",
+    "powers:generated/ranks/darkness_legacy_8",
+    "darkness legacy_8",
+    "legacy_8",
+    "Abyssal",
+    "abyss",
+    "Darkness rank"
+  ],
+  "answer": "Abyssal is a depth-8 Darkness rank on the abyss branch. It is a canonical route with parents legacy_7. Perks: INTERACTION_PRIORITY +2.5%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/darkness.json"
+  ],
+  "reveal_rank": 0
+}

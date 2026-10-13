@@ -1,0 +1,19 @@
+{
+  "title": "Thunderclap",
+  "keywords": [
+    "knowledge_lookup_35dbb9caa9f8deaf",
+    "powers:generated/actions/thunderclap",
+    "magic action thunderclap",
+    "thunderclap",
+    "Thunderclap",
+    "INNATE",
+    "FORCE, MOTION, STORM",
+    "FIELD",
+    "HARM"
+  ],
+  "answer": "Thunderclap is a innate field action with harm intent. Aspects: FORCE, MOTION, STORM. Baseline potency 10, range 12.000, duration 200, energy 26, cooldown 200, residue 100, priority 10, and 2 generic presentation beats. Its standard signature uses the force motif, innate_force sound, and colours #B9E7FF / #D7F8FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

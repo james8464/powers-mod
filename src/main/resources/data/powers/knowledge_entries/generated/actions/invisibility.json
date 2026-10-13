@@ -1,0 +1,19 @@
+{
+  "title": "Invisibility",
+  "keywords": [
+    "knowledge_lookup_f0834bb98569073f",
+    "powers:generated/actions/invisibility",
+    "magic action invisibility",
+    "invisibility",
+    "Invisibility",
+    "INNATE",
+    "CONCEALMENT, MIND",
+    "TOGGLE",
+    "DEFENCE"
+  ],
+  "answer": "Invisibility is a innate toggle action with defence intent. Aspects: CONCEALMENT, MIND. Baseline potency 7, range 8.000, duration 600, energy 18, cooldown 0, residue 100, priority 10, and 2 generic presentation beats. Its standard signature uses the concealment motif, innate_concealment sound, and colours #6E7180 / #C27CFF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

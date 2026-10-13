@@ -1,0 +1,18 @@
+{
+  "title": "Darkness rank: Dreadwright",
+  "keywords": [
+    "knowledge_lookup_bc3033e51792c700",
+    "powers:generated/ranks/darkness_hex_2",
+    "darkness hex_2",
+    "hex_2",
+    "Dreadwright",
+    "wardcraft",
+    "Darkness rank"
+  ],
+  "answer": "Dreadwright is a depth-2 Darkness rank on the wardcraft branch. It is a optional route with parents fang_1. Perks: CONTROL +10% (darkness).",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/darkness.json"
+  ],
+  "reveal_rank": 0
+}

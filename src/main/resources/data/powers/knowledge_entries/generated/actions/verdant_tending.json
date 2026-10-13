@@ -1,0 +1,20 @@
+{
+  "title": "Verdant Tending",
+  "keywords": [
+    "knowledge_lookup_84d131f4cf33069d",
+    "powers:generated/actions/verdant_tending",
+    "magic action verdant tending",
+    "verdant_tending",
+    "verdant tending",
+    "Verdant Tending",
+    "SPELL",
+    "CREATION, LIFE",
+    "FIELD",
+    "WORLD_INTERACTION"
+  ],
+  "answer": "Verdant Tending is a spell field action with world_interaction intent. Aspects: CREATION, LIFE. Baseline potency 8, range 12.000, duration 200, energy 20, cooldown 600, residue 100, priority 15, and 4 generic presentation beats. Its ritual signature uses the life motif, spell_life sound, and colours #78E06B / #FF9D42.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Orange Crystal",
+  "keywords": [
+    "knowledge_lookup_f016f4b5872588a7",
+    "powers:generated/items/orange_crystal",
+    "powers:orange_crystal",
+    "orange_crystal",
+    "orange crystal",
+    "Orange Crystal",
+    "Crystal"
+  ],
+  "answer": "Orange Crystal is a crystal. Selects the crystal powers documented in README. Survival acquisition/status: Story acquisition intentionally deferred; no crafting recipe; operator testing only.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

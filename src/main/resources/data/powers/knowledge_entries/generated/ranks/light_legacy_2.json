@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Spark",
+  "keywords": [
+    "knowledge_lookup_ad0360f60ae901b6",
+    "powers:generated/ranks/light_legacy_2",
+    "light legacy_2",
+    "legacy_2",
+    "Spark",
+    "origin",
+    "Light rank"
+  ],
+  "answer": "Spark is a depth-2 Light rank on the origin branch. It is a canonical route with parents legacy_1. Perks: RANGE +1.5%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

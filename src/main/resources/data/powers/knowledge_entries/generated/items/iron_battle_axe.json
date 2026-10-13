@@ -1,0 +1,17 @@
+{
+  "title": "Iron Battle Axe",
+  "keywords": [
+    "knowledge_lookup_cad039a4006dd154",
+    "powers:generated/items/iron_battle_axe",
+    "powers:iron_battle_axe",
+    "iron_battle_axe",
+    "iron battle axe",
+    "Iron Battle Axe",
+    "Fantasy weapon"
+  ],
+  "answer": "Iron Battle Axe is a fantasy weapon. One of twelve named combat archetypes; tooltip identifies its proc. Survival acquisition/status: Low-chance archetype-themed chest or mob loot.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

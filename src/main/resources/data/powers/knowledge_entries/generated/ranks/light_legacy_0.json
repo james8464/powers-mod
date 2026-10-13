@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Dormant",
+  "keywords": [
+    "knowledge_lookup_9c385486f4a1ec0a",
+    "powers:generated/ranks/light_legacy_0",
+    "light legacy_0",
+    "legacy_0",
+    "Dormant",
+    "origin",
+    "Light rank"
+  ],
+  "answer": "Dormant is a depth-0 Light rank on the origin branch. It is a canonical route with parents —. Perks: ENERGY_CAPACITY +1%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

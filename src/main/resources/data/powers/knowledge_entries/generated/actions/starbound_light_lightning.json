@@ -1,0 +1,20 @@
+{
+  "title": "Starbound Light Lightning",
+  "keywords": [
+    "knowledge_lookup_306216d417cb7488",
+    "powers:generated/actions/starbound_light_lightning",
+    "magic action starbound light lightning",
+    "starbound_light_lightning",
+    "starbound light lightning",
+    "Starbound Light Lightning",
+    "ARTIFACT",
+    "LIGHT, STORM",
+    "INSTANT",
+    "HARM"
+  ],
+  "answer": "Starbound Light Lightning is a artifact instant action with harm intent. Aspects: LIGHT, STORM. Baseline potency 24, range 16.000, duration 20, energy 48, cooldown 800, residue 30, priority 22, and 0 generic presentation beats. Its minimal signature uses the storm motif, artifact_storm sound, and colours #FFF59D / #FFF2B0.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

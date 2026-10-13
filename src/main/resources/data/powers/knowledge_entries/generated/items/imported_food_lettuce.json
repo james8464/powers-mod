@@ -1,0 +1,17 @@
+{
+  "title": "Lettuce",
+  "keywords": [
+    "knowledge_lookup_7d1f1f760c13e954",
+    "powers:generated/items/imported_food_lettuce",
+    "powers:imported_food_lettuce",
+    "imported_food_lettuce",
+    "imported food lettuce",
+    "Lettuce",
+    "Provision"
+  ],
+  "answer": "Lettuce is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

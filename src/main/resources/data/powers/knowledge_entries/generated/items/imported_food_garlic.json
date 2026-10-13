@@ -1,0 +1,17 @@
+{
+  "title": "Garlic",
+  "keywords": [
+    "knowledge_lookup_b5e04ed926f2302e",
+    "powers:generated/items/imported_food_garlic",
+    "powers:imported_food_garlic",
+    "imported_food_garlic",
+    "imported food garlic",
+    "Garlic",
+    "Provision"
+  ],
+  "answer": "Garlic is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

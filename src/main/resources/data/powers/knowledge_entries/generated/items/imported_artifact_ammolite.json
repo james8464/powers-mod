@@ -1,0 +1,17 @@
+{
+  "title": "Ammolite",
+  "keywords": [
+    "knowledge_lookup_881f31d8b21cdaa9",
+    "powers:generated/items/imported_artifact_ammolite",
+    "powers:imported_artifact_ammolite",
+    "imported_artifact_ammolite",
+    "imported artifact ammolite",
+    "Ammolite",
+    "Celestial focus"
+  ],
+  "answer": "Ammolite is a celestial focus. Passively restores 1 energy per second and provides bounded Arcane Crucible infusion. Survival acquisition/status: Thematic archaeology and structure salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

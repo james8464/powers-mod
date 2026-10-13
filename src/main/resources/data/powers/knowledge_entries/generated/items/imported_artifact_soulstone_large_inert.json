@@ -1,0 +1,17 @@
+{
+  "title": "Large Inert Soulstone",
+  "keywords": [
+    "knowledge_lookup_eb7871e65cca41f7",
+    "powers:generated/items/imported_artifact_soulstone_large_inert",
+    "powers:imported_artifact_soulstone_large_inert",
+    "imported_artifact_soulstone_large_inert",
+    "imported artifact soulstone large inert",
+    "Large Inert Soulstone",
+    "Energy reservoir"
+  ],
+  "answer": "Large Inert Soulstone is a energy reservoir. Stores 800 magic energy (starts empty); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls. Survival acquisition/status: Nether-fortress and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

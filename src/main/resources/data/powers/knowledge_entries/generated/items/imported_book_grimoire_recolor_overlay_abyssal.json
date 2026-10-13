@@ -1,0 +1,17 @@
+{
+  "title": "Abyssal Grimoire Leaf",
+  "keywords": [
+    "knowledge_lookup_de19fd66f27279ad",
+    "powers:generated/items/imported_book_grimoire_recolor_overlay_abyssal",
+    "powers:imported_book_grimoire_recolor_overlay_abyssal",
+    "imported_book_grimoire_recolor_overlay_abyssal",
+    "imported book grimoire recolor overlay abyssal",
+    "Abyssal Grimoire Leaf",
+    "Grimoire"
+  ],
+  "answer": "Abyssal Grimoire Leaf is a grimoire. Selects and channels the documented spells of one school. Survival acquisition/status: Stronghold library/corridor discovery.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

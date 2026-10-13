@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Soulwarden",
+  "keywords": [
+    "knowledge_lookup_e8fd090c9e79b637",
+    "powers:generated/ranks/light_soulwarden_4",
+    "light soulwarden_4",
+    "soulwarden_4",
+    "Soulwarden",
+    "wardcraft",
+    "Light rank"
+  ],
+  "answer": "Soulwarden is a depth-4 Light rank on the wardcraft branch. It is a optional route with parents oracle_3`, `ward_2. Perks: RESISTANCE +8% (soul).",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

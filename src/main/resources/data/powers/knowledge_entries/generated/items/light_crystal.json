@@ -1,0 +1,17 @@
+{
+  "title": "Light Crystal",
+  "keywords": [
+    "knowledge_lookup_b31e2c3d79d85c2e",
+    "powers:generated/items/light_crystal",
+    "powers:light_crystal",
+    "light_crystal",
+    "light crystal",
+    "Light Crystal",
+    "Crystal"
+  ],
+  "answer": "Light Crystal is a crystal. Selects the crystal powers documented in README. Survival acquisition/status: Story acquisition intentionally deferred; no crafting recipe; operator testing only.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

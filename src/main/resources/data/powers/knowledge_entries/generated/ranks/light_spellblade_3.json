@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Runeblade",
+  "keywords": [
+    "knowledge_lookup_f995f165a191eea6",
+    "powers:generated/ranks/light_spellblade_3",
+    "light spellblade_3",
+    "spellblade_3",
+    "Runeblade",
+    "might",
+    "Light rank"
+  ],
+  "answer": "Runeblade is a depth-3 Light rank on the might branch. It is a optional route with parents might_1`, `ward_2. Perks: POWER_DAMAGE +10% (fire).",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

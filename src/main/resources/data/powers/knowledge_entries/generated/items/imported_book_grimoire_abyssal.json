@@ -1,0 +1,17 @@
+{
+  "title": "The Abyssal Codex",
+  "keywords": [
+    "knowledge_lookup_0e3cd873a9720911",
+    "powers:generated/items/imported_book_grimoire_abyssal",
+    "powers:imported_book_grimoire_abyssal",
+    "imported_book_grimoire_abyssal",
+    "imported book grimoire abyssal",
+    "The Abyssal Codex",
+    "Grimoire"
+  ],
+  "answer": "The Abyssal Codex is a grimoire. Selects and channels the documented spells of one school. Survival acquisition/status: Stronghold library/corridor discovery.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

@@ -1,0 +1,19 @@
+{
+  "title": "Dreamwalking",
+  "keywords": [
+    "knowledge_lookup_86e1fe2b0f51a99e",
+    "powers:generated/actions/dreamwalking",
+    "magic action dreamwalking",
+    "dreamwalking",
+    "Dreamwalking",
+    "CRYSTAL",
+    "MIND, SOUL",
+    "PROJECTION",
+    "CONTROL"
+  ],
+  "answer": "Dreamwalking is a crystal projection action with control intent. Aspects: MIND, SOUL. Baseline potency 16, range 48.000, duration 600, energy 63, cooldown 1200, residue 100, priority 20, and 2 generic presentation beats. Its standard signature uses the mind motif, crystal_mind sound, and colours #C27CFF / #8FE9FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

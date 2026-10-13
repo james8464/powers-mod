@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Living Genesis",
+  "keywords": [
+    "knowledge_lookup_cb2ddf30d7e99646",
+    "powers:generated/ranks/light_mythic_10",
+    "light mythic_10",
+    "mythic_10",
+    "Living Genesis",
+    "dominion",
+    "Light rank"
+  ],
+  "answer": "Living Genesis is a depth-10 Light rank on the dominion branch. It is a optional route with parents firstlight_9. Perks: WARD_INTEGRITY +20%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

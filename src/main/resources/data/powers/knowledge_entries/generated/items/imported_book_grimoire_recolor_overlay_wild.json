@@ -1,0 +1,17 @@
+{
+  "title": "Wild Grimoire Leaf",
+  "keywords": [
+    "knowledge_lookup_fd4e71df3619f607",
+    "powers:generated/items/imported_book_grimoire_recolor_overlay_wild",
+    "powers:imported_book_grimoire_recolor_overlay_wild",
+    "imported_book_grimoire_recolor_overlay_wild",
+    "imported book grimoire recolor overlay wild",
+    "Wild Grimoire Leaf",
+    "Grimoire"
+  ],
+  "answer": "Wild Grimoire Leaf is a grimoire. Selects and channels the documented spells of one school. Survival acquisition/status: Stronghold library/corridor discovery.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

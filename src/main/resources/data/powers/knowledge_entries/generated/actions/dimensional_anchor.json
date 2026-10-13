@@ -1,0 +1,20 @@
+{
+  "title": "Dimensional Anchor",
+  "keywords": [
+    "knowledge_lookup_56503b99a92dc119",
+    "powers:generated/actions/dimensional_anchor",
+    "magic action dimensional anchor",
+    "dimensional_anchor",
+    "dimensional anchor",
+    "Dimensional Anchor",
+    "SPELL",
+    "SPACE, SUPPRESSION",
+    "CHANNEL",
+    "CONTROL"
+  ],
+  "answer": "Dimensional Anchor is a spell channel action with control intent. Aspects: SPACE, SUPPRESSION. Baseline potency 11, range 20.000, duration 80, energy 28, cooldown 600, residue 60, priority 15, and 4 generic presentation beats. Its ritual signature uses the space motif, spell_space sound, and colours #5267D8 / #B36BFF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

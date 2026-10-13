@@ -1,0 +1,17 @@
+{
+  "title": "Small Inert Soulstone",
+  "keywords": [
+    "knowledge_lookup_e951a447a121cea8",
+    "powers:generated/items/imported_artifact_soulstone_small_inert",
+    "powers:imported_artifact_soulstone_small_inert",
+    "imported_artifact_soulstone_small_inert",
+    "imported artifact soulstone small inert",
+    "Small Inert Soulstone",
+    "Energy reservoir"
+  ],
+  "answer": "Small Inert Soulstone is a energy reservoir. Stores 200 magic energy (starts empty); sneak-use stores and use releases up to 100, and casts atomically draw shortfalls. Survival acquisition/status: Nether-fortress and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

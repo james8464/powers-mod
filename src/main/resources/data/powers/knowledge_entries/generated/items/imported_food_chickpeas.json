@@ -1,0 +1,17 @@
+{
+  "title": "Chickpeas",
+  "keywords": [
+    "knowledge_lookup_08c7499412a804de",
+    "powers:generated/items/imported_food_chickpeas",
+    "powers:imported_food_chickpeas",
+    "imported_food_chickpeas",
+    "imported food chickpeas",
+    "Chickpeas",
+    "Provision"
+  ],
+  "answer": "Chickpeas is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

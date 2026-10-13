@@ -1,0 +1,17 @@
+{
+  "title": "Worm-Eaten Apple",
+  "keywords": [
+    "knowledge_lookup_987bca0e34b79876",
+    "powers:generated/items/imported_food_apple_wormy",
+    "powers:imported_food_apple_wormy",
+    "imported_food_apple_wormy",
+    "imported food apple wormy",
+    "Worm-Eaten Apple",
+    "Provision"
+  ],
+  "answer": "Worm-Eaten Apple is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

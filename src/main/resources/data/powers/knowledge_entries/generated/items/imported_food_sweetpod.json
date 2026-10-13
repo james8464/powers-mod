@@ -1,0 +1,17 @@
+{
+  "title": "Sweetpod",
+  "keywords": [
+    "knowledge_lookup_5b967f3a33b60ea4",
+    "powers:generated/items/imported_food_sweetpod",
+    "powers:imported_food_sweetpod",
+    "imported_food_sweetpod",
+    "imported food sweetpod",
+    "Sweetpod",
+    "Provision"
+  ],
+  "answer": "Sweetpod is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

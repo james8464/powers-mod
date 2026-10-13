@@ -1,0 +1,16 @@
+{
+  "title": "Talonpick",
+  "keywords": [
+    "knowledge_lookup_cbdec0dab680d54b",
+    "powers:generated/items/talonpick",
+    "powers:talonpick",
+    "talonpick",
+    "Talonpick",
+    "Fantasy weapon"
+  ],
+  "answer": "Talonpick is a fantasy weapon. One of twelve named combat archetypes; tooltip identifies its proc. Survival acquisition/status: Low-chance archetype-themed chest or mob loot.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

@@ -1,0 +1,20 @@
+{
+  "title": "Celestial Ruin",
+  "keywords": [
+    "knowledge_lookup_f556d670df42c218",
+    "powers:generated/actions/celestial_ruin",
+    "magic action celestial ruin",
+    "celestial_ruin",
+    "celestial ruin",
+    "Celestial Ruin",
+    "SPELL",
+    "CREATION, FORCE, LIGHT",
+    "FIELD",
+    "WORLD_INTERACTION"
+  ],
+  "answer": "Celestial Ruin is a spell field action with world_interaction intent. Aspects: CREATION, FORCE, LIGHT. Baseline potency 8, range 12.000, duration 200, energy 20, cooldown 600, residue 100, priority 15, and 6 generic presentation beats. Its cosmic signature uses the light motif, spell_light sound, and colours #FFF2B0 / #FF9D42.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

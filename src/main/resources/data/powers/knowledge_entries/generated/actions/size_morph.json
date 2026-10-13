@@ -1,0 +1,20 @@
+{
+  "title": "Size Morph",
+  "keywords": [
+    "knowledge_lookup_08830cb5c98a87e9",
+    "powers:generated/actions/size_morph",
+    "magic action size morph",
+    "size_morph",
+    "size morph",
+    "Size Morph",
+    "INNATE",
+    "CREATION, GRAVITY",
+    "TOGGLE",
+    "CONTROL"
+  ],
+  "answer": "Size Morph is a innate toggle action with control intent. Aspects: CREATION, GRAVITY. Baseline potency 8, range 8.000, duration 600, energy 26, cooldown 0, residue 100, priority 10, and 2 generic presentation beats. Its standard signature uses the creation motif, innate_creation sound, and colours #FF9D42 / #8C66FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

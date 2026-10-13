@@ -1,0 +1,17 @@
+{
+  "title": "Red Crystal",
+  "keywords": [
+    "knowledge_lookup_3c5fcc3ab082a29a",
+    "powers:generated/items/red_crystal",
+    "powers:red_crystal",
+    "red_crystal",
+    "red crystal",
+    "Red Crystal",
+    "Crystal"
+  ],
+  "answer": "Red Crystal is a crystal. Selects the crystal powers documented in README. Survival acquisition/status: Story acquisition intentionally deferred; no crafting recipe; operator testing only.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

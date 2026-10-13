@@ -1,0 +1,20 @@
+{
+  "title": "Dark Crystal",
+  "keywords": [
+    "knowledge_lookup_e6c23d7de3be8563",
+    "powers:generated/actions/dark_crystal",
+    "magic action dark crystal",
+    "dark_crystal",
+    "dark crystal",
+    "Dark Crystal",
+    "CRYSTAL",
+    "DARKNESS, MIND",
+    "PROJECTION",
+    "MOVEMENT"
+  ],
+  "answer": "Dark Crystal is a crystal projection action with movement intent. Aspects: DARKNESS, MIND. Baseline potency 13, range 48.000, duration 600, energy 55, cooldown 1200, residue 100, priority 20, and 2 generic presentation beats. Its standard signature uses the darkness motif, crystal_darkness sound, and colours #55265F / #C27CFF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Ghoul Heart",
+  "keywords": [
+    "knowledge_lookup_86760dfc42d64dbe",
+    "powers:generated/items/imported_artifact_ghoul_heart",
+    "powers:imported_artifact_ghoul_heart",
+    "imported_artifact_ghoul_heart",
+    "imported artifact ghoul heart",
+    "Ghoul Heart",
+    "Heart relic"
+  ],
+  "answer": "Ghoul Heart is a heart relic. Trades weaker healing for active and passive energy restoration. Survival acquisition/status: Settlement and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

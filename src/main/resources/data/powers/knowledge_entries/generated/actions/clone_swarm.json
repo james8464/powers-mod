@@ -1,0 +1,20 @@
+{
+  "title": "Clone Swarm",
+  "keywords": [
+    "knowledge_lookup_88c526726291c90d",
+    "powers:generated/actions/clone_swarm",
+    "magic action clone swarm",
+    "clone_swarm",
+    "clone swarm",
+    "Clone Swarm",
+    "CRYSTAL",
+    "CREATION, MIND",
+    "FIELD",
+    "SUPPORT"
+  ],
+  "answer": "Clone Swarm is a crystal field action with support intent. Aspects: CREATION, MIND. Baseline potency 15, range 12.000, duration 200, energy 55, cooldown 1200, residue 100, priority 20, and 2 generic presentation beats. Its standard signature uses the creation motif, crystal_creation sound, and colours #FF9D42 / #C27CFF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

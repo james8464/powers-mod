@@ -1,0 +1,17 @@
+{
+  "title": "Interaction: Amethyst item",
+  "keywords": [
+    "knowledge_lookup_3323ad8ea63ee153",
+    "powers:generated/interaction_rules/07_amethyst_item",
+    "magic interaction Amethyst item",
+    "Amethyst item",
+    "magic interaction",
+    "interaction rule"
+  ],
+  "answer": "Amethyst item: Portable amethyst dampens magical potency and duration without blanket immunity. Signature: Low amethyst hum.",
+  "sources": [
+    "docs/interactions/interaction-rules.md",
+    "docs/interactions/interaction-matrix.csv"
+  ],
+  "reveal_rank": 0
+}

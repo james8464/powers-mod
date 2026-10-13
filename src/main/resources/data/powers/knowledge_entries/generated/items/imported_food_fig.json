@@ -1,0 +1,17 @@
+{
+  "title": "Fig",
+  "keywords": [
+    "knowledge_lookup_4f44a165a3641820",
+    "powers:generated/items/imported_food_fig",
+    "powers:imported_food_fig",
+    "imported_food_fig",
+    "imported food fig",
+    "Fig",
+    "Provision"
+  ],
+  "answer": "Fig is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

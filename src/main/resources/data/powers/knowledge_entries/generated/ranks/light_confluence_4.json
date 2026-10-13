@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Confluence Weaver",
+  "keywords": [
+    "knowledge_lookup_b3381fe77bdc3f2f",
+    "powers:generated/ranks/light_confluence_4",
+    "light confluence_4",
+    "confluence_4",
+    "Confluence Weaver",
+    "dominion",
+    "Light rank"
+  ],
+  "answer": "Confluence Weaver is a depth-4 Light rank on the dominion branch. It is a optional route with parents spellblade_3`, `riftwalker_3. Perks: INTERACTION_PRIORITY +12%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

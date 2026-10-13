@@ -1,0 +1,20 @@
+{
+  "title": "Call Hollowed",
+  "keywords": [
+    "knowledge_lookup_360d1c5ca384b641",
+    "powers:generated/actions/call_hollowed",
+    "magic action call hollowed",
+    "call_hollowed",
+    "call hollowed",
+    "Call Hollowed",
+    "ARTIFACT",
+    "CREATION, DARKNESS",
+    "FIELD",
+    "SUPPORT"
+  ],
+  "answer": "Call Hollowed is a artifact field action with support intent. Aspects: CREATION, DARKNESS. Baseline potency 21, range 12.000, duration 200, energy 40, cooldown 800, residue 100, priority 22, and 2 generic presentation beats. Its standard signature uses the darkness motif, artifact_darkness sound, and colours #55265F / #FF9D42.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

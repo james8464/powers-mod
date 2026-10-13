@@ -1,0 +1,17 @@
+{
+  "title": "Salted Beef Slab",
+  "keywords": [
+    "knowledge_lookup_f8c9552dd5ff8b1a",
+    "powers:generated/items/imported_food_slab_beef_salted",
+    "powers:imported_food_slab_beef_salted",
+    "imported_food_slab_beef_salted",
+    "imported food slab beef salted",
+    "Salted Beef Slab",
+    "Provision"
+  ],
+  "answer": "Salted Beef Slab is a provision. Edible food; cooked and smoked forms restore more hunger. Survival acquisition/status: Themed mob/block loot and village provision salvage; processed variants may also be cooked.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

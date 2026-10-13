@@ -1,0 +1,20 @@
+{
+  "title": "Hearth Sanctuary",
+  "keywords": [
+    "knowledge_lookup_62bf101d1d6c2cfd",
+    "powers:generated/actions/hearth_sanctuary",
+    "magic action hearth sanctuary",
+    "hearth_sanctuary",
+    "hearth sanctuary",
+    "Hearth Sanctuary",
+    "SPELL",
+    "LIFE, PROTECTION",
+    "FIELD",
+    "DEFENCE"
+  ],
+  "answer": "Hearth Sanctuary is a spell field action with defence intent. Aspects: LIFE, PROTECTION. Baseline potency 10, range 12.000, duration 200, energy 20, cooldown 600, residue 100, priority 15, and 4 generic presentation beats. Its ritual signature uses the life motif, spell_life sound, and colours #78E06B / #58C7FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

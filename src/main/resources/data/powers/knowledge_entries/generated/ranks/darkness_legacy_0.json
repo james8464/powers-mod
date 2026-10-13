@@ -1,0 +1,18 @@
+{
+  "title": "Darkness rank: Unmarked",
+  "keywords": [
+    "knowledge_lookup_41b6726b6153e6f6",
+    "powers:generated/ranks/darkness_legacy_0",
+    "darkness legacy_0",
+    "legacy_0",
+    "Unmarked",
+    "abyss",
+    "Darkness rank"
+  ],
+  "answer": "Unmarked is a depth-0 Darkness rank on the abyss branch. It is a canonical route with parents —. Perks: ENERGY_CAPACITY +1.2%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/darkness.json"
+  ],
+  "reveal_rank": 0
+}

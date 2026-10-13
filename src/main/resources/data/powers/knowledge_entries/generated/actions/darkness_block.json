@@ -1,0 +1,20 @@
+{
+  "title": "Darkness Block",
+  "keywords": [
+    "knowledge_lookup_415bd406a734941a",
+    "powers:generated/actions/darkness_block",
+    "magic action darkness block",
+    "darkness_block",
+    "darkness block",
+    "Darkness Block",
+    "REALM",
+    "DARKNESS",
+    "FIELD",
+    "WORLD_INTERACTION"
+  ],
+  "answer": "Darkness Block is a realm field action with world_interaction intent. Aspects: DARKNESS. Baseline potency 25, range 12.000, duration 200, energy 0, cooldown 0, residue 100, priority 30, and 0 generic presentation beats. Its none signature uses the darkness motif, realm_darkness sound, and colours #55265F / #55265F.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

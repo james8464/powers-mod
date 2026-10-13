@@ -1,0 +1,20 @@
+{
+  "title": "Time Shift",
+  "keywords": [
+    "knowledge_lookup_201fa67d39421a8f",
+    "powers:generated/actions/time_shift",
+    "magic action time shift",
+    "time_shift",
+    "time shift",
+    "Time Shift",
+    "INNATE",
+    "SPACE, TIME",
+    "TRAVEL",
+    "MOVEMENT"
+  ],
+  "answer": "Time Shift is a innate travel action with movement intent. Aspects: SPACE, TIME. Baseline potency 5, range 48.000, duration 40, energy 18, cooldown 200, residue 20, priority 10, and 2 generic presentation beats. Its standard signature uses the space motif, innate_space sound, and colours #5267D8 / #68E0D5.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

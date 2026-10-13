@@ -1,0 +1,17 @@
+{
+  "title": "Malign Ember",
+  "keywords": [
+    "knowledge_lookup_93e69e06ddd1a5e8",
+    "powers:generated/items/imported_artifact_malignember",
+    "powers:imported_artifact_malignember",
+    "imported_artifact_malignember",
+    "imported artifact malignember",
+    "Malign Ember",
+    "Destructive focus"
+  ],
+  "answer": "Malign Ember is a destructive focus. Reduces explicit destructive magic activation costs by 20%, never below 1. Survival acquisition/status: Nether-fortress and archaeology salvage.",
+  "sources": [
+    "docs/gameplay/item-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

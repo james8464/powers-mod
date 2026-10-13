@@ -1,0 +1,18 @@
+{
+  "title": "Darkness rank: Shade",
+  "keywords": [
+    "knowledge_lookup_5da0d3d1bf2e97f9",
+    "powers:generated/ranks/darkness_legacy_2",
+    "darkness legacy_2",
+    "legacy_2",
+    "Shade",
+    "abyss",
+    "Darkness rank"
+  ],
+  "answer": "Shade is a depth-2 Darkness rank on the abyss branch. It is a canonical route with parents legacy_1. Perks: MOVEMENT +1.8%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/darkness.json"
+  ],
+  "reveal_rank": 0
+}

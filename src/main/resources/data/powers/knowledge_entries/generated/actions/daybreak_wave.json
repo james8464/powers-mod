@@ -1,0 +1,20 @@
+{
+  "title": "Daybreak Wave",
+  "keywords": [
+    "knowledge_lookup_cfca0f87a96e82ce",
+    "powers:generated/actions/daybreak_wave",
+    "magic action daybreak wave",
+    "daybreak_wave",
+    "daybreak wave",
+    "Daybreak Wave",
+    "ARTIFACT",
+    "FORCE, LIFE, LIGHT",
+    "FIELD",
+    "SUPPORT"
+  ],
+  "answer": "Daybreak Wave is a artifact field action with support intent. Aspects: FORCE, LIFE, LIGHT. Baseline potency 21, range 12.000, duration 200, energy 40, cooldown 800, residue 100, priority 22, and 4 generic presentation beats. Its ritual signature uses the light motif, artifact_light sound, and colours #FFF2B0 / #78E06B.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

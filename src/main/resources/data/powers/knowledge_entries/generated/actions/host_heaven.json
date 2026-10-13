@@ -1,0 +1,20 @@
+{
+  "title": "Host Heaven",
+  "keywords": [
+    "knowledge_lookup_5cec82eb54753e19",
+    "powers:generated/actions/host_heaven",
+    "magic action host heaven",
+    "host_heaven",
+    "host heaven",
+    "Host Heaven",
+    "ARTIFACT",
+    "CREATION, LIGHT, SOUL",
+    "FIELD",
+    "SUPPORT"
+  ],
+  "answer": "Host Heaven is a artifact field action with support intent. Aspects: CREATION, LIGHT, SOUL. Baseline potency 21, range 12.000, duration 200, energy 40, cooldown 800, residue 100, priority 22, and 6 generic presentation beats. Its cosmic signature uses the light motif, artifact_light sound, and colours #FFF2B0 / #FF9D42.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

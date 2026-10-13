@@ -1,0 +1,20 @@
+{
+  "title": "Gravity Displacement",
+  "keywords": [
+    "knowledge_lookup_954a54ccbf65f46a",
+    "powers:generated/actions/gravity_displacement",
+    "magic action gravity displacement",
+    "gravity_displacement",
+    "gravity displacement",
+    "Gravity Displacement",
+    "INNATE",
+    "FORCE, GRAVITY",
+    "FIELD",
+    "CONTROL"
+  ],
+  "answer": "Gravity Displacement is a innate field action with control intent. Aspects: FORCE, GRAVITY. Baseline potency 8, range 12.000, duration 200, energy 26, cooldown 200, residue 100, priority 10, and 2 generic presentation beats. Its standard signature uses the gravity motif, innate_gravity sound, and colours #8C66FF / #B9E7FF.",
+  "sources": [
+    "docs/interactions/action-catalogue.md"
+  ],
+  "reveal_rank": 0
+}

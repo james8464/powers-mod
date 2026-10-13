@@ -1,0 +1,18 @@
+{
+  "title": "Light rank: Wind-Touched",
+  "keywords": [
+    "knowledge_lookup_99e47ce8804e84ac",
+    "powers:generated/ranks/light_motion_1",
+    "light motion_1",
+    "motion_1",
+    "Wind-Touched",
+    "motion",
+    "Light rank"
+  ],
+  "answer": "Wind-Touched is a depth-1 Light rank on the motion branch. It is a optional route with parents legacy_0. Perks: MOVEMENT +6%.",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/light.json"
+  ],
+  "reveal_rank": 0
+}

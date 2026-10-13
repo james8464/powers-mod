@@ -1,0 +1,18 @@
+{
+  "title": "Darkness rank: Nightstep",
+  "keywords": [
+    "knowledge_lookup_a7ca43f892768e3a",
+    "powers:generated/ranks/darkness_nightstep_3",
+    "darkness nightstep_3",
+    "nightstep_3",
+    "Nightstep",
+    "motion",
+    "Darkness rank"
+  ],
+  "answer": "Nightstep is a depth-3 Darkness rank on the motion branch. It is a optional route with parents mist_1`, `shroud_2. Perks: RANGE +12% (spatial).",
+  "sources": [
+    "docs/gameplay/rank-catalogue.md",
+    "data/powers/ranks/darkness.json"
+  ],
+  "reveal_rank": 0
+}
