@@ -32,6 +32,7 @@
 			,"com.powers.gametest.TemporalShadowGameTests"
 			,"com.powers.power.abilities.TemporalVoidScarGameTests"
 			,"com.powers.gametest.FlightGameTests"
+			,"com.powers.gametest.ThunderclapGameTests"
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests",

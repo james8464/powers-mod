@@ -9,6 +9,12 @@ public final class ThunderclapRules {
 	public record HorizontalDirection(double x, double z) {
 	}
 
+	/** Whether the release has enough enclosure to author one reflected cave cue. */
+	public enum Echo {
+		NONE,
+		CAVE
+	}
+
 	private ThunderclapRules() {
 	}
 
@@ -36,5 +42,19 @@ public final class ThunderclapRules {
 		double dot = (offsetX * lookX + offsetZ * lookZ)
 				/ (Math.sqrt(distanceSquared) * lookLength);
 		return dot >= MINIMUM_DOT;
+	}
+
+	/** Requires a wall ahead, a ceiling, and at least one side wall. */
+	public static Echo echo(boolean forwardBlocked, boolean leftBlocked,
+			boolean rightBlocked, boolean ceilingBlocked) {
+		return forwardBlocked && ceilingBlocked && (leftBlocked || rightBlocked)
+				? Echo.CAVE : Echo.NONE;
+	}
+
+	/** Tagged fragile blocks bypass only the rank hardness check, never forbidden policy. */
+	public static boolean mayBreakTerrain(boolean taggedFragile, boolean forbidden,
+			float hardness, int rank) {
+		return !forbidden && Float.isFinite(hardness) && hardness >= 0.0F
+				&& (taggedFragile || hardness <= CombatTerrainRules.maximumHardness(rank));
 	}
 }

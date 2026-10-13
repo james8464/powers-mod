@@ -87,7 +87,10 @@ public final class ThunderclapAbility extends Ability {
 				VisualScarRules.Impact.THUNDERCLAP, Long.hashCode(level.getServer().getTickCount()));
 		CombatTerrainImpact.thunderclap(level, player, origin, horizontal, range,
 				CombatTerrainImpact.tier(player, CastScalingContext.currentSource(), "thunderclap"));
-		ThunderclapFx.release(level, origin.add(horizontal.scale(2.0)), horizontal, range);
+		Vec3 releaseOrigin = origin.add(horizontal.scale(2.0));
+		ThunderclapEnvironment.EchoProbe echo = ThunderclapEnvironment.probe(
+				level, releaseOrigin, horizontal);
+		ThunderclapFx.release(level, releaseOrigin, horizontal, range, echo.echo(), echo.point());
 		return true;
 	}
 

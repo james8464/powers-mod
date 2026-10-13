@@ -27,4 +27,26 @@ class ThunderclapRulesTest {
 		assertEquals(-1.0, west.x(), 1.0E-8);
 		assertEquals(0.0, west.z(), 1.0E-8);
 	}
+
+	@Test
+	void caveEchoRequiresAForwardReflectionAndEnclosure() {
+		assertEquals(ThunderclapRules.Echo.NONE,
+				ThunderclapRules.echo(false, true, true, true));
+		assertEquals(ThunderclapRules.Echo.NONE,
+				ThunderclapRules.echo(true, false, false, false));
+		assertEquals(ThunderclapRules.Echo.CAVE,
+				ThunderclapRules.echo(true, true, false, true));
+		assertEquals(ThunderclapRules.Echo.CAVE,
+				ThunderclapRules.echo(true, false, true, true));
+	}
+
+	@Test
+	void taggedFragileTerrainBreaksAtEveryRankWithoutAdmittingForbiddenBlocks() {
+		for (int rank = 0; rank <= 10; rank++) {
+			assertTrue(ThunderclapRules.mayBreakTerrain(true, false, 100.0F, rank));
+		}
+		assertFalse(ThunderclapRules.mayBreakTerrain(true, true, 0.3F, 10));
+		assertFalse(ThunderclapRules.mayBreakTerrain(false, false, 20.0F, 10));
+		assertTrue(ThunderclapRules.mayBreakTerrain(false, false, 2.5F, 0));
+	}
 }
