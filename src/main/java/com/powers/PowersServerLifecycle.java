@@ -232,6 +232,7 @@ final class PowersServerLifecycle {
 		SpellFieldManager.tick(server);
 		CelestialRuinManager.tick(server);
 		RealmMindscapeManager.tick(server);
+		com.powers.realm.MiddleworldOutpostManager.tick(server);
 		LivingForceManager.tick(server);
 		ForceContainmentManager.tick(server);
 		FactionInvasionManager.tick(server);
