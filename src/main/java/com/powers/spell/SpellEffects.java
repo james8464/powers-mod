@@ -9,11 +9,11 @@ import com.powers.power.AmethystDampening;
 import com.powers.power.PowerTargeting;
 import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.power.abilities.ForcefieldAbility;
-import com.powers.power.crystals.SoulLinkAbility;
 import com.powers.protection.PowerProtection;
 import com.powers.progression.PowerScalingService;
 import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -22,6 +22,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.FarmlandBlock;
@@ -295,26 +296,14 @@ final class SpellEffects {
 	}
 
 	private static boolean purification(ServerPlayer caster, double radius, int potencyTier) {
-		ServerLevel level = (ServerLevel) caster.level();
-		for (LivingEntity ally : BoundedEntityCandidates.living(level,
-				AABB.ofSize(caster.position(), radius * 2, radius * 2, radius * 2),
-				256, LivingEntity::isAlive)) {
-			if (!SpellTargetRules.mayPurify(ally == caster, caster.isAlliedTo(ally))) continue;
-			for (MobEffectInstance instance : List.copyOf(ally.getActiveEffects())) {
-				if (instance.getEffect().equals(PowersEffects.AMETHYST_POISONING)) continue;
-				if (instance.getEffect().value().getCategory() == MobEffectCategory.HARMFUL) {
-					ally.removeEffect(instance.getEffect());
-				}
-			}
-			ally.heal(4.0f + potencyTier * 2.0f);
-			if (ally instanceof ServerPlayer player) {
-				PlayerPowers.get(player).clearDimensionalAnchor();
-				SoulLinkAbility.clearLinksTouching(player.getUUID());
-			}
-			PowerFx.burst(level, ally.position().add(0, 1, 0),
-					PowerFx.dust(0xD8FFF1, 0.9F), 6, 0.4, 0.0);
-		}
-		return true;
+		var offhand = caster.getItemInHand(InteractionHand.OFF_HAND);
+		String catalyst = BuiltInRegistries.ITEM.getKey(offhand.getItem()).toString();
+		PurificationModeRules.Mode mode = PurificationModeRules.fromCatalyst(catalyst);
+		boolean applied = PurificationService.apply(caster, radius, potencyTier, mode);
+		if (applied) caster.sendSystemMessage(Component.translatable(
+				"spell.powers.purification_circle.mode",
+				mode.name().toLowerCase(java.util.Locale.ROOT)), true);
+		return applied;
 	}
 
 	private static boolean breakWard(ServerPlayer caster, SpellCastValues values, BlockPos ward) {
