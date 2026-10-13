@@ -265,7 +265,7 @@ The 68 provisions use real nutrition/saturation and additive mob/block/structure
 
 The two-input server-owned forge commits one atomic 40-tick transaction and guards stale menus, automation, break recovery, full inventories, duplicate components, and invalid outputs.
 
-1. A Darkness block converts an eligible ordinary weapon into Nocturne, Calamity Blade, or Revenant's Gravecleaver; Pure Light offers Solstice, Valhakyra, or Zenith. Safe enchantments, name, lore, repair cost, components, and proportional durability are preserved.
+1. A Darkness block converts an eligible ordinary weapon into Nocturne, Calamity Blade, or Revenant's Gravecleaver; Pure Light offers Solstice, Valhakyra, or Zenith. Each output has distinct three-dimensional geometry, complete item-view transforms, and a four-frame alignment pulse: Light crests brighter while Darkness recedes. Safe enchantments, name, lore, repair cost, components, and proportional durability are preserved.
 2. An Animated Artifact Star binds zero-gameplay-cooldown aimed alignment lightning. Each cast still needs energy, line of sight, a valid target, and same-tick rate allowance.
 3. A runestone adds 25/75/225/675 XP by tier; archaeology/school catalysts add 35–175. Overflow-safe exponential levels cap at 30; lightning caps at 120 damage to players and 1,200 to mobs.
 
