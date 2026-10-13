@@ -101,6 +101,16 @@ public record ShadowConversationMemory(List<Turn> turns, Map<ReferentType, Strin
 		return new ShadowConversationMemory(turns, referents, recentFailure, relationship, value);
 	}
 
+	public ShadowAgendaPhase agendaPhase() {
+		return ShadowAgendaPhase.fromInfluence(influence);
+	}
+
+	/** Advances only on explicit owner dialogue and remains within the persisted 0..100 bound. */
+	public ShadowConversationMemory advanceAgenda(String ownerMessage) {
+		if (ownerMessage == null || ownerMessage.isBlank()) return this;
+		return withInfluence(Math.min(100, Math.max(0, influence) + 4));
+	}
+
 	public String recent(ReferentType type) {
 		return referents.getOrDefault(type, "");
 	}

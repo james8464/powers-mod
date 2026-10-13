@@ -19,6 +19,8 @@ import com.powers.entity.PowerTestActor;
 import com.powers.entity.TestActorPowerState;
 import com.powers.entity.RealmHerald;
 import com.powers.companion.ShadowCompanionEntity;
+import com.powers.companion.ShadowAgendaPhase;
+import com.powers.companion.ShadowCompanionStore;
 import com.powers.boss.FirstVesselPowerCatalogue;
 import com.powers.boss.FirstVesselRitual;
 import com.powers.boss.BossReactionManager;
@@ -889,6 +891,32 @@ public final class PowersGameTests {
 		helper.assertTrue(interaction.entryId().equals(
 				"powers:generated/interaction_rules/26_cinderheart_reflection"),
 				"Shadow did not retrieve the generated interaction-rule entry: " + interaction.entryId());
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal")
+	public void shadowAgendaAdvancesPersistentlyWithoutRewritingCommandFacts(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		player.addTag(SkillSystem.DARKNESS_TAG);
+		player.getInventory().add(PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		for (int turn = 0; turn < 18; turn++) {
+			helper.assertTrue(PrivateCompanionManager.handleChat(player,
+					"shadow, guard this place"), "Explicit Shadow command was not consumed");
+		}
+		var memory = ShadowCompanionStore.get(player).memory();
+		helper.assertTrue(memory.influence() == 72
+				&& memory.agendaPhase() == ShadowAgendaPhase.COVENANT,
+				"Owner-local agenda did not advance through all three bounded phases");
+		helper.assertTrue(memory.turns().get(0).shadow().startsWith("I will guard it.")
+				&& memory.turns().get(0).shadow().contains("Remember:"),
+				"Whisper phase rewrote the command fact or lost its distinct tone");
+		helper.assertTrue(memory.turns().get(9).shadow().startsWith("I will guard it.")
+				&& memory.turns().get(9).shadow().contains("Verify it yourself"),
+				"Invitation phase rewrote the command fact or lost its distinct tone");
+		helper.assertTrue(memory.turns().get(17).shadow().startsWith("I will guard it.")
+				&& memory.turns().get(17).shadow().contains("safety still permit"),
+				"Covenant phase rewrote the command fact or safety qualifier");
 		helper.succeed();
 	}
 
