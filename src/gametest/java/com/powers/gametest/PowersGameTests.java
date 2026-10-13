@@ -38,6 +38,7 @@ import com.powers.power.abilities.LightningStrikeRules;
 import com.powers.power.abilities.PlantHealingAbility;
 import com.powers.power.abilities.DimensionalAnchorAbility;
 import com.powers.power.abilities.EnergyDrainAbility;
+import com.powers.power.abilities.EnergyDrainRules;
 import com.powers.power.abilities.TeleportAbility;
 import com.powers.power.abilities.VesselPossessionAbility;
 import com.powers.network.VesselControlPackets;
@@ -1543,6 +1544,62 @@ public final class PowersGameTests {
 			helper.assertTrue(TestActorPowerState.energy(actor.getUUID()) == 0,
 					"Energy Drain used the ordinary-mob damage branch for a player-compatible actor");
 			TestActorPowerState.clear(actor.getUUID());
+			helper.succeed();
+		});
+	}
+
+	@GameTest(maxTicks = 40)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void energyDrainTargetBreaksTheLiveTetherByHoldingCrouch(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		ServerPlayer target = helper.makeMockServerPlayerInLevel();
+		Vec3 origin = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(2, 1, 2)));
+		caster.snapTo(origin, 0.0F, 0.0F);
+		target.snapTo(origin.add(0.0, 0.0, 4.0), 180.0F, 0.0F);
+		caster.addTag(SkillSystem.DARKNESS_TAG);
+		com.powers.player.PlayerPowers.get(caster).setSlots(caster,
+				java.util.List.of("powers:energy_drain", "powers:flight", "powers:void_beam"));
+		helper.assertTrue(new EnergyDrainAbility().activate(caster,
+				com.powers.player.PlayerPowers.get(caster)), "Energy Drain did not acquire its player target");
+		target.setShiftKeyDown(true);
+		helper.runAfterDelay(2, () -> helper.assertTrue(EnergyDrainAbility.isChanneling(caster.getUUID()),
+				"The live tether ended before the eight-tick crouch contest completed"));
+
+		helper.runAfterDelay(EnergyDrainRules.RESISTANCE_TICKS + 2, () -> {
+			helper.assertFalse(EnergyDrainAbility.isChanneling(caster.getUUID()),
+					"Eight consecutive crouch ticks did not break the live soul tether");
+			EnergyDrainAbility.clear(caster.getUUID());
+			helper.succeed();
+		});
+	}
+
+	@GameTest(maxTicks = 80)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void energyDrainMobConversionCannotExceedItsHealthScaledBudget(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		Vec3 origin = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(2, 1, 2)));
+		caster.snapTo(origin, 0.0F, 0.0F);
+		caster.addTag(SkillSystem.DARKNESS_TAG);
+		var data = com.powers.player.PlayerPowers.get(caster);
+		data.setSlots(caster, java.util.List.of(
+				"powers:energy_drain", "powers:flight", "powers:void_beam"));
+		data.drainEnergy(data.energyCapacity());
+		net.minecraft.world.entity.animal.golem.IronGolem golem = helper.spawn(
+				net.minecraft.world.entity.EntityTypes.IRON_GOLEM, new BlockPos(2, 1, 6));
+		golem.setNoAi(true);
+		int cap = EnergyDrainRules.mobConversionCap(golem.getMaxHealth());
+		long refundedBefore = com.powers.player.PlayerEnergyHistory.snapshot(caster).amount(
+				com.powers.player.EnergyHistorySource.REFUND);
+		helper.assertTrue(new EnergyDrainAbility().activate(caster, data),
+				"Energy Drain did not acquire its non-player target");
+
+		helper.runAfterDelay(45, () -> {
+			long refunded = com.powers.player.PlayerEnergyHistory.snapshot(caster).amount(
+					com.powers.player.EnergyHistorySource.REFUND) - refundedBefore;
+			helper.assertTrue(refunded > 0 && refunded <= cap,
+					"Live mob conversion exceeded its immutable health-scaled budget: "
+							+ refunded + "/" + cap);
+			EnergyDrainAbility.clear(caster.getUUID());
 			helper.succeed();
 		});
 	}

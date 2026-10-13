@@ -53,7 +53,26 @@ public class EnergyDrainAbility extends Ability {
 
 	private record Ritual(UUID casterId, UUID targetId, ResourceKey<Level> dimension,
 			CastSource castSource, ChannelState state,
-			double maximumRangeSquared, int exhaustionTicks, double transferRatio) {}
+			double maximumRangeSquared, int exhaustionTicks, double transferRatio,
+			int resistanceProgress, int conversionCap, int convertedEnergy) {
+		Ritual withResistanceProgress(int progress) {
+			return new Ritual(casterId, targetId, dimension, castSource, state,
+					maximumRangeSquared, exhaustionTicks, transferRatio,
+					progress, conversionCap, convertedEnergy);
+		}
+
+		Ritual withState(ChannelState updated) {
+			return new Ritual(casterId, targetId, dimension, castSource, updated,
+					maximumRangeSquared, exhaustionTicks, transferRatio,
+					resistanceProgress, conversionCap, convertedEnergy);
+		}
+
+		Ritual withConvertedEnergy(int granted) {
+			return new Ritual(casterId, targetId, dimension, castSource, state,
+					maximumRangeSquared, exhaustionTicks, transferRatio,
+					resistanceProgress, conversionCap, convertedEnergy + Math.max(0, granted));
+		}
+	}
 
 	public EnergyDrainAbility() {
 		super(POWER_ID,
@@ -83,9 +102,15 @@ public class EnergyDrainAbility extends Ability {
 		RITUALS.put(caster.getUUID(), new Ritual(caster.getUUID(), target.getUUID(),
 				target.level().dimension(), CastScalingContext.currentSource(),
 				new ChannelState(endsAt, caster.getX(), caster.getY(), caster.getZ(), "energy_drain", false),
-				maximumRange * maximumRange, scaledDuration(caster, EXHAUSTION_TICKS), transferRatio));
+				maximumRange * maximumRange, scaledDuration(caster, EXHAUSTION_TICKS), transferRatio,
+				0, PlayerLikeTarget.isCompatible(target) ? 0
+						: EnergyDrainRules.mobConversionCap(target.getMaxHealth()), 0));
 		PowerFx.sound((ServerLevel) caster.level(), target.position(),
 				net.minecraft.sounds.SoundEvents.ENCHANTMENT_TABLE_USE, 1.2f, 0.45f);
+		if (target instanceof ServerPlayer targetPlayer) {
+			PowerMessages.overlay(targetPlayer, Component.translatable(
+					"ability.powers.energy_drain.resist", EnergyDrainRules.RESISTANCE_TICKS));
+		}
 		return true;
 	}
 
@@ -93,7 +118,8 @@ public class EnergyDrainAbility extends Ability {
 	public static void tickAll(MinecraftServer server) {
 		long now = server.getTickCount();
 		for (var it = RITUALS.entrySet().iterator(); it.hasNext();) {
-			Ritual ritual = it.next().getValue();
+			Map.Entry<UUID, Ritual> entry = it.next();
+			Ritual ritual = entry.getValue();
 			ServerPlayer caster = server.getPlayerList().getPlayer(ritual.casterId());
 			ServerLevel targetLevel = server.getLevel(ritual.dimension());
 			LivingEntity target = targetLevel == null ? null
@@ -116,6 +142,26 @@ public class EnergyDrainAbility extends Ability {
 						net.minecraft.network.chat.Component.translatable("spell.powers.interrupted"));
 				continue;
 			}
+			if (target instanceof ServerPlayer targetPlayer) {
+				int resistance = EnergyDrainRules.resistanceProgress(ritual.resistanceProgress(),
+						targetPlayer.isShiftKeyDown());
+				if (resistance != ritual.resistanceProgress()) {
+					ritual = ritual.withResistanceProgress(resistance);
+					entry.setValue(ritual);
+				}
+				if (resistance > 0) PowerMessages.overlay(targetPlayer, Component.translatable(
+						"ability.powers.energy_drain.resisting", resistance,
+						EnergyDrainRules.RESISTANCE_TICKS));
+				if (EnergyDrainRules.countered(resistance)) {
+					it.remove();
+					PowerFx.clash((ServerLevel) target.level(), target.getEyePosition(), caster.getEyePosition(),
+							0xE8D7FF, 0x6A1B9A);
+					PowerMessages.overlay(targetPlayer, Component.translatable(
+							"ability.powers.energy_drain.resisted"));
+					PowerMessages.overlay(caster, Component.translatable("spell.powers.countered"));
+					continue;
+				}
+			}
 			ServerLevel level = (ServerLevel) caster.level();
 			Vec3 from = caster.getEyePosition();
 			Vec3 to = target.getEyePosition();
@@ -123,7 +169,8 @@ public class EnergyDrainAbility extends Ability {
 			for (int i = 0; i < 8; i++) {
 				double angle = Math.PI * 2.0 * i / 8.0 + now * 0.08;
 				Vec3 rune = target.position().add(Math.cos(angle) * 1.4, 0.15, Math.sin(angle) * 1.4);
-				PowerFx.burst(level, rune, PowerFx.dust(0x7A22A8, 0.8F), 2, 0.03, 0.0);
+				PowerFx.burst(level, rune, PowerFx.dust(
+						EnergyDrainRules.tetherStressColor(ritual.resistanceProgress()), 0.8F), 2, 0.03, 0.0);
 			}
 			if (now >= ritual.state().finishesAt()) {
 				// Apply Exhaustion only after the full channel completes successfully.
@@ -139,8 +186,12 @@ public class EnergyDrainAbility extends Ability {
 							EnergyDrainRules.mobCompletionDamage(target.getMaxHealth()));
 					target.addEffect(PowerStatusEffects.hidden(net.minecraft.world.effect.MobEffects.WITHER,
 							200, 3, false, true));
-					PlayerPowers.get(caster).refundEnergy(120);
-					PowersPackets.syncTo(caster);
+					int grant = EnergyDrainRules.conversionGrant(120, ritual.convertedEnergy(),
+							ritual.conversionCap());
+					if (grant > 0) {
+						PlayerPowers.get(caster).refundEnergy(grant);
+						PowersPackets.syncTo(caster);
+					}
 				}
 				PowerMessages.sendImportant(caster, "ability.powers.energy_drained", 3,
 						target.getName().getString());
@@ -170,8 +221,14 @@ public class EnergyDrainAbility extends Ability {
 				PowersPackets.syncTo(caster);
 			} else if (now % 10 == 0 && target.hurtServer(level, PowerDamage.source(caster),
 					EnergyDrainRules.mobPulseDamage(target.getMaxHealth()))) {
-				PlayerPowers.get(caster).refundEnergy(5);
-				PowersPackets.syncTo(caster);
+				int grant = EnergyDrainRules.conversionGrant(5, ritual.convertedEnergy(),
+						ritual.conversionCap());
+				if (grant > 0) {
+					PlayerPowers.get(caster).refundEnergy(grant);
+					PowersPackets.syncTo(caster);
+					ritual = ritual.withConvertedEnergy(grant);
+					entry.setValue(ritual);
+				}
 			}
 		}
 	}
@@ -187,10 +244,12 @@ public class EnergyDrainAbility extends Ability {
 
 	public static void markDamaged(LivingEntity entity) {
 		Ritual ritual = RITUALS.get(entity.getUUID());
-		if (ritual != null) RITUALS.put(entity.getUUID(), new Ritual(ritual.casterId(),
-				ritual.targetId(), ritual.dimension(), ritual.castSource(),
-				ritual.state().withDamaged(true), ritual.maximumRangeSquared(), ritual.exhaustionTicks(),
-				ritual.transferRatio()));
+		if (ritual != null) RITUALS.put(entity.getUUID(), ritual.withState(
+				ritual.state().withDamaged(true)));
+	}
+
+	public static boolean isChanneling(UUID caster) {
+		return RITUALS.containsKey(caster);
 	}
 
 	private static boolean ownsPower(ServerPlayer player) {
