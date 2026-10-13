@@ -9,9 +9,14 @@ import java.util.Map;
 public final class ShadowLearningState {
 	public static final int MAX_CONTEXTS = 64;
 	public static final int MAX_TYPES = 32;
-	private static final String VERSION = "v1";
+	public static final int MAX_FEEDBACK_ACTIONS = 26;
+	private static final String VERSION = "v2";
 	private final LinkedHashMap<String, Profile> contexts = lru();
 	private final LinkedHashMap<String, Profile> types = lru();
+	private final LinkedHashMap<String, Stat> feedback = lru();
+	private String lastContext;
+	private String lastType;
+	private String lastAction;
 
 	private static final class Stat {
 		private int count;
@@ -37,9 +42,40 @@ public final class ShadowLearningState {
 	}
 
 	public double modifier(String context, String type, String action) {
-		double value = mean(contexts.get(safe(context)), action) * 0.125
+		return Math.clamp(rewardModifier(context, type, action) + feedbackModifier(action),
+				-0.25, 0.25);
+	}
+
+	public double rewardModifier(String context, String type, String action) {
+		return mean(contexts.get(safe(context)), action) * 0.125
 				+ mean(types.get(safe(type)), action) * 0.125;
-		return Math.clamp(value, -0.25, 0.25);
+	}
+
+	public double feedbackModifier(String action) {
+		Stat stat = feedback.get(safe(action));
+		return stat == null ? 0.0 : stat.mean * 0.10;
+	}
+
+	/** Remembers only a completed, already-authorized planner choice. */
+	public void rememberChoice(String context, String type, String action) {
+		lastContext = safe(context);
+		lastType = safe(type);
+		lastAction = safe(action);
+	}
+
+	/** Applies owner feedback to its separate bounded profile, never to authorization. */
+	public boolean applyExplicitFeedback(boolean positive) {
+		if (!hasRememberedChoice()) return false;
+		Stat stat = feedback.get(lastAction);
+		if (stat == null) {
+			if (feedback.size() >= MAX_FEEDBACK_ACTIONS) {
+				feedback.remove(feedback.keySet().iterator().next());
+			}
+			stat = new Stat();
+			feedback.put(lastAction, stat);
+		}
+		stat.add(positive ? 1.0 : -1.0);
+		return true;
 	}
 
 	/** Small optimism bonus used only as safe exploration, never as authorization. */
@@ -52,11 +88,19 @@ public final class ShadowLearningState {
 
 	public int contextCount() { return contexts.size(); }
 	public int typeCount() { return types.size(); }
+	public int feedbackActionCount() { return feedback.size(); }
+	public boolean hasRememberedChoice() {
+		return lastContext != null && lastType != null && lastAction != null;
+	}
 
 	public String encode() {
 		StringBuilder raw = new StringBuilder(VERSION);
 		append(raw, 'C', contexts);
 		append(raw, 'T', types);
+		feedback.forEach((action, stat) -> raw.append(";F,").append(action)
+				.append(',').append(stat.count).append(',').append(stat.mean).append(",0,0"));
+		if (hasRememberedChoice()) raw.append(";L,").append(lastContext).append(',')
+				.append(lastType).append(',').append(lastAction).append(",0,0");
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(
 				raw.toString().getBytes(StandardCharsets.UTF_8));
 	}
@@ -66,10 +110,21 @@ public final class ShadowLearningState {
 		if (encoded == null || encoded.isBlank() || encoded.length() > 32_768) return state;
 		try {
 			String raw = new String(Base64.getUrlDecoder().decode(encoded), StandardCharsets.UTF_8);
-			if (!raw.startsWith(VERSION)) return state;
-			for (String entry : raw.substring(VERSION.length()).split(";")) {
+			if (!(raw.startsWith("v1") || raw.startsWith(VERSION))) return state;
+			for (String entry : raw.substring(2).split(";")) {
 				String[] fields = entry.split(",", 6);
 				if (fields.length != 6) continue;
+				if (fields[0].equals("F")) {
+					Stat stat = new Stat();
+					stat.count = Math.clamp(Integer.parseInt(fields[2]), 0, 65_535);
+					stat.mean = Math.clamp(Double.parseDouble(fields[3]), -1.0, 1.0);
+					putFeedback(state.feedback, safe(fields[1]), stat);
+					continue;
+				}
+				if (fields[0].equals("L")) {
+					state.rememberChoice(fields[1], fields[2], fields[3]);
+					continue;
+				}
 				LinkedHashMap<String, Profile> target = fields[0].equals("C")
 						? state.contexts : fields[0].equals("T") ? state.types : null;
 				if (target == null) continue;
@@ -83,6 +138,13 @@ public final class ShadowLearningState {
 			return new ShadowLearningState();
 		}
 		return state;
+	}
+
+	private static void putFeedback(LinkedHashMap<String, Stat> target, String action, Stat stat) {
+		if (target.size() >= MAX_FEEDBACK_ACTIONS && !target.containsKey(action)) {
+			target.remove(target.keySet().iterator().next());
+		}
+		target.put(action, stat);
 	}
 
 	private static void append(StringBuilder out, char kind,

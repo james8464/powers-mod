@@ -1035,6 +1035,63 @@ public final class PowersGameTests {
 		helper.succeed();
 	}
 
+	@GameTest(maxTicks = 40)
+	@SuppressWarnings("removal")
+	public void shadowExplicitFeedbackIsOwnerLocalResettableAndCannotOverrideSafety(
+			GameTestHelper helper) {
+		ServerPlayer owner = helper.makeMockServerPlayerInLevel();
+		owner.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(2, 1, 2))));
+		owner.addTag(SkillSystem.DARKNESS_TAG);
+		owner.getInventory().add(PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		ServerPlayer other = helper.makeMockServerPlayerInLevel();
+		other.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(12, 1, 12))));
+
+		var learning = new com.powers.companion.combat.ShadowLearningState();
+		learning.rememberChoice("far:boss", "boss", "fireball");
+		com.powers.companion.ShadowCompanionStore.update(owner,
+				state -> state.withLearnedCombat(learning.encode()));
+		helper.assertTrue(PrivateCompanionManager.handleChat(owner, "shadow, good"),
+				"Explicit feedback was not consumed");
+		var learned = com.powers.companion.combat.ShadowLearningState.decode(
+				com.powers.companion.ShadowCompanionStore.get(owner).learnedCombat());
+		helper.assertTrue(learned.feedbackModifier("fireball") > 0.0
+				&& learned.rewardModifier("far:boss", "boss", "fireball") == 0.0,
+				"Explicit feedback leaked into the combat-reward profile");
+		helper.assertTrue(com.powers.companion.ShadowCompanionStore.get(other)
+				.learnedCombat().isEmpty(), "One owner's feedback leaked to another owner");
+
+		PrivateCompanionManager.handleChat(owner, "shadow, reveal yourself");
+		PrivateCompanionManager.tickPlayer(owner, 0);
+		ShadowCompanionEntity shadow = PrivateCompanionManager.body(owner.getUUID()).orElseThrow();
+		BlockPos amethyst = shadow.blockPosition().offset(1, -1, 0);
+		helper.getLevel().setBlock(amethyst, Blocks.AMETHYST_BLOCK.defaultBlockState(), 3);
+		com.powers.power.AmethystDampening.blockChanged(helper.getLevel(), amethyst,
+				Blocks.AMETHYST_BLOCK.defaultBlockState());
+		com.powers.companion.ShadowMagicState.tick(owner, shadow);
+		PowerTestActor target = helper.spawn(PowersEntities.POWER_TEST_ACTOR,
+				new BlockPos(2, 1, 7));
+		int energyBefore = shadow.energy();
+		var result = com.powers.companion.combat.ShadowPowerExecutor.execute(
+				helper.getLevel(), shadow, target,
+				com.powers.companion.combat.ShadowPowerCatalogue.find("fireball"),
+				new com.powers.companion.combat.ShadowPowerExecutor.ExecutionContext(
+						owner, false, helper.getLevel().getServer().getTickCount()));
+		helper.assertTrue(!result.success() && result.reason().equals("amethyst_suppressed")
+				&& shadow.energy() == energyBefore,
+				"Owner praise overrode the hard amethyst safety gate");
+
+		PrivateCompanionManager.handleChat(owner, "shadow, reset what you learned");
+		var reset = com.powers.companion.combat.ShadowLearningState.decode(
+				com.powers.companion.ShadowCompanionStore.get(owner).learnedCombat());
+		helper.assertTrue(reset.feedbackActionCount() == 0 && reset.contextCount() == 0
+				&& !reset.hasRememberedChoice(), "Owner reset retained learned combat state");
+		helper.getLevel().setBlock(amethyst, Blocks.AIR.defaultBlockState(), 3);
+		com.powers.power.AmethystDampening.blockChanged(helper.getLevel(), amethyst,
+				Blocks.AIR.defaultBlockState());
+		PrivateCompanionManager.handleChat(owner, "shadow, leave me");
+		helper.succeed();
+	}
+
 	@GameTest
 	@SuppressWarnings("removal")
 	public void crossingEnergyAndVoidRaysCreatePhysicalConsequences(GameTestHelper helper) {

@@ -11,6 +11,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.player.SkillSystem;
 import com.powers.companion.combat.ShadowPowerRuntime;
 import com.powers.companion.combat.ShadowCombatController;
+import com.powers.companion.combat.ShadowLearningState;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -377,6 +378,15 @@ public final class PrivateCompanionManager {
 	public static void resetLearning(ServerPlayer owner) {
 		ShadowCompanionStore.update(owner, state -> state.withLearnedCombat(""));
 		body(owner.getUUID()).ifPresent(shadow -> ShadowCombatController.clearBody(shadow.getUUID()));
+	}
+
+	public static boolean applyFeedback(ServerPlayer owner, boolean positive) {
+		ShadowLearningState learning = ShadowLearningState.decode(
+				ShadowCompanionStore.get(owner).learnedCombat());
+		if (!learning.applyExplicitFeedback(positive)) return false;
+		ShadowCompanionStore.update(owner, state -> state.withLearnedCombat(learning.encode()));
+		body(owner.getUUID()).ifPresent(shadow -> ShadowCombatController.clearBody(shadow.getUUID()));
+		return true;
 	}
 
 	public static ShadowDiagnostics diagnostics() {
