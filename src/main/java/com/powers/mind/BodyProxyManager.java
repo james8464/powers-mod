@@ -344,6 +344,8 @@ public final class BodyProxyManager {
 		if (active != null) {
 			MindscapeMobReturnTracker.returnOwned(player.level().getServer(), player.getUUID());
 			BY_BODY.remove(active.body().getUUID());
+			com.powers.power.abilities.LocalBodyAnchorRegistry.global()
+					.remove(active.body().getUUID());
 			BodyProxyPackets.remove(active.body());
 			PhysicalMagicPresences.unload(active.body());
 			active.body().discard();
@@ -386,6 +388,7 @@ public final class BodyProxyManager {
 		}
 		for (Active active : new ArrayList<>(BY_OWNER.values())) finishStale(active);
 		BY_BODY.clear();
+		com.powers.power.abilities.LocalBodyAnchorRegistry.global().clear();
 	}
 
 	/** Number of vulnerable mind-body anchors and their one-chunk tickets. */
@@ -397,6 +400,8 @@ public final class BodyProxyManager {
 		if (!BY_OWNER.remove(active.ownerId(), active)) return;
 		MindscapeMobReturnTracker.returnOwned(active.level().getServer(), active.ownerId());
 		BY_BODY.remove(active.body().getUUID());
+		com.powers.power.abilities.LocalBodyAnchorRegistry.global()
+				.remove(active.body().getUUID());
 		BodyProxyPackets.remove(active.body());
 		PhysicalMagicPresences.unload(active.body());
 		active.body().discard();

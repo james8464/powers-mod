@@ -133,6 +133,7 @@ public final class PowerAbilityRuntime {
 		com.powers.mind.MindSessionManager.clear();
 		com.powers.testing.TestingOverrides.clearAll();
 		com.powers.entity.TestActorPowerState.clearAll();
+		com.powers.power.abilities.LocalBodyAnchorRegistry.global().clear();
 		TeleportAbility.clearAllMarking(server);
 		TeleportAbility.clearAllStorms(server);
 		TimeFreezeToggleAbility.clearAll(server);
