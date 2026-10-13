@@ -12,4 +12,20 @@ public final class CrystalSizeShiftRules {
 	public static double modifierFor(double scale) {
 		return Math.clamp(scale, SMALL_SCALE, GIANT_SCALE) - 1.0;
 	}
+
+	public static double nextScale(int lastSize) {
+		return lastSize == 1 ? GIANT_SCALE : SMALL_SCALE;
+	}
+
+	public static boolean mayActivate(boolean passenger) {
+		return !passenger;
+	}
+
+	public static double shockwaveRadius(double scale) {
+		return scale >= GIANT_SCALE ? 6.0 : 2.0;
+	}
+
+	public static float comfortPitch(double scale) {
+		return scale >= GIANT_SCALE ? 0.55F : 1.35F;
+	}
 }
