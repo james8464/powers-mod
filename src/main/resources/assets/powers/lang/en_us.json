@@ -955,6 +955,8 @@
 	"spell.powers.blood_reading.vitals": "%s — %s/%s health (%s%%).",
 	"spell.powers.blood_reading.warding": "Armour: %s. Alignment: %s.",
 	"spell.powers.blood_reading.effects": "Active effects: %s.",
+	"spell.powers.blood_reading.trend": "Recent 30s: %s damage, %s healing — %s.",
+	"spell.powers.blood_reading.vulnerability": "Force ward: %s. Amethyst response: %s.",
 	"spell.powers.grave_recall.none": "No death memory has been written for you yet.",
 	"spell.powers.grave_recall.dimension": "Last death dimension: %s",
 	"spell.powers.grave_recall.coordinates": "Last death coordinates: %s, %s, %s",

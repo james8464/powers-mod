@@ -18,6 +18,7 @@ import com.powers.player.PlayerPowers;
 import com.powers.player.SkillQuestTracker;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellCastingManager;
+import com.powers.spell.BloodReadingHistoryService;
 import com.powers.entity.PlayerLikeTarget;
 import com.powers.entity.TestActorPowerState;
 import com.powers.companion.PrivateCompanionManager;
@@ -56,6 +57,7 @@ final class PowerCombatEvents {
 			BodyProxyManager.afterDamage(entity, source, damageTaken);
 			if (damageTaken <= 0) return;
 			BrittleArmorManager.breakWithFire(entity, source.is(DamageTypeTags.IS_FIRE));
+			BloodReadingHistoryService.recordDamage(entity, damageTaken);
 			ArtifactCovenantManager.shareDamage(entity, source, damageTaken);
 			SpellCastingManager.markDamaged(entity);
 			EnergyDrainAbility.markDamaged(entity);
@@ -72,6 +74,7 @@ final class PowerCombatEvents {
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
 			BrittleArmorManager.clear(entity);
+			BloodReadingHistoryService.clear(entity);
 			PrivateCompanionManager.afterDeath(entity);
 			MindscapeMobReturnTracker.forget(entity);
 			MindSessionManager.participantUnavailable(BodyProxyManager.mindIdentity(entity));
