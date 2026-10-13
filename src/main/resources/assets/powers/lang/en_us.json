@@ -819,6 +819,8 @@
 	"ability.powers.astral_ended.1": "Your spirit returns to its vessel.",
 	"ability.powers.astral_ended.2": "Your astral form dissolves as you reunite with your body.",
 	"ability.powers.astral_ended.3": "The projection fades — you are whole once more.",
+	"ability.powers.astral_return.same": "Body · %3$s · %1$s · %2$s blocks",
+	"ability.powers.astral_return.other": "Body · %s · another realm",
 	"amethyst.powers.suppressed.1": "The amethyst rejects you! Its cold shards strike your spirit.",
 	"amethyst.powers.suppressed.2": "Amethyst fury — your power is torn away before it can take shape!",
 	"amethyst.powers.suppressed.3": "The amethyst's judgement falls! Pain sparks through you as it smothers your power.",

@@ -88,6 +88,14 @@ public class AstralProjectionAbility extends Ability {
 		return ACTIVE.containsKey(player);
 	}
 
+	/** Owner-local, coordinate-free return facts; this performs no world or chunk lookup. */
+	public static AstralReturnIndicator.Cue returnIndicatorFor(ServerPlayer player) {
+		Projection projection = player == null ? null : ACTIVE.get(player.getUUID());
+		if (projection == null) return null;
+		return AstralReturnIndicator.resolve(projection.dimension().identifier().toString(),
+				projection.origin(), player.level().dimension().identifier().toString(), player.position());
+	}
+
 	public static void tickAll(MinecraftServer server) {
 		long now = server.getTickCount();
 		for (var it = ACTIVE.entrySet().iterator(); it.hasNext();) {
@@ -128,6 +136,12 @@ public class AstralProjectionAbility extends Ability {
 				PowerFx.rune(activeLevel, player.position().add(0, 0.5, 0), 1.0, 0x7C4DFF, 16, now * 0.1);
 				PowerFx.burst(activeLevel, player.position().add(0, 1, 0),
 						ParticleTypes.SOUL_FIRE_FLAME, 2, 0.35, 0.01);
+			}
+			if (now % 20 == 0) {
+				PowerMessages.overlay(player, AstralReturnIndicator.message(
+						AstralReturnIndicator.resolve(projection.dimension().identifier().toString(),
+								projection.origin(), player.level().dimension().identifier().toString(),
+								player.position())));
 			}
 		}
 	}
