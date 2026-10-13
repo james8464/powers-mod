@@ -3,6 +3,7 @@ package com.powers.power;
 import com.powers.magic.runtime.MagicRayCollisionRuntime;
 import com.powers.power.abilities.AstralProjectionAbility;
 import com.powers.power.abilities.BreezyBashAbility;
+import com.powers.power.abilities.BrittleArmorManager;
 import com.powers.power.abilities.EnergyBeamAbility;
 import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.power.abilities.ForcefieldAbility;
@@ -122,6 +123,7 @@ public final class PowerAbilityRuntime {
 		MagicRayCollisionRuntime.clear(owner);
 		EnergyDrainAbility.clear(owner);
 		com.powers.mind.MindSessionManager.participantUnavailable(owner);
+		BrittleArmorManager.clear(player);
 	}
 
 	/** Global clock ownership cannot survive a player-entity or connection replacement. */
@@ -162,11 +164,13 @@ public final class PowerAbilityRuntime {
 		EnergyBeamAbility.clearAll();
 		VoidBeamAbility.clearAll();
 		MagicRayCollisionRuntime.clearAll();
+		BrittleArmorManager.clearAll(server);
 	}
 
 	/** Advances every ability with persistent server-owned state exactly once per tick. */
 	public static void tick(MinecraftServer server) {
 		GlobalTimeStopManager.tick(server);
+		BrittleArmorManager.tick(server);
 		MagicRayCollisionRuntime.tick(server.getTickCount());
 		VesselPossessionAbility.tickAll(server);
 		AstralProjectionAbility.tickAll(server);
