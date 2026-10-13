@@ -85,9 +85,13 @@ public final class MagicParticipants {
 		return new MagicParticipant() {
 			@Override public java.util.UUID id() { return actor.getUUID(); }
 			@Override public LivingEntity entity() { return actor; }
-			@Override public Alignment alignment() { return Alignment.NEUTRAL; }
+			@Override public Alignment alignment() {
+				return actor.profile().alignment() == com.powers.item.artifact.ArtifactAlignment.DARKNESS
+						? Alignment.DARKNESS : Alignment.RADIANT;
+			}
 			@Override public MagicConsentAuthority consentAuthority() {
-				return MagicConsentAuthority.ALWAYS_ALLOW_TESTS;
+				return actor.profile().consents() ? MagicConsentAuthority.ALWAYS_ALLOW_TESTS
+						: MagicConsentAuthority.NONE;
 			}
 			@Override public int energy() { return TestActorPowerState.energy(actor.getUUID()); }
 			@Override public int capacity() { return TestActorPowerState.ENERGY_CAPACITY; }

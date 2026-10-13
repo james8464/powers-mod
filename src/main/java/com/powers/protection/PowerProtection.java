@@ -99,8 +99,8 @@ public final class PowerProtection {
 				(ServerLevel) target.level(), target.blockPosition())) return false;
 		var participant = MagicParticipants.resolve(target);
 		boolean consent = participant.isEmpty()
-				|| participant.get().consentAuthority() == MagicConsentAuthority.ALWAYS_ALLOW_TESTS
-				|| participant.get().consentOwner().map(owner -> mayForceMove(caster, owner)).orElse(true);
+				|| participant.get().consentAuthority().permitsAutomatedTarget()
+				|| participant.get().consentOwner().map(owner -> mayForceMove(caster, owner)).orElse(false);
 		return consent && controlAllowed(caster, target);
 	}
 
@@ -166,12 +166,11 @@ public final class PowerProtection {
 				|| !adaptersAllow(ProtectionAction.OBSERVE, caster, target,
 						level, target.blockPosition())) return false;
 		var participant = MagicParticipants.resolve(target);
-		if (participant.isEmpty()
-				|| participant.get().consentAuthority() == MagicConsentAuthority.ALWAYS_ALLOW_TESTS) {
+		if (participant.isEmpty() || participant.get().consentAuthority().permitsAutomatedTarget()) {
 			return true;
 		}
 		return participant.get().consentOwner()
-				.map(owner -> owner == caster || mayLocate(caster, owner)).orElse(true);
+				.map(owner -> owner == caster || mayLocate(caster, owner)).orElse(false);
 	}
 
 	public static boolean mayBringCompanion(ServerPlayer caster, ServerPlayer target) {
@@ -202,9 +201,8 @@ public final class PowerProtection {
 				|| !adaptersAllow(ProtectionAction.OBSERVE, caster, target,
 						level, target.blockPosition())) return false;
 		var participant = MagicParticipants.resolve(target);
-		if (participant.isEmpty()
-				|| participant.get().consentAuthority() == MagicConsentAuthority.ALWAYS_ALLOW_TESTS) return true;
-		return participant.get().consentOwner().map(owner -> mayDreamwalk(caster, owner)).orElse(true);
+		if (participant.isEmpty() || participant.get().consentAuthority().permitsAutomatedTarget()) return true;
+		return participant.get().consentOwner().map(owner -> mayDreamwalk(caster, owner)).orElse(false);
 	}
 
 	public static boolean mayPossess(ServerPlayer caster, ServerPlayer target) {
@@ -227,8 +225,8 @@ public final class PowerProtection {
 				(ServerLevel) target.level(), target.blockPosition())) return false;
 		var participant = MagicParticipants.resolve(target);
 		boolean consent = participant.isEmpty()
-				|| participant.get().consentAuthority() == MagicConsentAuthority.ALWAYS_ALLOW_TESTS
-				|| participant.get().consentOwner().map(owner -> mayPossess(caster, owner)).orElse(true);
+				|| participant.get().consentAuthority().permitsAutomatedTarget()
+				|| participant.get().consentOwner().map(owner -> mayPossess(caster, owner)).orElse(false);
 		return consent && controlAllowed(caster, target);
 	}
 }

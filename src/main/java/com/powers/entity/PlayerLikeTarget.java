@@ -13,7 +13,7 @@ public interface PlayerLikeTarget {
 	}
 
 	static boolean alwaysConsents(Object target) {
-		return target instanceof PowerTestActor;
+		return target instanceof PowerTestActor actor && actor.profile().consents();
 	}
 
 	static String username(LivingEntity target) {
