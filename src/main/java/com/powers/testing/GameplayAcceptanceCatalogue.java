@@ -75,6 +75,9 @@ public final class GameplayAcceptanceCatalogue {
 				"PowersGameTests#soulstoneReservoirPaysEnergyShortfallsAtomically"));
 		entries.add(system("celestial_ruin", Proof.LIVE_BEHAVIOR,
 				"PowersGameTests#celestialRuinOverwhelmsTheFirstVesselsLayeredVitality"));
+		entries.add(system("boss_response_matrix", Proof.LIVE_BEHAVIOR,
+				"BossActionResponseMatrixGameTests#everyPlayerActionHasALiveBossResponseContract ("
+						+ BossActionResponseMatrix.generated().size() + " generated entries)"));
 		entries.add(system("magic_collisions", Proof.UNIT_RULES,
 				"MagicInteractionResolverTest exhaustive 2,080-pair matrix"));
 		entries.add(system("multiplayer_soak", Proof.SOAK, "SyntheticMultiplayerSoakTest"));
