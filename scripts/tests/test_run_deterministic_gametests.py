@@ -49,8 +49,8 @@ class DeterministicGameTestRunnerTest(unittest.TestCase):
                 "powers-gametest:alpha_game_tests_zebra_case",
             ], RUNNER.discover_test_ids(root))
 
-    def test_repository_inventory_matches_the_registered_222_server_tests(self):
-        self.assertEqual(222, len(RUNNER.discover_test_ids(ROOT)))
+    def test_repository_inventory_matches_the_registered_226_server_tests(self):
+        self.assertEqual(226, len(RUNNER.discover_test_ids(ROOT)))
 
     def test_identifier_conversion_matches_fabric_lower_to_upper_boundaries(self):
         self.assertEqual("p1acceptance_game_tests",

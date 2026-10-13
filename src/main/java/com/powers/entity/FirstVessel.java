@@ -26,7 +26,6 @@ import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
 import com.powers.util.BoundedEntityCandidates;
-import com.powers.util.PowerMessages;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
@@ -49,7 +48,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import net.minecraft.world.phys.AABB;
 
 /**
@@ -78,6 +76,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 	private long lastBossReactionAt = Long.MIN_VALUE;
 
 	private FirstVesselPowerAction pendingAction;
+	private final FirstVesselMelee melee = new FirstVesselMelee();
 	private String pendingTechnique;
 	private int pendingCastAt;
 	public FirstVessel(EntityType<? extends Monster> type, Level level) {
@@ -133,9 +132,17 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 	}
 
 	@Override
+	public boolean doHurtTarget(ServerLevel level, net.minecraft.world.entity.Entity target) {
+		return melee.ready(this, target, level, bossEvent, phase.name(),
+				pendingAction != null || pendingTechnique != null || reconstitutionTicks > 0)
+				&& super.doHurtTarget(level, target);
+	}
+
+	@Override
 	protected void customServerAiStep(ServerLevel level) {
 		super.customServerAiStep(level);
 		updateBossState(level);
+		if (melee.blocksPlanning(this, bossEvent, phase.name())) return;
 		if (pendingAction != null || pendingTechnique != null) {
 			if (tickCount < pendingCastAt) return;
 			if (pendingTechnique != null) {
