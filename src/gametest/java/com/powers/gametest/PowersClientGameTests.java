@@ -98,6 +98,16 @@ public final class PowersClientGameTests implements FabricClientGameTest {
 			}
 			return;
 		}
+		if (Boolean.getBoolean("powers.cry003.clientOnly")) {
+			try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
+				context.waitFor(client -> client.player != null && client.level != null);
+				List<String> modes = CrystalAbilityCatalog.defaults().get("rainbow_crystal");
+				capture(context, "powers-crystal-discovery-unknown",
+						() -> new RainbowConvergenceScreen(0L, modes,
+								List.of(modes.getFirst()), 0), RainbowConvergenceScreen.class);
+			}
+			return;
+		}
 		if (Boolean.getBoolean("powers.vfx006.clientOnly")) {
 			TestWorldSave worldSave;
 			CastingPoseClientAcceptance.ReconnectSeed reconnect;

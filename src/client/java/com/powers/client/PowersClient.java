@@ -205,7 +205,7 @@ public class PowersClient implements ClientModInitializer {
 				(payload, context) -> context.client().execute(() -> {
 					if (!ClientActionRegistry.accept(payload.revision())) return;
 					Minecraft.getInstance().gui.setScreen(new RainbowConvergenceScreen(
-							payload.revision(), payload.modes(), payload.selected()));
+							payload.revision(), payload.modes(), payload.discovered(), payload.selected()));
 				}));
 		ClientPlayNetworking.registerGlobalReceiver(CelestialRuinPackets.Payload.TYPE,
 				(payload, context) -> context.client().execute(() -> ClientCelestialRuinFx.handle(payload)));

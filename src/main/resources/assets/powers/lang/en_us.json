@@ -1127,6 +1127,7 @@
 	"screen.powers.artifact.release_cast.off": "Artifact release-to-cast disabled",
 	"screen.powers.crystal_selector.title": "Sevenfold Convergence",
 	"screen.powers.crystal_selector.hint": "Choose with mouse, Tab/Enter, or keys 1–7",
+	"screen.powers.crystal_selector.unknown": "%s. Unknown attunement",
 	"subtitles.powers.rune_hum": "Runes hum",
 	"subtitles.powers.crystal_resonate": "Crystal resonates",
 	"subtitles.powers.amethyst_fracture": "Amethyst fractures",

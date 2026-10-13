@@ -3,6 +3,7 @@ package com.powers.power.crystals;
 import com.powers.cooldown.CooldownPresentation;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
+import com.powers.player.CrystalDiscoveryStore;
 import com.powers.power.Ability;
 import com.powers.power.ActivationCooldowns;
 import com.powers.util.PowerMessages;
@@ -58,6 +59,7 @@ public final class ModeCrystalAbility extends Ability {
 			}
 			int nextIndex = CrystalModeState.advance(
 					PlayerPowers.get(player).selectedCrystalMode(crystalPath, modeIds()), modes.size());
+			CrystalDiscoveryStore.initializeSelection(player, crystalPath, modeIds());
 			PlayerPowers.get(player).setSelectedCrystalMode(crystalPath, nextIndex);
 			PlayerPowers.get(player).setSelectedCrystalModeKey(crystalPath, modes.get(nextIndex).id().getPath());
 			Ability next = modes.get(nextIndex);
@@ -75,6 +77,7 @@ public final class ModeCrystalAbility extends Ability {
 		}
 		boolean activated = selected.activate(player, data);
 		if (activated) {
+			CrystalDiscoveryStore.discover(player, crystalPath, modeIds(), selected.id().getPath());
 			ActivationCooldowns.start(player, selected, selected.cooldownTicksFor(player, data));
 		}
 		return activated;
@@ -105,8 +108,13 @@ public final class ModeCrystalAbility extends Ability {
 		return PlayerPowers.get(player).selectedCrystalMode(crystalPath, modeIds());
 	}
 
+	public List<String> discoveredModes(ServerPlayer player) {
+		return CrystalDiscoveryStore.read(player, crystalPath, modeIds());
+	}
+
 	public boolean selectMode(ServerPlayer player, int selected) {
 		if (!CrystalSelectorRules.validSelection(modes.size(), selected)) return false;
+		CrystalDiscoveryStore.initializeSelection(player, crystalPath, modeIds());
 		PlayerPowers.get(player).setSelectedCrystalMode(crystalPath, selected);
 		PlayerPowers.get(player).setSelectedCrystalModeKey(crystalPath, modes.get(selected).id().getPath());
 		PowerMessages.overlay(player, Component.translatable(
