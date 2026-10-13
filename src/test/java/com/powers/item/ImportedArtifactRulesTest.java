@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ImportedArtifactRulesTest {
 	@Test
@@ -114,5 +116,41 @@ class ImportedArtifactRulesTest {
 		assertEquals(school, profile.school());
 		assertEquals(effect, profile.effect());
 		assertEquals(magnitude, profile.magnitude());
+	}
+
+	@Test
+	void heartEatingHonorsExplicitAlignmentWithoutLockingClockwork() {
+		assertTrue(ImportedArtifactRules.mayEatHeart(
+				ImportedArtifactRules.HeartSpecialization.LIVING, false));
+		assertFalse(ImportedArtifactRules.mayEatHeart(
+				ImportedArtifactRules.HeartSpecialization.LIVING, true));
+		assertTrue(ImportedArtifactRules.mayEatHeart(
+				ImportedArtifactRules.HeartSpecialization.GHOUL, true));
+		assertFalse(ImportedArtifactRules.mayEatHeart(
+				ImportedArtifactRules.HeartSpecialization.BLOOD_WARD, false));
+		assertTrue(ImportedArtifactRules.mayEatHeart(
+				ImportedArtifactRules.HeartSpecialization.CLOCKWORK, false));
+		assertTrue(ImportedArtifactRules.mayEatHeart(
+				ImportedArtifactRules.HeartSpecialization.CLOCKWORK, true));
+	}
+
+	@Test
+	void onlyOneDeterministicStrongestHeartCanOwnThePassive() {
+		assertEquals(ImportedArtifactRules.HeartSpecialization.BLOOD_WARD,
+				ImportedArtifactRules.strongestHeart(List.of(
+						ImportedArtifactRules.HeartSpecialization.LIVING,
+						ImportedArtifactRules.HeartSpecialization.CLOCKWORK,
+						ImportedArtifactRules.HeartSpecialization.BLOOD_WARD,
+						ImportedArtifactRules.HeartSpecialization.GHOUL)));
+		assertEquals(ImportedArtifactRules.HeartSpecialization.WILDWOOD,
+				ImportedArtifactRules.strongestHeart(List.of(
+						ImportedArtifactRules.HeartSpecialization.WILDWOOD,
+						ImportedArtifactRules.HeartSpecialization.LIVING)));
+		assertEquals(ImportedArtifactRules.HeartSpecialization.NONE,
+				ImportedArtifactRules.strongestHeart(List.of()));
+		assertEquals(1, ImportedArtifactRules.heartTier(
+				ImportedArtifactRules.HeartSpecialization.LIVING));
+		assertEquals(5, ImportedArtifactRules.heartTier(
+				ImportedArtifactRules.HeartSpecialization.BLOOD_WARD));
 	}
 }

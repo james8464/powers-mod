@@ -58,7 +58,9 @@ public final class LootInjectionCatalog {
 						"imported_food_sausage_raw"),
 				group("minecraft:entities/salmon", 0.45f, "imported_food_salmon_fillet_raw"),
 				group("minecraft:entities/slime", 0.15f, "imported_food_muckroot"),
-				group("minecraft:entities/villager", 0.65f, "imported_artifact_beating_heart", "imported_food_tomato",
+				// Every villager yields one heart. Produce remains an independent optional pool.
+				group("minecraft:entities/villager", 1.0f, "imported_artifact_beating_heart"),
+				group("minecraft:entities/villager", 0.65f, "imported_food_tomato",
 						"imported_food_lettuce", "imported_food_cabbage", "imported_food_onion", "imported_food_garlic",
 						"imported_food_leek", "imported_food_radish", "imported_food_spinach", "imported_food_pepper",
 						"imported_food_beet", "imported_food_beans", "imported_food_chickpeas", "imported_food_lentils",

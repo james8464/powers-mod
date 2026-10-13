@@ -27,6 +27,7 @@
 			,"com.powers.gametest.VfxGalleryGameTests"
 			,"com.powers.gametest.CastingPoseGameTests"
 			,"com.powers.gametest.LayeredAudioGameTests"
+			,"com.powers.gametest.HeartRelicGameTests"
 			,"com.powers.gametest.TemporalOwnershipGameTests"
 			,"com.powers.gametest.TemporalProjectileGameTests"
 			,"com.powers.gametest.TemporalShadowGameTests"

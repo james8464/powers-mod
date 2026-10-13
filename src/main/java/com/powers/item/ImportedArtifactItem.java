@@ -47,6 +47,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -72,6 +73,20 @@ public final class ImportedArtifactItem extends Item {
 	@Override
 	public InteractionResult use(Level level, net.minecraft.world.entity.player.Player user,
 			InteractionHand hand) {
+		if (kind == ImportedArtifactKind.HEART_RELIC) {
+			if (level.isClientSide()) return super.use(level, user, hand);
+			if (!(user instanceof ServerPlayer player) || !MagicUseGate.passes(player, true)) {
+				return InteractionResult.FAIL;
+			}
+			ImportedArtifactRules.HeartSpecialization specialization =
+					ImportedArtifactRules.heartSpecialization(texture);
+			if (!ImportedArtifactRules.mayEatHeart(specialization,
+					PlayerPowers.get(player).isDarknessUser())) {
+				explain(player, "item.powers.relic.heart_alignment");
+				return InteractionResult.FAIL;
+			}
+			return super.use(level, user, hand);
+		}
 		if (level.isClientSide() || !(user instanceof ServerPlayer player)) {
 			return InteractionResult.SUCCESS;
 		}
@@ -83,7 +98,7 @@ public final class ImportedArtifactItem extends Item {
 			case ATTUNEMENT -> recharge(player, 24, 0xE6CF7B);
 			case ENERGY_RESERVOIR -> RelicPackets.openReservoir(player, stack);
 			case RITUAL_CATALYST -> primeRitual(player);
-			case HEART_RELIC -> awakenHeart(player);
+			case HEART_RELIC -> false;
 			case TRAVEL_RELIC -> texture.equals("device_miniportal")
 					? openMiniportal(player, stack) : explain(player, "item.powers.relic.bind_first");
 			case COMMAND_RELIC -> commandGuardians(player);
@@ -96,6 +111,35 @@ public final class ImportedArtifactItem extends Item {
 			player.getCooldowns().addCooldown(stack, USE_COOLDOWN_TICKS);
 		}
 		return InteractionResult.SUCCESS;
+	}
+
+	@Override
+	public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity user) {
+		if (kind != ImportedArtifactKind.HEART_RELIC) {
+			return super.finishUsingItem(stack, level, user);
+		}
+		if (!level.isClientSide() && user instanceof ServerPlayer player) {
+			ImportedArtifactRules.HeartSpecialization specialization =
+					ImportedArtifactRules.heartSpecialization(texture);
+			if (!ImportedArtifactRules.mayEatHeart(specialization,
+					PlayerPowers.get(player).isDarknessUser())) return stack;
+			awakenHeart(player);
+		}
+		return super.finishUsingItem(stack, level, user);
+	}
+
+	@Override
+	@SuppressWarnings("deprecation") // Minecraft 26.2 still routes item-owned contextual tooltips here.
+	public void appendHoverText(ItemStack stack, TooltipContext context,
+			TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+		super.appendHoverText(stack, context, display, tooltip, flag);
+		if (kind != ImportedArtifactKind.HEART_RELIC) return;
+		String heart = ImportedArtifactRules.heartSpecialization(texture)
+				.name().toLowerCase(Locale.ROOT);
+		tooltip.accept(Component.translatable("tooltip.powers.heart." + heart)
+				.withStyle(ChatFormatting.GRAY));
+		tooltip.accept(Component.translatable("tooltip.powers.heart.policy")
+				.withStyle(ChatFormatting.DARK_GRAY));
 	}
 
 	@Override
@@ -180,7 +224,10 @@ public final class ImportedArtifactItem extends Item {
 		ImportedArtifactRules.HeartSpecialization specialization =
 				ImportedArtifactRules.heartSpecialization(texture);
 		if (specialization == ImportedArtifactRules.HeartSpecialization.BLOOD_WARD) {
-			return ArtifactDeathWardManager.arm(player, ArtifactAlignment.DARKNESS);
+			boolean armed = ArtifactDeathWardManager.arm(player, ArtifactAlignment.DARKNESS);
+			PowerFx.sound((ServerLevel) player.level(), player.position(),
+					SoundEvents.SCULK_CATALYST_BLOOM, 0.9F, 0.72F);
+			return armed;
 		}
 		if (specialization == ImportedArtifactRules.HeartSpecialization.CLOCKWORK) {
 			player.setAbsorptionAmount(Math.max(player.getAbsorptionAmount(), 8.0F));
@@ -188,6 +235,8 @@ public final class ImportedArtifactItem extends Item {
 					MobEffects.ABSORPTION, 20 * 60, 1, true, true));
 			PowerFx.rune((ServerLevel) player.level(), player.position(), 1.4,
 					0xB58C61, 20, 0.0);
+			PowerFx.sound((ServerLevel) player.level(), player.position(),
+					SoundEvents.COPPER_BULB_TURN_ON, 0.9F, 0.8F);
 			return true;
 		}
 		float before = player.getHealth();
@@ -200,6 +249,12 @@ public final class ImportedArtifactItem extends Item {
 		PowerFx.coloredBurst((ServerLevel) player.level(), player.position().add(0.0, 1.0, 0.0),
 				specialization == ImportedArtifactRules.HeartSpecialization.GHOUL
 						? 0x743551 : 0xB43A4C, 16, 0.5);
+		PowerFx.sound((ServerLevel) player.level(), player.position(),
+				specialization == ImportedArtifactRules.HeartSpecialization.WILDWOOD
+						? SoundEvents.CREAKING_HEART_IDLE
+						: specialization == ImportedArtifactRules.HeartSpecialization.GHOUL
+								? SoundEvents.ZOMBIE_HORSE_EAT : SoundEvents.WARDEN_HEARTBEAT,
+				0.9F, specialization == ImportedArtifactRules.HeartSpecialization.GHOUL ? 0.7F : 1.0F);
 		return player.getHealth() > before
 				|| specialization == ImportedArtifactRules.HeartSpecialization.GHOUL;
 	}

@@ -19,20 +19,19 @@ public final class ImportedArtifactRuntime {
 	public static void tickPlayer(ServerPlayer player, int tick) {
 		if (tick % 20 != 0) return;
 		List<String> attunementTextures = new ArrayList<>();
-		boolean livingHeart = false;
-		boolean ghoulHeart = false;
-		boolean clockworkHeart = false;
+		ImportedArtifactRules.HeartSpecialization strongestHeart =
+				ImportedArtifactRules.HeartSpecialization.NONE;
 		boolean celestialFocus = false;
 		for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
 			if (!(stack.getItem() instanceof ImportedArtifactItem relic)) continue;
 			switch (relic.kind()) {
 				case ATTUNEMENT -> attunementTextures.add(relic.texture());
 				case HEART_RELIC -> {
-					switch (ImportedArtifactRules.heartSpecialization(relic.texture())) {
-						case LIVING, WILDWOOD -> livingHeart = true;
-						case GHOUL -> ghoulHeart = true;
-						case CLOCKWORK -> clockworkHeart = true;
-						default -> { }
+					ImportedArtifactRules.HeartSpecialization candidate =
+							ImportedArtifactRules.heartSpecialization(relic.texture());
+					if (ImportedArtifactRules.heartTier(candidate)
+							> ImportedArtifactRules.heartTier(strongestHeart)) {
+						strongestHeart = candidate;
 					}
 				}
 				default -> { }
@@ -45,7 +44,8 @@ public final class ImportedArtifactRuntime {
 		int attunementEnergy = ImportedArtifactRules.attunementEnergy(attunements,
 				ImportedArtifactRules.lowEnergy(powers.energy(), powers.energyCapacity()), player.isUsingItem());
 		int energy = ImportedArtifactRules.cappedPassiveEnergy(
-				attunementEnergy, celestialFocus, ghoulHeart);
+				attunementEnergy, celestialFocus,
+				strongestHeart == ImportedArtifactRules.HeartSpecialization.GHOUL);
 		if (energy > 0 && powers.regenerateEnergy(energy)) PowersPackets.syncTo(player);
 		boolean wounded = ImportedArtifactRules.wounded(player.getHealth(), player.getMaxHealth());
 		ImportedArtifactRules.AttunementProfile warding = attunements.get(
@@ -56,9 +56,16 @@ public final class ImportedArtifactRuntime {
 				ImportedArtifactRules.AttunementSchool.VERDANCY);
 		if (wounded && verdancy != null) player.addEffect(PowerStatusEffects.hidden(
 				MobEffects.REGENERATION, 40, verdancy.magnitude() - 1, true, true));
-		if (livingHeart) player.addEffect(PowerStatusEffects.hidden(
-				MobEffects.REGENERATION, 40, 0, true, true));
-		if (clockworkHeart) player.addEffect(PowerStatusEffects.hidden(
-				MobEffects.ABSORPTION, 40, 0, true, true));
+		switch (strongestHeart) {
+			case LIVING -> player.addEffect(PowerStatusEffects.hidden(
+					MobEffects.REGENERATION, 40, 0, true, true));
+			case WILDWOOD -> player.addEffect(PowerStatusEffects.hidden(
+					MobEffects.REGENERATION, 40, 1, true, true));
+			case CLOCKWORK -> player.addEffect(PowerStatusEffects.hidden(
+					MobEffects.ABSORPTION, 40, 0, true, true));
+			case BLOOD_WARD -> player.addEffect(PowerStatusEffects.hidden(
+					MobEffects.RESISTANCE, 40, 0, true, true));
+			case GHOUL, NONE -> { }
+		}
 	}
 }
