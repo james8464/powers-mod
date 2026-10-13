@@ -51,6 +51,9 @@ final class LivingForceIndex {
 			int entries, int chunks, long estimatedBytes) {
 	}
 
+	record Sample(List<Long> positions, int inspectedEntries, boolean truncated) {
+	}
+
 	void add(long position, LivingForceKind kind) {
 		long chunk = ChunkPos.pack(BlockPos.getX(position) >> 4, BlockPos.getZ(position) >> 4);
 		ChunkBucket bucket = chunks.computeIfAbsent(chunk, ignored -> new ChunkBucket());
@@ -111,6 +114,48 @@ final class LivingForceIndex {
 		}
 		if (result.isEmpty()) misses++;
 		return List.copyOf(result);
+	}
+
+	/** Range sample bounded by both returned matches and every inspected typed entry. */
+	Sample sampleWithin(double x, double y, double z, double radius, LivingForceKind kind,
+			int resultLimit, int inspectionLimit) {
+		if (radius < 0.0 || !Double.isFinite(radius)
+				|| resultLimit <= 0 || inspectionLimit <= 0) {
+			return new Sample(List.of(), 0, false);
+		}
+		queries++;
+		int minChunkX = ((int) Math.floor(x - radius)) >> 4;
+		int maxChunkX = ((int) Math.floor(x + radius)) >> 4;
+		int minChunkZ = ((int) Math.floor(z - radius)) >> 4;
+		int maxChunkZ = ((int) Math.floor(z + radius)) >> 4;
+		double radiusSquared = radius * radius;
+		List<Long> result = new ArrayList<>();
+		int inspected = 0;
+		for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+			for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+				ChunkBucket bucket = chunks.get(ChunkPos.pack(chunkX, chunkZ));
+				if (bucket == null || !bucket.has(kind)) continue;
+				for (Map.Entry<Long, LivingForceKind> entry : bucket.entries.entrySet()) {
+					if (inspected >= inspectionLimit) {
+						return new Sample(List.copyOf(result), inspected, true);
+					}
+					inspected++;
+					candidates++;
+					if (entry.getValue() != kind) continue;
+					long position = entry.getKey();
+					double dx = BlockPos.getX(position) + 0.5 - x;
+					double dy = BlockPos.getY(position) + 0.5 - y;
+					double dz = BlockPos.getZ(position) + 0.5 - z;
+					if (dx * dx + dy * dy + dz * dz > radiusSquared) continue;
+					result.add(position);
+					if (result.size() >= resultLimit) {
+						return new Sample(List.copyOf(result), inspected, true);
+					}
+				}
+			}
+		}
+		if (result.isEmpty()) misses++;
+		return new Sample(List.copyOf(result), inspected, false);
 	}
 
 	/** Returns only loaded chunk buckets that contain the requested force. */

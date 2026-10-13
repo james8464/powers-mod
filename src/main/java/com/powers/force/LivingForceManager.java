@@ -428,7 +428,7 @@ public final class LivingForceManager {
 		PowerFx.darknessAura(level, center, true);
 	}
 
-	private static LivingForceIndex index(ServerLevel level) {
+	static LivingForceIndex index(ServerLevel level) {
 		return INDEXES.computeIfAbsent(level, ignored -> new LivingForceIndex());
 	}
 

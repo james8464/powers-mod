@@ -2406,7 +2406,22 @@ public final class PowersGameTests {
 	public void auguryCompletesAsAnUnrankedPracticalRitual(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
+		BlockPos loadedFront = origin.offset(4, 0, 0);
+		BlockPos unloadedUnknown = origin.offset(80, 0, 0);
 		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		helper.getLevel().setBlockAndUpdate(loadedFront, PowersBlocks.DARKNESS.defaultBlockState());
+		helper.assertFalse(com.powers.util.LoadedChunks.contains(helper.getLevel(), unloadedUnknown),
+				"Augury fixture unexpectedly began with its unknown horizon loaded");
+		var report = com.powers.spell.AuguryReport.create(helper.getLevel(), origin);
+		helper.assertTrue(report.darknessFront().observedFronts() >= 1
+				&& report.darknessFront().nearestDistanceBlocks() <= 4,
+				"Augury did not read the authoritative loaded Darkness frontier");
+		helper.assertTrue(report.ritualWindow().safety()
+				== com.powers.spell.AuguryReport.RitualSafety.LOADED_FRONT_HAZARD,
+				"Augury did not turn an observed loaded frontier into a ritual hazard");
+		helper.assertTrue(report.uncertainty()
+				== com.powers.spell.AuguryReport.Uncertainty.LOADED_CHUNKS_ONLY,
+				"Augury did not label its loaded-only uncertainty");
 		player.setItemInHand(InteractionHand.MAIN_HAND, com.powers.ImportedPackItems.item(
 				"imported_book_grimoire_celestial").getDefaultInstance());
 		var powers = com.powers.player.PlayerPowers.get(player);
@@ -2424,6 +2439,8 @@ public final class PowersGameTests {
 					"Augury did not commit its authored payment and cooldown");
 			helper.assertFalse(SpellCastingManager.isChanneling(player.getUUID()),
 					"Augury remained stuck in its ritual channel");
+			helper.assertFalse(com.powers.util.LoadedChunks.contains(helper.getLevel(), unloadedUnknown),
+					"Augury force-loaded its unknown forecast horizon");
 			helper.succeed();
 		});
 	}
