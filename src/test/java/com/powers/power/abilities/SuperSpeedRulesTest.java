@@ -37,6 +37,25 @@ class SuperSpeedRulesTest {
 	}
 
 	@Test
+	void pathAwareWakeLodPreservesTurnsAndThinsStraightRuns() {
+		assertEquals(3, SuperSpeedRules.wakeStride(1.0));
+		assertEquals(2, SuperSpeedRules.wakeStride(0.8));
+		assertEquals(1, SuperSpeedRules.wakeStride(0.2));
+		assertEquals(1, SuperSpeedRules.wakeStride(Double.NaN));
+		assertFalse(SuperSpeedRules.wakeDue(8, 3));
+		assertTrue(SuperSpeedRules.wakeDue(9, 3));
+		assertTrue(SuperSpeedRules.wakeDue(9, 1));
+		var straight = SuperSpeedRules.wakeDecision(Vec3.ZERO, new Vec3(1.0, 0.0, 0.0),
+				new Vec3(1.0, 0.0, 0.0), 8, 12.0);
+		assertFalse(straight.emit());
+		assertEquals(3, straight.stride());
+		var corner = SuperSpeedRules.wakeDecision(new Vec3(1.0, 0.0, 0.0),
+				new Vec3(1.0, 0.0, 1.0), new Vec3(1.0, 0.0, 0.0), 8, 12.0);
+		assertTrue(corner.emit());
+		assertEquals(1, corner.stride());
+	}
+
+	@Test
 	void secondStepReboundMovesBackFromTheCollision() {
 		assertEquals(new Vec3(0.0, 0.32, -0.85), SuperSpeedRules.rebound(
 				new Vec3(0.0, 0.0, 1.0), 0.85, 0.32));

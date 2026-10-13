@@ -53,6 +53,39 @@ public final class SuperSpeedRules {
 		return Math.min(MAX_TRAIL_SEGMENTS, (int) Math.ceil(distance * 2.0));
 	}
 
+	/** Selects sparse straight-path wakes while preserving bends and reversals every tick. */
+	public static int wakeStride(double directionSimilarity) {
+		if (!Double.isFinite(directionSimilarity) || directionSimilarity < 0.5) return 1;
+		return directionSimilarity < 0.92 ? 2 : 3;
+	}
+
+	/** Applies one bounded deterministic stride without depending on render frame rate. */
+	public static boolean wakeDue(int age, int stride) {
+		return age >= 0 && age % Math.clamp(stride, 1, 3) == 0;
+	}
+
+	/** Resolves one finite movement segment into a path-aware wake decision. */
+	public static WakeDecision wakeDecision(Vec3 from, Vec3 to, Vec3 previousMotion,
+			int age, double maximumDistance) {
+		if (!finite(from) || !finite(to) || !finite(previousMotion)) {
+			return new WakeDecision(false, 0, 1, Vec3.ZERO);
+		}
+		Vec3 movement = to.subtract(from);
+		double distanceSquared = movement.lengthSqr();
+		if (!trailAllowed(distanceSquared, maximumDistance)) {
+			return new WakeDecision(false, 0, 1, Vec3.ZERO);
+		}
+		double similarity = previousMotion.lengthSqr() > MIN_LENGTH_SQUARED
+				? previousMotion.normalize().dot(movement.normalize()) : Double.NaN;
+		int stride = wakeStride(similarity);
+		return new WakeDecision(wakeDue(age, stride),
+				trailSegments(Math.sqrt(distanceSquared)), stride, movement);
+	}
+
+	/** Immutable bounded result for one authoritative wake path step. */
+	public record WakeDecision(boolean emit, int segments, int stride, Vec3 movement) {
+	}
+
 	/** Produces one finite backward-and-upward Second Step after a collision. */
 	public static Vec3 rebound(Vec3 lookDirection, double backwardStrength,
 			double upwardStrength) {

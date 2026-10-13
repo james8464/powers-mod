@@ -7,6 +7,7 @@ import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
 import com.powers.magic.runtime.ServerCastLifecycle;
 import com.powers.mind.BodyProxyManager;
+import com.powers.network.SuperSpeedComfortPackets;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
 import com.powers.power.AmethystDampening;
@@ -103,6 +104,7 @@ public final class SuperSpeedAbility extends Ability {
 		removeOwnedModifier(player);
 		if (!applyOwnedModifier(player, overdrive, inWater)) return false;
 		ACTIVE.put(owner, overdrive);
+		SuperSpeedComfortPackets.send(player, true, duration);
 		player.fallDistance = 0.0F;
 		SuperSpeedFx.open(level, player.position(), duration, secondStep,
 				empoweredImpact, afterimage, ancientMastery);
@@ -187,10 +189,11 @@ public final class SuperSpeedAbility extends Ability {
 	private static void tickWake(ServerLevel level, ServerPlayer owner,
 			Overdrive overdrive, boolean inWater, int age) {
 		Vec3 current = owner.position();
-		double distanceSquared = overdrive.lastPosition.distanceToSqr(current);
-		if (!SuperSpeedRules.trailAllowed(distanceSquared, MAX_TRAIL_DISTANCE)) return;
-		int segments = SuperSpeedRules.trailSegments(Math.sqrt(distanceSquared));
-		SuperSpeedFx.wake(level, overdrive.lastPosition, current, segments, inWater,
+		SuperSpeedRules.WakeDecision wake = SuperSpeedRules.wakeDecision(
+				overdrive.lastPosition, current, overdrive.lastMotion, age, MAX_TRAIL_DISTANCE);
+		overdrive.lastMotion = wake.movement();
+		if (!wake.emit()) return;
+		SuperSpeedFx.wake(level, overdrive.lastPosition, current, wake.segments(), inWater,
 				age, overdrive.afterimage, overdrive.ancientMastery);
 	}
 
@@ -361,6 +364,7 @@ public final class SuperSpeedAbility extends Ability {
 	private static void finish(MinecraftServer server, Overdrive overdrive,
 			ServerPlayer player, boolean interrupted) {
 		if (player != null) {
+			SuperSpeedComfortPackets.send(player, false, 0);
 			removeOwnedModifier(player);
 			player.fallDistance = 0.0F;
 			if (player.isAlive()) {
@@ -417,6 +421,7 @@ public final class SuperSpeedAbility extends Ability {
 		private boolean pressureSpent;
 		private long lastCollisionAt = Long.MIN_VALUE / 2L;
 		private double appliedModifier = Double.NaN;
+		private Vec3 lastMotion = Vec3.ZERO;
 
 		private Overdrive(UUID owner, ResourceKey<Level> dimension, CastSource castSource, long startedAt,
 				long expiresAt, double potencyMultiplier, boolean secondStep,
