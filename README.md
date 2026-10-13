@@ -86,7 +86,7 @@ Random assignment guarantees one allegiance-exclusive option and never duplicate
 | Thunderclap | Wide boss-scale pressure cone with rank-scaled damage, stun, projectile deflection, protected fragile-terrain dust, and obstruction-gated cave echo. |
 | Speed Burst | Collision-predicted physical dash with afterimages and an ending shockwave; Motion rank can pay for one Second Step while the original cooldown remains. |
 | Telekinesis | Radially throws permitted living targets and reflects up to 16 hostile projectiles along aim. An empty release refunds energy and cooldown. |
-| Energy Beam | Four live-aim Sunfire beats with escalating scorch; water creates steam, advanced ranks add a protected flare or non-chaining forks, and beam intersections are physical. |
+| Energy Beam | Four discrete live-aim Sunfire damage beats with a fixed 20 Hz server visual refresh and temporary material-aware scorch beneath accepted hits; water creates steam, advanced ranks add a protected flare or non-chaining forks, and beam intersections are physical. |
 | Super Speed | Eight-second Chronal Overdrive using an owned movement modifier, restrained wakes, 35% strength in water, collision branches, memory slips, projectile curvature, and exact cleanup. |
 | Breezy Bash | Eighteen-tick two-stage Tempest Rite: bounded spherical capture, collision-safe lift/apex, independent slam revalidation, and safe Slow Falling release. |
 | Invisibility | Infinite owned toggle with amplifier 255, no vanilla particles or effect icon, continuous energy drain, and counter-magic/revelation without removing unrelated invisibility. |

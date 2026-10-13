@@ -33,6 +33,7 @@
 			,"com.powers.power.abilities.TemporalVoidScarGameTests"
 			,"com.powers.gametest.FlightGameTests"
 			,"com.powers.gametest.ThunderclapGameTests"
+			,"com.powers.gametest.EnergyBeamGameTests"
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests",

@@ -23,6 +23,8 @@ import com.powers.spell.SpellFieldManager;
 import com.powers.util.PowerMessages;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -130,7 +132,7 @@ public final class EnergyBeamAbility extends Ability {
 			}
 
 			boolean damageBeat = EnergyBeamRules.damageBeat(channel.startedAt, now);
-			if (!damageBeat && (age & 1L) != 0L) continue;
+			if (!EnergyBeamRules.visualFrame(channel.startedAt, now)) continue;
 			EnergyBeamRayResolver.RayResolution ray = EnergyBeamRayResolver.resolve(
 					level, owner, channel.range);
 			Vec3 origin = owner.getEyePosition();
@@ -138,11 +140,15 @@ public final class EnergyBeamAbility extends Ability {
 					owner.getUUID(), origin, ray.endpoint(), now);
 			EnergyBeamFx.ray(level, origin, collision.orElse(ray.endpoint()),
 					damageBeat, channel.ancientMastery);
+			channel.visualFrames++;
 			if (collision.isPresent()) {
 				resetStreak(channel);
 				continue;
 			}
-			if (damageBeat) resolveDamageBeat(level, owner, channel, ray);
+			if (damageBeat) {
+				channel.damageBeats++;
+				resolveDamageBeat(level, owner, channel, ray);
+			}
 		}
 	}
 
@@ -156,6 +162,17 @@ public final class EnergyBeamAbility extends Ability {
 		ACTIVE.clear();
 	}
 
+	/** Immutable live counters used by production-entrypoint acceptance tests. */
+	public static ChannelDiagnostics diagnosticsForTest(UUID owner) {
+		Channel channel = ACTIVE.get(owner);
+		return channel == null ? new ChannelDiagnostics(0, 0, 0)
+				: new ChannelDiagnostics(channel.visualFrames, channel.damageBeats,
+						channel.scorchRequests);
+	}
+
+	public record ChannelDiagnostics(int visualFrames, int damageBeats, int scorchRequests) {
+	}
+
 	private static void resolveDamageBeat(ServerLevel level, ServerPlayer caster,
 			Channel channel, EnergyBeamRayResolver.RayResolution ray) {
 		if (ray.counterplay() == EnergyBeamRules.Counterplay.WATER) {
@@ -166,8 +183,8 @@ public final class EnergyBeamAbility extends Ability {
 		if (ray.counterplay() == EnergyBeamRules.Counterplay.SURFACE) {
 			resetStreak(channel);
 			if (ray.surfaceSupport() != null && ray.surfaceFace() != null) {
-				VisualScarService.request(level, caster, ray.surfaceSupport(), ray.surfaceFace(),
-						VisualScarRules.Impact.BEAM, Long.hashCode(nowSeed(channel, ray.endpoint())));
+				requestScorch(level, caster, channel, ray.surfaceSupport(), ray.surfaceFace(),
+						ray.endpoint());
 			}
 			CombatTerrainImpact.rayScar(level, caster, caster.getEyePosition(),
 					ray.endpoint(), channel.terrainTier, 0xFFD166);
@@ -208,6 +225,8 @@ public final class EnergyBeamAbility extends Ability {
 		}
 		channel.lastTarget = ray.target().getUUID();
 		channel.streak = streak;
+		BlockPos scorchSupport = ray.target().blockPosition().below();
+		requestScorch(level, caster, channel, scorchSupport, Direction.UP, ray.endpoint());
 		ray.target().setRemainingFireTicks(Math.max(ray.target().getRemainingFireTicks(),
 				EnergyBeamRules.burnTicks(channel.baseBurnTicks, streak)));
 		EnergyBeamFx.impact(level, ray.endpoint(), streak);
@@ -223,6 +242,14 @@ public final class EnergyBeamAbility extends Ability {
 	private static long nowSeed(Channel channel, Vec3 point) {
 		return channel.startedAt ^ Double.doubleToLongBits(point.x)
 				^ Long.rotateLeft(Double.doubleToLongBits(point.z), 17);
+	}
+
+	private static void requestScorch(ServerLevel level, ServerPlayer caster, Channel channel,
+			BlockPos support, Direction face, Vec3 point) {
+		if (VisualScarService.request(level, caster, support, face,
+				VisualScarRules.Impact.BEAM, Long.hashCode(nowSeed(channel, point)))) {
+			channel.scorchRequests++;
+		}
 	}
 
 	private static void steamPulse(ServerLevel level, ServerPlayer caster,
@@ -342,6 +369,9 @@ public final class EnergyBeamAbility extends Ability {
 		private UUID lastTarget;
 		private int streak;
 		private boolean flared;
+		private int visualFrames;
+		private int damageBeats;
+		private int scorchRequests;
 
 		private Channel(ResourceKey<Level> dimension, CastSource castSource,
 				long startedAt, long expiresAt,
