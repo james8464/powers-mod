@@ -9,7 +9,7 @@
     "origin",
     "Light rank"
   ],
-  "answer": "Weaver is a depth-5 Light rank on the origin branch. It is a canonical route with parents legacy_4. Perks: ENERGY_COST_REDUCTION +1%.",
+  "answer": "Weaver is a depth-5 Light rank on the origin branch. It is a canonical route with parents legacy_4. Mechanic: Energy-cost reduction. Numerical profile (baseline → active → focused): 100 → 99 → 98.5.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

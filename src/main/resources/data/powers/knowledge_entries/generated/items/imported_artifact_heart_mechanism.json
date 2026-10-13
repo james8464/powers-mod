@@ -9,7 +9,7 @@
     "Clockwork Heart",
     "Heart relic"
   ],
-  "answer": "Clockwork Heart is a heart relic. Raises a timed clockwork absorption ward. Survival acquisition/status: Settlement and archaeology salvage.",
+  "answer": "Clockwork Heart is a heart relic. Either path can eat it for a timed ward; tier-IV absorption when strongest. Survival acquisition/status: Settlement and archaeology salvage.",
   "sources": [
     "docs/gameplay/item-catalogue.md"
   ],

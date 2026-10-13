@@ -9,7 +9,7 @@
     "communion",
     "Darkness rank"
   ],
-  "answer": "Hollow Medium is a depth-2 Darkness rank on the communion branch. It is a optional route with parents echo_1. Perks: SOUL +12%.",
+  "answer": "Hollow Medium is a depth-2 Darkness rank on the communion branch. It is a optional route with parents echo_1. Mechanic: Soul-force multiplier. Numerical profile (baseline → active → focused): 100 → 112 → 118.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/darkness.json"

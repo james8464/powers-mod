@@ -9,7 +9,7 @@
     "abyss",
     "Darkness rank"
   ],
-  "answer": "Voidwight is a depth-9 Darkness rank on the abyss branch. It is a canonical route with parents legacy_8. Perks: BACKLASH_REDUCTION +2%.",
+  "answer": "Voidwight is a depth-9 Darkness rank on the abyss branch. It is a canonical route with parents legacy_8. Mechanic: Backlash reduction. Numerical profile (baseline → active → focused): 100 → 98 → 97.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/darkness.json"

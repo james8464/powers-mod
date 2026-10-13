@@ -1,0 +1,18 @@
+{
+  "title": "Interaction: Mastered Tempest Rite × hostile projectile",
+  "keywords": [
+    "knowledge_lookup_90436b4ce653b945",
+    "powers:generated/interaction_rules/21_mastered_tempest_rite_hostile_projectile",
+    "magic interaction Mastered Tempest Rite   hostile projectile",
+    "Mastered Tempest Rite × hostile projectile",
+    "Mastered Tempest Rite and hostile projectile",
+    "magic interaction",
+    "interaction rule"
+  ],
+  "answer": "Mastered Tempest Rite × hostile projectile: At most sixteen projectiles curve radially away once, under a speed cap, without reflection or ownership transfer. Signature: Sky-blue ribbon bend, tight projectile rune, and gust mote.",
+  "sources": [
+    "docs/interactions/interaction-rules.md",
+    "docs/interactions/interaction-matrix.csv"
+  ],
+  "reveal_rank": 0
+}

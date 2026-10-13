@@ -9,7 +9,7 @@
     "motion",
     "Light rank"
   ],
-  "answer": "Riftwalker is a depth-3 Light rank on the motion branch. It is a optional route with parents motion_1`, `veil_2. Perks: RANGE +12% (spatial).",
+  "answer": "Riftwalker is a depth-3 Light rank on the motion branch. It is a optional route with parents motion_1`, `veil_2. Mechanic: Reach multiplier (`spatial`). Numerical profile (baseline → active → focused): 100 → 112 → 118.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

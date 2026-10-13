@@ -23,10 +23,11 @@ class GenerateKnowledgeDocsTest(unittest.TestCase):
         inventory = generator.build_inventory(ROOT)
 
         self.assertEqual(
-            {"items": 260, "actions": 64, "ranks": 56, "realms": 3, "interaction_rules": 50},
+            {"items": 260, "actions": 64, "ranks": 56, "realms": 3, "interaction_rules": 52},
             {domain: len(entries) for domain, entries in inventory.items()},
         )
-        self.assertEqual(433, sum(len(entries) for entries in inventory.values()))
+        self.assertEqual(435, sum(len(entries) for entries in inventory.values()))
+        self.assertTrue(all("Numerical profile" in entry["answer"] for entry in inventory["ranks"]))
         for entries in inventory.values():
             for entry in entries:
                 self.assertTrue(entry["sources"])

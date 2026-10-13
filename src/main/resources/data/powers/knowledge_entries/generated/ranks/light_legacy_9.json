@@ -9,7 +9,7 @@
     "origin",
     "Light rank"
   ],
-  "answer": "Ascendant is a depth-9 Light rank on the origin branch. It is a canonical route with parents legacy_8. Perks: DURATION +1.5%.",
+  "answer": "Ascendant is a depth-9 Light rank on the origin branch. It is a canonical route with parents legacy_8. Mechanic: Duration multiplier. Numerical profile (baseline → active → focused): 100 → 101.5 → 102.25.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

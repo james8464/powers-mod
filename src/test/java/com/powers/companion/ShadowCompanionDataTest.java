@@ -41,6 +41,10 @@ class ShadowCompanionDataTest {
 				.withPlaces(ShadowPlaceMemory.empty().remember("home",
 						net.minecraft.resources.Identifier.parse("minecraft:overworld"),
 						new net.minecraft.core.BlockPos(4, 70, -8)).memory());
+		original = original.withCalloutMode(ShadowCalloutMode.CRITICAL_ONLY)
+				.withEnergy(416).withLearnedCombat("bounded-feedback");
+		assertEquals(1, original.places().size());
+		assertEquals(ShadowCalloutMode.CRITICAL_ONLY, original.preferredCalloutMode());
 		var encoded = ShadowCompanionData.CODEC.encodeStart(JsonOps.INSTANCE, original).getOrThrow();
 		var decoded = ShadowCompanionData.CODEC.parse(JsonOps.INSTANCE, encoded).getOrThrow();
 		assertEquals(original, decoded);

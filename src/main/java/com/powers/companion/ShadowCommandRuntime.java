@@ -104,7 +104,7 @@ final class ShadowCommandRuntime {
 	}
 
 	private static void rememberPlace(ServerPlayer owner, ShadowRequest request) {
-		var result = PrivateCompanionManager.rememberPlace(owner, request.subject());
+		var result = ShadowPlaceCommands.rememberPlace(owner, request.subject());
 		String reply = result.accepted()
 				? result.updated() ? "I moved that remembered place." : "I will remember that place."
 				: "I can remember only sixteen named places; forget one first.";
@@ -112,19 +112,19 @@ final class ShadowCommandRuntime {
 	}
 
 	private static void forgetPlace(ServerPlayer owner, ShadowRequest request) {
-		boolean removed = PrivateCompanionManager.forgetPlace(owner, request.subject()).removed();
+		boolean removed = ShadowPlaceCommands.forgetPlace(owner, request.subject()).removed();
 		ShadowCompanionMessaging.replyAndRemember(owner, request.original(), removed
 				? "That place is forgotten." : "I do not remember a place by that name.");
 	}
 
 	private static void listPlaces(ServerPlayer owner, ShadowRequest request) {
-		String names = PrivateCompanionManager.placeNames(owner);
+		String names = ShadowPlaceCommands.placeNames(owner);
 		ShadowCompanionMessaging.replyAndRemember(owner, request.original(), names.isEmpty()
 				? "You have named no places for me." : "I remember: " + names + ".");
 	}
 
 	private static void goToPlace(ServerPlayer owner, ShadowRequest request) {
-		var result = PrivateCompanionManager.goToPlace(owner, request.subject());
+		var result = ShadowPlaceCommands.goToPlace(owner, request.subject());
 		String reply = switch (result.reason()) {
 			case "navigating" -> "I am moving there through the loaded world.";
 			case "wrong_dimension" -> "That place is in another dimension.";

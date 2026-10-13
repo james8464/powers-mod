@@ -9,7 +9,7 @@
     "wardcraft",
     "Light rank"
   ],
-  "answer": "Soulwarden is a depth-4 Light rank on the wardcraft branch. It is a optional route with parents oracle_3`, `ward_2. Perks: RESISTANCE +8% (soul).",
+  "answer": "Soulwarden is a depth-4 Light rank on the wardcraft branch. It is a optional route with parents oracle_3`, `ward_2. Mechanic: Damage-resistance multiplier (`soul`). Numerical profile (baseline → active → focused): 100 → 108 → 112.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

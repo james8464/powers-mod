@@ -49,8 +49,8 @@ class DeterministicGameTestRunnerTest(unittest.TestCase):
                 "powers-gametest:alpha_game_tests_zebra_case",
             ], RUNNER.discover_test_ids(root))
 
-    def test_repository_inventory_matches_the_registered_167_server_tests(self):
-        self.assertEqual(167, len(RUNNER.discover_test_ids(ROOT)))
+    def test_repository_inventory_matches_the_registered_222_server_tests(self):
+        self.assertEqual(222, len(RUNNER.discover_test_ids(ROOT)))
 
     def test_identifier_conversion_matches_fabric_lower_to_upper_boundaries(self):
         self.assertEqual("p1acceptance_game_tests",
@@ -96,7 +96,7 @@ class DeterministicGameTestRunnerTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             logs = root / "logs"
-            success = subprocess.CompletedProcess([], 0, "raw success", "")
+            success = subprocess.CompletedProcess([], 0, "All 1 required tests passed :)\nBUILD SUCCESSFUL", "")
             with mock.patch.object(RUNNER.subprocess, "run", return_value=success):
                 passed = RUNNER.run_tests(root, ["powers-gametest:z_case",
                                                  "powers-gametest:a_case"], logs)
@@ -104,6 +104,28 @@ class DeterministicGameTestRunnerTest(unittest.TestCase):
             self.assertEqual(["powers-gametest:a_case", "powers-gametest:z_case"], passed)
             self.assertTrue((logs / "001-a_case.log").is_file())
             self.assertTrue((logs / "002-z_case.log").is_file())
+
+    def test_zero_exit_without_single_test_success_is_rejected(self):
+        for output in ("BUILD SUCCESSFUL", "All 2 required tests passed :)\nBUILD SUCCESSFUL"):
+            with self.subTest(output=output), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                result = subprocess.CompletedProcess([], 0, output, "")
+                with mock.patch.object(RUNNER.subprocess, "run", return_value=result):
+                    with self.assertRaisesRegex(RuntimeError, "single-test"):
+                        RUNNER.run_tests(root, ["minecraft:always_pass"], root / "logs")
+
+    def test_existing_evidence_is_never_overwritten(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            logs = root / "logs"
+            logs.mkdir()
+            evidence = logs / "001-always_pass.log"
+            evidence.write_text("original evidence")
+            with mock.patch.object(RUNNER.subprocess, "run") as run:
+                with self.assertRaisesRegex(ValueError, "not empty"):
+                    RUNNER.run_tests(root, ["minecraft:always_pass"], logs)
+            run.assert_not_called()
+            self.assertEqual("original evidence", evidence.read_text())
 
     def test_gradle_contract_registers_authoritative_task_and_check_dependency(self):
         build = (ROOT / "build.gradle").read_text(encoding="utf-8")

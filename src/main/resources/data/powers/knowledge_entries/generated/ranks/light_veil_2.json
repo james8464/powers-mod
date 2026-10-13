@@ -9,7 +9,7 @@
     "veil",
     "Light rank"
   ],
-  "answer": "Veil-Stepper is a depth-2 Light rank on the veil branch. It is a optional route with parents motion_1. Perks: STEALTH +8%.",
+  "answer": "Veil-Stepper is a depth-2 Light rank on the veil branch. It is a optional route with parents motion_1. Mechanic: Stealth-strength multiplier. Numerical profile (baseline → active → focused): 100 → 108 → 112.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

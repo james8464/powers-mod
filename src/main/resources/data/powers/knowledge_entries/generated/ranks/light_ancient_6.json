@@ -9,7 +9,7 @@
     "dominion",
     "Light rank"
   ],
-  "answer": "Ancient Hand is a depth-6 Light rank on the dominion branch. It is a optional route with parents dominion_5. Perks: DURATION +10%.",
+  "answer": "Ancient Hand is a depth-6 Light rank on the dominion branch. It is a optional route with parents dominion_5. Mechanic: Duration multiplier. Numerical profile (baseline → active → focused): 100 → 110 → 115.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

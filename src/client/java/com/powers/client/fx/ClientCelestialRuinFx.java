@@ -122,7 +122,7 @@ public final class ClientCelestialRuinFx {
 		for (int index = 0; index < density.cloudParticles(); index++) {
 			double angle = Math.PI * 2.0 * index / Math.max(1, density.cloudParticles());
 			double radius = 52.0 + elapsed * 1.5;
-			client.level.addAlwaysVisibleParticle(net.minecraft.core.particles.ParticleTypes.CLOUD, true,
+			client.level.addAlwaysVisibleParticle(PowersParticles.FRACTURE, true,
 					aftermath.center.x + Math.cos(angle) * radius, cloudY,
 					aftermath.center.z + Math.sin(angle) * radius,
 					Math.cos(angle) * 0.8, 0.05, Math.sin(angle) * 0.8);

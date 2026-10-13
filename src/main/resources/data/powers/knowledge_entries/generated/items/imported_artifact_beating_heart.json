@@ -9,7 +9,7 @@
     "Living Heart",
     "Heart relic"
   ],
-  "answer": "Living Heart is a heart relic. Active healing plus passive regeneration. Survival acquisition/status: Settlement and archaeology salvage.",
+  "answer": "Living Heart is a heart relic. Light-eaten healing; tier-I regeneration when it is the strongest carried heart. Survival acquisition/status: Exactly one from every villager plus archaeology salvage.",
   "sources": [
     "docs/gameplay/item-catalogue.md"
   ],

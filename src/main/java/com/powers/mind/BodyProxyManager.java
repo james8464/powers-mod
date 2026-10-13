@@ -327,7 +327,7 @@ public final class BodyProxyManager {
 			case MISSING -> null;
 		};
 		if (player == null || !state.equals(PlayerPowers.get(player).mindBody())) return false;
-		Vec3 destination = findReturnSpot(player, target, requested, travelKind);
+		Vec3 destination = BodyReturnPlacement.findReturnSpot(player, target, requested, travelKind);
 		if (destination == null) return false;
 		player.setCamera(null);
 		player.teleport(new TeleportTransition(target, destination, Vec3.ZERO,
@@ -417,24 +417,6 @@ public final class BodyProxyManager {
 			MindSessionManager.realmParticipantReturned(active.mindSessionId(), active.ownerId());
 		} else if (active.ownsMindSession()) MindSessionManager.release(active.mindSessionId());
 		else MindSessionManager.removeParticipant(active.mindSessionId(), active.ownerId());
-	}
-
-	private static Vec3 findReturnSpot(ServerPlayer player, ServerLevel target, Vec3 requested,
-			TravelKind travelKind) {
-		for (int dy = 0; dy <= 3; dy++) {
-			for (int radius = 0; radius <= 2; radius++) {
-				for (int dx = -radius; dx <= radius; dx++) {
-					for (int dz = -radius; dz <= radius; dz++) {
-						Vec3 candidate = requested.add(dx, dy, dz);
-						if (SafeDestinationResolver.validate(player, target, candidate,
-								travelKind).allowed()) {
-							return candidate;
-						}
-					}
-				}
-			}
-		}
-		return null;
 	}
 
 	private static GameType gameMode(String name) {

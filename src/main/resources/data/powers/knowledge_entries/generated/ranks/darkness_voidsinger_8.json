@@ -9,7 +9,7 @@
     "communion",
     "Darkness rank"
   ],
-  "answer": "Voidsinger is a depth-8 Darkness rank on the communion branch. It is a optional route with parents harbinger_7. Perks: DURATION +12% (void).",
+  "answer": "Voidsinger is a depth-8 Darkness rank on the communion branch. It is a optional route with parents harbinger_7. Mechanic: Duration multiplier (`void`). Numerical profile (baseline → active → focused): 100 → 112 → 118.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/darkness.json"

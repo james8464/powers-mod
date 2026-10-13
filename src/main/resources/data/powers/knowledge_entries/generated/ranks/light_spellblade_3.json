@@ -9,7 +9,7 @@
     "might",
     "Light rank"
   ],
-  "answer": "Runeblade is a depth-3 Light rank on the might branch. It is a optional route with parents might_1`, `ward_2. Perks: POWER_DAMAGE +10% (fire).",
+  "answer": "Runeblade is a depth-3 Light rank on the might branch. It is a optional route with parents might_1`, `ward_2. Mechanic: Potency multiplier (`fire`). Numerical profile (baseline → active → focused): 100 → 110 → 115.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

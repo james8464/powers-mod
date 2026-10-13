@@ -903,8 +903,8 @@ public final class PowersGameTests {
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void generatedShadowKnowledgeLoadsAndAnswersEveryRequiredDomain(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
-		helper.assertTrue(KnowledgeService.entryCount() == 447,
-				"Shadow did not load fourteen authored plus 433 generated knowledge entries");
+		helper.assertTrue(KnowledgeService.entryCount() == 449,
+				"Shadow did not load fourteen authored plus 435 generated knowledge entries");
 		var item = KnowledgeService.answer(player,
 				"How do I get powers:imported_food_wisdomfruit?");
 		var action = KnowledgeService.answer(player,

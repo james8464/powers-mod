@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -89,6 +90,8 @@ def run_tests(root: Path, test_ids: list[str], log_directory: Path) -> list[str]
         raise ValueError("no GameTests were requested")
     ordered = sorted(test_ids)
     log_directory.mkdir(parents=True, exist_ok=True)
+    if any(log_directory.iterdir()):
+        raise ValueError(f"evidence directory is not empty: {log_directory}")
     for index, test_id in enumerate(ordered, start=1):
         command = [
             "./gradlew", "runGameTest", f"-PgameTestFilter={test_id}",
@@ -103,6 +106,10 @@ def run_tests(root: Path, test_ids: list[str], log_directory: Path) -> list[str]
             raise RuntimeError(
                 f"{test_id} failed with exit {result.returncode}; raw log: "
                 f"{log_path(log_directory, index, test_id)}")
+        counts = re.findall(r"All (\d+) required tests passed", raw_output)
+        if counts != ["1"] or "BUILD SUCCESSFUL" not in raw_output:
+            raise RuntimeError(f"{test_id} lacks single-test success proof; raw log: "
+                               f"{log_path(log_directory, index, test_id)}")
     return ordered
 
 
@@ -126,7 +133,13 @@ def main() -> int:
     if args.list:
         print("\n".join(requested))
         return 0
-    log_directory = args.log_dir or root / "build/deterministic-gametests"
+    if args.log_dir is None:
+        parent = root / "build/deterministic-gametests"
+        parent.mkdir(parents=True, exist_ok=True)
+        log_directory = Path(tempfile.mkdtemp(prefix="run-", dir=parent))
+    else:
+        log_directory = args.log_dir
+    print(f"Raw GameTest evidence: {log_directory}", flush=True)
     passed = run_tests(root, requested, log_directory.resolve())
     print(f"All {len(passed)} deterministic GameTests passed:")
     print("\n".join(passed))

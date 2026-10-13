@@ -1,0 +1,18 @@
+{
+  "title": "Interaction: Boss × opposing artifact / Concord",
+  "keywords": [
+    "knowledge_lookup_5327f01229413f53",
+    "powers:generated/interaction_rules/45_boss_opposing_artifact_concord",
+    "magic interaction Boss   opposing artifact / Concord",
+    "Boss × opposing artifact / Concord",
+    "Boss and opposing artifact / Concord",
+    "magic interaction",
+    "interaction rule"
+  ],
+  "answer": "Boss × opposing artifact / Concord: Light and Dark Heralds briefly stagger only before their opposed artifact or matching opposed Concord. The neutral First Vessel accepts either alignment, so the setup rewards coordination without requiring one player faction. Successful reactions have a 60-tick per-boss cooldown, inspect at most sixteen nearby living candidates, and never bypass damage or movement protection. Signature: Readable fracture rune, outline, weakness, and an explicit encounter overlay.",
+  "sources": [
+    "docs/interactions/interaction-rules.md",
+    "docs/interactions/interaction-matrix.csv"
+  ],
+  "reveal_rank": 0
+}

@@ -9,7 +9,7 @@
     "dominion",
     "Darkness rank"
   ],
-  "answer": "Sevenfold Harbinger is a depth-7 Darkness rank on the dominion branch. It is a optional route with parents elder_6. Perks: COOLDOWN_REDUCTION +10%.",
+  "answer": "Sevenfold Harbinger is a depth-7 Darkness rank on the dominion branch. It is a optional route with parents elder_6. Mechanic: Cooldown reduction. Numerical profile (baseline → active → focused): 100 → 90 → 85.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/darkness.json"

@@ -14,6 +14,16 @@ BACKLOG = ROOT / "docs/planning/IMPROVEMENT_BACKLOG.md"
 
 
 class ReleaseWorkflowTest(unittest.TestCase):
+    def test_verification_dependencies_are_pinned_and_installed_outside_checkout(self):
+        requirements = (ROOT / "scripts/requirements-verification.txt").read_text()
+        for package in ("numpy", "Pillow", "scipy", "soundfile"):
+            self.assertRegex(requirements, rf"(?m)^{package}==[0-9]+\.[0-9]+\.[0-9]+$")
+        for workflow in (WORKFLOW, ROOT / ".github/workflows/ci.yml"):
+            text = workflow.read_text()
+            self.assertIn('python3 -m venv "$RUNNER_TEMP/powers-verification"', text)
+            self.assertIn('-m pip install -r scripts/requirements-verification.txt', text)
+            self.assertIn('echo "$RUNNER_TEMP/powers-verification/bin" >> "$GITHUB_PATH"', text)
+
     def text(self) -> str:
         return WORKFLOW.read_text(encoding="utf-8")
 

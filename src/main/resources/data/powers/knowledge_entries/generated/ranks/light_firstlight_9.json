@@ -9,7 +9,7 @@
     "insight",
     "Light rank"
   ],
-  "answer": "Voice of First Light is a depth-9 Light rank on the insight branch. It is a optional route with parents worldsinger_8. Perks: POWER_DAMAGE +12% (light).",
+  "answer": "Voice of First Light is a depth-9 Light rank on the insight branch. It is a optional route with parents worldsinger_8. Mechanic: Potency multiplier (`light`). Numerical profile (baseline → active → focused): 100 → 112 → 118.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

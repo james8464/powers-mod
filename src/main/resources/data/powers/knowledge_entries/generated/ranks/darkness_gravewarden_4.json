@@ -9,7 +9,7 @@
     "wardcraft",
     "Darkness rank"
   ],
-  "answer": "Gravewarden is a depth-4 Darkness rank on the wardcraft branch. It is a optional route with parents boneoracle_3`, `hex_2. Perks: WARD_INTEGRITY +14% (soul).",
+  "answer": "Gravewarden is a depth-4 Darkness rank on the wardcraft branch. It is a optional route with parents boneoracle_3`, `hex_2. Mechanic: Ward-integrity multiplier (`soul`). Numerical profile (baseline → active → focused): 100 → 114 → 121.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/darkness.json"

@@ -26,7 +26,7 @@ class GeneratedKnowledgeCoverageTest {
 			files = paths.filter(path -> path.toString().endsWith(".json"))
 					.sorted(Comparator.comparing(Path::toString)).toList();
 		}
-		assertEquals(433, files.size());
+		assertEquals(435, files.size());
 
 		List<KnowledgeEntry> entries = new ArrayList<>(files.size());
 		for (Path file : files) {

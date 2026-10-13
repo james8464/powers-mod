@@ -9,7 +9,7 @@
     "origin",
     "Light rank"
   ],
-  "answer": "Adept is a depth-4 Light rank on the origin branch. It is a canonical route with parents legacy_3. Perks: COOLDOWN_REDUCTION +1%.",
+  "answer": "Adept is a depth-4 Light rank on the origin branch. It is a canonical route with parents legacy_3. Mechanic: Cooldown reduction. Numerical profile (baseline → active → focused): 100 → 99 → 98.5.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

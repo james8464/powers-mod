@@ -9,7 +9,7 @@
     "insight",
     "Light rank"
   ],
-  "answer": "Pale Oracle is a depth-3 Light rank on the insight branch. It is a optional route with parents insight_1`, `communion_2. Perks: REVEAL +12%.",
+  "answer": "Pale Oracle is a depth-3 Light rank on the insight branch. It is a optional route with parents insight_1`, `communion_2. Mechanic: Reveal-strength multiplier. Numerical profile (baseline → active → focused): 100 → 112 → 118.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

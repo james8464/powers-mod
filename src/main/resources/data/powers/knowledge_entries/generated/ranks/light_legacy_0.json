@@ -9,7 +9,7 @@
     "origin",
     "Light rank"
   ],
-  "answer": "Dormant is a depth-0 Light rank on the origin branch. It is a canonical route with parents —. Perks: ENERGY_CAPACITY +1%.",
+  "answer": "Dormant is a depth-0 Light rank on the origin branch. It is a canonical route with parents —. Mechanic: Energy-capacity multiplier. Numerical profile (baseline → active → focused): 100 → 101 → 101.5.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

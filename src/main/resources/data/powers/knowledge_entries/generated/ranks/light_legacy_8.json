@@ -9,7 +9,7 @@
     "origin",
     "Light rank"
   ],
-  "answer": "Voidcaller is a depth-8 Light rank on the origin branch. It is a canonical route with parents legacy_7. Perks: INTERACTION_PRIORITY +2%.",
+  "answer": "Voidcaller is a depth-8 Light rank on the origin branch. It is a canonical route with parents legacy_7. Mechanic: Interaction-priority bonus. Numerical profile (baseline → active → focused): 100 → 100.02 → 100.03.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

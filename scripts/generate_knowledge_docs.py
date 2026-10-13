@@ -18,7 +18,7 @@ EXPECTED_COUNTS = {
     "actions": 64,
     "ranks": 56,
     "realms": 3,
-    "interaction_rules": 50,
+    "interaction_rules": 52,
 }
 
 
@@ -95,12 +95,13 @@ def action_entries(root: Path) -> list[dict]:
 def rank_entries(root: Path) -> list[dict]:
     source = "docs/gameplay/rank-catalogue.md"
     result = []
-    for alignment, rank_id, depth, branch, title, route, parents, perks in table_rows(root / source, 8):
+    for alignment, rank_id, depth, branch, title, route, parents, mechanic, proof in table_rows(root / source, 9):
         result.append(entry(
             f"generated/ranks/{alignment.lower()}_{rank_id}", f"{alignment} rank: {title}",
             [f"{alignment.lower()} {rank_id}", rank_id, title, branch, f"{alignment} rank"],
             f"{title} is a depth-{depth} {alignment} rank on the {branch} branch. It is a "
-            f"{route.lower()} route with parents {parents}. Perks: {perks}.",
+            f"{route.lower()} route with parents {parents}. Mechanic: {mechanic}. "
+            f"Numerical profile (baseline → active → focused): {proof}.",
             [source, f"data/powers/ranks/{alignment.lower()}.json"],
         ))
     return result

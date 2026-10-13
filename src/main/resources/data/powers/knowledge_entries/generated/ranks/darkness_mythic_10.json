@@ -9,7 +9,7 @@
     "dominion",
     "Darkness rank"
   ],
-  "answer": "Living Extinction is a depth-10 Darkness rank on the dominion branch. It is a optional route with parents lastshadow_9. Perks: POWER_DAMAGE +18% (dark).",
+  "answer": "Living Extinction is a depth-10 Darkness rank on the dominion branch. It is a optional route with parents lastshadow_9. Mechanic: Potency multiplier (`dark`). Numerical profile (baseline → active → focused): 100 → 118 → 127.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/darkness.json"

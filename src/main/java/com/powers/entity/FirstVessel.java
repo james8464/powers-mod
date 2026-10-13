@@ -196,7 +196,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 					? BossEvent.BossBarColor.RED : BossEvent.BossBarColor.PURPLE);
 			bossEvent.setName(Component.translatable("boss.powers.first_vessel.phase."
 					+ phase.name().toLowerCase(java.util.Locale.ROOT)));
-			announce(level, "boss.powers.first_vessel.phase_"
+			FirstVesselDialogue.announce(this, level, "boss.powers.first_vessel.phase_"
 					+ phase.name().toLowerCase(java.util.Locale.ROOT));
 			announceLore(level, "phase_" + phase.name().toLowerCase(java.util.Locale.ROOT));
 			sevenfoldStep(level);
@@ -237,7 +237,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 		pendingCastAt = tickCount + FirstVesselTelegraphRules.warningTicks(action);
 		bossEvent.setName(Component.literal(phase.name().replace('_', ' ') + " — "
 				+ action.powerId().replace('_', ' ').toUpperCase(java.util.Locale.ROOT)));
-		announce(level, "boss.powers.first_vessel.windup");
+		FirstVesselDialogue.announce(this, level, "boss.powers.first_vessel.windup");
 		CastingPoseService.start(this, CastingPose.CHANNEL, CastingStyle.FIRST_VESSEL,
 				CastingHand.BOTH, FirstVesselTelegraphRules.warningTicks(action));
 	}
@@ -246,7 +246,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 		pendingCastAt = tickCount + 40;
 		bossEvent.setName(Component.literal(phase.name().replace('_', ' ') + " — "
 				+ technique.replace('_', ' ').toUpperCase(java.util.Locale.ROOT)));
-		announce(level, "boss.powers.first_vessel." + technique);
+		FirstVesselDialogue.announce(this, level, "boss.powers.first_vessel." + technique);
 		CastingPoseService.start(this, CastingPose.CHANNEL, CastingStyle.FIRST_VESSEL, CastingHand.BOTH, 40);
 	}
 	private FirstVesselEncounterFacts encounterFacts(ServerLevel level, LivingEntity target) {
@@ -276,7 +276,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 			FirstVesselPowerAction action = FirstVesselPowerCatalogue.actions().stream()
 					.filter(candidate -> candidate.powerId().equals(path)).findFirst().orElse(null);
 			if (action == null) continue;
-			announce(level, "boss.powers.first_vessel.power_theft");
+			FirstVesselDialogue.announce(this, level, "boss.powers.first_vessel.power_theft");
 			beginTelegraph(level, action);
 			return true;
 		}
@@ -300,7 +300,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 		reconstitutionUsed = true;
 		reconstitutionTicks = RECONSTITUTION_TICKS;
 		reconstitutionDamage = 0.0F;
-		announce(level, "boss.powers.first_vessel.reconstitution");
+		FirstVesselDialogue.announce(this, level, "boss.powers.first_vessel.reconstitution");
 		PowerFx.sound(level, position(), PowersSounds.DARK_WHISPER, 2.0F, 0.4F);
 		CastingPoseService.start(this, CastingPose.CHANNEL, CastingStyle.FIRST_VESSEL,
 				CastingHand.BOTH, RECONSTITUTION_TICKS);
@@ -315,7 +315,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 				reconstitutionDamage, effectiveMaximumHealth)) {
 			reconstitutionTicks = 0;
 			CastingPoseService.clear(this);
-			announce(level, "boss.powers.first_vessel.interrupted");
+			FirstVesselDialogue.announce(this, level, "boss.powers.first_vessel.interrupted");
 			PowerFx.cancelled(level, position().add(0, 1, 0), 0xA878BC);
 			return;
 		}
@@ -328,7 +328,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 		if (--reconstitutionTicks == 0) {
 			CastingPoseService.clear(this);
 			heal(effectiveMaximumHealth * 0.25F);
-			announce(level, "boss.powers.first_vessel.restored");
+			FirstVesselDialogue.announce(this, level, "boss.powers.first_vessel.restored");
 			PowerFx.burst(level, position().add(0, 1, 0),
 					net.minecraft.core.particles.ColorParticleOption.create(
 							ParticleTypes.FLASH, 0xFFEBD7FF), 6, 0.7, 0.0);
@@ -388,38 +388,10 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 		bossEvent.removePlayer(player);
 	}
 
-	private void announce(ServerLevel level, String key) {
-		for (ServerPlayer player : level.players()) {
-			if (player.distanceToSqr(this) <= 128.0 * 128.0) {
-				PowerMessages.overlay(player, Component.translatable(key));
-			}
-		}
-	}
-
 	private void announceLore(ServerLevel level, String milestone) {
-		LoreDialogueContext context = new LoreDialogueContext(
+		FirstVesselDialogue.announceLore(this, level, dialogue, new LoreDialogueContext(
 				level.dimension().identifier().getPath(), effectiveHealthRatio() < 0.35,
-				false, phase.ordinal() * 4, "both", previousAction, false,
-				true, milestone);
-		String fallback = dialogue.line(getUUID(), context, true);
-		UUID vesselId = getUUID();
-		var dimension = level.dimension();
-		long callbackEpoch = com.powers.util.ServerCallbackGate.capture(level.getServer());
-		DialogueProviderRuntime.request(vesselId, context, true, fallback).thenAccept(line ->
-				com.powers.util.ServerCallbackGate.execute(callbackEpoch, server -> {
-					ServerLevel currentLevel = server.getLevel(dimension);
-					if (currentLevel != null && currentLevel.getEntity(vesselId) instanceof FirstVessel vessel) {
-						vessel.sendLoreIfRelevant(currentLevel, line);
-					}
-				}));
-	}
-
-	private void sendLoreIfRelevant(ServerLevel level, String line) {
-		for (ServerPlayer player : level.players()) {
-			if (player.distanceToSqr(this) <= 128.0 * 128.0) {
-				PowerMessages.overlay(player, Component.literal(line));
-			}
-		}
+				false, phase.ordinal() * 4, "both", previousAction, false, true, milestone));
 	}
 
 	@Override

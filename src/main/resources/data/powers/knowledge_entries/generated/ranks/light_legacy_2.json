@@ -9,7 +9,7 @@
     "origin",
     "Light rank"
   ],
-  "answer": "Spark is a depth-2 Light rank on the origin branch. It is a canonical route with parents legacy_1. Perks: RANGE +1.5%.",
+  "answer": "Spark is a depth-2 Light rank on the origin branch. It is a canonical route with parents legacy_1. Mechanic: Reach multiplier. Numerical profile (baseline → active → focused): 100 → 101.5 → 102.25.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

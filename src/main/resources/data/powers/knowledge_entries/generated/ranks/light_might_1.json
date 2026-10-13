@@ -9,7 +9,7 @@
     "might",
     "Light rank"
   ],
-  "answer": "Ember-Blooded is a depth-1 Light rank on the might branch. It is a optional route with parents legacy_0. Perks: POWER_DAMAGE +6%.",
+  "answer": "Ember-Blooded is a depth-1 Light rank on the might branch. It is a optional route with parents legacy_0. Mechanic: Potency multiplier. Numerical profile (baseline → active → focused): 100 → 106 → 109.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

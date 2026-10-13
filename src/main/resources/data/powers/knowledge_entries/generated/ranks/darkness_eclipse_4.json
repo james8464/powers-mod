@@ -9,7 +9,7 @@
     "dominion",
     "Darkness rank"
   ],
-  "answer": "Eclipse Weaver is a depth-4 Darkness rank on the dominion branch. It is a optional route with parents reaper_3`, `nightstep_3. Perks: INTERACTION_PRIORITY +15% (dark).",
+  "answer": "Eclipse Weaver is a depth-4 Darkness rank on the dominion branch. It is a optional route with parents reaper_3`, `nightstep_3. Mechanic: Interaction-priority bonus (`dark`). Numerical profile (baseline → active → focused): 100 → 100.15 → 100.225.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/darkness.json"

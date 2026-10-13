@@ -53,6 +53,13 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Install isolated verification dependencies
+        # Verification dependencies stay outside the source and survive Gradle clean.
+        run: |
+          python3 -m venv "$RUNNER_TEMP/powers-verification"
+          "$RUNNER_TEMP/powers-verification/bin/python3" -m pip install -r scripts/requirements-verification.txt
+          echo "$RUNNER_TEMP/powers-verification/bin" >> "$GITHUB_PATH"
+
       - name: Start the isolated client display
         run: |
           set -euo pipefail

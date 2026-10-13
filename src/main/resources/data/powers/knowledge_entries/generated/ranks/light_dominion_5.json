@@ -9,7 +9,7 @@
     "dominion",
     "Light rank"
   ],
-  "answer": "Crownless Magus is a depth-5 Light rank on the dominion branch. It is a optional route with parents confluence_4`, `soulwarden_4. Perks: ENERGY_CAPACITY +12%.",
+  "answer": "Crownless Magus is a depth-5 Light rank on the dominion branch. It is a optional route with parents confluence_4`, `soulwarden_4. Mechanic: Energy-capacity multiplier. Numerical profile (baseline → active → focused): 100 → 112 → 118.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

@@ -9,7 +9,7 @@
     "communion",
     "Light rank"
   ],
-  "answer": "Worldsinger is a depth-8 Light rank on the communion branch. It is a optional route with parents paragon_7. Perks: HEALING +12% (life).",
+  "answer": "Worldsinger is a depth-8 Light rank on the communion branch. It is a optional route with parents paragon_7. Mechanic: Healing multiplier (`life`). Numerical profile (baseline → active → focused): 100 → 112 → 118.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

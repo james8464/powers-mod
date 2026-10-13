@@ -9,7 +9,7 @@
     "origin",
     "Light rank"
   ],
-  "answer": "Origin is a depth-10 Light rank on the origin branch. It is a canonical route with parents legacy_9. Perks: HEALING +2.5%.",
+  "answer": "Origin is a depth-10 Light rank on the origin branch. It is a canonical route with parents legacy_9. Mechanic: Healing multiplier. Numerical profile (baseline → active → focused): 100 → 102.5 → 103.75.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"

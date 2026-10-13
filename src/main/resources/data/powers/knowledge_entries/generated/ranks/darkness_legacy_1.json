@@ -9,7 +9,7 @@
     "abyss",
     "Darkness rank"
   ],
-  "answer": "Murk is a depth-1 Darkness rank on the abyss branch. It is a canonical route with parents legacy_0. Perks: STEALTH +1.8%.",
+  "answer": "Murk is a depth-1 Darkness rank on the abyss branch. It is a canonical route with parents legacy_0. Mechanic: Stealth-strength multiplier. Numerical profile (baseline → active → focused): 100 → 101.8 → 102.7.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/darkness.json"

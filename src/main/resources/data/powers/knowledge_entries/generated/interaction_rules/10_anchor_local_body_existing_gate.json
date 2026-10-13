@@ -1,0 +1,18 @@
+{
+  "title": "Interaction: Anchor × local body/existing gate",
+  "keywords": [
+    "knowledge_lookup_0d89fa37eacfa882",
+    "powers:generated/interaction_rules/10_anchor_local_body_existing_gate",
+    "magic interaction Anchor   local body/existing gate",
+    "Anchor × local body/existing gate",
+    "Anchor and local body/existing gate",
+    "magic interaction",
+    "interaction rule"
+  ],
+  "answer": "Anchor × local body/existing gate: A loaded body proxy can retain only its current dimension; an already-existing same-dimension artifact gate gains a finite lease only when both loaded endpoints remain nearby and legal. No route, realm exit, or chunk ticket is created. Signature: Bound body rune or renewed dimensional gate chains.",
+  "sources": [
+    "docs/interactions/interaction-rules.md",
+    "docs/interactions/interaction-matrix.csv"
+  ],
+  "reveal_rank": 0
+}

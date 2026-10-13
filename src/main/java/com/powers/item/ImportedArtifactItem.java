@@ -133,6 +133,13 @@ public final class ImportedArtifactItem extends Item {
 	public void appendHoverText(ItemStack stack, TooltipContext context,
 			TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
 		super.appendHoverText(stack, context, display, tooltip, flag);
+		ImportedArtifactRules.AttunementProfile profile = ImportedArtifactRules.attunementProfile(texture);
+		if (profile.present()) {
+			tooltip.accept(Component.translatable("tooltip.powers.attunement.school",
+					Component.translatable(profile.school().translationKey())).withStyle(ChatFormatting.GOLD));
+			tooltip.accept(Component.translatable(profile.effect().translationKey(), profile.magnitude())
+					.withStyle(ChatFormatting.GRAY));
+		}
 		if (kind != ImportedArtifactKind.HEART_RELIC) return;
 		String heart = ImportedArtifactRules.heartSpecialization(texture)
 				.name().toLowerCase(Locale.ROOT);
@@ -174,19 +181,6 @@ public final class ImportedArtifactItem extends Item {
 
 	public ArtifactRole role() {
 		return role;
-	}
-
-	@Override
-	@SuppressWarnings("deprecation")
-	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
-			Consumer<Component> output, TooltipFlag flag) {
-		super.appendHoverText(stack, context, display, output, flag);
-		ImportedArtifactRules.AttunementProfile profile = ImportedArtifactRules.attunementProfile(texture);
-		if (!profile.present()) return;
-		output.accept(Component.translatable("tooltip.powers.attunement.school",
-				Component.translatable(profile.school().translationKey())).withStyle(ChatFormatting.GOLD));
-		output.accept(Component.translatable(profile.effect().translationKey(), profile.magnitude())
-				.withStyle(ChatFormatting.GRAY));
 	}
 
 	@Override

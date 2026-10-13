@@ -9,7 +9,7 @@
     "origin",
     "Light rank"
   ],
-  "answer": "Awakened is a depth-3 Light rank on the origin branch. It is a canonical route with parents legacy_2. Perks: POWER_DAMAGE +1.5%.",
+  "answer": "Awakened is a depth-3 Light rank on the origin branch. It is a canonical route with parents legacy_2. Mechanic: Potency multiplier. Numerical profile (baseline → active → focused): 100 → 101.5 → 102.25.",
   "sources": [
     "docs/gameplay/rank-catalogue.md",
     "data/powers/ranks/light.json"
