@@ -4,8 +4,6 @@ import com.powers.player.PlayerPowers;
 import com.powers.network.PowersPackets;
 import com.powers.fx.PowerFx;
 import com.powers.util.PowerMessages;
-import com.powers.testing.TestingOverrides;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -13,12 +11,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 
-/** Reusable, cooldown-bound rune focus whose authored tier controls its recharge. */
+/** Stackable single-use rune whose authored tier controls its energy restoration. */
 public class RuneItem extends Item {
 	private final int energy;
 
 	public RuneItem(Properties properties, int energy) {
-		super(properties.stacksTo(16));
+		super(properties.stacksTo(64));
 		this.energy = Math.max(1, energy);
 	}
 
@@ -27,13 +25,9 @@ public class RuneItem extends Item {
 		// try to refill the bar; the message tells you whether it worked or was already full
 		if (!level.isClientSide() && user instanceof ServerPlayer player) {
 			var stack = player.getItemInHand(hand);
-			if (!TestingOverrides.cooldownsDisabled(player.getUUID())
-					&& player.getCooldowns().isOnCooldown(stack)) return InteractionResult.SUCCESS;
 			PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 			if (data.regenerateEnergy(energy)) {
-				if (!TestingOverrides.cooldownsDisabled(player.getUUID())) {
-					player.getCooldowns().addCooldown(stack, RuneTierRules.cooldownTicks(energy));
-				}
+				stack.shrink(1);
 				PowersPackets.syncTo(player);
 				PowerMessages.send(player, "rune.powers.channelled", 4, String.valueOf(energy));
 				var serverLevel = (net.minecraft.server.level.ServerLevel) level;

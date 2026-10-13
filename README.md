@@ -115,7 +115,7 @@ Two different players casting the same aligned innate within 12 blocks and 40 ti
 
 Sleeping fills the well unless Exhaustion blocks restoration. Every indefinite innate drains once per second. Exhausting a toggle removes it safely and inflicts a 70%-maximum-health magical backlash rather than leaving a free state active.
 
-Runestones stack to 16, do not work through Exhaustion, restore 40–600 energy by tier, and recharge for 60–300 ticks. Inert and Dark tiny/small/medium/large/inscribed tiers have survival recipes and selected natural loot. Hidden helper-layer aliases remain save-safe but are not presented as gameplay items.
+Runestones stack to 64, do not work through Exhaustion, restore 40–600 energy by tier, have no cooldown, and consume exactly one stone only after energy is successfully restored. A full reserve leaves the stack untouched. Inert and Dark tiny/small/medium/large/inscribed tiers have survival recipes and selected natural loot. Hidden helper-layer aliases remain save-safe but are not presented as gameplay items.
 
 Soulstones and the Soul Matrix are auxiliary reservoirs of 200/400/800/1,600 energy. Use withdraws up to 100; crouch-use deposits up to 100. If the main well cannot fund a cast, carried reservoirs pay the exact shortfall atomically in inventory order; insufficient aggregate energy changes nothing.
 

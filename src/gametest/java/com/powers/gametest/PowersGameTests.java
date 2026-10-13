@@ -2736,6 +2736,34 @@ public final class PowersGameTests {
 
 	@GameTest
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void runestonesStackAndConsumeOnlyAfterSuccessfulRestoreWithoutCooldown(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		player.setGameMode(GameType.SURVIVAL);
+		var powers = com.powers.player.PlayerPowers.get(player);
+		ItemStack runes = new ItemStack(com.powers.ImportedPackItems.item(
+				"imported_artifact_runestone_inert"), 2);
+		player.setItemInHand(InteractionHand.MAIN_HAND, runes);
+		helper.assertTrue(runes.getMaxStackSize() == 64,
+				"Registered runestone did not stack to 64");
+		powers.forceRestoreEnergy();
+		runes.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(runes.getCount() == 2,
+				"A full energy reserve consumed a runestone");
+
+		powers.emptyEnergy();
+		runes.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(powers.energy() == 40 && runes.getCount() == 1,
+				"Successful restoration did not consume exactly one runestone");
+		helper.assertFalse(player.getCooldowns().isOnCooldown(runes),
+				"Successful restoration created a runestone cooldown");
+		runes.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+		helper.assertTrue(powers.energy() == 80 && runes.isEmpty(),
+				"Immediate second restoration was cooldown-bound or failed to consume");
+		helper.succeed();
+	}
+
+	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void ritualDaggerConvertsHealthDirectlyIntoExistingEnergy(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		player.setGameMode(GameType.SURVIVAL);
