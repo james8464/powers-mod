@@ -928,7 +928,7 @@ public final class PowersGameTests {
 				"powers:generated/realms/middleworld"),
 				"Shadow did not retrieve the generated realm catalogue entry: " + realm.entryId());
 		helper.assertTrue(interaction.entryId().equals(
-				"powers:generated/interaction_rules/26_cinderheart_reflection"),
+				"powers:generated/interaction_rules/27_cinderheart_reflection"),
 				"Shadow did not retrieve the generated interaction-rule entry: " + interaction.entryId());
 		helper.succeed();
 	}
