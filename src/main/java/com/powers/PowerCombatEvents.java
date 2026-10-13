@@ -7,6 +7,7 @@ import com.powers.power.PowerDamage;
 import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.abilities.InvisibilityToggleAbility;
+import com.powers.power.damage.LayeredDamageLedger;
 import com.powers.power.state.GlobalTimeStopManager;
 import com.powers.power.travel.MindscapeMobReturnTracker;
 import com.powers.power.artifact.ArtifactDeathWardManager;
@@ -30,6 +31,7 @@ final class PowerCombatEvents {
 
 	static void register() {
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
+			LayeredDamageLedger.global().recordIncoming(amount);
 			if (BodyProxyManager.isProxy(entity)) {
 				return BodyProxyManager.allowsDamage(entity, source, amount);
 			}

@@ -1,5 +1,7 @@
 package com.powers.power.state;
 
+import com.powers.power.damage.LayeredDamageResolver;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +15,8 @@ import java.util.Optional;
  */
 public final class MagicShieldManager {
 	private static final MagicShieldManager GLOBAL = new MagicShieldManager();
-	private static final Impact MISSED = new Impact(false, false, 0.0f, 0, false);
+	private static final Impact MISSED = new Impact(false, false, 0.0f, 0, false,
+			0.0F, 0.0F);
 	private final Map<UUID, ShieldState> shields = new HashMap<>();
 
 	/** Returns the server-thread-owned production shield manager. */
@@ -56,13 +59,16 @@ public final class MagicShieldManager {
 		if (owner == null || !Float.isFinite(damage) || damage <= 0) return MISSED;
 		ShieldState state = live(owner, currentTick);
 		if (state == null) return MISSED;
-		float remaining = Math.max(0.0f, state.integrity() - damage);
-		boolean shattered = remaining <= 0;
+		LayeredDamageResolver.WardDecision decision = LayeredDamageResolver.ward(
+				damage, state.integrity(), true);
+		float remaining = decision.remainingIntegrity();
+		boolean shattered = decision.shattered();
 		if (shattered) shields.remove(owner);
 		else shields.put(owner, new ShieldState(state.sourceOwner(), state.maximum(), remaining,
 				state.expiresAt(), state.reflective()));
 		return new Impact(true, shattered, remaining,
-				fractureStage(state.maximum(), remaining), state.reflective());
+				fractureStage(state.maximum(), remaining), state.reflective(),
+				decision.blockedDamage(), decision.integritySpent());
 	}
 
 	/** Returns whether a non-expired shield remains. */
@@ -127,7 +133,8 @@ public final class MagicShieldManager {
 
 	/** Result of an attempted impact absorption. */
 	public record Impact(boolean blocked, boolean shattered, float integrity,
-			int fractureStage, boolean reflective) {
+			int fractureStage, boolean reflective, float blockedDamage,
+			float integritySpent) {
 	}
 
 	public record ShieldSnapshot(UUID sourceOwner, float maximum, float integrity, long expiresAt,

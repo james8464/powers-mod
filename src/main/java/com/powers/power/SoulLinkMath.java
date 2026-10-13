@@ -1,5 +1,7 @@
 package com.powers.power;
 
+import com.powers.power.damage.LayeredDamageResolver;
+
 /** Pure health-delta calculations for Soul Link. */
 public final class SoulLinkMath {
 	private static final int MAXIMUM_LINKS = 8;
@@ -17,7 +19,7 @@ public final class SoulLinkMath {
 	}
 
 	public static float wound(float previous, float current) {
-		return Math.max(0.0f, previous - current);
+		return LayeredDamageResolver.health(previous, current);
 	}
 
 	public static float largestWound(float[] previous, float[] current) {
@@ -34,7 +36,7 @@ public final class SoulLinkMath {
 	}
 
 	public static float cappedMirror(float requested, float remainingCap) {
-		return Math.min(Math.max(0.0f, requested), Math.max(0.0f, remainingCap));
+		return LayeredDamageResolver.mirror(requested, 1.0, remainingCap).forwardedDamage();
 	}
 
 	public static float remainingCap(float currentCap, float applied) {
