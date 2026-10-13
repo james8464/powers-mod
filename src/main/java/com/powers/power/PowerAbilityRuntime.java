@@ -9,6 +9,7 @@ import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.abilities.FireballAbility;
 import com.powers.power.abilities.GravityDisplacementAbility;
 import com.powers.power.abilities.LightningStrikeAbility;
+import com.powers.power.abilities.SizeMorphAbility;
 import com.powers.power.abilities.SpeedBurstAbility;
 import com.powers.power.abilities.StarfallAbility;
 import com.powers.power.abilities.SuperSpeedAbility;
@@ -114,6 +115,7 @@ public final class PowerAbilityRuntime {
 		InfernoAbility.clear(owner);
 		SoulLinkAbility.clear(owner);
 		SizeShiftAbility.clear(player);
+		SizeMorphAbility.forget(owner);
 		SpeedBurstAbility.clear(owner);
 		EnergyBeamAbility.clear(owner);
 		VoidBeamAbility.clear(owner);
@@ -155,6 +157,7 @@ public final class PowerAbilityRuntime {
 		SoulLinkAbility.clearAll();
 		com.powers.power.damage.LayeredDamageLedger.global().clear();
 		SizeShiftAbility.clearAll();
+		SizeMorphAbility.clearAll();
 		SpeedBurstAbility.clearAll();
 		EnergyBeamAbility.clearAll();
 		VoidBeamAbility.clearAll();

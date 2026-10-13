@@ -114,8 +114,7 @@ public final class PowerEnergy {
 			return TimeFreezeDrainRules.energyPerSecond(PlayerPowers.get(player).energyCapacity());
 		}
 		int baseCost = ability instanceof SizeMorphAbility
-				? SizeMorphRules.energyDrainPerSecond(SizeMorphRules.scale(
-						PlayerPowers.get(player).getSizeMorphOption()))
+				? SizeMorphRules.profile(player.getScale()).drainPerSecond()
 				: ongoingCost(ability);
 		return CastScalingContext.currentSource().appliesPlayerRank(ability.usesRankScaling())
 				? PowerScalingService.energyCost(player, ability.id().getPath(), baseCost)

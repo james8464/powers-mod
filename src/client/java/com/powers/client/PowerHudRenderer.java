@@ -89,6 +89,20 @@ public final class PowerHudRenderer {
 			graphics.text(font, seconds, centerX - font.width(seconds) / 2,
 					centerY + 6, 0xFFE7EBF2, true);
 		}
+		if (activeToggle && power.id().getPath().equals("size_shift")) {
+			String feedback = net.minecraft.network.chat.Component.translatable(
+					"hud.powers.size_morph_feedback",
+					decimal(ClientPowerState.sizeMorphAppliedScale()),
+					decimal(ClientPowerState.sizeMorphBlockReach()),
+					decimal(ClientPowerState.sizeMorphEntityReach()),
+					ClientPowerState.sizeMorphDrainPerSecond()).getString();
+			graphics.text(font, feedback, centerX - SIZE / 2 - font.width(feedback) - 3,
+					centerY + 6, 0xFFE7F8FF, true);
+		}
+	}
+
+	private static String decimal(double value) {
+		return String.format(java.util.Locale.ROOT, "%.1f", value);
 	}
 
 	private static String keyLabel(int slot) {

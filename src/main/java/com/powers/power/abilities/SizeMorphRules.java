@@ -1,6 +1,8 @@
 package com.powers.power.abilities;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.IntStream;
 
 /** Pure selectable-scale and recurring-cost policy for Size Morphing. */
 public final class SizeMorphRules {
@@ -9,6 +11,11 @@ public final class SizeMorphRules {
 			0.125, 2.5, 3.0, 4.0);
 	private static final int NORMAL_OPTION = 3;
 	private static final int ENERGY_PER_SCALE_UNIT = 4;
+	private static final double VANILLA_BLOCK_REACH = 4.5;
+	private static final double VANILLA_ENTITY_REACH = 3.0;
+	private static final double MAX_BLOCK_REACH = 12.0;
+	private static final double MAX_ENTITY_REACH = 10.0;
+	private static final double MAX_KNOCKBACK_RESISTANCE = 0.8;
 
 	private SizeMorphRules() {
 	}
@@ -51,7 +58,43 @@ public final class SizeMorphRules {
 
 	/** Charges linearly for absolute deviation from normal size. */
 	public static int energyDrainPerSecond(double scale) {
-		if (!Double.isFinite(scale)) return 0;
+		if (!Double.isFinite(scale) || scale <= 0.0) return 0;
 		return Math.max(0, (int) Math.round(Math.abs(scale - 1.0) * ENERGY_PER_SCALE_UNIT));
+	}
+
+	/** Tries the requested form first, then monotonically smaller authored bodies. */
+	public static List<Integer> transitionCandidates(int requestedOption, int rank) {
+		double requestedScale = scale(requestedOption);
+		return IntStream.range(0, SCALES.size()).boxed()
+				.filter(option -> SCALES.get(option) <= requestedScale)
+				.filter(option -> minimumRank(option) <= rank)
+				.sorted(Comparator.comparingDouble((Integer option) -> SCALES.get(option)).reversed())
+				.toList();
+	}
+
+	/** Server-authored physical and HUD values for one actually applied form. */
+	public static ScaleProfile profile(double scale) {
+		double safeScale = Double.isFinite(scale) && scale > 0.0 ? scale : 1.0;
+		double mass = safeScale * safeScale * safeScale;
+		double reachScale = Math.max(1.0, safeScale);
+		return new ScaleProfile(safeScale, mass,
+				Math.min(MAX_BLOCK_REACH, VANILLA_BLOCK_REACH * reachScale),
+				Math.min(MAX_ENTITY_REACH, VANILLA_ENTITY_REACH * reachScale),
+				energyDrainPerSecond(safeScale),
+				Math.clamp(1.0 - 1.0 / mass, 0.0, MAX_KNOCKBACK_RESISTANCE));
+	}
+
+	/** Compact value shared by physical attributes, recurring payment, and HUD sync. */
+	public record ScaleProfile(double scale, double bodyMass, double blockReach,
+			double entityReach, int drainPerSecond, double knockbackResistance) {
+		/** Morph-owned reach contribution, preserving rank and third-party modifiers. */
+		public double blockReachBonus() {
+			return blockReach - VANILLA_BLOCK_REACH;
+		}
+
+		/** Morph-owned entity-reach contribution, preserving unrelated modifiers. */
+		public double entityReachBonus() {
+			return entityReach - VANILLA_ENTITY_REACH;
+		}
 	}
 }

@@ -87,4 +87,27 @@ class PowerStatePayloadTest {
 			bytes.release();
 		}
 	}
+
+	@Test
+	void sizeMorphFeedbackCarriesAppliedScaleReachAndRankAdjustedDrain() {
+		PowerStatePayload expected = new PowerStatePayload(
+				List.of("powers:size_shift"), List.of("powers:size_shift"),
+				List.of(0), List.of(0), List.of(0),
+				new PowerStatePayload.EnergySnapshot(200, 250, 0L, 0L, List.of()),
+				false, false, false, 11,
+				new PowerStatePayload.SizeMorphSnapshot(1.0, 4.5, 3.0, 0),
+				new PowerStatePayload.RankSnapshot(List.of(), "", 10));
+		ByteBuf bytes = Unpooled.buffer();
+		try {
+			RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(bytes, RegistryAccess.EMPTY);
+			PowerStatePayload.STREAM_CODEC.encode(buffer, expected);
+			PowerStatePayload actual = PowerStatePayload.STREAM_CODEC.decode(buffer);
+			assertEquals(1.0, actual.sizeMorphAppliedScale());
+			assertEquals(4.5, actual.sizeMorphBlockReach());
+			assertEquals(3.0, actual.sizeMorphEntityReach());
+			assertEquals(0, actual.sizeMorphDrainPerSecond());
+		} finally {
+			bytes.release();
+		}
+	}
 }

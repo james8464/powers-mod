@@ -22,6 +22,10 @@ public final class ClientPowerState {
 	private static boolean darkness;
 	private static boolean projection;
 	private static int sizeMorphOption = com.powers.power.abilities.SizeMorphRules.normalOption();
+	private static double sizeMorphAppliedScale = 1.0;
+	private static double sizeMorphBlockReach = 4.5;
+	private static double sizeMorphEntityReach = 3.0;
+	private static int sizeMorphDrainPerSecond;
 	private static List<String> rankNodes = List.of();
 	private static String rankFocus = "";
 	private static int rankDepth;
@@ -49,6 +53,10 @@ public final class ClientPowerState {
 		darkness = payload.darkness();
 		projection = payload.projection();
 		sizeMorphOption = payload.sizeMorphOption();
+		sizeMorphAppliedScale = payload.sizeMorphAppliedScale();
+		sizeMorphBlockReach = payload.sizeMorphBlockReach();
+		sizeMorphEntityReach = payload.sizeMorphEntityReach();
+		sizeMorphDrainPerSecond = payload.sizeMorphDrainPerSecond();
 		rankNodes = List.copyOf(payload.rankNodes());
 		rankFocus = payload.rankFocus();
 		rankDepth = payload.rankDepth();
@@ -70,6 +78,10 @@ public final class ClientPowerState {
 		darkness = false;
 		projection = false;
 		sizeMorphOption = com.powers.power.abilities.SizeMorphRules.normalOption();
+		sizeMorphAppliedScale = 1.0;
+		sizeMorphBlockReach = 4.5;
+		sizeMorphEntityReach = 3.0;
+		sizeMorphDrainPerSecond = 0;
 		rankNodes = List.of();
 		rankFocus = "";
 		rankDepth = 0;
@@ -134,6 +146,11 @@ public final class ClientPowerState {
 	public static int sizeMorphOption() {
 		return sizeMorphOption;
 	}
+
+	public static double sizeMorphAppliedScale() { return sizeMorphAppliedScale; }
+	public static double sizeMorphBlockReach() { return sizeMorphBlockReach; }
+	public static double sizeMorphEntityReach() { return sizeMorphEntityReach; }
+	public static int sizeMorphDrainPerSecond() { return sizeMorphDrainPerSecond; }
 
 	public static int energy() {
 		return energy;
