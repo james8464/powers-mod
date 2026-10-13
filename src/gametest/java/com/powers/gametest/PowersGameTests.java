@@ -2735,6 +2735,20 @@ public final class PowersGameTests {
 	}
 
 	@GameTest
+	public void foodAffinityLoadsTagFirstVanillaClassifications(GameTestHelper helper) {
+		helper.assertTrue(com.powers.player.FoodAffinity.of(new ItemStack(Items.BREAD))
+				== com.powers.player.FoodAffinity.NEUTRAL,
+				"Neutral food tag was not authoritative");
+		helper.assertTrue(com.powers.player.FoodAffinity.of(new ItemStack(Items.ROTTEN_FLESH))
+				== com.powers.player.FoodAffinity.ABNORMAL,
+				"Abnormal food tag was not authoritative");
+		helper.assertTrue(com.powers.player.FoodAffinity.of(new ItemStack(Items.COOKED_BEEF))
+				== com.powers.player.FoodAffinity.NORMAL,
+				"Normal food tag was not authoritative");
+		helper.succeed();
+	}
+
+	@GameTest
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void runestonesStackAndConsumeOnlyAfterSuccessfulRestoreWithoutCooldown(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();

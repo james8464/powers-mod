@@ -16,8 +16,8 @@ class FoodAffinityTest {
 	}
 
 	@Test
-	void doesNotMisclassifyAnotherModsMatchingPath() {
-		assertEquals(FoodAffinity.NORMAL,
+	void unknownThirdPartyFoodDefaultsNeutralEvenWhenItsPathMatchesVanilla() {
+		assertEquals(FoodAffinity.NEUTRAL,
 				FoodAffinity.of(Identifier.fromNamespaceAndPath("example", "rotten_flesh")));
 	}
 
@@ -26,5 +26,17 @@ class FoodAffinityTest {
 		assertEquals(AllegianceMatrix.Faction.RADIANT, FoodAffinity.faction(FoodAffinity.NORMAL));
 		assertEquals(AllegianceMatrix.Faction.DARKNESS, FoodAffinity.faction(FoodAffinity.ABNORMAL));
 		assertEquals(AllegianceMatrix.Faction.NEUTRAL, FoodAffinity.faction(FoodAffinity.NEUTRAL));
+	}
+
+	@Test
+	void unknownThirdPartyFoodDefaultsNeutral() {
+		assertEquals(FoodAffinity.NEUTRAL,
+				FoodAffinity.of(Identifier.fromNamespaceAndPath("example", "moon_pie")));
+	}
+
+	@Test
+	void unlistedVanillaFoodRetainsNormalFallback() {
+		assertEquals(FoodAffinity.NORMAL,
+				FoodAffinity.of(Identifier.fromNamespaceAndPath("minecraft", "cake")));
 	}
 }
