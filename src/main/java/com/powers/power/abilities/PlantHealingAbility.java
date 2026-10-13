@@ -72,7 +72,10 @@ public class PlantHealingAbility extends Ability {
 		if (target.level() != level || !target.isAlive() || target.isSpectator()
 				|| !PlantHealingRules.withinAura(target.distanceToSqr(caster))
 				|| target.getHealth() >= target.getMaxHealth()) return false;
+		float before = target.getHealth();
 		target.heal(amount);
+		com.powers.progression.BossContributionManager.recordSupport(
+				caster, target, target.getHealth() - before);
 		com.powers.fx.PowerFx.burst(level, target.position().add(0.0, 1.0, 0.0),
 				com.powers.fx.PowerFx.dust(0x72F58A, 0.9F), 8, 0.35, 0.01);
 		return true;

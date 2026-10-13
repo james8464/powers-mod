@@ -36,6 +36,7 @@
 			,"com.powers.gametest.EnergyBeamGameTests"
 			,"com.powers.gametest.CreationBlueprintGameTests"
 			,"com.powers.gametest.CrystalSizeShiftGameTests"
+			,"com.powers.gametest.BossContributionGameTests"
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests",

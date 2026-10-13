@@ -22,6 +22,14 @@ public final class SkillQuestTracker {
 
 	/** Credits server-authenticated power deaths, including sufficiently durable bosses from other mods. */
 	public static void recordKill(LivingEntity victim, DamageSource source) {
+		if (com.powers.progression.BossContributionManager.isSupportedBoss(victim)) {
+			com.powers.progression.BossContributionManager.resolve(victim, source);
+			if (source.getEntity() instanceof ServerPlayer killer
+					&& !SkillSystem.hasDarknessTag(killer) && PowerDamage.isPowerDamage(source)) {
+				record(killer, SkillDeed.POWER_KILL);
+			}
+			return;
+		}
 		if (!(source.getEntity() instanceof ServerPlayer killer)
 				|| SkillSystem.hasDarknessTag(killer) || !PowerDamage.isPowerDamage(source)) return;
 		com.powers.progression.QuestCompletionTelemetry.noteActivity(killer,
@@ -29,6 +37,16 @@ public final class SkillQuestTracker {
 		Map<SkillDeed, Integer> totals = SkillDeedStore.increment(killer, SkillDeed.POWER_KILL);
 		if (isBoss(victim)) totals = SkillDeedStore.increment(killer, SkillDeed.BOSS_KILL);
 		evaluate(killer, totals);
+	}
+
+	/** Grants one already-authenticated Herald/First Vessel encounter contribution. */
+	public static void recordBossContribution(ServerPlayer player) {
+		if (player != null && !SkillSystem.hasDarknessTag(player)) record(player, SkillDeed.BOSS_KILL);
+	}
+
+	/** Read-only diagnostic used by live acceptance and operator evidence. */
+	public static int deedCount(ServerPlayer player, SkillDeed deed) {
+		return player == null || deed == null ? 0 : SkillDeedStore.read(player).getOrDefault(deed, 0);
 	}
 
 	/** Light memories are a normal-path requirement; dark memories intentionally do not substitute. */

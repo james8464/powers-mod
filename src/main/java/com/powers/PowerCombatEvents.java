@@ -16,6 +16,7 @@ import com.powers.power.artifact.ArtifactCovenantManager;
 import com.powers.player.DarknessQuestTracker;
 import com.powers.player.PlayerPowers;
 import com.powers.player.SkillQuestTracker;
+import com.powers.progression.BossContributionManager;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellCastingManager;
 import com.powers.spell.BloodReadingHistoryService;
@@ -58,6 +59,7 @@ final class PowerCombatEvents {
 			if (damageTaken <= 0) return;
 			BrittleArmorManager.breakWithFire(entity, source.is(DamageTypeTags.IS_FIRE));
 			BloodReadingHistoryService.recordDamage(entity, damageTaken);
+			BossContributionManager.recordDamage(entity, source, damageTaken);
 			ArtifactCovenantManager.shareDamage(entity, source, damageTaken);
 			SpellCastingManager.markDamaged(entity);
 			EnergyDrainAbility.markDamaged(entity);

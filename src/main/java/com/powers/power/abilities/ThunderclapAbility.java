@@ -61,6 +61,8 @@ public final class ThunderclapAbility extends Ability {
 							controlTicks, 3, false, true));
 					target.addEffect(PowerStatusEffects.hidden(MobEffects.WEAKNESS,
 							controlTicks, 2, false, true));
+					com.powers.progression.BossContributionManager.recordControl(
+							player, target, controlTicks);
 				}
 			}
 			if (PowerProtection.mayForceMove(player, target)
