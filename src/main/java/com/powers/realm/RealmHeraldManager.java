@@ -61,6 +61,7 @@ public final class RealmHeraldManager {
 		herald.setPos(center.getX() + 0.5, center.getY(), center.getZ() + 0.5);
 		herald.finalizeSpawn(level, level.getCurrentDifficultyAt(center),
 				EntitySpawnReason.EVENT, null);
+		herald.beginCourtEncounter();
 		if (!level.addFreshEntity(herald)) return TickResult.SPAWN_FAILED;
 		var lightning = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
 		if (lightning != null) {
