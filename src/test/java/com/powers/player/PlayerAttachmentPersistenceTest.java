@@ -31,7 +31,7 @@ class PlayerAttachmentPersistenceTest {
 				"COOLDOWNS", "SKILL_LEVEL", "DARKNESS_LEVEL", "TELEPORT_CONSENT",
 				"SHADOW_SWORD_FAVOURITES", "HEAVENLY_PARTISAN_FAVOURITES",
 				"SHADOW_SWORD_RECENTS", "HEAVENLY_PARTISAN_RECENTS", "CARTOGRAPHER_SITES",
-				"LAST_DEATH"
+				"CREATION_BLUEPRINT_SELECTION", "LAST_DEATH"
 		}) {
 			assertTrue(source.matches("(?s).*" + name + ".*persistent.*"), name);
 		}

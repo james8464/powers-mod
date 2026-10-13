@@ -170,7 +170,7 @@ There are ten usable crystal items exposing 11 distinct actions. Multi-mode crys
 | Crystal | Actions |
 | --- | --- |
 | Red | **Inferno:** eight-second, 12-block firestorm with repeated permitted damage/ignition and no vanilla terrain explosion. |
-| Orange | **Clone Swarm:** three unarmed, owner-skinned 80-health Echoes for 60 seconds. **Creativity Manifestation:** protected fixed orange-concrete/glass/glowstone chamber. |
+| Orange | **Clone Swarm:** three unarmed, owner-skinned 80-health Echoes for 60 seconds. **Creativity Manifestation:** choose a bounded datapack blueprint by crouch-using while looking straight up, then atomically preflight and place it. Ships with the orange chamber plus entity-/loot-stripped plains and desert shelters. |
 | Yellow | **Size Shift:** alternates fixed 20-second `0.0625×` miniature and `10×` titan forms with corresponding movement/combat changes; separate from innate Size Morphing. |
 | Green | **Life Bloom:** fully heals and cleanses living allies in 20 blocks. |
 | Blue | **Chrono Stop:** toggles true global tick freeze, shows owner/deadline state plus a temporal-fracture edge, and auto-releases after exactly 1,200 control ticks without upkeep, even while world time is parked. **Dreamwalking:** controls one uniquely named consented player or mob for up to 30 seconds through the vulnerable body channel; right-click again performs an authenticated emergency return even though the controller is spectating the host. |

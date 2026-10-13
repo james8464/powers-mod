@@ -40,6 +40,8 @@ final class PlayerPowerAttachments {
 	static final AttachmentType<String> SHADOW_SWORD_SELECTION = persistentString("shadow_sword_selection");
 	static final AttachmentType<String> HEAVENLY_PARTISAN_SELECTION =
 			persistentString("heavenly_partisan_selection");
+	static final AttachmentType<String> CREATION_BLUEPRINT_SELECTION =
+			persistentString("creation_blueprint_selection");
 	static final AttachmentType<List<String>> SHADOW_SWORD_FAVOURITES =
 			persistentStringList("shadow_sword_favourites");
 	static final AttachmentType<List<String>> HEAVENLY_PARTISAN_FAVOURITES =

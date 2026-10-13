@@ -16,6 +16,7 @@ import com.powers.player.PlayerPowerSchema;
 import com.powers.player.SkillSystem;
 import com.powers.power.PowerRegistry;
 import com.powers.power.crystals.CrystalPowerRegistry;
+import com.powers.power.crystals.CreationBlueprintReloadListener;
 import com.powers.power.state.PowerEntityState;
 import com.powers.progression.RankGraphRegistry;
 
@@ -31,6 +32,7 @@ final class PowersBootstrap {
 		KnowledgeEntryReloadListener.initialize();
 		ActionRegistryReloadListener.initialize();
 		AllegianceReloadListener.initialize();
+		CreationBlueprintReloadListener.initialize();
 		PowerEntityState.initialize();
 		ShadowCompanionStore.initialize();
 		RankGraphRegistry.initialize();

@@ -42,6 +42,7 @@
 	"crystal.powers.dormant.2": "No force answers from within this crystal.",
 	"crystal.powers.dormant.3": "The convergence remains silent.",
 	"crystal.powers.mode_selected": "Crystal mode: %s",
+	"crystal.powers.blueprint_selected": "Creation blueprint: %s",
 	"crystal.powers.chrono_blocked": "A Chrono Stop is already active. The crystal refuses to overlap time.",
 	"crystal.powers.chrono_blocked.1": "A Chrono Stop is already active. The crystal refuses to overlap time.",
 	"crystal.powers.chrono_blocked.2": "Time is already bound by another will.",
