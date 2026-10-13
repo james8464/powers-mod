@@ -38,6 +38,7 @@
 			,"com.powers.gametest.CrystalSizeShiftGameTests"
 			,"com.powers.gametest.BossContributionGameTests"
 			,"com.powers.progression.RankMechanicGameTests"
+			,"com.powers.gametest.ArtifactAttunementGameTests"
 		],
 		"fabric-client-gametest": [
 			"com.powers.gametest.PowersClientGameTests",
