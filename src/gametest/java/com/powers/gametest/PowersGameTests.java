@@ -1082,6 +1082,48 @@ public final class PowersGameTests {
 		helper.succeed();
 	}
 
+	@GameTest(maxTicks = 40)
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void fireballFrostImpactUsesFiniteThermalTableAndKeepsRealmBlocks(GameTestHelper helper) {
+		ServerPlayer caster = helper.makeMockServerPlayerInLevel();
+		BlockPos origin = helper.absolutePos(new BlockPos(2, 2, 2));
+		BlockPos impactPos = helper.absolutePos(new BlockPos(2, 2, 6));
+		BlockPos lightPos = impactPos.east();
+		BlockPos darknessPos = impactPos.west();
+		caster.snapTo(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		caster.setYRot(0.0F);
+		caster.setXRot(0.0F);
+		helper.getLevel().setBlockAndUpdate(impactPos, Blocks.ICE.defaultBlockState());
+		helper.getLevel().setBlockAndUpdate(lightPos,
+				com.powers.PowersBlocks.PURE_LIGHT.defaultBlockState());
+		helper.getLevel().setBlockAndUpdate(darknessPos,
+				com.powers.PowersBlocks.DARKNESS.defaultBlockState());
+		TestingOverrides.setEnergyDisabled(caster.getUUID(), true);
+		try {
+			FireballAbility ability = new FireballAbility();
+			helper.assertTrue(ability.activate(caster, com.powers.player.PlayerPowers.get(caster)),
+					"Cinderheart did not create its server-owned projectile");
+			LargeFireball projectile = helper.getLevel().getEntitiesOfClass(LargeFireball.class,
+					caster.getBoundingBox().inflate(8.0), entity -> entity.isAlive()).stream()
+					.findFirst().orElse(null);
+			helper.assertTrue(projectile != null, "Cinderheart projectile was absent");
+			FireballAbility.resolveImpact(projectile, new BlockHitResult(
+					Vec3.atCenterOf(impactPos), Direction.NORTH, impactPos, false));
+			helper.assertTrue(helper.getLevel().getBlockState(impactPos).is(Blocks.WATER),
+					"Fireball frost impact bypassed the shared ICE-to-WATER transition");
+			helper.assertTrue(helper.getLevel().getBlockState(lightPos).is(com.powers.PowersBlocks.PURE_LIGHT)
+					&& helper.getLevel().getBlockState(darknessPos).is(com.powers.PowersBlocks.DARKNESS),
+					"Thermal impact changed an immutable realm block");
+			helper.runAfterDelay(10, () -> {
+				helper.assertTrue(helper.getLevel().getBlockState(impactPos).is(Blocks.WATER),
+						"Thermal result changed after scheduled fluid ticks");
+				helper.succeed();
+			});
+		} finally {
+			TestingOverrides.clear(caster.getUUID());
+		}
+	}
+
 	@GameTest
 	public void lightningTagsGroundRodsButRelayCopper(GameTestHelper helper) {
 		BlockPos support = new BlockPos(4, 1, 4);

@@ -3,10 +3,11 @@ package com.powers.power.abilities;
 import com.powers.PowersMod;
 import com.powers.player.PlayerPowers;
 import com.powers.power.Ability;
+import com.powers.thermal.ThermalInfluence;
+import com.powers.thermal.ThermalWorldService;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -30,17 +31,14 @@ public class PlantHealingAbility extends Ability {
 		if (!(hit instanceof BlockHitResult blockHit)) return false;
 		// bonemeal the plant that was actually hit, not the empty block beyond it
 		var pos = blockHit.getBlockPos();
-		var state = level.getBlockState(pos);
+		var plan = ThermalWorldService.plan(level, pos, ThermalInfluence.GROWTH);
 		// Treat non-bonemealable plants as refusal so an inert cast is not charged.
-		if (!(state.getBlock() instanceof BonemealableBlock growable)
-				|| !growable.isValidBonemealTarget(level, pos, state)) return false;
-		growable.performBonemeal(level, level.getRandom(), pos, state);
+		if (plan.isEmpty() || !ThermalWorldService.authorized(player, level, plan.get())
+				|| !ThermalWorldService.commit(level, plan.get())) return false;
 		if (scaledPotency(player, 1.0f) >= 1.25f) {
-			var updated = level.getBlockState(pos);
-			if (updated.getBlock() instanceof BonemealableBlock secondGrowth
-					&& secondGrowth.isValidBonemealTarget(level, pos, updated)) {
-				secondGrowth.performBonemeal(level, level.getRandom(), pos, updated);
-			}
+			ThermalWorldService.plan(level, pos, ThermalInfluence.GROWTH)
+					.filter(second -> ThermalWorldService.authorized(player, level, second))
+					.ifPresent(second -> ThermalWorldService.commit(level, second));
 		}
 		Vec3 center = Vec3.atCenterOf(pos);
 		com.powers.fx.PowerFx.ring(level, center, 1.2, 0x66FF66, 16, 0);

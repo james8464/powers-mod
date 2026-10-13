@@ -10,6 +10,9 @@ import com.powers.power.PowerTargeting;
 import com.powers.progression.PowerScalingService;
 import com.powers.protection.PowerProtection;
 import com.powers.spell.SpellFieldManager;
+import com.powers.thermal.ThermalBlockPlan;
+import com.powers.thermal.ThermalInfluence;
+import com.powers.thermal.ThermalWorldService;
 import com.powers.fx.VisualScarRules;
 import com.powers.fx.VisualScarService;
 import net.minecraft.core.BlockPos;
@@ -20,7 +23,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -53,24 +55,25 @@ public class IceManipulationAbility extends Ability {
 		Vec3 dir = end.subtract(origin).normalize();
 		double dist = origin.distanceTo(end);
 
-		Map<BlockPos, BlockState> mutations = new LinkedHashMap<>();
+		Map<BlockPos, ThermalBlockPlan> mutations = new LinkedHashMap<>();
 		for (double d = 0; d < dist; d += 0.5) {
 			Vec3 point = origin.add(dir.scale(d));
 			BlockPos pos = BlockPos.containing(point);
 			BlockState state = level.getBlockState(pos);
-			if (state.is(Blocks.WATER)) {
-				mutations.putIfAbsent(pos.immutable(), Blocks.ICE.defaultBlockState());
-			} else if (state.is(Blocks.LAVA)) {
-				mutations.putIfAbsent(pos.immutable(), Blocks.OBSIDIAN.defaultBlockState());
-			} else if (!state.isAir() && !state.is(Blocks.BEDROCK) && d < dist - 1.0
+			var direct = ThermalWorldService.plan(level, pos, ThermalInfluence.ICE);
+			if (direct.isPresent()) {
+				mutations.putIfAbsent(pos.immutable(), direct.get());
+			} else if (!state.isAir() && !state.is(net.minecraft.world.level.block.Blocks.BEDROCK)
+					&& d < dist - 1.0
 					&& level.getBlockState(pos.above()).isAir()) {
-				mutations.putIfAbsent(pos.above().immutable(), Blocks.SNOW.defaultBlockState());
+				ThermalWorldService.plan(level, pos.above(), ThermalInfluence.ICE)
+						.ifPresent(plan -> mutations.putIfAbsent(pos.above().immutable(), plan));
 			}
 		}
 		// The authorized set is the applied set: later samples cannot reinterpret
 		// an earlier fluid mutation as a new solid/snow candidate.
-		for (BlockPos mutation : mutations.keySet()) {
-			if (!PowerProtection.mayAffectBlock(player, level, mutation)) return false;
+		for (ThermalBlockPlan mutation : mutations.values()) {
+			if (!ThermalWorldService.authorized(player, level, mutation)) return false;
 		}
 
 		if (hit instanceof net.minecraft.world.phys.EntityHitResult entHit
@@ -95,8 +98,8 @@ public class IceManipulationAbility extends Ability {
 				? blockHit.getDirection() : Direction.UP;
 		VisualScarService.request(level, player, scarSupport, scarFace,
 				VisualScarRules.Impact.ICE, Long.hashCode(level.getServer().getTickCount()));
-		for (Map.Entry<BlockPos, BlockState> mutation : mutations.entrySet()) {
-			level.setBlockAndUpdate(mutation.getKey(), mutation.getValue());
+		for (ThermalBlockPlan mutation : mutations.values()) {
+			ThermalWorldService.commit(level, mutation);
 		}
 
 		com.powers.fx.PowerFx.beam(level, origin, end,
