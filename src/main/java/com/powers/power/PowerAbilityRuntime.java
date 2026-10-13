@@ -119,6 +119,7 @@ public final class PowerAbilityRuntime {
 		VoidBeamAbility.clear(owner);
 		MagicRayCollisionRuntime.clear(owner);
 		EnergyDrainAbility.clear(owner);
+		com.powers.mind.MindSessionManager.participantUnavailable(owner);
 	}
 
 	/** Global clock ownership cannot survive a player-entity or connection replacement. */
@@ -129,7 +130,7 @@ public final class PowerAbilityRuntime {
 
 	/** Releases all server-owned ability state before world references are discarded. */
 	public static void onServerStopped(MinecraftServer server) {
-		com.powers.mind.ParticipantPowerLock.clear();
+		com.powers.mind.MindSessionManager.clear();
 		com.powers.testing.TestingOverrides.clearAll();
 		com.powers.entity.TestActorPowerState.clearAll();
 		TeleportAbility.clearAllMarking(server);

@@ -1,12 +1,14 @@
 package com.powers;
 
 import com.powers.mind.BodyProxyManager;
+import com.powers.mind.MindSessionManager;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.power.abilities.EnergyDrainAbility;
 import com.powers.power.abilities.ForcefieldAbility;
 import com.powers.power.abilities.InvisibilityToggleAbility;
 import com.powers.power.state.GlobalTimeStopManager;
+import com.powers.power.travel.MindscapeMobReturnTracker;
 import com.powers.power.artifact.ArtifactDeathWardManager;
 import com.powers.power.artifact.ArtifactCovenantManager;
 import com.powers.player.DarknessQuestTracker;
@@ -65,6 +67,8 @@ final class PowerCombatEvents {
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
 			PrivateCompanionManager.afterDeath(entity);
+			MindscapeMobReturnTracker.forget(entity);
+			MindSessionManager.participantUnavailable(BodyProxyManager.mindIdentity(entity));
 			if (entity instanceof ServerPlayer player) PlayerPowers.get(player).recordDeath(player);
 			if (entity instanceof PlayerLikeTarget) {
 				TestActorPowerState.clear(entity.getUUID());

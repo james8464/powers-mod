@@ -39,6 +39,8 @@ public final class MagicDiagnosticAnswer {
 			case CHANNEL_INTERRUPTED -> failed(action, "its ritual channel was interrupted");
 			case SERVER_BUDGET -> failed(action, "the server's bounded magic workload was already full");
 			case TIME_LOCKED -> failed(action, "time was frozen for you");
+			case MIND_SESSION_ACTIVE -> failed(action,
+					"one of its participants already belonged to another mind session");
 			case MAGIC_COLLISION -> failed(action, "another magical presence cancelled it");
 			case ALREADY_CHANNELING -> failed(action, "you were already channeling another ritual");
 			case INVALID_INPUT -> failed(action, "its selected input was invalid");

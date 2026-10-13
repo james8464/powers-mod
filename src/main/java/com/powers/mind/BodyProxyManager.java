@@ -52,7 +52,8 @@ import java.util.UUID;
 public final class BodyProxyManager {
 	private enum ReturnContinuation { NONE, FATAL_DEATH, VESSEL_WRATH }
 	private record Active(UUID ownerId, Mannequin body, Vec3 position,
-			ServerLevel level, ChunkPos chunk, BodySnapshot snapshot, FatalResolutionGate fatalResolution) {
+			ServerLevel level, ChunkPos chunk, BodySnapshot snapshot, FatalResolutionGate fatalResolution,
+			UUID mindSessionId, boolean ownsMindSession) {
 	}
 	private static final TicketType BODY_TICKET = new TicketType(TicketType.NO_TIMEOUT,
 			TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
@@ -68,6 +69,28 @@ public final class BodyProxyManager {
 	}
 
 	public static boolean start(ServerPlayer player, BodyProxyKind kind) {
+		if (player == null || kind == null) return false;
+		UUID sessionId = UUID.randomUUID();
+		MindSessionManager.Admission admission = MindSessionManager.acquire(sessionId,
+				MindSessionManager.kindFor(kind), player.getUUID(), java.util.List.of(
+						new MindSessionManager.Participant(player.getUUID(), MindSessionManager.Role.OWNER)));
+		if (!admission.accepted()) {
+			MindSessionFeedback.refuse(player, kind.serializedName(), MindSessionManager.kindFor(kind),
+					admission, java.util.List.of(player));
+			return false;
+		}
+		if (startAttached(player, kind, sessionId, true)) return true;
+		MindSessionManager.release(sessionId);
+		return false;
+	}
+
+	/** Creates a vulnerable body under a session already acquired by its feature owner. */
+	public static boolean startAttached(ServerPlayer player, BodyProxyKind kind,
+			UUID sessionId, boolean ownsMindSession) {
+		if (player == null || kind == null || sessionId == null
+				|| MindSessionManager.activeFor(player.getUUID())
+						.filter(session -> session.id().equals(sessionId)
+								&& compatible(kind, session.kind())).isEmpty()) return false;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		if (data.mindBody() != null || BY_OWNER.containsKey(player.getUUID())) return false;
 		ServerLevel level = (ServerLevel) player.level();
@@ -101,7 +124,7 @@ public final class BodyProxyManager {
 				BodyProxyTicketRules.radius());
 		BodySnapshot snapshot = BodySnapshot.capture(player);
 		Active active = new Active(player.getUUID(), body, player.position(), level, bodyChunk,
-				snapshot, new FatalResolutionGate());
+				snapshot, new FatalResolutionGate(), sessionId, ownsMindSession);
 		BY_OWNER.put(player.getUUID(), active);
 		BY_BODY.put(body.getUUID(), active);
 		PhysicalMagicPresences.registerEntity(new MagicActionId("astral_projection"),
@@ -124,6 +147,12 @@ public final class BodyProxyManager {
 	public static UUID bodyIdForOwner(UUID ownerId) {
 		Active active = BY_OWNER.get(ownerId);
 		return active == null ? null : active.body().getUUID();
+	}
+
+	/** Resolves a proxy to the player identity whose mind-session authority it represents. */
+	public static UUID mindIdentity(LivingEntity entity) {
+		Active active = entity == null ? null : BY_BODY.get(entity.getUUID());
+		return active == null ? entity == null ? null : entity.getUUID() : active.ownerId();
 	}
 
 	/** Returns the immutable render frame for a tracked proxy body UUID. */
@@ -320,6 +349,7 @@ public final class BodyProxyManager {
 			active.body().discard();
 			active.level().getChunkSource().removeTicketWithRadius(BODY_TICKET, active.chunk(),
 					BodyProxyTicketRules.radius());
+			releaseParticipantAuthority(active);
 		}
 		PlayerPowers.get(player).setMindBody(null);
 	}
@@ -372,6 +402,16 @@ public final class BodyProxyManager {
 		active.body().discard();
 		active.level().getChunkSource().removeTicketWithRadius(BODY_TICKET, active.chunk(),
 				BodyProxyTicketRules.radius());
+		releaseParticipantAuthority(active);
+	}
+
+	private static void releaseParticipantAuthority(Active active) {
+		boolean realm = MindSessionManager.session(active.mindSessionId())
+				.map(session -> session.kind() == MindSessionManager.Kind.REALM).orElse(false);
+		if (realm) {
+			MindSessionManager.realmParticipantReturned(active.mindSessionId(), active.ownerId());
+		} else if (active.ownsMindSession()) MindSessionManager.release(active.mindSessionId());
+		else MindSessionManager.removeParticipant(active.mindSessionId(), active.ownerId());
 	}
 
 	private static Vec3 findReturnSpot(ServerPlayer player, ServerLevel target, Vec3 requested,
@@ -398,12 +438,13 @@ public final class BodyProxyManager {
 	}
 
 	private static MagicLifecycleRules.Form lifecycleForm(BodyProxyKind kind) {
-		return switch (kind) {
-			case REALM -> MagicLifecycleRules.Form.REALM_AVATAR;
-			case ASTRAL -> MagicLifecycleRules.Form.ASTRAL_AVATAR;
-			case MARKING -> MagicLifecycleRules.Form.TELEPORT_MARKER;
-			case POSSESSION -> MagicLifecycleRules.Form.POSSESSION_CONTROLLER;
-			case DREAMWALK -> MagicLifecycleRules.Form.DREAMWALK_CONTROLLER;
-		};
+		return MindSessionManager.lifecycleForm(MindSessionManager.kindFor(kind),
+				MindSessionManager.Role.OWNER);
+	}
+
+	private static boolean compatible(BodyProxyKind bodyKind, MindSessionManager.Kind sessionKind) {
+		return MindSessionManager.kindFor(bodyKind) == sessionKind
+				|| bodyKind == BodyProxyKind.DREAMWALK
+						&& sessionKind == MindSessionManager.Kind.SOUL_COMPASS;
 	}
 }

@@ -24,7 +24,7 @@ class MagicLifecycleRulesTest {
 				}
 			}
 		}
-		assertEquals(672, combinations);
+		assertEquals(924, combinations);
 	}
 
 	@Test
@@ -40,7 +40,7 @@ class MagicLifecycleRulesTest {
 				}
 			}
 		}
-		assertEquals("b84b11a51c27172ff2ffb969b22b4ade6c9c8710daad947807c5f082e382e06c",
+		assertEquals("b9738380f1e3140b0de909641eacd7554556760e59f8ae46b8c102df0cd99ec2",
 				HexFormat.of().formatHex(digest.digest()));
 	}
 
@@ -58,6 +58,15 @@ class MagicLifecycleRulesTest {
 		assertEquals(MagicLifecycleRules.Outcome.RETURN_WITH_WRATH,
 				resolve(MagicLifecycleRules.Form.DREAMWALK_CONTROLLER,
 						MagicLifecycleRules.Source.CRYSTAL, MagicLifecycleRules.Event.VESSEL_FATAL));
+		assertEquals(MagicLifecycleRules.Outcome.RETURN_ONLY,
+				resolve(MagicLifecycleRules.Form.SOUL_COMPASS_CONTROLLER,
+						MagicLifecycleRules.Source.SPELL, MagicLifecycleRules.Event.VESSEL_FATAL));
+		assertEquals(MagicLifecycleRules.Outcome.REMOVE_PARTICIPANT,
+				resolve(MagicLifecycleRules.Form.SOUL_LINK_TARGET,
+						MagicLifecycleRules.Source.CRYSTAL, MagicLifecycleRules.Event.TARGET_UNAVAILABLE));
+		assertEquals(MagicLifecycleRules.Outcome.CLEANUP,
+				resolve(MagicLifecycleRules.Form.SOUL_LINK_OWNER,
+						MagicLifecycleRules.Source.CRYSTAL, MagicLifecycleRules.Event.EXPIRED));
 	}
 
 	@Test

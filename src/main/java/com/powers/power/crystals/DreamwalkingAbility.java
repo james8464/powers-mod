@@ -4,7 +4,8 @@ import com.powers.PowersMod;
 import com.powers.fx.PowerFx;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
-import com.powers.mind.ParticipantPowerLock;
+import com.powers.mind.MindSessionFeedback;
+import com.powers.mind.MindSessionManager;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
 import com.powers.magic.runtime.ServerCastLifecycle;
@@ -97,6 +98,17 @@ public class DreamwalkingAbility extends Ability {
 	/** Starts a camera while retaining the route that authorized the delayed view. */
 	public static boolean beginRemoteView(ServerPlayer player, LivingEntity host,
 			int durationTicks, CastSource castSource) {
+		return beginRemoteView(player, host, durationTicks, castSource, null);
+	}
+
+	/** Continues a Soul Compass ritual which already owns its caster and named host. */
+	public static boolean beginRemoteViewAttached(ServerPlayer player, LivingEntity host,
+			int durationTicks, UUID sessionId) {
+		return beginRemoteView(player, host, durationTicks, CastSource.SPELL, sessionId);
+	}
+
+	private static boolean beginRemoteView(ServerPlayer player, LivingEntity host,
+			int durationTicks, CastSource castSource, UUID attachedSessionId) {
 		if (player == null || host == null || player == host || !host.isAlive()
 				|| castSource == null
 				|| !MagicUseGate.ongoingAllowed(player)
@@ -109,11 +121,34 @@ public class DreamwalkingAbility extends Ability {
 				sourceLevel.dimension(), hostLevel.dimension());
 		if (crossDimension && !SafeDestinationResolver.validatePreload(player, hostLevel,
 				host.position(), TravelKind.PROJECTION).allowed()) return false;
-		UUID sessionId = UUID.randomUUID();
-		if (!ParticipantPowerLock.acquire(sessionId, java.util.List.of(
-				player.getUUID(), host.getUUID()))) return false;
-		if (!BodyProxyManager.start(player, BodyProxyKind.DREAMWALK)) {
-			ParticipantPowerLock.release(sessionId);
+		MindSessionManager.Kind kind = castSource == CastSource.SPELL
+				? MindSessionManager.Kind.SOUL_COMPASS : MindSessionManager.Kind.DREAMWALK;
+		UUID sessionId = attachedSessionId == null ? UUID.randomUUID() : attachedSessionId;
+		if (attachedSessionId == null) {
+			MindSessionManager.Admission admission = MindSessionManager.acquire(sessionId, kind,
+					player.getUUID(), java.util.List.of(
+							new MindSessionManager.Participant(player.getUUID(), MindSessionManager.Role.OWNER),
+							new MindSessionManager.Participant(BodyProxyManager.mindIdentity(host),
+									host instanceof com.powers.companion.ShadowCompanionEntity
+											? MindSessionManager.Role.SHADOW : MindSessionManager.Role.HOST)));
+			if (!admission.accepted()) {
+				MindSessionFeedback.refuse(player, kind == MindSessionManager.Kind.SOUL_COMPASS
+						? "soul_compass" : "dreamwalking", kind, admission,
+						java.util.List.of(player, host));
+				return false;
+			}
+		} else {
+			UUID hostIdentity = BodyProxyManager.mindIdentity(host);
+			boolean attached = MindSessionManager.activeFor(player.getUUID())
+					.filter(session -> session.id().equals(sessionId) && session.kind() == kind
+							&& session.ownerId().equals(player.getUUID()))
+					.isPresent()
+					&& MindSessionManager.activeFor(hostIdentity)
+							.filter(session -> session.id().equals(sessionId)).isPresent();
+			if (!attached) return false;
+		}
+		if (!BodyProxyManager.startAttached(player, BodyProxyKind.DREAMWALK, sessionId, true)) {
+			MindSessionManager.release(sessionId);
 			return false;
 		}
 		MinecraftServer server = player.level().getServer();
@@ -125,7 +160,7 @@ public class DreamwalkingAbility extends Ability {
 			player.teleport(new TeleportTransition(hostLevel, host.position(), Vec3.ZERO,
 					host.getYRot(), host.getXRot(), TeleportTransition.PLAY_PORTAL_SOUND));
 			if (player.level() != hostLevel) {
-				ParticipantPowerLock.release(sessionId);
+				MindSessionManager.release(sessionId);
 				BodyProxyManager.returnToBody(player);
 				return false;
 			}
@@ -173,7 +208,7 @@ public class DreamwalkingAbility extends Ability {
 	}
 
 	private static void end(Dream dream, ServerPlayer dreamer) {
-		ParticipantPowerLock.release(dream.sessionId());
+		MindSessionManager.release(dream.sessionId());
 		if (dreamer == null) return;
 		ServerLevel level = (ServerLevel) dreamer.level();
 		PowerFx.rune(level, dreamer.position(), 1.1, 0x7986CB, 18, Math.PI);
@@ -186,7 +221,7 @@ public class DreamwalkingAbility extends Ability {
 	public static void clearAll(MinecraftServer server) {
 		for (var entry : ACTIVE.entrySet()) {
 			ServerPlayer dreamer = server.getPlayerList().getPlayer(entry.getKey());
-			ParticipantPowerLock.release(entry.getValue().sessionId());
+			MindSessionManager.release(entry.getValue().sessionId());
 			if (dreamer != null) dreamer.setCamera(null);
 		}
 		ACTIVE.clear();
