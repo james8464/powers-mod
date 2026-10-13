@@ -1,5 +1,6 @@
 package com.powers;
 
+import com.powers.allegiance.AllegianceReloadListener;
 import com.powers.command.PowerCommand;
 import com.powers.companion.ShadowCompanionStore;
 import com.powers.config.PowersConfigLoader;
@@ -29,6 +30,7 @@ final class PowersBootstrap {
 		com.powers.command.PermissionNodes.installFabricAdapterIfPresent();
 		KnowledgeEntryReloadListener.initialize();
 		ActionRegistryReloadListener.initialize();
+		AllegianceReloadListener.initialize();
 		PowerEntityState.initialize();
 		ShadowCompanionStore.initialize();
 		RankGraphRegistry.initialize();

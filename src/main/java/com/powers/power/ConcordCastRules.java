@@ -1,5 +1,8 @@
 package com.powers.power;
 
+import com.powers.allegiance.AllegianceMatrix;
+import com.powers.allegiance.AllegianceReloadListener;
+
 /** Pure temporal, spatial, and safety limits for paired innate casting. */
 public final class ConcordCastRules {
 	public static final int WINDOW_TICKS = 40;
@@ -13,7 +16,13 @@ public final class ConcordCastRules {
 
 	public static boolean mayConcord(boolean sameAbility, boolean sameFaction,
 			boolean differentOwners, double distance, long age, boolean pairCoolingDown) {
-		return sameAbility && sameFaction && differentOwners && Double.isFinite(distance)
+		AllegianceMatrix.Relationship relationship = AllegianceReloadListener.snapshot().matrix()
+				.resolve(new AllegianceMatrix.Profile(AllegianceMatrix.Faction.RADIANT,
+						AllegianceMatrix.Role.PLAYER),
+						new AllegianceMatrix.Profile(sameFaction ? AllegianceMatrix.Faction.RADIANT
+								: AllegianceMatrix.Faction.DARKNESS, AllegianceMatrix.Role.PARTY), false);
+		return sameAbility && relationship == AllegianceMatrix.Relationship.ALLY
+				&& differentOwners && Double.isFinite(distance)
 				&& distance <= RANGE && age >= 0 && age <= WINDOW_TICKS && !pairCoolingDown;
 	}
 }

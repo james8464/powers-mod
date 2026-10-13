@@ -3,6 +3,7 @@ package com.powers.player;
 import java.util.Set;
 
 import com.powers.PowersMod;
+import com.powers.allegiance.AllegianceMatrix;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -82,5 +83,12 @@ public final class FoodAffinity {
 		if (NEUTRAL_FOODS.contains(path)) return NEUTRAL;
 		if (ABNORMAL_FOODS.contains(path)) return ABNORMAL;
 		return NORMAL;
+	}
+
+	/** Maps legacy food classes into the same policy vocabulary as actors and forces. */
+	public static AllegianceMatrix.Faction faction(String affinity) {
+		if (ABNORMAL.equals(affinity)) return AllegianceMatrix.Faction.DARKNESS;
+		if (NEUTRAL.equals(affinity)) return AllegianceMatrix.Faction.NEUTRAL;
+		return AllegianceMatrix.Faction.RADIANT;
 	}
 }

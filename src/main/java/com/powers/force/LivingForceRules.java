@@ -1,5 +1,7 @@
 package com.powers.force;
 
+import com.powers.allegiance.AllegianceMatrix;
+import com.powers.allegiance.AllegianceReloadListener;
 import java.util.Objects;
 
 /** Pure affinity, opposition, spherical-boundary, and blast-falloff rules. */
@@ -23,10 +25,16 @@ public final class LivingForceRules {
 	/** Darkness feeds its faction; Pure Light restores the uninfected and burns Darkness. */
 	public static Affinity affinity(boolean darknessTagged, LivingForceKind force) {
 		Objects.requireNonNull(force, "force");
-		if (force == LivingForceKind.DARKNESS) {
-			return darknessTagged ? Affinity.REFILL : Affinity.WITHER;
-		}
-		return darknessTagged ? Affinity.WITHER : Affinity.RADIANCE;
+		AllegianceMatrix.Faction actor = darknessTagged
+				? AllegianceMatrix.Faction.DARKNESS : AllegianceMatrix.Faction.RADIANT;
+		AllegianceMatrix.Faction aura = force == LivingForceKind.DARKNESS
+				? AllegianceMatrix.Faction.DARKNESS : AllegianceMatrix.Faction.RADIANT;
+		AllegianceMatrix.Relationship relationship = AllegianceReloadListener.snapshot().matrix()
+				.resolve(new AllegianceMatrix.Profile(actor, AllegianceMatrix.Role.PLAYER),
+						new AllegianceMatrix.Profile(aura, AllegianceMatrix.Role.FORCE), false);
+		if (relationship == AllegianceMatrix.Relationship.HOSTILE) return Affinity.WITHER;
+		if (relationship != AllegianceMatrix.Relationship.ALLY) return Affinity.NONE;
+		return force == LivingForceKind.DARKNESS ? Affinity.REFILL : Affinity.RADIANCE;
 	}
 
 	/** Returns whether two living forces mutually annihilate on contact. */

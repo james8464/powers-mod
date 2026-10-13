@@ -1,5 +1,8 @@
 package com.powers.entity;
 
+import com.powers.allegiance.AllegianceMatrix;
+import com.powers.allegiance.AllegianceReloadListener;
+
 /** Pure faction and ranged-cast cadence shared by player-shaped mobs. */
 public final class PlayerLikeMobRules {
 	public enum Cast { NONE, LIGHTNING, FIREBALL }
@@ -10,7 +13,14 @@ public final class PlayerLikeMobRules {
 	}
 
 	public static boolean mayTarget(boolean hostile, boolean darknessTagged) {
-		return hostile && !darknessTagged;
+		if (!hostile) return false;
+		AllegianceMatrix.Faction target = darknessTagged
+				? AllegianceMatrix.Faction.DARKNESS : AllegianceMatrix.Faction.RADIANT;
+		return AllegianceReloadListener.snapshot().matrix().resolve(
+				new AllegianceMatrix.Profile(AllegianceMatrix.Faction.DARKNESS,
+						AllegianceMatrix.Role.SHADOW),
+				new AllegianceMatrix.Profile(target, AllegianceMatrix.Role.PLAYER), false)
+				== AllegianceMatrix.Relationship.HOSTILE;
 	}
 
 	/** Applies the same faction immunity to revenge targeting as proactive targeting. */

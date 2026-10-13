@@ -1,5 +1,7 @@
 package com.powers.entity;
 
+import com.powers.allegiance.AllegianceMatrix;
+import com.powers.allegiance.AllegianceReloadListener;
 import com.powers.item.artifact.ArtifactAlignment;
 import java.util.UUID;
 
@@ -14,7 +16,14 @@ public final class GuardianFactionRules {
 	public static boolean mayTarget(ArtifactAlignment alignment, UUID ownerId,
 			UUID targetId, boolean targetDarkness) {
 		if (ownerId != null && ownerId.equals(targetId)) return false;
-		return alignment == ArtifactAlignment.DARKNESS ? !targetDarkness : targetDarkness;
+		AllegianceMatrix.Faction source = alignment == ArtifactAlignment.DARKNESS
+				? AllegianceMatrix.Faction.DARKNESS : AllegianceMatrix.Faction.RADIANT;
+		AllegianceMatrix.Faction target = targetDarkness
+				? AllegianceMatrix.Faction.DARKNESS : AllegianceMatrix.Faction.RADIANT;
+		return AllegianceReloadListener.snapshot().matrix().resolve(
+				new AllegianceMatrix.Profile(source, AllegianceMatrix.Role.ARTIFACT),
+				new AllegianceMatrix.Profile(target, AllegianceMatrix.Role.PLAYER), false)
+				== AllegianceMatrix.Relationship.HOSTILE;
 	}
 
 	/** Summons expire at zero or when their owner leaves; natural realm mobs use -1. */
