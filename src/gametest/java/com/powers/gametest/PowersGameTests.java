@@ -2412,6 +2412,7 @@ public final class PowersGameTests {
 	@GameTest(maxTicks = 220)
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void darkCrystalMovesItsCasterIntoTheMindscape(GameTestHelper helper) {
+		GameTestClock.atNormalServerRate(helper, 150);
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
 		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
@@ -2421,16 +2422,9 @@ public final class PowersGameTests {
 				net.minecraft.resources.ResourceKey.create(
 						net.minecraft.core.registries.Registries.DIMENSION,
 						com.powers.PowersMod.id("dark_realm")));
-		// Fabric's isolated GameTestServer intentionally creates only vanilla
-		// levels. Dedicated-server boot verification covers datapack dimensions;
-		// exercise the complete transfer here whenever the harness supplies it.
-		if (darkRealm == null) {
-			helper.assertTrue(CrystalPowerRegistry.get(PowersItems.DARK_CRYSTAL) != null,
-					"Dark Crystal was not bound to its realm action");
-			TestingOverrides.clear(player.getUUID());
-			helper.succeed();
-			return;
-		}
+		helper.assertTrue(darkRealm != null, "Dark Crystal travel requires the shipped Dark Realm");
+		com.powers.PowersMod.LOGGER.info("Realm travel fixture: realm=dark_realm, destinationInitiallyLoaded={}",
+				darkRealm.getChunkSource().getChunkNow(0, 0) != null);
 
 		helper.assertTrue(CrystalPowerRegistry.tryActivate(player, PowersItems.DARK_CRYSTAL),
 				"Dark Crystal activation pipeline rejected its caster");
@@ -2448,6 +2442,7 @@ public final class PowersGameTests {
 	@GameTest(maxTicks = 220)
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void lightCrystalUsesTheSameAuthenticatedMindscapePipeline(GameTestHelper helper) {
+		GameTestClock.atNormalServerRate(helper, 150);
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		BlockPos origin = helper.absolutePos(new BlockPos(2, 1, 2));
 		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
@@ -2457,13 +2452,9 @@ public final class PowersGameTests {
 				net.minecraft.resources.ResourceKey.create(
 						net.minecraft.core.registries.Registries.DIMENSION,
 						com.powers.PowersMod.id("light_realm")));
-		if (lightRealm == null) {
-			helper.assertTrue(CrystalPowerRegistry.get(PowersItems.LIGHT_CRYSTAL) != null,
-					"Light Crystal was not bound to its realm action");
-			TestingOverrides.clear(player.getUUID());
-			helper.succeed();
-			return;
-		}
+		helper.assertTrue(lightRealm != null, "Light Crystal travel requires the shipped Light Realm");
+		com.powers.PowersMod.LOGGER.info("Realm travel fixture: realm=light_realm, destinationInitiallyLoaded={}",
+				lightRealm.getChunkSource().getChunkNow(0, 0) != null);
 
 		helper.assertTrue(CrystalPowerRegistry.tryActivate(player, PowersItems.LIGHT_CRYSTAL),
 				"Light Crystal activation pipeline rejected its caster");
