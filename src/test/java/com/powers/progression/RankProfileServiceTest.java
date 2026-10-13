@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RankProfileServiceTest {
@@ -21,9 +22,23 @@ class RankProfileServiceTest {
 
 	@Test
 	void everyNodeHasAtLeastOneMechanicalPerk() {
-		Stream.of(RankGraphRegistry.light(), RankGraphRegistry.darkness())
+		var nodes = Stream.of(RankGraphRegistry.light(), RankGraphRegistry.darkness())
 				.flatMap(graph -> graph.nodes().stream())
-				.forEach(node -> assertFalse(node.perks().isEmpty(), node.id()));
+				.toList();
+		assertEquals(56, nodes.size());
+		nodes.forEach(node -> {
+			assertFalse(node.perks().isEmpty(), node.id());
+			node.perks().forEach(perk -> {
+				assertFalse(perk.mechanicName().isBlank(), node.id());
+				double baseline = 100.0;
+				double applied = perk.execute(baseline, false);
+				double focused = perk.execute(baseline, true);
+				assertTrue(Double.isFinite(applied), node.id());
+				assertTrue(Double.isFinite(focused), node.id());
+				assertTrue(applied != baseline, node.id());
+				assertTrue(Math.abs(focused - baseline) >= Math.abs(applied - baseline), node.id());
+			});
+		});
 	}
 
 	@Test
@@ -55,6 +70,10 @@ class RankProfileServiceTest {
 
 		assertEquals(0.40, profile.value(RankPerkType.POWER_DAMAGE), 0.0001);
 		assertEquals(0.25, profile.value(RankPerkType.COOLDOWN_REDUCTION), 0.0001);
+		assertEquals(140.0, profile.execute(RankPerkType.POWER_DAMAGE, "", 100.0), 0.0001);
+		assertEquals(75.0, profile.execute(RankPerkType.COOLDOWN_REDUCTION, "", 100.0), 0.0001);
+		assertThrows(IllegalArgumentException.class,
+				() -> profile.execute(RankPerkType.POWER_DAMAGE, "", Double.NaN));
 	}
 
 	private static RankNode node(String id, String branch, RankPerkType type, double amount) {
