@@ -7,6 +7,8 @@ import com.powers.animation.CastingPose;
 import com.powers.animation.CastingPoseMapping;
 import com.powers.animation.CastingPoseService;
 import com.powers.fx.PowerFx;
+import com.powers.boss.BossReactionRules;
+import com.powers.boss.BossReactionTarget;
 import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
@@ -31,9 +33,10 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 
 /** Player-shaped realm boss that embodies one opposed primordial force. */
-public final class RealmHerald extends AbstractPlayerLikeMob {
+public final class RealmHerald extends AbstractPlayerLikeMob implements BossReactionTarget {
 	private final ServerBossEvent bossBar;
 	private boolean recordedDefeat;
+	private long lastBossReactionAt = Long.MIN_VALUE;
 
 	public RealmHerald(EntityType<? extends Monster> type, Level level) {
 		super(type, level);
@@ -61,6 +64,22 @@ public final class RealmHerald extends AbstractPlayerLikeMob {
 
 	public RealmKind realmKind() {
 		return getType() == PowersEntities.LIGHT_HERALD ? RealmKind.LIGHT : RealmKind.DARK;
+	}
+
+	@Override
+	public BossReactionRules.BossKind bossReactionKind() {
+		return realmKind() == RealmKind.LIGHT ? BossReactionRules.BossKind.LIGHT_HERALD
+				: BossReactionRules.BossKind.DARK_HERALD;
+	}
+
+	@Override
+	public long lastBossReactionAt() {
+		return lastBossReactionAt;
+	}
+
+	@Override
+	public void markBossReaction(long tick) {
+		lastBossReactionAt = tick;
 	}
 
 	@Override

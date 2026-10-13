@@ -514,6 +514,8 @@
 	"boss.powers.first_vessel.ritual_pattern": "The Crucible requires Darkness three blocks outward and Pure Light on all four diagonals",
 	"boss.powers.first_vessel.ritual_present": "The first covenant is already awake nearby",
 	"boss.powers.first_vessel.ritual_complete": "Eight anchors vanish. Something older than rank awakens.",
+	"boss.powers.reaction.covenant_breach": "COVENANT BREACH — either concord can expose the First Vessel",
+	"boss.powers.reaction.opposition_stagger": "OPPOSITION STAGGER — the Herald falters before its opposed power",
 	"advancement.powers.first_vessel.title": "The Vessel After Zero",
 	"advancement.powers.first_vessel.description": "Defeat the being that remembers every innate power",
 	"advancement.powers.dark_herald.title": "Audience with the Veiled Regent",

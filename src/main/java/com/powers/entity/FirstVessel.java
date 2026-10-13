@@ -12,6 +12,8 @@ import com.powers.boss.FirstVesselPowerCatalogue;
 import com.powers.boss.FirstVesselRules;
 import com.powers.boss.FirstVesselEncounterFacts;
 import com.powers.boss.FirstVesselTacticalPlanner;
+import com.powers.boss.BossReactionRules;
+import com.powers.boss.BossReactionTarget;
 import com.powers.companion.LoreDialogueContext;
 import com.powers.companion.LoreDialogueEngine;
 import com.powers.companion.DialogueProviderRuntime;
@@ -54,7 +56,7 @@ import net.minecraft.world.phys.AABB;
  * The planner inspects a maximum of 24 actions on a ten-tick cadence and all
  * area queries use the same hard entity cap.
  */
-public final class FirstVessel extends AbstractPlayerLikeMob {
+public final class FirstVessel extends AbstractPlayerLikeMob implements BossReactionTarget {
 	private static final int RECONSTITUTION_TICKS = 100;
 	private final ServerBossEvent bossEvent = new ServerBossEvent(getUUID(),
 			Component.translatable("entity.powers.first_vessel"),
@@ -72,6 +74,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 	private int reconstitutionTicks;
 	private float reconstitutionDamage;
 	private boolean lastFirmamentUsed;
+	private long lastBossReactionAt = Long.MIN_VALUE;
 
 	public FirstVessel(EntityType<? extends Monster> type, Level level) {
 		super(type, level);
@@ -94,6 +97,21 @@ public final class FirstVessel extends AbstractPlayerLikeMob {
 				.add(Attributes.MOVEMENT_SPEED, 0.33)
 				.add(Attributes.FOLLOW_RANGE, 96.0)
 				.add(Attributes.KNOCKBACK_RESISTANCE, 0.8);
+	}
+
+	@Override
+	public BossReactionRules.BossKind bossReactionKind() {
+		return BossReactionRules.BossKind.FIRST_VESSEL;
+	}
+
+	@Override
+	public long lastBossReactionAt() {
+		return lastBossReactionAt;
+	}
+
+	@Override
+	public void markBossReaction(long tick) {
+		lastBossReactionAt = tick;
 	}
 
 	@Override
