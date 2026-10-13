@@ -18,6 +18,7 @@ import com.powers.magic.runtime.CastSource;
 import com.powers.gametest.GameTestResourceReloadLease;
 import com.powers.player.ArtifactSelectionState;
 import com.powers.player.PlayerPowers;
+import com.powers.player.CartographerJournalStore;
 import com.powers.player.SkillSystem;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.power.crystals.ModeCrystalAbility;
@@ -28,6 +29,7 @@ import com.powers.testing.network.PacketFaultController;
 import com.powers.testing.network.PacketFaultDirection;
 import com.powers.testing.network.PacketFaultFamily;
 import com.powers.testing.network.PacketFaultProfile;
+import com.powers.testing.TestingOverrides;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
@@ -41,6 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
@@ -60,6 +63,70 @@ public final class PacketFaultGameTests {
 
 	private record MatrixFixture(String profile, ServerPlayer player, String grimoire,
 			List<String> spells, List<Object> clientbound) { }
+
+	@GameTest(environment = "powers:packet_fault_isolated", maxTicks = 20)
+	public void cartographerPacketPersistsAndReusesOneBoundedDiscovery(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		player.setItemInHand(InteractionHand.MAIN_HAND,
+				ImportedPackItems.item("imported_book_grimoire_celestial").getDefaultInstance());
+		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
+		data.setSelectedSpell("book_grimoire_celestial", 2);
+		TestingOverrides.setAll(player.getUUID(), true);
+		PacketRateLimiter.clearGlobal();
+		List<Object> payloads = capture(player);
+		BlockPos origin = player.blockPosition();
+		String biome = helper.getLevel().registryAccess().lookupOrThrow(Registries.BIOME)
+				.getKey(helper.getLevel().getBiome(origin).value()).toString();
+		try {
+			LocatorSpellPackets.open(player, CelestialSearchMode.WORLD);
+			PowersPackets.OpenLocatorScreenPayload first = payloads.stream()
+					.filter(PowersPackets.OpenLocatorScreenPayload.class::isInstance)
+					.map(PowersPackets.OpenLocatorScreenPayload.class::cast).findFirst().orElseThrow();
+			receive(player, new PowersPackets.LocateTargetPayload("biome " + biome, first.nonce()));
+			helper.runAfterDelay(2, () -> {
+				try {
+				helper.assertTrue(CartographerJournalStore.read(player).size() == 1,
+							"Authorized locator request did not persist exactly one discovery");
+					var discovered = CartographerJournalStore.read(player).getFirst();
+					long firstTick = discovered.discoveredAt();
+					long ownedTasks = com.powers.PowersMod.delayedTasks().stream()
+							.filter(task -> task.cancellationOwner().equals(player.getUUID())
+									&& task.purpose().equals("cartographer_breadcrumb")).count();
+					helper.assertTrue(ownedTasks == 10,
+							"Cartographer route did not own exactly ten bounded breadcrumb pulses: " + ownedTasks);
+					payloads.clear();
+					PacketRateLimiter.clearGlobal();
+					LocatorSpellPackets.open(player, CelestialSearchMode.WORLD);
+					PowersPackets.OpenLocatorScreenPayload second = payloads.stream()
+							.filter(PowersPackets.OpenLocatorScreenPayload.class::isInstance)
+							.map(PowersPackets.OpenLocatorScreenPayload.class::cast).findFirst().orElseThrow();
+					receive(player, new PowersPackets.LocateTargetPayload("biome " + biome, second.nonce()));
+					helper.runAfterDelay(2, () -> {
+						try {
+							helper.assertTrue(CartographerJournalStore.read(player).size() == 1
+									&& CartographerJournalStore.read(player).getFirst().discoveredAt() == firstTick,
+								"Journal reuse duplicated or rewrote the persistent discovery");
+							helper.succeed();
+						} finally {
+							com.powers.PowersMod.cancelDelayedTasks(player.getUUID());
+							TestingOverrides.clear(player.getUUID());
+							PacketRateLimiter.clearGlobal();
+						}
+					});
+				} catch (RuntimeException | Error failure) {
+					com.powers.PowersMod.cancelDelayedTasks(player.getUUID());
+					TestingOverrides.clear(player.getUUID());
+					PacketRateLimiter.clearGlobal();
+					throw failure;
+				}
+			});
+		} catch (RuntimeException | Error failure) {
+			com.powers.PowersMod.cancelDelayedTasks(player.getUUID());
+			TestingOverrides.clear(player.getUUID());
+			PacketRateLimiter.clearGlobal();
+			throw failure;
+		}
+	}
 
 	@GameTest(environment = "powers:packet_fault_isolated", maxTicks = 20)
 	public void visualScarFaultDelayedSessionBoundary(GameTestHelper helper) {

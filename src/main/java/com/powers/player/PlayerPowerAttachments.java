@@ -29,6 +29,9 @@ final class PlayerPowerAttachments {
 	static final AttachmentType<List<String>> RANK_NODES = persistentStringList("rank_nodes");
 	static final AttachmentType<List<String>> DARK_RANK_NODES = persistentStringList("dark_rank_nodes");
 	static final AttachmentType<List<String>> REALM_MEMORIES = persistentStringList("realm_memories");
+	static final AttachmentType<List<CartographerSite>> CARTOGRAPHER_SITES = AttachmentRegistry.create(
+			PowersMod.id("cartographer_sites"), builder -> builder.initializer(ArrayList::new)
+					.persistent(CartographerSite.CODEC.listOf()).copyOnDeath());
 	static final AttachmentType<String> RANK_FOCUS = persistentString("rank_focus");
 	static final AttachmentType<String> DARK_RANK_FOCUS = persistentString("dark_rank_focus");
 	static final AttachmentType<Boolean> DARKNESS_PREFIX_HIDDEN = persistentBoolean("darkness_prefix_hidden");
