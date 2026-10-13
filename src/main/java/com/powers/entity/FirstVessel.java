@@ -10,6 +10,7 @@ import com.powers.boss.FirstVesselPhase;
 import com.powers.boss.FirstVesselPowerAction;
 import com.powers.boss.FirstVesselPowerCatalogue;
 import com.powers.boss.FirstVesselRules;
+import com.powers.boss.FirstVesselTelegraphRules;
 import com.powers.boss.FirstVesselEncounterFacts;
 import com.powers.boss.FirstVesselTacticalPlanner;
 import com.powers.boss.BossReactionRules;
@@ -76,6 +77,9 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 	private boolean lastFirmamentUsed;
 	private long lastBossReactionAt = Long.MIN_VALUE;
 
+	private FirstVesselPowerAction pendingAction;
+	private String pendingTechnique;
+	private int pendingCastAt;
 	public FirstVessel(EntityType<? extends Monster> type, Level level) {
 		super(type, level);
 		setPersistenceRequired();
@@ -132,6 +136,26 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 	protected void customServerAiStep(ServerLevel level) {
 		super.customServerAiStep(level);
 		updateBossState(level);
+		if (pendingAction != null || pendingTechnique != null) {
+			if (tickCount < pendingCastAt) return;
+			if (pendingTechnique != null) {
+				String technique = pendingTechnique;
+				pendingTechnique = null;
+				if ("world_suture".equals(technique)) FirstVesselCombat.worldSuture(level, this);
+				else FirstVesselCombat.lastFirmament(level, this);
+				lastCastAt = tickCount;
+				return;
+			}
+			LivingEntity target = getTarget();
+			FirstVesselPowerAction action = pendingAction;
+			pendingAction = null;
+			if (target != null && FirstVesselCombat.cast(level, this, target, action, phase)) {
+				lastActionAt.put(action.powerId(), tickCount);
+				previousAction = action.powerId();
+				lastCastAt = tickCount;
+			}
+			return;
+		}
 		if (reconstitutionTicks > 0) {
 			tickReconstitution(level);
 			return;
@@ -145,17 +169,13 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 		if (target == null || !target.isAlive()) return;
 
 		if (phase != FirstVesselPhase.AWAKENING && tickCount % 240 == 0) {
-			announce(level, "boss.powers.first_vessel.world_suture");
-			FirstVesselCombat.worldSuture(level, this);
-			lastCastAt = tickCount;
+			beginTechniqueTelegraph(level, "world_suture");
 			return;
 		}
 		if (phase == FirstVesselPhase.LAST_COVENANT && healthRatio < 0.15
 				&& !lastFirmamentUsed) {
 			lastFirmamentUsed = true;
-			announce(level, "boss.powers.first_vessel.last_firmament");
-			FirstVesselCombat.lastFirmament(level, this);
-			lastCastAt = tickCount;
+			beginTechniqueTelegraph(level, "last_firmament");
 			return;
 		}
 		if (tickCount % 260 == 0 && target instanceof ServerPlayer player
@@ -209,13 +229,26 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 				encounterFacts(level, target), tickCount, lastActionAt);
 		if (decision == null) return false;
 		FirstVesselPowerAction action = decision.action();
-		if (!FirstVesselCombat.cast(level, this, target, action, phase)) return false;
-		lastActionAt.put(action.powerId(), tickCount);
-		previousAction = action.powerId();
-		lastCastAt = tickCount;
+		beginTelegraph(level, action);
 		return true;
 	}
-
+	private void beginTelegraph(ServerLevel level, FirstVesselPowerAction action) {
+		pendingAction = action;
+		pendingCastAt = tickCount + FirstVesselTelegraphRules.warningTicks(action);
+		bossEvent.setName(Component.literal(phase.name().replace('_', ' ') + " — "
+				+ action.powerId().replace('_', ' ').toUpperCase(java.util.Locale.ROOT)));
+		announce(level, "boss.powers.first_vessel.windup");
+		CastingPoseService.start(this, CastingPose.CHANNEL, CastingStyle.FIRST_VESSEL,
+				CastingHand.BOTH, FirstVesselTelegraphRules.warningTicks(action));
+	}
+	private void beginTechniqueTelegraph(ServerLevel level, String technique) {
+		pendingTechnique = technique;
+		pendingCastAt = tickCount + 40;
+		bossEvent.setName(Component.literal(phase.name().replace('_', ' ') + " — "
+				+ technique.replace('_', ' ').toUpperCase(java.util.Locale.ROOT)));
+		announce(level, "boss.powers.first_vessel." + technique);
+		CastingPoseService.start(this, CastingPose.CHANNEL, CastingStyle.FIRST_VESSEL, CastingHand.BOTH, 40);
+	}
 	private FirstVesselEncounterFacts encounterFacts(ServerLevel level, LivingEntity target) {
 		int cluster = 0;
 		for (ServerPlayer player : level.players()) {
@@ -244,10 +277,7 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 					.filter(candidate -> candidate.powerId().equals(path)).findFirst().orElse(null);
 			if (action == null) continue;
 			announce(level, "boss.powers.first_vessel.power_theft");
-			if (!FirstVesselCombat.cast(level, this, target, action, phase)) continue;
-			lastActionAt.put(action.powerId(), tickCount);
-			previousAction = action.powerId();
-			lastCastAt = tickCount;
+			beginTelegraph(level, action);
 			return true;
 		}
 		return false;
@@ -327,7 +357,6 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 		}
 		return true;
 	}
-
 	@Override
 	public void heal(float amount) {
 		if (amount <= 0.0F) return;
