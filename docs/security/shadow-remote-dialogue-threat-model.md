@@ -26,7 +26,7 @@ Shadow and First Vessel dialogue can optionally cross a server-to-provider HTTPS
 ### Data flows and trust boundaries
 
 - Player → server parser: chat text over the normal authenticated Minecraft session; maximum query and parser bounds apply; the server independently authorizes actions.
-- Server → optional provider: redacted prompt plus registry identifiers over HTTPS, or plain HTTP only to loopback; bearer credential comes from the configured environment variable; per-owner cooldown, global concurrency, and 2.5-second maximum timeout apply.
+- Server → optional provider: redacted prompt plus registry identifiers over HTTPS, or plain HTTP only to loopback; hosted HTTPS uses a bearer credential from the configured environment variable, while loopback Ollama requires no credential and receives no authorization header; per-owner cooldown, global concurrency, and 2.5-second maximum timeout apply.
 - Provider → server: untrusted JSON, HTTP 2xx only, 8-KiB body limit; JSON shape validation, plain-text sanitization, 256/1,024-character output bounds, and offline fallback apply.
 - Server → players: a literal chat/overlay component; visibility follows Shadow's server-owned hidden/revealed recipient rules.
 
@@ -74,7 +74,7 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | Shadow question | `shadow, ...` chat | Player → server | Bounded question and local authoritative resolution | `KnowledgeQuery`; `KnowledgeService.answerAsync` |
 | Dialogue config | Server JSON/environment | Operator → runtime | Disabled by default; credential value is not stored in config | `PowersConfig.DialogueProvider`; `DialogueProviderRuntime.current` |
-| HTTP endpoint | Asynchronous POST | Server → provider | HTTPS or loopback HTTP; timeout and executor limits | `BoundedDialogueProvider.endpoint`; `JdkDialogueTransport.request` |
+| HTTP endpoint | Asynchronous POST | Server → provider | HTTPS or loopback HTTP; centralized endpoint policy, conditional credentials, timeout and executor limits | `DialogueEndpointPolicy`; `JdkDialogueTransport.request` |
 | Response JSON | Provider response body | Provider → server | 8-KiB body, expected JSON path, fallback on error | `JdkDialogueTransport.boundedBody`; both bounded providers |
 | Chat presentation | Completed future | Server → recipients | `Component.literal`; server re-enters its executor | `ShadowCompanionMessaging.sendReply`; `FirstVessel.sendLoreIfRelevant` |
 
@@ -110,6 +110,7 @@ flowchart LR
 
 | Path | Why it matters | Related threats |
 | --- | --- | --- |
+| `src/main/java/com/powers/companion/DialogueEndpointPolicy.java` | Central HTTPS/loopback and credential boundary | TM-003, TM-004, TM-005 |
 | `src/main/java/com/powers/companion/BoundedDialogueProvider.java` | Endpoint and prose-output boundary | TM-001, TM-003, TM-005 |
 | `src/main/java/com/powers/knowledge/BoundedKnowledgeProvider.java` | Diagnostic/recipe authority separation | TM-001, TM-002, TM-006 |
 | `src/main/java/com/powers/companion/JdkDialogueTransport.java` | Credential-bearing HTTP and response-size limit | TM-003, TM-004, TM-006 |

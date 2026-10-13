@@ -3,6 +3,7 @@ package com.powers.knowledge;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.powers.companion.DialogueTransport;
+import com.powers.companion.DialogueEndpointPolicy;
 import com.powers.companion.DialogueTextSanitizer;
 import com.powers.config.PowersConfig;
 
@@ -67,8 +68,9 @@ public final class BoundedKnowledgeProvider {
 	}
 
 	public boolean enabled() {
-		return settings.enabled() && !settings.endpoint().isBlank()
-				&& !settings.model().isBlank() && !credential.isBlank();
+		URI endpoint = endpoint();
+		return settings.enabled() && !settings.model().isBlank()
+				&& DialogueEndpointPolicy.credentialAccepted(endpoint, credential);
 	}
 
 	public void forget(UUID owner) {
@@ -86,16 +88,7 @@ public final class BoundedKnowledgeProvider {
 	}
 
 	private URI endpoint() {
-		try {
-			URI uri = URI.create(settings.endpoint());
-			boolean secure = "https".equalsIgnoreCase(uri.getScheme());
-			boolean local = "http".equalsIgnoreCase(uri.getScheme())
-					&& ("localhost".equalsIgnoreCase(uri.getHost())
-					|| "127.0.0.1".equals(uri.getHost()) || "::1".equals(uri.getHost()));
-			return uri.isAbsolute() && (secure || local) ? uri : null;
-		} catch (IllegalArgumentException error) {
-			return null;
-		}
+		return DialogueEndpointPolicy.validated(settings.endpoint());
 	}
 
 	private void release(UUID owner) {

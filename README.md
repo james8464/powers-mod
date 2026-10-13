@@ -454,7 +454,9 @@ The server file uses schema version 4. Values are sanitized at load; `/powers re
 
 `livingForces` defaults to spreading enabled, two attempts, radius 8, Wither amplifier 2 (Wither III), 24 energy/second, clash radius 48, and 4,096 checks/tick. Bounds are enforced at load.
 
-`dialogueProvider` defaults to disabled with blank endpoint/model, credential environment variable `POWERS_DIALOGUE_API_KEY`, 2,500 ms timeout, four global requests, and 30-second owner cooldown. Only HTTPS or loopback endpoints pass runtime validation; no network work runs on the server tick thread.
+`dialogueProvider` defaults to disabled with blank endpoint/model, credential environment variable `POWERS_DIALOGUE_API_KEY`, 2,500 ms timeout, four global requests, and 30-second owner cooldown. Only HTTPS or loopback HTTP endpoints pass runtime validation; hosted HTTPS requires the configured environment credential, while loopback Ollama may run without one and receives no `Authorization` header. The OpenAI-compatible Ollama URL is `http://127.0.0.1:11434/v1/chat/completions`. Provider output is prose-only and no network work runs on the server tick thread.
+
+The inert-by-default SHD-016 evaluator can be explicitly run with `python3 scripts/shd016_ollama_benchmark.py --run --model qwen3.5:9b --output /tmp/shd016.json`. It accepts localhost only, sends curated fictional prompts rather than player/world state, and records latency, Ollama process CPU/RAM, moderation/redaction checks, memory-isolation behavior, and an unreachable-endpoint fallback probe.
 
 Back up a world before enabling or testing Celestial Ruin terrain/block-entity destruction or placing opposed living forces.
 

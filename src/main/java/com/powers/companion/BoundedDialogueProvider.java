@@ -37,8 +37,9 @@ public final class BoundedDialogueProvider {
 	}
 
 	public boolean enabled() {
-		return settings.enabled() && !settings.endpoint().isBlank()
-				&& !settings.model().isBlank() && !credential.isBlank();
+		URI endpoint = endpoint();
+		return settings.enabled() && !settings.model().isBlank()
+				&& DialogueEndpointPolicy.credentialAccepted(endpoint, credential);
 	}
 
 	/** Returns immediately with either a pending future or the offline fallback. */
@@ -87,16 +88,7 @@ public final class BoundedDialogueProvider {
 	}
 
 	private URI endpoint() {
-		try {
-			URI uri = URI.create(settings.endpoint());
-			boolean secure = "https".equalsIgnoreCase(uri.getScheme());
-			boolean local = "http".equalsIgnoreCase(uri.getScheme())
-					&& ("localhost".equalsIgnoreCase(uri.getHost())
-					|| "127.0.0.1".equals(uri.getHost()) || "::1".equals(uri.getHost()));
-			return uri.isAbsolute() && (secure || local) ? uri : null;
-		} catch (IllegalArgumentException error) {
-			return null;
-		}
+		return DialogueEndpointPolicy.validated(settings.endpoint());
 	}
 
 	private void release(UUID owner) {

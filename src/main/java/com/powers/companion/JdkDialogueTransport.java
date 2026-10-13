@@ -36,16 +36,24 @@ public final class JdkDialogueTransport implements DialogueTransport, AutoClosea
 	@Override
 	public CompletableFuture<String> request(URI endpoint, String model, String credential,
 			String prompt, Duration timeout) {
+		HttpRequest request = buildRequest(endpoint, model, credential, prompt, timeout);
+		return client.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream())
+				.thenApply(JdkDialogueTransport::boundedBody);
+	}
+
+	static HttpRequest buildRequest(URI endpoint, String model, String credential,
+			String prompt, Duration timeout) {
 		String body = GSON.toJson(Map.of(
 				"model", model,
 				"messages", List.of(Map.of("role", "user", "content", prompt)),
 				"max_tokens", 96));
-		HttpRequest request = HttpRequest.newBuilder(endpoint).timeout(timeout)
-				.header("Authorization", "Bearer " + credential)
+		HttpRequest.Builder builder = HttpRequest.newBuilder(endpoint).timeout(timeout)
 				.header("Content-Type", "application/json")
-				.POST(HttpRequest.BodyPublishers.ofString(body)).build();
-		return client.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream())
-				.thenApply(JdkDialogueTransport::boundedBody);
+				.POST(HttpRequest.BodyPublishers.ofString(body));
+		if (credential != null && !credential.isBlank()) {
+			builder.header("Authorization", "Bearer " + credential);
+		}
+		return builder.build();
 	}
 
 	private static String boundedBody(HttpResponse<java.io.InputStream> response) {
