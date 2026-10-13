@@ -12,6 +12,8 @@ public final class CelestialRuinPresentation {
 	public static final int BEAM_BOUNDARY_PARTICLES = 24;
 	public static final int FLASH_TICKS = 400;
 	public static final int RINGING_TICKS = 500;
+	public static final int AFTERMATH_TICKS = 600;
+	public static final int MAX_AFTERMATH_EVENTS = 4;
 	private static final int OPAQUE_TICKS = 60;
 
 	private CelestialRuinPresentation() {
@@ -57,11 +59,32 @@ public final class CelestialRuinPresentation {
 		};
 	}
 
+	/** Bounded local ash and cloud-cap work for one active detonation. */
+	public static AftermathDensity aftermathDensity(FxLodTier tier) {
+		return switch (tier) {
+			case NEAR -> new AftermathDensity(12, 24);
+			case MID -> new AftermathDensity(7, 16);
+			case FAR -> new AftermathDensity(3, 8);
+			case HIDDEN -> new AftermathDensity(0, 0);
+		};
+	}
+
+	public static float ashStrength(int remainingTicks) {
+		if (remainingTicks <= 0) return 0.0F;
+		return Math.min(1.0F, remainingTicks / (float) AFTERMATH_TICKS);
+	}
+
 	public record ColumnDensity(int verticalSlices, int particlesPerSlice,
 			int boundaryParticles) {
 		public int particleCount() {
 			return verticalSlices * particlesPerSlice
 					+ particlesPerSlice / 2 + boundaryParticles;
+		}
+	}
+
+	public record AftermathDensity(int ashParticles, int cloudParticles) {
+		public int particleCount() {
+			return ashParticles + cloudParticles;
 		}
 	}
 }

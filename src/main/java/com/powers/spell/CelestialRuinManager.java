@@ -404,7 +404,9 @@ public final class CelestialRuinManager {
 				int surfaceY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
 						column.getX(), column.getZ()) - 1;
 				if (surfaceY < level.getMinY() || surfaceY >= level.getMaxY()) continue;
-				int depth = 1 + Math.floorMod(aftershockStep * 31, 3);
+				double distance = Math.hypot(offset.x(), offset.z());
+				int depth = CelestialRuinRules.structuralScarDepth(
+						distance, aftershockStep * 31);
 				for (int down = 0; down < depth; down++) {
 					BlockPos target = new BlockPos(column.getX(), surfaceY - down, column.getZ());
 					if (target.getY() < level.getMinY()
