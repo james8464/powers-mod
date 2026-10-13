@@ -12,6 +12,7 @@
 			"com.powers.gametest.LiveActionAcceptanceGameTests",
 			"com.powers.gametest.BossActionResponseMatrixGameTests",
 			"com.powers.gametest.FirstVesselTelegraphGameTests",
+			"com.powers.gametest.MiddleworldArchivistGameTests",
 			"com.powers.gametest.ConfigurableTestActorGameTests",
 			"com.powers.gametest.QuestTelemetryCampaignGameTests",
 			"com.powers.gametest.FxCoalescingGameTests",

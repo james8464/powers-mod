@@ -16,14 +16,12 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Builds compact loaded Middleworld libraries and their neutral non-trading Archivists. */
 public final class MiddleworldOutpostManager {
 	private static final ResourceKey<Level> MIDDLEWORLD = ResourceKey.create(Registries.DIMENSION,
 			PowersMod.id("middleworld"));
-	private static final String ARCHIVIST_TAG = "powers_middleworld_archivist";
 
 	private MiddleworldOutpostManager() {
 	}
@@ -92,9 +90,8 @@ public final class MiddleworldOutpostManager {
 	}
 
 	private static void ensureArchivist(ServerLevel level, MiddleworldOutpostRules.Outpost outpost) {
+		if (ArchivistLifecycle.data(level).occupied(outpost.id())) return;
 		BlockPos center = new BlockPos(outpost.x(), RealmTerrain.arrivalY(level, outpost.x(), outpost.z()), outpost.z());
-		if (!level.getEntitiesOfClass(Villager.class, new AABB(center).inflate(5.0),
-				villager -> villager.entityTags().contains(ARCHIVIST_TAG + '_' + outpost.id())).isEmpty()) return;
 		Villager archivist = EntityTypes.VILLAGER.create(level, EntitySpawnReason.EVENT);
 		if (archivist == null) return;
 		archivist.setPos(center.getX() + 0.5, center.getY(), center.getZ() + 0.5);
@@ -102,8 +99,8 @@ public final class MiddleworldOutpostManager {
 		archivist.setCustomNameVisible(true);
 		archivist.setNoAi(true);
 		archivist.setPersistenceRequired();
-		archivist.addTag(ARCHIVIST_TAG + '_' + outpost.id());
-		level.addFreshEntity(archivist);
+		archivist.addTag(ArchivistLifecycle.TAG_PREFIX + outpost.id());
+		if (level.addFreshEntity(archivist)) ArchivistLifecycle.loaded(archivist, level);
 	}
 
 	private static void dreamWeather(ServerLevel level) {
