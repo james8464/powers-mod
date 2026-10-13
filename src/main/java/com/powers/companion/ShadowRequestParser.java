@@ -56,6 +56,9 @@ public final class ShadowRequestParser {
 		if (command.equals("list places") || command.equals("what places do you remember")) {
 			return request(ShadowRequest.Kind.LIST_PLACES, "", 1, original);
 		}
+		if (command.matches("callouts (?:critical|normal|verbose)")) {
+			return request(ShadowRequest.Kind.CALLOUT_MODE, after(command, "callouts "), 1, original);
+		}
 		if (REVEAL.contains(command)) return request(ShadowRequest.Kind.REVEAL, "", 1, original);
 		if (HIDE.contains(command)) return request(ShadowRequest.Kind.HIDE, "", 1, original);
 		if (DISMISS.contains(command)) return request(ShadowRequest.Kind.DISMISS, "", 1, original);

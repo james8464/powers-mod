@@ -18,15 +18,18 @@ class ShadowCompanionDataTest {
 		assertFalse(defaults.revealed());
 		assertTrue(defaults.bodyUuid().isEmpty());
 		assertEquals(0, defaults.places().size());
+		assertEquals(ShadowCalloutMode.NORMAL, defaults.preferredCalloutMode());
 
 		UUID body = UUID.fromString("2d4277a8-1716-4a35-bd28-1ba94484f9d4");
 		var changed = defaults.withEnergy(9_999).withStance(null)
-				.withRevealed(true).withBodyId(body).withRecallReadyAt(-40L);
+				.withRevealed(true).withBodyId(body).withRecallReadyAt(-40L)
+				.withCalloutMode(ShadowCalloutMode.VERBOSE);
 		assertEquals(1_850, changed.energy());
 		assertEquals(ShadowStance.FOLLOW, changed.stance());
 		assertTrue(changed.revealed());
 		assertEquals(body, changed.bodyUuid().orElseThrow());
 		assertEquals(0L, changed.recallReadyAt());
+		assertEquals(ShadowCalloutMode.VERBOSE, changed.preferredCalloutMode());
 	}
 
 	@Test

@@ -38,6 +38,7 @@ class ShadowRequestParserTest {
 		assertEquals(ShadowRequest.Kind.GO_TO_PLACE, parse("go to camp", memory).kind());
 		assertEquals(ShadowRequest.Kind.FORGET_PLACE, parse("forget place camp", memory).kind());
 		assertEquals(ShadowRequest.Kind.LIST_PLACES, parse("list places", memory).kind());
+		assertEquals(ShadowRequest.Kind.CALLOUT_MODE, parse("callouts critical", memory).kind());
 		assertEquals(ShadowRequest.Kind.DIAGNOSE, parse("why did it fail?", memory).kind());
 		assertEquals(ShadowRequest.Kind.FEEDBACK_GOOD, parse("good", memory).kind());
 		assertEquals(ShadowRequest.Kind.FEEDBACK_BAD, parse("don't do that", memory).kind());
@@ -68,6 +69,14 @@ class ShadowRequestParserTest {
 		assertEquals(ShadowRequest.Kind.CONVERSE,
 				parse("remember the old battle", memory).kind());
 		assertFalse(ShadowRequestParser.parse("go to camp", memory, NAMES).addressed());
+	}
+
+	@Test
+	void calloutFrequencyModeIsExplicitAndBounded() {
+		ShadowConversationMemory memory = ShadowConversationMemory.empty();
+		assertEquals("normal", parse("callouts normal", memory).subject());
+		assertEquals("verbose", parse("callouts verbose", memory).subject());
+		assertEquals(ShadowRequest.Kind.CONVERSE, parse("callouts constantly", memory).kind());
 	}
 
 	@Test

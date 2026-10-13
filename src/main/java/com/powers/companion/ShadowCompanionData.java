@@ -10,7 +10,7 @@ import java.util.UUID;
 /** Small owner-keyed save record; runtime entity references never enter it. */
 public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance stance,
 		boolean revealed, String bodyId, long recallReadyAt, ShadowConversationMemory memory,
-		String combatRange, String learnedCombat, ShadowPlaceMemory places) {
+		String combatRange, String learnedCombat, ShadowPlaceMemory places, String calloutMode) {
 	public static final int CURRENT_SCHEMA_VERSION = 4;
 	public static final Codec<ShadowCompanionData> CODEC = RecordCodecBuilder.create(instance ->
 			instance.group(
@@ -33,7 +33,9 @@ public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance st
 					Codec.STRING.optionalFieldOf("learned_combat", "")
 							.forGetter(ShadowCompanionData::learnedCombat),
 					ShadowPlaceMemory.CODEC.optionalFieldOf("named_places", ShadowPlaceMemory.empty())
-							.forGetter(ShadowCompanionData::places))
+							.forGetter(ShadowCompanionData::places),
+					Codec.STRING.optionalFieldOf("callout_mode", "normal")
+							.forGetter(ShadowCompanionData::calloutMode))
 					.apply(instance, ShadowCompanionData::new));
 
 	public ShadowCompanionData {
@@ -46,12 +48,13 @@ public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance st
 		combatRange = parseRange(combatRange).name().toLowerCase(java.util.Locale.ROOT);
 		learnedCombat = learnedCombat == null || learnedCombat.length() > 32_768 ? "" : learnedCombat;
 		places = places == null ? ShadowPlaceMemory.empty() : places;
+		calloutMode = ShadowCalloutMode.parse(calloutMode).savedName();
 	}
 
 	public static ShadowCompanionData defaults() {
 		return new ShadowCompanionData(CURRENT_SCHEMA_VERSION, ShadowCompanionRules.MAX_ENERGY,
 				ShadowStance.FOLLOW, false, "", 0L, ShadowConversationMemory.empty(), "auto", "",
-				ShadowPlaceMemory.empty());
+				ShadowPlaceMemory.empty(), "normal");
 	}
 
 	public Optional<UUID> bodyUuid() {
@@ -101,7 +104,17 @@ public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance st
 
 	public ShadowCompanionData withPlaces(ShadowPlaceMemory value) {
 		return new ShadowCompanionData(schemaVersion, energy, stance, revealed, bodyId,
-				recallReadyAt, memory, combatRange, learnedCombat, value);
+				recallReadyAt, memory, combatRange, learnedCombat, value, calloutMode);
+	}
+
+	public ShadowCompanionData withCalloutMode(ShadowCalloutMode value) {
+		return new ShadowCompanionData(schemaVersion, energy, stance, revealed, bodyId,
+				recallReadyAt, memory, combatRange, learnedCombat, places,
+				(value == null ? ShadowCalloutMode.NORMAL : value).savedName());
+	}
+
+	public ShadowCalloutMode preferredCalloutMode() {
+		return ShadowCalloutMode.parse(calloutMode);
 	}
 
 	public ShadowRequestRange preferredCombatRange() {
@@ -112,7 +125,7 @@ public record ShadowCompanionData(int schemaVersion, int energy, ShadowStance st
 			boolean nextRevealed, String nextBody, long nextRecall,
 			ShadowConversationMemory nextMemory, String nextRange, String nextLearned) {
 		return new ShadowCompanionData(schemaVersion, nextEnergy, nextStance, nextRevealed,
-				nextBody, nextRecall, nextMemory, nextRange, nextLearned, places);
+				nextBody, nextRecall, nextMemory, nextRange, nextLearned, places, calloutMode);
 	}
 
 	private static ShadowRequestRange parseRange(String value) {

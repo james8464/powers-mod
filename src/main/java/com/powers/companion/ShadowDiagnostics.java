@@ -12,7 +12,8 @@ public record ShadowDiagnostics(int bodies, int hiddenBodies, int revealedBodies
 		int activeTasks, int totalEnergy, int activeRites, int activeToggles,
 		long casts, long conjurations, int plannerBodies, int contexts,
 		int targetProfiles, int creditWindows, String encounterRoles,
-		int forcedChunks, int leakedHandles) {
+		int forcedChunks, int leakedHandles,
+		long criticalWarnings, long chatterCallouts, long privateCallouts, long globalCallouts) {
 	public ShadowDiagnostics {
 		bodies = nonNegative(bodies);
 		hiddenBodies = nonNegative(hiddenBodies);
@@ -31,6 +32,10 @@ public record ShadowDiagnostics(int bodies, int hiddenBodies, int revealedBodies
 				? "none" : encounterRoles.substring(0, Math.min(160, encounterRoles.length()));
 		forcedChunks = nonNegative(forcedChunks);
 		leakedHandles = nonNegative(leakedHandles);
+		criticalWarnings = Math.max(0L, criticalWarnings);
+		chatterCallouts = Math.max(0L, chatterCallouts);
+		privateCallouts = Math.max(0L, privateCallouts);
+		globalCallouts = Math.max(0L, globalCallouts);
 	}
 
 	public String summary() {
@@ -41,7 +46,9 @@ public record ShadowDiagnostics(int bodies, int hiddenBodies, int revealedBodies
 				+ "; planner=" + plannerBodies + "; contexts=" + contexts
 				+ "; targetProfiles=" + targetProfiles + "; creditWindows=" + creditWindows
 				+ "; combatRoles=" + encounterRoles
-				+ "; forcedChunks=" + forcedChunks + "; leaks=" + leakedHandles;
+				+ "; forcedChunks=" + forcedChunks + "; leaks=" + leakedHandles
+				+ "; callouts=" + criticalWarnings + " critical/" + chatterCallouts
+				+ " chatter (private=" + privateCallouts + ", global=" + globalCallouts + ")";
 	}
 
 	static ShadowDiagnostics collect(Iterable<PrivateCompanionSession> sessions,
@@ -62,11 +69,14 @@ public record ShadowDiagnostics(int bodies, int hiddenBodies, int revealedBodies
 		}
 		var power = ShadowPowerRuntime.diagnostics();
 		var combat = ShadowCombatController.diagnostics();
+		var callouts = ShadowCalloutRuntime.diagnostics();
 		int leaked = (int) bodyHandles.stream().filter(id -> !liveBodyIds.contains(id)).count();
 		return new ShadowDiagnostics(bodies, bodies - revealed, revealed, tasks, energy,
 				ShadowConjurationManager.activeCount(), power.toggles(), power.casts(),
 				ShadowConjurationManager.completedCount(), combat.bodies(), combat.contexts(),
-				combat.targetTypes(), combat.creditWindows(), combat.roles(), 0, leaked);
+				combat.targetTypes(), combat.creditWindows(), combat.roles(), 0, leaked,
+				callouts.criticalWarnings(), callouts.chatterCallouts(),
+				callouts.privateCallouts(), callouts.globalCallouts());
 	}
 
 	private static int nonNegative(int value) {

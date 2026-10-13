@@ -84,6 +84,7 @@ final class ShadowCommandRuntime {
 			case FORGET_PLACE -> forgetPlace(owner, request);
 			case LIST_PLACES -> listPlaces(owner, request);
 			case GO_TO_PLACE -> goToPlace(owner, request);
+			case CALLOUT_MODE -> setCalloutMode(owner, request);
 			case ATTACK, DEFEND, USE_POWER, STOP_POWER, GET_ITEM, CONJURE_ITEM, SCOUT,
 					RANGE_PREFERENCE -> submit(owner, request);
 			case NONE -> {
@@ -134,6 +135,17 @@ final class ShadowCommandRuntime {
 			default -> "I do not remember a place by that name.";
 		};
 		ShadowCompanionMessaging.replyAndRemember(owner, request.original(), reply);
+	}
+
+	private static void setCalloutMode(ServerPlayer owner, ShadowRequest request) {
+		ShadowCalloutMode mode = ShadowCalloutMode.parse(request.subject());
+		ShadowCompanionStore.update(owner, state -> state.withCalloutMode(mode));
+		String description = mode == ShadowCalloutMode.CRITICAL_ONLY
+				? "Only critical warnings will break the silence."
+				: mode == ShadowCalloutMode.VERBOSE
+						? "I will report combat changes more often."
+						: "Combat callouts return to their normal pace.";
+		ShadowCompanionMessaging.replyAndRemember(owner, request.original(), description);
 	}
 
 	static void tickConjuration(ServerPlayer owner, PrivateCompanionSession session) {
