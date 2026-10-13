@@ -27,6 +27,12 @@ public final class ShadowPowerRuntime {
 	private ShadowPowerRuntime() {
 	}
 
+	/** Non-spending view used to keep already-exhausted work classes out of a plan. */
+	public static boolean canReserve(ShadowPowerAction.WorkClass work, long tick) {
+		if (tick != budgetTick) return true;
+		return USED.getOrDefault(work, 0) < limit(work);
+	}
+
 	public static boolean tryReserve(ShadowPowerAction.WorkClass work, long tick) {
 		if (tick != budgetTick) {
 			USED.clear();

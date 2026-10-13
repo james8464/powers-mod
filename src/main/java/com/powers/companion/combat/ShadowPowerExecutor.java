@@ -9,6 +9,7 @@ import com.powers.entity.DarknessFireballProjectile;
 import com.powers.fx.PowerFx;
 import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.magic.participant.MagicParticipants;
+import com.powers.player.SkillSystem;
 import com.powers.power.AmethystDampening;
 import com.powers.power.PowerDamage;
 import com.powers.power.abilities.CombatTerrainImpact;
@@ -79,12 +80,14 @@ public final class ShadowPowerExecutor {
 			AmethystDampening.punish(shadow);
 			return failed("amethyst_suppressed", handler);
 		}
+		if (requiresTarget(action.id()) && (target == null || !target.isAlive()
+				|| target == shadow || target == context.owner())) return failed("no_target", handler);
+		if (requiresTarget(action.id()) && (target.entityTags().contains(SkillSystem.DARKNESS_TAG)
+				|| shadow.isAlliedTo(target))) return failed("friendly_target", handler);
+		if (shadow.energy() < action.cost()) return failed("insufficient_energy", handler);
 		if (!ShadowPowerRuntime.tryReserve(action.workClass(), context.serverTick())) {
 			return failed("server_work_budget", handler);
 		}
-		if (requiresTarget(action.id()) && (target == null || !target.isAlive()
-				|| target == shadow || target == context.owner())) return failed("no_target", handler);
-		if (shadow.energy() < action.cost()) return failed("insufficient_energy", handler);
 
 		boolean success = switch (handler) {
 			case MOBILITY -> mobility(level, shadow, target, action.id());
@@ -183,7 +186,7 @@ public final class ShadowPowerExecutor {
 	private static boolean control(ServerLevel level, ShadowCompanionEntity shadow,
 			LivingEntity target, String id, ExecutionContext context) {
 		if (id.equals("time_freeze")) return GlobalTimeStopManager.startShadow(context.owner(), shadow);
-		if (!mayControl(level, target)) return false;
+		if (!mayControl(level, shadow, target)) return false;
 		Vec3 delta = target.position().subtract(shadow.position());
 		if (id.equals("gravity_displacement")) {
 			target.setDeltaMovement(delta.lengthSqr() < 1.0E-6 ? Vec3.ZERO
@@ -240,7 +243,7 @@ public final class ShadowPowerExecutor {
 
 	private static boolean mind(ServerLevel level, ShadowCompanionEntity shadow,
 			LivingEntity target, String id) {
-		if (!mayControl(level, target)) return false;
+		if (!mayControl(level, shadow, target)) return false;
 		Vec3 destination = id.equals("vessel_possession") ? target.position()
 				: target.position().subtract(target.getLookAngle().scale(3.0));
 		boolean moved = shadow.randomTeleport(destination.x, destination.y, destination.z, true);
@@ -276,13 +279,18 @@ public final class ShadowPowerExecutor {
 	private static boolean harm(ServerLevel level, ShadowCompanionEntity shadow,
 			LivingEntity target, float damage) {
 		if (target == null || PowerProtection.isSafeZone(level, target.position())
+				|| target.entityTags().contains(SkillSystem.DARKNESS_TAG)
+				|| shadow.isAlliedTo(target)
 				|| SpellFieldManager.isSanctuaryProtected(level, target)) return false;
 		float adjusted = AmethystDampening.isDampened(target) ? damage * 0.35F : damage;
 		return target.hurtServer(level, PowerDamage.source(shadow), adjusted);
 	}
 
-	private static boolean mayControl(ServerLevel level, LivingEntity target) {
-		return target != null && !PowerProtection.isSafeZone(level, target.position())
+	private static boolean mayControl(ServerLevel level, ShadowCompanionEntity shadow,
+			LivingEntity target) {
+		return target != null && !target.entityTags().contains(SkillSystem.DARKNESS_TAG)
+				&& !shadow.isAlliedTo(target)
+				&& !PowerProtection.isSafeZone(level, target.position())
 				&& !SpellFieldManager.isSanctuaryProtected(level, target)
 				&& !AmethystDampening.isDampened(target);
 	}
@@ -297,6 +305,8 @@ public final class ShadowPowerExecutor {
 				AABB.ofSize(center, radius * 2.0, radius * 2.0, radius * 2.0), 96,
 				entity -> entity != shadow && entity.isAlive()
 						&& !entity.getUUID().equals(shadow.ownerId())
+						&& !entity.entityTags().contains(SkillSystem.DARKNESS_TAG)
+						&& !shadow.isAlliedTo(entity)
 						&& entity.distanceToSqr(center) <= radius * radius,
 				Comparator.comparingDouble(entity -> entity.distanceToSqr(center)));
 	}

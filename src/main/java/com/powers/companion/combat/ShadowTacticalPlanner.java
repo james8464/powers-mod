@@ -5,27 +5,37 @@ import java.util.List;
 /** Pure deterministic utility planner over at most the 26 already-legal actions. */
 public final class ShadowTacticalPlanner {
 	public enum Movement { APPROACH, ORBIT, RETREAT, INTERPOSE, RECOVER }
-	public record Decision(ShadowEngagementMode mode, ShadowPowerAction action,
-			Movement movement, double score, int evaluatedCount) { }
+	public record Decision(ShadowEncounterRole role, ShadowEngagementMode mode,
+			ShadowPowerAction action, Movement movement, double score,
+			int evaluatedCount, int rejectedUnsafeCount) { }
 
 	private ShadowTacticalPlanner() {
 	}
 
 	public static Decision choose(List<ShadowPowerAction> legal, ShadowCombatFacts facts,
 			ShadowLearningState learning) {
+		ShadowEncounterRole role = role(facts);
 		ShadowEngagementMode mode = mode(facts);
+		int boundedCount = Math.min(26, legal.size());
+		if (facts.suppressed()) {
+			return new Decision(role, mode, null, Movement.RECOVER, -Double.MAX_VALUE,
+					boundedCount, boundedCount);
+		}
 		ShadowPowerAction best = null;
 		double bestScore = -Double.MAX_VALUE;
 		int evaluated = 0;
+		int rejectedUnsafe = 0;
 		String context = facts.contextKey(mode);
 		String type = facts.archetype().name().toLowerCase();
-		for (int index = 0; index < Math.min(26, legal.size()); index++) {
+		for (int index = 0; index < boundedCount; index++) {
 			ShadowPowerAction action = legal.get(index);
 			evaluated++;
 			if (action.cost() > facts.energyRatio() * 1_850.0) continue;
-			double score = base(mode, action);
-			if (facts.allyInFiringLane() && action.range() == ShadowPowerAction.RangeMode.FAR
-					&& action.intent() == ShadowPowerAction.Intent.OFFENSE) score -= 10.0;
+			if (unsafeForAlly(action, facts)) {
+				rejectedUnsafe++;
+				continue;
+			}
+			double score = base(mode, action) + roleBonus(role, action);
 			score *= 1.0 + learning.modifier(context, type, action.id());
 			if (!facts.suppressed() && facts.ownerHealthRatio() >= .5
 					&& facts.shadowHealthRatio() >= .5 && !facts.boss()) {
@@ -36,7 +46,51 @@ public final class ShadowTacticalPlanner {
 				best = action;
 			}
 		}
-		return new Decision(mode, best, movement(mode), bestScore, evaluated);
+		return new Decision(role, mode, best, movement(role, mode), bestScore,
+				evaluated, rejectedUnsafe);
+	}
+
+	private static ShadowEncounterRole role(ShadowCombatFacts facts) {
+		if (facts.suppressed() || facts.energyRatio() < .15 || facts.shadowHealthRatio() < .2) {
+			return ShadowEncounterRole.DISENGAGE;
+		}
+		if (facts.ownerHealthRatio() < .3) return ShadowEncounterRole.RESCUE;
+		if (facts.ownerThreatened()) return ShadowEncounterRole.PEEL;
+		if (facts.targetRanged()) return ShadowEncounterRole.INTERRUPT;
+		if (facts.targetHealthRatio() <= .25) return ShadowEncounterRole.EXECUTE;
+		return ShadowEncounterRole.SUPPRESS;
+	}
+
+	private static boolean unsafeForAlly(ShadowPowerAction action, ShadowCombatFacts facts) {
+		if (!facts.allyInFiringLane()) return false;
+		return action.destructionTier() > 0
+				|| action.intent() == ShadowPowerAction.Intent.OFFENSE
+				|| action.intent() == ShadowPowerAction.Intent.TERRAIN
+				|| action.intent() == ShadowPowerAction.Intent.SUMMON;
+	}
+
+	private static double roleBonus(ShadowEncounterRole role, ShadowPowerAction action) {
+		return switch (role) {
+			case PEEL -> intent(action, ShadowPowerAction.Intent.CONTROL, 8.0,
+					ShadowPowerAction.Intent.DEFENSE, 5.0);
+			case INTERRUPT -> intent(action, ShadowPowerAction.Intent.CONTROL, 8.0,
+					ShadowPowerAction.Intent.OFFENSE, 3.0);
+			case RESCUE -> intent(action, ShadowPowerAction.Intent.DEFENSE, 8.0,
+					ShadowPowerAction.Intent.CONTROL, 6.0);
+			case SUPPRESS -> intent(action, ShadowPowerAction.Intent.CONTROL, 7.0,
+					ShadowPowerAction.Intent.DEFENSE, 2.0);
+			case EXECUTE -> intent(action, ShadowPowerAction.Intent.OFFENSE, 8.0,
+					ShadowPowerAction.Intent.CONTROL, 2.0);
+			case DISENGAGE -> intent(action, ShadowPowerAction.Intent.RECOVERY, 8.0,
+					ShadowPowerAction.Intent.MOBILITY, 6.0);
+		};
+	}
+
+	private static double intent(ShadowPowerAction action, ShadowPowerAction.Intent first,
+			double firstScore, ShadowPowerAction.Intent second, double secondScore) {
+		if (action.intent() == first) return firstScore;
+		if (action.intent() == second) return secondScore;
+		return 0.0;
 	}
 
 	private static ShadowEngagementMode mode(ShadowCombatFacts facts) {
@@ -67,7 +121,11 @@ public final class ShadowTacticalPlanner {
 		};
 	}
 
-	private static Movement movement(ShadowEngagementMode mode) {
+	private static Movement movement(ShadowEncounterRole role, ShadowEngagementMode mode) {
+		if (role == ShadowEncounterRole.DISENGAGE) return Movement.RECOVER;
+		if (role == ShadowEncounterRole.RESCUE || role == ShadowEncounterRole.PEEL) {
+			return Movement.INTERPOSE;
+		}
 		return switch (mode) {
 			case CLOSE -> Movement.APPROACH;
 			case SKIRMISH -> Movement.ORBIT;

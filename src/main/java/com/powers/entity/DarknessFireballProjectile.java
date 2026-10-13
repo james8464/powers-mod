@@ -50,6 +50,7 @@ public final class DarknessFireballProjectile extends LargeFireball {
 		AABB bounds = AABB.ofSize(center, RADIUS * 2.0, RADIUS * 2.0, RADIUS * 2.0);
 		for (LivingEntity target : BoundedEntityCandidates.living(level, bounds, 48,
 				candidate -> candidate != owner && candidate.isAlive()
+						&& !owner.isAlliedTo(candidate)
 						&& (radiant == candidate.entityTags().contains(SkillSystem.DARKNESS_TAG))
 						&& candidate.distanceToSqr(center) <= RADIUS * RADIUS
 						&& !AmethystDampening.isDampened(candidate)

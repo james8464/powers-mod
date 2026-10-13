@@ -4,7 +4,17 @@ package com.powers.companion.combat;
 public record ShadowCombatFacts(double distance, double targetHealthRatio,
 		double meleeDanger, boolean targetRanged, boolean boss,
 		double ownerHealthRatio, double shadowHealthRatio, double energyRatio,
-		boolean suppressed, boolean allyInFiringLane, ShadowRequestRange preference) {
+		boolean suppressed, boolean allyInFiringLane, boolean ownerThreatened,
+		ShadowRequestRange preference) {
+	public ShadowCombatFacts(double distance, double targetHealthRatio,
+			double meleeDanger, boolean targetRanged, boolean boss,
+			double ownerHealthRatio, double shadowHealthRatio, double energyRatio,
+			boolean suppressed, boolean allyInFiringLane, ShadowRequestRange preference) {
+		this(distance, targetHealthRatio, meleeDanger, targetRanged, boss,
+				ownerHealthRatio, shadowHealthRatio, energyRatio, suppressed,
+				allyInFiringLane, false, preference);
+	}
+
 	public ShadowCombatFacts {
 		distance = Math.clamp(distance, 0.0, 256.0);
 		targetHealthRatio = ratio(targetHealthRatio);

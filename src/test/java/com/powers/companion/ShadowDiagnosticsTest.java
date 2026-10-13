@@ -9,9 +9,10 @@ class ShadowDiagnosticsTest {
 	@Test
 	void reportIsBoundedAndNeverContainsConversationContent() {
 		ShadowDiagnostics diagnostics = new ShadowDiagnostics(2, 1, 1, 1, 2500,
-				1, 3, 42, 7, 2, 12, 4, 1, 0, 0);
+				1, 3, 42, 7, 2, 12, 4, 1, "peel=1,suppress=1", 0, 0);
 		String summary = diagnostics.summary();
 		assertTrue(summary.contains("contexts=12"));
+		assertTrue(summary.contains("combatRoles=peel=1,suppress=1"));
 		assertTrue(summary.contains("leaks=0"));
 		assertFalse(summary.toLowerCase().contains("conversation"));
 		assertFalse(summary.toLowerCase().contains("message"));
