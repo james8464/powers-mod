@@ -2481,7 +2481,10 @@ public final class PowersGameTests {
 		PrivateCompanionManager.tickPlayer(caster, 0);
 		ShadowCompanionEntity shadow = PrivateCompanionManager.body(caster.getUUID()).orElseThrow();
 		shadow.setPos(caster.getX() + 0.5, caster.getY(), caster.getZ());
-		var mob = helper.spawn(net.minecraft.world.entity.EntityTypes.ZOMBIE, new BlockPos(2, 1, 3));
+		// This fixture proves transfer and return, not combat. A hostile zombie is
+		// legitimately killed by Shadow during the departure warning, cancelling
+		// the captured journey before its commit. Keep an ordinary living passenger.
+		var mob = helper.spawn(net.minecraft.world.entity.EntityTypes.PIG, new BlockPos(2, 1, 3));
 		mob.setNoAi(true);
 		// Realm-arrival tests share one fixed crystal landing zone. Keep this fixture
 		// from being collision-pushed by unrelated concurrent mock players so the
@@ -2518,7 +2521,9 @@ public final class PowersGameTests {
 							+ caster.getUUID() + ", level=" + caster.level().dimension().identifier()
 							+ ", mindBody=" + com.powers.player.PlayerPowers.get(caster).mindBody()
 							+ ", proxies=" + BodyProxyManager.activeProxyCount()
-							+ ", travel=" + com.powers.power.travel.TravelChunkLoader.diagnostics());
+							+ ", travel=" + com.powers.power.travel.TravelChunkLoader.diagnostics()
+							+ ", mob=" + mob.getUUID() + ":" + mob.getRemovalReason() + ":" + mob.getHealth()
+							+ ", shadow=" + shadow.getUUID() + ":" + shadow.getRemovalReason() + ":" + shadow.getHealth());
 			helper.assertTrue(nether.getEntity(mobId) != null
 					&& com.powers.power.travel.MindscapeMobReturnTracker.tracked(
 							(net.minecraft.world.entity.LivingEntity) nether.getEntity(mobId)),
@@ -2536,8 +2541,8 @@ public final class PowersGameTests {
 				helper.assertTrue(caster.level() == helper.getLevel(),
 						"Caster did not return to the vulnerable body");
 				var stranded = nether.getEntity(mobId);
-				var returnedZombies = helper.getLevel().getEntitiesOfClass(
-						net.minecraft.world.entity.monster.zombie.Zombie.class,
+				var returnedPassengers = helper.getLevel().getEntitiesOfClass(
+						net.minecraft.world.entity.animal.pig.Pig.class,
 						net.minecraft.world.phys.AABB.ofSize(
 								net.minecraft.world.phys.Vec3.atCenterOf(origin), 16.0, 16.0, 16.0));
 				helper.assertTrue(helper.getLevel().getEntity(mobId) != null,
@@ -2545,7 +2550,7 @@ public final class PowersGameTests {
 								+ (stranded == null ? "missing" : stranded.position())
 								+ ", tracked=" + (stranded instanceof net.minecraft.world.entity.LivingEntity living
 								&& com.powers.power.travel.MindscapeMobReturnTracker.tracked(living))
-								+ ", returned=" + returnedZombies.stream().map(entity ->
+								+ ", returned=" + returnedPassengers.stream().map(entity ->
 								entity.getUUID() + "@" + entity.position()).toList());
 				PrivateCompanionManager.handleChat(caster, "shadow, leave me");
 			}));
