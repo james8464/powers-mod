@@ -11,6 +11,7 @@ import com.powers.item.artifact.ArtifactAlignment;
 import com.powers.item.artifact.ArtifactAuthorizationRules;
 import com.powers.item.artifact.ArtifactCooldownRules;
 import com.powers.item.artifact.ArtifactSelectionRules;
+import com.powers.item.artifact.ArtifactOwnershipPolicy;
 import com.powers.magic.runtime.CastScalingContext;
 import com.powers.magic.runtime.CastSource;
 import com.powers.network.ShadowSwordPackets;
@@ -168,7 +169,8 @@ public final class ArtifactWeaponManager {
 	}
 
 	public static boolean carries(ServerPlayer player, ArtifactAlignment alignment) {
-		return player.getInventory().contains(stack -> isAlignment(stack, alignment));
+		return ArtifactOwnershipPolicy.carriesTopLevel(player.getInventory(),
+				stack -> isAlignment(stack, alignment));
 	}
 
 	/** Revalidates a multi-tick artifact invocation without emitting per-tick feedback. */

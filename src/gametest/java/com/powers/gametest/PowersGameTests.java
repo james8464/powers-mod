@@ -741,6 +741,31 @@ public final class PowersGameTests {
 	}
 
 	@GameTest
+	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
+	public void nestedMythicArtifactNeverGrantsOwnership(GameTestHelper helper) {
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		player.addTag(SkillSystem.DARKNESS_TAG);
+		ItemStack nestedSword = PowersWeapons.weapon("lycanbane").getDefaultInstance();
+		ItemStack shulker = new ItemStack(Items.SHULKER_BOX);
+		shulker.set(DataComponents.CONTAINER,
+				net.minecraft.world.item.component.ItemContainerContents.fromItems(
+						java.util.List.of(nestedSword)));
+		player.getInventory().add(shulker);
+		boolean nestedCarried = ArtifactWeaponManager.carries(player, ArtifactAlignment.DARKNESS);
+		helper.assertFalse(nestedCarried,
+				"A mythic artifact nested in a container granted ghost ownership");
+		helper.assertFalse(com.powers.item.artifact.ArtifactAuthorizationRules.mayOwn(
+				nestedCarried, ArtifactWeaponManager.authorized(player, ArtifactAlignment.DARKNESS)),
+				"Alignment alone authorized a nested mythic artifact");
+
+		player.getInventory().clearContent();
+		player.getInventory().add(PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		helper.assertTrue(ArtifactWeaponManager.carries(player, ArtifactAlignment.DARKNESS),
+				"A direct top-level mythic artifact did not grant ownership");
+		helper.succeed();
+	}
+
+	@GameTest
 	@SuppressWarnings("removal")
 	public void ordinaryFantasyWeaponExecutesItsVisibleArchetype(GameTestHelper helper) {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
