@@ -167,7 +167,8 @@ public class VesselPossessionAbility extends Ability {
 		if (target instanceof Mob mob) mob.setNoAi(true);
 		POSSESSING.put(player.getUUID(), new Possession(sessionId, player, target,
 				targetOriginallyNoAi, kind, castSource,
-				server.getTickCount() + PossessionRules.durationTicks(durationTicks)));
+				server.getTickCount() + ControlResistance.adjustDuration(
+						PossessionRules.durationTicks(durationTicks), ControlResistance.outcome(target))));
 		player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
 		player.setCamera(target);
 		VesselControlPackets.sendState(player, true);
@@ -303,9 +304,13 @@ public class VesselPossessionAbility extends Ability {
 	private static boolean mayControl(ServerPlayer owner, LivingEntity target,
 			PossessionRules.SessionKind kind) {
 		if (PossessionRules.usesDreamwalkProtection(kind)) {
-			return target instanceof ServerPlayer playerTarget
+			boolean permitted = target instanceof ServerPlayer playerTarget
 					? PowerProtection.mayDreamwalk(owner, playerTarget)
 					: PowerProtection.mayDreamwalk(owner, target);
+			if (!permitted) return false;
+			// Full host control is stricter than the separate view-only camera route.
+			ControlResistance.Outcome outcome = ControlResistance.evaluate(owner, target, "dreamwalking");
+			return outcome == ControlResistance.Outcome.FULL || outcome == ControlResistance.Outcome.RESISTED;
 		}
 		return target instanceof ServerPlayer playerTarget
 				? PowerProtection.mayPossess(owner, playerTarget)

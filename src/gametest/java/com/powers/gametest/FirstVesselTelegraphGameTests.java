@@ -19,9 +19,16 @@ public final class FirstVesselTelegraphGameTests {
 		vessel.setTarget(target);
 		float health = target.getHealth();
 		var sawMelee = new java.util.concurrent.atomic.AtomicBoolean();
+		long startGameTime = helper.getLevel().getGameTime();
+		var trace = new java.util.ArrayList<String>();
 		for (int tick = 1; tick < 60; tick++) {
 			helper.runAtTickTime(tick, () -> {
 				var damage = target.getLastDamageSource();
+				var pose = CastingPoseService.current(vessel.getUUID(), helper.getLevel().getGameTime());
+				if (vessel.tickCount % 5 == 0) {
+					trace.add(vessel.tickCount + ":" + target.getHealth() + ":" + pose
+							+ ":" + vessel.isWithinMeleeAttackRange(target));
+				}
 				if (damage != null && damage.is(net.minecraft.world.damagesource.DamageTypes.MOB_ATTACK)) {
 					sawMelee.set(true);
 				}
@@ -34,7 +41,13 @@ public final class FirstVesselTelegraphGameTests {
 		helper.runAtTickTime(60, () -> {
 			helper.assertTrue(target.getHealth() < health, "AI melee was starved by catalogue planning");
 			helper.assertTrue(sawMelee.get(),
-					"Catalogue damage cannot stand in for the live melee goal");
+					"Catalogue damage cannot stand in for the live melee goal; source="
+							+ target.getLastDamageSource() + " health=" + target.getHealth()
+							+ " vessel=" + vessel.position() + " target=" + target.position()
+							+ " age=" + vessel.tickCount + " selected=" + vessel.getTarget()
+							+ " range=" + vessel.isWithinMeleeAttackRange(target)
+							+ " sight=" + vessel.hasLineOfSight(target)
+							+ " startGameTime=" + startGameTime + " trace=" + trace);
 			helper.succeed();
 		});
 	}

@@ -159,18 +159,20 @@ final class LocatorSpellPackets {
 		// The selection packet names only a target. Payment and the selected
 		// celestial spell are revalidated immediately before the ritual commits.
 		UUID sessionId = UUID.randomUUID();
-		MindSessionManager.Admission admission = MindSessionManager.acquire(sessionId,
-				MindSessionManager.Kind.SOUL_COMPASS, player.getUUID(), List.of(
+		var participants = List.of(
 						new MindSessionManager.Participant(player.getUUID(), MindSessionManager.Role.OWNER),
 						new MindSessionManager.Participant(BodyProxyManager.mindIdentity(target),
 								target instanceof com.powers.companion.ShadowCompanionEntity
-										? MindSessionManager.Role.SHADOW : MindSessionManager.Role.HOST)));
+										? MindSessionManager.Role.SHADOW : MindSessionManager.Role.HOST));
+		MindSessionManager.Admission admission = MindSessionManager.preflight(sessionId,
+				MindSessionManager.Kind.SOUL_COMPASS, player.getUUID(), participants);
 		if (!admission.accepted()) {
 			MindSessionFeedback.refuse(player, "soul_compass", MindSessionManager.Kind.SOUL_COMPASS,
 					admission, List.of(player, target));
 			return;
 		}
-		if (SpellCastingManager.commitSoulCompass(player)) {
+		if (SpellCastingManager.commitSoulCompass(player, () -> MindSessionManager.acquire(sessionId,
+				MindSessionManager.Kind.SOUL_COMPASS, player.getUUID(), participants).accepted())) {
 			cast(player, level, castPosition, target, piercedWithTrueSight, sessionId);
 		} else {
 			MindSessionManager.release(sessionId);

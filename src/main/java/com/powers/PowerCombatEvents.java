@@ -35,7 +35,9 @@ final class PowerCombatEvents {
 
 	static void register() {
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
-			LayeredDamageLedger.global().recordIncoming(amount);
+			float wardAmount = entity instanceof com.powers.entity.FirstVessel vessel
+					? vessel.incomingWardDamage(amount) : amount;
+			LayeredDamageLedger.global().recordIncoming(wardAmount);
 			if (BodyProxyManager.isProxy(entity)) {
 				return BodyProxyManager.allowsDamage(entity, source, amount);
 			}
@@ -48,7 +50,7 @@ final class PowerCombatEvents {
 				// Suppression prevents a forbidden impact from consuming shield integrity.
 				if (AmethystDampening.isDampened(entity)) return false;
 			}
-			if (ForcefieldAbility.absorbDamage(entity, source, amount)) return false;
+			if (ForcefieldAbility.absorbDamage(entity, source, wardAmount)) return false;
 			// Mindscape avatars keep their ordinary health while their proxy body is
 			// independently vulnerable; blanket realm immunity would neutralize realm mobs.
 			return true;

@@ -11,7 +11,7 @@ import com.powers.boss.FirstVesselPowerAction;
 import com.powers.boss.FirstVesselPowerCatalogue;
 import com.powers.boss.FirstVesselRules;
 import com.powers.boss.FirstVesselTelegraphRules;
-import com.powers.boss.FirstVesselEncounterFacts;
+import com.powers.boss.FirstVesselEncounterSnapshot;
 import com.powers.boss.FirstVesselTacticalPlanner;
 import com.powers.boss.BossReactionRules;
 import com.powers.boss.BossReactionTarget;
@@ -23,9 +23,6 @@ import com.powers.player.PlayerPowers;
 import com.powers.power.AmethystDampening;
 import com.powers.power.artifact.ArtifactFieldManager;
 import com.powers.item.artifact.ArtifactAlignment;
-import com.powers.protection.PowerProtection;
-import com.powers.spell.SpellFieldManager;
-import com.powers.util.BoundedEntityCandidates;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerBossEvent;
@@ -41,14 +38,12 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.HashMap;
 import java.util.Map;
-import net.minecraft.world.phys.AABB;
 
 /**
  * Player-shaped tactical raid boss whose 28 adapters mirror every innate power.
@@ -69,6 +64,8 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 	private int scaledPlayers;
 	private float effectiveMaximumHealth = FirstVesselRules.BASE_HEALTH;
 	private float effectiveHealth = FirstVesselRules.BASE_HEALTH;
+	// Server-thread scope: wards see the real hit, not the vanilla-health adapter's reduced amount.
+	private float incomingWardDamage = Float.NaN;
 	private boolean reconstitutionUsed;
 	private int reconstitutionTicks;
 	private float reconstitutionDamage;
@@ -233,7 +230,8 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 	private boolean castFromDeck(ServerLevel level, LivingEntity target) {
 		var deck = FirstVesselPowerCatalogue.deck(phase);
 		FirstVesselTacticalPlanner.Decision decision = planner.choose(deck,
-				encounterFacts(level, target), tickCount, lastActionAt);
+				FirstVesselEncounterSnapshot.capture(this, level, target,
+						effectiveHealthRatio(), previousAction), tickCount, lastActionAt);
 		if (decision == null) return false;
 		FirstVesselPowerAction action = decision.action();
 		beginTelegraph(level, action);
@@ -255,26 +253,6 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 				+ technique.replace('_', ' ').toUpperCase(java.util.Locale.ROOT)));
 		FirstVesselDialogue.announce(this, level, "boss.powers.first_vessel." + technique);
 		CastingPoseService.start(this, CastingPose.CHANNEL, CastingStyle.FIRST_VESSEL, CastingHand.BOTH, 40);
-	}
-	private FirstVesselEncounterFacts encounterFacts(ServerLevel level, LivingEntity target) {
-		int cluster = 0;
-		for (ServerPlayer player : level.players()) {
-			if (cluster >= FirstVesselRules.MAX_CANDIDATES) break;
-			if (player.isAlive() && !player.isSpectator()
-					&& player.distanceToSqr(target) <= 10.0 * 10.0) cluster++;
-		}
-		int incoming = BoundedEntityCandidates.ofClass(level, Projectile.class,
-				AABB.ofSize(position(), 24.0, 24.0, 24.0), FirstVesselRules.MAX_CANDIDATES,
-				projectile -> projectile.isAlive() && projectile.getOwner() != this).size();
-		boolean lineOfSight = getSensing().hasLineOfSight(target);
-		boolean warded = PowerProtection.isSafeZone(level, target.position())
-				|| SpellFieldManager.isSanctuaryProtected(level, target)
-				|| AmethystDampening.isDampenedAt(level, target.blockPosition());
-		return new FirstVesselEncounterFacts(target.isAlive(), distanceTo(target),
-				Math.abs(target.getY() - getY()), lineOfSight, cluster, incoming,
-				effectiveHealthRatio(), target.getDeltaMovement().horizontalDistanceSqr() > 0.04,
-				warded, !lineOfSight, previousAction,
-				getUUID().getLeastSignificantBits() ^ tickCount / 10L);
 	}
 
 	private boolean castStolenPower(ServerLevel level, ServerPlayer target) {
@@ -348,7 +326,14 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 		if (getHealth() <= 1.5F && effectiveHealth > 1.0F) setHealth(getMaxHealth());
 		float beforeLayer = getHealth();
 		float safeAmount = Math.min(amount, Math.max(0.5F, beforeLayer - 1.0F));
-		boolean hurt = super.hurtServer(level, source, safeAmount);
+		boolean hurt;
+		float previousWardDamage = incomingWardDamage;
+		incomingWardDamage = amount;
+		try {
+			hurt = super.hurtServer(level, source, safeAmount);
+		} finally {
+			incomingWardDamage = previousWardDamage;
+		}
 		if (!hurt) return false;
 		float layerLoss = Math.max(0.0F, beforeLayer - getHealth());
 		float effectiveLoss = safeAmount > 0.0F && amount > safeAmount
@@ -363,6 +348,11 @@ public final class FirstVessel extends AbstractPlayerLikeMob implements BossReac
 			setHealth(Math.min(getMaxHealth(), effectiveHealth));
 		}
 		return true;
+	}
+
+	/** Supplies the shared ward hook with the current unscaled hit, including nested-call restoration. */
+	public float incomingWardDamage(float fallback) {
+		return Float.isFinite(incomingWardDamage) ? incomingWardDamage : fallback;
 	}
 	@Override
 	public void heal(float amount) {

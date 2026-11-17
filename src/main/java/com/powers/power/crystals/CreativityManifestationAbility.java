@@ -46,7 +46,7 @@ public class CreativityManifestationAbility extends Ability {
 		}
 		ServerLevel level = (ServerLevel) player.level();
 		HitResult hit = player.pick(scaledRange(player, BASE_REACH), 0.0f, false);
-		if (!(hit instanceof BlockHitResult blockHit)) return false;
+		if (!(hit instanceof BlockHitResult blockHit) || hit.getType() != HitResult.Type.BLOCK) return false;
 		BlockPos center = blockHit.getBlockPos().relative(blockHit.getDirection());
 		String selectedId = CreationBlueprintSelectionStore.selected(player, registry.ids());
 		CreationBlueprintDefinition selected = registry.findOrFirst(selectedId);

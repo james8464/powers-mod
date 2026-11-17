@@ -70,7 +70,11 @@ public final class AbilityActivationService {
 	private static Result activateScoped(ServerPlayer player, Ability ability, String toggleKey,
 			Integer cooldownOverride, CastSource source) {
 		if (ability == null) return Result.FAILED;
-		if (!passesCasterChecks(player, ability.id().getPath())) return Result.FAILED;
+		// An established realm session may return through the same item route
+		// even when the destination suppresses outbound magic.
+		boolean realmReturn = ability instanceof com.powers.power.crystals.MindscapeCrystalAbility
+				&& ability.isSelectionAction(player);
+		if (!realmReturn && !passesCasterChecks(player, ability.id().getPath())) return Result.FAILED;
 		PlayerPowers.PlayerPowersData data = PlayerPowers.get(player);
 		return switch (activationRoute(player, ability)) {
 			case INPUT -> Result.REQUIRES_INPUT;

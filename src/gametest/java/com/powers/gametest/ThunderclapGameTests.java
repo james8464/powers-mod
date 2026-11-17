@@ -1,5 +1,13 @@
 package com.powers.gametest;
 
+import com.powers.PowersEntities;
+import com.powers.PowersWeapons;
+import com.powers.entity.FirstVessel;
+import com.powers.item.ArtifactWeaponManager;
+import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.player.PlayerPowers;
+import com.powers.player.SkillSystem;
+import com.powers.power.AbilityActivationService;
 import com.powers.power.abilities.CombatTerrainImpact;
 import com.powers.power.abilities.CombatTerrainRules;
 import com.powers.power.abilities.ThunderclapEnvironment;
@@ -15,6 +23,54 @@ import net.minecraft.world.phys.Vec3;
 /** Live proof for rank-wide fragile terrain work and enclosure-gated directional echo. */
 public final class ThunderclapGameTests {
 	private static final String CLAIM_FIXTURE = "pwr011_claim_fixture";
+
+	@GameTest
+	public void darknessArtifactThunderclapHitsEveryBoss(GameTestHelper helper) {
+		verifyArtifactThunderclap(helper, ArtifactAlignment.DARKNESS, "lycanbane");
+	}
+
+	@GameTest
+	public void lightArtifactThunderclapHitsEveryBoss(GameTestHelper helper) {
+		verifyArtifactThunderclap(helper, ArtifactAlignment.LIGHT, "heavenly_partisan");
+	}
+
+	@SuppressWarnings("removal")
+	private static void verifyArtifactThunderclap(GameTestHelper helper, ArtifactAlignment alignment, String weapon) {
+		var caster = helper.makeMockServerPlayerInLevel();
+		caster.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+		var origin = helper.absolutePos(new BlockPos(4, 4, 2));
+		caster.snapTo(origin.getX() + 0.5, 100, origin.getZ() + 0.5, 0, 0);
+		var data = PlayerPowers.get(caster);
+		if (alignment == ArtifactAlignment.DARKNESS) caster.addTag(SkillSystem.DARKNESS_TAG);
+		data.setSkillLevel(caster, 1);
+		data.setDarknessLevel(caster, 1);
+		caster.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, PowersWeapons.weapon(weapon).getDefaultInstance());
+		data.forceRestoreEnergy();
+		int energy = data.energy();
+		var bosses = java.util.List.of(
+				helper.spawn(PowersEntities.LIGHT_HERALD, new BlockPos(3, 4, 6)),
+				helper.spawn(PowersEntities.DARK_HERALD, new BlockPos(4, 4, 6)),
+				helper.spawn(PowersEntities.FIRST_VESSEL, new BlockPos(5, 4, 6)));
+		for (int i = 0; i < bosses.size(); i++) {
+			bosses.get(i).setNoAi(true);
+			bosses.get(i).setPos(caster.getX() + (i - 1) * 2, caster.getY(), caster.getZ() + 6);
+		}
+		var initialHealth = bosses.stream().map(ThunderclapGameTests::vitality).toList();
+		helper.assertTrue(ArtifactWeaponManager.select(caster, alignment, "innate/thunderclap", -1),
+				"Artifact refused Thunderclap selection");
+		helper.assertTrue(ArtifactWeaponManager.activateSelected(caster, alignment)
+				== AbilityActivationService.Result.ACTIVATED && data.energy() < energy,
+				"Artifact Thunderclap did not activate and spend energy");
+		for (int i = 0; i < bosses.size(); i++) {
+			var boss = bosses.get(i);
+			helper.assertTrue(vitality(boss) < initialHealth.get(i), "Thunderclap did not damage " + boss.getType());
+		}
+		helper.succeed();
+	}
+
+	private static double vitality(net.minecraft.world.entity.Mob boss) {
+		return boss instanceof FirstVessel vessel ? vessel.effectiveHealth() : boss.getHealth();
+	}
 
 	@GameTest(maxTicks = 40)
 	@SuppressWarnings("removal")

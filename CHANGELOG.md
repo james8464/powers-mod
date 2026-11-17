@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- During ongoing MOB-014 acceptance, corrected boss possession duration to apply control
+  resistance, and made full-control Dreamwalking respect immunity/reflection without changing
+  view-only observation. First Vessel wards now receive the original incoming hit rather than
+  the reduced vanilla-health adapter amount, preserving finite sacrificial shield integrity.
+  Soul Compass now acquires its viewing session inside the validated payment transaction,
+  preventing its own reservation from blocking the cast and retaining refunds on refusal.
+  Routed artifacts now use their explicit equipment scaling in shared ability effects.
+  Melee-only Echo Clones no longer inherit a higher-priority ranged spacing goal that
+  prevents engagement; bosses with dedicated combat catalogues also bypass that goal.
+  Creativity Manifestation now requires an actual block hit, preventing empty-sky
+  raycast misses from placing phantom terrain and consuming a cast.
+  Full boss-action coverage and release acceptance remain pending.
+
 - Added INT-009's single authoritative mind-session owner across realm travel, Astral projection,
   teleport marking, possession, Dreamwalking, Soul Compass, Soul Link, and Shadow participation.
   Nested sessions now fail atomically with the conflicting participant and session kind, while

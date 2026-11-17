@@ -120,8 +120,18 @@ public final class SpellCastingManager {
 		return commitLocator(player, SpellEffect.SOUL_COMPASS);
 	}
 
+	/** Acquires the viewing session only after cast validation, with payment rollback on refusal. */
+	public static boolean commitSoulCompass(ServerPlayer player, java.util.function.BooleanSupplier acquireSession) {
+		return commitLocator(player, SpellEffect.SOUL_COMPASS, acquireSession);
+	}
+
 	/** Revalidates and commits the selected non-channeled celestial search spell. */
 	public static boolean commitLocator(ServerPlayer player, SpellEffect expectedEffect) {
+		return commitLocator(player, expectedEffect, () -> true);
+	}
+
+	private static boolean commitLocator(ServerPlayer player, SpellEffect expectedEffect,
+			java.util.function.BooleanSupplier effect) {
 		if (expectedEffect != SpellEffect.SOUL_COMPASS
 				&& expectedEffect != SpellEffect.CARTOGRAPHERS_STAR) return false;
 		GrimoireDefinition grimoire = heldGrimoire(player);
@@ -133,7 +143,7 @@ public final class SpellCastingManager {
 		int energyCost = spellEnergyCost(player, spell);
 		SpellCastTransaction transaction = new SpellCastTransaction(player, spell, magic, energyCost);
 		if (!begin(player, spell, transaction)) return false;
-		boolean committed = transaction.complete(() -> true);
+		boolean committed = transaction.complete(effect);
 		PowersPackets.syncTo(player);
 		if (!committed) MagicAttemptReporter.executionFailure(player, spell.id());
 		return committed;

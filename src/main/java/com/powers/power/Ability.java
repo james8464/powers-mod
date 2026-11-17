@@ -173,7 +173,8 @@ public abstract class Ability {
 
 	/** Returns the single canonical rank profile for this ability's action. */
 	protected final ScaledMagicValues scaling(ServerPlayer player) {
-		return CastScalingContext.currentSource().appliesPlayerRank(rankScaling)
+		return CastScalingContext.currentSource() == com.powers.magic.runtime.CastSource.ARTIFACT
+				|| CastScalingContext.currentSource().appliesPlayerRank(rankScaling)
 				? PowerScalingService.forPlayer(player, id.getPath())
 				: PowerScalingService.unranked(id.getPath());
 	}

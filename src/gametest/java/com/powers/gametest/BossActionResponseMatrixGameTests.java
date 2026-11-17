@@ -3,11 +3,14 @@ package com.powers.gametest;
 import com.powers.PowersEntities;
 import com.powers.testing.BossActionResponseMatrix;
 import com.powers.power.PowerRegistry;
+import com.powers.power.crystals.CrystalAbilityCatalog;
+import com.powers.spell.SpellRegistry;
+import com.powers.item.artifact.ArtifactActionCatalogue;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 
-/** Batches the generated response contract against live instances of all major bosses. */
+/** Inventory/persistence smoke gate; individual live cast tests must prove the declared responses. */
 public final class BossActionResponseMatrixGameTests {
 	@GameTest(maxTicks = 20)
 	public void everyPlayerActionHasALiveBossResponseContract(GameTestHelper helper) {
@@ -18,7 +21,11 @@ public final class BossActionResponseMatrixGameTests {
 		var matrix = BossActionResponseMatrix.generated();
 		helper.assertTrue(vessel.isPersistenceRequired() && light.isPersistenceRequired()
 				&& dark.isPersistenceRequired(), "Boss response matrix lacks a live persistent host");
-		helper.assertTrue(matrix.size() == PowerRegistry.getAll().size()
+		long actionCount = PowerRegistry.getAll().size()
+				+ SpellRegistry.defaults().definitions().stream().mapToLong(book -> book.spells().size()).sum()
+				+ CrystalAbilityCatalog.defaults().values().stream().flatMap(java.util.List::stream).distinct().count()
+				+ ArtifactActionCatalogue.all().size();
+		helper.assertTrue(matrix.size() == actionCount
 				* BossActionResponseMatrix.Boss.values().length,
 				"Generated boss response matrix omitted a player action");
 		helper.assertTrue(matrix.stream().noneMatch(entry -> entry.response()

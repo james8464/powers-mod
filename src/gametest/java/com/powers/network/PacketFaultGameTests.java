@@ -777,7 +777,7 @@ public final class PacketFaultGameTests {
 		return payloads.stream().filter(type::isInstance).count();
 	}
 
-	private static List<Object> capture(ServerPlayer player) {
+	static List<Object> capture(ServerPlayer player) {
 		try {
 			Field listenerConnection = player.connection.getClass().getSuperclass().getDeclaredField("connection");
 			listenerConnection.setAccessible(true);

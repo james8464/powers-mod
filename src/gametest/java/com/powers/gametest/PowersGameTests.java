@@ -51,6 +51,11 @@ import com.powers.power.ActivationCooldowns;
 import com.powers.power.crystals.CrystalPowerRegistry;
 import com.powers.mind.BodyProxyKind;
 import com.powers.mind.BodyProxyManager;
+import com.powers.PowersWeapons;
+import com.powers.item.ArtifactWeaponManager;
+import com.powers.item.artifact.ArtifactAlignment;
+import com.powers.power.AbilityActivationService;
+import com.powers.power.travel.MindscapeMobReturnTracker;
 import com.powers.mind.MindSessionManager;
 import com.powers.network.NamedLivingTargetIndex;
 import com.powers.network.NamedTargetRules;
@@ -1763,6 +1768,56 @@ public final class PowersGameTests {
 		helper.succeed();
 	}
 
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactAstralReturnsOnSourceLossNearBosses(GameTestHelper helper) {
+		var source = helper.getLevel();
+		var server = source.getServer();
+		var profile = new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(), "astral-caster");
+		var cookie = net.minecraft.server.network.CommonListenerCookie.createInitial(profile, false);
+		var caster = new ServerPlayer(server, source, profile, cookie.clientInformation());
+		var connection = new net.minecraft.network.Connection(net.minecraft.network.protocol.PacketFlow.SERVERBOUND);
+		var channel = new io.netty.channel.embedded.EmbeddedChannel(connection);
+		server.getPlayerList().placeNewPlayer(connection, caster, cookie);
+		caster.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
+		caster.setGameMode(GameType.SURVIVAL);
+		var origin = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(4, 1, 4)));
+		caster.snapTo(origin, 0, 0);
+		caster.addTag(SkillSystem.DARKNESS_TAG);
+		var data = PlayerPowers.get(caster);
+		data.setDarknessLevel(caster, 1);
+		data.forceRestoreEnergy();
+		int energy = data.energy();
+		caster.setItemInHand(InteractionHand.MAIN_HAND, PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		var bosses = java.util.List.of(
+				helper.spawn(PowersEntities.DARK_HERALD, new BlockPos(2, 1, 4)),
+				helper.spawn(PowersEntities.LIGHT_HERALD, new BlockPos(4, 1, 2)),
+				helper.spawn(PowersEntities.FIRST_VESSEL, new BlockPos(7, 1, 4)));
+		bosses.forEach(boss -> boss.setNoAi(true));
+		var health = bosses.stream().map(boss -> boss.getHealth()).toList();
+		var alignment = ArtifactAlignment.DARKNESS;
+		helper.assertTrue(ArtifactWeaponManager.select(caster, alignment, "innate/astral_projection", -1),
+				"Artifact refused Astral Projection selection");
+		helper.assertTrue(ArtifactWeaponManager.activateSelected(caster, alignment) == AbilityActivationService.Result.ACTIVATED
+				&& data.energy() < energy && caster.isSpectator() && caster.distanceToSqr(origin) > 1
+				&& BodyProxyManager.hasSession(caster, BodyProxyKind.ASTRAL)
+				&& AstralProjectionAbility.isActive(caster.getUUID()), "Artifact projection did not create an active remote form");
+		helper.runAfterDelay(3, () -> {
+			helper.assertTrue(AstralProjectionAbility.isActive(caster.getUUID()), "Artifact projection ended while still owned");
+			caster.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+		});
+		helper.runAfterDelay(8, () -> {
+			helper.assertTrue(!AstralProjectionAbility.isActive(caster.getUUID()) && !caster.isSpectator()
+					&& caster.gameMode() == GameType.SURVIVAL && caster.level() == source && caster.distanceToSqr(origin) < 0.01
+					&& !BodyProxyManager.hasSession(caster, BodyProxyKind.ASTRAL)
+					&& !MindSessionManager.isParticipating(caster.getUUID()), "Source loss did not return the caster and clear ownership");
+			helper.assertTrue(bosses.stream().map(boss -> boss.getHealth()).toList().equals(health),
+					"Projection changed boss health");
+			server.getPlayerList().remove(caster);
+			channel.finishAndReleaseAll();
+			helper.succeed();
+		});
+	}
+
 	@GameTest
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void fatalAstralDamageReturnsToThePhysicalBodyBeforeDeath(GameTestHelper helper) {
@@ -2223,6 +2278,441 @@ public final class PowersGameTests {
 		});
 	}
 
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactLightningHitsDarkHerald(GameTestHelper helper) {
+		verifyArtifactLightning(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.DARK_HERALD);
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactLightningHitsLightHerald(GameTestHelper helper) {
+		verifyArtifactLightning(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.LIGHT_HERALD);
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactLightningHitsFirstVessel(GameTestHelper helper) {
+		verifyArtifactLightning(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.FIRST_VESSEL);
+	}
+
+	@GameTest(maxTicks = 40)
+	public void lightArtifactLightningHitsDarkHerald(GameTestHelper helper) {
+		verifyArtifactLightning(helper, ArtifactAlignment.LIGHT, com.powers.PowersEntities.DARK_HERALD);
+	}
+
+	@GameTest(maxTicks = 40)
+	public void lightArtifactLightningHitsLightHerald(GameTestHelper helper) {
+		verifyArtifactLightning(helper, ArtifactAlignment.LIGHT, com.powers.PowersEntities.LIGHT_HERALD);
+	}
+
+	@GameTest(maxTicks = 40)
+	public void lightArtifactLightningHitsFirstVessel(GameTestHelper helper) {
+		verifyArtifactLightning(helper, ArtifactAlignment.LIGHT, com.powers.PowersEntities.FIRST_VESSEL);
+	}
+
+	@GameTest(maxTicks = 140)
+	public void darknessArtifactStarfallHitsDarkHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.DARK_HERALD, "starfall");
+	}
+
+	@GameTest(maxTicks = 140)
+	public void darknessArtifactStarfallHitsLightHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.LIGHT_HERALD, "starfall");
+	}
+
+	@GameTest(maxTicks = 140)
+	public void darknessArtifactStarfallHitsFirstVessel(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.FIRST_VESSEL, "starfall");
+	}
+
+	@GameTest(maxTicks = 140)
+	public void lightArtifactStarfallHitsDarkHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.LIGHT, com.powers.PowersEntities.DARK_HERALD, "starfall");
+	}
+
+	@GameTest(maxTicks = 140)
+	public void lightArtifactStarfallHitsLightHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.LIGHT, com.powers.PowersEntities.LIGHT_HERALD, "starfall");
+	}
+
+	@GameTest(maxTicks = 140)
+	public void lightArtifactStarfallHitsFirstVessel(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.LIGHT, com.powers.PowersEntities.FIRST_VESSEL, "starfall");
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactVoidBeamHitsDarkHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.DARK_HERALD, "void_beam");
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactVoidBeamHitsLightHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.LIGHT_HERALD, "void_beam");
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactVoidBeamHitsFirstVessel(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.FIRST_VESSEL, "void_beam");
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactFireballHitsDarkHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.DARK_HERALD, "fireball");
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactFireballHitsLightHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.LIGHT_HERALD, "fireball");
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactFireballHitsFirstVessel(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.FIRST_VESSEL, "fireball");
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactBreezyBashMovesDarkHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.DARK_HERALD, "breezy_bash");
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactBreezyBashMovesLightHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.LIGHT_HERALD, "breezy_bash");
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactBreezyBashMovesFirstVessel(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.FIRST_VESSEL, "breezy_bash");
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactGravityPullsDarkHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.DARK_HERALD, "gravity_displacement");
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactGravityPullsLightHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.LIGHT_HERALD, "gravity_displacement");
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactGravityPullsFirstVessel(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.FIRST_VESSEL, "gravity_displacement");
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactGravityOrbitMovesDarkHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.DARK_HERALD,
+				"gravity_displacement", 1);
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactGravityOrbitMovesLightHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.LIGHT_HERALD,
+				"gravity_displacement", 1);
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactGravityOrbitMovesFirstVessel(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.FIRST_VESSEL,
+				"gravity_displacement", 1);
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactGravityRepelMovesDarkHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.DARK_HERALD,
+				"gravity_displacement", 2);
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactGravityRepelMovesLightHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.LIGHT_HERALD,
+				"gravity_displacement", 2);
+	}
+
+	@GameTest(maxTicks = 40)
+	public void darknessArtifactGravityRepelMovesFirstVessel(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.FIRST_VESSEL,
+				"gravity_displacement", 2);
+	}
+
+	@GameTest(maxTicks = 80)
+	public void darknessArtifactEnergyDrainHitsDarkHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.DARK_HERALD, "energy_drain");
+	}
+
+	@GameTest(maxTicks = 80)
+	public void darknessArtifactEnergyDrainHitsLightHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.LIGHT_HERALD, "energy_drain");
+	}
+
+	@GameTest(maxTicks = 80)
+	public void darknessArtifactEnergyDrainHitsFirstVessel(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.FIRST_VESSEL, "energy_drain");
+	}
+
+	@GameTest
+	public void darknessArtifactIceHitsDarkHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.DARK_HERALD, "ice_manipulation");
+	}
+
+	@GameTest
+	public void darknessArtifactIceHitsLightHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.LIGHT_HERALD, "ice_manipulation");
+	}
+
+	@GameTest
+	public void darknessArtifactIceHitsFirstVessel(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.FIRST_VESSEL, "ice_manipulation");
+	}
+
+	@GameTest
+	public void darknessArtifactVeilBreaksOnHitToDarkHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.DARK_HERALD, "invisibility");
+	}
+
+	@GameTest
+	public void darknessArtifactVeilBreaksOnHitToLightHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.LIGHT_HERALD, "invisibility");
+	}
+
+	@GameTest
+	public void darknessArtifactVeilBreaksOnHitToFirstVessel(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.FIRST_VESSEL, "invisibility");
+	}
+
+	@GameTest(maxTicks = 30)
+	public void darknessArtifactSpeedBurstImpactsDarkHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.DARK_HERALD, "speed_burst");
+	}
+
+	@GameTest(maxTicks = 30)
+	public void darknessArtifactSpeedBurstImpactsLightHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.LIGHT_HERALD, "speed_burst");
+	}
+
+	@GameTest(maxTicks = 30)
+	public void darknessArtifactSpeedBurstImpactsFirstVessel(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.FIRST_VESSEL, "speed_burst");
+	}
+
+	@GameTest(maxTicks = 250)
+	public void darknessArtifactSuperSpeedSupportsDarkHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.DARK_HERALD, "super_speed");
+	}
+
+	@GameTest(maxTicks = 250)
+	public void darknessArtifactSuperSpeedSupportsLightHerald(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.LIGHT_HERALD, "super_speed");
+	}
+
+	@GameTest(maxTicks = 250)
+	public void darknessArtifactSuperSpeedSupportsFirstVessel(GameTestHelper helper) {
+		verifyArtifactBossStrike(helper, ArtifactAlignment.DARKNESS, com.powers.PowersEntities.FIRST_VESSEL, "super_speed");
+	}
+
+	private static void verifyArtifactLightning(GameTestHelper helper, ArtifactAlignment alignment,
+			net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.Mob> type) {
+		verifyArtifactBossStrike(helper, alignment, type, "lightning_strike");
+	}
+
+	private static void verifyArtifactBossStrike(GameTestHelper helper, ArtifactAlignment alignment,
+			net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.Mob> type, String action) {
+		verifyArtifactBossStrike(helper, alignment, type, action, action.equals("gravity_displacement") ? 0 : -1);
+	}
+
+	@SuppressWarnings("removal")
+	private static void verifyArtifactBossStrike(GameTestHelper helper, ArtifactAlignment alignment,
+			net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.Mob> type, String action, int option) {
+		var caster = helper.makeMockServerPlayerInLevel();
+		var origin = helper.absolutePos(new BlockPos(2, 64, 2));
+		caster.snapTo(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5, 0, 0);
+		caster.setNoGravity(true);
+		var data = PlayerPowers.get(caster);
+		boolean darkness = alignment == ArtifactAlignment.DARKNESS;
+		if (darkness) caster.addTag(SkillSystem.DARKNESS_TAG);
+		data.setSkillLevel(caster, 1);
+		data.setDarknessLevel(caster, 1);
+		caster.setItemInHand(InteractionHand.MAIN_HAND,
+				PowersWeapons.weapon(darkness ? "lycanbane" : "heavenly_partisan").getDefaultInstance());
+		data.forceRestoreEnergy();
+		int energy = data.energy();
+		var boss = helper.spawn(type, new BlockPos(2, 64, 6));
+		boss.setNoAi(true);
+		boss.setNoGravity(true);
+		boss.setPos(caster.getX(), caster.getY(), caster.getZ() + 4);
+		if (action.equals("speed_burst")) {
+			boss.setPos(caster.getX() + 1.5, caster.getY(), caster.getZ() + 1);
+			BlockPos wall = caster.blockPosition().offset(0, 0, 2);
+			helper.getLevel().setBlockAndUpdate(wall, Blocks.STONE.defaultBlockState());
+			helper.getLevel().setBlockAndUpdate(wall.above(), Blocks.STONE.defaultBlockState());
+		}
+		var floor = BlockPos.containing(boss.position()).below();
+		helper.getLevel().setBlockAndUpdate(floor, Blocks.STONE.defaultBlockState());
+		double initial = lightningVitality(boss);
+		boolean starfall = action.equals("starfall");
+		if (starfall) {
+			for (int x = -6; x <= 6; x++) for (int z = -6; z <= 6; z++) {
+				helper.getLevel().setBlockAndUpdate(floor.offset(x, 0, z), Blocks.STONE.defaultBlockState());
+			}
+		}
+		boolean gravity = action.equals("gravity_displacement");
+		var movementSpeed = net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED;
+		double initialSpeed = caster.getAttributeValue(movementSpeed);
+		helper.assertTrue(ArtifactWeaponManager.select(caster, alignment, "innate/" + action, option),
+				"Artifact refused selection: " + action);
+		helper.assertTrue(ArtifactWeaponManager.activateSelected(caster, alignment)
+				== AbilityActivationService.Result.ACTIVATED && (action.equals("invisibility") || data.energy() < energy),
+				"Artifact did not activate and spend energy: " + action);
+		if (action.equals("invisibility")) {
+			String toggle = "artifact/darkness/innate/invisibility";
+			var invisibility = net.minecraft.world.effect.MobEffects.INVISIBILITY;
+			helper.assertTrue(caster.hasEffect(invisibility) && data.isToggleActive(toggle) && lightningVitality(boss) == initial,
+					"Artifact veil did not apply its invisibility effect without harming the boss");
+			helper.runAfterDelay(2, () -> {
+				helper.assertTrue(caster.isInvisible(), "Artifact veil did not update visible entity state");
+				boss.hurtServer(helper.getLevel(), caster.damageSources().playerAttack(caster), 8);
+				helper.assertTrue(lightningVitality(boss) < initial && !caster.hasEffect(invisibility) && !data.isToggleActive(toggle),
+						"A successful hit on the boss did not break the artifact veil");
+				helper.succeed();
+			});
+			return;
+		}
+		if (action.equals("ice_manipulation")) {
+			helper.assertTrue(lightningVitality(boss) < initial && boss.getTicksFrozen() > 0,
+					"Ice Manipulation did not damage and chill the aimed boss");
+			helper.succeed();
+			return;
+		}
+		helper.assertTrue(lightningVitality(boss) == initial, action + " bypassed its warning");
+		if (action.equals("super_speed")) {
+			helper.assertTrue(caster.getAttributeValue(movementSpeed) > initialSpeed,
+					"Super Speed did not increase movement speed");
+			helper.runAfterDelay(200, () -> helper.assertTrue(caster.getAttributeValue(movementSpeed) > initialSpeed,
+					"Super Speed ended before its artifact lease"));
+			helper.runAfterDelay(230, () -> {
+				try {
+					helper.assertTrue(caster.getAttributeValue(movementSpeed) == initialSpeed
+							&& lightningVitality(boss) == initial, "Super Speed expiry retained its modifier or harmed the boss");
+					helper.succeed();
+				} finally {
+					com.powers.power.abilities.SuperSpeedAbility.clear(helper.getLevel().getServer(), caster.getUUID());
+				}
+			});
+			return;
+		}
+		if (action.equals("speed_burst")) {
+			helper.assertTrue(caster.getDeltaMovement().z > 0, "Speed Burst did not propel the caster forward");
+			helper.runAfterDelay(12, () -> {
+				try {
+					helper.assertTrue(lightningVitality(boss) < initial, "Speed Burst endpoint did not damage the boss");
+					helper.succeed();
+				} finally {
+					com.powers.power.abilities.SpeedBurstAbility.clear(caster.getUUID());
+				}
+			});
+			return;
+		}
+		if (action.equals("energy_drain")) {
+			var refund = com.powers.player.EnergyHistorySource.REFUND;
+			long refundedBefore = com.powers.player.PlayerEnergyHistory.snapshot(caster).amount(refund);
+			int cap = EnergyDrainRules.mobConversionCap(boss.getMaxHealth());
+			caster.addEffect(new net.minecraft.world.effect.MobEffectInstance(com.powers.PowersEffects.EXHAUSTION, 100));
+			helper.assertFalse(data.regenerateEnergy(1), "Exhaustion did not block passive regeneration");
+			helper.runAfterDelay(65, () -> {
+				try {
+					long converted = com.powers.player.PlayerEnergyHistory.snapshot(caster).amount(refund) - refundedBefore;
+					helper.assertTrue(caster.hasEffect(com.powers.PowersEffects.EXHAUSTION)
+							&& !EnergyDrainAbility.isChanneling(caster.getUUID())
+							&& lightningVitality(boss) < initial && converted > 0 && converted <= cap,
+							"Energy Drain completion: vitality=" + lightningVitality(boss) + "/" + initial
+									+ ", converted=" + converted + "/" + cap + ", energy=" + data.energy()
+									+ "/" + data.energyCapacity());
+					helper.succeed();
+				} finally {
+					com.powers.power.abilities.EnergyDrainAbility.clear(caster.getUUID());
+				}
+			});
+			return;
+		}
+		if (gravity) {
+			boss.setNoAi(false);
+			double startDistance = boss.distanceToSqr(caster);
+			var startPosition = boss.position();
+			var impulse = boss.getDeltaMovement();
+			helper.assertTrue(switch (option) {
+				case 0 -> impulse.z < 0;
+				case 1 -> impulse.lengthSqr() > 0;
+				case 2 -> impulse.z > 0;
+				default -> false;
+			}, "Gravity mode " + option + " did not apply its initial steering: " + impulse);
+			helper.runAfterDelay(8, () -> {
+				try {
+					double distance = boss.distanceToSqr(caster);
+					helper.assertTrue(switch (option) {
+						case 0 -> distance < startDistance;
+						case 1 -> Math.abs(boss.getX() - startPosition.x) > 0.01;
+						case 2 -> distance > startDistance;
+						default -> false;
+					}, "Gravity mode " + option + " did not move the boss as expected");
+					helper.succeed();
+				} finally {
+					com.powers.power.abilities.GravityDisplacementAbility.clear(helper.getLevel().getServer(), caster.getUUID());
+				}
+			});
+			return;
+		}
+		if (action.equals("breezy_bash")) {
+			boss.setNoAi(false);
+			double startY = boss.getY();
+			int startAge = boss.tickCount;
+			helper.assertTrue(boss.getDeltaMovement().y > 0, "Breezy Bash did not apply its upward impulse");
+			helper.runAfterDelay(8, () -> helper.assertTrue(boss.tickCount > startAge && boss.getY() > startY,
+					"Breezy Bash did not lift a ticking boss: age=" + boss.tickCount + "/" + startAge
+							+ ", y=" + boss.getY() + "/" + startY));
+			helper.runAfterDelay(19, () -> {
+				try {
+					helper.assertTrue(boss.getDeltaMovement().y < 0, "Breezy Bash did not slam the boss");
+					helper.succeed();
+				} finally {
+					com.powers.power.abilities.BreezyBashAbility.clear(helper.getLevel().getServer(), caster.getUUID());
+				}
+			});
+			return;
+		}
+		if (action.equals("fireball")) {
+			helper.runAfterDelay(2, () -> {
+				helper.assertTrue(lightningVitality(boss) == initial, "Hovering Fireball damaged the boss");
+				caster.setShiftKeyDown(true);
+				caster.setPose(net.minecraft.world.entity.Pose.CROUCHING);
+				helper.assertTrue(ArtifactWeaponManager.activateSelected(caster, alignment)
+						== AbilityActivationService.Result.ACTIVATED, "Artifact refused crouch-release");
+			});
+		}
+		if (action.equals("void_beam")) {
+			helper.runAfterDelay(10, () -> helper.assertTrue(lightningVitality(boss) == initial,
+					"Void Beam damaged its target before its charge finished"));
+		}
+		helper.runAfterDelay(starfall ? 100 : 16, () -> {
+			try {
+				helper.assertTrue(lightningVitality(boss) < initial, action + " did not damage the boss");
+				helper.succeed();
+			} finally {
+				if (starfall) {
+					com.powers.power.abilities.StarfallAbility.clear(helper.getLevel().getServer(), caster.getUUID());
+				} else if (action.equals("void_beam")) {
+					com.powers.power.abilities.VoidBeamAbility.clear(caster.getUUID());
+				} else if (action.equals("fireball")) {
+					com.powers.power.abilities.FireballAbility.clear(helper.getLevel().getServer(), caster.getUUID());
+				} else {
+					com.powers.power.abilities.LightningStrikeAbility.clear(helper.getLevel().getServer(), caster.getUUID());
+				}
+			}
+		});
+	}
+
+	private static double lightningVitality(net.minecraft.world.entity.Mob boss) {
+		return boss instanceof com.powers.entity.FirstVessel vessel ? vessel.effectiveHealth() : boss.getHealth();
+	}
+
 	@GameTest(maxTicks = 70)
 	@SuppressWarnings("removal") // Minecraft 26.2 exposes no non-deprecated in-level ServerPlayer test factory.
 	public void heavenlyPartisanEnergyBeamDamagesItsAimedTarget(GameTestHelper helper) {
@@ -2436,6 +2926,127 @@ public final class PowersGameTests {
 			TestingOverrides.clear(player.getUUID());
 			BodyProxyManager.finish(player);
 			helper.succeed();
+		});
+	}
+
+	@GameTest(maxTicks = 230)
+	public void darkCrystalReturnsItsBossCohort(GameTestHelper helper) {
+		verifyBossRealmRoundTrip(helper, PowersItems.DARK_CRYSTAL, "powers:dark_realm");
+	}
+
+	@GameTest(maxTicks = 230)
+	public void lightCrystalReturnsItsBossCohort(GameTestHelper helper) {
+		verifyBossRealmRoundTrip(helper, PowersItems.LIGHT_CRYSTAL, "powers:light_realm");
+	}
+
+	@GameTest(maxTicks = 230)
+	public void indigoCrystalReturnsItsBossCohort(GameTestHelper helper) {
+		verifyBossRealmRoundTrip(helper, PowersItems.INDIGO_CRYSTAL, "powers:middleworld");
+	}
+
+	private static void verifyBossRealmRoundTrip(GameTestHelper helper, net.minecraft.world.item.Item crystal,
+			String realm) {
+		verifyBossRealmRoundTrip(helper, crystal, realm, null, null);
+	}
+
+	@GameTest(maxTicks = 230)
+	public void darkArtifactReturnsFromDarkRealm(GameTestHelper helper) {
+		verifyBossRealmRoundTrip(helper, PowersItems.DARK_CRYSTAL, "powers:dark_realm",
+				ArtifactAlignment.DARKNESS, "crystal/dark_crystal");
+	}
+
+	@GameTest(maxTicks = 230)
+	public void darkArtifactReturnsFromLightRealm(GameTestHelper helper) {
+		verifyBossRealmRoundTrip(helper, PowersItems.LIGHT_CRYSTAL, "powers:light_realm",
+				ArtifactAlignment.DARKNESS, "crystal/light_crystal");
+	}
+
+	@GameTest(maxTicks = 230)
+	public void darkArtifactReturnsFromMiddleworld(GameTestHelper helper) {
+		verifyBossRealmRoundTrip(helper, PowersItems.INDIGO_CRYSTAL, "powers:middleworld",
+				ArtifactAlignment.DARKNESS, "crystal/middleworld");
+	}
+
+	@GameTest(maxTicks = 230)
+	public void lightArtifactReturnsFromLightRealm(GameTestHelper helper) {
+		verifyBossRealmRoundTrip(helper, PowersItems.LIGHT_CRYSTAL, "powers:light_realm",
+				ArtifactAlignment.LIGHT, "crystal/light_crystal");
+	}
+
+	@SuppressWarnings("removal")
+	private static void verifyBossRealmRoundTrip(GameTestHelper helper, net.minecraft.world.item.Item crystal,
+			String realm, ArtifactAlignment alignment, String action) {
+		GameTestClock.atNormalServerRate(helper, 175);
+		var source = helper.getLevel();
+		var player = helper.makeMockServerPlayerInLevel();
+		var origin = helper.absolutePos(new BlockPos(4, 1, 4));
+		for (int x = -2; x <= 2; x++) {
+			for (int z = -2; z <= 2; z++) {
+				source.setBlockAndUpdate(origin.offset(x, -1, z), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+			}
+		}
+		player.setPos(origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5);
+		var held = alignment == null ? crystal.getDefaultInstance() : PowersWeapons.weapon(
+				alignment == ArtifactAlignment.LIGHT ? "heavenly_partisan" : "lycanbane").getDefaultInstance();
+		player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, held);
+		if (alignment != ArtifactAlignment.LIGHT) player.addTag(com.powers.player.SkillSystem.DARKNESS_TAG);
+		PlayerPowers.get(player).setSkillLevel(player, com.powers.player.SkillSystem.DARKNESS_GATE_LEVEL);
+		PlayerPowers.get(player).setDarknessLevel(player, com.powers.player.SkillSystem.DARKNESS_GATE_LEVEL);
+		PlayerPowers.get(player).forceRestoreEnergy();
+		var bosses = java.util.List.of(
+				helper.spawn(com.powers.PowersEntities.DARK_HERALD, new BlockPos(4, 2, 5)),
+				helper.spawn(com.powers.PowersEntities.LIGHT_HERALD, new BlockPos(5, 2, 4)),
+				helper.spawn(com.powers.PowersEntities.FIRST_VESSEL, new BlockPos(3, 2, 4)));
+		for (int index = 0; index < bosses.size(); index++) {
+			var boss = bosses.get(index);
+			boss.setNoAi(true);
+			boss.setNoGravity(true);
+			boss.noPhysics = true;
+			double angle = index * Math.TAU / bosses.size();
+			boss.setPos(player.getX() + 1.5 * Math.cos(angle), player.getY(),
+					player.getZ() + 1.5 * Math.sin(angle));
+		}
+		if (alignment != null) {
+			helper.assertTrue(ArtifactWeaponManager.select(player, alignment, action, -1),
+					"Artifact refused selection of " + action);
+		}
+		java.util.function.BooleanSupplier activate = alignment == null
+				? () -> CrystalPowerRegistry.tryActivate(player, crystal)
+				: () -> ArtifactWeaponManager.activateSelected(player, alignment) == AbilityActivationService.Result.ACTIVATED;
+		var messages = BossControlResponseGameTests.capture(player);
+		boolean activated = activate.getAsBoolean();
+		helper.assertTrue(activated, "Crystal refused outbound activation for " + realm + ": "
+				+ messages.stream().map(packet -> packet.content().getString()).toList());
+		helper.runAfterDelay(160, () -> {
+			helper.assertTrue(player.level().dimension().identifier().toString().equals(realm),
+					"Caster failed to enter " + realm);
+			var destination = player.level();
+			for (var boss : bosses) {
+				var bossId = boss.getUUID();
+				helper.assertTrue(destination.getEntity(bossId) instanceof net.minecraft.world.entity.LivingEntity arrived
+							&& arrived.isAlive() && MindscapeMobReturnTracker.tracked(arrived)
+							&& source.getEntity(bossId) == null,
+						boss.getType() + " failed to cross as a tracked cohort member");
+			}
+			helper.assertTrue(BodyProxyManager.hasSession(player, BodyProxyKind.REALM),
+					"Outbound travel left no return body");
+			messages.clear();
+			boolean returning = activate.getAsBoolean();
+			helper.assertTrue(returning, "Crystal refused return activation from " + realm + ": "
+					+ messages.stream().map(packet -> packet.content().getString()).toList());
+			helper.runAfterDelay(15, () -> {
+				helper.assertTrue(player.level() == source, "Caster failed to return to the source world");
+				for (var boss : bosses) {
+					var bossId = boss.getUUID();
+					helper.assertTrue(source.getEntity(bossId) instanceof net.minecraft.world.entity.LivingEntity returned
+								&& returned.isAlive() && !MindscapeMobReturnTracker.tracked(returned)
+								&& destination.getEntity(bossId) == null,
+							"Return did not restore and clear tracking for " + boss.getType());
+				}
+				helper.assertFalse(BodyProxyManager.hasSession(player, BodyProxyKind.REALM),
+						"Return retained the caster's body session");
+				helper.succeed();
+			});
 		});
 	}
 
@@ -3189,6 +3800,54 @@ public final class PowersGameTests {
 				&& vfx.getChild("advancement-dark") != null,
 				"The manual acceptance coverage/arena/VFX commands were not registered");
 		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 140)
+	@SuppressWarnings("removal")
+	public void artifactTimeShiftCarriesEveryBoss(GameTestHelper helper) {
+		var caster = helper.makeMockServerPlayerInLevel();
+		var level = helper.getLevel();
+		var origin = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(4, 1, 4)));
+		caster.snapTo(origin, 0, 0);
+		caster.setNoGravity(true);
+		caster.addTag(SkillSystem.DARKNESS_TAG);
+		var data = PlayerPowers.get(caster);
+		data.setDarknessLevel(caster, 1);
+		data.forceRestoreEnergy();
+		int energy = data.energy();
+		caster.setItemInHand(InteractionHand.MAIN_HAND, PowersWeapons.weapon("lycanbane").getDefaultInstance());
+		var bosses = java.util.List.of(
+				helper.spawn(PowersEntities.DARK_HERALD, new BlockPos(3, 1, 4)),
+				helper.spawn(PowersEntities.LIGHT_HERALD, new BlockPos(5, 1, 4)),
+				helper.spawn(PowersEntities.FIRST_VESSEL, new BlockPos(4, 1, 5)));
+		var offsets = java.util.List.of(new Vec3(-1.5, 0, 0), new Vec3(1.5, 0, 0), new Vec3(0, 0, 1.5));
+		for (int i = 0; i < bosses.size(); i++) {
+			var boss = bosses.get(i);
+			boss.setNoAi(true);
+			boss.setNoGravity(true);
+			boss.noPhysics = true;
+			boss.setPos(origin.add(offsets.get(i)));
+		}
+		var alignment = ArtifactAlignment.DARKNESS;
+		var key = "innate/time_shift";
+		helper.assertTrue(ArtifactWeaponManager.select(caster, alignment, key, -1), "Time Shift selection failed");
+		helper.assertTrue(ArtifactWeaponManager.activateSelected(caster, alignment) == AbilityActivationService.Result.REQUIRES_INPUT,
+				"Artifact Time Shift did not request coordinates");
+		var action = ArtifactWeaponManager.action(alignment, key);
+		var destination = origin.add(4, 5, 4);
+		helper.assertTrue(AbilityActivationService.activateArtifactTeleport(caster, caster, action.ability(),
+				level.dimension(), destination.x, destination.y, destination.z,
+				ArtifactWeaponManager.cooldown(caster, alignment, action)) == AbilityActivationService.Result.ACTIVATED
+				&& data.energy() < energy, "Artifact coordinate activation failed");
+		helper.runAfterDelay(100, () -> {
+			helper.assertTrue(caster.distanceToSqr(destination) < 0.01, "Time Shift changed the selected coordinates");
+			for (int i = 0; i < bosses.size(); i++) {
+				var boss = bosses.get(i);
+				helper.assertTrue(boss.isAlive() && boss.distanceToSqr(destination.add(offsets.get(i))) < 0.01,
+						"Time Shift did not preserve the cohort offset for " + boss.getType());
+			}
+			helper.succeed();
+		});
 	}
 
 	@GameTest(maxTicks = 120)

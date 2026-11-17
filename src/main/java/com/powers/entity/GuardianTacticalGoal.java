@@ -20,6 +20,7 @@ final class GuardianTacticalGoal extends Goal {
 
 	@Override
 	public boolean canUse() {
+		if (!guardian.usesSharedRangedCombat()) return false;
 		LivingEntity target = guardian.getTarget();
 		return stance(target) != GuardianTactics.Stance.IDLE
 				&& stance(target) != GuardianTactics.Stance.MELEE;
