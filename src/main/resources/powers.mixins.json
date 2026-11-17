@@ -3,6 +3,7 @@
 	"package": "com.powers.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
+		"DiagnosticLivingEntityHealthMixin",
 		"EntityMixin",
 		"FoodConsumeMixin",
 		"ItemEntityMixin",
